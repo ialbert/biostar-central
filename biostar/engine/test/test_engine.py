@@ -1,4 +1,4 @@
-import hjson, logging, os
+import hjson, logging, tempfile
 from django import forms
 from django.core import management
 from django.test import TestCase, RequestFactory
@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.contrib.messages.storage import fallback
 
 from biostar.engine import auth, factory
-from biostar.engine import models, views
+from biostar.engine import models, views, forms
 
 logger = logging.getLogger('engine')
 
@@ -91,6 +91,19 @@ class ProjectViewTest(TestCase):
         self.process_response(response=response, data=data)
 
 
+    def test_access_forms(self):
+        " Test generate a list of forms for a given user list"
+
+        new_user = models.User.objects.create_user(username="test2", email="test2@l.com")
+        new_user.set_password("test2")
+
+        users = [self.owner, new_user ]
+
+        user_forms = forms.access_forms(users, project=self.project)
+
+        self.assertTrue(len(users) ==len(user_forms), "Error generating users access forms ( forms.access_forms) ")
+
+
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"
 
@@ -117,6 +130,8 @@ class DataViewTest(TestCase):
 
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
         self.project.save()
+
+
         # Set up generic data for editing
         pre = models.Data.objects.count()
         self.data = auth.create_data(project=self.project, path=__file__)
@@ -166,29 +181,31 @@ class DataViewTest(TestCase):
     def test_data_upload(self):
         "Test Data upload POST request"
 
-        data = {'file':__file__, 'summary':'summary', "text":"testing", "sticky":True}
+        data = {'file':open(__file__, 'r'), 'summary':'summary', "text":"testing", "sticky":True}
         request = self.factory.post(reverse('data_upload', kwargs=dict(uid=self.project.uid)),
                                     data)
-        # TODO Still hashing this out.
-        access = models.Access.objects.create(access=models.Access.UPLOAD_ACCESS,
-                                              user=self.owner,
-                                              project=self.project)
+
+        user = models.User.objects.create_user(username="test2", email="test2@l.com")
+        user.set_password("test")
+        user.save()
+
+        # Create a new user and give them upload access
+        access = models.Access(access=models.Access.UPLOAD_ACCESS,
+                              user=user,
+                              project=self.project)
         access.save()
-
-        print(self.project.access_set)
-
-        #1/0
 
         request.session = {}
         messages = fallback.FallbackStorage(request=request)
         request._messages = messages
-        request.user = self.owner
+        request.user = user
 
         response = views.data_upload(request=request, uid=self.project.uid)
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to after uploading:\nresponse:{response}")
-        self.assertTrue( "data/list/" in response.url,
+
+        self.assertTrue( f"/data/list/{self.project.uid}/" == response.url,
                          f"Could not redirect to data list after uploading:\nresponse:{response}")
 
 
@@ -318,6 +335,52 @@ class RecipeViewTest(TestCase):
         self.assertTrue( models.Analysis.save.called, "analysis.save() method not called when creating.")
 
 
+class JobViewTest(TestCase):
+
+    def setUp(self):
+        logger.setLevel(logging.WARNING)
+
+        # Set up generic owner
+        self.owner = models.User.objects.create_user(username="test", email="test@l.com")
+        self.owner.set_password("test")
+        self.factory = RequestFactory()
+
+        self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
+
+        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="")
+
+        pre = models.Job.objects.count()
+        self.job = auth.create_job(analysis=self.recipe, user=self.owner)
+        self.assertTrue(models.Job.objects.count() == (pre + 1), "Error creating Job database")
+
+
+    @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
+    def test_job_edit(self):
+        "Test job edit"
+
+        data = {'name':'test', 'text':"testing", 'sticky':True}
+        request = self.factory.post(reverse('job_edit', kwargs=dict(id=self.job.id)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
+        response = views.job_edit(request=request, id=self.job.id)
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect after editing job:\nresponse:{response}")
+
+        self.assertTrue(self.job.url() == response.url,
+                        f"Could not redirect to correct page: 'recipe/view' != {response.url}")
+
+        self.assertTrue( models.Job.save.called, "job.save() method not called when editing.")
+
+
+    def test_job_files_entry(self):
+        "Test job_files_entry"
+        pass
+
 class FactoryTest(TestCase):
 
     def setUp(self):
@@ -351,7 +414,7 @@ class FactoryTest(TestCase):
                 message = f"field generator for display={display_type} failed"
                 self.assertFalse(message)
 
-    def test_data_generator(self):
+    def test_dynamic_field(self):
         "Test data generator"
 
         from biostar.engine import const
@@ -371,6 +434,10 @@ class FactoryTest(TestCase):
         if not field:
             message = f"field generator for display={display_type} failed"
             self.assertFalse(message)
+
+    def test_data_generator(self):
+        "Test data generator"
+        pass
 
 
 class ManagementCommandTest(TestCase):
@@ -396,6 +463,7 @@ class ManagementCommandTest(TestCase):
         management.call_command('data', path=__file__, uid="testing")
         post = models.Data.objects.all().count()
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
+
 
     def test_job_runner(self):
         "Testing Job runner using management command"

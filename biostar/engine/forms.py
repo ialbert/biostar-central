@@ -12,15 +12,34 @@ from biostar.accounts.models import Profile, User
 logger = models.logger
 
 
+
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
-class ProjectForm(forms.ModelForm):
+
+
+def check_image_size(image):
+    # MAXSIZE in KiloBytes
     MAXSIZE = 100
+
+    try:
+        if image and image.size > MAXSIZE * 1024:
+            curr_size = round(image.size / 1024)
+            raise forms.ValidationError(f"Image file too large: {curr_size}KB should be < {MAXSIZE}KB")
+
+    except Exception as exc:
+
+        raise forms.ValidationError(f"Image validation error: {exc}")
+
+    return image
+
+
+class ProjectForm(forms.ModelForm):
 
     image = forms.ImageField(required=False)
 
-    # Should not edit uid because the data directories get messed up ( for now). 
+    # Should not edit uid because the data directories get messed up
     uid = forms.CharField(max_length=32, required=False)
 
     class Meta:
@@ -29,13 +48,9 @@ class ProjectForm(forms.ModelForm):
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
+
         image = cleaned_data.get('image')
-        try:
-            if image and image.size > self.MAXSIZE * 1024:
-                curr_size = round(image.size/1024)
-                raise forms.ValidationError(f"Image file too large: {curr_size}KB should be < {self.MAXSIZE}KB")
-        except Exception as exc:
-            raise forms.ValidationError(f"Image validation error: {exc}")
+        check_image_size(image=image)
 
         return image
 
@@ -61,8 +76,7 @@ class DataEditForm(forms.ModelForm):
 
 
 class RecipeForm(forms.ModelForm):
-    # MAXSIZE in KiloBytes
-    MAXSIZE = 100
+    image = forms.ImageField(required=False)
 
     class Meta:
         model = Analysis
@@ -71,13 +85,7 @@ class RecipeForm(forms.ModelForm):
     def clean_image(self):
         cleaned_data = super(RecipeForm, self).clean()
         image = cleaned_data.get('image')
-
-        try:
-            if image and image.size > self.MAXSIZE * 1024:
-                curr_size = round(image.size/1024)
-                raise forms.ValidationError(f"Image file too large: {curr_size}KB should be < {self.MAXSIZE}KB")
-        except Exception as exc:
-            raise forms.ValidationError(f"Image validation error: {exc}")
+        check_image_size(image=image)
 
         return image
 
@@ -106,7 +114,7 @@ class ChangeUserAccess(forms.ModelForm):
         access.append(cleaned_data["access"])
 
         if Access.ADMIN_ACCESS not in access:
-            raise forms.ValidationError("Alteast one user with Admin Access required.")
+            raise forms.ValidationError("At least one user with Admin Access required.")
 
     def change_access(self):
         "Change users access to a project"

@@ -11,7 +11,6 @@ from django.urls import reverse
 # from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from django.core.paginator import Paginator
-from django.views.decorators import csrf, cache
 from .const import *
 from .decorators import object_access
 from .forms import *
@@ -332,6 +331,8 @@ def data_view(request, id):
         if form.is_valid():
             data = form.save()
             messages.success(request, f"Copied {name} in to {data.project.name}")
+        else:
+            messages.error(request, mark_safe(form.errors))
         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 
     form = DataCopyForm(current=data, request=request)
@@ -351,6 +352,8 @@ def data_edit(request, id):
         form = DataEditForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
+        else:
+            messages.error(request, mark_safe(form.errors))
         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 
     form = DataEditForm(instance=data)
@@ -360,6 +363,7 @@ def data_edit(request, id):
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, uid):
+
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
@@ -377,7 +381,8 @@ def data_upload(request, uid):
             messages.info(request, "Data upload complete")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
-        messages.error(request, "Invalid form processing.")
+        print(form.errors)
+        messages.error(request, mark_safe(form.errors))
         return redirect(reverse("data_upload", kwargs={'uid': project.uid}))
 
     form = DataUploadForm()
@@ -595,6 +600,8 @@ def recipe_edit(request, id):
         if form.is_valid():
             recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
+
+        messages.error(request, mark_safe(form.errors))
         return redirect(action_url)
 
     form = RecipeForm(instance=analysis)
@@ -612,7 +619,6 @@ def job_list(request, uid):
 
     if not project:
         messages.error(request, "Jobs not found.")
-        # logger.error(f"Jobs for project.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
@@ -645,6 +651,7 @@ def job_edit(request, id):
         if form.is_valid():
             form.save()
             return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+
         return redirect(reverse("job_edit", kwargs=dict(id=job.id)))
 
     form = JobEditForm(instance=job)
@@ -688,7 +695,7 @@ def job_result_view(request, id):
 
 
 def block_media_url(request, **kwargs):
-    "Block users from urls having to do with media"
+    "Block users from urls having to do with media directory"
 
     messages.error(request, f"Not allowed")
     return redirect(reverse("project_list"))

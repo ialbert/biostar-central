@@ -66,8 +66,6 @@ try:
         logger.info(f"Executing spooled job id={job_id}")
         management.call_command('job', id=job_id)
 
-
-
 except ModuleNotFoundError as exc:
     pass
 
