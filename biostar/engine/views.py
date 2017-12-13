@@ -695,7 +695,7 @@ def job_result_view(request, id):
 
 
 def block_media_url(request, **kwargs):
-    "Block users from urls having to do with media"
+    "Block users from urls having to do with media directory"
 
     messages.error(request, f"Not allowed")
     return redirect(reverse("project_list"))

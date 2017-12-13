@@ -93,7 +93,7 @@ class ProjectViewTest(TestCase):
 
     def test_access_forms(self):
         " Test generate a list of forms for a given user list"
-        
+
         new_user = models.User.objects.create_user(username="test2", email="test2@l.com")
         new_user.set_password("test2")
 
@@ -377,6 +377,9 @@ class JobViewTest(TestCase):
         self.assertTrue( models.Job.save.called, "job.save() method not called when editing.")
 
 
+    def test_job_files_entry(self):
+        "Test job_files_entry"
+        pass
 
 class FactoryTest(TestCase):
 
