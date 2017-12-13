@@ -7,11 +7,8 @@
 <body>
 <h2>Please log in</h2>
 <p>
-    {% if next %}
-    <form action="{% url 'login' %}?next={{next}}" method="post" >
-    {%else%}
+
     <form action="{% url 'login' %}" method="post" >
-    {% endif %}
 
         {% csrf_token %}
 

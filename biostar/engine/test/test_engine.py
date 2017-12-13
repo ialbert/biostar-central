@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.contrib.messages.storage import fallback
 
 from biostar.engine import auth, factory
-from biostar.engine import models, views
+from biostar.engine import models, views, forms
 
 logger = logging.getLogger('engine')
 
@@ -89,6 +89,19 @@ class ProjectViewTest(TestCase):
 
         data['uid'] = self.project.uid
         self.process_response(response=response, data=data)
+
+
+    def test_access_forms(self):
+        " Test generate a list of forms for a given user list"
+        
+        new_user = models.User.objects.create_user(username="test2", email="test2@l.com")
+        new_user.set_password("test2")
+
+        users = [self.owner, new_user ]
+
+        user_forms = forms.access_forms(users, project=self.project)
+
+        self.assertTrue(len(users) ==len(user_forms), "Error generating users access forms ( forms.access_forms) ")
 
 
     def process_response(self, response, data, save=False):
@@ -327,7 +340,41 @@ class JobViewTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
 
-    pass
+        # Set up generic owner
+        self.owner = models.User.objects.create_user(username="test", email="test@l.com")
+        self.owner.set_password("test")
+        self.factory = RequestFactory()
+
+        self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
+
+        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="")
+
+        pre = models.Job.objects.count()
+        self.job = auth.create_job(analysis=self.recipe, user=self.owner)
+        self.assertTrue(models.Job.objects.count() == (pre + 1), "Error creating Job database")
+
+
+    @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
+    def test_job_edit(self):
+        "Test job edit"
+
+        data = {'name':'test', 'text':"testing", 'sticky':True}
+        request = self.factory.post(reverse('job_edit', kwargs=dict(id=self.job.id)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
+        response = views.job_edit(request=request, id=self.job.id)
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect after editing job:\nresponse:{response}")
+
+        self.assertTrue(self.job.url() == response.url,
+                        f"Could not redirect to correct page: 'recipe/view' != {response.url}")
+
+        self.assertTrue( models.Job.save.called, "job.save() method not called when editing.")
 
 
 

@@ -33,7 +33,8 @@ class UserAccountTests(TestCase):
             reverse('index'),
             reverse('logout'),
             reverse('login'), reverse('signup'),
-            reverse('profile')
+            reverse('profile'),
+            reverse('edit_profile')
         ]
 
         self.visit_urls(urls, 200)

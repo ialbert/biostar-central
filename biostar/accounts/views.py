@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import views as auth_views
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 
 from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
@@ -23,9 +24,13 @@ logger = logging.getLogger('engine')
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
-@login_required
-@cache.never_cache
+
 def edit_profile(request):
+
+    if request.user.is_anonymous:
+        messages.error(request, "Must be logged in to edit profile")
+        return redirect("/")
+
     id = request.user.id
     user = User.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
@@ -34,15 +39,19 @@ def edit_profile(request):
         form = EditProfile(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            return redirect(reverse("profile"))
-
+            return redirect("/")
     else:
         form = EditProfile(instance=user)
     context = dict(user=user, steps=steps, form=form)
     return render(request, 'accounts/edit_profile.html', context)
 
-@login_required
+
 def profile(request):
+
+    if request.user.is_anonymous:
+        messages.error(request, "Must be logged in to edit profile")
+        return redirect("/")
+
     id = request.user.id
     user = User.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
@@ -104,7 +113,6 @@ def user_logout(request):
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
-@csrf.csrf_protect
 @cache.never_cache
 def user_login(request):
 
@@ -113,43 +121,39 @@ def user_login(request):
     if request.method == "POST":
         auth.logout(request)
         form = LoginForm(data=request.POST)
-        next = request.POST.get('next', request.GET.get("next", "/"))
-        if not http.is_safe_url(next, request.get_host()):
-            next = "/"
 
         if form.is_valid():
 
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
+
             # Due to an early bug emails may not be unique. Last subscription wins.
             user = User.objects.filter(email__iexact=email).order_by('-id').first()
 
             if not user:
-                form.add_error(None, "This email does not exist.")
-                context = dict(form=form, steps=steps)
-                return render(request, "accounts/login.html", context=context)
+                messages.error(request, "This email does not exist.")
+                return redirect(reverse("login"))
 
             user = auth.authenticate(username=user.username, password=password)
 
             if not user:
-                form.add_error(None, "Invalid password.")
+                messages.error(request, "Invalid Password")
+                return redirect(reverse("login"))
+
             elif user and not user.is_active:
-                form.add_error(None, "This user may not log in.")
+                messages.error(request, "This user may not log in.")
+                return redirect(reverse("login"))
+
             elif user and user.is_active:
                 auth.login(request, user)
-                logger.info(f"logged in user.id={user.id}, user.email={user.email}")
                 messages.success(request, "Login successful!")
-                return redirect(next)
-            else:
-                # This should not happen normally.
-                form.add_error(None, "Invalid form processing.")
-    else:
+                return redirect("/")
 
-        next = request.GET.get('next', '/')
-        initial = dict(next=next)
-        form = LoginForm(initial=initial)
+        messages.error(request, mark_safe(form.errors))
+        return redirect(reverse("login"))
 
-    context = dict(form=form, steps=steps, next=next)
+    form = LoginForm()
+    context = dict(form=form, steps=steps)
     return render(request, "accounts/login.html", context=context)
 
 

@@ -11,7 +11,6 @@ from django.urls import reverse
 # from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from django.core.paginator import Paginator
-from django.views.decorators import csrf, cache
 from .const import *
 from .decorators import object_access
 from .forms import *
@@ -620,7 +619,6 @@ def job_list(request, uid):
 
     if not project:
         messages.error(request, "Jobs not found.")
-        # logger.error(f"Jobs for project.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
@@ -653,6 +651,7 @@ def job_edit(request, id):
         if form.is_valid():
             form.save()
             return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+
         return redirect(reverse("job_edit", kwargs=dict(id=job.id)))
 
     form = JobEditForm(instance=job)
