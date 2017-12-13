@@ -10,6 +10,7 @@ from django.template import Template, Context
 from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
+from .templatetags import engine_tags
 
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
@@ -148,23 +149,15 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
         if (access in (Access.READ_ACCESS, Access.RECIPE_ACCESS)):
             return True
 
+    # Prepare the access denied message.
+    deny = engine_tags.access_denied_message(user=user, access=access_text)
+
+
     # Anonymous users have no other access permissions.
     if user.is_anonymous():
-        msg = f"""
-        <span class="ui red label">Denied</span>
-        You must be logged in and have <span class="ui green label">{access_text}</span> to perform that action.
-        Read more about your options on the <a href="/docs/access/">Access Info</a> page.
-        """
-        msg = mark_safe(msg)
-        messages.error(request, msg)
+        messages.error(request, deny)
         return False
 
-    deny = f"""
-        <span class="ui red label">Denied</span>
-        This action requires <span class="ui green label">{access_text}</span> that you don't have. 
-        Read more about your options on the <a href="/docs/access/">Access Info</a> page.
-        """
-    deny = mark_safe(deny)
 
     # Check user access.
     entry = Access.objects.filter(user=user, project=project).first()

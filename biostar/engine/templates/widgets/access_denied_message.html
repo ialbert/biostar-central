@@ -1,0 +1,18 @@
+<span class="ui red label">Access Denied</span>
+
+<div>
+
+<ul>
+{%  if user.is_anonymous %}
+
+   <li>You must be logged in.</li>
+
+{%  endif%}
+
+    <li>You need to have <span class="ui green label">{{access}}</span> on the project.
+    </li>
+
+
+</ul>
+<p>Read more about the access management on the <a href="/docs/access/">Access Info</a> page.</p>
+</div>

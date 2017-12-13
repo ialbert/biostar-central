@@ -4,6 +4,7 @@ from django import forms
 from django import template
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.template import Template, Context
+from django.template import loader
 from django.forms import widgets
 
 from django.utils.safestring import mark_safe
@@ -21,11 +22,19 @@ JOB_COLORS = {
 }
 
 
-
 @register.simple_tag
 def sticky_label(obj):
     label = mark_safe('<span class ="ui label">Sticky</span>')
     return label if obj.sticky else ''
+
+
+def access_denied_message(user, access):
+    """
+    Generates the access denied message
+    """
+    tmpl = loader.get_template('widgets/access_denied_message.html')
+    context = dict(user=user, access=access)
+    return tmpl.render(context=context)
 
 
 @register.inclusion_tag('widgets/copy_interface.html')
