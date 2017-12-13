@@ -12,16 +12,12 @@ MAX_TEXT_LEN = 10000
 MAX_TEMPLATE_LEN = 20 * MAX_TEXT_LEN
 
 
-
 class EmailGroup(models.Model):
 
     name = models.CharField(max_length=MAX_NAME_LEN)
     uid = models.CharField(max_length=32, unique=True)
     text = models.CharField(max_length=MAX_TEXT_LEN)
     html = models.CharField(max_length=MAX_TEXT_LEN)
-
-    # Mailing template specific to every group
-    #template = models.CharField(max_length=MAX_TEMPLATE_LEN)
 
     def __str__(self):
         return self.name
@@ -35,9 +31,9 @@ class EmailGroup(models.Model):
 class EmailAddress(models.Model):
 
     ACTIVE, DELETED, INACTIVE, UNSUBSCRIBE = 1,2,3,4
-    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (UNSUBSCRIBE, "Unsubscirbed")]
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (UNSUBSCRIBE, "Unsubscribed")]
 
-    # required email
+    # Require email
     email = models.CharField(max_length=MAX_NAME_LEN, unique=True, blank=False)
     name = models.CharField(max_length=MAX_NAME_LEN)
 

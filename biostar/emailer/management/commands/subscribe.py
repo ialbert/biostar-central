@@ -1,47 +1,47 @@
-import logging, os
+import logging, os, csv
 from django.core.management.base import BaseCommand
 from biostar.emailer import  models, auth
 from django.conf import settings
 
 
-logger = logging.getLogger("engine")
-
-
+logger = logging.getLogger("biostar")
+logger.setLevel(logging.INFO)
 
 class Command(BaseCommand):
     help = 'Add an email address to a mailing list'
 
     def add_arguments(self, parser):
-        parser.add_argument('--group', type=str, required=True,
+        parser.add_argument('--name', type=str, required=True,
                             help="Subscription group to add emails to.")
 
         parser.add_argument('--file', type=str, required=True,
                             help="""
                                     Path to text file with email addresses and names. 
-                                    Tab-delimited with two columns in each line:
-                                    (email_address, name)
+                                    Excel csv that contains Name and Email headers.
                                 """)
 
     def handle(self, *args, **options):
 
-        group = options['group']
-        file = options["file"]
+        group_name = options['name']
+        fname = options["file"]
 
-        group = models.EmailGroup.objects.filter(name=group).first()
-        if not group:
-            logger.error(f"Group name {group} does not exist.")
-            return
+        group, flag = models.EmailGroup.objects.get_or_create(name=group_name)
+        if flag:
+            logger.info(f"Created group.name={group}")
 
-        assert os.path.isfile(file), "String entered is not a valid file"
+        stream = csv.DictReader(open(fname, 'rU'))
 
-        with open(file, "r") as mailing_list:
+        before_count = models.Subscription.objects.all().count()
 
-            for mail in mailing_list:
-                # Two columns expected ( tab separated) anything else ignored.
-                if len(mail.split("\t")) == 2 :
+        for no, row in enumerate(stream):
+            email, name = row.get("Email"), row.get("Name")
+            if email:
+                auth.add_subscription(email=email,name=name, group=group)
+            else:
+                msg = f'Invalid email at line: {no+1}'
+                logger.error(msg)
 
-                    email, name = mail.rstrip().split("\t")
-                    auth.add_sub(email=email, name=name, group=group)
+        after_count = models.Subscription.objects.all().count()
 
-        return
-
+        logger.info(f"Added {after_count-before_count} new subscriptions to group={group_name}")
+        logger.info(f"Group={group_name} contains {after_count} subscriptions")

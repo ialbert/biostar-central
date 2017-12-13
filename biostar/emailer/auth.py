@@ -4,26 +4,21 @@ from .models import EmailGroup, EmailAddress, Subscription
 logger = logging.getLogger("engine")
 
 
+def add_subscription(email, group, name=''):
 
-def add_sub(email, group, name=None):
-
-    assert isinstance(group, EmailGroup), f"group needs to be EmailGroup, not: {type(group)}"
-
-    name = name or email
+    # Get the address from the database.
     address = EmailAddress.objects.filter(email=email).first()
     if not address:
-        address = EmailAddress(name=name, email=email)
-        address.save()
+        address = EmailAddress.objects.create(name=name, email=email)
 
-    sub = address.subscription_set.filter(group=group).first()
+    # Fetch the subscriptions if these may exists.
+    query = Subscription.objects.filter(group=group, address=address)
 
-    if not sub:
-        sub = address.subscription_set.create(group=group)
-        logger.info(f"Subscribed {email} to ({group}) mailing-list.")
-    else:
-        logger.info(f"{email} already subscribed to ({group}) mailing-list.")
+    # Drop subscription if it exists.
+    query.delete()
 
-    return sub
+    # Create the new subscription.
+    Subscription.objects.create(group=group, address=address)
 
 
 

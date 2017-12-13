@@ -1,4 +1,4 @@
-import logging
+import logging, os
 from django.core.management.base import BaseCommand
 from django.contrib.sites.models import Site
 
@@ -7,64 +7,66 @@ from mailer.engine import send_all
 
 from django.conf import settings
 
-
 logger = logging.getLogger("engine")
-
-
+logger.setLevel(logging.INFO)
 
 class Command(BaseCommand):
-    help = 'Send an email to one person or a whole mailing list (--group_name)'
+    help = 'Send an email to a group.'
 
     def add_arguments(self, parser):
-        parser.add_argument('--group', type=str, required=False,
-                            help="Subscription group name to send a batch email to.")
+        parser.add_argument('--name', type=str, required=False,
+                            help="Subscription group name to send the email to.")
+
+        parser.add_argument('--subject', type=str, required=False, default="email subject",
+                            help="Subject of the email.")
 
         parser.add_argument('--from', type=str, required=False,
-                            default="mailer@biostars.org", help="The sender email")
-
-        parser.add_argument('--to', type=str, required=False,
-                            default="mailer@biostars.org", help="The target email")
-
-        parser.add_argument('--name', type=str, required=False,
-                            default="mailer", help="The target name")
-
-        parser.add_argument('--subject', type=str, required=False,
-                            default="mailer", help="Email subject")
+                            default="", help="The sender email")
 
         parser.add_argument('--template', type=str, required=False,
-                            default="base_email.html", help="Email template sent to mailing-list or target recipient. ")
+                            default="test_email.html", help="Email template.")
 
 
     def handle(self, *args, **options):
 
         template_name = options['template']
-        group = options['group']
-        target_email = options['to']
-        sender_email = options["from"]
-        subject = options["subject"]
+        group_name = options['name']
+        subject = options['subject']
+        from_email = options['from'] or settings.ADMINS[0][1]
 
-        group = models.EmailGroup.objects.filter(name=group).first()
-
+        group = models.EmailGroup.objects.filter(name=group_name).first()
         # Sender requires a list.
         if not group:
-            recipient_list =  target_email.split(",")
-        else:
-            recipient_list = [person.address.email for person in group.subscription_set.all()]
+            logger.error(f"group.name={group_name} does not exist.")
+            return
+
+        # Get the recipients.
+        recipients = [person.address.email for person in group.subscription_set.all()]
+
+        logger.info(f"Email list size: {len(recipients)}")
+
+        # Test the templates
+        if os.path.isfile(template_name):
+            logger.error(f"Missing template: {template_name}")
+            return
+
+        # Generate emails.
+        logger.info(f"Emails from={from_email} to group.name={group.name} using template:{template_name}")
 
         # The object that parsers the template.
         email = sender.EmailTemplate(template_name)
 
         # This is the context passed to each template.
         site = Site.objects.get_current()
-        context = dict(site=site, protocol=settings.PROTOCOL, target_email=target_email,
-                       subject=subject, group=group)
 
-        logger.info(f"generating emails from:{sender_email} to:{group or target_email} using template:{template_name}")
+        # Accumulate the emails into the database.
+        for address in recipients:
+            context = dict(site=site, protocol=settings.PROTOCOL, subject=subject)
+            email.send(context=context, from_email=from_email, recipient_list=[address])
 
-        # Queues the emails into the database.
-        email.send(context=context, from_email=sender_email, recipient_list=recipient_list)
-
-        # This sends the accumulated email.
+        # Send the emails.
         send_all()
+        logger.info("Emails have been sent")
+
 
 

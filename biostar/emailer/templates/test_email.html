@@ -2,7 +2,7 @@
 {# This will be the subject of the email #}
 {%  block subject %}
 
-    [biostar-engine] {{subject}}
+    [biostar-handbook] {{subject}}
 
 {% endblock %}
 
@@ -10,7 +10,7 @@
 
 {% block html %}
     <p>
-        Hello {{ target_email }},
+        Hello,
     </p>
 
     <p>
@@ -31,7 +31,7 @@
 
 {% block text %}
 
-    Hello {{ target_email }},
+    Hello,
 
     This is a TEXT email sent via the management command:
 
