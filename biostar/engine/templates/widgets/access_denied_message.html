@@ -1,6 +1,7 @@
-<span class="ui red label">Access Denied</span>
 
 <div>
+
+<span class="ui red label"><i class="lock icon"></i>Access Denied</span>
 
 <ul>
 {%  if user.is_anonymous %}
@@ -9,10 +10,10 @@
 
 {%  endif%}
 
-    <li>You need to have <span class="ui green label">{{access}}</span> on the project.
+    <li>You need to have <span class="ui green label"><i class="unlock icon"></i> {{access}}</span> on the project.
     </li>
 
 
 </ul>
-<p>Read more about the access management on the <a href="/docs/access/">Access Info</a> page.</p>
+<p>Read more about permissions on the <a href="/docs/access/"><i class="lock icon"></i>Access Info</a> page.</p>
 </div>
