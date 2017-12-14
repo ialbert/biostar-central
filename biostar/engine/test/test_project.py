@@ -3,7 +3,6 @@ import logging, os
 from django.test import TestCase
 from unittest.mock import patch, MagicMock
 from django.urls import reverse
-from django.contrib.messages.storage import fallback
 
 from biostar.engine import auth
 from biostar.engine import models, views, forms

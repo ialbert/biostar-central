@@ -18,11 +18,10 @@ def join(*args):
 
 def check_size(fobj, maxsize=0.1):
     # maxsize in megabytes!
-    maxsize = maxsize * 1024 * 1024.0
 
     try:
 
-        if fobj and fobj.size > maxsize :
+        if fobj and fobj.size > maxsize * 1024 * 1024.0 :
             curr_size = fobj.size / 1024 / 1024.0
             msg = f"File too large: {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
             raise forms.ValidationError(msg)
