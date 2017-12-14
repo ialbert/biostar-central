@@ -3,10 +3,9 @@ from django import forms
 from django.contrib import messages
 import hjson
 from . import models, auth, factory
-from . import tasks
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
-from biostar.accounts.models import Profile, User
+from biostar.accounts.models import User
 from django.utils.safestring import mark_safe
 
 # Share the logger with models.
@@ -19,9 +18,11 @@ def join(*args):
 
 def check_size(fobj, maxsize=0.1):
     # maxsize in megabytes!
+    maxsize = maxsize * 1024 * 1024.0
 
     try:
-        if fobj and fobj.size > maxsize * 1024 * 1024.0:
+
+        if fobj and fobj.size > maxsize :
             curr_size = fobj.size / 1024 / 1024.0
             msg = f"File too large: {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
             raise forms.ValidationError(msg)
@@ -44,7 +45,6 @@ class ProjectForm(forms.ModelForm):
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
-
         image = cleaned_data.get('image')
         check_size(fobj=image)
 
@@ -66,6 +66,7 @@ class DataUploadForm(forms.ModelForm):
         fobj = cleaned_data.get('file')
         check_size(fobj=fobj, maxsize=25)
         return fobj
+
 
 class DataEditForm(forms.ModelForm):
     # choices = DATA_TYPES.items()

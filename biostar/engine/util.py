@@ -20,8 +20,6 @@ def smart_preview(fname):
     try:
         mimetype, mimecode = mimetypes.guess_type(fname)
 
-        # print (mimetype, mimecode)
-
         if mimetype == 'application/x-tar' and mimecode == 'gzip':
             # A Tar gzip file
             tar = tarfile.open(fname, mode='r')
@@ -45,9 +43,6 @@ def smart_preview(fname):
         text = f'Preview error: {exc}'
 
     return text
-
-
-
 
 
 
