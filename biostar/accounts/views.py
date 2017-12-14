@@ -36,12 +36,16 @@ def edit_profile(request):
     steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
 
     if request.method == "POST":
-        form = EditProfile(request.POST, instance=user)
+        form = EditProfile(data=request.POST, user=user)
         if form.is_valid():
             form.save()
-            return redirect("/")
-    else:
-        form = EditProfile(instance=user)
+            return redirect("profile")
+
+        messages.error(request, mark_safe(form.errors))
+        return redirect(reverse("edit_profile"))
+
+    initial = dict(email=user.email, first_name=user.first_name)
+    form = EditProfile(initial=initial)
     context = dict(user=user, steps=steps, form=form)
     return render(request, 'accounts/edit_profile.html', context)
 
@@ -112,14 +116,11 @@ def user_logout(request):
     return render(request, "accounts/logout.html", context=context)
 
 
-@ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
-@cache.never_cache
 def user_login(request):
 
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
 
     if request.method == "POST":
-        auth.logout(request)
         form = LoginForm(data=request.POST)
 
         if form.is_valid():

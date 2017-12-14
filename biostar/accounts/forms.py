@@ -45,19 +45,44 @@ class SignUpForm(forms.ModelForm):
             raise forms.ValidationError("This email is already being used.")
         return data
 
-    def cleaned_data(self, *args):
-        return self.cleaned_data
-
 
 class LogoutForm(forms.Form):
     pass
 
 
-class EditProfile(forms.ModelForm):
 
-    class Meta:
-        model = User
-        fields = ("email", "first_name")
+class EditProfile(forms.Form):
+
+    email = forms.CharField(label='Email', max_length=100)
+    first_name = forms.CharField(label='First Name', max_length=100)
+
+    def __init__(self, user=None,  *args, **kwargs):
+
+        self.user = user
+
+        super(EditProfile, self).__init__(*args, **kwargs)
+
+
+    def save(self):
+
+        if not self.user:
+            raise forms.ValidationError("User needs to be specified to save profile")
+
+        self.user.email = self.cleaned_data['email']
+        self.user.first_name = self.cleaned_data['first_name']
+        self.user.save()
+
+        return self.user
+
+    def clean_email(self):
+
+        data = self.cleaned_data['email']
+        email = User.objects.exclude(pk=self.user.pk).filter(email=data)
+
+        if email.exists():
+            raise forms.ValidationError("This email is already being used.")
+
+        return data
 
 
 class LoginForm(forms.Form):

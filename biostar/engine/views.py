@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 # from django.template.loader import get_template
 from django.utils.safestring import mark_safe
-
+from . import tasks
 from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, User, Access)
@@ -543,8 +543,9 @@ def recipe_code(request, id):
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='recipe_list')
 def recipe_create(request, uid):
     """
-    Here the uid is of the project!
+    Create recipe with empty template and json spec
     """
+
     project = Project.objects.filter(uid=uid).first()
 
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON], project=project)
@@ -553,18 +554,29 @@ def recipe_create(request, uid):
 
     if request.method == "POST":
         form = RecipeForm(data=request.POST, files=request.FILES)
+
         if form.is_valid():
-            recipe = form.save(commit=False)
-            # Empty templates may be authorized.
-            recipe.security = Analysis.UNDER_REVIEW if recipe.template else Analysis.AUTHORIZED
-            recipe.owner = request.user
-            recipe.project = project
+            # Empty Analysis Template is authorized on creation
+            security = Analysis.AUTHORIZED
+            name = form.cleaned_data["name"]
+            text = form.cleaned_data["text"]
+            summary = form.cleaned_data["summary"]
+            stream = form.cleaned_data["image"]
+            sticky = form.cleaned_data["sticky"]
+
+            recipe = auth.create_analysis(project=project, json_text="{}", template="",
+                                          user=request.user, summary=summary, name=name, text=text,
+                                            security=security, stream=stream, sticky=sticky)
             recipe.save()
 
-            # recipe.id= None when testing; ensure that does not happen.
+            print(recipe, recipe.id, recipe.security, Analysis.objects.order_by('-pk').all())
+            #1 / 0
+            # recipe.id= None when testing; ensure that does not happen by making.
+
             recipe.pk = recipe.pk or (Analysis.objects.order_by('-pk').first().pk + 1)
 
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
+
         return redirect(action_url)
 
     form = RecipeForm()
@@ -576,6 +588,7 @@ def recipe_create(request, uid):
 
 @object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
 def recipe_edit(request, id):
+    "Edit recipe Info"
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
 

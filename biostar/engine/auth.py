@@ -85,12 +85,14 @@ def template_changed(analysis, template):
     """
     Detects a change in the template.
     """
+    # Empty template is seen as no change ( False)
+
     text1 = template.splitlines(keepends=True)
     text2 = analysis.template.splitlines(keepends=True)
 
     change = list(difflib.unified_diff(text1, text2))
 
-    print(f"Change: {bool(change)}")
+    #print(f"Change: {bool(change)}")
     return change
 
 
@@ -198,6 +200,7 @@ def create_project(user, name, uid='', summary='', text='', stream='',
     project = Project.objects.create(
         name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 
+
     if stream:
         project.image.save(stream.name, stream, save=True)
 
@@ -206,15 +209,20 @@ def create_project(user, name, uid='', summary='', text='', stream='',
     return project
 
 
+
 def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text='',
-                    security=Analysis.UNDER_REVIEW):
+                    stream=None, sticky=False, security=Analysis.UNDER_REVIEW):
+
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
 
     analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
                                        owner=owner, name=name, text=text, security=security,
-                                       template=template)
+                                       template=template, sticky=sticky)
+
+    if stream:
+        analysis.image.save(stream.name, stream, save=True)
 
     logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
@@ -232,7 +240,7 @@ def make_summary(data, summary='', name="widgets/job_summary.html"):
     return result
 
 
-def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=None, save=True):
+def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=None, uid=None, save=True):
     name = name or analysis.name
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
@@ -253,7 +261,7 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     # Create the job instance.
     job = Job(name=name, summary=summary, state=state, json_text=json_text,
               security=analysis.security, project=project, analysis=analysis, owner=owner,
-              template=analysis.template)
+              template=analysis.template, uid=uid)
 
     if save:
         job.save()
@@ -265,12 +273,14 @@ def findfiles(location, collect):
     """
     Returns a list of all files in a directory.
     """
+
     for item in os.scandir(location):
         if item.is_dir():
             findfiles(item.path, collect=collect)
         else:
             collect.append(os.path.abspath(item.path))
     return collect
+
 
 
 def create_path(fname, data):
@@ -343,7 +353,6 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Find all files in the data directory.
     collect = findfiles(data.get_data_dir(), collect=[])
 
-    # The name of the table of contents.
     tocname = data.get_path()
     if tocname in collect:
         collect.remove(tocname)
@@ -357,7 +366,6 @@ def create_data(project, user=None, stream=None, path='', name='',
     for elem in collect:
         if os.path.isfile(elem):
             size += os.stat(elem, follow_symlinks=True).st_size
-
     # Finalize the data name
     name = name or os.path.split(path)[1] or 'Data'
 

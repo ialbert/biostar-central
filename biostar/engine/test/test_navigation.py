@@ -5,6 +5,7 @@ from biostar.engine import auth
 from biostar.engine import models
 
 from django.urls import reverse
+from . import util
 
 logger = logging.getLogger('engine')
 
@@ -15,15 +16,15 @@ class SiteNavigation(TestCase):
 
         user = models.User.objects.all().first()
         self.project = auth.create_project(user=user, name="Test project",
-                                           privacy=models.Project.PUBLIC)
+                                           privacy=models.Project.PUBLIC, uid="testing")
         data = auth.create_data(project=self.project, path=__file__)
         analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
-        job = auth.create_job(analysis=analysis)
+        self.job = auth.create_job(analysis=analysis)
 
         self.proj_params = dict(uid=self.project.uid)
         self.analysis_params = dict(id=analysis.id)
         self.data_params = dict(id=data.id)
-        self.job_params = dict(id=job.id)
+        self.job_params = dict(id=self.job.id)
 
     def visit_urls(self, urls, codes):
         c = Client()
@@ -36,6 +37,9 @@ class SiteNavigation(TestCase):
                 logger.error(f"")
                 logger.error(f"Error accessing: {url}, code={resp.status_code} not in expected values")
                 self.assertEqual(url, codes)
+
+        util.remove_test_folders(self.project.get_project_dir())
+        util.remove_test_folders(self.job.path)
 
     def test_public_pages(self):
         "Checking public pages"
