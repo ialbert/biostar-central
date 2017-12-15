@@ -95,50 +95,6 @@ class FactoryTest(TestCase):
         pass
 
 
-class ManagementCommandTest(TestCase):
-
-    def setUp(self):
-
-        logger.setLevel(logging.WARNING)
-
-        self.owner = models.User.objects.filter(is_superuser=True).first()
-
-        self.project = auth.create_project(user=self.owner, name="test",
-                                           text="Text", summary="summary", uid="testing")
-        self.analysis = auth.create_analysis(project=self.project, json_text='{test:{value:"test"}}',
-                                             template="echo {{test.value}}", security=models.Analysis.AUTHORIZED)
-        self.analysis.save()
-        self.job = auth.create_job(analysis=self.analysis)
-        self.job.save()
-
-
-    def test_add_data(self):
-        "Test adding data to a project using management commands "
-
-        pre = models.Data.objects.all().count()
-        management.call_command('data', path=__file__, uid="testing")
-        post = models.Data.objects.all().count()
-
-        util.remove_test_folders(self.project.get_project_dir())
-        util.remove_test_folders(self.job.path)
-
-        self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
-
-
-    def test_job_runner(self):
-        "Testing Job runner using management command"
-
-        management.call_command('job', id=self.job.id, verbosity=2, list=True)
-
-        util.remove_test_folders(self.project.get_project_dir())
-        util.remove_test_folders(self.job.path)
-
-    def test_job_commands(self):
-        "Testing extra job runner commands"
-
-        management.call_command('job', verbosity=2, list=True)
-
-
 class UtilTests(TestCase):
 
     def setUp(self):

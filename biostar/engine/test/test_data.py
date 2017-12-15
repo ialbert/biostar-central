@@ -2,6 +2,7 @@ import logging
 from django.test import TestCase
 from unittest.mock import patch, MagicMock
 from django.urls import reverse
+from django.core import management
 
 from biostar.engine import models, views, auth
 from . import util
@@ -11,7 +12,6 @@ logger = logging.getLogger('engine')
 
 
 class DataViewTest(TestCase):
-
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
@@ -94,3 +94,14 @@ class DataViewTest(TestCase):
                          f"Could not redirect to data list after uploading:\nresponse:{response}")
 
         self.assertTrue( models.Data.save.called, "data.save() method not called when uploading.")
+
+    def test_add_data(self):
+        "Test adding data to a project using management commands "
+
+        pre = models.Data.objects.all().count()
+        management.call_command('data', path=__file__, uid="testing")
+        post = models.Data.objects.all().count()
+
+        util.remove_test_folders(self.project.get_project_dir())
+
+        self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")

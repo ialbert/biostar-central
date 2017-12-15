@@ -1,7 +1,7 @@
 import logging
 from django.test import TestCase
 from unittest.mock import patch, MagicMock
-
+from django.core import management
 from django.urls import reverse
 
 from biostar.engine import auth
@@ -65,3 +65,12 @@ class JobViewTest(TestCase):
         #management.call_command('job', id=self.job.id)
 
         pass
+
+    def test_job_runner(self):
+        "Testing Job runner using management command"
+
+        management.call_command('job', id=self.job.id, verbosity=2)
+        management.call_command('job', list=True)
+
+        util.remove_test_folders(self.project.get_project_dir())
+        util.remove_test_folders(self.job.path)

@@ -110,7 +110,7 @@ class RecipeViewTest(TestCase):
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect after creating recipe:\nresponse:{response}")
 
-        self.assertTrue("recipe/view" in response.url,
+        self.assertTrue(f"/recipe/list/{self.project.uid}/" == response.url,
                         f"Could not redirect to correct page: 'recipe/view' != {response.url}")
 
         self.assertTrue( models.Analysis.save.called, "analysis.save() method not called when creating.")

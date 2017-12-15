@@ -568,14 +568,8 @@ def recipe_create(request, uid):
                                           user=request.user, summary=summary, name=name, text=text,
                                             security=security, stream=stream, sticky=sticky)
             recipe.save()
-
-            print(recipe, recipe.id, recipe.security, Analysis.objects.order_by('-pk').all())
-            #1 / 0
-            # recipe.id= None when testing; ensure that does not happen by making.
-
-            recipe.pk = recipe.pk or (Analysis.objects.order_by('-pk').first().pk + 1)
-
-            return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
+            messages.success(request, "Recipe created")
+            return redirect(back_url)
 
         return redirect(action_url)
 
