@@ -303,10 +303,6 @@ def create_path(fname, data):
     return path
 
 
-from django.db import transaction
-
-
-@transaction.non_atomic_requests
 def create_data(project, user=None, stream=None, path='', name='',
                 text='', summary='', data_type=None):
 
