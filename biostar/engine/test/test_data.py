@@ -40,10 +40,9 @@ class DataViewTest(TestCase):
         request = util.fake_request(url=url, data=data, user=self.owner)
 
         response = views.data_view(request=request, id=self.data.id)
-        util.remove_test_folders(self.project.get_project_dir())
 
-        self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to data view after copying Data:\nresponse:{response}")
+        self.assertEqual(response.status_code, 200,
+                         f"Could not load data view after copying Data:\nresponse:{response}")
 
 
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
@@ -58,7 +57,10 @@ class DataViewTest(TestCase):
 
         response = views.data_edit(request=request, id=self.data.id)
 
-        util.remove_test_folders(self.project.get_project_dir())
+        obj ={}
+        self.data.fill_dict(obj=obj)
+
+        self.assertTrue("toc" in obj, "Table of content not added during fill_dict()")
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to data view after copying Data:\nresponse:{response}")
@@ -85,7 +87,6 @@ class DataViewTest(TestCase):
 
         request = util.fake_request(url=url, data=data, user=user)
         response = views.data_upload(request=request, uid=self.project.uid)
-        util.remove_test_folders(self.project.get_project_dir())
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to after uploading:\nresponse:{response}")
@@ -101,7 +102,5 @@ class DataViewTest(TestCase):
         pre = models.Data.objects.all().count()
         management.call_command('data', path=__file__, uid="testing")
         post = models.Data.objects.all().count()
-
-        util.remove_test_folders(self.project.get_project_dir())
 
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")

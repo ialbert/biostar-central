@@ -1,9 +1,9 @@
-import logging
-from django.test import TestCase
+import logging,os
+from django.test import TestCase, override_settings
 from unittest.mock import patch, MagicMock
 from django.core import management
 from django.urls import reverse
-
+from django.conf import settings
 from biostar.engine import auth
 from biostar.engine import models, views
 
@@ -11,7 +11,10 @@ from . import util
 
 logger = logging.getLogger('engine')
 
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, '..', 'export', 'test'))
 
+
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class JobViewTest(TestCase):
 
     def setUp(self):
@@ -29,6 +32,7 @@ class JobViewTest(TestCase):
 
         pre = models.Job.objects.count()
         self.job = auth.create_job(analysis=self.recipe, user=self.owner)
+        self.job.save()
         self.assertTrue(models.Job.objects.count() == (pre + 1), "Error creating Job database")
 
 
@@ -43,9 +47,6 @@ class JobViewTest(TestCase):
 
         response = views.job_edit(request=request, id=self.job.id)
 
-        util.remove_test_folders(self.project.get_project_dir())
-        util.remove_test_folders(self.job.path)
-
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect after editing job:\nresponse:{response}")
 
@@ -58,19 +59,24 @@ class JobViewTest(TestCase):
     def test_job_files_entry(self):
         "Test job_files_entry with POST request"
 
-        util.remove_test_folders(self.project.get_project_dir())
-        util.remove_test_folders(self.job.path)
+        management.call_command('job', id=self.job.id)
+        url = reverse('job_files_entry', kwargs=dict(id=self.job.id))
 
-        # Create files in job dir to copy
-        #management.call_command('job', id=self.job.id)
+        data = {"paths":"run.sh"}
 
-        pass
+        request = util.fake_request(url=url, data=data, user=self.owner)
+
+        response = views.job_files_list(request=request, id=self.job.id)
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect after editing job:\nresponse:{response}")
+        self.assertTrue(self.job.url() == response.url,
+                        f"Could not redirect to correct page: {self.job.url()}!= {response.url}")
+
+
 
     def test_job_runner(self):
         "Testing Job runner using management command"
 
         management.call_command('job', id=self.job.id, verbosity=2)
         management.call_command('job', list=True)
-
-        util.remove_test_folders(self.project.get_project_dir())
-        util.remove_test_folders(self.job.path)

@@ -42,7 +42,6 @@ def edit_profile(request):
             return redirect("profile")
 
         messages.error(request, mark_safe(form.errors))
-        return redirect(reverse("edit_profile"))
 
     initial = dict(email=user.email, first_name=user.first_name)
     form = EditProfile(initial=initial)
@@ -65,36 +64,35 @@ def profile(request):
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
-@csrf.csrf_protect
 def user_signup(request):
 
     messages.info(request, "Signups are not yet enabled")
     return redirect("/")
 
-    steps = breadcrumb_builder([HOME_ICON, SIGNUP_ICON])
-
-    if request.method == 'POST':
-
-        form = SignUpForm(request.POST)
-        form.add_error(None, "Sign up is disabled")
-        if form.is_valid():
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password1')
-            name = email.split("@")[0]
-
-            user = User.objects.create(username=get_uuid(), email=email,
-                                       first_name=name)
-            user.set_password(password)
-            user.save()
-
-            auth.login(request, user)
-            logger.info(f"Signed up and logged in user.id={user.id}, user.email={user.email}")
-            messages.info(request, "Signup successful!")
-            return redirect(reverse('login'))
-    else:
-        form = SignUpForm()
-    context = dict(form=form, steps=steps)
-    return render(request, 'accounts/signup.html', context=context)
+    # steps = breadcrumb_builder([HOME_ICON, SIGNUP_ICON])
+    #
+    # if request.method == 'POST':
+    #
+    #     form = SignUpForm(request.POST)
+    #     form.add_error(None, "Sign up is disabled")
+    #     if form.is_valid():
+    #         email = form.cleaned_data.get('email')
+    #         password = form.cleaned_data.get('password1')
+    #         name = email.split("@")[0]
+    #
+    #         user = User.objects.create(username=get_uuid(), email=email,
+    #                                    first_name=name)
+    #         user.set_password(password)
+    #         user.save()
+    #
+    #         auth.login(request, user)
+    #         logger.info(f"Signed up and logged in user.id={user.id}, user.email={user.email}")
+    #         messages.info(request, "Signup successful!")
+    #         return redirect(reverse('login'))
+    # else:
+    #     form = SignUpForm()
+    # context = dict(form=form, steps=steps)
+    # return render(request, 'accounts/signup.html', context=context)
 
 
 def user_logout(request):
@@ -151,7 +149,6 @@ def user_login(request):
                 return redirect("/")
 
         messages.error(request, mark_safe(form.errors))
-        return redirect(reverse("login"))
 
     form = LoginForm()
     context = dict(form=form, steps=steps)

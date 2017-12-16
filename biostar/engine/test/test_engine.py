@@ -1,7 +1,7 @@
 import logging
 from django.core import management
 from django.test import TestCase
-
+from django.forms import ValidationError
 from django.core.files import File
 from django.urls import reverse
 from biostar.engine import models, views, auth, factory, forms
@@ -49,8 +49,6 @@ class FactoryTest(TestCase):
     def test_factory_fields(self):
         "Testing factory module that generates fields"
 
-        util.remove_test_folders(self.project.get_project_dir())
-
         # All valid field types.
         field_types = factory.get_field_types()
 
@@ -74,8 +72,6 @@ class FactoryTest(TestCase):
         data = auth.create_data(self.project, path=__file__)
         post = models.Data.objects.count()
 
-        util.remove_test_folders(self.project.get_project_dir())
-
         self.assertTrue(post == (pre + 1), "Error creating data in database")
 
         display_type = const.DROPDOWN
@@ -85,14 +81,17 @@ class FactoryTest(TestCase):
         field = factory.dynamic_field(json_data, project=self.project)
 
         if not field:
-            message = f"field generator for display={display_type} failed"
-            self.assertFalse(message)
+            self.assertFalse(f"field generator for display={display_type} failed")
 
 
     def test_data_generator(self):
         "Test data generator"
-        util.remove_test_folders(self.project.get_project_dir())
-        pass
+
+        field = factory.data_field_generator(field={}, project=self.project)
+
+
+        if not field:
+            self.assertFalse(f"data field generator failed")
 
 
 class UtilTests(TestCase):
@@ -104,5 +103,10 @@ class UtilTests(TestCase):
 
         collect = auth.findfiles("biostar/engine/test/data", collect=[])
         for fname in collect:
+
             text = engine_util.smart_preview(fname)
             self.assertTrue("error" not in text.split(), f"Preview error with {fname}")
+
+            with self.assertRaises(ValidationError):
+                forms.check_size(File(open(fname, "r")), maxsize=0.000001)
+

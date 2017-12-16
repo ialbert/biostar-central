@@ -40,8 +40,6 @@ class ProjectViewTest(TestCase):
 
         response = views.project_create(request)
 
-        util.remove_test_folders(self.project.get_project_dir())
-
         self.process_response(response=response, data=data, save=True)
 
 
@@ -58,8 +56,6 @@ class ProjectViewTest(TestCase):
         request = util.fake_request(url=url, data=data, user=self.owner)
 
         response = views.project_edit(request, uid=self.project.uid)
-
-        util.remove_test_folders(self.project.get_project_dir())
 
         self.process_response(response=response, data=data, save=True)
 
@@ -79,8 +75,6 @@ class ProjectViewTest(TestCase):
 
         response = views.project_users(request, uid=self.project.uid)
 
-        util.remove_test_folders(self.project.get_project_dir())
-
         data['uid'] = self.project.uid
         self.process_response(response=response, data=data)
 
@@ -95,11 +89,15 @@ class ProjectViewTest(TestCase):
 
         user_forms = forms.access_forms(users, project=self.project)
 
-        # Still need to call this since setup creates a dir
-        util.remove_test_folders(self.project.get_project_dir())
-
         self.assertTrue(len(users) ==len(user_forms), "Error generating users access forms ( forms.access_forms) ")
 
+
+    def test_image_path(self):
+        "Test image_path function found in engine.models"
+
+        imgpath = models.image_path(instance=self.project, filename=__file__)
+
+        pass
 
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"
