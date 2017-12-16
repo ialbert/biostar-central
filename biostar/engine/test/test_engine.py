@@ -94,8 +94,6 @@ class FactoryTest(TestCase):
             self.assertFalse(f"data field generator failed")
 
 
-
-
 class UtilTests(TestCase):
 
     def setUp(self):
