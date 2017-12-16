@@ -49,8 +49,6 @@ class FactoryTest(TestCase):
     def test_factory_fields(self):
         "Testing factory module that generates fields"
 
-        util.remove_test_folders(self.project.get_project_dir())
-
         # All valid field types.
         field_types = factory.get_field_types()
 
@@ -74,8 +72,6 @@ class FactoryTest(TestCase):
         data = auth.create_data(self.project, path=__file__)
         post = models.Data.objects.count()
 
-        util.remove_test_folders(self.project.get_project_dir())
-
         self.assertTrue(post == (pre + 1), "Error creating data in database")
 
         display_type = const.DROPDOWN
@@ -91,7 +87,6 @@ class FactoryTest(TestCase):
 
     def test_data_generator(self):
         "Test data generator"
-        util.remove_test_folders(self.project.get_project_dir())
         pass
 
 

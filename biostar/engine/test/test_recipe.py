@@ -43,12 +43,10 @@ class RecipeViewTest(TestCase):
 
         response = views.recipe_view(request=request, id=self.recipe.id)
 
-        util.remove_test_folders(self.project.get_project_dir())
-
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to after copying:\nresponse:{response}")
 
-
+    @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
     def test_recipe_run(self):
         "Test the recipe run view with POST request"
 
@@ -63,20 +61,20 @@ class RecipeViewTest(TestCase):
 
         response = views.recipe_run(request=request, id=self.recipe.id)
 
-        util.remove_test_folders(self.project.get_project_dir())
-
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to after running recipe:\nresponse:{response}")
 
         self.assertTrue("job/list/" in response.url,
                         f"Could not redirect to job list after running recipe:\nresponse:{response}")
 
+        self.assertTrue( models.Job.save.called, "job.save() method not called when running analysis.")
+
 
     @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
     def test_recipe_code(self):
         "Test the recipe preview/save code view with POST request"
 
-        data = {'action': "SAVE", 'template':'', 'json':'{}'}
+        data = {'action': "SAVE", 'template':'#test change', 'json':'{}'}
         url = reverse('recipe_code', kwargs=dict(id=self.recipe.id))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
@@ -85,8 +83,6 @@ class RecipeViewTest(TestCase):
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to after editing code:\nresponse:{response}")
-
-        util.remove_test_folders(self.project.get_project_dir())
 
         self.assertTrue(self.recipe.url() == response.url,
                         f"Could not redirect to correct page: {self.recipe.url()} != {response.url}")
@@ -104,8 +100,6 @@ class RecipeViewTest(TestCase):
         request = util.fake_request(url=url, data=data, user=self.owner)
 
         response = views.recipe_create(request=request, uid=self.project.uid)
-
-        util.remove_test_folders(self.project.get_project_dir())
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect after creating recipe:\nresponse:{response}")
@@ -126,8 +120,6 @@ class RecipeViewTest(TestCase):
         request = util.fake_request(url=url, data=data, user=self.owner)
 
         response = views.recipe_edit(request=request, id=self.recipe.id)
-
-        util.remove_test_folders(self.project.get_project_dir())
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect after creating recipe:\nresponse:{response}")

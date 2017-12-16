@@ -168,10 +168,9 @@ def project_users(request, uid):
         if form.is_valid():
             form.change_access()
             messages.success(request, "Changed access to this project")
-        else:
-            messages.error(request, mark_safe(form.non_field_errors()))
+            return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
 
-        return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
+        messages.error(request, mark_safe(form.non_field_errors()))
 
     if q:
         targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q))
@@ -236,7 +235,6 @@ def project_edit(request, uid):
             return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
         messages.error(request, mark_safe(form.errors))
-        return redirect(reverse("project_edit", kwargs=dict(uid=uid)))
 
     form = ProjectForm(instance=project)
     context = dict(project=project, steps=steps, form=form)
@@ -269,7 +267,6 @@ def project_create(request):
             return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
         messages.error(request, mark_safe(form.errors))
-        return redirect(reverse("project_create"))
 
     initial = dict(name="Project Name", text="project description", summary="project summary")
     form = ProjectForm(initial=initial)
@@ -326,7 +323,6 @@ def data_view(request, id):
             messages.success(request, f"Copied {name} in to {data.project.name}")
         else:
             messages.error(request, mark_safe(form.errors))
-        return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 
     form = DataCopyForm(current=data, request=request)
     context = dict(data=data, steps=steps, projects=projects, form=form)
@@ -372,9 +368,7 @@ def data_upload(request, uid):
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
-        print(form.errors)
         messages.error(request, mark_safe(form.errors))
-        return redirect(reverse("data_upload", kwargs={'uid': project.uid}))
 
     form = DataUploadForm()
     context = dict(project=project, steps=steps, form=form)
@@ -424,8 +418,6 @@ def recipe_view(request, id):
             analysis = form.save()
             messages.success(request, f"Copied {name} in to {analysis.project.name}")
 
-        return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
-
     form = RecipeCopyForm(analysis=analysis, request=request)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
                    project=analysis.project)
@@ -463,8 +455,6 @@ def recipe_run(request, id):
 
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
 
-        return redirect(reverse("analysis_run", kwargs=dict(id=analysis.id)))
-
     initial = dict(name=analysis.name)
     form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
@@ -497,30 +487,27 @@ def recipe_code(request, id):
 
         if form.is_valid():
 
+            template = form.cleaned_data['template']
+
             # Preview action will let the form cascade through.
-            action = form.cleaned_data['action']
+            save = form.cleaned_data['action'] == 'SAVE'
 
             # The changes will commited on SAVE only.
             analysis.json_text = form.cleaned_data['json']
 
-            # We have to check if the template changed.
-            template = form.cleaned_data['template']
-
-            # Changes to template will require a review.
-            if auth.template_changed(analysis=analysis, template=template):
+            # Changes to template will require a review ( only when saving ).
+            if auth.template_changed(analysis=analysis, template=template) and save:
                 # Switch on the untrusted flag when the template changes.
                 analysis.security = Analysis.UNDER_REVIEW
 
-                # Set the new template.
-                analysis.template = template
+            # Set the new template.
+            analysis.template = template
 
             # The SAVE action commits the changes on the analysis.
-            if action == 'SAVE':
+            if save:
                 analysis.save()
                 messages.info(request, "The recipe code has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
-
-        return redirect(reverse("recipe_code", kwargs=dict(id=analysis.id)))
 
     # This gets triggered on a GET request.
     initial = dict(template=analysis.template, json=analysis.json_text)
@@ -566,12 +553,10 @@ def recipe_create(request, uid):
 
             recipe = auth.create_analysis(project=project, json_text="{}", template="",
                                           user=request.user, summary=summary, name=name, text=text,
-                                            security=security, stream=stream, sticky=sticky)
+                                          security=security, stream=stream, sticky=sticky)
             recipe.save()
             messages.success(request, "Recipe created")
             return redirect(back_url)
-
-        return redirect(action_url)
 
     form = RecipeForm()
     context = dict(steps=steps, analysis={"name": "New Analysis"},

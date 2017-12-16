@@ -65,7 +65,6 @@ def profile(request):
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
-@csrf.csrf_protect
 def user_signup(request):
 
     messages.info(request, "Signups are not yet enabled")
