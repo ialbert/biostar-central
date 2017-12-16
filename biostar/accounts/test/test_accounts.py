@@ -24,14 +24,13 @@ class UserAccountTests(TestCase):
         c = Client()
         c.login(username=self.user.username, email=self.user.email,
                 password=self.password)
-        
+
         for url in urls:
             resp = c.get(url)
             if resp.status_code != code:
                 # print (resp.content)
                 # We already know it is an error.
                 # Use this to prints the url and the code.
-                logger.error(f"")
                 logger.error(f"Error accessing: {url}, code={resp.status_code}")
                 self.assertEqual(url, code)
 

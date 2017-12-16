@@ -32,6 +32,7 @@ class JobViewTest(TestCase):
 
         pre = models.Job.objects.count()
         self.job = auth.create_job(analysis=self.recipe, user=self.owner)
+        self.job.save()
         self.assertTrue(models.Job.objects.count() == (pre + 1), "Error creating Job database")
 
 
@@ -60,6 +61,14 @@ class JobViewTest(TestCase):
 
         # Create files in job dir to copy
         #management.call_command('job', id=self.job.id)
+        management.call_command('job', id=self.job.id)
+        url = reverse('job_files_entry', kwargs=dict(id=self.job.id))
+
+        data = {"paths":"run.sh"}
+
+        request = util.fake_request(url=url, data=data, user=self.owner)
+
+        response = views.job_files_list(request=request, id=self.job.id)
 
         pass
 
@@ -67,5 +76,4 @@ class JobViewTest(TestCase):
         "Testing Job runner using management command"
 
         management.call_command('job', id=self.job.id, verbosity=2)
-        self.job.elapsed()
         management.call_command('job', list=True)

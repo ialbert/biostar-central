@@ -55,7 +55,7 @@ class object_access:
             if not allow_access:
 
                 # If there is a redirect url build with the id.
-                if self.url:
+                if self.url and id:
                     target = reverse(self.url, kwargs=dict(id=id) if kwargs.get('id') else dict(uid=id))
                 else:
                     target = reverse('project_list')
