@@ -1,7 +1,7 @@
 import logging
 from django.core import management
 from django.test import TestCase
-
+from django.forms import ValidationError
 from django.core.files import File
 from django.urls import reverse
 from biostar.engine import models, views, auth, factory, forms
@@ -105,5 +105,10 @@ class UtilTests(TestCase):
 
         collect = auth.findfiles("biostar/engine/test/data", collect=[])
         for fname in collect:
+
             text = engine_util.smart_preview(fname)
             self.assertTrue("error" not in text.split(), f"Preview error with {fname}")
+
+            with self.assertRaises(ValidationError):
+                forms.check_size(File(open(fname, "r")), maxsize=0.000001)
+

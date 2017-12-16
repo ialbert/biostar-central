@@ -59,8 +59,6 @@ class JobViewTest(TestCase):
     def test_job_files_entry(self):
         "Test job_files_entry with POST request"
 
-        # Create files in job dir to copy
-        #management.call_command('job', id=self.job.id)
         management.call_command('job', id=self.job.id)
         url = reverse('job_files_entry', kwargs=dict(id=self.job.id))
 
@@ -70,7 +68,12 @@ class JobViewTest(TestCase):
 
         response = views.job_files_list(request=request, id=self.job.id)
 
-        pass
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect after editing job:\nresponse:{response}")
+        self.assertTrue(self.job.url() == response.url,
+                        f"Could not redirect to correct page: {self.job.url()}!= {response.url}")
+
+
 
     def test_job_runner(self):
         "Testing Job runner using management command"

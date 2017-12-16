@@ -64,19 +64,37 @@ class LoginTest(TestCase):
         self.password = "testing"
         self.user = models.User.objects.create_user(username="test", email="test@l.com")
         self.user.set_password(self.password)
+        self.user.save()
 
     def test_login(self):
+        "Test Valid login"
         data = {"email": self.user.email, "password":self.password}
         url = reverse("login")
 
-        request = util.fake_request(url=url, data=data, user=self.user)
+        c = Client()
+        resp = c.post(url, data=data)
 
-        response = views.user_login(request=request)
-
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url == "/",
+                         f"Invlaid redirection when logging in.\nexpected: /\ngot:{resp.url}")
 
         return
 
+    def test_invalid_email(self):
+        "Test unvalid email redirection"
+        data1 = {"email": "foo", "password": self.password}
+        data2 = {"email": self.user.email, "password": "bar"}
+
+        for tests in (data1, data2):
+
+            url = reverse("login")
+
+            c = Client()
+            resp = c.post(url, data=tests)
+
+            self.assertEqual(resp.status_code, 302)
+            self.assertTrue(resp.url == url,
+                            f"Invalid redirection when given wrong creds.\nexpected: {url}\ngot:{resp.url}")
 
 class ProfileTest(TestCase):
 
@@ -85,6 +103,7 @@ class ProfileTest(TestCase):
         self.password = "testing"
         self.user = models.User.objects.create_user(username="test", email="test@l.com")
         self.user.set_password(self.password)
+        self.user.save()
 
         return
 
@@ -93,6 +112,7 @@ class ProfileTest(TestCase):
         "Test profile with a logged in user with GET Request"
         data = {}
         url = reverse("profile")
+
 
         request = util.fake_request(url=url, data=data, user=self.user, method="GET")
 
