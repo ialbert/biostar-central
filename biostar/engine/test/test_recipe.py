@@ -43,8 +43,8 @@ class RecipeViewTest(TestCase):
 
         response = views.recipe_view(request=request, id=self.recipe.id)
 
-        self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to after copying:\nresponse:{response}")
+        self.assertEqual(response.status_code, 200,
+                         f"Could not load to after copying:\nresponse:{response}")
 
     @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
     def test_recipe_run(self):
