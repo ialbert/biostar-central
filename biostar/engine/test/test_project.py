@@ -92,6 +92,13 @@ class ProjectViewTest(TestCase):
         self.assertTrue(len(users) ==len(user_forms), "Error generating users access forms ( forms.access_forms) ")
 
 
+    def test_image_path(self):
+        "Test image_path function found in engine.models"
+
+        imgpath = models.image_path(instance=self.project, filename=__file__)
+
+        pass
+
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"
 

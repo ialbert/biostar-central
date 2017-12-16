@@ -81,13 +81,19 @@ class FactoryTest(TestCase):
         field = factory.dynamic_field(json_data, project=self.project)
 
         if not field:
-            message = f"field generator for display={display_type} failed"
-            self.assertFalse(message)
+            self.assertFalse(f"field generator for display={display_type} failed")
 
 
     def test_data_generator(self):
         "Test data generator"
-        pass
+
+        field = factory.data_field_generator(field={}, project=self.project)
+
+
+        if not field:
+            self.assertFalse(f"data field generator failed")
+
+
 
 
 class UtilTests(TestCase):

@@ -67,4 +67,5 @@ class JobViewTest(TestCase):
         "Testing Job runner using management command"
 
         management.call_command('job', id=self.job.id, verbosity=2)
+        self.job.elapsed()
         management.call_command('job', list=True)

@@ -57,6 +57,11 @@ class DataViewTest(TestCase):
 
         response = views.data_edit(request=request, id=self.data.id)
 
+        obj ={}
+        self.data.fill_dict(obj=obj)
+
+        self.assertTrue("toc" in obj, "Table of content not added during fill_dict()")
+
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to data view after copying Data:\nresponse:{response}")
 

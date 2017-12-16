@@ -13,11 +13,20 @@ logger = logging.getLogger('engine')
 
 class UserAccountTests(TestCase):
 
+    def setUp(self):
+        self.password = "testing"
+        self.user = models.User.objects.create_user(username="test", email="test@l.com")
+        self.user.set_password(self.password)
+        self.user.save()
 
     def visit_urls(self, urls, code):
+
         c = Client()
+        c.login(username=self.user.username, email=self.user.email,
+                password=self.password)
+        
         for url in urls:
-            resp = c.get(url, follow=True)
+            resp = c.get(url)
             if resp.status_code != code:
                 # print (resp.content)
                 # We already know it is an error.
@@ -31,7 +40,7 @@ class UserAccountTests(TestCase):
         urls = [
             reverse('index'),
             reverse('logout'),
-            reverse('login'), reverse('signup'),
+            reverse('login'),
             reverse('profile'),
             reverse('edit_profile'),
             reverse('password_reset'),
@@ -41,6 +50,13 @@ class UserAccountTests(TestCase):
 
         self.visit_urls(urls, 200)
 
+    def test_redirect(self):
+        urls = [
+
+            reverse('signup')
+        ]
+        self.visit_urls(urls, 302)
+
 
 class LoginTest(TestCase):
 
@@ -49,7 +65,6 @@ class LoginTest(TestCase):
         self.password = "testing"
         self.user = models.User.objects.create_user(username="test", email="test@l.com")
         self.user.set_password(self.password)
-        return
 
     def test_login(self):
         data = {"email": self.user.email, "password":self.password}
