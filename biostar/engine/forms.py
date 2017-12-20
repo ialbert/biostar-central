@@ -4,7 +4,7 @@ from django.contrib import messages
 import hjson
 from . import models, auth, factory
 from .const import *
-from .models import Project, Data, Analysis, Job, Access
+from .models import Project, Data, Analysis, Job, Access, DataType
 from biostar.accounts.models import User
 from django.utils.safestring import mark_safe
 
@@ -75,6 +75,12 @@ class DataEditForm(forms.ModelForm):
         model = Data
         fields = ['name', 'summary', 'text', 'sticky']
 
+
+class DataTypeForm(forms.ModelForm):
+
+    class Meta:
+        model = DataType
+        fields = ['name', 'symbol', 'uid', 'numeric', 'help']
 
 class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)

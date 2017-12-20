@@ -181,19 +181,18 @@ def project_users(request, uid):
 
     return render(request, "project_users.html", context=context)
 
-
-
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
-def project_types(request, id):
+def project_types(request, uid):
 
-    project = ""
+    project = Project.objects.filter(uid=uid).first()
 
     if request.method == "POST":
-        form = ""
+        form = DataTypeForm(data=request.POST)
+
         if form.is_valid():
             return
 
-    form = ""
+    form = DataTypeForm()
     context = dict(project=project, form=form)
     return render(request, "project_types.html", context=context)
 
