@@ -108,10 +108,13 @@ class DataType(models.Model):
     name = models.CharField(default="name", max_length=MAX_NAME_LEN)
 
     # Symobol is what we enter in the json file
-    symbol = models.IntegerField()
+    symbol = models.CharField(max_length=MAX_FIELD_LEN)
+
+    numeric = models.IntegerField(unique=True)
+
     help = models.CharField(default="description", max_length=MAX_FIELD_LEN)
 
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, null=True)
 
     uid = models.CharField(max_length=32, unique=True)
 
@@ -152,14 +155,13 @@ def create_access(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Project)
 def add_datatype(sender, instance, created, **kwargs):
 
-
     if created:
-        # Add constant datatypes to project on creation
-        for types in const.DATA_TYPES:
+        # Add constant datatypes to every project on creation
 
-            DataType.objects.create()
-            1/0
-            pass
+        for numeric,symbol,name in const.DATA_TUPLES:
+
+            DataType.objects.create(project=instance, numeric=numeric,
+                                    symbol=symbol, name=name)
 
 
 class Data(models.Model):

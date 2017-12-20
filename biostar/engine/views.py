@@ -182,6 +182,22 @@ def project_users(request, uid):
     return render(request, "project_users.html", context=context)
 
 
+
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+def project_types(request, id):
+
+    project = ""
+
+    if request.method == "POST":
+        form = ""
+        if form.is_valid():
+            return
+
+    form = ""
+    context = dict(project=project, form=form)
+    return render(request, "project_types.html", context=context)
+
+
 def project_list(request):
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
