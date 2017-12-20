@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from biostar import settings
+from biostar.tools import const
 from biostar.accounts.models import User, Group
 from . import util
 from .const import *
@@ -50,16 +51,6 @@ def image_path(instance, filename):
     imgpath = os.path.join(path, imgname)
 
     return imgpath
-
-
-#class DataType(models.Model):
-#    name = ""
-
-    # Symobol is what we enter in the json file
-#    symbol = ""
-#    help = ""
-#    pass
-
 
 
 class Project(models.Model):
@@ -112,6 +103,19 @@ class Project(models.Model):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
+class DataType(models.Model):
+
+    name = models.CharField(default="name", max_length=MAX_NAME_LEN)
+
+    # Symobol is what we enter in the json file
+    symbol = models.IntegerField()
+    help = models.CharField(default="description", max_length=MAX_FIELD_LEN)
+
+    project = models.ForeignKey(Project)
+
+    uid = models.CharField(max_length=32, unique=True)
+
+
 class Access(models.Model):
     """
     Allows access of users to Projects.
@@ -143,6 +147,19 @@ def create_access(sender, instance, created, **kwargs):
     if created:
         # Creates an admin access for the user.
         Access.objects.create(user=instance.owner, project=instance, access=Access.ADMIN_ACCESS)
+
+
+@receiver(post_save, sender=Project)
+def add_datatype(sender, instance, created, **kwargs):
+
+
+    if created:
+        # Add constant datatypes to project on creation
+        for types in const.DATA_TYPES:
+
+            DataType.objects.create()
+            1/0
+            pass
 
 
 class Data(models.Model):
