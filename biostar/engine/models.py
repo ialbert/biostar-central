@@ -108,8 +108,11 @@ class DataType(models.Model):
 
     name = models.CharField(default="name", max_length=MAX_NAME_LEN)
 
-    # Symobol is what we enter in the json file and match against
+    # Symobol is what we enter in the json file
     symbol = models.CharField(max_length=MAX_FIELD_LEN)
+
+    #TODO: can not make uniqe currently and that can be an issue
+    numeric = models.IntegerField()
 
     help = models.CharField(default="description", max_length=MAX_NAME_LEN)
 
@@ -119,6 +122,9 @@ class DataType(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
+
+        if not self.numeric:
+            self.numeric = randint(900, 1e7)
 
         super(DataType, self).save(*args, **kwargs)
 
@@ -168,9 +174,9 @@ def add_datatypes(sender, instance, created, **kwargs):
 
     for numeric, symbol, name in const.DATA_TUPLES:
 
-        if not DataType.objects.filter(project=instance).first():
+        if not DataType.objects.filter(project=instance, numeric=numeric).first():
 
-            datatype = DataType.objects.create(project=instance,
+            datatype = DataType.objects.create(project=instance, numeric=numeric,
                                     symbol=symbol, name=name)
             datatype.save()
 
