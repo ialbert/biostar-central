@@ -16,7 +16,7 @@
                 <i class="file outline icon"></i>
                 <p class="content">
                     Manage Data Types
-                <p class="sub header">Manage data types to later sub-select from existing data</p>
+                <p class="sub header">Manage data types found in this project</p>
                 </p>
             </h3>
         </div>
@@ -57,6 +57,7 @@
                 Create Data Type
             </div>
             <form method="post" class="ui form" action="{% url 'project_types' project.uid %}">
+                {% csrf_token %}
 
                  <div class="field">
                     <label>Name</label>

@@ -196,8 +196,9 @@ def project_types(request, uid):
         form = DataTypeForm(data=request.POST)
 
         if form.is_valid():
-            form.save()
-            return
+            pass
+            #form.save()
+            #return
 
     form = DataTypeForm()
     context = dict(project=project, form=form, steps=steps, current=project.datatype_set.all())
