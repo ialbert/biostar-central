@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% load engine_tags %}
 
-{% block body %}
+{% block headtitle %}
+    Managing Data Types: {{ project.name }}
+{% endblock %}
 
+{% block body %}
 
     <div class="ui raised segments">
         {% project_name_bar project %}
@@ -17,6 +20,27 @@
             </h3>
         </div>
 
+    </div>
+
+    <div class="ui basic segment">
+        <div class="ui cards">
+
+            {% for type in current %}
+                 <div class="ui card">
+                    <div class="content">
+                        <a class="header"> {{ type.name }}</a>
+                        <div class="meta">
+                            <span class="date">{{ type.symbol }}</span>
+                        </div>
+
+                    </div>
+                    <div class="content">
+                        <span class="date">{{ type.help }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
 
     </div>
 

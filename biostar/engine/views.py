@@ -183,9 +183,10 @@ def project_users(request, uid):
 
     return render(request, "project_users.html", context=context)
 
+
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_types(request, uid):
-    "Add or remove different datatypes from a project"
+    "Manage data types belonging to a project from a project"
 
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, PROJECT_TYPES],
@@ -195,10 +196,11 @@ def project_types(request, uid):
         form = DataTypeForm(data=request.POST)
 
         if form.is_valid():
+            form.save()
             return
 
     form = DataTypeForm()
-    context = dict(project=project, form=form, steps=steps)
+    context = dict(project=project, form=form, steps=steps, current=project.datatype_set.all())
     return render(request, "project_types.html", context=context)
 
 
