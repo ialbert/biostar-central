@@ -138,6 +138,7 @@ def type_label(data):
     """
     color = "" if data.data_type == const.GENERIC_TYPE else "green"
     label = const.DATA_TYPES.get(data.data_type, "Generic")
+
     return dict(label=label, color=color)
 
 

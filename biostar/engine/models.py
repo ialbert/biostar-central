@@ -111,7 +111,7 @@ class DataType(models.Model):
     symbol = models.CharField(max_length=MAX_FIELD_LEN)
 
     # given numeric value if one not given
-    numeric = models.IntegerField(unique=True, auto_created=True)
+    numeric = models.IntegerField(auto_created=True)
 
     help = models.CharField(default="description", max_length=MAX_FIELD_LEN)
 
@@ -124,6 +124,8 @@ class DataType(models.Model):
 
         super(DataType, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return self.name
 
 
 class Access(models.Model):
@@ -154,19 +156,21 @@ class Access(models.Model):
 
 @receiver(post_save, sender=Project)
 def create_access(sender, instance, created, **kwargs):
+
     if created:
         # Creates an admin access for the user.
         access = Access.objects.create(user=instance.owner, project=instance, access=Access.ADMIN_ACCESS)
         access.save()
 
+
 @receiver(post_save, sender=Project)
-def add_datatype(sender, instance, created, **kwargs):
+def add_datatypes(sender, instance, created, **kwargs):
 
-    # Add constant datatypes to every project on creation
+    # Add all constant datatypes to a project on creation
 
-    for numeric,symbol,name in const.DATA_TUPLES:
+    for numeric, symbol, name in const.DATA_TUPLES:
 
-        if not DataType.objects.filter(numeric=numeric).first():
+        if not DataType.objects.filter(project=instance, numeric=numeric).first():
 
             datatype = DataType.objects.create(project=instance, numeric=numeric,
                                     symbol=symbol, name=name)
@@ -281,6 +285,7 @@ class Data(models.Model):
         obj['data_dir'] = self.get_data_dir()
         obj['project_dir'] = self.get_project_dir()
         obj['data_url'] = self.get_url()
+
 
 
 class Analysis(models.Model):

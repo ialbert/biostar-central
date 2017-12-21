@@ -124,6 +124,8 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
         elif icon == ADD_USER:
             step = (reverse("project_view", kwargs={'uid': project.uid}), ADD_USER, "Manage Access", is_active)
+        elif icon == PROJECT_TYPES:
+            step = (reverse("project_types", kwargs={'uid': project.uid}), PROJECT_TYPES, "Manage Data Types", is_active)
         else:
             continue
 
@@ -183,8 +185,11 @@ def project_users(request, uid):
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_types(request, uid):
+    "Add or remove different datatypes from a project"
 
     project = Project.objects.filter(uid=uid).first()
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, PROJECT_TYPES],
+                               project=project)
 
     if request.method == "POST":
         form = DataTypeForm(data=request.POST)
@@ -193,7 +198,7 @@ def project_types(request, uid):
             return
 
     form = DataTypeForm()
-    context = dict(project=project, form=form)
+    context = dict(project=project, form=form, steps=steps)
     return render(request, "project_types.html", context=context)
 
 
@@ -353,14 +358,14 @@ def data_edit(request, id):
                                project=project, data=data)
 
     if request.method == "POST":
-        form = DataEditForm(request.POST, instance=data)
+        form = DataEditForm(data=request.POST, instance=data, project=project)
         if form.is_valid():
             form.save()
         else:
             messages.error(request, mark_safe(form.errors))
         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 
-    form = DataEditForm(instance=data)
+    form = DataEditForm(instance=data, project=project, initial=dict(data_type=data.data_type))
     context = dict(data=data, steps=steps, form=form)
     return render(request, 'data_edit.html', context)
 
@@ -372,7 +377,7 @@ def data_upload(request, uid):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
                                project=project)
     if request.method == "POST":
-        form = DataUploadForm(request.POST, request.FILES)
+        form = DataUploadForm(data=request.POST, files=request.FILES, project=project)
 
         if form.is_valid():
             text = form.cleaned_data["text"]
@@ -385,7 +390,7 @@ def data_upload(request, uid):
 
         messages.error(request, mark_safe(form.errors))
 
-    form = DataUploadForm()
+    form = DataUploadForm(project=project)
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'data_upload.html', context)
 

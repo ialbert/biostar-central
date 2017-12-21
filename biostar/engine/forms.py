@@ -51,8 +51,16 @@ class ProjectForm(forms.ModelForm):
 
 
 class DataUploadForm(forms.ModelForm):
-    # choices = DATA_TYPES.items()
-    # data_type = forms.IntegerField(widget=forms.Select(choices=choices))
+
+    def __init__(self, project, *args, **kwargs):
+
+        self.project = project
+
+        super().__init__(*args, **kwargs)
+
+        choices = [(d.numeric, d.name) for d in self.project.datatype_set.all()]
+        self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
+                                                      required=False)
 
     file = forms.FileField()
 
@@ -68,12 +76,20 @@ class DataUploadForm(forms.ModelForm):
 
 
 class DataEditForm(forms.ModelForm):
-    # choices = DATA_TYPES.items()
-    # data_type = forms.IntegerField(widget=forms.Select(choices=choices))
+
+    def __init__(self, project, *args, **kwargs):
+
+        self.project = project
+
+        super().__init__(*args, **kwargs)
+
+        choices = [(d.numeric, d.name) for d in self.project.datatype_set.all()]
+        self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
+                                                      required=False)
 
     class Meta:
         model = Data
-        fields = ['name', 'summary', 'text', 'sticky']
+        fields = ['name', 'summary', 'text', 'sticky', "data_type"]
 
 
 class DataTypeForm(forms.ModelForm):

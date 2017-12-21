@@ -6,15 +6,6 @@
     {{ project.name }}
 {% endblock %}
 
-
-{% block menu %}
-    {% menubar project=project edit_project=True %}
-{% endblock %}
-
-{% block breadcrumb %}
-    {% breadcrumb steps=steps %}
-{% endblock %}
-
 {% block body %}
 
     <div class="ui raised segments">
@@ -99,7 +90,7 @@
             </a>
 
             <a class="ui button" href="{% url 'project_types' project.uid %}">
-                <i class="object group icon"></i>Manage Data Types
+                <i class="file outline icon"></i>Manage Data Types
             </a>
         </div>
 
