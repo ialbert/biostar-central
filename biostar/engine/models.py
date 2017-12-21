@@ -1,4 +1,5 @@
 import logging
+from random import randint
 
 import hjson
 import mistune
@@ -110,6 +111,7 @@ class DataType(models.Model):
     # Symobol is what we enter in the json file
     symbol = models.CharField(max_length=MAX_FIELD_LEN)
 
+    #TODO: can not make uniqe currently and that can be an issue
     numeric = models.IntegerField()
 
     help = models.CharField(default="description", max_length=MAX_NAME_LEN)
@@ -122,7 +124,7 @@ class DataType(models.Model):
         self.uid = self.uid or util.get_uuid(8)
 
         if not self.numeric:
-            self.numeric = util.rand_digit(10)
+            self.numeric = randint(900, 1e7)
 
         super(DataType, self).save(*args, **kwargs)
 

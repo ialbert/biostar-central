@@ -35,7 +35,7 @@ class ProjectForm(forms.ModelForm):
 
     image = forms.ImageField(required=False)
 
-    # Should not edit uid because the data directories get messed up
+    # Should not edit uid because data directories get recreated
     uid = forms.CharField(max_length=32, required=False)
 
     class Meta:
@@ -90,11 +90,14 @@ class DataEditForm(forms.ModelForm):
         fields = ['name', 'summary', 'text', 'sticky', "data_type"]
 
 
-class DataTypeForm(forms.ModelForm):
+class DataTypeForm(forms.Form):
 
-    class Meta:
-        model = DataType
-        fields = ['name', 'symbol', 'numeric', 'help']
+    name = forms.CharField()
+    symbol = forms.CharField()
+    help = forms.CharField()
+
+    def save(self):
+        return
 
 
 class RecipeForm(forms.ModelForm):
