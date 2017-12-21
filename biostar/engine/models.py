@@ -110,10 +110,9 @@ class DataType(models.Model):
     # Symobol is what we enter in the json file
     symbol = models.CharField(max_length=MAX_FIELD_LEN)
 
-    # given numeric value if one not given
-    numeric = models.IntegerField(auto_created=True)
+    numeric = models.IntegerField()
 
-    help = models.CharField(default="description", max_length=MAX_FIELD_LEN)
+    help = models.CharField(default="description", max_length=MAX_NAME_LEN)
 
     project = models.ForeignKey(Project, null=True)
 
@@ -121,6 +120,9 @@ class DataType(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
+
+        if not self.numeric:
+            self.numeric = util.rand_digit(10)
 
         super(DataType, self).save(*args, **kwargs)
 

@@ -52,6 +52,8 @@ class ProjectForm(forms.ModelForm):
 
 class DataUploadForm(forms.ModelForm):
 
+    file = forms.FileField()
+
     def __init__(self, project, *args, **kwargs):
 
         self.project = project
@@ -61,12 +63,9 @@ class DataUploadForm(forms.ModelForm):
         choices = [(d.numeric, d.name) for d in self.project.datatype_set.all()]
         self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
                                                       required=False)
-
-    file = forms.FileField()
-
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'text', "sticky"]
+        fields = ['file', 'summary', 'text', "sticky",  "data_type"]
 
     def clean_file(self):
         cleaned_data = super(DataUploadForm, self).clean()
@@ -86,7 +85,6 @@ class DataEditForm(forms.ModelForm):
         choices = [(d.numeric, d.name) for d in self.project.datatype_set.all()]
         self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
                                                       required=False)
-
     class Meta:
         model = Data
         fields = ['name', 'summary', 'text', 'sticky', "data_type"]
@@ -96,7 +94,8 @@ class DataTypeForm(forms.ModelForm):
 
     class Meta:
         model = DataType
-        fields = ['name', 'symbol', 'uid', 'numeric', 'help']
+        fields = ['name', 'symbol', 'numeric', 'help']
+
 
 class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)

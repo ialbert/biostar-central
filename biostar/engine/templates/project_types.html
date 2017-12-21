@@ -10,7 +10,8 @@
     <div class="ui raised segments">
         {% project_name_bar project %}
 
-        <div class="ui center aligned segment">
+    <div class="ui segment">
+        <div class="ui center aligned basic segment">
             <h3 class="ui icon header">
                 <i class="file outline icon"></i>
                 <p class="content">
@@ -20,29 +21,37 @@
             </h3>
         </div>
 
-    </div>
 
-    <div class="ui basic segment">
-        <div class="ui cards">
+        <div class="ui three column stackable grid">
+
+            <div class="center aligned column">
+                <p class="ui large label">Name</p>
+            </div>
+            <div class="center aligned column">
+                <p class="ui large label">Symbol</p>
+            </div>
+            <div class="center aligned column">
+                <p class="ui large label">Help</p>
+            </div>
 
             {% for type in current %}
-                 <div class="ui card">
-                    <div class="content">
-                        <a class="header"> {{ type.name }}</a>
-                        <div class="meta">
-                            <span class="date">{{ type.symbol }}</span>
+                 <div class="ui row">
+                        <div class="center aligned column">
+                            <p class="header"> {{ type.name }}</p>
                         </div>
-
-                    </div>
-                    <div class="content">
-                        <span class="date">{{ type.help }}</span>
-                    </div>
-                </div>
+                        <div class="center aligned column">
+                            <p class="date">{{ type.symbol }}</p>
+                        </div>
+                        <div class="center aligned column">
+                            <p class="date">{{ type.help }}</p>
+                        </div>
+                 </div>
             {% endfor %}
 
         </div>
 
     </div>
 
+</div>
 
 {% endblock %}
