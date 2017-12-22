@@ -194,6 +194,8 @@ def project_types(request, uid):
         form = CreateDataTypeForm(project=project, data=request.POST)
         if form.is_valid():
             form.save()
+        else:
+            messages.error(request, mark_safe(form.errors))
 
     current = project.datatype_set.order_by("-id")
     form = CreateDataTypeForm(project=project)
