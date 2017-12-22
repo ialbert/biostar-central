@@ -82,7 +82,7 @@ class DataEditForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        choices = [(d.numeric, d.name) for d in self.project.datatype_set.all()]
+        choices = set([(d.numeric, d.name) for d in self.project.datatype_set.all()])
         self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
                                                       required=False)
     class Meta:
@@ -92,9 +92,9 @@ class DataEditForm(forms.ModelForm):
 
 class DataTypeForm(forms.Form):
 
-    name = forms.CharField()
-    symbol = forms.CharField()
-    help = forms.CharField()
+    name = forms.CharField(max_length=32, required=False)
+    symbol = forms.CharField(max_length=32, required=False)
+    help = forms.CharField(max_length=32, required=False)
 
     def save(self):
         return

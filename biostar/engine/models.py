@@ -170,11 +170,11 @@ def create_access(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Project)
 def add_datatypes(sender, instance, created, **kwargs):
 
-    # Add all constant datatypes to a project on creation
+    # Pre-load data types to a project on creation
 
     for numeric, symbol, name in const.DATA_TUPLES:
 
-        if not DataType.objects.filter(project=instance, numeric=numeric).first():
+        if created:
 
             datatype = DataType.objects.create(project=instance, numeric=numeric,
                                     symbol=symbol, name=name)
