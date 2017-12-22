@@ -5,7 +5,6 @@ import mistune
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
-from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 # from django.template.loader import get_template
@@ -191,17 +190,14 @@ def project_types(request, uid):
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, PROJECT_TYPES],
                                project=project)
-
     if request.method == "POST":
-        form = DataTypeForm(data=request.POST)
-
+        form = CreateDataTypeForm(project=project, data=request.POST)
         if form.is_valid():
-            pass
-            #form.save()
-            #return
+            form.save()
 
-    form = DataTypeForm()
-    context = dict(project=project, form=form, steps=steps, current=project.datatype_set.all())
+    current = project.datatype_set.order_by("-id")
+    form = CreateDataTypeForm(project=project)
+    context = dict(project=project, form=form, steps=steps, current=current)
     return render(request, "project_types.html", context=context)
 
 

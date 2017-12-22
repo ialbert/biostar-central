@@ -1,6 +1,7 @@
 import copy
 from django import forms
 from django.contrib import messages
+from django.db.models import Q
 import hjson
 from . import models, auth, factory
 from .const import *
@@ -90,14 +91,44 @@ class DataEditForm(forms.ModelForm):
         fields = ['name', 'summary', 'text', 'sticky', "data_type"]
 
 
-class DataTypeForm(forms.Form):
 
-    name = forms.CharField(max_length=32, required=False)
-    symbol = forms.CharField(max_length=32, required=False)
+class CreateDataTypeForm(forms.Form):
+
+    name = forms.CharField(max_length=32)
+    symbol = forms.CharField(max_length=32)
     help = forms.CharField(max_length=32, required=False)
 
+    def __init__(self, project, *args, **kwargs):
+
+        self.project = project
+
+        super().__init__(*args,**kwargs)
+
     def save(self):
-        return
+
+        name = self.cleaned_data["name"]
+        symbol = self.cleaned_data["symbol"]
+        help = self.cleaned_data.get("help", "description")
+
+        new_datatype = DataType(project=self.project, name=name,
+                                symbol=symbol, help=help)
+        new_datatype.save()
+
+        return new_datatype
+
+    def clean(self):
+        cleaned_data = super(CreateDataTypeForm, self).clean()
+
+        # Ensure name and symbol do not already exist for this project
+        name = cleaned_data["name"]
+        symbol = cleaned_data["symbol"]
+
+        query = DataType.objects.filter(project=self.project)
+        query = query.filter(Q(symbol=symbol)|Q(name=name))
+
+        if query:
+            raise forms.ValidationError("Data type with that name/symbol already exists for this project")
+
 
 
 class RecipeForm(forms.ModelForm):
