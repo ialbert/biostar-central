@@ -78,7 +78,6 @@ def breadcrumb_builder(icons=[], project=T, analysis=T, job=T, data=T):
             continue
 
         step = (ready["url"], icon, ready["name"], is_active)
-
         path.append(step)
 
     return path
