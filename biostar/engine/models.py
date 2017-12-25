@@ -12,7 +12,7 @@ from django.utils import timezone
 
 from biostar import settings
 from biostar.tools import const
-from biostar.accounts.models import User, Group
+from biostar.accounts.models import User
 from . import util
 from .const import *
 

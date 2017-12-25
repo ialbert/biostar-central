@@ -2,7 +2,6 @@ from django.db.models.signals import post_migrate
 from django.apps import AppConfig
 from django.conf import settings
 import logging
-from biostar.engine import util
 
 logger = logging.getLogger('engine')
 
@@ -20,7 +19,7 @@ def init_users(sender, **kwargs):
     """
     Creates admin users and groups if needed.
     """
-    from biostar.engine.models import User, Group
+    from .models import User, Group
 
     admin_group, created = Group.objects.get_or_create(name=settings.ADMIN_GROUP_NAME)
 
