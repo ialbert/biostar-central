@@ -5,11 +5,10 @@ import mistune
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
-from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
-# from django.template.loader import get_template
-from django.utils.safestring import mark_safe
+# from django.utils.safestring import mark_safe
+from biostar.breadcrumb import breadcrumb_builder
 from . import tasks
 from .decorators import object_access
 from .forms import *
@@ -75,63 +74,6 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None, user=None):
-    """
-    This function builds the breadcrumbs on each page.
-    """
-    if not icons:
-        return []
-
-    path = []
-    last = icons[-1]
-    for icon in icons:
-        is_active = icon is last
-        if icon == HOME_ICON:
-            step = (reverse("index"), HOME_ICON, "Home", is_active)
-        elif icon == PROJECT_LIST_ICON:
-            step = (reverse("project_list"), PROJECT_LIST_ICON, "Project List", is_active)
-        elif icon == PROJECT_ICON:
-            step = (project.url(), PROJECT_ICON, "Project View", is_active)
-        elif icon == DATA_LIST_ICON:
-            step = (reverse("data_list", kwargs={'uid': project.uid}), DATA_LIST_ICON, "Data Files", is_active)
-        elif icon == DATA_ICON:
-            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"File View", is_active)
-        elif icon == DATA_UPLOAD:
-            step = (reverse("data_view", kwargs={'id': project.id}), DATA_UPLOAD, f"File Upload", is_active)
-        elif icon == ANALYSIS_LIST_ICON:
-            step = (reverse("recipe_list", kwargs={'uid': project.uid}), ANALYSIS_LIST_ICON, "Recipe List", is_active)
-        elif icon == ANALYSIS_VIEW_ICON:
-            step = (reverse("recipe_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Recipe View", is_active)
-        elif icon == ANALYSIS_RUN_ICON:
-            step = (reverse("analysis_run", kwargs={'id': analysis.id}), ANALYSIS_RUN_ICON, "Analysis Run", is_active)
-        elif icon == ANALYSIS_RECIPE_ICON:
-            step = (reverse("recipe_view", kwargs={'id': analysis.id}), ANALYSIS_RECIPE_ICON, "Recipe Code", is_active)
-        elif icon == RESULT_LIST_ICON:
-            step = (reverse("job_list", kwargs={'uid': project.uid, }), RESULT_LIST_ICON, "Result List", is_active)
-        elif icon == RESULT_VIEW_ICON:
-            step = (reverse("job_view", kwargs={'id': job.id}), RESULT_VIEW_ICON, "Result View", is_active)
-        elif icon == USER_ICON:
-            step = (reverse("profile"), USER_ICON, f"Profile", is_active)
-        elif icon == LOGIN_ICON:
-            step = (reverse("login"), LOGIN_ICON, "Login", is_active)
-        elif icon == LOGOUT_ICON:
-            step = (reverse("login"), LOGOUT_ICON, "Logout", is_active)
-        elif icon == INFO_ICON:
-            step = (reverse("info"), INFO_ICON, "Information", is_active)
-        elif icon == SIGNUP_ICON:
-            step = (reverse("signup"), SIGNUP_ICON, "Sign up", is_active)
-        elif icon == RESULT_INDEX_ICON:
-            step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
-        elif icon == ADD_USER:
-            step = (reverse("project_view", kwargs={'uid': project.uid}), ADD_USER, "Manage Access", is_active)
-        else:
-            continue
-
-        path.append(step)
-
-    return path
-
-
 @user_passes_test(lambda u: u.is_superuser)
 def site_admin(request):
     '''
@@ -180,6 +122,26 @@ def project_users(request, uid):
     context = dict(steps=steps, current=current, project=project, results=results)
 
     return render(request, "project_users.html", context=context)
+
+
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+def project_types(request, uid):
+    "Manage data types belonging to a project from a project"
+
+    project = Project.objects.filter(uid=uid).first()
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, PROJECT_TYPES],
+                               project=project)
+    if request.method == "POST":
+        form = CreateDataTypeForm(project=project, data=request.POST)
+        if form.is_valid():
+            form.save()
+        else:
+            messages.error(request, mark_safe(form.errors))
+
+    current = project.datatype_set.order_by("-id")
+    form = CreateDataTypeForm(project=project)
+    context = dict(project=project, form=form, steps=steps, current=current)
+    return render(request, "project_types.html", context=context)
 
 
 def project_list(request):
@@ -338,14 +300,14 @@ def data_edit(request, id):
                                project=project, data=data)
 
     if request.method == "POST":
-        form = DataEditForm(request.POST, instance=data)
+        form = DataEditForm(data=request.POST, instance=data, project=project)
         if form.is_valid():
             form.save()
         else:
             messages.error(request, mark_safe(form.errors))
         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 
-    form = DataEditForm(instance=data)
+    form = DataEditForm(instance=data, project=project, initial=dict(data_type=data.data_type))
     context = dict(data=data, steps=steps, form=form)
     return render(request, 'data_edit.html', context)
 
@@ -357,7 +319,7 @@ def data_upload(request, uid):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
                                project=project)
     if request.method == "POST":
-        form = DataUploadForm(request.POST, request.FILES)
+        form = DataUploadForm(data=request.POST, files=request.FILES, project=project)
 
         if form.is_valid():
             text = form.cleaned_data["text"]
@@ -370,7 +332,7 @@ def data_upload(request, uid):
 
         messages.error(request, mark_safe(form.errors))
 
-    form = DataUploadForm()
+    form = DataUploadForm(project=project)
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'data_upload.html', context)
 

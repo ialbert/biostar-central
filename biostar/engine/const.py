@@ -11,6 +11,7 @@ def join(*args):
 HOME_ICON = "home"
 PROJECT_LIST_ICON = "database"
 PROJECT_ICON = "archive"
+PROJECT_TYPES = "file outline"
 DATA_LIST_ICON = "file text"
 DATA_ICON = "file"
 ANALYSIS_LIST_ICON = "settings"

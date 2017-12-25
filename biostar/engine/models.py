@@ -1,4 +1,5 @@
 import logging
+from random import randint
 
 import hjson
 import mistune
@@ -10,7 +11,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from biostar import settings
-from biostar.accounts.models import User, Group
+from biostar.tools import const
+from biostar.accounts.models import User
 from . import util
 from .const import *
 
@@ -50,16 +52,6 @@ def image_path(instance, filename):
     imgpath = os.path.join(path, imgname)
 
     return imgpath
-
-
-#class DataType(models.Model):
-#    name = ""
-
-    # Symobol is what we enter in the json file
-#    symbol = ""
-#    help = ""
-#    pass
-
 
 
 class Project(models.Model):
@@ -112,6 +104,34 @@ class Project(models.Model):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
+class DataType(models.Model):
+
+    name = models.CharField(default="name", max_length=MAX_NAME_LEN)
+
+    # Symobol is what we enter in the json file
+    symbol = models.CharField(max_length=MAX_FIELD_LEN)
+
+    #TODO: can not make uniqe currently and that can be an issue
+    numeric = models.IntegerField()
+
+    help = models.CharField(default="description", max_length=MAX_NAME_LEN)
+
+    project = models.ForeignKey(Project, null=True)
+
+    uid = models.CharField(max_length=32, unique=True)
+
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or util.get_uuid(8)
+
+        if not self.numeric:
+            self.numeric = randint(900, 1e7)
+
+        super(DataType, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
 class Access(models.Model):
     """
     Allows access of users to Projects.
@@ -140,9 +160,25 @@ class Access(models.Model):
 
 @receiver(post_save, sender=Project)
 def create_access(sender, instance, created, **kwargs):
+
     if created:
         # Creates an admin access for the user.
-        Access.objects.create(user=instance.owner, project=instance, access=Access.ADMIN_ACCESS)
+        access = Access.objects.create(user=instance.owner, project=instance, access=Access.ADMIN_ACCESS)
+        access.save()
+
+
+@receiver(post_save, sender=Project)
+def add_datatypes(sender, instance, created, **kwargs):
+
+    # Pre-load data types to a project on creation
+
+    for numeric, symbol, name in const.DATA_TUPLES:
+
+        if created:
+
+            datatype = DataType.objects.create(project=instance, numeric=numeric,
+                                    symbol=symbol, name=name)
+            datatype.save()
 
 
 class Data(models.Model):
@@ -253,6 +289,7 @@ class Data(models.Model):
         obj['data_dir'] = self.get_data_dir()
         obj['project_dir'] = self.get_project_dir()
         obj['data_url'] = self.get_url()
+
 
 
 class Analysis(models.Model):

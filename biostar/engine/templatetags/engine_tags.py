@@ -1,17 +1,15 @@
 from textwrap import dedent
 import hjson, logging
-from django import forms
 from django import template
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.template import Template, Context
 from django.template import loader
 from django.forms import widgets
-
+from django.db.models import Q
 from django.utils.safestring import mark_safe
 
 from biostar.engine import const
-from biostar.engine.models import Access, Job, make_html, Project
-from biostar.engine import factory, auth
+from biostar.engine.models import Access, Job, make_html, Project, DataType
+
 
 logger = logging.getLogger("engine")
 register = template.Library()
@@ -136,9 +134,14 @@ def type_label(data):
     """
     Returns a label for a data type.
     """
+
     color = "" if data.data_type == const.GENERIC_TYPE else "green"
-    label = const.DATA_TYPES.get(data.data_type, "Generic")
-    return dict(label=label, color=color)
+    query = DataType.objects.filter(project=data.project, numeric=data.data_type).first()
+
+    if not query:
+        query, color = "Data Type Not Recognized", "yellow"
+
+    return dict(label=query, color=color)
 
 
 @register.inclusion_tag('widgets/form_nonfield_errors.html')

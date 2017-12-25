@@ -6,15 +6,6 @@
     {{ project.name }}
 {% endblock %}
 
-
-{% block menu %}
-    {% menubar project=project edit_project=True %}
-{% endblock %}
-
-{% block breadcrumb %}
-    {% breadcrumb steps=steps %}
-{% endblock %}
-
 {% block body %}
 
     <div class="ui raised segments">
@@ -95,7 +86,11 @@
                 <i class="write icon"></i>Edit Project
             </a>
             <a class="ui button" href="{% url 'project_users' project.uid %}">
-                <i class="users icon"></i>Manage People
+                <i class="add user icon"></i>Manage People
+            </a>
+
+            <a class="ui button" href="{% url 'project_types' project.uid %}">
+                <i class="file outline icon"></i>Manage Data Types
             </a>
         </div>
 

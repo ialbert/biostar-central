@@ -1,10 +1,11 @@
 import copy
 from django import forms
 from django.contrib import messages
+from django.db.models import Q
 import hjson
 from . import models, auth, factory
 from .const import *
-from .models import Project, Data, Analysis, Job, Access
+from .models import Project, Data, Analysis, Job, Access, DataType
 from biostar.accounts.models import User
 from django.utils.safestring import mark_safe
 
@@ -35,7 +36,7 @@ class ProjectForm(forms.ModelForm):
 
     image = forms.ImageField(required=False)
 
-    # Should not edit uid because the data directories get messed up
+    # Should not edit uid because data directories get recreated
     uid = forms.CharField(max_length=32, required=False)
 
     class Meta:
@@ -51,14 +52,21 @@ class ProjectForm(forms.ModelForm):
 
 
 class DataUploadForm(forms.ModelForm):
-    # choices = DATA_TYPES.items()
-    # data_type = forms.IntegerField(widget=forms.Select(choices=choices))
 
     file = forms.FileField()
 
+    def __init__(self, project, *args, **kwargs):
+
+        self.project = project
+
+        super().__init__(*args, **kwargs)
+
+        choices = [(d.numeric, d.name) for d in self.project.datatype_set.all()]
+        self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
+                                                      required=False)
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'text', "sticky"]
+        fields = ['file', 'summary', 'text', "sticky",  "data_type"]
 
     def clean_file(self):
         cleaned_data = super(DataUploadForm, self).clean()
@@ -68,12 +76,59 @@ class DataUploadForm(forms.ModelForm):
 
 
 class DataEditForm(forms.ModelForm):
-    # choices = DATA_TYPES.items()
-    # data_type = forms.IntegerField(widget=forms.Select(choices=choices))
 
+    def __init__(self, project, *args, **kwargs):
+
+        self.project = project
+
+        super().__init__(*args, **kwargs)
+
+        choices = set([(d.numeric, d.name) for d in self.project.datatype_set.all()])
+        self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
+                                                      required=False)
     class Meta:
         model = Data
-        fields = ['name', 'summary', 'text', 'sticky']
+        fields = ['name', 'summary', 'text', 'sticky', "data_type"]
+
+
+
+class CreateDataTypeForm(forms.Form):
+
+    name = forms.CharField(max_length=32)
+    symbol = forms.CharField(max_length=32)
+    help = forms.CharField(max_length=32, required=False)
+
+    def __init__(self, project, *args, **kwargs):
+
+        self.project = project
+
+        super().__init__(*args,**kwargs)
+
+    def save(self):
+
+        name = self.cleaned_data["name"]
+        symbol = self.cleaned_data["symbol"]
+        help = self.cleaned_data.get("help", "description")
+
+        new_datatype = DataType(project=self.project, name=name,
+                                symbol=symbol, help=help)
+        new_datatype.save()
+
+        return new_datatype
+
+    def clean(self):
+        cleaned_data = super(CreateDataTypeForm, self).clean()
+
+        # Ensure name and symbol do not already exist for this project
+        name = cleaned_data["name"]
+        symbol = cleaned_data["symbol"]
+
+        query = DataType.objects.filter(project=self.project)
+        query = query.filter(Q(symbol=symbol)|Q(name=name))
+
+        if query:
+            raise forms.ValidationError("Data type with that name/symbol already exists for this project")
+
 
 
 class RecipeForm(forms.ModelForm):

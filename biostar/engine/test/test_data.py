@@ -4,6 +4,7 @@ from unittest.mock import patch, MagicMock
 from django.urls import reverse
 from django.core import management
 
+from biostar.tools import const
 from biostar.engine import models, views, auth
 from . import util
 
@@ -51,6 +52,7 @@ class DataViewTest(TestCase):
 
         data = {'name':"new_data", 'summary':"summary", 'text':"testing",
                 'sticky':True}
+
         url = reverse('data_edit', kwargs=dict(id=self.data.id))
 
         request = util.fake_request(url=url, data=data, user=self.owner)

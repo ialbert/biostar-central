@@ -4,7 +4,7 @@ Recipe parameters:
 
 <ul>
     {% for key, obj in data.items %}
-        {% if obj.display_type %}
+        {% if obj.type %}
             <li> {{ obj.label }}:
                     {% if obj.name %}
                         <a href="{{ obj.data_url }}">

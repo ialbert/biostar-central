@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Managing Data Types: {{ project.name }}
+{% endblock %}
+
+{% block body %}
+
+<div class="ui raised segments">
+        {% project_name_bar project %}
+
+    <div class="ui segment">
+        <div class="ui center aligned basic segment">
+            <h3 class="ui icon header">
+                <i class="file outline icon"></i>
+                <p class="content">
+                    Manage Data Types
+                <p class="sub header">Manage data types found in this project</p>
+                </p>
+            </h3>
+        </div>
+
+        <div class="ui three column grid container">
+
+            <div class="center aligned column">
+                <p class="ui large label">Name</p>
+            </div>
+            <div class="center aligned column">
+                <p class="ui large label">Symbol</p>
+            </div>
+            <div class="center aligned column">
+                <p class="ui large label">Help</p>
+            </div>
+
+            {% for type in current %}
+                 <div class="row">
+                        <div class="center aligned column">
+                             {{ type.name }}
+                        </div>
+                        <div class="center aligned column">
+                            {{ type.symbol }}
+                        </div>
+                        <div class="center aligned column">
+                            {{ type.help }}
+                        </div>
+                 </div>
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+        <div class="ui segment inputcolor">
+
+            <div class="ui center aligned small header">
+                Create Data Type
+            </div>
+            <form method="post" class="ui form" action="{% url 'project_types' project.uid %}">
+                {% csrf_token %}
+
+                 <div class="field">
+                    <label>Name</label>
+                    {{ form.name }}
+                    <p class="muted">Publicly seen name.</p>
+                </div>
+
+                 <div class="field">
+                    <label>Symbol</label>
+                    {{ form.symbol }}
+                    <p class="muted">Symbol used in specification file ( JSON ) to allow for sub-selection of this data type.</p>
+                </div>
+
+                 <div class="field">
+                    <label>Help</label>
+                    {{ form.help }}
+                    <p class="muted">Small help message describing data type.</p>
+                 </div>
+                  <button type="submit" class="ui submit green button">
+                    <i class="save icon"></i>Create
+                </button>
+                <a class="ui right floated button"href="{% url 'project_view' project.uid %}">
+                    <i class="undo icon"></i>Project View
+                </a>
+
+            </form>
+
+        </div>
+
+
+
+</div>
+
+{% endblock %}

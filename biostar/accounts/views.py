@@ -1,21 +1,15 @@
 
 import uuid, logging
 
-from django.utils import http
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from ratelimit.decorators import ratelimit
-from django.views.decorators import csrf, cache
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import views as auth_views
-from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-
+from biostar.breadcrumb import *
 from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
-from biostar.engine.const import *
-from biostar.engine.views import breadcrumb_builder
 from django.contrib import auth
 
 logger = logging.getLogger('engine')
@@ -33,7 +27,7 @@ def edit_profile(request):
 
     id = request.user.id
     user = User.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
+    steps = breadcrumb_builder([HOME_ICON, USER_ICON])
 
     if request.method == "POST":
         form = EditProfile(data=request.POST, user=user)
@@ -57,7 +51,7 @@ def profile(request):
 
     id = request.user.id
     user = User.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
+    steps = breadcrumb_builder([HOME_ICON, USER_ICON])
     context = dict(user=user, steps=steps)
 
     return render(request, 'accounts/profile.html', context)

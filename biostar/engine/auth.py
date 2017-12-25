@@ -237,6 +237,7 @@ def make_summary(data, summary='', name="widgets/job_summary.html"):
     context = dict(data=data, summary=summary)
     template = loader.get_template(name)
     result = template.render(context)
+
     return result
 
 
