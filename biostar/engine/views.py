@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from sendfile import sendfile
 # from django.utils.safestring import mark_safe
 from biostar.breadcrumb import breadcrumb_builder
 from . import tasks, util
@@ -346,19 +347,21 @@ def data_download(request, id):
 
     if not data:
         messages.error(request, "Data Not Found")
-        return reverse("data_list", kwargs=dict(uid=project.uid))
+        return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
-    data_files = data.get_files()
-
-    if len(data_files) > 1:
+    data_file = data.get_files()
+    if len(data_file) > 1:
         #Compress multiple files into a single .zip for download
-        data_files = util.compress(files=data_files, name=data.name,
+        data_file = [util.compress(files=data_file, name=data.name,
                                    dest=join(data.get_path(), ".."))
+                     ]
+    file = data_file[0] or ""
 
-    print(data_files)
+    if not os.path.isfile(file):
+        messages.error(request, "Data object does not contain a valid file")
+        return redirect(reverse("data_view", kwargs=dict(id=id)))
 
-    1/0
-    return
+    return sendfile(request, file)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)

@@ -134,6 +134,8 @@ LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 
 SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = '/protected'
+#TODO: Needs to change before release
+SENDFILE_BACKEND = "sendfile.backends.development"
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
