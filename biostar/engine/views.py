@@ -341,6 +341,7 @@ def data_upload(request, uid):
 
 @object_access(type=Data, access=Access.ADMIN_ACCESS, url='data_view')
 def data_download(request, id):
+    "Download data found in a project"
 
     data = Data.objects.filter(id=id).first()
     project = data.project
@@ -352,9 +353,9 @@ def data_download(request, id):
     data_file = data.get_files()
     if len(data_file) > 1:
         #Compress multiple files into a single .zip for download
+        # Needs to be a list
         data_file = [util.compress(files=data_file, name=data.name,
-                                   dest=join(data.get_path(), ".."))
-                     ]
+                                   dest=join(data.get_path(), ".."))]
     file = data_file[0] or ""
 
     if not os.path.isfile(file):
