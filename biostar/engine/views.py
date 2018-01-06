@@ -353,9 +353,8 @@ def data_download(request, id):
     data_file = data.get_files()
     if len(data_file) > 1:
         #Compress multiple files into a single .zip for download
-        # Needs to be a list
-        data_file = [util.compress(files=data_file, name=data.name,
-                                   dest=join(data.get_path(), ".."))]
+        data_file = list(util.compress(files=data_file, name=data.name,
+                                   dest=join(data.get_path(), "..")))
     file = data_file[0] or ""
 
     if not os.path.isfile(file):
@@ -667,7 +666,7 @@ def job_result_view(request, id):
 
 
 def block_media_url(request, **kwargs):
-    "Block users from urls having to do with media directory"
+    "Block users from accessing media directory using urls"
 
     messages.error(request, f"Not allowed")
     return redirect(reverse("project_list"))
