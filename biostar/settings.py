@@ -132,6 +132,9 @@ MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
 # The location of resusable data.
 LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 
+SENDFILE_ROOT = MEDIA_ROOT
+SENDFILE_URL = '/protected'
+
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')

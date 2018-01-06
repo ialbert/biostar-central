@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 # from django.utils.safestring import mark_safe
 from biostar.breadcrumb import breadcrumb_builder
-from . import tasks
+from . import tasks, util
 from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, User, Access)
@@ -314,6 +314,7 @@ def data_edit(request, id):
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, uid):
+
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
@@ -335,6 +336,29 @@ def data_upload(request, uid):
     form = DataUploadForm(project=project)
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'data_upload.html', context)
+
+
+@object_access(type=Data, access=Access.ADMIN_ACCESS, url='data_view')
+def data_download(request, id):
+
+    data = Data.objects.filter(id=id).first()
+    project = data.project
+
+    if not data:
+        messages.error(request, "Data Not Found")
+        return reverse("data_list", kwargs=dict(uid=project.uid))
+
+    data_files = data.get_files()
+
+    if len(data_files) > 1:
+        #Compress multiple files into a single .zip for download
+        data_files = util.compress(files=data_files, name=data.name,
+                                   dest=join(data.get_path(), ".."))
+
+    print(data_files)
+
+    1/0
+    return
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)

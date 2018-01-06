@@ -3,12 +3,10 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name="index"),
-
     url(r'^docs/(?P<name>[-\w]+)/$', views.docs, name='docs'),
 
     # Engine specific admin site.
     url(r'^site/admin/', views.site_admin, name='site_admin'),
-
     url(r'^project/users/(?P<uid>[-\w]+)/$', views.project_users, name='project_users'),
     url(r'^project/create/$', views.project_create, name='project_create'),
     url(r'^project/list/$', views.project_list, name='project_list'),
@@ -20,6 +18,7 @@ urlpatterns = [
     url(r'^data/view/(?P<id>\d+)/$', views.data_view, name='data_view'),
     url(r'^data/edit/(?P<id>\d+)/$', views.data_edit, name='data_edit'),
     url(r'^data/upload/(?P<uid>[-\w]+)/$', views.data_upload, name='data_upload'),
+    url(r'^data/download/(?P<id>\d+)/$', views.data_download, name='data_download'),
 
     # Recipe URLS
     url(r'^recipe/list/(?P<uid>[-\w]+)/$', views.recipe_list, name='recipe_list'),

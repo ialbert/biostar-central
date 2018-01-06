@@ -49,8 +49,8 @@ class object_access:
                 instance = self.type.objects.filter(pk=id).first()
 
             # Check for access to the object.
-            allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=self.access, login_required=self.login_required)
-
+            allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=self.access,
+                                                 login_required=self.login_required)
             # Access check did not pass, redirect.
             if not allow_access:
 
