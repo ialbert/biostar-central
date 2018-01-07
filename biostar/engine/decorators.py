@@ -1,6 +1,5 @@
 from functools import wraps
 
-from django.contrib import messages
 from django.urls import reverse
 from django.shortcuts import redirect
 from . import auth
@@ -37,7 +36,7 @@ class object_access:
         @wraps(function, assigned=available_attrs(function))
         def _wrapped_view(request, *args, **kwargs):
 
-            # Each wrapped view must take a numerical id as parameter.
+            # Each wrapped view must take a numerical id or alphanumeric uid as parameter.
             id = kwargs.get('id') or kwargs.get("uid")
 
             # The user is set in the request.
