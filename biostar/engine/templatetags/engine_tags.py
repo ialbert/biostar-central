@@ -47,15 +47,6 @@ def pages(instance):
     return dict(instance=instance)
 
 
-@register.filter
-def truncate(string):
-
-    if len(string) > 15:
-        return string[:13] + "..."
-
-    return string
-
-
 @register.simple_tag
 def privacy_label(project):
     label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>' )

@@ -351,11 +351,15 @@ def data_download(request, id):
         return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
     data_file = data.get_files()
+
     if len(data_file) > 1:
+        #TODO: redo this and use cmd line to compress
         #Compress multiple files into a single .zip for download
-        data_file = list(util.compress(files=data_file, name=data.name,
-                                   dest=join(data.get_path(), "..")))
-    file = data_file[0] or ""
+        data_file = [util.compress(files=data_file, name=data.name,
+                                   dest=join(data.get_path(), ".."))]
+
+    # data_file is expected to be a list
+    file = data_file[0] or "EMPTY"
 
     if not os.path.isfile(file):
         messages.error(request, "Data object does not contain a valid file")

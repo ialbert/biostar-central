@@ -223,10 +223,13 @@ class DataCopyForm(forms.Form):
         project = Project.objects.filter(pk=self.cleaned_data["project"]).first()
         name, text, = f"Copy of: {self.current.name}", self.current.text
         summary, data_type = self.current.summary, self.current.data_type
-        path = self.current.get_path()
+        path = self.current.get_files()
+
+        if len(path) > 1:
+            path = [join(path[0], "..")]
 
         data = auth.create_data(project=project,user=self.user, name=name,
-                                summary=summary, data_type=data_type, path=path)
+                                summary=summary, data_type=data_type, path=path[0])
         data.save()
 
         return data
