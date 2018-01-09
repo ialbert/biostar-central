@@ -132,6 +132,8 @@ def project_types(request, uid):
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, PROJECT_TYPES],
                                project=project)
+    form = CreateDataTypeForm(project=project)
+
     if request.method == "POST":
         form = CreateDataTypeForm(project=project, data=request.POST)
         if form.is_valid():
@@ -140,7 +142,6 @@ def project_types(request, uid):
             messages.error(request, mark_safe(form.errors))
 
     current = project.datatype_set.order_by("-id")
-    form = CreateDataTypeForm(project=project)
     context = dict(project=project, form=form, steps=steps, current=current)
     return render(request, "project_types.html", context=context)
 
@@ -299,6 +300,7 @@ def data_edit(request, id):
     project = data.project
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
+    form = DataEditForm(instance=data, project=project, initial=dict(data_type=data.data_type))
 
     if request.method == "POST":
         form = DataEditForm(data=request.POST, instance=data, project=project)
@@ -308,7 +310,7 @@ def data_edit(request, id):
             messages.error(request, mark_safe(form.errors))
         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 
-    form = DataEditForm(instance=data, project=project, initial=dict(data_type=data.data_type))
+
     context = dict(data=data, steps=steps, form=form)
     return render(request, 'data_edit.html', context)
 
@@ -320,6 +322,7 @@ def data_upload(request, uid):
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
                                project=project)
+    form = DataUploadForm(project=project)
     if request.method == "POST":
         form = DataUploadForm(data=request.POST, files=request.FILES, project=project)
 
@@ -334,7 +337,7 @@ def data_upload(request, uid):
 
         messages.error(request, mark_safe(form.errors))
 
-    form = DataUploadForm(project=project)
+
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'data_upload.html', context)
 
@@ -356,11 +359,15 @@ def data_download(request, id):
         messages.error(request, "Can not download directories yet")
         return redirect(reverse("data_view", kwargs=dict(id=id)))
 
-    if not os.path.exists(data_file[0]):
+    # Only one file expected at this point
+    data_file = data_file.pop()
+    print(data_file)
+    1/0
+    if not os.path.exists(data_file):
         messages.error(request, "Data object does not contain a valid file")
         return redirect(reverse("data_view", kwargs=dict(id=id)))
 
-    return sendfile(request, data_file[0])
+    return sendfile(request, data_file)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)

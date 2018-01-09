@@ -4,7 +4,7 @@
 
 "Generic": {
     symbol: 'GENERIC'
-    help: "Generic datatype"
+    help: "Generic datatype "
 }
 
 "FASTQ": {
@@ -22,6 +22,5 @@
     symbol: "GTF"
     help:   "gtf annotations"
 }
-
 
 }

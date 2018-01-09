@@ -124,10 +124,13 @@ class CreateDataTypeForm(forms.Form):
         symbol = cleaned_data["symbol"]
 
         query = DataType.objects.filter(project=self.project)
-        query = query.filter(Q(symbol=symbol)|Q(name=name))
+        name_query = query.filter(Q(name=name))
+        symbol_query = query.filter(Q(symbol=symbol))
 
-        if query:
-            raise forms.ValidationError("Data type with that name/symbol already exists for this project")
+        if name_query:
+            raise forms.ValidationError("Data type with that name already exists.")
+        if symbol_query:
+            raise forms.ValidationError("Data type with that symbol already exists.")
 
 
 
