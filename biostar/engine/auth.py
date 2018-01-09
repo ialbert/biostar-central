@@ -199,7 +199,6 @@ def create_project(user, name, uid='', summary='', text='', stream='',
     project = Project.objects.create(
         name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 
-
     if stream:
         project.image.save(stream.name, stream, save=True)
 

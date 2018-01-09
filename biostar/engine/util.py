@@ -45,14 +45,3 @@ def smart_preview(fname):
     return text
 
 
-def compress(files, name, dest):
-    "Compress a collection of files to a .zip format"
-
-    filename = join(dest, ''.join(name.split()) + '.zip')
-
-    with zipfile.ZipFile(filename, 'w') as myzip:
-        for f in files:
-            myzip.write(f)
-
-    return filename
-

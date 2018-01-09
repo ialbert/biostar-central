@@ -352,20 +352,15 @@ def data_download(request, id):
 
     data_file = data.get_files()
 
-    if len(data_file) > 1:
-        #TODO: redo this and use cmd line to compress
-        #Compress multiple files into a single .zip for download
-        data_file = [util.compress(files=data_file, name=data.name,
-                                   dest=join(data.get_path(), ".."))]
+    if len(data_file)> 1:
+        messages.error(request, "Can not download directories yet")
+        return redirect(reverse("data_view", kwargs=dict(id=id)))
 
-    # data_file is expected to be a list
-    file = data_file[0] or "EMPTY"
-
-    if not os.path.isfile(file):
+    if not os.path.exists(data_file[0]):
         messages.error(request, "Data object does not contain a valid file")
         return redirect(reverse("data_view", kwargs=dict(id=id)))
 
-    return sendfile(request, file)
+    return sendfile(request, data_file)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
