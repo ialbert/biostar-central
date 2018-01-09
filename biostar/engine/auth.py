@@ -154,7 +154,6 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
     # Prepare the access denied message.
     deny = engine_tags.access_denied_message(user=user, access=access_text)
 
-
     # Anonymous users have no other access permissions.
     if user.is_anonymous():
         messages.error(request, deny)
@@ -199,7 +198,6 @@ def create_project(user, name, uid='', summary='', text='', stream='',
                    privacy=Project.PRIVATE, sticky=True):
     project = Project.objects.create(
         name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
-
 
     if stream:
         project.image.save(stream.name, stream, save=True)
@@ -267,6 +265,7 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     if save:
         job.save()
         logger.info(f"Created job id={job.id} name={job.name}")
+
     return job
 
 

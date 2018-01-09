@@ -11,6 +11,7 @@ django-mailer
 mistune
 django-pagedown
 django-webtest
+django-sendfile
 pillow
 uwsgi
 pysam

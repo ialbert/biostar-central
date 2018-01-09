@@ -21,34 +21,28 @@
             </h3>
         </div>
 
-        <div class="ui three column grid container">
-
-            <div class="center aligned column">
-                <p class="ui large label">Name</p>
-            </div>
-            <div class="center aligned column">
-                <p class="ui large label">Symbol</p>
-            </div>
-            <div class="center aligned column">
-                <p class="ui large label">Help</p>
-            </div>
+        <table class="ui celled fixed table">
+          <thead>
+            <tr>
+                <th>Name</th>
+                <th>Symbol</th>
+                <th>Help</th>
+            </tr>
+          </thead>
 
             {% for type in current %}
-                 <div class="row">
-                        <div class="center aligned column">
-                             {{ type.name }}
-                        </div>
-                        <div class="center aligned column">
-                            {{ type.symbol }}
-                        </div>
-                        <div class="center aligned column">
-                            {{ type.help }}
-                        </div>
-                 </div>
+            <tbody>
+
+                <tr>
+                    <td>{{ type.name }}</td>
+                    <td>{{ type.symbol }}</td>
+                    <td>{{ type.help }}</td>
+                </tr>
+
+            </tbody>
             {% endfor %}
 
-        </div>
-
+        </table>
     </div>
 
         <div class="ui segment inputcolor">

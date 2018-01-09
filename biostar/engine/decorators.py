@@ -1,6 +1,5 @@
 from functools import wraps
 
-from django.contrib import messages
 from django.urls import reverse
 from django.shortcuts import redirect
 from . import auth
@@ -37,7 +36,7 @@ class object_access:
         @wraps(function, assigned=available_attrs(function))
         def _wrapped_view(request, *args, **kwargs):
 
-            # Each wrapped view must take a numerical id as parameter.
+            # Each wrapped view must take a numerical id or alphanumeric uid as parameter.
             id = kwargs.get('id') or kwargs.get("uid")
 
             # The user is set in the request.
@@ -49,8 +48,8 @@ class object_access:
                 instance = self.type.objects.filter(pk=id).first()
 
             # Check for access to the object.
-            allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=self.access, login_required=self.login_required)
-
+            allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=self.access,
+                                                 login_required=self.login_required)
             # Access check did not pass, redirect.
             if not allow_access:
 

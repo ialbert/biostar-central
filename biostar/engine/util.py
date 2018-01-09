@@ -1,4 +1,4 @@
-import gzip
+import gzip, zipfile
 import mimetypes
 import os
 import quopri
@@ -43,6 +43,5 @@ def smart_preview(fname):
         text = f'Preview error: {exc}'
 
     return text
-
 
 

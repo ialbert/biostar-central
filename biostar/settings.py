@@ -37,6 +37,7 @@ COMPRESS_ENABLED = True
 PROTOCOL = "http"
 HTTP_PORT = ':8000'
 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -131,6 +132,12 @@ MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
 
 # The location of resusable data.
 LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
+
+SENDFILE_ROOT = MEDIA_ROOT
+SENDFILE_URL = '/protected/'
+
+#TODO: Needs to change before release
+SENDFILE_BACKEND = "sendfile.backends.development"
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'

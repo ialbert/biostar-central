@@ -7,9 +7,10 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from sendfile import sendfile
 # from django.utils.safestring import mark_safe
 from biostar.breadcrumb import breadcrumb_builder
-from . import tasks
+from . import tasks, util
 from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, User, Access)
@@ -314,6 +315,7 @@ def data_edit(request, id):
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, uid):
+
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
@@ -335,6 +337,30 @@ def data_upload(request, uid):
     form = DataUploadForm(project=project)
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'data_upload.html', context)
+
+
+@object_access(type=Data, access=Access.ADMIN_ACCESS, url='data_view')
+def data_download(request, id):
+    "Download data found in a project"
+
+    data = Data.objects.filter(id=id).first()
+    project = data.project
+
+    if not data:
+        messages.error(request, "Data Not Found")
+        return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
+    data_file = data.get_files()
+
+    if len(data_file)> 1:
+        messages.error(request, "Can not download directories yet")
+        return redirect(reverse("data_view", kwargs=dict(id=id)))
+
+    if not os.path.exists(data_file[0]):
+        messages.error(request, "Data object does not contain a valid file")
+        return redirect(reverse("data_view", kwargs=dict(id=id)))
+
+    return sendfile(request, data_file)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
@@ -639,7 +665,7 @@ def job_result_view(request, id):
 
 
 def block_media_url(request, **kwargs):
-    "Block users from urls having to do with media directory"
+    "Block users from accessing media directory using urls"
 
     messages.error(request, f"Not allowed")
     return redirect(reverse("project_list"))

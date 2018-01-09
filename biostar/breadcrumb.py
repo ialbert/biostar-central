@@ -1,7 +1,7 @@
 from django.urls import reverse
 
 
-# Constants specific to breadcrumbs
+# Constants specific to breadcrumb
 HOME_ICON = "home"
 PROJECT_LIST_ICON = "database"
 PROJECT_ICON = "archive"
@@ -70,14 +70,14 @@ def breadcrumb_builder(icons=[], project=T, analysis=T, job=T, data=T):
     last = icons[-1]
 
     for icon in icons:
+
         is_active = icon is last
 
         ready = icon_mapper(project=project, analysis=analysis, job=job, data=data).get(icon)
-
         if not ready:
             continue
 
-        step = (ready["url"], icon, ready["name"], is_active)
+        step = (ready.get("url", "/"), icon, ready.get("name", "NOT FOUND"), is_active)
         path.append(step)
 
     return path
