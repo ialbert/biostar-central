@@ -113,6 +113,10 @@ test:
 	coverage run manage.py test
 	coverage html --skip-covered
 
+ftp:
+	python biostar/ftpserver/server.py
+
+
 push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
 	git push
