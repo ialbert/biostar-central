@@ -6,7 +6,7 @@ from pyftpdlib.servers import FTPServer
 from biostar.engine.handler import EngineFTPHandler, EngineAuthorizer
 
 
-def get_user_dir(username):
+def get_home_dir(username):
 
     return
 

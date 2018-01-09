@@ -352,7 +352,7 @@ def data_download(request, id):
 
     data_file = data.get_files()
 
-    if len(data_file)> 1:
+    if len(data_file) > 1:
         messages.error(request, "Can not download directories yet")
         return redirect(reverse("data_view", kwargs=dict(id=id)))
 
@@ -360,7 +360,7 @@ def data_download(request, id):
         messages.error(request, "Data object does not contain a valid file")
         return redirect(reverse("data_view", kwargs=dict(id=id)))
 
-    return sendfile(request, data_file)
+    return sendfile(request, data_file[0])
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)

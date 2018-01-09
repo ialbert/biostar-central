@@ -10,7 +10,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
-from biostar import settings
+from biostar.engine import settings
 from biostar.tools import const
 from biostar.accounts.models import User
 from . import util
@@ -111,9 +111,8 @@ class DataType(models.Model):
     # Symobol is what we enter in the json file
     symbol = models.CharField(max_length=MAX_FIELD_LEN)
 
-    #TODO: can not make uniqe currently and that can be an issue
-    numeric = models.IntegerField()
-
+    #TODO: uniqe together thing
+    # make it uniqe together
     help = models.CharField(default="description", max_length=MAX_NAME_LEN)
 
     project = models.ForeignKey(Project, null=True)
@@ -122,9 +121,6 @@ class DataType(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
-
-        if not self.numeric:
-            self.numeric = randint(900, 1e7)
 
         super(DataType, self).save(*args, **kwargs)
 
@@ -172,12 +168,12 @@ def add_datatypes(sender, instance, created, **kwargs):
 
     # Pre-load data types to a project on creation
 
-    for numeric, symbol, name in const.DATA_TUPLES:
+    for name, symbol, help in settings.DATA_TYPES:
 
         if created:
 
-            datatype = DataType.objects.create(project=instance, numeric=numeric,
-                                    symbol=symbol, name=name)
+            datatype = DataType.objects.create(project=instance, symbol=symbol, name=name,
+                                               help=help)
             datatype.save()
 
 

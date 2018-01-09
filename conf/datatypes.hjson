@@ -1,0 +1,27 @@
+
+
+{
+
+"Generic": {
+    symbol: 'GENERIC'
+    help: "Generic datatype"
+}
+
+"FASTQ": {
+    symbol: 'FASTQ'
+    help: "fastq datatype"
+}
+
+"FASTA":{
+    symbol: 'FASTA'
+    help: "fasta datatype"
+}
+
+
+"GTF Annotations":{
+    symbol: "GTF"
+    help:   "gtf annotations"
+}
+
+
+}
