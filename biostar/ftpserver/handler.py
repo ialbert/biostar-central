@@ -35,8 +35,10 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"path={path}")
         return True
 
+
     def ftp2fs(self, ftppath):
         logger.info(f"ftppath={ftppath}")
+
 
     def listdir(self, path):
         # This is the root as initialized in the base class
@@ -60,6 +62,9 @@ class BiostarFileSystem(AbstractedFS):
         lines = []
         for name in listing:
             lines.append(f"type=file;size=156;perm=r;modify=20071029155301;unique=8012; {name}")
+
+        lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; datadir")
+        lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; results")
 
         line = "\n".join(lines)
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
