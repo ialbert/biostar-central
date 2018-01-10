@@ -59,18 +59,23 @@
         </div>
 
         <div class="ui secondary segment">
-            <div class="ui vertical segment">{{ analysis.html|safe }}</div>
+
+            <div>{{ analysis.html|safe }}</div>
         </div>
 
-        <div class="ui segment inputcolor">
+        <div class="ui segment">
 
+            <div class="ui header">Recipe Actions</div>
+
+            <p>The following actions allow you to create your own versions of the recipe.</p>
             <form class="ui form" method="post" action="{% url 'recipe_view' analysis.id %}">
+
                 {% csrf_token %}
 
                 {% copy_interface projects=projects form=form duplicate=analysis.project.id %}
 
                 <button type="submit" class="ui button">
-                    <i class="plus icon"></i>Copy Recipe
+                    <i class="check icon"></i>Submit
                </button>
 
             </form>

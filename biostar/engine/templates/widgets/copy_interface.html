@@ -1,15 +1,11 @@
 {% load engine_tags %}
 
 
-<div class="ui small header">
-    Copy into other projects
-</div>
-
 <div class="ui relaxed divided list">
     <div class="item">
         <div class="inline field">
             <input type="radio" name="project" value="0">
-            <i class="archive icon"></i>Create new project and copy
+            <i class="archive icon"></i>Create new project and copy recipe into it
         </div>
     </div>
 
@@ -17,34 +13,27 @@
         <div class="item">
             <div class="inline field">
                 <input type="radio" name="project" value="{{ duplicate }}">
-                <i class="copy icon"></i>Duplicate in current project
+                <i class="copy icon"></i>Duplicate recipe in current project
             </div>
         </div>
     {% endif %}
 
     {% if projects %}
 
-
         {% for project in projects %}
 
             <div class="item">
-
                 <div class="inline field">
 
                     <input type="radio" name="project" value="{{ project.id }}">
-                    <a href="{{ project.url }}">
-                        <i class="archive icon"></i>{{ project.name }}
+                    <i class="archive icon"></i> Copy recipe to <a href="{{ project.url }}">
+                        {{ project.name }}
                     </a>
-
                 </div>
-
             </div>
 
         {% endfor %}
 
-        </div>
-
-
     {% endif %}
 
-
+</div>
