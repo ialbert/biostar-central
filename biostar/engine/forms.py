@@ -96,7 +96,7 @@ class CreateDataTypeForm(forms.Form):
 
     name = forms.CharField(max_length=32)
     symbol = forms.CharField(max_length=32)
-    help = forms.CharField(max_length=32, required=False)
+    help = forms.CharField(required=False)
 
     def __init__(self, project, *args, **kwargs):
 
