@@ -329,9 +329,12 @@ def data_upload(request, uid):
         if form.is_valid():
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
+            summary = form.cleaned_data["summary"]
+            data_type = form.cleaned_data["data_type"]
             name = stream.name
             data = auth.create_data(stream=stream, name=name,
-                                    text=text, user=owner, project=project)
+                                    text=text, user=owner, project=project, summary=summary,
+                                    data_type=data_type)
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
@@ -360,8 +363,7 @@ def data_download(request, id):
 
     # Only one file expected at this point
     data_file = data_file.pop()
-    print(data_file)
-    1/0
+
     if not os.path.exists(data_file):
         messages.error(request, "Data object does not contain a valid file")
         return redirect(reverse("data_view", kwargs=dict(id=id)))

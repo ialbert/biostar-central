@@ -96,8 +96,13 @@ datatypes:
         }
 
     'TAR_FASTQ_GZ':{
-        symbol: "TAR FASTQ GZ"
+        symbol: "TAR_FASTQ_GZ"
         help: "tar fastq gz data type"
+        }
+
+    "Lamar Sample Sheet":{
+        symbol: 'LAMAR_SAMPLE_SHEET'
+        help: 'datatype specific to lamar sample sheet'
         }
 
     }

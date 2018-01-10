@@ -192,7 +192,7 @@ class Data(models.Model):
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
-    data_type = models.IntegerField(default=GENERIC_TYPE)
+    data_type = models.CharField(max_length=MAX_NAME_LEN)
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
 
@@ -211,7 +211,7 @@ class Data(models.Model):
         self.date = self.date or now
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
-        self.data_type = self.data_type or GENERIC_TYPE
+        #self.data_type = self.data_type or GENERIC_TYPE
 
         # Build the data directory.
         data_dir = self.get_data_dir()

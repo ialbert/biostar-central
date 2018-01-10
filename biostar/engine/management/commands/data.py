@@ -4,8 +4,8 @@ import logging
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from biostar.engine import auth, const
-from biostar.engine.models import Project
+from biostar.engine import auth
+from biostar.engine.models import Project, DataType
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 
@@ -75,11 +75,12 @@ class Command(BaseCommand):
         # Add each collected datatype.
         for bunch in reversed(data_list):
             # Get the right datatype.
-            type_value = const.DATA_TYPE_SYMBOLS.get(bunch.type)
+            type_value = DataType.objects.filter(project=project, symbol=bunch.type).first()
+
             if data_type and not type_value:
-                logger.warning(f"Invalid data type: {bunch.data_type}")
+                logger.warning(f"Invalid data type: {bunch.type}")
 
             auth.create_data(project=project, path=bunch.value,
-                             data_type=type_value,
+                             data_type=bunch.type,
                              name=bunch.name,
                              summary=bunch.summary, text=bunch.text)

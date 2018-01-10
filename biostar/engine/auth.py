@@ -3,7 +3,7 @@ import logging
 import uuid
 
 import hjson
-from django.conf import settings
+from biostar.engine import settings
 from django.contrib import messages
 from django.db.models import Q
 from django.template import Template, Context
@@ -209,6 +209,7 @@ def get_data(user, project, query, data_type=None):
 
 def create_project(user, name, uid='', summary='', text='', stream='',
                    privacy=Project.PRIVATE, sticky=True):
+
     project = Project.objects.create(
         name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 
@@ -317,12 +318,13 @@ def create_path(fname, data):
 
 
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', data_type=None):
+                text='', summary='', data_type=""):
 
     # Absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/")
 
     # Create the data.
+    data_type = data_type or "GENERIC"
     data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
                                data_type=data_type, summary=summary, text=text)
 

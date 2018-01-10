@@ -61,8 +61,8 @@ class DataUploadForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        choices = [(d.numeric, d.name) for d in self.project.datatype_set.all()]
-        self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
+        choices = [(d.symbol, d.name) for d in self.project.datatype_set.all()]
+        self.fields["data_type"] = forms.CharField(widget=forms.Select(choices=choices),
                                                       required=False)
     class Meta:
         model = Data
@@ -83,8 +83,8 @@ class DataEditForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        choices = set([(d.numeric, d.name) for d in self.project.datatype_set.all()])
-        self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
+        choices = set([(d.symbol, d.name) for d in self.project.datatype_set.all()])
+        self.fields["data_type"] = forms.CharField(widget=forms.Select(choices=choices),
                                                       required=False)
     class Meta:
         model = Data

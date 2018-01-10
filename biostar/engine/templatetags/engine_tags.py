@@ -7,7 +7,7 @@ from django.forms import widgets
 from django.db.models import Q
 from django.utils.safestring import mark_safe
 
-from biostar.engine import const
+from biostar.engine import settings
 from biostar.engine.models import Access, Job, make_html, Project, DataType
 
 
@@ -135,11 +135,12 @@ def type_label(data):
     Returns a label for a data type.
     """
 
-    color = "" if data.data_type == const.GENERIC_TYPE else "green"
-    query = DataType.objects.filter(project=data.project, numeric=data.data_type).first()
+    color = "" if data.data_type == "GENERIC" else "green"
+
+    query = DataType.objects.filter(project=data.project, symbol=data.data_type).first()
 
     if not query:
-        query, color = "Data Type Not Recognized", "yellow"
+        query, color = f"{data.data_type} Not Recognized", "yellow"
 
     return dict(label=query, color=color)
 

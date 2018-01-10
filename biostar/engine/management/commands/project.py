@@ -64,7 +64,7 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
     # Add extra data specified in the project json file.
     management.call_command("data", json=json, id=project.id)
 
-    # Add datatypes specific to this project
+    # Add datatypes specific to a project
     datatypes = data.get("datatypes", '')
 
     for name in datatypes:

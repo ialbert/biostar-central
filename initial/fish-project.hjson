@@ -46,27 +46,27 @@
     ]
     datatypes:{
 
-    "Sample Sheet":{
-        symbol: 'SAMPLE_TYPE'
-        help: "Sample sheet description"
-        }
+        "Sample Sheet":{
+            symbol: 'SAMPLE_TYPE'
+            help: "Sample sheet description"
+            }
 
-    "Collection":{
-        symbol:'COLLECTION'
-        help: "collection of data files"
-        }
+        "Collection":{
+            symbol:'COLLECTION'
+            help: "collection of data files"
+            }
 
-    'TAR_FASTQ_GZ':{
-        symbol: "TAR FASTQ GZ"
-        help: "tar fastq gz data type"
-        }
+        'TAR_FASTQ_GZ':{
+            symbol: "TAR FASTQ GZ"
+            help: "tar fastq gz data type"
+            }
 
-    "Lamar Sample Sheet":{
-        symbol: 'LAMAR_SAMPLE_SHEET'
-        help: 'datatype specific to lamar sample sheet'
-        }
+        "Lamar Sample Sheet":{
+            symbol: 'LAMAR_SAMPLE_SHEET'
+            help: 'datatype specific to lamar sample sheet'
+            }
 
-    }
+        }
 
 
 }
