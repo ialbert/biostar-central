@@ -98,6 +98,7 @@ class DataViewTest(TestCase):
 
         self.assertTrue( models.Data.save.called, "data.save() method not called when uploading.")
 
+
     def test_add_data(self):
         "Test adding data to a project using management commands "
 

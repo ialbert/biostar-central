@@ -3,7 +3,7 @@ SERVER=metabarcode.com
 
 serve: init
 	python manage.py runserver
-	
+
 ftpserver: init
 	python manage.py ftpserver
 

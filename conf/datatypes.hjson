@@ -1,0 +1,41 @@
+
+
+{
+
+    "Generic": {
+        symbol: 'GENERIC'
+        help: "Generic datatype "
+    }
+
+    "FASTQ": {
+        symbol: 'FASTQ'
+        help: "fastq datatype"
+    }
+
+    "FASTA":{
+        symbol: 'FASTA'
+        help: "fasta datatype"
+    }
+
+    "GTF Annotations":{
+        symbol: "GTF"
+        help:   "gtf annotations"
+    }
+
+    "Accession Map": {
+        symbol: 'ACCESSION_MAP',
+        help: "accession map"
+        }
+
+    "Accession List":{
+        symbol:'ACCESSION_LIST',
+        help: "accession list"
+        }
+
+    "Reference": {
+        symbol:'REFERENCE'
+        help: "reference list"
+        }
+
+
+}

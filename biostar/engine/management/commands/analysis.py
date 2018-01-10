@@ -6,7 +6,7 @@ import textwrap
 from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
-from biostar.engine.models import Project, Analysis
+from biostar.engine.models import Project, Analysis, DataType
 from biostar.tools import const
 
 logger = logging.getLogger('engine')
@@ -118,8 +118,8 @@ class Command(BaseCommand):
                     value = obj.get("value", "")
                     summary = obj.get("summary", "")
                     text = obj.get("text", "")
-                    data_type = obj.get("type")
-                    data_type = const.DATA_TYPE_SYMBOLS.get(data_type)
+                    data_type = obj.get("type","")
+
                     name = obj.get("name", "") or os.path.basename(value)
 
                     data = auth.create_data(project=project, name=name, path=value, data_type=data_type,

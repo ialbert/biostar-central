@@ -61,8 +61,8 @@ class DataUploadForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        choices = [(d.numeric, d.name) for d in self.project.datatype_set.all()]
-        self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
+        choices = [(d.symbol, d.name) for d in self.project.datatype_set.all()]
+        self.fields["data_type"] = forms.CharField(widget=forms.Select(choices=choices),
                                                       required=False)
     class Meta:
         model = Data
@@ -83,8 +83,8 @@ class DataEditForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        choices = set([(d.numeric, d.name) for d in self.project.datatype_set.all()])
-        self.fields["data_type"] = forms.IntegerField(widget=forms.Select(choices=choices),
+        choices = set([(d.symbol, d.name) for d in self.project.datatype_set.all()])
+        self.fields["data_type"] = forms.CharField(widget=forms.Select(choices=choices),
                                                       required=False)
     class Meta:
         model = Data
@@ -96,7 +96,7 @@ class CreateDataTypeForm(forms.Form):
 
     name = forms.CharField(max_length=32)
     symbol = forms.CharField(max_length=32)
-    help = forms.CharField(max_length=32, required=False)
+    help = forms.CharField(required=False)
 
     def __init__(self, project, *args, **kwargs):
 
@@ -110,7 +110,7 @@ class CreateDataTypeForm(forms.Form):
         symbol = self.cleaned_data["symbol"]
         help = self.cleaned_data.get("help", "description")
 
-        new_datatype = DataType(project=self.project, name=name,
+        new_datatype = auth.create_datatype(project=self.project, name=name,
                                 symbol=symbol, help=help)
         new_datatype.save()
 
@@ -124,10 +124,13 @@ class CreateDataTypeForm(forms.Form):
         symbol = cleaned_data["symbol"]
 
         query = DataType.objects.filter(project=self.project)
-        query = query.filter(Q(symbol=symbol)|Q(name=name))
+        name_query = query.filter(Q(name=name))
+        symbol_query = query.filter(Q(symbol=symbol))
 
-        if query:
-            raise forms.ValidationError("Data type with that name/symbol already exists for this project")
+        if name_query:
+            raise forms.ValidationError("Data type with that name already exists.")
+        if symbol_query:
+            raise forms.ValidationError("Data type with that symbol already exists.")
 
 
 

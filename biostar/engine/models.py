@@ -10,7 +10,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
-from biostar import settings
+from biostar.engine import settings
 from biostar.tools import const
 from biostar.accounts.models import User
 from . import util
@@ -108,23 +108,19 @@ class DataType(models.Model):
 
     name = models.CharField(default="name", max_length=MAX_NAME_LEN)
 
-    # Symobol is what we enter in the json file
+    # Symbol is what we enter in the json file
     symbol = models.CharField(max_length=MAX_FIELD_LEN)
-
-    #TODO: can not make uniqe currently and that can be an issue
-    numeric = models.IntegerField()
 
     help = models.CharField(default="description", max_length=MAX_NAME_LEN)
 
-    project = models.ForeignKey(Project, null=True)
-
+    project = models.ForeignKey(Project)
     uid = models.CharField(max_length=32, unique=True)
+
+    class Meta:
+        unique_together = ('project', 'symbol')
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
-
-        if not self.numeric:
-            self.numeric = randint(900, 1e7)
 
         super(DataType, self).save(*args, **kwargs)
 
@@ -172,12 +168,12 @@ def add_datatypes(sender, instance, created, **kwargs):
 
     # Pre-load data types to a project on creation
 
-    for numeric, symbol, name in const.DATA_TUPLES:
+    for name, symbol, help in settings.DATA_TYPES:
 
         if created:
 
-            datatype = DataType.objects.create(project=instance, numeric=numeric,
-                                    symbol=symbol, name=name)
+            datatype =  DataType.objects.create(project=instance, symbol=symbol, name=name,
+                                               help=help)
             datatype.save()
 
 
@@ -196,7 +192,7 @@ class Data(models.Model):
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
-    data_type = models.IntegerField(default=GENERIC_TYPE)
+    data_type = models.CharField(max_length=MAX_NAME_LEN)
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
 
@@ -215,7 +211,7 @@ class Data(models.Model):
         self.date = self.date or now
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
-        self.data_type = self.data_type or GENERIC_TYPE
+        #self.data_type = self.data_type or GENERIC_TYPE
 
         # Build the data directory.
         data_dir = self.get_data_dir()

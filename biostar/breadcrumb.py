@@ -45,7 +45,7 @@ def icon_mapper(project=None, analysis=None, job=None, data=None):
                 LOGIN_ICON: dict(url=reverse("login"), name="Login"),
                 LOGOUT_ICON: dict(url=reverse("logout"), name="Logout"),
                 SIGNUP_ICON: dict(url=reverse("signup"), name="Sign up"),
-                DATA_LIST_ICON: dict(url=reverse("data_list", kwargs={'uid': project.uid}), name="Date Files"),
+                DATA_LIST_ICON: dict(url=reverse("data_list", kwargs={'uid': project.uid}), name="Data Files"),
                 DATA_ICON: dict(url=reverse("data_view", kwargs={'id': data.id}), name="File View"),
                 DATA_UPLOAD: dict(url=reverse("data_view", kwargs={'id': data.id}), name="File Upload"),
                 ANALYSIS_LIST_ICON: dict(url=reverse("recipe_list", kwargs={'uid': project.uid}), name="Recipe List"),

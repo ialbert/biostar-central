@@ -132,6 +132,8 @@ def project_types(request, uid):
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, PROJECT_TYPES],
                                project=project)
+    form = CreateDataTypeForm(project=project)
+
     if request.method == "POST":
         form = CreateDataTypeForm(project=project, data=request.POST)
         if form.is_valid():
@@ -140,7 +142,6 @@ def project_types(request, uid):
             messages.error(request, mark_safe(form.errors))
 
     current = project.datatype_set.order_by("-id")
-    form = CreateDataTypeForm(project=project)
     context = dict(project=project, form=form, steps=steps, current=current)
     return render(request, "project_types.html", context=context)
 
@@ -190,6 +191,7 @@ def project_view(request, uid):
 def project_edit(request, uid):
     project = auth.get_project_list(user=request.user).filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
+    form = ProjectForm(instance=project)
 
     if request.method == "POST":
         form = ProjectForm(request.POST, request.FILES, instance=project)
@@ -199,7 +201,6 @@ def project_edit(request, uid):
 
         messages.error(request, mark_safe(form.errors))
 
-    form = ProjectForm(instance=project)
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'project_edit.html', context)
 
@@ -210,6 +211,9 @@ def project_create(request):
     if request.user.is_anonymous:
         messages.warning(request, "You must be logged in to create a project.")
         return redirect(reverse("project_list"))
+
+    initial = dict(name="Project Name", text="project description", summary="project summary")
+    form = ProjectForm(initial=initial)
 
     if request.method == "POST":
         # create new projects here ( just populates metadata ).
@@ -231,8 +235,6 @@ def project_create(request):
 
         messages.error(request, mark_safe(form.errors))
 
-    initial = dict(name="Project Name", text="project description", summary="project summary")
-    form = ProjectForm(initial=initial)
     context = dict(steps=steps, form=form)
     return render(request, 'project_create.html', context)
 
@@ -271,6 +273,7 @@ def data_view(request, id):
 
     projects = auth.get_project_list(user=request.user)
     projects = projects.exclude(pk=data.project.id).exclude(privacy=Project.PUBLIC)
+    form = DataCopyForm(current=data, request=request)
 
     # Filter projects by admin access
     cond = Q(access__access__gt=Access.EDIT_ACCESS)
@@ -287,9 +290,7 @@ def data_view(request, id):
         else:
             messages.error(request, mark_safe(form.errors))
 
-    form = DataCopyForm(current=data, request=request)
     context = dict(data=data, steps=steps, projects=projects, form=form)
-
     return render(request, "data_view.html", context)
 
 
@@ -299,6 +300,7 @@ def data_edit(request, id):
     project = data.project
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
+    form = DataEditForm(instance=data, project=project, initial=dict(data_type=data.data_type))
 
     if request.method == "POST":
         form = DataEditForm(data=request.POST, instance=data, project=project)
@@ -308,7 +310,6 @@ def data_edit(request, id):
             messages.error(request, mark_safe(form.errors))
         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 
-    form = DataEditForm(instance=data, project=project, initial=dict(data_type=data.data_type))
     context = dict(data=data, steps=steps, form=form)
     return render(request, 'data_edit.html', context)
 
@@ -320,21 +321,24 @@ def data_upload(request, uid):
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
                                project=project)
+    form = DataUploadForm(project=project)
     if request.method == "POST":
         form = DataUploadForm(data=request.POST, files=request.FILES, project=project)
 
         if form.is_valid():
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
+            summary = form.cleaned_data["summary"]
+            data_type = form.cleaned_data["data_type"]
             name = stream.name
             data = auth.create_data(stream=stream, name=name,
-                                    text=text, user=owner, project=project)
+                                    text=text, user=owner, project=project, summary=summary,
+                                    data_type=data_type)
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
         messages.error(request, mark_safe(form.errors))
 
-    form = DataUploadForm(project=project)
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'data_upload.html', context)
 
@@ -352,11 +356,14 @@ def data_download(request, id):
 
     data_file = data.get_files()
 
-    if len(data_file)> 1:
-        messages.error(request, "Can not download directories yet")
+    if len(data_file) > 1:
+        messages.error(request, "Can not download directories")
         return redirect(reverse("data_view", kwargs=dict(id=id)))
 
-    if not os.path.exists(data_file[0]):
+    # Only one file expected at this point
+    data_file = data_file.pop()
+
+    if not os.path.exists(data_file):
         messages.error(request, "Data object does not contain a valid file")
         return redirect(reverse("data_view", kwargs=dict(id=id)))
 

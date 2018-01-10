@@ -99,17 +99,17 @@ def ignore(data):
     return ''
 
 
-def data_field_generator(field, project, data_type=None):
+def data_field_generator(field, project, data_type="GENERIC"):
     """
     Generates a SELECT field populated by data names that
     are of a certain type.
     """
 
     # Figure out the type from the symbol.
-    valid_type = const.DATA_TYPE_SYMBOLS.get(data_type, -1)
+    #valid_type = const.DATA_TYPE_SYMBOLS.get(data_type, -1)
 
     # Get the data that match this type in the project.
-    query = models.Data.objects.filter(project=project, data_type=valid_type).order_by("sticky", "-date")
+    query = models.Data.objects.filter(project=project, data_type=data_type).order_by("sticky", "-date")
 
     # Create a mapping of data to id.
     datamap = dict((obj.id, obj) for obj in query)
@@ -147,7 +147,7 @@ def dynamic_field(data, project=None):
 
     if from_project and project:
         # Project specific data should have a type.
-        data_type = data.get("type")
+        data_type = data.get("type", "GENERIC")
         field = data_field_generator(data, project=project, data_type=data_type)
     else:
         # In all other cases we generate a field from the tupe.
