@@ -367,7 +367,7 @@ def data_download(request, id):
         messages.error(request, "Data object does not contain a valid file")
         return redirect(reverse("data_view", kwargs=dict(id=id)))
 
-    return sendfile(request, data_file)
+    return sendfile(request, data_file, attachment=f"{data.name}")
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
