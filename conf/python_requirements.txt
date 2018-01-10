@@ -16,3 +16,4 @@ pillow
 uwsgi
 pysam
 coverage
+pyftpdlib

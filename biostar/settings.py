@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'biostar.emailer.apps.EmailerConfig',
     'biostar.engine.apps.EngineConfig',
     'biostar.accounts.apps.AccountsConfig',
+    'biostar.ftpserver',
 ]
 
 MIDDLEWARE = [
