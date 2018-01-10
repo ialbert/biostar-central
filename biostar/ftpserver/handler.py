@@ -39,14 +39,14 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"path={path}")
         return True
 
-
     def ftp2fs(self, ftppath):
         logger.info(f"ftppath={ftppath}")
-
+        print(ftppath)
 
     def listdir(self, path):
         # This is the root as initialized in the base class
         logger.info(f"path={path}")
+        print(path)
         return ["music.mp3", "movie.mpg", "image.png"]
 
     def chdir(self, path):
