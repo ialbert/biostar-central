@@ -4,22 +4,27 @@
 
     "Generic": {
         symbol: 'GENERIC'
-        help: "Generic datatype "
+        help: "Generic data type of custom format."
     }
 
     "FASTQ": {
         symbol: 'FASTQ'
-        help: "fastq datatype"
+        help: "A file in the FASTQ (SANGER encoding) format"
     }
 
     "FASTA":{
         symbol: 'FASTA'
-        help: "fasta datatype"
+        help: "A file in the fasta format."
     }
 
     "GTF Annotations":{
         symbol: "GTF"
-        help:   "gtf annotations"
+        help:   "A file in the Gene Transfer Format"
+    }
+
+    "GFF Annotations":{
+        symbol: "GFF"
+        help:   "A file in the Generic Feature Format"
     }
 
     "Accession Map": {
@@ -29,7 +34,7 @@
 
     "Accession List":{
         symbol:'ACCESSION_LIST',
-        help: "accession list"
+        help: "A single column file where each line contains an accession number."
         }
 
     "Reference": {

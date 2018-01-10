@@ -12,6 +12,7 @@ logger.setLevel(logging.INFO)
 
 
 class BiostarFileSystem(AbstractedFS):
+
     def __init__(self, root, cmd_channel):
         """
          - (str) root: the user "real" home directory (e.g. '/home/user')
@@ -65,8 +66,13 @@ class BiostarFileSystem(AbstractedFS):
 
         lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; datadir")
         lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; results")
+        lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; nba")
+        lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; STUFF")
 
         line = "\n".join(lines)
+
+        print (line)
+
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
 
 
