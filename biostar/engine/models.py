@@ -287,7 +287,6 @@ class Data(models.Model):
         obj['data_url'] = self.get_url()
 
 
-
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
 

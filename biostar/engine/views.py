@@ -141,7 +141,7 @@ def project_types(request, uid):
         else:
             messages.error(request, mark_safe(form.errors))
 
-    current = project.datatype_set.order_by("-id")
+    current = project.datatype_set.all()
     context = dict(project=project, form=form, steps=steps, current=current)
     return render(request, "project_types.html", context=context)
 
@@ -412,6 +412,8 @@ def recipe_view(request, id):
         if form.is_valid():
             analysis = form.save()
             messages.success(request, f"Copied {name} in to {analysis.project.name}")
+        else:
+            messages.error(request, mark_safe(form.errors))
 
     form = RecipeCopyForm(analysis=analysis, request=request)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,

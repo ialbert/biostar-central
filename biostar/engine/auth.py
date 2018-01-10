@@ -296,7 +296,6 @@ def findfiles(location, collect):
     return collect
 
 
-
 def create_path(fname, data):
     """
     Returns a proposed path based on fname to the storage folder of the data.
@@ -315,6 +314,25 @@ def create_path(fname, data):
     path = os.path.abspath(os.path.join(data_dir, fname))
 
     return path
+
+
+def sync_project_datatypes(source, target):
+    "Transfer missing datatypes from source to target"
+
+    source_types = [(d.symbol, d.name, d.help) for d in DataType.objects.filter(project=source)]
+    target_types = [(d.symbol, d.name, d.help) for d in DataType.objects.filter(project=target)]
+
+    for s in source_types:
+        if s not in target_types:
+
+            symbol, name, help = s[0], s[1], s[2]
+
+            new_datatype = create_datatype(symbol=symbol, name=name,
+                                           project=target, help=help)
+            new_datatype.save()
+
+
+    return
 
 
 def create_data(project, user=None, stream=None, path='', name='',

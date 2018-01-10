@@ -12,7 +12,8 @@ logger.setLevel(logging.INFO)
 
 
 class BiostarFileSystem(AbstractedFS):
-    def __init__(self, root, cmd_channel):
+
+    def __init__(self, root, cmd_channel, *args, **kwargs):
         """
          - (str) root: the user "real" home directory (e.g. '/home/user')
          - (instance) cmd_channel: the FTPHandler class instance
@@ -26,6 +27,8 @@ class BiostarFileSystem(AbstractedFS):
         self._root = root
         self.cmd_channel = cmd_channel
         logger.info(f"root={root}")
+
+        super(BiostarFileSystem, self).__init__(*args, **kwargs)
 
     def validpath(self, path):
         logger.info(f"path={path}")
@@ -101,6 +104,7 @@ class EngineFTPHandler(FTPHandler):
     def on_incomplete_file_received(self, file):
         # remove partially uploaded files
         pass
+
 
 
 class EngineAuthorizer(DummyAuthorizer):
