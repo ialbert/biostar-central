@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils.safestring import mark_safe
 
 from biostar.engine import settings
-from biostar.engine.models import Access, Job, make_html, Project, DataType
+from biostar.engine.models import Access, Job, make_html, Project, DataType, Data
 
 
 logger = logging.getLogger("engine")
@@ -17,6 +17,10 @@ register = template.Library()
 JOB_COLORS = {
     Job.ZOMBIE: "orange", Job.SPOOLED: "pink",
     Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.COMPLETED: "green"
+}
+
+DATA_COLORS = {
+    Data.PENDING: "teal", Data.READY:"green", Data.ERROR :"red", Data.DELETED:""
 }
 
 
@@ -52,6 +56,7 @@ def privacy_label(project):
     label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>' )
     return label
 
+
 @register.inclusion_tag('widgets/authorization_required.html')
 def security_label(analysis):
     context = dict(analysis=analysis)
@@ -82,6 +87,24 @@ def job_color(job):
 
 
 @register.simple_tag
+def data_color(data):
+    "Return a color based on data status."
+
+    return DATA_COLORS.get(data.state,  "")
+
+
+@register.simple_tag
+def state_label(data, only_error=False):
+
+    label = f'<span class="ui { DATA_COLORS.get(data.state, "") } label"> {data.get_state_display()} </span>'
+
+    if only_error and data.state != Data.ERROR:
+        return ""
+
+    return mark_safe(label)
+
+
+@register.simple_tag
 def img(obj):
     """
     Returns the image associated with the object or a placeholder
@@ -90,7 +113,16 @@ def img(obj):
         return obj.image.url
     else:
         return static("images/placeholder.png")
-''
+
+
+@register.filter
+def single_file(data):
+    "Return true if data only contains one file"
+
+    if len(data.get_files()) > 1:
+        return False
+
+    return True
 
 
 @register.inclusion_tag('widgets/project_name_bar.html')
@@ -135,8 +167,7 @@ def type_label(data):
     Returns a label for a data type.
     """
 
-    color = "" if data.data_type == "GENERIC" else "green"
-
+    color = ""
     query = DataType.objects.filter(project=data.project, symbol=data.data_type).first()
 
     if not query:

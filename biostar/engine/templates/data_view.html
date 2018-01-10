@@ -17,7 +17,7 @@
 
     <div class="ui raised segments">
 
-        <div class="ui segment">
+        <div class="ui {% data_color data %} segment">
             <div class="ui center aligned header">
                 Data: {{ data.name }}
             </div>
@@ -32,7 +32,7 @@
             <div>Name: {{ data.name }}</div>
             <div>Size: {{ data.size|filesizeformat }}</div>
             <div>Uploaded by: {{ data.owner.email }}</div>
-            <div>State: {{ data.get_state_display }}</div>
+            <div>State: {% state_label data %}</div>
         </div>
 
         <div class="ui segment">
@@ -49,9 +49,11 @@
             <a class="ui button" href="{% url 'data_edit' data.id %}">
                 <i class="write icon"></i>Edit Data
             </a>
-            <a class="ui button" href="{% url 'data_download' data.id %}">
-                   <i class="download icon"></i>Download
-            </a>
+            {% if data|single_file %}
+                <a class="ui button" href="{% url 'data_download' data.id %}">
+                       <i class="download icon"></i>Download
+                </a>
+            {% endif %}
         </div>
 
         <div class="ui basic segment inputcolor">

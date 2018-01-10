@@ -291,7 +291,6 @@ def data_view(request, id):
             messages.error(request, mark_safe(form.errors))
 
     context = dict(data=data, steps=steps, projects=projects, form=form)
-
     return render(request, "data_view.html", context)
 
 
@@ -358,7 +357,7 @@ def data_download(request, id):
     data_file = data.get_files()
 
     if len(data_file) > 1:
-        messages.error(request, "Can not download directories yet")
+        messages.error(request, "Can not download directories")
         return redirect(reverse("data_view", kwargs=dict(id=id)))
 
     # Only one file expected at this point
