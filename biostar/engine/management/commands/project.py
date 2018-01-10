@@ -64,6 +64,16 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
     # Add extra data specified in the project json file.
     management.call_command("data", json=json, id=project.id)
 
+    # Add datatypes specific to this project
+    datatypes = data.get("datatypes", '')
+
+    for name in datatypes:
+        symbol = datatypes[name].get("symbol", '')
+        help = datatypes[name].get("help", '')
+
+        datatype = auth.create_datatype(name=name, symbol=symbol, help=help, project=project)
+        datatype.save()
+
 
 class Command(BaseCommand):
     help = 'Creates a project.'

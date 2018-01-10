@@ -191,6 +191,7 @@ def project_view(request, uid):
 def project_edit(request, uid):
     project = auth.get_project_list(user=request.user).filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
+    form = ProjectForm(instance=project)
 
     if request.method == "POST":
         form = ProjectForm(request.POST, request.FILES, instance=project)
@@ -200,7 +201,6 @@ def project_edit(request, uid):
 
         messages.error(request, mark_safe(form.errors))
 
-    form = ProjectForm(instance=project)
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'project_edit.html', context)
 
@@ -211,6 +211,9 @@ def project_create(request):
     if request.user.is_anonymous:
         messages.warning(request, "You must be logged in to create a project.")
         return redirect(reverse("project_list"))
+
+    initial = dict(name="Project Name", text="project description", summary="project summary")
+    form = ProjectForm(initial=initial)
 
     if request.method == "POST":
         # create new projects here ( just populates metadata ).
@@ -232,8 +235,6 @@ def project_create(request):
 
         messages.error(request, mark_safe(form.errors))
 
-    initial = dict(name="Project Name", text="project description", summary="project summary")
-    form = ProjectForm(initial=initial)
     context = dict(steps=steps, form=form)
     return render(request, 'project_create.html', context)
 
@@ -272,6 +273,7 @@ def data_view(request, id):
 
     projects = auth.get_project_list(user=request.user)
     projects = projects.exclude(pk=data.project.id).exclude(privacy=Project.PUBLIC)
+    form = DataCopyForm(current=data, request=request)
 
     # Filter projects by admin access
     cond = Q(access__access__gt=Access.EDIT_ACCESS)
@@ -288,7 +290,6 @@ def data_view(request, id):
         else:
             messages.error(request, mark_safe(form.errors))
 
-    form = DataCopyForm(current=data, request=request)
     context = dict(data=data, steps=steps, projects=projects, form=form)
 
     return render(request, "data_view.html", context)
@@ -309,7 +310,6 @@ def data_edit(request, id):
         else:
             messages.error(request, mark_safe(form.errors))
         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
-
 
     context = dict(data=data, steps=steps, form=form)
     return render(request, 'data_edit.html', context)
@@ -336,7 +336,6 @@ def data_upload(request, uid):
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
         messages.error(request, mark_safe(form.errors))
-
 
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'data_upload.html', context)

@@ -13,7 +13,7 @@ from django.utils.safestring import mark_safe
 from .templatetags import engine_tags
 
 from .const import *
-from .models import Data, Analysis, Job, Project, Access
+from .models import Data, Analysis, Job, Project, Access, DataType
 
 CHUNK = 1024 * 1024
 
@@ -159,7 +159,6 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
         messages.error(request, deny)
         return False
 
-
     # Check user access.
     entry = Access.objects.filter(user=user, project=project).first()
 
@@ -180,6 +179,20 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
     # This should never trigger and is here to catch bugs.
     messages.error(request, "Access denied! Invalid fall-through!")
     return False
+
+
+def create_datatype(name, symbol, help, project):
+    "Create datatype if it doesnt exist; return existing one if it does"
+
+    query = DataType.objects.filter(project=project)
+    query = query.filter(Q(name=name)|Q(symbol=symbol))
+
+    if query:
+        return query
+
+    query = DataType.objects.create(name=name, project=project, symbol=symbol, help=help)
+
+    return query
 
 
 def get_data(user, project, query, data_type=None):

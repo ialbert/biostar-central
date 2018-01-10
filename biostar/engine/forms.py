@@ -110,7 +110,7 @@ class CreateDataTypeForm(forms.Form):
         symbol = self.cleaned_data["symbol"]
         help = self.cleaned_data.get("help", "description")
 
-        new_datatype = DataType(project=self.project, name=name,
+        new_datatype = auth.create_datatype(project=self.project, name=name,
                                 symbol=symbol, help=help)
         new_datatype.save()
 

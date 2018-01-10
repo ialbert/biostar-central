@@ -82,8 +82,24 @@ data: [
     }
 ]
 
-datatypes:[
+datatypes:
     {
+
+    "Sample Sheet":{
+        symbol: 'SAMPLE_TYPE'
+        help: "Sample sheet description"
+        }
+
+    "Collection":{
+        symbol:'COLLECTION'
+        help: "collection of data files"
+        }
+
+    'TAR_FASTQ_GZ':{
+        symbol: "TAR FASTQ GZ"
+        help: "tar fastq gz data type"
+        }
+
     }
 
 }

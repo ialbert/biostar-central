@@ -172,7 +172,7 @@ def add_datatypes(sender, instance, created, **kwargs):
 
         if created:
 
-            datatype = DataType.objects.create(project=instance, symbol=symbol, name=name,
+            datatype =  DataType.objects.create(project=instance, symbol=symbol, name=name,
                                                help=help)
             datatype.save()
 
