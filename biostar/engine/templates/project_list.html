@@ -19,7 +19,7 @@
                <i class="database icon"></i>
                 <p class="content">
                     Project List
-                <p class="sub header">Projects you have access to.</p>
+                <p class="sub header">Projects that you may access.</p>
                 </p>
             </h3>
         </div>
@@ -47,9 +47,8 @@
                         </div>
 
                         <div class="extra">
-                            {% privacy_label project %}{% sticky_label project %} {% access_label project=project user=user %}
-                            Created on {{ project.date.date }} by {{ project.owner.email }}
-
+                            <div>Created on {{ project.date.date }} by {{ project.owner.email }}</div>
+                            <div>{% privacy_label project %}</div>
                         </div>
 
                     </div>

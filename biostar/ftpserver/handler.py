@@ -14,6 +14,7 @@ logger.setLevel(logging.INFO)
 class BiostarFileSystem(AbstractedFS):
 
     def __init__(self, root, cmd_channel, *args, **kwargs):
+
         """
          - (str) root: the user "real" home directory (e.g. '/home/user')
          - (instance) cmd_channel: the FTPHandler class instance
@@ -68,8 +69,13 @@ class BiostarFileSystem(AbstractedFS):
 
         lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; datadir")
         lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; results")
+        lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; nba")
+        lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; STUFF")
 
         line = "\n".join(lines)
+
+        print (line)
+
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
 
 
@@ -104,7 +110,6 @@ class EngineFTPHandler(FTPHandler):
     def on_incomplete_file_received(self, file):
         # remove partially uploaded files
         pass
-
 
 
 class EngineAuthorizer(DummyAuthorizer):
