@@ -324,14 +324,9 @@ def sync_project_datatypes(source, target):
 
     for s in source_types:
         if s not in target_types:
-
             symbol, name, help = s[0], s[1], s[2]
-
-            new_datatype = create_datatype(symbol=symbol, name=name,
-                                           project=target, help=help)
+            new_datatype = create_datatype(symbol=symbol, name=name, project=target, help=help)
             new_datatype.save()
-
-
     return
 
 
