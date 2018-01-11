@@ -231,6 +231,9 @@ class DataCopyForm(forms.Form):
         if len(path) > 1:
             path = [join(path[0], "..")]
 
+        # sync project data types
+        auth.sync_project_datatypes(source=self.current.project, target=project)
+
         data = auth.create_data(project=project,user=self.user, name=name,
                                 summary=summary, data_type=data_type, path=path[0])
         data.save()
@@ -241,9 +244,10 @@ class DataCopyForm(forms.Form):
         cleaned_data = super(DataCopyForm, self).clean()
 
         if self.request.user.is_anonymous:
-            msg = "You have to be logged in to copy data."
-            messages.error(self.request, msg )
-            raise forms.ValidationError(msg)
+            raise forms.ValidationError("You have to be logged in to copy data.")
+
+        if self.current.state != Data.READY:
+            raise forms.ValidationError("State needs to be Ready before copying.")
 
         access = Access.objects.filter(user=self.request.user, project=self.current.project).first()
 
@@ -258,8 +262,8 @@ class DataCopyForm(forms.Form):
         if cleaned_data.get("project") == self.current.project.id:
             if (not access or access.access < Access.ADMIN_ACCESS):
                 msg= "Can not duplicate into a project without Admin Access"
-                messages.error(self.request, msg )
                 raise forms.ValidationError(msg)
+
 
 
 class FilesCopyForm(forms.Form):
@@ -313,8 +317,12 @@ class RecipeCopyForm(forms.Form):
         project_id = self.cleaned_data.get("project")
         current_project = Project.objects.filter(id=project_id).first()
 
+        # sync project data types
+        auth.sync_project_datatypes(source=self.analysis.project, target=current_project)
+
         current_params = auth.get_analysis_attr(analysis=self.analysis, project=current_project)
         new_analysis = auth.create_analysis(**current_params)
+
         # Images needs to be set by it set
         if self.analysis.image:
             new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
@@ -330,9 +338,7 @@ class RecipeCopyForm(forms.Form):
         cleaned_data = super(RecipeCopyForm, self).clean()
 
         if self.request.user.is_anonymous:
-            msg = "You have to be logged in to copy a recipe."
-            messages.error(self.request, msg )
-            raise forms.ValidationError(msg)
+            raise forms.ValidationError("You have to be logged in to copy a recipe.")
 
         access = Access.objects.filter(user=self.request.user, project=self.analysis.project).first()
 
@@ -347,9 +353,7 @@ class RecipeCopyForm(forms.Form):
         # Can not duplicate into the project if you do not have admin access to it.
         if cleaned_data.get("project") == self.analysis.project.id:
             if (not access or access.access < Access.ADMIN_ACCESS):
-                msg= "Can not duplicate into a project without Admin Access"
-                messages.error(self.request, msg )
-                raise forms.ValidationError(msg)
+                raise forms.ValidationError("Can not duplicate into a project without Admin Access")
 
         return cleaned_data
 

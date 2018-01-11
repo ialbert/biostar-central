@@ -13,7 +13,8 @@ logger.setLevel(logging.INFO)
 
 class BiostarFileSystem(AbstractedFS):
 
-    def __init__(self, root, cmd_channel):
+    def __init__(self, root, cmd_channel, *args, **kwargs):
+
         """
          - (str) root: the user "real" home directory (e.g. '/home/user')
          - (instance) cmd_channel: the FTPHandler class instance
@@ -28,6 +29,8 @@ class BiostarFileSystem(AbstractedFS):
         self.cmd_channel = cmd_channel
         logger.info(f"root={root}")
 
+        super(BiostarFileSystem, self).__init__(*args, **kwargs)
+
     def validpath(self, path):
         logger.info(f"path={path}")
         return True
@@ -36,14 +39,14 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"path={path}")
         return True
 
-
     def ftp2fs(self, ftppath):
         logger.info(f"ftppath={ftppath}")
-
+        print(ftppath)
 
     def listdir(self, path):
         # This is the root as initialized in the base class
         logger.info(f"path={path}")
+        print(path)
         return ["music.mp3", "movie.mpg", "image.png"]
 
     def chdir(self, path):

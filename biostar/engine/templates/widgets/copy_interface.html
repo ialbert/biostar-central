@@ -5,7 +5,7 @@
     <div class="item">
         <div class="inline field">
             <input type="radio" name="project" value="0">
-            <i class="archive icon"></i>Create new project and copy recipe into it
+            <i class="archive icon"></i>Create new project and copy {{copying}} into it
         </div>
     </div>
 
@@ -13,7 +13,7 @@
         <div class="item">
             <div class="inline field">
                 <input type="radio" name="project" value="{{ duplicate }}">
-                <i class="copy icon"></i>Duplicate recipe in current project
+                <i class="copy icon"></i>Duplicate {{copying}} in current project
             </div>
         </div>
     {% endif %}
@@ -26,7 +26,7 @@
                 <div class="inline field">
 
                     <input type="radio" name="project" value="{{ project.id }}">
-                    <i class="archive icon"></i> Copy recipe to <a href="{{ project.url }}">
+                    <i class="archive icon"></i> Copy {{copying}} to <a href="{{ project.url }}">
                         {{ project.name }}
                     </a>
                 </div>

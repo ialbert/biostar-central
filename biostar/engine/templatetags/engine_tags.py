@@ -43,7 +43,8 @@ def access_denied_message(user, access):
 def copy_interface(form, projects, duplicate=False):
     """Copy an instance from (from_id) to a list of allowed projects"""
 
-    return dict(projects=projects, form=form, duplicate=duplicate)
+    copying = "recipe" if duplicate else "data"
+    return dict(projects=projects, form=form, duplicate=duplicate, copying=copying)
 
 @register.inclusion_tag('widgets/pages.html')
 def pages(instance):
