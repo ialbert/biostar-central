@@ -89,6 +89,7 @@ class Command(BaseCommand):
             image = json_data.get("settings", {}).get("image", "")
             text = textwrap.dedent(text)
             summary = json_data.get("settings", {}).get("summary", "No summary")
+            data_types = json_data.get("settings", {}).get("datatypes", "")
 
             # Create the analysis
             analysis = auth.create_analysis(project=project, uid=uid, json_text=json_text, summary=summary,
@@ -103,6 +104,13 @@ class Command(BaseCommand):
                     logger.info(f"Image path: {image_path}")
                 else:
                     logger.error(f"Skipping invalid image path: {image_path}")
+
+            # Load custom data types if specified.
+            if data_types:
+                for name in data_types:
+                    symbol, help = data_types[name].get("symbol", ""), data_types[name].get("help", "")
+                    new_datatype = auth.create_datatype(name=name, symbol=symbol, help=help, project=project)
+                    new_datatype.save()
 
             # Create a queued jobs if instructed so.
             if jobs:
