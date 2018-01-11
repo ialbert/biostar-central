@@ -24,4 +24,16 @@ settings : {
         Note how the `index` above points to the main result file. This is used when the `Main result`
         button is selected on the Result view.
     '''
+
+    datatypes: {
+        foo: {
+            symbol: FOO
+            help: test datatype
+        }
+        bar: {
+            symbol: BAR
+            help: test datatype
+        }
+
+        }
     }
