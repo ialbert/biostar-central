@@ -42,8 +42,8 @@ class DataViewTest(TestCase):
 
         response = views.data_view(request=request, id=self.data.id)
 
-        self.assertEqual(response.status_code, 200,
-                         f"Could not load data view after copying Data:\nresponse:{response}")
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect data view after copying Data:\nresponse:{response}")
 
 
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
