@@ -10,20 +10,10 @@
 
     <div class="ui raised segments">
 
-        <div class="ui center aligned segment">
-
-            <div class="ui image">
-                <img class="ui tiny circular image" src="{% img project %}">
-            </div>
-
-            <div class="ui header">
-                Project: {{ project.name }}
-            </div>
-
-        </div>
+        {% project_name_bar project %}
 
         <div class="ui secondary segment">
-            <div class="ui header">Summary</div>
+            <div class="ui header"><i class="info circle icon"></i> Summary</div>
             {{ project.summary|markdown|safe }}
         </div>
 

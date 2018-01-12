@@ -52,8 +52,8 @@ def icon_mapper(project=None, analysis=None, job=None, data=None):
                 ANALYSIS_VIEW_ICON: dict(url=reverse("recipe_view", kwargs={'id': analysis.id}), name="Recipe View"),
                 ANALYSIS_RUN_ICON: dict(url=reverse("analysis_run", kwargs={'id': analysis.id}), name="Analysis Run"),
                 ANALYSIS_RECIPE_ICON: dict(url=reverse("recipe_view", kwargs={'id': analysis.id}), name="Recipe Code"),
-                RESULT_LIST_ICON: dict(url=reverse("job_list", kwargs={'uid': project.uid}), name="Recipe List"),
-                RESULT_VIEW_ICON: dict(url=reverse("job_view", kwargs={'id': job.id}), name="Recipe View"),
+                RESULT_LIST_ICON: dict(url=reverse("job_list", kwargs={'uid': project.uid}), name="Results List"),
+                RESULT_VIEW_ICON: dict(url=reverse("job_view", kwargs={'id': job.id}), name="Result View"),
                 RESULT_INDEX_ICON: dict(url=reverse("job_view", kwargs={'id': job.id}), name="Index View"),
                 PROJECT_TYPES: dict(url=reverse("project_types", kwargs={'uid': project.uid}),
                                     name="Manage Data Types")

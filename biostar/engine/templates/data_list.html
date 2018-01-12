@@ -16,14 +16,9 @@
 
         {% project_name_bar project %}
 
-        <div class="ui center aligned segment">
-            <h3 class="ui icon header">
-                <i class="file text icon"></i>
-                <p class="content">
-                    Data Files
-                <p class="sub header">A list of all data files contained in this project.</p>
-                </p>
-            </h3>
+        <div class="ui secondary segment">
+            <div class="ui header"><i class="file text icon"></i>Data Files</div>
+            <p>A list of data files contained in this project.</p>
         </div>
 
         <div class="ui segment">
@@ -70,7 +65,7 @@
         </div>
         {% if data_list.has_other_pages %}
             <div class="ui center aligned basic segment">
-               {% pages instance=data_list %}
+                {% pages instance=data_list %}
             </div>
         {% endif %}
 

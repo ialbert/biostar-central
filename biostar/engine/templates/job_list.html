@@ -12,15 +12,11 @@
 
         {% project_name_bar project %}
 
-        <div class="ui center aligned segment">
-            <h3 class="ui icon header">
-                <i class="bar chart icon"></i>
-                <p class="content">
-                    Results List
-                    <p class="sub header">The results produced from the recipes in the current project.</p>
-                </p>
-            </h3>
+        <div class="ui secondary segment">
+            <div class="ui header"><i class="bar chart  icon"></i>Results List</div>
+            <p>Results produced from the recipes in the current project.</p>
         </div>
+
 
         <div class="ui segment">
 
@@ -54,7 +50,7 @@
                             </div>
 
                             <div class="extra">
-                               {% sticky_label job %}{% job_minutes job %} &bull;
+                                {% sticky_label job %}{% job_minutes job %} &bull;
                                 <a class="ui  {% job_color job %}  label"
                                    href="{% url 'recipe_view' job.analysis.id %}"><i class="setting icon"></i>Go to
                                     Recipe</a>
@@ -69,7 +65,7 @@
         </div>
         {% if jobs.has_other_pages %}
             <div class="ui center aligned basic segment">
-            {% pages instance=jobs %}
+                {% pages instance=jobs %}
             </div>
         {% endif %}
 

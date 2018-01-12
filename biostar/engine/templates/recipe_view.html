@@ -34,14 +34,15 @@
                     <i class="spinner icon"></i> Execute Recipe
                 </a>
             </div>
-            <p>
-                {{ analysis.summary|markdown|safe }}
-            </p>
 
             {% security_label analysis %}
 
         </div>
 
+         <div class="ui secondary segment">
+              <div class="ui header"><i class="info circle icon"></i> Summary</div>
+             {{ analysis.summary|markdown|safe }}
+         </div>
         <div class="ui center aligned segment">
 
             <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
@@ -67,7 +68,7 @@
 
             <div class="ui header">Recipe Actions</div>
 
-            <p>The following actions allow you to create your own versions of the recipe.</p>
+            <p>Create your own version of the recipe.</p>
             <form class="ui form" method="post" action="{% url 'recipe_view' analysis.id %}">
 
                 {% csrf_token %}

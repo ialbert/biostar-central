@@ -10,14 +10,9 @@
 
         {% project_name_bar project %}
 
-        <div class="ui center aligned segment">
-            <h3 class="ui icon header">
-                <i class="settings icon"></i>
-                <p class="content">
-                    Recipe List
-                <p class="sub header">All analysis recipes available in the current project.</p>
-                </p>
-            </h3>
+        <div class="ui secondary segment">
+            <div class="ui header"><i class="settings icon"></i>Recipe List</div>
+            <p>The list of recipes enabled for this project.</p>
         </div>
 
         <div class="ui segment">
@@ -59,7 +54,7 @@
         </div>
         {% if analysis.has_other_pages %}
             <div class="ui center aligned basic segment">
-               {% pages instance=analysis %}
+                {% pages instance=analysis %}
             </div>
         {% endif %}
 
