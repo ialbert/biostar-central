@@ -15,8 +15,9 @@ logger = logging.getLogger("engine")
 register = template.Library()
 
 JOB_COLORS = {
-    Job.ZOMBIE: "orange", Job.SPOOLED: "pink",
-    Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.COMPLETED: "green"
+    Job.ZOMBIE: "orange", Job.SPOOLED: "violet",
+    Job.ERROR: "red", Job.QUEUED: "teal",
+    Job.RUNNING: "pink", Job.COMPLETED: "green"
 }
 
 DATA_COLORS = {

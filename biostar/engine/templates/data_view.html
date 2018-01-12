@@ -46,16 +46,7 @@
             <pre>{{ data.peek }}</pre>
         </div>
 
-        <div class="ui vertical center aligned segment">
-            <a class="ui button" href="{% url 'data_edit' data.id %}">
-                <i class="write icon"></i>Edit Data
-            </a>
-            {% if data|single_file %}
-                <a class="ui button" href="{% url 'data_download' data.id %}">
-                       <i class="download icon"></i>Download
-                </a>
-            {% endif %}
-        </div>
+
 
         <div class="ui segment">
             <div class="ui header">Data Actions</div>
@@ -72,6 +63,17 @@
                 </button>
 
             </form>
+        </div>
+
+        <div class="ui vertical center aligned segment">
+            <a class="ui button" href="{% url 'data_edit' data.id %}">
+                <i class="write icon"></i>Edit Info
+            </a>
+            {% if data|single_file %}
+                <a class="ui button" href="{% url 'data_download' data.id %}">
+                       <i class="download icon"></i>Download
+                </a>
+            {% endif %}
         </div>
 
 

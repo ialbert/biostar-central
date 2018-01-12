@@ -11,6 +11,11 @@
 
         {% project_name_bar project %}
 
+        <div class="ui secondary segment">
+            <div class="ui header"><i class="area chart icon"></i>Result View</div>
+            <p>Results of executing a recipe</p>
+        </div>
+
         <div class="ui segment">
 
             <div class="ui center aligned header">
@@ -27,7 +32,7 @@
                 <a class="ui  button" href="{% url 'recipe_view' job.analysis.id %}"><i
                         class="setting icon"></i>Go to Recipe</a>
                 <a class="ui  button" href="{% url 'job_edit' job.id %}"><i
-                        class="write icon"></i>Edit Job</a>
+                        class="write icon"></i>Edit Info</a>
             </div>
         </div>
 
@@ -35,7 +40,7 @@
             {% job_minutes job %}
         </div>
 
-        <div class="ui segment">
+        <div class="ui secondary segment">
             <div class="ui center aligned header">Summary</div>
             {{ job.summary|safe }}
         </div>

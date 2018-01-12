@@ -3,6 +3,11 @@ body {
     padding-top: 1rem;
 }
 
+.ui.items>.item>.content>a.header {
+    color: #4183c4;
+}
+
+
 .project.help h1 {
     font-size: 1.28em;
 }

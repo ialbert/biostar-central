@@ -10,16 +10,11 @@
 
     <div class="ui raised segments">
 
-        <div class="ui center aligned segment">
+        {% project_name_bar project %}
 
-            <div class="ui image">
-                <img class="ui tiny circular image" src="{% img project %}">
-            </div>
-
-            <div class="ui header">
-                Project: {{ project.name }}
-            </div>
-
+        <div class="ui secondary segment">
+            <div class="ui header"><i class="info circle icon"></i>Project Summary</div>
+            {{ project.summary|markdown|safe }}
         </div>
 
         <div class="ui segment">
@@ -34,7 +29,7 @@
 
                     <div class="content">
                         <a class="header" href="{% url 'data_list' project.uid %}">
-                            <i class="file text icon"></i>Data Files: {{ data_count }}
+                            <i class="file text icon"></i>{{ data_count }} Data Files
                         </a>
                         <div class="description">
                             View the files and data collections associated with this project.
@@ -52,7 +47,7 @@
 
                     <div class="content">
                         <a class="header" href="{% url 'recipe_list' project.uid %}">
-                            <i class="settings icon"></i> Analysis Recipes: {{ recipe_count }}
+                            <i class="settings icon"></i> {{ recipe_count }} Analysis Recipes
                         </a>
                         <div class="description">
                             View the analyses that can be run for this project.
@@ -69,7 +64,7 @@
 
                     <div class="content">
                         <a class="header" href="{% url 'job_list' project.uid %}">
-                            <i class="bar chart icon"></i>Analysis Results: {{ result_count }}
+                            <i class="bar chart icon"></i>{{ result_count }} Analysis Results
                         </a>
                         <div class="description">
                             View the results of analyses run previously.
@@ -81,37 +76,39 @@
             </div>
 
         </div>
-        <div class="ui vertical center aligned segment">
-            <a class="ui button" href="{% url 'project_edit' project.uid %}">
-                <i class="write icon"></i>Edit Project
-            </a>
-            <a class="ui button" href="{% url 'project_users' project.uid %}">
-                <i class="add user icon"></i>Manage People
-            </a>
 
-            <a class="ui button" href="{% url 'project_types' project.uid %}">
-                <i class="file outline icon"></i>Manage Data Types
-            </a>
-        </div>
 
         <div class="ui secondary segment">
-            <div class="ui header">Summary</div>
-            {{ project.summary|markdown|safe }}
-        </div>
+            <div class="ui header"><i class="add circle icon"></i>Project Actions</div>
 
-        {% if access %}
-            <div class="ui secondary segment">
-                Your access rights for the project:
-                <span class="ui green label">{{ access.get_access_display }}</span>
+            <div class="ui center aligned basic segment">
+                <a class="ui button" href="{% url 'project_edit' project.uid %}">
+                    <i class="write icon"></i>Edit Info
+                </a>
+                <a class="ui button" href="{% url 'project_users' project.uid %}">
+                    <i class="add user icon"></i>Manage People
+                </a>
+
+                <a class="ui button" href="{% url 'project_types' project.uid %}">
+                    <i class="plus icon"></i>Create Types
+                </a>
             </div>
-        {% endif %}
+        </div>
 
-        <div class="ui secondary segment">
-            <div class="ui header">Additional Information</div>
+     <div class="ui  segment">
+            <div class="ui header"><i class="help circle icon"></i>Project Information</div>
             <div class="project help">
                 {{ project.html|safe }}
             </div>
         </div>
+
+        {% if access %}
+            <div class="ui  center aligned segment">
+                Your access level:
+                <span class="ui green label">{{ access.get_access_display }}</span>
+            </div>
+        {% endif %}
+
     </div>
 
 {% endblock %}
