@@ -10,9 +10,7 @@ config_logging(level=logging.DEBUG)
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
-def get_user_dir(username):
 
-    return
 
 class BiostarFileSystem(AbstractedFS):
 
@@ -31,7 +29,7 @@ class BiostarFileSystem(AbstractedFS):
         self._cwd = '/'
         self._root = root
         self.cmd_channel = cmd_channel
-        logger.info(f"root={root}")
+        logger.info(f"root={root}; ")
 
         super(BiostarFileSystem, self).__init__(root, cmd_channel)
 

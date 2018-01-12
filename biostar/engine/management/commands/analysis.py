@@ -14,6 +14,24 @@ logger = logging.getLogger('engine')
 __CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
+def add_types(json_data, project):
+    "Iterate over json data and add data types to a project"
+
+    for key, obj in json_data.items():
+
+        type_obj = obj.get("type","")
+        name = help = symbol = type_obj
+
+        if isinstance(type_obj, dict):
+            name = type_obj.get("name", "")
+            symbol = type_obj.get("symbol", "")
+            help = type_obj.get("help", "")
+
+        # Creates a new data type or returns an already existing one.
+        new_datatype = auth.create_datatype(name=name, symbol=symbol, help=help, project=project)
+        new_datatype.save()
+
+
 class Command(BaseCommand):
     help = 'Manages analyses.'
 
@@ -36,12 +54,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-
         json = options['json']
         pid = options['id']
         template = options['template']
         jobs = options['jobs']
-
 
         # Require JSON and templatates to exist.
         if not (json and template):
@@ -89,7 +105,6 @@ class Command(BaseCommand):
             image = json_data.get("settings", {}).get("image", "")
             text = textwrap.dedent(text)
             summary = json_data.get("settings", {}).get("summary", "No summary")
-            data_types = json_data.get("settings", {}).get("datatypes", "")
 
             # Create the analysis
             analysis = auth.create_analysis(project=project, uid=uid, json_text=json_text, summary=summary,
@@ -105,12 +120,8 @@ class Command(BaseCommand):
                 else:
                     logger.error(f"Skipping invalid image path: {image_path}")
 
-            # Load custom data types if specified.
-            if data_types:
-                for name in data_types:
-                    symbol, help = data_types[name].get("symbol", ""), data_types[name].get("help", "")
-                    new_datatype = auth.create_datatype(name=name, symbol=symbol, help=help, project=project)
-                    new_datatype.save()
+            # Add data types in json data to project
+            add_types(json_data=json_data,project=project)
 
             # Create a queued jobs if instructed so.
             if jobs:
