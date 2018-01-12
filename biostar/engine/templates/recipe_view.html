@@ -20,9 +20,9 @@
 
         {% project_name_bar project %}
 
-         <div class="ui secondary segment">
+        <div class="ui secondary segment">
             <div class="ui header"><i class="setting  icon"></i>Recipe View</div>
-            <p>View or execute a recipe</p>
+            {{ analysis.summary|markdown|safe }}
         </div>
 
         <div class="ui segment">
@@ -44,34 +44,34 @@
 
         </div>
 
-         <div class="ui secondary segment">
-              <div class="ui header"><i class="info circle icon"></i> Summary</div>
-             {{ analysis.summary|markdown|safe }}
-         </div>
-        <div class="ui center aligned segment">
-
-            <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
-                <i class="area chart icon"></i> Go to Results
-            </a>
-
-            <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
-                <i class="write icon"></i>Edit Info
-            </a>
-
-            <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
-                <i class="list icon"></i> Edit Recipe
-            </a>
-
-        </div>
-
         <div class="ui secondary segment">
+            <div class="ui header"><i class="plus circle icon"></i>Recipe Actions</div>
+            <div class="ui center aligned basic segment">
 
-            <div>{{ analysis.html|safe }}</div>
+                <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
+                    <i class="area chart icon"></i> Go to Results
+                </a>
+
+                <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
+                    <i class="write icon"></i>Edit Info
+                </a>
+
+                <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
+                    <i class="list icon"></i> Edit Recipe
+                </a>
+
+            </div>
         </div>
 
         <div class="ui segment">
+            <div class="ui header"><i class="help circle icon"></i>Recipe Help</div>
+            {{ analysis.html|safe }}
+        </div>
 
-            <div class="ui header">Recipe Actions</div>
+
+        <div class="ui secondary segment">
+
+            <div class="ui header"><i class="share square icon"></i>Duplicate Recipe</div>
 
             <p>Create your own version of the recipe.</p>
             <form class="ui form" method="post" action="{% url 'recipe_view' analysis.id %}">
@@ -82,7 +82,7 @@
 
                 <button type="submit" class="ui button">
                     <i class="check icon"></i>Submit
-               </button>
+                </button>
 
             </form>
 

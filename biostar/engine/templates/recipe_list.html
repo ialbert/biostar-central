@@ -43,20 +43,21 @@
 
                 {% endfor %}
 
-                <div class="item centerbox">
-                    <a class="ui  button" href="{% url 'recipe_create' project.uid %}">
-                        <i class="add circle icon"></i>Create New Recipe
-                    </a>
 
-                </div>
+            </div>
 
+
+        </div>
+
+        <div class="ui secondary segment">
+            <div class="ui header"><i class="add circle icon"></i>Recipe List Actions</div>
+
+            <div class="ui center aligned basic segment">
+                <a class="ui  button" href="{% url 'recipe_create' project.uid %}">
+                    <i class="add circle icon"></i>Create New Recipe
+                </a>
             </div>
         </div>
-        {% if analysis.has_other_pages %}
-            <div class="ui center aligned basic segment">
-                {% pages instance=analysis %}
-            </div>
-        {% endif %}
 
     </div>
 {% endblock %}
