@@ -13,7 +13,7 @@
         {% project_name_bar project %}
 
         <div class="ui secondary segment">
-            <div class="ui header"><i class="info circle icon"></i> Summary</div>
+            <div class="ui header"><i class="info circle icon"></i>Project Summary</div>
             {{ project.summary|markdown|safe }}
         </div>
 
@@ -79,7 +79,7 @@
 
 
         <div class="ui secondary segment">
-            <div class="ui header">Additional Information</div>
+            <div class="ui header"><i class="help circle icon"></i>Project Information</div>
             <div class="project help">
                 {{ project.html|safe }}
             </div>
@@ -88,7 +88,7 @@
 
         <div class="ui center aligned segment">
             <a class="ui button" href="{% url 'project_edit' project.uid %}">
-                <i class="write icon"></i>Edit Project
+                <i class="write icon"></i>Edit Info
             </a>
             <a class="ui button" href="{% url 'project_users' project.uid %}">
                 <i class="add user icon"></i>Manage People
