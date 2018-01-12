@@ -3,7 +3,6 @@ import os
 from django.core.management.base import BaseCommand
 
 from pyftpdlib.servers import FTPServer
-from pyftpdlib.handlers import TLS_FTPHandler
 from biostar.ftpserver.handler import EngineFTPHandler, EngineAuthorizer, BiostarFileSystem
 from biostar.accounts import models
 import logging

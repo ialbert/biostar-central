@@ -2,7 +2,7 @@ import logging
 
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.filesystems import AbstractedFS
-from pyftpdlib.handlers import TLS_FTPHandler
+from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.log import config_logging
 
 config_logging(level=logging.DEBUG)
@@ -86,7 +86,7 @@ class BiostarFileSystem(AbstractedFS):
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
 
 
-class EngineFTPHandler(TLS_FTPHandler):
+class EngineFTPHandler(FTPHandler):
     def on_connect(self):
         print("%s:%s connected" % (self.remote_ip, self.remote_port))
 
