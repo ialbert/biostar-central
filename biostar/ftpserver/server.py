@@ -7,9 +7,7 @@ from biostar.ftpserver.handler import EngineFTPHandler, EngineAuthorizer, Biosta
 from biostar.accounts import models
 import logging
 
-def get_user_dir(username):
 
-    return
 
 #logging.basicConfig(level=logging.INFO)
 
@@ -18,6 +16,7 @@ def start():
     authorizer = EngineAuthorizer()
 
     # This is a test user. Will be removed.
+    # TODO: iterate and add users from biostar-accounts here
     for user in models.User.objects.all():
         print (user, user.email)
 

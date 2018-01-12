@@ -224,7 +224,7 @@ class DataCopyForm(forms.Form):
     def save(self):
 
         project = Project.objects.filter(pk=self.cleaned_data["project"]).first()
-        name, text, = f"Copy of: {self.current.name}", self.current.text
+        name, text, = f"Copy of {self.current.name}", self.current.text
         summary, data_type = self.current.summary, self.current.data_type
         path = self.current.get_files()
 
@@ -326,7 +326,7 @@ class RecipeCopyForm(forms.Form):
         # Images needs to be set by it set
         if self.analysis.image:
             new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
-        new_analysis.name = f"Copy of: {self.analysis.name}"
+        new_analysis.name = f"Copy of {self.analysis.name}"
         new_analysis.state = self.analysis.state
         new_analysis.security = self.analysis.security
         new_analysis.save()

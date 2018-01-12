@@ -138,8 +138,9 @@ def project_types(request, uid):
         form = CreateDataTypeForm(project=project, data=request.POST)
         if form.is_valid():
             form.save()
-        else:
-            messages.error(request, mark_safe(form.errors))
+            return redirect(reverse("project_types", kwargs=dict(uid=project.uid)))
+
+        messages.error(request, mark_safe(form.errors))
 
     current = project.datatype_set.all()
     context = dict(project=project, form=form, steps=steps, current=current)
@@ -272,7 +273,8 @@ def data_view(request, id):
                                project=data.project, data=data)
 
     projects = auth.get_project_list(user=request.user)
-    projects = projects.exclude(pk=data.project.id).exclude(privacy=Project.PUBLIC)
+    projects = projects.exclude(pk=data.project.id)
+
     form = DataCopyForm(current=data, request=request)
 
     # Filter projects by admin access
@@ -287,8 +289,9 @@ def data_view(request, id):
         if form.is_valid():
             data = form.save()
             messages.success(request, f"Copied {name} in to {data.project.name}")
-        else:
-            messages.error(request, mark_safe(form.errors))
+            return redirect(reverse("data_view", kwargs=dict(id=data.id)))
+
+        messages.error(request, mark_safe(form.errors))
 
     context = dict(data=data, steps=steps, projects=projects, form=form)
     return render(request, "data_view.html", context)
@@ -306,9 +309,9 @@ def data_edit(request, id):
         form = DataEditForm(data=request.POST, instance=data, project=project)
         if form.is_valid():
             form.save()
-        else:
-            messages.error(request, mark_safe(form.errors))
-        return redirect(reverse("data_view", kwargs=dict(id=data.id)))
+            return redirect(reverse("data_view" , kwargs=dict(id=data.id)))
+
+        messages.error(request, mark_safe(form.errors))
 
     context = dict(data=data, steps=steps, form=form)
     return render(request, 'data_edit.html', context)
@@ -398,7 +401,7 @@ def recipe_view(request, id):
                                 ANALYSIS_VIEW_ICON], project=analysis.project, analysis=analysis)
 
     projects = auth.get_project_list(user=request.user)
-    projects = projects.exclude(pk=analysis.project.id).exclude(privacy=Project.PUBLIC)
+    projects = projects.exclude(pk=analysis.project.id)
 
     # Filter projects by admin access
     cond = Q(access__access__gt=Access.EDIT_ACCESS)
@@ -412,8 +415,9 @@ def recipe_view(request, id):
         if form.is_valid():
             analysis = form.save()
             messages.success(request, f"Copied {name} in to {analysis.project.name}")
-        else:
-            messages.error(request, mark_safe(form.errors))
+            return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
+
+        messages.error(request, mark_safe(form.errors))
 
     form = RecipeCopyForm(analysis=analysis, request=request)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
@@ -581,7 +585,6 @@ def recipe_edit(request, id):
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
 
         messages.error(request, mark_safe(form.errors))
-        return redirect(action_url)
 
     form = RecipeForm(instance=analysis)
     context = dict(steps=steps, analysis=analysis, project=project, form=form, action_url=action_url, back_url=back_url)
@@ -630,8 +633,6 @@ def job_edit(request, id):
         if form.is_valid():
             form.save()
             return redirect(reverse("job_view", kwargs=dict(id=job.id)))
-
-        return redirect(reverse("job_edit", kwargs=dict(id=job.id)))
 
     form = JobEditForm(instance=job)
     context = dict(steps=steps, job=job, project=project, form=form)
@@ -711,9 +712,9 @@ def job_files_list(request, id, path=''):
         if form.is_valid():
             count = form.save()
             messages.success(request, f"Copied {len(count)} file to {project.name}.")
-        else:
-            messages.warning(request, "Unable to copy files")
-        return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+            return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+
+        messages.warning(request, "Unable to copy files")
 
     form = FilesCopyForm(project=project)
     context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)

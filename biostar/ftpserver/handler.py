@@ -10,10 +10,14 @@ config_logging(level=logging.DEBUG)
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
+def get_user_dir(username):
+
+    return
 
 class BiostarFileSystem(AbstractedFS):
 
-    def __init__(self, root, cmd_channel, *args, **kwargs):
+    def __init__(self, root, cmd_channel):
+        #TODO: pass user info here ( uid and stuff)
 
         """
          - (str) root: the user "real" home directory (e.g. '/home/user')
@@ -29,7 +33,7 @@ class BiostarFileSystem(AbstractedFS):
         self.cmd_channel = cmd_channel
         logger.info(f"root={root}")
 
-        super(BiostarFileSystem, self).__init__(*args, **kwargs)
+        super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
     def validpath(self, path):
         logger.info(f"path={path}")
@@ -41,12 +45,18 @@ class BiostarFileSystem(AbstractedFS):
 
     def ftp2fs(self, ftppath):
         logger.info(f"ftppath={ftppath}")
-        print(ftppath)
+        #TODO: take the projects ftp path here and toget path
+
+        #TODO: take out
+        self._cwd = ftppath
+        print(self._cwd,"SSS")
 
     def listdir(self, path):
         # This is the root as initialized in the base class
         logger.info(f"path={path}")
-        print(path)
+        # TODO: list the project here (types will be type=dir)
+        # TODO: need to pass the user uid here for that
+
         return ["music.mp3", "movie.mpg", "image.png"]
 
     def chdir(self, path):
@@ -55,7 +65,7 @@ class BiostarFileSystem(AbstractedFS):
         """
         # note: process cwd will be reset by the caller
         logger.info(f"path={path}")
-        self._cwd = f"foo({path})"
+        #self._cwd = f"foo({path})"
 
     def format_list(self, basedir, listing, ignore_err=True):
         logger.info(f"listing={listing}")
@@ -74,9 +84,10 @@ class BiostarFileSystem(AbstractedFS):
 
         line = "\n".join(lines)
 
-        print (line)
+        #print (line)
 
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
+
 
 
 class EngineFTPHandler(FTPHandler):
@@ -129,4 +140,5 @@ class EngineAuthorizer(DummyAuthorizer):
         Return the user's home directory.
         Needs to be here because the base class relies on it.
         """
+        #TODO: should the projects be listed here?
         return '/tmp/this/should/not/be/used/'
