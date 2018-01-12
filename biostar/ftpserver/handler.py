@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 
 class BiostarFileSystem(AbstractedFS):
 
-    def __init__(self, root, cmd_channel, *args, **kwargs):
+    def __init__(self, root, cmd_channel):
 
         """
          - (str) root: the user "real" home directory (e.g. '/home/user')
@@ -29,7 +29,7 @@ class BiostarFileSystem(AbstractedFS):
         self.cmd_channel = cmd_channel
         logger.info(f"root={root}")
 
-        super(BiostarFileSystem, self).__init__(*args, **kwargs)
+        super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
     def validpath(self, path):
         logger.info(f"path={path}")
@@ -41,12 +41,18 @@ class BiostarFileSystem(AbstractedFS):
 
     def ftp2fs(self, ftppath):
         logger.info(f"ftppath={ftppath}")
-        print(ftppath)
+        #TODO: take the projects ftp path here and toget path
+
+        #TODO: take out
+        self._cwd = ftppath
+        print(self._cwd,"SSS")
 
     def listdir(self, path):
         # This is the root as initialized in the base class
         logger.info(f"path={path}")
-        print(path)
+        # TODO: list the project here (types will be type=dir)
+        # TODO: need to pass the user uid here for that
+
         return ["music.mp3", "movie.mpg", "image.png"]
 
     def chdir(self, path):
@@ -55,7 +61,7 @@ class BiostarFileSystem(AbstractedFS):
         """
         # note: process cwd will be reset by the caller
         logger.info(f"path={path}")
-        self._cwd = f"foo({path})"
+        #self._cwd = f"foo({path})"
 
     def format_list(self, basedir, listing, ignore_err=True):
         logger.info(f"listing={listing}")
@@ -74,42 +80,9 @@ class BiostarFileSystem(AbstractedFS):
 
         line = "\n".join(lines)
 
-        print (line)
+        #print (line)
 
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
-
-
-class EngineFTPHandler(FTPHandler):
-    def on_connect(self):
-        print("%s:%s connected" % (self.remote_ip, self.remote_port))
-
-    def on_disconnect(self):
-        # do something when client disconnects
-        pass
-
-    def on_login(self, username):
-        # do something when user login
-        pass
-
-    def on_logout(self, username):
-        # do something when user logs out
-        pass
-
-    def on_file_sent(self, file):
-        # do something when a file has been sent
-        pass
-
-    def on_file_received(self, file):
-        # do something when a file has been received
-        pass
-
-    def on_incomplete_file_sent(self, file):
-        # do something when a file is partially sent
-        pass
-
-    def on_incomplete_file_received(self, file):
-        # remove partially uploaded files
-        pass
 
 
 class EngineAuthorizer(DummyAuthorizer):

@@ -273,7 +273,7 @@ def data_view(request, id):
                                project=data.project, data=data)
 
     projects = auth.get_project_list(user=request.user)
-    #projects = projects.exclude(pk=data.project.id).exclude(privacy=Project.PUBLIC)
+    projects = projects.exclude(pk=data.project.id)
 
     form = DataCopyForm(current=data, request=request)
 
@@ -401,7 +401,7 @@ def recipe_view(request, id):
                                 ANALYSIS_VIEW_ICON], project=analysis.project, analysis=analysis)
 
     projects = auth.get_project_list(user=request.user)
-    projects = projects.exclude(pk=analysis.project.id).exclude(privacy=Project.PUBLIC)
+    projects = projects.exclude(pk=analysis.project.id)
 
     # Filter projects by admin access
     cond = Q(access__access__gt=Access.EDIT_ACCESS)
