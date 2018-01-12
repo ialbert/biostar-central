@@ -2,7 +2,7 @@
 set -uxe
 
 # Assembly scaffolds.
-ASSEMBLY={{assembly.path}}
+ASSEMBLY={{assembly.value}}
 
 # Species to be used as training set.
 SPECIES={{species.value}}
@@ -37,7 +37,9 @@ GENES=${AUGUSTUS}/genes.gff
 
 # Run augustus gene prediction.
 mkdir -p tmp
+{% verbatim %}
 cat $ASSM_SORTED | parallel --j $NPROC --blocksize 5M --recstart '>' --pipe "cat {} > tmp/{%} && augustus --species=$SPECIES  tmp/{%}" > $GENES
+{% endverbatim %}
 rm -rf tmp
 
 # Bed file with predicted transcripts.

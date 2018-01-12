@@ -4,7 +4,7 @@ assembly : {
 	value: export/local/input/scaffolds.fasta
 	label: Data
 	data_type: FASTA
-	display_type: DROPDOWN
+	display: DROPDOWN
   }
 
 species: {
