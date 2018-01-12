@@ -7,9 +7,7 @@ from biostar.ftpserver.handler import EngineFTPHandler, EngineAuthorizer, Biosta
 from biostar.accounts import models
 import logging
 
-def get_user_dir(username):
 
-    return
 
 #logging.basicConfig(level=logging.INFO)
 

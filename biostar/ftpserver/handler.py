@@ -10,6 +10,9 @@ config_logging(level=logging.DEBUG)
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
+def get_user_dir(username):
+
+    return
 
 class BiostarFileSystem(AbstractedFS):
 
@@ -32,13 +35,13 @@ class BiostarFileSystem(AbstractedFS):
 
         super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
-    #def validpath(self, path):
-    #    logger.info(f"path={path}")
-    #    return True
+    def validpath(self, path):
+        logger.info(f"path={path}")
+        return True
 
-    #def isdir(self, path):
-    #    logger.info(f"path={path}")
-    #    return True
+    def isdir(self, path):
+        logger.info(f"path={path}")
+        return True
 
     def ftp2fs(self, ftppath):
         logger.info(f"ftppath={ftppath}")
@@ -64,8 +67,8 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"path={path}")
         #self._cwd = f"foo({path})"
 
-    #def format_list(self, basedir, listing, ignore_err=True):
-    #    logger.info(f"listing={listing}")
+    def format_list(self, basedir, listing, ignore_err=True):
+        logger.info(f"listing={listing}")
 
     def format_mlsx(self, basedir, listing, perms, facts, ignore_err=True):
         logger.info(f"basedir={basedir} listing={listing}")
@@ -84,6 +87,7 @@ class BiostarFileSystem(AbstractedFS):
         #print (line)
 
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
+
 
 
 class EngineFTPHandler(FTPHandler):
