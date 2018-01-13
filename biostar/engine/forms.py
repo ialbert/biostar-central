@@ -419,7 +419,7 @@ class RecipeInterface(forms.Form):
         for field, item in json_data.items():
 
             # If the field is a data field then fill in more information.
-            if item.get("path") or item.get("link"):
+            if item.get("source") == "PROJECT":
                 data_id = int(self.cleaned_data.get(field))
                 data = store.get(data_id)
 
