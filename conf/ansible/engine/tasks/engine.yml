@@ -7,7 +7,7 @@
 
 - name: Link configuration files
   file:
-    src: '/export/sites/recipe_web/conf/main/{{ item.src }}'
+    src: '/export/sites/main_env/conf/main/{{ item.src }}'
     dest: '{{ item.dest }}'
     state: link
   with_items:
