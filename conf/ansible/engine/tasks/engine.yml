@@ -4,7 +4,6 @@
     repo: 'git@github.com:biostars/biostar-engine.git'
     dest: /export/sites/recipe_web
     update: yes
-  notify: restart nginx
 
 - name: Link configuration files
   file:
