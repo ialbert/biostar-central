@@ -61,8 +61,8 @@ mv ${AUGUSTUS}/genes.aa ${PROTEINS}
 # Diamond NR database.
 DIAMOND_NR=/export/refs/diamond-dbs/nr/nr
 
-# Protein-accession2taxon map file.
-TAXON_MAP=/export/refs/diamond-dbs/nr/prot.accession2taxid.gz
+# Diamond protein-accession2taxon map file.
+DIAMOND_TAXON=/export/refs/diamond-dbs/nr/prot.accession2taxid.gz
 
 # Diamond blastp results directory.
 DIAMOND={{runtime.work_dir}}/diamond
@@ -82,7 +82,7 @@ echo $HEADER  |tr [:blank:] \\t >$DIAMOND_RES
 #
 
 # Running diamond blastp on predicted proteins.
-diamond blastp -f 6 $HEADER -d $DIAMOND_NR --taxonmap $TAXON_MAP --max-target-seqs 15 -q $PROTEINS -p $NPROC >>$DIAMOND_RES
+diamond blastp -f 6 $HEADER -d $DIAMOND_NR --taxonmap $DIAMOND_TAXON --max-target-seqs 15 -q $PROTEINS -p $NPROC >>$DIAMOND_RES
 
 #
 # Parsing diamond-blastp results.
