@@ -13,7 +13,7 @@ from biostar.breadcrumb import breadcrumb_builder
 from . import tasks, util
 from .decorators import object_access
 from .forms import *
-from .models import (Project, Data, Analysis, Job, User, Access)
+from .models import (Project, Data, Analysis, Job, Access)
 
 
 def join(*args):
@@ -696,7 +696,7 @@ def job_files_list(request, id, path=''):
     target_path = join(job.path, path)
 
     print(target_path, path)
-    1/0
+    #1/0
     if not target_path.startswith(job.path):
         # Attempting to access a file outside of the job directory
         raise Exception(f"target_path {target_path} not in job directory")

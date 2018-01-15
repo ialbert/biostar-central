@@ -30,7 +30,7 @@ class DataViewTest(TestCase):
         self.data = auth.create_data(project=self.project, path=__file__)
         self.assertTrue(models.Data.objects.count() == (pre + 1), "Error creating Data in database")
 
-    def test_data_copy_view(self):
+    def Xtest_data_copy_view(self):
 
         "Test Data copy (create a new project and copy) in views with POST request"
 
