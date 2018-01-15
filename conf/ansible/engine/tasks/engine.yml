@@ -4,7 +4,8 @@
     repo: 'git@github.com:biostars/biostar-engine.git'
     dest: /export/sites/main_web
     update: yes
-
+  notify: pip_install
+  
 - name: Link configuration files
   file:
     src: '/export/sites/main_web/conf/main/{{ item.src }}'
