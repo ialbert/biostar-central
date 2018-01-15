@@ -5,6 +5,11 @@ from pyftpdlib.filesystems import AbstractedFS
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.log import config_logging
 
+from django.contrib.auth.models import AnonymousUser
+
+from biostar.engine.models import Project, Access
+from biostar.engine import auth
+
 config_logging(level=logging.DEBUG)
 
 logger = logging.getLogger("engine")
@@ -12,24 +17,39 @@ logger.setLevel(logging.INFO)
 
 
 
+def project_list(user):
+
+    # Maintain same order as views
+    projects = auth.get_project_list(user=user).order_by("-sticky", "-privacy")
+    projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
+
+    return [p.name for p in projects]
+
+
 class BiostarFileSystem(AbstractedFS):
 
-    def __init__(self, root, cmd_channel):
-        #TODO: pass user info here ( uid and stuff)
+    def __init__(self, root, cmd_channel, current_user=None):
 
         """
          - (str) root: the user "real" home directory (e.g. '/home/user')
          - (instance) cmd_channel: the FTPHandler class instance
+         - (str) current_user: username of currently logged in user
         """
         # Set initial current working directory.
         # By default initial cwd is set to "/" to emulate a chroot jail.
         # If a different behavior is desired (e.g. initial cwd = root,
         # to reflect the real filesystem) users overriding this class
         # are responsible to set _cwd attribute as necessary.
-        self._cwd = '/'
+        #self._cwd = root
+
+        self._cwd = "/"
         self._root = root
         self.cmd_channel = cmd_channel
-        logger.info(f"root={root}; ")
+
+        logger.info(f"current_user={current_user}")
+        # Get current user info
+        self.user_table = self.cmd_channel.authorizer.user_table
+        self.user = self.user_table.get(current_user)
 
         super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
@@ -43,19 +63,19 @@ class BiostarFileSystem(AbstractedFS):
 
     def ftp2fs(self, ftppath):
         logger.info(f"ftppath={ftppath}")
-        #TODO: take the projects ftp path here and toget path
 
-        #TODO: take out
-        self._cwd = ftppath
+        #self._cwd = ftppath
         print(self._cwd,"SSS")
 
     def listdir(self, path):
         # This is the root as initialized in the base class
         logger.info(f"path={path}")
-        # TODO: list the project here (types will be type=dir)
-        # TODO: need to pass the user uid here for that
 
-        return ["music.mp3", "movie.mpg", "image.png"]
+        if self.user:
+            return project_list(user=self.user["user"])
+
+        # Return list of public projects when Biostar-Engine does not rec
+        return project_list(user=AnonymousUser)
 
     def chdir(self, path):
         """
@@ -63,22 +83,17 @@ class BiostarFileSystem(AbstractedFS):
         """
         # note: process cwd will be reset by the caller
         logger.info(f"path={path}")
-        #self._cwd = f"foo({path})"
+        self._cwd = f"foo({path})"
 
     def format_list(self, basedir, listing, ignore_err=True):
         logger.info(f"listing={listing}")
 
     def format_mlsx(self, basedir, listing, perms, facts, ignore_err=True):
-        logger.info(f"basedir={basedir} listing={listing}")
+        logger.info(f"basedir={basedir} listing={listing} facts={facts}")
 
         lines = []
-        for name in listing:
-            lines.append(f"type=file;size=156;perm=r;modify=20071029155301;unique=8012; {name}")
-
-        lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; datadir")
-        lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; results")
-        lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; nba")
-        lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; STUFF")
+        for project in listing:
+            lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; {project}")
 
         line = "\n".join(lines)
 
@@ -87,8 +102,8 @@ class BiostarFileSystem(AbstractedFS):
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
 
 
+class BiostarFTPHandler(FTPHandler):
 
-class EngineFTPHandler(FTPHandler):
     def on_connect(self):
         print("%s:%s connected" % (self.remote_ip, self.remote_port))
 
@@ -98,7 +113,13 @@ class EngineFTPHandler(FTPHandler):
 
     def on_login(self, username):
         # do something when user login
-        pass
+
+        logger.info(f"user={username}, username={self.username}, auth={self.authenticated}")
+        logger.info(f"fs={self.fs}")
+
+        # Tell the filesystem what user is logged in
+
+        self.fs = self.abstracted_fs(root="/projects", cmd_channel=self, current_user=username)
 
     def on_logout(self, username):
         # do something when user logs out
@@ -121,11 +142,12 @@ class EngineFTPHandler(FTPHandler):
         pass
 
 
-class EngineAuthorizer(DummyAuthorizer):
-    def add_user(self, username, password, uid, perm='elr',
+class BiostarAuthorizer(DummyAuthorizer):
+    def add_user(self, username, password, user=AnonymousUser, perm='elr',
                  msg_login="Login successful.", msg_quit="Goodbye."):
+
         data = {'pwd': str(password),
-                'uid': uid,
+                'user': user,
                 'perm': perm,
                 'operms': {},
                 'msg_login': str(msg_login),
@@ -138,5 +160,4 @@ class EngineAuthorizer(DummyAuthorizer):
         Return the user's home directory.
         Needs to be here because the base class relies on it.
         """
-        #TODO: should the projects be listed here?
         return '/tmp/this/should/not/be/used/'
