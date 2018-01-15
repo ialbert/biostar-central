@@ -4,8 +4,21 @@
 data : {
     label: Input data
     path: export/local/input/test_reads.fastq.gz
-    display_type: DROPDOWN
+    display: DROPDOWN
+    type:FOO
+
   }
+
+another_data:{
+    label: Input data
+    path: export/local/input/test_reads.fastq.gz
+    display: DROPDOWN
+    type: {
+          name: Bar type
+          symbol: BAR
+          help: test datatype
+    }
+}
 
 #
 # Analysis settings.
@@ -24,16 +37,4 @@ settings : {
         Note how the `index` above points to the main result file. This is used when the `Main result`
         button is selected on the Result view.
     '''
-
-    datatypes: {
-        foo: {
-            symbol: FOO
-            help: test datatype
-        }
-        bar: {
-            symbol: BAR
-            help: test datatype
-        }
-
-        }
     }

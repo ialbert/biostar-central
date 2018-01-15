@@ -56,6 +56,7 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
 
     # Add the analyses specified in the project json.
     analyses = data.get("analyses", '')
+
     for row in reversed(analyses):
         other_json = row['json']
         template = row['template']

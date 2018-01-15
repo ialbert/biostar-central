@@ -185,10 +185,10 @@ def create_datatype(name, symbol, help, project):
     "Create datatype if it doesnt exist; return existing one if it does"
 
     query = DataType.objects.filter(project=project)
-    query = query.filter(Q(name=name)|Q(symbol=symbol))
+    query = query.filter(Q(symbol=symbol))
 
     if query:
-        return query
+        return query.first()
 
     query = DataType.objects.create(name=name, project=project, symbol=symbol, help=help)
 

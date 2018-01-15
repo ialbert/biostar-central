@@ -455,7 +455,8 @@ def recipe_run(request, id):
                 tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
-
+        else:
+            messages.error(request, mark_safe(form.errors))
     initial = dict(name=analysis.name)
     form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
     context = dict(project=project, analysis=analysis, steps=steps, form=form)

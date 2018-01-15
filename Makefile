@@ -11,7 +11,6 @@ install:
 	pip install -r conf/python_requirements.txt
 	python setup.py develop
 
-
 conda:
 	conda config --add channels r
 	conda config --add channels conda-forge
