@@ -147,7 +147,11 @@ def dynamic_field(data, project=None):
 
     if from_project and project:
         # Project specific data should have a type.
-        data_type = data.get("type", "GENERIC")
+        data_type = data.get("type", "")
+
+        if isinstance(data_type, dict):
+            data_type = data_type.get("symbol", "")
+
         field = data_field_generator(data, project=project, data_type=data_type)
     else:
         # In all other cases we generate a field from the tupe.

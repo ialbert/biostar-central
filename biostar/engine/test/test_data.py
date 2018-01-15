@@ -110,7 +110,14 @@ class DataViewTest(TestCase):
 
     def test_data_download(self):
         "Testing data download view"
-        url = reverse('data_download', kwargs=dict(id=self.data.id))
-        
 
-        pass
+        from django.http.response import FileResponse
+
+        url = reverse('data_download', kwargs=dict(id=self.data.id))
+        request = util.fake_request(url=url, data={}, user=self.owner, method="GET")
+
+        response = views.data_download(request=request, id=self.data.id)
+
+        self.assertTrue(isinstance(response, FileResponse),
+                        "Error returning valid FileResponse when downloading")
+
