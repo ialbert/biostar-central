@@ -78,14 +78,14 @@ HEADER="qseqid sseqid stitle staxids pident qlen slen length qstart qend sstart 
 echo $HEADER  |tr [:blank:] \\t >$DIAMOND_RES
 
 #
-# Running Diamond blastp.
+# Running diamond blastp.
 #
 
 # Running diamond blastp on predicted proteins.
 diamond blastp -f 6 $HEADER -d $DIAMOND_NR --taxonmap $TAXON_MAP --max-target-seqs 15 -q $PROTEINS -p $NPROC >>$DIAMOND_RES
 
 #
-# Parsing Diamond-blastp results.
+# Parsing diamond-blastp results.
 #
 
 # Parsed blastp results.
