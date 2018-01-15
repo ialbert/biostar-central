@@ -16,7 +16,7 @@
 
         <div class="ui center aligned segment">
             <h3 class="ui icon header">
-               <i class="database icon"></i>
+                <i class="database icon"></i>
                 <p class="content">
                     Project List
                 <p class="sub header">Projects that you may access.</p>
@@ -26,52 +26,55 @@
 
         <div class="ui segment">
 
-        <div class="ui divided link items">
+            <div class="ui divided link items">
 
-            {% for project in projects %}
+                {% for project in projects %}
 
-                <div class="item">
+                    <div class="item">
 
-                    <div class="image">
-                        <img class="ui avatar image" src="{% img project %}"/>
+                        <div class="image">
+                            <img class="ui avatar image" src="{% img project %}"/>
+                        </div>
+
+                        <div class="content">
+
+                            <a class="header" href="{{ project.url }}">
+                                <i class="archive icon"></i>{{ project.name }}
+                            </a>
+
+                            <div class="meta">
+                                {{ project.summary|markdown|safe }}
+                            </div>
+
+                            <div class="extra">
+                                <div>Created on {{ project.date.date }} by {{ project.owner.email }}</div>
+                                <div>{% privacy_label project %}</div>
+                            </div>
+
+                        </div>
                     </div>
 
-                    <div class="content">
+                {% endfor %}
+                {% if user.is_anonymous %}
+                    <div class="item centerbox">
+                        Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
+                    </div>
+                {% endif %}
 
-                        <a class="header" href="{{ project.url }}">
-                            <i class="archive icon"></i>{{ project.name }}
+                {% if 0 %}
+                    <div class="item centerbox">
+                        <a class="ui button" href="{% url 'project_create' %}">
+                            <i class="add circle icon"></i>Create Project
                         </a>
-
-                        <div class="meta">
-                            {{ project.summary|markdown|safe }}
-                        </div>
-
-                        <div class="extra">
-                            <div>Created on {{ project.date.date }} by {{ project.owner.email }}</div>
-                            <div>{% privacy_label project %}</div>
-                        </div>
-
                     </div>
-                </div>
+                {% endif %}
 
-            {% endfor %}
-            {% if user.is_anonymous %}
-                <div class="item centerbox">
-                    Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
-                </div>
-            {% endif %}
-
-            <div class="item centerbox">
-                <a class="ui button" href="{% url 'project_create' %}">
-                    <i class="add circle icon"></i>Create Project
-                </a>
             </div>
-        </div>
 
-    </div>
+        </div>
         {% if projects.has_other_pages %}
             <div class="ui center aligned basic segment">
-            {% pages instance=projects %}
+                {% pages instance=projects %}
             </div>
         {% endif %}
     </div>

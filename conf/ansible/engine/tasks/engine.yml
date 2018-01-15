@@ -2,12 +2,13 @@
 - name: Get the biostar-engine software
   git:
     repo: 'git@github.com:biostars/biostar-engine.git'
-    dest: /export/sites/recipe_web
+    dest: /export/sites/main_web
     update: yes
+  notify: pip install
 
 - name: Link configuration files
   file:
-    src: '/export/sites/recipe_web/conf/main/{{ item.src }}'
+    src: '/export/sites/main_web/conf/main/{{ item.src }}'
     dest: '{{ item.dest }}'
     state: link
   with_items:

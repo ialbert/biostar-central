@@ -46,9 +46,9 @@
     group: www
     mode: 0755
   with_items:
-    - recipe_web
-    - recipe_data
-    - recipe_data/initial
+    - main_web
+    - main_data
+    - main_data/initial
 
 - name: Allow write access to configuration directories
   file:
