@@ -110,4 +110,7 @@ class DataViewTest(TestCase):
 
     def test_data_download(self):
         "Testing data download view"
+        url = reverse('data_download', kwargs=dict(id=self.data.id))
+        
+
         pass
