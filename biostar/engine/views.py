@@ -695,11 +695,11 @@ def job_files_list(request, id, path=''):
     # This is the root of where we can navigate in
     target_path = join(job.path, path)
 
-    print(target_path, path)
-    #1/0
-    if not target_path.startswith(job.path):
+    if not target_path.startswith(job.path) or (not os.path.exists(target_path)):
+
         # Attempting to access a file outside of the job directory
-        raise Exception(f"target_path {target_path} not in job directory")
+        messages.error(request, "Path not in job directory.")
+        return redirect(reverse("job_files_entry", kwargs=dict(id=id)))
 
     # These are pathlike objects with attributes such as name, is_file
     file_list = list(os.scandir(target_path))
@@ -711,14 +711,14 @@ def job_files_list(request, id, path=''):
         [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
         job=job, project=project)
 
-    if request.method == "POST":
-        form = FilesCopyForm(data=request.POST, project=project, job=job)
-        if form.is_valid():
-            count = form.save()
-            messages.success(request, f"Copied {len(count)} file to {project.name}.")
-            return redirect(reverse("job_view", kwargs=dict(id=job.id)))
-
-        messages.warning(request, "Unable to copy files")
+    # if request.method == "POST":
+    #     form = FilesCopyForm(data=request.POST, project=project, job=job)
+    #     if form.is_valid():
+    #         count = form.save()
+    #         messages.success(request, f"Copied {len(count)} file to {project.name}.")
+    #         return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+    #
+    #     messages.warning(request, "Unable to copy files")
 
     form = FilesCopyForm(project=project)
     context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)

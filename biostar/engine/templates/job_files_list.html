@@ -14,6 +14,9 @@
     <div class="ui center aligned basic segment">
 
     </div>
+    <form method="get" action=".">
+        <input type="hidden" name="pre" placeholder="{{path}}">
+    </form>
 
     <form class="ui large form" method="post" action=".">
         {% csrf_token %}
@@ -23,7 +26,7 @@
                 {% if path %}
                     <a href="../"><i class="backward icon"></i>../</a>
                 {% else %}
-                    <a href="{% url 'job_view' job.id %}"><i class="backward icon"></i>../</a></a>
+                    <a href="{% url 'job_view' job.id %}"><i class="backward icon"></i>../</a>
                 {% endif %}
             </div>
 
@@ -31,6 +34,8 @@
                 <div class="item">
 
                     {% if entry.is_dir %}
+
+                        {#TODO: this does not work when a directory is nested #}
 
                         <a href="{% url 'job_files_list' job.id entry.name %}">
                             <i class="folder icon"></i>{{ entry.name }}
@@ -42,9 +47,18 @@
 
                             <input type="checkbox" name="paths" value="{{ path }}/{{ entry.name }}">
 
-                            <a href="{{ MEDIA_URL }}{{ job.get_url }}{{ path }}{{ entry.name }}">
-                                <i class="file text outline icon"></i>{{ entry.name }}
-                            </a>
+                            {% if path %}
+
+                                <a href="{{ MEDIA_URL }}{{ job.get_url }}{{ path }}/{{ entry.name }}">
+                                    <i class="file text outline icon"></i>{{ entry.name }}
+                                </a>
+
+                            {% else %}
+
+                                <a href="{{ MEDIA_URL }}{{ job.get_url }}{{ path }}{{ entry.name }}">
+                                    <i class="file text outline icon"></i>{{ entry.name }}
+                                </a>
+                            {% endif %}
 
                         </div>
 

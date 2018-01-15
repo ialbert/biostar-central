@@ -107,3 +107,7 @@ class DataViewTest(TestCase):
         post = models.Data.objects.all().count()
 
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
+
+    def test_data_download(self):
+        "Testing data download view"
+        pass
