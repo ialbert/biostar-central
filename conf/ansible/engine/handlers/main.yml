@@ -6,14 +6,10 @@
   shell: "{{ miniconda_home }}/bin/conda update conda --yes -q executable=/bin/bash"
 
 - name: restart nginx
-  service:
-    name: nginx
-    state: restarted
+  service: name=nginx state=restarted
 
 - name: reload nginx
-  service:
-    name: nginx
-    state: reloaded
+  service: name=nginx state=reloaded
 
 - name: restart postgresql
   service:
