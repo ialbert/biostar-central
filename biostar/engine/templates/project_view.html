@@ -77,6 +77,7 @@
 
         </div>
 
+        {%  if 0 %}
 
         <div class="ui secondary segment">
             <div class="ui header"><i class="add circle icon"></i>Project Actions</div>
@@ -94,8 +95,9 @@
                 </a>
             </div>
         </div>
+        {%  endif %}
 
-     <div class="ui  segment">
+     <div class="ui secondary segment">
             <div class="ui header"><i class="help circle icon"></i>Project Information</div>
             <div class="project help">
                 {{ project.html|safe }}
