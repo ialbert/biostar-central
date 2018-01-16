@@ -40,6 +40,13 @@ def access_denied_message(user, access):
     return tmpl.render(context=context)
 
 
+@register.inclusion_tag('widgets/file_listing.html')
+def file_listing(path, file_list, object):
+
+    return dict(path=path, file_list=file_list, object=object)
+
+
+
 @register.inclusion_tag('widgets/copy_interface.html')
 def copy_interface(form, projects, duplicate=False):
     """Copy an instance from (from_id) to a list of allowed projects"""
@@ -86,6 +93,13 @@ def job_color(job):
     Returns a color based on job status.
     """
     return JOB_COLORS.get(job.state, "")
+
+@register.simple_tag
+def activate(value1, value2):
+    """
+    Returns a color based on job status.
+    """
+    return "active" if value1  == value2 else ''
 
 
 @register.simple_tag

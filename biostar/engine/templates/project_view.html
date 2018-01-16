@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_project.html" %}
 {% load engine_tags %}
 {% load staticfiles %}
 
@@ -6,78 +6,11 @@
     {{ project.name }}
 {% endblock %}
 
-{% block body %}
 
-    <div class="ui raised segments">
+{% block content %}
 
-        {% project_name_bar project %}
 
-        <div class="ui secondary segment">
-            <div class="ui header"><i class="info circle icon"></i>Project Summary</div>
-            {{ project.summary|markdown|safe }}
-        </div>
-
-        <div class="ui segment">
-
-            <div class="ui divided link items">
-
-                <div class="item">
-
-                    <div class="ui tiny image">
-                        <img src="{% static 'images/project_data_icon.jpg' %}">
-                    </div>
-
-                    <div class="content">
-                        <a class="header" href="{% url 'data_list' project.uid %}">
-                            <i class="file text icon"></i>{{ data_count }} Data Files
-                        </a>
-                        <div class="description">
-                            View the files and data collections associated with this project.
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="item">
-
-                    <div class="ui tiny image">
-                        <img src="{% static 'images/project_analysis_icon.png' %}">
-
-                    </div>
-
-                    <div class="content">
-                        <a class="header" href="{% url 'recipe_list' project.uid %}">
-                            <i class="settings icon"></i> {{ recipe_count }} Analysis Recipes
-                        </a>
-                        <div class="description">
-                            View the analyses that can be run for this project.
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="item">
-
-                    <div class="ui tiny image">
-                        <img src="{% static 'images/project_results_icon.jpg' %}">
-                    </div>
-
-                    <div class="content">
-                        <a class="header" href="{% url 'job_list' project.uid %}">
-                            <i class="bar chart icon"></i>{{ result_count }} Analysis Results
-                        </a>
-                        <div class="description">
-                            View the results of analyses run previously.
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        {%  if 0 %}
+    {% if 0 %}
 
         <div class="ui secondary segment">
             <div class="ui header"><i class="add circle icon"></i>Project Actions</div>
@@ -95,22 +28,15 @@
                 </a>
             </div>
         </div>
-        {%  endif %}
+    {% endif %}
 
-     <div class="ui secondary segment">
-            <div class="ui header"><i class="help circle icon"></i>Project Information</div>
-            <div class="project help">
-                {{ project.html|safe }}
-            </div>
+
+    {% if access %}
+        <div class="ui  center aligned segment">
+            Your access level:
+            <span class="ui green label">{{ access.get_access_display }}</span>
         </div>
+    {% endif %}
 
-        {% if access %}
-            <div class="ui  center aligned segment">
-                Your access level:
-                <span class="ui green label">{{ access.get_access_display }}</span>
-            </div>
-        {% endif %}
-
-    </div>
 
 {% endblock %}

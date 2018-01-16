@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_details.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
@@ -14,18 +14,13 @@
     {% breadcrumb steps=steps %}
 {% endblock %}
 
-{% block body %}
+{% block content %}
 
-    <div class="ui raised segments">
 
-        {% project_name_bar project %}
 
-        <div class="ui secondary segment">
-            <div class="ui header"><i class="setting  icon"></i>Recipe View</div>
-            {{ analysis.summary|markdown|safe }}
-        </div>
 
-        <div class="ui segment">
+
+        <div class="ui vertical segment">
 
             <div class="ui center aligned header">
                 Recipe: {{ analysis.name }}
@@ -44,9 +39,8 @@
 
         </div>
 
-        <div class="ui secondary segment">
-            <div class="ui header"><i class="plus circle icon"></i>Recipe Actions</div>
-            <div class="ui center aligned basic segment">
+        <div class="ui center aligned vertical secondary segment">
+
 
                 <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
                     <i class="area chart icon"></i> Go to Results
@@ -60,11 +54,10 @@
                     <i class="list icon"></i> Edit Recipe
                 </a>
 
-            </div>
+
         </div>
 
-        <div class="ui segment">
-            <div class="ui header"><i class="help circle icon"></i>Recipe Help</div>
+        <div class="ui vertical segment">
             {{ analysis.html|safe }}
         </div>
 
@@ -89,6 +82,6 @@
 
         </div>
         {% endif %}
-    </div>
+
 
 {% endblock %}

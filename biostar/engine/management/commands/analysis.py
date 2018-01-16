@@ -1,13 +1,12 @@
-import hjson
 import logging
 import os
 import textwrap
 
+import hjson
 from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
-from biostar.engine.models import Project, Analysis, DataType
-from biostar.tools import const
+from biostar.engine.models import Project, Analysis
 
 logger = logging.getLogger('engine')
 
@@ -19,7 +18,7 @@ def add_types(json_data, project):
 
     for key, obj in json_data.items():
 
-        type_obj = obj.get("type","")
+        type_obj = obj.get("type", "")
         name = help = symbol = type_obj
 
         if isinstance(type_obj, dict):
@@ -56,11 +55,17 @@ class Command(BaseCommand):
 
         json = options['json']
         pid = options['id']
-        template = options['template']
+        template_fname = options['template']
         jobs = options['jobs']
 
+        verbosity = int(options['verbosity'])
+
+        if verbosity > 1:
+            logger.setLevel(logging.DEBUG)
+            logger.info(f"level={verbosity}")
+
         # Require JSON and templatates to exist.
-        if not (json and template):
+        if not (json and template_fname):
             logger.error("This command requires --json and a --template to be set")
             return
 
@@ -78,7 +83,7 @@ class Command(BaseCommand):
             return
 
         # Template file does not exist.
-        if not os.path.isfile(template):
+        if not os.path.isfile(template_fname):
             logger.error(f'No file found for --template={template}')
             return
 
@@ -93,7 +98,7 @@ class Command(BaseCommand):
 
         try:
             # Read the specification
-            template = open(template).read()
+            template = open(template_fname).read()
         except Exception as exc:
             logger.exception(f"Template exception: {exc}")
             return
@@ -121,13 +126,14 @@ class Command(BaseCommand):
                     logger.error(f"Skipping invalid image path: {image_path}")
 
             # Add data types in json data to project
-            add_types(json_data=json_data,project=project)
+            add_types(json_data=json_data, project=project)
 
             # Create a queued jobs if instructed so.
             if jobs:
                 # We need to deposit the default file as data into the project.
                 # Find all objects that have a path attribute
                 for key, obj in json_data.items():
+
                     is_data = (obj.get("source") == "PROJECT")
 
                     # Get next field if this is not data.
@@ -135,9 +141,14 @@ class Command(BaseCommand):
                         continue
 
                     value = obj.get("value", "")
+
+                    if not value:
+                        logger.warning(f"In template={template_fname} data key={key} does not have a 'value' attribute.")
+                        continue
+
                     summary = obj.get("summary", "")
                     text = obj.get("text", "")
-                    data_type = obj.get("type","")
+                    data_type = obj.get("type", "")
 
                     name = obj.get("name", "") or os.path.basename(value)
 

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_project.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
@@ -6,68 +6,44 @@
 {% endblock %}
 
 
-{% block menu %}
-    {% menubar project=project upload_data=True %}
-{% endblock %}
+{% block content %}
 
-{% block body %}
+    <div class="ui divided link items">
 
-    <div class="ui raised segments">
-
-        {% project_name_bar project %}
-
-        <div class="ui secondary segment">
-            <div class="ui header"><i class="file text icon"></i>Data Files</div>
-            <p>A list of data files contained in this project.</p>
-        </div>
-
-        <div class="ui segment">
-
-            <div class="ui divided link items">
-
-                <div class="item centerbox">
-
-                    <a class="ui  button" href="{% url 'data_upload' project.uid %}">
-                        <i class="upload icon"></i>Upload File
+        {% for data in data_list %}
+            <div class="item">
+                <div class="content">
+                    <a class="header" href="{% url 'data_view' data.id %}">
+                        <i class="file icon"></i>{{ data.name }}
                     </a>
+                    {% if data|single_file %}
+                        <a class="ui right floated mini button" href="{% url 'data_download' data.id %}">
+                            <i class="download icon"></i>Download
+                        </a>
+                    {% endif %}
 
+                    <div class="description">
+                        <div>{{ data.summary }}</div>
+                    </div>
+                    <div class="meta">
+                        {% size_label data %}
+                        {% type_label data %}
+                        {% state_label data only_error=true %}
+                    </div>
                 </div>
 
-                {% for data in data_list %}
-                    <div class="item">
-                        <div class="content">
-                            <a class="header" href="{% url 'data_view' data.id %}">
-                                <i class="file icon"></i>{{ data.name }}
-                            </a>
-                            {% if data|single_file %}
-                                <a class="ui right floated mini button" href="{% url 'data_download' data.id %}">
-                                    <i class="download icon"></i>Download
-                                </a>
-                            {% endif %}
-
-                            <div class="description">
-                                <div>{{ data.summary }}</div>
-                            </div>
-                            <div class="meta">
-                                {% size_label data %}
-                                {% type_label data %}
-                                {% state_label data only_error=true %}
-                            </div>
-                        </div>
-
-
-                    </div>
-                {% endfor %}
-
-
             </div>
+        {% endfor %}
+
+        <div class="item centerbox">
+
+            <a class="ui  button" href="{% url 'data_upload' project.uid %}">
+                <i class="upload icon"></i>Upload File
+            </a>
 
         </div>
-        {% if data_list.has_other_pages %}
-            <div class="ui center aligned basic segment">
-                {% pages instance=data_list %}
-            </div>
-        {% endif %}
 
     </div>
+
+
 {% endblock %}

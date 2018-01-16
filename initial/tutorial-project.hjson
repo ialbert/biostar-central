@@ -1,29 +1,7 @@
 {
 
-uid: hello
-
-name: How to create recipes?
-
-image: tutorial-project.png
-
-summary: '''
-This project contains simple analyses that demonstrate the process
-of creating a **recipe**. More details in the [Recipe Tutorial](/docs/recipe-tutorial).
-
-Follow the **instructions**, investigate the data and code
-and you will understand increasingly advanced recipe creation.
-'''
-
-text: '''
-
-# Recipe Tutorials
-
-Read the step by step instructions in the [Recipe Tutorial](/docs/recipe-tutorial).
-
-'''
 
 analyses: [
-
 
     {
         json: biostar/tools/hello/hello1.hjson
@@ -72,5 +50,30 @@ data: [
     }
 
 ]
+
+settings: {
+
+    uid: hello
+
+    name: How to create recipes?
+
+    image: tutorial-project.png
+
+    summary: '''
+    This project contains simple analyses that demonstrate the process
+    of creating a **recipe**. More details in the [Recipe Tutorial](/docs/recipe-tutorial).
+
+    Follow the **instructions**, investigate the data and code
+    and you will understand increasingly advanced recipe creation.
+    '''
+
+    text: '''
+
+    # Recipe Tutorials
+
+    Read the step by step instructions in the [Recipe Tutorial](/docs/recipe-tutorial).
+
+    '''
+    }
 
 }

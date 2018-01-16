@@ -19,6 +19,7 @@ float:{
     label: Test float field
     display: FLOAT
     value: 10.0
+    range:[ 1, 10000]
 }
 
 
@@ -32,13 +33,15 @@ integer: {
     label: Test integer field
     display:INTEGER
     value: 10
+    range:[ 1, 100]
 }
 
 radio: {
     label: Test radio buttons
     display:RADIO
     choices : [
-				["choice1" , "choice2" ]
+				["VALUE1" , "choice1" ],
+				["VALUE2" , "choice2" ],
 			  ]
 }
 
@@ -46,7 +49,8 @@ dropdown: {
     label: Test Dropdown
     display: DROPDOWN
 	choices : [
-				["choice1" , "choice2" ]
+				["VALUE1" , "choice1" ],
+				["VALUE2" , "choice2" ],
 			  ]
 
 }
@@ -54,20 +58,15 @@ dropdown: {
 data : {
     label: Input data
     display: DROPDOWN
-    type:FOO
+    type:FASTA
     source:PROJECT
-
   }
 
 another:{
     label: Another Input data
     display: DROPDOWN
     source:PROJECT
-    type: {
-          name: Bar type
-          symbol: BAR
-          help: test datatype
-    }
+    type:GENERIC
 }
 
 #

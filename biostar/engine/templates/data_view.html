@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_details.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
@@ -13,69 +13,68 @@
     {% breadcrumb steps=steps %}
 {% endblock %}
 
-{% block body %}
+{% block content %}
 
-    <div class="ui raised segments">
 
-        <div class="ui {% data_color data %} segment">
-            <div class="ui center aligned header">
-                Data: {{ data.name }}
-            </div>
+    <div class="ui vertical segment">
+        <div class="ui center aligned header">
+            Data: {{ data.name }}
         </div>
 
-        <div class="ui segment">
+
+        <p>
             {{ data.summary|markdown|safe }}
-        </div>
+        </p>
+    </div>
+
+    <div class="ui vertical segment">
+        <div>Name: {{ data.name }}</div>
+        <div>Size: {{ data.size|filesizeformat }}</div>
+        <div>Uploaded by: {{ data.owner.email }}</div>
+        <div>State: {% state_label data %}</div>
+        <div>Data Type Name: {% type_label data %}</div>
+        <div class="code">Data Type Symbol: {{ data.data_type }}</div>
+    </div>
+
+    <div class="ui vertical segment">
+        <div class="ui center aligned header">Data Description</div>
+        <div>{{ data.html|safe }}</div>
+    </div>
+
+    <div class="ui vertical segment">
+        <div class="ui center aligned header">Data Content</div>
+        <pre>{{ data.peek }}</pre>
+    </div>
+
+
+    {% if 0 %}
 
         <div class="ui segment">
-            <div>Name: {{ data.name }}</div>
-            <div>Size: {{ data.size|filesizeformat }}</div>
-            <div>Uploaded by: {{ data.owner.email }}</div>
-            <div>State: {% state_label data %}</div>
-            <div>Data Type Name: {% type_label data %}</div>
-            <div class="code">Data Type Symbol: {{ data.data_type }}</div>
+            <div class="ui header">Data Actions</div>
+            <p>The following actions allow you to copy data into other projects.</p>
+
+            <form class="ui form" method="post" action="{% url 'data_view' data.id %}">
+
+                {% csrf_token %}
+
+                {% copy_interface projects=projects form=form %}
+
+                <button type="submit" class="ui button">
+                    <i class="check icon"></i>Submit
+                </button>
+
+            </form>
         </div>
 
-        <div class="ui segment">
-            <div class="ui center aligned header">Data Description</div>
-            <div>{{ data.html|safe }}</div>
-        </div>
+    {% endif %}
 
-        <div class="ui segment">
-            <div class="ui center aligned header">Data Content</div>
-            <pre>{{ data.peek }}</pre>
-        </div>
-
-
-        {% if 0 %}
-
-            <div class="ui segment">
-                <div class="ui header">Data Actions</div>
-                <p>The following actions allow you to copy data into other projects.</p>
-
-                <form class="ui form" method="post" action="{% url 'data_view' data.id %}">
-
-                    {% csrf_token %}
-
-                    {% copy_interface projects=projects form=form %}
-
-                    <button type="submit" class="ui button">
-                        <i class="check icon"></i>Submit
-                    </button>
-
-                </form>
-            </div>
-
-        {% endif %}
-
-        <div class="ui vertical center aligned segment">
-            <a class="ui button" href="{% url 'data_edit' data.id %}">
-                <i class="write icon"></i>Edit Info
-            </a>
-
-        </div>
-
+    <div class="ui basic center aligned segment">
+        <a class="ui button" href="{% url 'data_edit' data.id %}">
+            <i class="write icon"></i>Edit Info
+        </a>
 
     </div>
+
+
 
 {% endblock %}
