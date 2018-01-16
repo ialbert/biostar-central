@@ -425,6 +425,7 @@ class RecipeInterface(forms.Form):
 
                 # This mutates the `item` dictionary!
                 data.fill_dict(item)
+                continue
 
             # The JSON value will be overwritten with the selected field value.
             if field in self.cleaned_data:

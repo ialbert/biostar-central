@@ -26,9 +26,6 @@ ASSM_SORTED={{runtime.work_dir}}/assembly_sorted.fa
 cat $ASSEMBLY | bioawk -c fastx 'length($seq)>1000 { print length($seq),$name,$seq } ' | sort -k1nr,1  | awk '{ print ">"$2"\n"$3"\n"}' | seqtk seq -l 80 - >$ASSM_SORTED
 {% endverbatim %}
 
-# Creating samtools index.
-samtools faidx $ASSM_SORTED
-
 # Augustus results directory.
 AUGUSTUS={{runtime.work_dir}}/augustus
 
