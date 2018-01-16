@@ -182,7 +182,7 @@ def job_list(request, uid):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
-def project_view(request, uid, template_name="data_list.html", active=0):
+def project_view(request, uid, template_name="recipe_list.html", active=1):
 
     user = request.user
 
