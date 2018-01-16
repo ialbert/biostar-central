@@ -90,12 +90,12 @@ jobs:
 
 init:
 	@python manage.py collectstatic --noinput -v 0
-	@python manage.py migrate
+	@python manage.py migrate -v 0
 
 public:
-	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --jobs
-	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --jobs
-	@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky --jobs
+	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --jobs -v 0
+	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --jobs -v 0
+	@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky --jobs -v 0
 
 fish:
 	@python manage.py project --json initial/fish-project.hjson --jobs

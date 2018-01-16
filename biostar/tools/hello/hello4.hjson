@@ -6,7 +6,6 @@ data : {
     display: DROPDOWN
     type:FOO
     source:PROJECT
-
   }
 
 another_data:{
