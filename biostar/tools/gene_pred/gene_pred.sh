@@ -1,6 +1,10 @@
 # Stop on any error.
 set -uxe
 
+#
+# Parameters.
+#
+
 # Assembly scaffolds.
 ASSEMBLY={{assembly.value}}
 
@@ -10,21 +14,17 @@ SPECIES={{species.value}}
 # No. of processors to be used.
 NPROC={{processors.value}}
 
-# Diamond NR database.
-DIAMOND_NR=/export/refs/diamond-dbs/nr/nr
-
-# Protein-accession2taxon map file.
-TAXON_MAP=/export/refs/diamond-dbs/nr/prot.accession2taxid.gz
+#
+# Preparing for Augustus.
+#
 
 # Size-sorted assembly fasta file.
 ASSM_SORTED={{runtime.work_dir}}/assembly_sorted.fa
 
-# Sorting assembly based on size.
+# Filtering for scaffolds >1kb length and sorting them by size .
 {% verbatim %}
-cat $ASSEMBLY | bioawk -c fastx ' { print length($seq),$name,$seq } ' | sort -k1nr,1  | awk '{ print ">"$2"\n"$3"\n"}' | seqtk seq -l 80 - >$ASSM_SORTED
+cat $ASSEMBLY | bioawk -c fastx 'length($seq)>1000 { print length($seq),$name,$seq } ' | sort -k1nr,1  | awk '{ print ">"$2"\n"$3"\n"}' | seqtk seq -l 80 - >$ASSM_SORTED
 {% endverbatim %}
-# Creating samtools index.
-samtools faidx $ASSM_SORTED
 
 # Augustus results directory.
 AUGUSTUS={{runtime.work_dir}}/augustus
@@ -32,8 +32,13 @@ AUGUSTUS={{runtime.work_dir}}/augustus
 # Create AUGUSTUS directory.
 mkdir -p $AUGUSTUS
 
-# Augustus predicted genes file.
-GENES=${AUGUSTUS}/genes.gff
+# Augustus result files.
+GENES=${AUGUSTUS}/genes.gtf
+PROTEINS=${AUGUSTUS}/proteins.fa
+
+#
+# Running Augustus.
+#
 
 # Run augustus gene prediction.
 mkdir -p tmp
@@ -42,42 +47,48 @@ cat $ASSM_SORTED | parallel --j $NPROC --blocksize 5M --recstart '>' --pipe "cat
 {% endverbatim %}
 rm -rf tmp
 
-# Bed file with predicted transcripts.
-TRANS_BED=${AUGUSTUS}/transcripts.bed
+# Make proteins.fa from Augustus predicted protein sequences.
+getAnnoFasta_mod.pl $GENES
+mv ${AUGUSTUS}/genes.aa ${PROTEINS}
 
-# Fasta file with predicted transcripts.
-TRANS_FASTA=${AUGUSTUS}/transcripts.fa
+#
+# Preparing for diamond blastp.
+#
 
-# Creating a bed file of augustus predicted transcripts.
-cat $GENES | grep -v "#" | awk '$3=="transcript" {print $0}' |awk 'BEGIN{OFS="\t"}{print $1,$4,$5,$1"_"$9,".\t"$7}' > $TRANS_BED
+# Diamond NR database.
+DIAMOND_NR=/export/refs/diamond-dbs/nr/nr
 
-# Creating transcripts fasta file.
-bedtools getfasta -fi $ASSM_SORTED -bed $TRANS_BED -name -s -fo tmp.fa
+# Diamond protein-accession2taxon map file.
+DIAMOND_TAXON=/export/refs/diamond-dbs/nr/prot.accession2taxid.gz
 
-# Formatting transcripts fasta file.
-seqtk seq -l 80 tmp.fa >$TRANS_FASTA
-rm -f tmp.fa
+# Diamond blastp results directory.
+DIAMOND={{runtime.work_dir}}/diamond
 
-# Diamond blastx results directory.
-DIAMOND={{runtime.work_dir}}/blastx
-
-# Diamond blastx results.
-DIAMOND_RES=${DIAMOND}/diamond-blastx.txt
+# Diamond blastp results.
+DIAMOND_RES=${DIAMOND}/diamond-blastp.txt
 
 # Create DIAMOND directory.
 mkdir -p $DIAMOND
 
-# Writing blastx header into output file.
+# Writing blastp header into output file.
 HEADER="qseqid sseqid stitle staxids pident qlen slen length qstart qend sstart send evalue bitscore score"
 echo $HEADER  |tr [:blank:] \\t >$DIAMOND_RES
 
-# Running diamond blastx on predicted transcripts.
-diamond blastx -f 6 $HEADER -d $DIAMOND_NR --taxonmap $TAXON_MAP --max-target-seqs 15 -q $TRANS_FASTA -p $NPROC >>$DIAMOND_RES
+#
+# Running diamond blastp.
+#
 
-# Parsed blastx results.
-PARSED=${DIAMOND}/diamond-blastx-parsed.txt
+# Running diamond blastp on predicted proteins.
+diamond blastp -f 6 $HEADER -d $DIAMOND_NR --taxonmap $DIAMOND_TAXON --max-target-seqs 15 -q $PROTEINS -p $NPROC >>$DIAMOND_RES
 
-# Parsing blastx results.
+#
+# Parsing diamond-blastp results.
+#
+
+# Parsed blastp results.
+PARSED=${DIAMOND}/diamond-blastp-parsed.txt
+
+# Parsing blastp results for cattle specific hits.
 python -m biostar.tools.gene_pred.blast_parse --blast $DIAMOND_RES >$PARSED
 
 # Main result view.
