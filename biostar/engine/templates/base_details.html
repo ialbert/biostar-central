@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+{% load staticfiles %}
+
+{% block headtitle %}
+    {{ project.name }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui raised segments">
+
+        {% project_name_bar project %}
+
+        <div class="ui secondary segment">
+            <div class="ui header"><i class="info circle icon"></i>Project Summary</div>
+            {{ project.summary|markdown|safe }}
+        </div>
+
+        <div class="ui segment">
+
+            <div class="ui top attached tabular menu">
+                <a class="item" href="{% url 'data_list' project.uid %}">
+                    <i class="file text icon"></i>{{ data_count }} Data Files
+                </a>
+                <a class="item" href="{% url 'recipe_list' project.uid %}">
+                    <i class="settings icon"></i> {{ recipe_count }} Analysis Recipes
+                </a>
+                <a class="item" href="{% url 'job_list' project.uid %}">
+                    <i class="bar chart icon"></i>{{ result_count }} Analysis Results
+                </a>
+
+                <a class="active item">
+                    <i class="info circle icon"></i> Selected Item
+                </a>
+
+            </div>
+
+            <div class="ui bottom attached segment">
+                <p>
+                    {% block content %}
+                        Content
+                    {% endblock %}
+                </p>
+            </div>
+
+        </div>
+
+        <div class="ui secondary segment">
+            <div class="ui header"><i class="help circle icon"></i>Information</div>
+            <div class="project help">
+                {{ text|safe }}
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

@@ -181,6 +181,13 @@ def job_list(request, uid):
     return project_view(request=request, uid=uid, template_name="job_list.html", active=2)
 
 
+def get_counts(project):
+    data_count = Data.objects.filter(project=project).count()
+    recipe_count = Analysis.objects.filter(project=project).count()
+    result_count = Job.objects.filter(project=project).count()
+    return dict(
+        data_count=data_count, recipe_count=recipe_count, result_count=result_count
+    )
 @object_access(type=Project, access=Access.READ_ACCESS)
 def project_view(request, uid, template_name="recipe_list.html", active=1):
 
@@ -197,9 +204,7 @@ def project_view(request, uid, template_name="recipe_list.html", active=1):
                                project=project)
 
     # Show counts for the project
-    data_count = Data.objects.filter(project=project).count()
-    recipe_count = Analysis.objects.filter(project=project).count()
-    result_count = Job.objects.filter(project=project).count()
+    counts = get_counts(project)
 
     # Select all the data in the project
     data_list = Data.objects.filter(project=project).order_by("sticky", "-date").all()
@@ -211,9 +216,10 @@ def project_view(request, uid, template_name="recipe_list.html", active=1):
     else:
         access = None
 
+
     context = dict(project=project, access=access, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
-                   data_count=data_count, recipe_count=recipe_count, result_count=result_count, active=active,
-                   steps=steps)
+                    active=active,steps=steps)
+    context.update(counts)
 
     return render(request, template_name, context)
 
@@ -284,28 +290,12 @@ def data_view(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
 
-    projects = auth.get_project_list(user=request.user)
-    projects = projects.exclude(pk=data.project.id)
+    project = data.project
 
-    form = DataCopyForm(current=data, request=request)
+    counts = get_counts(project)
+    context = dict(data=data, steps=steps, project=project)
+    context.update(counts)
 
-    # Filter projects by admin access
-    cond = Q(access__access__gt=Access.EDIT_ACCESS)
-    if request.user.is_authenticated:
-        cond = Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS)
-    projects = projects.filter(cond)
-
-    # if request.method == "POST":
-    #     form = DataCopyForm(data=request.POST, current=data, request=request)
-    #     name = data.name
-    #     if form.is_valid():
-    #         data = form.save()
-    #         messages.success(request, f"Copied {name} in to {data.project.name}")
-    #         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
-    #
-    #     messages.error(request, mark_safe(form.errors))
-
-    context = dict(data=data, steps=steps, projects=projects, form=form)
     return render(request, "data_view.html", context)
 
 
