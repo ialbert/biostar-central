@@ -356,6 +356,9 @@ def create_data(project, user=None, stream=None, path='', name='',
         collect = findfiles(path, collect=[])
         for src in collect:
             dest = create_path(fname=src, data=data)
+
+            #TODO: bug here ( shows when adding hello-world analyis)
+
             os.symlink(src, dest)
         summary = f'Contains {len(collect)} files. {summary}'
         logger.info(f"Linked {len(collect)} files.")

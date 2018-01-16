@@ -1,6 +1,56 @@
 #
 # Requires a data parameter.
 #
+
+
+check:{
+    label: Test checkbox field
+    display: CHECKBOX
+    value:true
+}
+
+
+upload:{
+    label: Test upload field
+    display:UPLOAD
+}
+
+float:{
+    label: Test float field
+    display: FLOAT
+    value: 10.0
+}
+
+
+textbox:{
+    label: Test textbox field
+    display: TEXTBOX
+    value: testing
+}
+
+integer: {
+    label: Test integer field
+    display:INTEGER
+    value: 10
+}
+
+radio: {
+    label: Test radio buttons
+    display:RADIO
+    choices : [
+				["choice1" , "choice2" ]
+			  ]
+}
+
+dropdown: {
+    label: Test Dropdown
+    display: DROPDOWN
+	choices : [
+				["choice1" , "choice2" ]
+			  ]
+
+}
+
 data : {
     label: Input data
     display: DROPDOWN
@@ -9,8 +59,8 @@ data : {
 
   }
 
-another_data:{
-    label: Input data
+another:{
+    label: Another Input data
     display: DROPDOWN
     source:PROJECT
     type: {
