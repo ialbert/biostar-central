@@ -423,7 +423,7 @@ class RecipeInterface(forms.Form):
                 data_id = int(self.cleaned_data.get(field))
                 data = store.get(data_id)
 
-                # This mutates the `item` dictionary! And overrides
+                # This mutates the `item` dictionary!
                 data.fill_dict(item)
                 continue
 
