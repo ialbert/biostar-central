@@ -32,7 +32,7 @@ class RecipeViewTest(TestCase):
         self.assertTrue(models.Analysis.objects.count() == (pre + 1), "Error creating Analysis in database")
 
 
-    def Xtest_recipe_view(self):
+    def test_recipe_view(self):
         "Test the recipe copy view with POST request"
 
         data = {"project":0}
@@ -43,7 +43,7 @@ class RecipeViewTest(TestCase):
 
         response = views.recipe_view(request=request, id=self.recipe.id)
 
-        self.assertEqual(response.status_code, 302,
+        self.assertEqual(response.status_code, 200,
                          f"Could not redirect to after copying:\nresponse:{response}")
 
     @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
