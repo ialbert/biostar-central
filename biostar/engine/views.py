@@ -292,8 +292,10 @@ def data_view(request, id):
 
     project = data.project
 
-    counts = get_counts(project)
+
     context = dict(data=data, steps=steps, project=project)
+
+    counts = get_counts(project)
     context.update(counts)
 
     return render(request, "data_view.html", context)
@@ -384,28 +386,13 @@ def recipe_view(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON,
                                 ANALYSIS_VIEW_ICON], project=analysis.project, analysis=analysis)
 
-    projects = auth.get_project_list(user=request.user)
-    projects = projects.exclude(pk=analysis.project.id)
+    project=analysis.project
 
-    # Filter projects by admin access
-    cond = Q(access__access__gt=Access.EDIT_ACCESS)
-    if request.user.is_authenticated:
-        cond = Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS)
-    projects = projects.filter(cond)
+    context = dict(analysis=analysis, steps=steps, project=project)
 
-    # if request.method == "POST":
-    #     form = RecipeCopyForm(data=request.POST, analysis=analysis, request=request)
-    #     name = analysis.name
-    #     if form.is_valid():
-    #         analysis = form.save()
-    #         messages.success(request, f"Copied {name} in to {analysis.project.name}")
-    #         return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
-    #
-    #     messages.error(request, mark_safe(form.errors))
+    counts = get_counts(project)
+    context.update(counts)
 
-    form = RecipeCopyForm(analysis=analysis, request=request)
-    context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
-                   project=analysis.project)
 
     return render(request, "recipe_view.html", context)
 
