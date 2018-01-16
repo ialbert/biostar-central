@@ -159,8 +159,31 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
+def data_list(request, uid):
+    """
+    Returns the list of data for a project id.
+    """
+
+    return project_view(request=request, uid=uid, template_name="data_list.html", active=0)
+
+
+def recipe_list(request, uid):
+    """
+    Returns the list of recipes for a project id.
+    """
+    return project_view(request=request, uid=uid, template_name="recipe_list.html", active=1)
+
+
+def job_list(request, uid):
+    """
+    Returns the list of recipes for a project id.
+    """
+    return project_view(request=request, uid=uid, template_name="job_list.html", active=2)
+
+
 @object_access(type=Project, access=Access.READ_ACCESS)
-def project_view(request, uid):
+def project_view(request, uid, template_name="data_list.html", active=0):
+
     user = request.user
 
     project = Project.objects.filter(uid=uid).first()
@@ -173,20 +196,26 @@ def project_view(request, uid):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
+    # Show counts for the project
     data_count = Data.objects.filter(project=project).count()
     recipe_count = Analysis.objects.filter(project=project).count()
     result_count = Job.objects.filter(project=project).count()
+
+    # Select all the data in the project
+    data_list = Data.objects.filter(project=project).order_by("sticky", "-date").all()
+    recipe_list = Analysis.objects.filter(project=project).order_by("-date").all()
+    job_list = Job.objects.filter(project=project).order_by("-date").all()
 
     if user.is_authenticated():
         access = Access.objects.filter(user=user, project=project).first()
     else:
         access = None
 
-    context = dict(project=project, access=access,
-                   data_count=data_count, recipe_count=recipe_count, result_count=result_count,
+    context = dict(project=project, access=access, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
+                   data_count=data_count, recipe_count=recipe_count, result_count=result_count, active=active,
                    steps=steps)
 
-    return render(request, "project_view.html", context)
+    return render(request, template_name, context)
 
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
@@ -241,24 +270,6 @@ def project_create(request):
     return redirect(reverse("project_list"))
 
 
-@object_access(type=Project, access=Access.READ_ACCESS)
-def data_list(request, uid):
-    project = Project.objects.filter(uid=uid).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
-                               project=project)
-    if not project:
-        messages.error(request, "Data not found.")
-        logger.error(f"data.id={id} looked for but not found.")
-        return redirect(reverse("project_list"))
-
-    query = Data.objects.filter(project=project).order_by("sticky", "-date")
-
-    data_list = query.all()
-    data_count = query.count()
-    data_list = pages(request, instance=data_list)
-
-    context = dict(project=project, steps=steps, data_list=data_list, data_count=data_count)
-    return render(request, "data_list.html", context)
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
@@ -372,23 +383,6 @@ def data_download(request, id):
 
     return sendfile(request, data_file, attachment=f"{data.name}")
 
-
-@object_access(type=Project, access=Access.READ_ACCESS)
-def recipe_list(request, uid):
-    """
-    Returns the list of analyses for a project id.
-    """
-
-    project = Project.objects.filter(uid=uid).first()
-    analysis = Analysis.objects.filter(project=project).order_by("-sticky", "-id")
-
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
-                               project=project)
-    analysis = pages(request, instance=analysis)
-
-    context = dict(project=project, analysis=analysis, steps=steps)
-
-    return render(request, "recipe_list.html", context)
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS)
@@ -592,33 +586,6 @@ def recipe_edit(request, id):
 
     return render(request, 'recipe_edit.html', context)
 
-
-@object_access(type=Project, access=Access.READ_ACCESS, url="project_view")
-def job_list(request, uid):
-    """
-    Returns the list of jobs for a project id.
-    """
-    project = Project.objects.filter(uid=uid).first()
-
-    if not project:
-        messages.error(request, "Jobs not found.")
-        return redirect(reverse("project_list"))
-
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
-                               project=project)
-    jobs = Job.objects.filter(project=project).order_by("-date", "-start_date")
-
-    filter = request.GET.get('filter', '')
-
-    if filter:
-        filter = Analysis.objects.filter(id=filter).first()
-        jobs = jobs.filter(analysis=filter)
-
-    jobs = pages(request, instance=jobs)
-
-    context = dict(jobs=jobs, steps=steps, project=project, filter=filter)
-
-    return render(request, "job_list.html", context)
 
 
 @object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view")

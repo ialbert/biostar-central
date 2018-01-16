@@ -125,7 +125,7 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
 
     # The object does not exist.
     if not instance:
-        messages.error(request, "Object not found!")
+        messages.error(request, "Object does not exist.")
         return False
 
     # A textual representation of the access

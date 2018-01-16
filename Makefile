@@ -68,7 +68,6 @@ users:
 	@# Create initial access of users.
 	@python manage.py add_access initial/initial-access.csv
 
-
 subscribe:init
 	python manage.py subscribe --group staff --file export/local/test_emails.txt
 
@@ -82,7 +81,7 @@ hello:
 	python manage.py analysis --add --json biostar/tools/hello/hello1.hjson  --template biostar/tools/hello/hello1.sh --jobs
 
 jobs:
-	@python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --jobs
+	#@python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --jobs
 	#@python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --jobs
 	#@python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --jobs
 	#@python manage.py analysis --add --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --jobs
@@ -93,9 +92,9 @@ init:
 	@python manage.py migrate -v 0
 
 public:
-	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --jobs -v 0
-	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --jobs -v 0
-	@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky --jobs -v 0
+	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --jobs
+	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --jobs
+	@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
 
 fish:
 	@python manage.py project --json initial/fish-project.hjson --jobs

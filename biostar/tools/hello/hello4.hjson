@@ -12,11 +12,6 @@ another_data:{
     label: Input data
     display: DROPDOWN
     source:PROJECT
-    type: {
-          name: Bar type
-          symbol: BAR
-          help: test datatype
-    }
 }
 
 #

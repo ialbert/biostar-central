@@ -38,9 +38,9 @@
 <div class="ui text container">
 
     <div class="ui center aligned header">
-        {%  block title %}
+        {% block title %}
             {{ SITE_HEADER|safe }}
-        {%  endblock %}
+        {% endblock %}
     </div>
 
     <div class="ui horizontal divider"></div>
@@ -68,13 +68,19 @@
     {% block body %}
         {# Main body #}
         BODY
+        {% block content %}
+
+        {% endblock %}
     {% endblock %}
 
-    <div class="ui vertical center aligned segment">
-        <p class="muted">Powered by the<a href="#"><img class="ui spaced image" src="{% static 'images/badge.svg' %}"></a>
-        </p>
-        <p class="muted smaller">Release date: {{ VERSION }}</p>
-    </div>
+    {% block footer %}
+        <div class="ui vertical center aligned segment">
+            <p class="muted">Powered by the<a href="#"><img class="ui spaced image"
+                                                            src="{% static 'images/badge.svg' %}"></a>
+            </p>
+            <p class="muted smaller">Release date: {{ VERSION }}</p>
+        </div>
+    {% endblock %}
 
 </div>
 

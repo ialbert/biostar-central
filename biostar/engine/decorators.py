@@ -36,6 +36,7 @@ class object_access:
         @wraps(function, assigned=available_attrs(function))
         def _wrapped_view(request, *args, **kwargs):
 
+
             # Each wrapped view must take a numerical id or alphanumeric uid as parameter.
             id = kwargs.get('id') or kwargs.get("uid")
 
@@ -44,6 +45,7 @@ class object_access:
 
             # Fetches the object that will be checked for permissions.
             instance = self.type.objects.filter(uid=id).first()
+
             if kwargs.get('id'):
                 instance = self.type.objects.filter(pk=id).first()
 

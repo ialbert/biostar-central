@@ -2,7 +2,7 @@
 echo "Analysis started."
 
 # Run a simple unix tool on the file.
-ls -l {{data.path}} > results.txt
+ls -l {{data.value}} > results.txt
 
 # All done.
 echo "Analysis finished."

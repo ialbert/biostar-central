@@ -1,55 +1,46 @@
-{% extends "base.html" %}
+{% extends "project_base.html" %}
 {% load engine_tags %}
 {% block headtitle %}
     Analysis List
 {% endblock %}
 
-{% block body %}
+{% block content %}
 
-    <div class="ui raised segments">
 
-        {% project_name_bar project %}
 
-        <div class="ui secondary segment">
-            <div class="ui header"><i class="settings icon"></i>Recipe List</div>
-            <p>The list of recipes enabled for this project.</p>
-        </div>
+    <div class="ui divided link items">
 
-        <div class="ui segment">
+        {% for recipe in recipe_list %}
 
-            <div class="ui divided link items">
-
-                {% for recipe in analysis %}
-
-                    <div class="item">
-                        <div class="ui tiny image">
-                            <img src="{% img recipe %}">
-                        </div>
-                        <div class="content">
-                            <a class="header" href="{% url 'recipe_view' recipe.id %}">
-                                {{ recipe.name }}
-                            </a>
-                            <div class="description">
-                                {{ recipe.summary|markdown|safe }}
-                            </div>
-                            <div class="meta">
-                                {% sticky_label recipe %}
-                                <a href="{% url 'job_list' project.uid %}?filter={{ recipe.id }}">
-                                    <i class="bar chart icon"></i> view results
-                                </a>
-                            </div>
-                        </div>
+            <div class="item">
+                <div class="ui tiny image">
+                    <img src="{% img recipe %}">
+                </div>
+                <div class="content">
+                    <a class="header" href="{% url 'recipe_view' recipe.id %}">
+                        {{ recipe.name }}
+                    </a>
+                    <div class="description">
+                        {{ recipe.summary|markdown|safe }}
                     </div>
-
-                {% endfor %}
-
-
+                    <div class="meta">
+                        {% sticky_label recipe %}
+                        <a href="{% url 'job_list' project.uid %}?filter={{ recipe.id }}">
+                            <i class="bar chart icon"></i> view results
+                        </a>
+                    </div>
+                </div>
             </div>
 
+        {% endfor %}
 
-        </div>
 
-        {%  if 0 %}
+    </div>
+
+
+
+
+    {% if 0 %}
         <div class="ui secondary segment">
             <div class="ui header"><i class="add circle icon"></i>Recipe List Actions</div>
 
@@ -59,7 +50,7 @@
                 </a>
             </div>
         </div>
-    {%  endif %}
+    {% endif %}
 
-    </div>
+
 {% endblock %}
