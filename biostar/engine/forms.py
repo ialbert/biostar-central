@@ -63,7 +63,7 @@ class DataUploadForm(forms.ModelForm):
 
         choices = [(d.symbol, d.name) for d in self.project.datatype_set.all()]
         self.fields["data_type"] = forms.CharField(widget=forms.Select(choices=choices),
-                                                      required=False)
+                                                      required=False, initial="GENERIC")
     class Meta:
         model = Data
         fields = ['file', 'summary', 'text', "sticky",  "data_type"]
@@ -423,8 +423,9 @@ class RecipeInterface(forms.Form):
                 data_id = int(self.cleaned_data.get(field))
                 data = store.get(data_id)
 
-                # This mutates the `item` dictionary!
+                # This mutates the `item` dictionary! And overrides
                 data.fill_dict(item)
+                continue
 
             # The JSON value will be overwritten with the selected field value.
             if field in self.cleaned_data:

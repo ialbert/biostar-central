@@ -339,7 +339,7 @@ def data_upload(request, uid):
                                     text=text, user=owner, project=project, summary=summary,
                                     data_type=data_type)
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
-            return redirect(reverse("data_list", kwargs={'uid': project.uid}))
+            return redirect(reverse("data_view", kwargs={'id': data.id}))
 
         messages.error(request, mark_safe(form.errors))
 
