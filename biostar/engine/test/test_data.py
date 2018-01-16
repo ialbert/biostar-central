@@ -30,7 +30,7 @@ class DataViewTest(TestCase):
         self.data = auth.create_data(project=self.project, path=__file__)
         self.assertTrue(models.Data.objects.count() == (pre + 1), "Error creating Data in database")
 
-    def test_data_copy_view(self):
+    def Xtest_data_copy_view(self):
 
         "Test Data copy (create a new project and copy) in views with POST request"
 
@@ -107,3 +107,17 @@ class DataViewTest(TestCase):
         post = models.Data.objects.all().count()
 
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
+
+    def test_data_download(self):
+        "Testing data download view"
+
+        from django.http.response import FileResponse
+
+        url = reverse('data_download', kwargs=dict(id=self.data.id))
+        request = util.fake_request(url=url, data={}, user=self.owner, method="GET")
+
+        response = views.data_download(request=request, id=self.data.id)
+
+        self.assertTrue(isinstance(response, FileResponse),
+                        "Error returning valid FileResponse when downloading")
+

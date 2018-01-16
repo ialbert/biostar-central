@@ -6,8 +6,6 @@ from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.log import config_logging
 
 from django.contrib.auth.models import AnonymousUser
-
-from biostar.engine.models import Project, Access
 from biostar.engine import auth
 
 config_logging(level=logging.DEBUG)
@@ -17,9 +15,16 @@ logger.setLevel(logging.INFO)
 
 
 
+
+
+def perm_map():
+    return
+
+
+
 def project_list(user):
 
-    # Maintain same order as views
+    # Maintain same order as views (doesn't really show)
     projects = auth.get_project_list(user=user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
 
@@ -40,8 +45,9 @@ class BiostarFileSystem(AbstractedFS):
         # If a different behavior is desired (e.g. initial cwd = root,
         # to reflect the real filesystem) users overriding this class
         # are responsible to set _cwd attribute as necessary.
-        #self._cwd = root
 
+
+        #self._cwd = root
         self._cwd = "/"
         self._root = root
         self.cmd_channel = cmd_channel
@@ -61,11 +67,18 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"path={path}")
         return True
 
+    def fs2ftp(self, fspath):
+        """Translate a "real" filesystem pathname into equivalent
+        absolute "virtual" ftp pathname depending on the user's
+        root directory."""
+        return fspath
+
+
     def ftp2fs(self, ftppath):
         logger.info(f"ftppath={ftppath}")
 
         #self._cwd = ftppath
-        print(self._cwd,"SSS")
+        # TODO: the ftppath is going to be
 
     def listdir(self, path):
         # This is the root as initialized in the base class
@@ -74,7 +87,7 @@ class BiostarFileSystem(AbstractedFS):
         if self.user:
             return project_list(user=self.user["user"])
 
-        # Return list of public projects when Biostar-Engine does not rec
+        # Return list of public projects when Anonymous user logs in
         return project_list(user=AnonymousUser)
 
     def chdir(self, path):
@@ -82,8 +95,10 @@ class BiostarFileSystem(AbstractedFS):
         Change the current directory.
         """
         # note: process cwd will be reset by the caller
+
         logger.info(f"path={path}")
-        self._cwd = f"foo({path})"
+        #self._cwd = f"foo({path})"
+        self._cwd = self.fs2ftp(path)
 
     def format_list(self, basedir, listing, ignore_err=True):
         logger.info(f"listing={listing}")
@@ -93,6 +108,8 @@ class BiostarFileSystem(AbstractedFS):
 
         lines = []
         for project in listing:
+            #TODO: does it matter if the unique thing is the same for every project
+            #TODO: permissons should line up with the access user has to the project
             lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; {project}")
 
         line = "\n".join(lines)
@@ -115,11 +132,9 @@ class BiostarFTPHandler(FTPHandler):
         # do something when user login
 
         logger.info(f"user={username}, username={self.username}, auth={self.authenticated}")
-        logger.info(f"fs={self.fs}")
 
         # Tell the filesystem what user is logged in
-
-        self.fs = self.abstracted_fs(root="/projects", cmd_channel=self, current_user=username)
+        self.fs = self.abstracted_fs(root="/", cmd_channel=self, current_user=username)
 
     def on_logout(self, username):
         # do something when user logs out
@@ -127,6 +142,8 @@ class BiostarFTPHandler(FTPHandler):
 
     def on_file_sent(self, file):
         # do something when a file has been sent
+        #TODO: take basedir as a project and anything in it is a datafile?
+
         pass
 
     def on_file_received(self, file):

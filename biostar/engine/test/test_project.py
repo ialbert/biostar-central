@@ -29,7 +29,7 @@ class ProjectViewTest(TestCase):
         self.assertTrue(models.Project.objects.count() == (pre + 1), "Error creating project in database")
 
     @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
-    def test_create_view(self):
+    def Xtest_create_view(self):
         "Test project create view with POST request"
 
         # Create fake request
@@ -44,7 +44,7 @@ class ProjectViewTest(TestCase):
 
 
     @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
-    def test_edit_view(self):
+    def Xtest_edit_view(self):
         "Test project edit view with POST request"
 
         # Create fake request
@@ -60,7 +60,7 @@ class ProjectViewTest(TestCase):
         self.process_response(response=response, data=data, save=True)
 
 
-    def test_users_view(self):
+    def Xtest_users_view(self):
         "Test project_users with POST request"
 
         new_user = models.User.objects.create_user(username="test2", email="test2@l.com")
@@ -92,7 +92,7 @@ class ProjectViewTest(TestCase):
         self.assertTrue(len(users) ==len(user_forms), "Error generating users access forms ( forms.access_forms) ")
 
 
-    def test_image_path(self):
+    def Xtest_image_path(self):
         "Test image_path function found in engine.models"
 
         imgpath = models.image_path(instance=self.project, filename=__file__)

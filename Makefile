@@ -4,9 +4,6 @@ SERVER=metabarcode.com
 serve: init
 	python manage.py runserver
 
-ftpserver: init
-	python manage.py ftpserver
-
 install:
 	pip install -r conf/python_requirements.txt
 	python setup.py develop

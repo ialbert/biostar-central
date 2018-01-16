@@ -13,7 +13,7 @@ from biostar.breadcrumb import breadcrumb_builder
 from . import tasks, util
 from .decorators import object_access
 from .forms import *
-from .models import (Project, Data, Analysis, Job, User, Access)
+from .models import (Project, Data, Analysis, Job, Access)
 
 
 def join(*args):
@@ -92,59 +92,60 @@ def project_users(request, uid):
     Manage project users
     """
 
-    project = Project.objects.filter(uid=uid).first()
-
-    # Search query
-    q = request.GET.get("q")
-
-    # Users already with access to current project
-    users = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
-
-    # Users that have been searched for.
-    targets = []
-
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
-                               project=project)
-
-    if request.method == "POST":
-        form = ChangeUserAccess(data=request.POST)
-        if form.is_valid():
-            form.change_access()
-            messages.success(request, "Changed access to this project")
-            return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
-
-        messages.error(request, mark_safe(form.non_field_errors()))
-
-    if q:
-        targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q))
-
-    current = access_forms(users=users, project=project)
-    results = access_forms(users=targets, project=project)
-    context = dict(steps=steps, current=current, project=project, results=results)
-
-    return render(request, "project_users.html", context=context)
+    # project = Project.objects.filter(uid=uid).first()
+    #
+    # # Search query
+    # q = request.GET.get("q")
+    #
+    # # Users already with access to current project
+    # users = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
+    #
+    # # Users that have been searched for.
+    # targets = []
+    #
+    # steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
+    #                            project=project)
+    #
+    # if request.method == "POST":
+    #     form = ChangeUserAccess(data=request.POST)
+    #     if form.is_valid():
+    #         form.change_access()
+    #         messages.success(request, "Changed access to this project")
+    #         return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
+    #
+    #     messages.error(request, mark_safe(form.non_field_errors()))
+    #
+    # if q:
+    #     targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q))
+    #
+    # current = access_forms(users=users, project=project)
+    # results = access_forms(users=targets, project=project)
+    # context = dict(steps=steps, current=current, project=project, results=results)
+    #return render(request, "project_users.html", context=context)
+    return redirect(reverse("project_view", kwargs=dict(uid=uid)))
 
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_types(request, uid):
     "Manage data types belonging to a project from a project"
 
-    project = Project.objects.filter(uid=uid).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, PROJECT_TYPES],
-                               project=project)
-    form = CreateDataTypeForm(project=project)
-
-    if request.method == "POST":
-        form = CreateDataTypeForm(project=project, data=request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse("project_types", kwargs=dict(uid=project.uid)))
-
-        messages.error(request, mark_safe(form.errors))
-
-    current = project.datatype_set.all()
-    context = dict(project=project, form=form, steps=steps, current=current)
-    return render(request, "project_types.html", context=context)
+    # project = Project.objects.filter(uid=uid).first()
+    # steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, PROJECT_TYPES],
+    #                            project=project)
+    # form = CreateDataTypeForm(project=project)
+    #
+    # if request.method == "POST":
+    #     form = CreateDataTypeForm(project=project, data=request.POST)
+    #     if form.is_valid():
+    #         form.save()
+    #         return redirect(reverse("project_types", kwargs=dict(uid=project.uid)))
+    #
+    #     messages.error(request, mark_safe(form.errors))
+    #
+    # current = project.datatype_set.all()
+    # context = dict(project=project, form=form, steps=steps, current=current)
+    # return render(request, "project_types.html", context=context)
+    return redirect(reverse("project_view", kwargs=dict(uid=uid)))
 
 
 def project_list(request):
@@ -190,54 +191,54 @@ def project_view(request, uid):
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
 def project_edit(request, uid):
-    project = auth.get_project_list(user=request.user).filter(uid=uid).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
-    form = ProjectForm(instance=project)
-
-    if request.method == "POST":
-        form = ProjectForm(request.POST, request.FILES, instance=project)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
-
-        messages.error(request, mark_safe(form.errors))
-
-    context = dict(project=project, steps=steps, form=form)
-    return render(request, 'project_edit.html', context)
+    # project = auth.get_project_list(user=request.user).filter(uid=uid).first()
+    # steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
+    # form = ProjectForm(instance=project)
+    #
+    # if request.method == "POST":
+    #     form = ProjectForm(request.POST, request.FILES, instance=project)
+    #     if form.is_valid():
+    #         form.save()
+    #         return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
+    #
+    #     messages.error(request, mark_safe(form.errors))
+    #
+    # context = dict(project=project, steps=steps, form=form)
+    return redirect(reverse("project_view", kwargs=dict(uid=uid)))
 
 
 def project_create(request):
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
-
-    if request.user.is_anonymous:
-        messages.warning(request, "You must be logged in to create a project.")
-        return redirect(reverse("project_list"))
-
-    initial = dict(name="Project Name", text="project description", summary="project summary")
-    form = ProjectForm(initial=initial)
-
-    if request.method == "POST":
-        # create new projects here ( just populates metadata ).
-        form = ProjectForm(request.POST, request.FILES)
-        if form.is_valid():
-            name = form.cleaned_data["name"]
-            text = form.cleaned_data["text"]
-            summary = form.cleaned_data["summary"]
-            stream = form.cleaned_data["image"]
-            sticky = form.cleaned_data["sticky"]
-            privacy = form.cleaned_data["privacy"]
-            uid = form.cleaned_data["uid"]
-            owner = request.user
-            project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                          stream=stream, sticky=sticky, privacy=privacy,
-                                          uid=uid)
-            project.save()
-            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
-
-        messages.error(request, mark_safe(form.errors))
-
-    context = dict(steps=steps, form=form)
-    return render(request, 'project_create.html', context)
+    # steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
+    #
+    # if request.user.is_anonymous:
+    #     messages.warning(request, "You must be logged in to create a project.")
+    #     return redirect(reverse("project_list"))
+    #
+    # initial = dict(name="Project Name", text="project description", summary="project summary")
+    # form = ProjectForm(initial=initial)
+    #
+    # if request.method == "POST":
+    #     # create new projects here ( just populates metadata ).
+    #     form = ProjectForm(request.POST, request.FILES)
+    #     if form.is_valid():
+    #         name = form.cleaned_data["name"]
+    #         text = form.cleaned_data["text"]
+    #         summary = form.cleaned_data["summary"]
+    #         stream = form.cleaned_data["image"]
+    #         sticky = form.cleaned_data["sticky"]
+    #         privacy = form.cleaned_data["privacy"]
+    #         uid = form.cleaned_data["uid"]
+    #         owner = request.user
+    #         project = auth.create_project(user=owner, name=name, summary=summary, text=text,
+    #                                       stream=stream, sticky=sticky, privacy=privacy,
+    #                                       uid=uid)
+    #         project.save()
+    #         return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
+    #
+    #     messages.error(request, mark_safe(form.errors))
+    #
+    # context = dict(steps=steps, form=form)
+    return redirect(reverse("project_list"))
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
@@ -283,15 +284,15 @@ def data_view(request, id):
         cond = Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS)
     projects = projects.filter(cond)
 
-    if request.method == "POST":
-        form = DataCopyForm(data=request.POST, current=data, request=request)
-        name = data.name
-        if form.is_valid():
-            data = form.save()
-            messages.success(request, f"Copied {name} in to {data.project.name}")
-            return redirect(reverse("data_view", kwargs=dict(id=data.id)))
-
-        messages.error(request, mark_safe(form.errors))
+    # if request.method == "POST":
+    #     form = DataCopyForm(data=request.POST, current=data, request=request)
+    #     name = data.name
+    #     if form.is_valid():
+    #         data = form.save()
+    #         messages.success(request, f"Copied {name} in to {data.project.name}")
+    #         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
+    #
+    #     messages.error(request, mark_safe(form.errors))
 
     context = dict(data=data, steps=steps, projects=projects, form=form)
     return render(request, "data_view.html", context)
@@ -351,11 +352,10 @@ def data_download(request, id):
     "Download data found in a project"
 
     data = Data.objects.filter(id=id).first()
-    project = data.project
 
     if not data:
         messages.error(request, "Data Not Found")
-        return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+        return redirect(reverse("project_list"))
 
     data_file = data.get_files()
 
@@ -409,15 +409,15 @@ def recipe_view(request, id):
         cond = Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS)
     projects = projects.filter(cond)
 
-    if request.method == "POST":
-        form = RecipeCopyForm(data=request.POST, analysis=analysis, request=request)
-        name = analysis.name
-        if form.is_valid():
-            analysis = form.save()
-            messages.success(request, f"Copied {name} in to {analysis.project.name}")
-            return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
-
-        messages.error(request, mark_safe(form.errors))
+    # if request.method == "POST":
+    #     form = RecipeCopyForm(data=request.POST, analysis=analysis, request=request)
+    #     name = analysis.name
+    #     if form.is_valid():
+    #         analysis = form.save()
+    #         messages.success(request, f"Copied {name} in to {analysis.project.name}")
+    #         return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
+    #
+    #     messages.error(request, mark_safe(form.errors))
 
     form = RecipeCopyForm(analysis=analysis, request=request)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
@@ -535,36 +535,36 @@ def recipe_create(request, uid):
     Create recipe with empty template and json spec
     """
 
-    project = Project.objects.filter(uid=uid).first()
-
-    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON], project=project)
-    action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
-    back_url = reverse('recipe_list', kwargs=dict(uid=project.uid))
-
-    if request.method == "POST":
-        form = RecipeForm(data=request.POST, files=request.FILES)
-
-        if form.is_valid():
-            # Empty Analysis Template is authorized on creation
-            security = Analysis.AUTHORIZED
-            name = form.cleaned_data["name"]
-            text = form.cleaned_data["text"]
-            summary = form.cleaned_data["summary"]
-            stream = form.cleaned_data["image"]
-            sticky = form.cleaned_data["sticky"]
-
-            recipe = auth.create_analysis(project=project, json_text="{}", template="",
-                                          user=request.user, summary=summary, name=name, text=text,
-                                          security=security, stream=stream, sticky=sticky)
-            recipe.save()
-            messages.success(request, "Recipe created")
-            return redirect(back_url)
-
-    form = RecipeForm()
-    context = dict(steps=steps, analysis={"name": "New Analysis"},
-                   project=project, form=form, action_url=action_url, back_url=back_url)
-
-    return render(request, 'recipe_edit.html', context)
+    # project = Project.objects.filter(uid=uid).first()
+    #
+    # steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON], project=project)
+    # action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
+    # back_url = reverse('recipe_list', kwargs=dict(uid=project.uid))
+    #
+    # if request.method == "POST":
+    #     form = RecipeForm(data=request.POST, files=request.FILES)
+    #
+    #     if form.is_valid():
+    #         # Empty Analysis Template is authorized on creation
+    #         security = Analysis.AUTHORIZED
+    #         name = form.cleaned_data["name"]
+    #         text = form.cleaned_data["text"]
+    #         summary = form.cleaned_data["summary"]
+    #         stream = form.cleaned_data["image"]
+    #         sticky = form.cleaned_data["sticky"]
+    #
+    #         recipe = auth.create_analysis(project=project, json_text="{}", template="",
+    #                                       user=request.user, summary=summary, name=name, text=text,
+    #                                       security=security, stream=stream, sticky=sticky)
+    #         recipe.save()
+    #         messages.success(request, "Recipe created")
+    #         return redirect(back_url)
+    #
+    # form = RecipeForm()
+    # context = dict(steps=steps, analysis={"name": "New Analysis"},
+    #                project=project, form=form, action_url=action_url, back_url=back_url)
+    # return render(request, 'recipe_edit.html', context)
+    return redirect(reverse("project_list", kwargs=dict(uid=uid)))
 
 
 @object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
@@ -694,9 +694,11 @@ def job_files_list(request, id, path=''):
     # This is the root of where we can navigate in
     target_path = join(job.path, path)
 
-    if not target_path.startswith(job.path):
+    if not target_path.startswith(job.path) or (not os.path.exists(target_path)):
+
         # Attempting to access a file outside of the job directory
-        raise Exception(f"target_path {target_path} not in job directory")
+        messages.error(request, "Path not in job directory.")
+        return redirect(reverse("job_files_entry", kwargs=dict(id=id)))
 
     # These are pathlike objects with attributes such as name, is_file
     file_list = list(os.scandir(target_path))
@@ -708,14 +710,14 @@ def job_files_list(request, id, path=''):
         [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
         job=job, project=project)
 
-    if request.method == "POST":
-        form = FilesCopyForm(data=request.POST, project=project, job=job)
-        if form.is_valid():
-            count = form.save()
-            messages.success(request, f"Copied {len(count)} file to {project.name}.")
-            return redirect(reverse("job_view", kwargs=dict(id=job.id)))
-
-        messages.warning(request, "Unable to copy files")
+    # if request.method == "POST":
+    #     form = FilesCopyForm(data=request.POST, project=project, job=job)
+    #     if form.is_valid():
+    #         count = form.save()
+    #         messages.success(request, f"Copied {len(count)} file to {project.name}.")
+    #         return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+    #
+    #     messages.warning(request, "Unable to copy files")
 
     form = FilesCopyForm(project=project)
     context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)
