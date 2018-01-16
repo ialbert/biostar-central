@@ -34,7 +34,7 @@
 
                         {#TODO: this does not work when a directory is nested right now #}
 
-                        <a href="{% url 'job_files_list' job.id entry.name %}">
+                        <a href="{{ MEDIA_URL }}{{ job.get_url }}{{ path }}/{{ entry.name }}">
                             <i class="folder icon"></i>{{ entry.name }}
                         </a>
 

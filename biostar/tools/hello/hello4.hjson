@@ -3,16 +3,16 @@
 #
 data : {
     label: Input data
-    path: export/local/input/test_reads.fastq.gz
     display: DROPDOWN
     type:FOO
+    source:PROJECT
 
   }
 
 another_data:{
     label: Input data
-    path: export/local/input/test_reads.fastq.gz
     display: DROPDOWN
+    source:PROJECT
     type: {
           name: Bar type
           symbol: BAR

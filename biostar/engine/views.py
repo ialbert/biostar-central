@@ -352,11 +352,10 @@ def data_download(request, id):
     "Download data found in a project"
 
     data = Data.objects.filter(id=id).first()
-    project = data.project
 
     if not data:
         messages.error(request, "Data Not Found")
-        return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+        return redirect(reverse("project_list"))
 
     data_file = data.get_files()
 
