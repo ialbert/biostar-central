@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
 from biostar.engine.models import Project, User
+import sys
 
 logger = logging.getLogger('engine')
 
@@ -23,11 +24,17 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
     data = hjson.load(open(json, 'rb'))
     dirname = os.path.dirname(json)
 
-    uid = data.get("uid", None)
-    name = data.get("name", '')
-    text = data.get("text", '')
-    summary = data.get("summary", '')
-    imgpath = join(dirname, data.get("image", ""))
+    root = data.get("settings", {})
+
+    if not root:
+        logger.error(f"Project {json} must have a 'settings' key")
+        sys.exit()
+
+    uid = root.get("uid", None)
+    name = root.get("name", '')
+    text = root.get("text", '')
+    summary = root.get("summary", '')
+    imgpath = join(dirname, root.get("image", ""))
 
     project = Project.objects.filter(uid=uid).first()
 

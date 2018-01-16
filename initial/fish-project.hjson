@@ -1,4 +1,6 @@
 {
+
+settings: {
     uid: fish
 
     name: Fish Metabarcoding
@@ -6,15 +8,16 @@
     image: fish-project.jpg
 
     summary: '''
-        This project contains data and analysis recipes for studying metabarcoded
-        data of fish populations.
-        '''
+    This project contains data and analysis recipes for studying metabarcoded
+    data of fish populations.
+    '''
 
     text: '''
-        # Purpose
+    # Purpose
 
-        Todo.
-        '''
+    Todo.
+    '''
+}
 
     analyses: [
 

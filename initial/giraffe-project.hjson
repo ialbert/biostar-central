@@ -1,5 +1,7 @@
 {
 
+settings: {
+
     uid: giraffe
 
     name: Giraffe Genome Assembly and Annotation
@@ -17,6 +19,7 @@
        Todo
 
     '''
+}
 
 analyses: [
 

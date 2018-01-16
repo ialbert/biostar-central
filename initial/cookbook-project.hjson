@@ -1,5 +1,6 @@
 {
 
+settings: {
     uid: cookbook
 
     name: Analysis Cookbook
@@ -31,6 +32,7 @@
         Investigate the data and the results to understand the recipe requirements.
 
     '''
+}
 
 analyses: [
 
