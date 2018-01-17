@@ -16,10 +16,6 @@
 
 {% block content %}
 
-
-
-
-
         <div class="ui vertical segment">
 
             <div class="ui center aligned header">
@@ -41,7 +37,6 @@
 
         <div class="ui center aligned vertical secondary segment">
 
-
                 <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
                     <i class="area chart icon"></i> Go to Results
                 </a>
@@ -60,28 +55,6 @@
         <div class="ui vertical segment">
             {{ analysis.html|safe }}
         </div>
-
-
-        {%  if 0 %}
-        <div class="ui secondary segment">
-
-            <div class="ui header"><i class="share square icon"></i>Duplicate Recipe</div>
-
-            <p>Create your own version of the recipe.</p>
-            <form class="ui form" method="post" action="{% url 'recipe_view' analysis.id %}">
-
-                {% csrf_token %}
-
-                {% copy_interface projects=projects form=form duplicate=analysis.project.id %}
-
-                <button type="submit" class="ui button">
-                    <i class="check icon"></i>Submit
-                </button>
-
-            </form>
-
-        </div>
-        {% endif %}
 
 
 {% endblock %}

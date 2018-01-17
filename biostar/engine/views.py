@@ -188,6 +188,7 @@ def get_counts(project):
     return dict(
         data_count=data_count, recipe_count=recipe_count, result_count=result_count
     )
+
 @object_access(type=Project, access=Access.READ_ACCESS)
 def project_view(request, uid, template_name="recipe_list.html", active=1):
 
@@ -215,7 +216,6 @@ def project_view(request, uid, template_name="recipe_list.html", active=1):
         access = Access.objects.filter(user=user, project=project).first()
     else:
         access = None
-
 
     context = dict(project=project, access=access, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
                     active=active,steps=steps)
@@ -277,7 +277,6 @@ def project_create(request):
 
 
 
-
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()
@@ -291,7 +290,6 @@ def data_view(request, id):
                                project=data.project, data=data)
 
     project = data.project
-
 
     context = dict(data=data, steps=steps, project=project)
 
@@ -374,7 +372,6 @@ def data_download(request, id):
         return redirect(reverse("data_view", kwargs=dict(id=id)))
 
     return sendfile(request, data_file, attachment=f"{data.name}")
-
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS)
@@ -655,15 +652,6 @@ def job_files_list(request, id, path=''):
         [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
         job=job, project=project)
 
-    # if request.method == "POST":
-    #     form = FilesCopyForm(data=request.POST, project=project, job=job)
-    #     if form.is_valid():
-    #         count = form.save()
-    #         messages.success(request, f"Copied {len(count)} file to {project.name}.")
-    #         return redirect(reverse("job_view", kwargs=dict(id=job.id)))
-    #
-    #     messages.warning(request, "Unable to copy files")
 
-    form = FilesCopyForm(project=project)
-    context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)
+    context = dict(file_list=file_list, job=job, steps=steps, project=project, path=path)
     return render(request, "job_files_list.html", context)

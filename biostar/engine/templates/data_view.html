@@ -46,35 +46,11 @@
         <pre>{{ data.peek }}</pre>
     </div>
 
-
-    {% if 0 %}
-
-        <div class="ui segment">
-            <div class="ui header">Data Actions</div>
-            <p>The following actions allow you to copy data into other projects.</p>
-
-            <form class="ui form" method="post" action="{% url 'data_view' data.id %}">
-
-                {% csrf_token %}
-
-                {% copy_interface projects=projects form=form %}
-
-                <button type="submit" class="ui button">
-                    <i class="check icon"></i>Submit
-                </button>
-
-            </form>
-        </div>
-
-    {% endif %}
-
     <div class="ui basic center aligned segment">
         <a class="ui button" href="{% url 'data_edit' data.id %}">
             <i class="write icon"></i>Edit Info
         </a>
 
     </div>
-
-
 
 {% endblock %}
