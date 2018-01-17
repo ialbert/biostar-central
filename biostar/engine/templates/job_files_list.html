@@ -1,15 +1,15 @@
-{% extends "base.html" %}
+{% extends "base_content.html" %}
 {% load engine_tags %}
 {% load staticfiles %}
 {% block headtitle %}
-    Index view : {{ instance.name }}
+    Index view : {{ job.name }}
 {% endblock %}
 
 
-{% block body %}
+{% block content %}
 
     <div class="ui center aligned header">
-        Files : {{ instance.name }}
+        Results for: <a href="{% url 'job_view' job.id %}"><i class="bar chart icon"></i>{{ job.name }}</a>
     </div>
 
     {% file_listing object=instance path=path file_list=file_list %}

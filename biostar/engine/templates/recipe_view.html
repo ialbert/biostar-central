@@ -1,4 +1,4 @@
-{% extends "base_details.html" %}
+{% extends "base_content.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
@@ -16,15 +16,19 @@
 
 {% block content %}
 
+
+    <div class="ui raised segment">
+
         <div class="ui vertical segment">
 
             <div class="ui center aligned header">
-                Recipe: {{ analysis.name }}
+                Recipe: <i class="setting icon"></i>{{ analysis.name }}
             </div>
 
             <div class="">
                 <img class="ui centered small image" src="{% img analysis %}">
             </div>
+
             <div class="ui center aligned basic segment">
                 <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
                     <i class="spinner icon"></i> Execute Recipe
@@ -36,10 +40,6 @@
         </div>
 
         <div class="ui center aligned vertical secondary segment">
-
-                <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
-                    <i class="area chart icon"></i> Go to Results
-                </a>
 
                 <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
                     <i class="write icon"></i>Edit Info
@@ -55,5 +55,5 @@
             {{ analysis.html|safe }}
         </div>
 
-
+    </div>
 {% endblock %}

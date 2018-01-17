@@ -135,12 +135,14 @@ def data_color(data):
 
 
 @register.simple_tag
-def state_label(data, only_error=False):
+def state_label(data, error_only=False):
 
     label = f'<span class="ui { DATA_COLORS.get(data.state, "") } label"> {data.get_state_display()} </span>'
 
-    if only_error and data.state != Data.ERROR:
-        return ""
+    # Error produce error only.
+    if error_only and data.state != Data.ERROR:
+        label = ""
+
 
     return mark_safe(label)
 
@@ -217,16 +219,23 @@ def type_label(data):
     return dict(label=query, color=color)
 
 
-@register.inclusion_tag('widgets/form_nonfield_errors.html')
-def form_nonfield_errors(form):
+@register.inclusion_tag('widgets/form_errors.html')
+def form_errors(form):
     """
-    Turns the error lists into a dictionary that can be iterated over.
+    Turns form errors into a data structure
     """
-    is_valid = form.is_valid()
 
-    errorlist = list(form.non_field_errors())
+
+    errorlist = [ ('', message) for message in form.non_field_errors() ]
+
+    for field in form:
+        for error in field.errors:
+            errorlist.append((f'{field.name}:', error))
 
     context = dict(errorlist=errorlist)
+
+    #if errorlist:
+    #    print (errorlist, type(errorlist[0]), dir(errorlist[0]))
 
     return context
 

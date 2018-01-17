@@ -1,4 +1,4 @@
-{% extends "base_project.html" %}
+{% extends "base_content.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
@@ -27,7 +27,7 @@
                     <div class="meta">
                         {% size_label data %}
                         {% type_label data %}
-                        {% state_label data only_error=true %}
+                        {% state_label data error_only=True %}
                     </div>
                 </div>
 

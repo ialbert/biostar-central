@@ -14,15 +14,21 @@
 
     <div class="ui raised segments">
 
-        <div class="ui center aligned segment">
-            <h3 class="ui icon header">
+        <div class="ui center aligned  segment">
+            <div class="ui icon header">
                 <i class="database icon"></i>
                 <p class="content">
                     Project List
                 <p class="sub header">Projects that you may access.</p>
                 </p>
-            </h3>
+            </div>
         </div>
+
+         {% if user.is_anonymous %}
+            <div class="ui  center aligned secondary segment">
+                Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
+            </div>
+        {% endif %}
 
         <div class="ui segment">
 
@@ -55,28 +61,22 @@
                     </div>
 
                 {% endfor %}
-                {% if user.is_anonymous %}
-                    <div class="item centerbox">
-                        Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
-                    </div>
-                {% endif %}
-
-                {% if 0 %}
-                    <div class="item centerbox">
-                        <a class="ui button" href="{% url 'project_create' %}">
-                            <i class="add circle icon"></i>Create Project
-                        </a>
-                    </div>
-                {% endif %}
-
             </div>
 
         </div>
-        {% if projects.has_other_pages %}
-            <div class="ui center aligned basic segment">
-                {% pages instance=projects %}
-            </div>
-        {% endif %}
+
+        <div class="ui center aligned segment">
+            <a class="ui button" href="{% url 'project_create' %}">
+                <i class="add circle icon"></i>Create New Project
+            </a>
+        </div>
+
+
+
+
+
+    </div>
+
     </div>
 
 

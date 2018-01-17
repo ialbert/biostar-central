@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_content.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
@@ -9,12 +9,12 @@
     Run {{ analysis.name }}
 {% endblock %}
 
-{% block body %}
+{% block content %}
 
     <div class="ui raised segment inputcolor">
 
         <div class="ui center aligned header">
-            Execute Analysis: {{ analysis.name }}
+            Executing Recipe: <a href="{% url 'recipe_view' analysis.id %}"><i class="setting icon"></i>{{ analysis.name }}</a>
         </div>
         {{ analysis.summary|markdown|safe }}
 

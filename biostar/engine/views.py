@@ -8,9 +8,10 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from sendfile import sendfile
+
 # from django.utils.safestring import mark_safe
 from biostar.breadcrumb import breadcrumb_builder
-from . import tasks, util
+from . import tasks
 from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, Access)
@@ -121,7 +122,7 @@ def project_users(request, uid):
     # current = access_forms(users=users, project=project)
     # results = access_forms(users=targets, project=project)
     # context = dict(steps=steps, current=current, project=project, results=results)
-    #return render(request, "project_users.html", context=context)
+    # return render(request, "project_users.html", context=context)
     return redirect(reverse("project_view", kwargs=dict(uid=uid)))
 
 
@@ -164,25 +165,26 @@ def data_list(request, uid):
     Returns the list of data for a project id.
     """
 
-    return project_view(request=request, uid=uid, template_name="data_list.html", active=0)
+    return project_view(request=request, uid=uid, template_name="data_list.html", active='data')
 
 
 def recipe_list(request, uid):
     """
     Returns the list of recipes for a project id.
     """
-    return project_view(request=request, uid=uid, template_name="recipe_list.html", active=1)
+    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes')
 
 
 def job_list(request, uid):
     """
     Returns the list of recipes for a project id.
     """
-    return project_view(request=request, uid=uid, template_name="job_list.html", active=2)
+    return project_view(request=request, uid=uid, template_name="job_list.html", active='jobs')
 
 
-def files_list(request, instance, steps, error_redirect, template_name="files_list.html", path=''):
-    "File navigator meant for jobs and data"
+def files_list(request, instance, steps, error_redirect, template_name, path='',
+               extra_context={}):
+    "File navigator used for jobs and data"
 
     # Instance is expected to be a Job or Data object.
     if isinstance(instance, Job):
@@ -205,6 +207,7 @@ def files_list(request, instance, steps, error_redirect, template_name="files_li
     file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
 
     context = dict(file_list=file_list, instance=instance, steps=steps, path=path)
+    context.update(extra_context)
 
     return render(request, template_name, context)
 
@@ -217,9 +220,9 @@ def get_counts(project):
         data_count=data_count, recipe_count=recipe_count, result_count=result_count
     )
 
-@object_access(type=Project, access=Access.READ_ACCESS)
-def project_view(request, uid, template_name="recipe_list.html", active=1):
 
+@object_access(type=Project, access=Access.READ_ACCESS)
+def project_view(request, uid, template_name="recipe_list.html", active='recipes'):
     user = request.user
 
     project = Project.objects.filter(uid=uid).first()
@@ -246,7 +249,7 @@ def project_view(request, uid, template_name="recipe_list.html", active=1):
         access = None
 
     context = dict(project=project, access=access, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
-                    active=active,steps=steps)
+                   active=active, steps=steps, help_text=project.html)
     context.update(counts)
 
     return render(request, template_name, context)
@@ -254,55 +257,54 @@ def project_view(request, uid, template_name="recipe_list.html", active=1):
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
 def project_edit(request, uid):
-    # project = auth.get_project_list(user=request.user).filter(uid=uid).first()
-    # steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
-    # form = ProjectForm(instance=project)
-    #
-    # if request.method == "POST":
-    #     form = ProjectForm(request.POST, request.FILES, instance=project)
-    #     if form.is_valid():
-    #         form.save()
-    #         return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
-    #
-    #     messages.error(request, mark_safe(form.errors))
-    #
-    # context = dict(project=project, steps=steps, form=form)
+    project = auth.get_project_list(user=request.user).filter(uid=uid).first()
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
+    form = ProjectForm(instance=project)
+
+    if request.method == "POST":
+        form = ProjectForm(request.POST, request.FILES, instance=project)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
+
+        messages.error(request, mark_safe(form.errors))
+
+    context = dict(project=project, steps=steps, form=form)
     return redirect(reverse("project_view", kwargs=dict(uid=uid)))
 
 
 def project_create(request):
-    # steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
-    #
-    # if request.user.is_anonymous:
-    #     messages.warning(request, "You must be logged in to create a project.")
-    #     return redirect(reverse("project_list"))
-    #
-    # initial = dict(name="Project Name", text="project description", summary="project summary")
-    # form = ProjectForm(initial=initial)
-    #
-    # if request.method == "POST":
-    #     # create new projects here ( just populates metadata ).
-    #     form = ProjectForm(request.POST, request.FILES)
-    #     if form.is_valid():
-    #         name = form.cleaned_data["name"]
-    #         text = form.cleaned_data["text"]
-    #         summary = form.cleaned_data["summary"]
-    #         stream = form.cleaned_data["image"]
-    #         sticky = form.cleaned_data["sticky"]
-    #         privacy = form.cleaned_data["privacy"]
-    #         uid = form.cleaned_data["uid"]
-    #         owner = request.user
-    #         project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-    #                                       stream=stream, sticky=sticky, privacy=privacy,
-    #                                       uid=uid)
-    #         project.save()
-    #         return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
-    #
-    #     messages.error(request, mark_safe(form.errors))
-    #
-    # context = dict(steps=steps, form=form)
-    return redirect(reverse("project_list"))
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
+    if request.user.is_anonymous:
+        messages.error(request, "You must be logged in to create a project.")
+        return redirect(reverse("project_list"))
+
+    initial = dict(name="Project Name", text="project description", summary="project summary")
+    form = ProjectForm(initial=initial)
+
+    if request.method == "POST":
+        # create new projects here ( just populates metadata ).
+        form = ProjectForm(request.POST, request.FILES)
+        if form.is_valid():
+            name = form.cleaned_data["name"]
+            text = form.cleaned_data["text"]
+            summary = form.cleaned_data["summary"]
+            stream = form.cleaned_data["image"]
+            sticky = form.cleaned_data["sticky"]
+            privacy = form.cleaned_data["privacy"]
+            uid = form.cleaned_data["uid"]
+            owner = request.user
+            project = auth.create_project(user=owner, name=name, summary=summary, text=text,
+                                          stream=stream, sticky=sticky, privacy=privacy,
+                                          uid=uid)
+            project.save()
+            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
+
+        messages.error(request, mark_safe(form.errors))
+
+    context = dict(steps=steps, form=form)
+    return render(request, "project_create.html", context=context)
 
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, id):
@@ -313,12 +315,13 @@ def data_view(request, id):
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_ICON],
                                project=data.project, data=data)
 
     project = data.project
 
-    context = dict(data=data, steps=steps, project=project)
+
+    context = dict(data=data, steps=steps, project=project, activate='selection')
 
     counts = get_counts(project)
     context.update(counts)
@@ -338,7 +341,7 @@ def data_edit(request, id):
         form = DataEditForm(data=request.POST, instance=data, project=project)
         if form.is_valid():
             form.save()
-            return redirect(reverse("data_view" , kwargs=dict(id=data.id)))
+            return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 
         messages.error(request, mark_safe(form.errors))
 
@@ -348,7 +351,6 @@ def data_edit(request, id):
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, uid):
-
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
@@ -379,12 +381,19 @@ def data_upload(request, uid):
 def data_files_list(request, id, path=''):
 
     data = Data.objects.filter(id=id).first()
+    project = data.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
-                               project=data.project, data=data)
+                               project=project, data=data)
+
+    context = dict(activate='selection', data=data, project=project)
+
+    counts = get_counts(project)
+    context.update(counts)
 
     return files_list(request=request, instance=data, path=path,steps=steps,
-                      error_redirect=reverse("data_files_entry", kwargs=dict(id=id)))
+                      error_redirect=reverse("data_files_entry", kwargs=dict(id=id)),
+                      template_name="data_files_list.html", extra_context=context)
 
 
 @object_access(type=Data, access=Access.ADMIN_ACCESS, url='data_view')
@@ -422,13 +431,12 @@ def recipe_view(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON,
                                 ANALYSIS_VIEW_ICON], project=analysis.project, analysis=analysis)
 
-    project=analysis.project
+    project = analysis.project
 
-    context = dict(analysis=analysis, steps=steps, project=project)
+    context = dict(analysis=analysis, steps=steps, project=project, activate='selection')
 
     counts = get_counts(project)
     context.update(counts)
-
 
     return render(request, "recipe_view.html", context)
 
@@ -462,11 +470,13 @@ def recipe_run(request, id):
                 tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
-        else:
-            messages.error(request, mark_safe(form.errors))
-    initial = dict(name=analysis.name)
-    form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
-    context = dict(project=project, analysis=analysis, steps=steps, form=form)
+    else:
+        initial = dict(name=analysis.name)
+        form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
+
+    context = dict(project=project, analysis=analysis, steps=steps, form=form, activate='selection')
+    counts = get_counts(project)
+    context.update(counts)
 
     return render(request, 'recipe_run.html', context)
 
@@ -517,10 +527,10 @@ def recipe_code(request, id):
                 analysis.save()
                 messages.info(request, "The recipe code has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
-
-    # This gets triggered on a GET request.
-    initial = dict(template=analysis.template, json=analysis.json_text)
-    form = EditCode(user=user, project=project, initial=initial)
+    else:
+        # This gets triggered on a GET request.
+        initial = dict(template=analysis.template, json=analysis.json_text)
+        form = EditCode(user=user, project=project, initial=initial)
 
     # Bind the JSON to the form.
     recipe = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=dict(name=name))
@@ -600,7 +610,6 @@ def recipe_edit(request, id):
     return render(request, 'recipe_edit.html', context)
 
 
-
 @object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view")
 def job_edit(request, id):
     job = Job.objects.filter(id=id).first()
@@ -628,10 +637,16 @@ def job_view(request, id):
     job = Job.objects.filter(id=id).first()
     project = job.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON,
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 RESULT_VIEW_ICON], job=job, project=project)
 
-    context = dict(job=job, steps=steps, project=project)
+    project = job.project
+
+    context = dict(job=job, steps=steps, project=project, activate='selection')
+
+    counts = get_counts(project)
+    context.update(counts)
+
     return render(request, "job_view.html", context=context)
 
 
@@ -671,8 +686,16 @@ def job_files_list(request, id, path=''):
     project = job.project
 
     steps = breadcrumb_builder(
-        [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
+        [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
         job=job, project=project)
 
+    context = dict(activate='selection', job=job, project=project)
+
+    counts = get_counts(project)
+    context.update(counts)
+
     return files_list(request=request, instance=job, path=path, steps=steps,
-                      error_redirect=reverse("job_files_entry", kwargs=dict(id=id)))
+                      template_name="job_files_list.html",
+                      error_redirect=reverse("job_files_entry", kwargs=dict(id=id)),
+                      extra_context=context)
+

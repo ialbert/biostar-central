@@ -1,0 +1,17 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+{% load staticfiles %}
+{% block headtitle %}
+    Index view : {{ data.name }}
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="ui center aligned header">
+        Files found in : {{ data.name }}
+    </div>
+
+    {% file_listing object=instance path=path file_list=file_list %}
+
+{% endblock %}

@@ -13,26 +13,27 @@
         {% project_name_bar project %}
 
         <div class="ui secondary segment">
-            <div class="ui header"><i class="info circle icon"></i>Project Summary</div>
             {{ project.summary|markdown|safe }}
         </div>
 
         <div class="ui segment">
 
             <div class="ui top attached tabular menu">
-                <a class="item" href="{% url 'data_list' project.uid %}">
+                <a class="{%  activate 'data' active %} item" href="{% url 'data_list' project.uid %}">
                     <i class="file text icon"></i>{{ data_count }} Data Files
                 </a>
-                <a class="item" href="{% url 'recipe_list' project.uid %}">
+                <a class="{%  activate 'recipes' active %} item" href="{% url 'recipe_list' project.uid %}">
                     <i class="settings icon"></i> {{ recipe_count }} Analysis Recipes
                 </a>
-                <a class="item" href="{% url 'job_list' project.uid %}">
+                <a class="{%  activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
                     <i class="bar chart icon"></i>{{ result_count }} Analysis Results
                 </a>
 
-                <a class="active item">
+                {% if activate == 'selection' %}
+                  <a class="active item">
                     <i class="info circle icon"></i> Selected Item
                 </a>
+                {%  endif %}
 
             </div>
 
@@ -46,6 +47,15 @@
 
         </div>
 
+        {#  Additional help included for the page #}
+        {% if help_text %}
+        <div class="ui secondary segment">
+            <div class="ui header"><i class="help circle icon"></i>Project Information</div>
+            <div class="project help">
+                {{ help_text|safe }}
+            </div>
+        </div>
+        {%  endif %}
 
     </div>
 

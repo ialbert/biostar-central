@@ -213,7 +213,7 @@ def access_forms(users, project):
 class RecipeInterface(forms.Form):
 
     # The name of results when running the recipe.
-    name = forms.CharField(max_length=256, help_text="This is will be the name of the results.")
+    name = forms.CharField(max_length=256, label='Name for the results', help_text="This is will be the name of the results.")
 
     def __init__(self, request, analysis, json_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
