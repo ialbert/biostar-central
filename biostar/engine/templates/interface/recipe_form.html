@@ -1,7 +1,7 @@
 {% load engine_tags %}
 
 {#  Renders the non field errors #}
-{% form_nonfield_errors form %}
+{% form_errors form %}
 
 {# Renders the hidden fields. #}
 {% for hidden_field in form.hidden_fields %}

@@ -62,9 +62,8 @@ settings: {
     summary: '''
     This project contains simple analyses that demonstrate the process
     of creating a **recipe**. More details in the [Recipe Tutorial](/docs/recipe-tutorial).
-
-    Follow the **instructions**, investigate the data and code
-    and you will understand increasingly advanced recipe creation.
+    Follow the **instructions**, investigate the **data** and **recipe codes**
+    to gain a deeper understanding of how recipes work.
     '''
 
     text: '''

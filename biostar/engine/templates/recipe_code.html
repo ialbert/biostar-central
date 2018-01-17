@@ -12,11 +12,13 @@
     <form class="ui form" action="{% url 'recipe_code' analysis.id %}" method="POST">
         {% csrf_token %}
 
+        {% form_errors form %}
 
         <div class="ui raised segment ">
 
 
-            {% form_nonfield_errors form %}
+
+
 
             <div class="ui grid inputcolor">
 
@@ -28,7 +30,7 @@
                 <div class="eight wide column">
                     <div class="ui basic segment">
                         <div class="ui center aligned header">
-                            Interface Specification
+                            Interface Template
                         </div>
                         {{ form.json.errors }}
                         <textarea class="code" rows="30" cols="55" name="json" id="json">{{ form.json.value }}</textarea>
@@ -68,7 +70,7 @@
 
                     <div class="ui basic segment">
                         <div class="ui center aligned header">
-                            Generated Interface
+                            Generated Interface seen by Users
                         </div>
 
                         <div class="ui  segment ">
@@ -102,7 +104,7 @@
 
                     <div class="ui basic segment">
                         <div class="ui center aligned header">
-                            Generated Script
+                            Generated Script executed by Users
                         </div>
                         <textarea id="script">{{ script }}</textarea>
                     </div>

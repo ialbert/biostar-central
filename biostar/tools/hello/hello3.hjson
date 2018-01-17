@@ -7,12 +7,12 @@ cutoff: {
     value : 15
     help : Should be between 5 and 30
     range : [5,30]
-    display_type: INTEGER
+    display: INTEGER
     }
 
 organism: {
     label: Select organism
-    display_type: DROPDOWN
+    display: DROPDOWN
     value: "hg38"
     choices : [
         [ "hg38" , "Human hg38"],

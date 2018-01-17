@@ -12,15 +12,15 @@
 
         <div class="ui center aligned header">
 
-            <i class="area chart icon"></i>Results for: {{ job.name }}
+            <i class="bar chart icon"></i>Results for: {{ job.name }}
 
         </div>
 
         <div class="ui center aligned basic segment">
             <a class="ui {% job_color job %} button" href="{% url 'job_result_view' job.id %}"><i
             class="line chart icon"></i>Main Result</a>
-            <a class="ui button" href="{% url 'job_files_entry' job.id %}"><i
-            class="file icon"></i>All Files</a>
+            <a class="ui button" href="{% url 'job_files_entry' job.id %}">
+                <i class="file icon"></i>All Files</a>
             <a class="ui  button" href="{% url 'recipe_view' job.analysis.id %}"><i
             class="setting icon"></i>Go to Recipe</a>
             <a class="ui  button" href="{% url 'job_edit' job.id %}"><i
@@ -44,7 +44,7 @@
         <pre>{{ job.stdout_log }}</pre>
     </div>
 
-    <div class="ui vertical segment">
+    <div class="ui basic segment">
         <div class="ui center aligned header">Stderr Log</div>
         <div class="ui center aligned subheader">Messages printed to the standard error stream during the run:</div>
 

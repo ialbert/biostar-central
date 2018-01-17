@@ -18,7 +18,7 @@
                 </div>
                 <div class="content">
                     <a class="header" href="{% url 'recipe_view' recipe.id %}">
-                        {{ recipe.name }}
+                        <i class="setting icon"></i> {{ recipe.name }}
                     </a>
                     <div class="description">
                         {{ recipe.summary|markdown|safe }}
