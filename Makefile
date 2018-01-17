@@ -93,11 +93,11 @@ init:
 
 public:
 	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --jobs
-	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --jobs
+	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky
 	@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
 
 fish:
-	@python manage.py project --json initial/fish-project.hjson --jobs
+	@python manage.py project --json initial/fish-project.hjson
 
 giraffe:
 	@python manage.py project --json initial/giraffe-project.hjson --sticky

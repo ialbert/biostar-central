@@ -16,44 +16,39 @@
 
 {% block content %}
 
+    <div class="ui vertical segment">
 
-    <div class="ui raised segment">
-
-        <div class="ui vertical segment">
-
-            <div class="ui center aligned header">
-                Recipe: <i class="setting icon"></i>{{ analysis.name }}
-            </div>
-
-            <div class="">
-                <img class="ui centered small image" src="{% img analysis %}">
-            </div>
-
-            <div class="ui center aligned basic segment">
-                <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
-                    <i class="spinner icon"></i> Execute Recipe
-                </a>
-            </div>
-
-            {% security_label analysis %}
-
+        <div class="ui center aligned header">
+            Recipe: <i class="setting icon"></i>{{ analysis.name }}
         </div>
 
-        <div class="ui center aligned vertical secondary segment">
-
-                <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
-                    <i class="write icon"></i>Edit Info
-                </a>
-
-                <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
-                    <i class="list icon"></i> Edit Recipe
-                </a>
-
+        <div class="">
+            <img class="ui centered small image" src="{% img analysis %}">
         </div>
 
-        <div class="ui vertical segment">
-            {{ analysis.html|safe }}
-        </div>
+        {% security_label analysis %}
 
     </div>
+
+    <div class="ui center aligned vertical secondary segment">
+
+    <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
+                <i class="spinner icon"></i> Execute Recipe
+            </a>
+
+        <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
+            <i class="write icon"></i>Edit Details
+        </a>
+
+        <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
+            <i class="list icon"></i> Edit Recipe
+        </a>
+
+    </div>
+
+    <div class="ui basic segment">
+        {{ analysis.html|safe }}
+    </div>
+
 {% endblock %}
+

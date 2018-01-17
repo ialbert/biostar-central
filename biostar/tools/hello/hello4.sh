@@ -10,5 +10,11 @@ echo "Reads: {{pace.value}}"
 echo "Genes: {{genes.value}}"
 
 # Make a nested directory structure
-mkdir -p {{speed.value}}/{}
+mkdir -p data/store/
+mkdir -p data/temp/
 
+# Create a files in directories.
+echo "direction={{direction.value}} on reads={{reads.value}}" > data/store/{{direction.value}}.txt
+echo "pace content {{pace.value}} on {{genes.value}}" > data/store/{{pace.value}}.txt
+ls -l > data/temp/ls.txt
+find . -name '*' > data/temp/all.txt

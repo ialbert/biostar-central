@@ -37,6 +37,7 @@ direction: {
 				["left" , "Go Left" ],
 				["right" , "Go Right" ],
 			  ]
+    value: "left"
 }
 
 pace: {
@@ -46,7 +47,7 @@ pace: {
 				["north" , "Go Fast " ],
 				["south" , "Go Slow" ],
 			  ]
-
+    value: "north"
 }
 
 reads: {
@@ -54,13 +55,15 @@ reads: {
     display: DROPDOWN
     type: FASTA
     source: PROJECT
+    value: reads.fa
   }
 
-genome:{
+genes: {
     label: Gene Names
     display: DROPDOWN
     source: PROJECT
     type: GENERIC
+    value: gene_names.txt
 }
 
 #
@@ -68,16 +71,11 @@ genome:{
 #
 settings : {
     name: Hello World 4
-    summary: Accessing uploaded files.
+    summary: This recipe demonstrates the use of different parameter types.
     index: results.txt
     help: '''
         # Help
 
-        This analysis operated on an uploaded file and prints its size.
-
-        It also saves this information into a file that will be the main analysis result.
-
-        Note how the `index` above points to the main result file. This is used when the `Main result`
-        button is selected on the Result view.
+        This is a demonstration of all paramter types that the system recognizes.
     '''
     }
