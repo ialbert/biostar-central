@@ -265,6 +265,11 @@ class Data(models.Model):
         return fnames if len(fnames) else [""]
 
     def get_url(self):
+
+        #TODO: refractor to return the url to the data directory
+        return (reverse('data_view', kwargs=dict(id=self.id)))
+
+    def url(self):
         return (reverse('data_view', kwargs=dict(id=self.id)))
 
     def fill_dict(self, obj):

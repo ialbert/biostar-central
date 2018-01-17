@@ -12,24 +12,6 @@
         Results view for: {{ job.name }}
     </div>
 
-    <form class="ui large form" method="post" action=".">
-        {% csrf_token %}
-
-        {% file_listing object=job path=path file_list=file_list %}
-
-        {% if 0 %}
-            <div class="field">
-                <div class="ui center aligned basic segment">
-                    <button type="submit" class="ui green button">
-                        <i class="plus icon"></i>Add to Project Data
-                    </button>
-                    <a class="ui button" href="{% url 'data_list' project.uid %}">
-                        <i class="file text icon"></i>View Project Data
-                    </a>
-                </div>
-            </div>
-        {% endif %}
-
-    </form>
+    {% file_listing object=job path=path file_list=file_list %}
 
 {% endblock %}

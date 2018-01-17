@@ -6,6 +6,7 @@ from django.template import loader
 from django.forms import widgets
 from django.db.models import Q
 from django.utils.safestring import mark_safe
+from django.urls import reverse
 
 from biostar.engine import settings
 from biostar.engine.models import Access, Job, make_html, Project, DataType, Data
@@ -44,6 +45,29 @@ def access_denied_message(user, access):
 def file_listing(path, file_list, object):
 
     return dict(path=path, file_list=file_list, object=object)
+
+
+@register.simple_tag
+def dir_url(object, path, current):
+
+    url = "/"
+    if isinstance(object, Job):
+        path = path + "/" if path else ""
+
+        url = reverse("job_files_list", kwargs=dict(id=object.id, path=path + current.name))
+
+    return mark_safe(f'<a href="{url}"><i class="folder icon"></i>{current.name}</a>')
+
+
+@register.simple_tag
+def file_url(object, path, current):
+    media_url = settings.MEDIA_URL
+
+    url = media_url + object.get_url() +  path + current.name
+    if path:
+        url= media_url + object.get_url() + path + "/"+ current.name
+
+    return mark_safe(f'<a href="{url}"><i class="file text outline icon"></i>{current.name}</a>')
 
 
 
