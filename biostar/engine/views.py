@@ -192,8 +192,6 @@ def files_list(request, instance, steps, error_redirect, template_name="files_li
 
     target_path = join(root, path)
 
-    print(target_path)
-
     if not target_path.startswith(root) or (not os.path.exists(target_path)):
 
         # Attempting to access a file outside of the job directory
