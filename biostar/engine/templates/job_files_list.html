@@ -11,74 +11,7 @@
     <div class="ui center aligned header">
         Results view for: {{ job.name }}
     </div>
-    <div class="ui center aligned basic segment">
 
-    </div>
-
-    <form class="ui large form" method="post" action=".">
-        {% csrf_token %}
-        <div class="ui relaxed divided list">
-
-            <div class="item">
-                {% if path %}
-                    <a href="../"><i class="backward icon"></i>../</a>
-                {% else %}
-                    <a href="{% url 'job_view' job.id %}"><i class="backward icon"></i>../</a>
-                {% endif %}
-            </div>
-
-            {% for entry in file_list %}
-                <div class="item">
-
-                    {% if entry.is_dir %}
-
-                        {#TODO: this does not work when a directory is nested right now #}
-
-                        <a href="{{ MEDIA_URL }}{{ job.get_url }}{{ path }}/{{ entry.name }}">
-                            <i class="folder icon"></i>{{ entry.name }}
-                        </a>
-
-                    {% else %}
-
-                        <div class="inline field">
-
-                            {#<input type="checkbox" name="paths" value="{{ path }}/{{ entry.name }}">#}
-
-                            {% if path %}
-
-                                <a href="{{ MEDIA_URL }}{{ job.get_url }}{{ path }}/{{ entry.name }}">
-                                    <i class="file text outline icon"></i>{{ entry.name }}
-                                </a>
-
-                            {% else %}
-
-                                <a href="{{ MEDIA_URL }}{{ job.get_url }}{{ path }}{{ entry.name }}">
-                                    <i class="file text outline icon"></i>{{ entry.name }}
-                                </a>
-                            {% endif %}
-
-                        </div>
-
-                    {% endif %}
-
-                </div>
-            {% endfor %}
-
-        </div>
-
-        {% if 0 %}
-            <div class="field">
-                <div class="ui center aligned basic segment">
-                    <button type="submit" class="ui green button">
-                        <i class="plus icon"></i>Add to Project Data
-                    </button>
-                    <a class="ui button" href="{% url 'data_list' project.uid %}">
-                        <i class="file text icon"></i>View Project Data
-                    </a>
-                </div>
-            </div>
-        {% endif %}
-
-    </form>
+    {% file_listing object=job path=path file_list=file_list %}
 
 {% endblock %}

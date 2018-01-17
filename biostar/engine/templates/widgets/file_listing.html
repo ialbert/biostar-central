@@ -1,0 +1,31 @@
+{% load engine_tags %}
+
+<div class="ui relaxed divided list">
+
+        <div class="item">
+            {% if path %}
+                <a href="../"><i class="backward icon"></i>../</a>
+            {% else %}
+                <a href="{{ object.url }}"><i class="backward icon"></i>../</a>
+            {% endif %}
+        </div>
+
+        {% for entry in file_list %}
+            <div class="item">
+
+                {% if entry.is_dir %}
+                    {% dir_url object=object current=entry path=path %}
+
+                {% else %}
+
+                    <div class="inline field">
+
+                        {% file_url object=object path=path current=entry %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+        {% endfor %}
+</div>

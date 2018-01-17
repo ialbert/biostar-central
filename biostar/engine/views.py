@@ -636,6 +636,7 @@ def job_files_list(request, id, path=''):
     project = job.project
 
     # This is the root of where we can navigate in
+
     target_path = join(job.path, path)
 
     if not target_path.startswith(job.path) or (not os.path.exists(target_path)):
