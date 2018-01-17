@@ -1,22 +1,23 @@
 {% load engine_tags %}
 
-Recipe parameters:
+{% if data.items %}
+    Recipe parameters:
 
-<ul>
-    {% for key, obj in data.items %}
-        {% if obj.type %}
-            <li> {{ obj.label }}:
+    <ul>
+        {% for key, obj in data.items %}
+            {% if obj.label %}
+                <li> {{ obj.label }}:
                     {% if obj.name %}
-                        <a href="{{ obj.data_url }}">
-                        {{ obj.name }}
-                        </a>
+                        <b>{{ obj.name }}</b>
                     {% else %}
                         <b>{{ obj.value }}</b>
                     {% endif %}
-            </li>
-        {% endif %}
-    {% endfor %}
-</ul>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+{% endif %}
 
 <div>
     {{ summary|markdown|safe }}
