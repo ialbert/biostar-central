@@ -1,6 +1,7 @@
-import os, logging
+import logging
+import os
 
-logger= logging.getLogger("engine")
+logger = logging.getLogger("engine")
 
 from django.core.wsgi import get_wsgi_application
 
@@ -8,4 +9,3 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.devel.devel_settings")
 
 application = get_wsgi_application()
-

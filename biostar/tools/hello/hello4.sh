@@ -6,7 +6,7 @@ echo "Name: {{username.value}}"
 echo "Max value: {{maxval.value}}"
 echo "Direction: {{direction.value}}"
 echo "Pace: {{pace.value}}"
-echo "Reads: {{pace.value}}"
+echo "Reads: {{reads.value}}"
 echo "Genes: {{genes.value}}"
 
 # Make a nested directory structure

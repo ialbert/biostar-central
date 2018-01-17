@@ -24,17 +24,18 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(20)
-    def timer(args):
+    @timer(5)
+    def scheduler(args):
         from biostar.engine.models import Job
+
         # Check for queued jobs.
         jobs = Job.objects.filter(state=Job.QUEUED)
         if jobs:
             # Put the jobs in SPOOLED state so that it does not get respooled.
-            Job.objects.filter(state=Job.QUEUED).update(state=Job.SPOOLED)
             for job in jobs:
                 logger.info(f"Spooling job id={job.id}")
                 execute_job.spool(job_id=job.id)
+            jobs.update(state=Job.SPOOLED)
 
     #@timer(10)
     def spool_demo(args):
