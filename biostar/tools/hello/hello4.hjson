@@ -44,10 +44,10 @@ pace: {
     label: Select Pace
     display: DROPDOWN
 	choices : [
-				["north" , "Go Fast " ],
-				["south" , "Go Slow" ],
+				["fast" , "Go Fast " ],
+				["slow" , "Go Slow" ],
 			  ]
-    value: "north"
+    value: "fast"
 }
 
 reads: {
