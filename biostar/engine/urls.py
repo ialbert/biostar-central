@@ -19,6 +19,8 @@ urlpatterns = [
     url(r'^data/edit/(?P<id>\d+)/$', views.data_edit, name='data_edit'),
     url(r'^data/upload/(?P<uid>[-\w]+)/$', views.data_upload, name='data_upload'),
     url(r'^data/download/(?P<id>\d+)/$', views.data_download, name='data_download'),
+    url(r'^data/view/files/(?P<id>\d+)/$', views.data_files_list, name='data_files_entry'),
+    url(r'^data/view/files/(?P<id>\d+)/(?P<path>.+)/$', views.data_files_list, name='data_files_list'),
 
     # Recipe URLS
     url(r'^recipe/list/(?P<uid>[-\w]+)/$', views.recipe_list, name='recipe_list'),

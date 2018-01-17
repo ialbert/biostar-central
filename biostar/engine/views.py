@@ -182,6 +182,36 @@ def job_list(request, uid):
     return project_view(request=request, uid=uid, template_name="job_list.html", active='jobs')
 
 
+def files_list(request, instance, steps, error_redirect, template_name, path='',
+               extra_context={}):
+    "File navigator used for jobs and data"
+
+    # Instance is expected to be a Job or Data object.
+    if isinstance(instance, Job):
+        root = instance.path
+    else:
+        root = instance.get_data_dir()
+
+    target_path = join(root, path)
+
+    if not target_path.startswith(root) or (not os.path.exists(target_path)):
+
+        # Attempting to access a file outside of the job directory
+        messages.error(request, "Path not in directory.")
+        return redirect(error_redirect)
+
+    # These are pathlike objects with attributes such as name, is_file
+    file_list = list(os.scandir(target_path))
+
+    # Sort by properties
+    file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
+
+    context = dict(file_list=file_list, instance=instance, steps=steps, path=path)
+    context.update(extra_context)
+
+    return render(request, template_name, context)
+
+
 def get_counts(project):
     data_count = Data.objects.filter(project=project).count()
     recipe_count = Analysis.objects.filter(project=project).count()
@@ -274,8 +304,7 @@ def project_create(request):
         messages.error(request, mark_safe(form.errors))
 
     context = dict(steps=steps, form=form)
-    return redirect(reverse("project_list"))
-
+    return render(request, "project_create.html", context=context)
 
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, id):
@@ -290,6 +319,7 @@ def data_view(request, id):
                                project=data.project, data=data)
 
     project = data.project
+
 
     context = dict(data=data, steps=steps, project=project, activate='selection')
 
@@ -348,6 +378,25 @@ def data_upload(request, uid):
 
 
 @object_access(type=Data, access=Access.ADMIN_ACCESS, url='data_view')
+def data_files_list(request, id, path=''):
+
+    data = Data.objects.filter(id=id).first()
+    project = data.project
+
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
+                               project=project, data=data)
+
+    context = dict(activate='selection', data=data, project=project)
+
+    counts = get_counts(project)
+    context.update(counts)
+
+    return files_list(request=request, instance=data, path=path,steps=steps,
+                      error_redirect=reverse("data_files_entry", kwargs=dict(id=id)),
+                      template_name="data_files_list.html", extra_context=context)
+
+
+@object_access(type=Data, access=Access.ADMIN_ACCESS, url='data_view')
 def data_download(request, id):
     "Download data found in a project"
 
@@ -360,8 +409,8 @@ def data_download(request, id):
     data_file = data.get_files()
 
     if len(data_file) > 1:
-        messages.error(request, "Can not download directories")
-        return redirect(reverse("data_view", kwargs=dict(id=id)))
+        # Redirect to file navigator if there are multiple files
+        return redirect(reverse("data_files_entry", kwargs=dict(id=data.id)))
 
     # Only one file expected at this point
     data_file = data_file.pop()
@@ -633,33 +682,20 @@ def job_files_list(request, id, path=''):
     """
     Returns the directory view of the job.
     """
-
     job = Job.objects.filter(id=id).first()
     project = job.project
-
-    # This is the root of where we can navigate in
-
-    target_path = join(job.path, path)
-
-    if not target_path.startswith(job.path) or (not os.path.exists(target_path)):
-        # Attempting to access a file outside of the job directory
-        messages.error(request, "Path not in job directory.")
-        return redirect(reverse("job_files_entry", kwargs=dict(id=id)))
-
-    # These are pathlike objects with attributes such as name, is_file
-    file_list = list(os.scandir(target_path))
-
-    # Sort by properties
-    file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
 
     steps = breadcrumb_builder(
         [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
         job=job, project=project)
 
-    context = dict(file_list=file_list, job=job, steps=steps, project=project,
-                   path=path, activate='selection')
+    context = dict(activate='selection', job=job, project=project)
 
     counts = get_counts(project)
     context.update(counts)
 
-    return render(request, "job_files_list.html", context)
+    return files_list(request=request, instance=job, path=path, steps=steps,
+                      template_name="job_files_list.html",
+                      error_redirect=reverse("job_files_entry", kwargs=dict(id=id)),
+                      extra_context=context)
+

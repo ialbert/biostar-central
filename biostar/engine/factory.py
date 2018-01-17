@@ -76,14 +76,6 @@ def number_field(data):
     return field
 
 
-def file_field(data):
-    widget = forms.FileInput()
-    label = data.get("label", "")
-    initial = data.get("value", "")
-    field = forms.FileField(widget=widget, label=label, required=False, initial=initial)
-    return field
-
-
 def checkbox_field(data):
     label = data.get("label", "")
     help_text = data.get("help", "")
@@ -174,7 +166,6 @@ def get_field_types():
         const.INTEGER: number_field,
         const.TEXTBOX: char_field,
         const.FLOAT: float_field,
-        const.UPLOAD: file_field,
         const.CHECKBOX: checkbox_field,
     }
 

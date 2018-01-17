@@ -2,14 +2,14 @@
 {% load engine_tags %}
 {% load staticfiles %}
 {% block headtitle %}
-    Index view : {{ job.name }}
+    Index view : {{ data.name }}
 {% endblock %}
 
 
 {% block content %}
 
     <div class="ui center aligned header">
-        Results for: <a href="{% url 'job_view' job.id %}"><i class="bar chart icon"></i>{{ job.name }}</a>
+        Files found in : <a href="{% url 'data_view' data.id %}"><i class="file icon"></i>{{ data.name }}
     </div>
 
     {% file_listing object=instance path=path file_list=file_list %}

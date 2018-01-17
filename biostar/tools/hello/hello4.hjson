@@ -9,7 +9,6 @@ validate:{
     value: true
 }
 
-
 speed:{
     label: Speed
     display: FLOAT
