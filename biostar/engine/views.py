@@ -181,18 +181,24 @@ def job_list(request, uid):
     return project_view(request=request, uid=uid, template_name="job_list.html", active=2)
 
 
+def files_list(request, instance, steps, error_redirect, template_name="files_list.html", path=''):
+    "File navigator meant for jobs and data"
 
-def files_list(request, instance, steps, template_name="", path=''):
+    # Instance is expected to be a Job or Data object.
+    if isinstance(instance, Job):
+        root = instance.path
+    else:
+        root = instance.get_data_dir()
 
-    # This is the root of where we can navigate in
+    target_path = join(root, path)
 
-    target_path = join(instance.path, path)
+    print(target_path)
 
-    if not target_path.startswith(instance.path) or (not os.path.exists(target_path)):
+    if not target_path.startswith(root) or (not os.path.exists(target_path)):
 
         # Attempting to access a file outside of the job directory
-        messages.error(request, "Path not in job directory.")
-        return redirect(reverse("job_files_entry", kwargs=dict(id=id)))
+        messages.error(request, "Path not in directory.")
+        return redirect(error_redirect)
 
     # These are pathlike objects with attributes such as name, is_file
     file_list = list(os.scandir(target_path))
@@ -200,7 +206,7 @@ def files_list(request, instance, steps, template_name="", path=''):
     # Sort by properties
     file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
 
-    context = dict(file_list=file_list, job=instance, steps=steps, path=path)
+    context = dict(file_list=file_list, instance=instance, steps=steps, path=path)
 
     return render(request, template_name, context)
 
@@ -300,8 +306,6 @@ def project_create(request):
     return redirect(reverse("project_list"))
 
 
-
-
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()
@@ -381,9 +385,8 @@ def data_files_list(request, id, path=''):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
 
-    return files_list(request=request, instance=data, path=path,
-                      template_name="job_files_list.html", steps=steps)
-
+    return files_list(request=request, instance=data, path=path,steps=steps,
+                      error_redirect=reverse("data_files_entry", kwargs=dict(id=id)))
 
 
 @object_access(type=Data, access=Access.ADMIN_ACCESS, url='data_view')
@@ -400,8 +403,7 @@ def data_download(request, id):
 
     if len(data_file) > 1:
         # Redirect to file navigator if there are multiple files
-        messages.error(request, "Can not download directories")
-        return redirect(reverse("data_view", kwargs=dict(id=id)))
+        return redirect(reverse("data_files_entry", kwargs=dict(id=data.id)))
 
     # Only one file expected at this point
     data_file = data_file.pop()
@@ -674,5 +676,5 @@ def job_files_list(request, id, path=''):
         [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
         job=job, project=project)
 
-    return files_list(request=request, instance=job, path=path,
-                      template_name="job_files_list.html", steps=steps)
+    return files_list(request=request, instance=job, path=path, steps=steps,
+                      error_redirect=reverse("job_files_entry", kwargs=dict(id=id)))

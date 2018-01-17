@@ -50,22 +50,23 @@ def file_listing(path, file_list, object):
 @register.simple_tag
 def dir_url(object, path, current):
 
-    url = "/"
-    if isinstance(object, Job):
+    url = object.url()
+    path = path + "/" if path else ""
 
-        path = path + "/" if path else ""
+    if isinstance(object, Job):
         url = reverse("job_files_list", kwargs=dict(id=object.id, path=path + current.name))
+    elif isinstance(object, Data):
+        url = reverse("data_files_list", kwargs=dict(id=object.id, path=path + current.name))
 
     return mark_safe(f'<a href="{url}"><i class="folder icon"></i>{current.name}</a>')
 
 
 @register.simple_tag
 def file_url(object, path, current):
-    media_url = settings.MEDIA_URL
 
+    media_url = settings.MEDIA_URL
+    path = path + "/" if path else ""
     url = media_url + object.get_url() +  path + current.name
-    if path:
-        url= media_url + object.get_url() + path + "/"+ current.name
 
     return mark_safe(f'<a href="{url}"><i class="file text outline icon"></i>{current.name}</a>')
 

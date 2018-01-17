@@ -35,7 +35,7 @@ T = Bunch(url=lambda:None, id=0, uid="0")
 
 
 def icon_mapper(project=None, analysis=None, job=None, data=None):
-    "Map an icon to its info"
+    "Map an icon to its info ( url and name)"
 
     return {    HOME_ICON: dict(url=reverse("index"), name="Home"),
                 PROJECT_LIST_ICON: dict(url=reverse("project_list"), name="Project List"),

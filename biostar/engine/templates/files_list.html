@@ -2,16 +2,16 @@
 {% load engine_tags %}
 {% load staticfiles %}
 {% block headtitle %}
-    Index view : {{ job.name }}
+    Index view : {{ instance.name }}
 {% endblock %}
 
 
 {% block body %}
 
     <div class="ui center aligned header">
-        Results view for: {{ job.name }}
+        Files : {{ instance.name }}
     </div>
 
-    {% file_listing object=job path=path file_list=file_list %}
+    {% file_listing object=instance path=path file_list=file_list %}
 
 {% endblock %}
