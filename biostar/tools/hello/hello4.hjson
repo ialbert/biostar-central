@@ -9,12 +9,6 @@ check:{
     value:true
 }
 
-
-upload:{
-    label: Test upload field
-    display:UPLOAD
-}
-
 float:{
     label: Test float field
     display: FLOAT
