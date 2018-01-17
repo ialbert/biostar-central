@@ -9,21 +9,23 @@
 {% block body %}
 
 
-    <form class="ui form" action="{% url 'recipe_code' analysis.id %}" method="POST">
-        {% csrf_token %}
+    {% csrf_token %}
 
-        {% form_errors form %}
+    {% form_errors form %}
 
-        <div class="ui raised segment ">
-
+    <div class="ui raised segment">
 
 
-
+        <form class="ui form" action="{% url 'recipe_code' analysis.id %}" method="POST">
 
             <div class="ui grid inputcolor">
 
+
+                {% csrf_token %}
+
                 <div class="sixteen wide column">
-                        Read more about how the system works on the <a href="/docs/recipe-tutorial">How to create a Recipe</a> page.
+                    Read more about how the system works on the <a href="/docs/recipe-tutorial">How to create a
+                    Recipe</a> page.
 
                 </div>
 
@@ -33,7 +35,8 @@
                             Interface Template
                         </div>
                         {{ form.json.errors }}
-                        <textarea class="code" rows="30" cols="55" name="json" id="json">{{ form.json.value }}</textarea>
+                        <textarea class="code" rows="30" cols="55" name="json"
+                                  id="json">{{ form.json.value }}</textarea>
 
                     </div>
                 </div>
@@ -43,7 +46,8 @@
                         <div class="ui center aligned header">
                             Script Template
                         </div>
-                        <textarea class="code" rows="30" cols="55" name="template" id="template">{{ form.template.value }}</textarea>
+                        <textarea class="code" rows="30" cols="55" name="template"
+                                  id="template">{{ form.template.value }}</textarea>
                     </div>
                 </div>
 
@@ -66,54 +70,56 @@
                 </div>
 
 
-                <div class="eight wide column">
-
-                    <div class="ui basic segment">
-                        <div class="ui center aligned header">
-                            Generated Interface seen by Users
-                        </div>
-
-                        <div class="ui  segment ">
-
-
-                                <div class="ui form">
-
-                                    {% csrf_token %}
-
-                                    {% recipe_form recipe %}
-
-                                    <div class="field">
-                                        <button type="submit" class="ui green disabled button">
-                                            <i class="check icon"></i>Run
-                                        </button>
-
-                                        <button class="ui right floated disabled button">
-                                            <i class="chevron left icon"></i>Back
-                                        </button>
-                                    </div>
-
-                                </div>
-                            </form>
-                        </div>
-
-
-                    </div>
-                </div>
-
-                <div class="eight wide column">
-
-                    <div class="ui basic segment">
-                        <div class="ui center aligned header">
-                            Generated Script executed by Users
-                        </div>
-                        <textarea id="script">{{ script }}</textarea>
-                    </div>
-                </div>
-
             </div>
-        </div>
-        </div>
+        </form>
 
-    </form>
+        <div class="ui grid inputcolor">
+
+            <div class="eight wide column">
+
+                <div class="ui basic segment">
+                    <div class="ui center aligned header">
+                        Generated Interface seen by Users
+                    </div>
+
+                    <div class="ui  segment ">
+
+
+                        <div class="ui form">
+
+
+                            {% recipe_form recipe %}
+
+                            <div class="field">
+                                <button type="submit" class="ui green disabled button">
+                                    <i class="check icon"></i>Run
+                                </button>
+
+                                <button class="ui right floated disabled button">
+                                    <i class="chevron left icon"></i>Back
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="eight wide column">
+
+                <div class="ui basic segment">
+                    <div class="ui center aligned header">
+                        Generated Script executed by Users
+                    </div>
+                    <textarea id="script">{{ script }}</textarea>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 
 {% endblock %}

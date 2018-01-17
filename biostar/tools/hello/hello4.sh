@@ -1,11 +1,14 @@
-# Help the user track progress.
-echo "Analysis started."
-# Run a simple unix tool on the file.
+# Demonstrates the use of parameters
 
-echo "{{data.value}}" > results.txt
+echo "Validate: {{validate.value}}"
+echo "Speed: {{speed.value}}"
+echo "Name: {{username.value}}"
+echo "Max value: {{maxval.value}}"
+echo "Direction: {{direction.value}}"
+echo "Pace: {{pace.value}}"
+echo "Reads: {{pace.value}}"
+echo "Genes: {{genes.value}}"
 
 # Make a nested directory structure
-mkdir -p multiple/dirs/produced
+mkdir -p {{speed.value}}/{}
 
-# All done.
-echo "Analysis finished."

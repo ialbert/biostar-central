@@ -3,70 +3,65 @@
 #
 
 
-check:{
-    label: Test checkbox field
+validate:{
+    label: Validate results
     display: CHECKBOX
-    value:true
+    value: true
 }
 
 
-upload:{
-    label: Test upload field
-    display:UPLOAD
-}
-
-float:{
-    label: Test float field
+speed:{
+    label: Speed
     display: FLOAT
     value: 10.0
-    range:[ 1, 10000]
+    range: [ 1, 10000]
 }
 
 
-textbox:{
-    label: Test textbox field
+username:{
+    label: User Name
     display: TEXTBOX
-    value: testing
+    value: John Doe
 }
 
-integer: {
-    label: Test integer field
-    display:INTEGER
-    value: 10
-    range:[ 1, 100]
+maxval: {
+    label: Maximal Value
+    display: INTEGER
+    value:  10
+    range: [1, 100]
 }
 
-radio: {
-    label: Test radio buttons
-    display:RADIO
-    choices : [
-				["VALUE1" , "choice1" ],
-				["VALUE2" , "choice2" ],
+direction: {
+    label: Select direction
+    display: RADIO
+    choices: [
+				["left" , "Go Left" ],
+				["right" , "Go Right" ],
 			  ]
 }
 
-dropdown: {
-    label: Test Dropdown
+pace: {
+    label: Select Pace
     display: DROPDOWN
 	choices : [
-				["VALUE1" , "choice1" ],
-				["VALUE2" , "choice2" ],
+				["north" , "Go Fast " ],
+				["south" , "Go Slow" ],
 			  ]
 
 }
 
-data : {
-    label: Input data
+reads: {
+    label: Sequencing Reads
     display: DROPDOWN
-    type:FASTA
-    source:PROJECT
+    type: FASTA
+    source: PROJECT
   }
 
-another:{
-    label: Another Input data
+genome:{
+    label: Gene Names
     display: DROPDOWN
-    source:PROJECT
-    type:GENERIC
+    source: PROJECT
+    type: GENERIC
 }
 
 #
