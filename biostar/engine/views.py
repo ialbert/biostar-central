@@ -164,21 +164,21 @@ def data_list(request, uid):
     Returns the list of data for a project id.
     """
 
-    return project_view(request=request, uid=uid, template_name="data_list.html", active=0)
+    return project_view(request=request, uid=uid, template_name="data_list.html", active='data')
 
 
 def recipe_list(request, uid):
     """
     Returns the list of recipes for a project id.
     """
-    return project_view(request=request, uid=uid, template_name="recipe_list.html", active=1)
+    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes')
 
 
 def job_list(request, uid):
     """
     Returns the list of recipes for a project id.
     """
-    return project_view(request=request, uid=uid, template_name="job_list.html", active=2)
+    return project_view(request=request, uid=uid, template_name="job_list.html", active='jobs')
 
 
 def get_counts(project):
@@ -189,7 +189,7 @@ def get_counts(project):
         data_count=data_count, recipe_count=recipe_count, result_count=result_count
     )
 @object_access(type=Project, access=Access.READ_ACCESS)
-def project_view(request, uid, template_name="recipe_list.html", active=1):
+def project_view(request, uid, template_name="recipe_list.html", active='recipes'):
 
     user = request.user
 
@@ -277,7 +277,6 @@ def project_create(request):
 
 
 
-
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()
@@ -287,13 +286,12 @@ def data_view(request, id):
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_ICON],
                                project=data.project, data=data)
 
     project = data.project
 
-
-    context = dict(data=data, steps=steps, project=project)
+    context = dict(data=data, steps=steps, project=project, activate='selection')
 
     counts = get_counts(project)
     context.update(counts)
@@ -388,7 +386,7 @@ def recipe_view(request, id):
 
     project=analysis.project
 
-    context = dict(analysis=analysis, steps=steps, project=project)
+    context = dict(analysis=analysis, steps=steps, project=project, activate='selection')
 
     counts = get_counts(project)
     context.update(counts)
@@ -592,10 +590,16 @@ def job_view(request, id):
     job = Job.objects.filter(id=id).first()
     project = job.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON,
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 RESULT_VIEW_ICON], job=job, project=project)
 
-    context = dict(job=job, steps=steps, project=project)
+    project = job.project
+
+    context = dict(job=job, steps=steps, project=project, activate='selection')
+
+    counts = get_counts(project)
+    context.update(counts)
+
     return render(request, "job_view.html", context=context)
 
 
