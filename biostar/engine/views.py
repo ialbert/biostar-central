@@ -334,8 +334,6 @@ def data_view(request, id):
                                project=data.project, data=data)
 
     project = data.project
-
-
     context = dict(data=data, steps=steps, project=project, activate='selection')
 
     counts = get_counts(project)

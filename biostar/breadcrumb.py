@@ -29,7 +29,7 @@ class Bunch(object):
     def __init__(self, **kwargs):
         self.url = lambda:None
         self.id = 0
-        self.uid = ""
+        self.uid = "0"
         self.__dict__.update(kwargs)
 
 T = Bunch()
