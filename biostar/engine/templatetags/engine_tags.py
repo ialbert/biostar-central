@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from django.urls import reverse
 
 from biostar.engine import settings
-from biostar.engine.models import Access, Job, make_html, Project, DataType, Data
+from biostar.engine.models import Access, Job, make_html, Project, DataType, Data, Analysis
 
 
 logger = logging.getLogger("engine")
@@ -71,13 +71,15 @@ def file_url(object, path, current):
     return mark_safe(f'<a href="{url}"><i class="file text outline icon"></i>{current.name}</a>')
 
 
+@register.filter
+def has_recipe(request):
+    "Checks if object in clipboard is a recipe"
 
-@register.inclusion_tag('widgets/copy_interface.html')
-def copy_interface(form, projects, duplicate=False):
-    """Copy an instance from (from_id) to a list of allowed projects"""
+    uid = request.session.get("clipboard")
+    recipe = Analysis.objects.filter(uid=uid).first()
 
-    copying = "recipe" if duplicate else "data"
-    return dict(projects=projects, form=form, duplicate=duplicate, copying=copying)
+    return True if recipe else False
+
 
 @register.inclusion_tag('widgets/pages.html')
 def pages(instance):

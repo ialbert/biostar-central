@@ -40,7 +40,7 @@ def get_analysis_attr(analysis, project=None):
     text = analysis.text
 
     return dict(project=project, json_text=json_text, template=template,
-                user=owner, summary=summary, name=name, text=text, )
+                user=owner, summary=summary, name=name, text=text )
 
 
 def generate_script(job):

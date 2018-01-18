@@ -33,8 +33,8 @@
     <div class="ui center aligned vertical secondary segment">
 
     <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
-                <i class="spinner icon"></i> Execute Recipe
-            </a>
+            <i class="spinner icon"></i> Execute Recipe
+    </a>
 
         <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
             <i class="write icon"></i>Edit Details
@@ -42,6 +42,10 @@
 
         <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
             <i class="list icon"></i> Edit Recipe
+        </a>
+
+        <a class="ui button" href="{% url 'recipe_copy' analysis.id %}">
+            <i class="clone icon"></i> Copy Recipe
         </a>
 
     </div>

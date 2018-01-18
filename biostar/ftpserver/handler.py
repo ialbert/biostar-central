@@ -15,8 +15,6 @@ logger.setLevel(logging.INFO)
 
 
 
-
-
 def perm_map():
     return
 

@@ -7,6 +7,7 @@ urlpatterns = [
 
     # Engine specific admin site.
     url(r'^site/admin/', views.site_admin, name='site_admin'),
+
     url(r'^project/users/(?P<uid>[-\w]+)/$', views.project_users, name='project_users'),
     url(r'^project/create/$', views.project_create, name='project_create'),
     url(r'^project/list/$', views.project_list, name='project_list'),
@@ -29,6 +30,10 @@ urlpatterns = [
     url(r'^recipe/run/(?P<id>\d+)/$', views.recipe_run, name='analysis_run'),
     url(r'^recipe/edit/(?P<id>\d+)/$', views.recipe_edit, name='recipe_edit'),
     url(r'^recipe/code/(?P<id>\d+)/$', views.recipe_code, name='recipe_code'),
+    url(r'^recipe/copy/(?P<id>\d+)/$', views.recipe_copy, name='recipe_copy'),
+    url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
+
+    url(r'^clear/clipboard/(?P<uid>[-\w]+)/(?P<redir>.+)$', views.clear_clipboard, name='clear_clipboard'),
 
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),
