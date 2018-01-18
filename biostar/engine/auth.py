@@ -40,7 +40,7 @@ def get_analysis_attr(analysis, project=None):
     text = analysis.text
 
     return dict(project=project, json_text=json_text, template=template,
-                user=owner, summary=summary, name=name, text=text, )
+                user=owner, summary=summary, name=name, text=text )
 
 
 def generate_script(job):
@@ -195,6 +195,24 @@ def create_datatype(name, symbol, help, project):
     return query
 
 
+def add_types(json_data, project):
+    "Iterate over analysis json data and add data types to a project"
+
+    for key, obj in json_data.items():
+
+        type_obj = obj.get("type", "")
+        name = help = symbol = type_obj
+
+        if isinstance(type_obj, dict):
+            name = type_obj.get("name", "")
+            symbol = type_obj.get("symbol", "")
+            help = type_obj.get("help", "")
+
+        # Creates a new data type or returns an already existing one.
+        new_datatype = create_datatype(name=name, symbol=symbol, help=help, project=project)
+        new_datatype.save()
+
+
 def get_data(user, project, query, data_type=None):
     """
     Returns a dictionary keyed by data stored in the project.
@@ -221,7 +239,6 @@ def create_project(user, name, uid='', summary='', text='', stream='',
     return project
 
 
-
 def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text='',
                     stream=None, sticky=False, security=Analysis.UNDER_REVIEW):
 
@@ -232,9 +249,11 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
                                        owner=owner, name=name, text=text, security=security,
                                        template=template, sticky=sticky)
-
     if stream:
         analysis.image.save(stream.name, stream, save=True)
+
+    # Transfer data types found in analysis to project
+    add_types(json_data=analysis.json_data, project=project)
 
     logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
@@ -317,18 +336,8 @@ def create_path(fname, data):
     return path
 
 
-def sync_project_datatypes(source, target):
-    "Transfer missing datatypes from source to target"
 
-    source_types = [(d.symbol, d.name, d.help) for d in DataType.objects.filter(project=source)]
-    target_types = [(d.symbol, d.name, d.help) for d in DataType.objects.filter(project=target)]
 
-    for s in source_types:
-        if s not in target_types:
-            symbol, name, help = s[0], s[1], s[2]
-            new_datatype = create_datatype(symbol=symbol, name=name, project=target, help=help)
-            new_datatype.save()
-    return
 
 
 def create_data(project, user=None, stream=None, path='', name='',

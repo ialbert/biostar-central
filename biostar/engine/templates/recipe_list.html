@@ -6,7 +6,17 @@
 
 {% block content %}
 
+    {% if request|has_recipe %}
 
+        <a class="ui green button" href="{% url 'recipe_paste' project.uid %}">
+            <i class="sticky note icon"></i> Paste Recipe
+        </a>
+
+        <a class="ui button" href="{% url 'clear_clipboard' project.uid 'recipe_list' %}">
+            <i class="window close icon"></i> Clear Clipboard
+        </a>
+
+    {% endif %}
 
     <div class="ui divided link items">
 
@@ -34,23 +44,6 @@
 
         {% endfor %}
 
-
     </div>
-
-
-
-
-    {% if 0 %}
-        <div class="ui secondary segment">
-            <div class="ui header"><i class="add circle icon"></i>Recipe List Actions</div>
-
-            <div class="ui center aligned basic segment">
-                <a class="ui  button" href="{% url 'recipe_create' project.uid %}">
-                    <i class="add circle icon"></i>Create New Recipe
-                </a>
-            </div>
-        </div>
-    {% endif %}
-
 
 {% endblock %}

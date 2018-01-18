@@ -13,24 +13,6 @@ logger = logging.getLogger('engine')
 __CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def add_types(json_data, project):
-    "Iterate over json data and add data types to a project"
-
-    for key, obj in json_data.items():
-
-        type_obj = obj.get("type", "")
-        name = help = symbol = type_obj
-
-        if isinstance(type_obj, dict):
-            name = type_obj.get("name", "")
-            symbol = type_obj.get("symbol", "")
-            help = type_obj.get("help", "")
-
-        # Creates a new data type or returns an already existing one.
-        new_datatype = auth.create_datatype(name=name, symbol=symbol, help=help, project=project)
-        new_datatype.save()
-
-
 class Command(BaseCommand):
     help = 'Manages analyses.'
 
@@ -124,9 +106,6 @@ class Command(BaseCommand):
                     logger.info(f"Image path: {image_path}")
                 else:
                     logger.error(f"Skipping invalid image path: {image_path}")
-
-            # Add data types in json data to project
-            add_types(json_data=json_data, project=project)
 
             # Create a queued jobs if instructed so.
             if jobs:

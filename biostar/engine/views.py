@@ -1,5 +1,6 @@
 import glob
 import logging
+import json
 
 import mistune
 from django.conf import settings
@@ -86,6 +87,14 @@ def site_admin(request):
     context = dict(steps=steps, projects=projects)
     return render(request, 'admin_index.html', context=context)
 
+
+
+def clear_clipboard(request, uid, redir="project_view"):
+    "Clear copy object held in clipboard"
+
+    request.session["clipboard"] = None
+
+    return redirect(reverse(redir, kwargs=dict(uid=uid)))
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, uid):
@@ -270,7 +279,7 @@ def project_edit(request, uid):
         messages.error(request, mark_safe(form.errors))
 
     context = dict(project=project, steps=steps, form=form)
-    return redirect(reverse("project_view", kwargs=dict(uid=uid)))
+    return render(request, "project_edit.html", context=context)
 
 
 def project_create(request):
@@ -479,6 +488,39 @@ def recipe_run(request, id):
     context.update(counts)
 
     return render(request, 'recipe_run.html', context)
+
+
+@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
+def recipe_copy(request, id):
+    "Store Analysis object in request.sessions['clipboard'] "
+
+    recipe = Analysis.objects.filter(pk=id).first()
+    project = recipe.project
+
+    request.session["clipboard"] = recipe.uid
+    messages.success(request, f"Copied {recipe.name} to clipboard")
+
+    return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
+
+
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+def recipe_paste(request, uid):
+    "Paste recipe stored in the clipboard into project"
+
+    recipe_uid = request.session.get("clipboard")
+    recipe = Analysis.objects.filter(uid=recipe_uid).first()
+    project = Project.objects.filter(uid=uid).first()
+
+    if not recipe:
+        messages.error(request, "Recipe not found.")
+        return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
+
+    attrs = auth.get_analysis_attr(recipe, project=project)
+    attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security)
+    new_recipe = auth.create_analysis(**attrs)
+    new_recipe.save()
+
+    return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
