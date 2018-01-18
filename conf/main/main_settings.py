@@ -1,10 +1,8 @@
-from biostar.settings import *
-
 DEBUG = False
 
 SITE_ID = 1
-SITE_DOMAIN = "www.metabarcode.com"
-SITE_NAME = "Metabarcode Site"
+SITE_DOMAIN = "www.bioinformatics.recipes"
+SITE_NAME = "Bioinformatics Recipes"
 
 HTTP_PORT = ''
 PROTOCOL = 'https'
@@ -13,7 +11,7 @@ ALLOWED_HOSTS = [SITE_DOMAIN]
 
 WSGI_APPLICATION = 'conf.main.main_wsgi.application'
 
-SITE_HEADER = '<i class="barcode icon"></i> Metagenomics Barcode Data Repository'
+SITE_HEADER = '<i class="barcode icon"></i>Bioinformatics Recipes'
 
 try:
     from .main_secrets import *
