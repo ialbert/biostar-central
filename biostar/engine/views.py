@@ -498,7 +498,7 @@ def recipe_copy(request, id):
     project = recipe.project
 
     request.session["clipboard"] = recipe.uid
-    messages.success(request, "Copied recipe to clipboard")
+    messages.success(request, f"Copied {recipe.name} to clipboard")
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
