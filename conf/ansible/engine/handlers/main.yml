@@ -22,6 +22,6 @@
     state: restarted
 
 - name: pip install
-  shell: source /home/www/miniconda/envs/main_env/bin/activate main_env && pip install -r /export/sites/main_web/conf/python_requirements.txt
+  shell: source {{ miniconda_home }}/envs/main_env/bin/activate main_env && pip install -r /export/sites/main_web/conf/python_requirements.txt
   args:
     executable: /bin/bash
