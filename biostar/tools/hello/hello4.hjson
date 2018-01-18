@@ -44,10 +44,10 @@ pace: {
     label: Select Pace
     display: DROPDOWN
 	choices : [
-				["north" , "Go Fast " ],
-				["south" , "Go Slow" ],
+				["fast" , "Go Fast " ],
+				["slow" , "Go Slow" ],
 			  ]
-    value: "north"
+    value: "fast"
 }
 
 reads: {
@@ -76,6 +76,6 @@ settings : {
     help: '''
         # Help
 
-        This is a demonstration of all paramter types that the system recognizes.
+        This is a demonstration of all parameter types that the system recognizes.
     '''
     }
