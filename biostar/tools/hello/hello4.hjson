@@ -5,7 +5,7 @@
         display: CHECKBOX
         value: true
     }
-    speed:
+    speed_drug:
     {
         label: Speed
         display: FLOAT

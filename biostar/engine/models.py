@@ -315,7 +315,7 @@ class Analysis(models.Model):
 
     project = models.ForeignKey(Project)
 
-    json_file = models.FilePathField()
+    json_file = models.FilePathField(null=True)
     json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
     template = models.TextField(default="")
 

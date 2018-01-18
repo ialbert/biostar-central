@@ -336,10 +336,6 @@ def create_path(fname, data):
     return path
 
 
-
-
-
-
 def create_data(project, user=None, stream=None, path='', name='',
                 text='', summary='', data_type=""):
 

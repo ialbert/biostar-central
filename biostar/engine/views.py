@@ -211,8 +211,13 @@ def files_list(request, instance, steps, error_redirect, template_name, path='',
         messages.error(request, "Path not in directory.")
         return redirect(error_redirect)
 
+    print(exclude)
+    #TODO: can not exclude toc from other projects
     # These are pathlike objects with attributes such as name, is_file
     file_list = list(filter(lambda p: p.name != exclude, os.scandir(target_path)))
+
+    print(exclude, file_list)
+
 
     # Sort by properties
     file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
@@ -341,6 +346,50 @@ def data_view(request, id):
     context.update(counts)
 
     return render(request, "data_view.html", context)
+
+
+@object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
+def data_copy(request, id):
+    "Store Data object in request.sessions['clipboard'] "
+
+
+    data = Data.objects.filter(pk=id).first()
+    project = data.project
+
+    request.session["clipboard"] = data.uid
+    messages.success(request, f"Copied {data.name} to Clipboard")
+
+    return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
+
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+def data_paste(request, uid):
+    "Paste data stored in the clipboard into project"
+
+    data_uid = request.session.get("clipboard")
+    data = Data.objects.filter(uid=data_uid).first()
+    project = Project.objects.filter(uid=uid).first()
+
+    if not data:
+        messages.error(request, "Data not found.")
+        return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
+    data_files = data.get_files()
+
+    if len(data_files) > 1:
+        # Link the dir if more than one file present
+        data_files = [ join(data_files[0], "..") ]
+
+    path = data_files.pop()
+    # Create new data by linking file(s)
+    new_data = auth.create_data(project=project, name=f"Copy of {data.name}", path=path,
+                                summary=data.summary, text=data.text,
+                                data_type=data.data_type)
+    new_data.save()
+    request.session["clipboard"] = None
+
+    messages.success(request, f"Pasted {data.name} to {project.name}")
+    return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
 @object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
@@ -524,6 +573,9 @@ def recipe_paste(request, uid):
     attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security)
     new_recipe = auth.create_analysis(**attrs)
     new_recipe.save()
+
+    messages.success(request, f"Pasted {recipe.name} to {project.name}")
+    request.session["clipboard"] = None
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
