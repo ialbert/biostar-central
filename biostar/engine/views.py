@@ -517,7 +517,6 @@ def recipe_paste(request, uid):
 
     attrs = auth.get_analysis_attr(recipe, project=project)
     attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security)
-
     new_recipe = auth.create_analysis(**attrs)
     new_recipe.save()
 
