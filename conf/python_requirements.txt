@@ -13,7 +13,6 @@ django-pagedown
 django-webtest
 django-sendfile
 pillow
-uwsgi
 pysam
 coverage
 pyftpdlib
