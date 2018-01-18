@@ -6,6 +6,12 @@
     update: yes
   notify: pip install
 
+- name: Make the spooler directory
+  file:
+    path: /export/sites/main_web/export/spooler
+    state: directory
+    mode: 0755
+
 - name: Link configuration files
   file:
     src: '/export/sites/main_web/conf/main/{{ item.src }}'
