@@ -54,4 +54,4 @@ class Command(BaseCommand):
                 user = User.objects.create(email=email, username=username, first_name=name)
                 user.set_password(settings.SECRET_KEY)
                 user.save()
-                logger.info(f"Created user name={name} email={email}.")
+                logger.info(f"Created user name={name} email={email} key={{settings.SECRET_KEY}}.")
