@@ -266,6 +266,7 @@ class Data(models.Model):
 
     def get_url(self, path=""):
         "Returns url to the data directory"
+        #TODO: refractor hardcode
         return f"projects/proj-{self.project.uid}/store-{self.uid}/" + path
 
     def url(self):
