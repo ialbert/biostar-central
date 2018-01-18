@@ -97,7 +97,7 @@ public:
 	@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
 
 fish:
-	@python manage.py project --json initial/fish-project.hjson
+	@python manage.py project --json initial/fish-project.hjson --jobs
 
 giraffe:
 	@python manage.py project --json initial/giraffe-project.hjson --sticky
