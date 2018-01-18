@@ -37,17 +37,22 @@
 
     <div class="ui center aligned vertical secondary segment">
 
+        <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
+            <i class="bar chart icon"></i>Recipe Results
+        </a>
+
+        <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
+            <i class="list icon"></i>Edit Recipe
+        </a>
+
+        <a class="ui button" href="{% url 'recipe_copy' analysis.id %}">
+            <i class="clone icon"></i>Copy Recipe
+        </a>
+
         <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
             <i class="write icon"></i>Edit Details
         </a>
 
-        <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
-            <i class="list icon"></i> Edit Recipe
-        </a>
-
-        <a class="ui button" href="{% url 'recipe_copy' analysis.id %}">
-            <i class="clone icon"></i> Copy Recipe
-        </a>
 
     </div>
 

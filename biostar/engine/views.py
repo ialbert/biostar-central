@@ -244,13 +244,19 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
-    # Show counts for the project
+    # Show counts for the project.
     counts = get_counts(project)
 
-    # Select all the data in the project
+    # Select all the data in the project.
     data_list = Data.objects.filter(project=project).order_by("sticky", "-date").all()
     recipe_list = Analysis.objects.filter(project=project).order_by("-date").all()
     job_list = Job.objects.filter(project=project).order_by("-date").all()
+
+    # Filter job results by analysis
+    filter = request.GET.get('filter', '')
+    if filter:
+        filter = Analysis.objects.filter(id=filter).first()
+        job_list = job_list.filter(analysis=filter)
 
     if user.is_authenticated():
         access = Access.objects.filter(user=user, project=project).first()
@@ -258,7 +264,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
         access = None
 
     context = dict(project=project, access=access, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
-                   active=active, steps=steps, help_text=project.html)
+                   active=active, steps=steps, filter=filter, help_text=project.html)
     context.update(counts)
 
     return render(request, template_name, context)
@@ -480,7 +486,7 @@ def recipe_run(request, id):
 
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
     else:
-        initial = dict(name=analysis.name)
+        initial = dict(name=f"Results for: {analysis.name}")
         form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form, activate='selection')

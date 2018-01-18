@@ -58,6 +58,7 @@ body {
 .code {
     font-family: monospace;
 }
+
 h1 {
     min-height: 1rem;
     font-size: 1.4rem;
@@ -72,8 +73,8 @@ a:hover{
     border-radius: 3px;
 }
 code {
-    color: #c7254e;
-    background: #f5f2f0;
+    color: black;
+    background-color: #EEEEEE;
     margin: 2px;
     padding: 2px;
     border-radius: 3px;

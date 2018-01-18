@@ -438,7 +438,7 @@ class Job(models.Model):
 
     def save(self, *args, **kwargs):
         now = timezone.now()
-        self.name = self.name or self.analysis.name
+        self.name = self.name or f"Results for: {self.analysis.name}"
         self.date = self.date or now
         self.html = make_html(self.text)
         self.name = self.name[:MAX_NAME_LEN]
