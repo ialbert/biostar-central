@@ -211,13 +211,9 @@ def files_list(request, instance, steps, error_redirect, template_name, path='',
         messages.error(request, "Path not in directory.")
         return redirect(error_redirect)
 
-    print(exclude)
-    #TODO: can not exclude toc from other projects
+    #TODO: can not exclude toc from other projects when copying
     # These are pathlike objects with attributes such as name, is_file
     file_list = list(filter(lambda p: p.name != exclude, os.scandir(target_path)))
-
-    print(exclude, file_list)
-
 
     # Sort by properties
     file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
@@ -386,6 +382,8 @@ def data_paste(request, uid):
                                 summary=data.summary, text=data.text,
                                 data_type=data.data_type)
     new_data.save()
+
+    # Clear clipboard
     request.session["clipboard"] = None
 
     messages.success(request, f"Pasted {data.name} to {project.name}")
