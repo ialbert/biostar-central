@@ -6,7 +6,7 @@
         help: Sequencing reads
         summary: An input directory that contains different files.
         source: PROJECT
-        type: FASTQ_TYPE
+        type: FASTQ
         display: DROPDOWN
     }
 

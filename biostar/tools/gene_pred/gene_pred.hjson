@@ -2,9 +2,10 @@
 
 assembly : {
 	value: export/local/input/scaffolds.fasta
-	label: Data
+	label: Assembly
 	type: FASTA
 	display: DROPDOWN
+	source: PROJECT
   }
 
 species: {
