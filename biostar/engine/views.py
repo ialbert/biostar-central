@@ -196,25 +196,26 @@ def files_list(request, instance, steps, error_redirect, template_name, path='',
     "File navigator used for jobs and data"
 
     # Instance is expected to be a Job or Data object.
+    exclude = ''
     if isinstance(instance, Job):
         root = instance.path
     else:
+        # Exclude toc from file_list
+        exclude = os.path.basename(instance.get_path())
         root = instance.get_data_dir()
 
     target_path = join(root, path)
 
     if not target_path.startswith(root) or (not os.path.exists(target_path)):
-
         # Attempting to access a file outside of the job directory
         messages.error(request, "Path not in directory.")
         return redirect(error_redirect)
 
     # These are pathlike objects with attributes such as name, is_file
-    file_list = list(os.scandir(target_path))
+    file_list = list(filter(lambda p: p.name != exclude, os.scandir(target_path)))
 
     # Sort by properties
     file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
-
     context = dict(file_list=file_list, instance=instance, steps=steps, path=path)
     context.update(extra_context)
 
