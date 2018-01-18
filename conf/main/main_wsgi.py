@@ -1,8 +1,7 @@
 import os, logging
+from django.core.wsgi import get_wsgi_application
 
 logger= logging.getLogger("engine")
-
-from django.core.wsgi import get_wsgi_application
 
 # Override the DJANGO SETTINGS MODULE
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.main.main_settings")

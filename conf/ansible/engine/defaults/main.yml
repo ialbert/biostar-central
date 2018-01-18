@@ -1,7 +1,7 @@
 miniconda_url: >
-  http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
+  https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 
-miniconda_home: '~/miniconda'
+miniconda_home: '~/miniconda3'
 
 miniconda_environments:
   - { name: test, python_version: 3 }

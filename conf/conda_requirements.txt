@@ -1,3 +1,4 @@
+uwsgi
 fastqc
 multiqc
 bbmap

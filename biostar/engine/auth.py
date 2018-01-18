@@ -274,7 +274,7 @@ def make_summary(data, summary='', name="widgets/job_summary.html"):
 
 
 def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=None, uid=None, save=True):
-    name = name or analysis.name
+
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
 
