@@ -554,13 +554,16 @@ def recipe_code(request, id):
 
         if form.is_valid():
 
-            template = form.cleaned_data['template']
+            fixend = lambda t: t.replace('\r\n', '\n')
+
+            template = fixend(form.cleaned_data['template'])
 
             # Preview action will let the form cascade through.
             save = form.cleaned_data['action'] == 'SAVE'
 
             # The changes will commited on SAVE only.
-            analysis.json_text = form.cleaned_data['json']
+
+            analysis.json_text = fixend(form.cleaned_data['json'])
 
             # Changes to template will require a review ( only when saving ).
             if auth.template_changed(analysis=analysis, template=template) and save:
