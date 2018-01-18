@@ -95,7 +95,8 @@ class Command(BaseCommand):
 
             # Create the analysis
             analysis = auth.create_analysis(project=project, uid=uid, json_text=json_text, summary=summary,
-                                            template=template, name=name, text=text, security=Analysis.AUTHORIZED)
+                                            template=template, name=name, text=text, security=Analysis.AUTHORIZED,
+                                            json_file=json)
 
             # Load the image if specified.
             if image:

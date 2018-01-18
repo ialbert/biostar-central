@@ -266,7 +266,10 @@ class Data(models.Model):
 
     def get_url(self, path=""):
         "Returns url to the data directory"
-        #TODO: refractor hardcode
+        #TODO: refractor hardcoded paths
+
+        #url = self.project.get_data_dir().split(settings.MEDIA_URL)
+
         return f"projects/proj-{self.project.uid}/store-{self.uid}/" + path
 
     def url(self):
@@ -289,7 +292,7 @@ class Data(models.Model):
         obj['uid'] = self.uid
         obj['data_dir'] = self.get_data_dir()
         obj['project_dir'] = self.get_project_dir()
-        obj['data_url'] = self.get_url()
+        obj['data_url'] = self.url()
 
 
 class Analysis(models.Model):
@@ -313,6 +316,7 @@ class Analysis(models.Model):
 
     project = models.ForeignKey(Project)
 
+    json_file = models.FilePathField()
     json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
     template = models.TextField(default="")
 
@@ -333,6 +337,13 @@ class Analysis(models.Model):
         self.date = self.date or now
         self.name = self.name[:MAX_NAME_LEN]
         self.html = make_html(self.text)
+
+        # Update json_file anytime analysis is saved
+        if self.json_file:
+            path = os.path.abspath(self.json_file)
+            assert os.path.exists(path), path
+            with open(path, 'w') as outfile:
+                hjson.dump(self.json_data, outfile, indent=4)
 
         super(Analysis, self).save(*args, **kwargs)
 
@@ -405,6 +416,7 @@ class Job(models.Model):
 
     def get_url(self, path=''):
         "Return the url to the job directory"
+
         return f"jobs/job-{self.uid}/" + path
 
     def url(self):

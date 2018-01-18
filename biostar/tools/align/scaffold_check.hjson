@@ -1,6 +1,6 @@
 {
-
-    reads : {
+    reads:
+    {
         value: export/local/input/
         label: Reads
         help: Sequencing reads
@@ -9,8 +9,8 @@
         type: FASTQ
         display: DROPDOWN
     }
-
-    reference : {
+    reference:
+    {
         value: export/local/input/viral_genomes.fa
         label: Assembly
         help: The assembly to check reads against.
@@ -19,42 +19,50 @@
         type: FASTA
         display: DROPDOWN
     }
-
-    topn : {
-        value : 15
-        range : [1, 100]
+    topn:
+    {
+        value: 15
+        range:
+        [
+            1
+            100
+        ]
         label: Scaffold num
         help: How many of the largest scaffolds to keep.
         display: INTEGER
     }
-
-    readnum : {
-        value : 100000
-        range : [10, 20000000]
+    readnum:
+    {
+        value: 100000
+        range:
+        [
+            10
+            20000000
+        ]
         label: Read number
         help: How many random reads per sample.
         display: INTEGER
     }
-
-    settings : {
+    settings:
+    {
         name: Scaffold Check
-        image : scaffold_check.png
-        index : index.html
+        image: scaffold_check.png
+        index: index.html
         summary: Aligns a subset of reads against the largest scaffolds of an assembly.
-        help:'''
-        # Help
+        help:
+            '''
+            # Help
 
-        This analysis aligns a subset of all reads in a collection against a scaffold.
+            This analysis aligns a subset of all reads in a collection against a scaffold.
 
-        # Input
+            # Input
 
-        1. Fastq or fasta reads.
-        2. Scaffold sequence.
+            1. Fastq or fasta reads.
+            2. Scaffold sequence.
 
-        # Output
+            # Output
 
-        1. Aligned bam files.
-        '''
+            1. Aligned bam files.
+            '''
     }
-
 }

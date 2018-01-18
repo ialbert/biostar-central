@@ -1,83 +1,94 @@
 {
-
-sequence : {
-    value: export/local/input/fish_sequences.tar.gz
-    label: Data
-    type: TAR_FASTQ_GZ
-    display: DROPDOWN
-    source: PROJECT
+    sequence:
+    {
+        value: export/local/input/fish_sequences.tar.gz
+        label: Data
+        type: TAR_FASTQ_GZ
+        display: DROPDOWN
+        source: PROJECT
     }
-
-sampleinfo : {
-    value: export/local/input/lamar_sampleinfo.txt
-    label: Sample file
-    type : LAMAR_SAMPLE_SHEET
-    display: DROPDOWN
-    source: PROJECT
+    sampleinfo:
+    {
+        value: export/local/input/lamar_sampleinfo.txt
+        label: Sample file
+        type: LAMAR_SAMPLE_SHEET
+        display: DROPDOWN
+        source: PROJECT
     }
-
-kmer_length: {
-    label: Kmer length for primer trimming
-    value: 15
-    help: Kmer length range should be between 5 and 30
-    range: [5,30]
-    display_type: INTEGER
+    kmer_length:
+    {
+        label: Kmer length for primer trimming
+        value: 15
+        help: Kmer length range should be between 5 and 30
+        range:
+        [
+            5
+            30
+        ]
+        display_type: INTEGER
     }
-
-quality_threshold: {
-    label: Average quality value for trimming
-    help: Quality value should be between 1 and 40
-    value:  30
-    range : [1,40]
-    display_type: INTEGER
+    quality_threshold:
+    {
+        label: Average quality value for trimming
+        help: Quality value should be between 1 and 40
+        value: 30
+        range:
+        [
+            1
+            40
+        ]
+        display_type: INTEGER
     }
-
-read_length: {
-    label: Minimum read length after trimming
-    help: Minimun read length should be between 10 and 50
-    value:  35
-    range: [10, 50]
-    display_type : INTEGER
+    read_length:
+    {
+        label: Minimum read length after trimming
+        help: Minimun read length should be between 10 and 50
+        value: 35
+        range:
+        [
+            10
+            50
+        ]
+        display_type: INTEGER
     }
-
-threads : {
+    threads:
+    {
         value: 4
     }
+    settings:
+    {
+        name: Quality control
+        image: multiqc.png
+        index: results/index.html
+        summary:
+            '''
+            This analysis takes a paired end dataset and produces primer, quality trimmed dataset.
+            MultiQC quality reports  before and after trimming are also produced.
+
+            '''
+        help:
+            '''
+
+            # Help
+
+            This analysis requires  a data collection and a samplesheet.
+
+            Data collection should be in tar.gz format. Samplesheet is a tab delimited text file.
+            Order of the fields should be sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
+            Sample names should match the sample names in input data.
 
 
-settings : {
-    name: Quality control
-    image : multiqc.png
-    index : results/index.html
-    summary: '''
-This analysis takes a paired end dataset and produces primer, quality trimmed dataset.
-MultiQC quality reports  before and after trimming are also produced.
+            # Parameters
 
-    '''
+            1. Sequence data collection in tar.gz format
+            2. Sample information sheet as a tab delimited text file.
 
-    help: '''
-    
-# Help
+            # Results
 
-This analysis requires  a data collection and a samplesheet.
-
-Data collection should be in tar.gz format. Samplesheet is a tab delimited text file.
-Order of the fields should be sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
-Sample names should match the sample names in input data.
+            1. Quality report - before and after trimming.
+            2. Trimmed dataset.
 
 
-# Parameters
-
-1. Sequence data collection in tar.gz format
-2. Sample information sheet as a tab delimited text file.
-
-# Results
-
-1. Quality report - before and after trimming.
-2. Trimmed dataset.
-
-
-        '''
+            '''
     }
-
 }
