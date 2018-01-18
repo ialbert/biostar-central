@@ -15,6 +15,8 @@ WSGI_APPLICATION = 'conf.main.main_wsgi.application'
 
 SITE_HEADER = '<i class="barcode icon"></i>Bioinformatics Recipes'
 
+SECRET_KEY = "foo"
+
 try:
     from .main_secrets import *
     print("Imported settings from '.main_secrets")
