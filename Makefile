@@ -1,5 +1,5 @@
 USER=www
-SERVER=metabarcode.com
+SERVER=bioinformatics.recipes
 
 serve: init
 	python manage.py runserver
