@@ -13,11 +13,7 @@ settings: {
         '''
 
     text:'''
-
-       # Purpose
-
-       Todo
-
+        This project contains from several different sequencing runs.
     '''
 }
 
@@ -42,6 +38,18 @@ analyses: [
 
 # Data that may be deposited for the project.
 data: [
+
+    {
+        name: Partial Assembly.fa
+        value: /export/data/giraffe/assembly/subset.fa
+        type: FASTA
+        summary: Contains the four largest contigs of the published assembly. Use it to test the pipeline.
+        text: '''
+        Contains the scaffolds scaffold320, scaffold268, scaffold1292,scaffold370 from the
+        giraffe scaffold assembled by Rayan Chiki.
+        '''
+
+    }
 
     {
         name: Published Giraffe Scaffold 2016.fa
@@ -154,7 +162,7 @@ data: [
 
         DNA-Sequencing, Paired End Library, 250bp long, 2 x 26 million reads
 
-        expected coverage 22x
+        Expected coverage: 22x
 
         Stats:
 

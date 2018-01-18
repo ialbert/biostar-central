@@ -2,19 +2,19 @@
 
 assembly : {
 	value: export/local/input/scaffolds.fasta
-	label: Data
-	data_type: FASTA
+	label: Assembly
+	type: FASTA
 	display: DROPDOWN
+	source: PROJECT
   }
 
 species: {
 	label: Training set
 	value: giraffe
-	display_type: DROPDOWN
+	display: DROPDOWN
 	choices : [
 				["human" , "Human" ]
 			  ]
-
 }
 
 processors : {
