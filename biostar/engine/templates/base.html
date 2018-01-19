@@ -54,17 +54,6 @@
         {% endblock %}
     </div>
 
-    {# This will show error messages #}
-    {% block message %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="ui {{ message.tags }} message">
-                    <p>{{ message }}</p>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endblock %}
-
     {% block body %}
         {# Main body #}
         BODY

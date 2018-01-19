@@ -6,7 +6,7 @@ import hjson
 from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
-from biostar.engine.models import Project, Analysis
+from biostar.engine.models import Project, Analysis, Data
 
 logger = logging.getLogger('engine')
 
@@ -108,41 +108,9 @@ class Command(BaseCommand):
                 else:
                     logger.error(f"Skipping invalid image path: {image_path}")
 
-            # Create a queued jobs if instructed so.
             if jobs:
-
-                # Deposit the files specified with the analysis.
-                for key, obj in json_data.items():
-
-                    # Data that comes from the project.
-                    is_project_data = (obj.get("source") == "PROJECT")
-
-                    # Get next field if this is not data.
-                    if not is_project_data:
-                        continue
-
-                    # Parameters need to have a value with a test file.
-                    value = obj.get("value", "")
-
-                    if not value:
-                        logger.warning(f"In template={template_fname} data key={key} does not have a 'value' attribute.")
-                        continue
-
-                    # Get the various data attributes.
-                    summary = obj.get("summary", "")
-                    text = obj.get("text", "")
-                    data_type = obj.get("type", "")
-                    name = obj.get("name", "") or os.path.basename(value)
-
-                    # Create the data entry.
-                    data = auth.create_data(project=project, name=name, path=value, data_type=data_type,
-                                            summary=summary, text=text)
-
-                    # Mutate the object in the json_data contain the current dataset.
-                    data.fill_dict(obj)
-
-                    # Create the job.
-                    auth.create_job(analysis=analysis, json_data=json_data)
+                pass
+                #auth.create_job(analysis=analysis, json_data=json_data)
 
         except Exception as exc:
             logger.exception(f"Error: {exc}")

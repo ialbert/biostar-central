@@ -24,7 +24,7 @@
             </div>
         </div>
 
-         {% if user.is_anonymous %}
+        {% if user.is_anonymous %}
             <div class="ui  center aligned secondary segment">
                 Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
             </div>
@@ -65,14 +65,13 @@
 
         </div>
 
-        <div class="ui center aligned segment">
-            <a class="ui button" href="{% url 'project_create' %}">
-                <i class="add circle icon"></i>Create New Project
-            </a>
-        </div>
-
-
-
+        {% if user.is_authenticated %}
+            <div class="ui center aligned segment">
+                <a class="ui button" href="{% url 'project_create' %}">
+                    <i class="add circle icon"></i>Create New Project
+                </a>
+            </div>
+        {% endif %}
 
 
     </div>

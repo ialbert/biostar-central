@@ -337,12 +337,8 @@ class Analysis(models.Model):
         self.name = self.name[:MAX_NAME_LEN]
         self.html = make_html(self.text)
 
-        # Update json_file anytime analysis is saved
-        if self.json_file:
-            path = os.path.abspath(self.json_file)
-            assert os.path.exists(path), path
-            with open(path, 'w') as outfile:
-                hjson.dump(self.json_data, outfile, indent=4)
+        # Ensure Unix line endings.
+        self.template = self.template.replace('\r\n', '\n') if self.template else ""
 
         super(Analysis, self).save(*args, **kwargs)
 

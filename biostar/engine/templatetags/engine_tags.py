@@ -195,6 +195,13 @@ def single_file(data):
 
     return True
 
+@register.inclusion_tag('widgets/show_messages.html')
+def show_messages(messages):
+    """
+    Renders the messages
+    """
+    return dict(messages=messages)
+
 
 @register.inclusion_tag('widgets/project_name_bar.html')
 def project_name_bar(project):

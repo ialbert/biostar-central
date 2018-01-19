@@ -582,8 +582,8 @@ def recipe_code(request, id):
     """
     Displays and allows edit on a recipe code.
 
-    Because we allow a preview even for unauthenicated users the view
-    is a lot more complicated than a typical DJANO form handler.
+    Since we allow a preview for un-authenticated users thus the view
+    is more complicated than a typical DJANGO form handler.
     """
     user = request.user
 
@@ -593,7 +593,7 @@ def recipe_code(request, id):
 
     name = analysis.name
 
-    # This is the navbat.
+    # This is the navbar.
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
                                 ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
 
@@ -602,29 +602,30 @@ def recipe_code(request, id):
 
         if form.is_valid():
 
-            fixend = lambda t: t.replace('\r\n', '\n')
-
-            template = fixend(form.cleaned_data['template'])
+            # Templates.
+            template = form.cleaned_data['template']
 
             # Preview action will let the form cascade through.
             save = form.cleaned_data['action'] == 'SAVE'
 
-            # The changes will commited on SAVE only.
-
-            analysis.json_text = fixend(form.cleaned_data['json'])
+            # The
+            analysis.json_text = form.cleaned_data['json']
 
             # Changes to template will require a review ( only when saving ).
             if auth.template_changed(analysis=analysis, template=template) and save:
-                # Switch on the untrusted flag when the template changes.
                 analysis.security = Analysis.UNDER_REVIEW
+
+            # Admin users will automatically get authorized.
+            if user.is_staff:
+                analysis.security = Analysis.AUTHORIZED
 
             # Set the new template.
             analysis.template = template
 
-            # The SAVE action commits the changes on the analysis.
+            # Only the SAVE action commits the changes on the analysis.
             if save:
                 analysis.save()
-                messages.info(request, "The recipe code has been updated.")
+                messages.info(request, "The recipe has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
     else:
         # This gets triggered on a GET request.

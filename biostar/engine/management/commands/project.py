@@ -61,6 +61,18 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
     project = auth.create_project(user=user, uid=uid, summary=summary, name=name, text=text,
                                   stream=stream, privacy=privacy, sticky=sticky)
 
+    # Add datatypes specific to a project
+    datatypes = data.get("datatypes", '')
+
+    for name in datatypes:
+        symbol = datatypes[name].get("symbol", '')
+        help = datatypes[name].get("help", '')
+        datatype = auth.create_datatype(name=name, symbol=symbol, help=help, project=project)
+        datatype.save()
+
+    # Add extra data specified in the project json file.
+    management.call_command("data", json=json, id=project.id)
+
     # Add the analyses specified in the project json.
     analyses = data.get("analyses", '')
 
@@ -69,18 +81,7 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
         template = row['template']
         management.call_command("analysis", id=project.id, add=True, json=other_json, template=template, jobs=jobs)
 
-    # Add extra data specified in the project json file.
-    management.call_command("data", json=json, id=project.id)
 
-    # Add datatypes specific to a project
-    datatypes = data.get("datatypes", '')
-
-    for name in datatypes:
-        symbol = datatypes[name].get("symbol", '')
-        help = datatypes[name].get("help", '')
-
-        datatype = auth.create_datatype(name=name, symbol=symbol, help=help, project=project)
-        datatype.save()
 
 
 class Command(BaseCommand):

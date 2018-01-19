@@ -15,6 +15,9 @@ conda:
 	conda install --file conf/conda_requirements.txt -y
 
 
+verbose:
+	export DJANGO_LOG_LEVEL=DEBUG
+
 uwsgi:init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
@@ -56,7 +59,7 @@ postgres:
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
 
-reset: delete init public giraffe fish users
+reset: delete init tutorial
 
 next:
 	python manage.py job --next
@@ -74,12 +77,6 @@ subscribe:init
 send:subscribe
 	python manage.py send --group staff --subject "Hello peeps"
 
-hello:
-	python manage.py analysis --add --json biostar/tools/hello/hello4.hjson  --template biostar/tools/hello/hello4.sh --jobs
-	python manage.py analysis --add --json biostar/tools/hello/hello3.hjson  --template biostar/tools/hello/hello3.sh --jobs
-	python manage.py analysis --add --json biostar/tools/hello/hello2.hjson  --template biostar/tools/hello/hello2.sh --jobs
-	python manage.py analysis --add --json biostar/tools/hello/hello1.hjson  --template biostar/tools/hello/hello1.sh --jobs
-
 jobs:
 	#@python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --jobs
 	#@python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --jobs
@@ -91,10 +88,12 @@ init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate -v 0
 
-public:
-	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --jobs
-	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --jobs
-	@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
+tutorial:
+	@python manage.py project --json initial/tutorial-project.hjson --privacy public --jobs
+
+cookbook:
+	#@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --jobs
+	#@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
 
 fish:
 	@python manage.py project --json initial/fish-project.hjson --jobs

@@ -73,7 +73,7 @@
         display: DROPDOWN
         type: FASTA
         source: PROJECT
-        value: reads.fa
+        value: initial/tutorial/sequences.fq
     }
     genes:
     {
@@ -81,11 +81,11 @@
         display: DROPDOWN
         source: PROJECT
         type: GENERIC
-        value: gene_names.txt
+        value: initial/tutorial/sra.txt
     }
     settings:
     {
-        name: Hello World 4
+        name: Parameters and interface examples
         summary: This recipe demonstrates the use of different parameter types.
         index: results.txt
         help:

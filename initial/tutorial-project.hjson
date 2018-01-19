@@ -1,59 +1,53 @@
 {
 
-
 analyses: [
 
     {
-        json: biostar/tools/hello/hello1.hjson
-        template: biostar/tools/hello/hello1.sh
+        json: initial/tutorial/hello1.hjson
+        template: initial/tutorial/hello1.sh
     }
 
     {
-        json: biostar/tools/hello/hello2.hjson
-        template: biostar/tools/hello/hello2.sh
+        json: initial/tutorial/hello2.hjson
+        template: initial/tutorial/hello2.sh
     }
 
     {
-        json: biostar/tools/hello/hello3.hjson
-        template: biostar/tools/hello/hello3.sh
-    }
-
-    {
-        json: biostar/tools/hello/hello4.hjson
-        template: biostar/tools/hello/hello4.sh
+        json: initial/tutorial/hello3.hjson
+        template: initial/tutorial/hello3.sh
     }
 
 ]
 
 data: [
 
-     {
-        name: Example 1.fa
-        value: export/local/tutorial/example1.fa
+    {
+        name: Genome.fa
+        value: initial/tutorial/data/genome.fa
         type: FASTA
-        summary: Summary for the file: example1.fa
-        text: Description for the file: example1.fa
+        summary: A test genome file.
+        text: A longer description for the test sequence file goes here.
     }
 
     {
-        name: Example 2.txt
-        value: export/local/tutorial/example2.txt
-        summary: Summary for the file: example2.txt
-        text: Description for the file: example2.txt
+        name: SRR numbers.txt
+        value: initial/tutorial/data/sra.txt
+        summary: SRR sequencing run accession numbers from SRA.
+        text: Each line represents a SRR run id.
     }
 
     {
-        name: Tutorials
-        value: export/local/tutorial/
-        summary: Summary for the files in the tutorial folder.
-        text: Description for the files in the tutorial folder.
+        name: Data directory
+        value: initial/tutorial/collection
+        summary: An entire folder may be represented as a single data entry.
+        text: This collection contains multiple files. The data view lists the content of the directory.
     }
 
 ]
 
 settings: {
 
-    uid: hello
+    uid: tutorial
 
     name: How to create recipes?
 

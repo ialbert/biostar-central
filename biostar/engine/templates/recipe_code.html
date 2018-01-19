@@ -15,6 +15,7 @@
 
     <div class="ui raised segment">
 
+        {%  show_messages messages %}
 
         <form class="ui form" action="{% url 'recipe_code' analysis.id %}" method="POST">
 
