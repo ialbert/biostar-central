@@ -1,3 +1,6 @@
-settings : {
-    summary: The simplest recipe is empty for template and script.
+{
+    settings:
+    {
+        summary: The simplest recipe is empty for template and script.
     }
+}

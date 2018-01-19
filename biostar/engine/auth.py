@@ -239,8 +239,8 @@ def create_project(user, name, uid='', summary='', text='', stream='',
     return project
 
 
-def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text='',
-                    stream=None, sticky=False, security=Analysis.UNDER_REVIEW):
+def create_analysis(project, json_text, template, json_file=None, uid=None, user=None, summary='',
+                    name='', text='', stream=None, sticky=False, security=Analysis.UNDER_REVIEW):
 
     owner = user or project.owner
     name = name or 'Analysis name'
@@ -248,7 +248,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
 
     analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
                                        owner=owner, name=name, text=text, security=security,
-                                       template=template, sticky=sticky)
+                                       template=template, sticky=sticky, json_file=json_file)
     if stream:
         analysis.image.save(stream.name, stream, save=True)
 
@@ -334,10 +334,6 @@ def create_path(fname, data):
     path = os.path.abspath(os.path.join(data_dir, fname))
 
     return path
-
-
-
-
 
 
 def create_data(project, user=None, stream=None, path='', name='',

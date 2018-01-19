@@ -1,53 +1,49 @@
 {
-
-reads : {
-    value: export/local/rnaseq/griffith/reads
-    label: Sequencing Reads
-    name: Griffith Demo Data
-    summary: Griffith data
-    help: Sequencing reads
-    type: FASTQ
-    display: DROPDOWN
-    source: PROJECT
+    reads:
+    {
+        value: export/local/rnaseq/griffith/reads
+        label: Sequencing Reads
+        name: Griffith Demo Data
+        summary: Griffith data
+        help: Sequencing reads
+        type: FASTQ
+        display: DROPDOWN
+        source: PROJECT
     }
-
-reference : {
-    value: export/local/rnaseq/griffith/refs/22.fa
-    label: Reference Genome
-    help: The reference to align against
-    name: Chromosome 22 Reference
-    type : FASTA
-    display: DROPDOWN
-    source: PROJECT
+    reference:
+    {
+        value: export/local/rnaseq/griffith/refs/22.fa
+        label: Reference Genome
+        help: The reference to align against
+        name: Chromosome 22 Reference
+        type: FASTA
+        display: DROPDOWN
+        source: PROJECT
     }
-
-annotation : {
-    value: export/local/rnaseq/griffith/refs/22.gtf
-    label: Annotations
-    help: The annotations to quantify over
-    name: Chromosome 22 Annotations
-    type : GTF
-    display: DROPDOWN
-    source: PROJECT
+    annotation:
+    {
+        value: export/local/rnaseq/griffith/refs/22.gtf
+        label: Annotations
+        help: The annotations to quantify over
+        name: Chromosome 22 Annotations
+        type: GTF
+        display: DROPDOWN
+        source: PROJECT
     }
+    settings:
+    {
+        name: RNA-Seq Demo
+        image: rnaseq.png
+        summary: This is a reimplementation as a recipe of the Griffith Data Analysis example.
+        help:
+            '''
 
-settings : {
-    name: RNA-Seq Demo
-    image : rnaseq.png
+            # Help
 
-    summary: '''
-    This is a reimplementation as a recipe of the Griffith Data Analysis example.
-    '''
+            This recipe implements the pipeline discussed at:
 
-    help: '''
+            <https://www.biostarhandbook.com/rnaseq/rnaseq-griffith-data.html>
 
-    # Help
-
-    This recipe implements the pipeline discussed at:
-
-    <https://www.biostarhandbook.com/rnaseq/rnaseq-griffith-data.html>
-
-    '''
+            '''
     }
-
 }

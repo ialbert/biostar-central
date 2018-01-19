@@ -22,6 +22,8 @@ urlpatterns = [
     url(r'^data/download/(?P<id>\d+)/$', views.data_download, name='data_download'),
     url(r'^data/view/files/(?P<id>\d+)/$', views.data_files_list, name='data_files_entry'),
     url(r'^data/view/files/(?P<id>\d+)/(?P<path>.+)/$', views.data_files_list, name='data_files_list'),
+    url(r'^data/copy/(?P<id>\d+)/$', views.data_copy, name='data_copy'),
+    url(r'^data/paste/(?P<uid>[-\w]+)/$', views.data_paste, name='data_paste'),
 
     # Recipe URLS
     url(r'^recipe/list/(?P<uid>[-\w]+)/$', views.recipe_list, name='recipe_list'),

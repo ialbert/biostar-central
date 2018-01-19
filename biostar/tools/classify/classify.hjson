@@ -1,59 +1,58 @@
 {
-
-sequence : {
-    value: export/local/input/fish_metabarcode_sample2.fastq.gz
-    label: Data
-    type: FASTQ
-    display: DROPDOWN
-    source: PROJECT
-  }
-
-
-accessions : {
-    value: export/local/input/fish_accession_list.txt
-    label: Accession list
-    type: ACCESSION_LIST
-    display: DROPDOWN
-    source: PROJECT
+    sequence:
+    {
+        value: export/local/input/fish_metabarcode_sample2.fastq.gz
+        label: Data
+        type: FASTQ
+        display: DROPDOWN
+        source: PROJECT
     }
-
-threads : {
+    accessions:
+    {
+        value: export/local/input/fish_accession_list.txt
+        label: Accession list
+        type: ACCESSION_LIST
+        display: DROPDOWN
+        source: PROJECT
+    }
+    threads:
+    {
         value: 4
     }
+    settings:
+    {
+        id: classify
+        name: Taxonomical classification
+        image: classify.png
+        index: results/index.html
+        summary:
+            '''
 
-settings : {
-    id: classify
-    name: Taxonomical classification
-    image : classify.png
-    index : results/index.html
-    summary: '''
+            Performs taxonomic classification of input data. Classification is performed against a custom database.
+            It produces a classification table with with species abundance.
+            '''
+        help:
+            '''
 
-Performs taxonomic classification of input data. Classification is performed against a custom database.
-It produces a classification table with with species abundance.
-    '''
-    help:'''
+            # Help
 
-# Help
+            This analysis assigns taxonomic labels to sequence data using a custom database.
 
-This analysis assigns taxonomic labels to sequence data using a custom database.
+            The input data should be in fastq format. Accessions of sequence to be used as reference should also be provided.
 
-The input data should be in fastq format. Accessions of sequence to be used as reference should also be provided.
+            This analysis obtains fasta sequences of accessions, creates centrifuge indices and performs classification
+            of input data using this custom database.
 
-This analysis obtains fasta sequences of accessions, creates centrifuge indices and performs classification
-of input data using this custom database.
+            # Parameters
 
-# Parameters
+            1. Input data in fastq format.
+            2. Accession list of sequences to be used as reference.
 
-1. Input data in fastq format.
-2. Accession list of sequences to be used as reference.
+            # Results
 
-# Results
+            1. Taxonomic assignments for each read.
+            2. Summary report showing the abundance of each species in the data.
 
-1. Taxonomic assignments for each read.
-2. Summary report showing the abundance of each species in the data.
-
-'''
-
+            '''
     }
-
 }
