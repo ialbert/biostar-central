@@ -382,8 +382,6 @@ def data_paste(request, uid):
     new_data = auth.create_data(project=project, name=f"Copy of {data.name}", path=path,
                                 summary=data.summary, text=data.text,
                                 data_type=data.data_type)
-    new_data.save()
-
     # Clear clipboard
     request.session["clipboard"] = None
 
