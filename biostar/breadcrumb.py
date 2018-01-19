@@ -27,12 +27,12 @@ ADD_USER = "users icon"
 class Bunch(object):
 
     def __init__(self, **kwargs):
+        self.url = lambda:None
+        self.id = 0
+        self.uid = "0"
         self.__dict__.update(kwargs)
 
-
-# Placeholder to mimic attrs
-T = Bunch(url=lambda:None, id=0, uid="0")
-
+T = Bunch()
 
 def icon_mapper(project=None, analysis=None, job=None, data=None):
     "Map an icon to its info ( url and name)"

@@ -1,81 +1,98 @@
-#
-# Requires a data parameter.
-#
-
-
-validate:{
-    label: Validate results
-    display: CHECKBOX
-    value: true
-}
-
-speed:{
-    label: Speed
-    display: FLOAT
-    value: 10.0
-    range: [ 1, 10000]
-}
-
-
-username:{
-    label: User Name
-    display: TEXTBOX
-    value: John Doe
-}
-
-maxval: {
-    label: Maximal Value
-    display: INTEGER
-    value:  10
-    range: [1, 100]
-}
-
-direction: {
-    label: Select direction
-    display: RADIO
-    choices: [
-				["left" , "Go Left" ],
-				["right" , "Go Right" ],
-			  ]
-    value: "left"
-}
-
-pace: {
-    label: Select Pace
-    display: DROPDOWN
-	choices : [
-				["fast" , "Go Fast " ],
-				["slow" , "Go Slow" ],
-			  ]
-    value: "fast"
-}
-
-reads: {
-    label: Sequencing Reads
-    display: DROPDOWN
-    type: FASTA
-    source: PROJECT
-    value: reads.fa
-  }
-
-genes: {
-    label: Gene Names
-    display: DROPDOWN
-    source: PROJECT
-    type: GENERIC
-    value: gene_names.txt
-}
-
-#
-# Analysis settings.
-#
-settings : {
-    name: Hello World 4
-    summary: This recipe demonstrates the use of different parameter types.
-    index: results.txt
-    help: '''
-        # Help
-
-        This is a demonstration of all parameter types that the system recognizes.
-    '''
+{
+    validate:
+    {
+        label: Validate results
+        display: CHECKBOX
+        value: true
     }
+    speed_drug:
+    {
+        label: Speed
+        display: FLOAT
+        value: 10
+        range:
+        [
+            1
+            10000
+        ]
+    }
+    username:
+    {
+        label: User Name
+        display: TEXTBOX
+        value: John Doe
+    }
+    maxval:
+    {
+        label: Maximal Value
+        display: INTEGER
+        value: 10
+        range:
+        [
+            1
+            100
+        ]
+    }
+    direction:
+    {
+        label: Select direction
+        display: RADIO
+        choices:
+        [
+            [
+                left
+                Go Left
+            ]
+            [
+                right
+                Go Right
+            ]
+        ]
+        value: left
+    }
+    pace:
+    {
+        label: Select Pace
+        display: DROPDOWN
+        choices:
+        [
+            [
+                fast
+                "Go Fast "
+            ]
+            [
+                slow
+                Go Slow
+            ]
+        ]
+        value: fast
+    }
+    reads:
+    {
+        label: Sequencing Reads
+        display: DROPDOWN
+        type: FASTA
+        source: PROJECT
+        value: reads.fa
+    }
+    genes:
+    {
+        label: Gene Names
+        display: DROPDOWN
+        source: PROJECT
+        type: GENERIC
+        value: gene_names.txt
+    }
+    settings:
+    {
+        name: Hello World 4
+        summary: This recipe demonstrates the use of different parameter types.
+        index: results.txt
+        help:
+            '''
+            # Help
+
+            This is a demonstration of all parameter types that the system recognizes.
+            '''
+    }
+}

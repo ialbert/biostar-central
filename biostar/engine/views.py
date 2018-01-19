@@ -96,6 +96,7 @@ def clear_clipboard(request, uid, redir="project_view"):
 
     return redirect(reverse(redir, kwargs=dict(uid=uid)))
 
+
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, uid):
     """
@@ -196,25 +197,27 @@ def files_list(request, instance, steps, error_redirect, template_name, path='',
     "File navigator used for jobs and data"
 
     # Instance is expected to be a Job or Data object.
+    exclude = ''
     if isinstance(instance, Job):
         root = instance.path
     else:
+        # Exclude toc from file_list
+        exclude = os.path.basename(instance.get_path())
         root = instance.get_data_dir()
 
     target_path = join(root, path)
 
     if not target_path.startswith(root) or (not os.path.exists(target_path)):
-
         # Attempting to access a file outside of the job directory
         messages.error(request, "Path not in directory.")
         return redirect(error_redirect)
 
+    #TODO: can not exclude toc from other projects when copying
     # These are pathlike objects with attributes such as name, is_file
-    file_list = list(os.scandir(target_path))
+    file_list = list(filter(lambda p: p.name != exclude, os.scandir(target_path)))
 
     # Sort by properties
     file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
-
     context = dict(file_list=file_list, instance=instance, steps=steps, path=path)
     context.update(extra_context)
 
@@ -334,14 +337,56 @@ def data_view(request, id):
                                project=data.project, data=data)
 
     project = data.project
-
-
     context = dict(data=data, steps=steps, project=project, activate='selection')
 
     counts = get_counts(project)
     context.update(counts)
 
     return render(request, "data_view.html", context)
+
+
+@object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
+def data_copy(request, id):
+    "Store Data object in request.sessions['clipboard'] "
+
+
+    data = Data.objects.filter(pk=id).first()
+    project = data.project
+
+    request.session["clipboard"] = data.uid
+    messages.success(request, f"Copied {data.name} to Clipboard")
+
+    return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
+
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+def data_paste(request, uid):
+    "Paste data stored in the clipboard into project"
+
+    data_uid = request.session.get("clipboard")
+    data = Data.objects.filter(uid=data_uid).first()
+    project = Project.objects.filter(uid=uid).first()
+
+    if not data:
+        messages.error(request, "Data not found.")
+        return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
+    data_files = data.get_files()
+
+    if len(data_files) > 1:
+        # Link the dir if more than one file present
+        data_files = [ join(data_files[0], "..") ]
+
+    path = data_files.pop()
+    # Create new data by linking file(s)
+    new_data = auth.create_data(project=project, name=f"Copy of {data.name}", path=path,
+                                summary=data.summary, text=data.text,
+                                data_type=data.data_type)
+    # Clear clipboard
+    request.session["clipboard"] = None
+
+    messages.success(request, f"Pasted {data.name} to {project.name}")
+    return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
 @object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
@@ -525,6 +570,9 @@ def recipe_paste(request, uid):
     attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security)
     new_recipe = auth.create_analysis(**attrs)
     new_recipe.save()
+
+    messages.success(request, f"Pasted {recipe.name} to {project.name}")
+    request.session["clipboard"] = None
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
