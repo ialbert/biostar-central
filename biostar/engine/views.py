@@ -96,6 +96,7 @@ def clear_clipboard(request, uid, redir="project_view"):
 
     return redirect(reverse(redir, kwargs=dict(uid=uid)))
 
+
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, uid):
     """
