@@ -89,7 +89,7 @@ diamond blastp -f 6 $HEADER -d $DIAMOND_NR --taxonmap $DIAMOND_TAXON --max-targe
 PARSED=${DIAMOND}/diamond-blastp-parsed.txt
 
 # Parsing blastp results for cattle specific hits.
-python -m biostar.tools.gene_pred.blast_parse --blast $DIAMOND_RES >$PARSED
+python -m biostar.tools.gene_pred.parse_blast --blast $DIAMOND_RES >$PARSED
 
 # Main result view.
 cat $PARSED | head -100 >result-preview.txt
