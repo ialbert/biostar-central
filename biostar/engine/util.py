@@ -14,6 +14,9 @@ def get_uuid(limit=32):
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
+def fix_endings(text):
+    return text.replace("\r\n", "\n")
+
 
 def smart_preview(fname):
     CHUNK_SIZE, LINE_COUNT = 1024, 10

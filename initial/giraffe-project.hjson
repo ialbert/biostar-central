@@ -93,7 +93,7 @@ data: [
     {
         name: MA1_PE, Giraffe, DNA, Paired End
         value: /export/data/giraffe/data/GIRAFFE/MA1_PE
-        type: FASTQ_TYPE
+        type: FASTQ
         summary: MA1, 150bp, 2 x 285 million reads, 28x coverage
         text: '''
         Specimen ID: `MA1`
@@ -205,7 +205,7 @@ data: [
     {
         name: WOAK_MP, Okapi, DNA, Mate Pair
         value: /export/data/giraffe/data/OKAPI/WOAK_MP
-        type: FASTQ_TYPE
+        type: FASTQ
         summary: WOAK_MP, 150bp, 2 x 67 million reads, 7x coverage
         text: '''
         Specimen ID: `WOAK`
