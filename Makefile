@@ -112,7 +112,7 @@ ftp:
 
 
 recipe:
-	python manage.py project --json biostar-recipes/projects/metagenome/mothur-project.hjson --privacy public --jobs
+	python manage.py project --json ~/app/biostar-recipes/projects/metagenome/mothur-project.hjson --privacy public --jobs
 
 push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"

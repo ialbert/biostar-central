@@ -1,6 +1,5 @@
-import logging
-import os
-import textwrap
+import os, logging, textwrap
+from os.path import expanduser
 
 import hjson
 from django.core.management.base import BaseCommand
