@@ -436,7 +436,6 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-
 @object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
 def data_files_list(request, id, path=''):
 
