@@ -723,17 +723,20 @@ def job_result_view(request, id):
     """
 
     job = Job.objects.filter(id=id).first()
+
     index = job.json_data.get("settings", {}).get("index")
 
-    if job.state == Job.COMPLETED:
+    if not index:
         url = reverse("job_files_entry", kwargs=dict(id=id))
-
-        if index:
-            url = settings.MEDIA_URL + job.get_url(path=index)
-
         return redirect(url)
 
-    return redirect(reverse("job_view", kwargs=dict(id=id)))
+    if job.state != Job.COMPLETED:
+        url = reverse("job_view", kwargs=dict(id=id))
+        messages.info("The analysis had not yet completed.")
+        return redirect(url)
+
+    url = settings.MEDIA_URL + job.get_url(path=index)
+    return redirect(url)
 
 
 def block_media_url(request, **kwargs):
