@@ -739,7 +739,7 @@ def job_result_view(request, id):
         url = reverse("job_view", kwargs=dict(id=id))
         messages.warning(request, "The analysis has not completed ...")
         return redirect(url)
-    
+
     url = settings.MEDIA_URL + job.get_url(path=index)
     return redirect(url)
 
