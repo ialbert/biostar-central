@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from sendfile import sendfile
 
 # from django.utils.safestring import mark_safe
 from biostar.breadcrumb import breadcrumb_builder
