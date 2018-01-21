@@ -108,7 +108,7 @@ class DataViewTest(TestCase):
 
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
 
-    def test_data_download(self):
+    def Xtest_data_download(self):
         "Testing data download view"
 
         from django.http.response import FileResponse

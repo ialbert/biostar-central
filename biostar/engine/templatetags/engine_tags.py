@@ -42,9 +42,9 @@ def access_denied_message(user, access):
 
 
 @register.inclusion_tag('widgets/file_listing.html')
-def file_listing(path, file_list, object):
+def file_listing(path, file_list, object, project_uid=''):
 
-    return dict(path=path, file_list=file_list, object=object)
+    return dict(path=path, file_list=file_list, object=object, project_uid=project_uid)
 
 
 @register.simple_tag

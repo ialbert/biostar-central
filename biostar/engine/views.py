@@ -169,11 +169,11 @@ def job_list(request, uid):
     return project_view(request=request, uid=uid, template_name="job_list.html", active='jobs')
 
 
-def files_list(request, instance, steps, error_redirect, template_name, path='',
+def files_list(request, instance, steps, template_name, path='',
                extra_context={}):
-    "File navigator used for jobs and data"
+    "File navigator used for projects, data, and jobs"
 
-    # Instance is expected to be a Job or Data object.
+    # Instance is expected to be a Job, Data, or Project object.
     exclude = ''
     if isinstance(instance, Job):
         root = instance.path
@@ -391,6 +391,7 @@ def data_edit(request, id):
     return render(request, 'data_edit.html', context)
 
 
+@object_access(type=Project, access=Access.READ_ACCESS, url='data_view')
 def data_nav(request, uid):
     "Return special dir view of data list"
 
@@ -398,12 +399,13 @@ def data_nav(request, uid):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
                                project=project)
 
+    # Same ordering as data_list
+    all_data = project.data_set.order_by("sticky", "-date").all()
+    context = dict(activate='selection', steps=steps, all_data=all_data, project=project)
+    counts = get_counts(project)
+    context.update(counts)
 
-
-    return
-
-
-
+    return render(request, "data_nav.html", context)
 
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
@@ -434,7 +436,8 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@object_access(type=Data, access=Access.ADMIN_ACCESS, url='data_view')
+
+@object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
 def data_files_list(request, id, path=''):
 
     data = Data.objects.filter(id=id).first()
@@ -443,40 +446,14 @@ def data_files_list(request, id, path=''):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
-    context = dict(activate='selection', data=data, project=project)
+    back_uid=None if path else project.uid
+    context = dict(activate='selection', data=data, project=project, project_uid=back_uid)
 
     counts = get_counts(project)
     context.update(counts)
 
     return files_list(request=request, instance=data, path=path,steps=steps,
-                      error_redirect=reverse("data_files_entry", kwargs=dict(id=id)),
                       template_name="data_files_list.html", extra_context=context)
-
-
-@object_access(type=Data, access=Access.ADMIN_ACCESS, url='data_view')
-def data_download(request, id):
-    "Download data found in a project"
-
-    data = Data.objects.filter(id=id).first()
-
-    if not data:
-        messages.error(request, "Data Not Found")
-        return redirect(reverse("project_list"))
-
-    data_file = data.get_files()
-
-    if len(data_file) > 1:
-        # Redirect to file navigator if there are multiple files
-        return redirect(reverse("data_files_entry", kwargs=dict(id=data.id)))
-
-    # Only one file expected at this point
-    data_file = data_file.pop()
-
-    if not os.path.exists(data_file):
-        messages.error(request, "Data object does not contain a valid file")
-        return redirect(reverse("data_view", kwargs=dict(id=id)))
-
-    return sendfile(request, data_file, attachment=f"{data.name}")
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS)
@@ -792,7 +769,5 @@ def job_files_list(request, id, path=''):
     context.update(counts)
 
     return files_list(request=request, instance=job, path=path, steps=steps,
-                      template_name="job_files_list.html",
-                      error_redirect=reverse("job_files_entry", kwargs=dict(id=id)),
-                      extra_context=context)
+                      template_name="job_files_list.html", extra_context=context)
 
