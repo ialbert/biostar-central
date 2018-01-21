@@ -52,7 +52,7 @@ body {
 }
 
 .wide {
-
+    width: 95% !important;
 }
 
 .code {
