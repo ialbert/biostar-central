@@ -169,8 +169,7 @@ def job_list(request, uid):
     return project_view(request=request, uid=uid, template_name="job_list.html", active='jobs')
 
 
-def files_list(request, instance, steps, template_name, path='',
-               extra_context={}):
+def files_list(request, instance, steps, template_name, path='', extra_context={}):
     "File navigator used for  data and jobs"
 
     # Instance is expected to be a Job or Data object.
@@ -185,7 +184,6 @@ def files_list(request, instance, steps, template_name, path='',
     target_path = join(root, path)
 
     if not target_path.startswith(root) or (not os.path.exists(target_path)):
-
         # Attempting to access a file outside of the root directory
         messages.error(request, "Path not in directory.")
         file_list = []
