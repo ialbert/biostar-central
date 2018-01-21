@@ -2,7 +2,7 @@
 .idea
 *.db
 export/static/*
-
+*.DS_Store
 __pycache__/
 *.py[cod]
 *$py.class
