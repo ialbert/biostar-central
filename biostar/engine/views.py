@@ -136,29 +136,6 @@ def project_users(request, uid):
     return redirect(reverse("project_view", kwargs=dict(uid=uid)))
 
 
-@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
-def project_types(request, uid):
-    "Manage data types belonging to a project from a project"
-
-    # project = Project.objects.filter(uid=uid).first()
-    # steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, PROJECT_TYPES],
-    #                            project=project)
-    # form = CreateDataTypeForm(project=project)
-    #
-    # if request.method == "POST":
-    #     form = CreateDataTypeForm(project=project, data=request.POST)
-    #     if form.is_valid():
-    #         form.save()
-    #         return redirect(reverse("project_types", kwargs=dict(uid=project.uid)))
-    #
-    #     messages.error(request, mark_safe(form.errors))
-    #
-    # current = project.datatype_set.all()
-    # context = dict(project=project, form=form, steps=steps, current=current)
-    # return render(request, "project_types.html", context=context)
-    return redirect(reverse("project_view", kwargs=dict(uid=uid)))
-
-
 def project_list(request):
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
@@ -208,16 +185,16 @@ def files_list(request, instance, steps, error_redirect, template_name, path='',
     target_path = join(root, path)
 
     if not target_path.startswith(root) or (not os.path.exists(target_path)):
-        # Attempting to access a file outside of the job directory
+
+        # Attempting to access a file outside of the root directory
         messages.error(request, "Path not in directory.")
-        return redirect(error_redirect)
+        file_list = []
+    else:
+        # These are pathlike objects with attributes such as name, is_file
+        file_list = list(filter(lambda p: p.name != exclude, os.scandir(target_path)))
+        # Sort by properties
+        file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
 
-    #TODO: can not exclude toc from other projects when copying
-    # These are pathlike objects with attributes such as name, is_file
-    file_list = list(filter(lambda p: p.name != exclude, os.scandir(target_path)))
-
-    # Sort by properties
-    file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
     context = dict(file_list=file_list, instance=instance, steps=steps, path=path)
     context.update(extra_context)
 
@@ -324,6 +301,7 @@ def project_create(request):
     context = dict(steps=steps, form=form)
     return render(request, "project_create.html", context=context)
 
+
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()
@@ -411,6 +389,21 @@ def data_edit(request, id):
 
     context = dict(data=data, steps=steps, form=form)
     return render(request, 'data_edit.html', context)
+
+
+def data_nav(request, uid):
+    "Return special dir view of data list"
+
+    project = Project.objects.filter(uid=uid).first()
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
+                               project=project)
+
+
+
+    return
+
+
+
 
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')

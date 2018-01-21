@@ -55,8 +55,7 @@ def icon_mapper(project=None, analysis=None, job=None, data=None):
                 RESULT_LIST_ICON: dict(url=reverse("job_list", kwargs={'uid': project.uid}), name="Results List"),
                 RESULT_VIEW_ICON: dict(url=reverse("job_view", kwargs={'id': job.id}), name="Result View"),
                 RESULT_INDEX_ICON: dict(url=reverse("job_view", kwargs={'id': job.id}), name="Index View"),
-                PROJECT_TYPES: dict(url=reverse("project_types", kwargs={'uid': project.uid}),
-                                    name="Manage Data Types")
+
                 }
 
 def breadcrumb_builder(icons=[], project=T, analysis=T, job=T, data=T):

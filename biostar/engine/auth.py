@@ -343,7 +343,7 @@ def create_path(fname, data):
 def create_data(project, user=None, stream=None, path='', name='',
                 text='', summary='', data_type="", skip=""):
 
-    "Param : skip (str) - is a filename found in path meant to be ignored when linking"
+    "Param : skip (str) - full file path found in 'path' that will be ignored when linking."
 
     # Absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/")
