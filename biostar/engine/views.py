@@ -437,7 +437,7 @@ def data_upload(request, uid):
 
 
 
-@object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
+@object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
 def data_files_list(request, id, path=''):
 
     data = Data.objects.filter(id=id).first()
