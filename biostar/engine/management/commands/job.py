@@ -85,8 +85,6 @@ def run(job, options={}):
         settings_dict = json_data.get("settings", {})
         execute = settings_dict.get('execute', {})
 
-        pprint.pprint(execute)
-
         script_name = execute.get("filename", "run.sh")
         json_fname = f"{script_name}.json"
         stdout_fname = f"{script_name}.stdout.txt"
