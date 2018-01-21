@@ -9,6 +9,7 @@ from django.core.management.base import BaseCommand
 from biostar.engine import auth
 from biostar.engine.models import Project, User
 import sys
+from os.path import expanduser
 
 logger = logging.getLogger('engine')
 
@@ -77,8 +78,8 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
     analyses = data.get("analyses", '')
 
     for row in reversed(analyses):
-        other_json = row['json']
-        template = row['template']
+        other_json = expanduser(row['json'])
+        template = expanduser(row['template'])
         management.call_command("analysis", id=project.id, add=True, json=other_json, template=template, jobs=jobs)
 
 
