@@ -1,0 +1,22 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+
+
+{% block content %}
+
+    <div class="ui relaxed divided list">
+
+            <div class="item">
+                <a href="{% url 'data_list' project.uid %}"><i class="backward icon"></i>../</a>
+            </div>
+
+            {% for data in all_data %}
+                <div class="item">
+                    <a href="{% url 'data_files_entry' data.id %}">
+                        <i class="folder icon"></i>{{data.name}}
+                    </a>
+                </div>
+            {% endfor %}
+    </div>
+
+{% endblock %}

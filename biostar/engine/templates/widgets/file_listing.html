@@ -3,11 +3,15 @@
 <div class="ui relaxed divided list">
 
         <div class="item">
+
             {% if path %}
                 <a href="../"><i class="backward icon"></i>../</a>
+            {% elif project_uid %}
+                <a href="{% url 'data_nav' project_uid %}"><i class="backward icon"></i>../</a>
             {% else %}
                 <a href="{{ object.url }}"><i class="backward icon"></i>../</a>
             {% endif %}
+
         </div>
 
         {% for entry in file_list %}
