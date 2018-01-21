@@ -374,14 +374,18 @@ def data_paste(request, uid):
     data_files = data.get_files()
 
     if len(data_files) > 1:
-        # Link the dir if more than one file present
+        # Link whole dir if more than one file present
         data_files = [ join(data_files[0], "..") ]
 
     path = data_files.pop()
-    # Create new data by linking file(s)
-    new_data = auth.create_data(project=project, name=f"Copy of {data.name}", path=path,
-                                summary=data.summary, text=data.text,
-                                data_type=data.data_type)
+    # Skip the toc file of the source data when linking
+    skip = data.get_path()
+
+    # Create new data object in project by linking file(s)
+    auth.create_data(project=project, name=f"Copy of {data.name}", path=path,
+                    summary=data.summary, text=data.text,
+                    data_type=data.data_type, skip=skip)
+
     # Clear clipboard
     request.session["clipboard"] = None
 

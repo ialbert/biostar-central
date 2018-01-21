@@ -303,14 +303,18 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     return job
 
 
-def findfiles(location, collect):
+def findfiles(location, collect, skip=""):
     """
     Returns a list of all files in a directory.
     """
 
     for item in os.scandir(location):
+
+        if os.path.abspath(item.path) == skip:
+            continue
+
         if item.is_dir():
-            findfiles(item.path, collect=collect)
+            findfiles(item.path, collect=collect, skip=skip)
         else:
             collect.append(os.path.abspath(item.path))
     return collect
@@ -337,7 +341,9 @@ def create_path(fname, data):
 
 
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', data_type=""):
+                text='', summary='', data_type="", skip=""):
+
+    "Param : skip (str) - is a filename found in path meant to be ignored when linking"
 
     # Absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/")
@@ -359,10 +365,11 @@ def create_data(project, user=None, stream=None, path='', name='',
     # If the path is a directory, symlink all files in the directory.
     if not stream and path and os.path.isdir(path):
         logger.info(f"Linking path: {path}")
-        collect = findfiles(path, collect=[])
+        collect = findfiles(path, collect=[], skip=skip)
         for src in collect:
             dest = create_path(fname=src, data=data)
             os.symlink(src, dest)
+
         summary = f'Contains {len(collect)} files. {summary}'
         logger.info(f"Linked {len(collect)} files.")
 
