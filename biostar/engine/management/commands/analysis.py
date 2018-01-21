@@ -6,7 +6,7 @@ import hjson
 from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
-from biostar.engine.models import Project, Analysis, Data
+from biostar.engine.models import Project, Analysis, Data, DataType
 
 logger = logging.getLogger('engine')
 
@@ -109,6 +109,14 @@ class Command(BaseCommand):
                     logger.error(f"Skipping invalid image path: {image_path}")
 
             if jobs:
+                # Fill in the json for each job in the analysis.
+                for key, obj in json_data.items():
+                    if obj.get("source") != "PROJECT":
+                        continue
+                    symbol = obj.get('type')
+                    data = Data.objects.filter(project=project, data_type=symbol).first()
+                    if data:
+                        data.fill_dict(obj)
                 auth.create_job(analysis=analysis, json_data=json_data)
 
         except Exception as exc:

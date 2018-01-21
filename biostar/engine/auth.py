@@ -345,7 +345,7 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     "Param : skip (str) - full file path found in 'path' that will be ignored when linking."
 
-    # Absolute paths with no trailing slashes.
+    # We need absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/")
 
     # Create the data.
@@ -366,10 +366,10 @@ def create_data(project, user=None, stream=None, path='', name='',
     if not stream and path and os.path.isdir(path):
         logger.info(f"Linking path: {path}")
         collect = findfiles(path, collect=[], skip=skip)
-        for src in collect:
-            dest = create_path(fname=src, data=data)
+        for fname in os.listdir(path):
+            dest = create_path(fname=fname, data=data)
+            src = os.path.join(path, fname)
             os.symlink(src, dest)
-
         summary = f'Contains {len(collect)} files. {summary}'
         logger.info(f"Linked {len(collect)} files.")
 
@@ -390,6 +390,7 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Find all files in the data directory.
     collect = findfiles(data.get_data_dir(), collect=[])
 
+    # Remove the table of contents if it exists.
     tocname = data.get_path()
     if tocname in collect:
         collect.remove(tocname)
@@ -403,8 +404,11 @@ def create_data(project, user=None, stream=None, path='', name='',
     for elem in collect:
         if os.path.isfile(elem):
             size += os.stat(elem, follow_symlinks=True).st_size
+
     # Finalize the data name
+
     name = name or os.path.split(path)[1] or 'Data'
+
 
     # Set updated attributes
     data.size = size
@@ -412,6 +416,7 @@ def create_data(project, user=None, stream=None, path='', name='',
     data.name = name
     data.summary = summary
     data.file = tocname
+
 
     # Trigger another save.
     data.save()
