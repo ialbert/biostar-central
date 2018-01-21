@@ -56,8 +56,14 @@
 
     </div>
 
-    <div class="ui basic segment">
+    <div class="ui vertical segment">
         {{ analysis.html|safe }}
+    </div>
+
+     <div class="ui vertical segment">
+         <div class="ui header">Recipe Template</div>
+         <p>The actions performed by this recipe.</p>
+         <pre><code>{{ analysis.template }}</code></pre>
     </div>
 
 {% endblock %}

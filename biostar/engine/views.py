@@ -1,6 +1,5 @@
 import glob
 import logging
-import json
 
 import mistune
 from django.conf import settings
@@ -8,7 +7,6 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from sendfile import sendfile
 
 # from django.utils.safestring import mark_safe
 from biostar.breadcrumb import breadcrumb_builder
@@ -86,7 +84,6 @@ def site_admin(request):
     projects = Project.objects.all()
     context = dict(steps=steps, projects=projects)
     return render(request, 'admin_index.html', context=context)
-
 
 
 def clear_clipboard(request, uid, redir="project_view"):
@@ -325,7 +322,6 @@ def data_view(request, id):
 def data_copy(request, id):
     "Store Data object in request.sessions['clipboard'] "
 
-
     data = Data.objects.filter(pk=id).first()
     project = data.project
 
@@ -351,7 +347,7 @@ def data_paste(request, uid):
 
     if len(data_files) > 1:
         # Link whole dir if more than one file present
-        data_files = [ join(data_files[0], "..") ]
+        data_files = [join(data_files[0], "..")]
 
     path = data_files.pop()
     # Skip the toc file of the source data when linking
@@ -359,8 +355,8 @@ def data_paste(request, uid):
 
     # Create new data object in project by linking file(s)
     auth.create_data(project=project, name=f"Copy of {data.name}", path=path,
-                    summary=data.summary, text=data.text,
-                    data_type=data.data_type, skip=skip)
+                     summary=data.summary, text=data.text,
+                     data_type=data.data_type, skip=skip)
 
     # Clear clipboard
     request.session["clipboard"] = None
@@ -434,22 +430,21 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
+@object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
 def data_files_list(request, id, path=''):
-
     data = Data.objects.filter(id=id).first()
     project = data.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
-    back_uid=None if path else project.uid
+    back_uid = None if path else project.uid
     context = dict(activate='selection', data=data, project=project, project_uid=back_uid)
 
     counts = get_counts(project)
     context.update(counts)
 
-    return files_list(request=request, instance=data, path=path,steps=steps,
+    return files_list(request=request, instance=data, path=path, steps=steps,
                       template_name="data_files_list.html", extra_context=context)
 
 
@@ -767,4 +762,3 @@ def job_files_list(request, id, path=''):
 
     return files_list(request=request, instance=job, path=path, steps=steps,
                       template_name="job_files_list.html", extra_context=context)
-
