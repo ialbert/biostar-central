@@ -109,8 +109,7 @@ class Command(BaseCommand):
                     logger.error(f"Skipping invalid image path: {image_path}")
 
             if jobs:
-                pass
-                #auth.create_job(analysis=analysis, json_data=json_data)
+                auth.create_job(analysis=analysis, json_data=json_data)
 
         except Exception as exc:
             logger.exception(f"Error: {exc}")

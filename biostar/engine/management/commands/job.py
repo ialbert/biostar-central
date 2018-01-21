@@ -1,7 +1,5 @@
 import hjson
-import logging
-import os
-import subprocess
+import os, logging, subprocess, pprint
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -84,7 +82,11 @@ def run(job, options={}):
             return
 
         # Extract the execute commands from the spec.
-        execute = json_data.get('execute', {})
+        settings_dict = json_data.get("settings", {})
+        execute = settings_dict.get('execute', {})
+
+        pprint.pprint(execute)
+
         script_name = execute.get("filename", "run.sh")
         json_fname = f"{script_name}.json"
         stdout_fname = f"{script_name}.stdout.txt"
