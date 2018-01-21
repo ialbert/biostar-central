@@ -171,9 +171,9 @@ def job_list(request, uid):
 
 def files_list(request, instance, steps, template_name, path='',
                extra_context={}):
-    "File navigator used for projects, data, and jobs"
+    "File navigator used for  data and jobs"
 
-    # Instance is expected to be a Job, Data, or Project object.
+    # Instance is expected to be a Job or Data object.
     exclude = ''
     if isinstance(instance, Job):
         root = instance.path
