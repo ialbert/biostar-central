@@ -730,11 +730,16 @@ def job_result_view(request, id):
         url = reverse("job_files_entry", kwargs=dict(id=id))
         return redirect(url)
 
-    if job.state != Job.COMPLETED:
+    if job.state == Job.RUNNING:
         url = reverse("job_view", kwargs=dict(id=id))
-        messages.info("The analysis had not yet completed.")
+        messages.warning(request, "Please wait. The analysis is still running ...")
         return redirect(url)
 
+    if job.state != Job.COMPLETED:
+        url = reverse("job_view", kwargs=dict(id=id))
+        messages.warning(request, "The analysis has not completed ...")
+        return redirect(url)
+    
     url = settings.MEDIA_URL + job.get_url(path=index)
     return redirect(url)
 
