@@ -59,7 +59,7 @@ postgres:
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
 
-reset: delete init tutorial
+reset: delete init tutorial cookbook fish giraffe mothur users
 
 next:
 	python manage.py job --next
@@ -71,19 +71,6 @@ users:
 	@# Create initial access of users.
 	@python manage.py add_access initial/initial-access.csv
 
-subscribe:init
-	python manage.py subscribe --group staff --file export/local/test_emails.txt
-
-send:subscribe
-	python manage.py send --group staff --subject "Hello peeps"
-
-jobs:
-	#@python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --jobs
-	#@python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --jobs
-	#@python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --jobs
-	#@python manage.py analysis --add --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --jobs
-	#@python manage.py analysis --add --json biostar/tools/lamar_align/lamar_align.hjson  --template biostar/tools/lamar_align/lamar_align.sh --jobs
-
 init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate -v 0
@@ -92,14 +79,17 @@ tutorial:
 	@python manage.py project --json initial/tutorial-project.hjson --privacy public --jobs
 
 cookbook:
-	#@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --jobs
-	#@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
+	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky
+	@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
 
 fish:
-	@python manage.py project --json initial/fish-project.hjson --jobs
+	@python manage.py project --json initial/fish-project.hjson
 
 giraffe:
 	@python manage.py project --json initial/giraffe-project.hjson --sticky
+
+mothur:
+	python manage.py project --json ~/app/biostar-recipes/projects/metagenome/mothur-project.hjson --privacy public
 
 test:
 	python manage.py collectstatic --noinput -v 0

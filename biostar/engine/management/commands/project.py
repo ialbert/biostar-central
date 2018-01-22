@@ -41,7 +41,7 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
 
     # Stop if the project already exists.
     if project:
-        logger.info(f"Project uid={project.uid} already exists")
+        logger.warning(f"Project uid={project.uid} already exists.")
         return
 
     # Set the image file stream.
