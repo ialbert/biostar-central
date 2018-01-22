@@ -148,6 +148,12 @@ def data_color(data):
 
 
 @register.simple_tag
+def type_label(data):
+    if data.type:
+        return mark_safe(f"<span class='ui label' > {data.type} </span>")
+    return ""
+
+@register.simple_tag
 def state_label(data, error_only=False):
 
     label = f'<span class="ui { DATA_COLORS.get(data.state, "") } label"> {data.get_state_display()} </span>'
@@ -155,7 +161,6 @@ def state_label(data, error_only=False):
     # Error produce error only.
     if error_only and data.state != Data.ERROR:
         label = ""
-
 
     return mark_safe(label)
 

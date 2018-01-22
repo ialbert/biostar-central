@@ -54,6 +54,7 @@ class ProjectForm(forms.ModelForm):
 class DataUploadForm(forms.ModelForm):
 
     file = forms.FileField()
+    type = forms.CharField(max_length=32, required=False)
 
     class Meta:
         model = Data
@@ -67,6 +68,7 @@ class DataUploadForm(forms.ModelForm):
 
 
 class DataEditForm(forms.ModelForm):
+    type = forms.CharField(max_length=32, required=False)
 
     class Meta:
         model = Data
