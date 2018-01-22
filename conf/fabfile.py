@@ -43,7 +43,7 @@ def deploy_main():
     deploy(main_path, main_env, name='main')
 
 def deploy_psu():
-    deploy(psu_path, psu_env, name='main')
-    #reset(psu_path, psu_env, name='main')
+    #deploy(psu_path, psu_env, name='main')
+    reset(psu_path, psu_env, name='main')
 
 
