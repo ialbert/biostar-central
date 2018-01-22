@@ -8,9 +8,11 @@
 
 {% block content %}
 
+    {% if not job_list %}
+        <div class="ui warning message"><i class="ui warning circle icon"></i> No results found.</div>
+    {% endif %}
 
     <div class="ui divided link items">
-
 
         {% if filter %}
             <div class="item centerbox ">

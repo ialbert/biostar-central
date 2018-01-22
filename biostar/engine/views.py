@@ -233,6 +233,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
         filter = Analysis.objects.filter(id=filter).first()
         job_list = job_list.filter(analysis=filter)
 
+
     if user.is_authenticated():
         access = Access.objects.filter(user=user, project=project).first()
     else:

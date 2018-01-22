@@ -18,6 +18,10 @@
 
     {% endif %}
 
+    {% if not job_list %}
+        <div class="ui warning message"><i class="ui warning circle icon"></i>No recipes found.</div>
+    {% endif %}
+
     <div class="ui divided link items">
 
         {% for recipe in recipe_list %}

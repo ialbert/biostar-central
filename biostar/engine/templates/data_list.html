@@ -30,6 +30,10 @@
 
     {% endif %}
 
+    {% if not data_list %}
+        <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>
+    {% endif %}
+
     <div class="ui divided link items">
 
         {% for data in data_list %}
@@ -54,12 +58,16 @@
 
         <div class="item centerbox">
 
-            <a class="ui  button" href="{% url 'data_upload' project.uid %}">
+            <a class="ui button" href="{% url 'data_upload' project.uid %}">
                 <i class="upload icon"></i>Upload File
             </a>
 
-            <a class="ui  button" href="{% url 'data_nav' project.uid %}">
+            <a class="ui button" href="{% url 'data_nav' project.uid %}">
                 <i class="browser icon"></i>Browse Files
+            </a>
+
+            <a class="ui button" href="{% url 'project_edit' project.uid %}">
+                <i class="edit icon"></i>Edit details
             </a>
 
         </div>
