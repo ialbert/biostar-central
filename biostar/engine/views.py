@@ -324,10 +324,7 @@ def data_copy(request, id):
 
     data = Data.objects.filter(pk=id).first()
     project = data.project
-
     request.session["clipboard"] = data.uid
-    messages.success(request, f"Copied {data.name} to Clipboard")
-
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
@@ -513,10 +510,7 @@ def recipe_copy(request, id):
 
     recipe = Analysis.objects.filter(pk=id).first()
     project = recipe.project
-
     request.session["clipboard"] = recipe.uid
-    messages.success(request, f"Copied {recipe.name} to clipboard")
-
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
 
@@ -537,7 +531,9 @@ def recipe_paste(request, uid):
     new_recipe = auth.create_analysis(**attrs)
     new_recipe.save()
 
-    messages.success(request, f"Pasted {recipe.name} to {project.name}")
+    msg = f"Pasted recipe <b>{recipe.name}</b> to project <b>{project.name}</b>."
+    msg = mark_safe(msg)
+    messages.success(request, msg)
     request.session["clipboard"] = None
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
@@ -618,36 +614,37 @@ def recipe_create(request, uid):
     Create recipe with empty template and json spec
     """
 
-    # project = Project.objects.filter(uid=uid).first()
-    #
-    # steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON], project=project)
-    # action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
-    # back_url = reverse('recipe_list', kwargs=dict(uid=project.uid))
-    #
-    # if request.method == "POST":
-    #     form = RecipeForm(data=request.POST, files=request.FILES)
-    #
-    #     if form.is_valid():
-    #         # Empty Analysis Template is authorized on creation
-    #         security = Analysis.AUTHORIZED
-    #         name = form.cleaned_data["name"]
-    #         text = form.cleaned_data["text"]
-    #         summary = form.cleaned_data["summary"]
-    #         stream = form.cleaned_data["image"]
-    #         sticky = form.cleaned_data["sticky"]
-    #
-    #         recipe = auth.create_analysis(project=project, json_text="{}", template="",
-    #                                       user=request.user, summary=summary, name=name, text=text,
-    #                                       security=security, stream=stream, sticky=sticky)
-    #         recipe.save()
-    #         messages.success(request, "Recipe created")
-    #         return redirect(back_url)
-    #
-    # form = RecipeForm()
-    # context = dict(steps=steps, analysis={"name": "New Analysis"},
-    #                project=project, form=form, action_url=action_url, back_url=back_url)
-    # return render(request, 'recipe_edit.html', context)
-    return redirect(reverse("project_list", kwargs=dict(uid=uid)))
+    project = Project.objects.filter(uid=uid).first()
+
+    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON], project=project)
+
+    if request.method == "POST":
+        form = RecipeForm(data=request.POST, files=request.FILES)
+
+        if form.is_valid():
+            # Recipe is authorized since the template is empty at this point.
+            security = Analysis.AUTHORIZED
+            name = form.cleaned_data["name"]
+            text = form.cleaned_data["text"]
+            summary = form.cleaned_data["summary"]
+            stream = form.cleaned_data["image"]
+            sticky = form.cleaned_data["sticky"]
+
+            recipe = auth.create_analysis(project=project, json_text="{}", template="",
+                                          user=request.user, summary=summary, name=name, text=text,
+                                          security=security, stream=stream, sticky=sticky)
+            recipe.save()
+            messages.success(request, "Recipe created")
+
+            return redirect(reverse('recipe_view', kwargs=dict(id=recipe.id)))
+    else:
+        form = RecipeForm(initial=dict(name="New Recipe"))
+
+    # The url to submit to.
+    action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
+    context = dict(steps=steps, project=project, form=form, action_url=action_url)
+
+    return render(request, 'recipe_edit.html', context)
 
 
 @object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
@@ -740,7 +737,7 @@ def job_result_view(request, id):
         messages.warning(request, "The analysis has not completed ...")
         return redirect(url)
 
-    #url = reverse("job_files_entry", kwargs=dict(id=id)) + f"{index}"
+    # url = reverse("job_files_entry", kwargs=dict(id=id)) + f"{index}"
     url = settings.MEDIA_URL + job.get_url(path=index)
     return redirect(url)
 

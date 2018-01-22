@@ -8,19 +8,21 @@
 
 {% block content %}
 
+    {% if filter %}
+        <div class="ui center aligned vertical segment ">
+            <div class="ui success message">
+                Filtering results for recipe <a href="{% url "recipe_view" filter.id %}"><i
+            class="settings icon"></i> {{ filter.name }}</a>
+                &bull; <a href="{% url "job_list" project.uid %}"><i class="undo icon"></i>Show All</a>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if not job_list %}
+        <div class="ui warning message"><i class="ui warning circle icon"></i> No results found.</div>
+    {% endif %}
 
     <div class="ui divided link items">
-
-
-        {% if filter %}
-            <div class="item centerbox ">
-                <div class="ui success message">
-                    Filtering results for recipe <a href="{% url "recipe_view" filter.id %}"><i
-                class="settings icon"></i> {{ filter.name }}</a>
-                    &bull; <a href="{% url "job_list" project.uid %}"><i class="undo icon"></i>Show All</a>
-                </div>
-            </div>
-        {% endif %}
 
 
         {% for job in job_list %}

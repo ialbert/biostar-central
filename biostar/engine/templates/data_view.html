@@ -45,12 +45,14 @@
     </div>
 
     <div class="ui basic center aligned segment">
-        <a class="ui button" href="{% url 'data_edit' data.id %}">
-            <i class="write icon"></i>Edit Info
-        </a>
         <a class="ui button" href="{% url 'data_copy' data.id %}">
             <i class="clone icon"></i>Copy Data
         </a>
+
+        <a class="ui button" href="{% url 'data_edit' data.id %}">
+            <i class="write icon"></i>Edit Info
+        </a>
+
 
     </div>
 

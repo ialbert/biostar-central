@@ -1,12 +1,8 @@
 {% load engine_tags %}
 <div class="ui center aligned segment">
 
-    <div class="ui image">
-        <img class="ui tiny circular image" src="{% img project %}">
-    </div>
-
     <div class="ui header">
-        Project: {{ project.name }}
+        <img class="ui tiny image" src="{% img project %}"> {{ project.name }}
     </div>
 
 </div>

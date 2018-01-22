@@ -14,38 +14,35 @@
 
     <div class="ui raised segments">
 
-        <div class="ui center aligned  segment">
-            <div class="ui icon header">
-                <i class="database icon"></i>
-                <p class="content">
-                    Project List
-                <p class="sub header">Projects that you may access.</p>
-                </p>
+        <div class="ui center aligned segment">
+            <div class="ui header">
+                <i class="database icon"></i> Project List
             </div>
         </div>
 
-        {% if user.is_anonymous %}
-            <div class="ui  center aligned secondary segment">
+        <div class="ui  center aligned secondary segment">
+            {% if user.is_anonymous %}
                 Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
-            </div>
-        {% endif %}
-
+            {% else %}
+                The list of projects that your may access.
+            {% endif %}
+        </div>
         <div class="ui segment">
 
-            <div class="ui divided link items">
+            <div class="ui divided items">
 
                 {% for project in projects %}
 
                     <div class="item">
 
-                        <div class="image">
-                            <img class="ui avatar image" src="{% img project %}"/>
-                        </div>
+
+                        <img class="ui avatar image" src="{% img project %}"/>
+
 
                         <div class="content">
 
                             <a class="header" href="{{ project.url }}">
-                                <i class="archive icon"></i>{{ project.name }}
+                                <i class="database icon"></i>{{ project.name }}
                             </a>
 
                             <div class="meta">
@@ -53,8 +50,8 @@
                             </div>
 
                             <div class="extra">
-                                <div>Created on {{ project.date.date }} by {{ project.owner.email }}</div>
-                                <div>{% privacy_label project %}</div>
+                                {% privacy_label project %}
+                                Created on {{ project.date.date }} by {{ project.owner.email }}
                             </div>
 
                         </div>
@@ -68,7 +65,7 @@
         {% if user.is_authenticated %}
             <div class="ui center aligned segment">
                 <a class="ui button" href="{% url 'project_create' %}">
-                    <i class="add circle icon"></i>Create New Project
+                    <i class="add circle icon"></i>Create Project
                 </a>
             </div>
         {% endif %}
