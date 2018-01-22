@@ -100,7 +100,6 @@ test:
 ftp:
 	python biostar/ftpserver/server.py
 
-
 recipe:
 	python manage.py project --json ~/app/biostar-recipes/projects/metagenome/mothur-project.hjson --privacy public --jobs
 
@@ -108,10 +107,7 @@ push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
 	git push
 
-
-test_push:test
-	git commit -am "Update by `whoami` on `date` from `hostname`"
-	git push
+test_push:test push
 
 deploy_test:
 	fab -f conf/fabfile.py -H ${USER}@${SERVER} deploy_test

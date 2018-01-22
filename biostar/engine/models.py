@@ -160,7 +160,7 @@ class Data(models.Model):
     # FilePathField points to an existing file
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
 
-    uid = models.CharField(max_length=32)
+    uid = models.CharField(max_length=32, unique=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

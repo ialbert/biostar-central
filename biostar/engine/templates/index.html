@@ -17,7 +17,7 @@
 {% block body %}
 
     <div class="ui raised segment">
-
+     {% show_messages messages %}
         <div class="ui vertical segment">
 
             <div class="ui header">
@@ -26,7 +26,7 @@
                 </a>
             </div>
             <p>
-                <img class="ui small right floated circular image" src="{% static "images/dna.jpg" %}">
+                <img class="ui small right floated circular image" src="{% static 'images/dna.jpg' %}">
 
                 View the list of projects. Each project is a collection of:
             <ul>

@@ -1,8 +1,12 @@
 {% extends "base.html" %}
+{% load engine_tags %}
+
 {% block headtitle %} Metabarcode {% endblock %}
 {% block title %} Log out {% endblock %}
 
 {% block body %}
+
+    {% show_messages messages %}
     <div class="ui raised segment">
 
         <div class="ui center aligned header">
