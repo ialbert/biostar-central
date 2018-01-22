@@ -8,26 +8,21 @@
 
 {% block content %}
 
-    {% if request|has_data:project.uid %}
+     {% if request|has_data %}
+        <div class="ui center aligned vertical segment">
+            <div class="ui  message">
+                <p>The clipboard contains a data. You may now paste it or clear it.</p>
+                <p>
+                    <a class="ui green mini button" href="{% url 'data_paste' project.uid %}">
+                        <i class="sticky note icon"></i> Paste Data
+                    </a>
 
-        <a class="ui green button" href="{% url 'data_paste' project.uid %}">
-            <i class="sticky note icon"></i> Paste Data
-        </a>
-
-        <a class="ui button" href="{% url 'clear_clipboard' project.uid 'data_list' %}">
-            <i class="window close icon"></i> Clear Clipboard
-        </a>
-
-    {% elif request|data_in_project:project.uid %}
-
-        <a class="ui green disabled button" href="#">
-            <i class="sticky note icon"></i> Can not paste into project
-        </a>
-
-        <a class="ui button" href="{% url 'clear_clipboard' project.uid 'data_list' %}">
-            <i class="window close icon"></i> Clear Clipboard
-        </a>
-
+                    <a class="ui orange mini button" href="{% url 'clear_clipboard' project.uid 'data_list' %}">
+                        <i class="window close icon"></i> Clear Clipboard
+                    </a>
+                </p>
+            </div>
+        </div>
     {% endif %}
 
     {% if not data_list %}
@@ -67,7 +62,7 @@
             </a>
 
             <a class="ui button" href="{% url 'project_edit' project.uid %}">
-                <i class="edit icon"></i>Edit details
+                <i class="edit icon"></i>Edit Project
             </a>
 
         </div>

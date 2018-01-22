@@ -7,18 +7,23 @@
 {% block content %}
 
     {% if request|has_recipe %}
+        <div class="ui center aligned vertical segment">
+            <div class="ui  message">
+                <p>The clipboard contains a recipe. You may now paste it or clear it.</p>
+                <p>
+                    <a class="ui green mini button" href="{% url 'recipe_paste' project.uid %}">
+                        <i class="sticky note icon"></i> Paste Recipe
+                    </a>
 
-        <a class="ui green button" href="{% url 'recipe_paste' project.uid %}">
-            <i class="sticky note icon"></i> Paste Recipe
-        </a>
-
-        <a class="ui button" href="{% url 'clear_clipboard' project.uid 'recipe_list' %}">
-            <i class="window close icon"></i> Clear Clipboard
-        </a>
-
+                    <a class="ui orange mini button" href="{% url 'clear_clipboard' project.uid 'recipe_list' %}">
+                        <i class="window close icon"></i> Clear Clipboard
+                    </a>
+                </p>
+            </div>
+        </div>
     {% endif %}
 
-    {% if not job_list %}
+    {% if not recipe_list %}
         <div class="ui warning message"><i class="ui warning circle icon"></i>No recipes found.</div>
     {% endif %}
 
@@ -47,6 +52,12 @@
             </div>
 
         {% endfor %}
+
+        <div class="item centerbox">
+            <a class="ui button" href="{% url 'recipe_create' project.uid %}">
+                <i class="add icon"></i>Create Recipe
+            </a>
+        </div>
 
     </div>
 

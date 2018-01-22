@@ -72,39 +72,23 @@ def file_url(object, path, current):
 
 
 @register.filter
-def has_data(request, project_uid):
-    "Checks if object in clipboard is a recipe"
-
+def has_data(request):
+    """
+    Checks if object in clipboard is a recipe.
+    """
     uid = request.session.get("clipboard")
     data = Data.objects.filter(uid=uid).first()
-    project = Project.objects.filter(uid=project_uid).first()
-    in_project = project.data_set.filter(uid=uid).first()
-
-    if data and not in_project:
-        return True
-
-    return False
-
-
-@register.filter
-def data_in_project(request, project_uid):
-    "Return true if data exists in project"
-
-    uid = request.session.get("clipboard")
-    project = Project.objects.filter(uid=project_uid).first()
-    data = project.data_set.filter(uid=uid).first()
-
-    return True if data else False
+    return bool(uid and data)
 
 
 @register.filter
 def has_recipe(request):
-    "Checks if object in clipboard is a recipe"
-
+    """
+    Checks if object in clipboard is a recipe.
+    """
     uid = request.session.get("clipboard")
     recipe = Analysis.objects.filter(uid=uid).first()
-
-    return True if recipe else False
+    return bool(uid and recipe)
 
 
 @register.inclusion_tag('widgets/pages.html')
