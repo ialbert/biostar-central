@@ -59,7 +59,7 @@ postgres:
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
 
-reset: delete init tutorial cookbook fish giraffe users
+reset: delete init tutorial cookbook fish giraffe mothur users
 
 next:
 	python manage.py job --next
