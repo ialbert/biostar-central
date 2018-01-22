@@ -5,19 +5,19 @@
 {% endblock %}
 
 {% block content %}
-    <div class="ui center aligned vertical segment">
+
         {% if request|has_recipe %}
+            <div class="ui center aligned vertical segment">
+                <a class="ui green button" href="{% url 'recipe_paste' project.uid %}">
+                    <i class="sticky note icon"></i> Paste Recipe
+                </a>
 
-            <a class="ui green button" href="{% url 'recipe_paste' project.uid %}">
-                <i class="sticky note icon"></i> Paste Recipe
-            </a>
-
-            <a class="ui button" href="{% url 'clear_clipboard' project.uid 'recipe_list' %}">
-                <i class="window close icon"></i> Clear Clipboard
-            </a>
-
+                <a class="ui button" href="{% url 'clear_clipboard' project.uid 'recipe_list' %}">
+                    <i class="window close icon"></i> Clear Clipboard
+                </a>
+            </div>
         {% endif %}
-    </div>
+
 
     <div class="ui divided link items">
 

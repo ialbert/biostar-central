@@ -7,29 +7,29 @@
 
 
 {% block content %}
-    <div class="ui center aligned vertical segment">
+
         {% if request|has_data:project.uid %}
+            <div class="ui center aligned vertical segment">
+                <a class="ui green button" href="{% url 'data_paste' project.uid %}">
+                    <i class="sticky note icon"></i> Paste Data
+                </a>
 
-            <a class="ui green button" href="{% url 'data_paste' project.uid %}">
-                <i class="sticky note icon"></i> Paste Data
-            </a>
-
-            <a class="ui button" href="{% url 'clear_clipboard' project.uid 'data_list' %}">
-                <i class="window close icon"></i> Clear Clipboard
-            </a>
-
+                <a class="ui button" href="{% url 'clear_clipboard' project.uid 'data_list' %}">
+                    <i class="window close icon"></i> Clear Clipboard
+                </a>
+            </div>
         {% elif request|data_in_project:project.uid %}
+            <div class="ui center aligned vertical segment">
+                <a class="ui green disabled button" href="#">
+                    <i class="sticky note icon"></i> Can not paste into project
+                </a>
 
-            <a class="ui green disabled button" href="#">
-                <i class="sticky note icon"></i> Can not paste into project
-            </a>
-
-            <a class="ui button" href="{% url 'clear_clipboard' project.uid 'data_list' %}">
-                <i class="window close icon"></i> Clear Clipboard
-            </a>
-
+                <a class="ui button" href="{% url 'clear_clipboard' project.uid 'data_list' %}">
+                    <i class="window close icon"></i> Clear Clipboard
+                </a>
+            </div>
         {% endif %}
-    </div>
+
     <div class="ui divided link items">
 
         {% for data in data_list %}
