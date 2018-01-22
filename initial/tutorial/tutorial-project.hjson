@@ -32,6 +32,7 @@ data: [
     {
         name: SRR numbers.txt
         value: initial/tutorial/data/sra.txt
+        type: SRR
         summary: SRR sequencing run accession numbers from SRA.
         text: Each line represents a SRR run id.
     }

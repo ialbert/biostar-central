@@ -1,31 +1,39 @@
 #
-# Demonstrates the use of parameters.
+# A recipe demonstrating the use of parameters.
 #
 
-# Print some of the parameters to the screen.
+#
+# Access parameters.
+#
+echo "Instrument: {{instrument.value}}"
+echo "Protocol: {{protocol.value}}"
+echo "Cutoff: {{cutoff.value}}"
 echo "Validate: {{validate.value}}"
-echo "Speed: {{speed.value}}"
-echo "Name: {{username.value}}"
-echo "Max value: {{maxval.value}}"
-echo "Direction: {{direction.value}}"
-echo "Pace: {{pace.value}}"
-echo "Reads: {{reads.value}}"
-echo "Genes: {{genes.value}}"
+echo "Read length: {{readlen.value}}"
+
+#
+# The files to be used.
+#
+echo "Reads: {{reference.value}}"
+echo "SRR: {{accession.value}}"
 
 #
 # Make a nested directory structure
 #
 mkdir -p data/store/
-mkdir -p data/temp/
 
 #
-# Create a files in directories.
+# Create a few files.
 #
-echo "Direction={{direction.value}}" > data/store/direction.txt
-echo "Pace={{pace.value}}" > data/store/pace.txt
+cat {{reference.value}} | grep  ">"  > data/store/sequence-names.txt
+cat {{accession.value}} > data/store/srr.txt
 
 #
-# Generate a few test files.
+# Generate a table of contents.
 #
-ls -l > data/temp/ls.txt
-find . -name '*' > data/temp/all.txt
+find . -name '*' > contents.txt
+
+#
+# Print the contents to the screen
+#
+cat contents.txt

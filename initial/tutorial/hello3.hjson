@@ -1,98 +1,72 @@
 {
-    validate:
-    {
-        label: Validate results
+
+    readlen: {
+        label: Read Length
+        display: INTEGER
+        value: 250
+        range: [70, 100000]
+    }
+
+    validate: {
+        label: Cross Validate
         display: CHECKBOX
         value: true
     }
-    speed_drug:
-    {
-        label: Speed
+
+    cutoff: {
+        label: P-Value Cutoff
         display: FLOAT
-        value: 10
-        range:
-        [
-            1
-            10000
-        ]
+        value: 0.05
+        range: [0, 1]
     }
-    username:
-    {
-        label: User Name
-        display: TEXTBOX
-        value: John Doe
-    }
-    maxval:
-    {
-        label: Maximal Value
-        display: INTEGER
-        value: 10
-        range:
-        [
-            1
-            100
-        ]
-    }
-    direction:
-    {
-        label: Select direction
+
+    protocol: {
+        label: Sequencing Protocol
         display: RADIO
-        choices:
-        [
-            [
-                left
-                Go Left
-            ]
-            [
-                right
-                Go Right
-            ]
+        choices:[
+            [ "single" "Single End"]
+            [ "paired", "Paired End" ]
         ]
-        value: left
+        value: single
     }
-    pace:
-    {
-        label: Select Pace
+
+    instrument: {
+        label: Select Instrument
         display: DROPDOWN
-        choices:
-        [
-            [
-                fast
-                "Go Fast "
-            ]
-            [
-                slow
-                Go Slow
-            ]
+        choices:[
+            [ "hiseq", "Illumina HiSeq" ]
+            [ "pacbio", "Pacific BioSciences Sequel" ]
+            [ "minion", "Oxford Nanopore Minion" ]
         ]
-        value: fast
+        value: pacbio
     }
-    reads:
-    {
-        label: Sequencing Reads
+
+    reference: {
+        label: Reference Genome
         display: DROPDOWN
         type: FASTA
         source: PROJECT
-        value: initial/tutorial/sequences.fq
+        value: Genome.fa
     }
-    genes:
-    {
-        label: Gene Names
+
+    accession: {
+        label: SRR Accesion Numbers
         display: DROPDOWN
         source: PROJECT
-        type: GENERIC
-        value: initial/tutorial/sra.txt
+        type: SRR
+        value: SRR numbers.txt
     }
-    settings:
-    {
+
+    settings: {
         name: Parameters and interface examples
         summary: This recipe demonstrates the use of different parameter types.
         index: results.txt
         help:
-            '''
-            # Help
+        '''
+        # Help
 
-            This is a demonstration of all parameter types that the system recognizes.
-            '''
+        This recipe is a demonstration of all parameter types that the system recognizes.
+        '''
     }
+
 }
