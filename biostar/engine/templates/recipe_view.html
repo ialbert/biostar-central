@@ -1,5 +1,6 @@
 {% extends "base_content.html" %}
 {% load engine_tags %}
+{% load staticfiles %}
 
 {% block headtitle %}
     {{ analysis.name }}
@@ -14,7 +15,14 @@
     {% breadcrumb steps=steps %}
 {% endblock %}
 
+{% block js %}
+    <script src="{% static 'lib/codemirror.js' %}"></script>
+    <script src="{% static 'lib/mode/simple.js' %}"></script>
+    <script src="{% static 'lib/mode/engine.js' %}"></script>
+{% endblock %}
+
 {% block content %}
+<div class="ui vertical segment">
 
     <div class="ui vertical segment">
 
@@ -51,7 +59,7 @@
             <i class="clone icon"></i>Copy Recipe
         </a>
 
-         <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
+        <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
             <i class="list icon"></i>Edit Code
         </a>
 
@@ -66,11 +74,15 @@
         {{ analysis.html|safe }}
     </div>
 
+
     <div class="ui vertical segment">
         <div class="ui header">Recipe Template</div>
         <p>The actions performed by this recipe.</p>
-        <pre><code>{{ analysis.template }}</code></pre>
+        <textarea class="code" style="width:100%; min-height: 300px" id="foo">{{ analysis.template }}</textarea>
     </div>
 
+</div>
+    
 {% endblock %}
+
 

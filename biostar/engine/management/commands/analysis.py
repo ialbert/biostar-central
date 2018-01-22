@@ -108,12 +108,13 @@ class Command(BaseCommand):
                     logger.error(f"Skipping invalid image path: {image_path}")
 
             if jobs:
-                # Fill in the json for each job in the analysis.
+                # When creating a job automatically for data in projects
+                # it will try to match the value of the parameter to the data name.
                 for key, obj in json_data.items():
                     if obj.get("source") != "PROJECT":
                         continue
-                    symbol = obj.get('type')
-                    data = Data.objects.filter(project=project, data_type=symbol).first()
+                    name = obj.get('value', '')
+                    data = Data.objects.filter(project=project, name=name).first()
                     if data:
                         data.fill_dict(obj)
                 auth.create_job(analysis=analysis, json_data=json_data)

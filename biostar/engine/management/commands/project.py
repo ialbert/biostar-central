@@ -18,31 +18,46 @@ def join(*args):
     return os.path.join(*args)
 
 
-def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
+def parse_json(json, root, privacy=Project.PRIVATE, sticky=False, jobs=False):
     """
     Create a project from a JSON data
     """
-    data = hjson.load(open(json, 'rb'))
-    dirname = os.path.dirname(json)
 
-    root = data.get("settings", {})
+    # Load everything relative to the root.
+    fpath = os.path.join(root, json)
 
-    if not root:
+    # The directory that the project file is located in.
+    dirname = os.path.dirname(fpath)
+
+    # This is the
+    json_data = hjson.load(open(fpath, 'rb'))
+
+    # The base node of the JSON file.
+    base = json_data.get("settings", {})
+
+    if not base:
         logger.error(f"Project {json} must have a 'settings' key")
         sys.exit()
 
-    uid = root.get("uid", None)
-    name = root.get("name", '')
-    text = root.get("text", '')
-    summary = root.get("summary", '')
-    imgpath = join(dirname, root.get("image", ""))
+    # The uid is a required element.
+    uid = base.get("uid", None)
+    if not uid:
+        logger.error(f"Project 'settings' dictionary must have a 'uid' field.")
+        sys.exit()
 
+    # See if project already exists.
     project = Project.objects.filter(uid=uid).first()
 
-    # Stop if the project already exists.
+    # Each project uid may only be loaded once.
     if project:
         logger.warning(f"Project uid={project.uid} already exists.")
         return
+
+    # Get more settings into the project.
+    name = base.get("name", '')
+    text = base.get("text", '')
+    summary = base.get("summary", '')
+    imgpath = join(dirname, base.get("image", ""))
 
     # Set the image file stream.
     if os.path.isfile(imgpath):
@@ -50,12 +65,12 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
     else:
         stream = None
 
-    # Recipes added at the command line belong to the superuser.
+    # Recipes added at the command line will belong to the superuser.
     user = User.objects.filter(is_superuser=True).first()
 
     # Setup error. Site has no users.
     if not user:
-        logger.error("No valid users found")
+        logger.error("No valid user was found.")
         return
 
     # Create the project.
@@ -63,7 +78,7 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
                                   stream=stream, privacy=privacy, sticky=sticky)
 
     # Add datatypes specific to a project
-    datatypes = data.get("datatypes", '')
+    datatypes = json_data.get("datatypes", '')
 
     for name in datatypes:
         symbol = datatypes[name].get("symbol", '')
@@ -72,30 +87,31 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
         datatype.save()
 
     # Add extra data specified in the project json file.
-    management.call_command("data", json=json, id=project.id)
+    management.call_command("data", json=fpath, id=project.id)
 
     # Add the analyses specified in the project json.
-    analyses = data.get("analyses", '')
+    analyses = json_data.get("analyses", '')
 
+    # The analyses need are specified relative to the root folder.
     for row in reversed(analyses):
-        other_json = expanduser(row['json'])
-        template = expanduser(row['template'])
+        other_json = os.path.join(root, row['json'])
+        template = os.path.join(root, row['template'])
         management.call_command("analysis", id=project.id, add=True, json=other_json, template=template, jobs=jobs)
-
-
 
 
 class Command(BaseCommand):
     help = 'Creates a project.'
 
     def add_arguments(self, parser):
-        parser.add_argument('--json', required=True, help="The json file that described the project")
+        parser.add_argument('--root', default='', help="The biostar-recipe project root")
+        parser.add_argument('--json', required=True, help="The json file that defines the project relative to the root")
         parser.add_argument('--jobs', action='store_true', default=False, help="Create jobs for the analyses")
         parser.add_argument('--privacy', default="private", help="Privacy of project, defaults to sharable")
         parser.add_argument('--sticky', action='store_true', default=False,
                             help="Make project sticky (high in the order).")
 
     def handle(self, *args, **options):
+        root = options['root']
         json = options['json']
         privacy = options["privacy"].lower()
         sticky = options["sticky"]
@@ -111,4 +127,4 @@ class Command(BaseCommand):
             logger.error(f"Invalid privacy choice: {privacy}")
             return
 
-        parse_json(json, jobs=jobs, privacy=privacy_value, sticky=sticky)
+        parse_json(json=json, root=root, jobs=jobs, privacy=privacy_value, sticky=sticky)
