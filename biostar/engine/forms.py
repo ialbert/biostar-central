@@ -17,7 +17,7 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-def check_size(fobj, maxsize=0.1):
+def check_size(fobj, maxsize=0.3):
     # maxsize in megabytes!
 
     try:
