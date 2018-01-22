@@ -65,7 +65,7 @@ class Command(BaseCommand):
 
         # Template file does not exist.
         if not os.path.isfile(template_fname):
-            logger.error(f'No file found for --template={template}')
+            logger.error(f'No file found for --template={template_fname}')
             return
 
         try:
