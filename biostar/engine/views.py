@@ -353,7 +353,7 @@ def data_paste(request, uid):
     # Create new data object in project by linking file(s)
     auth.create_data(project=project, name=f"Copy of {data.name}", path=path,
                      summary=data.summary, text=data.text,
-                     data_type=data.data_type, skip=skip)
+                     type=data.type, skip=skip)
 
     # Clear clipboard
     request.session["clipboard"] = None
@@ -368,10 +368,10 @@ def data_edit(request, id):
     project = data.project
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
-    form = DataEditForm(instance=data, project=project, initial=dict(data_type=data.data_type))
+    form = DataEditForm(instance=data, initial=dict(type=data.type))
 
     if request.method == "POST":
-        form = DataEditForm(data=request.POST, instance=data, project=project)
+        form = DataEditForm(data=request.POST, instance=data)
         if form.is_valid():
             form.save()
             return redirect(reverse("data_view", kwargs=dict(id=data.id)))
@@ -405,19 +405,20 @@ def data_upload(request, uid):
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
                                project=project)
-    form = DataUploadForm(project=project)
+
+    form = DataUploadForm()
     if request.method == "POST":
-        form = DataUploadForm(data=request.POST, files=request.FILES, project=project)
+        form = DataUploadForm(data=request.POST, files=request.FILES)
 
         if form.is_valid():
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
             summary = form.cleaned_data["summary"]
-            data_type = form.cleaned_data["data_type"]
+            type = form.cleaned_data["type"]
             name = stream.name
             data = auth.create_data(stream=stream, name=name,
                                     text=text, user=owner, project=project, summary=summary,
-                                    data_type=data_type)
+                                    type=type)
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
@@ -570,7 +571,6 @@ def recipe_code(request, id):
             # Preview action will let the form cascade through.
             save = form.cleaned_data['action'] == 'SAVE'
 
-            # The
             analysis.json_text = form.cleaned_data['json']
 
             # Changes to template will require a review ( only when saving ).

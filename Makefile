@@ -59,7 +59,7 @@ postgres:
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
 
-reset: delete init tutorial cookbook fish giraffe mothur users
+reset: delete init tutorial cookbook fish giraffe users
 
 next:
 	python manage.py job --next
@@ -89,6 +89,7 @@ giraffe:
 	@python manage.py project --json initial/giraffe-project.hjson --sticky
 
 mothur:
+    # biostar-recipes not available
 	python manage.py project --json ~/app/biostar-recipes/projects/metagenome/mothur-project.hjson --privacy public
 
 test:

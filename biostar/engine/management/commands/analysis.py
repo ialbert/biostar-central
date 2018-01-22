@@ -5,7 +5,7 @@ import hjson
 from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
-from biostar.engine.models import Project, Analysis, Data, DataType
+from biostar.engine.models import Project, Analysis, Data
 
 logger = logging.getLogger('engine')
 
@@ -113,7 +113,7 @@ class Command(BaseCommand):
                     if obj.get("source") != "PROJECT":
                         continue
                     symbol = obj.get('type')
-                    data = Data.objects.filter(project=project, data_type=symbol).first()
+                    data = Data.objects.filter(project=project, type=symbol).first()
                     if data:
                         data.fill_dict(obj)
                 auth.create_job(analysis=analysis, json_data=json_data)

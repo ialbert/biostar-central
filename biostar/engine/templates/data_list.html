@@ -43,11 +43,13 @@
                     <div class="description">
                         <div>{{ data.summary }}</div>
                     </div>
+
                     <div class="meta">
                         {% size_label data %}
-                        {% type_label data %}
+                        <span class="ui label" > {{data.type}} </span>
                         {% state_label data error_only=True %}
                     </div>
+
                 </div>
 
             </div>

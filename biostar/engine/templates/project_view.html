@@ -9,22 +9,6 @@
 
 {% block content %}
 
-    {% if 0 %}
-
-        <div class="ui secondary segment">
-            <div class="ui header"><i class="add circle icon"></i>Project Actions</div>
-
-            <div class="ui center aligned basic segment">
-                <a class="ui button" href="{% url 'project_edit' project.uid %}">
-                    <i class="write icon"></i>Edit Info
-                </a>
-                <a class="ui button" href="{% url 'project_users' project.uid %}">
-                    <i class="add user icon"></i>Manage People
-                </a>
-            </div>
-        </div>
-    {% endif %}
-
 
     {% if access %}
         <div class="ui  center aligned segment">

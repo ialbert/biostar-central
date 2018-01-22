@@ -103,31 +103,6 @@ class Project(models.Model):
     def get_project_dir(self):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
-
-class DataType(models.Model):
-
-    name = models.CharField(default="name", max_length=MAX_NAME_LEN)
-
-    # Symbol is what we enter in the json file
-    symbol = models.CharField(max_length=MAX_FIELD_LEN)
-
-    help = models.CharField(default="description", max_length=MAX_NAME_LEN)
-
-    project = models.ForeignKey(Project)
-    uid = models.CharField(max_length=32, unique=True)
-
-    class Meta:
-        unique_together = ('project', 'symbol')
-
-    def save(self, *args, **kwargs):
-        self.uid = self.uid or util.get_uuid(8)
-
-        super(DataType, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
-
-
 class Access(models.Model):
     """
     Allows access of users to Projects.
@@ -163,20 +138,6 @@ def create_access(sender, instance, created, **kwargs):
         access.save()
 
 
-@receiver(post_save, sender=Project)
-def add_datatypes(sender, instance, created, **kwargs):
-
-    # Pre-load data types to a project on creation
-
-    for name, symbol, help in settings.DATA_TYPES:
-
-        if created:
-
-            datatype =  DataType.objects.create(project=instance, symbol=symbol, name=name,
-                                               help=help)
-            datatype.save()
-
-
 class Data(models.Model):
     PENDING, READY, ERROR, DELETED = 1, 2, 3, 4
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted")]
@@ -192,7 +153,7 @@ class Data(models.Model):
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
-    data_type = models.CharField(max_length=MAX_NAME_LEN)
+    type = models.CharField(max_length=MAX_NAME_LEN)
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
 
@@ -211,7 +172,6 @@ class Data(models.Model):
         self.date = self.date or now
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
-        #self.data_type = self.data_type or GENERIC_TYPE
 
         # Build the data directory.
         data_dir = self.get_data_dir()

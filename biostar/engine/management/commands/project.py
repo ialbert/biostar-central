@@ -75,7 +75,6 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
 
 
 
-
 class Command(BaseCommand):
     help = 'Creates a project.'
 

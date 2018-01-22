@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from django.urls import reverse
 
 from biostar.engine import settings
-from biostar.engine.models import Access, Job, make_html, Project, DataType, Data, Analysis
+from biostar.engine.models import Access, Job, make_html, Project, Data, Analysis
 
 
 logger = logging.getLogger("engine")
@@ -222,21 +222,6 @@ def size_label(data):
     Returns a label for data sizes.
     """
     return dict(data=data)
-
-
-@register.inclusion_tag('widgets/type_label.html')
-def type_label(data):
-    """
-    Returns a label for a data type.
-    """
-
-    color = ""
-    query = DataType.objects.filter(project=data.project, symbol=data.data_type).first()
-
-    if not query:
-        query, color = f"{data.data_type} Not Recognized", "yellow"
-
-    return dict(label=query, color=color)
 
 
 @register.inclusion_tag('widgets/form_errors.html')

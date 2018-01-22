@@ -29,7 +29,8 @@
         <div class="ui relaxed bulleted list">
             <div class="item">Size: {{ data.size|filesizeformat }}</div>
             <div class="item">State: {% state_label data %}</div>
-            <div class="item">Data Type: {% type_label data %}</div>
+            <div class="item">Data Type: <span class="ui label" > {{data.type}} </span>
+            </div>
             <div class="item">Created by: {{ data.owner.email }}</div>
         </div>
     </div>
