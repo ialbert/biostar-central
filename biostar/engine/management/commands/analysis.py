@@ -114,10 +114,6 @@ class Command(BaseCommand):
                     if obj.get("source") != "PROJECT":
                         continue
 
-                    #symbol = obj.get('type')
-                    #data = Data.objects.filter(project=project, type=symbol).first()
-
-                    #TODO: value is a path and not data name
                     name = obj.get('value', '')
                     data = Data.objects.filter(project=project, name=name).first()
 
