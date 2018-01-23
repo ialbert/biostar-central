@@ -1,6 +1,10 @@
 USER=www
 SERVER=bioinformatics.recipes
 
+DATA_FILE=recipes-initial-data.tar.gz
+DATA_DIR=/export/sites/main_data/initial
+DATA_HOST=data.bioinformatics.recipes
+
 serve: init
 	python manage.py runserver
 
@@ -61,7 +65,7 @@ postgres:
 
 #reset: delete init tutorial cookbook fish giraffe mothur users
 
-reset: delete init tutorial
+reset: delete init tutorial cookbook
 
 
 next:
@@ -78,12 +82,15 @@ init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate -v 0
 
+# Initializes the tutorial projects.
 tutorial:
 	@python manage.py project --json initial/tutorial/tutorial-project.hjson --privacy public --jobs
 
 cookbook:
-	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky
-	@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
+	python manage.py project --root ~/app/biostar-recipes --json projects/cookbook/cookbook-project.hjson --privacy public --jobs
+
+	#@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky
+	#@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
 
 fish:
 	@python manage.py project --json initial/fish-project.hjson
@@ -99,6 +106,10 @@ test:
 	python manage.py test -v 2 --failfast
 	coverage run manage.py test
 	coverage html --skip-covered
+
+data:
+	(cd export && rsync -avz ${USER}@${DATA_HOST}:${DATA_DIR}/${INITIAL_DATA}/${DATA_FILE} . )
+	(cd export && tar zxvf ${DATA_FILE})
 
 ftp:
 	python biostar/ftpserver/server.py
