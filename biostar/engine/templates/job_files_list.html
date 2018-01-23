@@ -12,7 +12,7 @@
         File list for: <a href="{% url 'job_view' job.id %}"><i class="bar chart icon"></i>{{ job.name }}</a>
     </div>
 
-    {% file_listing object=instance path=path file_list=file_list %}
+    {% file_listing object=instance path=path file_list=file_list form=form %}
 
 {% endblock %}
 

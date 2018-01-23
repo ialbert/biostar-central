@@ -290,9 +290,10 @@ def link_files(path, data, skip='', summary=''):
 
     "Param : data (instance) - An instance of a Data object"
 
-    # If the path is a directory, symlink all files in the directory.
-    if path and os.path.isdir(path):
 
+    files = []
+    if path and os.path.isdir(path):
+        # If the path is a directory, symlink all files in the directory.
         logger.info(f"Linking path: {path}")
         collect = findfiles(path, collect=[], skip=skip)
         for fname in os.listdir(path):
@@ -306,16 +307,17 @@ def link_files(path, data, skip='', summary=''):
         # Append directory info to data summary
         data.summary = f'Contains {len(collect)} files. {summary}'
         logger.info(f"Linked {len(collect)} files.")
-        return collect
+        files.extend(collect)
 
-    assert path and os.path.isfile(path), path
+    elif path and os.path.isfile(path):
 
-    # The path is a file.
-    dest = create_path(path, data=data)
-    os.symlink(path, dest)
-    logger.info(f"Linked file: {path}")
+        # The path is a file.
+        dest = create_path(path, data=data)
+        os.symlink(path, dest)
+        logger.info(f"Linked file: {path}")
+        files.append(dest)
 
-    return dest
+    return files
 
 
 def create_path(fname, data):
@@ -344,7 +346,8 @@ def create_data(project, user=None, stream=None, path='', name='',
     "Param : skip (str) - full file path found in 'path' that will be ignored when linking."
 
     # We need absolute paths with no trailing slashes.
-    path = os.path.abspath(path).rstrip("/")
+
+    path = os.path.abspath(path).rstrip("/") if path else path
 
     # Create the data.
     type = type or "DATA"

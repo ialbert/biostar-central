@@ -377,9 +377,6 @@ class Job(models.Model):
     def url(self):
         return reverse("job_view", kwargs=dict(id=self.id))
 
-    def get_project_dir(self):
-        return self.project.get_project_dir()
-
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"

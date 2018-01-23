@@ -412,6 +412,7 @@ def data_upload(request, uid):
             data = auth.create_data(stream=stream, name=name,
                                     text=text, user=owner, project=project, summary=summary,
                                     type=type)
+
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
@@ -754,16 +755,15 @@ def job_files_list(request, id, path=''):
         [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
         job=job, project=project)
 
-    form = FileCopyForm()
+    form = FileCopyForm(job=job)
     if request.method == "POST":
-        form = FileCopyForm(data=request.POST)
+        form = FileCopyForm(data=request.POST, job=job)
         if form.is_valid():
-            1/0
-            form.save()
-            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+            ndata = form.save()
+            messages.success(request, f"Copied {ndata} to Data")
+            return redirect(reverse("data_nav", kwargs=dict(uid=project.uid)))
 
     context = dict(activate='selection', job=job, project=project, form=form)
-
     counts = get_counts(project)
     context.update(counts)
 

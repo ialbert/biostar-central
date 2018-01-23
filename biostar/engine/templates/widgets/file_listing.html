@@ -1,6 +1,10 @@
 {% load engine_tags %}
 
-<div class="ui relaxed divided list">
+{% form_errors form %}
+<form method="post" class="ui form" action=".">
+    {% csrf_token %}
+
+    <div class="ui relaxed divided list">
 
         <div class="item">
 
@@ -17,19 +21,26 @@
         {% for entry in file_list %}
             <div class="item">
 
-                {% if entry.is_dir %}
-                    {% dir_url object=object current=entry path=path %}
-
-                {% else %}
-
-                    <div class="inline field">
-
-                        {% file_url object=object path=path current=entry %}
-
-                    </div>
-
+                {% if form %}
+                    {% input path=path current=entry %}
                 {% endif %}
 
+                {% file_url object=object path=path current=entry %}
+
             </div>
+
         {% endfor %}
-</div>
+
+        {% if form and file_list %}
+
+             <div class="ui center aligned basic segment">
+                <button type="submit" class="ui submit green button">
+                    <i class="Check icon"></i>Copy to Data
+                </button>
+             </div>
+
+         {% endif %}
+
+
+    </div>
+ </form>
