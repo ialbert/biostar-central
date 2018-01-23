@@ -15,10 +15,7 @@
         </div>
 
 
-
     </div>
-
-
 
     <div class="ui center aligned secondary vertical segment">
         <a class="ui {% job_color job %} button" href="{% url 'job_result_view' job.id %}"><i
@@ -26,9 +23,12 @@
         <a class="ui button" href="{% url 'job_files_entry' job.id %}">
             <i class="file icon"></i>All Files</a>
         <a class="ui  button" href="{% url 'recipe_view' job.analysis.id %}"><i
-        class="setting icon"></i>Go to Recipe</a>
-        <a class="ui  button" href="{% url 'job_edit' job.id %}"><i
-        class="write icon"></i>Edit Details</a>
+        class="setting icon"></i>View Recipe</a>
+
+        {% if user.is_authenticated %}
+            <a class="ui  button" href="{% url 'job_edit' job.id %}"><i
+            class="write icon"></i>Edit Details</a>
+        {% endif %}
     </div>
 
     <div class="ui center aligned vertical segment">

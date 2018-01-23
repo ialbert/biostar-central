@@ -1,7 +1,10 @@
 {% load humanize %}
 {% load engine_tags %}
-<span class="ui  {% job_color job %} label">{{ job.get_state_display }}</span> &bull;
+<a class="ui  {% job_color job %}  label"
+                           href="{% url 'recipe_view' job.analysis.id %}">
+                            <i class="setting icon"></i>Recipe {{ job.get_state_display }}</a>
+
 {% if job.elapsed %}
-    Finished in {{ job.elapsed }} &bull;
+    &bull; Finished in {{ job.elapsed }} &bull;
 {%  endif %}
 Submitted {{ job.date | naturaltime }}

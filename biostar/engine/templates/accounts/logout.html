@@ -6,6 +6,7 @@
 
 {% block body %}
 
+     <form method="post" action="{% url 'logout' %}" >
     {% show_messages messages %}
     <div class="ui raised segment">
 
@@ -17,14 +18,11 @@
         <div class="ui centered card inputcolor">
 
             <div class="ui basic segment">
-
-                <form method="post" action="{% url 'logout' %}" >
                     {% csrf_token %}
-                    <button class="ui primary button" type="submit">Log out</button>
-                    <a class="ui right floated  button" href="/">Go Back</a>
-                </form>
+                    <button class="ui primary button" type="submit"> <i class="sign out icon"></i> Log out</button>
+                    <a class="ui right floated  button" href="/"> <i class="home icon"></i>Home</a>
             </div>
         </div>
     </div>
-
+ </form>
 {% endblock %}

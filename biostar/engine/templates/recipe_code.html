@@ -21,8 +21,9 @@
 
                 {% csrf_token %}
 
-                <div class="sixteen wide column">
-                    Read more about how the system works on the <a href="/docs/recipe-tutorial">How to create a
+                <div class="sixteen wide center aligned column">
+                    The web interface is generated from the JSON file. This same JSON file with the "script template"
+                    are used to produce the final script. More details on the <a href="/docs/recipe-tutorial">How to create a
                     Recipe</a> page.
 
                 </div>
@@ -30,7 +31,7 @@
                 <div class="eight wide column">
                     <div class="ui basic segment">
                         <div class="ui center aligned header">
-                            Interface Template
+                            Interface JSON
                         </div>
                         {{ form.json.errors }}
                         <textarea class="code" rows="30" cols="55" name="json"
@@ -62,7 +63,7 @@
                         </button>
 
                         <a class="ui  button" href="{% url 'recipe_view' analysis.id %}">
-                            <i class="undo icon"></i>Recipe View
+                            <i class="setting icon"></i>Recipe View
                         </a>
                     </div>
                 </div>
@@ -77,7 +78,7 @@
 
                 <div class="ui basic segment">
                     <div class="ui center aligned header">
-                         Interface Generated from the Template
+                         Generated Interface
                     </div>
 
                     <div class="ui  segment ">
@@ -110,7 +111,7 @@
 
                 <div class="ui basic segment">
                     <div class="ui center aligned header">
-                        Script Generated from the Template
+                        Generated Script
                     </div>
                     <textarea id="script">{{ script }}</textarea>
                 </div>
