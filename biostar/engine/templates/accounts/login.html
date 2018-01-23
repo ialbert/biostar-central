@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load engine_tags %}
 {% block headtitle %}Login{% endblock %}
 
 {% block body %}
@@ -11,7 +11,7 @@
             <i class="user icon"></i>User Login
 
         </div>
-
+        {% show_messages messages %}
         <form class="ui form" method="post" action="{% url 'login' %}">
             <div class="ui centered card inputcolor">
 

@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from django.urls import reverse
 
 from biostar.engine import settings
-from biostar.engine.models import Access, Job, make_html, Project, DataType, Data, Analysis
+from biostar.engine.models import Access, Job, make_html, Project, Data, Analysis
 
 
 logger = logging.getLogger("engine")
@@ -78,6 +78,7 @@ def has_data(request):
     """
     uid = request.session.get("clipboard")
     data = Data.objects.filter(uid=uid).first()
+
     return bool(uid and data)
 
 
@@ -147,6 +148,12 @@ def data_color(data):
 
 
 @register.simple_tag
+def type_label(data):
+    if data.type:
+        return mark_safe(f"<span class='ui label' > {data.type} </span>")
+    return ""
+
+@register.simple_tag
 def state_label(data, error_only=False):
 
     label = f'<span class="ui { DATA_COLORS.get(data.state, "") } label"> {data.get_state_display()} </span>'
@@ -154,7 +161,6 @@ def state_label(data, error_only=False):
     # Error produce error only.
     if error_only and data.state != Data.ERROR:
         label = ""
-
 
     return mark_safe(label)
 
@@ -221,21 +227,6 @@ def size_label(data):
     Returns a label for data sizes.
     """
     return dict(data=data)
-
-
-@register.inclusion_tag('widgets/type_label.html')
-def type_label(data):
-    """
-    Returns a label for a data type.
-    """
-
-    color = ""
-    query = DataType.objects.filter(project=data.project, symbol=data.data_type).first()
-
-    if not query:
-        query, color = f"{data.data_type} Not Recognized", "yellow"
-
-    return dict(label=query, color=color)
 
 
 @register.inclusion_tag('widgets/form_errors.html')

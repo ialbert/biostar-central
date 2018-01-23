@@ -30,21 +30,6 @@ class DataViewTest(TestCase):
         self.data = auth.create_data(project=self.project, path=__file__)
         self.assertTrue(models.Data.objects.count() == (pre + 1), "Error creating Data in database")
 
-    def Xtest_data_copy_view(self):
-
-        "Test Data copy (create a new project and copy) in views with POST request"
-
-        # 0 is the option picked whe creating and copying
-        data = {"project":0}
-        url = reverse('data_view', kwargs=dict(id=self.data.id))
-
-        request = util.fake_request(url=url, data=data, user=self.owner)
-
-        response = views.data_view(request=request, id=self.data.id)
-
-        self.assertEqual(response.status_code, 302,
-                         f"Could not redirect data view after copying Data:\nresponse:{response}")
-
 
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
     def test_data_edit(self):
@@ -65,7 +50,7 @@ class DataViewTest(TestCase):
         self.assertTrue("toc" in obj, "Table of content not added during fill_dict()")
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to data view after copying Data:\nresponse:{response}")
+                         f"Could not redirect to data view after editing Data:\nresponse:{response}")
 
         self.assertTrue( models.Data.save.called, "data.save() method not called when editing.")
 

@@ -6,8 +6,6 @@
 
 {% block body %}
 
-
-
     <div class="ui raised segment inputcolor">
 
         <form method="post" class="ui form" action="{% url 'data_edit' data.id %}" enctype="multipart/form-data">
@@ -21,7 +19,7 @@
             </div>
             <div class="field">
                 <label>Data Type</label>
-                {{ form.data_type }}
+                {{ form.type }}
                 <p class="muted">Data type used to sub-select during analysis.</p>
             </div>
             <div class="field">

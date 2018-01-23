@@ -13,7 +13,7 @@ from django.utils.safestring import mark_safe
 from .templatetags import engine_tags
 
 from .const import *
-from .models import Data, Analysis, Job, Project, Access, DataType
+from .models import Data, Analysis, Job, Project, Access
 
 CHUNK = 1024 * 1024
 
@@ -40,7 +40,7 @@ def get_analysis_attr(analysis, project=None):
     text = analysis.text
 
     return dict(project=project, json_text=json_text, template=template,
-                user=owner, summary=summary, name=name, text=text )
+                user=owner, summary=summary, name=name, text=text)
 
 
 def generate_script(job):
@@ -181,44 +181,12 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
     return False
 
 
-def create_datatype(name, symbol, help, project):
-    "Create datatype if it doesnt exist; return existing one if it does"
-
-    query = DataType.objects.filter(project=project)
-    query = query.filter(Q(symbol=symbol))
-
-    if query:
-        return query.first()
-
-    query = DataType.objects.create(name=name, project=project, symbol=symbol, help=help)
-
-    return query
-
-
-def add_types(json_data, project):
-    "Iterate over analysis json data and add data types to a project"
-
-    for key, obj in json_data.items():
-
-        type_obj = obj.get("type", "")
-        name = help = symbol = type_obj
-
-        if isinstance(type_obj, dict):
-            name = type_obj.get("name", "")
-            symbol = type_obj.get("symbol", "")
-            help = type_obj.get("help", "")
-
-        # Creates a new data type or returns an already existing one.
-        new_datatype = create_datatype(name=name, symbol=symbol, help=help, project=project)
-        new_datatype.save()
-
-
 def get_data(user, project, query, data_type=None):
     """
     Returns a dictionary keyed by data stored in the project.
     """
     if data_type:
-        query = query.filter(data_type=data_type)
+        query = query.filter(type=data_type)
     datamap = dict((obj.id, obj) for obj in query)
     logger.info(f"{user.email} got {len(datamap)} data from {project.name}")
 
@@ -251,9 +219,6 @@ def create_analysis(project, json_text, template, json_file=None, uid=None, user
                                        template=template, sticky=sticky, json_file=json_file)
     if stream:
         analysis.image.save(stream.name, stream, save=True)
-
-    # Transfer data types found in analysis to project
-    add_types(json_data=analysis.json_data, project=project)
 
     logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
@@ -341,7 +306,7 @@ def create_path(fname, data):
 
 
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', data_type="", skip=""):
+                text='', summary='', type="", skip=""):
 
     "Param : skip (str) - full file path found in 'path' that will be ignored when linking."
 
@@ -349,9 +314,9 @@ def create_data(project, user=None, stream=None, path='', name='',
     path = os.path.abspath(path).rstrip("/")
 
     # Create the data.
-    data_type = data_type or "GENERIC"
+    type = type or ""
     data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
-                               data_type=data_type, summary=summary, text=text)
+                               type=type, summary=summary, text=text)
 
     # The source of the data is a stream is written into the destination.
     if stream:
@@ -422,6 +387,6 @@ def create_data(project, user=None, stream=None, path='', name='',
     data.save()
 
     # Set log for data creation.
-    logger.info(f"Added data type={data.data_type} name={data.name}")
+    logger.info(f"Added data type={data.type} name={data.name}")
 
     return data

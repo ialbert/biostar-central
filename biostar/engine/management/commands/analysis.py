@@ -5,7 +5,7 @@ import hjson
 from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
-from biostar.engine.models import Project, Analysis, Data, DataType
+from biostar.engine.models import Project, Analysis, Data
 
 logger = logging.getLogger('engine')
 
@@ -65,7 +65,7 @@ class Command(BaseCommand):
 
         # Template file does not exist.
         if not os.path.isfile(template_fname):
-            logger.error(f'No file found for --template={template}')
+            logger.error(f'No file found for --template={template_fname}')
             return
 
         try:
@@ -113,8 +113,10 @@ class Command(BaseCommand):
                 for key, obj in json_data.items():
                     if obj.get("source") != "PROJECT":
                         continue
+
                     name = obj.get('value', '')
                     data = Data.objects.filter(project=project, name=name).first()
+
                     if data:
                         data.fill_dict(obj)
                 auth.create_job(analysis=analysis, json_data=json_data)

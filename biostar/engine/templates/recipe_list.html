@@ -6,6 +6,7 @@
 
 {% block content %}
 
+
     {% if request|has_recipe %}
         <div class="ui center aligned vertical segment">
             <div class="ui  message">
@@ -14,7 +15,6 @@
                     <a class="ui green mini button" href="{% url 'recipe_paste' project.uid %}">
                         <i class="sticky note icon"></i> Paste Recipe
                     </a>
-
                     <a class="ui orange mini button" href="{% url 'clear_clipboard' project.uid 'recipe_list' %}">
                         <i class="window close icon"></i> Clear Clipboard
                     </a>

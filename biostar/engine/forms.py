@@ -5,7 +5,7 @@ from django.db.models import Q
 import hjson
 from . import models, auth, factory
 from .const import *
-from .models import Project, Data, Analysis, Job, Access, DataType
+from .models import Project, Data, Analysis, Job, Access
 from biostar.accounts.models import User
 from django.utils.safestring import mark_safe
 
@@ -54,19 +54,11 @@ class ProjectForm(forms.ModelForm):
 class DataUploadForm(forms.ModelForm):
 
     file = forms.FileField()
+    type = forms.CharField(max_length=32, required=False)
 
-    def __init__(self, project, *args, **kwargs):
-
-        self.project = project
-
-        super().__init__(*args, **kwargs)
-
-        choices = [(d.symbol, d.name) for d in self.project.datatype_set.all()]
-        self.fields["data_type"] = forms.CharField(widget=forms.Select(choices=choices),
-                                                      required=False, initial="GENERIC")
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'text', "sticky",  "data_type"]
+        fields = ['file', 'summary', 'text', "sticky",  "type"]
 
     def clean_file(self):
         cleaned_data = super(DataUploadForm, self).clean()
@@ -76,61 +68,11 @@ class DataUploadForm(forms.ModelForm):
 
 
 class DataEditForm(forms.ModelForm):
+    type = forms.CharField(max_length=32, required=False)
 
-    def __init__(self, project, *args, **kwargs):
-
-        self.project = project
-
-        super().__init__(*args, **kwargs)
-
-        choices = set([(d.symbol, d.name) for d in self.project.datatype_set.all()])
-        self.fields["data_type"] = forms.CharField(widget=forms.Select(choices=choices),
-                                                      required=False)
     class Meta:
         model = Data
-        fields = ['name', 'summary', 'text', 'sticky', "data_type"]
-
-
-
-class CreateDataTypeForm(forms.Form):
-
-    name = forms.CharField(max_length=32)
-    symbol = forms.CharField(max_length=32)
-    help = forms.CharField(required=False)
-
-    def __init__(self, project, *args, **kwargs):
-
-        self.project = project
-
-        super().__init__(*args,**kwargs)
-
-    def save(self):
-
-        name = self.cleaned_data["name"]
-        symbol = self.cleaned_data["symbol"]
-        help = self.cleaned_data.get("help", "description")
-
-        new_datatype = auth.create_datatype(project=self.project, name=name,
-                                symbol=symbol, help=help)
-        new_datatype.save()
-
-        return new_datatype
-
-    def clean(self):
-        cleaned_data = super(CreateDataTypeForm, self).clean()
-
-        # Ensure name and symbol do not already exist for this project
-        name = cleaned_data["name"]
-        symbol = cleaned_data["symbol"]
-
-        query = DataType.objects.filter(project=self.project)
-        name_query = query.filter(Q(name=name))
-        symbol_query = query.filter(Q(symbol=symbol))
-
-        if name_query:
-            raise forms.ValidationError("Data type with that name already exists.")
-        if symbol_query:
-            raise forms.ValidationError("Data type with that symbol already exists.")
+        fields = ['name', 'summary', 'text', 'sticky', "type"]
 
 
 

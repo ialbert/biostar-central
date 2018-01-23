@@ -47,7 +47,7 @@
             <button type="submit" class="ui green button">
                 <i class="save icon"></i>Save
             </button>
-            <a class="ui right floated button" href="{{ back_url }}">
+            <a class="ui right floated button" href="{% url 'recipe_list' project.uid %}">
                  <i class="undo icon"></i> Cancel
             </a>
 

@@ -8,6 +8,7 @@
 
 {% block content %}
 
+
      {% if request|has_data %}
         <div class="ui center aligned vertical segment">
             <div class="ui  message">
@@ -29,6 +30,7 @@
         <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>
     {% endif %}
 
+
     <div class="ui divided link items">
 
         {% for data in data_list %}
@@ -41,11 +43,13 @@
                     <div class="description">
                         <div>{{ data.summary }}</div>
                     </div>
+
                     <div class="meta">
                         {% size_label data %}
                         {% type_label data %}
                         {% state_label data error_only=True %}
                     </div>
+
                 </div>
 
             </div>
