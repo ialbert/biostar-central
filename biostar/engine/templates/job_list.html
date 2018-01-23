@@ -44,11 +44,7 @@
                     </div>
 
                     <div class="extra">
-                        {% sticky_label job %}{% job_minutes job %} &bull;
-                        <a class="ui  {% job_color job %}  label"
-                           href="{% url 'recipe_view' job.analysis.id %}"><i class="setting icon"></i>Go to
-                            Recipe</a>
-
+                        {% job_minutes job %}
                     </div>
                 </div>
 

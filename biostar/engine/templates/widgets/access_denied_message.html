@@ -1,18 +1,12 @@
 
-<div>
 
-Unable to perform the request:  <span class="ui red label"><i class="lock icon"></i>Access Denied</span>
+{% if user.is_anonymous %}
 
-<ul>
-{%  if user.is_anonymous %}
+   <i class="warning circle icon"></i> You must be logged in to perform that action.
 
-   <li>You must be logged in.</li>
+{% else %}
 
-{%  endif%}
+   <i class="warning circle icon"></i> You need to have <span class="ui green label"><i class="unlock icon"></i> {{access}}</span> on the project.
+    See the <a href="/docs/access/"><i class="lock icon"></i>Access Information</a> page.
+{%  endif %}
 
-    <li>You need to have <span class="ui green label"><i class="unlock icon"></i> {{access}}</span> on the project.
-    </li>
-
-</ul>
-<p>Read more about permissions on the <a href="/docs/access/"><i class="lock icon"></i>Access Information</a> page.</p>
-</div>
