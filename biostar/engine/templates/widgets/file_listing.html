@@ -1,6 +1,9 @@
 {% load engine_tags %}
 
+{% if form %}
 {% form_errors form %}
+{% endif %}
+
 <form method="post" class="ui form" action=".">
     {% csrf_token %}
 
