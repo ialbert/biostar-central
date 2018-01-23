@@ -240,7 +240,6 @@ class FileCopyForm(forms.Form):
         # Link the selected paths to project data
         for path in self.cleaned_data:
             auth.create_data(project=self.job.project, path=path)
-
         return len(self.cleaned_data)
 
     def clean(self):
