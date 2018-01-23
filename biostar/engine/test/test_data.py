@@ -56,7 +56,7 @@ class DataViewTest(TestCase):
 
 
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
-    def Xtest_data_upload(self):
+    def test_data_upload(self):
         "Test Data upload POST request"
 
         data = {'file':open(__file__, 'r'), 'summary':'summary', "text":"testing", "sticky":True}
