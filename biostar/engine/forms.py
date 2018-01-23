@@ -67,6 +67,23 @@ class DataUploadForm(forms.ModelForm):
         return fobj
 
 
+class FileCopyForm(forms.ModelForm):
+    "Used to copy files from jobs to project directories"
+
+    paths = forms.CharField()
+
+    def clean(self):
+        paths = self.data.getlist('paths')
+        cleaned_data = super(FileCopyForm, self).clean()
+
+        print(paths, cleaned_data)
+
+        1/0
+    pass
+
+
+
+
 class DataEditForm(forms.ModelForm):
     type = forms.CharField(max_length=32, required=False)
 

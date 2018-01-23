@@ -282,7 +282,40 @@ def findfiles(location, collect, skip=""):
             findfiles(item.path, collect=collect, skip=skip)
         else:
             collect.append(os.path.abspath(item.path))
+
     return collect
+
+
+def link_files(path, data, skip='', summary=''):
+
+    "Param : data (instance) - An instance of a Data object"
+
+    # If the path is a directory, symlink all files in the directory.
+    if path and os.path.isdir(path):
+
+        logger.info(f"Linking path: {path}")
+        collect = findfiles(path, collect=[], skip=skip)
+        for fname in os.listdir(path):
+
+            if join(path, fname) == skip:
+                continue
+            dest = create_path(fname=fname, data=data)
+            src = os.path.join(path, fname)
+            os.symlink(src, dest)
+
+        # Append directory info to data summary
+        data.summary = f'Contains {len(collect)} files. {summary}'
+        logger.info(f"Linked {len(collect)} files.")
+        return collect
+
+    assert path and os.path.isfile(path), path
+
+    # The path is a file.
+    dest = create_path(path, data=data)
+    os.symlink(path, dest)
+    logger.info(f"Linked file: {path}")
+
+    return dest
 
 
 def create_path(fname, data):
@@ -314,7 +347,7 @@ def create_data(project, user=None, stream=None, path='', name='',
     path = os.path.abspath(path).rstrip("/")
 
     # Create the data.
-    type = type or ""
+    type = type or "DATA"
     data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
                                type=type, summary=summary, text=text)
 
@@ -327,22 +360,7 @@ def create_data(project, user=None, stream=None, path='', name='',
                 fp.write(chunk)
                 chunk = stream.read(CHUNK)
 
-    # If the path is a directory, symlink all files in the directory.
-    if not stream and path and os.path.isdir(path):
-        logger.info(f"Linking path: {path}")
-        collect = findfiles(path, collect=[], skip=skip)
-        for fname in os.listdir(path):
-            dest = create_path(fname=fname, data=data)
-            src = os.path.join(path, fname)
-            os.symlink(src, dest)
-        summary = f'Contains {len(collect)} files. {summary}'
-        logger.info(f"Linked {len(collect)} files.")
-
-    # The path is a file.
-    if not stream and path and os.path.isfile(path):
-        dest = create_path(path, data=data)
-        os.symlink(path, dest)
-        logger.info(f"Linked file: {path}")
+    link_files(path=path, skip=skip, data=data, summary=summary)
 
     # Invalid paths and empty streams still create the data but set the data state to error.
     missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
@@ -352,13 +370,9 @@ def create_data(project, user=None, stream=None, path='', name='',
     else:
         state = Data.READY
 
-    # Find all files in the data directory.
-    collect = findfiles(data.get_data_dir(), collect=[])
-
-    # Remove the table of contents if it exists.
+    # Find all files in the data directory, skipping the table of contents.
     tocname = data.get_path()
-    if tocname in collect:
-        collect.remove(tocname)
+    collect = findfiles(data.get_data_dir(), collect=[], skip=tocname)
 
     # Write the table of contents.
     with open(tocname, 'w') as fp:
@@ -371,9 +385,7 @@ def create_data(project, user=None, stream=None, path='', name='',
             size += os.stat(elem, follow_symlinks=True).st_size
 
     # Finalize the data name
-
     name = name or os.path.split(path)[1] or 'Data'
-
 
     # Set updated attributes
     data.size = size
@@ -381,7 +393,6 @@ def create_data(project, user=None, stream=None, path='', name='',
     data.name = name
     data.summary = summary
     data.file = tocname
-
 
     # Trigger another save.
     data.save()

@@ -153,7 +153,7 @@ class Data(models.Model):
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
-    type = models.CharField(max_length=MAX_NAME_LEN)
+    type = models.CharField(max_length=MAX_NAME_LEN, default="DATA")
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
 
