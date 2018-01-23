@@ -340,7 +340,6 @@ def create_data(project, user=None, stream=None, path='', name='',
     "Param : skip (str) - full file path found in 'path' that will be ignored when linking."
 
     # We need absolute paths with no trailing slashes.
-
     path = os.path.abspath(path).rstrip("/") if path else path
 
     # Create the data.
