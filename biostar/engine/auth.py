@@ -287,30 +287,24 @@ def findfiles(location, collect, skip=""):
 
 
 def link_files(path, data, skip='', summary=''):
-
     "Param : data (instance) - An instance of a Data object"
-
-
     files = []
     if path and os.path.isdir(path):
         # If the path is a directory, symlink all files in the directory.
         logger.info(f"Linking path: {path}")
         collect = findfiles(path, collect=[], skip=skip)
         for fname in os.listdir(path):
-
             if join(path, fname) == skip:
                 continue
             dest = create_path(fname=fname, data=data)
             src = os.path.join(path, fname)
             os.symlink(src, dest)
-
         # Append directory info to data summary
         data.summary = f'Contains {len(collect)} files. {summary}'
         logger.info(f"Linked {len(collect)} files.")
         files.extend(collect)
 
     elif path and os.path.isfile(path):
-
         # The path is a file.
         dest = create_path(path, data=data)
         os.symlink(path, dest)
