@@ -241,11 +241,8 @@ class FileCopyForm(forms.Form):
     def save(self):
         # Save the selected files in clipboard,
         # Note: job.uid has to be appended to later validate where the files came from
-
         self.cleaned_data.append(self.job.uid)
-
         self.request.session["files_clipboard"] = self.cleaned_data
-
         return len(self.cleaned_data[:-1])
 
     def clean(self):
