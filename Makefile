@@ -87,7 +87,7 @@ tutorial:
 	@python manage.py project --json initial/tutorial/tutorial-project.hjson --privacy public --jobs
 
 cookbook:
-	python manage.py project --root ../biostar-recipes --json projects/cookbook/cookbook-project.hjson --privacy public --jobs
+	#python manage.py project --root ../biostar-recipes --json projects/cookbook/cookbook-project.hjson --privacy public --jobs
 
 	#@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky
 	#@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky

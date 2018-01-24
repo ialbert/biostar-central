@@ -760,8 +760,10 @@ def job_files_list(request, id, path=''):
         form = FileCopyForm(data=request.POST, job=job)
         if form.is_valid():
             ndata = form.save()
-            messages.success(request, f"Copied {ndata} to Data")
+            messages.success(request, f"Copied {ndata} file(s) to Data")
             return redirect(reverse("data_nav", kwargs=dict(uid=project.uid)))
+
+
 
     context = dict(activate='selection', job=job, project=project, form=form)
     counts = get_counts(project)
