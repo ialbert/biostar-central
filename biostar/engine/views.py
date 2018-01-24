@@ -744,7 +744,7 @@ def job_files_list(request, id, path=''):
     if request.method == "POST":
         form = FileCopyForm(data=request.POST, job=job, request=request)
         if form.is_valid():
-            # Copies files to clipboard here
+            # Copies files to clipboard
             nfiles = form.save()
             msg = mark_safe(f"Copied <b>{nfiles}</b> file(s) to Clipboard from <b>{job.name}</b>")
             messages.success(request, msg)
