@@ -65,7 +65,7 @@ postgres:
 
 #reset: delete init tutorial cookbook fish giraffe mothur users
 
-reset: delete init tutorial cookbook users
+reset: delete init tutorial cookbook giraffe users
 
 
 next:
@@ -84,7 +84,7 @@ init:
 
 # Initializes the tutorial projects.
 tutorial:
-	@python manage.py project --json initial/tutorial/tutorial-project.hjson --privacy public --jobs
+	python manage.py project --json initial/tutorial/tutorial-project.hjson --privacy public --jobs
 
 cookbook:
 	#python manage.py project --root ../biostar-recipes --json projects/cookbook/cookbook-project.hjson --privacy public --jobs
@@ -93,10 +93,10 @@ cookbook:
 	#@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
 
 fish:
-	@python manage.py project --json initial/fish-project.hjson
+	python manage.py project --json initial/fish-project.hjson
 
 giraffe:
-	@python manage.py project --json initial/giraffe-project.hjson --sticky
+	python manage.py project --root ../biostar-recipes --json projects/giraffe/giraffe-project.hjson --sticky --privacy public
 
 mothur:
 	python manage.py project --root ../biostar-recipes --json projects/metagenome/mothur-project.hjson --privacy public
@@ -113,9 +113,6 @@ data:
 
 ftp:
 	python biostar/ftpserver/server.py
-
-recipe:
-	python manage.py project --json ~/app/biostar-recipes/projects/metagenome/mothur-project.hjson --privacy public --jobs
 
 push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
