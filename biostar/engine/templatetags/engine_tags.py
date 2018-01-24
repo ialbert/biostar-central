@@ -102,7 +102,7 @@ def has_files(request):
     if not job:
         return False
 
-    # Some files in clipboard are outside job path.
+    # Some files in clipboard might be outside job path.
     files_missing = False in [f.startswith(job.path) for f in files]
     if files_missing:
         return False
