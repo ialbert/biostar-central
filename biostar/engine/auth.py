@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from .templatetags import engine_tags
 
 from .const import *
+from . import util
 from .models import Data, Analysis, Job, Project, Access
 
 CHUNK = 1024 * 1024
@@ -288,6 +289,7 @@ def findfiles(location, collect, skip=""):
 
 def link_files(path, data, skip='', summary=''):
     "Param : data (instance) - An instance of a Data object"
+
     files = []
     if path and os.path.isdir(path):
         # If the path is a directory, symlink all files in the directory.
@@ -340,12 +342,13 @@ def create_data(project, user=None, stream=None, path='', name='',
     "Param : skip (str) - full file path found in 'path' that will be ignored when linking."
 
     # We need absolute paths with no trailing slashes.
-    path = os.path.abspath(path).rstrip("/") if path else path
+    path = os.path.abspath(path).rstrip("/") if path else ""
 
     # Create the data.
     type = type or "DATA"
+    uid = util.get_uuid(8)
     data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
-                               type=type, summary=summary, text=text)
+                               type=type, summary=summary, text=text, uid=uid)
 
     # The source of the data is a stream is written into the destination.
     if stream:

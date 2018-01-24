@@ -10,20 +10,11 @@
 
 
      {% if request|has_data %}
-        <div class="ui center aligned vertical segment">
-            <div class="ui  message">
-                <p>The clipboard contains a data. You may now paste it or clear it.</p>
-                <p>
-                    <a class="ui green mini button" href="{% url 'data_paste' project.uid %}">
-                        <i class="sticky note icon"></i> Paste Data
-                    </a>
+        {% paste project=project data=True %}
 
-                    <a class="ui orange mini button" href="{% url 'clear_clipboard' project.uid 'data_list' %}">
-                        <i class="window close icon"></i> Clear Clipboard
-                    </a>
-                </p>
-            </div>
-        </div>
+    {% elif request|has_files %}
+        {% paste project=project files=True %}
+
     {% endif %}
 
     {% if not data_list %}

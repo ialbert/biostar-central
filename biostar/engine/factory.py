@@ -139,9 +139,11 @@ def dynamic_field(data, project=None):
 
     if from_project and project:
         # Project specific data should have a type.
+        # TODO: strip it
         data_type = data.get("type", "")
 
         if isinstance(data_type, dict):
+
             data_type = data_type.get("symbol", "")
 
         field = data_field_generator(data, project=project, type=data_type)

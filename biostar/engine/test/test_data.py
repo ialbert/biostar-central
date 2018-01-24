@@ -91,17 +91,3 @@ class DataViewTest(TestCase):
         post = models.Data.objects.all().count()
 
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
-
-    def Xtest_data_download(self):
-        "Testing data download view"
-
-        from django.http.response import FileResponse
-
-        url = reverse('data_download', kwargs=dict(id=self.data.id))
-        request = util.fake_request(url=url, data={}, user=self.owner, method="GET")
-
-        response = views.data_download(request=request, id=self.data.id)
-
-        self.assertTrue(isinstance(response, FileResponse),
-                        "Error returning valid FileResponse when downloading")
-

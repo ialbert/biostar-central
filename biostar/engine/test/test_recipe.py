@@ -91,7 +91,7 @@ class RecipeViewTest(TestCase):
 
 
     @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
-    def Xtest_recipe_create(self):
+    def test_recipe_create(self):
         "Test recipe create with POST request"
 
         data = { "name": "test", "sticky":True, "summary":"summary", "text":"text" }
