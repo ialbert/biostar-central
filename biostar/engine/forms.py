@@ -229,7 +229,7 @@ class RecipeInterface(forms.Form):
 
 
 class FileCopyForm(forms.Form):
-    "Used to save paths found in jobs"
+    "Used to save paths found in jobs into files_clipboard"
 
     def __init__(self, job, request, *args, **kwargs):
         self.job = job
