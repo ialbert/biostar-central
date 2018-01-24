@@ -50,9 +50,27 @@
 
                     <div class="or"></div>
 
-                    <a class="ui blue button" href="{% url 'recipe_code' analysis.id %}">
+                     <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
                         <i class="list icon"></i>Edit Code
                     </a>
+
+                    {% if user.is_authenticated %}
+
+                        <div class="or"></div>
+
+                        <a class="ui button" href="{% url 'recipe_copy' analysis.id %}">
+                            <i class="clone icon"></i>Copy
+                        </a>
+
+                        <div class="or"></div>
+
+                        <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
+                            <i class="write icon"></i>Edit
+                        </a>
+
+                    {% endif %}
+
+
 
                 </div>
 
@@ -60,17 +78,6 @@
             </div>
         </div>
 
-        {% if user.is_authenticated %}
-            <div class="ui center aligned vertical secondary segment">
-                <a class="ui button" href="{% url 'recipe_copy' analysis.id %}">
-                    <i class="clone icon"></i>Copy Recipe
-                </a>
-
-                <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
-                    <i class="write icon"></i>Edit Info
-                </a>
-            </div>
-        {% endif %}
 
         <div class="ui vertical segment">
             {{ analysis.html|safe }}
