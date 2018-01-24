@@ -42,12 +42,10 @@ def access_denied_message(user, access):
 
 
 @register.inclusion_tag('widgets/file_listing.html')
-def file_listing(path, file_list, object, project_uid=''):
+def file_listing(path, file_list, object, project_uid='', form=None):
+    return dict(path=path, file_list=file_list, object=object, project_uid=project_uid, form=form)
 
-    return dict(path=path, file_list=file_list, object=object, project_uid=project_uid)
 
-
-@register.simple_tag
 def dir_url(object, path, current):
 
     url = object.url()
@@ -62,7 +60,16 @@ def dir_url(object, path, current):
 
 
 @register.simple_tag
+def input(path, current):
+    path = path + "/" if path else ""
+    return mark_safe(f'<input type="checkbox" name="paths" value="{path}{current.name}">')
+
+
+@register.simple_tag
 def file_url(object, path, current):
+
+    if current.is_dir():
+        return dir_url( object=object, path=path, current=current)
 
     media_url = settings.MEDIA_URL
     path = path + "/" if path else ""

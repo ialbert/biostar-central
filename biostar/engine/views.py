@@ -8,7 +8,6 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-# from django.utils.safestring import mark_safe
 from biostar.breadcrumb import breadcrumb_builder
 from . import tasks
 from .decorators import object_access
@@ -340,17 +339,11 @@ def data_paste(request, uid):
         messages.error(request, "Data not found.")
         return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
-    data_files = data.get_files()
-
-    if len(data_files) > 1:
-        # Link whole dir if more than one file present
-        data_files = [join(data_files[0], "..")]
-
-    path = data_files.pop()
     # Skip the toc file of the source data when linking
     skip = data.get_path()
 
     # Create new data object in project by linking file(s)
+    path = data.get_data_dir()
     auth.create_data(project=project, name=f"Copy of {data.name}", path=path,
                      summary=data.summary, text=data.text,
                      type=data.type, skip=skip)
@@ -419,6 +412,7 @@ def data_upload(request, uid):
             data = auth.create_data(stream=stream, name=name,
                                     text=text, user=owner, project=project, summary=summary,
                                     type=type)
+
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
@@ -761,8 +755,15 @@ def job_files_list(request, id, path=''):
         [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
         job=job, project=project)
 
-    context = dict(activate='selection', job=job, project=project)
+    form = FileCopyForm(job=job)
+    if request.method == "POST":
+        form = FileCopyForm(data=request.POST, job=job)
+        if form.is_valid():
+            ndata = form.save()
+            messages.success(request, f"Copied {ndata} to Data")
+            return redirect(reverse("data_nav", kwargs=dict(uid=project.uid)))
 
+    context = dict(activate='selection', job=job, project=project, form=form)
     counts = get_counts(project)
     context.update(counts)
 

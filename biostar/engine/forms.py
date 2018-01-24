@@ -53,7 +53,7 @@ class ProjectForm(forms.ModelForm):
 
 class DataUploadForm(forms.ModelForm):
 
-    file = forms.FileField()
+    file = forms.FileField(required=True)
     type = forms.CharField(max_length=32, required=False)
 
     class Meta:
@@ -64,6 +64,7 @@ class DataUploadForm(forms.ModelForm):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
         check_size(fobj=fobj, maxsize=25)
+
         return fobj
 
 
@@ -73,7 +74,6 @@ class DataEditForm(forms.ModelForm):
     class Meta:
         model = Data
         fields = ['name', 'summary', 'text', 'sticky', "type"]
-
 
 
 class RecipeForm(forms.ModelForm):
@@ -226,6 +226,30 @@ class RecipeInterface(forms.Form):
                 item["value"] = self.cleaned_data[field]
 
         return json_data
+
+class FileCopyForm(forms.Form):
+    "Used to copy files from jobs to project"
+
+    def __init__(self, job, *args, **kwargs):
+        self.job = job
+        super().__init__(*args, **kwargs)
+
+    paths = forms.CharField()
+
+    def save(self):
+        # Link the selected paths to project data
+        for path in self.cleaned_data:
+            auth.create_data(project=self.job.project, path=path)
+        return len(self.cleaned_data)
+
+    def clean(self):
+        paths = self.data.getlist('paths')
+        for p in paths:
+            if not os.path.exists(join(self.job.path, p)):
+                raise forms.ValidationError(f"{p} does not exist")
+
+        # Override cleaned_data to later access in save()
+        self.cleaned_data = list(map(join, [self.job.path]*len(paths), paths))
 
 
 class EditCode(forms.Form):
