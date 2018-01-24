@@ -39,19 +39,19 @@
             <div class="ui center aligned basic segment">
                 <div class="ui buttons">
                     <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
-                        <i class="spinner icon"></i> Execute Recipe
+                        <i class="spinner icon"></i> Run Recipe
                     </a>
 
                     <div class="or"></div>
 
-                    <a class="ui blue button" href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
+                    <a class="ui teal button" href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
                         <i class="bar chart icon"></i>View Results
                     </a>
 
                     <div class="or"></div>
 
-                    <a class="ui brown button" href="{% url 'recipe_code' analysis.id %}">
-                        <i class="list icon"></i>View Code
+                    <a class="ui blue button" href="{% url 'recipe_code' analysis.id %}">
+                        <i class="list icon"></i>Edit Code
                     </a>
 
                 </div>

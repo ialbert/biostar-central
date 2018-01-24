@@ -8,15 +8,15 @@
 
 {% block body %}
 
-    <div class="ui raised segments">
+
 
         {% project_name_bar project %}
 
-        <div class="ui secondary segment">
+        <div class="ui  vertical segment">
             {{ project.summary|markdown|safe }}
         </div>
 
-        <div class="ui segment">
+        <div class="ui vertical segment">
 
             <div class="ui top attached tabular menu">
                 <a class="{% activate 'data' active %} item" href="{% url 'data_list' project.uid %}">
@@ -48,17 +48,19 @@
                 </p>
             </div>
 
-        </div>
-
-        {#  Additional help included for the page #}
-        {% if help_text %}
-            <div class="ui secondary segment">
+         {% if help_text %}
+            <div class="ui basic segment">
                 <div class="project help">
                     {{ help_text|safe }}
                 </div>
             </div>
         {% endif %}
 
-    </div>
+        </div>
+
+        {#  Additional help included for the page #}
+
+
+
 
 {% endblock %}

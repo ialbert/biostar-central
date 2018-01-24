@@ -87,7 +87,7 @@ tutorial:
 	@python manage.py project --json initial/tutorial/tutorial-project.hjson --privacy public --jobs
 
 cookbook:
-	python manage.py project --root ~/app/biostar-recipes --json projects/cookbook/cookbook-project.hjson --privacy public --jobs
+	python manage.py project --root ../biostar-recipes --json projects/cookbook/cookbook-project.hjson --privacy public --jobs
 
 	#@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky
 	#@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky
@@ -99,7 +99,7 @@ giraffe:
 	@python manage.py project --json initial/giraffe-project.hjson --sticky
 
 mothur:
-	python manage.py project --root ~/app/biostar-recipes --json projects/metagenome/mothur-project.hjson --privacy public
+	python manage.py project --root ../biostar-recipes --json projects/metagenome/mothur-project.hjson --privacy public
 
 test:
 	python manage.py collectstatic --noinput -v 0
@@ -108,7 +108,7 @@ test:
 	coverage html --skip-covered
 
 data:
-	(cd export && rsync -avz ${USER}@${DATA_HOST}:${DATA_DIR}/${INITIAL_DATA}/${DATA_FILE} . )
+	(cd export && curl http://data.bioinformatics.recipes/initial/${DATA_FILE} > ${DATA_FILE} )
 	(cd export && tar zxvf ${DATA_FILE})
 
 ftp:
