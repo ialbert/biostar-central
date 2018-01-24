@@ -1,7 +1,12 @@
-<div class="ui large menu">
+<div class="ui top attached large menu">
     <a class="item" href="{% url 'index' %}">
-        <i class="home icon"></i> Home
+        <i class="home icon"></i>Home
     </a>
+    <a class="item" href="{% url 'project_list' %}">
+        <i class="database icon"></i>Project List
+    </a>
+
+
     {% if user.is_authenticated %}
         <a class="item" href="{% url 'profile' %}">
             <i class="user icon"></i> {{ user.first_name }}

@@ -12,68 +12,60 @@
 
 {% block body %}
 
-    <div class="ui raised segments">
-
-        <div class="ui center aligned segment">
-            <div class="ui header">
-                <i class="database icon"></i> Project List
-            </div>
+    <div class="ui center aligned vertical segment">
+        <div class="ui header">
+            <i class="database icon"></i> Project List
         </div>
-
-        <div class="ui  center aligned secondary segment">
-            {% if user.is_anonymous %}
-                Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
-            {% else %}
-                The list of projects that your may access.
-            {% endif %}
-        </div>
-        {% show_messages messages %}
-
-        <div class="ui segment">
-
-            <div class="ui divided items">
-
-                {% for project in projects %}
-
-                    <div class="item">
+    </div>
 
 
-                        <img class="ui avatar image" src="{% img project %}"/>
+    {% show_messages messages %}
+
+    <div class="ui vertical segment">
+
+        <div class="ui divided items">
+
+            {% for project in projects %}
+
+                <div class="item">
 
 
-                        <div class="content">
+                    <img class="ui avatar image" src="{% img project %}"/>
 
-                            <a class="header" href="{{ project.url }}">
-                                <i class="database icon"></i>{{ project.name }}
-                            </a>
 
-                            <div class="meta">
-                                {{ project.summary|markdown|safe }}
-                            </div>
+                    <div class="content">
 
-                            <div class="extra">
-                                {% privacy_label project %}
-                                Created on {{ project.date.date }} by {{ project.owner.email }}
-                            </div>
+                        <a class="header" href="{{ project.url }}">
+                            <i class="database icon"></i>{{ project.name }}
+                        </a>
 
+                        <div class="meta">
+                            {{ project.summary|markdown|safe }}
                         </div>
+
+                        <div class="extra">
+                            {% privacy_label project %}
+                            Created on {{ project.date.date }} by {{ project.owner.email }}
+                        </div>
+
                     </div>
+                </div>
 
-                {% endfor %}
-            </div>
-
+            {% endfor %}
         </div>
-
-        {% if user.is_authenticated %}
-            <div class="ui center aligned segment">
-                <a class="ui button" href="{% url 'project_create' %}">
-                    <i class="add circle icon"></i>Create Project
-                </a>
-            </div>
-        {% endif %}
-
 
     </div>
+
+    {% if user.is_authenticated %}
+        <div class="ui center aligned vertical segment">
+            <a class="ui button" href="{% url 'project_create' %}">
+                <i class="add circle icon"></i>Create Project
+            </a>
+        </div>
+    {% endif %}
+
+
+
 
 
 {% endblock %}

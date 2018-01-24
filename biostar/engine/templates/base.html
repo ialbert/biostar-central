@@ -32,8 +32,8 @@
         </script>
     {% endcompress %}
 
-    {%  block js %}
-    {%  endblock %}
+    {% block js %}
+    {% endblock %}
 
 </head>
 <body>
@@ -46,33 +46,34 @@
         {% endblock %}
     </div>
 
-    <div class="ui horizontal divider"></div>
     {% block menu %}
         {% menubar %}
     {% endblock %}
 
-    <div class="breadcrumb">
-        {% block breadcrumb %}
-            {% breadcrumb steps=steps %}
+    <div class="ui bottom attached segment">
+
+        {% block body %}
+            {# Main body #}
+            BODY
+            {% block content %}
+
+            {% endblock %}
         {% endblock %}
     </div>
 
-    {% block body %}
-        {# Main body #}
-        BODY
-        {% block content %}
-
-        {% endblock %}
-    {% endblock %}
-
     {% block footer %}
         <div class="ui vertical center aligned segment">
-            <p class="muted">Powered by the<a href="#"><img class="ui spaced image"
-                                                            src="{% static 'images/badge.svg' %}"></a>
-            </p>
+
+                <span class="muted">Powered by the
+                    <a href="#" class="ui image">
+                    <img src="{% static 'images/badge.svg' %}"></a>
+                </span>
             <p class="muted smaller">Release date: {{ VERSION }}</p>
         </div>
     {% endblock %}
+
+</div>
+
 
 </div>
 
