@@ -8,7 +8,6 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from biostar.breadcrumb import breadcrumb_builder
 from . import tasks
 from .decorators import object_access
 from .forms import *
@@ -64,13 +63,12 @@ def docs(request, name):
         content = make_html(content)
 
     title = name.replace("-", " ").replace("_", " ").title()
-    context = dict(content=content, title=title, steps=[])
+    context = dict(content=content, title=title)
     return render(request, 'info/doc_base.html', context=context)
 
 
 def index(request):
-    steps = breadcrumb_builder([HOME_ICON])
-    context = dict(steps=steps)
+    context = dict()
     return render(request, 'index.html', context)
 
 
@@ -79,16 +77,18 @@ def site_admin(request):
     '''
     Administrative view. Lists the admin project and job.
     '''
-    steps = breadcrumb_builder([HOME_ICON])
     projects = Project.objects.all()
-    context = dict(steps=steps, projects=projects)
+    context = dict(projects=projects)
     return render(request, 'admin_index.html', context=context)
 
 
-def clear_clipboard(request, uid, redir="project_view"):
+@object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
+def clear_clipboard(request, uid, redir="project_view", board=""):
     "Clear copy object held in clipboard"
+    clear = [""] if board == "files_clipboard" else None
 
-    request.session["clipboard"] = None
+    if board:
+        request.session[board] = clear
 
     return redirect(reverse(redir, kwargs=dict(uid=uid)))
 
@@ -110,9 +110,6 @@ def project_users(request, uid):
     # # Users that have been searched for.
     # targets = []
     #
-    # steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
-    #                            project=project)
-    #
     # if request.method == "POST":
     #     form = ChangeUserAccess(data=request.POST)
     #     if form.is_valid():
@@ -127,7 +124,7 @@ def project_users(request, uid):
     #
     # current = access_forms(users=users, project=project)
     # results = access_forms(users=targets, project=project)
-    # context = dict(steps=steps, current=current, project=project, results=results)
+    # context = dict(current=current, project=project, results=results)
     # return render(request, "project_users.html", context=context)
     return redirect(reverse("project_view", kwargs=dict(uid=uid)))
 
@@ -137,8 +134,8 @@ def project_list(request):
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
     projects = pages(request, instance=projects)
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
-    context = dict(projects=projects, steps=steps)
+
+    context = dict(projects=projects)
 
     return render(request, "project_list.html", context)
 
@@ -165,7 +162,7 @@ def job_list(request, uid):
     return project_view(request=request, uid=uid, template_name="job_list.html", active='jobs')
 
 
-def files_list(request, instance, steps, template_name, path='', extra_context={}):
+def files_list(request, instance, template_name, path='', extra_context={}):
     "File navigator used for  data and jobs"
 
     # Instance is expected to be a Job or Data object.
@@ -189,7 +186,7 @@ def files_list(request, instance, steps, template_name, path='', extra_context={
         # Sort by properties
         file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
 
-    context = dict(file_list=file_list, instance=instance, steps=steps, path=path)
+    context = dict(file_list=file_list, instance=instance, path=path)
     context.update(extra_context)
 
     return render(request, template_name, context)
@@ -215,9 +212,6 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
         messages.error(request, "Project not found.")
         return redirect(reverse("project_list"))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
-                               project=project)
-
     # Show counts for the project.
     counts = get_counts(project)
 
@@ -238,7 +232,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
         access = None
 
     context = dict(project=project, access=access, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
-                   active=active, steps=steps, filter=filter, help_text=project.html)
+                   active=active, filter=filter, help_text=project.html)
     context.update(counts)
 
     return render(request, template_name, context)
@@ -247,7 +241,6 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
 def project_edit(request, uid):
     project = auth.get_project_list(user=request.user).filter(uid=uid).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
     form = ProjectForm(instance=project)
 
     if request.method == "POST":
@@ -258,12 +251,11 @@ def project_edit(request, uid):
 
         messages.error(request, mark_safe(form.errors))
 
-    context = dict(project=project, steps=steps, form=form)
+    context = dict(project=project, form=form)
     return render(request, "project_edit.html", context=context)
 
 
 def project_create(request):
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
     if request.user.is_anonymous:
         messages.error(request, "You must be logged in to create a project.")
@@ -292,7 +284,7 @@ def project_create(request):
 
         messages.error(request, mark_safe(form.errors))
 
-    context = dict(steps=steps, form=form)
+    context = dict(form=form)
     return render(request, "project_create.html", context=context)
 
 
@@ -305,11 +297,8 @@ def data_view(request, id):
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_ICON],
-                               project=data.project, data=data)
-
     project = data.project
-    context = dict(data=data, steps=steps, project=project, activate='selection')
+    context = dict(data=data, project=project, activate='selection')
 
     counts = get_counts(project)
     context.update(counts)
@@ -323,7 +312,7 @@ def data_copy(request, id):
 
     data = Data.objects.filter(pk=id).first()
     project = data.project
-    request.session["clipboard"] = data.uid
+    request.session["data_clipboard"] = data.uid
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
@@ -331,7 +320,7 @@ def data_copy(request, id):
 def data_paste(request, uid):
     "Paste data stored in the clipboard into project"
 
-    data_uid = request.session.get("clipboard")
+    data_uid = request.session.get("data_clipboard")
     data = Data.objects.filter(uid=data_uid).first()
     project = Project.objects.filter(uid=uid).first()
 
@@ -349,18 +338,51 @@ def data_paste(request, uid):
                      type=data.type, skip=skip)
 
     # Clear clipboard
-    request.session["clipboard"] = None
+    request.session["data_clipboard"] = None
 
     messages.success(request, f"Pasted {data.name} to {project.name}")
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+def files_paste(request, uid):
+    "Paste files copied from a job to a project"
+
+    files = request.session.get("files_clipboard", [""])
+    project = Project.objects.filter(uid=uid).first()
+    url = reverse("data_list", kwargs=dict(uid=project.uid))
+
+    # Last item clipboard is job.uid that the files in clipboard belong to
+    job_uid = files.pop(-1)
+
+    job = Job.objects.filter(uid=job_uid).first()
+    if not job:
+        msg =  "Files do not belong to any result"
+        messages.error(request, msg)
+        return redirect(url)
+
+    # Some files in clipboard might be outside job path.
+    files_missing = False in [f.startswith(job.path) for f in files]
+
+    if files_missing:
+        msg = mark_safe(f"Files not found in <b>{job.name}</b>. Try copying again.")
+        messages.error(request, msg)
+        return redirect(url)
+
+    # Link files to project
+    for file in files:
+        auth.create_data(project=project, path=file)
+
+    request.session["files_clipboard"] = [""]
+    msg = f"Pasted <b>{len(files)}</b> file(s) to project <b>{project.name}</b>."
+    msg = mark_safe(msg)
+    messages.success(request, msg)
+    return redirect(url)
+
+
 @object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
 def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
-    project = data.project
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
-                               project=project, data=data)
     form = DataEditForm(instance=data, initial=dict(type=data.type))
 
     if request.method == "POST":
@@ -371,7 +393,7 @@ def data_edit(request, id):
 
         messages.error(request, mark_safe(form.errors))
 
-    context = dict(data=data, steps=steps, form=form)
+    context = dict(data=data, form=form)
     return render(request, 'data_edit.html', context)
 
 
@@ -380,12 +402,9 @@ def data_nav(request, uid):
     "Return special dir view of data list"
 
     project = Project.objects.filter(uid=uid).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
-                               project=project)
-
     # Same ordering as data_list
     all_data = project.data_set.order_by("sticky", "-date").all()
-    context = dict(activate='selection', steps=steps, all_data=all_data, project=project)
+    context = dict(activate='selection', all_data=all_data, project=project)
     counts = get_counts(project)
     context.update(counts)
 
@@ -396,8 +415,6 @@ def data_nav(request, uid):
 def data_upload(request, uid):
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
-                               project=project)
 
     form = DataUploadForm()
     if request.method == "POST":
@@ -418,7 +435,7 @@ def data_upload(request, uid):
 
         messages.error(request, mark_safe(form.errors))
 
-    context = dict(project=project, steps=steps, form=form)
+    context = dict(project=project, form=form)
     return render(request, 'data_upload.html', context)
 
 
@@ -427,16 +444,13 @@ def data_files_list(request, id, path=''):
     data = Data.objects.filter(id=id).first()
     project = data.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
-                               project=project, data=data)
-
     back_uid = None if path else project.uid
     context = dict(activate='selection', data=data, project=project, project_uid=back_uid)
 
     counts = get_counts(project)
     context.update(counts)
 
-    return files_list(request=request, instance=data, path=path, steps=steps,
+    return files_list(request=request, instance=data, path=path,
                       template_name="data_files_list.html", extra_context=context)
 
 
@@ -446,12 +460,8 @@ def recipe_view(request, id):
     Returns an analysis view based on its id.
     """
     analysis = Analysis.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON,
-                                ANALYSIS_VIEW_ICON], project=analysis.project, analysis=analysis)
-
     project = analysis.project
-
-    context = dict(analysis=analysis, steps=steps, project=project, activate='selection')
+    context = dict(analysis=analysis, project=project, activate='selection')
 
     counts = get_counts(project)
     context.update(counts)
@@ -463,10 +473,6 @@ def recipe_view(request, id):
 def recipe_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
-
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
-                                ANALYSIS_VIEW_ICON, ANALYSIS_RUN_ICON],
-                               project=project, analysis=analysis)
 
     if request.method == "POST":
         form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, data=request.POST)
@@ -492,9 +498,8 @@ def recipe_run(request, id):
         initial = dict(name=f"Results for: {analysis.name}")
         form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
 
-    context = dict(project=project, analysis=analysis, steps=steps, form=form, activate='selection')
-    counts = get_counts(project)
-    context.update(counts)
+    context = dict(project=project, analysis=analysis, form=form, activate='selection')
+    context.update(get_counts(project))
 
     return render(request, 'recipe_run.html', context)
 
@@ -505,7 +510,11 @@ def recipe_copy(request, id):
 
     recipe = Analysis.objects.filter(pk=id).first()
     project = recipe.project
-    request.session["clipboard"] = recipe.uid
+    request.session["recipe_clipboard"] = recipe.uid
+
+    msg = f"Copied recipe <b>{recipe.name}</b> to Clipboard."
+    msg = mark_safe(msg)
+    messages.success(request, msg)
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
 
@@ -513,7 +522,7 @@ def recipe_copy(request, id):
 def recipe_paste(request, uid):
     "Paste recipe stored in the clipboard into project"
 
-    recipe_uid = request.session.get("clipboard")
+    recipe_uid = request.session.get("recipe_clipboard")
     recipe = Analysis.objects.filter(uid=recipe_uid).first()
     project = Project.objects.filter(uid=uid).first()
 
@@ -529,7 +538,7 @@ def recipe_paste(request, uid):
     msg = f"Pasted recipe <b>{recipe.name}</b> to project <b>{project.name}</b>."
     msg = mark_safe(msg)
     messages.success(request, msg)
-    request.session["clipboard"] = None
+    request.session["recipe_clipboard"] = None
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
@@ -547,12 +556,7 @@ def recipe_code(request, id):
     # There has to be a recipe to work with.
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
-
     name = analysis.name
-
-    # This is the navbar.
-    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
-                                ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
 
     if request.method == "POST":
         form = EditCode(user=user, project=project, data=request.POST)
@@ -598,7 +602,7 @@ def recipe_code(request, id):
     data, script = auth.generate_script(job)
 
     # Populate the context.
-    context = dict(project=project, analysis=analysis, steps=steps, form=form, script=script, recipe=recipe)
+    context = dict(project=project, analysis=analysis, form=form, script=script, recipe=recipe)
     return render(request, 'recipe_code.html', context)
 
 
@@ -609,8 +613,6 @@ def recipe_create(request, uid):
     """
 
     project = Project.objects.filter(uid=uid).first()
-
-    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON], project=project)
 
     if request.method == "POST":
         form = RecipeForm(data=request.POST, files=request.FILES)
@@ -630,13 +632,13 @@ def recipe_create(request, uid):
             recipe.save()
             messages.success(request, "Recipe created")
 
-            return redirect(reverse('recipe_view', kwargs=dict(id=recipe.id)))
+            return redirect(reverse('recipe_list', kwargs=dict(uid=project.uid)))
     else:
         form = RecipeForm(initial=dict(name="New Recipe"))
 
     # The url to submit to.
     action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
-    context = dict(steps=steps, project=project, form=form, action_url=action_url)
+    context = dict(project=project, form=form, action_url=action_url, name="New Recipe")
 
     return render(request, 'recipe_edit.html', context)
 
@@ -644,25 +646,21 @@ def recipe_create(request, uid):
 @object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
 def recipe_edit(request, id):
     "Edit recipe Info"
-    analysis = Analysis.objects.filter(id=id).first()
-    project = analysis.project
-
-    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
-                                ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
-
-    action_url = reverse('recipe_edit', kwargs=dict(id=analysis.id))
-    back_url = reverse('recipe_view', kwargs=dict(id=analysis.id))
+    recipe = Analysis.objects.filter(id=id).first()
+    project = recipe.project
+    action_url = reverse('recipe_edit', kwargs=dict(id=recipe.id))
 
     if request.method == "POST":
-        form = RecipeForm(data=request.POST, files=request.FILES, instance=analysis)
+        form = RecipeForm(data=request.POST, files=request.FILES, instance=recipe)
         if form.is_valid():
             recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
 
         messages.error(request, mark_safe(form.errors))
 
-    form = RecipeForm(instance=analysis)
-    context = dict(steps=steps, analysis=analysis, project=project, form=form, action_url=action_url, back_url=back_url)
+    form = RecipeForm(instance=recipe)
+    context = dict(analysis=recipe, project=project, form=form, action_url=action_url,
+                   name=recipe.name)
 
     return render(request, 'recipe_edit.html', context)
 
@@ -672,9 +670,6 @@ def job_edit(request, id):
     job = Job.objects.filter(id=id).first()
     project = job.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON,
-                                RESULT_VIEW_ICON], job=job, project=project)
-
     if request.method == "POST":
         form = JobEditForm(data=request.POST, files=request.FILES, instance=job)
         if form.is_valid():
@@ -682,7 +677,7 @@ def job_edit(request, id):
             return redirect(reverse("job_view", kwargs=dict(id=job.id)))
 
     form = JobEditForm(instance=job)
-    context = dict(steps=steps, job=job, project=project, form=form)
+    context = dict(job=job, project=project, form=form)
     return render(request, 'job_edit.html', context)
 
 
@@ -694,12 +689,7 @@ def job_view(request, id):
     job = Job.objects.filter(id=id).first()
     project = job.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
-                                RESULT_VIEW_ICON], job=job, project=project)
-
-    project = job.project
-
-    context = dict(job=job, steps=steps, project=project, activate='selection')
+    context = dict(job=job, project=project, activate='selection')
 
     counts = get_counts(project)
     context.update(counts)
@@ -714,7 +704,6 @@ def job_result_view(request, id):
     """
 
     job = Job.objects.filter(id=id).first()
-
     index = job.json_data.get("settings", {}).get("index")
 
     if not index:
@@ -731,8 +720,11 @@ def job_result_view(request, id):
         messages.warning(request, "The analysis has not completed ...")
         return redirect(url)
 
-    # url = reverse("job_files_entry", kwargs=dict(id=id)) + f"{index}"
-    url = settings.MEDIA_URL + job.get_url(path=index)
+    url = reverse("job_files_entry", kwargs=dict(id=id))
+
+    if os.path.exists(join(job.path, index)):
+        url = settings.MEDIA_URL + job.get_url(path=index)
+
     return redirect(url)
 
 
@@ -751,21 +743,19 @@ def job_files_list(request, id, path=''):
     job = Job.objects.filter(id=id).first()
     project = job.project
 
-    steps = breadcrumb_builder(
-        [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
-        job=job, project=project)
-
-    form = FileCopyForm(job=job)
+    form = FileCopyForm(job=job, request=request)
     if request.method == "POST":
-        form = FileCopyForm(data=request.POST, job=job)
+        form = FileCopyForm(data=request.POST, job=job, request=request)
         if form.is_valid():
-            ndata = form.save()
-            messages.success(request, f"Copied {ndata} to Data")
-            return redirect(reverse("data_nav", kwargs=dict(uid=project.uid)))
+            # Copies files to clipboard
+            nfiles = form.save()
+            msg = mark_safe(f"Copied <b>{nfiles}</b> file(s) to Clipboard from <b>{job.name}</b>")
+            messages.success(request, msg)
+            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
     context = dict(activate='selection', job=job, project=project, form=form)
     counts = get_counts(project)
     context.update(counts)
 
-    return files_list(request=request, instance=job, path=path, steps=steps,
+    return files_list(request=request, instance=job, path=path,
                       template_name="job_files_list.html", extra_context=context)

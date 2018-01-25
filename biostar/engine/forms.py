@@ -227,20 +227,23 @@ class RecipeInterface(forms.Form):
 
         return json_data
 
-class FileCopyForm(forms.Form):
-    "Used to copy files from jobs to project"
 
-    def __init__(self, job, *args, **kwargs):
+class FileCopyForm(forms.Form):
+    "Used to save paths found in jobs into files_clipboard"
+
+    def __init__(self, job, request, *args, **kwargs):
         self.job = job
+        self.request = request
         super().__init__(*args, **kwargs)
 
     paths = forms.CharField()
 
     def save(self):
-        # Link the selected paths to project data
-        for path in self.cleaned_data:
-            auth.create_data(project=self.job.project, path=path)
-        return len(self.cleaned_data)
+        # Save the selected files in clipboard,
+        # Note: job.uid has to be appended to later validate where the files came from
+        self.cleaned_data.append(self.job.uid)
+        self.request.session["files_clipboard"] = self.cleaned_data
+        return len(self.cleaned_data[:-1])
 
     def clean(self):
         paths = self.data.getlist('paths')

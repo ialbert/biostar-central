@@ -4,11 +4,11 @@ import uuid, logging
 from django.contrib import messages
 from ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth import views as auth_views
 from django.utils.safestring import mark_safe
 
-from biostar.breadcrumb import *
 from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
 from django.contrib import auth
 
@@ -27,7 +27,6 @@ def edit_profile(request):
 
     id = request.user.id
     user = User.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, USER_ICON])
 
     if request.method == "POST":
         form = EditProfile(data=request.POST, user=user)
@@ -39,7 +38,7 @@ def edit_profile(request):
 
     initial = dict(email=user.email, first_name=user.first_name)
     form = EditProfile(initial=initial)
-    context = dict(user=user, steps=steps, form=form)
+    context = dict(user=user, form=form)
     return render(request, 'accounts/edit_profile.html', context)
 
 
@@ -51,8 +50,7 @@ def profile(request):
 
     id = request.user.id
     user = User.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, USER_ICON])
-    context = dict(user=user, steps=steps)
+    context = dict(user=user)
 
     return render(request, 'accounts/profile.html', context)
 
@@ -90,7 +88,6 @@ def user_signup(request):
 
 
 def user_logout(request):
-    steps = breadcrumb_builder([HOME_ICON, LOGOUT_ICON])
 
     if request.method == "POST":
 
@@ -103,14 +100,12 @@ def user_logout(request):
 
     form = LogoutForm()
 
-    context = dict(steps=steps, form=form)
+    context = dict(form=form)
 
     return render(request, "accounts/logout.html", context=context)
 
 
 def user_login(request):
-
-    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
 
     if request.method == "POST":
         form = LoginForm(data=request.POST)
@@ -145,14 +140,13 @@ def user_login(request):
         messages.error(request, mark_safe(form.errors))
 
     form = LoginForm()
-    context = dict(form=form, steps=steps)
+    context = dict(form=form)
     return render(request, "accounts/login.html", context=context)
 
 
 
 def password_reset(request):
-    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
-    context = dict(steps=steps)
+    context = dict()
 
     return auth_views.password_reset(request, extra_context=context,
                                      template_name="accounts/password_reset_form.html",
@@ -161,15 +155,13 @@ def password_reset(request):
                                      )
 
 def password_reset_done(request):
-    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
-    context = dict(steps=steps)
+    context = dict()
 
     return auth_views.password_reset_done(request, extra_context=context,
                                           template_name="accounts/password_reset_done.html")
 
 def pass_reset_confirm(request, uidb64, token):
-    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
-    context = dict(steps=steps)
+    context = dict()
 
     #TODO: need to change the set_password_form to own (current one has annoying restrications).
 
@@ -178,8 +170,7 @@ def pass_reset_confirm(request, uidb64, token):
                                             uidb64=uidb64, token=token)
 
 def password_reset_complete(request):
-    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
-    context = dict(steps=steps)
+    context = dict()
 
     return auth_views.password_reset_complete(request, extra_context=context,
                                               template_name="accounts/password_reset_complete.html",)

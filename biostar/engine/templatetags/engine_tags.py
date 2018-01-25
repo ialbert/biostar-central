@@ -83,10 +83,54 @@ def has_data(request):
     """
     Checks if object in clipboard is a recipe.
     """
-    uid = request.session.get("clipboard")
+
+    uid = request.session.get("data_clipboard")
     data = Data.objects.filter(uid=uid).first()
 
     return bool(uid and data)
+
+
+@register.filter
+def has_files(request):
+    "Checks if object in clipboard is a list of files belonging to a job"
+    files = request.session.get("files_clipboard", [""])
+
+    # Last item loaded into files clipboard is the job.uid the files belong to.
+    job_uid = files.pop(-1)
+
+    job = Job.objects.filter(uid=job_uid).first()
+    if not job:
+        return False
+
+    # Some files in clipboard might be outside job path.
+    files_missing = False in [f.startswith(job.path) for f in files]
+    if files_missing:
+        return False
+
+    # Files might still be empty at this point
+    return True if files else False
+
+
+@register.inclusion_tag('widgets/paste.html')
+def paste(project, data=False, files=False):
+    "Default provides template for pasting a recipe"
+
+    action, url, message = "Paste Recipe", "recipe_paste", "a recipe"
+    redir, board = "recipe_list", "recipe_clipboard"
+
+    if data or files:
+        # Change params for data or files
+
+        action = "Paste Data" if data else "Paste File(s)"
+        url = "data_paste" if data else "files_paste"
+        board = "data_clipboard" if data else "files_clipboard"
+        args, redir = dict(uid=project.uid), "data_list"
+        message = "a data" if data else "files"
+
+    paste_url = reverse(url, kwargs=dict(uid=project.uid))
+    clear_url = reverse("clear_clipboard", kwargs=dict(uid=project.uid, redir=redir, board=board))
+
+    return dict(action=action, paste_url=paste_url, clear_url=clear_url, message=message)
 
 
 @register.filter
@@ -94,7 +138,7 @@ def has_recipe(request):
     """
     Checks if object in clipboard is a recipe.
     """
-    uid = request.session.get("clipboard")
+    uid = request.session.get("recipe_clipboard")
     recipe = Analysis.objects.filter(uid=uid).first()
     return bool(uid and recipe)
 
