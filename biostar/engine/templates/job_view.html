@@ -17,11 +17,6 @@
         <div class="ui center aligned basic segment">
             <div class="ui buttons">
 
-                <a class="ui {% job_color job %} button" href="{% url 'job_result_view' job.id %}"><i
-                class="line chart icon"></i>Main Result</a>
-
-                <div class="or"></div>
-
                 <a class="ui {% job_color job %}  button" href="{% url 'job_files_entry' job.id %}">
                     <i class="browser icon"></i>Browse Files</a>
 
@@ -53,15 +48,13 @@
 
     <div class="ui vertical segment">
         <div class="ui center aligned header">Stdout Log</div>
-        <div class="ui center aligned subheader">Messages printed to the standard output stream during the run:
-        </div>
+        <div>Messages printed to the standard output stream during the run:</div>
         <pre>{{ job.stdout_log }}</pre>
     </div>
 
     <div class="ui basic segment">
         <div class="ui center aligned header">Stderr Log</div>
-        <div class="ui center aligned subheader">Messages printed to the standard error stream during the run:</div>
-
+        <div>Messages printed to the standard error stream during the run:</div>
         <pre>{{ job.stderr_log }}</pre>
     </div>
 

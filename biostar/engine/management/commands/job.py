@@ -43,7 +43,9 @@ def run(job, options={}):
         # This is the work directory.
         work_dir = job.path
 
+        # The bade URL of the site.
         url_base = f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}'
+
         # Populate extra context
         def extra_context(job):
             extras = dict(
@@ -83,17 +85,29 @@ def run(job, options={}):
 
         # Extract the execute commands from the spec.
         settings_dict = json_data.get("settings", {})
+
+        # Specifies the command that gets executed.
         execute = settings_dict.get('execute', {})
 
-        script_name = execute.get("filename", "run.sh")
-        json_fname = f"{script_name}.json"
-        stdout_fname = f"{script_name}.stdout.txt"
-        stderr_fname = f"{script_name}.stderr.txt"
+        # The name of the file that contain the commands.
+        script_name = execute.get("filename", "recipe.sh")
 
-        command = execute.get("command", "bash run.sh")
+        # Make the log directory.
+        LOG_DIR = 'runlog'
+        log_dir = os.path.join(work_dir, f"{LOG_DIR}")
+        if not os.path.isdir(log_dir):
+            os.mkdir(log_dir)
+
+        # Runtime information will be saved in the log.
+        json_fname = f"{LOG_DIR}/input.json"
+        stdout_fname = f"{LOG_DIR}/stdout.txt"
+        stderr_fname = f"{LOG_DIR}/stderr.txt"
+
+        # Build the command line
+        command = execute.get("command", "bash recipe.sh")
 
         # This is the full command that will be executed.
-        full_command = f'(cd {work_dir} & {command})'
+        full_command = f'(cd {work_dir} && {command})'
         if show_command:
             print(full_command)
             return

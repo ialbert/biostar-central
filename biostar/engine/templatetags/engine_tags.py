@@ -286,7 +286,6 @@ def form_errors(form):
     Turns form errors into a data structure
     """
 
-
     errorlist = [ ('', message) for message in form.non_field_errors() ]
 
     for field in form:
@@ -323,14 +322,6 @@ def markdown(text):
     text = dedent(text)
     html = make_html(text)
     return mark_safe(html)
-
-
-@register.inclusion_tag('widgets/breadcrumb.html')
-def breadcrumb(steps):
-    """
-    Generates the breadcrumb for a page.
-    """
-    return dict(steps=steps)
 
 
 @register.inclusion_tag('widgets/menubar.html', takes_context=True)

@@ -17,61 +17,73 @@
 {% block body %}
 
 
-     {% show_messages messages %}
-        <div class="ui vertical segment">
+    {% show_messages messages %}
+    <div class="ui vertical segment">
 
-            <div class="ui header">
-                <a href="{% url 'project_list' %}">
-                    <i class="database icon"></i>Project List
-                </a>
-            </div>
-            <p>
-                <img class="ui small right floated circular image" src="{% static 'images/dna.jpg' %}">
+        <div class="ui header">
+            <a href="{% url 'project_list' %}">
+                <i class="database icon"></i>Project List
+            </a>
+        </div>
+        <p>
+            <img class="ui small right floated circular image" src="{% static 'images/dna.jpg' %}">
 
-                View the list of projects. Each project is a collection of:
-            <ul>
-                <li>Data Files.</li>
-                <li>Analysis Recipes.</li>
-                <li>Analysis Results.</li>
-            </ul>
-            </p>
-            <p>
-                Public projects are visible to everyone.
-            </p>
-            <p>
-                Private projects are accessible only to project members.
-            </p>
+            View the list of projects. Each project is a collection of:
+        <ul>
+            <li>Data Files</li>
+            <li>Analysis Recipes</li>
+            <li>Analysis Results</li>
+        </ul>
+        </p>
+        <p>
+            Public projects are visible to everyone.
+        </p>
+        <p>
+            Private projects are accessible only to project members.
+        </p>
 
+    </div>
+
+    <div class="ui vertical segment">
+
+        <div class="ui header">
+            <a href="{% url 'docs' 'info' %}">
+
+                <i class="info circle icon"></i>About the site
+
+            </a>
         </div>
 
-        <div class="ui vertical segment">
+        <img class="ui small right floated circular image" src="{% static 'images/biomedical.jpg' %}">
 
-            <div class="ui header">
-                <a href="{% url 'docs' 'info' %}">
+        <p> Bioinformatics is experiencing a <strong>reproducibility crisis</strong>. It has become challenging to
+            understand how analyses are performed and even more difficult to replicate the same processes again.
 
-                    <i class="info circle icon"></i>About this site
-
-                </a>
-            </div>
-
+        </p>
+        <p>
+            We have developed a novel, python-based web application that allows scientists to document, distribute, rerun and
+            modify data analysis scripts. We call these analysis scripts <strong>"bioinformatics recipes"</strong>.
+        </p>
+        <p>
+            Our application provides access to scientists that may not be proficient in using command line tools by
+            creating an easy-to-use graphical interface for each recipe. Users adapt, modify and remix recipes to match
+            their needs, then share these on the same site. By supporting these interactions, we foster a collaborative
+            environment that facilitates creativity, efficiency and reproducibility.
+        </p>
             <p>
-                Data oriented sciences are experiencing a <strong>reproducibility crisis</strong>. It has become
-                unexpectedly challenging to even understand how analyses are performed and even more
-                difficult to repeat the same process again.
-            </p>
-
-            <p>
-                This site was designed to help scientists share, document, distribute and rerun
-                data analysis scripts. We call these scripts <b>recipes</b>. Recipes are designed
-                to facilitate the distribution, the sharing and the reuse of bioinformatics pipelines
-            </p>
-
-            <p>
-                Learn more about the way <a href="{% url 'docs' 'info' %}">the site works.</a>
-            </p>
+            Besides storing, sharing and executing data analysis scripts, our software supports public and private
+            project-based workflows and can provide complete data storage and management solutions as a laboratory
+            information management system. The application is designed to serve sequencing facilities and has been
+            deployed and tested within the Penn State Bioinformatics Consulting Center
 
 
-        </div>
+
+        <p>
+            Learn more about the way <a href="{% url 'docs' 'info' %}">the site works.</a>
+        </p>
+
+
+    </div>
 
 
 

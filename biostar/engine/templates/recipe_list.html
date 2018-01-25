@@ -1,7 +1,7 @@
 {% extends "base_content.html" %}
 {% load engine_tags %}
 {% block headtitle %}
-    Analysis List
+    Recipes
 {% endblock %}
 
 {% block content %}
@@ -23,7 +23,7 @@
                     <img src="{% img recipe %}">
                 </div>
                 <div class="content">
-                    <a class="header" href="{% url 'recipe_view' recipe.id %}">
+                    <a class="subheader" href="{% url 'recipe_view' recipe.id %}">
                         <i class="setting icon"></i> {{ recipe.name }}
                     </a>
                     <div class="description">
