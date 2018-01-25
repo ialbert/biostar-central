@@ -1,5 +1,5 @@
 import logging
-from random import randint
+import json
 
 import hjson
 import mistune
@@ -89,6 +89,7 @@ class Project(models.Model):
         self.html = make_html(self.text)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
+
         if not os.path.isdir(self.get_project_dir()):
             os.makedirs(self.get_project_dir())
 
@@ -102,6 +103,7 @@ class Project(models.Model):
 
     def get_project_dir(self):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
+
 
 class Access(models.Model):
     """
@@ -133,6 +135,7 @@ class Access(models.Model):
 def create_access(sender, instance, created, **kwargs):
 
     if created:
+
         # Creates an admin access for the user.
         access = Access.objects.create(user=instance.owner, project=instance, access=Access.ADMIN_ACCESS)
         access.save()
@@ -168,10 +171,18 @@ class Data(models.Model):
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.name = self.name[-MAX_NAME_LEN:]
+        print(self.uid, "FUCKKKKKKK")
+
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
+
+        if not bool(self.uid.strip()):
+
+            print(self.uid, "FUCKKKKKKK")
+            1/0
+
 
         # Build the data directory.
         data_dir = self.get_data_dir()
@@ -207,6 +218,9 @@ class Data(models.Model):
 
     def get_data_dir(self):
         "The data directory"
+        #if not bool(self.uid.strip()):
+            #1/0
+
         return join(self.get_project_dir(), f"store-{self.uid}")
 
     def get_project_dir(self):
@@ -299,6 +313,11 @@ class Analysis(models.Model):
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
+
+        # This is needed to update the json file
+        #if self.json_file and os.path.exists(self.json_file):
+        #    with open(os.path.abspath(self.json_file), "w") as json_file:
+        #        hjson.dump(obj=self.json_data, fp=json_file)
 
         super(Analysis, self).save(*args, **kwargs)
 

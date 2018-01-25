@@ -107,10 +107,10 @@ def get_project_list(user):
         cond = Q(privacy=Project.PUBLIC)
     else:
         # Authenticated users see public projects and private projects with access rights.
-        cond = Q(privacy=Project.PUBLIC) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
+        cond =  Q(privacy=Project.PUBLIC) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
 
     # Generate the query.
-    query = Project.objects.filter(cond)
+    query = Project.objects.filter(cond).distinct()
 
     return query
 
@@ -194,7 +194,7 @@ def get_data(user, project, query, data_type=None):
     return datamap
 
 
-def create_project(user, name, uid='', summary='', text='', stream='',
+def create_project(user, name, uid=None, summary='', text='', stream='',
                    privacy=Project.PRIVATE, sticky=True):
 
     project = Project.objects.create(
@@ -346,9 +346,10 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # Create the data.
     type = type or "DATA"
-    uid = util.get_uuid(8)
+    #uid = util.get_uuid(8)
+
     data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
-                               type=type, summary=summary, text=text, uid=uid)
+                               type=type, summary=summary, text=text)#, uid=uid)
 
     # The source of the data is a stream is written into the destination.
     if stream:

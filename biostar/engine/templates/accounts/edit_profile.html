@@ -5,13 +5,14 @@
 {% block body %}
 
 
-     <div class="ui raised segment inputcolor">
-        <div class="ui center aligned basic segment">
+     <div class="ui segment inputcolor">
 
+        <div class="ui center aligned basic segment">
             <a class="ui button" href="{% url 'password_reset' %}">
                 <i class="undo icon"></i>Reset password
             </a>
         </div>
+
             <form method="post" class="ui form" action="{% url 'edit_profile' %}">
                 {% csrf_token %}
 

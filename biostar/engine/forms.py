@@ -37,11 +37,11 @@ class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
 
     # Should not edit uid because data directories get recreated
-    uid = forms.CharField(max_length=32, required=False)
+    #uid = forms.CharField(max_length=32, required=False)
 
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text', 'uid','image', "privacy", "sticky"]
+        fields = ['name', 'summary', 'text','image', "privacy", "sticky"]
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -49,7 +49,6 @@ class ProjectForm(forms.ModelForm):
         check_size(fobj=image)
 
         return image
-
 
 class DataUploadForm(forms.ModelForm):
 
