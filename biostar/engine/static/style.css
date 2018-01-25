@@ -64,6 +64,11 @@ h1 {
     font-size: 1.4rem;
 }
 
+.subheader {
+    font-size: 1.1em;
+    font-weight: 700;
+}
+
 a {
     padding: 2 2 2 2px;
 }

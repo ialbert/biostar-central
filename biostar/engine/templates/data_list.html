@@ -21,7 +21,6 @@
         <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>
     {% endif %}
 
-
     <div class="ui divided  items">
 
         {% for data in data_list %}
@@ -36,8 +35,12 @@
                         {% size_label data %}
                         {% type_label data %}
                         {% state_label data error_only=True %}
+                        </div>
 
-                       {{ data.summary }}</div>
+                    </div>
+
+                    <div class="meta">
+                       {{ data.summary }}
                     </div>
 
                 </div>
