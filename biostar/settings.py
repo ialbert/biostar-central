@@ -4,6 +4,18 @@ import os, logging
 # Apply the logger settings.
 from biostar.logconf import LOGGING
 
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
+
+
+# Don't run with debug turned on in production!
+DEBUG = True
+
+# COMPRESS_ENABLED = True
+
+SECRET_KEY = '1@lvh.me'
+
+
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
@@ -23,15 +35,9 @@ ADMIN_GROUP_NAME = "Admins"
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1@lvh.me'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-COMPRESS_ENABLED = True
+
 
 # Application definition
 PROTOCOL = "http"
