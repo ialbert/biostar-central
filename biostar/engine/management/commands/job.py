@@ -43,7 +43,9 @@ def run(job, options={}):
         # This is the work directory.
         work_dir = job.path
 
+        # The bade URL of the site.
         url_base = f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}'
+
         # Populate extra context
         def extra_context(job):
             extras = dict(
@@ -83,8 +85,11 @@ def run(job, options={}):
 
         # Extract the execute commands from the spec.
         settings_dict = json_data.get("settings", {})
+
+        # Specifies the command that gets executed.
         execute = settings_dict.get('execute', {})
 
+        # The name of the file that contain the commands.
         script_name = execute.get("filename", "recipe.sh")
 
         # Make the log directory.

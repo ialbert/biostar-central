@@ -3,18 +3,18 @@ import logging
 import uuid
 
 import hjson
-from biostar.engine import settings
 from django.contrib import messages
 from django.db.models import Q
 from django.template import Template, Context
 from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
-from .templatetags import engine_tags
 
-from .const import *
+from biostar.engine import settings
 from . import util
+from .const import *
 from .models import Data, Analysis, Job, Project, Access
+from .templatetags import engine_tags
 
 CHUNK = 1024 * 1024
 
@@ -93,7 +93,7 @@ def template_changed(analysis, template):
 
     change = list(difflib.unified_diff(text1, text2))
 
-    #print(f"Change: {bool(change)}")
+    # print(f"Change: {bool(change)}")
     return change
 
 
@@ -196,7 +196,6 @@ def get_data(user, project, query, data_type=None):
 
 def create_project(user, name, uid='', summary='', text='', stream='',
                    privacy=Project.PRIVATE, sticky=True):
-
     project = Project.objects.create(
         name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 
@@ -210,7 +209,6 @@ def create_project(user, name, uid='', summary='', text='', stream='',
 
 def create_analysis(project, json_text, template, json_file=None, uid=None, user=None, summary='',
                     name='', text='', stream=None, sticky=False, security=Analysis.UNDER_REVIEW):
-
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
@@ -226,21 +224,33 @@ def create_analysis(project, json_text, template, json_file=None, uid=None, user
     return analysis
 
 
-def make_summary(data, summary='', name="widgets/job_summary.html"):
+def make_summary(data, summary='', title='', name="widgets/job_summary.html"):
     '''
     Summarizes job parameters.
     '''
 
-
-    context = dict(data=data, summary=summary)
+    context = dict(data=data, summary=summary, title=title)
     template = loader.get_template(name)
     result = template.render(context)
 
     return result
 
 
-def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=None, uid=None, save=True):
+def make_job_title(recipe, data):
 
+    collect = []
+    for key, obj in data.items():
+        if obj.get('label'):
+            value = obj.get('name') or obj.get('value')
+            collect.append(str(value))
+
+    label = ", ".join(collect)
+    name = f"{recipe.name}: {label}"
+
+    return name
+
+
+def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=None, uid=None, save=True):
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
 
@@ -256,6 +266,9 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     # Generate the summary from the data.
     summary = make_summary(json_data, summary=analysis.summary)
+
+    # Generate a meaningful job title.
+    name = make_job_title(recipe=analysis, data=json_data)
 
     # Create the job instance.
     job = Job(name=name, summary=summary, state=state, json_text=json_text,
@@ -338,7 +351,6 @@ def create_path(fname, data):
 
 def create_data(project, user=None, stream=None, path='', name='',
                 text='', summary='', type="", skip=""):
-
     "Param : skip (str) - full file path found in 'path' that will be ignored when linking."
 
     # We need absolute paths with no trailing slashes.
