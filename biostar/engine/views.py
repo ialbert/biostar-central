@@ -720,8 +720,11 @@ def job_result_view(request, id):
         messages.warning(request, "The analysis has not completed ...")
         return redirect(url)
 
-    # url = reverse("job_files_entry", kwargs=dict(id=id)) + f"{index}"
-    url = settings.MEDIA_URL + job.get_url(path=index)
+    url = reverse("job_files_entry", kwargs=dict(id=id))
+
+    if os.path.exists(join(job.path, index)):
+        url = settings.MEDIA_URL + job.get_url(path=index)
+
     return redirect(url)
 
 
