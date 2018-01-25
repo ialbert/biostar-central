@@ -22,7 +22,7 @@
 
                 <div class="or"></div>
 
-                <a class="ui teal button" href="{% url 'recipe_view' job.analysis.id %}"><i
+                <a class="ui button" href="{% url 'recipe_view' job.analysis.id %}"><i
                 class="setting icon"></i>View Recipe</a>
 
                 {% if user.is_authenticated %}
@@ -48,15 +48,13 @@
 
     <div class="ui vertical segment">
         <div class="ui center aligned header">Stdout Log</div>
-        <div class="ui center aligned subheader">Messages printed to the standard output stream during the run:
-        </div>
+        <div>Messages printed to the standard output stream during the run:</div>
         <pre>{{ job.stdout_log }}</pre>
     </div>
 
     <div class="ui basic segment">
         <div class="ui center aligned header">Stderr Log</div>
-        <div class="ui center aligned subheader">Messages printed to the standard error stream during the run:</div>
-
+        <div>Messages printed to the standard error stream during the run:</div>
         <pre>{{ job.stderr_log }}</pre>
     </div>
 

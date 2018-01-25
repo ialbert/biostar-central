@@ -244,8 +244,11 @@ def make_job_title(recipe, data):
             value = obj.get('name') or obj.get('value')
             collect.append(str(value))
 
-    label = ", ".join(collect)
-    name = f"{recipe.name}: {label}"
+    if collect:
+        label = ", ".join(collect)
+        name = f"{recipe.name} on {label}"
+    else:
+        name = f"{recipe.name}"
 
     return name
 
