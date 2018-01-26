@@ -189,11 +189,6 @@ class Data(models.Model):
             with open(self.file, 'wt') as fp:
                 pass
 
-        #print(self.uid, bool(self.uid.strip()) )
-        #if not bool(self.uid.strip()):
-        #    print(self.uid, self.id, self.name, self.project.name)
-        #    1/0
-
         super(Data, self).save(*args, **kwargs)
 
     def peek(self):
@@ -215,10 +210,6 @@ class Data(models.Model):
 
     def get_data_dir(self):
         "The data directory"
-
-        #if not bool(self.uid.strip()):
-        #    print(self.uid, self.id, self.name, self.project.get_project_dir())
-        #    1/0
 
         return join(self.get_project_dir(), f"store-{self.uid}")
 
