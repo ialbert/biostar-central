@@ -1,7 +1,5 @@
-
-from django.test import  RequestFactory
 from django.contrib.messages.storage import fallback
-
+from django.test import RequestFactory
 
 
 def fake_request(url, data, user, method="POST"):
@@ -21,4 +19,3 @@ def fake_request(url, data, user, method="POST"):
     request.user = user
 
     return request
-

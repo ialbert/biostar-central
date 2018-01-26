@@ -215,11 +215,7 @@ class Data(models.Model):
 
     def get_data_dir(self):
         "The data directory"
-
-        #if not bool(self.uid.strip()):
-        #    print(self.uid, self.id, self.name, self.project.get_project_dir())
-        #    1/0
-
+        assert self.uid, "Sanity check. UID should always be set."
         return join(self.get_project_dir(), f"store-{self.uid}")
 
     def get_project_dir(self):
