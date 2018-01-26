@@ -89,7 +89,6 @@ class Project(models.Model):
         self.html = make_html(self.text)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
-
         if not os.path.isdir(self.get_project_dir()):
             os.makedirs(self.get_project_dir())
 
@@ -171,18 +170,11 @@ class Data(models.Model):
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.name = self.name[-MAX_NAME_LEN:]
-        print(self.uid, "FUCKKKKKKK")
 
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
-
-        if not bool(self.uid.strip()):
-
-            print(self.uid, "FUCKKKKKKK")
-            1/0
-
 
         # Build the data directory.
         data_dir = self.get_data_dir()
@@ -196,6 +188,10 @@ class Data(models.Model):
         if not os.path.isfile(self.file):
             with open(self.file, 'wt') as fp:
                 pass
+
+        if not bool(self.uid.strip()):
+            print(self.uid, self.id, self.name, self.project.name)
+            1/0
 
         super(Data, self).save(*args, **kwargs)
 
@@ -218,7 +214,9 @@ class Data(models.Model):
 
     def get_data_dir(self):
         "The data directory"
-        #if not bool(self.uid.strip()):
+
+        if not bool(self.uid.strip()):
+            print(self.uid, self.id, self.name, self.project.get_project_dir())
             #1/0
 
         return join(self.get_project_dir(), f"store-{self.uid}")

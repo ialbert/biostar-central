@@ -132,7 +132,6 @@ def project_list(request):
 
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
-    print(projects)
     projects = pages(request, instance=projects)
 
     context = dict(projects=projects)
@@ -312,6 +311,8 @@ def data_copy(request, id):
     data = Data.objects.filter(pk=id).first()
     project = data.project
     request.session["data_clipboard"] = data.uid
+    messages.success(request, mark_safe(f"Copied <b>{data.name}</b> to Clipboard."))
+
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
@@ -339,7 +340,7 @@ def data_paste(request, uid):
     # Clear clipboard
     request.session["data_clipboard"] = None
 
-    messages.success(request, f"Pasted {data.name} to {project.name}")
+    messages.success(request, mark_safe(f"Pasted <b>{data.name}</b> to <b>{project.name}</b>."))
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 

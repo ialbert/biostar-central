@@ -368,6 +368,7 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # The source of the data is a stream is written into the destination.
     if stream:
+
         dest = create_path(data=data, fname=stream.name)
         with open(dest, 'wb') as fp:
             chunk = stream.read(CHUNK)
