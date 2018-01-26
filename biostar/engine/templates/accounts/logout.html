@@ -8,8 +8,6 @@
 
      <form method="post" action="{% url 'logout' %}" >
     {% show_messages messages %}
-    <div class="ui raised segment">
-
         <div class="ui center aligned header">
 
             <i class="sign out icon"></i>Do you want to log out?
@@ -23,6 +21,5 @@
                     <a class="ui right floated  button" href="/"> <i class="home icon"></i>Home</a>
             </div>
         </div>
-    </div>
  </form>
 {% endblock %}

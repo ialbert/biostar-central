@@ -1,5 +1,4 @@
 {
-
     readlen: {
         label: Read Length
         display: INTEGER

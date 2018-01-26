@@ -99,41 +99,40 @@ def project_users(request, uid):
     Manage project users
     """
 
-    # project = Project.objects.filter(uid=uid).first()
-    #
-    # # Search query
-    # q = request.GET.get("q")
-    #
-    # # Users already with access to current project
-    # users = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
-    #
-    # # Users that have been searched for.
-    # targets = []
-    #
-    # if request.method == "POST":
-    #     form = ChangeUserAccess(data=request.POST)
-    #     if form.is_valid():
-    #         form.change_access()
-    #         messages.success(request, "Changed access to this project")
-    #         return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
-    #
-    #     messages.error(request, mark_safe(form.non_field_errors()))
-    #
-    # if q:
-    #     targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q))
-    #
-    # current = access_forms(users=users, project=project)
-    # results = access_forms(users=targets, project=project)
-    # context = dict(current=current, project=project, results=results)
-    # return render(request, "project_users.html", context=context)
-    return redirect(reverse("project_view", kwargs=dict(uid=uid)))
+    project = Project.objects.filter(uid=uid).first()
+
+    # Search query
+    q = request.GET.get("q")
+
+    # Users already with access to current project
+    users = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
+    # Users that have been searched for.
+    targets = []
+    form = ChangeUserAccess()
+
+    if request.method == "POST":
+        form = ChangeUserAccess(data=request.POST)
+        if form.is_valid():
+            form.change_access()
+            messages.success(request, "Changed access to this project")
+            return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
+    if q:
+        targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q))
+
+    current = access_forms(users=users, project=project)
+    results = access_forms(users=targets, project=project)
+    context = dict(current=current, project=project, results=results, form=form, activate='selection')
+    counts = get_counts(project)
+    context.update(counts)
+
+    return render(request, "project_users.html", context=context)
 
 
 def project_list(request):
+
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
     projects = pages(request, instance=projects)
-
 
     context = dict(projects=projects)
 
@@ -240,7 +239,8 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
 def project_edit(request, uid):
-    project = auth.get_project_list(user=request.user).filter(uid=uid).first()
+
+    project = Project.objects.filter(uid=uid).first()
     form = ProjectForm(instance=project)
 
     if request.method == "POST":
@@ -274,11 +274,9 @@ def project_create(request):
             stream = form.cleaned_data["image"]
             sticky = form.cleaned_data["sticky"]
             privacy = form.cleaned_data["privacy"]
-            uid = form.cleaned_data["uid"]
             owner = request.user
             project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                          stream=stream, sticky=sticky, privacy=privacy,
-                                          uid=uid)
+                                          stream=stream, sticky=sticky, privacy=privacy)
             project.save()
             return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
@@ -313,6 +311,8 @@ def data_copy(request, id):
     data = Data.objects.filter(pk=id).first()
     project = data.project
     request.session["data_clipboard"] = data.uid
+    messages.success(request, mark_safe(f"Copied <b>{data.name}</b> to Clipboard."))
+
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
@@ -340,7 +340,7 @@ def data_paste(request, uid):
     # Clear clipboard
     request.session["data_clipboard"] = None
 
-    messages.success(request, f"Pasted {data.name} to {project.name}")
+    messages.success(request, mark_safe(f"Pasted <b>{data.name}</b> to <b>{project.name}</b>."))
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
