@@ -54,7 +54,7 @@ def dir_url(object, path, current):
     if isinstance(object, Job):
         url = reverse("job_files_list", kwargs=dict(id=object.id, path=path + current.name))
     elif isinstance(object, Data):
-        url = reverse("data_files_list", kwargs=dict(id=object.id, path=path + current.name))
+        url = reverse("data_files_list", kwargs=dict(uid=object.uid, path=path + current.name))
 
     return mark_safe(f'<a href="{url}"><i class="folder icon"></i>{current.name}</a>')
 

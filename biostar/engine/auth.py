@@ -353,7 +353,7 @@ def create_path(fname, data):
 
 
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', type="", skip=""):
+                text='', summary='', type="", skip="", uid=None):
     "Param : skip (str) - full file path found in 'path' that will be ignored when linking."
 
     # We need absolute paths with no trailing slashes.
@@ -361,10 +361,10 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # Create the data.
     type = type or "DATA"
-    #uid = util.get_uuid(8)
 
+    uid = uid or util.get_uuid(8)
     data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
-                               type=type, summary=summary, text=text)#, uid=uid)
+                               type=type, summary=summary, text=text, uid=uid)
 
     # The source of the data is a stream is written into the destination.
     if stream:

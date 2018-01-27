@@ -38,6 +38,8 @@ class ProjectForm(forms.ModelForm):
 
     # Should not edit uid because data directories get recreated
     #uid = forms.CharField(max_length=32, required=False)
+    choices = list(filter(lambda x: x[0]!= Project.SHAREABLE, Project.PRIVACY_CHOICES))
+    privacy = forms.IntegerField(widget=forms.Select(choices=choices))
 
     class Meta:
         model = Project

@@ -12,7 +12,7 @@
 
             {% for data in all_data %}
                 <div class="item">
-                    <a href="{% url 'data_files_entry' data.id %}">
+                    <a href="{% url 'data_files_entry' data.uid %}">
                         <i class="folder icon"></i>{{data.name}}
                     </a>
                 </div>

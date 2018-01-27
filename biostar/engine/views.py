@@ -287,12 +287,12 @@ def project_create(request):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
-def data_view(request, id):
-    data = Data.objects.filter(id=id).first()
+def data_view(request, uid):
+    data = Data.objects.filter(uid=uid).first()
 
     if not data:
         messages.error(request, "Data not found.")
-        logger.error(f"data.id={id} looked for but not found.")
+        logger.error(f"data.uid={uid} looked for but not found.")
         return redirect(reverse("project_list"))
 
     project = data.project
@@ -305,10 +305,10 @@ def data_view(request, id):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
-def data_copy(request, id):
-    "Store Data object in request.sessions['clipboard'] "
+def data_copy(request, uid):
+    "Store Data object in request.sessions['data_clipboard'] "
 
-    data = Data.objects.filter(pk=id).first()
+    data = Data.objects.filter(uid=uid).first()
     project = data.project
     request.session["data_clipboard"] = data.uid
     messages.success(request, mark_safe(f"Copied <b>{data.name}</b> to Clipboard."))
@@ -381,15 +381,15 @@ def files_paste(request, uid):
 
 
 @object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
-def data_edit(request, id):
-    data = Data.objects.filter(id=id).first()
+def data_edit(request, uid):
+    data = Data.objects.filter(uid=uid).first()
     form = DataEditForm(instance=data, initial=dict(type=data.type))
 
     if request.method == "POST":
         form = DataEditForm(data=request.POST, instance=data)
         if form.is_valid():
             form.save()
-            return redirect(reverse("data_view", kwargs=dict(id=data.id)))
+            return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
 
         messages.error(request, mark_safe(form.errors))
 
@@ -397,7 +397,7 @@ def data_edit(request, id):
     return render(request, 'data_edit.html', context)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS, url='data_view')
+@object_access(type=Project, access=Access.READ_ACCESS, url='data_list')
 def data_nav(request, uid):
     "Return special dir view of data list"
 
@@ -440,8 +440,8 @@ def data_upload(request, uid):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
-def data_files_list(request, id, path=''):
-    data = Data.objects.filter(id=id).first()
+def data_files_list(request, uid, path=''):
+    data = Data.objects.filter(uid=uid).first()
     project = data.project
 
     back_uid = None if path else project.uid

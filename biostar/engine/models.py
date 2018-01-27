@@ -211,6 +211,7 @@ class Data(models.Model):
     def get_data_dir(self):
         "The data directory"
 
+        assert self.uid, "Sanity check. UID should always be set."
         return join(self.get_project_dir(), f"store-{self.uid}")
 
     def get_project_dir(self):
@@ -225,18 +226,15 @@ class Data(models.Model):
 
     def get_files(self):
         fnames = [line.strip() for line in open(self.get_path(), 'rt')]
-
         return fnames if len(fnames) else [""]
 
     def get_url(self, path=""):
         "Returns url to the data directory"
-        #TODO: refractor hardcoded url paths
-        #url = self.project.get_data_dir().split(settings.MEDIA_URL)
 
         return f"projects/proj-{self.project.uid}/store-{self.uid}/" + path
 
     def url(self):
-        return (reverse('data_view', kwargs=dict(id=self.id)))
+        return (reverse('data_view', kwargs=dict(uid=self.uid)))
 
     def fill_dict(self, obj):
         """
