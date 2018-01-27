@@ -147,7 +147,7 @@ def access_forms(users, project):
             initial = dict(access=access.access, user_id=user.id)
 
         access_form = ChangeUserAccess(instance=access, initial=initial)
-        forms.append((user,access_form))
+        forms.append((user, access_form))
 
     return forms
 

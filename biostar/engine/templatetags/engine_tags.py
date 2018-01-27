@@ -111,6 +111,15 @@ def has_files(request):
     return True if files else False
 
 
+@register.inclusion_tag('widgets/search.html')
+def search(instance, action, q=''):
+
+    url = reverse(action, kwargs=dict(uid=instance.uid))
+    return dict(url=url, q=q)
+
+
+
+
 @register.inclusion_tag('widgets/paste.html')
 def paste(project, data=False, files=False):
     "Default provides template for pasting a recipe"
@@ -263,6 +272,7 @@ def access_form(project, user, form):
     """
     Generates an access form.
     """
+
     return dict(project=project, user=user, form=form)
 
 @register.inclusion_tag('widgets/job_elapsed.html')
