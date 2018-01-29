@@ -11,7 +11,7 @@
     {% if filter %}
         <div class="ui center aligned vertical segment ">
             <div class="ui success message">
-                Filtering results for recipe <a href="{% url 'recipe_view' filter.id %}"><i
+                Filtering results for recipe <a href="{% url 'recipe_view' filter.uid %}"><i
             class="settings icon"></i> {{ filter.name }}</a>
                 &bull; <a href="{% url 'job_list' project.uid %}"><i class="undo icon"></i>Show All</a>
             </div>

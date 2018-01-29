@@ -37,11 +37,11 @@ class RecipeViewTest(TestCase):
 
         data = {"project":0}
 
-        url = reverse('recipe_view', kwargs=dict(id=self.recipe.id))
+        url = reverse('recipe_view', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
 
-        response = views.recipe_view(request=request, id=self.recipe.id)
+        response = views.recipe_view(request=request, uid=self.recipe.uid)
 
         self.assertEqual(response.status_code, 200,
                          f"Could not redirect to after copying:\nresponse:{response}")
@@ -52,14 +52,14 @@ class RecipeViewTest(TestCase):
 
         data = {"name": "name of the job"}
 
-        url = reverse('analysis_run', kwargs=dict(id=self.recipe.id))
+        url = reverse('recipe_run', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
 
         self.recipe.security = models.Analysis.AUTHORIZED
         self.recipe.save()
 
-        response = views.recipe_run(request=request, id=self.recipe.id)
+        response = views.recipe_run(request=request, uid=self.recipe.uid)
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to after running recipe:\nresponse:{response}")
@@ -75,11 +75,11 @@ class RecipeViewTest(TestCase):
         "Test the recipe preview/save code view with POST request"
 
         data = {'action': "SAVE", 'template':'#test change', 'json':'{}'}
-        url = reverse('recipe_code', kwargs=dict(id=self.recipe.id))
+        url = reverse('recipe_code', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
 
-        response = views.recipe_code(request=request, id=self.recipe.id)
+        response = views.recipe_code(request=request, uid=self.recipe.uid)
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to after editing code:\nresponse:{response}")
@@ -115,11 +115,11 @@ class RecipeViewTest(TestCase):
         "Test recipe edit with POST request"
 
         data = { "name": "test", "sticky":True, "summary":"summary", "text":"text" }
-        url = reverse('recipe_edit', kwargs=dict(id=self.recipe.id))
+        url = reverse('recipe_edit', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
 
-        response = views.recipe_edit(request=request, id=self.recipe.id)
+        response = views.recipe_edit(request=request, uid=self.recipe.uid)
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect after creating recipe:\nresponse:{response}")

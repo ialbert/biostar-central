@@ -27,12 +27,12 @@ urlpatterns = [
 
     # Recipe URLS
     url(r'^recipe/list/(?P<uid>[-\w]+)/$', views.recipe_list, name='recipe_list'),
-    url(r'^recipe/view/(?P<id>\d+)/$', views.recipe_view, name='recipe_view'),
+    url(r'^recipe/view/(?P<uid>[-\w]+)/$', views.recipe_view, name='recipe_view'),
     url(r'^recipe/create/(?P<uid>[-\w]+)/$', views.recipe_create, name='recipe_create'),
-    url(r'^recipe/run/(?P<id>\d+)/$', views.recipe_run, name='analysis_run'),
-    url(r'^recipe/edit/(?P<id>\d+)/$', views.recipe_edit, name='recipe_edit'),
-    url(r'^recipe/code/(?P<id>\d+)/$', views.recipe_code, name='recipe_code'),
-    url(r'^recipe/copy/(?P<id>\d+)/$', views.recipe_copy, name='recipe_copy'),
+    url(r'^recipe/run/(?P<uid>[-\w]+)/$', views.recipe_run, name='recipe_run'),
+    url(r'^recipe/edit/(?P<uid>[-\w]+)/$', views.recipe_edit, name='recipe_edit'),
+    url(r'^recipe/code/(?P<uid>[-\w]+)/$', views.recipe_code, name='recipe_code'),
+    url(r'^recipe/copy/(?P<uid>[-\w]+)/$', views.recipe_copy, name='recipe_copy'),
     url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
 
     url(r'^clear/clipboard/(?P<uid>[-\w]+)/(?P<redir>.+)/(?P<board>.+)$', views.clear_clipboard, name='clear_clipboard'),

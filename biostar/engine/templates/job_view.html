@@ -22,7 +22,7 @@
 
                 <div class="or"></div>
 
-                <a class="ui button" href="{% url 'recipe_view' job.analysis.id %}"><i
+                <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}"><i
                 class="setting icon"></i>View Recipe</a>
 
                 {% if user.is_authenticated %}

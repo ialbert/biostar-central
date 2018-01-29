@@ -15,7 +15,7 @@
 
         {%  show_messages messages %}
 
-        <form class="ui form" action="{% url 'recipe_code' analysis.id %}" method="POST">
+        <form class="ui form" action="{% url 'recipe_code' analysis.uid %}" method="POST">
             <div class="ui grid inputcolor">
 
 
@@ -62,7 +62,7 @@
                             <i class="save icon"></i>Save Changes
                         </button>
 
-                        <a class="ui  button" href="{% url 'recipe_view' analysis.id %}">
+                        <a class="ui  button" href="{% url 'recipe_view' analysis.uid %}">
                             <i class="setting icon"></i>Recipe View
                         </a>
                     </div>

@@ -35,19 +35,19 @@
 
             <div class="ui center aligned basic segment">
                 <div class="ui buttons">
-                    <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
+                    <a class="ui green button" href="{% url 'recipe_run' analysis.uid %}">
                         <i class="spinner icon"></i> Run Recipe
                     </a>
 
                     <div class="or"></div>
 
-                    <a class="ui teal button" href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
+                    <a class="ui teal button" href="{% url 'job_list' project.uid %}?filter={{ analysis.uid }}">
                         <i class="bar chart icon"></i>View Results
                     </a>
 
                     <div class="or"></div>
 
-                     <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
+                     <a class="ui button" href="{% url 'recipe_code' analysis.uid %}">
                         <i class="list icon"></i>View Code
                     </a>
 
@@ -55,19 +55,17 @@
 
                         <div class="or"></div>
 
-                        <a class="ui button" href="{% url 'recipe_copy' analysis.id %}">
+                        <a class="ui button" href="{% url 'recipe_copy' analysis.uid %}">
                             <i class="clone icon"></i>Copy
                         </a>
 
                         <div class="or"></div>
 
-                        <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
+                        <a class="ui button" href="{% url 'recipe_edit' analysis.uid %}">
                             <i class="write icon"></i>Edit
                         </a>
 
                     {% endif %}
-
-
 
                 </div>
 

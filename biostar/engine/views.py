@@ -121,7 +121,7 @@ def project_users(request, uid):
             messages.success(request, msg)
             return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
         if user.access < Access.ADMIN_ACCESS:
-            msg = mark_safe(f"You need {label('Admin Access')} to manage access to project")
+            msg = mark_safe(f"You need {label('Admin Access')} to manage access.")
             messages.info(request, msg)
 
     # Users that have been searched for.
@@ -227,7 +227,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     # Filter job results by analysis
     filter = request.GET.get('filter', '')
     if filter:
-        filter = Analysis.objects.filter(id=filter).first()
+        filter = Analysis.objects.filter(uid=filter).first()
         job_list = job_list.filter(analysis=filter)
 
     if user.is_authenticated():
@@ -400,8 +400,6 @@ def data_edit(request, uid):
             form.save()
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
 
-        messages.error(request, mark_safe(form.errors))
-
     context = dict(data=data, form=form)
     return render(request, 'data_edit.html', context)
 
@@ -464,11 +462,11 @@ def data_files_list(request, uid, path=''):
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS)
-def recipe_view(request, id):
+def recipe_view(request, uid):
     """
     Returns an analysis view based on its id.
     """
-    analysis = Analysis.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
     context = dict(analysis=analysis, project=project, activate='selection')
 
@@ -478,8 +476,8 @@ def recipe_view(request, id):
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
-def recipe_run(request, id):
-    analysis = Analysis.objects.filter(id=id).first()
+def recipe_run(request, uid):
+    analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
 
     if request.method == "POST":
@@ -513,10 +511,10 @@ def recipe_run(request, id):
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
-def recipe_copy(request, id):
+def recipe_copy(request, uid):
     "Store Analysis object in request.sessions['recipe_clipboard'] "
 
-    recipe = Analysis.objects.filter(pk=id).first()
+    recipe = Analysis.objects.filter(uid=uid).first()
     project = recipe.project
     request.session["recipe_clipboard"] = recipe.uid
 
@@ -560,7 +558,7 @@ def recipe_paste(request, uid):
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
-def recipe_code(request, id):
+def recipe_code(request, uid):
     """
     Displays and allows edit on a recipe code.
 
@@ -570,7 +568,7 @@ def recipe_code(request, id):
     user = request.user
 
     # There has to be a recipe to work with.
-    analysis = Analysis.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
     name = analysis.name
 
@@ -602,7 +600,7 @@ def recipe_code(request, id):
             if save:
                 analysis.save()
                 messages.info(request, "The recipe has been updated.")
-                return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
+                return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
     else:
         # This gets triggered on a GET request.
         initial = dict(template=analysis.template, json=analysis.json_text)
@@ -660,17 +658,17 @@ def recipe_create(request, uid):
 
 
 @object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
-def recipe_edit(request, id):
+def recipe_edit(request, uid):
     "Edit recipe Info"
-    recipe = Analysis.objects.filter(id=id).first()
+    recipe = Analysis.objects.filter(uid=uid).first()
     project = recipe.project
-    action_url = reverse('recipe_edit', kwargs=dict(id=recipe.id))
+    action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
 
     if request.method == "POST":
         form = RecipeForm(data=request.POST, files=request.FILES, instance=recipe)
         if form.is_valid():
             recipe = form.save()
-            return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
+            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
         messages.error(request, mark_safe(form.errors))
 
