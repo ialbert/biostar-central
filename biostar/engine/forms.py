@@ -118,10 +118,8 @@ class ChangeUserAccess(forms.ModelForm):
 
         if Access.ADMIN_ACCESS not in access:
             label = f"<span class='ui green mini label'>Admin Access</span>"
-            msg = f"""Can not change <b>{user.first_name}</b>'s 
-                    access without giving another user {label}"""
-            msg = mark_safe(msg)
-            raise forms.ValidationError(msg)
+            msg = f"Can not change <b>{user.first_name}</b>'s access without giving another user {label}"
+            raise forms.ValidationError(mark_safe(msg))
 
     def change_access(self):
         "Change users access to a project"
