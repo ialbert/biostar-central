@@ -381,7 +381,7 @@ class Job(models.Model):
         return f"jobs/job-{self.uid}/" + path
 
     def url(self):
-        return reverse("job_view", kwargs=dict(id=self.id))
+        return reverse("job_view", kwargs=dict(uid=self.uid))
 
     @property
     def json_data(self):

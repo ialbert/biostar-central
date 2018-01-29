@@ -8,7 +8,7 @@
 
     <div class="ui raised segment inputcolor">
 
-        <form method="post" class="ui form" action="{% url 'job_edit' job.id %}" enctype="multipart/form-data">
+        <form method="post" class="ui form" action="{% url 'job_edit' job.uid %}" enctype="multipart/form-data">
 
             {% csrf_token %}
 
@@ -38,7 +38,7 @@
             <button type="submit" class="ui submit green button">
                 <i class="save icon"></i>Save
             </button>
-            <a class="ui right floated button" href="{% url 'job_view' job.id %}">
+            <a class="ui right floated button" href="{% url 'job_view' job.uid %}">
                 <i class="undo icon"></i>Cancel
             </a>
 

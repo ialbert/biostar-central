@@ -27,7 +27,7 @@ class SiteNavigation(TestCase):
         self.proj_params = dict(uid=self.project.uid)
         self.analysis_params = dict(uid=analysis.uid)
         self.data_params = dict(uid=data.uid)
-        self.job_params = dict(id=self.job.id)
+        self.job_params = dict(uid=self.job.uid)
 
     def visit_urls(self, urls, codes):
         c = Client()

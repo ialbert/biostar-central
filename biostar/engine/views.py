@@ -680,15 +680,15 @@ def recipe_edit(request, uid):
 
 
 @object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view")
-def job_edit(request, id):
-    job = Job.objects.filter(id=id).first()
+def job_edit(request, uid):
+    job = Job.objects.filter(uid=uid).first()
     project = job.project
 
     if request.method == "POST":
         form = JobEditForm(data=request.POST, files=request.FILES, instance=job)
         if form.is_valid():
             form.save()
-            return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+            return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
 
     form = JobEditForm(instance=job)
     context = dict(job=job, project=project, form=form)
@@ -696,11 +696,11 @@ def job_edit(request, id):
 
 
 @object_access(type=Job, access=Access.READ_ACCESS)
-def job_view(request, id):
+def job_view(request, uid):
     '''
     Views the state of a single job.
     '''
-    job = Job.objects.filter(id=id).first()
+    job = Job.objects.filter(uid=uid).first()
     project = job.project
 
     context = dict(job=job, project=project, activate='selection')
@@ -712,32 +712,29 @@ def job_view(request, id):
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
-def job_result_view(request, id):
+def job_result_view(request, uid):
     """
     Returns the primary result of a job.
     """
 
-    job = Job.objects.filter(id=id).first()
+    job = Job.objects.filter(uid=uid).first()
     index = job.json_data.get("settings", {}).get("index")
 
-    if not index:
-        url = reverse("job_files_entry", kwargs=dict(id=id))
+    if not index or not os.path.exists(join(job.path, index)):
+        url = reverse("job_files_entry", kwargs=dict(uid=uid))
         return redirect(url)
 
     if job.state == Job.RUNNING:
-        url = reverse("job_view", kwargs=dict(id=id))
+        url = reverse("job_view", kwargs=dict(uid=uid))
         messages.warning(request, "Please wait. The analysis is still running ...")
         return redirect(url)
 
     if job.state != Job.COMPLETED:
-        url = reverse("job_view", kwargs=dict(id=id))
+        url = reverse("job_view", kwargs=dict(uid=uid))
         messages.warning(request, "The analysis has not completed ...")
         return redirect(url)
 
-    url = reverse("job_files_entry", kwargs=dict(id=id))
-
-    if os.path.exists(join(job.path, index)):
-        url = settings.MEDIA_URL + job.get_url(path=index)
+    url = settings.MEDIA_URL + job.get_url(path=index)
 
     return redirect(url)
 
@@ -750,11 +747,11 @@ def block_media_url(request, **kwargs):
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
-def job_files_list(request, id, path=''):
+def job_files_list(request, uid, path=''):
     """
     Returns the directory view of the job.
     """
-    job = Job.objects.filter(id=id).first()
+    job = Job.objects.filter(uid=uid).first()
     project = job.project
 
     form = FileCopyForm(job=job, request=request)

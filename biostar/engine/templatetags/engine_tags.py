@@ -52,7 +52,7 @@ def dir_url(object, path, current):
     path = path + "/" if path else ""
 
     if isinstance(object, Job):
-        url = reverse("job_files_list", kwargs=dict(id=object.id, path=path + current.name))
+        url = reverse("job_files_list", kwargs=dict(uid=object.uid, path=path + current.name))
     elif isinstance(object, Data):
         url = reverse("data_files_list", kwargs=dict(uid=object.uid, path=path + current.name))
 

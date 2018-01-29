@@ -38,11 +38,11 @@ urlpatterns = [
     url(r'^clear/clipboard/(?P<uid>[-\w]+)/(?P<redir>.+)/(?P<board>.+)$', views.clear_clipboard, name='clear_clipboard'),
 
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
-    url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),
-    url(r'^job/edit/(?P<id>\d+)/$', views.job_edit, name='job_edit'),
-    url(r'^job/view/result/(?P<id>\d+)/$', views.job_result_view, name='job_result_view'),
-    url(r'^job/view/files/(?P<id>\d+)/$', views.job_files_list, name='job_files_entry'),
-    url(r'^job/view/files/(?P<id>\d+)/(?P<path>.+)/$', views.job_files_list, name='job_files_list'),
+    url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
+    url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
+    url(r'^job/view/result/(?P<uid>[-\w]+)/$', views.job_result_view, name='job_result_view'),
+    url(r'^job/view/files/(?P<uid>[-\w]+)/$', views.job_files_list, name='job_files_entry'),
+    url(r'^job/view/files/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_files_list, name='job_files_list'),
 
     # Block the media dir from being exposed
     url(r'^media/$', views.block_media_url, name="block"),

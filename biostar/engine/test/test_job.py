@@ -41,11 +41,11 @@ class JobViewTest(TestCase):
         "Test job edit with POST request"
 
         data = {'name':'test', 'text':"testing", 'sticky':True}
-        url  = reverse('job_edit', kwargs=dict(id=self.job.id))
+        url  = reverse('job_edit', kwargs=dict(uid=self.job.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
 
-        response = views.job_edit(request=request, id=self.job.id)
+        response = views.job_edit(request=request, uid=self.job.uid)
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect after editing job:\nresponse:{response}")
@@ -60,18 +60,17 @@ class JobViewTest(TestCase):
         "Test job_files_entry with POST request"
 
         management.call_command('job', id=self.job.id)
-        url = reverse('job_files_entry', kwargs=dict(id=self.job.id))
+        url = reverse('job_files_entry', kwargs=dict(uid=self.job.uid))
 
         data = {"paths":"run.sh"}
 
         request = util.fake_request(url=url, data=data, user=self.owner)
 
-        response = views.job_files_list(request=request, id=self.job.id)
+        response = views.job_files_list(request=request, uid=self.job.uid)
 
-        #self.assertEqual(response.status_code, 302, f"Could not redirect after editing job:\nresponse:{response}")
+        self.assertEqual(response.status_code,200, f"Could not load job_file_list.html :\nresponse:{response}")
         #self.assertTrue(self.job.url() == response.url,
         #                f"Could not redirect to correct page: {self.job.url()}!= {response.url}")
-
 
 
     def test_job_runner(self):
