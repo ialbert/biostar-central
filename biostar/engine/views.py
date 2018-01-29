@@ -143,14 +143,11 @@ def project_list(request):
 
     # Search query
     q = request.GET.get("q", "")
-
     owner_conds =  Q(owner__first_name__contains=q) | Q(owner__email__contains=q)
-
     if q:
         projects=projects.filter(Q(name__contains=q) | owner_conds)
 
     context = dict(projects=projects, q=q)
-
     return render(request, "project_list.html", context)
 
 
