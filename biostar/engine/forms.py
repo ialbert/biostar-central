@@ -38,6 +38,8 @@ class ProjectForm(forms.ModelForm):
 
     # Should not edit uid because data directories get recreated
     #uid = forms.CharField(max_length=32, required=False)
+    choices = list(filter(lambda x: x[0]!= Project.SHAREABLE, Project.PRIVACY_CHOICES))
+    privacy = forms.IntegerField(widget=forms.Select(choices=choices))
 
     class Meta:
         model = Project
@@ -109,29 +111,33 @@ class ChangeUserAccess(forms.ModelForm):
     def clean(self):
         cleaned_data = super(ChangeUserAccess, self).clean()
 
+        user = User.objects.filter(pk=cleaned_data["user_id"]).first()
         project = Project.objects.filter(pk=cleaned_data["project_id"]).first()
         access = [a.access for a in project.access_set.all() if a.user.id!=cleaned_data["user_id"]]
         access.append(cleaned_data["access"])
 
         if Access.ADMIN_ACCESS not in access:
-            raise forms.ValidationError("At least one user with Admin Access required.")
+            label = f"<span class='ui green mini label'>Admin Access</span>"
+            msg = f"Can not change <b>{user.first_name}</b>'s access without giving another user {label}"
+            raise forms.ValidationError(mark_safe(msg))
 
     def change_access(self):
         "Change users access to a project"
 
         user_id = self.cleaned_data["user_id"]
         project_id = self.cleaned_data["project_id"]
-
         user = User.objects.filter(pk=user_id).first()
         project = Project.objects.filter(pk=project_id).first()
-
         current = Access.objects.filter(user=user, project=project)
+
         if current:
             current.update(access=self.cleaned_data.get("access", current.first().access))
-            return
+            return user, current.first()
         new_access = Access(user=user, project=project,
                             access=self.cleaned_data.get("access", Access.NO_ACCESS))
         new_access.save()
+
+        return user,new_access
 
 
 def access_forms(users, project):
@@ -145,7 +151,7 @@ def access_forms(users, project):
             initial = dict(access=access.access, user_id=user.id)
 
         access_form = ChangeUserAccess(instance=access, initial=initial)
-        forms.append((user,access_form))
+        forms.append((user, access_form))
 
     return forms
 

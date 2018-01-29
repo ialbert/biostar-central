@@ -19,7 +19,7 @@ def join(*args):
 
 
 # Objects per page when looking at lists
-OBJ_PER_PAGE = 10
+OBJ_PER_PAGE = 1
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -36,13 +36,6 @@ logger = logging.getLogger('engine')
 
 def make_html(text):
     return mistune.markdown(text)
-
-
-def pages(request, instance):
-    paginator = Paginator(instance, OBJ_PER_PAGE)
-    page = request.GET.get('page', 1)
-
-    return paginator.page(page)
 
 
 def docs(request, name):
@@ -93,38 +86,52 @@ def clear_clipboard(request, uid, redir="project_view", board=""):
     return redirect(reverse(redir, kwargs=dict(uid=uid)))
 
 
-@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+def get_access(request, project):
+
+    user = request.user if request.user.is_authenticated() else None
+    user_access = Access.objects.filter(project=project, user=user).first()
+    user_access = user_access or Access(access=Access.NO_ACCESS)
+
+    # Users already with access to current project
+    user_list = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
+
+    return user_access, user_list
+
+
+
+@object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
 def project_users(request, uid):
     """
     Manage project users
     """
-
     project = Project.objects.filter(uid=uid).first()
-
+    user, user_list = get_access(request, project)
+    label = lambda x: f"<span class='ui green tiny label'>{x}</span>"
     # Search query
-    q = request.GET.get("q")
-
-    # Users already with access to current project
-    users = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
-    # Users that have been searched for.
-    targets = []
+    q = request.GET.get("q", "")
     form = ChangeUserAccess()
 
     if request.method == "POST":
         form = ChangeUserAccess(data=request.POST)
-        if form.is_valid():
-            form.change_access()
-            messages.success(request, "Changed access to this project")
-            return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
-    if q:
-        targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q))
 
-    current = access_forms(users=users, project=project)
+        # User needs to be authenticated and have admin access to make any changes.
+        if form.is_valid() and request.user.is_authenticated() and user.access >= Access.ADMIN_ACCESS:
+            user, access = form.change_access()
+            msg = mark_safe(f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}")
+            messages.success(request, msg)
+            return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
+        if user.access < Access.ADMIN_ACCESS:
+            msg = mark_safe(f"You need {label('Admin Access')} to manage access to project")
+            messages.info(request, msg)
+
+    # Users that have been searched for.
+    targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
+    current = access_forms(users=user_list, project=project)
     results = access_forms(users=targets, project=project)
-    context = dict(current=current, project=project, results=results, form=form, activate='selection')
+    context = dict(current=current, project=project, results=results, form=form, activate='selection',
+                   q=q, user_access=user)
     counts = get_counts(project)
     context.update(counts)
-
     return render(request, "project_users.html", context=context)
 
 
@@ -132,8 +139,6 @@ def project_list(request):
 
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
-    projects = pages(request, instance=projects)
-
     context = dict(projects=projects)
 
     return render(request, "project_list.html", context)
@@ -287,12 +292,12 @@ def project_create(request):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
-def data_view(request, id):
-    data = Data.objects.filter(id=id).first()
+def data_view(request, uid):
+    data = Data.objects.filter(uid=uid).first()
 
     if not data:
         messages.error(request, "Data not found.")
-        logger.error(f"data.id={id} looked for but not found.")
+        logger.error(f"data.uid={uid} looked for but not found.")
         return redirect(reverse("project_list"))
 
     project = data.project
@@ -305,10 +310,10 @@ def data_view(request, id):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
-def data_copy(request, id):
-    "Store Data object in request.sessions['clipboard'] "
+def data_copy(request, uid):
+    "Store Data object in request.sessions['data_clipboard'] "
 
-    data = Data.objects.filter(pk=id).first()
+    data = Data.objects.filter(uid=uid).first()
     project = data.project
     request.session["data_clipboard"] = data.uid
     messages.success(request, mark_safe(f"Copied <b>{data.name}</b> to Clipboard."))
@@ -325,21 +330,23 @@ def data_paste(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
     if not data:
-        messages.error(request, "Data not found.")
+        messages.error(request, "Data in clipboard not found. Try Copying again.")
         return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
-    # Skip the toc file of the source data when linking
-    skip = data.get_path()
+    # Make sure user has read access to data in clipboard
+    has_access = auth.check_obj_access(instance=data, user=request.user, request=request,
+                                       access=Access.READ_ACCESS)
+    if not has_access:
+        request.session["data_clipboard"] = None
+        return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
-    # Create new data object in project by linking file(s)
-    path = data.get_data_dir()
-    auth.create_data(project=project, name=f"Copy of {data.name}", path=path,
-                     summary=data.summary, text=data.text,
-                     type=data.type, skip=skip)
+    # Create data object in project by linking files ( excluding toc file ).
+    auth.create_data(project=project, name=f"Copy of {data.name}", text=data.text,
+                     path=data.get_data_dir(),summary=data.summary,
+                     type=data.type, skip=data.get_path())
 
     # Clear clipboard
     request.session["data_clipboard"] = None
-
     messages.success(request, mark_safe(f"Pasted <b>{data.name}</b> to <b>{project.name}</b>."))
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
@@ -352,44 +359,46 @@ def files_paste(request, uid):
     project = Project.objects.filter(uid=uid).first()
     url = reverse("data_list", kwargs=dict(uid=project.uid))
 
-    # Last item clipboard is job.uid that the files in clipboard belong to
+    # Last item in clipboard is job.uid that the files in clipboard belong to.
     job_uid = files.pop(-1)
-
     job = Job.objects.filter(uid=job_uid).first()
     if not job:
-        msg =  "Files do not belong to any result"
-        messages.error(request, msg)
+        messages.error(request, "Files do not belong to any result")
+        return redirect(url)
+
+    # Make sure user has read access to job in clipboard.
+    has_access = auth.check_obj_access(instance=job, user=request.user, request=request,
+                                       access=Access.READ_ACCESS)
+    if not has_access:
+        request.session["files_clipboard"] = [""]
         return redirect(url)
 
     # Some files in clipboard might be outside job path.
     files_missing = False in [f.startswith(job.path) for f in files]
-
     if files_missing:
-        msg = mark_safe(f"Files not found in <b>{job.name}</b>. Try copying again.")
-        messages.error(request, msg)
+        messages.error(request, mark_safe(f"Files not found in <b>{job.name}</b>. Try copying again."))
         return redirect(url)
 
-    # Link files to project
+    # Add data to project
     for file in files:
         auth.create_data(project=project, path=file)
 
     request.session["files_clipboard"] = [""]
-    msg = f"Pasted <b>{len(files)}</b> file(s) to project <b>{project.name}</b>."
-    msg = mark_safe(msg)
+    msg = mark_safe(f"Pasted <b>{len(files)}</b> file(s) to project <b>{project.name}</b>.")
     messages.success(request, msg)
     return redirect(url)
 
 
 @object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
-def data_edit(request, id):
-    data = Data.objects.filter(id=id).first()
+def data_edit(request, uid):
+    data = Data.objects.filter(uid=uid).first()
     form = DataEditForm(instance=data, initial=dict(type=data.type))
 
     if request.method == "POST":
         form = DataEditForm(data=request.POST, instance=data)
         if form.is_valid():
             form.save()
-            return redirect(reverse("data_view", kwargs=dict(id=data.id)))
+            return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
 
         messages.error(request, mark_safe(form.errors))
 
@@ -397,7 +406,7 @@ def data_edit(request, id):
     return render(request, 'data_edit.html', context)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS, url='data_view')
+@object_access(type=Project, access=Access.READ_ACCESS, url='data_list')
 def data_nav(request, uid):
     "Return special dir view of data list"
 
@@ -440,8 +449,8 @@ def data_upload(request, uid):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
-def data_files_list(request, id, path=''):
-    data = Data.objects.filter(id=id).first()
+def data_files_list(request, uid, path=''):
+    data = Data.objects.filter(uid=uid).first()
     project = data.project
 
     back_uid = None if path else project.uid
@@ -465,7 +474,6 @@ def recipe_view(request, id):
 
     counts = get_counts(project)
     context.update(counts)
-
     return render(request, "recipe_view.html", context)
 
 
@@ -506,7 +514,7 @@ def recipe_run(request, id):
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
 def recipe_copy(request, id):
-    "Store Analysis object in request.sessions['clipboard'] "
+    "Store Analysis object in request.sessions['recipe_clipboard'] "
 
     recipe = Analysis.objects.filter(pk=id).first()
     project = recipe.project
@@ -525,10 +533,18 @@ def recipe_paste(request, uid):
     recipe_uid = request.session.get("recipe_clipboard")
     recipe = Analysis.objects.filter(uid=recipe_uid).first()
     project = Project.objects.filter(uid=uid).first()
+    url = reverse("recipe_list", kwargs=dict(uid=project.uid))
 
     if not recipe:
         messages.error(request, "Recipe not found.")
-        return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
+        return redirect(url)
+
+    # Make sure user has read access to recipe in clipboard
+    has_access = auth.check_obj_access(instance=recipe, user=request.user, request=request,
+                                       access=Access.READ_ACCESS)
+    if not has_access:
+        request.session["recipe_clipboard"] = None
+        return redirect(url)
 
     attrs = auth.get_analysis_attr(recipe, project=project)
     attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security)

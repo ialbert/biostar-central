@@ -67,7 +67,6 @@ postgres:
 
 reset: delete init tutorial cookbook giraffe users
 
-
 next:
 	python manage.py job --next
 

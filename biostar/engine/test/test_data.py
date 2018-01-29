@@ -35,11 +35,11 @@ class DataViewTest(TestCase):
         data = {'name': "new_data", 'summary': "summary", 'text': "testing",
                 'sticky': True}
 
-        url = reverse('data_edit', kwargs=dict(id=self.data.id))
+        url = reverse('data_edit', kwargs=dict(uid=self.data.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
 
-        response = views.data_edit(request=request, id=self.data.id)
+        response = views.data_edit(request=request, uid=self.data.uid)
 
         obj = {}
         self.data.fill_dict(obj=obj)

@@ -3,55 +3,45 @@
 {% load staticfiles %}
 
 {% block headtitle %}
-    Managing people: {{ project.name }}
+    Managing Access: {{ project.name }}
 {% endblock %}
 
 {% block content %}
-        {% form_errors form %}
-        <div class="ui center aligned basic segment">
-            <h3 class="ui icon header">
-                <i class="users icon"></i>
-                <p class="content">
-                    Manage Access
-                <p class="sub header">Manage user access to this project</p>
-                </p>
-            </h3>
+
+    {% form_errors form %}
+
+    <div class="ui center aligned vertical segment">
+        <div class="ui header">
+            <i class="users icon"></i>
+            Manage Access
         </div>
 
+        <div class="muted extra">
+            Your Access Right: <span class="ui green mini label">{{user_access.get_access_display}}</span>
+        </div>
+    </div>
 
-        <div class="ui basic segment">
-            <div class="ui cards">
-                {% for user, form in current %}
-                    {% access_form project user form %}
+    <div class="ui segment inputcolor">
+
+        <div class="ui tiny header">Search for users to manage</div>
+
+        {% search instance=project action="project_users" q=q %}
+
+        <div class="ui vertical segment">
+            <div class="ui relaxed divided list">
+                {% for user, form in results %}
+                        {% access_form project user form %}
                 {% endfor %}
             </div>
-
         </div>
+    </div>
 
-        <div class="ui segment inputcolor">
-
-            <div class="ui tiny header">Search for users to manage</div>
-
-            <form method="get" action="{% url 'project_users' project.uid %}">
-                <div class="ui fluid left icon input">
-
-                    <input type="text" name="q" placeholder="">
-                    <i class="search large icon"></i>
-                    <button class="ui blue button" type="submit" formmethod="get">Search</button>
-
-                </div>
-            </form>
-
-            <div class="ui basic segment">
-                <div class="ui cards">
-                    {% for user, form in results %}
-                        {% access_form project user form %}
-                    {% endfor %}
-                </div>
-
-            </div>
-
+    <div class="ui vertical segment">
+        <div class="ui relaxed divided list">
+            {% for user, form in current %}
+                    {% access_form project user form %}
+            {% endfor %}
         </div>
-
+    </div>
 
 {% endblock %}
