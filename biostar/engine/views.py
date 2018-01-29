@@ -19,7 +19,7 @@ def join(*args):
 
 
 # Objects per page when looking at lists
-OBJ_PER_PAGE = 10
+OBJ_PER_PAGE = 1
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -36,13 +36,6 @@ logger = logging.getLogger('engine')
 
 def make_html(text):
     return mistune.markdown(text)
-
-
-def pages(request, instance):
-    paginator = Paginator(instance, OBJ_PER_PAGE)
-    page = request.GET.get('page', 1)
-
-    return paginator.page(page)
 
 
 def docs(request, name):
@@ -93,41 +86,50 @@ def clear_clipboard(request, uid, redir="project_view", board=""):
     return redirect(reverse(redir, kwargs=dict(uid=uid)))
 
 
+def get_access(request, project):
+
+    user = request.user if request.user.is_authenticated() else None
+    user_access = Access.objects.filter(project=project, user=user).first()
+    user_access = user_access or Access(access=Access.NO_ACCESS)
+
+    # Users already with access to current project
+    user_list = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
+
+    return user_access, user_list
+
+
+
 @object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
 def project_users(request, uid):
     """
     Manage project users
     """
     project = Project.objects.filter(uid=uid).first()
-    user = request.user if request.user.is_authenticated() else None
-    user_access = Access.objects.filter(project=project, user=user).first()
-    user_access = user_access or Access(access=Access.NO_ACCESS)
-
+    user, user_list = get_access(request, project)
+    label = lambda x: f"<span class='ui green tiny label'>{x}</span>"
     # Search query
-    q = request.GET.get("q")
-
-    # Users already with access to current project
-    users = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
-    # Users that have been searched for.
-    targets = []
+    q = request.GET.get("q", "")
     form = ChangeUserAccess()
 
     if request.method == "POST":
         form = ChangeUserAccess(data=request.POST)
-        # User needs to be authenticated and have admin access to make any changes.
-        if form.is_valid() and request.user.is_authenticated() and user_access >= Access.ADMIN_ACCESS:
-            form.change_access()
-            messages.success(request, "Changed access to this project")
-            return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
-    if q:
-        targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q))
-    else:
-        q = ''
 
-    current = access_forms(users=users, project=project)
+        # User needs to be authenticated and have admin access to make any changes.
+        if form.is_valid() and request.user.is_authenticated() and user.access >= Access.ADMIN_ACCESS:
+            user, access = form.change_access()
+            msg = mark_safe(f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}")
+            messages.success(request, msg)
+            return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
+        if user.access < Access.ADMIN_ACCESS:
+            msg = mark_safe(f"You need {label('Admin Access')} to manage access to project")
+            messages.info(request, msg)
+
+    # Users that have been searched for.
+    targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
+    current = access_forms(users=user_list, project=project)
     results = access_forms(users=targets, project=project)
     context = dict(current=current, project=project, results=results, form=form, activate='selection',
-                   q=q, user_access=user_access)
+                   q=q, user_access=user)
     counts = get_counts(project)
     context.update(counts)
     return render(request, "project_users.html", context=context)
@@ -137,8 +139,6 @@ def project_list(request):
 
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
-    projects = pages(request, instance=projects)
-
     context = dict(projects=projects)
 
     return render(request, "project_list.html", context)

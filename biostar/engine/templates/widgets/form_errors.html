@@ -2,17 +2,16 @@
 
 
     <div class="ui red message">
-
         <div class="header">Unable to process:</div>
         <div class="ui list">
             {% for name, message in errorlist %}
                 <div class="item">
-                    <i class="warning circle icon"></i> {{ name }} {{ message }}
+
+                    <i class="warning circle icon"></i>{{ name }} {{ message }}
                 </div>
             {% endfor %}
         </div>
 
     </div>
-
 
 {% endif %}
