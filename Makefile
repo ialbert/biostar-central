@@ -65,7 +65,7 @@ postgres:
 
 #reset: delete init tutorial cookbook fish giraffe mothur users
 
-reset: delete init tutorial users
+reset: delete init tutorial cookbook giraffe users
 
 next:
 	python manage.py job --next
