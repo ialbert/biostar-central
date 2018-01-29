@@ -107,6 +107,7 @@ def project_users(request, uid):
     project = Project.objects.filter(uid=uid).first()
     user, user_list = get_access(request, project)
     label = lambda x: f"<span class='ui green tiny label'>{x}</span>"
+
     # Search query
     q = request.GET.get("q", "")
     form = ChangeUserAccess()
@@ -139,7 +140,16 @@ def project_list(request):
 
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
-    context = dict(projects=projects)
+
+    # Search query
+    q = request.GET.get("q", "")
+
+    owner_conds =  Q(owner__first_name__contains=q) | Q(owner__email__contains=q)
+
+    if q:
+        projects=projects.filter(Q(name__contains=q) | owner_conds)
+
+    context = dict(projects=projects, q=q)
 
     return render(request, "project_list.html", context)
 

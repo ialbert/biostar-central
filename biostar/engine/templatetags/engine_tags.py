@@ -112,9 +112,13 @@ def has_files(request):
 
 
 @register.inclusion_tag('widgets/search.html')
-def search(instance, action, q=''):
+def search(action_url, instance=None, q=''):
 
-    url = reverse(action, kwargs=dict(uid=instance.uid))
+    if instance:
+        url = reverse(action_url, kwargs=dict(uid=instance.uid))
+    else:
+        url = reverse(action_url)
+
     return dict(url=url, q=q)
 
 
