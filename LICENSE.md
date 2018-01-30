@@ -1,4 +1,4 @@
-# The Biostar Engine: Dual licensing
+# The Biostar Engine Licensing
 
 The Biostar Engine is released under a dual license.
 
