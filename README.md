@@ -19,9 +19,9 @@ The Biostar Engine can be used as simple LIMS (Laboratory Information Management
 
 ## Installation
 
-We recommend use [conda][conda] for setting up the site. For simplicity iur installation 
-instructions rely on [conda][conda] (though other alternatives would be also viable, virtual env,
-homebrew etc). Create a virtual environment both on your system and on the remote site:
+We recommend using [conda][conda]. For simplicity our installation 
+instructions rely on [conda][conda] though other alternatives would be also viable, virtual env,
+homebrew etc. Create a virtual environment both on your system and on the remote site:
 
 [conda]: https://conda.io/docs/
 
@@ -46,6 +46,7 @@ Install python dependencies:
     
 The following step is an optional, [bioconda][bioconda] specific requirement. 
 Use it only if you also want to run all [bioconda][bioconda] tools that we have recipes for.
+Make sure that you have set up [bioconda][bioconda] if you wish to run this!
 
 [bioconda]: https://bioconda.github.io/
 
