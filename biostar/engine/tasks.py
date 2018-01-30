@@ -4,7 +4,8 @@ This is active only when deployed via UWSGI
 
 import logging, time, shutil, subprocess
 from django.core import management
-from django.utils.text import force_text
+from django.utils.encoding import force_text
+
 import time
 
 logger = logging.getLogger("engine")

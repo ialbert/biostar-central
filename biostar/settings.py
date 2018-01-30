@@ -29,6 +29,8 @@ ADMINS = [
     ("Admin User", "1@lvh.me")
 ]
 
+ADMIN_GROUP_NAME = "ADMIN"
+
 # Helper function for building absolute paths.
 def join(*args):
     return os.path.abspath(os.path.join(*args))

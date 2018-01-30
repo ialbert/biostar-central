@@ -73,7 +73,7 @@ class Project(models.Model):
     summary = models.TextField(default='summary', max_length=MAX_TEXT_LEN)
 
     # We need to keep the owner.
-    owner = models.ForeignKey(User, null=False)
+    owner = models.ForeignKey(User, null=False, on_delete=models.CASCADE)
     text = models.TextField(default='description', max_length=MAX_TEXT_LEN)
 
     html = models.TextField(default='html', max_length=MAX_LOG_LEN)
@@ -122,8 +122,8 @@ class Access(models.Model):
     ]
     ACCESS_MAP = dict(ACCESS_CHOICES)
 
-    user = models.ForeignKey(User)
-    project = models.ForeignKey(Project)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     access = models.IntegerField(default=READ_ACCESS, choices=ACCESS_CHOICES)
     date = models.DateTimeField(auto_now_add=True)
 
@@ -148,13 +148,13 @@ class Data(models.Model):
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
     sticky = models.BooleanField(default=False)
 
-    owner = models.ForeignKey(User, null=True)
+    owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     text = models.TextField(default='description', max_length=MAX_TEXT_LEN, blank=True)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
     type = models.CharField(max_length=MAX_NAME_LEN, default="DATA")
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     size = models.IntegerField(default=0)
 
     # FilePathField points to an existing file
@@ -268,12 +268,12 @@ class Analysis(models.Model):
     summary = models.TextField(default='No summary.')
     text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     json_file = models.FilePathField(null=True)
     json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
@@ -331,7 +331,7 @@ class Job(models.Model):
     summary = models.TextField(default='summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField(default='description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
 
@@ -343,8 +343,8 @@ class Job(models.Model):
     end_date = models.DateTimeField(null=True, blank=True)
 
     sticky = models.BooleanField(default=False)
-    analysis = models.ForeignKey(Analysis)
-    project = models.ForeignKey(Project)
+    analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     json_text = models.TextField(default="commands")
 
     uid = models.CharField(max_length=32)

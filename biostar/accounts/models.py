@@ -14,7 +14,7 @@ def generate_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 class Profile(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     uid = models.CharField(max_length=MAX_UID_LEN, unique=True)
     name = models.CharField(max_length=MAX_NAME_LEN, default='')
 

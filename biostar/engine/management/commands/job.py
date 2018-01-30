@@ -4,7 +4,7 @@ import os, logging, subprocess, pprint
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.template import Template, Context
-from django.utils.text import force_text
+from django.utils.encoding import force_text
 
 from biostar.engine.models import Job
 from django.utils import timezone

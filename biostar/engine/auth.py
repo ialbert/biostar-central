@@ -139,7 +139,7 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
         project = instance
 
     # Check for logged in user and login requirement.
-    if user.is_anonymous() and login_required:
+    if user.is_anonymous and login_required:
         msg = f"""
             You must be logged in to perform that action.
         """
@@ -156,7 +156,7 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
     deny = engine_tags.access_denied_message(user=user, access=access_text)
 
     # Anonymous users have no other access permissions.
-    if user.is_anonymous():
+    if user.is_anonymous:
         messages.error(request, deny)
         return False
 

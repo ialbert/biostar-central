@@ -187,7 +187,7 @@ class RecipeInterface(forms.Form):
     def clean(self):
         cleaned_data = super(RecipeInterface, self).clean()
 
-        if self.user.is_anonymous():
+        if self.user.is_anonymous:
             msg1 = "Only logged in users may execute recipes."
             raise forms.ValidationError(msg1)
 
@@ -293,7 +293,7 @@ class EditCode(forms.Form):
 
         if action == self.SAVE:
             msg = "You don't have sufficient access rights to overwrite this entry."
-            if self.user.is_anonymous():
+            if self.user.is_anonymous:
                 raise forms.ValidationError(msg)
             entry = Access.objects.filter(user=self.user, project=self.project).first()
             if not entry or entry.access < Access.EDIT_ACCESS:
