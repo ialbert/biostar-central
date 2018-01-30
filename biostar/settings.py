@@ -1,5 +1,4 @@
-import os, logging
-
+import os
 
 # Apply the logger settings.
 from biostar.logconf import LOGGING
@@ -7,42 +6,40 @@ from biostar.logconf import LOGGING
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-
-# Don't run with debug turned on in production!
+# Django debug flag.
 DEBUG = True
 
+# Override compression if needed.
 # COMPRESS_ENABLED = True
 
+# Change this in production.
 SECRET_KEY = '1@lvh.me'
 
+# The password for admin users.
+DEFAULT_ADMIN_PASSWORD = "testbuddy"
 
+# Set these for remote hosts.
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
 SITE_HEADER = '<i class="barcode icon"></i> Bioinformatics Recipes'
 
 
-def join(*args):
-    return os.path.abspath(os.path.join(*args))
-
-
+# Admin users.
 ADMINS = [
     ("Admin User", "1@lvh.me")
 ]
 
-ADMIN_GROUP_NAME = "Admins"
+# Helper function for building absolute paths.
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
-
-
-
-
 # Application definition
 PROTOCOL = "http"
 HTTP_PORT = ':8000'
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -143,7 +140,7 @@ LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = '/protected/'
 
-#TODO: Needs to change before release
+# Sendfile settings go here.
 SENDFILE_BACKEND = "sendfile.backends.development"
 
 MEDIA_URL = '/media/'

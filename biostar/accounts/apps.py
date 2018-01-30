@@ -28,7 +28,7 @@ def init_users(sender, **kwargs):
     for name, email in settings.ADMINS:
         if not User.objects.filter(email=email):
             user = User(first_name=name, email=email, is_superuser=True, is_staff=True)
-            user.set_password(settings.SECRET_KEY)
+            user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
             user.save()
             logger.info(f"Created admin user: {user.email}")
             admin_group.user_set.add(user)
