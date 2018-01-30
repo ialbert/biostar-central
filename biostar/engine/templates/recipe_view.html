@@ -33,7 +33,8 @@
 
             {% security_label analysis %}
 
-            <div class="ui center aligned basic segment">
+            <div class="ui center aligned vertical segment">
+
                 <div class="ui buttons">
                     <a class="ui green button" href="{% url 'recipe_run' analysis.uid %}">
                         <i class="spinner icon"></i> Run Recipe
@@ -41,36 +42,37 @@
 
                     <div class="or"></div>
 
-                    <a class="ui teal button" href="{% url 'job_list' project.uid %}?filter={{ analysis.uid }}">
+                    <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ analysis.uid }}">
                         <i class="bar chart icon"></i>View Results
                     </a>
-
-                    <div class="or"></div>
-
-                     <a class="ui button" href="{% url 'recipe_code' analysis.uid %}">
-                        <i class="list icon"></i>View Code
-                    </a>
-
-                    {% if user.is_authenticated %}
-
-                        <div class="or"></div>
-
-                        <a class="ui button" href="{% url 'recipe_copy' analysis.uid %}">
-                            <i class="clone icon"></i>Copy
-                        </a>
-
-                        <div class="or"></div>
-
-                        <a class="ui button" href="{% url 'recipe_edit' analysis.uid %}">
-                            <i class="write icon"></i>Edit
-                        </a>
-
-                    {% endif %}
 
                 </div>
 
 
             </div>
+
+            <div class="ui center aligned basic segment">
+
+
+                <a class="ui mini button" href="{% url 'recipe_code' analysis.uid %}">
+                    <i class="list icon"></i>View Code
+                </a>
+
+
+
+
+                <a class="ui mini button" href="{% url 'recipe_copy' analysis.uid %}">
+                    <i class="clone icon"></i>Copy Recipe
+                </a>
+
+
+
+                <a class="ui mini button" href="{% url 'recipe_edit' analysis.uid %}">
+                    <i class="write icon"></i>Edit Description
+                </a>
+
+            </div>
+
         </div>
 
 

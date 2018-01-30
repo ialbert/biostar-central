@@ -22,14 +22,8 @@
 
                 <div class="or"></div>
 
-                <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}"><i
+                <a class="ui  button" href="{% url 'recipe_view' job.analysis.uid %}"><i
                 class="setting icon"></i>View Recipe</a>
-
-                {% if user.is_authenticated %}
-                    <div class="or"></div>
-                    <a class="ui  button" href="{% url 'job_edit' job.uid %}"><i
-                    class="write icon"></i>Edit Details</a>
-                {% endif %}
 
             </div>
         </div>
@@ -43,7 +37,9 @@
     </div>
 
     <div class="ui center aligned vertical segment">
-        {% job_minutes job %}
+        {% job_minutes job %} {% if user.is_authenticated %}
+            &bull; <a href="{% url 'job_edit' job.uid %}"><i class="write icon"></i>Edit</a>
+        {% endif %}
     </div>
 
     <div class="ui vertical segment">
