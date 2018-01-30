@@ -10,30 +10,30 @@ The Biostar Engine is [Python 3.6][python] and [Django][django]based scientific 
 ![Biostar Engine Badge](biostar/engine/static/images/engine-badge.svg)
 
 The Biostar Engine allows executing scripts over the web via graphical user interfaces.
-In addition there is support for data storage and project management. The Biostar Engine can be used as simple LIMS (Laboratory Information Management Server)
-
-These scripts may written in `bash`, `R` or any other a scripting enabled language.
+The scripts may written in `bash`, `R` or any other a scripting enabled language.
 
 We call these scripts as "recipes".
 
-## Install
+In addition the software has support for data storage and project management. 
+The Biostar Engine can be used as simple LIMS (Laboratory Information Management System)
+
+## Installation
 
 We recommend use [conda][conda] for setting up the site. For simplicity iur installation 
-instructions rely on [conda][conda] (though many other alternatives would be also viable)
+instructions rely on [conda][conda] (though other alternatives would be also viable, virtual env,
+homebrew etc). Create a virtual environment both on your system and on the remote site:
 
 [conda]: https://conda.io/docs/
-
-Create a virtual environment both on your system and on the remote site:
 
     conda create -y --name engine python=3.6
     source activate engine
     
-Clone the source server code and the recipe code. These are kept separately.
+Clone the source server code and the recipe code:
 
     git clone git@github.com:biostars/biostar-engine.git
     git clone git@github.com:biostars/biostar-recipes.git
     
-Install python dependencies.
+Install python dependencies:
 
     # Switch to the engine directory.
     cd biostar-engine
@@ -44,8 +44,8 @@ Install python dependencies.
     # The current package has packages that are needed at the command line.
     python setup.py develop
     
-The following step is an optional [bioconda][bioconda] specific setup. 
-Use it only if you also need and want to set up your tools via [bioconda][bioconda].
+The following step is an optional, [bioconda][bioconda] specific requirement. 
+Use it only if you also want to run all [bioconda][bioconda] tools that we have recipes for.
 
 [bioconda]: https://bioconda.github.io/
 
@@ -53,7 +53,7 @@ Use it only if you also need and want to set up your tools via [bioconda][biocon
     # that come with the engine.
     conda install --file conf/conda_requirements.txt
     
-## Running the site
+## Quick start
 
 All commands run through `make`. A typical quistart start would be to do:
 
@@ -61,9 +61,9 @@ All commands run through `make`. A typical quistart start would be to do:
     
 Now visit <http://localhost:8080> to see your site running.
 
-### Valid commands for `make`
+## Valid commands
 
-Re-initializes the database:
+Re-initialize the database:
 
     make reset 
  
