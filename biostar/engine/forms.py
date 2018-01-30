@@ -1,4 +1,5 @@
 import copy
+import shlex
 from django import forms
 from django.contrib import messages
 from django.db.models import Q
@@ -98,21 +99,18 @@ class JobEditForm(forms.ModelForm):
         fields = ['name', "image", 'text', 'sticky']
 
 
-class ChangeUserAccess(forms.ModelForm):
+class ChangeUserAccess(forms.Form):
 
-    #TODO: refractor out of hidden inputs.
     user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
-    project_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
-
-    class Meta:
-        model = Access
-        fields = ['access', 'user_id', "project_id"]
+    project_uid = forms.CharField(required=True, widget=forms.HiddenInput())
+    access = forms.IntegerField(initial=Access.NO_ACCESS,
+                                widget=forms.Select(choices=Access.ACCESS_CHOICES))
 
     def clean(self):
         cleaned_data = super(ChangeUserAccess, self).clean()
 
-        user = User.objects.filter(pk=cleaned_data["user_id"]).first()
-        project = Project.objects.filter(pk=cleaned_data["project_id"]).first()
+        user = User.objects.filter(id=cleaned_data["user_id"]).first()
+        project = Project.objects.filter(uid=cleaned_data["project_uid"]).first()
         access = [a.access for a in project.access_set.all() if a.user.id!=cleaned_data["user_id"]]
         access.append(cleaned_data["access"])
 
@@ -125,9 +123,9 @@ class ChangeUserAccess(forms.ModelForm):
         "Change users access to a project"
 
         user_id = self.cleaned_data["user_id"]
-        project_id = self.cleaned_data["project_id"]
-        user = User.objects.filter(pk=user_id).first()
-        project = Project.objects.filter(pk=project_id).first()
+        project_uid = self.cleaned_data["project_uid"]
+        user = User.objects.filter(id=user_id).first()
+        project = Project.objects.filter(uid=project_uid).first()
         current = Access.objects.filter(user=user, project=project)
 
         if current:
@@ -150,11 +148,14 @@ def access_forms(users, project):
         if access:
             initial = dict(access=access.access, user_id=user.id)
 
-        access_form = ChangeUserAccess(instance=access, initial=initial)
+        access_form = ChangeUserAccess(initial=initial)
         forms.append((user, access_form))
 
     return forms
 
+
+def clean_text(textbox):
+    return shlex.quote(textbox)
 
 
 class RecipeInterface(forms.Form):
@@ -221,14 +222,16 @@ class RecipeInterface(forms.Form):
             if item.get("source") == "PROJECT":
                 data_id = int(self.cleaned_data.get(field))
                 data = store.get(data_id)
-
                 # This mutates the `item` dictionary!
                 data.fill_dict(item)
                 continue
 
             # The JSON value will be overwritten with the selected field value.
             if field in self.cleaned_data:
-                item["value"] = self.cleaned_data[field]
+
+                is_text = item.get("display", "") == TEXTBOX
+                value = self.cleaned_data[field]
+                item["value"] = clean_text(value) if is_text else value
 
         return json_data
 

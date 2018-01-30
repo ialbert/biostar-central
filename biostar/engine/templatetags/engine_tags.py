@@ -112,14 +112,14 @@ def has_files(request):
 
 
 @register.inclusion_tag('widgets/search.html')
-def search(action_url, instance=None, q=''):
+def search(action_url, instance=None, q='', msg='Undo'):
 
     if instance:
         url = reverse(action_url, kwargs=dict(uid=instance.uid))
     else:
         url = reverse(action_url)
 
-    return dict(url=url, q=q)
+    return dict(url=url, q=q, msg=msg)
 
 
 

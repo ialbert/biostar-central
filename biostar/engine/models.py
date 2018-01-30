@@ -301,9 +301,9 @@ class Analysis(models.Model):
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
 
         # This is needed to update the json file
-        #if self.json_file and os.path.exists(self.json_file):
-        #    with open(os.path.abspath(self.json_file), "w") as json_file:
-        #        hjson.dump(obj=self.json_data, fp=json_file)
+        if self.json_file and os.path.exists(self.json_file):
+            with open(os.path.abspath(self.json_file), "w") as json_file:
+                hjson.dump(obj=self.json_data, fp=json_file)
 
         super(Analysis, self).save(*args, **kwargs)
 
