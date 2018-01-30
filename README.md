@@ -50,17 +50,18 @@ Make sure that you have set up [bioconda][bioconda] if you wish to run this!
 
 [bioconda]: https://bioconda.github.io/
 
-    # Skip this step if you don't wish to run the tools 
-    # that come with the engine.
     conda install --file conf/conda_requirements.txt
     
 ## Quick start
 
-All commands run through `make`. A typical quistart start would be to do:
+All commands run through `make`. To initialize and run the test site use:
 
     make reset serve
     
 Now visit <http://localhost:8080> to see your site running.
+
+The default admin email/password combination is: `1@lvh.me/testbuddy`. 
+You may change these in the settings.
 
 ## Valid commands
 
@@ -113,6 +114,17 @@ Recipes are stored and distributed from a separate repository at:
 * <https://github.com/biostars/biostar-recipes>
 
 
-    
+## Security warning!
+
+**Note**: The site is designed to execute scripts on a remote server. In addition it 
+allows administrative users to change the content of these scripts. 
+It is **extremely important** to properly restrict and guard access to
+accounts with administrative privileges! 
+
+
+
+
+
+
 
     

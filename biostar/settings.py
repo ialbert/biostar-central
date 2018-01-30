@@ -24,7 +24,6 @@ SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
 SITE_HEADER = '<i class="barcode icon"></i> Bioinformatics Recipes'
 
-
 # Admin users.
 ADMINS = [
     ("Admin User", "1@lvh.me")
