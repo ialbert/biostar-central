@@ -17,7 +17,7 @@
         </div>
 
         <div class="muted extra">
-            Your Access Right: <span class="ui green mini label">{{user_access.get_access_display}}</span>
+            Your Access Right: <span class="ui green tiny label">{{user_access.get_access_display}}</span>
         </div>
     </div>
 
@@ -25,7 +25,7 @@
 
         <div class="ui tiny header">Search for users to manage</div>
 
-        {% search instance=project action="project_users" q=q %}
+        {% search instance=project action_url="project_users" q=q %}
 
         <div class="ui vertical segment">
             <div class="ui relaxed divided list">

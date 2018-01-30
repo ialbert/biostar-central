@@ -17,17 +17,17 @@
         <div class="ui center aligned basic segment">
             <div class="ui buttons">
 
-                <a class="ui {% job_color job %}  button" href="{% url 'job_files_entry' job.id %}">
+                <a class="ui {% job_color job %}  button" href="{% url 'job_files_entry' job.uid %}">
                     <i class="browser icon"></i>Browse Files</a>
 
                 <div class="or"></div>
 
-                <a class="ui button" href="{% url 'recipe_view' job.analysis.id %}"><i
+                <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}"><i
                 class="setting icon"></i>View Recipe</a>
 
                 {% if user.is_authenticated %}
                     <div class="or"></div>
-                    <a class="ui  button" href="{% url 'job_edit' job.id %}"><i
+                    <a class="ui  button" href="{% url 'job_edit' job.uid %}"><i
                     class="write icon"></i>Edit Details</a>
                 {% endif %}
 

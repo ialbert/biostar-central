@@ -100,13 +100,13 @@ class JobEditForm(forms.ModelForm):
 
 class ChangeUserAccess(forms.ModelForm):
 
+    #TODO: refractor out of hidden inputs.
     user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
     project_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
 
     class Meta:
         model = Access
         fields = ['access', 'user_id', "project_id"]
-
 
     def clean(self):
         cleaned_data = super(ChangeUserAccess, self).clean()

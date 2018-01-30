@@ -1,11 +1,9 @@
 import logging
-import json
 
 import hjson
 import mistune
 from django.db import models
 from django.db.models.signals import post_save
-from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -313,7 +311,8 @@ class Analysis(models.Model):
         return self.project.get_project_dir()
 
     def url(self):
-        return reverse("recipe_view", kwargs=dict(id=self.id))
+        assert self.uid, "Sanity check. UID should always be set."
+        return reverse("recipe_view", kwargs=dict(uid=self.uid))
 
     def authorized(self):
         return self.security == self.AUTHORIZED
@@ -382,7 +381,7 @@ class Job(models.Model):
         return f"jobs/job-{self.uid}/" + path
 
     def url(self):
-        return reverse("job_view", kwargs=dict(id=self.id))
+        return reverse("job_view", kwargs=dict(uid=self.uid))
 
     @property
     def json_data(self):

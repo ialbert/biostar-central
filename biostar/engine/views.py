@@ -107,6 +107,7 @@ def project_users(request, uid):
     project = Project.objects.filter(uid=uid).first()
     user, user_list = get_access(request, project)
     label = lambda x: f"<span class='ui green tiny label'>{x}</span>"
+
     # Search query
     q = request.GET.get("q", "")
     form = ChangeUserAccess()
@@ -121,7 +122,7 @@ def project_users(request, uid):
             messages.success(request, msg)
             return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
         if user.access < Access.ADMIN_ACCESS:
-            msg = mark_safe(f"You need {label('Admin Access')} to manage access to project")
+            msg = mark_safe(f"You need {label('Admin Access')} to manage access.")
             messages.info(request, msg)
 
     # Users that have been searched for.
@@ -139,8 +140,14 @@ def project_list(request):
 
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
-    context = dict(projects=projects)
 
+    # Search query
+    q = request.GET.get("q", "")
+    owner_conds =  Q(owner__first_name__contains=q) | Q(owner__email__contains=q)
+    if q:
+        projects=projects.filter(Q(name__contains=q) | owner_conds)
+
+    context = dict(projects=projects, q=q)
     return render(request, "project_list.html", context)
 
 
@@ -227,7 +234,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     # Filter job results by analysis
     filter = request.GET.get('filter', '')
     if filter:
-        filter = Analysis.objects.filter(id=filter).first()
+        filter = Analysis.objects.filter(uid=filter).first()
         job_list = job_list.filter(analysis=filter)
 
     if user.is_authenticated():
@@ -400,8 +407,6 @@ def data_edit(request, uid):
             form.save()
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
 
-        messages.error(request, mark_safe(form.errors))
-
     context = dict(data=data, form=form)
     return render(request, 'data_edit.html', context)
 
@@ -464,11 +469,11 @@ def data_files_list(request, uid, path=''):
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS)
-def recipe_view(request, id):
+def recipe_view(request, uid):
     """
     Returns an analysis view based on its id.
     """
-    analysis = Analysis.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
     context = dict(analysis=analysis, project=project, activate='selection')
 
@@ -478,8 +483,8 @@ def recipe_view(request, id):
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
-def recipe_run(request, id):
-    analysis = Analysis.objects.filter(id=id).first()
+def recipe_run(request, uid):
+    analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
 
     if request.method == "POST":
@@ -513,10 +518,10 @@ def recipe_run(request, id):
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
-def recipe_copy(request, id):
+def recipe_copy(request, uid):
     "Store Analysis object in request.sessions['recipe_clipboard'] "
 
-    recipe = Analysis.objects.filter(pk=id).first()
+    recipe = Analysis.objects.filter(uid=uid).first()
     project = recipe.project
     request.session["recipe_clipboard"] = recipe.uid
 
@@ -560,7 +565,7 @@ def recipe_paste(request, uid):
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
-def recipe_code(request, id):
+def recipe_code(request, uid):
     """
     Displays and allows edit on a recipe code.
 
@@ -570,7 +575,7 @@ def recipe_code(request, id):
     user = request.user
 
     # There has to be a recipe to work with.
-    analysis = Analysis.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
     name = analysis.name
 
@@ -602,7 +607,7 @@ def recipe_code(request, id):
             if save:
                 analysis.save()
                 messages.info(request, "The recipe has been updated.")
-                return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
+                return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
     else:
         # This gets triggered on a GET request.
         initial = dict(template=analysis.template, json=analysis.json_text)
@@ -660,17 +665,17 @@ def recipe_create(request, uid):
 
 
 @object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
-def recipe_edit(request, id):
+def recipe_edit(request, uid):
     "Edit recipe Info"
-    recipe = Analysis.objects.filter(id=id).first()
+    recipe = Analysis.objects.filter(uid=uid).first()
     project = recipe.project
-    action_url = reverse('recipe_edit', kwargs=dict(id=recipe.id))
+    action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
 
     if request.method == "POST":
         form = RecipeForm(data=request.POST, files=request.FILES, instance=recipe)
         if form.is_valid():
             recipe = form.save()
-            return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
+            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
         messages.error(request, mark_safe(form.errors))
 
@@ -682,15 +687,15 @@ def recipe_edit(request, id):
 
 
 @object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view")
-def job_edit(request, id):
-    job = Job.objects.filter(id=id).first()
+def job_edit(request, uid):
+    job = Job.objects.filter(uid=uid).first()
     project = job.project
 
     if request.method == "POST":
         form = JobEditForm(data=request.POST, files=request.FILES, instance=job)
         if form.is_valid():
             form.save()
-            return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+            return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
 
     form = JobEditForm(instance=job)
     context = dict(job=job, project=project, form=form)
@@ -698,11 +703,11 @@ def job_edit(request, id):
 
 
 @object_access(type=Job, access=Access.READ_ACCESS)
-def job_view(request, id):
+def job_view(request, uid):
     '''
     Views the state of a single job.
     '''
-    job = Job.objects.filter(id=id).first()
+    job = Job.objects.filter(uid=uid).first()
     project = job.project
 
     context = dict(job=job, project=project, activate='selection')
@@ -714,32 +719,29 @@ def job_view(request, id):
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
-def job_result_view(request, id):
+def job_result_view(request, uid):
     """
     Returns the primary result of a job.
     """
 
-    job = Job.objects.filter(id=id).first()
+    job = Job.objects.filter(uid=uid).first()
     index = job.json_data.get("settings", {}).get("index")
 
-    if not index:
-        url = reverse("job_files_entry", kwargs=dict(id=id))
+    if not index or not os.path.exists(join(job.path, index)):
+        url = reverse("job_files_entry", kwargs=dict(uid=uid))
         return redirect(url)
 
     if job.state == Job.RUNNING:
-        url = reverse("job_view", kwargs=dict(id=id))
+        url = reverse("job_view", kwargs=dict(uid=uid))
         messages.warning(request, "Please wait. The analysis is still running ...")
         return redirect(url)
 
     if job.state != Job.COMPLETED:
-        url = reverse("job_view", kwargs=dict(id=id))
+        url = reverse("job_view", kwargs=dict(uid=uid))
         messages.warning(request, "The analysis has not completed ...")
         return redirect(url)
 
-    url = reverse("job_files_entry", kwargs=dict(id=id))
-
-    if os.path.exists(join(job.path, index)):
-        url = settings.MEDIA_URL + job.get_url(path=index)
+    url = settings.MEDIA_URL + job.get_url(path=index)
 
     return redirect(url)
 
@@ -752,11 +754,11 @@ def block_media_url(request, **kwargs):
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
-def job_files_list(request, id, path=''):
+def job_files_list(request, uid, path=''):
     """
     Returns the directory view of the job.
     """
-    job = Job.objects.filter(id=id).first()
+    job = Job.objects.filter(uid=uid).first()
     project = job.project
 
     form = FileCopyForm(job=job, request=request)

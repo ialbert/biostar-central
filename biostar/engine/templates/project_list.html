@@ -12,49 +12,61 @@
 
 {% block body %}
 
-    <div class="ui center aligned vertical segment">
+    <div class="ui center aligned vertical basic segment">
         <div class="ui header">
             <i class="database icon"></i> Project List
         </div>
+
     </div>
 
+    <div class="ui vertical segment">
+        {% search action_url="project_list" q=q %}
+         {% if q%}
+         <div class="ui success message">
+             Filtering projects for :  <b>{{q}}</b>
+                &bull; <a href="{% url 'project_list'%}"><i class="undo icon"></i>Show All Projects</a>
+        </div>
+        {% endif %}
+    </div>
 
     {% show_messages messages %}
 
-    <div class="ui vertical segment">
+    {% if projects %}
+        <div class="ui vertical segment">
 
-        <div class="ui divided items">
+            <div class="ui divided items">
 
-            {% for project in projects %}
+                {% for project in projects %}
 
-                <div class="item">
-
-
-                    <img class="ui avatar image" src="{% img project %}"/>
+                    <div class="item">
 
 
-                    <div class="content">
+                        <img class="ui avatar image" src="{% img project %}"/>
 
-                        <a class="subheader" href="{{ project.url }}">
-                            <i class="database icon"></i>{{ project.name }}
-                        </a>
 
-                        <div class="meta">
-                            {{ project.summary|markdown|safe }}
+                        <div class="content">
+
+                            <a class="subheader" href="{{ project.url }}">
+                                <i class="database icon"></i>{{ project.name }}
+                            </a>
+
+                            <div class="meta">
+                                {{ project.summary|markdown|safe }}
+                            </div>
+
+                            <div class="extra">
+                                {% privacy_label project %}
+                                Created on {{ project.date.date }} by {{ project.owner.email }}
+                            </div>
+
                         </div>
-
-                        <div class="extra">
-                            {% privacy_label project %}
-                            Created on {{ project.date.date }} by {{ project.owner.email }}
-                        </div>
-
                     </div>
-                </div>
 
-            {% endfor %}
+                {% endfor %}
+            </div>
+
         </div>
-
-    </div>
+    {% endif %}
 
     {% if user.is_authenticated %}
         <div class="ui center aligned vertical segment">

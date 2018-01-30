@@ -25,9 +25,9 @@ class SiteNavigation(TestCase):
         self.job = auth.create_job(analysis=analysis)
 
         self.proj_params = dict(uid=self.project.uid)
-        self.analysis_params = dict(id=analysis.id)
+        self.analysis_params = dict(uid=analysis.uid)
         self.data_params = dict(uid=data.uid)
-        self.job_params = dict(id=self.job.id)
+        self.job_params = dict(uid=self.job.uid)
 
     def visit_urls(self, urls, codes):
         c = Client()
@@ -62,7 +62,7 @@ class SiteNavigation(TestCase):
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse("recipe_code", kwargs=self.analysis_params),
             reverse('recipe_create', kwargs=self.proj_params),
-            reverse('analysis_run', kwargs=self.analysis_params),
+            reverse('recipe_run', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse('job_list', kwargs=self.proj_params),
             reverse('job_view', kwargs=self.job_params),

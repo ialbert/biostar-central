@@ -52,7 +52,7 @@ def dir_url(object, path, current):
     path = path + "/" if path else ""
 
     if isinstance(object, Job):
-        url = reverse("job_files_list", kwargs=dict(id=object.id, path=path + current.name))
+        url = reverse("job_files_list", kwargs=dict(uid=object.uid, path=path + current.name))
     elif isinstance(object, Data):
         url = reverse("data_files_list", kwargs=dict(uid=object.uid, path=path + current.name))
 
@@ -112,9 +112,13 @@ def has_files(request):
 
 
 @register.inclusion_tag('widgets/search.html')
-def search(instance, action, q=''):
+def search(action_url, instance=None, q=''):
 
-    url = reverse(action, kwargs=dict(uid=instance.uid))
+    if instance:
+        url = reverse(action_url, kwargs=dict(uid=instance.uid))
+    else:
+        url = reverse(action_url)
+
     return dict(url=url, q=q)
 
 
