@@ -1,15 +1,15 @@
 {
-    settings:
-    {
-        name: Environment Check
-        summary: This recipe prints the bash environment used to run the script.
-        help:
-            '''
-            # Help
+  settings:
+  {
+    name: Environment Check
+    summary: This recipe prints the bash environment used to run the script.
+    help:
+      '''
+      # Help
 
-            This recipe uses the `printenv` command to display the current environment.
+      This recipe uses the `printenv` command to display the current environment.
 
-            It prints the information into a file for later processing but also displays it on the standard output.
-            '''
-    }
+      It prints the information into a file for later processing but also displays it on the standard output.
+      '''
+  }
 }

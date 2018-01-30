@@ -1,15 +1,15 @@
 {
-    settings:
-    {
-        name: Hello World
-        summary: This recipe prints: Hello World!
-        help:
-            '''
-            # Help
+  settings:
+  {
+    name: Hello World
+    summary: This recipe prints: Hello World!
+    help:
+      '''
+      # Help
 
-            This recipe prints **Hello World!** to the console.
+      This recipe prints **Hello World!** to the console.
 
-            Note how the console output is captured in the standard output of the results.
-            '''
-    }
+      Note how the console output is captured in the standard output of the results.
+      '''
+  }
 }
