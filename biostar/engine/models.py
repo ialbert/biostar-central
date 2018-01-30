@@ -95,10 +95,15 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
+    def uid_is_set(self):
+        assert bool(self.uid.strip()), "Sanity check. UID should always be set."
+
     def url(self):
+        self.uid_is_set()
         return reverse("project_view", kwargs=dict(uid=self.uid))
 
     def get_project_dir(self):
+        self.uid_is_set()
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 

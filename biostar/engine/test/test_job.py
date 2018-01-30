@@ -30,10 +30,8 @@ class JobViewTest(TestCase):
         self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="",
                                            security=models.Analysis.AUTHORIZED)
 
-        pre = models.Job.objects.count()
         self.job = auth.create_job(analysis=self.recipe, user=self.owner)
         self.job.save()
-        self.assertTrue(models.Job.objects.count() == (pre + 1), "Error creating Job database")
 
 
     @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
@@ -46,31 +44,41 @@ class JobViewTest(TestCase):
         request = util.fake_request(url=url, data=data, user=self.owner)
 
         response = views.job_edit(request=request, uid=self.job.uid)
-
-        self.assertEqual(response.status_code, 302,
-                         f"Could not redirect after editing job:\nresponse:{response}")
-
-        self.assertTrue(self.job.url() == response.url,
-                        f"Could not redirect to correct page: {self.job.url()}!= {response.url}")
-
-        self.assertTrue( models.Job.save.called, "job.save() method not called when editing.")
+        self.process_response(response=response, data=data, save=True)
 
 
-    def test_job_files_entry(self):
-        "Test job_files_entry with POST request"
+    def test_job_files_copy(self):
+        "Test files copy with POST request"
 
         management.call_command('job', id=self.job.id)
         url = reverse('job_files_entry', kwargs=dict(uid=self.job.uid))
 
-        data = {"paths":"run.sh"}
+        data = {"paths":"runlog/input.json"}
 
         request = util.fake_request(url=url, data=data, user=self.owner)
 
         response = views.job_files_list(request=request, uid=self.job.uid)
 
-        self.assertEqual(response.status_code,200, f"Could not load job_file_list.html :\nresponse:{response}")
-        #self.assertTrue(self.job.url() == response.url,
-        #                f"Could not redirect to correct page: {self.job.url()}!= {response.url}")
+        self.process_response(response=response, data=data)
+
+    @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
+    def test_job_files_paste(self):
+
+        management.call_command('job', id=self.job.id)
+
+        url = reverse("files_paste", kwargs=dict(uid=self.project.uid))
+
+        data = {}
+        request = util.fake_request(url=url, data=data, user=self.owner)
+        request.session["files_clipboard"] = [auth.join(self.job.path, "runlog")]
+
+        request.session["files_clipboard"].append(self.job.uid)
+
+        response = views.files_paste(request=request, uid=self.project.uid)
+
+        self.process_response(response=response, data=data)
+
+        self.assertTrue(models.Data.save.called, "save() method not called when editing.")
 
 
     def test_job_runner(self):
@@ -78,3 +86,13 @@ class JobViewTest(TestCase):
 
         management.call_command('job', id=self.job.id, verbosity=2)
         management.call_command('job', list=True)
+
+
+    def process_response(self, response, data, save=False):
+        "Check the response on POST request is redirected"
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect to project view after testing :\nresponse:{response}")
+
+        if save:
+            self.assertTrue( models.Job.save.called, "save() method not called")

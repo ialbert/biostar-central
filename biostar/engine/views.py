@@ -1,6 +1,8 @@
 import glob
 import logging
 
+from django.contrib import messages
+from django.db.models import Q
 import mistune
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
@@ -117,7 +119,7 @@ def project_users(request, uid):
         form = ChangeUserAccess(data=request.POST)
 
         # User needs to be authenticated and have admin access to make any changes.
-        if form.is_valid() and request.user.is_authenticated() and has_access:
+        if form.is_valid() and request.user.is_authenticated and has_access:
             user, access = form.change_access()
             msg = f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}"
             messages.success(request, mark_safe(msg))

@@ -29,22 +29,7 @@ class RecipeViewTest(TestCase):
         pre = models.Analysis.objects.count()
         self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="")
         self.recipe.save()
-        self.assertTrue(models.Analysis.objects.count() == (pre + 1), "Error creating Analysis in database")
 
-
-    def test_recipe_view(self):
-        "Test the recipe copy view with POST request"
-
-        data = {"project":0}
-
-        url = reverse('recipe_view', kwargs=dict(uid=self.recipe.uid))
-
-        request = util.fake_request(url=url, data=data, user=self.owner)
-
-        response = views.recipe_view(request=request, uid=self.recipe.uid)
-
-        self.assertEqual(response.status_code, 200,
-                         f"Could not redirect to after copying:\nresponse:{response}")
 
     @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
     def test_recipe_run(self):
@@ -81,14 +66,7 @@ class RecipeViewTest(TestCase):
 
         response = views.recipe_code(request=request, uid=self.recipe.uid)
 
-        self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to after editing code:\nresponse:{response}")
-
-        self.assertTrue(self.recipe.url() == response.url,
-                        f"Could not redirect to correct page: {self.recipe.url()} != {response.url}")
-
-        self.assertTrue( models.Analysis.save.called, "analysis.save() method not called when saving in views.")
-
+        self.process_response(response=response, data=data, save=True)
 
     @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
     def test_recipe_create(self):
@@ -101,14 +79,7 @@ class RecipeViewTest(TestCase):
 
         response = views.recipe_create(request=request, uid=self.project.uid)
 
-        self.assertEqual(response.status_code, 302,
-                         f"Could not redirect after creating recipe:\nresponse:{response}")
-
-        self.assertTrue(f"/recipe/list/{self.project.uid}/" == response.url,
-                        f"Could not redirect to correct page: 'recipe/view' != {response.url}")
-
-        self.assertTrue( models.Analysis.save.called, "analysis.save() method not called when creating.")
-
+        self.process_response(response=response, data=data, save=True)
 
     @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
     def test_recipe_edit(self):
@@ -120,8 +91,32 @@ class RecipeViewTest(TestCase):
         request = util.fake_request(url=url, data=data, user=self.owner)
 
         response = views.recipe_edit(request=request, uid=self.recipe.uid)
+        self.process_response(response=response, data=data, save=True)
+
+
+    @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
+    def test_recipe_paste(self):
+        "Test recipe paste view"
+
+        data = {}
+
+        url = reverse('recipe_paste', kwargs=dict(uid=self.project.uid))
+
+        request = util.fake_request(url=url, data=data, user=self.owner)
+        request.session["recipe_clipboard"] = self.recipe.uid
+
+        response = views.recipe_paste(request=request, uid=self.project.uid)
+
+        self.process_response(response=response, data=data, save=True)
+
+
+
+
+    def process_response(self, response, data, save=False):
+        "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect after creating recipe:\nresponse:{response}")
+                         f"Could not redirect to project view after testing :\nresponse:{response}")
 
-        self.assertTrue( models.Analysis.save.called, "analysis.save() method not called when creating.")
+        if save:
+            self.assertTrue( models.Analysis.save.called, "save() method not called when editing.")

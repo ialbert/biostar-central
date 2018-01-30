@@ -39,6 +39,7 @@ def select_field(data, choicefunc=None):
 
 
 def char_field(data):
+
     initial = data.get("value", "")
     label = data.get("label", "")
     help_text = data.get("help", "")

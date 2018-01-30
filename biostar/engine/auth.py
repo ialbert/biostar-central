@@ -196,6 +196,8 @@ def get_data(user, project, query, data_type=None):
 
 def create_project(user, name, uid=None, summary='', text='', stream='',
                    privacy=Project.PRIVATE, sticky=True):
+
+    uid = uid or util.get_uuid(8)
     project = Project.objects.create(
         name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 

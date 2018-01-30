@@ -26,10 +26,8 @@ class ProjectViewTest(TestCase):
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
                                            uid="testing")
 
-        self.assertTrue(models.Project.objects.count() == (pre + 1), "Error creating project in database")
-
     @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
-    def Xtest_create_view(self):
+    def test_create_view(self):
         "Test project create view with POST request"
 
         # Create fake request
@@ -44,7 +42,7 @@ class ProjectViewTest(TestCase):
 
 
     @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
-    def Xtest_edit_view(self):
+    def test_edit_view(self):
         "Test project edit view with POST request"
 
         # Create fake request
@@ -60,14 +58,14 @@ class ProjectViewTest(TestCase):
         self.process_response(response=response, data=data, save=True)
 
 
-    def Xtest_users_view(self):
+    def test_users_view(self):
         "Test project_users with POST request"
 
         new_user = models.User.objects.create_user(username="test2", email="test2@l.com")
         new_user.set_password("test2")
 
         data = {"access":models.Access.ADMIN_ACCESS,
-                "user_id":new_user.id, "project_id":self.project.id}
+                "user_id":new_user.id, "project_uid":self.project.uid}
 
         url = reverse('project_users', kwargs=dict(uid=self.project.uid))
 
@@ -89,15 +87,9 @@ class ProjectViewTest(TestCase):
 
         user_forms = forms.access_forms(users, project=self.project)
 
-        self.assertTrue(len(users) ==len(user_forms), "Error generating users access forms ( forms.access_forms) ")
+        # Error generating users access forms ( forms.access_forms).
+        self.assertTrue(len(users) ==len(user_forms))
 
-
-    def Xtest_image_path(self):
-        "Test image_path function found in engine.models"
-
-        imgpath = models.image_path(instance=self.project, filename=__file__)
-
-        pass
 
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"
@@ -105,9 +97,6 @@ class ProjectViewTest(TestCase):
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to project view after testing :\nresponse:{response}")
 
-        self.assertTrue(data['uid'] in response.url,
-                        "Was not redirected to the correct project.")
         if save:
-            self.assertTrue( models.Project.save.called,
-                         "project.save() method not called when editing.")
+            self.assertTrue( models.Project.save.called, "save() method not called when editing.")
 
