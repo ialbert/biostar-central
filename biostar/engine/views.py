@@ -88,7 +88,7 @@ def clear_clipboard(request, uid, redir="project_view", board=""):
 
 def get_access(request, project):
 
-    user = request.user if request.user.is_authenticated() else None
+    user = request.user if request.user.is_authenticated else None
     user_access = Access.objects.filter(project=project, user=user).first()
     user_access = user_access or Access(access=Access.NO_ACCESS)
 
@@ -237,7 +237,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
         filter = Analysis.objects.filter(uid=filter).first()
         job_list = job_list.filter(analysis=filter)
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         access = Access.objects.filter(user=user, project=project).first()
     else:
         access = None

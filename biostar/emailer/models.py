@@ -57,8 +57,8 @@ class Subscription(models.Model):
     uid = models.CharField(max_length=32, unique=True)
 
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
-    address = models.ForeignKey(EmailAddress)
-    group = models.ForeignKey(EmailGroup)
+    address = models.ForeignKey(EmailAddress, on_delete=models.CASCADE)
+    group = models.ForeignKey(EmailGroup, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.address.name} | {self.group.name}"

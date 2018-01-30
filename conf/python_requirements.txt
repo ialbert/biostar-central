@@ -1,4 +1,4 @@
-django >=1.11, <1.12
+django >=2, <3
 django-ratelimit
 django-recaptcha==1.0.5
 django-compressor
