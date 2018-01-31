@@ -7,7 +7,7 @@ The Biostar Engine is [Python 3.6][python] and [Django][django]based scientific 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-![Biostar Engine Badge](biostar/engine/static/images/engine-badge.svg)
+![Biostar Engine Badge](biostar/engine/static/images/badge-engine.svg)
 
 The Biostar Engine allows executing scripts over the web via graphical user interfaces.
 The scripts may written in `bash`, `R` or any other a scripting enabled language.

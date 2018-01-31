@@ -14,4 +14,4 @@
 - name: Apply the biostar bash customizations
   lineinfile:
     dest: .bashrc
-    line: source .handbookrc
+    line: source ~/.handbookrc
