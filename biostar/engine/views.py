@@ -1,6 +1,8 @@
 import glob
 import logging
 
+from django.contrib import messages
+from django.db.models import Q
 import mistune
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
@@ -111,18 +113,19 @@ def project_users(request, uid):
     # Search query
     q = request.GET.get("q", "")
     form = ChangeUserAccess()
+    has_access = user.access >= Access.ADMIN_ACCESS
 
     if request.method == "POST":
         form = ChangeUserAccess(data=request.POST)
 
         # User needs to be authenticated and have admin access to make any changes.
-        if form.is_valid() and request.user.is_authenticated() and user.access >= Access.ADMIN_ACCESS:
+        if form.is_valid() and request.user.is_authenticated and has_access:
             user, access = form.change_access()
-            msg = mark_safe(f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}")
-            messages.success(request, msg)
+            msg = f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}"
+            messages.success(request, mark_safe(msg))
             return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
-        if user.access < Access.ADMIN_ACCESS:
-            msg = mark_safe(f"You need {label('Admin Access')} to manage access.")
+        if not has_access:
+            msg = mark_safe(f"You need {label('Admin Access')} to change user access.")
             messages.info(request, msg)
 
     # Users that have been searched for.
@@ -177,9 +180,8 @@ def files_list(request, instance, template_name, path='', extra_context={}):
     "File navigator used for  data and jobs"
 
     # Instance is expected to be a Job or Data object.
-    exclude = ''
     if isinstance(instance, Job):
-        root = instance.path
+        root, exclude = instance.path, ''
     else:
         # Exclude toc from file_list
         exclude = os.path.basename(instance.get_path())

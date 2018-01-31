@@ -1,12 +1,22 @@
 
-
+<div class="ui search">
 <form method="get" action="{{ url }}">
-    <div class="ui fluid left icon input">
-        <i class="search icon"></i>
+    <div class="ui fluid input">
 
-        <input type="text" name="q" value="{{q}}">
+        <input type="text" name="q" value="{{q}}" placeholder="Search">
 
-        <button class="ui blue button" type="submit" formmethod="get">Search</button>
-
+        <button class="ui large basic icon button" type="submit" formmethod="get">
+            <i class="small search icon"></i>
+        </button>
     </div>
+
 </form>
+
+</div>
+
+{% if q%}
+    <div class="ui success message">
+     Filtering for :  <b>{{q}}</b>
+        &bull; <a href="{{url}}"><i class="undo icon"></i>{{msg}}</a>
+    </div>
+{% endif %}

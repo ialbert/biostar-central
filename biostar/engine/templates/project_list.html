@@ -20,13 +20,8 @@
     </div>
 
     <div class="ui vertical segment">
-        {% search action_url="project_list" q=q %}
-         {% if q%}
-         <div class="ui success message">
-             Filtering projects for :  <b>{{q}}</b>
-                &bull; <a href="{% url 'project_list'%}"><i class="undo icon"></i>Show All Projects</a>
-        </div>
-        {% endif %}
+        {% search action_url="project_list" q=q msg="Show All Projects"%}
+
     </div>
 
     {% show_messages messages %}
@@ -42,7 +37,6 @@
 
 
                         <img class="ui avatar image" src="{% img project %}"/>
-
 
                         <div class="content">
 

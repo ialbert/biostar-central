@@ -95,10 +95,15 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
+    def uid_is_set(self):
+        assert bool(self.uid.strip()), "Sanity check. UID should always be set."
+
     def url(self):
+        self.uid_is_set()
         return reverse("project_view", kwargs=dict(uid=self.uid))
 
     def get_project_dir(self):
+        self.uid_is_set()
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
@@ -301,9 +306,9 @@ class Analysis(models.Model):
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
 
         # This is needed to update the json file
-        #if self.json_file and os.path.exists(self.json_file):
-        #    with open(os.path.abspath(self.json_file), "w") as json_file:
-        #        hjson.dump(obj=self.json_data, fp=json_file)
+        if self.json_file and os.path.exists(self.json_file):
+            with open(os.path.abspath(self.json_file), "w") as json_file:
+                hjson.dump(obj=self.json_data, fp=json_file)
 
         super(Analysis, self).save(*args, **kwargs)
 

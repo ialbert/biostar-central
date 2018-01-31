@@ -39,11 +39,12 @@ def select_field(data, choicefunc=None):
 
 
 def char_field(data):
+
     initial = data.get("value", "")
     label = data.get("label", "")
     help_text = data.get("help", "")
 
-    field = forms.CharField(initial=initial, label=label, help_text=help_text)
+    field = forms.CharField(initial=initial, label=label, help_text=help_text, max_length=32)
 
     return field
 
@@ -160,11 +161,12 @@ def get_field_types():
     """
     Maps strings constants to field types.
     """
+    # Text box taken out (easy to get around shlex.quote())
     field_types = {
         const.RADIO: radioselect_field,
         const.DROPDOWN: select_field,
         const.INTEGER: number_field,
-        const.TEXTBOX: char_field,
+        #const.TEXTBOX: char_field,
         const.FLOAT: float_field,
         const.CHECKBOX: checkbox_field,
     }

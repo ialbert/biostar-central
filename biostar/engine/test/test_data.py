@@ -1,7 +1,7 @@
 import logging
+import os
 from unittest.mock import patch, MagicMock
 
-from django.core import management
 from django.test import TestCase
 from django.urls import reverse
 
@@ -24,9 +24,7 @@ class DataViewTest(TestCase):
         self.project.save()
 
         # Set up generic data for editing
-        pre = models.Data.objects.count()
         self.data = auth.create_data(project=self.project, path=__file__)
-        self.assertTrue(models.Data.objects.count() == (pre + 1), "Error creating Data in database")
 
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
     def test_data_edit(self):
@@ -46,10 +44,7 @@ class DataViewTest(TestCase):
 
         self.assertTrue("toc" in obj, "Table of content not added during fill_dict()")
 
-        self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to data view after editing Data:\nresponse:{response}")
-
-        self.assertTrue(models.Data.save.called, "data.save() method not called when editing.")
+        self.process_response(response=response, data=data, save=True)
 
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
     def test_data_upload(self):
@@ -76,19 +71,38 @@ class DataViewTest(TestCase):
         request = util.fake_request(url=url, data=data, user=user)
         response = views.data_upload(request=request, uid=self.project.uid)
 
-        self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to after uploading:{response}")
-
-        self.assertTrue(f"/data/list/{self.project.uid}/" == response.url,
-                        f"Could not redirect to data list after uploading: {response}")
-
-        self.assertTrue(models.Data.save.called, "data.save() method not called when uploading.")
+        self.process_response(response=response, data=data, save=True)
 
     def test_add_data(self):
-        "Test adding data to a project using management commands "
+        "Test adding data directory to a project using management commands "
 
-        pre = models.Data.objects.all().count()
-        management.call_command('data', path=__file__, uid="testing")
-        post = models.Data.objects.all().count()
+        data_directory = auth.join(__file__, "..", "data")
 
-        self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
+        data = auth.create_data(project=self.project, path=data_directory)
+
+        self.assertTrue(os.path.exists(data.get_data_dir()), "Directory not being linked")
+
+    @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
+    def test_data_paste(self):
+        "Test data paste view."
+
+        data = {}
+
+        url = reverse('data_paste', kwargs=dict(uid=self.project.uid))
+
+        request = util.fake_request(url=url, data=data, user=self.owner)
+        request.session["data_clipboard"] = self.data.uid
+
+        response = views.data_paste(request=request, uid=self.project.uid)
+
+        self.process_response(response=response, data=data, save=True)
+
+
+    def process_response(self, response, data, save=False):
+        "Check the response on POST request is redirected"
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect to project view after testing :\nresponse:{response}")
+
+        if save:
+            self.assertTrue( models.Data.save.called, "save() method not called")
