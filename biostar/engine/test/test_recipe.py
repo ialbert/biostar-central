@@ -46,13 +46,7 @@ class RecipeViewTest(TestCase):
 
         response = views.recipe_run(request=request, uid=self.recipe.uid)
 
-        self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to after running recipe:\nresponse:{response}")
-
-        self.assertTrue("job/list/" in response.url,
-                        f"Could not redirect to job list after running recipe:\nresponse:{response}")
-
-        self.assertTrue( models.Job.save.called, "job.save() method not called when running analysis.")
+        self.process_response(response=response, data=data, save=True, model=models.Job)
 
 
     @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
@@ -112,11 +106,11 @@ class RecipeViewTest(TestCase):
 
 
 
-    def process_response(self, response, data, save=False):
+    def process_response(self, response, data, model=models.Analysis,save=False):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to project view after testing :\nresponse:{response}")
 
         if save:
-            self.assertTrue( models.Analysis.save.called, "save() method not called when editing.")
+            self.assertTrue( model.save.called, "save() method not called when editing.")
