@@ -23,10 +23,12 @@
 - name: data update
   shell: make data
   args:
-    chdir: /export/sites/biostar-engine
+    chdir: "{{ django_engine_dir }}"
 
 - name: migrate database
-  shell: migrate.sh
+  shell: "source {{conda_activate}} {{conda_env}} && python manage.py migrate --settings {{django_settings_module}}"
   args:
-    chdir: /export/sites/biostar-engine
+    executable: /bin/bash
+    chdir: "{{ django_engine_dir }}"
+
 

@@ -1,0 +1,7 @@
+
+django_engine_dir: "/export/sites/biostar-engine/"
+django_recipe_dir: "/export/sites/biostar-recipes/"
+
+django_settings_module: "conf.site.site_settings"
+conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
+conda_env: "engine"

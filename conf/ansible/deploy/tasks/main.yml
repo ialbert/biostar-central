@@ -5,13 +5,13 @@
     dest: /export/sites/biostar-engine
     update: yes
   notify:
-    - migrate database
     - reload supervisor
+    - migrate database
 
 - name: Update biostar-recipes
   git:
     repo: 'git@github.com:biostars/biostar-recipes.git'
-    dest: /export/sites/biostar-recipes
+    dest: "{{ django_recipe_dir }}"
     update: yes
   notify: data update
 
