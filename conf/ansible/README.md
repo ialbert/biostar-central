@@ -6,7 +6,7 @@ Prepare the computer:
 
 Install the biostar-engine software:
 
-    ansible-playbook -i hosts server_software.yml
+    ansible-playbook -i hosts server_initialize.yml
 
 Link the nginx and supervisor configurations:
 
