@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 
-from biostar.engine import settings
+from biostar import settings
 from biostar.engine.models import Access, Job, make_html, Project, Data, Analysis
 
 
@@ -103,9 +103,7 @@ def has_files(request):
         return False
 
     # Some files in clipboard might be outside job path.
-    files_missing = False in [f.startswith(job.path) for f in files]
-    if files_missing:
-        return False
+    files = [f for f in files if f.startswith(job.path)]
 
     # Files might still be empty at this point
     return True if files else False
@@ -264,7 +262,7 @@ def project_name_bar(project):
     """
     return dict(project=project)
 
-@register.inclusion_tag('interface/recipe_form.html')
+@register.inclusion_tag('widgets/recipe_form.html')
 def recipe_form(form):
     """
     Renders a recipe form.

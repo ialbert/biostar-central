@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load engine_tags %}
 
 {% block headtitle %}
     Edit Project: {{ project.name }}
@@ -8,6 +9,7 @@
 {% block body %}
 
     <div class="ui raised segment inputcolor">
+    {% form_errors form %}
 
         <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'project_edit' project.uid %}">
 
@@ -48,8 +50,6 @@
                  {{ form.text }}
                 <p class="muted">A detailed explanation of the project (markdown OK).</p>
             </div>
-
-            {{ form.errors }}
 
             <button type="submit" class="ui submit green button">
                 <i class="save icon"></i>Save

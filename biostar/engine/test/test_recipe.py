@@ -104,8 +104,6 @@ class RecipeViewTest(TestCase):
         self.process_response(response=response, data=data, save=True)
 
 
-
-
     def process_response(self, response, data, model=models.Analysis,save=False):
         "Check the response on POST request is redirected"
 

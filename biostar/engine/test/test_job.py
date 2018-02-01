@@ -61,6 +61,11 @@ class JobViewTest(TestCase):
 
         self.process_response(response=response, data=data)
 
+        # Test clear clipboard view
+        second_reponse = views.clear_clipboard(request=request, uid=self.project.uid, board="files_clipboard")
+
+        self.assertTrue(request.session.get("files_clipboard")==[""], "Clear clipboard not working")
+
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
     def test_job_files_paste(self):
 

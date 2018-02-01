@@ -9,12 +9,11 @@
 {% block body %}
 
     <div class="ui raised segment inputcolor">
+    {% form_errors form %}
 
         <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
 
             {% csrf_token %}
-
-            {% form_errors form %}
 
             <div class="field segment">
                 <label>Recipe Name</label>

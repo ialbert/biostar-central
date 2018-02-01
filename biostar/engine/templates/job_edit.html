@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load engine_tags %}
+
 
 {% block headtitle %}
    Editing {{ job.name }}
@@ -7,7 +9,7 @@
 {% block body %}
 
     <div class="ui raised segment inputcolor">
-
+    {% form_errors form %}
         <form method="post" class="ui form" action="{% url 'job_edit' job.uid %}" enctype="multipart/form-data">
 
             {% csrf_token %}

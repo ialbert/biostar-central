@@ -10,7 +10,7 @@ from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
 
-from biostar.engine import settings
+from biostar import settings
 from . import util
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
@@ -209,7 +209,7 @@ def create_project(user, name, uid=None, summary='', text='', stream='',
     return project
 
 
-def create_analysis(project, json_text, template, json_file=None, uid=None, user=None, summary='',
+def create_analysis(project, json_text, template, uid=None, user=None, summary='',
                     name='', text='', stream=None, sticky=False, security=Analysis.UNDER_REVIEW):
     owner = user or project.owner
     name = name or 'Analysis name'
@@ -217,7 +217,7 @@ def create_analysis(project, json_text, template, json_file=None, uid=None, user
 
     analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
                                        owner=owner, name=name, text=text, security=security,
-                                       template=template, sticky=sticky, json_file=json_file)
+                                       template=template, sticky=sticky)
     if stream:
         analysis.image.save(stream.name, stream, save=True)
 

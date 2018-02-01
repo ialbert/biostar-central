@@ -1,1 +1,0 @@
-from biostar.settings import *

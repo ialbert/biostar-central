@@ -8,8 +8,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
-from biostar.engine import settings
-from biostar.tools import const
+from biostar import settings
 from biostar.accounts.models import User
 from . import util
 from .const import *
@@ -280,7 +279,6 @@ class Analysis(models.Model):
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
-    json_file = models.FilePathField(null=True)
     json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
     template = models.TextField(default="")
 
@@ -304,11 +302,6 @@ class Analysis(models.Model):
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
-
-        # This is needed to update the json file
-        if self.json_file and os.path.exists(self.json_file):
-            with open(os.path.abspath(self.json_file), "w") as json_file:
-                hjson.dump(obj=self.json_data, fp=json_file)
 
         super(Analysis, self).save(*args, **kwargs)
 
