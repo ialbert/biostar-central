@@ -120,8 +120,6 @@ def search(action_url, instance=None, q='', msg='Undo'):
     return dict(url=url, q=q, msg=msg)
 
 
-
-
 @register.inclusion_tag('widgets/paste.html')
 def paste(project, data=False, files=False):
     "Default provides template for pasting a recipe"
@@ -170,22 +168,6 @@ def privacy_label(project):
 def security_label(analysis):
     context = dict(analysis=analysis)
     return context
-
-
-@register.simple_tag
-def access_label(project, user):
-
-    if user.is_anonymous:
-        return ""
-
-    access = Access.objects.filter(project=project, user=user).first()
-
-    if not access and project.privacy == Project.PUBLIC:
-        return ""
-
-    label = mark_safe(f'<span class ="ui green label">{access.get_access_display()}</span>')
-    return label
-
 
 @register.simple_tag
 def job_color(job):
@@ -237,15 +219,6 @@ def img(obj):
     else:
         return static("images/placeholder.png")
 
-
-@register.filter
-def single_file(data):
-    "Return true if data only contains one file"
-
-    if len(data.get_files()) > 1:
-        return False
-
-    return True
 
 @register.inclusion_tag('widgets/show_messages.html')
 def show_messages(messages):
@@ -306,22 +279,7 @@ def form_errors(form):
 
     context = dict(errorlist=errorlist)
 
-    #if errorlist:
-    #    print (errorlist, type(errorlist[0]), dir(errorlist[0]))
-
     return context
-
-
-@register.simple_tag
-def field_state(field):
-    """
-    Returns the error label for a field.
-    """
-
-    if field.errors:
-        return 'error'
-    else:
-        return ''
 
 
 @register.filter

@@ -102,7 +102,7 @@ def get_access(request, project):
 
 
 
-@object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, uid):
     """
     Manage project users
@@ -114,20 +114,16 @@ def project_users(request, uid):
     # Search query
     q = request.GET.get("q", "")
     form = ChangeUserAccess()
-    admin_access = user.access >= Access.ADMIN_ACCESS
 
     if request.method == "POST":
         form = ChangeUserAccess(data=request.POST)
 
         # User needs to be authenticated and have admin access to make any changes.
-        if form.is_valid() and request.user.is_authenticated and admin_access:
+        if form.is_valid() and request.user.is_authenticated:
             user, access = form.change_access()
             msg = f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}"
             messages.success(request, mark_safe(msg))
             return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
-        if not admin_access:
-            msg = mark_safe(f"You need {label('Admin Access')} to change user access.")
-            messages.info(request, msg)
 
     # Users that have been searched for.
     targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
@@ -676,34 +672,6 @@ def job_view(request, uid):
     context.update(counts)
 
     return render(request, "job_view.html", context=context)
-
-
-@object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
-def job_result_view(request, uid):
-    """
-    Returns the primary result of a job.
-    """
-
-    job = Job.objects.filter(uid=uid).first()
-    index = job.json_data.get("settings", {}).get("index")
-
-    if not index or not os.path.exists(join(job.path, index)):
-        url = reverse("job_files_entry", kwargs=dict(uid=uid))
-        return redirect(url)
-
-    if job.state == Job.RUNNING:
-        url = reverse("job_view", kwargs=dict(uid=uid))
-        messages.warning(request, "Please wait. The analysis is still running ...")
-        return redirect(url)
-
-    if job.state != Job.COMPLETED:
-        url = reverse("job_view", kwargs=dict(uid=uid))
-        messages.warning(request, "The analysis has not completed ...")
-        return redirect(url)
-
-    url = settings.MEDIA_URL + job.get_url(path=index)
-
-    return redirect(url)
 
 
 def block_media_url(request, **kwargs):
