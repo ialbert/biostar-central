@@ -3,6 +3,6 @@
   user: root
 
   roles:
-    - initial
+    - setup
 
 

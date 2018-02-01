@@ -1,16 +1,20 @@
-miniconda_url: >
+
+conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
+conda_env: "engine"
+
+conda_url: >
   https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 
-miniconda_home: '~/miniconda3'
+conda_home: "~/miniconda3"
 
-miniconda_environments:
+conda_environments:
   - { name: engine, python_version: 3}
   - { name: test, python_version: 3}
   - { name: py2, python_version: 2}
 
-miniconda_modify_path: yes
+conda_modify_path: yes
 
-miniconda_rcfile: '~/.bashrc'
+conda_rcfile: "~/.bashrc"
 
-miniconda_add_condarc: yes
+conda_add_condarc: yes
 

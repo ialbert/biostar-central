@@ -40,28 +40,19 @@
 
 - name: Create supporting directories
   file:
-    path: "/export/{{item}}"
+    path: "{{item}}"
     state: directory
     owner: www
     group: www
     mode: 0755
   with_items:
-    - src
-    - bin
-    - refs
-
-- name: Create file directories
-  file:
-    path: "/export/sites/{{item}}"
-    state: directory
-    owner: www
-    group: www
-    mode: 0755
-  with_items:
-    - biostar-recipes
-    - biostar-engine
-    - biostar-data
-    - biostar-data/initial
+    - "{{ src_dir }}"
+    - "{{ bin_dir }}"
+    - "{{ ref_dir }}"
+    - "{{ engine_dir }}"
+    - "{{ recipe_dir }}"
+    - "{{ data_dir }}"
+    - "{{ data_dir }}/initial"
 
 - name: Allow write access to configuration directories
   file:
