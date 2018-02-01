@@ -19,7 +19,6 @@
     state: directory
     mode: 0755
 
-
 - name: Ensure local settings exists
   copy:
     content: ""
