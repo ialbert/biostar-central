@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 
-from biostar.engine import settings
+from biostar import settings
 from biostar.engine.models import Access, Job, make_html, Project, Data, Analysis
 
 
@@ -103,9 +103,7 @@ def has_files(request):
         return False
 
     # Some files in clipboard might be outside job path.
-    files_missing = False in [f.startswith(job.path) for f in files]
-    if files_missing:
-        return False
+    files = [f for f in files if f.startswith(job.path)]
 
     # Files might still be empty at this point
     return True if files else False
@@ -120,8 +118,6 @@ def search(action_url, instance=None, q='', msg='Undo'):
         url = reverse(action_url)
 
     return dict(url=url, q=q, msg=msg)
-
-
 
 
 @register.inclusion_tag('widgets/paste.html')
@@ -172,22 +168,6 @@ def privacy_label(project):
 def security_label(analysis):
     context = dict(analysis=analysis)
     return context
-
-
-@register.simple_tag
-def access_label(project, user):
-
-    if user.is_anonymous:
-        return ""
-
-    access = Access.objects.filter(project=project, user=user).first()
-
-    if not access and project.privacy == Project.PUBLIC:
-        return ""
-
-    label = mark_safe(f'<span class ="ui green label">{access.get_access_display()}</span>')
-    return label
-
 
 @register.simple_tag
 def job_color(job):
@@ -240,15 +220,6 @@ def img(obj):
         return static("images/placeholder.png")
 
 
-@register.filter
-def single_file(data):
-    "Return true if data only contains one file"
-
-    if len(data.get_files()) > 1:
-        return False
-
-    return True
-
 @register.inclusion_tag('widgets/show_messages.html')
 def show_messages(messages):
     """
@@ -264,7 +235,7 @@ def project_name_bar(project):
     """
     return dict(project=project)
 
-@register.inclusion_tag('interface/recipe_form.html')
+@register.inclusion_tag('widgets/recipe_form.html')
 def recipe_form(form):
     """
     Renders a recipe form.
@@ -308,22 +279,7 @@ def form_errors(form):
 
     context = dict(errorlist=errorlist)
 
-    #if errorlist:
-    #    print (errorlist, type(errorlist[0]), dir(errorlist[0]))
-
     return context
-
-
-@register.simple_tag
-def field_state(field):
-    """
-    Returns the error label for a field.
-    """
-
-    if field.errors:
-        return 'error'
-    else:
-        return ''
 
 
 @register.filter

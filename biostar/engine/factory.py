@@ -88,10 +88,6 @@ def checkbox_field(data):
     return field
 
 
-def ignore(data):
-    return ''
-
-
 def data_field_generator(field, project, type=""):
     """
     Generates a SELECT field populated by data names that

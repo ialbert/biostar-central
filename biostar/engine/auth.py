@@ -10,7 +10,7 @@ from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
 
-from biostar.engine import settings
+from biostar import settings
 from . import util
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
@@ -182,18 +182,6 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
     return False
 
 
-def get_data(user, project, query, data_type=None):
-    """
-    Returns a dictionary keyed by data stored in the project.
-    """
-    if data_type:
-        query = query.filter(type=data_type)
-    datamap = dict((obj.id, obj) for obj in query)
-    logger.info(f"{user.email} got {len(datamap)} data from {project.name}")
-
-    return datamap
-
-
 def create_project(user, name, uid=None, summary='', text='', stream='',
                    privacy=Project.PRIVATE, sticky=True):
 
@@ -209,7 +197,7 @@ def create_project(user, name, uid=None, summary='', text='', stream='',
     return project
 
 
-def create_analysis(project, json_text, template, json_file=None, uid=None, user=None, summary='',
+def create_analysis(project, json_text, template, uid=None, user=None, summary='',
                     name='', text='', stream=None, sticky=False, security=Analysis.UNDER_REVIEW):
     owner = user or project.owner
     name = name or 'Analysis name'
@@ -217,7 +205,7 @@ def create_analysis(project, json_text, template, json_file=None, uid=None, user
 
     analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
                                        owner=owner, name=name, text=text, security=security,
-                                       template=template, sticky=sticky, json_file=json_file)
+                                       template=template, sticky=sticky)
     if stream:
         analysis.image.save(stream.name, stream, save=True)
 

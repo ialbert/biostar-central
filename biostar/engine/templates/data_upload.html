@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load engine_tags %}
 
 {% block headtitle %}
     Upload Data
@@ -9,6 +10,7 @@
 
 
 <div class="ui segment inputcolor">
+        {% form_errors form %}
     <form method="post" class="ui form" enctype="multipart/form-data" action="{%  url 'data_upload' project.uid %}">
 
         {% csrf_token %}

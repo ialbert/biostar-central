@@ -12,11 +12,6 @@ logger = logging.getLogger("engine")
 
 HAS_UWSGI = False
 
-def int_to_bytes(value):
-    return (value).to_bytes(8, byteorder='big')
-
-def int_from_bytes(args, name):
-    return int.from_bytes(args[name].encode(), byteorder='big')
 
 COUNTER = 1
 

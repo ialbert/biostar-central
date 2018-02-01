@@ -1,9 +1,11 @@
 import logging
+import hjson
+
 from django.test import TestCase, RequestFactory
 from unittest.mock import patch, MagicMock
 from django.urls import reverse
 
-from biostar.engine import auth
+from biostar.engine import auth, const
 from biostar.engine import models, views
 
 from . import util
@@ -25,8 +27,7 @@ class RecipeViewTest(TestCase):
 
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
                                            uid="testing")
-
-        pre = models.Analysis.objects.count()
+        #Test data
         self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="")
         self.recipe.save()
 
@@ -53,7 +54,7 @@ class RecipeViewTest(TestCase):
     def test_recipe_code(self):
         "Test the recipe preview/save code view with POST request"
 
-        data = {'action': "SAVE", 'template':'#test change', 'json':'{}'}
+        data = {'action': "SAVE", 'template':'#test change', 'json':"{}"}
         url = reverse('recipe_code', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
@@ -104,13 +105,11 @@ class RecipeViewTest(TestCase):
         self.process_response(response=response, data=data, save=True)
 
 
-
-
     def process_response(self, response, data, model=models.Analysis,save=False):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to project view after testing :\nresponse:{response}")
+                         f"Could not redirect :\nresponse:{response}")
 
         if save:
             self.assertTrue( model.save.called, "save() method not called when editing.")

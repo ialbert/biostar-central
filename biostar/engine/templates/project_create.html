@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load engine_tags %}
 
 {% block headtitle %}
     Create Project
@@ -8,7 +9,7 @@
 {% block body %}
 
 <div class="ui raised segment inputcolor">
-
+    {% form_errors form %}
     <form method="post" class="ui form" action="{% url 'project_create' %}" enctype="multipart/form-data">
             {% csrf_token %}
 

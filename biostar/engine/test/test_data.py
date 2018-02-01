@@ -82,6 +82,7 @@ class DataViewTest(TestCase):
 
         self.assertTrue(os.path.exists(data.get_data_dir()), "Directory not being linked")
 
+
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
     def test_data_paste(self):
         "Test data paste view."
@@ -97,6 +98,19 @@ class DataViewTest(TestCase):
 
         self.process_response(response=response, data=data, save=True)
 
+    def test_engine_tags(self):
+        "Test some template tags found in engine_tags.py"
+
+        from biostar.engine.templatetags import engine_tags
+
+        options = {"recipe_clipboard":dict(project=self.project),
+                    "data_clipboard":dict(data=True, project=self.project),
+                   "files_clipboard":dict(files=True, project=self.project)
+                   }
+        for o in options:
+            paste_template = engine_tags.paste(**options[o])
+            # Paste template needs to be rendered correctly for each clipboard
+            self.assertTrue(o in paste_template["clear_url"], f"{o} : {paste_template}")
 
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"

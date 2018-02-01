@@ -81,7 +81,6 @@ class SiteNavigation(TestCase):
     def test_page_redirect(self):
         "Testing that a redirect occurs for some pages"
         urls = [
-            reverse('job_result_view', kwargs=self.job_params),
             reverse('signup'),
             reverse("data_copy", kwargs=self.data_params),
             reverse("recipe_copy", kwargs=self.analysis_params),

@@ -1,6 +1,7 @@
 import glob
 import logging
 
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 import mistune
@@ -101,7 +102,7 @@ def get_access(request, project):
 
 
 
-@object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, uid):
     """
     Manage project users
@@ -113,20 +114,16 @@ def project_users(request, uid):
     # Search query
     q = request.GET.get("q", "")
     form = ChangeUserAccess()
-    has_access = user.access >= Access.ADMIN_ACCESS
 
     if request.method == "POST":
         form = ChangeUserAccess(data=request.POST)
 
         # User needs to be authenticated and have admin access to make any changes.
-        if form.is_valid() and request.user.is_authenticated and has_access:
+        if form.is_valid() and request.user.is_authenticated:
             user, access = form.change_access()
             msg = f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}"
             messages.success(request, mark_safe(msg))
             return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
-        if not has_access:
-            msg = mark_safe(f"You need {label('Admin Access')} to change user access.")
-            messages.info(request, msg)
 
     # Users that have been searched for.
     targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
@@ -216,15 +213,8 @@ def get_counts(project):
 
 @object_access(type=Project, access=Access.READ_ACCESS)
 def project_view(request, uid, template_name="recipe_list.html", active='recipes'):
-    user = request.user
 
     project = Project.objects.filter(uid=uid).first()
-
-    # Project not found.
-    if not project:
-        messages.error(request, "Project not found.")
-        return redirect(reverse("project_list"))
-
     # Show counts for the project.
     counts = get_counts(project)
 
@@ -239,12 +229,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
         filter = Analysis.objects.filter(uid=filter).first()
         job_list = job_list.filter(analysis=filter)
 
-    if user.is_authenticated:
-        access = Access.objects.filter(user=user, project=project).first()
-    else:
-        access = None
-
-    context = dict(project=project, access=access, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
+    context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
                    active=active, filter=filter, help_text=project.html)
     context.update(counts)
 
@@ -263,17 +248,11 @@ def project_edit(request, uid):
             form.save()
             return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
-        messages.error(request, mark_safe(form.errors))
-
     context = dict(project=project, form=form)
     return render(request, "project_edit.html", context=context)
 
-
+@login_required
 def project_create(request):
-
-    if request.user.is_anonymous:
-        messages.error(request, "You must be logged in to create a project.")
-        return redirect(reverse("project_list"))
 
     initial = dict(name="Project Name", text="project description", summary="project summary")
     form = ProjectForm(initial=initial)
@@ -294,8 +273,6 @@ def project_create(request):
             project.save()
             return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
-        messages.error(request, mark_safe(form.errors))
-
     context = dict(form=form)
     return render(request, "project_create.html", context=context)
 
@@ -303,11 +280,6 @@ def project_create(request):
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, uid):
     data = Data.objects.filter(uid=uid).first()
-
-    if not data:
-        messages.error(request, "Data not found.")
-        logger.error(f"data.uid={uid} looked for but not found.")
-        return redirect(reverse("project_list"))
 
     project = data.project
     context = dict(data=data, project=project, activate='selection')
@@ -337,10 +309,6 @@ def data_paste(request, uid):
     data_uid = request.session.get("data_clipboard")
     data = Data.objects.filter(uid=data_uid).first()
     project = Project.objects.filter(uid=uid).first()
-
-    if not data:
-        messages.error(request, "Data in clipboard not found. Try Copying again.")
-        return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
     # Make sure user has read access to data in clipboard
     has_access = auth.check_obj_access(instance=data, user=request.user, request=request,
@@ -383,11 +351,7 @@ def files_paste(request, uid):
         return redirect(url)
 
     # Some files in clipboard might be outside job path.
-    files_missing = False in [f.startswith(job.path) for f in files]
-    if files_missing:
-        messages.error(request, mark_safe(f"Files not found in <b>{job.name}</b>. Try copying again."))
-        return redirect(url)
-
+    files = [f for f in files if f.startswith(job.path) ]
     # Add data to project
     for file in files:
         auth.create_data(project=project, path=file)
@@ -431,7 +395,6 @@ def data_nav(request, uid):
 def data_upload(request, uid):
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
-
     form = DataUploadForm()
     if request.method == "POST":
         form = DataUploadForm(data=request.POST, files=request.FILES)
@@ -448,8 +411,6 @@ def data_upload(request, uid):
 
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
-
-        messages.error(request, mark_safe(form.errors))
 
     context = dict(project=project, form=form)
     return render(request, 'data_upload.html', context)
@@ -542,10 +503,6 @@ def recipe_paste(request, uid):
     project = Project.objects.filter(uid=uid).first()
     url = reverse("recipe_list", kwargs=dict(uid=project.uid))
 
-    if not recipe:
-        messages.error(request, "Recipe not found.")
-        return redirect(url)
-
     # Make sure user has read access to recipe in clipboard
     has_access = auth.check_obj_access(instance=recipe, user=request.user, request=request,
                                        access=Access.READ_ACCESS)
@@ -563,7 +520,7 @@ def recipe_paste(request, uid):
     messages.success(request, msg)
     request.session["recipe_clipboard"] = None
 
-    return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
+    return redirect(url)
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
@@ -636,6 +593,7 @@ def recipe_create(request, uid):
     """
 
     project = Project.objects.filter(uid=uid).first()
+    form = RecipeForm(initial=dict(name="New Recipe"))
 
     if request.method == "POST":
         form = RecipeForm(data=request.POST, files=request.FILES)
@@ -656,8 +614,6 @@ def recipe_create(request, uid):
             messages.success(request, "Recipe created")
 
             return redirect(reverse('recipe_list', kwargs=dict(uid=project.uid)))
-    else:
-        form = RecipeForm(initial=dict(name="New Recipe"))
 
     # The url to submit to.
     action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
@@ -672,6 +628,7 @@ def recipe_edit(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
     project = recipe.project
     action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
+    form = RecipeForm(instance=recipe)
 
     if request.method == "POST":
         form = RecipeForm(data=request.POST, files=request.FILES, instance=recipe)
@@ -679,9 +636,6 @@ def recipe_edit(request, uid):
             recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
-        messages.error(request, mark_safe(form.errors))
-
-    form = RecipeForm(instance=recipe)
     context = dict(analysis=recipe, project=project, form=form, action_url=action_url,
                    name=recipe.name)
 
@@ -692,6 +646,7 @@ def recipe_edit(request, uid):
 def job_edit(request, uid):
     job = Job.objects.filter(uid=uid).first()
     project = job.project
+    form = JobEditForm(instance=job)
 
     if request.method == "POST":
         form = JobEditForm(data=request.POST, files=request.FILES, instance=job)
@@ -699,7 +654,6 @@ def job_edit(request, uid):
             form.save()
             return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
 
-    form = JobEditForm(instance=job)
     context = dict(job=job, project=project, form=form)
     return render(request, 'job_edit.html', context)
 
@@ -718,34 +672,6 @@ def job_view(request, uid):
     context.update(counts)
 
     return render(request, "job_view.html", context=context)
-
-
-@object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
-def job_result_view(request, uid):
-    """
-    Returns the primary result of a job.
-    """
-
-    job = Job.objects.filter(uid=uid).first()
-    index = job.json_data.get("settings", {}).get("index")
-
-    if not index or not os.path.exists(join(job.path, index)):
-        url = reverse("job_files_entry", kwargs=dict(uid=uid))
-        return redirect(url)
-
-    if job.state == Job.RUNNING:
-        url = reverse("job_view", kwargs=dict(uid=uid))
-        messages.warning(request, "Please wait. The analysis is still running ...")
-        return redirect(url)
-
-    if job.state != Job.COMPLETED:
-        url = reverse("job_view", kwargs=dict(uid=uid))
-        messages.warning(request, "The analysis has not completed ...")
-        return redirect(url)
-
-    url = settings.MEDIA_URL + job.get_url(path=index)
-
-    return redirect(url)
 
 
 def block_media_url(request, **kwargs):

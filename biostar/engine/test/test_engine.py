@@ -4,8 +4,9 @@ from django.test import TestCase
 from django.forms import ValidationError
 from django.core.files import File
 from django.urls import reverse
-from biostar.engine import models, views, auth, factory, forms
+from biostar.engine import models, views, auth, factory, forms, const
 from biostar.engine import util as engine_util
+
 
 from . import util
 
@@ -40,11 +41,6 @@ class FactoryTest(TestCase):
         owner = models.User.objects.filter(is_superuser=True).first()
         self.project = auth.create_project(user=owner, name="test",
                                            text="Text", summary="summary", uid="testing")
-        self.json_data = {
-                "label":"test",
-                "help":"Test json data",
-                "choices":["test1", "test2"]
-        }
 
     def test_factory_fields(self):
         "Testing factory module that generates fields"
@@ -68,15 +64,12 @@ class FactoryTest(TestCase):
 
         from biostar.engine import const
 
-        pre = models.Data.objects.count()
         data = auth.create_data(self.project, path=__file__)
-        post = models.Data.objects.count()
-
-        self.assertTrue(post == (pre + 1), "Error creating data in database")
 
         display_type = const.DROPDOWN
 
-        json_data = dict(display=display_type, path=data.get_path())
+        json_data = dict(display=display_type, value=data.name,
+                         source= 'PROJECT')
 
         field = factory.dynamic_field(json_data, project=self.project)
 

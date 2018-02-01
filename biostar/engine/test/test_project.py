@@ -3,11 +3,14 @@ import logging, os
 from django.test import TestCase
 from unittest.mock import patch, MagicMock
 from django.urls import reverse
+from django.conf import settings
 
 from biostar.engine import auth
 from biostar.engine import models, views, forms
 
 from . import util
+
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'engine', 'test'))
 
 logger = logging.getLogger('engine')
 
@@ -22,7 +25,7 @@ class ProjectViewTest(TestCase):
         self.owner.set_password("test")
 
         # Set up project to edit
-        pre = models.Project.objects.count()
+
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
                                            uid="testing")
 
@@ -30,13 +33,17 @@ class ProjectViewTest(TestCase):
     def test_create_view(self):
         "Test project create view with POST request"
 
+        path = os.path.join(TEST_ROOT, "data", "image.png")
+        image_stream = open(path, "rb")
+
         # Create fake request
         data = {'name': 'My project', 'uid': 'example', "summary":"summary",
-                'text': 'testing', "privacy": models.Project.PRIVATE}
+                'text': 'testing', "privacy": models.Project.PRIVATE, "image":image_stream}
 
         request = util.fake_request(url=reverse('project_create'), data=data, user=self.owner)
-
         response = views.project_create(request)
+
+        image_stream.close()
 
         self.process_response(response=response, data=data, save=True)
 
@@ -89,6 +96,8 @@ class ProjectViewTest(TestCase):
 
         # Error generating users access forms ( forms.access_forms).
         self.assertTrue(len(users) ==len(user_forms))
+
+
 
 
     def process_response(self, response, data, save=False):
