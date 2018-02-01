@@ -182,18 +182,6 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
     return False
 
 
-def get_data(user, project, query, data_type=None):
-    """
-    Returns a dictionary keyed by data stored in the project.
-    """
-    if data_type:
-        query = query.filter(type=data_type)
-    datamap = dict((obj.id, obj) for obj in query)
-    logger.info(f"{user.email} got {len(datamap)} data from {project.name}")
-
-    return datamap
-
-
 def create_project(user, name, uid=None, summary='', text='', stream='',
                    privacy=Project.PRIVATE, sticky=True):
 
