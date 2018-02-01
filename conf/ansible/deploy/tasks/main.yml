@@ -3,7 +3,7 @@
 - name: Update biostar-engine
   git:
     repo: 'git@github.com:biostars/biostar-engine.git'
-    dest: "{{ django_engine_dir }}"
+    dest: "{{ engine_dir }}"
     update: yes
   notify:
     - restart nginx
@@ -13,7 +13,7 @@
 - name: Update biostar-recipes
   git:
     repo: 'git@github.com:biostars/biostar-recipes.git'
-    dest: "{{ django_recipe_dir }}"
+    dest: "{{ recipe_dir }}"
     update: yes
   notify: data update
 
@@ -21,7 +21,7 @@
   copy:
     remote_src: true
     src: /export/sites/biostar-engine/conf/ansible/migrate.sh
-    dest: /export/sites/biostar-engine/migrate.sh
+    dest: "{{ engine_dir }}/migrate.sh"
     mode: u+rwx,g+rx,o+rx
 
 

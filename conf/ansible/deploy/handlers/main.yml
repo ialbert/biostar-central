@@ -1,13 +1,13 @@
 - name: data update
   shell: make data
   args:
-    chdir: "{{ django_engine_dir }}"
+    chdir: "{{ engine_dir }}"
 
 - name: migrate database
   shell: "source {{conda_activate}} {{conda_env}} && python manage.py migrate --settings {{django_settings_module}}"
   args:
     executable: /bin/bash
-    chdir: "{{ django_engine_dir }}"
+    chdir: "{{ engine_dir }}"
 
 - name: reload supervisor
   become: yes
