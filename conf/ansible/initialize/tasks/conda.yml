@@ -31,5 +31,8 @@
   when: miniconda_installed | success
   with_items: "{{miniconda_environments}}"
 
+--file conf/conda_requirements.txt
+
 - name: Initialize the environment
-  shell:
+  shell: "{{ miniconda_home }}/bin/conda create --yes -q -n {{ item.name }} python={{ item.python_version }} creates={{ miniconda_home }}/envs/{{ item.name }}"
+

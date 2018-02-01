@@ -1,8 +1,9 @@
+- include_tasks: install.yml
 
 - name: Update biostar-engine
   git:
     repo: 'git@github.com:biostars/biostar-engine.git'
-    dest: /export/sites/biostar-engine
+    dest: "{{ django_engine_dir }}"
     update: yes
   notify:
     - restart nginx
@@ -22,4 +23,5 @@
     src: /export/sites/biostar-engine/conf/ansible/migrate.sh
     dest: /export/sites/biostar-engine/migrate.sh
     mode: u+rwx,g+rx,o+rx
+
 
