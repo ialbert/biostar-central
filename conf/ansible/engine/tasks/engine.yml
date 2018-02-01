@@ -6,6 +6,13 @@
     update: yes
   notify: pip install
 
+- name: Get the biostar-recipes
+  git:
+    repo: 'git@github.com:biostars/biostar-recipes.git'
+    dest: /export/sites/biostar-recipes
+    update: yes
+  notify: recipe install
+
 - name: Make the spooler directory
   file:
     path: /export/sites/main_web/export/spooler

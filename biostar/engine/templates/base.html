@@ -63,11 +63,13 @@
 
     {% block footer %}
         <div class="ui vertical center aligned segment">
-
-                <span class="muted">Powered by the
-                    <a href="#" class="ui image">
-                    <img src="{% static 'images/badge.svg' %}"></a>
-                </span>
+                <p class="muted">
+                    <a href="https://github.com/biostars/biostar-engine" class="ui image">
+                    <img src="{% static 'images/badge-engine.svg' %}"></a>
+                    and
+                    <a href="https://github.com/biostars/biostar-engine" class="ui image">
+                    <img src="{% static 'images/badge-recipe.svg' %}"></a>
+                </p>
             <p class="muted smaller">Release date: {{ VERSION }}</p>
         </div>
     {% endblock %}

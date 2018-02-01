@@ -23,7 +23,7 @@
 - name: Install required packages
   vars:
      packages: [ 'nginx', 'postgresql', 'software-properties-common', 'python-certbot-nginx',
-      'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential',
+      'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'libboost-iostreams-dev',
       'ncurses-dev', 'supervisor' ]
   apt: name={{ item }} state=latest
   with_items: "{{ packages }}"
