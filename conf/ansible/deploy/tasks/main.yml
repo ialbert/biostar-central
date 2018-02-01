@@ -5,8 +5,9 @@
     dest: /export/sites/biostar-engine
     update: yes
   notify:
-    - reload supervisor
     - migrate database
+    - reload supervisor
+    - restart nginx
 
 - name: Update biostar-recipes
   git:
