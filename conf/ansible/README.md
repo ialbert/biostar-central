@@ -4,7 +4,7 @@ Prepare the computer:
 
     ansible-playbook -i hosts server_setup.yml
 
-Install the biostar-engine software:
+Install the software:
 
     ansible-playbook -i hosts server_initialize.yml
 

@@ -21,6 +21,6 @@
 
 - name: Copy migration script
   copy:
-    src: /export/sites/biostar-engine/conf/migrate.sh
+    src: /export/sites/biostar-engine/conf/ansible/migrate.sh
     dest: /export/sites/biostar-engine/migrate.sh
     mode: u-rwx,g+wx,o+rwx
