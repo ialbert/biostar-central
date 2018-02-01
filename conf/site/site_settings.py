@@ -18,7 +18,7 @@ SITE_HEADER = '<i class="barcode icon"></i>Bioinformatics Recipes'
 SECRET_KEY = "foo"
 
 try:
-    from .main_secrets import *
-    print("Imported settings from '.main_secrets")
+    from .site_secrets import *
+    print("Imported settings from '.site_secrets")
 except ImportError as exc:
-    print("No main_secrets module could be imported")
+    print("No site_secrets module could be imported")

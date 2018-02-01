@@ -21,13 +21,13 @@
     name: supervisor
     state: restarted
 
-- name: pip install
-  shell: source {{ miniconda_home }}/envs/main_env/bin/activate main_env && pip install -r /export/sites/main_web/conf/python_requirements.txt
+- name: engine install
+  shell: source {{ miniconda_home }}/envs/engine/bin/activate engine && pip install -r /export/sites/biostar-engine/conf/python_requirements.txt
   args:
     executable: /bin/bash
 
 - name: recipe install
-  shell: source {{ miniconda_home }}/envs/main_env/bin/activate main_env && python setup.py develop
+  shell: source {{ miniconda_home }}/envs/engine/bin/activate engine && python setup.py develop
 
   args:
     executable: /bin/bash

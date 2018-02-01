@@ -1,17 +1,12 @@
----
+
 - name: restart nginx
   service:
     name: nginx
     state: restarted
 
-- name: reload nginx
-  service:
-    name: nginx
-    state: reloaded
-
 - name: restart postgresql
   service:
-    name: nginx
+    name: postgresql
     state: restarted
 
 

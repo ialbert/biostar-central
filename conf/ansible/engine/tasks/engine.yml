@@ -2,9 +2,9 @@
 - name: Get the biostar-engine software
   git:
     repo: 'git@github.com:biostars/biostar-engine.git'
-    dest: /export/sites/main_web
+    dest: /export/sites/biostar-engine
     update: yes
-  notify: pip install
+  notify: engine install
 
 - name: Get the biostar-recipes
   git:
@@ -19,12 +19,4 @@
     state: directory
     mode: 0755
 
-- name: Link configuration files
-  file:
-    src: '/export/sites/main_web/conf/main/{{ item.src }}'
-    dest: '{{ item.dest }}'
-    state: link
-  with_items:
-    - { src: 'main_nginx.conf', dest: '/etc/nginx/sites-enabled/main_nginx.conf' }
-    - { src: 'main_supervisor.conf', dest: '/etc/supervisor/conf.d/main_supervisor.conf' }
 

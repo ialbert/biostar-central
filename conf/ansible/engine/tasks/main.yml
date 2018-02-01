@@ -1,6 +1,6 @@
 
-#- include_tasks: bash.yml
-#- include_tasks: miniconda.yml
+- include_tasks: bash.yml
+- include_tasks: miniconda.yml
 - include_tasks: engine.yml
 
 

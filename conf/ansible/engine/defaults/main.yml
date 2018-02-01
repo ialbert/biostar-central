@@ -4,9 +4,9 @@ miniconda_url: >
 miniconda_home: '~/miniconda3'
 
 miniconda_environments:
-  - { name: test, python_version: 3 }
-  - { name: py2, python_version: 2 }
-  - { name: main_env, python_version: 3}
+  - { name: engine, python_version: 3}
+  - { name: test, python_version: 3}
+  - { name: py2, python_version: 2}
 
 miniconda_modify_path: yes
 
