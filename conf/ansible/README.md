@@ -25,7 +25,7 @@ You should test your configuration at:
 
 ## Deployment
 
-    ansible-playbook -i hosts server_deploy.yml
+    ansible-playbook -i hosts server_deploy.yml --ask-become-pass
 
 
 
