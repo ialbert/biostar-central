@@ -1,25 +1,3 @@
-- name: restart nginx
-  become: yes
-  service: name=nginx state=restarted
-
-- name: restart postgresql
-  become: yes
-  service:
-    name: nginx
-    state: restarted
-
-- name: restart supervisor
-  become: yes
-  service:
-    name: supervisor
-    state: restarted
-
-- name: reload supervisor
-  become: yes
-  service:
-    name: supervisor
-    state: reloaded
-
 - name: data update
   shell: make data
   args:
@@ -30,5 +8,29 @@
   args:
     executable: /bin/bash
     chdir: "{{ django_engine_dir }}"
+
+- name: reload supervisor
+  become: yes
+  service:
+    name: supervisor
+    state: reloaded
+
+- name: restart supervisor
+  become: yes
+  service:
+    name: supervisor
+    state: restarted
+
+- name: restart nginx
+  become: yes
+  service: name=nginx state=restarted
+
+- name: restart postgresql
+  become: yes
+  service:
+    name: nginx
+    state: restarted
+
+
 
 
