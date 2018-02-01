@@ -1,7 +1,6 @@
 ---
 - hosts: production
-  user: root
+  user: www
 
   roles:
-    - computer
-
+    - initialize

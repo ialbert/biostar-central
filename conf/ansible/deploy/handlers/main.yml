@@ -1,0 +1,28 @@
+- name: restart nginx
+  service: name=nginx state=restarted
+
+- name: restart postgresql
+  service:
+    name: nginx
+    state: restarted
+
+- name: restart supervisor
+  service:
+    name: supervisor
+    state: restarted
+
+- name: reload supervisor
+  service:
+    name: supervisor
+    state: reloaded
+
+- name: data update
+  shell: make data
+  args:
+    chdir: /export/sites/biostar-engine
+
+- name: migrate database
+  shell: migrate.sh
+  args:
+    chdir: /export/sites/biostar-engine
+
