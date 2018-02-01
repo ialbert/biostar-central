@@ -1,17 +1,21 @@
 - name: restart nginx
+  become: yes
   service: name=nginx state=restarted
 
 - name: restart postgresql
+  become: yes
   service:
     name: nginx
     state: restarted
 
 - name: restart supervisor
+  become: yes
   service:
     name: supervisor
     state: restarted
 
 - name: reload supervisor
+  become: yes
   service:
     name: supervisor
     state: reloaded
