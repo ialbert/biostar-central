@@ -5,12 +5,13 @@ DATA_FILE=recipes-initial-data.tar.gz
 DATA_DIR=/export/sites/main_data/initial
 DATA_HOST=data.bioinformatics.recipes
 
+serve: init
+	python manage.py runserver
+
+
 init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate -v 0
-
-serve: init
-	python manage.py runserver
 
 uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
