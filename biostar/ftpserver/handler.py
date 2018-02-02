@@ -25,7 +25,6 @@ def project_list(user):
     # Maintain same order as views (doesn't really show)
     projects = auth.get_project_list(user=user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
-
     return [p.name for p in projects]
 
 
@@ -83,10 +82,10 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"path={path}")
 
         if self.user:
-            return project_list(user=self.user["user"])
+            return auth.get_project_list(user=self.user["user"])
 
         # Return list of public projects when Anonymous user logs in
-        return project_list(user=AnonymousUser)
+        return auth.get_project_list(user=AnonymousUser)
 
     def chdir(self, path):
         """
@@ -132,6 +131,7 @@ class BiostarFTPHandler(FTPHandler):
         logger.info(f"user={username}, username={self.username}, auth={self.authenticated}")
 
         # Tell the filesystem what user is logged in
+        #TODO Pass the django user instead of username here
         self.fs = self.abstracted_fs(root="/", cmd_channel=self, current_user=username)
 
     def on_logout(self, username):
@@ -140,12 +140,12 @@ class BiostarFTPHandler(FTPHandler):
 
     def on_file_sent(self, file):
         # do something when a file has been sent
-        #TODO: take basedir as a project and anything in it is a datafile?
-
+        # Nothing too special here.
         pass
 
     def on_file_received(self, file):
         # do something when a file has been received
+        # TODO: add the files to the project dir the user is in ( create project in directory too )
         pass
 
     def on_incomplete_file_sent(self, file):
@@ -158,8 +158,13 @@ class BiostarFTPHandler(FTPHandler):
 
 
 class BiostarAuthorizer(DummyAuthorizer):
+
+    # TODO: take ut the username and password params, only django users can actually be logged in
+    #
     def add_user(self, username, password, user=AnonymousUser, perm='elr',
                  msg_login="Login successful.", msg_quit="Goodbye."):
+
+        #pwd =
 
         data = {'pwd': str(password),
                 'user': user,
@@ -169,6 +174,7 @@ class BiostarAuthorizer(DummyAuthorizer):
                 'msg_quit': str(msg_quit)
                 }
         self.user_table[username] = data
+
 
     def get_home_dir(self, username):
         """
