@@ -18,9 +18,10 @@
   notify:
     - data update
 
-- name: Create migration script
+- name: Check migration script
   copy:
     remote_src: true
+    force: no
     src: /export/sites/biostar-engine/conf/ansible/migrate.sh
     dest: "{{ engine_dir }}/migrate.sh"
     mode: u+rwx,g+rx,o+rx
