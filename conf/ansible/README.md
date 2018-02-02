@@ -1,13 +1,19 @@
-Setup the computer running the biostar engine:
+# Initial setup
 
-    ansible-playbook setup_computer.yml
+Prepare the computer:
 
-Install and link the biostar-engine software:
+    ansible-playbook -i hosts server_setup.yml
 
-    ansible-playbook -i hosts setup_engine.yml
+Install the software:
 
+    ansible-playbook -i hosts server_initialize.yml
 
-Deploy certificates
+Link the nginx and supervisor configurations:
+
+    ln -sf /export/sites/biostar-engine/conf/site/site_nginx.conf /etc/nginx/sites-enabled/
+    ln -sf /export/sites/biostar-engine/conf/site/site_supervisor.conf /etc/supervisor/conf.d/ 
+        
+Initialize the certificates
 
     sudo certbot --nginx
 
@@ -16,3 +22,10 @@ You should test your configuration at:
 * https://www.ssllabs.com/ssltest/analyze.html?d=bioinformatics.recipes
 * https://www.ssllabs.com/ssltest/analyze.html?d=data.bioinformatics.recipes
 * https://www.ssllabs.com/ssltest/analyze.html?d=www.bioinformatics.recipes
+
+## Deployment
+
+    ansible-playbook -i hosts server_deploy.yml --ask-become-pass
+
+
+

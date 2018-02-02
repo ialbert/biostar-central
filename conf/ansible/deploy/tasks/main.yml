@@ -1,0 +1,29 @@
+# - include_tasks: install.yml
+
+- name: Update biostar-engine
+  git:
+    repo: 'git@github.com:biostars/biostar-engine.git'
+    dest: "{{ engine_dir }}"
+    update: yes
+  notify:
+    - restart nginx
+    - reload supervisor
+    - run migration
+
+- name: Update biostar-recipes
+  git:
+    repo: 'git@github.com:biostars/biostar-recipes.git'
+    dest: "{{ recipe_dir }}"
+    update: yes
+  notify:
+    - data update
+
+- name: Check migration script
+  copy:
+    remote_src: true
+    force: no
+    src: /export/sites/biostar-engine/conf/ansible/migrate.sh
+    dest: "{{ engine_dir }}/migrate.sh"
+    mode: u+rwx,g+rx,o+rx
+
+

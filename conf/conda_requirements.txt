@@ -11,3 +11,4 @@ pysam
 seqtk
 bedtools
 subread
+kallisto

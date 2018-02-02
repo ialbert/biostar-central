@@ -23,8 +23,8 @@
 - name: Install required packages
   vars:
      packages: [ 'nginx', 'postgresql', 'software-properties-common', 'python-certbot-nginx',
-      'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'libboost-iostreams-dev',
-      'ncurses-dev', 'supervisor' ]
+      'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential',
+      'libboost-iostreams-dev', 'bamtools', 'libbamtools-dev', 'ncurses-dev', 'supervisor' ]
   apt: name={{ item }} state=latest
   with_items: "{{ packages }}"
 
@@ -38,17 +38,21 @@
 - name: Enable firewall
   ufw: state=enabled policy=deny
 
-- name: Create file directories
+- name: Create supporting directories
   file:
-    path: "/export/sites/{{item}}"
+    path: "{{item}}"
     state: directory
     owner: www
     group: www
     mode: 0755
   with_items:
-    - main_web
-    - main_data
-    - main_data/initial
+    - "{{ src_dir }}"
+    - "{{ bin_dir }}"
+    - "{{ ref_dir }}"
+    - "{{ engine_dir }}"
+    - "{{ recipe_dir }}"
+    - "{{ data_dir }}"
+    - "{{ data_dir }}/initial"
 
 - name: Allow write access to configuration directories
   file:

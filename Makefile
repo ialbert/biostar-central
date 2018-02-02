@@ -8,9 +8,16 @@ DATA_HOST=data.bioinformatics.recipes
 serve: init
 	python manage.py runserver
 
+
+init:
+	@python manage.py collectstatic --noinput -v 0
+	@python manage.py migrate -v 0
+
+uwsgi: init
+	uwsgi  --ini conf/devel/devel_uwsgi.ini
+
 install:
 	pip install -r conf/python_requirements.txt
-	python setup.py develop
 
 conda:
 	conda config --add channels r
@@ -21,26 +28,6 @@ conda:
 
 verbose:
 	export DJANGO_LOG_LEVEL=DEBUG
-
-uwsgi:init
-	uwsgi  --ini conf/devel/devel_uwsgi.ini
-
-spool: delete init develop uwsgi
-
-clean:
-	(cd export/local && make clean)
-
-data_pack:
-	(cd export/local && make  data_pack)
-
-data_push:
-	(cd export/local && make  data_push)
-
-data_pull:
-	(cd export/local && make  data_pull)
-
-testdata:
-	(cd export/local && make  all)
 
 delete:
 	# Ensure the files that could hold secrets exist.
@@ -56,6 +43,8 @@ delete:
 	rm -rf *.egg-info
 
 
+reset: delete init tutorial cookbook users
+
 postgres:
 	#dropdb --if-exists testbuddy_engine
 	#createdb testbuddy_engine
@@ -65,7 +54,6 @@ postgres:
 
 #reset: delete init tutorial cookbook fish giraffe mothur users
 
-reset: delete init tutorial cookbook users
 
 next:
 	python manage.py job --next
@@ -77,9 +65,6 @@ users:
 	@# Create initial access of users.
 	@python manage.py add_access initial/initial-access.csv
 
-init:
-	@python manage.py collectstatic --noinput -v 0
-	@python manage.py migrate -v 0
 
 # Initializes the tutorial projects.
 tutorial:

@@ -1,0 +1,27 @@
+
+- name: Get the biostar-engine software
+  git:
+    repo: 'git@github.com:biostars/biostar-engine.git'
+    dest: /export/sites/biostar-engine
+    update: yes
+  notify: engine install
+
+- name: Get the biostar-recipes
+  git:
+    repo: 'git@github.com:biostars/biostar-recipes.git'
+    dest: /export/sites/biostar-recipes
+    update: yes
+  notify: recipe install
+
+- name: Make the spooler directory
+  file:
+    path: /export/sites/biostar-engine/export/spooler
+    state: directory
+    mode: 0755
+
+- name: Ensure local settings exists
+  copy:
+    content: ""
+    dest: /export/sites/biostar-engine/conf/site/site_secrets.py
+    force: no
+    mode: 0644

@@ -1,0 +1,7 @@
+---
+- hosts: production
+  user: www
+
+  roles:
+    - deploy
+
