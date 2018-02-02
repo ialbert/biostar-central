@@ -3,8 +3,8 @@
   args:
     chdir: "{{ engine_dir }}"
 
-- name: migrate database
-  shell: "source {{conda_activate}} {{conda_env}} && python manage.py migrate --settings {{django_settings_module}}"
+- name: run migration
+  script: "migrate.sh"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"

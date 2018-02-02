@@ -1,4 +1,4 @@
-- include_tasks: install.yml
+# - include_tasks: install.yml
 
 - name: Update biostar-engine
   git:
@@ -8,14 +8,15 @@
   notify:
     - restart nginx
     - reload supervisor
-    - migrate database
+    - run migration
 
 - name: Update biostar-recipes
   git:
     repo: 'git@github.com:biostars/biostar-recipes.git'
     dest: "{{ recipe_dir }}"
     update: yes
-  notify: data update
+  notify:
+    - data update
 
 - name: Create migration script
   copy:

@@ -2,8 +2,10 @@
 
 # This is an example database migrations script.
 
-source activate engine
+# Activate the correct enviroment.
+source /home/www/miniconda3/envs/engine/bin/activate engine
 
+# Set the configuration module.
 DJANGO_SETTINGS_MODULE=conf.site.site_settings
 
 #python manage.py flush
