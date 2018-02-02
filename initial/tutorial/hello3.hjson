@@ -1,96 +1,72 @@
 {
-  readlen:
-  {
+
+  readlen: {
     label: Read Length
     display: INTEGER
     value: 250
-    range:
-    [
-      70
-      100000
-    ]
+    range: [ 70, 100000 ]
   }
-  validate:
-  {
+
+  validate: {
     label: Cross Validate
     display: CHECKBOX
     value: true
   }
-  cutoff:
-  {
+
+  cutoff: {
     label: P-Value Cutoff
     display: FLOAT
     value: 0.05
-    range:
-    [
-      0
-      1
-    ]
+    range: [ 0, 1]
   }
-  protocol:
-  {
+
+  protocol: {
     label: Sequencing Protocol
     display: RADIO
-    choices:
-    [
-      [
-        single
-        Single End
-      ]
-      [
-        paired
-        Paired End
-      ]
+    choices: [
+      [ "single", "Single End" ]
+      [ "paired", "Paired End" ]
     ]
     value: single
   }
-  instrument:
-  {
+
+  instrument: {
     label: Select Instrument
     display: DROPDOWN
-    choices:
-    [
-      [
-        hiseq
-        Illumina HiSeq
-      ]
-      [
-        pacbio
-        Pacific BioSciences Sequel
-      ]
-      [
-        minion
-        Oxford Nanopore Minion
-      ]
+    choices: [
+        [ "hiseq", "Illumina Hiseq" ]
+        [ "pacbio", "Pacific BioSciences Sequel" ]
+        [ "minion", "Oxford Nanopor Minion" ]
     ]
     value: pacbio
   }
-  reference:
-  {
+
+  reference: {
     label: Reference Genome
     display: DROPDOWN
     type: FASTA
     source: PROJECT
     value: Genome.fa
   }
-  accession:
-  {
+
+  accession:  {
     label: SRR Accesion Numbers
     display: DROPDOWN
     source: PROJECT
     type: SRR
     value: SRR numbers.txt
   }
-  settings:
-  {
+
+  settings: {
     name: Interface Element Examples
     summary: This recipe demonstrates the use of different parameter types.
     index: results.txt
     help:
-      '''
-      # Help
+    '''
+    # Help
 
-      This recipe is a demonstration of all parameter types that the system recognizes.
-      '''
+    This recipe is a demonstration of all parameter types that the system recognizes.
+    '''
   }
+
 }
