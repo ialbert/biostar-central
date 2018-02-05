@@ -31,8 +31,6 @@ verbose:
 
 delete:
 	# Ensure the files that could hold secrets exist.
-	touch conf/main/main_secrets.py
-	touch conf/test/test_secrets.py
 	# Remove the database and old media.
 	rm -rf export/logs/*.log
 	rm -rf export/spooler/*spool*
