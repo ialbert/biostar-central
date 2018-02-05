@@ -63,17 +63,6 @@ class BiostarFileSystem(AbstractedFS):
     def isdir(self, path):
         logger.info(f"path={path}")
         return True
-
-    def fs2ftp(self, fspath):
-        """Translate a "real" filesystem pathname into equivalent
-        absolute "virtual" ftp pathname depending on the user's
-        root directory."""
-        return fspath
-
-
-    def ftp2fs(self, ftppath):
-        logger.info(f"ftppath={ftppath}")
-
         #self._cwd = ftppath
         # TODO: the ftppath is going to be
 
@@ -152,6 +141,7 @@ class BiostarFTPHandler(FTPHandler):
         # do something when a file is partially sent
         pass
 
+
     def on_incomplete_file_received(self, file):
         # remove partially uploaded files
         pass
@@ -164,8 +154,6 @@ class BiostarAuthorizer(DummyAuthorizer):
     def add_user(self, username, password, user=AnonymousUser, perm='elr',
                  msg_login="Login successful.", msg_quit="Goodbye."):
 
-        #pwd =
-
         data = {'pwd': str(password),
                 'user': user,
                 'perm': perm,
@@ -173,6 +161,7 @@ class BiostarAuthorizer(DummyAuthorizer):
                 'msg_login': str(msg_login),
                 'msg_quit': str(msg_quit)
                 }
+
         self.user_table[username] = data
 
 

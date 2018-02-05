@@ -36,7 +36,6 @@ class object_access:
         @wraps(function, assigned=available_attrs(function))
         def _wrapped_view(request, *args, **kwargs):
 
-
             # Each wrapped view must take an alphanumeric uid as parameter.
             uid = kwargs.get('uid')
 
