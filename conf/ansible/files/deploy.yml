@@ -1,0 +1,39 @@
+- name: Get the biostar-engine software
+  git:
+    repo: 'git@github.com:biostars/biostar-engine.git'
+    dest: "{{ engine_dir }}"
+    update: yes
+  notify:
+    - pip install
+    - run migration
+
+- name: Get the biostar-recipes
+  git:
+    repo: 'git@github.com:biostars/biostar-recipes.git'
+    dest: "{{ recipe_dir }}"
+    update: yes
+  notify:
+    - recipe install
+    - conda install
+    - update data
+
+- name: Make the spooler directory
+  file:
+    path: "{{ engine_dir }}/export/spooler"
+    state: directory
+    mode: 0755
+
+- name: Ensure local settings exists
+  copy:
+    content: ""
+    dest: "{{ engine_dir }}/conf/site/site_secrets.py"
+    force: no
+    mode: 0644
+
+- name: Migration script
+  copy:
+    remote_src: true
+    force: no
+    src: /export/sites/biostar-engine/conf/ansible/migrate.sh
+    dest: "{{ engine_dir }}/migrate.sh"
+    mode: u+rwx,g+rx,o+rx

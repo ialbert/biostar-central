@@ -16,7 +16,7 @@
     executable: /bin/bash
     chdir: "{{ recipe_dir }}"
 
-- name: data update
+- name: update data
   shell: make data
   args:
     chdir: "{{ engine_dir }}"

@@ -1,0 +1,7 @@
+---
+- hosts: production
+  user: www
+
+  roles:
+    - include_vars: files/vars.yml
+    - include_tasks: files/install.yml

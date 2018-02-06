@@ -1,14 +1,1 @@
 uwsgi
-fastqc
-multiqc
-bbmap
-centrifuge
-blast
-bwa
-samtools
-bioawk
-pysam
-seqtk
-bedtools
-subread
-kallisto

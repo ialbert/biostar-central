@@ -1,6 +1,0 @@
----
-- hosts: production
-  user: www
-
-  roles:
-    - initialize
