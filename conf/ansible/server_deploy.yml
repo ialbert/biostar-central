@@ -2,6 +2,9 @@
 - hosts: production
   user: www
 
+  handlers:
+    - include_tasks: files/handlers.yml
+
   tasks:
     - include_vars: files/vars.yml
     - include_tasks: files/deploy.yml

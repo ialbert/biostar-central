@@ -1,9 +1,0 @@
-- name: Python setup
-  shell: "source {{ conda_activate }} {{conda_env}} && pip install -r {{ engine_dir }}/conf/python_requirements.txt"
-  args:
-    executable: /bin/bash
-
-- name: Conda setup
-  shell: "source {{ conda_activate }} {{conda_env}} && conda install --file {{ engine_dir }}/conf/conda_requirements.txt"
-  args:
-    executable: /bin/bash
