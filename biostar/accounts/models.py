@@ -29,4 +29,3 @@ def create_profile(sender, instance, created, **kwargs):
         # Create a profile for user
         Profile.objects.create(user=instance, name=instance.first_name)
 
-

@@ -1,30 +1,26 @@
-import os
-
-
 from pyftpdlib.servers import FTPServer
+from pyftpdlib.log import config_logging
 from biostar.ftpserver.handler import BiostarFTPHandler, BiostarAuthorizer, BiostarFileSystem
 from biostar.accounts import models
+from biostar import  settings
 import logging
 
+
+config_logging(level=logging.DEBUG)
+
+logger = logging.getLogger("engine")
+logger.setLevel(logging.INFO)
 
 
 def start():
     # Engine authorization comes from the accounts.
     authorizer = BiostarAuthorizer()
 
-    # This is a test user. Will be removed.
-    for user in models.User.objects.all():
-
-        # TODO:user.password is salted hash string so can't add users from biostar.accounts this way
-        #authorizer.add_user(user.email, user.password, user=user, perm='elradfmwMT')
-        print (user, user.email)
-
     user = models.User.objects.filter(email="1@lvh.me").first()
 
-    # TODO: saves password as plain-text---no bueno
-    authorizer.add_user("1@lvh.me","1@lvh.me" , user=user, perm='elradfmwMT')
+    authorizer.add_user("1@lvh.me",settings.DEFAULT_ADMIN_PASSWORD , user=user, perm='elradfmwMT')
 
-    # When parameter user is not specified; we user AnonymousUser
+    # When parameter user is not specified; we use AnonymousUser
     authorizer.add_user('user', '12345', perm='elradfmwMT')
     authorizer.add_user('user2', '12345', perm='elradfmwMT')
 

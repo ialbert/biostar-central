@@ -58,7 +58,7 @@ All commands run through `make`. To initialize and run the test site use:
 
     make reset serve
     
-Now visit <http://localhost:8080> to see your site running.
+Now visit <http://localhost:8000> to see your site running.
 
 The default admin email/password combination is: `1@lvh.me/testbuddy`. 
 You may change these in the settings.

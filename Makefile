@@ -94,7 +94,7 @@ data:
 	(cd export && tar zxvf ${DATA_FILE})
 
 ftp:
-	python biostar/ftpserver/server.py
+	python manage.py ftp
 
 push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
