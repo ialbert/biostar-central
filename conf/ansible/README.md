@@ -28,4 +28,7 @@ You should test your configuration at:
     ansible-playbook -i hosts server_deploy.yml --ask-become-pass
 
 
+To install dependencies as well useL
+
+    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "install_recipes=True"
 

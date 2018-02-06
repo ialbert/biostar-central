@@ -5,6 +5,8 @@
     update: yes
   notify:
     - run migration
+    - reload supervisor
+    - restart nginx
 
 - name: Get the biostar-recipes
   git:
@@ -20,7 +22,7 @@
     - conda install
     - update data
     - run migration
-  when: install_dependencies
+  when: install_recipes
 
 - name: Make the spooler directory
   file:
