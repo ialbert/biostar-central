@@ -22,8 +22,6 @@
     executable: /bin/bash
     chdir: "{{ recipe_dir }}"
 
-
-
 - name: update data
   shell: make data
   args:
