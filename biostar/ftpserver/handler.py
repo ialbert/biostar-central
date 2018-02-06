@@ -1,3 +1,4 @@
+
 import logging
 
 from pyftpdlib.authorizers import DummyAuthorizer
@@ -52,7 +53,8 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"current_user={current_user}")
         # Get current user info
         self.user_table = self.cmd_channel.authorizer.user_table
-        self.user = self.user_table.get(current_user)
+        self.user = self.user_table.get(current_user) or dict(user=AnonymousUser)
+        self.project_list = auth.get_project_list(user=self.user["user"])
 
         super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
@@ -62,19 +64,16 @@ class BiostarFileSystem(AbstractedFS):
 
     def isdir(self, path):
         logger.info(f"path={path}")
+
+        #return True if path in self.project_list else False
         return True
-        #self._cwd = ftppath
-        # TODO: the ftppath is going to be
 
     def listdir(self, path):
         # This is the root as initialized in the base class
         logger.info(f"path={path}")
 
-        if self.user:
-            return auth.get_project_list(user=self.user["user"])
-
         # Return list of public projects when Anonymous user logs in
-        return auth.get_project_list(user=AnonymousUser)
+        return self.project_list
 
     def chdir(self, path):
         """
@@ -94,8 +93,7 @@ class BiostarFileSystem(AbstractedFS):
 
         lines = []
         for project in listing:
-            #TODO: does it matter if the unique thing is the same for every project
-            #TODO: permissons should line up with the access user has to the project
+
             lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; {project}")
 
         line = "\n".join(lines)
@@ -149,8 +147,7 @@ class BiostarFTPHandler(FTPHandler):
 
 class BiostarAuthorizer(DummyAuthorizer):
 
-    # TODO: take ut the username and password params, only django users can actually be logged in
-    #
+
     def add_user(self, username, password, user=AnonymousUser, perm='elr',
                  msg_login="Login successful.", msg_quit="Goodbye."):
 
