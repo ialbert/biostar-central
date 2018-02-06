@@ -4,6 +4,7 @@
     dest: "{{ engine_dir }}"
     update: yes
   notify:
+    - pip install
     - run migration
     - reload supervisor
     - restart nginx
