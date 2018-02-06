@@ -4,7 +4,6 @@
     dest: "{{ engine_dir }}"
     update: yes
   notify:
-    - pip install
     - run migration
 
 - name: Get the biostar-recipes
