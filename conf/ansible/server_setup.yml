@@ -2,7 +2,8 @@
 - hosts: production
   user: root
 
-  roles:
-    - setup
+  tasks:
+    - include_vars: files/vars.yml
+    - include_tasks: files/setup.yml
 
 
