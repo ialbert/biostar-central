@@ -1,0 +1,51 @@
+- name: pip install
+  shell: "source {{ conda_activate }} {{conda_env}} && pip install -r /export/sites/biostar-engine/conf/python_requirements.txt"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+
+- name: conda install
+  shell: "source {{ conda_activate }} {{conda_env}}  && conda install --file /export/sites/biostar-engine/conf/conda_requirements.txt"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+
+- name: recipe install
+  shell: "source {{ conda_activate }} {{conda_env}} && python setup.py develop"
+  args:
+    executable: /bin/bash
+    chdir: "{{ recipe_dir }}"
+
+- name: data update
+  shell: make data
+  args:
+    chdir: "{{ engine_dir }}"
+
+- name: run migration
+  script: "migrate.sh"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+
+- name: reload supervisor
+  become: yes
+  service:
+    name: supervisor
+    state: reloaded
+
+- name: restart supervisor
+  become: yes
+  service:
+    name: supervisor
+    state: restarted
+
+- name: restart nginx
+  become: yes
+  service: name=nginx state=restarted
+
+- name: restart postgresql
+  become: yes
+  service:
+    name: nginx
+    state: restarted
+
