@@ -37,6 +37,6 @@ To restart servers alons:
 
 To install dependencies:
 
-    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "install=True"
+    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "install=True restart=True"
 
 
