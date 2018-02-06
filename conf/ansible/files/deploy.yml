@@ -23,17 +23,17 @@
     state: directory
     mode: 0755
 
-- name: Ensure local settings exists
+- name: Initialize local secrets
   copy:
     content: ""
     dest: "{{ engine_dir }}/conf/site/site_secrets.py"
     force: no
     mode: 0644
 
-- name: Migration script
+- name: Initialize migration script
   copy:
     remote_src: true
     force: no
-    src: /export/sites/biostar-engine/conf/ansible/migrate.sh
+    src: "{{ engine_dir }}/conf/ansible/migrate.sh"
     dest: "{{ engine_dir }}/migrate.sh"
     mode: u+rwx,g+rx,o+rx

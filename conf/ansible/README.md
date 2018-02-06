@@ -6,7 +6,7 @@ Prepare the computer:
 
 Install the software:
 
-    ansible-playbook -i hosts server_initialize.yml
+    ansible-playbook -i hosts server_install.yml
 
 Link the nginx and supervisor configurations:
 
