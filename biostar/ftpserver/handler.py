@@ -46,7 +46,7 @@ class BiostarFileSystem(AbstractedFS):
 
 
         #self._cwd = root
-        self._cwd = "/"
+        self._cwd = root
         self._root = root
         self.cmd_channel = cmd_channel
 
