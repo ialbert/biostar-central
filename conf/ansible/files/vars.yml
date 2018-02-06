@@ -1,4 +1,7 @@
 
+engine_git: git@github.com:biostars/biostar-engine.git
+recipe_git: git@github.com:biostars/biostar-recipes.git
+
 engine_dir: "/export/sites/biostar-engine"
 recipe_dir: "/export/sites/biostar-recipes"
 data_dir: "/export/sites/biostar-data"
@@ -10,7 +13,8 @@ ref_dir: "/export/refs"
 django_settings_module: "conf.site.site_settings"
 
 # Installs recipe dependencies.
-install_recipes: False
+install: False
+restart: False
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_env: "engine"

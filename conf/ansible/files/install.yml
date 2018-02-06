@@ -49,4 +49,14 @@
   when: conda_installed | success
   with_items: "{{conda_environments}}"
 
+- name: Get the biostar-engine software
+  git:
+    repo: "{{ engine_git }}"
+    dest: "{{ engine_dir }}"
+    update: yes
 
+- name: Get the biostar-recipes
+  git:
+    repo: "{{ recipe_git }}"
+    dest: "{{ recipe_dir }}"
+    update: yes

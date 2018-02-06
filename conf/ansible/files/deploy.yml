@@ -1,6 +1,6 @@
 - name: Get the biostar-engine software
   git:
-    repo: 'git@github.com:biostars/biostar-engine.git'
+    repo: "{{ engine_git }}"
     dest: "{{ engine_dir }}"
     update: yes
   notify:
@@ -10,7 +10,7 @@
 
 - name: Get the biostar-recipes
   git:
-    repo: 'git@github.com:biostars/biostar-recipes.git'
+    repo: "{{ recipe_git }}"
     dest: "{{ recipe_dir }}"
     update: yes
 
@@ -22,7 +22,14 @@
     - conda install
     - update data
     - run migration
-  when: install_recipes
+  when: install
+
+- name: Restart servers
+  shell: ls
+  notify:
+    - reload supervisor
+    - restart nginx
+  when: restart
 
 - name: Make the spooler directory
   file:

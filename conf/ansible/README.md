@@ -25,10 +25,18 @@ You should test your configuration at:
 
 ## Deployment
 
+The following will pull the new content and restart the servers:
+
     ansible-playbook -i hosts server_deploy.yml --ask-become-pass
 
 
-To install dependencies as well useL
+To restart servers alons:
 
-    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "install_recipes=True"
+    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "restart=True"
+
+
+To install dependencies:
+
+    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "install=True"
+
 
