@@ -20,7 +20,7 @@ def start():
 
     authorizer.add_user("1@lvh.me",settings.DEFAULT_ADMIN_PASSWORD , user=user, perm='elradfmwMT')
 
-    # When parameter user is not specified; we user AnonymousUser
+    # When parameter user is not specified; we use AnonymousUser
     authorizer.add_user('user', '12345', perm='elradfmwMT')
     authorizer.add_user('user2', '12345', perm='elradfmwMT')
 

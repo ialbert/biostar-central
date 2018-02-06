@@ -20,7 +20,6 @@ def perm_map():
     return
 
 
-
 def project_list(user):
 
     # Maintain same order as views (doesn't really show)
@@ -98,8 +97,6 @@ class BiostarFileSystem(AbstractedFS):
 
         line = "\n".join(lines)
 
-        #print (line)
-
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
 
 
@@ -118,7 +115,7 @@ class BiostarFTPHandler(FTPHandler):
         logger.info(f"user={username}, username={self.username}, auth={self.authenticated}")
 
         # Tell the filesystem what user is logged in
-        #TODO Pass the django user instead of username here
+        # root is the actual directory
         self.fs = self.abstracted_fs(root="/", cmd_channel=self, current_user=username)
 
     def on_logout(self, username):
@@ -132,13 +129,11 @@ class BiostarFTPHandler(FTPHandler):
 
     def on_file_received(self, file):
         # do something when a file has been received
-        # TODO: add the files to the project dir the user is in ( create project in directory too )
         pass
 
     def on_incomplete_file_sent(self, file):
         # do something when a file is partially sent
         pass
-
 
     def on_incomplete_file_received(self, file):
         # remove partially uploaded files
@@ -162,9 +157,16 @@ class BiostarAuthorizer(DummyAuthorizer):
         self.user_table[username] = data
 
 
+    def validate_authentication(self, username, password, handler):
+        "Validate user with biostar.accounts"
+        
+
+
+
     def get_home_dir(self, username):
         """
         Return the user's home directory.
         Needs to be here because the base class relies on it.
         """
+        # Get the project list for the users here and set it as the home_dir
         return '/tmp/this/should/not/be/used/'
