@@ -4,7 +4,6 @@
     dest: "{{ engine_dir }}"
     update: yes
   notify:
-    - pip install
     - run migration
 
 - name: Get the biostar-recipes
@@ -12,10 +11,16 @@
     repo: 'git@github.com:biostars/biostar-recipes.git'
     dest: "{{ recipe_dir }}"
     update: yes
+
+- name: Install dependencies
+  shell: ls
   notify:
+    - pip install
     - recipe install
     - conda install
     - update data
+    - run migration
+  when: install_dependencies
 
 - name: Make the spooler directory
   file:

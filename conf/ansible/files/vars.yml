@@ -9,6 +9,7 @@ ref_dir: "/export/refs"
 
 django_settings_module: "conf.site.site_settings"
 
+install_dependencies: False
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_env: "engine"
