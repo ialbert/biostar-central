@@ -27,6 +27,11 @@
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
 
+- name: update projects
+  shell: make projects
+  args:
+    chdir: "{{ engine_dir }}"
+
 - name: reload supervisor
   become: yes
   service:

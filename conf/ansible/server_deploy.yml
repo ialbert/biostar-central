@@ -2,6 +2,6 @@
 - hosts: production
   user: www
 
-  roles:
-    - deploy
-
+  tasks:
+    - include_vars: files/vars.yml
+    - include_tasks: files/deploy.yml
