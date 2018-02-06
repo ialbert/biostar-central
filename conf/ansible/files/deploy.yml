@@ -4,7 +4,8 @@
     dest: "{{ engine_dir }}"
     update: yes
   notify:
-    - pip install
+    - engine python install
+    - engine conda install
     - run migration
     - reload supervisor
     - restart nginx
@@ -18,9 +19,8 @@
 - name: Install dependencies
   shell: ls
   notify:
-    - pip install
-    - recipe install
-    - conda install
+    - recipe python install
+    - recipe conda install
     - update data
     - run migration
   when: install

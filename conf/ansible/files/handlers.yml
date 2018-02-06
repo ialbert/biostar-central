@@ -1,20 +1,28 @@
-- name: pip install
+- name: engine python install
   shell: "source {{ conda_activate }} {{conda_env}} && pip install -r conf/python_requirements.txt"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
 
-- name: conda install
+- name: recipe python install
+  shell: "source {{ conda_activate }} {{conda_env}} && python setup.py develop"
+  args:
+    executable: /bin/bash
+    chdir: "{{ recipe_dir }}"
+
+- name: engine conda install
+  shell: "source {{ conda_activate }} {{conda_env}}  && conda install --file conf/conda_requirements.txt"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+
+- name: recipe conda install
   shell: "source {{ conda_activate }} {{conda_env}}  && conda install --file conf/conda_requirements.txt"
   args:
     executable: /bin/bash
     chdir: "{{ recipe_dir }}"
 
-- name: recipe install
-  shell: "source {{ conda_activate }} {{conda_env}} && python setup.py develop"
-  args:
-    executable: /bin/bash
-    chdir: "{{ recipe_dir }}"
+
 
 - name: update data
   shell: make data
