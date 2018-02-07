@@ -111,16 +111,23 @@ def has_files(request):
 
 @register.inclusion_tag('widgets/search.html')
 def search(content=None):
+
     content = """ [{
-            title: 'Andorra'
+            title: 'Andorra',
+            description:'test',
+            url:"project/list/"
         }, {
-            title: 'United Arab Emirates'
+            title: 'United Arab Emirates',
+            description:"test"
         }, {
-            title: 'Afghanistan'
+            title: 'Afghanistan',
+            description:"test"
         }, {
-            title: 'Antigua'
+            title: 'Antigua',
+            description:"test"
         },]
          """
+
     return dict(content=content)
 
 

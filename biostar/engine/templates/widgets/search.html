@@ -1,22 +1,23 @@
 {% load staticfiles %}
 
- <div class="ui search menuwidth transparent icon input">
-         <input class="prompt" placeholder="Search..." type="text">
-         <i class="search icon"></i>
+ <div class="ui search icon input">
+             <input class="prompt" placeholder="Search..." type="text">
+             <i class="search icon"></i>
 </div>
 <div class="results"></div>
 
 <script type="text/javascript">
 
     $(document).ready(function () {
-        var content = {{ content|safe }};
+        var content = {{ content |safe }}
 
         $('.ui.search')
             .search({
                 type: 'standard',
                 source: content,
+                searchFullText: false,
                 searchFields: ['title'],
-            });
+             });
 
     });
 </script>

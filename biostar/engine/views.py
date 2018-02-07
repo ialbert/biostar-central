@@ -5,11 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 import mistune
-from django.conf import settings
+
 from django.contrib.auth.decorators import user_passes_test
-from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.urls import reverse
 
 from . import tasks
@@ -41,14 +40,15 @@ logger = logging.getLogger('engine')
 def make_html(text):
     return mistune.markdown(text)
 
-def get_results(request):
-    "View used by  search bar in menu to query database"
-    if request.is_ajax():
-        q = request.GET.get('term', '')
-    else:
-        data = 'fail'
-    mimetype = 'application/json'
-    return HttpResponse(data, mimetype)
+
+def search(request):
+    "End point used by search bar in menu to query database"
+
+    results = dict()
+    q = request.GET
+    print(q)
+
+    return JsonResponse(results)
 
 
 def docs(request, name):
@@ -151,13 +151,7 @@ def project_list(request):
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
 
-    # Search query
-    q = request.GET.get("q", "")
-    owner_conds =  Q(owner__first_name__contains=q) | Q(owner__email__contains=q)
-    if q:
-        projects=projects.filter(Q(name__contains=q) | owner_conds)
-
-    context = dict(projects=projects, q=q)
+    context = dict(projects=projects)
     return render(request, "project_list.html", context)
 
 
