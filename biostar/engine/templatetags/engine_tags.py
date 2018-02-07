@@ -110,14 +110,18 @@ def has_files(request):
 
 
 @register.inclusion_tag('widgets/search.html')
-def search(action_url, instance=None, q='', msg='Undo'):
-
-    if instance:
-        url = reverse(action_url, kwargs=dict(uid=instance.uid))
-    else:
-        url = reverse(action_url)
-
-    return dict(url=url, q=q, msg=msg)
+def search(content=None):
+    content = """ [{
+            title: 'Andorra'
+        }, {
+            title: 'United Arab Emirates'
+        }, {
+            title: 'Afghanistan'
+        }, {
+            title: 'Antigua'
+        },]
+         """
+    return dict(content=content)
 
 
 @register.inclusion_tag('widgets/paste.html')

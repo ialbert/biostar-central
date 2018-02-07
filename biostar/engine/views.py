@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.urls import reverse
 
 from . import tasks
@@ -39,6 +40,15 @@ logger = logging.getLogger('engine')
 
 def make_html(text):
     return mistune.markdown(text)
+
+def get_results(request):
+    "View used by  search bar in menu to query database"
+    if request.is_ajax():
+        q = request.GET.get('term', '')
+    else:
+        data = 'fail'
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
 
 
 def docs(request, name):

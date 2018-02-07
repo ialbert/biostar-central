@@ -159,7 +159,7 @@ class BiostarAuthorizer(DummyAuthorizer):
 
     def validate_authentication(self, username, password, handler):
         "Validate user with biostar.accounts"
-        
+
 
 
 

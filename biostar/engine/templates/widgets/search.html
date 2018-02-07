@@ -1,22 +1,22 @@
+{% load staticfiles %}
 
-<div class="ui search">
-<form method="get" action="{{ url }}">
-    <div class="ui fluid input">
-
-        <input type="text" name="q" value="{{q}}" placeholder="Search">
-
-        <button class="ui large basic icon button" type="submit" formmethod="get">
-            <i class="small search icon"></i>
-        </button>
-    </div>
-
-</form>
-
+ <div class="ui search menuwidth transparent icon input">
+         <input class="prompt" placeholder="Search..." type="text">
+         <i class="search icon"></i>
 </div>
+<div class="results"></div>
 
-{% if q%}
-    <div class="ui success message">
-     Filtering for :  <b>{{q}}</b>
-        &bull; <a href="{{url}}"><i class="undo icon"></i>{{msg}}</a>
-    </div>
-{% endif %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var content = {{ content|safe }};
+
+        $('.ui.search')
+            .search({
+                type: 'standard',
+                source: content,
+                searchFields: ['title'],
+            });
+
+    });
+</script>
