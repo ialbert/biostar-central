@@ -1,4 +1,7 @@
 [production]
+psu.bioinformatics.recipes
+
+[production2]
 www.bioinformatics.recipes
 
 [test]

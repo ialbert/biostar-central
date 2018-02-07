@@ -6,7 +6,7 @@ Prepare the computer:
 
 Install the software:
 
-    ansible-playbook -i hosts server_initialize.yml
+    ansible-playbook -i hosts server_install.yml
 
 Link the nginx and supervisor configurations:
 
@@ -25,7 +25,18 @@ You should test your configuration at:
 
 ## Deployment
 
+The following will pull the new content and restart the servers:
+
     ansible-playbook -i hosts server_deploy.yml --ask-become-pass
 
+
+To restart servers alons:
+
+    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "restart=True"
+
+
+To install dependencies:
+
+    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "install=True restart=True"
 
 

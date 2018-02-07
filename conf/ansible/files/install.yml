@@ -1,3 +1,21 @@
+
+- name: Set up bash profile
+  get_url:
+    url: http://data.biostarhandbook.com/install/bash_profile.txt
+    dest: ~/.bash_profile
+    mode: 0440
+
+- name: Get bashrc from remote
+  get_url:
+    url: http://data.biostarhandbook.com/install/bashrc.txt
+    dest: ~/.handbookrc
+    mode: 0440
+
+- name: Apply the biostar bash customizations
+  lineinfile:
+    dest: ~/.bashrc
+    line: source ~/.handbookrc
+
 - name: Check if conda has already been installed
   stat: path={{ conda_home }}/bin/conda
   register: bin_conda
@@ -31,4 +49,14 @@
   when: conda_installed | success
   with_items: "{{conda_environments}}"
 
+- name: Get the biostar-engine software
+  git:
+    repo: "{{ engine_git }}"
+    dest: "{{ engine_dir }}"
+    update: yes
 
+- name: Get the biostar-recipes
+  git:
+    repo: "{{ recipe_git }}"
+    dest: "{{ recipe_dir }}"
+    update: yes

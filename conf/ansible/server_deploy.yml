@@ -2,6 +2,13 @@
 - hosts: production
   user: www
 
-  roles:
-    - deploy
+
+  handlers:
+    - import_tasks: files/handlers.yml
+      static: yes
+
+  tasks:
+    - include_vars: files/vars.yml
+    - include_tasks: files/deploy.yml
+
 

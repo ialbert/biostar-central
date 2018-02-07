@@ -1,4 +1,3 @@
-
 - name: Update apt-cache
   apt:
     upgrade=yes
@@ -14,6 +13,10 @@
   group:
     name: bioinfo
 
+- name: Create the www group
+  group:
+    name: www
+
 - name: Create the www user
   user:
     name: www
@@ -24,7 +27,7 @@
   vars:
      packages: [ 'nginx', 'postgresql', 'software-properties-common', 'python-certbot-nginx',
       'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential',
-      'libboost-iostreams-dev', 'bamtools', 'libbamtools-dev', 'ncurses-dev', 'supervisor' ]
+      'libboost-iostreams-dev', 'bamtools', 'libbamtools-dev', 'ncurses-dev', 'supervisor', 'python-psycopg2' ]
   apt: name={{ item }} state=latest
   with_items: "{{ packages }}"
 
@@ -63,4 +66,12 @@
   with_items:
     - /etc/nginx/sites-enabled
     - /etc/supervisor/conf.d
+
+- name: Create postgresql database user
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    name: biostar_engine_user
+    password: md5437a687918743dac1889ef033bcb5bbd
+    role_attr_flags: CREATEDB,CREATEROLE
 
