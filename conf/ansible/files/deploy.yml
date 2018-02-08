@@ -20,7 +20,9 @@
   notify:
     - recipe python install
     - update data
+    - stop supervisor
     - run migration
+    - start supervisor
   when: install
 
 - name: Restart servers
@@ -31,15 +33,17 @@
   when: restart
 
 - name: Reset data
-  shell: "source {{ conda_activate }} {{conda_env}}  && make reset"
+  shell: "ls"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
   notify:
-    - reload supervisor
+    - stop supervisor
+    - reset system
+    - run migration
+    - start supervisor
     - restart nginx
   when: reset
-
 
 - name: Make the spooler directory
   file:
@@ -58,6 +62,9 @@
   copy:
     remote_src: true
     force: no
-    src: "{{ engine_dir }}/conf/ansible/migrate.sh"
-    dest: "{{ engine_dir }}/migrate.sh"
+    src: "{{ engine_dir }}/conf/ansible/{{item}}"
+    dest: "{{ engine_dir }}/{{ item }}"
     mode: u+rwx,g+rx,o+rx
+  with_items:
+    - server_migrate.sh
+    - setver_reset.sh

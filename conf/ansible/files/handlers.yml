@@ -50,6 +50,18 @@
     name: supervisor
     state: restarted
 
+- name: stop supervisor
+  become: yes
+  service:
+    name: supervisor
+    state: stopped
+
+- name: start supervisor
+  become: yes
+  service:
+    name: supervisor
+    state: started
+
 - name: restart nginx
   become: yes
   service: name=nginx state=restarted
