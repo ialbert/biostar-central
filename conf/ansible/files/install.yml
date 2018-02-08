@@ -73,3 +73,14 @@
     repo: "{{ recipe_git }}"
     dest: "{{ recipe_dir }}"
     update: yes
+
+- name: Initialize scripts
+  copy:
+    remote_src: true
+    force: no
+    src: "{{ engine_dir }}/conf/scripts/{{item}}"
+    dest: "{{ engine_dir }}/{{ item }}"
+    mode: u+rwx,g+rx,o+rx
+  with_items:
+    - server_migrate.sh
+    - server_reset.sh

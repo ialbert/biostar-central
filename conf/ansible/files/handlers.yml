@@ -22,14 +22,20 @@
     executable: /bin/bash
     chdir: "{{ recipe_dir }}"
 
+- name: stop supervisor
+  become: yes
+  service:
+    name: supervisor
+    state: stopped
+
 - name: server reset
-  script: "server_reset.sh"
+  shell: "./server_reset.sh"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
 
 - name: server migrate
-  script: "server_migrate.sh"
+  shell: "./server_migrate.sh"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
@@ -55,12 +61,6 @@
   service:
     name: supervisor
     state: restarted
-
-- name: stop supervisor
-  become: yes
-  service:
-    name: supervisor
-    state: stopped
 
 - name: start supervisor
   become: yes

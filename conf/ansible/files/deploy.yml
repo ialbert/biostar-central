@@ -1,4 +1,4 @@
-- name: Get the biostar-engine software
+- name: Update the biostar-engine
   git:
     repo: "{{ engine_git }}"
     dest: "{{ engine_dir }}"
@@ -9,7 +9,7 @@
     - reload supervisor
     - restart nginx
 
-- name: Get the biostar-recipes
+- name: Update the biostar-recipes
   git:
     repo: "{{ recipe_git }}"
     dest: "{{ recipe_dir }}"
@@ -30,7 +30,7 @@
     - restart nginx
   when: restart
 
-- name: Reset all
+- name: Reset engine
   shell: "ls"
   args:
     executable: /bin/bash
@@ -43,13 +43,3 @@
     - restart nginx
   when: reset
 
-- name: Initialize migration script
-  copy:
-    remote_src: true
-    force: no
-    src: "{{ engine_dir }}/conf/scripts/{{item}}"
-    dest: "{{ engine_dir }}/{{ item }}"
-    mode: u+rwx,g+rx,o+rx
-  with_items:
-    - server_migrate.sh
-    - server_reset.sh
