@@ -5,7 +5,6 @@
     update: yes
   notify:
     - engine python install
-    - reset
     - run migration
     - reload supervisor
     - restart nginx
@@ -30,6 +29,17 @@
     - reload supervisor
     - restart nginx
   when: restart
+
+- name: Reset data
+  shell: "source {{ conda_activate }} {{conda_env}}  && make reset"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+  notify:
+    - reload supervisor
+    - restart nginx
+  when: reset
+
 
 - name: Make the spooler directory
   file:

@@ -27,11 +27,6 @@
   args:
     chdir: "{{ engine_dir }}"
 
-- name: reset
-  shell: make reset
-  args:
-    chdir: "{{ engine_dir }}"
-
 - name: run migration
   script: "migrate.sh"
   args:
