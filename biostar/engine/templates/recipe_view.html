@@ -6,12 +6,6 @@
     {{ analysis.name }}
 {% endblock %}
 
-
-{% block menu %}
-    {% menubar edit_analysis=True analysis=analysis %}
-{% endblock %}
-
-
 {% block js %}
     <script src="{% static 'lib/codemirror.js' %}"></script>
     <script src="{% static 'lib/mode/simple.js' %}"></script>
@@ -58,14 +52,9 @@
                     <i class="list icon"></i>View Code
                 </a>
 
-
-
-
                 <a class="ui mini button" href="{% url 'recipe_copy' analysis.uid %}">
                     <i class="clone icon"></i>Copy Recipe
                 </a>
-
-
 
                 <a class="ui mini button" href="{% url 'recipe_edit' analysis.uid %}">
                     <i class="write icon"></i>Edit Description

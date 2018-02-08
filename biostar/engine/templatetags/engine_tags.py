@@ -1,15 +1,15 @@
 from textwrap import dedent
-import hjson, logging
+import json
+import logging
 from django import template
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.template import loader
-from django.forms import widgets
-from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 
 from biostar import settings
-from biostar.engine.models import Access, Job, make_html, Project, Data, Analysis
+from biostar.engine.models import Job, make_html,  Data, Analysis
+from biostar.engine import auth
 
 
 logger = logging.getLogger("engine")
@@ -108,27 +108,36 @@ def has_files(request):
     # Files might still be empty at this point
     return True if files else False
 
+def update_dict(iter):
+
+    results=[dict(
+                title=d.name,
+                description=d.summary,
+                url=d.url()) for d in iter
+            ]
+    return results
+
 
 @register.inclusion_tag('widgets/search.html')
-def search(content=None):
+def search(request):
+    #TODO: will probably be refractored after correctly using ajax
+    #TODO: this is loaded in every page so there are a lot of queries even without a search,
 
-    content = """ [{
-            title: 'Andorra',
-            description:'test',
-            url:"project/list/"
-        }, {
-            title: 'United Arab Emirates',
-            description:"test"
-        }, {
-            title: 'Afghanistan',
-            description:"test"
-        }, {
-            title: 'Antigua',
-            description:"test"
-        },]
-         """
+    projects = auth.get_project_list(user=request.user)
 
-    return dict(content=content)
+    content = [dict(name="Projects",results =update_dict(iter=projects)),
+               dict(name="Data", results=[]),
+               dict(name="Recipes", results=[]),
+               dict(name="Jobs", results=[]),
+               ]
+
+    for project in projects:
+        # Index matters when updating categories
+        content[1]["results"].extend(update_dict(iter=project.data_set.all()))
+        content[2]["results"].extend(update_dict(iter=project.analysis_set.all()))
+        content[3]["results"].extend(update_dict(iter=project.job_set.all()))
+
+    return dict(content=json.dumps(content))
 
 
 @register.inclusion_tag('widgets/paste.html')
@@ -308,7 +317,7 @@ def markdown(text):
 @register.inclusion_tag('widgets/menubar.html', takes_context=True)
 def menubar(context, project=None, edit_project=False, create_project=False,
             data=None, edit_data=False, upload_data=False,
-            analysis=None, edit_analysis=False
+            analysis=None, edit_analysis=False, request=None
             ):
     user = context.request.user
 
@@ -316,5 +325,5 @@ def menubar(context, project=None, edit_project=False, create_project=False,
         user=user,
         project=project, edit_project=edit_project, create_project=create_project,
         data=data, edit_data=edit_data, upload_data=upload_data,
-        analysis=analysis, edit_analysis=edit_analysis,
+        analysis=analysis, edit_analysis=edit_analysis, request=request
     )

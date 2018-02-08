@@ -1,23 +1,47 @@
 {% load staticfiles %}
 
- <div class="ui search icon input">
-             <input class="prompt" placeholder="Search..." type="text">
-             <i class="search icon"></i>
-</div>
-<div class="results"></div>
-
 <script type="text/javascript">
 
-    $(document).ready(function () {
-        var content = {{ content |safe }}
+var content = {{ content | safe }};
 
-        $('.ui.search')
-            .search({
-                type: 'standard',
-                source: content,
-                searchFullText: false,
-                searchFields: ['title'],
-             });
+// Some taken from https://embed.plnkr.co/plunk/aITHOT
+// Used so semantics ui category search can work on the local object "content"
+// TODO:It will be rewritten/gone when using ajax
 
+$(document).ready(function(){
+
+  $('#searchInput').search({
+    apiSettings: {
+        'response': function (e) {
+            var searchTerm = e.urlData.query;
+
+            var result = content.map(function (cat) {
+
+                var objects = cat.results.filter(function (item) {
+                  return item.title.toLowerCase().includes(searchTerm.toLowerCase());
+                });
+
+                if(objects !== null)
+                {
+                    var category = {'name' : cat.name};
+                    category.results = objects;
+                    return category;
+                }
+            });
+
+            return {'results' : result };
+        }
+    },
+
+    type: 'category',
     });
+});
 </script>
+
+
+  <div id="searchInput" class="ui category transparent search icon input">
+    <input class="prompt" type="text" placeholder="Search...">
+    <i class="search icon"></i>
+  </div>
+  <div class="results"></div>
+

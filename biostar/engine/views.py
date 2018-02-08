@@ -47,7 +47,7 @@ def search(request):
     results = dict()
     q = request.GET
     print(q)
-
+    1/0
     return JsonResponse(results)
 
 
