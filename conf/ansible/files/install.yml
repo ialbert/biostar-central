@@ -55,6 +55,19 @@
     dest: "{{ engine_dir }}"
     update: yes
 
+- name: Make the spooler directory
+  file:
+    path: "{{ engine_dir }}/export/spooler"
+    state: directory
+    mode: 0755
+
+- name: Initialize local secrets
+  copy:
+    content: ""
+    dest: "{{ engine_dir }}/conf/site/site_secrets.py"
+    force: no
+    mode: 0644
+
 - name: Get the biostar-recipes
   git:
     repo: "{{ recipe_git }}"
