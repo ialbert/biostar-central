@@ -5,7 +5,7 @@
     update: yes
   notify:
     - engine python install
-    - run migration
+    - server migrate
     - reload supervisor
     - restart nginx
 
@@ -52,4 +52,4 @@
     mode: u+rwx,g+rx,o+rx
   with_items:
     - server_migrate.sh
-    - setver_reset.sh
+    - server_reset.sh
