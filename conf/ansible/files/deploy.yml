@@ -32,15 +32,15 @@
     - restart nginx
   when: restart
 
-- name: Reset data
+- name: Reset all
   shell: "ls"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
   notify:
     - stop supervisor
-    - reset system
-    - run migration
+    - server reset
+    - server migrate
     - start supervisor
     - restart nginx
   when: reset

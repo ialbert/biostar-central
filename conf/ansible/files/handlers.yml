@@ -22,15 +22,21 @@
     executable: /bin/bash
     chdir: "{{ recipe_dir }}"
 
+- name: server reset
+  script: "server_reset.sh"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+
+- name: server migrate
+  script: "server_migrate.sh"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+
 - name: update data
   shell: make data
   args:
-    chdir: "{{ engine_dir }}"
-
-- name: run migration
-  script: "migrate.sh"
-  args:
-    executable: /bin/bash
     chdir: "{{ engine_dir }}"
 
 - name: update projects

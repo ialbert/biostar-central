@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Add commands that reset the data and files.
+# Default database reset script.
 
 # Activate the correct enviroment.
 source /home/www/miniconda3/envs/engine/bin/activate engine
