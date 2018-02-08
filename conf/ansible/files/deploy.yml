@@ -5,7 +5,7 @@
     update: yes
   notify:
     - engine python install
-    - engine conda install
+    - reset
     - run migration
     - reload supervisor
     - restart nginx
@@ -20,7 +20,6 @@
   shell: ls
   notify:
     - recipe python install
-    - recipe conda install
     - update data
     - run migration
   when: install

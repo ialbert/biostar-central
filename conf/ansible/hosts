@@ -1,5 +1,9 @@
-[production]
+[all]
 psu.bioinformatics.recipes
+www.bioinformatics.recipes
+
+[production]
+www.bioinformatics.recipes
 
 [production2]
 www.bioinformatics.recipes
