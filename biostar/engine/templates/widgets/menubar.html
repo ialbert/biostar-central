@@ -1,29 +1,33 @@
+{% load engine_tags %}
+
 <div class="ui top attached large menu">
     <a class="item" href="{% url 'index' %}">
-        <i class="home icon"></i>Home
+        <i class="home icon"></i>
     </a>
     <a class="item" href="{% url 'project_list' %}">
         <i class="database icon"></i>Project List
     </a>
 
+    <div class="right menu">
+        {% search request=request %}
+    </div>
 
     {% if user.is_authenticated %}
-        <a class="item" href="{% url 'profile' %}">
-            <i class="user icon"></i> {{ user.first_name }}
-        </a>
-
         <div class="right menu">
+
+
+        <a class="item" href="{% url 'profile' %}">
+            <i class="user icon"></i>
+        </a>
             {% if user.is_superuser %}
                 <a class="item" href="{% url 'site_admin' %}">
-                    <i class="dashboard icon"></i>Admin
+                    <i class="dashboard icon"></i>
                 </a>
             {% endif %}
             <a class="item" href="{% url 'logout' %}"><i class="sign in icon"></i>Logout</a>
         </div>
 
     {% else %}
-
-
 
         <div class="right menu">
             <a class="item" href="{% url 'login' %}"><i class="sign in icon"></i>Login</a>

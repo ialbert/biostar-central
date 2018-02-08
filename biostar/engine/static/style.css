@@ -55,6 +55,11 @@ body {
     width: 95% !important;
 }
 
+.menuwidth {
+    width: 1000px;
+}
+
+
 .code {
     font-family: monospace;
 }

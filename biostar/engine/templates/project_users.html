@@ -24,8 +24,27 @@
     <div class="ui segment inputcolor">
 
         <div class="ui tiny header">Search for users to manage</div>
+        <div class="ui search">
+        <form method="get" action="{% url 'project_users' project.uid %} ">
+            <div class="ui fluid input">
 
-        {% search instance=project action_url="project_users" q=q %}
+                <input type="text" name="q" value="{{q}}" placeholder="Search">
+
+                <button class="ui large basic icon button" type="submit" formmethod="get">
+                    <i class="small search icon"></i>
+                </button>
+            </div>
+
+        </form>
+
+        </div>
+
+    {% if q%}
+        <div class="ui success message">
+         Filtering for :  <b>{{q}}</b>
+            &bull; <a href="{% url 'project_users' project.uid %}"><i class="undo icon"></i>Clear</a>
+        </div>
+    {% endif %}
 
         <div class="ui vertical segment">
             <div class="ui relaxed divided list">

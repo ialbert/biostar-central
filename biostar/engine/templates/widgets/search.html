@@ -1,22 +1,47 @@
+{% load staticfiles %}
 
-<div class="ui search">
-<form method="get" action="{{ url }}">
-    <div class="ui fluid input">
+<script type="text/javascript">
 
-        <input type="text" name="q" value="{{q}}" placeholder="Search">
+var content = {{ content | safe }};
 
-        <button class="ui large basic icon button" type="submit" formmethod="get">
-            <i class="small search icon"></i>
-        </button>
-    </div>
+// Some taken from https://embed.plnkr.co/plunk/aITHOT
+// Used so semantics ui category search can work on the local object "content"
+// TODO:It will be rewritten/gone when using ajax
 
-</form>
+$(document).ready(function(){
 
-</div>
+  $('#searchInput').search({
+    apiSettings: {
+        'response': function (e) {
+            var searchTerm = e.urlData.query;
 
-{% if q%}
-    <div class="ui success message">
-     Filtering for :  <b>{{q}}</b>
-        &bull; <a href="{{url}}"><i class="undo icon"></i>{{msg}}</a>
-    </div>
-{% endif %}
+            var result = content.map(function (cat) {
+
+                var objects = cat.results.filter(function (item) {
+                  return item.title.toLowerCase().includes(searchTerm.toLowerCase());
+                });
+
+                if(objects !== null)
+                {
+                    var category = {'name' : cat.name};
+                    category.results = objects;
+                    return category;
+                }
+            });
+
+            return {'results' : result };
+        }
+    },
+
+    type: 'category',
+    });
+});
+</script>
+
+
+  <div id="searchInput" class="ui category transparent search icon input">
+    <input class="prompt" type="text" placeholder="Search...">
+    <i class="search icon"></i>
+  </div>
+  <div class="results"></div>
+
