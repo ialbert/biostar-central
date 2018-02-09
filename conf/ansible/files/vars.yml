@@ -15,6 +15,7 @@ django_settings_module: "conf.site.site_settings"
 # Installs recipe dependencies.
 install: False
 restart: False
+reset: False
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_env: "engine"

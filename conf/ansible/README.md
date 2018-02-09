@@ -30,7 +30,7 @@ The following will pull the new content and restart the servers:
     ansible-playbook -i hosts server_deploy.yml --ask-become-pass
 
 
-To restart servers alons:
+To restart servers alone:
 
     ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "restart=True"
 

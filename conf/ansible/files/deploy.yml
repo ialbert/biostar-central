@@ -1,16 +1,15 @@
-- name: Get the biostar-engine software
+- name: Update the biostar-engine
   git:
     repo: "{{ engine_git }}"
     dest: "{{ engine_dir }}"
     update: yes
   notify:
     - engine python install
-    - engine conda install
-    - run migration
+    - server migrate
     - reload supervisor
     - restart nginx
 
-- name: Get the biostar-recipes
+- name: Update the biostar-recipes
   git:
     repo: "{{ recipe_git }}"
     dest: "{{ recipe_dir }}"
@@ -20,9 +19,8 @@
   shell: ls
   notify:
     - recipe python install
-    - recipe conda install
     - update data
-    - run migration
+    - server migrate
   when: install
 
 - name: Restart servers
@@ -32,23 +30,16 @@
     - restart nginx
   when: restart
 
-- name: Make the spooler directory
-  file:
-    path: "{{ engine_dir }}/export/spooler"
-    state: directory
-    mode: 0755
+- name: Reset engine
+  shell: "ls"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+  notify:
+    - stop supervisor
+    - server reset
+    - server migrate
+    - start supervisor
+    - restart nginx
+  when: reset
 
-- name: Initialize local secrets
-  copy:
-    content: ""
-    dest: "{{ engine_dir }}/conf/site/site_secrets.py"
-    force: no
-    mode: 0644
-
-- name: Initialize migration script
-  copy:
-    remote_src: true
-    force: no
-    src: "{{ engine_dir }}/conf/ansible/migrate.sh"
-    dest: "{{ engine_dir }}/migrate.sh"
-    mode: u+rwx,g+rx,o+rx

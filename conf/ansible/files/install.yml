@@ -55,8 +55,32 @@
     dest: "{{ engine_dir }}"
     update: yes
 
+- name: Make the spooler directory
+  file:
+    path: "{{ engine_dir }}/export/spooler"
+    state: directory
+    mode: 0755
+
+- name: Initialize local secrets
+  copy:
+    content: ""
+    dest: "{{ engine_dir }}/conf/site/site_secrets.py"
+    force: no
+    mode: 0644
+
 - name: Get the biostar-recipes
   git:
     repo: "{{ recipe_git }}"
     dest: "{{ recipe_dir }}"
     update: yes
+
+- name: Initialize scripts
+  copy:
+    remote_src: true
+    force: no
+    src: "{{ engine_dir }}/conf/scripts/{{item}}"
+    dest: "{{ engine_dir }}/{{ item }}"
+    mode: u+rwx,g+rx,o+rx
+  with_items:
+    - server_migrate.sh
+    - server_reset.sh
