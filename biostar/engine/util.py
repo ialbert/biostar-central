@@ -17,7 +17,15 @@ def join(*args):
 def fix_endings(text):
     return text.replace("\r\n", "\n")
 
+def known_text(fname):
+    mimetype = None
 
+    for ext in (".fasta", ".fq", ".fastq", ".sam", ".bed", ".gff"):
+        pass
+
+    mimetype = 'text/plain'
+
+    return mimetype
 def smart_preview(fname):
     CHUNK_SIZE, LINE_COUNT = 1024, 10
     try:
@@ -38,9 +46,13 @@ def smart_preview(fname):
             lines = [ line.strip() for line in stream]
             text = '\n'.join(lines)
         else:
-            stream = open(fname, 'rb')
-            data = stream.read(CHUNK_SIZE)
-            text = quopri.encodestring(data)
+            try:
+                stream = open(fname, 'rt')
+                text = stream.read(CHUNK_SIZE)
+            except Exception as exc:
+                stream = open(fname, 'rb')
+                data = stream.read(CHUNK_SIZE)
+                text = quopri.encodestring(data)
 
     except Exception as exc:
         text = f'Preview error: {exc}'
