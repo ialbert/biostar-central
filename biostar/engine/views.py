@@ -175,7 +175,7 @@ def recipe_list(request, uid):
     """
     Returns the list of recipes for a project id.
     """
-    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes')
+    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes', more_info=True)
 
 
 def job_list(request, uid):
@@ -224,7 +224,7 @@ def get_counts(project):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
-def project_view(request, uid, template_name="recipe_list.html", active='recipes'):
+def project_view(request, uid, template_name="recipe_list.html", active='recipes', more_info=None):
 
     project = Project.objects.filter(uid=uid).first()
     # Show counts for the project.
@@ -241,8 +241,12 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
         filter = Analysis.objects.filter(uid=filter).first()
         job_list = job_list.filter(analysis=filter)
 
+    # This is not quite right to be here.
+    if more_info:
+        more_info = project.html
+
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
-                   active=active, filter=filter, help_text=project.html)
+                   active=active, filter=filter, more_info=more_info)
     context.update(counts)
 
     return render(request, template_name, context)
