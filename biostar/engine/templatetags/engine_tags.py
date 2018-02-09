@@ -119,7 +119,6 @@ def update_dict(iter):
 
     return results
 
-
 @register.inclusion_tag('widgets/search.html')
 def search(request):
     #TODO: will probably be refractored after correctly using ajax
