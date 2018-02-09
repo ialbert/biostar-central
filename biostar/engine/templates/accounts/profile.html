@@ -7,17 +7,20 @@
 
     <div class="item">
 
-        <div class="ui center aligned header">
-            {{user.first_name}}
-
-        </div>
      <div class="ui center aligned vertical segment">
              <a class="ui button" href="{% url 'edit_profile'%}">
                 <i class="write icon"></i>Edit profile
             </a>
+                <a class="ui button" href="{% url 'trash_can' %}">
+                <i class="trash icon"></i>Recycle Bin
+            </a>
      </div>
 
+ <div class="item">
     Email : {{user.email}}
+ </div>
+
+    Name : {{user.first_name}}
 
         <div class="ui vertical segment">
 
