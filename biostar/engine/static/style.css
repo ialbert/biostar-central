@@ -55,10 +55,6 @@ body {
     width: 95% !important;
 }
 
-.menuwidth {
-    width: 1000px;
-}
-
 
 .code {
     font-family: monospace;
@@ -89,6 +85,8 @@ code {
     border-radius: 3px;
     line-height: 1.7;
 }
+
+
 
 .muted {
     color: #999999;

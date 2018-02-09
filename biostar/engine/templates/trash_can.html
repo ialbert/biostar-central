@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block headtitle %}
+    Recycle Bin
+{% endblock %}
+
+{% block body %}
+
+<div class="ui relaxed divided list">
+    <h4 class="ui mini header">
+      Deleted Jobs
+    </h4>
+    {% for job in jobs %}
+        <div class="item">
+            <i class="large bar chart aligned icon"></i>
+            <div class="content">
+                <a class="header" href="{% url 'job_view' job.uid %}">{{job.name}}</a>
+                <div class="description">{{job.summary|safe}}</div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+
+{% endblock %}

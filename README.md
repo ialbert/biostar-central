@@ -2,7 +2,7 @@
 
 ### Better solutions for an imperfect world.
 
-The Biostar Engine is [Python 3.6][python] and [Django][django]based scientific data analysis oriented application server.
+The Biostar Engine is [Python 3.6][python] and [Django][django] based scientific data analysis oriented application server.
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/

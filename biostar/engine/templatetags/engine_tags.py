@@ -6,9 +6,10 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.template import loader
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.db.models import Q
 
 from biostar import settings
-from biostar.engine.models import Job, make_html,  Data, Analysis
+from biostar.engine.models import Job, make_html, Project, Data, Analysis
 from biostar.engine import auth
 
 
@@ -115,27 +116,26 @@ def update_dict(iter):
                 description=d.summary,
                 url=d.url()) for d in iter
             ]
-    return results
 
+    return results
 
 @register.inclusion_tag('widgets/search.html')
 def search(request):
     #TODO: will probably be refractored after correctly using ajax
-    #TODO: this is loaded in every page so there are a lot of queries even without a search,
+    #TODO: this is loaded in every page so there are a lot of queries going on even without a search,
 
     projects = auth.get_project_list(user=request.user)
 
-    content = [dict(name="Projects",results =update_dict(iter=projects)),
-               dict(name="Data", results=[]),
-               dict(name="Recipes", results=[]),
-               dict(name="Jobs", results=[]),
-               ]
+    data = Data.objects.filter(~Q(state=Data.DELETED),project__in=projects)
+    recipe = Analysis.objects.filter(~Q(state=Analysis.DELETED), project__in=projects)
+    jobs = Job.objects.filter(~Q(state=Job.DELETED), project__in=projects)
+    projects = projects.filter(~Q(state=Project.DELETED))
 
-    for project in projects:
-        # Index matters when updating categories
-        content[1]["results"].extend(update_dict(iter=project.data_set.all()))
-        content[2]["results"].extend(update_dict(iter=project.analysis_set.all()))
-        content[3]["results"].extend(update_dict(iter=project.job_set.all()))
+    content = [dict(name="Projects",results =update_dict(iter=projects)),
+               dict(name="Data", results=update_dict(iter=data)),
+               dict(name="Recipes", results=update_dict(iter=recipe)),
+               dict(name="Jobs", results=update_dict(iter=jobs)),
+               ]
 
     return dict(content=json.dumps(content))
 

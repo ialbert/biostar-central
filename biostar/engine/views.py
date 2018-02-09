@@ -41,16 +41,6 @@ def make_html(text):
     return mistune.markdown(text)
 
 
-def search(request):
-    "End point used by search bar in menu to query database"
-
-    results = dict()
-    q = request.GET
-    print(q)
-    1/0
-    return JsonResponse(results)
-
-
 def docs(request, name):
     patt = join(__DOCS_DIR, name) + ".*"
     files = glob.glob(patt)
@@ -86,6 +76,24 @@ def site_admin(request):
     projects = Project.objects.all()
     context = dict(projects=projects)
     return render(request, 'admin_index.html', context=context)
+
+
+def trash_can(request):
+    ""
+    if request.user.is_anonymous:
+        messages.error(request, "Must be logged in to view trashcan")
+        return redirect("/")
+
+    all_projects = auth.get_project_list(user=request.user)
+
+    del_projects = all_projects.filter(state=Project.DELETED)
+    del_recipes = Analysis.objects.filter(state=Analysis.DELETED, project__in=all_projects)
+    del_data = Data.objects.filter(state=Data.DELETED, project__in=all_projects)
+    del_jobs = Job.objects.filter(state=Job.DELETED, project__in=all_projects).order_by("date")
+
+    context = dict(jobs=del_jobs, projects=del_projects,recipe=del_recipes, data=del_data)
+
+    return render(request, 'trash_can.html', context=context)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
@@ -209,7 +217,7 @@ def files_list(request, instance, template_name, path='', extra_context={}):
 def get_counts(project):
     data_count = Data.objects.filter(project=project).count()
     recipe_count = Analysis.objects.filter(project=project).count()
-    result_count = Job.objects.filter(project=project).count()
+    result_count = Job.objects.filter(~Q(state=Job.DELETED),project=project).count()
     return dict(
         data_count=data_count, recipe_count=recipe_count, result_count=result_count
     )
@@ -225,7 +233,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     # Select all the data in the project.
     data_list = Data.objects.filter(project=project).order_by("sticky", "-date").all()
     recipe_list = Analysis.objects.filter(project=project).order_by("-date").all()
-    job_list = Job.objects.filter(project=project).order_by("-date").all()
+    job_list = Job.objects.filter(~Q(state=Job.DELETED), project=project).order_by("-date").all()
 
     # Filter job results by analysis
     filter = request.GET.get('filter', '')
@@ -660,6 +668,22 @@ def job_edit(request, uid):
 
     context = dict(job=job, project=project, form=form)
     return render(request, 'job_edit.html', context)
+
+
+@object_access(type=Job, access=Access.EDIT_ACCESS)
+def job_delete(request, uid):
+    "Change the job state to Job.DELETED."
+
+    job = Job.objects.filter(uid=uid).first()
+    project = job.project
+    job.state = Job.DELETED
+    url = reverse('trash_can')
+    job.save()
+
+    messages.success(request, mark_safe(f"Moved <b>{job.name}</b> to <a href={url}>Recycle Bin</a>."))
+    return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
+
+#def job_restore
 
 
 @object_access(type=Job, access=Access.READ_ACCESS)

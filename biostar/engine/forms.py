@@ -93,6 +93,7 @@ class RecipeForm(forms.ModelForm):
 
 
 class JobEditForm(forms.ModelForm):
+
     class Meta:
         model = Job
         fields = ['name', "image", 'text', 'sticky']

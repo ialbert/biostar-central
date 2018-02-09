@@ -37,12 +37,19 @@
                 <p class="muted">A detailed explanation of what the result contains (markdown OK).</p>
             </div>
 
-            <button type="submit" class="ui submit green button">
-                <i class="save icon"></i>Save
-            </button>
-            <a class="ui right floated button" href="{% url 'job_view' job.uid %}">
-                <i class="undo icon"></i>Cancel
-            </a>
+             <div class="ui center aligned basic segment">
+                <button type="submit" class="ui submit green left floated button">
+                    <i class="save icon"></i>Save
+                </button>
+
+                <a class="ui red button" href="{% url 'job_delete' job.uid %}">
+                    <i class="trash icon"></i>Delete
+                </a>
+                 <a class="ui right floated button test" href="{% url 'job_view' job.uid %}">
+                    <i class="undo icon"></i>Cancel
+                </a>
+             </div>
+
 
         </form>
     </div>
