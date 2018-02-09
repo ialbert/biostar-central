@@ -29,6 +29,7 @@ projects:
 	python manage.py project --json initial/tutorial/tutorial-project.hjson --privacy public --jobs
 	python manage.py project --root ../biostar-recipes --json projects/cookbook/cookbook-project.hjson --privacy public --jobs
 	python manage.py project --root ../biostar-recipes --json projects/metagenomics/mothur-project.hjson --privacy public
+	python manage.py project --root ../biostar-recipes --json projects/giraffe/giraffe-project.hjson --privacy public
 
 	@# Create initial users
 	python manage.py add_user initial/initial-users.csv
