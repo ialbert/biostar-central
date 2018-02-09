@@ -41,16 +41,6 @@ def make_html(text):
     return mistune.markdown(text)
 
 
-def search(request):
-    "End point used by search bar in menu to query database"
-
-    results = dict()
-    q = request.GET
-    print(q)
-    1/0
-    return JsonResponse(results)
-
-
 def docs(request, name):
     patt = join(__DOCS_DIR, name) + ".*"
     files = glob.glob(patt)
@@ -225,7 +215,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     # Select all the data in the project.
     data_list = Data.objects.filter(project=project).order_by("sticky", "-date").all()
     recipe_list = Analysis.objects.filter(project=project).order_by("-date").all()
-    job_list = Job.objects.filter(project=project).order_by("-date").all()
+    job_list = Job.objects.filter(~Q(state=Job.DELETED), project=project).order_by("-date").all()
 
     # Filter job results by analysis
     filter = request.GET.get('filter', '')
@@ -660,6 +650,17 @@ def job_edit(request, uid):
 
     context = dict(job=job, project=project, form=form)
     return render(request, 'job_edit.html', context)
+
+
+@object_access(type=Job, access=Access.EDIT_ACCESS)
+def job_delete(request, uid):
+    "Change the job state to Job.DELETED."
+
+    job = Job.objects.filter(uid=uid).first()
+    job.state = Job.DELETED
+    job.save()
+
+    return
 
 
 @object_access(type=Job, access=Access.READ_ACCESS)

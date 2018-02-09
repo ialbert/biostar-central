@@ -115,13 +115,14 @@ def update_dict(iter):
                 description=d.summary,
                 url=d.url()) for d in iter
             ]
+
     return results
 
 
 @register.inclusion_tag('widgets/search.html')
 def search(request):
     #TODO: will probably be refractored after correctly using ajax
-    #TODO: this is loaded in every page so there are a lot of queries even without a search,
+    #TODO: this is loaded in every page so there are a lot of queries going on even without a search,
 
     projects = auth.get_project_list(user=request.user)
 
