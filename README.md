@@ -7,19 +7,19 @@
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-The Biostar Engine is a [Python 3.6][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over web while providing a graphical user interface for selecting the parameters of the scripts. The scripts may written in `bash`, may be a `Makefile`, `R` commands, basically any executable command.
+The Biostar Engine is a [Python][python] and [Django][django] based data analysis oriented application server that can execute scripts over web while providing a graphical user interface for selecting the parameters of the scripts. The scripts the the software executes may written in `bash`, may be a `Makefile`, `R` commands, just about any executable command.
 
-We call the scripts *recipes*. The recipes are maintained separately from the Biostar Engine in the [biostar-recipes][recipes] repository.
+We call the scripts that the engine can operate on *recipes*. The recipes are maintained separately in the [biostar-recipes][recipes] repository.
 
 [recipes]: https://github.com/biostars/biostar-recipes
 
-The Biostar Engine has support for data storage and project management and this can be used as simple Laboratory Information Management System (LIMS). A actively maintained deployment of the software can be accessed at:
+The Biostar Engine has support for data storage and project management and this can be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software can be accessed at:
 
 * <https://www.bioinformatics.recipes>
 
 ## Installation
 
-Our installation instructions rely on [conda][conda] though other alternatives are also viable, virtualenv, homebrew. apt-get or even not using any environment management tools.
+Our installation instructions rely on [conda][conda] though other alternatives are also viable. Users may use `virtualenv`, `homebrew`, `apt-get` just as well, or they may opt to not using any environment management tool.
 
 1\. Create a virtual environment
 
