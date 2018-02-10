@@ -196,7 +196,7 @@ class RecipeInterface(forms.Form):
         entry = Access.objects.filter(user=self.user, project=self.project).first()
 
         if not entry or entry.access < Access.EXECUTE_ACCESS:
-            msg2 = "You don't have exectute rights in this project. Copy this analysis to another project."
+            msg2 = "You don't have execute rights in this project. Copy this analysis to another project."
             raise forms.ValidationError(msg2)
 
         if self.analysis.security != Analysis.AUTHORIZED:

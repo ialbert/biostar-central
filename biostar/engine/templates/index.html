@@ -25,27 +25,24 @@
         <p>
             <img class="ui small right floated circular image" src="{% static 'images/dna.jpg' %}">
 
-            Bioinformatics is experiencing a <strong>reproducibility crisis</strong>. It has become challenging to
+            Bioinformatics is experiencing a <em>reproducibility crisis</em>. It has become challenging to
             understand how analyses are performed and even more difficult to replicate the same processes again.
 
         </p>
 
         <p>
             This web application allows scientists to document, execute
-            and share data analysis scripts. We call these analysis scripts
-            <strong>"recipes."</strong> All information is organized into projects where each <b>project</b> is a collection of:
+            and share data analysis scripts. We call these analysis scripts as
+            <em>recipes</em>.
 
-            <ul>
-                <li>Data Files</li>
-                <li>Analysis Recipes</li>
-                <li>Analysis Results</li>
-            </ul>
         </p>
-
         <p>
-            Public projects are visible to everyone.
-            Private projects are accessible only to project members.
+            Users may adapt, modify and remix recipes to match
+            their needs, then share these on the same site. By supporting these interactions, we foster a collaborative
+            environment that facilitates creativity, efficiency and reproducibility.
         </p>
+
+
 
     </div>
 
@@ -63,21 +60,26 @@
 
 
         <p>
-            Our application provides access to scientists that may not be proficient in using command line tools by
-            creating an <b>easy-to-use graphical interface</b> for each recipe.
+            Our software can generate <em>an easy-to-use graphical interface</em> to command line tools
+            and thus provides access to a wide audience. Note that the recipes are <em>generic</em> and <i>independent</i> of this site!
+            A recipe from this site can be directly executed on any system that has the required bioinformatics tools installed.
         </p>
-            <p>Users adapt, modify and remix recipes to match
-            their needs, then share these on the same site. By supporting these interactions, we foster a collaborative
-            environment that facilitates creativity, efficiency and reproducibility.
-        </p>
+
         <p>
             Besides storing, sharing and executing data analysis scripts, our software supports public and private
-            project-based workflows and can provide complete data storage and management solutions as a laboratory
-            information management system.
+            <em>project-based</em> workflows and can provide complete data storage and management solutions as a laboratory
+            information management system. Each project is a collection of:
+
+            <ul>
+                <li><i class="file text icon"></i> Data</li>
+                <li><i class="setting icon"></i> Recipes</li>
+                <li><i class="bar chart icon"></i> Results</li>
+            </ul>
         </p>
+
         <p>
             The application is designed to serve sequencing facilities and has been
-            deployed and tested within the Penn State Bioinformatics Consulting Center.
+            deployed and tested within the <em>Penn State Bioinformatics Consulting Center</em>.
         <p>
             Learn more about the way <a href="{% url 'docs' 'info' %}">the site works.</a>
         </p>

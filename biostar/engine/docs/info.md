@@ -1,3 +1,4 @@
+(Beta release -- docs incomplete)
 
 ## What is a recipe?
 

@@ -18,18 +18,18 @@
 
             <div class="ui top attached tabular menu">
                 <a class="{% activate 'data' active %} item" href="{% url 'data_list' project.uid %}">
-                    <i class="file text icon"></i>{{ data_count }} Data Files
+                    <i class="file text icon"></i>{{ data_count }} Data
                 </a>
                 <a class="{% activate 'recipes' active %} item" href="{% url 'recipe_list' project.uid %}">
-                    <i class="settings icon"></i> {{ recipe_count }} Analysis Recipes
+                    <i class="settings icon"></i> {{ recipe_count }} Recipes
                 </a>
                 <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
-                    <i class="bar chart icon"></i>{{ result_count }} Analysis Results
+                    <i class="bar chart icon"></i>{{ result_count }} Results
                 </a>
 
                 {% if activate == 'selection' %}
                     <a class="active item">
-                        <i class="info circle icon"></i> Selected Item
+                        <i class="info circle icon"></i> Selection
                     </a>
                 {% endif %}
 
@@ -46,10 +46,10 @@
                 </p>
             </div>
 
-         {% if help_text %}
+         {% if more_info %}
             <div class="ui basic segment">
                 <div class="project help">
-                    {{ help_text|safe }}
+                    {{ more_info|safe }}
                 </div>
             </div>
         {% endif %}
