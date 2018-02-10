@@ -429,7 +429,6 @@ def data_upload(request, uid):
 def data_files_list(request, uid, path=''):
     data = Data.objects.filter(uid=uid).first()
     project = data.project
-
     back_uid = None if path else project.uid
     context = dict(activate='selection', data=data, project=project, project_uid=back_uid)
 
@@ -680,7 +679,6 @@ def job_delete(request, uid):
 
     messages.success(request, mark_safe(f"Moved <b>{job.name}</b> to <a href={url}>Recycle Bin</a>."))
     return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
-
 
 @object_access(type=Job, access=Access.EDIT_ACCESS, owner_only=True)
 def job_restore(request, uid):
