@@ -1,39 +1,37 @@
 # The Biostar Engine
 
-### Better solutions for an imperfect world.
+## Better solutions for an imperfect world.
 
-The Biostar Engine is [Python 3.6][python] and [Django][django] based scientific data analysis oriented application server.
+![Biostar Engine Badge](biostar/engine/static/images/badge-engine.svg)
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-![Biostar Engine Badge](biostar/engine/static/images/badge-engine.svg)
+The Biostar Engine is a [Python 3.6][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over web while providing a graphical user interface for selecting the parameters of the scripts. The scripts may written in `bash`, may be a `Makefile`, `R` commands, basically any executable command.
 
-The Biostar Engine allows executing scripts over the web via graphical user interfaces.
-The scripts may written in `bash`, `R` or any other a scripting enabled language.
+We call the scripts as *recipes*.
 
-We call these scripts as "recipes".
-
-In addition the software has support for data storage and project management. 
-The Biostar Engine can be used as simple LIMS (Laboratory Information Management System)
+The software has support for data storage and project management and this can be used as simple LIMS (Laboratory Information Management System)
 
 ## Installation
 
-We recommend using [conda][conda]. For simplicity our installation 
-instructions rely on [conda][conda] though other alternatives would be also viable, virtual env,
-homebrew etc. Create a virtual environment both on your system and on the remote site:
+Our installation instructions rely on [conda][conda] though other alternatives would be also viable, virtual env, homebrew or even not using any environment altogether. 
+
+We will demonstrate the installation using [conda][conda].
+
+1\. Create a virtual environment
 
 [conda]: https://conda.io/docs/
 
     conda create -y --name engine python=3.6
     source activate engine
     
-Clone the source server code and the recipe code:
+2\. Clone the source server code and the recipe code:
 
     git clone git@github.com:biostars/biostar-engine.git
     git clone git@github.com:biostars/biostar-recipes.git
     
-Install python dependencies:
+3.\ Install the python dependencies:
 
     # Switch to the engine directory.
     cd biostar-engine
@@ -41,29 +39,41 @@ Install python dependencies:
     # Install server dependencies.
     pip install -r conf/python_requirements.txt
     
-    # The current package has packages that are needed at the command line.
-    python setup.py develop
-    
+At this point the installation is complete.
+
+4\. Start the server
+
+All commands run through `make`. To initialize and run the test site use:
+
+      make reset serve
+   
+Now visit <http://localhost:8000> to see your site running. 
+
+The default admin email/password combination is: `1@lvh.me/testbuddy`.  You may change these in the settings.
+
+## Bioinformatics environment
+
 The following step is an optional, [bioconda][bioconda] specific requirement. 
 Use it only if you also want to run all [bioconda][bioconda] tools that we have recipes for.
 Make sure that you have set up [bioconda][bioconda] if you wish to run this!
 
+    # Activate the environment.
+    source activate engine
+      
+    # Switch to the engine directory.
+    cd biostar-recipes
+    
+    # Install the conda dependencies.
+    conda install --file conf/conda_requirements.txt
+
+    # Add the recipes to the python path.
+    python setup.py develop
+
 [bioconda]: https://bioconda.github.io/
 
-    conda install --file conf/conda_requirements.txt
-    
-## Quick start
+## Make commands
 
-All commands run through `make`. To initialize and run the test site use:
-
-    make reset serve
-    
-Now visit <http://localhost:8000> to see your site running.
-
-The default admin email/password combination is: `1@lvh.me/testbuddy`. 
-You may change these in the settings.
-
-## Valid commands
+The Makefile included with the engine contains additional commands.
 
 Re-initialize the database:
 
@@ -114,11 +124,12 @@ Recipes are stored and distributed from a separate repository at:
 * <https://github.com/biostars/biostar-recipes>
 
 
-## Security warning!
+## Security considerations
 
-**Note**: The site is designed to execute scripts on a remote server. In addition it 
+**Note**: The site is designed to execute scripts on a remote server. In addition the site 
 allows administrative users to change the content of these scripts. 
-It is **extremely important** to properly restrict and guard access to
+
+It is **extremely important** to restrict and guard access to all 
 accounts with administrative privileges! 
 
 
