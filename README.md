@@ -13,9 +13,7 @@ We call the scripts *recipes*. The recipes are maintained separately from the Bi
 
 [recipes]: https://github.com/biostars/biostar-recipes
 
-The Biostar Engine has support for data storage and project management and this can be used as simple Laboratory Information Management System (LIMS).
-
-A actively maintained deployment of the software can be accessed at:
+The Biostar Engine has support for data storage and project management and this can be used as simple Laboratory Information Management System (LIMS). A actively maintained deployment of the software can be accessed at:
 
 * <https://www.bioinformatics.recipes>
 
@@ -55,7 +53,7 @@ Visit <http://localhost:8000> to see your site running.
 
 The default admin email/password combination is: `1@lvh.me/testbuddy`.  You may change these in the settings.
 
-## Bioinformatics Environment
+## Bioinformatics environment
 
 The following steps are optional. The instructions will add [bioconda][bioconda] specific tools into the current environment. Use them only if you also want to run the [bioconda][bioconda] specific recipes. Make sure that you have set up [bioconda][bioconda] if you wish to run this!
 
@@ -105,14 +103,14 @@ The site is built with Django hence the official Django documentation applies.
 
 ## Running jobs 
 
-A recipes submitted for execution is called a job. When a recipe is submitted the data (JSON) is applied onto a template to form a script. 
+A recipes submitted for execution is called a job. When a recipe is submitted the recipe parameters (JSON dictionary) are applied onto recipe template. The result is the recipe that gets executed. The transformation takes place at runtime.
 
 Jobs can be executed as commands. See the `job` command for details:
 
     python manage.py job --help
     
 The command has number of parameters that facilitate job management and recipe development.
-For example
+For example:
 
     python manage.py job --list
     
@@ -120,22 +118,21 @@ will list all the jobs in the system. Other flags that allow users to investigat
 
     python manage.py job --id 4 --show_script
     
-will print the script that is to be executed to the command line. Settings flags such as `-use_template` and `-use_json` allows users to override the data or template loaded into the job.
-This can be very handy when developing new recipes.
+will print the script for job 4 that is to be executed to the command line. Other flags such as `-use_template` and `-use_json` allows users to override the data or template loaded into the job.
+This can be useful when developing new recipes.
 
-Another handy command
+Another handy command:
 
     python manage.py job --next
     
-will execute the next queued job. The job runner may be run periodically with cron or may be started via `uwsgi`
+will execute the next queued job. The job runner may be run periodically with cron.
 
 ## Job spooling
 
-The software also supports `uwsgi` as the runtime architecture. When deploying through 
-`uwsgi` all jobs are queued and run automatically through the `uwsgi` spooler. See the `uwsgi` documentation  for details on how to control that process.
+The Biostar Engine supports `uwsgi`. When deployed through 
+`uwsgi` jobs are queued and run automatically through the `uwsgi` spooler. See the `uwsgi` documentation  for details on how to control that process.
 
 * <https://uwsgi-docs.readthedocs.io/en/latest/>
-
 
 [uwsgi]: <https://uwsgi-docs.readthedocs.io/en/latest/
 
@@ -152,11 +149,3 @@ allows administrative users to change the content of these scripts.
 
 It is **extremely important** to restrict and guard access to all 
 accounts with administrative privileges! 
-
-
-
-
-
-
-
-    
