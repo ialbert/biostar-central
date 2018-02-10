@@ -103,7 +103,7 @@ The site is built with Django hence the official Django documentation applies.
 
 ## Running jobs 
 
-A recipes submitted for execution is called a job. When a recipe is submitted the recipe parameters (JSON dictionary) are applied onto recipe template. The result is the recipe that gets executed. The transformation takes place at runtime.
+A recipe submitted for execution is called a job. When the job is run the recipe parameters (JSON dictionary) are applied onto recipe template. The result is the recipe script that gets executed. The transformation takes place at runtime.
 
 Jobs can be executed as commands. See the `job` command for details:
 
