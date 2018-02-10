@@ -109,6 +109,7 @@ def has_files(request):
     # Files might still be empty at this point
     return True if files else False
 
+
 def update_dict(iter):
 
     results=[dict(
@@ -118,6 +119,7 @@ def update_dict(iter):
             ]
 
     return results
+
 
 @register.inclusion_tag('widgets/search.html')
 def search(request):

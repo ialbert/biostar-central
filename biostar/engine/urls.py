@@ -8,7 +8,7 @@ urlpatterns = [
     # Engine specific admin site.
     url(r'^site/admin/', views.site_admin, name='site_admin'),
 
-    url(r'^trash/can/$', views.trash_can, name='trash_can'),
+    url(r'^trash/can/$', views.recycle_bin, name='recycle_bin'),
 
     url(r'^project/users/(?P<uid>[-\w]+)/$', views.project_users, name='project_users'),
     url(r'^project/create/$', views.project_create, name='project_create'),

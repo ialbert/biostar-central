@@ -78,20 +78,22 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
-def trash_can(request):
+def recycle_bin(request):
     ""
+
     if request.user.is_anonymous:
         messages.error(request, "Must be logged in to view trashcan")
         return redirect("/")
 
     all_projects = auth.get_project_list(user=request.user)
 
-    del_projects = all_projects.filter(state=Project.DELETED)
-    del_recipes = Analysis.objects.filter(state=Analysis.DELETED, project__in=all_projects)
-    del_data = Data.objects.filter(state=Data.DELETED, project__in=all_projects)
-    del_jobs = Job.objects.filter(state=Job.DELETED, project__in=all_projects).order_by("date")
+    #del_projects = all_projects.filter(state=Project.DELETED, owner=request.user)
+    #del_recipes = Analysis.objects.filter(state=Analysis.DELETED, project__in=all_projects, owner=request.user)
+    #del_data = Data.objects.filter(state=Data.DELETED, project__in=all_projects, owner=request.user)
+    del_jobs = Job.objects.filter(state=Job.DELETED, project__in=all_projects,
+                                  owner=request.user).order_by("date")
 
-    context = dict(jobs=del_jobs, projects=del_projects,recipe=del_recipes, data=del_data)
+    context = dict(jobs=del_jobs, projects=[],recipe=[], data=[])
 
     return render(request, 'trash_can.html', context=context)
 
@@ -111,10 +113,11 @@ def get_access(request, project):
 
     user = request.user if request.user.is_authenticated else None
     user_access = Access.objects.filter(project=project, user=user).first()
+    # Current users access
     user_access = user_access or Access(access=Access.NO_ACCESS)
 
     # Users already with access to current project
-    user_list = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
+    user_list = [a.user for a in project.access_set.all() if a.access > Access.NO_ACCESS]
 
     return user_access, user_list
 
@@ -126,7 +129,7 @@ def project_users(request, uid):
     Manage project users
     """
     project = Project.objects.filter(uid=uid).first()
-    user, user_list = get_access(request, project)
+    user_access, user_list = get_access(request, project)
     label = lambda x: f"<span class='ui green tiny label'>{x}</span>"
 
     # Search query
@@ -148,7 +151,7 @@ def project_users(request, uid):
     current = access_forms(users=user_list, project=project)
     results = access_forms(users=targets, project=project)
     context = dict(current=current, project=project, results=results, form=form, activate='selection',
-                   q=q, user_access=user)
+                   q=q, user_access=user_access)
     counts = get_counts(project)
     context.update(counts)
     return render(request, "project_users.html", context=context)
