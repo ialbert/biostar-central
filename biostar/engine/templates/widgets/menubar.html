@@ -15,9 +15,11 @@
     {% if user.is_authenticated %}
         <div class="right menu">
 
-
         <a class="item" href="{% url 'profile' %}">
             <i class="user icon"></i>
+        </a>
+        <a class="item" href="{% url 'recycle_bin' %}">
+                <i class="trash icon"></i>
         </a>
             {% if user.is_superuser %}
                 <a class="item" href="{% url 'site_admin' %}">

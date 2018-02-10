@@ -66,9 +66,10 @@ class JobViewTest(TestCase):
 
         self.assertTrue(request.session.get("files_clipboard")==[""], "Clear clipboard not working")
 
+
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
     def test_job_files_paste(self):
-
+        "Paste file from job results"
         management.call_command('job', id=self.job.id)
 
         url = reverse("files_paste", kwargs=dict(uid=self.project.uid))
@@ -83,7 +84,32 @@ class JobViewTest(TestCase):
 
         self.process_response(response=response, data=data)
 
-        self.assertTrue(models.Data.save.called, "save() method not called when editing.")
+        self.assertTrue(models.Data.save.called, "save() method called.")
+
+
+    def test_job_restore(self):
+        "Test job restore "
+
+        url = reverse("job_restore", kwargs=dict(uid=self.job.uid))
+
+        request = util.fake_request(url=url, data={}, user=self.owner)
+
+        response = views.job_restore(request=request, uid=self.job.uid)
+
+        self.process_response(response=response, data={})
+
+        return
+
+    def test_job_delete(self):
+        "Test job delete"
+
+        url = reverse("job_delete", kwargs=dict(uid=self.job.uid))
+
+        request = util.fake_request(url=url, data={}, user=self.owner)
+
+        response = views.job_delete(request=request, uid=self.job.uid)
+
+        self.process_response(response=response, data={})
 
 
     def test_job_runner(self):

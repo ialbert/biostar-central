@@ -29,8 +29,16 @@ class SiteAdminTest(TestCase):
         request = util.fake_request(url=url, data={}, method="GET",user=self.user)
 
         response = views.site_admin(request=request)
-        self.assertEqual(response.status_code, 200, "Can not load site admin page specific to biostar-engine.")
+        # admin page specific to biostar-engine.
+        self.assertEqual(response.status_code, 200, "Can not load admin page")
 
+    def test_bin_view(self):
+        "Test recycle bin view"
+
+        url = reverse('recycle_bin')
+        request = util.fake_request(url=url, data={}, method="GET",user=self.user)
+        response = views.recycle_bin(request=request)
+        self.assertEqual(response.status_code, 200, "Can not load recyle bin")
 
 class FactoryTest(TestCase):
 
@@ -75,7 +83,6 @@ class FactoryTest(TestCase):
 
         if not field:
             self.assertFalse(f"field generator for display={display_type} failed")
-
 
     def test_data_generator(self):
         "Test data generator"

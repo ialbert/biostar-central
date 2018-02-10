@@ -162,7 +162,7 @@ def get_field_types():
         const.RADIO: radioselect_field,
         const.DROPDOWN: select_field,
         const.INTEGER: number_field,
-        #const.TEXTBOX: char_field,
+        const.TEXTBOX: char_field,
         const.FLOAT: float_field,
         const.CHECKBOX: checkbox_field,
     }

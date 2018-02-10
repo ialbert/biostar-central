@@ -115,7 +115,8 @@ def get_project_list(user):
     return query
 
 
-def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, login_required=False):
+def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, login_required=False,
+                     owner_only=False):
     """
     Validates object access.
     """
@@ -151,6 +152,16 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
     if (project.privacy in (Project.PUBLIC, Project.SHAREABLE)):
         if (access in (Access.READ_ACCESS, Access.RECIPE_ACCESS)):
             return True
+
+    # Check if owner of the instance or project is the only one with access.
+    is_owner = (instance.owner == user or project.owner == user)
+    if owner_only and not is_owner:
+        msg = f"""
+            Only the creator can perform that action.
+        """
+        msg = mark_safe(msg)
+        messages.error(request, msg)
+        return False
 
     # Prepare the access denied message.
     deny = engine_tags.access_denied_message(user=user, access=access_text)

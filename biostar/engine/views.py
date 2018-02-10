@@ -8,7 +8,6 @@ import mistune
 
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
 from django.urls import reverse
 
 from . import tasks
@@ -17,28 +16,22 @@ from .forms import *
 from .models import (Project, Data, Analysis, Job, Access)
 
 
-def join(*args):
-    return os.path.abspath(os.path.join(*args))
-
-
-# Objects per page when looking at lists
-OBJ_PER_PAGE = 1
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
 __DOCS_DIR = join(__CURRENT_DIR, "docs")
 
 
-def valid_path(path):
-    path = os.path.abspath(path)
-    return path.startswith(__DOCS_DIR)
-
-
 logger = logging.getLogger('engine')
 
 
-def make_html(text):
-    return mistune.markdown(text)
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
+
+
+def valid_path(path):
+    path = os.path.abspath(path)
+    return path.startswith(__DOCS_DIR)
 
 
 def docs(request, name):
@@ -56,7 +49,7 @@ def docs(request, name):
 
     # Render markdown into HTML.
     if target.endswith(".md"):
-        content = make_html(content)
+        content = mistune.markdown(content)
 
     title = name.replace("-", " ").replace("_", " ").title()
     context = dict(content=content, title=title)
@@ -79,23 +72,21 @@ def site_admin(request):
 
 
 def recycle_bin(request):
-    ""
+    "Recycle bin view for a user"
 
     if request.user.is_anonymous:
-        messages.error(request, "Must be logged in to view trashcan")
+        messages.error(request, "You must be logged in to view recycle bin.")
         return redirect("/")
 
     all_projects = auth.get_project_list(user=request.user)
 
-    #del_projects = all_projects.filter(state=Project.DELETED, owner=request.user)
-    #del_recipes = Analysis.objects.filter(state=Analysis.DELETED, project__in=all_projects, owner=request.user)
-    #del_data = Data.objects.filter(state=Data.DELETED, project__in=all_projects, owner=request.user)
+    # Only jobs enabled currently
     del_jobs = Job.objects.filter(state=Job.DELETED, project__in=all_projects,
                                   owner=request.user).order_by("date")
 
     context = dict(jobs=del_jobs, projects=[],recipe=[], data=[])
 
-    return render(request, 'trash_can.html', context=context)
+    return render(request, 'recycle_bin.html', context=context)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
@@ -122,8 +113,7 @@ def get_access(request, project):
     return user_access, user_list
 
 
-
-@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='data_list')
 def project_users(request, uid):
     """
     Manage project users
@@ -255,7 +245,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     return render(request, template_name, context)
 
 
-@object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view', owner_only=True)
 def project_edit(request, uid):
 
     project = Project.objects.filter(uid=uid).first()
@@ -381,7 +371,7 @@ def files_paste(request, uid):
     return redirect(url)
 
 
-@object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
+@object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view', owner_only=True)
 def data_edit(request, uid):
     data = Data.objects.filter(uid=uid).first()
     form = DataEditForm(instance=data, initial=dict(type=data.type))
@@ -572,6 +562,7 @@ def recipe_code(request, uid):
 
             # Changes to template will require a review ( only when saving ).
             if auth.template_changed(analysis=analysis, template=template) and save:
+
                 analysis.security = Analysis.UNDER_REVIEW
 
             # Admin users will automatically get authorized.
@@ -641,7 +632,7 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view', owner_only=True)
 def recipe_edit(request, uid):
     "Edit recipe Info"
     recipe = Analysis.objects.filter(uid=uid).first()
@@ -661,7 +652,7 @@ def recipe_edit(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view")
+@object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view", owner_only=True)
 def job_edit(request, uid):
     job = Job.objects.filter(uid=uid).first()
     project = job.project
@@ -677,20 +668,31 @@ def job_edit(request, uid):
     return render(request, 'job_edit.html', context)
 
 
-@object_access(type=Job, access=Access.EDIT_ACCESS)
+@object_access(type=Job, access=Access.EDIT_ACCESS, owner_only=True)
 def job_delete(request, uid):
-    "Change the job state to Job.DELETED."
+    "Change job state to Job.DELETED."
 
     job = Job.objects.filter(uid=uid).first()
     project = job.project
     job.state = Job.DELETED
-    url = reverse('trash_can')
+    url = reverse('recycle_bin')
     job.save()
 
     messages.success(request, mark_safe(f"Moved <b>{job.name}</b> to <a href={url}>Recycle Bin</a>."))
     return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
 
-#def job_restore
+
+@object_access(type=Job, access=Access.EDIT_ACCESS, owner_only=True)
+def job_restore(request, uid):
+    "Change job state from Deleted to Queued."
+
+    job = Job.objects.filter(uid=uid).first()
+    job.state = Job.QUEUED
+    url = reverse('recycle_bin')
+    job.save()
+
+    messages.success(request, mark_safe(f"Moved <b>{job.name}</b> out of <a href={url}>Recycle Bin</a>."))
+    return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
 
 @object_access(type=Job, access=Access.READ_ACCESS)
