@@ -1,39 +1,39 @@
 # The Biostar Engine
 
-### Better solutions for an imperfect world.
+## Better solutions for an imperfect world.
 
-The Biostar Engine is [Python 3.6][python] and [Django][django] based scientific data analysis oriented application server.
+![Biostar Engine Badge](biostar/engine/static/images/badge-engine.svg)
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-![Biostar Engine Badge](biostar/engine/static/images/badge-engine.svg)
+The Biostar Engine is a [Python 3.6][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over web while providing a graphical user interface for selecting the parameters of the scripts. The scripts may written in `bash`, may be a `Makefile`, `R` commands, basically any executable command.
 
-The Biostar Engine allows executing scripts over the web via graphical user interfaces.
-The scripts may written in `bash`, `R` or any other a scripting enabled language.
+We call the scripts *recipes*. The recipes are maintained separately from the Biostar Engine in the [biostar-recipes][recipes] repository.
 
-We call these scripts as "recipes".
+[recipes]: https://github.com/biostars/biostar-recipes
 
-In addition the software has support for data storage and project management. 
-The Biostar Engine can be used as simple LIMS (Laboratory Information Management System)
+The Biostar Engine has support for data storage and project management and this can be used as simple Laboratory Information Management System (LIMS). A actively maintained deployment of the software can be accessed at:
+
+* <https://www.bioinformatics.recipes>
 
 ## Installation
 
-We recommend using [conda][conda]. For simplicity our installation 
-instructions rely on [conda][conda] though other alternatives would be also viable, virtual env,
-homebrew etc. Create a virtual environment both on your system and on the remote site:
+Our installation instructions rely on [conda][conda] though other alternatives are also viable, virtualenv, homebrew. apt-get or even not using any environment management tools.
+
+1\. Create a virtual environment
 
 [conda]: https://conda.io/docs/
 
     conda create -y --name engine python=3.6
     source activate engine
     
-Clone the source server code and the recipe code:
+2\. Clone the source server code and the recipe code:
 
     git clone git@github.com:biostars/biostar-engine.git
     git clone git@github.com:biostars/biostar-recipes.git
     
-Install python dependencies:
+3\. Install the python dependencies:
 
     # Switch to the engine directory.
     cd biostar-engine
@@ -41,29 +41,39 @@ Install python dependencies:
     # Install server dependencies.
     pip install -r conf/python_requirements.txt
     
-    # The current package has packages that are needed at the command line.
-    python setup.py develop
-    
-The following step is an optional, [bioconda][bioconda] specific requirement. 
-Use it only if you also want to run all [bioconda][bioconda] tools that we have recipes for.
-Make sure that you have set up [bioconda][bioconda] if you wish to run this!
+At this point the installation is complete.
 
-[bioconda]: https://bioconda.github.io/
-
-    conda install --file conf/conda_requirements.txt
-    
-## Quick start
+4\. Start the server
 
 All commands run through `make`. To initialize and run the test site use:
 
-    make reset serve
+      make reset serve
+   
+Visit <http://localhost:8000> to see your site running. 
+
+The default admin email/password combination is: `1@lvh.me/testbuddy`.  You may change these in the settings.
+
+## Bioinformatics environment
+
+The following steps are optional. The instructions will add [bioconda][bioconda] specific tools into the current environment. Use them only if you also want to run the [bioconda][bioconda] specific recipes. Make sure that you have set up [bioconda][bioconda] if you wish to run this!
+
+    # Activate the environment.
+    source activate engine
+      
+    # Switch to the engine directory.
+    cd biostar-recipes
     
-Now visit <http://localhost:8000> to see your site running.
+    # Install the conda dependencies.
+    conda install --file conf/conda_requirements.txt
 
-The default admin email/password combination is: `1@lvh.me/testbuddy`. 
-You may change these in the settings.
+    # Add the recipes to the python path.
+    python setup.py develop
 
-## Valid commands
+[bioconda]: https://bioconda.github.io/
+
+## Additional commands
+
+The Makefile included with the engine contains additional commands.
 
 Re-initialize the database:
 
@@ -73,39 +83,58 @@ Serve the current site:
 
     make serve
 
-Get the data that are used in the demonstration recipes.
+Get the data that are used in the recipes.
 
     make data
             
-Loads example recipes from the `biostar-recipe` repository that you cloned in the setup.
+Initialize the example recipes from the `biostar-recipe` repository.
 
     make recipes
 
 Run all tests:
 
     make test
-        
+
 ## Deployment
 
 The site is built with Django hence the official Django documentation applies.
 
 * <https://docs.djangoproject.com/>
 
-The software also supports `uwsgi` as the runtime architecture. When deplying through 
-`uwsgi` jobs are queued and run automatically through the `uwsgi` spooler. See the `uwsgi` documentation 
-for details on how to control that process.
+## Running jobs 
 
-* <https://uwsgi-docs.readthedocs.io/en/latest/>
+A recipe submitted for execution is called a job. When the job is run the recipe parameters (JSON dictionary) are applied onto recipe template. The result is the recipe script that gets executed. The transformation takes place at runtime.
 
-The jobs may also be started as commands. See the `job` command for details:
+Jobs can be executed as commands. See the `job` command for details:
 
     python manage.py job --help
     
-For example
+The command has number of parameters that facilitate job management and recipe development.
+For example:
+
+    python manage.py job --list
+    
+will list all the jobs in the system. Other flags that allow users to investigate and override the behaviors.
+
+    python manage.py job --id 4 --show_script
+    
+will print the script for job 4 that is to be executed to the command line. Other flags such as `-use_template` and `-use_json` allows users to override the data or template loaded into the job.
+This can be useful when developing new recipes.
+
+Another handy command:
 
     python manage.py job --next
     
-will execute the first job in the queue.
+will execute the next queued job. The job runner may be run periodically with cron.
+
+## Job spooling
+
+The Biostar Engine supports `uwsgi`. When deployed through 
+`uwsgi` jobs are queued and run automatically through the `uwsgi` spooler. See the `uwsgi` documentation  for details on how to control that process.
+
+* <https://uwsgi-docs.readthedocs.io/en/latest/>
+
+[uwsgi]: <https://uwsgi-docs.readthedocs.io/en/latest/
 
 ## Recipes
 
@@ -113,18 +142,10 @@ Recipes are stored and distributed from a separate repository at:
 
 * <https://github.com/biostars/biostar-recipes>
 
+## Security considerations
 
-## Security warning!
-
-**Note**: The site is designed to execute scripts on a remote server. In addition it 
+**Note**: The site is designed to execute scripts on a remote server. In addition the site 
 allows administrative users to change the content of these scripts. 
-It is **extremely important** to properly restrict and guard access to
+
+It is **extremely important** to restrict and guard access to all 
 accounts with administrative privileges! 
-
-
-
-
-
-
-
-    
