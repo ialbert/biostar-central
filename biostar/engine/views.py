@@ -102,7 +102,7 @@ def clear_clipboard(request, uid, redir="project_view", board=""):
 
 
 def get_access(request, project):
-    "Given request and project, returns all users with access tot project and "
+
     user = request.user if request.user.is_authenticated else None
     user_access = Access.objects.filter(project=project, user=user).first()
     # Current users access
