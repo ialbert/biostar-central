@@ -84,14 +84,15 @@ def recycle_bin(request):
     del_jobs = Job.objects.filter(state=Job.DELETED, project__in=all_projects,
                                   owner=request.user).order_by("date")
 
-    context = dict(jobs=del_jobs, projects=[],recipe=[], data=[])
+    context = dict(jobs=del_jobs)
 
     return render(request, 'recycle_bin.html', context=context)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
 def clear_clipboard(request, uid, redir="project_view", board=""):
-    "Clear copy object held in clipboard"
+    "Clear copied objects held in clipboard."
+
     clear = [""] if board == "files_clipboard" else None
 
     if board:
@@ -101,7 +102,7 @@ def clear_clipboard(request, uid, redir="project_view", board=""):
 
 
 def get_access(request, project):
-
+    "Given request and project, returns all users with access tot project and "
     user = request.user if request.user.is_authenticated else None
     user_access = Access.objects.filter(project=project, user=user).first()
     # Current users access
@@ -122,7 +123,7 @@ def project_users(request, uid):
     user_access, user_list = get_access(request, project)
     label = lambda x: f"<span class='ui green tiny label'>{x}</span>"
 
-    # Search query
+    # Search query separate for users.
     q = request.GET.get("q", "")
     form = ChangeUserAccess()
 
@@ -247,6 +248,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view', owner_only=True)
 def project_edit(request, uid):
+    "Edit meta-data associated with a project."
 
     project = Project.objects.filter(uid=uid).first()
     form = ProjectForm(instance=project)
@@ -329,7 +331,7 @@ def data_paste(request, uid):
     # Create data object in project by linking files ( excluding toc file ).
     auth.create_data(project=project, name=f"Copy of {data.name}", text=data.text,
                      path=data.get_data_dir(),summary=data.summary,
-                     type=data.type, skip=data.get_path())
+                     type=data.type, skip=data.get_path(), user=request.user)
 
     # Clear clipboard
     request.session["data_clipboard"] = None
@@ -339,7 +341,7 @@ def data_paste(request, uid):
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def files_paste(request, uid):
-    "Paste files copied from a job to a project"
+    "View used to paste result files copied from a job."
 
     files = request.session.get("files_clipboard", [""])
     project = Project.objects.filter(uid=uid).first()
@@ -363,7 +365,7 @@ def files_paste(request, uid):
     files = [f for f in files if f.startswith(job.path) ]
     # Add data to project
     for file in files:
-        auth.create_data(project=project, path=file)
+        auth.create_data(project=project, path=file, user=request.user)
 
     request.session["files_clipboard"] = [""]
     msg = mark_safe(f"Pasted <b>{len(files)}</b> file(s) to project <b>{project.name}</b>.")
@@ -373,6 +375,8 @@ def files_paste(request, uid):
 
 @object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view', owner_only=True)
 def data_edit(request, uid):
+    "Edit data info"
+
     data = Data.objects.filter(uid=uid).first()
     form = DataEditForm(instance=data, initial=dict(type=data.type))
 
@@ -402,6 +406,8 @@ def data_nav(request, uid):
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, uid):
+    "Data upload view routed through auth.create_data."
+
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     form = DataUploadForm()
@@ -427,6 +433,7 @@ def data_upload(request, uid):
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
 def data_files_list(request, uid, path=''):
+    "Returns a file navigation system "
     data = Data.objects.filter(uid=uid).first()
     project = data.project
     back_uid = None if path else project.uid
@@ -455,6 +462,8 @@ def recipe_view(request, uid):
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def recipe_run(request, uid):
+    "View used to start jobs by running recipes."
+
     analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
 
@@ -519,7 +528,8 @@ def recipe_paste(request, uid):
         return redirect(url)
 
     attrs = auth.get_analysis_attr(recipe, project=project)
-    attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security)
+    attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security,
+                 user=request.user)
     new_recipe = auth.create_analysis(**attrs)
     new_recipe.save()
 
@@ -633,7 +643,8 @@ def recipe_create(request, uid):
 
 @object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view', owner_only=True)
 def recipe_edit(request, uid):
-    "Edit recipe Info"
+    "Edit meta-data associated with a recipe."
+
     recipe = Analysis.objects.filter(uid=uid).first()
     project = recipe.project
     action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
@@ -653,6 +664,8 @@ def recipe_edit(request, uid):
 
 @object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view", owner_only=True)
 def job_edit(request, uid):
+    "Edit meta-data associated with a job."
+
     job = Job.objects.filter(uid=uid).first()
     project = job.project
     form = JobEditForm(instance=job)

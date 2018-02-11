@@ -228,8 +228,12 @@ class RecipeInterface(forms.Form):
 
             # The JSON value will be overwritten with the selected field value.
             if field in self.cleaned_data:
-                item["value"] =  self.cleaned_data[field]
+                value = self.cleaned_data[field]
 
+                item["value"] = value if item['display'] != TEXTBOX else clean_text(value)
+
+                if item['display'] == TEXTBOX:
+                    print(value, item['display'])
 
         return json_data
 
