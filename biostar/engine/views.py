@@ -683,12 +683,14 @@ def job_edit(request, uid):
 
 @object_access(type=Job, access=Access.EDIT_ACCESS, owner_only=True)
 def job_state_change(request, uid, state=''):
-    "Change job.state to state."
+    "Change job.state to 'state'."
 
-    state_map = {x:y for y,x in Job.STATE_CHOICES}
+    # User can only alternate to/from deleted and queued states
+    choices = filter(lambda x: x[0] in [Job.DELETED, Job.QUEUED], Job.STATE_CHOICES)
+    state_map = {x:y for y,x in choices}
 
     if not state_map.get(state):
-        messages.error(request, "State specified is not an option")
+        messages.error(request, "State specified is not an allowed option")
         redirect(reverse("project_list"))
 
     job = auth.switch_states(uid=uid, model=Job, state=state_map[state], save=True)
