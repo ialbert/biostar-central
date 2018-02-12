@@ -13,7 +13,6 @@ logger.setLevel(logging.INFO)
 
 
 def start():
-
     # Engine authorization comes from the accounts.
     authorizer = BiostarAuthorizer()
 

@@ -29,6 +29,17 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
+def switch_states(uid, model, state, save=False):
+    "Switch state of instance to target state"
+
+    instance = model.objects.filter(uid=uid).first()
+    instance.state = state
+    if save:
+        instance.save()
+
+    return instance
+
+
 def get_analysis_attr(analysis, project=None):
     "Get analysis attributes"
 

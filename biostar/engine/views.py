@@ -262,6 +262,7 @@ def project_edit(request, uid):
     context = dict(project=project, form=form)
     return render(request, "project_edit.html", context=context)
 
+
 @login_required
 def project_create(request):
 
@@ -303,7 +304,7 @@ def data_view(request, uid):
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
 def data_copy(request, uid):
-    "Store Data object in request.sessions['data_clipboard'] "
+    "Store Data object in data clipboard "
 
     data = Data.objects.filter(uid=uid).first()
     project = data.project
@@ -681,28 +682,20 @@ def job_edit(request, uid):
 
 
 @object_access(type=Job, access=Access.EDIT_ACCESS, owner_only=True)
-def job_delete(request, uid):
-    "Change job state to Job.DELETED."
+def job_state_change(request, uid, state=''):
+    "Change job.state to state."
 
-    job = Job.objects.filter(uid=uid).first()
-    project = job.project
-    job.state = Job.DELETED
-    url = reverse('recycle_bin')
-    job.save()
+    state_map = {x:y for y,x in Job.STATE_CHOICES}
 
-    messages.success(request, mark_safe(f"Moved <b>{job.name}</b> to <a href={url}>Recycle Bin</a>."))
-    return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
+    if not state_map.get(state):
+        messages.error(request, "State specified is not an option")
+        redirect(reverse("project_list"))
 
-@object_access(type=Job, access=Access.EDIT_ACCESS, owner_only=True)
-def job_restore(request, uid):
-    "Change job state from Deleted to Queued."
+    job = auth.switch_states(uid=uid, model=Job, state=state_map[state], save=True)
 
-    job = Job.objects.filter(uid=uid).first()
-    job.state = Job.QUEUED
-    url = reverse('recycle_bin')
-    job.save()
-
-    messages.success(request, mark_safe(f"Moved <b>{job.name}</b> out of <a href={url}>Recycle Bin</a>."))
+    action  = "out of " if job.state != Job.DELETED else "in to"
+    msg = mark_safe(f"Moved <b>{job.name}</b> {action} <a href={reverse('recycle_bin')}>Recycle Bin</a>.")
+    messages.success(request, msg)
     return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
 

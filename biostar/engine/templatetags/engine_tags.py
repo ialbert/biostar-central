@@ -92,6 +92,14 @@ def has_data(request):
 
 
 @register.filter
+def text_display(job_state):
+    """
+    Checks if object in clipboard is a recipe.
+    """
+    return dict(Job.STATE_CHOICES).get(job_state, dict(Job.STATE_CHOICES)[Job.PAUSED])
+
+
+@register.filter
 def has_files(request):
     "Checks if object in clipboard is a list of files belonging to a job"
     files = request.session.get("files_clipboard", [""])

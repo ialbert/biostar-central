@@ -87,29 +87,22 @@ class JobViewTest(TestCase):
         self.assertTrue(models.Data.save.called, "save() method called.")
 
 
-    def test_job_restore(self):
-        "Test job restore "
+    def test_job_state_change(self):
+        "Test job state change view"
 
-        url = reverse("job_restore", kwargs=dict(uid=self.job.uid))
+        def change_state(state, url=""):
 
-        request = util.fake_request(url=url, data={}, user=self.owner)
+            url = reverse(url, kwargs=dict(state=state, uid=self.job.uid))
 
-        response = views.job_restore(request=request, uid=self.job.uid)
+            request = util.fake_request(url=url, data={}, user=self.owner)
 
-        self.process_response(response=response, data={})
+            response = views.job_state_change(request=request, uid=self.job.uid, state=state)
 
-        return
+            self.process_response(response=response, data={})
 
-    def test_job_delete(self):
-        "Test job delete"
-
-        url = reverse("job_delete", kwargs=dict(uid=self.job.uid))
-
-        request = util.fake_request(url=url, data={}, user=self.owner)
-
-        response = views.job_delete(request=request, uid=self.job.uid)
-
-        self.process_response(response=response, data={})
+        #Test the delete and restore views
+        change_state("Deleted", url="job_delete")
+        change_state("Queued", url="job_restore")
 
 
     def test_job_runner(self):
