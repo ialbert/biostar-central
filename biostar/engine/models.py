@@ -315,6 +315,7 @@ class Analysis(models.Model):
     def authorized(self):
         return self.security == self.AUTHORIZED
 
+
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
