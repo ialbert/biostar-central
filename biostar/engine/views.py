@@ -8,7 +8,6 @@ import mistune
 
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
 from django.urls import reverse
 
 from . import tasks
@@ -17,28 +16,22 @@ from .forms import *
 from .models import (Project, Data, Analysis, Job, Access)
 
 
-def join(*args):
-    return os.path.abspath(os.path.join(*args))
-
-
-# Objects per page when looking at lists
-OBJ_PER_PAGE = 1
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
 __DOCS_DIR = join(__CURRENT_DIR, "docs")
 
 
-def valid_path(path):
-    path = os.path.abspath(path)
-    return path.startswith(__DOCS_DIR)
-
-
 logger = logging.getLogger('engine')
 
 
-def make_html(text):
-    return mistune.markdown(text)
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
+
+
+def valid_path(path):
+    path = os.path.abspath(path)
+    return path.startswith(__DOCS_DIR)
 
 
 def docs(request, name):
@@ -56,7 +49,7 @@ def docs(request, name):
 
     # Render markdown into HTML.
     if target.endswith(".md"):
-        content = make_html(content)
+        content = mistune.markdown(content)
 
     title = name.replace("-", " ").replace("_", " ").title()
     context = dict(content=content, title=title)
@@ -78,27 +71,28 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
-def trash_can(request):
-    ""
+def recycle_bin(request):
+    "Recycle bin view for a user"
+
     if request.user.is_anonymous:
-        messages.error(request, "Must be logged in to view trashcan")
+        messages.error(request, "You must be logged in to view recycle bin.")
         return redirect("/")
 
     all_projects = auth.get_project_list(user=request.user)
 
-    del_projects = all_projects.filter(state=Project.DELETED)
-    del_recipes = Analysis.objects.filter(state=Analysis.DELETED, project__in=all_projects)
-    del_data = Data.objects.filter(state=Data.DELETED, project__in=all_projects)
-    del_jobs = Job.objects.filter(state=Job.DELETED, project__in=all_projects).order_by("date")
+    # Only jobs enabled currently
+    del_jobs = Job.objects.filter(state=Job.DELETED, project__in=all_projects,
+                                  owner=request.user).order_by("date")
 
-    context = dict(jobs=del_jobs, projects=del_projects,recipe=del_recipes, data=del_data)
+    context = dict(jobs=del_jobs)
 
-    return render(request, 'trash_can.html', context=context)
+    return render(request, 'recycle_bin.html', context=context)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
 def clear_clipboard(request, uid, redir="project_view", board=""):
-    "Clear copy object held in clipboard"
+    "Clear copied objects held in clipboard."
+
     clear = [""] if board == "files_clipboard" else None
 
     if board:
@@ -111,25 +105,25 @@ def get_access(request, project):
 
     user = request.user if request.user.is_authenticated else None
     user_access = Access.objects.filter(project=project, user=user).first()
+    # Current users access
     user_access = user_access or Access(access=Access.NO_ACCESS)
 
     # Users already with access to current project
-    user_list = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
+    user_list = [a.user for a in project.access_set.all() if a.access > Access.NO_ACCESS]
 
     return user_access, user_list
 
 
-
-@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='data_list')
 def project_users(request, uid):
     """
     Manage project users
     """
     project = Project.objects.filter(uid=uid).first()
-    user, user_list = get_access(request, project)
+    user_access, user_list = get_access(request, project)
     label = lambda x: f"<span class='ui green tiny label'>{x}</span>"
 
-    # Search query
+    # Search query separate for users.
     q = request.GET.get("q", "")
     form = ChangeUserAccess()
 
@@ -148,7 +142,7 @@ def project_users(request, uid):
     current = access_forms(users=user_list, project=project)
     results = access_forms(users=targets, project=project)
     context = dict(current=current, project=project, results=results, form=form, activate='selection',
-                   q=q, user_access=user)
+                   q=q, user_access=user_access)
     counts = get_counts(project)
     context.update(counts)
     return render(request, "project_users.html", context=context)
@@ -252,8 +246,9 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     return render(request, template_name, context)
 
 
-@object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view', owner_only=True)
 def project_edit(request, uid):
+    "Edit meta-data associated with a project."
 
     project = Project.objects.filter(uid=uid).first()
     form = ProjectForm(instance=project)
@@ -266,6 +261,7 @@ def project_edit(request, uid):
 
     context = dict(project=project, form=form)
     return render(request, "project_edit.html", context=context)
+
 
 @login_required
 def project_create(request):
@@ -308,7 +304,7 @@ def data_view(request, uid):
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
 def data_copy(request, uid):
-    "Store Data object in request.sessions['data_clipboard'] "
+    "Store Data object in data clipboard "
 
     data = Data.objects.filter(uid=uid).first()
     project = data.project
@@ -336,7 +332,7 @@ def data_paste(request, uid):
     # Create data object in project by linking files ( excluding toc file ).
     auth.create_data(project=project, name=f"Copy of {data.name}", text=data.text,
                      path=data.get_data_dir(),summary=data.summary,
-                     type=data.type, skip=data.get_path())
+                     type=data.type, skip=data.get_path(), user=request.user)
 
     # Clear clipboard
     request.session["data_clipboard"] = None
@@ -346,7 +342,7 @@ def data_paste(request, uid):
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def files_paste(request, uid):
-    "Paste files copied from a job to a project"
+    "View used to paste result files copied from a job."
 
     files = request.session.get("files_clipboard", [""])
     project = Project.objects.filter(uid=uid).first()
@@ -370,7 +366,7 @@ def files_paste(request, uid):
     files = [f for f in files if f.startswith(job.path) ]
     # Add data to project
     for file in files:
-        auth.create_data(project=project, path=file)
+        auth.create_data(project=project, path=file, user=request.user)
 
     request.session["files_clipboard"] = [""]
     msg = mark_safe(f"Pasted <b>{len(files)}</b> file(s) to project <b>{project.name}</b>.")
@@ -378,8 +374,10 @@ def files_paste(request, uid):
     return redirect(url)
 
 
-@object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
+@object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view', owner_only=True)
 def data_edit(request, uid):
+    "Edit data info"
+
     data = Data.objects.filter(uid=uid).first()
     form = DataEditForm(instance=data, initial=dict(type=data.type))
 
@@ -409,6 +407,8 @@ def data_nav(request, uid):
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, uid):
+    "Data upload view routed through auth.create_data."
+
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     form = DataUploadForm()
@@ -434,9 +434,9 @@ def data_upload(request, uid):
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
 def data_files_list(request, uid, path=''):
+    "Returns a file navigation system "
     data = Data.objects.filter(uid=uid).first()
     project = data.project
-
     back_uid = None if path else project.uid
     context = dict(activate='selection', data=data, project=project, project_uid=back_uid)
 
@@ -463,6 +463,8 @@ def recipe_view(request, uid):
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def recipe_run(request, uid):
+    "View used to start jobs by running recipes."
+
     analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
 
@@ -527,7 +529,8 @@ def recipe_paste(request, uid):
         return redirect(url)
 
     attrs = auth.get_analysis_attr(recipe, project=project)
-    attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security)
+    attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security,
+                 user=request.user)
     new_recipe = auth.create_analysis(**attrs)
     new_recipe.save()
 
@@ -569,6 +572,7 @@ def recipe_code(request, uid):
 
             # Changes to template will require a review ( only when saving ).
             if auth.template_changed(analysis=analysis, template=template) and save:
+
                 analysis.security = Analysis.UNDER_REVIEW
 
             # Admin users will automatically get authorized.
@@ -638,9 +642,10 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view', owner_only=True)
 def recipe_edit(request, uid):
-    "Edit recipe Info"
+    "Edit meta-data associated with a recipe."
+
     recipe = Analysis.objects.filter(uid=uid).first()
     project = recipe.project
     action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
@@ -658,8 +663,10 @@ def recipe_edit(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view")
+@object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view", owner_only=True)
 def job_edit(request, uid):
+    "Edit meta-data associated with a job."
+
     job = Job.objects.filter(uid=uid).first()
     project = job.project
     form = JobEditForm(instance=job)
@@ -674,20 +681,24 @@ def job_edit(request, uid):
     return render(request, 'job_edit.html', context)
 
 
-@object_access(type=Job, access=Access.EDIT_ACCESS)
-def job_delete(request, uid):
-    "Change the job state to Job.DELETED."
+@object_access(type=Job, access=Access.EDIT_ACCESS, owner_only=True)
+def job_state_change(request, uid, state=''):
+    "Change job.state to 'state'."
 
-    job = Job.objects.filter(uid=uid).first()
-    project = job.project
-    job.state = Job.DELETED
-    url = reverse('trash_can')
-    job.save()
+    # User can only alternate to/from deleted and queued states
+    choices = filter(lambda x: x[0] in [Job.DELETED, Job.QUEUED], Job.STATE_CHOICES)
+    state_map = {x:y for y,x in choices}
 
-    messages.success(request, mark_safe(f"Moved <b>{job.name}</b> to <a href={url}>Recycle Bin</a>."))
-    return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
+    if not state_map.get(state):
+        messages.error(request, "State specified is not an allowed option")
+        redirect(reverse("project_list"))
 
-#def job_restore
+    job = auth.switch_states(uid=uid, model=Job, state=state_map[state], save=True)
+
+    action  = "out of " if job.state != Job.DELETED else "in to"
+    msg = mark_safe(f"Moved <b>{job.name}</b> {action} <a href={reverse('recycle_bin')}>Recycle Bin</a>.")
+    messages.success(request, msg)
+    return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
 
 @object_access(type=Job, access=Access.READ_ACCESS)

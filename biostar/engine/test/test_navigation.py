@@ -5,7 +5,7 @@ from biostar.engine import auth
 from biostar.engine import models
 
 from django.urls import reverse
-from . import util
+
 
 logger = logging.getLogger('engine')
 
@@ -82,9 +82,12 @@ class SiteNavigation(TestCase):
         "Testing that a redirect occurs for some pages"
         urls = [
             reverse('signup'),
+            reverse("recycle_bin"),
             reverse("data_copy", kwargs=self.data_params),
             reverse("recipe_copy", kwargs=self.analysis_params),
             reverse("data_paste", kwargs=self.proj_params),
+            reverse("job_delete", kwargs=dict(state="Deleted", uid=self.job.uid)),
+            reverse("job_restore", kwargs=dict(state="Queued", uid=self.job.uid))
         ]
 
         self.visit_urls(urls, [302, 200])
