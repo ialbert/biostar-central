@@ -5,18 +5,15 @@ or any other command line tool.
 
 ## Do recipes represent a single software tool?
 
-No. 
-
-A recipe may represent a single software tool and it could also represent an entire *data analysis pipeline*.
+Not necessarily. A recipe may represent a single software tool but it could also 
+specify an entire *data analysis pipeline*.
 
 ## Can recipes be run outside of the site?
 
-Yes. 
-
-A recipe is a command line construct that could be run just 
+Yes. A recipe is a command line construct that could be run just 
 as well from the command line on any other computer.
 
-Recipes does not favor any particular approach or methodology and can be integrated 
+Recipes do not favor any particular approach or methodology and can be integrated 
 with a wide variety of other tools and technologies. 
    
 ## How do I use recipes?
@@ -29,13 +26,10 @@ recipe it becomes "yours". You can do anything with it without affecting the ori
 When a recipe is run a result row is created. Each result represents a directory that in turn
 will contain the of files that the recipe has created while running.
 
-# Are there different access rights?
+## Are there different access rights?
 
-Yes. 
-
-Users on the site can have different roles. 
+Yes. Users on the site may have different roles. 
 Depending on the role some actions may not be permitted.
-
 Project owners may add people to their projects with different roles.
 
 ## What kinds of access roles exist?
@@ -55,9 +49,10 @@ The permissions are hierarchical. Each rank includes all permissions at lower ra
 For example the `Upload data` permission will also include `Execute Recipe` permissions (and all other
 lower ranks).
 
-## May I modify a recipe?
+## Can I modify a recipe?
 
-You can adapt and remix recipes to create new and modified ones.
+You can adapt and remix recipes to create new as you wish. If you make your project public
+other people may use your adapted or new recipes.
 
 ## Can I run a modified recipe?
 
@@ -89,16 +84,16 @@ repository for information on how to create new recipes.
 
 [recipes]: https://github.com/biostars/biostar-recipes
   
-# What is a Public project?
+## What is a Public project?
 
 The *Public* project designation allows `Read recipe` access to every visitor to the site.
 
-# What is a Private project?
+## What is a Private project?
 
 The *Private* project designation limits access to people 
 added to the project by the project administrator.
   
-# How do I upload large files?
+## How do I upload large files?
 
 A secure FTP server integrated with the site allows the upload and download of large datasets.
 
