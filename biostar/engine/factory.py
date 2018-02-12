@@ -97,7 +97,7 @@ def data_field_generator(field, project, type=""):
 
     query = models.Data.objects.filter(project=project)
     if type:
-        query = query.filter(type=type)
+        query = query.filter(type__iregex=type)
 
     query = query.order_by("sticky", "-date")
 
