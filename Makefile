@@ -12,6 +12,7 @@ serve: init
 init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate -v 0
+	python manage.py project --root ../biostar-recipes --json recipes/tutorial/tutorial-project.hjson --privacy public --jobs
 
 uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
@@ -26,7 +27,6 @@ install:
 
 
 projects:
-	python manage.py project --json initial/tutorial/tutorial-project.hjson --privacy public --jobs
 	python manage.py project --root ../biostar-recipes --json projects/cookbook/cookbook-project.hjson --privacy public --jobs
 	python manage.py project --root ../biostar-recipes --json projects/metagenomics/mothur-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/giraffe/giraffe-project.hjson --privacy public

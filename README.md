@@ -1,6 +1,6 @@
 # The Biostar Engine
 
-## Better solutions for an imperfect world.
+## Better bioinformatics solutions for an imperfect world.
 
 ![Biostar Engine Badge](biostar/engine/static/images/badge-engine.svg)
 

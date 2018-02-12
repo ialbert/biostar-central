@@ -51,26 +51,5 @@ don't modify an authorized recipe you may execute it. Once you modify a
 recipe a staff member needs to review the code and authorize 
 the recipe before it can be run on the site.
 
-# Can I share un-reviewed recipes?
 
-Yes. But you and the users can only test it on their computers only.
-
-# Is this review process really necessary?
-
-Unfortunately yes. 
-
-# What is a Public project?
-
-A **Public** project allows `Read recipe` access to every visitor to the site.
-
-# What is a Private project?
-
-A **Private** project may only be accessed by the people 
-added to the project by the administrator.
-
-# How do I become an **Administrator** on a project?
-
-When you create a new project or when an existing project administrator adds you to their project with **Administrator** permissions.
-
-# How do I upload large files?
 
