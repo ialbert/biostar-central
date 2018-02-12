@@ -52,6 +52,7 @@ class ProjectForm(forms.ModelForm):
 
         return image
 
+
 class DataUploadForm(forms.ModelForm):
 
     file = forms.FileField(required=True)
@@ -228,7 +229,8 @@ class RecipeInterface(forms.Form):
 
             # The JSON value will be overwritten with the selected field value.
             if field in self.cleaned_data:
-                item["value"] =  self.cleaned_data[field]
+                value = self.cleaned_data[field]
+                item["value"] = value if item['display'] != TEXTBOX else clean_text(value)
 
         return json_data
 

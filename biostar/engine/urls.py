@@ -6,9 +6,9 @@ urlpatterns = [
     url(r'^docs/(?P<name>[-\w]+)/$', views.docs, name='docs'),
 
     # Engine specific admin site.
-    url(r'^site/admin/', views.site_admin, name='site_admin'),
+    url(r'^site/admin/$', views.site_admin, name='site_admin'),
 
-    url(r'^trash/can/$', views.trash_can, name='trash_can'),
+    url(r'^recycle/bin/$', views.recycle_bin, name='recycle_bin'),
 
     url(r'^project/users/(?P<uid>[-\w]+)/$', views.project_users, name='project_users'),
     url(r'^project/create/$', views.project_create, name='project_create'),
@@ -37,12 +37,13 @@ urlpatterns = [
     url(r'^recipe/copy/(?P<uid>[-\w]+)/$', views.recipe_copy, name='recipe_copy'),
     url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
 
-    url(r'^clear/clipboard/(?P<uid>[-\w]+)/(?P<redir>.+)/(?P<board>.+)$', views.clear_clipboard, name='clear_clipboard'),
+    url(r'^clear/clipboard/(?P<uid>[-\w]+)/(?P<redir>.+)/(?P<board>.+)/$', views.clear_clipboard, name='clear_clipboard'),
 
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
-    url(r'^job/delete/(?P<uid>[-\w]+)/$', views.job_delete, name='job_delete'),
+    url(r'^job/delete/(?P<uid>[-\w]+)/(?P<state>[-\w]+)/$', views.job_state_change, name='job_delete'),
+    url(r'^job/restore/(?P<uid>[-\w]+)/(?P<state>[-\w]+)/$', views.job_state_change, name='job_restore'),
     url(r'^job/view/files/(?P<uid>[-\w]+)/$', views.job_files_list, name='job_files_entry'),
     url(r'^job/view/files/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_files_list, name='job_files_list'),
 
