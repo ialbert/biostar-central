@@ -106,15 +106,21 @@ def run(job, options={}):
         # Build the command line
         command = execute.get("command", "bash recipe.sh")
 
+        # The command can be substituted as well.
+        context = Context(json_data)
+        command_template = Template(command)
+        command = command_template.render(context)
+
         # This is the full command that will be executed.
         full_command = f'(cd {work_dir} && {command})'
         if show_command:
             print(full_command)
             return
 
-        template = Template(template)
+        # Script template.
         context = Context(json_data)
-        script = template.render(context)
+        script_template = Template(template)
+        script = script_template.render(context)
 
         # Store the script for the job.
         job.script = script

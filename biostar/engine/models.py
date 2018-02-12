@@ -320,11 +320,13 @@ class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
 
-    QUEUED, RUNNING, COMPLETED, ERROR, DELETED, SPOOLED, PAUSED, ZOMBIE = range(1, 9)
+    QUEUED, RUNNING, COMPLETED, ERROR, DELETED, SPOOLED, PAUSED, RESTORED = range(1, 9)
 
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"), (PAUSED, "Paused"),
                      (SPOOLED, "Spooled"), (COMPLETED, "Completed"),
-                     (ERROR, "Error"), (DELETED, "Deleted"), (ZOMBIE, "Zombie")]
+                     (ERROR, "Error"), (DELETED, "Deleted"), (RESTORED, "Restored")]
+
+    state = models.IntegerField(default=QUEUED, choices=STATE_CHOICES)
 
     name = models.CharField(max_length=MAX_NAME_LEN, default="name")
     summary = models.TextField(default='summary')
@@ -364,7 +366,6 @@ class Job(models.Model):
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
 
-    state = models.IntegerField(default=1, choices=STATE_CHOICES)
 
     path = models.FilePathField(default="")
 

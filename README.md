@@ -1,19 +1,19 @@
 # The Biostar Engine
 
-## Better solutions for an imperfect world.
+## Better bioinformatics solutions for an imperfect world
 
 ![Biostar Engine Badge](biostar/engine/static/images/badge-engine.svg)
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-The Biostar Engine is a [Python][python] and [Django][django] based data analysis oriented application server that can execute scripts over web while providing a graphical user interface for selecting the parameters of the scripts. The scripts the the software executes may written in `bash`, may be a `Makefile`, `R` commands, just about any executable command.
+The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts. The scripts that the software executes may written for `bash`, may be a `Makefile`, `R` commands in a file, basically just about any executable command.
 
-We call the scripts that the engine can operate on *recipes*. The recipes are maintained separately in the [biostar-recipes][recipes] repository.
+We call the scripts that the engine can execute as *recipes*. Recipes with bioinformatics orientation are maintained separately in the [biostar-recipes][recipes] repository.
 
 [recipes]: https://github.com/biostars/biostar-recipes
 
-The Biostar Engine has support for data storage and project management and this can be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software can be accessed at:
+The Biostar Engine also has support for data storage and project management and can be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software seen at:
 
 * <https://www.bioinformatics.recipes>
 
@@ -35,7 +35,7 @@ Our installation instructions rely on [conda][conda] though other alternatives a
     
 3\. Install the python dependencies:
 
-    # Switch to the engine directory.
+    # Switch to the biostar-engine directory.
     cd biostar-engine
     
     # Install server dependencies.
@@ -55,7 +55,7 @@ The default admin email/password combination is: `1@lvh.me/testbuddy`.  You may 
 
 ## Bioinformatics environment
 
-The following steps are optional. The instructions will add [bioconda][bioconda] specific tools into the current environment. Use them only if you also want to run the [bioconda][bioconda] specific recipes. Make sure that you have set up [bioconda][bioconda] if you wish to run this!
+The following steps are optional. The instructions will add [bioconda][bioconda] specific tools into the current environment. Use them only if you also want to run the [bioconda][bioconda] specific recipes. Make sure that you have enabled [bioconda][bioconda] prior to running the following:
 
     # Activate the environment.
     source activate engine

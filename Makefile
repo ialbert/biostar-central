@@ -1,6 +1,5 @@
-USER=www
-SERVER=bioinformatics.recipes
 
+# Test data specific variables.
 DATA_FILE=recipes-initial-data.tar.gz
 DATA_DIR=/export/sites/main_data/initial
 DATA_HOST=data.bioinformatics.recipes
@@ -8,14 +7,13 @@ DATA_HOST=data.bioinformatics.recipes
 serve: init
 	python manage.py runserver
 
-
 init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate -v 0
+	python manage.py project --root ../biostar-recipes --json recipes/tutorial/tutorial-project.hjson --privacy public --jobs
 
 uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
-
 
 install:
 	pip install -r conf/python_requirements.txt
@@ -24,9 +22,7 @@ install:
 	conda config --add channels bioconda
 	conda install --file conf/conda_requirements.txt -y
 
-
-projects:
-	python manage.py project --json initial/tutorial/tutorial-project.hjson --privacy public --jobs
+recipes:
 	python manage.py project --root ../biostar-recipes --json projects/cookbook/cookbook-project.hjson --privacy public --jobs
 	python manage.py project --root ../biostar-recipes --json projects/metagenomics/mothur-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/giraffe/giraffe-project.hjson --privacy public
@@ -36,6 +32,7 @@ projects:
 	python manage.py add_access initial/initial-access.csv
 
 verbose:
+	# Makes logging more verbose.
 	export DJANGO_LOG_LEVEL=DEBUG
 
 delete:
@@ -49,8 +46,7 @@ delete:
 	rm -rf *.egg
 	rm -rf *.egg-info
 
-
-reset: delete init projects
+reset: delete init recipes
 
 postgres:
 	#dropdb --if-exists testbuddy_engine
@@ -58,10 +54,8 @@ postgres:
 	#python manage.py migrate
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
-
 next:
 	python manage.py job --next
-
 
 test:
 	python manage.py collectstatic --noinput -v 0
