@@ -97,6 +97,10 @@ def is_checkbox(field):
 
     return True if field.field.widget.input_type == "checkbox" else False
 
+@register.filter
+def is_radio(field):
+
+    return True if field.field.widget.input_type == "radio" else False
 
 
 @register.filter
