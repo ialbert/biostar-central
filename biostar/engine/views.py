@@ -686,7 +686,7 @@ def job_state_change(request, uid, state=''):
     "Change job.state to 'state'."
 
     # User can only alternate to/from deleted and queued states
-    choices = filter(lambda x: x[0] in [Job.DELETED, Job.QUEUED], Job.STATE_CHOICES)
+    choices = filter(lambda x: x[0] in [Job.DELETED, Job.RESTORED], Job.STATE_CHOICES)
     state_map = {x:y for y,x in choices}
 
     if not state_map.get(state):
@@ -695,9 +695,11 @@ def job_state_change(request, uid, state=''):
 
     job = auth.switch_states(uid=uid, model=Job, state=state_map[state], save=True)
 
-    action  = "out of " if job.state != Job.DELETED else "in to"
-    msg = mark_safe(f"Moved <b>{job.name}</b> {action} <a href={reverse('recycle_bin')}>Recycle Bin</a>.")
-    messages.success(request, msg)
+    msg = f"Deleted <b>{job.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
+    if job.state == Job.RESTORED:
+        msg = f"Restored <b>{job.name}</b>."
+
+    messages.success(request, mark_safe(msg))
     return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
 

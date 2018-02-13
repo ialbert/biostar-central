@@ -91,6 +91,13 @@ def has_data(request):
 
     return bool(uid and data)
 
+@register.filter
+def is_checkbox(field):
+    "Check if current field is a checkbox"
+
+    return True if field.field.widget.input_type == "checkbox" else False
+
+
 
 @register.filter
 def text_display(job_state):

@@ -102,7 +102,7 @@ class JobViewTest(TestCase):
 
         #Test the delete and restore views
         change_state("Deleted", url="job_delete")
-        change_state("Queued", url="job_restore")
+        change_state("Restored", url="job_restore")
 
 
     def test_job_runner(self):
