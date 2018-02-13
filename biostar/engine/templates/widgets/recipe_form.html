@@ -1,5 +1,6 @@
 {% load engine_tags %}
 
+
 {#  Renders the non field errors #}
 {% form_errors form %}
 
@@ -12,11 +13,20 @@
 {# Iterate over all form fields #}
 {% for field in form.visible_fields %}
     {{ field.errors }}
+
     <div class="field">
+        {% if field|is_checkbox %}
+        <div class="ui checkbox">
+            {{ field }} {{ field.label_tag }}
+        </div>
+        {% else %}
         {{ field.label_tag }}
         {{ field }}
+        {% endif %}
+
         <div class="muted">{{ field.help_text | safe }}</div>
     </div>
+
 {% endfor %}
 
 

@@ -82,7 +82,7 @@ def checkbox_field(data):
     label = data.get("label", "")
     help_text = data.get("help", "")
     initial = data.get("value", False)
-    widget = forms.CheckboxInput
+    widget = forms.CheckboxInput(attrs={'class':"ui checkbox"})
 
     field = forms.BooleanField(initial=initial, widget=widget, label=label, help_text=help_text, required=False)
 
