@@ -87,7 +87,7 @@ class SiteNavigation(TestCase):
             reverse("recipe_copy", kwargs=self.analysis_params),
             reverse("data_paste", kwargs=self.proj_params),
             reverse("job_delete", kwargs=dict(state="Deleted", uid=self.job.uid)),
-            reverse("job_restore", kwargs=dict(state="Queued", uid=self.job.uid))
+            reverse("job_restore", kwargs=dict(state="Restored", uid=self.job.uid))
         ]
 
         self.visit_urls(urls, [302, 200])
