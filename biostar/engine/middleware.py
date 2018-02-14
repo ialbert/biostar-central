@@ -16,7 +16,7 @@ def engine_middleware(get_response):
             auth.logout(request)
 
         response = get_response(request)
-        # Can process response here after its been handled by the view.
+        # Can process response here after its been handled by the view
 
         return response
 

@@ -63,7 +63,7 @@ class DataViewTest(TestCase):
         user = models.User.objects.create_user(username="test2", email="test2@l.com")
         user.set_password("test")
         user.save()
-        access = models.Access(access=models.Access.UPLOAD_ACCESS,
+        access = models.Access(access=models.Access.WRITE_ACCESS,
                                user=user,
                                project=self.project)
         access.save()

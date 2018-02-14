@@ -71,7 +71,7 @@ class ProjectViewTest(TestCase):
         new_user = models.User.objects.create_user(username="test2", email="test2@l.com")
         new_user.set_password("test2")
 
-        data = {"access":models.Access.ADMIN_ACCESS,
+        data = {"access":models.Access.WRITE_ACCESS,
                 "user_id":new_user.id, "project_uid":self.project.uid}
 
         url = reverse('project_users', kwargs=dict(uid=self.project.uid))
@@ -96,9 +96,6 @@ class ProjectViewTest(TestCase):
 
         # Error generating users access forms ( forms.access_forms).
         self.assertTrue(len(users) ==len(user_forms))
-
-
-
 
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"

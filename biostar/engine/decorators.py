@@ -13,7 +13,7 @@ class object_access:
     Redirects to the url on access error.
     """
 
-    def __init__(self, type, access=models.Access.ADMIN_ACCESS, url='', login_required=False, owner_only=False):
+    def __init__(self, type, access=models.Access.WRITE_ACCESS, url='', login_required=False):
 
         # The object that will be checked for permission.
         self.type = type
@@ -26,9 +26,6 @@ class object_access:
 
         # Does the access require a logged in user.
         self.login_required = login_required
-
-        # Only the owner of self.type can access view
-        self.owner_only = owner_only
 
     def __call__(self, function, *args, **kwargs):
         """
@@ -50,7 +47,7 @@ class object_access:
 
             # Check for access to the object.
             allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=self.access,
-                                                 login_required=self.login_required, owner_only=self.owner_only)
+                                                 login_required=self.login_required)
             # Access check did not pass, redirect.
             if not allow_access:
 

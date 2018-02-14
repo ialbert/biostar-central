@@ -115,8 +115,8 @@ class ChangeUserAccess(forms.Form):
         access = [a.access for a in project.access_set.all() if a.user.id!=cleaned_data["user_id"]]
         access.append(cleaned_data["access"])
 
-        if Access.ADMIN_ACCESS not in access:
-            label = f"<span class='ui green mini label'>Admin Access</span>"
+        if Access.OWNER_ACCESS not in access:
+            label = f"<span class='ui green mini label'>Owner Access</span>"
             msg = f"Can not change <b>{user.first_name}</b>'s access without giving another user {label}"
             raise forms.ValidationError(mark_safe(msg))
 
@@ -196,8 +196,8 @@ class RecipeInterface(forms.Form):
         # Check the permissions for
         entry = Access.objects.filter(user=self.user, project=self.project).first()
 
-        if not entry or entry.access < Access.EXECUTE_ACCESS:
-            msg2 = "You don't have execute rights in this project. Copy this analysis to another project."
+        if not entry or entry.access < Access.WRITE_ACCESS:
+            msg2 = "You don't have write access to this project. Copy this analysis to another project."
             raise forms.ValidationError(msg2)
 
         if self.analysis.security != Analysis.AUTHORIZED:
@@ -230,6 +230,7 @@ class RecipeInterface(forms.Form):
             # The JSON value will be overwritten with the selected field value.
             if field in self.cleaned_data:
                 value = self.cleaned_data[field]
+                # Clean the textbox value
                 item["value"] = value if item['display'] != TEXTBOX else clean_text(value)
 
         return json_data
@@ -298,5 +299,5 @@ class EditCode(forms.Form):
             if self.user.is_anonymous:
                 raise forms.ValidationError(msg)
             entry = Access.objects.filter(user=self.user, project=self.project).first()
-            if not entry or entry.access < Access.EDIT_ACCESS:
+            if not entry or entry.access < Access.WRITE_ACCESS:
                 raise forms.ValidationError(msg)
