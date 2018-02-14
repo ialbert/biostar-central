@@ -124,17 +124,17 @@ def user_login(request):
 
             user = auth.authenticate(username=user.username, password=password)
 
-            if user and user.profile.state in [Profile.BANNED, Profile.SUSPENDED ]:
-                msg = f"Login not allowed. Account is <b> {user.profile.get_state_display()}</b>"
-                messages.error(request, mark_safe(msg))
-                return redirect("/")
-
             if not user:
                 messages.error(request, "Invalid Password")
                 return redirect(reverse("login"))
 
-            elif (user and not user.is_active):
-                messages.error(request, "This user may not log in.")
+            if user.profile.state in [Profile.BANNED, Profile.SUSPENDED ]:
+                msg = f"Login not allowed. Account is <b> {user.profile.get_state_display()}</b>"
+                messages.error(request, mark_safe(msg))
+                return redirect("/")
+
+            elif user and not user.is_active:
+                messages.error(request, "This user is not active.")
                 return redirect(reverse("login"))
 
             elif user and user.is_active:
@@ -142,13 +142,11 @@ def user_login(request):
                 messages.success(request, "Login successful!")
                 return redirect("/")
 
-
         messages.error(request, mark_safe(form.errors))
 
     form = LoginForm()
     context = dict(form=form)
     return render(request, "accounts/login.html", context=context)
-
 
 
 def password_reset(request):

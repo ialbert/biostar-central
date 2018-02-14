@@ -22,7 +22,6 @@ def float_field(data):
     return field
 
 
-
 def select_field(data, choicefunc=None):
     if choicefunc:
         choices = choicefunc() or []
