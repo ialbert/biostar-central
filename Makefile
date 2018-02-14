@@ -15,6 +15,9 @@ init:
 uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
+nginx: init
+	uwsgi  --ini conf/devel/devel_nginx_uwsgi.ini
+
 install:
 	pip install -r conf/python_requirements.txt
 	conda config --add channels r

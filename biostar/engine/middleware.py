@@ -3,6 +3,7 @@ from django.contrib import messages
 
 from biostar.accounts.models import Profile
 
+
 def engine_middleware(get_response):
 
     def middleware(request):
@@ -20,3 +21,4 @@ def engine_middleware(get_response):
         return response
 
     return middleware
+
