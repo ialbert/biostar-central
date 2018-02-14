@@ -7,8 +7,6 @@ body {
     color: #4183c4;
 }
 
-
-
 .project.help h1 {
     font-size: 1.28em;
 }
@@ -64,6 +62,10 @@ body {
 h1 {
     min-height: 1rem;
     font-size: 1.4rem;
+}
+
+ul {
+    list-style-type: none !important ;
 }
 
 .subheader {
