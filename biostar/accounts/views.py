@@ -1,4 +1,3 @@
-
 import uuid, logging
 
 from django.contrib import messages
@@ -10,6 +9,7 @@ from django.contrib.auth import views as auth_views
 from django.utils.safestring import mark_safe
 
 from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
+from .models import Profile
 from django.contrib import auth
 
 logger = logging.getLogger('engine')
@@ -124,11 +124,16 @@ def user_login(request):
 
             user = auth.authenticate(username=user.username, password=password)
 
+            if user and user.profile.state in [Profile.BANNED, Profile.SUSPENDED ]:
+                msg = f"Login not allowed. Account is <b> {user.profile.get_state_display()}</b>"
+                messages.error(request, mark_safe(msg))
+                return redirect("/")
+
             if not user:
                 messages.error(request, "Invalid Password")
                 return redirect(reverse("login"))
 
-            elif user and not user.is_active:
+            elif (user and not user.is_active):
                 messages.error(request, "This user may not log in.")
                 return redirect(reverse("login"))
 
@@ -136,6 +141,7 @@ def user_login(request):
                 auth.login(request, user)
                 messages.success(request, "Login successful!")
                 return redirect("/")
+
 
         messages.error(request, mark_safe(form.errors))
 
@@ -162,8 +168,6 @@ def password_reset_done(request):
 
 def pass_reset_confirm(request, uidb64, token):
     context = dict()
-
-    #TODO: need to change the set_password_form to own (current one has annoying restrications).
 
     return auth_views.password_reset_confirm(request, extra_context=context,
                                              template_name="accounts/password_reset_confirm.html",

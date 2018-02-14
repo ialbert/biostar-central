@@ -21,7 +21,7 @@ def init_users(sender, **kwargs):
     """
     from .models import User, Group
 
-    admin_group, created = Group.objects.get_or_create(name=settings.ADMIN_GROUP_NAME)
+    #admin_group, created = Group.objects.get_or_create(name=settings.ADMIN_GROUP_NAME)
 
     logger.info("Setting up admin users")
 
@@ -31,7 +31,7 @@ def init_users(sender, **kwargs):
             user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
             user.save()
             logger.info(f"Created admin user: {user.email}")
-            admin_group.user_set.add(user)
+            #admin_group.user_set.add(user)
 
 def init_site(sender, **kwargs):
     """
