@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Job, Analysis
-from django.forms import TextInput, Textarea
+from .models import Job, Analysis, Project
+from django.forms import Textarea
 from django.db.models import TextField
 
 
@@ -66,3 +66,26 @@ class AnalysisAdmin(admin.ModelAdmin):
                   ),
                  )
 
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+
+    formfield_overrides = {
+        TextField: {'widget': Textarea(attrs={'rows':20,'cols': 100})},
+    }
+
+    search_fields = ('name', 'text', 'owner__first_name', 'owner__email')
+    list_display = ("name", "date", "state")
+    list_filter = ( "name", "state")
+
+    fieldsets = (("Analysis Metadata",
+                    {'fields': ("name","owner",("uid","sticky"),
+                                "state", "image"),
+                     "classes": ('extrapretty')}
+                  ),
+
+                 ("Optional Text Inputs",
+                    {'fields':("text","summary"),
+                     "classes": ("collapse",'extrapretty')}
+                  ),
+                 )

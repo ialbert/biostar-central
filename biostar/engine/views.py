@@ -681,7 +681,7 @@ def job_edit(request, uid):
     return render(request, 'job_edit.html', context)
 
 
-@object_access(type=Job, access=Access.OWNER_ACCESS)
+@object_access(type=Job, access=Access.OWNER_ACCESS, url="job_view")
 def job_state_change(request, uid, state=''):
     "Change job.state to 'state'."
 
