@@ -114,7 +114,7 @@ def get_access(request, project):
     return user_access, user_list
 
 
-@object_access(type=Project, access=Access.ADMIN_ACCESS, url='data_list')
+@object_access(type=Project, access=Access.OWNER_ACCESS, url='data_list')
 def project_users(request, uid):
     """
     Manage project users
@@ -246,7 +246,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     return render(request, template_name, context)
 
 
-@object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view', owner_only=True)
+@object_access(type=Project, access=Access.OWNER_ACCESS, url='project_view')
 def project_edit(request, uid):
     "Edit meta-data associated with a project."
 
@@ -314,7 +314,7 @@ def data_copy(request, uid):
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
-@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.WRITE_ACCESS, url='project_view')
 def data_paste(request, uid):
     "Paste data stored in the clipboard into project"
 
@@ -340,7 +340,7 @@ def data_paste(request, uid):
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
-@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.WRITE_ACCESS, url='project_view')
 def files_paste(request, uid):
     "View used to paste result files copied from a job."
 
@@ -374,7 +374,7 @@ def files_paste(request, uid):
     return redirect(url)
 
 
-@object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view', owner_only=True)
+@object_access(type=Data, access=Access.OWNER_ACCESS, url='data_view')
 def data_edit(request, uid):
     "Edit data info"
 
@@ -405,7 +405,7 @@ def data_nav(request, uid):
     return render(request, "data_nav.html", context)
 
 
-@object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
+@object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
 def data_upload(request, uid):
     "Data upload view routed through auth.create_data."
 
@@ -461,7 +461,7 @@ def recipe_view(request, uid):
     return render(request, "recipe_view.html", context)
 
 
-@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
 def recipe_run(request, uid):
     "View used to start jobs by running recipes."
 
@@ -512,7 +512,7 @@ def recipe_copy(request, uid):
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
 
-@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.WRITE_ACCESS, url='project_view')
 def recipe_paste(request, uid):
     "Paste recipe stored in the clipboard into project"
 
@@ -542,7 +542,7 @@ def recipe_paste(request, uid):
     return redirect(url)
 
 
-@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
 def recipe_code(request, uid):
     """
     Displays and allows edit on a recipe code.
@@ -606,7 +606,7 @@ def recipe_code(request, uid):
     return render(request, 'recipe_code.html', context)
 
 
-@object_access(type=Project, access=Access.EDIT_ACCESS, url='recipe_list')
+@object_access(type=Project, access=Access.WRITE_ACCESS, url='recipe_list')
 def recipe_create(request, uid):
     """
     Create recipe with empty template and json spec
@@ -642,7 +642,7 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view', owner_only=True)
+@object_access(type=Analysis, access=Access.OWNER_ACCESS, url='recipe_view')
 def recipe_edit(request, uid):
     "Edit meta-data associated with a recipe."
 
@@ -663,7 +663,7 @@ def recipe_edit(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view", owner_only=True)
+@object_access(type=Job, access=Access.OWNER_ACCESS, url="job_view")
 def job_edit(request, uid):
     "Edit meta-data associated with a job."
 
@@ -681,11 +681,11 @@ def job_edit(request, uid):
     return render(request, 'job_edit.html', context)
 
 
-@object_access(type=Job, access=Access.EDIT_ACCESS, owner_only=True)
+@object_access(type=Job, access=Access.OWNER_ACCESS, url="job_view")
 def job_state_change(request, uid, state=''):
     "Change job.state to 'state'."
 
-    # User can only alternate to/from deleted and queued states
+    # User can only alternate to/from deleted and restored states
     choices = filter(lambda x: x[0] in [Job.DELETED, Job.RESTORED], Job.STATE_CHOICES)
     state_map = {x:y for y,x in choices}
 

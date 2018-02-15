@@ -12,11 +12,8 @@ __CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 # The valid access choices.
 CHOICE_MAP = dict(
     read=Access.READ_ACCESS,
-    recipe=Access.RECIPE_ACCESS,
-    execute=Access.EXECUTE_ACCESS,
-    edit=Access.EDIT_ACCESS,
-    admin=Access.ADMIN_ACCESS,
-    upload=Access.UPLOAD_ACCESS,
+    write=Access.WRITE_ACCESS,
+    owner=Access.OWNER_ACCESS
 )
 
 CHOICES = list(CHOICE_MAP.keys())

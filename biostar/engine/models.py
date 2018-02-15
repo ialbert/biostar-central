@@ -113,17 +113,15 @@ class Access(models.Model):
 
     # The numerical values for permissions matter!
     # A higher number implies all lesser permissions.
-    # READ_ACCESS < EXECUTE_ACCESS < ADMIN_ACCESS
-    NO_ACCESS, READ_ACCESS, RECIPE_ACCESS, EXECUTE_ACCESS, EDIT_ACCESS, UPLOAD_ACCESS, ADMIN_ACCESS = range(1, 8)
+    # READ_ACCESS < WRITE_ACCESS < OWNER_ACCESS
+    NO_ACCESS, READ_ACCESS, WRITE_ACCESS, OWNER_ACCESS = range(1, 5)
     ACCESS_CHOICES = [
         (NO_ACCESS, "No Access"),
         (READ_ACCESS, "Read Access"),
-        (RECIPE_ACCESS, "Recipe Access"),
-        (EXECUTE_ACCESS, "Execute Access"),
-        (EDIT_ACCESS, "Edit Access"),
-        (UPLOAD_ACCESS, "Upload Access"),
-        (ADMIN_ACCESS, "Admin Access"),
+        (WRITE_ACCESS, "Write Access"),
+        (OWNER_ACCESS, "Owner Access")
     ]
+
     ACCESS_MAP = dict(ACCESS_CHOICES)
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -138,7 +136,7 @@ def create_access(sender, instance, created, **kwargs):
     if created:
 
         # Creates an admin access for the user.
-        access = Access.objects.create(user=instance.owner, project=instance, access=Access.ADMIN_ACCESS)
+        access = Access.objects.create(user=instance.owner, project=instance, access=Access.OWNER_ACCESS)
         access.save()
 
 

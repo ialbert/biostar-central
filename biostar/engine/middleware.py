@@ -1,29 +1,24 @@
-from django.utils.deprecation import MiddlewareMixin
-from biostar.accounts.models import Profile
-from django.http import HttpResponseRedirect
-
+from django.contrib import auth
 from django.contrib import messages
 
-import os
+from biostar.accounts.models import Profile
 
 
-class EngineMiddleware(MiddlewareMixin):
+def engine_middleware(get_response):
 
-    def process_request(self, request):
-        "Redirect to root url if the user is not trusted"
+    def middleware(request):
 
         user = request.user
-        if user.is_anonymous:
-            # Continue toProcess other middleware
-            return None
 
-        is_root_url = request.get_full_path() == "/"
+        # Banned and suspended users are not allowed
+        if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
+            messages.error(request, f"Account is {user.profile.get_state_display()}")
+            auth.logout(request)
 
-        # Request only allowed if the user is 'new' or 'trusted'
-        if user.profile.state in (Profile.NEW, Profile.TRUSTED) or is_root_url :
-            return None
+        response = get_response(request)
+        # Can process response here after its been handled by the view
 
-        messages.error(request, f"Account is {user.profile.get_state_display()}")
-        return HttpResponseRedirect("/")
+        return response
 
+    return middleware
 

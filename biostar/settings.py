@@ -29,7 +29,6 @@ ADMINS = [
     ("Admin User", "1@lvh.me")
 ]
 
-ADMIN_GROUP_NAME = "ADMIN"
 
 # Helper function for building absolute paths.
 def join(*args):
@@ -68,7 +67,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'biostar.engine.middleware.EngineMiddleware',
+    'biostar.engine.middleware.engine_middleware',
 ]
 
 ROOT_URLCONF = 'biostar.urls'
@@ -139,11 +138,6 @@ MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
 # The location of resusable data.
 LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 
-SENDFILE_ROOT = MEDIA_ROOT
-SENDFILE_URL = '/protected/'
-
-# Sendfile settings go here.
-SENDFILE_BACKEND = "sendfile.backends.development"
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
