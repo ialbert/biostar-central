@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^data/paste/(?P<uid>[-\w]+)/$', views.data_paste, name='data_paste'),
     url(r'^files/paste/(?P<uid>[-\w]+)/$', views.files_paste, name='files_paste'),
     url(r'^data/navigate/(?P<uid>[-\w]+)/$', views.data_nav, name='data_nav'),
+    url(r'^data/file/serve/(?P<uid>[-\w]+)/(?P<file_path>.+)/$', views.data_file_serve, name='data_file_serve'),
 
     # Recipe URLS
     url(r'^recipe/list/(?P<uid>[-\w]+)/$', views.recipe_list, name='recipe_list'),
@@ -46,6 +47,7 @@ urlpatterns = [
     url(r'^job/restore/(?P<uid>[-\w]+)/(?P<state>[-\w]+)/$', views.job_state_change, name='job_restore'),
     url(r'^job/view/files/(?P<uid>[-\w]+)/$', views.job_files_list, name='job_files_entry'),
     url(r'^job/view/files/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_files_list, name='job_files_list'),
+    url(r'^job/file/serve/(?P<uid>[-\w]+)/(?P<file_path>.+)/$', views.job_file_serve, name='job_file_serve')
 
 ]
 

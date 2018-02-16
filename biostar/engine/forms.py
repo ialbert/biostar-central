@@ -102,23 +102,12 @@ class JobEditForm(forms.ModelForm):
 
 class ChangeUserAccess(forms.Form):
 
+
     user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
     project_uid = forms.CharField(required=True, widget=forms.HiddenInput())
+    choices = filter(lambda x: x[0] != Access.OWNER_ACCESS, Access.ACCESS_CHOICES)
     access = forms.IntegerField(initial=Access.NO_ACCESS,
-                                widget=forms.Select(choices=Access.ACCESS_CHOICES))
-
-    def clean(self):
-        cleaned_data = super(ChangeUserAccess, self).clean()
-
-        user = User.objects.filter(id=cleaned_data["user_id"]).first()
-        project = Project.objects.filter(uid=cleaned_data["project_uid"]).first()
-        access = [a.access for a in project.access_set.all() if a.user.id!=cleaned_data["user_id"]]
-        access.append(cleaned_data["access"])
-
-        if Access.OWNER_ACCESS not in access:
-            label = f"<span class='ui green mini label'>Owner Access</span>"
-            msg = f"Can not change <b>{user.first_name}</b>'s access without giving another user {label}"
-            raise forms.ValidationError(mark_safe(msg))
+                                widget=forms.Select(choices=choices))
 
     def change_access(self):
         "Change users access to a project"
@@ -139,11 +128,14 @@ class ChangeUserAccess(forms.Form):
         return user,new_access
 
 
-def access_forms(users, project):
-    " Generate a list of forms for a given user list"
+def access_forms(users, project, exclude=()):
+    """Generate a list of forms for a given user list
+    Param exclude: a list of users to exclude"""
 
     forms = []
     for user in users:
+        if user in exclude:
+            continue
         access = Access.objects.filter(user=user, project=project).first()
         initial = dict(access=Access.NO_ACCESS, user_id=user.id)
         if access:

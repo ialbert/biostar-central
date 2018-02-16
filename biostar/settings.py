@@ -138,6 +138,12 @@ MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
 # The location of resusable data.
 LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 
+# Sendfile settings go here.
+SENDFILE_ROOT = MEDIA_ROOT
+SENDFILE_URL = '/protected/'
+
+#SENDFILE_BACKEND = "sendfile.backends.nginx"
+SENDFILE_BACKEND = "sendfile.backends.development"
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'

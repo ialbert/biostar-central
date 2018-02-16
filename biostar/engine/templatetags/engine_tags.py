@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.db.models import Q
 
 from biostar import settings
-from biostar.engine.models import Job, make_html, Project, Data, Analysis
+from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
 from biostar.engine import auth
 
 
@@ -70,12 +70,15 @@ def input(path, current):
 @register.simple_tag
 def file_url(object, path, current):
 
+    assert isinstance(object, Data) or isinstance(object, Job)
     if current.is_dir():
         return dir_url( object=object, path=path, current=current)
 
-    media_url = settings.MEDIA_URL
     path = path + "/" if path else ""
-    url = media_url + object.get_url() +  path + current.name
+    if isinstance(object, Data):
+        url = reverse("data_file_serve", kwargs=dict(uid=object.uid, file_path=path + current.name))
+    else:
+        url = reverse("job_file_serve", kwargs=dict(uid=object.uid, file_path=path + current.name))
 
     return mark_safe(f'<a href="{url}"><i class="file text outline icon"></i>{current.name}</a>')
 
@@ -143,8 +146,6 @@ def update_dict(iter):
 
 @register.inclusion_tag('widgets/search.html')
 def search(request):
-    #TODO: will probably be refractored after correctly using ajax
-    #TODO: this is loaded in every page so there are a lot of queries going on even without a search,
 
     projects = auth.get_project_list(user=request.user)
 
@@ -270,12 +271,18 @@ def show_messages(messages):
     return dict(messages=messages)
 
 
-@register.inclusion_tag('widgets/project_name_bar.html')
-def project_name_bar(project):
+@register.inclusion_tag('widgets/project_name_bar.html', takes_context=True)
+def project_name_bar(context, project):
     """
     Returns a label for data sizes.
     """
-    return dict(project=project)
+    user = context["user"]
+    access = Access(access=Access.READ_ACCESS)
+    if user.is_authenticated:
+        access = Access.objects.filter(user=user, project=project).first()
+
+    return dict(project=project, access=access)
+
 
 @register.inclusion_tag('widgets/recipe_form.html')
 def recipe_form(form):
