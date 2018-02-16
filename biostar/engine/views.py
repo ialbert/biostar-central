@@ -1,11 +1,12 @@
 import glob
 import logging
+import mistune
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-import mistune
 
+from sendfile import sendfile
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -78,12 +79,11 @@ def recycle_bin(request):
         messages.error(request, "You must be logged in to view recycle bin.")
         return redirect("/")
 
+    # Only searches projects you have access.
     all_projects = auth.get_project_list(user=request.user)
 
-    # Only jobs enabled currently
     del_jobs = Job.objects.filter(state=Job.DELETED, project__in=all_projects,
                                   owner=request.user).order_by("date")
-
     context = dict(jobs=del_jobs)
 
     return render(request, 'recycle_bin.html', context=context)
@@ -139,8 +139,8 @@ def project_users(request, uid):
 
     # Users that have been searched for.
     targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
-    current = access_forms(users=user_list, project=project)
-    results = access_forms(users=targets, project=project)
+    current = access_forms(users=user_list, project=project, exclude=[request.user])
+    results = access_forms(users=targets, project=project, exclude=[request.user])
     context = dict(current=current, project=project, results=results, form=form, activate='selection',
                    q=q, user_access=user_access)
     counts = get_counts(project)
@@ -338,6 +338,20 @@ def data_paste(request, uid):
     request.session["data_clipboard"] = None
     messages.success(request, mark_safe(f"Pasted <b>{data.name}</b> to <b>{project.name}</b>."))
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
+
+@object_access(type=Data, access=Access.READ_ACCESS, url='data_files_entry')
+def data_file_serve(request, uid, file_path):
+    "Authenticates access through decorator before serving file"
+
+    data = Data.objects.filter(uid=uid).first()
+    file_path = join(data.get_data_dir(), file_path)
+
+    if not os.path.isfile(file_path):
+        messages.error(request, "Path is not a file.")
+        return redirect(reverse("data_files_entry", kwargs=dict(uid=data.uid)))
+
+    return sendfile(request, file_path)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='project_view')
@@ -719,11 +733,18 @@ def job_view(request, uid):
     return render(request, "job_view.html", context=context)
 
 
-def block_media_url(request, **kwargs):
-    "Block users from accessing media directory using urls"
+@object_access(type=Job, access=Access.READ_ACCESS, url='job_files_entry')
+def job_file_serve(request, uid, file_path):
+    "Authenticates access through decorator before serving files"
 
-    messages.error(request, f"Not allowed")
-    return redirect(reverse("project_list"))
+    job = Job.objects.filter(uid=uid).first()
+    file_path = join(job.path, file_path)
+
+    if not os.path.isfile(file_path):
+        messages.error(request, "Path is not a file.")
+        return redirect(reverse("job_files_entry", kwargs=dict(uid=job.uid)))
+
+    return sendfile(request, file_path)
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
