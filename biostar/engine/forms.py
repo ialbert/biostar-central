@@ -102,9 +102,6 @@ class JobEditForm(forms.ModelForm):
 
 class ChangeUserAccess(forms.Form):
 
-    def __init__(self, user=None, *args, **kwargs):
-        self.user = user
-        super().__init__(*args, **kwargs)
 
     user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
     project_uid = forms.CharField(required=True, widget=forms.HiddenInput())
