@@ -351,7 +351,8 @@ def data_file_serve(request, uid, file_path):
         messages.error(request, "Path is not a file.")
         return redirect(reverse("data_files_entry", kwargs=dict(uid=data.uid)))
 
-    return sendfile(request, file_path)
+    return sendfile(request, file_path,attachment=True,
+                    attachment_filename=os.path.basename(file_path))
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='project_view')
@@ -744,7 +745,8 @@ def job_file_serve(request, uid, file_path):
         messages.error(request, "Path is not a file.")
         return redirect(reverse("job_files_entry", kwargs=dict(uid=job.uid)))
 
-    return sendfile(request, file_path)
+    return sendfile(request, file_path, attachment=True,
+                    attachment_filename=os.path.basename(file_path))
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
