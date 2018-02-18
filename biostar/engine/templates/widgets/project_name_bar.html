@@ -3,9 +3,10 @@
 
     <div class="ui header">
         <img class="ui tiny image" src="{% img project %}"> {{ project.name }}
-        <a href="/docs/access/" class="ui green tiny label">
-            {{ access.get_access_display }}
-        </a>
+        <div class="ui tag mini label">
+        {{ access.get_access_display }}
+        </div>
+
     </div>
 
 </div>

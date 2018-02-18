@@ -3,10 +3,11 @@ import json
 import logging
 from django import template
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.template import loader
+from django.template import defaultfilters
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.db.models import Q
+from django.test.client import RequestFactory
 
 from biostar import settings
 from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
@@ -34,14 +35,6 @@ def sticky_label(obj):
     return label if obj.sticky else ''
 
 
-def access_denied_message(user, access):
-    """
-    Generates the access denied message
-    """
-    tmpl = loader.get_template('widgets/access_denied_message.html')
-    context = dict(user=user, access=access)
-    return tmpl.render(context=context)
-
 
 @register.inclusion_tag('widgets/file_listing.html')
 def file_listing(path, file_list, object, project_uid='', form=None):
@@ -63,12 +56,15 @@ def dir_url(object, path, current):
 
 @register.simple_tag
 def input(path, current):
+
     path = path + "/" if path else ""
-    return mark_safe(f'<input type="checkbox" name="paths" value="{path}{current.name}">')
+    input_template = f'<input type="checkbox" name="paths" value="{path}{current.name}">'
+    return mark_safe(input_template)
 
 
 @register.simple_tag
 def file_url(object, path, current):
+    "Used in file navigator to render file info in template"
 
     assert isinstance(object, Data) or isinstance(object, Job)
     if current.is_dir():
@@ -80,7 +76,16 @@ def file_url(object, path, current):
     else:
         url = reverse("job_file_serve", kwargs=dict(uid=object.uid, file_path=path + current.name))
 
-    return mark_safe(f'<a href="{url}"><i class="file text outline icon"></i>{current.name}</a>')
+    byte = current.stat(follow_symlinks=True).st_size
+
+    # Make the size user friendly
+    size = f"{defaultfilters.filesizeformat(byte)}"
+    file_template = f"""
+            <a href="{url}"><i class="file text outline icon"></i>{current.name}
+            <span class="ui right floated mini label">{size}</span>
+            </a>
+            """
+    return mark_safe(file_template)
 
 
 @register.filter
@@ -90,9 +95,11 @@ def has_data(request):
     """
 
     uid = request.session.get("data_clipboard")
-    data = Data.objects.filter(uid=uid).first()
 
-    return bool(uid and data)
+    # Dump data clipboard without resting it
+    data_list = auth.dump_data_clipboard(request=request)
+
+    return bool(uid and data_list)
 
 @register.filter
 def is_checkbox(field):
@@ -117,17 +124,15 @@ def text_display(job_state):
 @register.filter
 def has_files(request):
     "Checks if object in clipboard is a list of files belonging to a job"
-    files = request.session.get("files_clipboard", [""])
+    files = request.session.get("files_clipboard", None)
 
-    # Last item loaded into files clipboard is the job.uid the files belong to.
-    job_uid = files.pop(-1)
-
-    job = Job.objects.filter(uid=job_uid).first()
-    if not job:
+    # Last item loaded into files clipboard is the instance.uid the files belong to.
+    root_path = auth.validate_files_clipboard(request=request, clipboard=files)
+    if not root_path:
         return False
 
     # Some files in clipboard might be outside job path.
-    files = [f for f in files if f.startswith(job.path)]
+    files = [f for f in files if f.startswith(root_path)]
 
     # Files might still be empty at this point
     return True if files else False
@@ -164,23 +169,26 @@ def search(request):
 
 
 @register.inclusion_tag('widgets/paste.html')
-def paste(project, data=False, files=False):
+def paste(project, data=False, files=False, request=None):
     "Default provides template for pasting a recipe"
 
     action, url, message = "Paste Recipe", "recipe_paste", "a recipe"
-    redir, board = "recipe_list", "recipe_clipboard"
+    board =  "recipe_clipboard"
+    redir = "data_list" if (data or files) else "recipe_list"
 
-    if data or files:
-        # Change params for data or files
-
-        action = "Paste Data" if data else "Paste File(s)"
-        url = "data_paste" if data else "files_paste"
-        board = "data_clipboard" if data else "files_clipboard"
-        args, redir = dict(uid=project.uid), "data_list"
-        message = "a data" if data else "files"
+    if data:
+        board = "data_clipboard"
+        active_board = [] if not request else request.session.get(board, [])
+        action, url, message = "Paste Data", "data_paste", f"{len(active_board)} data"
+    elif files:
+        board = "files_clipboard"
+        active_board = [] if not request else request.session.get(board, [])
+        # Last time in the files_clipboard is an instance.uid, not a file.
+        nfiles = len(active_board) - 1 if active_board else 0
+        action, url, message = "Paste File(s)", "files_paste", f"{nfiles} file(s)"
 
     paste_url = reverse(url, kwargs=dict(uid=project.uid))
-    clear_url = reverse("clear_clipboard", kwargs=dict(uid=project.uid, redir=redir, board=board))
+    clear_url = reverse("clear_clipboard", kwargs=dict(uid=project.uid, url=redir, board=board))
 
     return dict(action=action, paste_url=paste_url, clear_url=clear_url, message=message)
 
@@ -194,11 +202,6 @@ def has_recipe(request):
     recipe = Analysis.objects.filter(uid=uid).first()
     return bool(uid and recipe)
 
-
-@register.inclusion_tag('widgets/pages.html')
-def pages(instance):
-
-    return dict(instance=instance)
 
 
 @register.simple_tag
@@ -274,12 +277,14 @@ def show_messages(messages):
 @register.inclusion_tag('widgets/project_name_bar.html', takes_context=True)
 def project_name_bar(context, project):
     """
-    Returns a label for data sizes.
+    Returns a label for project.
     """
     user = context["user"]
-    access = Access(access=Access.READ_ACCESS)
+    access = None
     if user.is_authenticated:
         access = Access.objects.filter(user=user, project=project).first()
+
+    access = access or Access(access=Access.READ_ACCESS)
 
     return dict(project=project, access=access)
 
@@ -299,19 +304,20 @@ def access_form(project, user, form):
 
     return dict(project=project, user=user, form=form)
 
+
 @register.inclusion_tag('widgets/job_elapsed.html')
 def job_minutes(job):
-    """
-    Returns a label for data sizes.
-    """
+
     return dict(job=job)
 
-@register.inclusion_tag('widgets/size_label.html')
+
+@register.simple_tag
 def size_label(data):
     """
     Returns a label for data sizes.
     """
-    return dict(data=data)
+    size = f"{defaultfilters.filesizeformat(data.size)}"
+    return mark_safe(f"<span class='ui mini label'>{size}</span>")
 
 
 @register.inclusion_tag('widgets/form_errors.html')

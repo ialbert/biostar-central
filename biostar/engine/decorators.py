@@ -13,6 +13,7 @@ class object_access:
     Redirects to the url on access error.
     """
 
+
     def __init__(self, type, access=models.Access.WRITE_ACCESS, url='', login_required=False):
 
         # The object that will be checked for permission.
@@ -52,7 +53,7 @@ class object_access:
             if not allow_access:
 
                 # If there is a redirect url build with the uid.
-                if self.url and id:
+                if self.url and uid:
                     target = reverse(self.url, kwargs=dict(uid=uid))
                 else:
                     target = reverse('project_list')

@@ -4,6 +4,11 @@
 
 {% block content %}
 
+{% form_errors form %}
+
+<form method="post" class="ui form" action="{% url 'data_nav' project.uid %}">
+    {% csrf_token %}
+
     <div class="ui relaxed divided list">
 
             <div class="item">
@@ -12,11 +17,28 @@
 
             {% for data in all_data %}
                 <div class="item">
+                    <input type="checkbox" name="uids" value="{{data.uid}}">
                     <a href="{% url 'data_files_entry' data.uid %}">
                         <i class="folder icon"></i>{{data.name}}
+                    <div class="ui right floated">
+                        {% size_label data %}
+                    </div>
+
                     </a>
                 </div>
             {% endfor %}
+
+            {% if all_data %}
+
+             <div class="ui center aligned basic segment">
+                <button type="submit" class="ui submit green button">
+                    <i class="clone icon"></i>Copy Data
+                </button>
+             </div>
+
+            {% endif %}
     </div>
+
+</form>
 
 {% endblock %}

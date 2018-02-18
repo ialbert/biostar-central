@@ -24,7 +24,7 @@
             {% if data.type %}
             <div class="item">Data Type: {% type_label data %} </div>
             {% endif %}
-            <div class="item">Created by: {{ data.owner.email }}</div>
+            <div class="item">Created by: {{ data.owner.first_name }}</div>
         </div>
     </div>
 
@@ -41,6 +41,10 @@
     <div class="ui basic center aligned segment">
         <a class="ui button" href="{% url 'data_copy' data.uid %}">
             <i class="clone icon"></i>Copy Data
+        </a>
+
+        <a class="ui button" href="{% url 'data_files_entry' data.uid %}">
+            <i class="browser icon"></i>Browse Files
         </a>
 
         <a class="ui button" href="{% url 'data_edit' data.uid %}">

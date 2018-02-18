@@ -109,7 +109,8 @@ class ChangeUserAccess(forms.Form):
     access = forms.IntegerField(initial=Access.NO_ACCESS,
                                 widget=forms.Select(choices=choices))
 
-    def change_access(self):
+
+    def save(self):
         "Change users access to a project"
 
         user_id = self.cleaned_data["user_id"]
@@ -228,31 +229,56 @@ class RecipeInterface(forms.Form):
         return json_data
 
 
-class FileCopyForm(forms.Form):
-    "Used to save paths found in jobs into files_clipboard"
+class DataCopyForm(forms.Form):
+    "Used to store multiple data uids in data_clipboard with checkbox inputs"
 
-    def __init__(self, job, request, *args, **kwargs):
-        self.job = job
+    def __init__(self, request, *args, **kwargs):
         self.request = request
         super().__init__(*args, **kwargs)
 
-    paths = forms.CharField()
+    uids = forms.CharField(max_length=models.MAX_TEXT_LEN)
+
+    def save(self):
+        for uid in self.cleaned_data:
+            auth.load_data_clipboard(uid=uid, request=self.request)
+        return len(self.cleaned_data)
+
+    def clean(self):
+
+        uids = self.data.getlist('uids')
+        # Override cleaned_data to later access in save()
+        self.cleaned_data = []
+        for uid in uids:
+            if Data.objects.filter(uid=uid).exists:
+                self.cleaned_data.append(uid)
+
+
+class FileCopyForm(forms.Form):
+    "Used to save paths found in jobs/data into files_clipboard"
+
+    def __init__(self, request, uid, root_dir, *args, **kwargs):
+        self.uid = uid
+        self.request = request
+        self.root_dir = root_dir
+        super().__init__(*args, **kwargs)
+
+    paths = forms.CharField(max_length=models.MAX_FIELD_LEN)
 
     def save(self):
         # Save the selected files in clipboard,
-        # Note: job.uid has to be appended to later validate where the files came from
-        self.cleaned_data.append(self.job.uid)
+        # Note: instance.uid is appended and later used to validate where copied files came from
+        self.cleaned_data.append(self.uid)
         self.request.session["files_clipboard"] = self.cleaned_data
         return len(self.cleaned_data[:-1])
 
     def clean(self):
         paths = self.data.getlist('paths')
         for p in paths:
-            if not os.path.exists(join(self.job.path, p)):
+            if not os.path.exists(join(self.root_dir, p)):
                 raise forms.ValidationError(f"{p} does not exist")
 
         # Override cleaned_data to later access in save()
-        self.cleaned_data = list(map(join, [self.job.path]*len(paths), paths))
+        self.cleaned_data = list(map(join, [self.root_dir]*len(paths), paths))
 
 
 class EditCode(forms.Form):

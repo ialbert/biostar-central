@@ -2,6 +2,7 @@ import glob
 import logging
 import mistune
 
+
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
@@ -11,7 +12,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from . import tasks
+from . import tasks, util
 from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, Access)
@@ -90,15 +91,13 @@ def recycle_bin(request):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
-def clear_clipboard(request, uid, redir="project_view", board=""):
+def clear_clipboard(request, uid, url="project_view", board=""):
     "Clear copied objects held in clipboard."
 
-    clear = [""] if board == "files_clipboard" else None
-
     if board:
-        request.session[board] = clear
+        request.session[board] = None
 
-    return redirect(reverse(redir, kwargs=dict(uid=uid)))
+    return redirect(reverse(url, kwargs=dict(uid=uid)))
 
 
 def get_access(request, project):
@@ -132,7 +131,7 @@ def project_users(request, uid):
 
         # User needs to be authenticated and have admin access to make any changes.
         if form.is_valid() and request.user.is_authenticated:
-            user, access = form.change_access()
+            user, access = form.save()
             msg = f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}"
             messages.success(request, mark_safe(msg))
             return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
@@ -308,41 +307,37 @@ def data_copy(request, uid):
 
     data = Data.objects.filter(uid=uid).first()
     project = data.project
-    request.session["data_clipboard"] = data.uid
+
+    auth.load_data_clipboard(uid=uid, request=request)
+
     messages.success(request, mark_safe(f"Copied <b>{data.name}</b> to Clipboard."))
 
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
 def data_paste(request, uid):
-    "Paste data stored in the clipboard into project"
-
-    data_uid = request.session.get("data_clipboard")
-    data = Data.objects.filter(uid=data_uid).first()
+    "Paste data in clipboard to project"
     project = Project.objects.filter(uid=uid).first()
 
-    # Make sure user has read access to data in clipboard
-    has_access = auth.check_obj_access(instance=data, user=request.user, request=request,
-                                       access=Access.READ_ACCESS)
-    if not has_access:
-        request.session["data_clipboard"] = None
-        return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+    # A list of data objects in the data_clipboard
+    data_set = auth.dump_data_clipboard(request, reset=True)
 
-    # Create data object in project by linking files ( excluding toc file ).
-    auth.create_data(project=project, name=f"Copy of {data.name}", text=data.text,
-                     path=data.get_data_dir(),summary=data.summary,
-                     type=data.type, skip=data.get_path(), user=request.user)
+    for data in data_set:
+        # Create data in project by linking files ( excluding toc file ).
+        auth.create_data(project=project, name=f"Copy of {data.name}", text=data.text,
+                         path=data.get_data_dir(), summary=data.summary,
+                         type=data.type, skip=data.get_path(), user=request.user)
+    if data_set:
+        msg = mark_safe(f"Pasted <b>{len(data_set)}</b> data to <b>{project.name}</b>.")
+        messages.success(request, msg)
 
-    # Clear clipboard
-    request.session["data_clipboard"] = None
-    messages.success(request, mark_safe(f"Pasted <b>{data.name}</b> to <b>{project.name}</b>."))
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_files_entry')
 def data_file_serve(request, uid, file_path):
-    "Authenticates access through decorator before serving file"
+    "Authenticates access through decorator before serving file."
 
     data = Data.objects.filter(uid=uid).first()
     file_path = join(data.get_data_dir(), file_path)
@@ -351,39 +346,33 @@ def data_file_serve(request, uid, file_path):
         messages.error(request, "Path is not a file.")
         return redirect(reverse("data_files_entry", kwargs=dict(uid=data.uid)))
 
-    return sendfile(request, file_path,attachment=True,
-                    attachment_filename=os.path.basename(file_path))
+    response = sendfile(request, file_path, mimetype=auth.known_text(fname=file_path))
+
+    # Change the filename in the response header
+    auth.change_filename(response, name=os.path.basename(file_path))
+
+    return response
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
 def files_paste(request, uid):
-    "View used to paste result files copied from a job."
+    "View used to paste result files copied from a job or data."
 
-    files = request.session.get("files_clipboard", [""])
+    files = request.session.get("files_clipboard", None)
     project = Project.objects.filter(uid=uid).first()
     url = reverse("data_list", kwargs=dict(uid=project.uid))
 
-    # Last item in clipboard is job.uid that the files in clipboard belong to.
-    job_uid = files.pop(-1)
-    job = Job.objects.filter(uid=job_uid).first()
-    if not job:
-        messages.error(request, "Files do not belong to any result")
-        return redirect(url)
-
-    # Make sure user has read access to job in clipboard.
-    has_access = auth.check_obj_access(instance=job, user=request.user, request=request,
-                                       access=Access.READ_ACCESS)
-    if not has_access:
-        request.session["files_clipboard"] = [""]
+    root_path = auth.validate_files_clipboard(clipboard=files, request=request)
+    if not root_path:
         return redirect(url)
 
     # Some files in clipboard might be outside job path.
-    files = [f for f in files if f.startswith(job.path) ]
+    files = [f for f in files if f.startswith(root_path) ]
     # Add data to project
     for file in files:
         auth.create_data(project=project, path=file, user=request.user)
 
-    request.session["files_clipboard"] = [""]
+    request.session["files_clipboard"] = None
     msg = mark_safe(f"Pasted <b>{len(files)}</b> file(s) to project <b>{project.name}</b>.")
     messages.success(request, msg)
     return redirect(url)
@@ -413,7 +402,18 @@ def data_nav(request, uid):
     project = Project.objects.filter(uid=uid).first()
     # Same ordering as data_list
     all_data = project.data_set.order_by("sticky", "-date").all()
-    context = dict(activate='selection', all_data=all_data, project=project)
+
+    form = DataCopyForm(request=request)
+    if request.method == "POST":
+        form = DataCopyForm(data=request.POST, request=request)
+        if form.is_valid():
+            # Copies data to clipboard
+            ndata = form.save()
+            msg = mark_safe(f"Copied <b>{ndata}</b> data to Clipboard from <b>{project.name}</b>")
+            messages.success(request, msg)
+            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
+    context = dict(activate='selection', all_data=all_data, project=project, form=form)
     counts = get_counts(project)
     context.update(counts)
 
@@ -452,8 +452,20 @@ def data_files_list(request, uid, path=''):
     "Returns a file navigation system "
     data = Data.objects.filter(uid=uid).first()
     project = data.project
+
+    form = FileCopyForm(root_dir=data.get_data_dir(), request=request, uid=data.uid)
+    if request.method == "POST":
+        form = FileCopyForm(data=request.POST, uid=data.uid, request=request,
+                            root_dir=data.get_data_dir())
+        if form.is_valid():
+            # Copies files to clipboard
+            nfiles = form.save()
+            msg = mark_safe(f"Copied <b>{nfiles}</b> file(s) to Clipboard from <b>{data.name}</b>")
+            messages.success(request, msg)
+            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
     back_uid = None if path else project.uid
-    context = dict(activate='selection', data=data, project=project, project_uid=back_uid)
+    context = dict(activate='selection', data=data, project=project, project_uid=back_uid, form=form)
 
     counts = get_counts(project)
     context.update(counts)
@@ -745,8 +757,12 @@ def job_file_serve(request, uid, file_path):
         messages.error(request, "Path is not a file.")
         return redirect(reverse("job_files_entry", kwargs=dict(uid=job.uid)))
 
-    return sendfile(request, file_path, attachment=True,
-                    attachment_filename=os.path.basename(file_path))
+    response = sendfile(request, file_path, mimetype=auth.known_text(fname=file_path))
+
+    # Change the filename in the response header
+    auth.change_filename(response, name=os.path.basename(file_path))
+
+    return response
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
@@ -757,9 +773,9 @@ def job_files_list(request, uid, path=''):
     job = Job.objects.filter(uid=uid).first()
     project = job.project
 
-    form = FileCopyForm(job=job, request=request)
+    form = FileCopyForm(root_dir=job.path, request=request, uid=job.uid)
     if request.method == "POST":
-        form = FileCopyForm(data=request.POST, job=job, request=request)
+        form = FileCopyForm(data=request.POST, uid=job.uid, request=request, root_dir=job.path)
         if form.is_valid():
             # Copies files to clipboard
             nfiles = form.save()

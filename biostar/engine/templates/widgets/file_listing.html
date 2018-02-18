@@ -1,8 +1,7 @@
 {% load engine_tags %}
 
-{% if form %}
+
 {% form_errors form %}
-{% endif %}
 
 <form method="post" class="ui form" action=".">
     {% csrf_token %}
@@ -22,19 +21,15 @@
         </div>
 
         {% for entry in file_list %}
+
             <div class="item">
-
-                {% if form %}
-                    {% input path=path current=entry %}
-                {% endif %}
-
+                {% input path=path current=entry %}
                 {% file_url object=object path=path current=entry %}
-
             </div>
 
         {% endfor %}
 
-        {% if form and file_list %}
+        {% if file_list %}
 
              <div class="ui center aligned basic segment">
                 <button type="submit" class="ui submit green button">
@@ -42,8 +37,7 @@
                 </button>
              </div>
 
-         {% endif %}
-
+        {% endif %}
 
     </div>
  </form>

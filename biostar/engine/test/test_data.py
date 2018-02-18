@@ -92,7 +92,7 @@ class DataViewTest(TestCase):
         url = reverse('data_paste', kwargs=dict(uid=self.project.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
-        request.session["data_clipboard"] = self.data.uid
+        request.session["data_clipboard"] = [self.data.uid]
 
         response = views.data_paste(request=request, uid=self.project.uid)
 
