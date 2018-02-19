@@ -38,7 +38,7 @@ urlpatterns = [
     url(r'^recipe/copy/(?P<uid>[-\w]+)/$', views.recipe_copy, name='recipe_copy'),
     url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
 
-    url(r'^clear/clipboard/(?P<uid>[-\w]+)/(?P<redir>.+)/(?P<board>.+)/$', views.clear_clipboard, name='clear_clipboard'),
+    url(r'^clear/clipboard/(?P<uid>[-\w]+)/(?P<url>.+)/(?P<board>.+)/$', views.clear_clipboard, name='clear_clipboard'),
 
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),

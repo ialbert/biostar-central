@@ -1,13 +1,17 @@
 import copy
 import shlex
-from django import forms
-
 import hjson
+
+from django import forms
+from django.db.models import Sum
+from biostar import  settings
+from biostar.accounts.models import User
+from django.utils.safestring import mark_safe
+
 from . import models, auth, factory
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
-from biostar.accounts.models import User
-from django.utils.safestring import mark_safe
+
 
 # Share the logger with models.
 logger = models.logger
@@ -30,6 +34,30 @@ def check_size(fobj, maxsize=0.3):
         raise forms.ValidationError(f"File size validation error: {exc}")
 
     return fobj
+
+
+def check_upload_limit(file, user):
+    "Checks if the intended file pushes user over their upload limit."
+
+    uploaded_files = Data.objects.filter(owner=user, method=Data.UPLOAD)
+    currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
+
+    projected = file.size + currect_size
+    curr_mb = file.size / 1024 / 1024
+    max_mb = settings.MAX_AGG_UPLOAD / 1024 / 1024
+
+    if projected > settings.MAX_AGG_UPLOAD:
+
+        allowed = 0 if (max_mb-currect_size) < 0 else (max_mb-currect_size)
+        msg = f"<b>Over the {max_mb:0.001f} MB total upload limit.</b> "
+        msg = msg + f"""
+                Your have already uploaded {currect_size/ 1024/ 1024:0.001f} MB. 
+                File too large: currently {curr_mb:0.0001f} MB
+                should be < {allowed:0.001f} MB
+                """
+        raise forms.ValidationError(mark_safe(msg))
+
+    return file
 
 
 class ProjectForm(forms.ModelForm):
@@ -55,6 +83,11 @@ class ProjectForm(forms.ModelForm):
 
 class DataUploadForm(forms.ModelForm):
 
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+
     file = forms.FileField(required=True)
     type = forms.CharField(max_length=32, required=False)
 
@@ -62,11 +95,12 @@ class DataUploadForm(forms.ModelForm):
         model = Data
         fields = ['file', 'summary', 'text', "sticky",  "type"]
 
+
     def clean_file(self):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
         check_size(fobj=fobj, maxsize=25)
-
+        check_upload_limit(file=fobj, user=self.user)
         return fobj
 
 
@@ -109,7 +143,8 @@ class ChangeUserAccess(forms.Form):
     access = forms.IntegerField(initial=Access.NO_ACCESS,
                                 widget=forms.Select(choices=choices))
 
-    def change_access(self):
+
+    def save(self):
         "Change users access to a project"
 
         user_id = self.cleaned_data["user_id"]
@@ -228,31 +263,56 @@ class RecipeInterface(forms.Form):
         return json_data
 
 
-class FileCopyForm(forms.Form):
-    "Used to save paths found in jobs into files_clipboard"
+class DataCopyForm(forms.Form):
+    "Used to store multiple data uids in data_clipboard with checkbox inputs"
 
-    def __init__(self, job, request, *args, **kwargs):
-        self.job = job
+    def __init__(self, request, *args, **kwargs):
         self.request = request
         super().__init__(*args, **kwargs)
 
-    paths = forms.CharField()
+    uids = forms.CharField(max_length=models.MAX_TEXT_LEN)
+
+    def save(self):
+        for uid in self.cleaned_data:
+            auth.load_data_clipboard(uid=uid, request=self.request)
+        return len(self.cleaned_data)
+
+    def clean(self):
+
+        uids = self.data.getlist('uids')
+        # Override cleaned_data to later access in save()
+        self.cleaned_data = []
+        for uid in uids:
+            if Data.objects.filter(uid=uid).exists:
+                self.cleaned_data.append(uid)
+
+
+class FileCopyForm(forms.Form):
+    "Used to save paths found in jobs/data into files_clipboard"
+
+    def __init__(self, request, uid, root_dir, *args, **kwargs):
+        self.uid = uid
+        self.request = request
+        self.root_dir = root_dir
+        super().__init__(*args, **kwargs)
+
+    paths = forms.CharField(max_length=models.MAX_FIELD_LEN)
 
     def save(self):
         # Save the selected files in clipboard,
-        # Note: job.uid has to be appended to later validate where the files came from
-        self.cleaned_data.append(self.job.uid)
+        # Note: instance.uid is appended and later used to validate where copied files came from
+        self.cleaned_data.append(self.uid)
         self.request.session["files_clipboard"] = self.cleaned_data
         return len(self.cleaned_data[:-1])
 
     def clean(self):
         paths = self.data.getlist('paths')
         for p in paths:
-            if not os.path.exists(join(self.job.path, p)):
+            if not os.path.exists(join(self.root_dir, p)):
                 raise forms.ValidationError(f"{p} does not exist")
 
         # Override cleaned_data to later access in save()
-        self.cleaned_data = list(map(join, [self.job.path]*len(paths), paths))
+        self.cleaned_data = list(map(join, [self.root_dir]*len(paths), paths))
 
 
 class EditCode(forms.Form):

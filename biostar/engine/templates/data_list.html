@@ -10,10 +10,10 @@
 
 
      {% if request|has_data %}
-        {% paste project=project data=True %}
+        {% paste project=project data=True request=request %}
 
     {% elif request|has_files %}
-        {% paste project=project files=True %}
+        {% paste project=project files=True request=request %}
 
     {% endif %}
 
@@ -22,6 +22,18 @@
     {% endif %}
 
     <div class="ui divided  items">
+
+        <div class="item centerbox">
+
+            <a class="ui medium button" href="{% url 'data_upload' project.uid %}">
+                <i class="upload icon"></i>Upload File
+            </a>
+
+            <a class="ui button" href="{% url 'data_nav' project.uid %}">
+                <i class="browser icon"></i>Browse Files
+            </a>
+
+        </div>
 
         {% for data in data_list %}
             <div class="item">
@@ -49,14 +61,6 @@
         {% endfor %}
 
         <div class="item centerbox">
-
-            <a class="ui button" href="{% url 'data_upload' project.uid %}">
-                <i class="upload icon"></i>Upload File
-            </a>
-
-            <a class="ui button" href="{% url 'data_nav' project.uid %}">
-                <i class="browser icon"></i>Browse Files
-            </a>
 
             <a class="ui button" href="{% url 'project_edit' project.uid %}">
                 <i class="edit icon"></i>Edit Project

@@ -1,20 +1,23 @@
 import difflib
 import logging
 import uuid
-
 import hjson
+import unicodedata
+
+from django.utils.http import urlquote
+from mimetypes import guess_type
 from django.contrib import messages
 from django.db.models import Q
 from django.template import Template, Context
 from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
+from django.utils.encoding import force_text
 
 from biostar import settings
 from . import util
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
-from .templatetags import engine_tags
 
 CHUNK = 1024 * 1024
 
@@ -27,6 +30,15 @@ def get_uuid(limit=32):
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
+
+def access_denied_message(user, access):
+    """
+    Generates the access denied message
+    """
+    tmpl = loader.get_template('widgets/access_denied_message.html')
+    context = dict(user=user, access=access)
+    return tmpl.render(context=context)
 
 
 def switch_states(uid, model, state, save=False):
@@ -53,7 +65,6 @@ def get_analysis_attr(analysis, project=None):
 
     return dict(project=project, json_text=json_text, template=template,
                 user=owner, summary=summary, name=name, text=text)
-
 
 def generate_script(job):
     """
@@ -133,6 +144,7 @@ def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, l
     # This is so that we can inform users in more granularity
     # but also to allow this function to be called outside a web view
     # where there are no requests.
+
     request = request or RequestFactory()
 
     # The object does not exist.
@@ -172,7 +184,7 @@ def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, l
             return False
 
     # Prepare the access denied message.
-    deny = engine_tags.access_denied_message(user=user, access=access_text)
+    deny = access_denied_message(user=user, access=access_text)
 
     # Anonymous users have no other access permissions.
     if user.is_anonymous:
@@ -231,6 +243,34 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
     return analysis
+
+
+def validate_files_clipboard(request, clipboard):
+    """
+    Further validate 'files_clipboard' by checking if expected 'uid' belongs to
+    a job or data that a user has access to.
+    Returns the root_path for all files in clipboard
+    """
+
+    # Last item in clipboard is an instance.uid that the files belong to.
+    path = None
+    uid = '' if not clipboard else clipboard[-1]
+    if not uid:
+        return path
+
+    instance = Job.objects.filter(uid=uid) or Data.objects.filter(uid=uid)
+    instance = instance.first()
+
+    # Make sure user has read access needed to copy files to clipboard.
+    has_access = check_obj_access(instance=instance, user=request.user, request=request,
+                                  access=Access.READ_ACCESS)
+    if has_access:
+        path = instance.path if isinstance(instance, Job) else instance.get_data_dir()
+    else:
+        request.session["files_clipboard"] = None
+        messages.error(request, "Do not have access to files in clipboard.")
+
+    return path
 
 
 def make_summary(data, summary='', title='', name="widgets/job_summary.html"):
@@ -292,6 +332,68 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
+
+
+def known_text(fname):
+    "Return mimetype for a known text filename"
+
+    mimetype, encoding = guess_type(fname)
+
+    text_ext = os.path.splitext(fname)[1]
+
+    # Known text extensions ( .fasta, .fastq, etc.. )
+    if text_ext in KNOWN_EXTENSIONS:
+
+        mimetype = 'text/plain'
+
+    return mimetype
+
+
+def change_filename(file_response, name="data"):
+    "Used to change filename in response header to 'name'"
+    # Methods taken from sendfile/__init__.py 78-86
+
+    parts = []
+    filename = force_text(name)
+    ascii_filename = unicodedata.normalize('NFKD', filename).encode('ascii', 'ignore')
+    parts.append('filename="%s"' % ascii_filename)
+
+    if ascii_filename != filename:
+        quoted_filename = urlquote(filename)
+        parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
+
+    # Modify Content-Disposition in the header so filename is set correctly
+    file_response._headers["content-disposition"] = ('Content-Disposition','; '.join(parts))
+
+
+def load_data_clipboard(uid, request):
+
+    board = request.session.get("data_clipboard") or []
+
+    if isinstance(board, list):
+        board.append(uid)
+
+    request.session["data_clipboard"] = board
+
+
+def dump_data_clipboard(request, reset=False):
+
+    data_list = request.session.get("data_clipboard") or []
+    board = []
+    for data_uid in data_list:
+
+        data = Data.objects.filter(uid=data_uid).first()
+        # Ensure user has read access to data in clipboard
+        has_access = check_obj_access(instance=data, user=request.user, request=request,
+                                           access=Access.READ_ACCESS)
+        if has_access:
+            board.append(data)
+
+    # Clear clipboard if reset=True
+    if reset:
+        request.session["data_clipboard"] = []
+
+    return board
 
 
 def findfiles(location, collect, skip=""):
@@ -384,6 +486,8 @@ def create_data(project, user=None, stream=None, path='', name='',
             while chunk:
                 fp.write(chunk)
                 chunk = stream.read(CHUNK)
+        # Mark incoming file as uploaded
+        data.method = Data.UPLOAD
 
     link_files(path=path, skip=skip, data=data, summary=summary)
 
