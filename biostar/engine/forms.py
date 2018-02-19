@@ -40,20 +40,19 @@ def check_upload_limit(file, user):
     "Checks if the intended file pushes user over their upload limit."
 
     uploaded_files = Data.objects.filter(owner=user, method=Data.UPLOAD)
-    currect_size = uploaded_files.aggregate(Sum("size"))
+    currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
 
-    projected = file.size + currect_size["size__sum"]
+    projected = file.size + currect_size
+    curr_mb = file.size / 1024 / 1024
     max_mb = settings.MAX_AGG_UPLOAD / 1024 / 1024
-    curr_size = file.size / 1024 / 1024
-    avail = lambda x: 0 if x < 0 else x
 
     if projected > settings.MAX_AGG_UPLOAD:
 
-        allowed = avail(max_mb-currect_size["size__sum"])
+        allowed = 0 if (max_mb-currect_size) < 0 else (max_mb-currect_size)
         msg = f"<b>Over the {max_mb:0.001f} MB total upload limit.</b> "
         msg = msg + f"""
-                Your have already uploaded {currect_size["size__sum"]/ 1024/ 1024:0.001f} MB. 
-                File too large: currently {curr_size:0.0001f} MB
+                Your have already uploaded {currect_size/ 1024/ 1024:0.001f} MB. 
+                File too large: currently {curr_mb:0.0001f} MB
                 should be < {allowed:0.001f} MB
                 """
         raise forms.ValidationError(mark_safe(msg))
@@ -101,7 +100,7 @@ class DataUploadForm(forms.ModelForm):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
         check_size(fobj=fobj, maxsize=25)
-        #check_upload_limit(file=fobj, user=self.user)
+        check_upload_limit(file=fobj, user=self.user)
         return fobj
 
 
