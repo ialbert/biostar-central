@@ -11,6 +11,7 @@ from sendfile import sendfile
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from . import tasks, util
 from .decorators import object_access
@@ -426,9 +427,9 @@ def data_upload(request, uid):
 
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
-    form = DataUploadForm()
+    form = DataUploadForm(user=owner)
     if request.method == "POST":
-        form = DataUploadForm(data=request.POST, files=request.FILES)
+        form = DataUploadForm(data=request.POST, files=request.FILES, user=owner)
 
         if form.is_valid():
             text = form.cleaned_data["text"]

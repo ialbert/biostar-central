@@ -145,6 +145,10 @@ class Data(models.Model):
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted")]
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
 
+    LINK, UPLOAD = 1,2
+    METHOD_CHOICE = [(LINK, "Linked Data"), (UPLOAD, "Uploaded Data")]
+    method = models.IntegerField(default=LINK, choices=METHOD_CHOICE)
+
     name = models.CharField(max_length=MAX_NAME_LEN, default="name")
     summary = models.TextField(default='summary', blank=True, max_length=MAX_TEXT_LEN)
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)

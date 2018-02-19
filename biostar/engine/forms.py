@@ -1,13 +1,17 @@
 import copy
 import shlex
-from django import forms
-
 import hjson
+
+from django import forms
+from django.db.models import Sum
+from biostar import  settings
+from biostar.accounts.models import User
+from django.utils.safestring import mark_safe
+
 from . import models, auth, factory
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
-from biostar.accounts.models import User
-from django.utils.safestring import mark_safe
+
 
 # Share the logger with models.
 logger = models.logger
@@ -30,6 +34,31 @@ def check_size(fobj, maxsize=0.3):
         raise forms.ValidationError(f"File size validation error: {exc}")
 
     return fobj
+
+
+def check_upload_limit(file, user):
+    "Checks if the intended file pushes user over their upload limit."
+
+    uploaded_files = Data.objects.filter(owner=user, method=Data.UPLOAD)
+    currect_size = uploaded_files.aggregate(Sum("size"))
+
+    projected = file.size + currect_size["size__sum"]
+    max_mb = settings.MAX_AGG_UPLOAD / 1024 / 1024
+    curr_size = file.size / 1024 / 1024
+    avail = lambda x: 0 if x < 0 else x
+
+    if projected > settings.MAX_AGG_UPLOAD:
+
+        allowed = avail(max_mb-currect_size["size__sum"])
+        msg = f"<b>Over the {max_mb:0.001f} MB total upload limit.</b> "
+        msg = msg + f"""
+                Your have already uploaded {currect_size["size__sum"]/ 1024/ 1024:0.001f} MB. 
+                File too large: currently {curr_size:0.0001f} MB
+                should be < {allowed:0.001f} MB
+                """
+        raise forms.ValidationError(mark_safe(msg))
+
+    return file
 
 
 class ProjectForm(forms.ModelForm):
@@ -55,6 +84,11 @@ class ProjectForm(forms.ModelForm):
 
 class DataUploadForm(forms.ModelForm):
 
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+
     file = forms.FileField(required=True)
     type = forms.CharField(max_length=32, required=False)
 
@@ -62,11 +96,12 @@ class DataUploadForm(forms.ModelForm):
         model = Data
         fields = ['file', 'summary', 'text', "sticky",  "type"]
 
+
     def clean_file(self):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
         check_size(fobj=fobj, maxsize=25)
-
+        #check_upload_limit(file=fobj, user=self.user)
         return fobj
 
 

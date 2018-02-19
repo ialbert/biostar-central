@@ -40,6 +40,7 @@ def access_denied_message(user, access):
     context = dict(user=user, access=access)
     return tmpl.render(context=context)
 
+
 def switch_states(uid, model, state, save=False):
     "Switch state of instance to target state"
 
@@ -485,6 +486,8 @@ def create_data(project, user=None, stream=None, path='', name='',
             while chunk:
                 fp.write(chunk)
                 chunk = stream.read(CHUNK)
+        # Mark incoming file as uploaded
+        data.method = Data.UPLOAD
 
     link_files(path=path, skip=skip, data=data, summary=summary)
 

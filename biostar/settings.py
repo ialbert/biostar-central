@@ -18,6 +18,9 @@ SECRET_KEY = '1@lvh.me'
 # The password for admin users.
 DEFAULT_ADMIN_PASSWORD = "testbuddy"
 
+# Maximum amount of uploaded files a user is allowed to aggregate, in bytes.
+MAX_AGG_UPLOAD = 1e6
+
 # Set these for remote hosts.
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
