@@ -75,3 +75,7 @@ push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
 	git push
 
+
+deploy_psu:
+	(cd conf/ansible && ansible-playbook -i hosts-psu server_deploy.yml --ask-become-pass)
+
