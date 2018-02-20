@@ -39,4 +39,7 @@ To install dependencies:
 
     ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "install=True restart=True"
 
+To reset the site:
+
+    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "reset=True"
 
