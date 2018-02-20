@@ -363,7 +363,8 @@ def change_filename(file_response, name="data"):
         parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
 
     # Modify Content-Disposition in the header so filename is set correctly
-    file_response._headers["content-disposition"] = ('Content-Disposition','; '.join(parts))
+    header = {'Content-Disposition':'; '.join(parts)}
+    file_response._headers["content-disposition"] = list(header.items())[0]
 
 
 def load_data_clipboard(uid, request):
