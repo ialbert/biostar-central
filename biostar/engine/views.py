@@ -192,15 +192,15 @@ def files_list(request, instance, template_name, path='', extra_context={}):
 
     target_path = join(root, path)
 
-    if not target_path.startswith(root) or (not os.path.exists(target_path)):
-        # Attempting to access a file outside of the root directory
-        messages.error(request, "Path not in directory.")
-        file_list = []
-    else:
+    if target_path.startswith(root) and os.path.exists(target_path):
         # These are pathlike objects with attributes such as name, is_file
         file_list = list(filter(lambda p: p.name != exclude, os.scandir(target_path)))
         # Sort by properties
         file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
+    else:
+        # Attempting to access a file outside of the root directory
+        messages.error(request, "Path not in directory.")
+        file_list = []
 
     context = dict(file_list=file_list, instance=instance, path=path)
     context.update(extra_context)
