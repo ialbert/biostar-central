@@ -10,7 +10,7 @@ serve: init
 init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate -v 0
-	python manage.py project --root ../biostar-recipes --json recipes/tutorial/tutorial-project.hjson --privacy public --jobs
+	python manage.py project --root ../biostar-recipes --json projects/tutorial-project.hjson --privacy public --jobs
 
 uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
@@ -30,6 +30,7 @@ recipes:
 	python manage.py project --root ../biostar-recipes --json projects/mothur-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/giraffe-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/handbook-project.hjson --privacy public
+	python manage.py project --root ../biostar-recipes --json projects/usfish-project.hjson --privacy public --jobs
 
 	@# Create initial users
 	python manage.py add_user initial/initial-users.csv
@@ -66,10 +67,6 @@ test:
 	python manage.py test -v 2 --failfast
 	coverage run manage.py test
 	coverage html --skip-covered
-
-data:
-	(cd export && curl http://data.bioinformatics.recipes/initial/${DATA_FILE} > ${DATA_FILE} )
-	(cd export && tar zxvf ${DATA_FILE})
 
 ftp:
 	python manage.py ftp

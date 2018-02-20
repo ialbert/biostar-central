@@ -78,7 +78,7 @@ def parse_json(json, root, privacy=Project.PRIVATE, sticky=False, jobs=False):
                                   stream=stream, privacy=privacy, sticky=sticky)
 
     # Add extra data specified in the project json file.
-    management.call_command("data", json=fpath, id=project.id)
+    management.call_command("data", json=fpath, root=root, id=project.id)
 
     # Add the analyses specified in the project json.
     analyses = json_data.get("analyses", '')
