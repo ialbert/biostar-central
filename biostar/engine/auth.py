@@ -504,6 +504,8 @@ def create_data(project, user=None, stream=None, path='', name='',
     tocname = data.get_path()
     collect = findfiles(data.get_data_dir(), collect=[], skip=tocname)
 
+    # Create a sorted file path collection.
+    collect.sort()
     # Write the table of contents.
     with open(tocname, 'w') as fp:
         fp.write("\n".join(collect))

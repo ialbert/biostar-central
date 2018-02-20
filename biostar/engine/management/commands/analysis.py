@@ -109,6 +109,7 @@ class Command(BaseCommand):
             if jobs:
                 # When creating a job automatically for data in projects
                 # it will try to match the value of the parameter to the data name.
+                missing_name = ''
                 for key, obj in json_data.items():
                     if obj.get("source") != "PROJECT":
                         continue
@@ -116,9 +117,16 @@ class Command(BaseCommand):
                     name = obj.get('value', '')
                     data = Data.objects.filter(project=project, name=name).first()
 
-                    if data:
-                        data.fill_dict(obj)
-                auth.create_job(analysis=analysis, json_data=json_data)
+                    if not data:
+                        missing_name = name
+                        break
+
+                    data.fill_dict(obj)
+
+                if missing_name:
+                    logger.error(f"Job not created! Missing data:{missing_name} in analysis:{analysis.name}")
+                else:
+                    auth.create_job(analysis=analysis, json_data=json_data)
 
         except Exception as exc:
             logger.exception(f"Error: {exc}")

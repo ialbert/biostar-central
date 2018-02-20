@@ -39,33 +39,41 @@
         <p>
             Users may adapt, modify and remix recipes to match
             their needs, then share these on the same site. By supporting these interactions, we foster a collaborative
-            environment that facilitates creativity, efficiency and reproducibility. See also:
+            environment that facilitates creativity, efficiency and reproducibility.
         </p>
 
+        See also:
 
-            <ul>
-            <li>
-                <a href="https://github.com/biostars/biostar-recipes/blob/master/docs/how-to-use-the-site.md"><i
-            class="info circle icon"></i>How to use this site?</a>
-            </li>
-           <li>
-               <a href="https://github.com/biostars/biostar-recipes/blob/master/docs/how-to-write-recipes.md"><i
-            class="info circle icon"></i>How to write recipes?</a>
-           </li>
-        </ul>
+        <div class="ui list">
+            <div class="item">
+                <div class="content">
+                    <a href="https://github.com/biostars/biostar-recipes/blob/master/docs/how-to-use-the-site.md"><i
+                class="info circle icon"></i>How to use this site?</a>
+                </div>
+            </div>
+            <div class="item">
+                <div class="content">
+                    <a href="https://github.com/biostars/biostar-recipes/blob/master/docs/how-to-write-recipes.md"><i
+                class="info circle icon"></i>How to write recipes?</a>
+                </div>
+            </div>
 
+        </div>
 
+        <p>
+            Note that the recipes are <em>generic</em> and their use <i>is not limited</i> to the this website.
+            A recipe from this site can be executed on any system that has the required bioinformatics tools installed.
+        </p>
 
     </div>
 
     <div class="ui vertical segment">
 
         <div class="ui header">
-            <a href="{% url 'docs' 'info' %}">
 
                 <i class="info circle icon"></i>About the site
 
-            </a>
+
         </div>
 
         <img class="ui small right floated circular image" src="{% static 'images/biomedical.jpg' %}">
@@ -77,16 +85,13 @@
             to generate <em>an easy-to-use graphical interface</em> to command line tools
             and thus make these accesible to wider audiences.
         </p>
-        <p>
-            Note that the recipes are <em>generic</em> and their use <i>is not limited</i> to the this website.
-            A recipe from this site can be executed on any system that has the required bioinformatics tools installed.
-        </p>
+
 
         <p>
             Besides storing, sharing and executing data analysis scripts, our software supports public and private
             <em>project-based</em> workflows and can provide a data storage and management solution as a laboratory
             information management system (LIMS).
-            <p>Each project is a collection of:</p>
+        <p>Each project is a collection of:</p>
         <ul>
             <li><i class="file text icon"></i> Data</li>
             <li><i class="setting icon"></i> Recipes</li>
