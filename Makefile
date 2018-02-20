@@ -79,3 +79,7 @@ push:
 deploy_psu:
 	(cd conf/ansible && ansible-playbook -i hosts-psu server_deploy.yml --ask-become-pass --extra-vars "reset=True")
 
+deploy_www:
+	(cd conf/ansible && ansible-playbook -i hosts-www server_deploy.yml --ask-become-pass --extra-vars "reset=True")
+
+
