@@ -6,7 +6,7 @@
   notify:
     - engine python install
     - server migrate
-    - reload supervisor
+    - server restart
     - restart nginx
 
 - name: Update the biostar-recipes
@@ -39,7 +39,8 @@
     - stop supervisor
     - server reset
     - server migrate
-    - restart supervisor
+    - server restart
+    - reload supervisor
     - restart nginx
   when: reset
 
