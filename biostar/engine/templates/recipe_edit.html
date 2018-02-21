@@ -27,6 +27,11 @@
                 <p class="muted">Makes the recipe stick to top of the list.</p>
             </div>
              <div class="field">
+                  <label>Unique Identifier ( uid )</label>
+                  {{form.uid}}
+                  <p class="muted">Unique identifier for this recipe. Leaving box empty will be make the uid random.</p>
+             </div>
+             <div class="field">
                   <label> Image {{ form.image.errors }}</label>
                   {{ form.image }}
                   <p class="muted">Optional image to recognize the recipe by (square image, no more than 500px)</p>

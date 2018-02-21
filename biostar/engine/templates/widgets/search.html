@@ -1,12 +1,13 @@
 <script type="text/javascript">
 
-var content = {{ content | safe }};
+
 
 // Some taken from https://embed.plnkr.co/plunk/aITHOT
 // Used so semantics ui category search can work on the local object "content"
 // TODO:It will be rewritten/gone when using ajax
 
 $(document).ready(function(){
+  let content = {{ content | safe }};
 
   $('#searchInput').search({
     apiSettings: {

@@ -55,8 +55,8 @@ class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
 
-    ACTIVE, DELETED = 1, 2
-    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted")]
+    ACTIVE, DELETED, RESTORED = 1, 2, 3
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (RESTORED, "Restored")]
 
     # Affects the sort order.
     sticky = models.BooleanField(default=False)
@@ -141,8 +141,9 @@ def create_access(sender, instance, created, **kwargs):
 
 
 class Data(models.Model):
-    PENDING, READY, ERROR, DELETED = 1, 2, 3, 4
-    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted")]
+    PENDING, READY, ERROR, DELETED, RESTORED = 1, 2, 3, 4, 5
+    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted"),
+                     (RESTORED, "Restored")]
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
 
     LINK, UPLOAD = 1,2
@@ -265,8 +266,8 @@ class Analysis(models.Model):
 
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
 
-    ACTIVE, DELETED = 1, 2
-    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted")]
+    ACTIVE, DELETED, RESTORED = 1, 2, 3
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (RESTORED, "Restored")]
 
     uid = models.CharField(max_length=32, unique=True)
     sticky = models.BooleanField(default=False)
