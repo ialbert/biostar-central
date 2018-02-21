@@ -143,7 +143,7 @@ def dynamic_field(data, project=None):
             data_type = data_type.get("symbol", "").strip() or ""
 
         field = data_field_generator(data, project=project, type=data_type, extras=extras)
-        
+
     else:
         # In all other cases we generate a field from the tupe.
         func = field_types.get(display_type)
