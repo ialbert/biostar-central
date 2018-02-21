@@ -1,6 +1,6 @@
 Email,Uid,Access
-aaron_maloy@fws.gov,fish,read
-meredith_bartron@fws.gov,fish,read
+aaron_maloy@fws.gov,fish,write
+meredith_bartron@fws.gov,fish,write
 drc9@psu.edu,giraffe,read
 lxw34@psu.edu,giraffe,read
 testbuddy@lvh.me,cookbook,write
