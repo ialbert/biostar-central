@@ -39,7 +39,7 @@
     - stop supervisor
     - server reset
     - server migrate
-    - start supervisor
+    - restart supervisor
     - restart nginx
   when: reset
 
