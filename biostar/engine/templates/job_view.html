@@ -39,10 +39,10 @@
     <div class="ui center aligned vertical segment">
         {% job_minutes job %} {% if user.is_authenticated and job.state != job.DELETED %}
             &bull; <a href="{% url 'job_edit' job.uid %}"><i class="write icon"></i>Edit</a>
-            &bull; <a href="{% url 'job_delete' job.uid job.DELETED|text_display %}"><i class="trash icon"></i>Delete
+            &bull; <a href="{% url 'job_delete' job.uid job.DELETED|text_display:'job' %}"><i class="trash icon"></i>Delete
              </a>
         {% elif user.is_authenticated and job.state == job.DELETED %}
-            &bull; <a href="{% url 'job_restore' job.uid job.RESTORED|text_display %}"><i class="undo icon"></i>Restore
+            &bull; <a href="{% url 'job_restore' job.uid job.RESTORED|text_display:'job' %}"><i class="undo icon"></i>Restore
              </a>
         {% endif %}
     </div>

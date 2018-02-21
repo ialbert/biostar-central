@@ -30,6 +30,21 @@
 
     <div class="ui vertical segment">
         <div class="ui center aligned header">Data Description</div>
+        <div class="ui basic center aligned vertical segment">
+
+            {% if user.is_authenticated and data.state != data.DELETED %}
+                <a href="{% url 'data_edit' data.uid %}"><i class="write icon"></i>Edit</a>
+
+                &bull; <a href="{% url 'data_delete' data.uid data.DELETED|text_display:'data' %}">
+                <i class="trash icon"></i>Delete
+                </a>
+            {% elif user.is_authenticated and data.state == data.DELETED %}
+                <a href="{% url 'data_restore' data.uid data.RESTORED|text_display:'data' %}">
+                <i class="undo icon"></i>Restore
+                </a>
+            {% endif %}
+
+        </div>
         <div>{{ data.html|safe }}</div>
     </div>
 
@@ -38,7 +53,7 @@
         <pre>{{ data.peek }}</pre>
     </div>
 
-    <div class="ui basic center aligned segment">
+    <div class="ui center aligned vertical segment">
         <a class="ui button" href="{% url 'data_copy' data.uid %}">
             <i class="clone icon"></i>Copy Data
         </a>
@@ -47,11 +62,7 @@
             <i class="browser icon"></i>Browse Files
         </a>
 
-        <a class="ui button" href="{% url 'data_edit' data.uid %}">
-            <i class="write icon"></i>Edit Info
-        </a>
-
-
     </div>
+
 
 {% endblock %}

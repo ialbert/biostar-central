@@ -114,10 +114,11 @@ class DataEditForm(forms.ModelForm):
 
 class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)
+    uid = forms.CharField(max_length=32, required=False)
 
     class Meta:
         model = Analysis
-        fields = ["name", "sticky", "image", "summary", "text" ]
+        fields = ["name", "sticky", "image", "summary", "text", "uid" ]
 
     def clean_image(self):
         cleaned_data = super(RecipeForm, self).clean()

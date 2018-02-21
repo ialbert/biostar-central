@@ -114,11 +114,20 @@ def is_radio(field):
 
 
 @register.filter
-def text_display(job_state):
+def text_display(state, type="job"):
     """
-    Checks if object in clipboard is a recipe.
+    Returns test display for any model.state
     """
-    return dict(Job.STATE_CHOICES).get(job_state, dict(Job.STATE_CHOICES)[Job.PAUSED])
+
+    options = dict(
+
+            job = dict(Job.STATE_CHOICES),
+            project = dict(Project.STATE_CHOICES),
+            data = dict(Data.STATE_CHOICES),
+            recipe = dict(Analysis.STATE_CHOICES)
+
+    )
+    return options.get(type, {}).get(state, "")
 
 
 @register.filter

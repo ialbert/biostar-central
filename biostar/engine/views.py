@@ -84,9 +84,13 @@ def recycle_bin(request):
     # Only searches projects you have access.
     all_projects = auth.get_project_list(user=request.user)
 
+    del_data = Data.objects.filter(state=Data.DELETED, project__in=all_projects,
+                                  owner=request.user).order_by("date")
+
     del_jobs = Job.objects.filter(state=Job.DELETED, project__in=all_projects,
                                   owner=request.user).order_by("date")
-    context = dict(jobs=del_jobs)
+
+    context = dict(jobs=del_jobs, data=del_data)
 
     return render(request, 'recycle_bin.html', context=context)
 
@@ -209,8 +213,8 @@ def files_list(request, instance, template_name, path='', extra_context={}):
 
 
 def get_counts(project):
-    data_count = Data.objects.filter(project=project).count()
-    recipe_count = Analysis.objects.filter(project=project).count()
+    data_count = Data.objects.filter(~Q(state=Data.DELETED),project=project).count()
+    recipe_count = Analysis.objects.filter(~Q(state=Analysis.DELETED), project=project).count()
     result_count = Job.objects.filter(~Q(state=Job.DELETED),project=project).count()
     return dict(
         data_count=data_count, recipe_count=recipe_count, result_count=result_count
@@ -225,8 +229,8 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     counts = get_counts(project)
 
     # Select all the data in the project.
-    data_list = Data.objects.filter(project=project).order_by("sticky", "-date").all()
-    recipe_list = Analysis.objects.filter(project=project).order_by("-date").all()
+    data_list = Data.objects.filter(~Q(state=Data.DELETED), project=project).order_by("sticky", "-date").all()
+    recipe_list = Analysis.objects.filter(~Q(state=Analysis.DELETED), project=project).order_by("-date").all()
     job_list = Job.objects.filter(~Q(state=Job.DELETED), project=project).order_by("-date").all()
 
     # Filter job results by analysis
@@ -353,6 +357,28 @@ def data_file_serve(request, uid, file_path):
     auth.change_filename(response, name=os.path.basename(file_path))
 
     return response
+
+
+@object_access(type=Data, access=Access.OWNER_ACCESS, url='data_view')
+def data_state_change(request, uid, state=""):
+    "Change data.state to 'state'."
+
+    # User can only alternate to/from deleted and restored states
+    choices = filter(lambda x: x[0] in [Data.RESTORED, Data.DELETED], Data.STATE_CHOICES)
+    state_map = {x:y for y,x in choices}
+
+    if not state_map.get(state):
+        messages.error(request, "State specified is not an allowed option")
+        redirect(reverse("project_list"))
+
+    data = auth.switch_states(uid=uid, model=Data, state=state_map[state], save=True)
+
+    msg = f"Deleted <b>{data.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
+    if data.state == Data.RESTORED:
+        msg = f"Restored <b>{data.name}</b>."
+
+    messages.success(request, mark_safe(msg))
+    return redirect(reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
@@ -654,10 +680,11 @@ def recipe_create(request, uid):
             summary = form.cleaned_data["summary"]
             stream = form.cleaned_data["image"]
             sticky = form.cleaned_data["sticky"]
+            uid = form.cleaned_data["uid"]
 
             recipe = auth.create_analysis(project=project, json_text="{}", template="",
                                           user=request.user, summary=summary, name=name, text=text,
-                                          security=security, stream=stream, sticky=sticky)
+                                          security=security, stream=stream, sticky=sticky, uid=uid)
             recipe.save()
             messages.success(request, "Recipe created")
 

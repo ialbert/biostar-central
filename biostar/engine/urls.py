@@ -27,6 +27,8 @@ urlpatterns = [
     url(r'^files/paste/(?P<uid>[-\w]+)/$', views.files_paste, name='files_paste'),
     url(r'^data/navigate/(?P<uid>[-\w]+)/$', views.data_nav, name='data_nav'),
     url(r'^data/file/serve/(?P<uid>[-\w]+)/(?P<file_path>.+)/$', views.data_file_serve, name='data_file_serve'),
+    url(r'^data/delete/(?P<uid>[-\w]+)/(?P<state>[-\w]+)/$', views.data_state_change, name='data_delete'),
+    url(r'^data/restore/(?P<uid>[-\w]+)/(?P<state>[-\w]+)/$', views.data_state_change, name='data_restore'),
 
     # Recipe URLS
     url(r'^recipe/list/(?P<uid>[-\w]+)/$', views.recipe_list, name='recipe_list'),

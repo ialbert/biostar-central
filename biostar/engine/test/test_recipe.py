@@ -80,7 +80,8 @@ class RecipeViewTest(TestCase):
     def test_recipe_edit(self):
         "Test recipe edit with POST request"
 
-        data = { "name": "test", "sticky":True, "summary":"summary", "text":"text" }
+        data = { "name": "test", "sticky":True, "summary":"summary", "text":"text" ,
+                 "uid":"testing"}
         url = reverse('recipe_edit', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
