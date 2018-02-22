@@ -27,8 +27,6 @@ urlpatterns = [
     url(r'^files/paste/(?P<uid>[-\w]+)/$', views.files_paste, name='files_paste'),
     url(r'^data/navigate/(?P<uid>[-\w]+)/$', views.data_nav, name='data_nav'),
     url(r'^data/file/serve/(?P<uid>[-\w]+)/(?P<file_path>.+)/$', views.data_file_serve, name='data_file_serve'),
-    url(r'^data/delete/(?P<uid>[-\w]+)/(?P<delete>\d+)/$', views.data_state_change, name='data_delete'),
-    url(r'^data/restore/(?P<uid>[-\w]+)/(?P<delete>\d+)/$', views.data_state_change, name='data_restore'),
 
     # Recipe URLS
     url(r'^recipe/list/(?P<uid>[-\w]+)/$', views.recipe_list, name='recipe_list'),
@@ -41,12 +39,11 @@ urlpatterns = [
     url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
 
     url(r'^clear/clipboard/(?P<uid>[-\w]+)/(?P<url>.+)/(?P<board>.+)/$', views.clear_clipboard, name='clear_clipboard'),
+    url(r'^toggle/state/(?P<uid>[-\w]+)/(?P<obj_type>[-\w]+)/$', views.object_state_toggle, name='toggle_state'),
 
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
-    url(r'^job/delete/(?P<uid>[-\w]+)/(?P<delete>\d+)/$', views.job_state_change, name='job_delete'),
-    url(r'^job/restore/(?P<uid>[-\w]+)/(?P<delete>\d+)/$', views.job_state_change, name='job_restore'),
     url(r'^job/view/files/(?P<uid>[-\w]+)/$', views.job_files_list, name='job_files_entry'),
     url(r'^job/view/files/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_files_list, name='job_files_list'),
     url(r'^job/file/serve/(?P<uid>[-\w]+)/(?P<file_path>.+)/$', views.job_file_serve, name='job_file_serve')

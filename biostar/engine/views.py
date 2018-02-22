@@ -87,6 +87,8 @@ def recycle_bin(request):
     del_data = Data.objects.filter(deleted=True, project__in=all_projects,
                                   owner=request.user).order_by("date")
 
+    #del_recipes = Analysis.objects.filter(delete=True, project__in=all_projects)
+
     del_jobs = Job.objects.filter(deleted=True, project__in=all_projects,
                                   owner=request.user).order_by("date")
 
@@ -184,7 +186,7 @@ def job_list(request, uid):
 
 
 def files_list(request, instance, template_name, path='', extra_context={}):
-    "File navigator used for  data and jobs"
+    "File navigator used for data and jobs"
 
     # Instance is expected to be a Job or Data object.
     if isinstance(instance, Job):
@@ -732,24 +734,29 @@ def job_edit(request, uid):
     return render(request, 'job_edit.html', context)
 
 
-@object_access(type=Job, access=Access.OWNER_ACCESS, url="job_view")
-def job_state_change(request, uid, delete=0):
-    "Change job.state to 'state'."
+def object_state_toggle(request, uid, obj_type):
+    "Toggle delete/restore an object if a user has admin access to it"
 
-    assert int(delete) in (0, 1)
+    # Map an obj_type to an object and url
+    obj_map = dict(job=(Job, 'job_list'), data=(Data, 'data_list'))
+    obj = obj_map.get(obj_type, [])
 
-    # User can only alternate to/from deleted and restored states
+    # Make query
+    instance = obj[0].objects.filter(uid=uid).first()
+    url = reverse(obj[1], kwargs=dict(uid=instance.project.uid))
+    bin_url = reverse('recycle_bin')
+    # Make sure user has admin access to instance before toggling
+    has_access = auth.check_obj_access(instance=instance, user=request.user, request=request,
+                                       access=Access.OWNER_ACCESS)
 
-    job = Job.objects.filter(uid=uid).first()
-    job.deleted = bool(int(delete))
-    job.save()
+    msg = f"Deleted <b>{instance.name}</b>. View in <a href={bin_url}>Recycle Bin</a>."
+    if has_access:
+        instance.deleted = not instance.deleted
+        instance.save()
+        msg = msg if instance.deleted else f"Restored <b>{instance.name}</b>."
+        messages.success(request, mark_safe(msg))
 
-    msg = f"Restored <b>{job.name}</b>."
-    if bool(int(delete)):
-        msg = f"Deleted <b>{job.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
-
-    messages.success(request, mark_safe(msg))
-    return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))
+    return redirect(url)
 
 
 @object_access(type=Job, access=Access.READ_ACCESS)

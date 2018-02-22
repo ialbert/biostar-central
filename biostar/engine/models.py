@@ -55,10 +55,6 @@ class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
 
-    #ACTIVE, DELETED, RESTORED = 1, 2, 3
-    #STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (RESTORED, "Restored")]
-    #state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
-
     # Affects the sort order.
     sticky = models.BooleanField(default=False)
 
@@ -277,7 +273,6 @@ class Analysis(models.Model):
     text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
