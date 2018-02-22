@@ -15,7 +15,7 @@ class Bunch():
     def __init__(self, **kwargs):
         self.value = ''
         self.name = self.summary = ''
-        self.text = self.type = self.link = ''
+        self.help = self.type = self.link = ''
         self.__dict__.update(kwargs)
 
 
@@ -81,4 +81,4 @@ class Command(BaseCommand):
 
             # Create the data.
             auth.create_data(project=project, path=path, type=bunch.type,
-                             name=bunch.name, summary=bunch.summary, text=bunch.text)
+                             name=bunch.name, summary=bunch.summary, text=bunch.help)

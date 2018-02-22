@@ -10,13 +10,14 @@
 
         {% project_name_bar project %}
 
-        <div class="ui  vertical segment">
+        <div class="ui  vertical {%  access_color user=user project=project %} segment">
             {{ project.summary|markdown|safe }}
         </div>
 
         <div class="ui vertical segment">
 
             <div class="ui top attached tabular menu">
+
                 <a class="{% activate 'data' active %} item" href="{% url 'data_list' project.uid %}">
                     <i class="file text icon"></i>{{ data_count }} Data
                 </a>

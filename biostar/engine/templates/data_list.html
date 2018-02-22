@@ -8,32 +8,37 @@
 
 {% block content %}
 
-
-     {% if request|has_data %}
+    {% if request|has_data %}
         {% paste project=project data=True request=request %}
 
     {% elif request|has_files %}
         {% paste project=project files=True request=request %}
-
     {% endif %}
 
     {% if not data_list %}
         <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>
     {% endif %}
 
+    <div class="ui center aligned vertical segment actionbar">
+
+         <a class="ui mini green button" href="{% url 'data_nav' project.uid %}">
+            <i class="browser icon"></i>Browse Files
+        </a>
+
+        <a class="ui mini button" href="{% url 'data_upload' project.uid %}">
+            <i class="upload icon"></i>Upload File
+        </a>
+
+        <a class="ui mini button" href="{% url 'project_edit' project.uid %}">
+            <i class="edit icon"></i>Edit Project
+        </a>
+        <a class="ui mini button" href="{% url 'project_users' project.uid %}">
+            <i class="users icon"></i>Manage Access
+        </a>
+
+    </div>
+
     <div class="ui divided items">
-
-        <div class="item centerbox">
-
-            <a class="ui medium button" href="{% url 'data_upload' project.uid %}">
-                <i class="upload icon"></i>Upload File
-            </a>
-
-            <a class="ui button" href="{% url 'data_nav' project.uid %}">
-                <i class="browser icon"></i>Browse Files
-            </a>
-
-        </div>
 
         {% for data in data_list %}
             <div class="item">
@@ -44,15 +49,15 @@
 
                     <div class="meta">
                         <div class="ui small labels">
-                        {% size_label data %}
-                        {% type_label data %}
-                        {% state_label data error_only=True %}
+                            {% size_label data %}
+                            {% type_label data %}
+                            {% state_label data error_only=True %}
                         </div>
 
                     </div>
 
                     <div class="meta">
-                       {{ data.summary }}
+                        {{ data.summary }}
                     </div>
 
                 </div>
@@ -60,16 +65,6 @@
             </div>
         {% endfor %}
 
-        <div class="item centerbox">
-
-            <a class="ui button" href="{% url 'project_edit' project.uid %}">
-                <i class="edit icon"></i>Edit Project
-            </a>
-            <a class="ui button" href="{% url 'project_users' project.uid %}">
-                <i class="users icon"></i>Manage Access
-            </a>
-
-        </div>
 
     </div>
 

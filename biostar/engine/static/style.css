@@ -7,6 +7,10 @@ body {
     color: #4183c4;
 }
 
+.actionbar {
+    margin-top:-20px !important;
+}
+
 .project.help h1 {
     font-size: 1.28em;
 }
