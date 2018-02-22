@@ -235,6 +235,19 @@ def data_color(data):
 
     return DATA_COLORS.get(data.state,  "")
 
+@register.simple_tag
+def access_color(user, project):
+
+    if user.is_authenticated:
+        access = Access.objects.filter(user=user, project=project).first()
+    else:
+        access = None
+
+    if access and access.access in (Access.READ_ACCESS, Access.OWNER_ACCESS):
+        return "green"
+    else:
+        return ""
+
 
 @register.simple_tag
 def type_label(data):
@@ -278,14 +291,7 @@ def project_name_bar(context, project):
     """
     Returns a label for project.
     """
-    user = context["user"]
-    access = None
-    if user.is_authenticated:
-        access = Access.objects.filter(user=user, project=project).first()
-
-    access = access or Access(access=Access.READ_ACCESS)
-
-    return dict(project=project, access=access)
+    return dict(project=project)
 
 
 @register.inclusion_tag('widgets/recipe_form.html')

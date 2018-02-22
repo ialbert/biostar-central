@@ -224,6 +224,8 @@ def get_counts(project):
 @object_access(type=Project, access=Access.READ_ACCESS)
 def project_view(request, uid, template_name="recipe_list.html", active='recipes', more_info=None):
 
+    user = request.user
+
     project = Project.objects.filter(uid=uid).first()
     # Show counts for the project.
     counts = get_counts(project)
@@ -238,6 +240,8 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     if filter:
         filter = Analysis.objects.filter(uid=filter).first()
         job_list = job_list.filter(analysis=filter)
+
+
 
     # This is not quite right to be here.
     if more_info:
