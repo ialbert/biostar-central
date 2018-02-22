@@ -84,10 +84,10 @@ def recycle_bin(request):
     # Only searches projects you have access.
     all_projects = auth.get_project_list(user=request.user)
 
-    del_data = Data.objects.filter(state=Data.DELETED, project__in=all_projects,
+    del_data = Data.objects.filter(deleted=True, project__in=all_projects,
                                   owner=request.user).order_by("date")
 
-    del_jobs = Job.objects.filter(state=Job.DELETED, project__in=all_projects,
+    del_jobs = Job.objects.filter(deleted=True, project__in=all_projects,
                                   owner=request.user).order_by("date")
 
     context = dict(jobs=del_jobs, data=del_data)
@@ -213,9 +213,9 @@ def files_list(request, instance, template_name, path='', extra_context={}):
 
 
 def get_counts(project):
-    data_count = Data.objects.filter(~Q(state=Data.DELETED),project=project).count()
-    recipe_count = Analysis.objects.filter(~Q(state=Analysis.DELETED), project=project).count()
-    result_count = Job.objects.filter(~Q(state=Job.DELETED),project=project).count()
+    data_count = Data.objects.filter(deleted=False,project=project).count()
+    recipe_count = Analysis.objects.filter(deleted=False, project=project).count()
+    result_count = Job.objects.filter(deleted=False,project=project).count()
     return dict(
         data_count=data_count, recipe_count=recipe_count, result_count=result_count
     )
@@ -229,9 +229,9 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     counts = get_counts(project)
 
     # Select all the data in the project.
-    data_list = Data.objects.filter(~Q(state=Data.DELETED), project=project).order_by("sticky", "-date").all()
-    recipe_list = Analysis.objects.filter(~Q(state=Analysis.DELETED), project=project).order_by("-date").all()
-    job_list = Job.objects.filter(~Q(state=Job.DELETED), project=project).order_by("-date").all()
+    data_list = Data.objects.filter(deleted=False, project=project).order_by("sticky", "-date").all()
+    recipe_list = Analysis.objects.filter(deleted=False, project=project).order_by("-date").all()
+    job_list = Job.objects.filter(deleted=False, project=project).order_by("-date").all()
 
     # Filter job results by analysis
     filter = request.GET.get('filter', '')
@@ -360,22 +360,18 @@ def data_file_serve(request, uid, file_path):
 
 
 @object_access(type=Data, access=Access.OWNER_ACCESS, url='data_view')
-def data_state_change(request, uid, state=""):
-    "Change data.state to 'state'."
+def data_state_change(request, uid, delete = 0):
+    "Change data.deleted to True or False ."
 
-    # User can only alternate to/from deleted and restored states
-    choices = filter(lambda x: x[0] in [Data.RESTORED, Data.DELETED], Data.STATE_CHOICES)
-    state_map = {x:y for y,x in choices}
+    assert int(delete) in (0, 1)
 
-    if not state_map.get(state):
-        messages.error(request, "State specified is not an allowed option")
-        redirect(reverse("project_list"))
+    data = Data.objects.filter(uid=uid).first()
+    data.deleted = bool(int(delete))
+    data.save()
 
-    data = auth.switch_states(uid=uid, model=Data, state=state_map[state], save=True)
-
-    msg = f"Deleted <b>{data.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
-    if data.state == Data.RESTORED:
-        msg = f"Restored <b>{data.name}</b>."
+    msg = f"Restored <b>{data.name}</b>."
+    if bool(int(delete)):
+        msg = f"Deleted <b>{data.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
 
     messages.success(request, mark_safe(msg))
     return redirect(reverse("data_list", kwargs=dict(uid=data.project.uid)))
@@ -737,22 +733,20 @@ def job_edit(request, uid):
 
 
 @object_access(type=Job, access=Access.OWNER_ACCESS, url="job_view")
-def job_state_change(request, uid, state=''):
+def job_state_change(request, uid, delete=0):
     "Change job.state to 'state'."
 
+    assert int(delete) in (0, 1)
+
     # User can only alternate to/from deleted and restored states
-    choices = filter(lambda x: x[0] in [Job.DELETED, Job.RESTORED], Job.STATE_CHOICES)
-    state_map = {x:y for y,x in choices}
 
-    if not state_map.get(state):
-        messages.error(request, "State specified is not an allowed option")
-        redirect(reverse("project_list"))
+    job = Job.objects.filter(uid=uid).first()
+    job.deleted = bool(int(delete))
+    job.save()
 
-    job = auth.switch_states(uid=uid, model=Job, state=state_map[state], save=True)
-
-    msg = f"Deleted <b>{job.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
-    if job.state == Job.RESTORED:
-        msg = f"Restored <b>{job.name}</b>."
+    msg = f"Restored <b>{job.name}</b>."
+    if bool(int(delete)):
+        msg = f"Deleted <b>{job.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
 
     messages.success(request, mark_safe(msg))
     return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))

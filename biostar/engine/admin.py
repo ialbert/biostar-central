@@ -15,7 +15,7 @@ class JobAdmin(admin.ModelAdmin):
     search_fields = ('name', 'owner__first_name', 'owner__email', 'state', "project__name",
                      "project__owner__first_name", "project__owner__email")
     list_display = ("name", "state","start_date", "security","date")
-    list_filter = ("state", "security", "project__name")
+    list_filter = ("state", "security", "project__name", "deleted")
 
 
     fieldsets = (("Job Metadata",
@@ -46,12 +46,12 @@ class AnalysisAdmin(admin.ModelAdmin):
     search_fields = ('name', 'text', 'owner__first_name', 'owner__email', "project__name",
                      "project__owner__first_name", "project__owner__email")
     list_display = ("name", "date", "security")
-    list_filter = ("security", "project__name", "state")
+    list_filter = ("security", "project__name", "deleted")
 
 
     fieldsets = (("Analysis Metadata",
                     {'fields': ("name","owner",'project',("uid","sticky"),
-                                ("state", "security"), "image"),
+                                ( "deleted", "security"), "image"),
                      "classes": ('extrapretty')}
                   ),
 
@@ -75,12 +75,12 @@ class ProjectAdmin(admin.ModelAdmin):
     }
 
     search_fields = ('name', 'text', 'owner__first_name', 'owner__email')
-    list_display = ("name", "date", "state")
-    list_filter = ( "name", "state")
+    list_display = ("name", "date",  "deleted")
+    list_filter = ( "name",  "deleted")
 
     fieldsets = (("Analysis Metadata",
                     {'fields': ("name","owner",("uid","sticky"),
-                                "state", "image"),
+                                 "deleted", "image"),
                      "classes": ('extrapretty')}
                   ),
 

@@ -30,9 +30,7 @@
 
     <div class="ui vertical segment">
         <div class="ui center aligned header">Data Description</div>
-        <div class="ui basic center aligned vertical segment">
 
-        </div>
         <div>{{ data.html|safe }}</div>
     </div>
 
@@ -49,6 +47,8 @@
         <a class="ui button" href="{% url 'data_files_entry' data.uid %}">
             <i class="browser icon"></i>Browse Files
         </a>
+
+        {% delete data 'data_edit' "data_delete" "data_restore" %}
 
     </div>
 

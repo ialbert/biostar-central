@@ -55,8 +55,9 @@ class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
 
-    ACTIVE, DELETED, RESTORED = 1, 2, 3
-    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (RESTORED, "Restored")]
+    #ACTIVE, DELETED, RESTORED = 1, 2, 3
+    #STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (RESTORED, "Restored")]
+    #state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     # Affects the sort order.
     sticky = models.BooleanField(default=False)
@@ -64,12 +65,10 @@ class Project(models.Model):
     # Limits who can access the project.
     privacy = models.IntegerField(default=PRIVATE, choices=PRIVACY_CHOICES)
 
-    # The state a project may be in.
-    state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
-
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
     name = models.CharField(default="name", max_length=MAX_NAME_LEN)
     summary = models.TextField(default='summary', max_length=MAX_TEXT_LEN)
+    deleted = models.BooleanField(default=False)
 
     # We need to keep the owner.
     owner = models.ForeignKey(User, null=False, on_delete=models.CASCADE)
@@ -141,9 +140,8 @@ def create_access(sender, instance, created, **kwargs):
 
 
 class Data(models.Model):
-    PENDING, READY, ERROR, DELETED, RESTORED = 1, 2, 3, 4, 5
-    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted"),
-                     (RESTORED, "Restored")]
+    PENDING, READY, ERROR,  = 1, 2, 3
+    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error")]
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
 
     LINK, UPLOAD = 1,2
@@ -154,6 +152,7 @@ class Data(models.Model):
     summary = models.TextField(default='summary', blank=True, max_length=MAX_TEXT_LEN)
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
     sticky = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)
 
     owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     text = models.TextField(default='description', max_length=MAX_TEXT_LEN, blank=True)
@@ -263,12 +262,14 @@ class Data(models.Model):
 
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
-
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
+    security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
 
-    ACTIVE, DELETED, RESTORED = 1, 2, 3
-    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (RESTORED, "Restored")]
+    #ACTIVE, DELETED, RESTORED = 1, 2, 3
+    #STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (RESTORED, "Restored")]
+    #state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
+    deleted = models.BooleanField(default=False)
     uid = models.CharField(max_length=32, unique=True)
     sticky = models.BooleanField(default=False)
     name = models.CharField(max_length=MAX_NAME_LEN, default="No name")
@@ -277,8 +278,6 @@ class Analysis(models.Model):
     html = models.TextField(default='html')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
-    state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
@@ -323,14 +322,14 @@ class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
 
-    QUEUED, RUNNING, COMPLETED, ERROR, DELETED, SPOOLED, PAUSED, RESTORED = range(1, 9)
+    QUEUED, RUNNING, COMPLETED, ERROR, SPOOLED, PAUSED = range(1, 7)
 
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"), (PAUSED, "Paused"),
-                     (SPOOLED, "Spooled"), (COMPLETED, "Completed"),
-                     (ERROR, "Error"), (DELETED, "Deleted"), (RESTORED, "Restored")]
+                     (SPOOLED, "Spooled"), (COMPLETED, "Completed"),(ERROR, "Error")]
 
     state = models.IntegerField(default=QUEUED, choices=STATE_CHOICES)
 
+    deleted = models.BooleanField(default=False)
     name = models.CharField(max_length=MAX_NAME_LEN, default="name")
     summary = models.TextField(default='summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)

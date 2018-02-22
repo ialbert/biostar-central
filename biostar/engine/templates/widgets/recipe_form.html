@@ -16,7 +16,7 @@
     <div class="field">
         {% if field|is_checkbox %}
         <div class="ui checkbox">
-            {{ field }} {{ field.label_tag }}
+            {{ field }} <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         </div>
         {% else %}
         {{ field.label_tag }}
