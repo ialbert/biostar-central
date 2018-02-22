@@ -89,7 +89,7 @@ def checkbox_field(data):
     return field
 
 
-def data_field_generator(field, project, type=""):
+def data_field_generator(field, project, type="", extras=[]):
     """
     Generates a SELECT field populated by data names that
     are of a certain type.
@@ -106,7 +106,7 @@ def data_field_generator(field, project, type=""):
 
     # The choice generator.
     def choice_func():
-        choices = [(d.id, d.name) for d in datamap.values()]
+        choices = extras + [(d.id, d.name) for d in datamap.values()]
         return choices
 
     # Returns a SELECT field with the choices.
@@ -134,7 +134,7 @@ def dynamic_field(data, project=None):
 
     # Data should be selected from a project.
     from_project = (data.get("source") == "PROJECT")
-
+    extras = data.get("extras", [])
     if from_project and project:
         # Project specific data should have a type.
         data_type = data.get("type", "").strip() or ""
@@ -142,7 +142,8 @@ def dynamic_field(data, project=None):
         if isinstance(data_type, dict):
             data_type = data_type.get("symbol", "").strip() or ""
 
-        field = data_field_generator(data, project=project, type=data_type)
+        field = data_field_generator(data, project=project, type=data_type, extras=extras)
+
     else:
         # In all other cases we generate a field from the tupe.
         func = field_types.get(display_type)

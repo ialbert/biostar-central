@@ -50,6 +50,10 @@
   args:
     chdir: "{{ engine_dir }}"
 
+- name: restart server
+  become: yes
+  shell: supervisorctl restart engine
+
 - name: reload supervisor
   become: yes
   service:
