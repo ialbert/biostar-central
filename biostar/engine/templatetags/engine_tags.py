@@ -304,6 +304,10 @@ def access_form(project, user, form):
     return dict(project=project, user=user, form=form)
 
 
+@register.inclusion_tag('widgets/project_action_bar.html')
+def project_action_bar(user, project):
+    return dict(use=user, project=project)
+
 @register.inclusion_tag('widgets/job_elapsed.html')
 def job_minutes(job):
 
