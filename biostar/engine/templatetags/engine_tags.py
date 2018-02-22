@@ -243,7 +243,7 @@ def access_color(user, project):
     else:
         access = None
 
-    if access and access.access in (Access.READ_ACCESS, Access.OWNER_ACCESS):
+    if access and access.access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
         return "green"
     else:
         return ""
