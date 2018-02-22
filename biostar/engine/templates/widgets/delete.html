@@ -1,0 +1,12 @@
+{% if user.is_authenticated and not instance.deleted %}
+<a class="{{style}}" href="{{ edit_url }}">
+    <i class="edit icon"></i>{{ edit_label }}
+</a>
+<a class="{{style}}" href="{{ delete_url }}">
+    <i class="trash icon"></i> {{ delete_label }}
+</a>
+{% elif user.is_authenticated and instance.deleted %}
+<a class="{{style}}" href="{{ restore_url }}">
+    <i class="undo icon"></i> {{ restore_label }}
+</a>
+{% endif %}

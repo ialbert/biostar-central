@@ -90,19 +90,19 @@ class JobViewTest(TestCase):
     def test_job_state_change(self):
         "Test job state change view"
 
-        def change_state(state, url=""):
+        def change_state(delete, url=""):
 
-            url = reverse(url, kwargs=dict(state=state, uid=self.job.uid))
+            url = reverse(url, kwargs=dict(delete=int(delete), uid=self.job.uid))
 
             request = util.fake_request(url=url, data={}, user=self.owner)
 
-            response = views.job_state_change(request=request, uid=self.job.uid, state=state)
+            response = views.job_state_change(request=request, uid=self.job.uid, delete=int(delete))
 
             self.process_response(response=response, data={})
 
         #Test the delete and restore views
-        change_state("Deleted", url="job_delete")
-        change_state("Restored", url="job_restore")
+        change_state(delete=True, url="job_delete")
+        change_state(delete=False, url="job_restore")
 
 
     def test_job_runner(self):

@@ -99,8 +99,10 @@ class DataUploadForm(forms.ModelForm):
     def clean_file(self):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
+
         check_size(fobj=fobj, maxsize=25)
         check_upload_limit(file=fobj, user=self.user)
+
         return fobj
 
 

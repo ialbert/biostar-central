@@ -18,14 +18,13 @@ logger = logging.getLogger("engine")
 register = template.Library()
 
 JOB_COLORS = {
-    Job.RESTORED: "olive",
-    Job.DELETED: "orange", Job.SPOOLED: "violet",
+    Job.SPOOLED: "violet",
     Job.ERROR: "red", Job.QUEUED: "teal",
     Job.RUNNING: "pink", Job.COMPLETED: "green"
 }
 
 DATA_COLORS = {
-    Data.PENDING: "teal", Data.READY:"green", Data.ERROR :"red", Data.DELETED:""
+    Data.PENDING: "teal", Data.READY:"green", Data.ERROR :"red"
 }
 
 
@@ -39,6 +38,19 @@ def sticky_label(obj):
 @register.inclusion_tag('widgets/file_listing.html')
 def file_listing(path, file_list, object, project_uid='', form=None):
     return dict(path=path, file_list=file_list, object=object, project_uid=project_uid, form=form)
+
+
+@register.inclusion_tag('widgets/delete.html', takes_context=True)
+def delete(context, instance, edit_url, delete_url, restore_url, edit_label="Edit Info",
+                 delete_label="Delete", restore_label="Restore", style="ui button"):
+
+    edit_url = reverse(edit_url, kwargs=dict(uid=instance.uid))
+    delete_url = reverse(delete_url, kwargs=dict(uid=instance.uid, delete=int(True)))
+    restore_url = reverse(restore_url, kwargs=dict(uid=instance.uid, delete=int(False)))
+
+    return dict(instance=instance, edit_url=edit_url, delete_url=delete_url, user=context["user"],
+                restore_url=restore_url, edit_label=edit_label, delete_label=delete_label,
+                restore_label=restore_label, style=style)
 
 
 def dir_url(object, path, current):
@@ -107,28 +119,6 @@ def is_checkbox(field):
 
     return True if field.field.widget.input_type == "checkbox" else False
 
-@register.filter
-def is_radio(field):
-
-    return True if field.field.widget.input_type == "radio" else False
-
-
-@register.filter
-def text_display(state, type="job"):
-    """
-    Returns test display for any model.state
-    """
-
-    options = dict(
-
-            job = dict(Job.STATE_CHOICES),
-            project = dict(Project.STATE_CHOICES),
-            data = dict(Data.STATE_CHOICES),
-            recipe = dict(Analysis.STATE_CHOICES)
-
-    )
-    return options.get(type, {}).get(state, "")
-
 
 @register.filter
 def has_files(request):
@@ -163,10 +153,10 @@ def search(request):
 
     projects = auth.get_project_list(user=request.user)
 
-    data = Data.objects.filter(~Q(state=Data.DELETED),project__in=projects)
-    recipe = Analysis.objects.filter(~Q(state=Analysis.DELETED), project__in=projects)
-    jobs = Job.objects.filter(~Q(state=Job.DELETED), project__in=projects)
-    projects = projects.filter(~Q(state=Project.DELETED))
+    data = Data.objects.filter(deleted=False,project__in=projects)
+    recipe = Analysis.objects.filter(deleted=False, project__in=projects)
+    jobs = Job.objects.filter(deleted=False, project__in=projects)
+    projects = projects.filter(deleted=False)
 
     content = [dict(name="Projects",results =update_dict(iter=projects)),
                dict(name="Data", results=update_dict(iter=data)),
