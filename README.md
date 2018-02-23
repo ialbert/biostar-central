@@ -1,15 +1,17 @@
 # The Biostar Engine
 
-## Better bioinformatics solutions for an imperfect world
+## Better Solutions for an Imperfect World
 
 ![Biostar Engine Badge](biostar/engine/static/images/badge-engine.svg)
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts. The scripts that the software executes may written for `bash`, may be a `Makefile`, `R` commands in a file, basically just about any executable command.
+The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts. The scripts that the software executes may written for `bash`, may be a `Makefile`, `R` commands just about any program typically run from command line.
 
 We call the scripts that the engine can execute as *recipes*. Recipes with bioinformatics orientation are maintained separately in the [biostar-recipes][recipes] repository.
+
+![Usage Example](docs/images/usage-example.png)
 
 [recipes]: https://github.com/biostars/biostar-recipes
 
@@ -155,7 +157,7 @@ Recipes are stored and distributed from a separate repository at:
 ## Security considerations
 
 **Note**: The site is designed to execute scripts on a remote server. In addition the site 
-allows administrative users to change the content of these scripts. 
+allows users with moderator rights may change the content of these scripts.
 
-It is **extremely important** to restrict and guard access to all 
-accounts with administrative privileges! 
+It is **extremely important** to monitor, restrict and guard access to all
+accounts with moderator privileges!
