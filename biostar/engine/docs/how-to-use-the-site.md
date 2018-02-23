@@ -41,7 +41,7 @@ You have full (read/write/manage) access) to projects that you create. Start by 
 
 To create a project, click the `Create Project` button found at the bottom of the `Project List` page.
 
-![Create Project](images/create_project.png)
+![Create Project](images/project_create.png)
 
 This will open a form that allows you to name your project, optionally give it an image,  provide a description etc.
 
@@ -95,7 +95,7 @@ You may add data by copying data from other projects you have read access on .
 
 2\. Select the checkbox for the files you wish to copy the click `Copy Data`
 
-![Copy Data](images/copy_data.png)
+![Copy Data](images/data_copy.png)
 
 3\. Navigate to the destination and click `Paste Data`
 
