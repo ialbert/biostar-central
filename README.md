@@ -27,7 +27,7 @@ More details on how the site works at:
 * [How to write recipes?][how-to-write]
 
 In a nutshell a recipe is described by an interface description file and a script template.
-The site generates an interface and fills the template based on the data selected by the user.
+The site generates the interface, asks the users to fill in the data then creates and runs the script.
 
 [how-to-use]: docs/how-to-use-the-site.md
 [how-to-write]: https://github.com/biostars/biostar-recipes/blob/master/docs/how-to-write-recipes.md
@@ -112,13 +112,13 @@ Run all tests:
 
 ## Deployment
 
-The site is built with Django hence the official Django documentation applies.
+The site is built with Django therefore the official Django documentation applies to maintaining and deploying the site:
 
 * <https://docs.djangoproject.com/>
 
 ## Running jobs 
 
-A recipe submitted for execution is called a job. When the job is run the recipe parameters (JSON dictionary) are applied onto recipe template. The result is the recipe script that gets executed. The transformation takes place at runtime.
+A recipe submitted for execution is called a job. When the job is run the recipe parameters are applied onto recipe template to produce the script that gets executed. This transformation takes place right before executing the job.
 
 Jobs can be executed as commands. See the `job` command for details:
 
@@ -145,7 +145,7 @@ will execute the next queued job. The job runner may be run periodically with cr
 ## Job spooling
 
 The Biostar Engine supports `uwsgi`. When deployed through 
-`uwsgi` jobs are queued and run automatically through the `uwsgi` spooler. See the `uwsgi` documentation  for details on how to control that process.
+`uwsgi` jobs are queued and run automatically through the `uwsgi` spooler. See the `uwsgi` documentation  for details on how to control and customize that process.
 
 * <https://uwsgi-docs.readthedocs.io/en/latest/>
 
@@ -153,7 +153,7 @@ The Biostar Engine supports `uwsgi`. When deployed through
 
 ## Recipes
 
-Recipes are stored and distributed from a separate repository at:
+Bioinformatics related recipes are stored and distributed from a separate repository:
 
 * <https://github.com/biostars/biostar-recipes>
 
