@@ -17,6 +17,16 @@ The Biostar Engine also has support for data storage and project management and 
 
 * <https://www.bioinformatics.recipes>
 
+## How does the site work?
+
+More details on how the site works at:
+
+* [How to use the site?][how-to-use]
+* [How to write recipes?][how-to-write]
+
+[how-to-use]: docs/how-to-use-the-site.md
+[how-to-write]: https://github.com/biostars/biostar-recipes/blob/master/docs/how-to-write-recipes.md
+
 ## Installation
 
 Our installation instructions rely on [conda][conda] though other alternatives are also viable. Users may use `virtualenv`, `homebrew`, `apt-get` just as well, or they may opt to not using any environment management tool.
