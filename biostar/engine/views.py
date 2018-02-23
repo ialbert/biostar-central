@@ -635,7 +635,6 @@ def recipe_code(request, uid):
 
             # Changes to template will require a review ( only when saving ).
             if auth.template_changed(analysis=analysis, template=template) and save:
-
                 analysis.security = Analysis.UNDER_REVIEW
 
             # Admin users will automatically get authorized.
@@ -659,7 +658,11 @@ def recipe_code(request, uid):
     recipe = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=dict(name=name))
 
     # This generates a "fake" unsaved job.
-    job = auth.create_job(analysis=analysis, json_data=analysis.json_data, save=False)
+    # Needs to fill in a few runtime only settings.
+    mock_json = analysis.json_data
+    for key, value in mock_json.items():
+        value['toc'] = f"{key}-filelist.txt"
+    job = auth.create_job(analysis=analysis, json_data=mock_json, save=False)
 
     # Create the script for the "fake" job.
     data, script = auth.generate_script(job)
