@@ -9,6 +9,12 @@
 <form method="post" class="ui form" action="{% url 'data_nav' project.uid %}">
     {% csrf_token %}
 
+   <div class="ui center aligned vertical segment">
+                 <button type="submit" class="ui submit mini button">
+                    <i class="clone icon"></i>Copy selected data
+                </button>
+             </div>
+
     <div class="ui relaxed divided list">
 
             <div class="item">
@@ -30,11 +36,7 @@
 
             {% if all_data %}
 
-             <div class="ui center aligned basic segment">
-                 <button type="submit" class="ui submit green button">
-                    <i class="clone icon"></i>Copy Data
-                </button>
-             </div>
+
 
             {% endif %}
     </div>

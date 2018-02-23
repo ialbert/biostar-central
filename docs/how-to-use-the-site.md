@@ -1,18 +1,6 @@
-# How to use the website?
+# Biostar Engine Documentation
 
-## Site organization
-
-All content on the site is organized into *projects*.
-
-A project is a collection of *data*, *recipes* and *results*.
-
-Projects are typically created with a specific goal in mind and have content relevant to that goal.
-
-![Usage Example](images/project-view.png)
-
-Users may copy recipes and data across different projects.
-
-## Site usage
+### What does this software do?
 
 The Biostar Engine is built to help executing data analysis pipelines. A typical usage would be:
 
@@ -23,13 +11,21 @@ The Biostar Engine is built to help executing data analysis pipelines. A typical
 
 ![Usage Example](images/usage-example.png)
 
-## Access rights
+### Content types
+
+All content on the site is organized into *projects*. A project is a collection of *data*, *recipes* and *results*. Projects are typically created with a specific goal in mind and have content relevant to that goal.
+
+![Usage Example](images/project-view.png)
+
+Users may copy recipes and data across different projects.
+
+### Access rights
 
 Projects may be `PUBLIC` this means everyone can see the content in them, or `PRIVATE` where only the owner and people selected by the project manager can access the project.
 
 For `PRIVATE` projects access rights may have have different levels: `READ` and `READ + WRITE` or `READ + WRITE + MANAGE`. Thus a project owner may allow another users to see the data/recipes, or create new elements.
 
-## How to tell what access rights you have?
+### How to tell what access rights you have?
 
 If you can see a project it means to you have at least `READ ACCESS` to it.
 
@@ -41,7 +37,7 @@ This will help you immediately recognize what actions are allowable in a project
 
 For example if the green line is missing you won't be able to execute a recipe in that project. To execute the recipe you would first need to make a copy of it into a project that you do have `WRITE ACCESS` to. This will not give you your own version of the same recipe that you can use as is or modify.
 
-## Create a project
+### Creating a project
 
 You have full `READ + WRITE + MANAGE` access to projects that you create. So start by creating your own project.
 
@@ -53,7 +49,7 @@ This will open a form that allows you to name your project, optionally give it a
 
 You may now populate your new project with recipes, data and you may allow other users to access your project.
 
-## Create a recipe
+### Creating a recipe
 
 The simplest way to create a recipe is to copy an existing recipe from another project.
 We have a so called "Starter recipe" in the project named "How to create a recipe" you might want to use that as an example.
@@ -66,7 +62,7 @@ Now navigate to a project that you have created (or have write access to) then i
 
 Voila! You have your first recipe.
 
-## Adding data into projects
+### Adding data
 
 There are different ways to add data to a project:
 
@@ -80,7 +76,7 @@ To get large datasets into the system we recommend a command line program descri
 
 Data may be copied and imported across projects.
 
-## Uploading data
+### Uploading data
 
 To upload data by click the ```Upload File``` button found at the top of your data list page.
 
@@ -90,7 +86,7 @@ This will open a page allowing you to name your data, give it a type, etc.
 
 There is a upload file size limit as well as a total upload limit for each user. These values depend on the particular settings of the server.
 
-## Copy data
+### Copying data
 
 You may add data by copying data from other projects you have read access on .
    You can copy data by following these steps:
