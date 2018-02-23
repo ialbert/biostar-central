@@ -66,7 +66,7 @@ All commands run through `make`. To initialize and run the test site use:
    
 Visit <http://localhost:8000> to see your site running. 
 
-The default admin email/password combination is: `1@lvh.me/testbuddy`.  You may change these in the settings.
+The default admin email/password combination is: `admin@localhost/1234`. Follow the [Django][django] deployment protocols for changing these in production.
 
 ## Bioinformatics environment
 

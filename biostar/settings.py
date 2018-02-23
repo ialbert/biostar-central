@@ -12,11 +12,11 @@ DEBUG = True
 # Override compression if needed.
 # COMPRESS_ENABLED = True
 
-# Change this in production.
-SECRET_KEY = '1@lvh.me'
+# Change this in production!
+SECRET_KEY = 'secretkey'
 
 # The password for admin users.
-DEFAULT_ADMIN_PASSWORD = "testbuddy"
+DEFAULT_ADMIN_PASSWORD = "1234"
 
 # Maximum amount of uploaded files a user is allowed to aggregate, in bytes.
 MAX_UPLOAD_SIZE = 3e8
@@ -25,13 +25,11 @@ MAX_UPLOAD_SIZE = 3e8
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
-SITE_HEADER = '<i class="barcode icon"></i> Bioinformatics Recipes'
 
 # Admin users.
 ADMINS = [
-    ("Admin User", "1@lvh.me")
+    ("Admin User", "admin@localhost")
 ]
-
 
 # Helper function for building absolute paths.
 def join(*args):
