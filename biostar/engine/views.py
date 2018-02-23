@@ -148,7 +148,7 @@ def project_users(request, uid):
     targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
     current = access_forms(users=user_list, project=project, exclude=[request.user])
     results = access_forms(users=targets, project=project, exclude=[request.user])
-    context = dict(current=current, project=project, results=results, form=form, activate='selection',
+    context = dict(current=current, project=project, results=results, form=form, activate='User Management',
                    q=q, user_access=user_access)
     counts = get_counts(project)
     context.update(counts)
@@ -306,7 +306,7 @@ def data_view(request, uid):
     data = Data.objects.filter(uid=uid).first()
 
     project = data.project
-    context = dict(data=data, project=project, activate='selection')
+    context = dict(data=data, project=project, activate='Selected Data')
 
     counts = get_counts(project)
     context.update(counts)
@@ -440,7 +440,7 @@ def data_nav(request, uid):
             messages.success(request, msg)
             return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
-    context = dict(activate='selection', all_data=all_data, project=project, form=form)
+    context = dict(activate='File Explorer', all_data=all_data, project=project, form=form)
     counts = get_counts(project)
     context.update(counts)
 
@@ -495,7 +495,7 @@ def data_files_list(request, uid, path=''):
             return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
     back_uid = None if path else project.uid
-    context = dict(activate='selection', data=data, project=project, project_uid=back_uid, form=form)
+    context = dict(activate='File List', data=data, project=project, project_uid=back_uid, form=form)
 
     counts = get_counts(project)
     context.update(counts)
@@ -511,7 +511,7 @@ def recipe_view(request, uid):
     """
     analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
-    context = dict(analysis=analysis, project=project, activate='selection')
+    context = dict(analysis=analysis, project=project, activate='Selected Recipe')
 
     counts = get_counts(project)
     context.update(counts)
@@ -551,7 +551,7 @@ def recipe_run(request, uid):
         initial = dict(name=f"Results for: {analysis.name}")
         form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
 
-    context = dict(project=project, analysis=analysis, form=form, activate='selection')
+    context = dict(project=project, analysis=analysis, form=form, activate='Run Recipe')
     context.update(get_counts(project))
 
     return render(request, 'recipe_run.html', context)
@@ -789,7 +789,7 @@ def job_view(request, uid):
     job = Job.objects.filter(uid=uid).first()
     project = job.project
 
-    context = dict(job=job, project=project, activate='selection')
+    context = dict(job=job, project=project, activate='Selected Result')
 
     counts = get_counts(project)
     context.update(counts)
@@ -834,7 +834,7 @@ def job_files_list(request, uid, path=''):
             messages.success(request, msg)
             return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
-    context = dict(activate='selection', job=job, project=project, form=form)
+    context = dict(activate='Selected Job', job=job, project=project, form=form)
     counts = get_counts(project)
     context.update(counts)
 
