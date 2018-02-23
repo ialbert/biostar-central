@@ -27,6 +27,7 @@
 
             {% security_label analysis %}
 
+
             <div class="ui center aligned vertical segment">
 
                 <div class="ui buttons">
@@ -61,6 +62,12 @@
 
             </div>
 
+        </div>
+
+        <div class="ui vertical segment">
+            <div class="ui basic segment">
+             {{ analysis.summary|markdown|safe }}
+            </div>
         </div>
 
         <div class="ui basic segment">
