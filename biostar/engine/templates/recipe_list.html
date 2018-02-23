@@ -14,33 +14,7 @@
         <div class="ui warning message"><i class="ui warning circle icon"></i>No recipes found.</div>
     {% endif %}
 
-    <div class="ui divided link items">
+    {% list_view recipe_list=recipe_list %}
 
-        {% for recipe in recipe_list %}
-
-            <div class="item">
-                <div class="ui tiny image">
-                    <img src="{% img recipe %}">
-                </div>
-                <div class="content">
-                    <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                        <i class="setting icon"></i> {{ recipe.name }}
-                    </a>
-                    <div class="description">
-                        {{ recipe.summary|markdown|safe }}
-                    </div>
-                    <div class="meta">
-                        {% sticky_label recipe %}
-                        <a href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                            <i class="bar chart icon"></i> view results
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-        {% endfor %}
-
-
-    </div>
 
 {% endblock %}

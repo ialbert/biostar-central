@@ -25,7 +25,7 @@
             <i class="browser icon"></i>Browse Files
         </a>
 
-        {% delete data 'data_edit' "data_delete" "data_restore" %}
+        {% action_bar data 'data_edit' %}
 
     </div>
 
@@ -51,8 +51,6 @@
         <div class="ui center aligned header">Data Content (first few lines)</div>
         <pre>{{ data.peek }}</pre>
     </div>
-
-
 
 
 {% endblock %}

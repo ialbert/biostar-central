@@ -87,10 +87,13 @@ def recycle_bin(request):
     del_data = Data.objects.filter(deleted=True, project__in=all_projects,
                                   owner=request.user).order_by("date")
 
+    del_recipes = Analysis.objects.filter(deleted=True, project__in=all_projects,
+                                          owner=request.user).order_by("date")
+
     del_jobs = Job.objects.filter(deleted=True, project__in=all_projects,
                                   owner=request.user).order_by("date")
 
-    context = dict(jobs=del_jobs, data=del_data)
+    context = dict(jobs=del_jobs, data=del_data, recipes=del_recipes)
 
     return render(request, 'recycle_bin.html', context=context)
 
@@ -163,7 +166,7 @@ def project_list(request):
 
 def data_list(request, uid):
     """
-    Returns the list of data for a project id.
+    Returns the list of data for a project uid.
     """
 
     return project_view(request=request, uid=uid, template_name="data_list.html", active='data')
@@ -171,20 +174,20 @@ def data_list(request, uid):
 
 def recipe_list(request, uid):
     """
-    Returns the list of recipes for a project id.
+    Returns the list of recipes for a project uid.
     """
     return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes', more_info=True)
 
 
 def job_list(request, uid):
     """
-    Returns the list of recipes for a project id.
+    Returns the list of recipes for a project uid.
     """
     return project_view(request=request, uid=uid, template_name="job_list.html", active='jobs')
 
 
 def files_list(request, instance, template_name, path='', extra_context={}):
-    "File navigator used for  data and jobs"
+    "File navigator used for data and jobs"
 
     # Instance is expected to be a Job or Data object.
     if isinstance(instance, Job):
@@ -224,8 +227,6 @@ def get_counts(project):
 @object_access(type=Project, access=Access.READ_ACCESS)
 def project_view(request, uid, template_name="recipe_list.html", active='recipes', more_info=None):
 
-    user = request.user
-
     project = Project.objects.filter(uid=uid).first()
     # Show counts for the project.
     counts = get_counts(project)
@@ -240,8 +241,6 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     if filter:
         filter = Analysis.objects.filter(uid=filter).first()
         job_list = job_list.filter(analysis=filter)
-
-
 
     # This is not quite right to be here.
     if more_info:
@@ -273,7 +272,10 @@ def project_edit(request, uid):
 
 @login_required
 def project_create(request):
-
+    """
+    View used create an empty project belonging to request.user.
+    Input is validated with a form and actual creation is routed through auth.create_project.
+    """
     initial = dict(name="Project Name", text="project description", summary="project summary")
     form = ProjectForm(initial=initial)
 
@@ -299,6 +301,8 @@ def project_create(request):
 
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, uid):
+    "Show information specific to each data."
+
     data = Data.objects.filter(uid=uid).first()
 
     project = data.project
@@ -326,7 +330,10 @@ def data_copy(request, uid):
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
 def data_paste(request, uid):
-    "Paste data in clipboard to project"
+    """
+    Paste data in clipboard to project.
+    """
+
     project = Project.objects.filter(uid=uid).first()
 
     # A list of data objects in the data_clipboard
@@ -334,9 +341,12 @@ def data_paste(request, uid):
 
     for data in data_set:
         # Create data in project by linking files ( excluding toc file ).
-        auth.create_data(project=project, name=f"Copy of {data.name}", text=data.text,
+        new_data = auth.create_data(project=project, name=f"Copy of {data.name}", text=data.text,
                          path=data.get_data_dir(), summary=data.summary,
                          type=data.type, skip=data.get_path(), user=request.user)
+        new_data.state = data.state
+        new_data.save()
+
     if data_set:
         msg = mark_safe(f"Pasted <b>{len(data_set)}</b> data to <b>{project.name}</b>.")
         messages.success(request, msg)
@@ -346,7 +356,9 @@ def data_paste(request, uid):
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_files_entry')
 def data_file_serve(request, uid, file_path):
-    "Authenticates access through decorator before serving file."
+    """
+    Authenticates access through decorator before serving file.
+    """
 
     data = Data.objects.filter(uid=uid).first()
     file_path = join(data.get_data_dir(), file_path)
@@ -363,27 +375,11 @@ def data_file_serve(request, uid, file_path):
     return response
 
 
-@object_access(type=Data, access=Access.OWNER_ACCESS, url='data_view')
-def data_state_change(request, uid, delete = 0):
-    "Change data.deleted to True or False ."
-
-    assert int(delete) in (0, 1)
-
-    data = Data.objects.filter(uid=uid).first()
-    data.deleted = bool(int(delete))
-    data.save()
-
-    msg = f"Restored <b>{data.name}</b>."
-    if bool(int(delete)):
-        msg = f"Deleted <b>{data.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
-
-    messages.success(request, mark_safe(msg))
-    return redirect(reverse("data_list", kwargs=dict(uid=data.project.uid)))
-
-
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
 def files_paste(request, uid):
-    "View used to paste result files copied from a job or data."
+    """
+    View used to paste result files copied from a job or data.
+    """
 
     files = request.session.get("files_clipboard", None)
     project = Project.objects.filter(uid=uid).first()
@@ -407,7 +403,9 @@ def files_paste(request, uid):
 
 @object_access(type=Data, access=Access.OWNER_ACCESS, url='data_view')
 def data_edit(request, uid):
-    "Edit data info"
+    """
+    Edit meta-data associated with Data.
+    """
 
     data = Data.objects.filter(uid=uid).first()
     form = DataEditForm(instance=data, initial=dict(type=data.type))
@@ -424,7 +422,9 @@ def data_edit(request, uid):
 
 @object_access(type=Project, access=Access.READ_ACCESS, url='data_list')
 def data_nav(request, uid):
-    "Return special dir view of data list"
+    """
+    Used to make a special directory view of project data.
+    """
 
     project = Project.objects.filter(uid=uid).first()
     # Same ordering as data_list
@@ -476,7 +476,10 @@ def data_upload(request, uid):
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
 def data_files_list(request, uid, path=''):
-    "Returns a file navigation system "
+    """
+    A filesystem used to navigate a data directory.
+    """
+
     data = Data.objects.filter(uid=uid).first()
     project = data.project
 
@@ -517,7 +520,9 @@ def recipe_view(request, uid):
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
 def recipe_run(request, uid):
-    "View used to start jobs by running recipes."
+    """
+    View used to execute recipes and start a 'Queued' job.
+    """
 
     analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
@@ -554,7 +559,9 @@ def recipe_run(request, uid):
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
 def recipe_copy(request, uid):
-    "Store Analysis object in request.sessions['recipe_clipboard'] "
+    """
+    Store Analysis object in request.sessions['recipe_clipboard']
+    """
 
     recipe = Analysis.objects.filter(uid=uid).first()
     project = recipe.project
@@ -568,7 +575,9 @@ def recipe_copy(request, uid):
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='project_view')
 def recipe_paste(request, uid):
-    "Paste recipe stored in the clipboard into project"
+    """
+    Paste recipe stored in the clipboard into project.
+    """
 
     recipe_uid = request.session.get("recipe_clipboard")
     recipe = Analysis.objects.filter(uid=recipe_uid).first()
@@ -736,24 +745,37 @@ def job_edit(request, uid):
     return render(request, 'job_edit.html', context)
 
 
-@object_access(type=Job, access=Access.OWNER_ACCESS, url="job_view")
-def job_state_change(request, uid, delete=0):
-    "Change job.state to 'state'."
+def object_state_toggle(request, uid, obj_type):
+    """
+    Toggle instance.deleted if user has owner access to instance.
+    """
 
-    assert int(delete) in (0, 1)
+    # Map obj_type to an object and respective url
+    obj_map = dict(job=(Job, 'job_list'),
+                   data=(Data, 'data_list'),
+                   recipe=(Analysis, "recipe_list"))
+    if not obj_map.get(obj_type):
+        messages.error(request, "Can not toggle state.")
+        return redirect(reverse('project_list'))
 
-    # User can only alternate to/from deleted and restored states
+    # Make query and build urls
+    obj, view_name = obj_map[obj_type][0], obj_map[obj_type][1]
+    instance = obj.objects.filter(uid=uid).first()
+    url = reverse(view_name, kwargs=dict(uid=instance.project.uid))
+    bin_url = reverse('recycle_bin')
+    # Make sure user has owner access to instance before toggling
+    has_access = auth.check_obj_access(instance=instance, user=request.user, request=request,
+                                       access=Access.OWNER_ACCESS)
 
-    job = Job.objects.filter(uid=uid).first()
-    job.deleted = bool(int(delete))
-    job.save()
+    msg = f"Deleted <b>{instance.name}</b>. View in <a href={bin_url}>Recycle Bin</a>."
+    if has_access:
+        # Toggle delete state
+        instance.deleted = not instance.deleted
+        instance.save()
+        msg = msg if instance.deleted else f"Restored <b>{instance.name}</b>."
+        messages.success(request, mark_safe(msg))
 
-    msg = f"Restored <b>{job.name}</b>."
-    if bool(int(delete)):
-        msg = f"Deleted <b>{job.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
-
-    messages.success(request, mark_safe(msg))
-    return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))
+    return redirect(url)
 
 
 @object_access(type=Job, access=Access.READ_ACCESS)

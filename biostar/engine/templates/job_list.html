@@ -22,32 +22,6 @@
         <div class="ui warning message"><i class="ui warning circle icon"></i> No results found.</div>
     {% endif %}
 
-    <div class="ui divided link items">
-
-
-        {% for job in job_list %}
-
-            <div class="item ">
-
-                <div class="ui tiny image">
-                    <img src="{% img job.analysis %}">
-                </div>
-
-                <div class="content">
-
-                    <a class="subheader" href="{% url 'job_view' job.uid %}">
-                        <i class="bar chart icon"></i>{{ job.name }}
-                    </a>
-                    
-                    <div class="meta">
-                        {% job_minutes job %}
-                    </div>
-                </div>
-
-            </div>
-
-        {% endfor %}
-
-    </div>
+    {% list_view job_list=job_list %}
 
 {% endblock %}
