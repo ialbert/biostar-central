@@ -65,7 +65,7 @@ The default admin email/password combination is: `1@lvh.me/testbuddy`.  You may 
 
 ## Bioinformatics environment
 
-The following steps are optional. The instructions will add [bioconda][bioconda] specific tools into the current environment. Use them only if you also want to run the [bioconda][bioconda] specific recipes. Make sure that you have enabled [bioconda][bioconda] prior to running the following:
+To run bioinformatics tools the environment that the jobs are run in needs to be set up appropriately. The instructions makes use of [bioconda][bioconda] to install tools into the current environment. Make sure that you have enabled [bioconda][bioconda] prior to running the following:
 
     # Activate the environment.
     source activate engine

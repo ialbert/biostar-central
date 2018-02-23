@@ -48,7 +48,6 @@ class SiteNavigation(TestCase):
 
         urls = [
             reverse('index'),
-            reverse('docs', kwargs=dict(name='info')),
             reverse('logout'),
             reverse('login'),
             reverse('project_list'),
