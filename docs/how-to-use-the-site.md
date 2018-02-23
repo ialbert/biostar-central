@@ -39,7 +39,7 @@ Project that you have `WRITE ACCESS` to will have a thin green line under the pr
 
 This will help you immediately recognize what actions are allowable in a project.
 
-For example if the green line is missing you won't be able to execute a recipe in that project. You can still execute the recipr but you would need to make a copy of it into a project that you do have `WRITE ACCESS`  to.
+For example if the green line is missing you won't be able to execute a recipe in that project. To execute the recipe you would first need to make a copy of it into a project that you do have `WRITE ACCESS` to. This will not give you your own version of the same recipe that you can use as is or modify.
 
 ## Create a project
 
