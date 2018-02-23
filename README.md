@@ -9,13 +9,13 @@
 
 The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts. The scripts that the software executes may written for `bash`, may be a `Makefile`, `R` commands just about any program typically run from command line.
 
-We call the scripts that the engine can execute as *recipes*. Recipes with bioinformatics orientation are maintained separately in the [biostar-recipes][recipes] repository.
-
 ![Usage Example](docs/images/usage-example.png)
+
+We call the scripts that the engine can execute *recipes*. Recipes with bioinformatics orientation are maintained separately in the [biostar-recipes][recipes] repository.
 
 [recipes]: https://github.com/biostars/biostar-recipes
 
-The Biostar Engine also has support for data storage and project management and can be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software seen at:
+The Biostar Engine also supports for data storage and project management and may be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software seen at:
 
 * <https://www.bioinformatics.recipes>
 
@@ -26,6 +26,9 @@ More details on how the site works at:
 * [How to use the site?][how-to-use]
 * [How to write recipes?][how-to-write]
 
+In a nutshell a recipe is described by an interface description file and a script template.
+The site generates an interface and fills the template based on the data selected by the user.
+
 [how-to-use]: docs/how-to-use-the-site.md
 [how-to-write]: https://github.com/biostars/biostar-recipes/blob/master/docs/how-to-write-recipes.md
 
@@ -33,19 +36,19 @@ More details on how the site works at:
 
 Our installation instructions rely on [conda][conda] though other alternatives are also viable. Users may use `virtualenv`, `homebrew`, `apt-get` just as well, or they may opt to not using any environment management tool.
 
-1\. Create a virtual environment
+#### 1\. Create a virtual environment
 
 [conda]: https://conda.io/docs/
 
     conda create -y --name engine python=3.6
     source activate engine
     
-2\. Clone the source server code and the recipe code:
+#### 2\. Clone the source server code and the recipe code:
 
     git clone git@github.com:biostars/biostar-engine.git
     git clone git@github.com:biostars/biostar-recipes.git
     
-3\. Install the python dependencies:
+#### 3\. Install the python dependencies:
 
     # Switch to the biostar-engine directory.
     cd biostar-engine
@@ -55,7 +58,7 @@ Our installation instructions rely on [conda][conda] though other alternatives a
     
 At this point the installation is complete.
 
-4\. Start the server
+#### 4\. Start the server
 
 All commands run through `make`. To initialize and run the test site use:
 
