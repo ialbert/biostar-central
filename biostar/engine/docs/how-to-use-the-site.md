@@ -21,23 +21,23 @@ The Biostar Engine is built to help executing data analysis pipelines. A typical
 
 ## Access rights
 
-Projects may be *public* this means everyone can see the content in them, or *private* where only the owner and people selected by the project manager can access the project.
-
-Access rights in turn come in two flavors: `READ ACCESS` and `WRITE ACCESS`. Basically this means that a user may be allowed to only read or do both read and write (modify) the content in a project.
+Projects may be `PUBLIC` this means everyone can see the content in them, or `PRIVATE` where only the owner and people selected by the project manager can access the project.  For `PRIVATE` projects access rights may have have different levels: `READ` and `READ + WRITE` or `READ + WRITE + MANAGE`. Thus a project owner may allow another users to see the data/recipes, or create new elements.
 
 ## How to tell what access rights you have?
 
-First of all, if you can see a project you have *read access* to it.
+If you can see a project it means to you have at least `READ ACCESS` to it.
 
-Project that you have write access will have a thin green line under the project name. They will look like this:
+Project that you have `WRITE ACCESS` to will have a thin green line under the project name. They will look similar to this:
 
 ![Access rights](images/access_color.png)
 
-This will help you immediately recognize what actions are allowable in a project. For example if the green line is missing you won't be able to directly execute a recipe in that project. You would have to copy the recipe into a project that you do have write access to.
+This will help you immediately recognize what actions are allowable in a project.
+
+For example if the green line is missing you won't be able to execute a recipe in that project. You can still execute the recipr but you would need to make a copy of it into a project that you do have `WRITE ACCESS`  to.
 
 ## Create a project
 
-You have full (read/write/manage) access) to projects that you create. Start by creating your own project.
+You have full `READ + WRITE + MANAGE` access to projects that you create. So start by creating your own project.
 
 To create a project, click the `Create Project` button found at the bottom of the `Project List` page.
 
@@ -116,7 +116,7 @@ More than one type may be listed (comma separated): `FASTQ, COLLECTION`
 
 The recipes in turn will apply a regular expression search on the types when filtering for the correct types.
 
-You can specifiy a data type when uploading or afterwards by clicking `Edit Info` .
+You can specify a data type when uploading or afterwards by clicking `Edit Info` .
 
 To change a type, you simply have to enter a string in the box labeled `Data Type`. Leaving it blank on upload will give the data a default type `DATA`.
 
