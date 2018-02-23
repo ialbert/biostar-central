@@ -1,10 +1,9 @@
-from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
-from django.conf import settings
+from biostar import settings
 import uuid
 
 MAX_UID_LEN = 32
@@ -15,10 +14,11 @@ def generate_uuid(limit=32):
 
 
 class Profile(models.Model):
-    # ForeignKey runs the risk of one user having multiple profiles
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     uid = models.CharField(max_length=MAX_UID_LEN, unique=True)
     name = models.CharField(max_length=MAX_NAME_LEN, default='')
+    max_upload_size = models.IntegerField(default=0)
 
     NEW, TRUSTED, SUSPENDED, BANNED = range(1,5)
     STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SUSPENDED, "Suspended"),
@@ -31,6 +31,7 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or generate_uuid(8)
+        self.max_upload_size = self.max_upload_size or settings.MAX_UPLOAD_SIZE
         super(Profile, self).save(*args, **kwargs)
 
 

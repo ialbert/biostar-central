@@ -25,7 +25,6 @@ def check_size(fobj, maxsize=0.3):
     # maxsize in megabytes!
 
     try:
-
         if fobj and fobj.size > maxsize * 1024 * 1024.0 :
             curr_size = fobj.size / 1024 / 1024.0
             msg = f"File too large: {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
@@ -41,18 +40,18 @@ def check_upload_limit(file, user):
 
     uploaded_files = Data.objects.filter(owner=user, method=Data.UPLOAD)
     currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
+    to_mb = lambda x: x/ 1024/ 1024
 
     projected = file.size + currect_size
-    curr_mb = file.size / 1024 / 1024
-    max_mb = settings.MAX_AGG_UPLOAD / 1024 / 1024
+    max_mb = to_mb(user.profile.max_upload_size)
 
-    if projected > settings.MAX_AGG_UPLOAD:
+    if projected > user.profile.max_upload_size:
 
         allowed = 0 if (max_mb-currect_size) < 0 else (max_mb-currect_size)
-        msg = f"<b>Over the {max_mb:0.001f} MB total upload limit.</b> "
+        msg = f"<b>Over your {max_mb:0.0001f} MB total upload limit.</b> "
         msg = msg + f"""
-                Your have already uploaded {currect_size/ 1024/ 1024:0.001f} MB. 
-                File too large: currently {curr_mb:0.0001f} MB
+                Your have already uploaded {to_mb(currect_size):0.001f} MB. 
+                File too large: currently {to_mb(file.size):0.0001f} MB
                 should be < {allowed:0.001f} MB
                 """
         raise forms.ValidationError(mark_safe(msg))
@@ -139,16 +138,13 @@ class JobEditForm(forms.ModelForm):
 
 class ChangeUserAccess(forms.Form):
 
-
     user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
     project_uid = forms.CharField(required=True, widget=forms.HiddenInput())
     choices = filter(lambda x: x[0] != Access.OWNER_ACCESS, Access.ACCESS_CHOICES)
     access = forms.IntegerField(initial=Access.NO_ACCESS,
                                 widget=forms.Select(choices=choices))
-
-
     def save(self):
-        "Change users access to a project"
+        "Changes users access to a project"
 
         user_id = self.cleaned_data["user_id"]
         project_uid = self.cleaned_data["project_uid"]

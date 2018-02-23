@@ -1,0 +1,110 @@
+{% load engine_tags %}
+
+
+{% if projects %}
+
+     <div class="ui vertical segment">
+
+            <div class="ui divided items">
+                {% for project in projects %}
+
+                    <div class="item">
+                        <img class="ui avatar image" src="{% img project %}"/>
+                        <div class="content">
+                            <a class="subheader" href="{{ project.url }}">
+                                <i class="database icon"></i>{{ project.name }}
+                            </a>
+                            <div class="meta">{{ project.summary|markdown|safe }}</div>
+                            <div class="extra">
+                                {% privacy_label project %}
+                                Created on {{ project.date.date }} by {{ project.owner.first_name }}
+                            </div>
+
+                        </div>
+                    </div>
+
+                {% endfor %}
+            </div>
+
+     </div>
+
+{% elif data_list %}
+
+    <div class="ui divided items">
+
+            {% for data in data_list %}
+
+                <div class="item">
+                    <div class="content">
+                        <a class="subheader" href="{% url 'data_view' data.uid %}">
+                            <i class="file icon"></i>{{ data.name }}
+                        </a>
+                        <div class="meta">
+                            <div class="ui small labels">
+                                {% size_label data %}
+                                {% type_label data %}
+                                {% state_label data error_only=True %}
+                            </div>
+                        </div>
+                        <div class="meta">{{ data.summary }}</div>
+                    </div>
+                </div>
+
+            {% endfor %}
+
+    </div>
+
+
+{% elif recipe_list %}
+
+    <div class="ui divided link items">
+
+            {% for recipe in recipes %}
+
+                <div class="item">
+                    <div class="ui tiny image">
+                        <img src="{% img recipe %}">
+                    </div>
+                    <div class="content">
+                        <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+                            <i class="setting icon"></i> {{ recipe.name }}
+                        </a>
+                        <div class="description">{{ recipe.summary|markdown|safe }}</div>
+                        <div class="meta">
+                            {% sticky_label recipe %}
+                            <a href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                                <i class="bar chart icon"></i> view results
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+    </div>
+
+
+{% elif job_list %}
+
+    <div class="ui divided link items">
+
+            {% for job in job_list %}
+
+                <div class="item ">
+                    <div class="ui tiny image">
+                        <img src="{% img job.analysis %}">
+                    </div>
+
+                    <div class="content">
+                        <a class="subheader" href="{% url 'job_view' job.uid %}">
+                            <i class="bar chart icon"></i>{{ job.name }}
+                        </a>
+
+                        <div class="meta">{% job_minutes job %}</div>
+                    </div>
+                </div>
+
+            {% endfor %}
+
+    </div>
+
+{% endif %}

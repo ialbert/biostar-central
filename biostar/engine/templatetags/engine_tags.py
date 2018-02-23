@@ -41,7 +41,7 @@ def file_listing(path, file_list, object, project_uid='', form=None):
 
 
 @register.inclusion_tag('widgets/action_bar.html', takes_context=True)
-def action_bar(context, instance, edit_url):
+def action_bar(context, instance, edit_url, extra=""):
 
     edit_url = reverse(edit_url, kwargs=dict(uid=instance.uid))
 
@@ -49,12 +49,14 @@ def action_bar(context, instance, edit_url):
         obj_type = "job"
     elif isinstance(instance, Data):
         obj_type = "data"
+    elif isinstance(instance, Analysis):
+        obj_type = "recipe"
     else:
         obj_type = None
 
     action_url = reverse("toggle_state", kwargs=dict(uid=instance.uid, obj_type=obj_type))
     return dict(instance=instance, edit_url=edit_url, user=context["user"],
-                action_url=action_url)
+                action_url=action_url, extra=extra)
 
 
 def dir_url(object, path, current):
@@ -69,6 +71,12 @@ def dir_url(object, path, current):
 
     return mark_safe(f'<a href="{url}"><i class="folder icon"></i>{current.name}</a>')
 
+
+@register.inclusion_tag('widgets/list_view.html')
+def list_view(projects=None, data_list=None, recipe_list=None, job_list=None):
+
+    return dict(projects=projects, data_list=data_list, recipe_list=recipe_list,
+                job_list=job_list)
 
 @register.simple_tag
 def input(path, current):

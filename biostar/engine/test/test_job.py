@@ -35,6 +35,17 @@ class JobViewTest(TestCase):
 
 
     @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
+    def test_job_toggle(self):
+        "Test object_state_toggle using a job. "
+
+        url = reverse('toggle_state', kwargs=dict(uid=self.job.uid, obj_type='job'))
+
+        request = util.fake_request(url=url, data={}, user=self.owner)
+
+        response = views.object_state_toggle(request=request, uid=self.job.uid, obj_type="job")
+        self.process_response(response=response, data={}, save=True)
+
+    @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
     def test_job_edit(self):
         "Test job edit with POST request"
 
@@ -85,24 +96,6 @@ class JobViewTest(TestCase):
         self.process_response(response=response, data=data)
 
         self.assertTrue(models.Data.save.called, "save() method called.")
-
-
-    def test_job_state_change(self):
-        "Test job state change view"
-
-        def change_state(delete, url=""):
-
-            url = reverse(url, kwargs=dict(delete=int(delete), uid=self.job.uid))
-
-            request = util.fake_request(url=url, data={}, user=self.owner)
-
-            response = views.job_state_change(request=request, uid=self.job.uid, delete=int(delete))
-
-            self.process_response(response=response, data={})
-
-        #Test the delete and restore views
-        change_state(delete=True, url="job_delete")
-        change_state(delete=False, url="job_restore")
 
 
     def test_job_runner(self):

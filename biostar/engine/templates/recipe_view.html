@@ -55,9 +55,9 @@
                     <i class="clone icon"></i>Copy Recipe
                 </a>
 
-                <a class="ui mini button" href="{% url 'recipe_edit' analysis.uid %}">
-                    <i class="write icon"></i>Edit Description
-                </a>
+                {# Need to match the 'mini button' styling #}
+                {% action_bar analysis edit_url='recipe_edit' extra='mini' %}
+
 
             </div>
 

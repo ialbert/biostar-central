@@ -41,6 +41,7 @@ def access_denied_message(user, access):
     return tmpl.render(context=context)
 
 
+
 def get_analysis_attr(analysis, project=None):
     "Get analysis attributes"
 
@@ -462,7 +463,6 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # Create the data.
     type = type or "DATA"
-
     uid = uid or util.get_uuid(8)
     data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
                                type=type, summary=summary, text=text, uid=uid)
