@@ -15,7 +15,7 @@ We call the scripts that the engine can execute *recipes*. Recipes with bioinfor
 
 [recipes]: https://github.com/biostars/biostar-recipes
 
-The Biostar Engine also supports for data storage and project management and may be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software seen at:
+The Biostar Engine also supports data storage and project management, and may be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software seen at:
 
 * <https://www.bioinformatics.recipes>
 
@@ -34,7 +34,7 @@ The site generates an interface and fills the template based on the data selecte
 
 ## Installation
 
-Our installation instructions rely on [conda][conda] though other alternatives are also viable. Users may use `virtualenv`, `homebrew`, `apt-get` just as well, or they may opt to not using any environment management tool.
+Our installation instructions rely on [conda][conda] though other alternatives are equally viable. Users may use `virtualenv`, `homebrew`, `apt-get` just as well, or they may opt to not using any environment management tool. We use [conda][conda] primarily since it allows us to also manage bioinformatics tools.
 
 #### 1\. Create a virtual environment
 
