@@ -34,7 +34,7 @@ The site generates the interface, asks the users to fill in the data then create
 
 ## Installation
 
-Our installation instructions rely on [conda][conda] though other alternatives are equally viable. Users may use `virtualenv`, `homebrew`, `apt-get` just as well, or they may opt to not using any environment management tool. We use [conda][conda] primarily since it allows us to also manage bioinformatics tools.
+Our installation instructions rely on [conda][conda] though other alternatives are equally viable. Users may use `virtualenv`, `pipenv`, `homebrew`, `apt-get` etc, or they may opt to not using any environment management tool. We use [conda][conda] primarily since it allows us to also manage bioinformatics tools.
 
 #### 1\. Create a virtual environment
 
@@ -66,7 +66,7 @@ All commands run through `make`. To initialize and run the test site use:
    
 Visit <http://localhost:8000> to see your site running. 
 
-The default admin email/password combination is: `admin@localhost/1234`. Follow the [Django][django] deployment protocols for changing these in production.
+The default admin email/password combination is: `admin@localhost/1234`.
 
 ## Bioinformatics environment
 

@@ -1,14 +1,16 @@
 # How to use the website?
 
-The following questions describe the recommended practices when using the site.
-
 ## Site organization
 
-All content on the site is organized into "projects".
+All content on the site is organized into *projects*.
 
-We call a project a collection of data, recipes and results.
+A project is a collection of *data*, *recipes* and *results*.
 
 Projects are typically created with a specific goal in mind and have content relevant to that goal.
+
+![Usage Example](images/project-view.png)
+
+Users may copy recipes and data across different projects.
 
 ## Site usage
 
@@ -19,9 +21,13 @@ The Biostar Engine is built to help executing data analysis pipelines. A typical
 3. Execute recipe
 4. View the results
 
+![Usage Example](images/usage-example.png)
+
 ## Access rights
 
-Projects may be `PUBLIC` this means everyone can see the content in them, or `PRIVATE` where only the owner and people selected by the project manager can access the project.  For `PRIVATE` projects access rights may have have different levels: `READ` and `READ + WRITE` or `READ + WRITE + MANAGE`. Thus a project owner may allow another users to see the data/recipes, or create new elements.
+Projects may be `PUBLIC` this means everyone can see the content in them, or `PRIVATE` where only the owner and people selected by the project manager can access the project.
+
+For `PRIVATE` projects access rights may have have different levels: `READ` and `READ + WRITE` or `READ + WRITE + MANAGE`. Thus a project owner may allow another users to see the data/recipes, or create new elements.
 
 ## How to tell what access rights you have?
 

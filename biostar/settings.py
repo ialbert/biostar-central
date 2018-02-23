@@ -31,6 +31,9 @@ ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
+# Does the site allow signup
+ALLOW_SIGNUP = False
+
 # Helper function for building absolute paths.
 def join(*args):
     return os.path.abspath(os.path.join(*args))
