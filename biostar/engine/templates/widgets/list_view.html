@@ -59,7 +59,7 @@
 
     <div class="ui divided link items">
 
-            {% for recipe in recipes %}
+            {% for recipe in recipe_list %}
 
                 <div class="item">
                     <div class="ui tiny image">
@@ -72,7 +72,7 @@
                         <div class="description">{{ recipe.summary|markdown|safe }}</div>
                         <div class="meta">
                             {% sticky_label recipe %}
-                            <a href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                            <a href="{% url 'job_list' recipe.project.uid %}?filter={{ recipe.uid }}">
                                 <i class="bar chart icon"></i> view results
                             </a>
                         </div>
