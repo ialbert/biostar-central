@@ -48,7 +48,7 @@ urlpatterns = [
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
-    url(r'^job/entry/(?P<uid>[-\w]+)/$', views.job_browse, name='job_entry'),
+    url(r'^job/browse/(?P<uid>[-\w]+)/$', views.job_browse, name='job_entry'),
     url(r'^job/browse/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_browse, name='job_browser'),
     url(r'^job/serve/(?P<uid>[-\w]+)/(?P<file_path>.+)/$', views.job_serve, name='job_serve')
 
