@@ -10,10 +10,6 @@
     
     {% show_messages messages %}
 
-    <div class="ui center aligned header">
-        Files found in : <a href="{% url 'data_view' data.uid %}"><i class="file icon"></i>{{ data.name }}</a>
-    </div>
-
     {% file_listing object=data path=path file_list=file_list project_uid=project_uid form=form %}
 
 {% endblock %}

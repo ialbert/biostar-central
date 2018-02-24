@@ -62,13 +62,13 @@ class JobViewTest(TestCase):
         "Test files copy with POST request"
 
         management.call_command('job', id=self.job.id)
-        url = reverse('job_files_entry', kwargs=dict(uid=self.job.uid))
+        url = reverse('job_entry', kwargs=dict(uid=self.job.uid))
 
         data = {"paths":"runlog/input.json"}
 
         request = util.fake_request(url=url, data=data, user=self.owner)
 
-        response = views.job_files_list(request=request, uid=self.job.uid)
+        response = views.job_browse(request=request, uid=self.job.uid)
 
         self.process_response(response=response, data=data)
 

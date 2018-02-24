@@ -65,9 +65,9 @@ def dir_url(object, path, current):
     path = path + "/" if path else ""
 
     if isinstance(object, Job):
-        url = reverse("job_files_list", kwargs=dict(uid=object.uid, path=path + current.name))
+        url = reverse("job_browser", kwargs=dict(uid=object.uid, path=path + current.name))
     elif isinstance(object, Data):
-        url = reverse("data_files_list", kwargs=dict(uid=object.uid, path=path + current.name))
+        url = reverse("data_browser", kwargs=dict(uid=object.uid, path=path + current.name))
 
     return mark_safe(f'<a href="{url}"><i class="folder icon"></i>{current.name}</a>')
 
@@ -96,9 +96,9 @@ def file_url(object, path, current):
 
     path = path + "/" if path else ""
     if isinstance(object, Data):
-        url = reverse("data_file_serve", kwargs=dict(uid=object.uid, file_path=path + current.name))
+        url = reverse("data_serve", kwargs=dict(uid=object.uid, file_path=path + current.name))
     else:
-        url = reverse("job_file_serve", kwargs=dict(uid=object.uid, file_path=path + current.name))
+        url = reverse("job_serve", kwargs=dict(uid=object.uid, file_path=path + current.name))
 
     byte = current.stat(follow_symlinks=True).st_size
 
