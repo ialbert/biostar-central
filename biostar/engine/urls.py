@@ -1,4 +1,6 @@
 from django.conf.urls import url
+from django.urls import path
+
 from . import views
 
 urlpatterns = [
@@ -22,12 +24,16 @@ urlpatterns = [
     url(r'^data/view/(?P<uid>[-\w]+)/$', views.data_view, name='data_view'),
     url(r'^data/edit/(?P<uid>[-\w]+)/$', views.data_edit, name='data_edit'),
     url(r'^data/upload/(?P<uid>[-\w]+)/$', views.data_upload, name='data_upload'),
-    url(r'^data/browse/(?P<uid>[-\w]+)/$', views.data_browse, name='data_entry'),
-    url(r'^data/browse/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.data_browse, name='data_browser'),
     url(r'^data/copy/(?P<uid>[-\w]+)/$', views.data_copy, name='data_copy'),
     url(r'^data/paste/(?P<uid>[-\w]+)/$', views.data_paste, name='data_paste'),
+
+    # Data file browsing.
     url(r'^data/navigate/(?P<uid>[-\w]+)/$', views.data_navigate, name='data_navigate'),
-    url(r'^data/serve/(?P<uid>[-\w]+)/(?P<file_path>.+)/$', views.data_serve, name='data_serve'),
+    url(r'^data/browse/(?P<uid>[-\w]+)/$', views.data_browse, name='data_entry'),
+    url(r'^data/browse/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.data_browse, name='data_browser'),
+
+    # Data file serve.
+    url(r'^data/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.data_serve, name='data_serve'),
 
     # Recipes
     url(r'^recipe/list/(?P<uid>[-\w]+)/$', views.recipe_list, name='recipe_list'),
@@ -48,9 +54,13 @@ urlpatterns = [
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
+
+    # Job file browsing.
     url(r'^job/browse/(?P<uid>[-\w]+)/$', views.job_browse, name='job_entry'),
     url(r'^job/browse/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_browse, name='job_browser'),
-    url(r'^job/serve/(?P<uid>[-\w]+)/(?P<file_path>.+)/$', views.job_serve, name='job_serve')
+
+    # Job file serve.
+    url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_serve, name='job_serve')
 
 ]
 

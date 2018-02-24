@@ -96,9 +96,9 @@ def file_url(object, path, current):
 
     path = path + "/" if path else ""
     if isinstance(object, Data):
-        url = reverse("data_serve", kwargs=dict(uid=object.uid, file_path=path + current.name))
+        url = reverse("data_serve", kwargs=dict(uid=object.uid, path=path + current.name))
     else:
-        url = reverse("job_serve", kwargs=dict(uid=object.uid, file_path=path + current.name))
+        url = reverse("job_serve", kwargs=dict(uid=object.uid, path=path + current.name))
 
     byte = current.stat(follow_symlinks=True).st_size
 

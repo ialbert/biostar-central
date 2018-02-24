@@ -5,8 +5,12 @@ __THIS = os.path.dirname(__file__)
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
+KNOWN_EXTENSIONS = (
+    ".fasta", ".fq", ".fastq", ".sam", ".bed", ".gff", ".fa",
+    ".r", ".gtf", ".gb", ".tsv", ".csv"
+)
 
-KNOWN_EXTENSIONS = (".fasta", ".fq", ".fastq", ".sam", ".bed", ".gff", ".fa")
+KNOWN_EXTENSIONS = set(KNOWN_EXTENSIONS)
 
 RADIO = "RADIO"
 DROPDOWN = "DROPDOWN"

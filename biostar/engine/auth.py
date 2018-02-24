@@ -324,37 +324,19 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     return job
 
 
-def known_text(fname):
+
+def guess_mimetype(fname):
     "Return mimetype for a known text filename"
 
     mimetype, encoding = guess_type(fname)
 
-    text_ext = os.path.splitext(fname)[1]
+    ext = os.path.splitext(fname)[1].lower()
 
     # Known text extensions ( .fasta, .fastq, etc.. )
-    if text_ext in KNOWN_EXTENSIONS:
-
+    if ext in KNOWN_EXTENSIONS:
         mimetype = 'text/plain'
 
     return mimetype
-
-
-def change_filename(file_response, name="data"):
-    "Used to change filename in response header to 'name'"
-    # Methods taken from sendfile/__init__.py 78-86
-
-    parts = []
-    filename = force_text(name)
-    ascii_filename = unicodedata.normalize('NFKD', filename).encode('ascii', 'ignore')
-    parts.append('filename="%s"' % ascii_filename)
-
-    if ascii_filename != filename:
-        quoted_filename = urlquote(filename)
-        parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
-
-    # Modify Content-Disposition in the header so filename is set correctly
-    header = {'Content-Disposition':'; '.join(parts)}
-    file_response._headers["content-disposition"] = list(header.items())[0]
 
 
 def load_data_clipboard(uid, request):

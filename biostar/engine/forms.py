@@ -269,7 +269,7 @@ class DataCopyForm(forms.Form):
         self.request = request
         super().__init__(*args, **kwargs)
 
-    uids = forms.CharField(max_length=models.MAX_TEXT_LEN)
+    uids = forms.CharField(max_length=models.MAX_TEXT_LEN, required=False)
 
     def save(self):
         for uid in self.cleaned_data:
