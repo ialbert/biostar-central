@@ -41,7 +41,7 @@
 
     <div class="ui center aligned header">
         {% block title %}
-            {{ SITE_HEADER|safe }}
+            {% include "site_header.html" %}
         {% endblock %}
     </div>
 
@@ -67,13 +67,18 @@
         BODY
     {% endblock %}
 
-    <div class="ui vertical center aligned segment">
-        <p class="muted">Powered by the<a href="#"><img class="ui spaced image"
-                                                        src="{% static 'images/badge.svg' %}"></a>
-        </p>
-        <p class="muted smaller">Release date: {{ VERSION }}</p>
-    </div>
-
+    {% block footer %}
+        <div class="ui vertical center aligned segment">
+            <p class="muted">
+                <a href="https://github.com/biostars/biostar-engine" class="ui image">
+                    <img src="{% static 'images/badge-engine.svg' %}"></a>
+                and
+                <a href="https://github.com/biostars/biostar-recipes" class="ui image">
+                    <img src="{% static 'images/badge-recipe.svg' %}"></a>
+            </p>
+            <p class="muted smaller">Software version: {{ VERSION }}</p>
+        </div>
+    {% endblock %}
 </div>
 
 <script type="text/javascript">

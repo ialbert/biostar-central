@@ -7,6 +7,6 @@ def engine(request):
     Note: This function is critically important!
     The site will not load up without it.
     '''
-    params = dict(user=request.user, VERSION=VERSION, SITE_HEADER=settings.SITE_HEADER)
+    params = dict(user=request.user, VERSION=VERSION)
 
     return params

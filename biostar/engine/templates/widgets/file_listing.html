@@ -6,6 +6,12 @@
 <form method="post" class="ui form" action=".">
     {% csrf_token %}
 
+    <div class="ui center aligned basic segment">
+        <button type="submit" class="ui submit mini button">
+            <i class="clone icon"></i>Copy selected data
+        </button>
+    </div>
+
     <div class="ui relaxed divided list">
 
         <div class="item">
@@ -13,7 +19,7 @@
             {% if path %}
                 <a href="../"><i class="backward icon"></i>../</a>
             {% elif project_uid %}
-                <a href="{% url 'data_nav' project_uid %}"><i class="backward icon"></i>../</a>
+                <a href="{% url 'data_navigate' project_uid %}"><i class="backward icon"></i>../</a>
             {% else %}
                 <a href="{{ object.url }}"><i class="backward icon"></i>../</a>
             {% endif %}
@@ -29,15 +35,7 @@
 
         {% endfor %}
 
-        {% if file_list %}
 
-             <div class="ui center aligned basic segment">
-                <button type="submit" class="ui submit green button">
-                    <i class="clone icon"></i>Copy File(s)
-                </button>
-             </div>
-
-        {% endif %}
 
     </div>
- </form>
+</form>

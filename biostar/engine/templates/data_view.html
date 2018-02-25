@@ -11,17 +11,14 @@
         <div class="ui center aligned header">
             Data: {{ data.name }}
         </div>
-
-            {{ data.summary|markdown|safe }}
-
     </div>
 
      <div class="ui center aligned vertical segment">
-        <a class="ui button" href="{% url 'data_copy' data.uid %}">
+        <a class="ui mini button" href="{% url 'data_copy' data.uid %}">
             <i class="clone icon"></i>Copy Data
         </a>
 
-        <a class="ui button" href="{% url 'data_files_entry' data.uid %}">
+        <a class="ui mini button" href="{% url 'data_entry' data.uid %}">
             <i class="browser icon"></i>Browse Files
         </a>
 
@@ -41,14 +38,19 @@
         </div>
     </div>
 
-    <div class="ui vertical segment">
-        <div class="ui center aligned header">Data Description</div>
 
+    <div class="ui vertical segment">
+        <div class="ui center aligned header">Data Summary</div>
+        <div>{{ data.summary|safe }}</div>
+    </div>
+
+    <div class="ui vertical segment">
+        <div class="ui center aligned header">Data Info</div>
         <div>{{ data.html|safe }}</div>
     </div>
 
     <div class="ui vertical segment">
-        <div class="ui center aligned header">Data Content (first few lines)</div>
+        <div class="ui center aligned header">Data Peek</div>
         <pre>{{ data.peek }}</pre>
     </div>
 

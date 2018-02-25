@@ -33,15 +33,14 @@ class SiteNavigation(TestCase):
         c = Client()
         c.login(username="test", email='test@test.com', password='testing')
         for url in urls:
-
             resp = c.get(url, data={"q":"test"})
-            if resp.status_code not in codes:
-                # print (resp.content)
+            code = resp.status_code
+            if code not in codes:
                 # We already know it is an error.
                 # Use this to prints the url and the code.
                 logger.error(f"")
-                logger.error(f"Error accessing: {url}, code={resp.status_code} not in expected values")
-                self.assertEqual(url, codes)
+                logger.error(f"Error accessing: {url}, code={code} not in expected values {codes}")
+                self.assertTrue(code in codes)
 
     def test_public_pages(self):
         "Checking public pages"
@@ -53,8 +52,8 @@ class SiteNavigation(TestCase):
             reverse('project_list'),
             reverse('data_list', kwargs=self.proj_params),
             reverse('data_view', kwargs=self.data_params),
-            reverse("data_nav", kwargs=self.proj_params),
-            reverse("data_files_entry", kwargs=self.data_params),
+            reverse("data_entry", kwargs=self.data_params),
+            reverse("data_navigate", kwargs=self.proj_params),
             reverse('project_view', kwargs=self.proj_params),
             reverse('project_users', kwargs=self.proj_params),
             reverse('project_create'),
@@ -68,7 +67,7 @@ class SiteNavigation(TestCase):
             reverse('job_list', kwargs=self.proj_params),
             reverse('job_view', kwargs=self.job_params),
             reverse('job_edit', kwargs=self.job_params),
-            reverse('job_files_entry', kwargs=self.job_params),
+            reverse('job_entry', kwargs=self.job_params),
             reverse('data_upload', kwargs=self.proj_params),
             reverse('data_edit', kwargs=self.data_params),
             reverse('recipe_edit', kwargs=self.analysis_params),

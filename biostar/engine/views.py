@@ -2,7 +2,6 @@ import glob
 import logging
 import mistune
 
-
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
@@ -18,12 +17,9 @@ from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, Access)
 
-
-
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
 __DOCS_DIR = join(__CURRENT_DIR, "docs")
-
 
 logger = logging.getLogger('engine')
 
@@ -85,7 +81,7 @@ def recycle_bin(request):
     all_projects = auth.get_project_list(user=request.user)
 
     del_data = Data.objects.filter(deleted=True, project__in=all_projects,
-                                  owner=request.user).order_by("date")
+                                   owner=request.user).order_by("date")
 
     del_recipes = Analysis.objects.filter(deleted=True, project__in=all_projects,
                                           owner=request.user).order_by("date")
@@ -109,7 +105,6 @@ def clear_clipboard(request, uid, url="project_view", board=""):
 
 
 def get_access(request, project):
-
     user = request.user if request.user.is_authenticated else None
     user_access = Access.objects.filter(project=project, user=user).first()
     # Current users access
@@ -148,7 +143,7 @@ def project_users(request, uid):
     targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
     current = access_forms(users=user_list, project=project, exclude=[request.user])
     results = access_forms(users=targets, project=project, exclude=[request.user])
-    context = dict(current=current, project=project, results=results, form=form, activate='selection',
+    context = dict(current=current, project=project, results=results, form=form, activate='User Management',
                    q=q, user_access=user_access)
     counts = get_counts(project)
     context.update(counts)
@@ -156,7 +151,6 @@ def project_users(request, uid):
 
 
 def project_list(request):
-
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
 
@@ -186,8 +180,92 @@ def job_list(request, uid):
     return project_view(request=request, uid=uid, template_name="job_list.html", active='jobs')
 
 
-def files_list(request, instance, template_name, path='', extra_context={}):
-    "File navigator used for data and jobs"
+@object_access(type=Project, access=Access.READ_ACCESS, url='data_list')
+def data_navigate(request, uid):
+    """
+    Renders project data as if they were files.
+    """
+
+    project = Project.objects.filter(uid=uid).first()
+    # Same ordering as data_list
+    all_data = project.data_set.order_by("sticky", "-date").all()
+
+    if request.method == "POST":
+        form = DataCopyForm(data=request.POST, request=request)
+        if form.is_valid():
+            # Copies data to clipboard
+            ndata = form.save()
+            msg = mark_safe(f"Copied <b>{ndata}</b> data from <b>{project.name}</b> to the Clipboard.")
+            messages.success(request, msg)
+            return redirect(reverse("data_navigate", kwargs=dict(uid=project.uid)))
+    else:
+        form = DataCopyForm(request=request)
+
+    context = dict(activate='File Explorer', all_data=all_data, project=project, form=form)
+    counts = get_counts(project)
+    context.update(counts)
+    return render(request, "data_navigator.html", context)
+
+
+@object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
+def job_browse(request, uid, path=''):
+    """
+    Browse the directory that corresponds to job results.
+    """
+    job = Job.objects.filter(uid=uid).first()
+    project = job.project
+
+    form = FileCopyForm(root_dir=job.path, request=request, uid=job.uid)
+    if request.method == "POST":
+        form = FileCopyForm(data=request.POST, uid=job.uid, request=request, root_dir=job.path)
+        if form.is_valid():
+            # Copies files to clipboard
+            nfiles = form.save()
+            msg = mark_safe(f"Copied <b>{nfiles}</b> file(s) to Clipboard from <b>{job.name}</b>")
+            messages.success(request, msg)
+            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
+    context = dict(activate='Selected Job', job=job, project=project, form=form)
+    counts = get_counts(project)
+    context.update(counts)
+
+    return file_browse(request=request, instance=job, path=path,
+                       template_name="job_browser.html", extra_context=context)
+
+
+@object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
+def data_browse(request, uid, path=''):
+    """
+    Browse the directory that corresponds to data.
+    """
+
+    data = Data.objects.filter(uid=uid).first()
+    project = data.project
+
+    form = FileCopyForm(root_dir=data.get_data_dir(), request=request, uid=data.uid)
+    if request.method == "POST":
+        form = FileCopyForm(data=request.POST, uid=data.uid, request=request, root_dir=data.get_data_dir())
+        if form.is_valid():
+            # Copies files to clipboard
+            nfiles = form.save()
+            msg = mark_safe(f"Copied <b>{nfiles}</b> file(s) to Clipboard from <b>{data.name}</b>")
+            messages.success(request, msg)
+            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
+    back_uid = None if path else project.uid
+    context = dict(activate='File Explorer', data=data, project=project, project_uid=back_uid, form=form)
+
+    counts = get_counts(project)
+    context.update(counts)
+
+    return file_browse(request=request, instance=data, path=path,
+                       template_name="data_browser.html", extra_context=context)
+
+
+def file_browse(request, instance, template_name, path='', extra_context={}):
+    """
+    Browse the filesystem that corresponds to a root folder.
+    """
 
     # Instance is expected to be a Job or Data object.
     if isinstance(instance, Job):
@@ -197,16 +275,17 @@ def files_list(request, instance, template_name, path='', extra_context={}):
         exclude = os.path.basename(instance.get_path())
         root = instance.get_data_dir()
 
+    # Get the root directory.
     target_path = join(root, path)
 
     if target_path.startswith(root) and os.path.exists(target_path):
-        # These are pathlike objects with attributes such as name, is_file
+        # Pathlike objects with attributes such as name, is_file
         file_list = list(filter(lambda p: p.name != exclude, os.scandir(target_path)))
-        # Sort by properties
+        # Sort the file list. Directories first, then by name.
         file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
     else:
         # Attempting to access a file outside of the root directory
-        messages.error(request, "Path not in directory.")
+        messages.error(request, "Invalid path.")
         file_list = []
 
     context = dict(file_list=file_list, instance=instance, path=path)
@@ -216,9 +295,9 @@ def files_list(request, instance, template_name, path='', extra_context={}):
 
 
 def get_counts(project):
-    data_count = Data.objects.filter(deleted=False,project=project).count()
+    data_count = Data.objects.filter(deleted=False, project=project).count()
     recipe_count = Analysis.objects.filter(deleted=False, project=project).count()
-    result_count = Job.objects.filter(deleted=False,project=project).count()
+    result_count = Job.objects.filter(deleted=False, project=project).count()
     return dict(
         data_count=data_count, recipe_count=recipe_count, result_count=result_count
     )
@@ -226,7 +305,6 @@ def get_counts(project):
 
 @object_access(type=Project, access=Access.READ_ACCESS)
 def project_view(request, uid, template_name="recipe_list.html", active='recipes', more_info=None):
-
     project = Project.objects.filter(uid=uid).first()
     # Show counts for the project.
     counts = get_counts(project)
@@ -306,7 +384,7 @@ def data_view(request, uid):
     data = Data.objects.filter(uid=uid).first()
 
     project = data.project
-    context = dict(data=data, project=project, activate='selection')
+    context = dict(data=data, project=project, activate='Selected Data')
 
     counts = get_counts(project)
     context.update(counts)
@@ -319,13 +397,14 @@ def data_copy(request, uid):
     "Store Data object in data clipboard "
 
     data = Data.objects.filter(uid=uid).first()
+
     project = data.project
 
     auth.load_data_clipboard(uid=uid, request=request)
 
-    messages.success(request, mark_safe(f"Copied <b>{data.name}</b> to Clipboard."))
+    messages.success(request, mark_safe(f"Copied data <b>{data.name}</b> to the clipboard."))
 
-    return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+    return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
@@ -342,8 +421,8 @@ def data_paste(request, uid):
     for data in data_set:
         # Create data in project by linking files ( excluding toc file ).
         new_data = auth.create_data(project=project, name=f"Copy of {data.name}", text=data.text,
-                         path=data.get_data_dir(), summary=data.summary,
-                         type=data.type, skip=data.get_path(), user=request.user)
+                                    path=data.get_data_dir(), summary=data.summary,
+                                    type=data.type, skip=data.get_path(), user=request.user)
         new_data.state = data.state
         new_data.save()
 
@@ -352,27 +431,6 @@ def data_paste(request, uid):
         messages.success(request, msg)
 
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
-
-
-@object_access(type=Data, access=Access.READ_ACCESS, url='data_files_entry')
-def data_file_serve(request, uid, file_path):
-    """
-    Authenticates access through decorator before serving file.
-    """
-
-    data = Data.objects.filter(uid=uid).first()
-    file_path = join(data.get_data_dir(), file_path)
-
-    if not os.path.isfile(file_path):
-        messages.error(request, "Path is not a file.")
-        return redirect(reverse("data_files_entry", kwargs=dict(uid=data.uid)))
-
-    response = sendfile(request, file_path, mimetype=auth.known_text(fname=file_path))
-
-    # Change the filename in the response header
-    auth.change_filename(response, name=os.path.basename(file_path))
-
-    return response
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
@@ -390,7 +448,7 @@ def files_paste(request, uid):
         return redirect(url)
 
     # Some files in clipboard might be outside job path.
-    files = [f for f in files if f.startswith(root_path) ]
+    files = [f for f in files if f.startswith(root_path)]
     # Add data to project
     for file in files:
         auth.create_data(project=project, path=file, user=request.user)
@@ -420,33 +478,6 @@ def data_edit(request, uid):
     return render(request, 'data_edit.html', context)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS, url='data_list')
-def data_nav(request, uid):
-    """
-    Used to make a special directory view of project data.
-    """
-
-    project = Project.objects.filter(uid=uid).first()
-    # Same ordering as data_list
-    all_data = project.data_set.order_by("sticky", "-date").all()
-
-    form = DataCopyForm(request=request)
-    if request.method == "POST":
-        form = DataCopyForm(data=request.POST, request=request)
-        if form.is_valid():
-            # Copies data to clipboard
-            ndata = form.save()
-            msg = mark_safe(f"Copied <b>{ndata}</b> data to Clipboard from <b>{project.name}</b>")
-            messages.success(request, msg)
-            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
-
-    context = dict(activate='selection', all_data=all_data, project=project, form=form)
-    counts = get_counts(project)
-    context.update(counts)
-
-    return render(request, "data_nav.html", context)
-
-
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
 def data_upload(request, uid):
     "Data upload view routed through auth.create_data."
@@ -474,36 +505,6 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
-def data_files_list(request, uid, path=''):
-    """
-    A filesystem used to navigate a data directory.
-    """
-
-    data = Data.objects.filter(uid=uid).first()
-    project = data.project
-
-    form = FileCopyForm(root_dir=data.get_data_dir(), request=request, uid=data.uid)
-    if request.method == "POST":
-        form = FileCopyForm(data=request.POST, uid=data.uid, request=request,
-                            root_dir=data.get_data_dir())
-        if form.is_valid():
-            # Copies files to clipboard
-            nfiles = form.save()
-            msg = mark_safe(f"Copied <b>{nfiles}</b> file(s) to Clipboard from <b>{data.name}</b>")
-            messages.success(request, msg)
-            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
-
-    back_uid = None if path else project.uid
-    context = dict(activate='selection', data=data, project=project, project_uid=back_uid, form=form)
-
-    counts = get_counts(project)
-    context.update(counts)
-
-    return files_list(request=request, instance=data, path=path,
-                      template_name="data_files_list.html", extra_context=context)
-
-
 @object_access(type=Analysis, access=Access.READ_ACCESS)
 def recipe_view(request, uid):
     """
@@ -511,7 +512,7 @@ def recipe_view(request, uid):
     """
     analysis = Analysis.objects.filter(uid=uid).first()
     project = analysis.project
-    context = dict(analysis=analysis, project=project, activate='selection')
+    context = dict(analysis=analysis, project=project, activate='Selected Recipe')
 
     counts = get_counts(project)
     context.update(counts)
@@ -551,7 +552,7 @@ def recipe_run(request, uid):
         initial = dict(name=f"Results for: {analysis.name}")
         form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
 
-    context = dict(project=project, analysis=analysis, form=form, activate='selection')
+    context = dict(project=project, analysis=analysis, form=form, activate='Run Recipe')
     context.update(get_counts(project))
 
     return render(request, 'recipe_run.html', context)
@@ -635,7 +636,6 @@ def recipe_code(request, uid):
 
             # Changes to template will require a review ( only when saving ).
             if auth.template_changed(analysis=analysis, template=template) and save:
-
                 analysis.security = Analysis.UNDER_REVIEW
 
             # Admin users will automatically get authorized.
@@ -659,7 +659,11 @@ def recipe_code(request, uid):
     recipe = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=dict(name=name))
 
     # This generates a "fake" unsaved job.
-    job = auth.create_job(analysis=analysis, json_data=analysis.json_data, save=False)
+    # Needs to fill in a few runtime only settings.
+    mock_json = analysis.json_data
+    for key, value in mock_json.items():
+        value['toc'] = f"{key}-filelist.txt"
+    job = auth.create_job(analysis=analysis, json_data=mock_json, save=False)
 
     # Create the script for the "fake" job.
     data, script = auth.generate_script(job)
@@ -786,7 +790,7 @@ def job_view(request, uid):
     job = Job.objects.filter(uid=uid).first()
     project = job.project
 
-    context = dict(job=job, project=project, activate='selection')
+    context = dict(job=job, project=project, activate='Selected Result')
 
     counts = get_counts(project)
     context.update(counts)
@@ -794,46 +798,65 @@ def job_view(request, uid):
     return render(request, "job_view.html", context=context)
 
 
-@object_access(type=Job, access=Access.READ_ACCESS, url='job_files_entry')
-def job_file_serve(request, uid, file_path):
-    "Authenticates access through decorator before serving files"
+def file_serve(request, uid, path, klass):
+    """
+    Authenticates access through decorator before serving file.
+    """
 
-    job = Job.objects.filter(uid=uid).first()
-    file_path = join(job.path, file_path)
+    # Get the object that corresponds to the entry.
+    obj = klass.objects.filter(uid=uid).first()
 
+    # Different file layout for jobs and data.
+    if isinstance(obj, Data):
+        url = 'data_entry'
+        root = obj.get_data_dir()
+    else:
+        # Job type.
+        root = obj.path
+        url = 'job_entry'
+
+    # This will turn into an absolute path.
+    file_path = join(root, path)
+
+    # This ensure only files in the object root can be accessed.
+    if not file_path.startswith(root):
+        messages.error(request, "Invalid path.")
+        return redirect(reverse(url, kwargs=dict(uid=uid)))
+
+    # Check that the file exists.
     if not os.path.isfile(file_path):
-        messages.error(request, "Path is not a file.")
-        return redirect(reverse("job_files_entry", kwargs=dict(uid=job.uid)))
+        messages.error(request, f"File not found: {path}")
+        return redirect(reverse(url, kwargs=dict(uid=uid)))
 
-    response = sendfile(request, file_path, mimetype=auth.known_text(fname=file_path))
+    # The response will be the file content.
+    mimetype = auth.guess_mimetype(fname=path)
 
-    # Change the filename in the response header
-    auth.change_filename(response, name=os.path.basename(file_path))
+    # Get the filesize in Mb
+    size = os.path.getsize(file_path)/1024/1024
 
-    return response
+    # This behavior can be further customized in front end webserver.
+    if size < 20:
+        # Return small files in the browser if possible.
+        data = sendfile(request, file_path, mimetype=mimetype)
+    else:
+        # Trigger a file download for bigger files.
+        fname = os.path.basename(file_path)
+        data = sendfile(request, file_path, attachment=True, attachment_filename=fname, mimetype=mimetype)
+
+    return data
 
 
-@object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
-def job_files_list(request, uid, path=''):
+@object_access(type=Data, access=Access.READ_ACCESS, url='data_navigate')
+def data_serve(request, uid, path):
     """
-    Returns the directory view of the job.
+    Serves files from a data directory.
     """
-    job = Job.objects.filter(uid=uid).first()
-    project = job.project
+    return file_serve(request=request, path=path, uid=uid, klass=Data)
 
-    form = FileCopyForm(root_dir=job.path, request=request, uid=job.uid)
-    if request.method == "POST":
-        form = FileCopyForm(data=request.POST, uid=job.uid, request=request, root_dir=job.path)
-        if form.is_valid():
-            # Copies files to clipboard
-            nfiles = form.save()
-            msg = mark_safe(f"Copied <b>{nfiles}</b> file(s) to Clipboard from <b>{job.name}</b>")
-            messages.success(request, msg)
-            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
-    context = dict(activate='selection', job=job, project=project, form=form)
-    counts = get_counts(project)
-    context.update(counts)
-
-    return files_list(request=request, instance=job, path=path,
-                      template_name="job_files_list.html", extra_context=context)
+@object_access(type=Job, access=Access.READ_ACCESS, url='job_entry')
+def job_serve(request, uid, path):
+    """
+    Serves files from a job directory.
+    """
+    return file_serve(request=request, path=path, uid=uid, klass=Job)
