@@ -18,8 +18,10 @@ SECRET_KEY = 'secretkey'
 # The password for admin users.
 DEFAULT_ADMIN_PASSWORD = "1234"
 
-# Maximum amount of uploaded files a user is allowed to aggregate, in bytes.
-MAX_UPLOAD_SIZE = 3e8
+
+# Maximum amount of uploaded files a user is allowed to aggregate, in mega-bytes.
+MAX_UPLOAD_SIZE = 300
+
 
 # Set these for remote hosts.
 SITE_ID = 1

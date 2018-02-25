@@ -42,17 +42,15 @@ def check_upload_limit(file, user):
     currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
     to_mb = lambda x: x/ 1024/ 1024
 
-    projected = file.size + currect_size
-    max_mb = to_mb(user.profile.max_upload_size)
+    projected = to_mb(file.size + currect_size)
+    max_mb = user.profile.max_upload_size
 
-    if projected > user.profile.max_upload_size:
+    if projected > max_mb:
 
-        allowed = 0 if (max_mb-currect_size) < 0 else (max_mb-currect_size)
         msg = f"<b>Over your {max_mb:0.0001f} MB total upload limit.</b> "
         msg = msg + f"""
-                Your have already uploaded {to_mb(currect_size):0.001f} MB. 
-                File too large: currently {to_mb(file.size):0.0001f} MB
-                should be < {allowed:0.001f} MB
+                File too large: currently <b>{to_mb(file.size):0.0001f} MB</b>
+                should be <b> < {(max_mb-to_mb(currect_size)):0.001f} MB</b>
                 """
         raise forms.ValidationError(mark_safe(msg))
 
