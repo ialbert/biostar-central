@@ -88,7 +88,10 @@ def input(path, current):
 
 @register.simple_tag
 def file_url(object, path, current):
-    "Used in file navigator to render file info in template"
+    """
+    Used in file navigator to render file info in template.
+    param: current is
+    """
 
     assert isinstance(object, Data) or isinstance(object, Job)
     if current.is_dir():
@@ -180,28 +183,28 @@ def search(request):
 
 
 @register.inclusion_tag('widgets/paste.html')
-def paste(project, data=False, files=False, request=None):
+def paste(project, request=None, board=''):
     "Default provides template for pasting a recipe"
 
-    action, url, message = "Paste Recipe", "recipe_paste", "a recipe"
-    board =  "recipe_clipboard"
-    redir = "data_list" if (data or files) else "recipe_list"
+    files = board == 'files_clipboard'
+    active_board = [] if not request else request.session.get(board, [])
+    # Last time in the files_clipboard is an instance.uid, not a file.
+    ndata = len(active_board) - 1 if files and active_board else len(active_board)
 
-    if data:
-        board = "data_clipboard"
-        active_board = [] if not request else request.session.get(board, [])
-        action, url, message = "Paste Data", "data_paste", f"{len(active_board)} data"
-    elif files:
-        board = "files_clipboard"
-        active_board = [] if not request else request.session.get(board, [])
-        # Last time in the files_clipboard is an instance.uid, not a file.
-        nfiles = len(active_board) - 1 if active_board else 0
-        action, url, message = "Paste File(s)", "files_paste", f"{nfiles} file(s)"
+    # Map a clipboard to respective information
+    info = dict(
+        recipe_clipboard={'url':"recipe_paste", 'nactive':"a recipe", 'redirl':"recipe_list"},
+        data_clipboard={'url':"data_paste", 'nactive':f"{ndata} data",'redir':"data_list"},
+        files_clipboard={'url':"files_paste", 'nactive':f"{ndata} file(s)", 'redir':"data_list"}
+    )
 
-    paste_url = reverse(url, kwargs=dict(uid=project.uid))
-    clear_url = reverse("clear_clipboard", kwargs=dict(uid=project.uid, url=redir, board=board))
+    view_name = info.get(board, {}).get('url')
+    paste_url = reverse(view_name, kwargs=dict(uid=project.uid))
+    clear_url = reverse("clear_clipboard", kwargs=dict(uid=project.uid,
+                                                       url=info.get(board, {}).get('redir'),
+                                                       board=board))
 
-    return dict(action=action, paste_url=paste_url, clear_url=clear_url, message=message)
+    return dict(paste_url=paste_url, clear_url=clear_url, message=info.get(board, {}).get('nactive'))
 
 
 @register.filter
@@ -263,8 +266,11 @@ def access_color(user, project):
 
 @register.simple_tag
 def type_label(data):
+
     if data.type:
-        return mark_safe(f"<span class='ui label' > {data.type} </span>")
+        label = lambda x:f"<span class='ui label' > {x} </span>"
+        types = [label(t) for t in data.type.split(',')]
+        return mark_safe(''.join(types))
     return ""
 
 @register.simple_tag
@@ -371,15 +377,7 @@ def markdown(text):
 
 
 @register.inclusion_tag('widgets/menubar.html', takes_context=True)
-def menubar(context, project=None, edit_project=False, create_project=False,
-            data=None, edit_data=False, upload_data=False,
-            analysis=None, edit_analysis=False, request=None
-            ):
+def menubar(context, request=None):
     user = context.request.user
 
-    return dict(
-        user=user,
-        project=project, edit_project=edit_project, create_project=create_project,
-        data=data, edit_data=edit_data, upload_data=upload_data,
-        analysis=analysis, edit_analysis=edit_analysis, request=request
-    )
+    return dict(user=user, request=request)

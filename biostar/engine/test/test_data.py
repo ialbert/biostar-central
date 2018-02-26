@@ -104,11 +104,12 @@ class DataViewTest(TestCase):
         from biostar.engine.templatetags import engine_tags
 
         options = {"recipe_clipboard":dict(project=self.project),
-                    "data_clipboard":dict(data=True, project=self.project),
-                   "files_clipboard":dict(files=True, project=self.project)
+                    "data_clipboard":dict(project=self.project),
+                   "files_clipboard":dict(project=self.project)
                    }
         for o in options:
-            paste_template = engine_tags.paste(**options[o])
+
+            paste_template = engine_tags.paste(board=o, project=options[o]["project"])
             # Paste template needs to be rendered correctly for each clipboard
             self.assertTrue(o in paste_template["clear_url"], f"{o} : {paste_template}")
 

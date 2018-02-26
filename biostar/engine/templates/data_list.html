@@ -9,10 +9,10 @@
 {% block content %}
 
     {% if request|has_data %}
-        {% paste project=project data=True request=request %}
+        {% paste project=project board="data_clipboard" request=request %}
 
     {% elif request|has_files %}
-        {% paste project=project files=True request=request %}
+        {% paste project=project board="files_clipboard"  request=request %}
     {% endif %}
 
     {% if not data_list %}
@@ -22,7 +22,7 @@
     <div class="ui center aligned vertical segment">
 
          <a class="ui mini green button" href="{% url 'data_navigate' project.uid %}">
-            <i class="browser icon"></i>Browse Files
+            <i class="browser icon"></i>Browse Data
         </a>
 
         <a class="ui mini button" href="{% url 'data_upload' project.uid %}">

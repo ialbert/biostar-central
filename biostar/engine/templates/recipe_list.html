@@ -7,7 +7,7 @@
 {% block content %}
 
     {% if request|has_recipe %}
-        {% paste project=project %}
+        {% paste project=project board="recipe_clipboard" %}
     {% endif %}
 
     {% if not recipe_list %}

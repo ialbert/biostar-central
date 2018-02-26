@@ -4,8 +4,8 @@
             <i class="warning circle icon"></i>The script for this recipe has been changed.
         </div>
         <p>
-            For security reasons it must be <a target="_blank" href="	{%  url  'admin:engine_analysis_change'	analysis.id %}">reviewed and authorized</a> by a
-            staff member.
+            For security reasons it must be <a href="	{%  url  'recipe_diff' analysis.uid %}">reviewed and authorized</a> by a
+            moderator.
         </p>
     </div>
 {% endif %}

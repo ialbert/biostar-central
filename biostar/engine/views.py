@@ -12,10 +12,11 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
+
 from . import tasks, util
 from .decorators import object_access
 from .forms import *
-from .models import (Project, Data, Analysis, Job, Access)
+from .models import (Project, Data, Analysis, Job, Access, Diff)
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -331,7 +332,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     return render(request, template_name, context)
 
 
-@object_access(type=Project, access=Access.OWNER_ACCESS, url='project_view')
+@object_access(type=Project, access=Access.OWNER_ACCESS, url='data_list')
 def project_edit(request, uid):
     "Edit meta-data associated with a project."
 
@@ -638,9 +639,13 @@ def recipe_code(request, uid):
             if auth.template_changed(analysis=analysis, template=template) and save:
                 analysis.security = Analysis.UNDER_REVIEW
 
-            # Admin users will automatically get authorized.
-            if user.is_staff:
+            # Moderators and staff members will automatically get authorized.
+            if user.is_staff or user.profile.is_moderator:
                 analysis.security = Analysis.AUTHORIZED
+
+            # Create diff or update existing one
+            auth.create_diff(recipe=analysis, old=analysis.template,
+                             new=template, owner=request.user)
 
             # Set the new template.
             analysis.template = template
@@ -708,6 +713,32 @@ def recipe_create(request, uid):
     context = dict(project=project, form=form, action_url=action_url, name="New Recipe")
 
     return render(request, 'recipe_edit.html', context)
+
+
+@object_access(type=Analysis, access=Access.WRITE_ACCESS, url='recipe_view')
+def recipe_diff(request, uid):
+    """
+    View used to show diff in template and authorize it.
+    Restricted to moderators and staff members.
+    """
+    user = request.user
+    recipe = Analysis.objects.filter(uid=uid).first()
+
+    if not (user.profile.is_moderator or user.is_staff):
+
+        messages.error(request, "Only moderators or staff members can perform action.")
+        return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
+
+    diff = Diff.objects.filter(recipe=recipe).first()
+    differ, owner, date = auth.get_diff_str(diff=diff)
+
+    context = dict(activate="Recent Template Change", diff=differ, project=recipe.project, recipe=recipe,
+                   owner=owner, date=date)
+    counts = get_counts(recipe.project)
+    context.update(counts)
+
+    return render(request, "recipe_diff.html", context=context)
+
 
 
 @object_access(type=Analysis, access=Access.OWNER_ACCESS, url='recipe_view')

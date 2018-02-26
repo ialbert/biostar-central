@@ -2,9 +2,7 @@ import difflib
 import logging
 import uuid
 import hjson
-import unicodedata
 
-from django.utils.http import urlquote
 from mimetypes import guess_type
 from django.contrib import messages
 from django.db.models import Q
@@ -12,12 +10,13 @@ from django.template import Template, Context
 from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
-from django.utils.encoding import force_text
+from django.utils import timezone
+from biostar.accounts.models import Profile
 
 from biostar import settings
 from . import util
 from .const import *
-from .models import Data, Analysis, Job, Project, Access
+from .models import Data, Analysis, Job, Project, Access, Diff
 
 CHUNK = 1024 * 1024
 
@@ -201,6 +200,36 @@ def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, l
     # This should never trigger and is here to catch bugs.
     messages.error(request, "Access denied! Invalid fall-through!")
     return False
+
+
+def create_diff(recipe, old, new, owner):
+
+    diff = Diff.objects.filter(recipe=recipe, owner=owner).first()
+
+    if diff:
+        diff.new = new
+        diff.old = old
+        diff.date = timezone.now()
+        diff.save()
+
+    else:
+        diff = Diff.objects.create(recipe=recipe, new=new, old=old, owner=owner)
+
+    return diff
+
+
+def get_diff_str(diff):
+
+    old, new, owner = [], [], None
+    date = None
+    if diff:
+        old = [line.strip() for line in diff.old.split('\n') if len(line)]
+        new = [line.strip() for line in diff.new.split('\n') if len(line)]
+        owner, date = diff.owner, diff.date
+
+    differ = '\n'.join(difflib.ndiff(old,new))
+
+    return  differ, owner, date
 
 
 def create_project(user, name, uid=None, summary='', text='', stream='',

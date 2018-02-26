@@ -2,9 +2,12 @@ from functools import wraps
 
 from django.urls import reverse
 from django.shortcuts import redirect
-from . import auth
 from django.utils.decorators import available_attrs
+from biostar.accounts.models import Profile
+from . import auth
+
 from . import models
+
 
 
 class object_access:
