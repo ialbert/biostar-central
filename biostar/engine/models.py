@@ -435,5 +435,6 @@ class Diff(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
+        self.date = self.date or timezone.now()
         super(Diff, self).save(*args, **kwargs)
 

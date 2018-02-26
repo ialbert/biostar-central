@@ -266,8 +266,11 @@ def access_color(user, project):
 
 @register.simple_tag
 def type_label(data):
+
     if data.type:
-        return mark_safe(f"<span class='ui label' > {data.type} </span>")
+        label = lambda x:f"<span class='ui label' > {x} </span>"
+        types = [label(t) for t in data.type.split(',')]
+        return mark_safe(''.join(types))
     return ""
 
 @register.simple_tag

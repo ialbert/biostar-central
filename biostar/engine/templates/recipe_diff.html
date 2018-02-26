@@ -1,0 +1,35 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Most recent changes : {{ recipe.name }}
+{% endblock %}
+
+{% block content %}
+  <div class="ui center aligned vertical segment">
+        <a class="ui mini button" href="{% url 'recipe_code' recipe.uid %}">
+            <i class="keyboard icon"></i>View Code
+        </a>
+        <a class="ui mini button" href="{% url 'recipe_copy' recipe.uid %}">
+            <i class="setting icon"></i>View Recipe
+        </a>
+        <a class="ui mini button" href="{% url 'recipe_copy' recipe.uid %}">
+            <i class="clone icon"></i>Copy Recipe
+        </a>
+
+    </div>
+  <div class="ui vertical segment">
+{% if owner %}
+    <div class="item">
+        <b> Edited by  </b>: {{ owner.first_name }}
+    </div>
+    <div class="item">
+        <b>Edited on </b>: {{ date }}
+    </div>
+{% endif %}
+  </div>
+
+<pre>{{diff}}</pre>
+
+
+{% endblock %}

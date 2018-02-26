@@ -5,27 +5,34 @@
 
 {% block body %}
 
-    <div class="item">
 
      <div class="ui center aligned vertical segment">
-             <a class="ui button" href="{% url 'edit_profile'%}">
+             <a class="ui mini button" href="{% url 'edit_profile'%}">
                 <i class="write icon"></i>Edit profile
             </a>
-                <a class="ui button" href="{% url 'recycle_bin' %}">
+                <a class="ui mini button" href="{% url 'recycle_bin' %}">
                 <i class="trash icon"></i>Recycle Bin
             </a>
      </div>
+    {% if user.profile.is_moderator %}
+          <div class="ui center aligned vertical segment">
+            <div class="ui green label">
+                <i class="check circle icon"></i>Trusted Moderator</div>
+        </div>
+    {% endif %}
 
- <div class="item">
-    Email : {{user.email}}
- </div>
+        <div class="item">
+            <b>Email </b> : {{user.email}}
+         </div>
+         <div class="item">
+            <b>Name </b>: {{user.first_name}}
+         </div>
 
-    Name : {{user.first_name}}
 
         <div class="ui vertical segment">
 
             <div class="ui list">
-                Projects you have access to ( {{user.access_set.count}} ):
+                <b> Projects ( {{user.access_set.count}} ) </b>:
                 <div class="content">
                         <div class="ui list">
                             <div class="item">
@@ -46,5 +53,5 @@
                 </div>
             </div>
         </div>
-    </div>
+
 {% endblock %}

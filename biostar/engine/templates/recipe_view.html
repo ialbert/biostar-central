@@ -51,6 +51,12 @@
                 <a class="ui mini button" href="{% url 'recipe_code' analysis.uid %}">
                     <i class="keyboard icon"></i>View Code
                 </a>
+                {% if user.profile.is_moderator or user.is_staff %}
+                <a class="ui mini button" href="{% url 'recipe_diff' analysis.uid %}">
+                    <i class="file alternate outline icon"></i>View Diff
+                </a>
+                {% endif %}
+
 
                 <a class="ui mini button" href="{% url 'recipe_copy' analysis.uid %}">
                     <i class="clone icon"></i>Copy Recipe

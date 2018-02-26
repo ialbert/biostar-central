@@ -53,10 +53,10 @@ class LogoutForm(forms.Form):
 
 class EditProfile(forms.Form):
 
-    email = forms.CharField(label='Email', max_length=100)
+    #email = forms.CharField(label='Email', max_length=100)
     first_name = forms.CharField(label='First Name', max_length=100)
 
-    def __init__(self, user=None,  *args, **kwargs):
+    def __init__(self, user,  *args, **kwargs):
 
         self.user = user
 
@@ -65,10 +65,7 @@ class EditProfile(forms.Form):
 
     def save(self):
 
-        if not self.user:
-            raise forms.ValidationError("User needs to be specified to save profile")
-
-        self.user.email = self.cleaned_data['email']
+        #self.user.email = self.cleaned_data['email']
         self.user.first_name = self.cleaned_data['first_name']
         self.user.save()
 

@@ -1,6 +1,7 @@
 import glob
 import logging
 import mistune
+import difflib
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -11,7 +12,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from biostar.accounts.models import Profile
+
 
 from . import tasks, util
 from .decorators import object_access
@@ -716,7 +717,7 @@ def recipe_create(request, uid):
 
 
 @object_access(type=Analysis, access=Access.WRITE_ACCESS, url='recipe_view')
-def recipe_authorize(request, uid):
+def recipe_diff(request, uid):
     """
     View used to show diff in template and authorize it.
     Restricted to moderators and staff members.
@@ -730,13 +731,21 @@ def recipe_authorize(request, uid):
         return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
     diff = Diff.objects.filter(recipe=recipe).first()
+    old, new, owner = [""], [""], None
+    date = None
+    if diff:
+        old = [line.strip() for line in diff.old.split('\n') if len(line)]
+        new = [line.strip() for line in diff.new.split('\n') if len(line)]
+        owner, date = diff.owner, diff.date
 
-    old = [line.strip() for line in diff.old.split('\n')]
-    new = [line.strip() for line in diff.new.split('\n')]
+    differ = '\n'.join(difflib.ndiff(old,new))
 
-    print(new, old)
+    context = dict(activate="Recent Template Change", diff=differ, project=recipe.project, recipe=recipe,
+                   owner=owner, date=date)
+    counts = get_counts(recipe.project)
+    context.update(counts)
 
-    return
+    return render(request, "recipe_diff.html", context=context)
 
 
 
