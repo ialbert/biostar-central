@@ -1,7 +1,6 @@
 import glob
 import logging
 import mistune
-import difflib
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -731,14 +730,7 @@ def recipe_diff(request, uid):
         return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
     diff = Diff.objects.filter(recipe=recipe).first()
-    old, new, owner = [""], [""], None
-    date = None
-    if diff:
-        old = [line.strip() for line in diff.old.split('\n') if len(line)]
-        new = [line.strip() for line in diff.new.split('\n') if len(line)]
-        owner, date = diff.owner, diff.date
-
-    differ = '\n'.join(difflib.ndiff(old,new))
+    differ, owner, date = auth.get_diff_str(diff=diff)
 
     context = dict(activate="Recent Template Change", diff=differ, project=recipe.project, recipe=recipe,
                    owner=owner, date=date)

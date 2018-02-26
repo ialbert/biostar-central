@@ -216,6 +216,19 @@ def create_diff(recipe, old, new, owner):
     return diff
 
 
+def get_diff_str(diff):
+
+    old, new, owner = [], [], None
+    date = None
+    if diff:
+        old = [line.strip() for line in diff.old.split('\n') if len(line)]
+        new = [line.strip() for line in diff.new.split('\n') if len(line)]
+        owner, date = diff.owner, diff.date
+
+    differ = '\n'.join(difflib.ndiff(old,new))
+
+    return  differ, owner, date
+
 
 def create_project(user, name, uid=None, summary='', text='', stream='',
                    privacy=Project.PRIVATE, sticky=True):

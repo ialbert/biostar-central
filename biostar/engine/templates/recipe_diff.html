@@ -16,18 +16,19 @@
         <a class="ui mini button" href="{% url 'recipe_copy' recipe.uid %}">
             <i class="clone icon"></i>Copy Recipe
         </a>
+    </div>
 
-    </div>
-  <div class="ui vertical segment">
-{% if owner %}
-    <div class="item">
-        <b> Edited by  </b>: {{ owner.first_name }}
-    </div>
-    <div class="item">
-        <b>Edited on </b>: {{ date }}
-    </div>
-{% endif %}
-  </div>
+    {% if owner %}
+        <div class="ui vertical segment">
+        <div class="item">
+            <b> Edited by  </b>: {{ owner.first_name }}
+        </div>
+        <div class="item">
+            <b>Edited on </b>: {{ date }}
+        </div>
+        </div>
+    {% endif %}
+
 
 <pre>{{diff}}</pre>
 
