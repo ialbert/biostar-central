@@ -10,6 +10,7 @@ from django.template import Template, Context
 from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from biostar.accounts.models import Profile
 
 from biostar import settings
@@ -208,6 +209,7 @@ def create_diff(recipe, old, new, owner):
     if diff:
         diff.new = new
         diff.old = old
+        diff.date = timezone.now()
         diff.save()
 
     else:
