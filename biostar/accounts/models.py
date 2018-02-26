@@ -38,6 +38,10 @@ class Profile(models.Model):
         self.max_upload_size = self.max_upload_size or settings.MAX_UPLOAD_SIZE
         super(Profile, self).save(*args, **kwargs)
 
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):

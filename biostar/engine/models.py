@@ -261,10 +261,6 @@ class Analysis(models.Model):
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
     security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
 
-    #ACTIVE, DELETED, RESTORED = 1, 2, 3
-    #STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (RESTORED, "Restored")]
-    #state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
-
     deleted = models.BooleanField(default=False)
     uid = models.CharField(max_length=32, unique=True)
     sticky = models.BooleanField(default=False)
@@ -423,3 +419,21 @@ class Job(models.Model):
             self.path = path
 
         super(Job, self).save(*args, **kwargs)
+
+
+class Diff(models.Model):
+
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    recipe = models.OneToOneField(Analysis, on_delete=models.CASCADE)
+
+    new = models.TextField(default="")
+    old = models.TextField(default="")
+    date = models.DateTimeField(auto_now_add=True)
+
+    uid = models.CharField(max_length=32)
+
+
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or util.get_uuid(8)
+        super(Diff, self).save(*args, **kwargs)
+
