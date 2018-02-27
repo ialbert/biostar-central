@@ -16,7 +16,7 @@ from django.utils.safestring import mark_safe
 from . import tasks, util
 from .decorators import object_access
 from .forms import *
-from .models import (Project, Data, Analysis, Job, Access, Diff)
+from .models import (Project, Data, Analysis, Job, Access)
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -640,12 +640,8 @@ def recipe_code(request, uid):
                 analysis.security = Analysis.UNDER_REVIEW
 
             # Moderators and staff members will automatically get authorized.
-            if user.is_staff or user.profile.is_moderator:
+            if user.is_staff:# or user.profile.is_moderator:
                 analysis.security = Analysis.AUTHORIZED
-
-            # Create diff or update existing one
-            auth.create_diff(recipe=analysis, old=analysis.template,
-                             new=template, owner=request.user)
 
             # Set the new template.
             analysis.template = template
@@ -729,11 +725,12 @@ def recipe_diff(request, uid):
         messages.error(request, "Only moderators or staff members can perform action.")
         return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
-    diff = Diff.objects.filter(recipe=recipe).first()
-    differ, owner, date = auth.get_diff_str(diff=diff)
+    # Compare last valid template to the one currently loaded
+    differ = auth.get_diff_str(recipe.last_valid, recipe.template)
 
-    context = dict(activate="Recent Template Change", diff=differ, project=recipe.project, recipe=recipe,
-                   owner=owner, date=date)
+    no_change = recipe.last_valid.strip() == recipe.template.strip()
+    context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
+                   diff=differ, no_change=no_change)
     counts = get_counts(recipe.project)
     context.update(counts)
 

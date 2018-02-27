@@ -53,8 +53,8 @@ class LogoutForm(forms.Form):
 
 class EditProfile(forms.Form):
 
-    #email = forms.CharField(label='Email', max_length=100)
-    first_name = forms.CharField(label='First Name', max_length=100)
+    email = forms.CharField(label='Email', max_length=100)
+    name = forms.CharField(label='First Name', max_length=100)
 
     def __init__(self, user,  *args, **kwargs):
 
@@ -65,8 +65,8 @@ class EditProfile(forms.Form):
 
     def save(self):
 
-        #self.user.email = self.cleaned_data['email']
-        self.user.first_name = self.cleaned_data['first_name']
+        self.user.email = self.cleaned_data['email']
+        self.user.first_name = self.cleaned_data['name']
         self.user.save()
 
         return self.user

@@ -8,17 +8,22 @@
      <div class="ui centered card inputcolor">
 
         <div class="ui center aligned vertical segment">
-            <a class="ui blue mini button" href="{% url 'password_reset' %}">
+            <a class="ui button" href="{% url 'password_reset' %}">
                 <i class="undo icon"></i>Reset password
             </a>
-
         </div>
+
+        <div class="ui center aligned basic segment">
             <form method="post" class="ui form" action="{% url 'edit_profile' %}">
                 {% csrf_token %}
-            <div class="ui basic segment">
+                <div class="field">
+                    <label>Edit email</label>
+                    {{ form.email }}
+                </div>
+
                 <div class="field">
                     <label>Edit name</label>
-                    {{ form.first_name }}
+                    {{ form.name }}
                 </div>
 
              {{ form.errors }}
@@ -30,7 +35,7 @@
             <a class="ui right floated button" href="{% url 'profile' %}">
                  <i class="undo icon"></i>Cancel
             </a>
-            </div>
             </form>
+        </div>
      </div>
 {% endblock %}

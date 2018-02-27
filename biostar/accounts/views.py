@@ -37,7 +37,7 @@ def edit_profile(request):
 
         messages.error(request, mark_safe(form.errors))
 
-    initial = dict(email=user.email, first_name=user.first_name)
+    initial = dict(email=user.email, name=user.first_name)
     form = EditProfile(initial=initial, user=user)
     context = dict(user=user, form=form)
     return render(request, 'accounts/edit_profile.html', context)

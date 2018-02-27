@@ -274,6 +274,7 @@ class Analysis(models.Model):
 
     json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
     template = models.TextField(default="")
+    last_valid = models.TextField(default='')
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN, help_text="Optional image")
@@ -295,6 +296,9 @@ class Analysis(models.Model):
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
+
+        if self.security == self.AUTHORIZED:
+            self.last_valid = self.template
 
         super(Analysis, self).save(*args, **kwargs)
 
@@ -421,20 +425,4 @@ class Job(models.Model):
         super(Job, self).save(*args, **kwargs)
 
 
-class Diff(models.Model):
-
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    recipe = models.OneToOneField(Analysis, on_delete=models.CASCADE)
-
-    new = models.TextField(default="")
-    old = models.TextField(default="")
-    date = models.DateTimeField(auto_now_add=True)
-
-    uid = models.CharField(max_length=32)
-
-
-    def save(self, *args, **kwargs):
-        self.uid = self.uid or util.get_uuid(8)
-        self.date = self.date or timezone.now()
-        super(Diff, self).save(*args, **kwargs)
 

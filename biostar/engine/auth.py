@@ -10,13 +10,11 @@ from django.template import Template, Context
 from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
-from django.utils import timezone
-from biostar.accounts.models import Profile
 
 from biostar import settings
 from . import util
 from .const import *
-from .models import Data, Analysis, Job, Project, Access, Diff
+from .models import Data, Analysis, Job, Project, Access
 
 CHUNK = 1024 * 1024
 
@@ -202,34 +200,33 @@ def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, l
     return False
 
 
-def create_diff(recipe, old, new, owner):
+def get_diff_str(old, new):
 
-    diff = Diff.objects.filter(recipe=recipe, owner=owner).first()
-
-    if diff:
-        diff.new = new
-        diff.old = old
-        diff.date = timezone.now()
-        diff.save()
-
-    else:
-        diff = Diff.objects.create(recipe=recipe, new=new, old=old, owner=owner)
-
-    return diff
-
-
-def get_diff_str(diff):
-
-    old, new, owner = [], [], None
-    date = None
-    if diff:
-        old = [line.strip() for line in diff.old.split('\n') if len(line)]
-        new = [line.strip() for line in diff.new.split('\n') if len(line)]
-        owner, date = diff.owner, diff.date
+    old = [line.strip() for line in old.split('\n') if len(line)]
+    new = [line.strip() for line in new.split('\n') if len(line)]
 
     differ = '\n'.join(difflib.ndiff(old,new))
 
-    return  differ, owner, date
+    return  differ
+
+
+def update_project(project, name, summary='', text='', stream=None,
+                   privacy=None, sticky=None, save=True):
+
+    project.name = name or project.name
+    project.summary = summary or project.summary
+    project.text = text or project.text
+    project.privacy = privacy or project.privacy
+    project.sticky = sticky if sticky in (True, False) else project.sticky
+
+    if stream:
+        project.image.save(stream.name, stream, save=True)
+
+    if save:
+        project.save()
+
+    return project
+
 
 
 def create_project(user, name, uid=None, summary='', text='', stream='',
@@ -245,6 +242,22 @@ def create_project(user, name, uid=None, summary='', text='', stream='',
     logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     return project
+
+
+def update_recipe(recipe, json_text='', summary='', template='', name='', text='',
+                  security=Analysis.AUTHORIZED, save=True):
+
+    recipe.name = name or recipe.name
+    recipe.json_text = json_text or recipe.json_text
+    recipe.summary = summary or recipe.summary
+    recipe.template = template or recipe.template
+    recipe.text = text or recipe.text
+    recipe.security = security or recipe.security
+
+    if save:
+        recipe.save()
+
+    return recipe
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
@@ -463,6 +476,15 @@ def create_path(fname, data):
     path = os.path.abspath(os.path.join(data_dir, fname))
 
     return path
+
+
+
+def update_data(data, path, type, name, summary, text):
+    ""
+
+
+    return
+
 
 
 def create_data(project, user=None, stream=None, path='', name='',
