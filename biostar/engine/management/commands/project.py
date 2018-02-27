@@ -23,10 +23,6 @@ class Bunch():
         self.__dict__.update(kwargs)
 
 
-def join(*args):
-    return os.path.join(*args)
-
-
 
 def parse_params(fpath, base_dict):
     "Return a Bunch Object of info used to update or create a project."
@@ -44,7 +40,7 @@ def parse_params(fpath, base_dict):
         logger.error(f"Project 'settings' dictionary must have a 'uid' field.")
         sys.exit()
 
-    imgpath = join(dirname, base_dict.get("image", ""))
+    imgpath = os.path.join(dirname, base_dict.get("image", ""))
 
     # Set the image file stream.
     stream = None
@@ -71,46 +67,30 @@ def parse_json(json, root, privacy=Project.PRIVATE, sticky=False, jobs=False, up
 
     # Load everything relative to the root.
     fpath = os.path.join(root, json)
-
     json_data = hjson.load(open(fpath, 'rb'))
 
     # The base node of the JSON file.
     base = json_data.get("settings", {})
-
     store = parse_params(fpath=fpath, base_dict=base)
-
-    # # See if project already exists.
-    # project = Project.objects.filter(uid=store.uid).first()
-    #
-    # # Update project info if available.
-    # if update and project:
-    #     auth.update_project(project=project, name=store.name, summary=store.summary,
-    #                                   text=store.text, stream=store.stream, privacy=privacy, sticky=sticky)
-    #     return
-    # elif (not update) and project:
-    #     logger.warning(f"Project uid={project.uid} already exists. Set --update to update info.")
-    #     return
-    # # Create a new project when --update flag is not set.
-    # else:
+    exists = Project.objects.filter(uid=store.uid).exists()
     project = auth.create_project(user=store.user, uid=store.uid, summary=store.summary, name=store.name,
                                 text=store.text, stream=store.stream, privacy=privacy, sticky=sticky, update=update)
 
-    # Only touch data and recipes needing update
-    # To avoid copies when updating a project.
-    update_only = (update and project)
+    # Avoid duplicating data and recipe when updating project.
+    if update or exists:
+        action = "updated" if update else "exists"
+        logger.error(f"Project {action}. You can update the recipes individually. ")
+        return
 
-    # Add/update extra data specified in the project json file.
-    management.call_command("data", json=fpath, root=root, id=project.id, update_only=update_only)
+    # Add extra data specified in the project json file
+    management.call_command("data", json=fpath, root=root, id=project.id)
 
-    # Add/update the analyses specified in the project json.
     analyses = json_data.get("analyses", '')
-
     for row in reversed(analyses):
         json = os.path.join(root, row['json'])
         template = os.path.join(root, row['template'])
 
-        management.call_command("analysis", id=project.id, add=True, json=json, template=template, jobs=jobs,
-                                update=update)
+        management.call_command("analysis", id=project.id, add=True, json=json, template=template, jobs=jobs)
 
 
 
@@ -133,12 +113,7 @@ class Command(BaseCommand):
         privacy = options["privacy"].lower()
         sticky = options["sticky"]
         jobs = options["jobs"]
-
-
-        #TODO: Feature not fully enabled
-
-
-        update = False # options["update"]
+        update = options["update"]
 
         privacy_map = dict(
             (v.lower(), k) for k, v in Project.PRIVACY_CHOICES

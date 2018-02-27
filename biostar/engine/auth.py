@@ -216,14 +216,25 @@ def create_project(user, name, uid=None, summary='', text='', stream='',
 
     uid = uid or util.get_uuid(8)
 
-    
-    project = Project.objects.create(
-        name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
+    project = Project.objects.filter(uid=uid)
+
+    if project and not update:
+        return project.first()
+
+    if project:
+        # Update project
+        project.update(summary=summary, text=text, name=name)
+        # Need to manually call save()
+        project = project.first()
+        project.save()
+        logger.error(f"Updated project: {project.name, name} uid: {project.uid}")
+    else:
+        project = Project.objects.create(
+            name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
+        logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     if stream:
         project.image.save(stream.name, stream, save=True)
-
-    logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     return project
 
@@ -236,12 +247,14 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
 
     analysis = Analysis.objects.filter(uid=uid)
     if analysis and not update:
-        return;
+        return analysis.first()
 
     if analysis:
         # Update analysis
-        Analysis.objects.filter(uid=uid).update(summary=summary, text=text, name=name,
-                                                template=template, json_text=json_text)
+        analysis.update(summary=summary, text=text, name=name,
+                        template=template, json_text=json_text)
+        analysis = analysis.first()
+        analysis.save()
         logger.info(f"Updated analysis: uid={analysis.uid} name={analysis.name}")
     else:
         # Create

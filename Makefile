@@ -25,6 +25,12 @@ install:
 	conda config --add channels bioconda
 	conda install --file conf/conda_requirements.txt -y
 
+
+update:
+	python manage.py project --root ../biostar-recipes --json projects/tutorial-project.hjson --update
+
+
+
 recipes:
 	python manage.py project --root ../biostar-recipes --json projects/cookbook-project.hjson --privacy public --jobs
 	python manage.py project --root ../biostar-recipes --json projects/mothur-project.hjson --privacy public

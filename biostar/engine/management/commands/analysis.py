@@ -24,6 +24,9 @@ class Command(BaseCommand):
         parser.add_argument('--id', default=1,
                             help="Specifies the project id")
 
+        parser.add_argument('--uid', default=None,
+                            help="Specifies the project uid")
+
         parser.add_argument('--json',
                             help="The json specification file")
 
@@ -40,6 +43,7 @@ class Command(BaseCommand):
 
         json = options['json']
         pid = options['id']
+        puid = options['uid']
         template_fname = options['template']
         jobs = options['jobs']
         update = options["update"]
@@ -56,7 +60,10 @@ class Command(BaseCommand):
             return
 
         # Get the target project.
-        project = Project.objects.filter(id=pid).first()
+        if puid:
+            project = Project.objects.filter(uid=puid).first()
+        else:
+            project = Project.objects.filter(id=pid).first()
 
         # Invalid project specified.
         if not project:
@@ -81,7 +88,6 @@ class Command(BaseCommand):
         except Exception as exc:
             logger.exception(f"JSON exception in file: {json}\n{exc}")
             return
-
         try:
             # Read the specification
             template = open(template_fname).read()
