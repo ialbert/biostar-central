@@ -19,7 +19,7 @@ SECRET_KEY = 'secretkey'
 DEFAULT_ADMIN_PASSWORD = "1234"
 
 
-# Maximum amount of uploaded files a user is allowed to aggregate, in mega-bytes.
+# Maximum amount of cumulative uploaded files a user is allowed, in mega-bytes.
 MAX_UPLOAD_SIZE = 300
 
 

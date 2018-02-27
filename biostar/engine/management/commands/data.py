@@ -6,17 +6,48 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
-from biostar.engine.models import Project
+from biostar.engine.models import Project, Data
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 
 
 class Bunch():
     def __init__(self, **kwargs):
-        self.value = ''
+        self.value = self.uid =  ''
         self.name = self.summary = ''
         self.help = self.type = self.link = ''
         self.__dict__.update(kwargs)
+
+
+def batch_add_data(data_list, root, update_only, project=None):
+    "Iterate over list and add/update data using management commands."
+
+    # Add each collected datatype.
+    for bunch in reversed(data_list):
+        # This the path to the data.
+        path = bunch.value
+
+        # Makes the path relative if necessary.
+        path = path if path.startswith("/") else os.path.join(root, path)
+
+        # See if data already exists.
+        data = Data.objects.filter(uid=bunch.uid).first()
+
+        if update_only and data:
+            # Update existing data
+            auth.update_data(data=data, path=path, type=bunch.type,
+                             name=bunch.name, summary=bunch.summary, text=bunch.help)
+            continue
+
+        if update_only and not data:
+            # Skip new data when all we want is to update
+            continue
+
+        if (not data) and (not update_only):
+            # Create the data if it does not exist.
+            auth.create_data(project=project, path=path, type=bunch.type,
+                             name=bunch.name, summary=bunch.summary, text=bunch.help)
+
 
 
 class Command(BaseCommand):
@@ -27,6 +58,7 @@ class Command(BaseCommand):
         parser.add_argument('--uid', default='', help="Select project by unique id")
         parser.add_argument('--json', help="JSON file with the data specification")
         parser.add_argument('--root', default='', help="A root directory for relative paths")
+        parser.add_argument('--update_only', default=False, help="Update if uid and update = True in JSON file.")
 
     def handle(self, *args, **options):
 
@@ -35,6 +67,7 @@ class Command(BaseCommand):
         uid = options['uid']
         json = options['json']
         root = options['root']
+        update_only = options['update_only']
 
         if not id or uid:
             logger.error(f"Must specify 'id' or 'uid' parameters.")
@@ -72,13 +105,6 @@ class Command(BaseCommand):
         data_list = [Bunch(**row) for row in json_data]
 
         # Add each collected datatype.
-        for bunch in reversed(data_list):
-            # This the path to the data.
-            path = bunch.value
+        batch_add_data(data_list=data_list, root=root, update_only=update_only, project=project)
 
-            # Makes the path relative if necessary.
-            path = path if path.startswith("/") else os.path.join(root, path)
 
-            # Create the data.
-            auth.create_data(project=project, path=path, type=bunch.type,
-                             name=bunch.name, summary=bunch.summary, text=bunch.help)

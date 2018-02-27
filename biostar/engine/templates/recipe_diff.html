@@ -6,7 +6,12 @@
 {% endblock %}
 
 {% block content %}
-  <div class="ui center aligned vertical segment">
+
+    {% if no_change %}
+        <div class="ui message"><i class="ui minus icon"></i> No Changes Detected.</div>
+    {% endif %}
+
+    <div class="ui center aligned vertical segment">
         <a class="ui mini button" href="{% url 'recipe_code' recipe.uid %}">
             <i class="keyboard icon"></i>View Code
         </a>
@@ -18,19 +23,8 @@
         </a>
     </div>
 
-    {% if owner %}
-        <div class="ui vertical segment">
-        <div class="item">
-            <b> Edited by  </b>: {{ owner.first_name }}
-        </div>
-        <div class="item">
-            <b>Edited on </b>: {{ date }}
-        </div>
-        </div>
-    {% endif %}
-
-
 <pre>{{diff}}</pre>
+
 
 
 {% endblock %}
