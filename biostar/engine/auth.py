@@ -261,18 +261,29 @@ def update_recipe(recipe, json_text='', summary='', template='', name='', text='
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
-                    name='', text='', stream=None, sticky=False, security=Analysis.UNDER_REVIEW):
+                    name='', text='', stream=None, sticky=False, security=Analysis.UNDER_REVIEW, update=False):
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
 
-    analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
+    analysis = Analysis.objects.filter(uid=uid)
+    if analysis and not update:
+        return;
+
+    if analysis:
+        # Update analysis
+        Analysis.objects.filter(uid=uid).update(summary=summary, text=text, name=name,
+                                                template=template, json_text=json_text)
+        logger.info(f"Updated analysis: uid={analysis.uid} name={analysis.name}")
+    else:
+        # Create
+        analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
                                        owner=owner, name=name, text=text, security=security,
                                        template=template, sticky=sticky)
+        logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
+
     if stream:
         analysis.image.save(stream.name, stream, save=True)
-
-    logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
     return analysis
 
