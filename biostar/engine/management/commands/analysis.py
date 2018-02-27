@@ -1,5 +1,6 @@
-import os, logging, textwrap
-from os.path import expanduser
+import logging
+import os
+import textwrap
 
 import hjson
 from django.core.management.base import BaseCommand
@@ -49,7 +50,7 @@ class Command(BaseCommand):
             logger.setLevel(logging.DEBUG)
             logger.info(f"level={verbosity}")
 
-        # Require JSON and templatates to exist.
+        # Require JSON and templates to exist.
         if not (json and template_fname):
             logger.error("This command requires --json and a --template to be set")
             return
@@ -96,19 +97,9 @@ class Command(BaseCommand):
             text = textwrap.dedent(text)
             summary = json_data.get("settings", {}).get("summary", "No summary")
 
-            # recipe = Analysis.objects.filter(uid=uid).first()
-            #
-            # if update and recipe:
-            #     # Update the analysis
-            #     analysis = auth.update_recipe(recipe=recipe, json_text=json_text, summary=summary,
-            #                                 template=template, name=name, text=text, security=Analysis.AUTHORIZED)
-            # elif (not update) and recipe :
-            #     logger.warning(f"Recipe uid={recipe.uid} already exists. Set --update to update info.")
-            #     return
-            # else:
-            #     # Create the analysis
-            analysis = auth.create_analysis(project=project, uid=uid, json_text=json_text, summary=summary,
-                                            template=template, name=name, text=text, security=Analysis.AUTHORIZED)
+            analysis = auth.create_analysis(
+                project=project, uid=uid, json_text=json_text,
+                summary=summary, template=template, name=name, text=text, security=Analysis.AUTHORIZED, update=update)
 
             # Load the image if specified.
             if image:
