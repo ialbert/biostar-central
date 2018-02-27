@@ -24,9 +24,6 @@ class Command(BaseCommand):
         parser.add_argument('--id', default=1,
                             help="Specifies the project id")
 
-        parser.add_argument('--uid', default=None,
-                            help="Specifies the project uid")
-
         parser.add_argument('--json',
                             help="The json specification file")
 
@@ -43,7 +40,6 @@ class Command(BaseCommand):
 
         json = options['json']
         pid = options['id']
-        puid = options['uid']
         template_fname = options['template']
         jobs = options['jobs']
         update = options["update"]
@@ -60,10 +56,7 @@ class Command(BaseCommand):
             return
 
         # Get the target project.
-        if puid:
-            project = Project.objects.filter(uid=puid).first()
-        else:
-            project = Project.objects.filter(id=pid).first()
+        project = Project.objects.filter(id=pid).first()
 
         # Invalid project specified.
         if not project:

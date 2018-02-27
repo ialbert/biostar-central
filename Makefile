@@ -28,7 +28,7 @@ install:
 
 update:
 	python manage.py project --root ../biostar-recipes --json projects/tutorial-project.hjson --update
-
+	python manage.py analysis --update --json ../biostar-recipes/recipes/tutorial/hello3.hjson --template ../biostar-recipes/recipes/tutorial/hello3.sh
 
 
 recipes:
