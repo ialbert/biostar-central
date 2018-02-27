@@ -46,6 +46,7 @@ verbose:
 	# Makes logging more verbose.
 	export DJANGO_LOG_LEVEL=DEBUG
 
+
 delete:
 	# Ensure the files that could hold secrets exist.
 	# Remove the database and old media.
