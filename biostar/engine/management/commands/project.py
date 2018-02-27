@@ -151,7 +151,7 @@ class Command(BaseCommand):
 
         #TODO: Feature not fully enabled
 
-        
+
         update = False # options["update"]
 
         privacy_map = dict(
