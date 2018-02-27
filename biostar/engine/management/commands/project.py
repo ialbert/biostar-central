@@ -28,7 +28,7 @@ def join(*args):
 
 
 
-def project_params(fpath, base_dict):
+def parse_params(fpath, base_dict):
     "Return a Bunch Object of info used to update or create a project."
 
     # The directory that the project file is located in.
@@ -64,25 +64,6 @@ def project_params(fpath, base_dict):
     return bunch
 
 
-def batch_add_recipes(rows, root, project, jobs, update_only):
-    "Iterate over a list and add recipe using management command."
-    # The analyses need are specified relative to the root folder.
-
-    for row in reversed(rows):
-        json = os.path.join(root, row['json'])
-        template = os.path.join(root, row['template'])
-
-        # Update any recipe with a valid uid and update= True in JSON.
-        uid, recipe_update = row.get('uid'), row.get("update")
-
-        # Only pay attention to recipe updates when update_only=True.
-        if update_only and not (recipe_update and uid):
-            continue
-
-        management.call_command("analysis", id=project.id, add=True, json=json, template=template, jobs=jobs,
-                                update=recipe_update)
-
-
 def parse_json(json, root, privacy=Project.PRIVATE, sticky=False, jobs=False, update=False):
     """
     Create a project from a JSON data
@@ -96,23 +77,23 @@ def parse_json(json, root, privacy=Project.PRIVATE, sticky=False, jobs=False, up
     # The base node of the JSON file.
     base = json_data.get("settings", {})
 
-    store = project_params(fpath=fpath, base_dict=base)
+    store = parse_params(fpath=fpath, base_dict=base)
 
-    # See if project already exists.
-    project = Project.objects.filter(uid=store.uid).first()
-
-    # Update project info if available.
-    if update and project:
-        auth.update_project(project=project, name=store.name, summary=store.summary,
-                                      text=store.text, stream=store.stream, privacy=privacy, sticky=sticky)
-        return
-    elif (not update) and project:
-        logger.warning(f"Project uid={project.uid} already exists. Set --update to update info.")
-        return
-    # Create a new project when --update flag is not set.
-    else:
-        project = auth.create_project(user=store.user, uid=store.uid, summary=store.summary, name=store.name,
-                                      text=store.text, stream=store.stream, privacy=privacy, sticky=sticky)
+    # # See if project already exists.
+    # project = Project.objects.filter(uid=store.uid).first()
+    #
+    # # Update project info if available.
+    # if update and project:
+    #     auth.update_project(project=project, name=store.name, summary=store.summary,
+    #                                   text=store.text, stream=store.stream, privacy=privacy, sticky=sticky)
+    #     return
+    # elif (not update) and project:
+    #     logger.warning(f"Project uid={project.uid} already exists. Set --update to update info.")
+    #     return
+    # # Create a new project when --update flag is not set.
+    # else:
+    project = auth.create_project(user=store.user, uid=store.uid, summary=store.summary, name=store.name,
+                                text=store.text, stream=store.stream, privacy=privacy, sticky=sticky, update=update)
 
     # Only touch data and recipes needing update
     # To avoid copies when updating a project.
@@ -124,7 +105,12 @@ def parse_json(json, root, privacy=Project.PRIVATE, sticky=False, jobs=False, up
     # Add/update the analyses specified in the project json.
     analyses = json_data.get("analyses", '')
 
-    batch_add_recipes(rows=analyses, root=root, project=project, jobs=jobs, update_only=update_only)
+    for row in reversed(analyses):
+        json = os.path.join(root, row['json'])
+        template = os.path.join(root, row['template'])
+
+        management.call_command("analysis", id=project.id, add=True, json=json, template=template, jobs=jobs,
+                                update=update)
 
 
 

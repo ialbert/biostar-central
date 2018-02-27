@@ -210,29 +210,13 @@ def get_diff_str(old, new):
     return  differ
 
 
-def update_project(project, name, summary='', text='', stream=None,
-                   privacy=None, sticky=None, save=True):
-
-    project.name = name or project.name
-    project.summary = summary or project.summary
-    project.text = text or project.text
-    project.privacy = privacy or project.privacy
-    project.sticky = sticky if sticky in (True, False) else project.sticky
-
-    if stream:
-        project.image.save(stream.name, stream, save=True)
-
-    if save:
-        project.save()
-
-    return project
-
-
 
 def create_project(user, name, uid=None, summary='', text='', stream='',
-                   privacy=Project.PRIVATE, sticky=True):
+                   privacy=Project.PRIVATE, sticky=True, update=False):
 
     uid = uid or util.get_uuid(8)
+
+    
     project = Project.objects.create(
         name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 
@@ -242,22 +226,6 @@ def create_project(user, name, uid=None, summary='', text='', stream='',
     logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     return project
-
-
-def update_recipe(recipe, json_text='', summary='', template='', name='', text='',
-                  security=Analysis.AUTHORIZED, save=True):
-
-    recipe.name = name or recipe.name
-    recipe.json_text = json_text or recipe.json_text
-    recipe.summary = summary or recipe.summary
-    recipe.template = template or recipe.template
-    recipe.text = text or recipe.text
-    recipe.security = security or recipe.security
-
-    if save:
-        recipe.save()
-
-    return recipe
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
