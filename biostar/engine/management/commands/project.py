@@ -147,7 +147,11 @@ class Command(BaseCommand):
         privacy = options["privacy"].lower()
         sticky = options["sticky"]
         jobs = options["jobs"]
-        #TODO: Feature not fully enabled 
+
+
+        #TODO: Feature not fully enabled
+
+        
         update = False # options["update"]
 
         privacy_map = dict(
