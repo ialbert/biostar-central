@@ -106,6 +106,21 @@ def template_changed(analysis, template):
     return change
 
 
+def color_diffs(diff_list):
+    colored_diffs = []
+
+    for d in diff_list:
+        if "-" == d[0]:
+            colored_diffs.append(f"<strong style='color: red;'>{d}</strong>")
+        elif "+" == d[0]:
+            colored_diffs.append(f"<strong style='color: green;'>{d}</strong>")
+        else:
+            colored_diffs.append(d)
+
+    return colored_diffs
+
+
+
 def get_project_list(user):
     """
     Return projects visible to a user.

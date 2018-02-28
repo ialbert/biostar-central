@@ -723,9 +723,9 @@ def recipe_diff(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
 
     differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
-
+    differ = auth.color_diffs(differ)
     context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
-                   diff=''.join(differ))
+                   diff=mark_safe(''.join(differ)))
     counts = get_counts(recipe.project)
     context.update(counts)
 

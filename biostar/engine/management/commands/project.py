@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand
 from biostar.engine import auth
 from biostar.engine.models import Project, User
 import sys
-from os.path import expanduser
+
 
 logger = logging.getLogger('engine')
 

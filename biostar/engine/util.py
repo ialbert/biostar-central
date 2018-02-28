@@ -18,6 +18,7 @@ def fix_endings(text):
     return text.replace("\r\n", "\n")
 
 
+
 def smart_preview(fname):
     CHUNK_SIZE, LINE_COUNT = 1024, 10
     try:
