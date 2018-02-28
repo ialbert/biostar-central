@@ -72,11 +72,12 @@ def parse_json(json, root, privacy=Project.PRIVATE, sticky=False, jobs=False, up
     # The base node of the JSON file.
     base = json_data.get("settings", {})
     store = parse_params(fpath=fpath, base_dict=base)
+    exists = Project.objects.filter(uid=store.uid).exists()
     project = auth.create_project(user=store.user, uid=store.uid, summary=store.summary, name=store.name,
                                 text=store.text, stream=store.stream, privacy=privacy, sticky=sticky, update=update)
 
     # Avoid duplicating data and recipe when updating a project.
-    if update or Project.objects.filter(uid=store.uid).exists():
+    if update or exists:
         action = "updated" if update else "exists"
         logger.info(f"Project {action}. You can update the recipes individually. ")
         return

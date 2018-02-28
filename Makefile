@@ -27,7 +27,10 @@ install:
 
 
 update:
-	python manage.py project --root ../biostar-recipes --json projects/tutorial-project.hjson --update
+    # Note: uid needs to be in 'settings' of JSON when updating to avoid duplication
+    # Will create new projects/recipes if uid not present.
+
+	python manage.py project --update --root ../biostar-recipes --json projects/tutorial-project.hjson
 	python manage.py analysis --update --json ../biostar-recipes/recipes/tutorial/hello3.hjson --template ../biostar-recipes/recipes/tutorial/hello3.sh
 
 

@@ -722,17 +722,10 @@ def recipe_diff(request, uid):
     """
     recipe = Analysis.objects.filter(uid=uid).first()
 
-    #if not (user.profile.is_moderator or user.is_staff):
+    differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
 
-    #    messages.error(request, "Only moderators or staff members can perform action.")
-    #    return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
-
-    # Compare last valid template to the one currently loaded
-    differ = auth.get_diff_str(old=recipe.last_valid, new=recipe.template)
-
-    no_change = recipe.last_valid.strip() == recipe.template.strip()
     context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
-                   diff=differ, no_change=no_change)
+                   diff=''.join(differ))
     counts = get_counts(recipe.project)
     context.update(counts)
 
@@ -745,8 +738,12 @@ def recipe_approve(request, uid):
 
     recipe = Analysis.objects.filter(uid=uid).first()
 
+    recipe.last_valid = recipe.template
+    recipe.security = Analysis.AUTHORIZED
+    recipe.save()
 
-    return
+    messages.success(request, "Recipe changes have been approved.")
+    return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
 
 
 @object_access(type=Analysis, access=Access.WRITE_ACCESS, url='recipe_view')
@@ -759,7 +756,7 @@ def recipe_revert(request, uid):
     recipe.security = Analysis.AUTHORIZED
     recipe.save()
 
-    messages.success(request, "Recipe has been reauthorized.")
+    messages.success(request, "Recipe has been reverted to original.")
     return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
 
 

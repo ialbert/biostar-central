@@ -7,7 +7,7 @@
 
 {% block content %}
 
-    {% if no_change %}
+    {% if not diff %}
         <div class="ui message"><i class="ui minus icon"></i> No Changes Detected.</div>
     {% endif %}
 
@@ -29,7 +29,7 @@
         <a class="ui mini button" href="{% url 'recipe_code' recipe.uid %}">
             <i class="keyboard icon"></i>View Code
         </a>
-        <a class="ui mini button" href="{% url 'recipe_copy' recipe.uid %}">
+        <a class="ui mini button" href="{% url 'recipe_view' recipe.uid %}">
             <i class="setting icon"></i>View Recipe
         </a>
     </div>

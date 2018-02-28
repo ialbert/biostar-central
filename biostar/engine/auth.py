@@ -102,7 +102,7 @@ def template_changed(analysis, template):
 
     change = list(difflib.unified_diff(text1, text2))
 
-    # print(f"Change: {bool(change)}")
+    #print(f"Change: {bool(change)} {change}")
     return change
 
 
@@ -206,17 +206,6 @@ def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, l
     # This should never trigger and is here to catch bugs.
     messages.error(request, "Access denied! Invalid fall-through!")
     return False
-
-
-def get_diff_str(old, new):
-
-    old = [line.strip() for line in old.split('\n') if len(line)]
-    new = [line.strip() for line in new.split('\n') if len(line)]
-
-    differ = '\n'.join(difflib.unified_diff(old,new))
-
-    return  differ
-
 
 
 def create_project(user, name, uid=None, summary='', text='', stream=None,
@@ -475,15 +464,6 @@ def create_path(fname, data):
     path = os.path.abspath(os.path.join(data_dir, fname))
 
     return path
-
-
-
-def update_data(data, path, type, name, summary, text):
-    ""
-
-
-    return
-
 
 
 def create_data(project, user=None, stream=None, path='', name='',
