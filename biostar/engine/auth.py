@@ -10,7 +10,7 @@ from django.template import Template, Context
 from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
-
+from biostar.accounts.models import Profile
 from biostar import settings
 from . import util
 from .const import *
@@ -124,7 +124,7 @@ def get_project_list(user):
     return query
 
 
-def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, login_required=False):
+def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, login_required=False, role=None):
     """
     Validates object access.
     """
@@ -170,6 +170,14 @@ def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, l
             messages.error(request, msg)
             return False
 
+    # Give precedence to role over checking access
+    if role and user.profile.role == role:
+        return True
+    if role and user.profile.role != role:
+        display = dict(Profile.ROLE_CHOICES).get(role, '').lower()
+        messages.error(request, mark_safe(f"You have to be a <b>{display} </b> to preform action."))
+        return False
+
     # Prepare the access denied message.
     deny = access_denied_message(user=user, access=access_text)
 
@@ -205,17 +213,16 @@ def get_diff_str(old, new):
     old = [line.strip() for line in old.split('\n') if len(line)]
     new = [line.strip() for line in new.split('\n') if len(line)]
 
-    differ = '\n'.join(difflib.ndiff(old,new))
+    differ = '\n'.join(difflib.unified_diff(old,new))
 
     return  differ
 
 
 
-def create_project(user, name, uid=None, summary='', text='', stream='',
+def create_project(user, name, uid=None, summary='', text='', stream=None,
                    privacy=Project.PRIVATE, sticky=True, update=False):
 
     uid = uid or util.get_uuid(8)
-
     project = Project.objects.filter(uid=uid)
 
     if project and not update:
@@ -227,7 +234,7 @@ def create_project(user, name, uid=None, summary='', text='', stream='',
         # Need to manually call save()
         project = project.first()
         project.save()
-        logger.error(f"Updated project: {project.name, name} uid: {project.uid}")
+        logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
         project = Project.objects.create(
             name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)

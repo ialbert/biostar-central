@@ -48,6 +48,7 @@ class Profile(models.Model):
 def create_profile(sender, instance, created, **kwargs):
 
     if created:
-        # Create a profile for user
-        Profile.objects.create(user=instance, name=instance.first_name)
+        # Make sure staff users are also moderators.
+        role = Profile.MODERATOR if instance.is_staff else Profile.NORMAL
+        Profile.objects.create(user=instance, name=instance.first_name, role=role)
 

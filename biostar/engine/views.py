@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from biostar.accounts.models import Profile
 
 
 from . import tasks, util
@@ -597,6 +598,8 @@ def recipe_paste(request, uid):
     attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security,
                  user=request.user)
     new_recipe = auth.create_analysis(**attrs)
+    # Ensure the diff gets inherited.
+    new_recipe.last_valid = recipe.last_valid
     new_recipe.save()
 
     msg = f"Pasted recipe <b>{recipe.name}</b> to project <b>{project.name}</b>."
@@ -711,22 +714,21 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.WRITE_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
 def recipe_diff(request, uid):
     """
     View used to show diff in template and authorize it.
     Restricted to moderators and staff members.
     """
-    user = request.user
     recipe = Analysis.objects.filter(uid=uid).first()
 
-    if not (user.profile.is_moderator or user.is_staff):
+    #if not (user.profile.is_moderator or user.is_staff):
 
-        messages.error(request, "Only moderators or staff members can perform action.")
-        return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
+    #    messages.error(request, "Only moderators or staff members can perform action.")
+    #    return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
     # Compare last valid template to the one currently loaded
-    differ = auth.get_diff_str(recipe.last_valid, recipe.template)
+    differ = auth.get_diff_str(old=recipe.last_valid, new=recipe.template)
 
     no_change = recipe.last_valid.strip() == recipe.template.strip()
     context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
@@ -736,6 +738,29 @@ def recipe_diff(request, uid):
 
     return render(request, "recipe_diff.html", context=context)
 
+
+@object_access(type=Analysis, role=Profile.MODERATOR, url='recipe_diff')
+def recipe_approve(request, uid):
+    "Approve changes made in recipe"
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+
+
+    return
+
+
+@object_access(type=Analysis, access=Access.WRITE_ACCESS, url='recipe_view')
+def recipe_revert(request, uid):
+    "Revert changes made to recipes back to original."
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+
+    recipe.template = recipe.last_valid
+    recipe.security = Analysis.AUTHORIZED
+    recipe.save()
+
+    messages.success(request, "Recipe has been reauthorized.")
+    return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
 
 
 @object_access(type=Analysis, access=Access.OWNER_ACCESS, url='recipe_view')

@@ -193,11 +193,10 @@ def paste(project, request=None, board=''):
 
     # Map a clipboard to respective information
     info = dict(
-        recipe_clipboard={'url':"recipe_paste", 'nactive':"a recipe", 'redirl':"recipe_list"},
+        recipe_clipboard={'url':"recipe_paste", 'nactive':"a recipe", 'redir':"recipe_list"},
         data_clipboard={'url':"data_paste", 'nactive':f"{ndata} data",'redir':"data_list"},
         files_clipboard={'url':"files_paste", 'nactive':f"{ndata} file(s)", 'redir':"data_list"}
     )
-
     view_name = info.get(board, {}).get('url')
     paste_url = reverse(view_name, kwargs=dict(uid=project.uid))
     clear_url = reverse("clear_clipboard", kwargs=dict(uid=project.uid,

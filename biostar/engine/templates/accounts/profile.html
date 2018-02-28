@@ -14,13 +14,14 @@
                 <i class="trash icon"></i>Recycle Bin
             </a>
      </div>
-    {% if user.profile.is_moderator %}
+
+    {% if user.profile.is_moderator or user.is_staff %}
+
         <div class="ui center aligned vertical segment">
             <div class="ui green label">
                 <i class="check circle icon"></i>Trusted Moderator</div>
         </div>
 
-        
 
     {% endif %}
 
