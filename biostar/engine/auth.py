@@ -107,6 +107,15 @@ def template_changed(analysis, template):
     return change
 
 
+def count_diffs(diff_list):
+    nadd, nsub = 0, 0
+    for diff in diff_list:
+        if diff.startswith("-") and not diff.startswith("---"):
+            nsub += 1
+        elif diff.startswith("+") and not diff.startswith("+++"):
+            nadd += 1
+    return nadd, nsub
+
 def add_color(diff, back, strong):
     return f"<span style='background-color:{back};'><strong style='color:{strong};'>{diff}</strong></span>"
 
@@ -114,16 +123,24 @@ def add_color(diff, back, strong):
 def color_diffs(diff_list):
     colored_diffs = []
     line = 1
+    nadd, nsub = count_diffs(diff_list)
+    nadd = f"{nadd} line" if nadd == 1 else f"{nadd} lines"
+    nsub = f"{nsub} line" if nsub == 1 else f"{nsub} lines"
+
     for diff in diff_list:
 
         frmt_line =  f"<em style='color: gray;'>{line}</em>\t"
 
         if diff.startswith("-"):
+            diff = f"{diff.strip()} {nsub}\n" if diff.startswith("---") else diff
             diff = add_color(diff=diff, back="#ff6666", strong="#661400")
+
         elif diff.startswith("+"):
+            diff = f"{diff.strip()} {nadd}\n" if diff.startswith("+++") else diff
             diff = add_color(diff=diff, back="#99ff99", strong="#008000")
+
         elif diff.startswith("@@"):
-            # Extract line number from: @@ -17,7 +17,7 @@
+            # Extract line number from a string like: @@ -17,7 +17,7 @@
 
             line = re.compile(r"\d+,").search(diff)
             line = int(line.group(0).split(",")[0]) + 1
