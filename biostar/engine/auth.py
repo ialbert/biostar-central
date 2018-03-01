@@ -122,18 +122,15 @@ def color_diffs(diff_list):
             diff = add_color(diff=diff, back="#ff6666", strong="#661400")
         elif diff.startswith("+"):
             diff = add_color(diff=diff, back="#99ff99", strong="#008000")
-
         elif diff.startswith("@@"):
             # Extract line number from: @@ -17,7 +17,7 @@
-            # @@ from-line-numbers  to-line-numbers @@
 
             line = re.compile(r"\d+,").search(diff)
             line = int(line.group(0).split(",")[0]) + 1
-            colored_diffs.append("\n" + diff)
-            colored_diffs.append("..........\n")
+            colored_diffs.append("\n" + diff + "..........\n")
             continue
 
-        colored_diffs.append(frmt_line + diff )
+        colored_diffs.append(frmt_line + diff)
         line += 1
 
     return colored_diffs
