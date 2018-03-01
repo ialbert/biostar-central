@@ -2,6 +2,7 @@ import difflib
 import logging
 import uuid
 import hjson
+import re
 
 from mimetypes import guess_type
 from django.contrib import messages
@@ -106,16 +107,34 @@ def template_changed(analysis, template):
     return change
 
 
+def add_color(diff, back, strong):
+    return f"<span style='background-color:{back};'><strong style='color:{strong};'>{diff}</strong></span>"
+
+
 def color_diffs(diff_list):
     colored_diffs = []
+    line = 1
+    for diff in diff_list:
 
-    for d in diff_list:
-        if "-" == d[0]:
-            colored_diffs.append(f"<strong style='color: red;'>{d}</strong>")
-        elif "+" == d[0]:
-            colored_diffs.append(f"<strong style='color: green;'>{d}</strong>")
-        else:
-            colored_diffs.append(d)
+        frmt_line =  f"<em style='color: gray;'>{line}</em>\t"
+
+        if diff.startswith("-"):
+            diff = add_color(diff=diff, back="#ff6666", strong="#661400")
+        elif diff.startswith("+"):
+            diff = add_color(diff=diff, back="#99ff99", strong="#008000")
+
+        elif diff.startswith("@@"):
+            # Extract line number from: @@ -17,7 +17,7 @@
+            # @@ from-line-numbers  to-line-numbers @@
+
+            line = re.compile(r"\d+,").search(diff)
+            line = int(line.group(0).split(",")[0]) + 1
+            colored_diffs.append("\n" + diff)
+            colored_diffs.append("..........\n")
+            continue
+
+        colored_diffs.append(frmt_line + diff )
+        line += 1
 
     return colored_diffs
 
