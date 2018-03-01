@@ -1,0 +1,22 @@
+<div class="ui vertical segment">
+
+    <div class="ui list">
+        <b> Recipes Under Review  </b>:
+        <div class="content">
+                <div class="ui list">
+                    <div class="item">
+
+                        {% for recipe in recipes %}
+
+                            <ol>
+                                &bull; <a href="{% url 'recipe_diff' recipe.uid %}">{{recipe.name}}</a>
+                            </ol>
+                        {% empty %}
+                            <div class="ui message"><i class="ui warning circle icon"></i> No recipes found.</div>
+
+                        {% endfor %}
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>

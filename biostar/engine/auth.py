@@ -155,7 +155,7 @@ def get_project_list(user):
     return query
 
 
-def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, login_required=False, role=None):
+def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, login_required=False, role=None):
     """
     Validates object access.
     """
@@ -204,9 +204,12 @@ def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, l
     # Give precedence to role over checking access
     if role and user.profile.role == role:
         return True
-    if role and user.profile.role != role:
+
+    # Bail out if user has no other access or valid roles.
+    if (access == Access.NO_ACCESS) and role and user.profile.role != role:
+
         display = dict(Profile.ROLE_CHOICES).get(role, '').lower()
-        messages.error(request, mark_safe(f"You have to be a <b>{display} </b> to preform action."))
+        messages.error(request, mark_safe(f"You have to be a <b>{display}</b> to preform action."))
         return False
 
     # Prepare the access denied message.

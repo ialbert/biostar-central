@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load engine_tags %}
 
 
 {% block headtitle %} Profile {% endblock %}
@@ -15,20 +16,24 @@
             </a>
      </div>
 
+        <div class="ui vertical segment">
+                <div class="item">
+                    <b>Email </b> : {{user.email}}
+                 </div>
+                 <div class="item">
+                    <b>Name </b>: {{user.first_name}}
+                 </div>
+                {% if user.profile.is_moderator %}
 
+                    <div class="item">
+                        <div class="ui green label">
+                            <i class="check circle icon"></i>Trusted Moderator</div>
+                    </div>
+        </div>
+        <div class="ui vertical segment">
+            {% recipes_moderate %}
 
-        <div class="item">
-            <b>Email </b> : {{user.email}}
-         </div>
-         <div class="item">
-            <b>Name </b>: {{user.first_name}}
-         </div>
-        {% if user.profile.is_moderator %}
-
-            <div class="item">
-                <i class="check circle icon"></i>Trusted Moderator
-            </div>
-
+        </div>
         {% endif %}
 
         <div class="ui vertical segment">

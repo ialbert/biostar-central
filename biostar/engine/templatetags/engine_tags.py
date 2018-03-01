@@ -86,6 +86,16 @@ def input(path, current):
     return mark_safe(input_template)
 
 
+@register.inclusion_tag('widgets/recipe_moderate.html')
+def recipes_moderate():
+
+
+    recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW,
+                                      deleted=False)
+
+
+    return dict(recipes=recipes)#dict(recipes=recipes)
+
 @register.simple_tag
 def file_url(object, path, current):
     """

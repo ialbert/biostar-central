@@ -610,7 +610,7 @@ def recipe_paste(request, uid):
     return redirect(url)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
 def recipe_code(request, uid):
     """
     Displays and allows edit on a recipe code.
@@ -714,7 +714,7 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
 def recipe_diff(request, uid):
     """
     View used to show diff in template and authorize it.
@@ -732,10 +732,10 @@ def recipe_diff(request, uid):
 
     return render(request, "recipe_diff.html", context=context)
 
-
-@object_access(type=Analysis, role=Profile.MODERATOR, url='recipe_diff')
+# Ensure only moderators access when role=moderator and access=Acess.NO_ACCESS
+@object_access(type=Analysis, role=Profile.MODERATOR, access=Access.NO_ACCESS, url='recipe_diff')
 def recipe_approve(request, uid):
-    "Approve changes made in recipe"
+    "Approve changes made in recipe. Only moderators allowed this action."
 
     recipe = Analysis.objects.filter(uid=uid).first()
 
@@ -744,12 +744,15 @@ def recipe_approve(request, uid):
     recipe.save()
 
     messages.success(request, "Recipe changes have been approved.")
-    return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
+    return redirect(reverse('recipe_diff', kwargs=dict(uid=recipe.uid)))
 
 
-@object_access(type=Analysis, access=Access.WRITE_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.WRITE_ACCESS, role=Profile.MODERATOR, url='recipe_diff')
 def recipe_revert(request, uid):
-    "Revert changes made to recipes back to original."
+    """
+        Allowed to moderators and users with write access.
+        Revert changes made to recipes back to original.
+    """
 
     recipe = Analysis.objects.filter(uid=uid).first()
 
@@ -758,7 +761,7 @@ def recipe_revert(request, uid):
     recipe.save()
 
     messages.success(request, "Recipe has been reverted to original.")
-    return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
+    return redirect(reverse('recipe_diff', kwargs=dict(uid=recipe.uid)))
 
 
 @object_access(type=Analysis, access=Access.OWNER_ACCESS, url='recipe_view')
