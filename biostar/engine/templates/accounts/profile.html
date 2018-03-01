@@ -15,15 +15,7 @@
             </a>
      </div>
 
-    {% if user.profile.is_moderator or user.is_staff %}
 
-        <div class="ui center aligned vertical segment">
-            <div class="ui green label">
-                <i class="check circle icon"></i>Trusted Moderator</div>
-        </div>
-
-
-    {% endif %}
 
         <div class="item">
             <b>Email </b> : {{user.email}}
@@ -31,7 +23,13 @@
          <div class="item">
             <b>Name </b>: {{user.first_name}}
          </div>
+        {% if user.profile.is_moderator %}
 
+            <div class="item">
+                <i class="check circle icon"></i>Trusted Moderator
+            </div>
+
+        {% endif %}
 
         <div class="ui vertical segment">
 
