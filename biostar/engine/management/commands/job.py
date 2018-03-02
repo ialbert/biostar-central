@@ -7,6 +7,7 @@ from django.template import Template, Context
 from django.utils.encoding import force_text
 
 from biostar.engine.models import Job
+from biostar.engine import auth
 from django.utils import timezone
 
 logger = logging.getLogger('engine')
@@ -206,6 +207,9 @@ def run(job, options={}):
         print(job.stdout_log)
         print("-" * 40)
         print(job.stderr_log)
+
+    # Notify anyone who enabled that option
+
 
 
 class Command(BaseCommand):

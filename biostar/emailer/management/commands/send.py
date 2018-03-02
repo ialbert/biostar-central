@@ -1,9 +1,8 @@
-import logging, os
+import logging
 from django.core.management.base import BaseCommand
-from django.contrib.sites.models import Site
 
-from biostar.emailer import sender, models
-from mailer.engine import send_all
+from biostar.emailer import  models, auth
+
 
 from django.conf import settings
 
@@ -45,28 +44,8 @@ class Command(BaseCommand):
 
         logger.info(f"Email list size: {len(recipients)}")
 
-        # Test the templates
-        if os.path.isfile(template_name):
-            logger.error(f"Missing template: {template_name}")
-            return
-
-        # Generate emails.
-        logger.info(f"Emails from={from_email} to group.name={group.name} using template:{template_name}")
-
-        # The object that parsers the template.
-        email = sender.EmailTemplate(template_name)
-
-        # This is the context passed to each template.
-        site = Site.objects.get_current()
-
-        # Accumulate the emails into the database.
-        for address in recipients:
-            context = dict(site=site, protocol=settings.PROTOCOL, subject=subject)
-            email.send(context=context, from_email=from_email, recipient_list=[address])
-
-        # Send the emails.
-        send_all()
-        logger.info("Emails have been sent")
+        auth.notify(template_name=template_name, email_list=recipients,
+               from_email=from_email, subject=subject)
 
 
 

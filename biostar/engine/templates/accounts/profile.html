@@ -11,8 +11,11 @@
              <a class="ui mini button" href="{% url 'edit_profile'%}">
                 <i class="write icon"></i>Edit profile
             </a>
-                <a class="ui mini button" href="{% url 'recycle_bin' %}">
+            <a class="ui mini button" href="{% url 'recycle_bin' %}">
                 <i class="trash icon"></i>Recycle Bin
+            </a>
+            <a class="ui mini button" href="#">
+                <i class="mail icon"></i>Enable Notifications
             </a>
      </div>
 
@@ -46,12 +49,12 @@
                     <a href="{% url 'project_create' %}">Create a new project</a>
                 </div>
                 {% for access in user.access_set.all %}
-
+                    {% if access.access > access.NO_ACCESS %}
                     <div class="ui item">
                         <div class="ui tiny label">{{ access.get_access_display }}</div>
                         <a href="{{ access.project.url }}">{{access.project}}</a>
                     </div>
-
+                    {% endif %}
                 {% endfor %}
             </div>
 

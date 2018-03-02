@@ -1,16 +1,21 @@
 
-<div class="ui vertical segment">
+
     <div class="ui small horizontal divider header">
         <i class="settings icon"></i>Recipes Under Review
     </div>
-    <div class="ui divided list">
-        {% for recipe in recipes %}
+    <ul class="ui list">
+    {% for recipe in recipes %}
 
-            <div class="ui item">
-                <a href="{% url 'recipe_diff' recipe.uid %}">{{recipe.name}}</a>
-            </div>
+        <li>
+        <a href="{% url 'recipe_diff' recipe.uid %}">{{recipe.name}}</a>
+        </li>
 
-        {% endfor %}
-    </div>
+    {% endfor %}
+    </ul>
 
-</div>
+     {% if not recipes %}
+
+        <div class="ui warning message"><i class="ui warning circle icon"></i> No recipes found.</div>
+
+    {% endif %}
+
