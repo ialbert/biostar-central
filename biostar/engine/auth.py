@@ -107,14 +107,19 @@ def template_changed(analysis, template):
     return change
 
 
-def count_diffs(diff_list):
+def count_diffs(diff_list, str_format=False):
     nadd, nsub = 0, 0
     for diff in diff_list:
         if diff.startswith("-") and not diff.startswith("---"):
             nsub += 1
         elif diff.startswith("+") and not diff.startswith("+++"):
             nadd += 1
+    if str_format:
+        nadd = f"{nadd} line" if nadd == 1 else f"{nadd} lines"
+        nsub = f"{nsub} line" if nsub == 1 else f"{nsub} lines"
+
     return nadd, nsub
+
 
 def add_color(diff, back, strong):
     return f"<span style='background-color:{back};'><strong style='color:{strong};'>{diff}</strong></span>"
@@ -123,13 +128,9 @@ def add_color(diff, back, strong):
 def color_diffs(diff_list):
     colored_diffs = []
     line = 1
-    nadd, nsub = count_diffs(diff_list)
-    nadd = f"{nadd} line" if nadd == 1 else f"{nadd} lines"
-    nsub = f"{nsub} line" if nsub == 1 else f"{nsub} lines"
+    nadd, nsub = count_diffs(diff_list, str_format=True)
 
     for diff in diff_list:
-
-        frmt_line =  f"<em style='color: gray;'>{line}</em>\t"
 
         if diff.startswith("-"):
             diff = f"{diff.strip()} {nsub}\n" if diff.startswith("---") else diff
@@ -147,7 +148,9 @@ def color_diffs(diff_list):
             colored_diffs.append("\n" + diff + "..........\n")
             continue
 
-        colored_diffs.append(frmt_line + diff)
+        # Add the line number
+        color_line = f"<em style='color: gray;'>{line}</em>\t"
+        colored_diffs.append(color_line + diff)
         line += 1
 
     return colored_diffs

@@ -16,7 +16,7 @@
             </a>
      </div>
 
-        <div class="ui vertical segment">
+        <div class="ui vertical basic segment">
                 <div class="item">
                     <b>Email </b> : {{user.email}}
                  </div>
@@ -30,35 +30,32 @@
                             <i class="check circle icon"></i>Trusted Moderator</div>
                     </div>
         </div>
-        <div class="ui vertical segment">
+        <div class="ui vertical basic segment">
             {% recipes_moderate %}
 
         </div>
         {% endif %}
 
         <div class="ui vertical segment">
-
-            <div class="ui list">
-                <b> Projects ( {{user.access_set.count}} ) </b>:
-                <div class="content">
-                        <div class="ui list">
-                            <div class="item">
-                                <ol>
-                                &bull; <a href="{% url 'project_create' %}">Create a new project</a>
-                                </ol>
-
-                                {% for access in user.access_set.all %}
-
-                                    <ol>
-                                        &bull; <a href="{{ access.project.url }}">{{access.project}}</a>
-                                        | <span class="ui tiny label">{{ access.get_access_display }}</span>
-                                    </ol>
-
-                                {% endfor %}
-                            </div>
-                        </div>
-                </div>
+            <div class="ui small horizontal divider header">
+                <i class="Database icon"></i>Projects
             </div>
+            <div class="ui divided list">
+                <div class="ui item">
+                     <div class="ui tiny label">Owner Access</div>
+                    <a href="{% url 'project_create' %}">Create a new project</a>
+                </div>
+                {% for access in user.access_set.all %}
+
+                    <div class="ui item">
+                        <div class="ui tiny label">{{ access.get_access_display }}</div>
+                        <a href="{{ access.project.url }}">{{access.project}}</a>
+                    </div>
+
+                {% endfor %}
+            </div>
+
         </div>
+
 
 {% endblock %}

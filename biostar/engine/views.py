@@ -722,7 +722,6 @@ def recipe_diff(request, uid):
     """
     recipe = Analysis.objects.filter(uid=uid).first()
 
-    # Make sure to add lines to diff
     differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
     differ = auth.color_diffs(differ)
     context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,

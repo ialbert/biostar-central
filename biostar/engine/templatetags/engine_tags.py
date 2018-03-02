@@ -93,7 +93,6 @@ def recipes_moderate():
     recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW,
                                       deleted=False)
 
-
     return dict(recipes=recipes)#dict(recipes=recipes)
 
 @register.simple_tag
