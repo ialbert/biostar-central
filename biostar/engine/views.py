@@ -72,6 +72,14 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
+def toggle_notifications(request):
+    "Allow a user to toggle notification to projects they have access to "
+
+    projects = Project.objects.filter(uid=uid).first()
+
+    return
+
+
 def recycle_bin(request):
     "Recycle bin view for a user"
 
@@ -731,10 +739,11 @@ def recipe_diff(request, uid):
 
     return render(request, "recipe_diff.html", context=context)
 
-# Ensure only moderators access when role=moderator and access=Acess.NO_ACCESS
+
+# Ensure only moderators access when role=moderator and access=Access.NO_ACCESS
 @object_access(type=Analysis, role=Profile.MODERATOR, access=Access.NO_ACCESS, url='recipe_diff')
 def recipe_approve(request, uid):
-    "Approve changes made in recipe. Only moderators allowed this action."
+    "Approve changes made in recipe. Only moderators are allowed this action."
 
     recipe = Analysis.objects.filter(uid=uid).first()
 

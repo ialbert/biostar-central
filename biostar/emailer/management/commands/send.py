@@ -45,7 +45,7 @@ class Command(BaseCommand):
         logger.info(f"Email list size: {len(recipients)}")
 
         auth.notify(template_name=template_name, email_list=recipients,
-               from_email=from_email, subject=subject)
+               from_email=from_email, subject=subject, send=True)
 
 
 

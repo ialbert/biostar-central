@@ -32,7 +32,7 @@ def notify(template_name, email_list, extra_context={},from_email=None, subject=
 
     from_email = from_email or settings.ADMINS[0][1]
 
-    # Test the templates
+    # Test the templates exists
     if os.path.isfile(template_name):
         logger.error(f"Missing template: {template_name}")
         return False
