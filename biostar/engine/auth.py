@@ -39,6 +39,12 @@ def access_denied_message(user, access):
     return tmpl.render(context=context)
 
 
+def emailing_list(project):
+
+    users = project.access_set.filter(be_notified=True, access__gt=Access.NO_ACCESS)
+    1/0
+    print(users)
+    return
 
 def get_analysis_attr(analysis, project=None):
     "Get analysis attributes"

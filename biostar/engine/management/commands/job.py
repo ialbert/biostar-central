@@ -211,10 +211,10 @@ def run(job, options={}):
 
 
    # Get users that opted to be notified
-    email_list = auth.emailing_list(project=project)
+    email_list = auth.emailing_list(project=job.project)
 
     # Notify anyone who enabled that option
-    notify(template_name="job_finshed.html", email_list=email_list, subject=job.name, send=True)
+    notify(template_name="job_finished.html", email_list=email_list, subject=job.name, send=True)
 
 
 class Command(BaseCommand):
