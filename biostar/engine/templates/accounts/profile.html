@@ -44,7 +44,6 @@
                 <i class="Database icon"></i>Projects
             </div>
 
-
             <form method="post" class="ui form" action="{% url 'toggle_notifications' %}">
 
                 {% csrf_token %}
@@ -56,7 +55,7 @@
                      <button type="submit" class="ui blue mini button">
                         <i class="mail icon"></i>Toggle Notifications
                     </button>
-                <div class="muted">Enable/disable email notifications for a project</div>
+                <div class="muted">Enable/disable email notifications for selected projects</div>
 
                 </div>
 
@@ -72,7 +71,7 @@
                             <a href="{{ access.project.url }}">{{access.project}}</a>
 
                             {% if access.be_notified %}
-                                <div class="ui tiny label"><i class="bell icon"></i>
+                                <div class="ui tiny right floated label"><i class="bell icon"></i>
                                 Enabled
                                 </div>
                             {% endif %}

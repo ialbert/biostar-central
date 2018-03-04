@@ -210,11 +210,13 @@ def run(job, options={}):
         print(job.stderr_log)
 
 
-   # Get users that opted to be notified
+   # Get users that opted to be notified and still have access to project
     email_list = auth.emailing_list(project=job.project)
 
-    # Notify anyone who enabled that option
-    notify(template_name="job_finished.html", email_list=email_list, subject=job.name, send=True)
+    context = dict(state=job.state, subject=job.name, end_date=job.end_date, stdout_log=job.stdout_log,
+                   stderr_log=job.stderr_log)
+    notify(template_name="emailer/job_finished.html", email_list=email_list, send=True,
+           extra_context=context)
 
 
 class Command(BaseCommand):

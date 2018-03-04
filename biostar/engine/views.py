@@ -73,11 +73,22 @@ def site_admin(request):
 
 
 def toggle_notifications(request):
-    "Allow a user to toggle notification to projects they have access to "
+    "Allows user to toggle email notification to projects they have access to "
 
-    projects = Project.objects.filter(uid=uid).first()
+    form = ToggleNotifications(user=request.user)
 
-    return
+    if request.method == "POST":
+        form = ToggleNotifications(data=request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("profile"))
+
+
+    user = User.objects.filter(id=id).first()
+    context = dict(user=user, form=form)
+
+    return render(request, 'accounts/profile.html', context)
+
 
 
 def recycle_bin(request):
