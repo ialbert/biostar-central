@@ -210,11 +210,12 @@ def run(job, options={}):
         print(job.stderr_log)
 
 
-   # Get users that opted to be notified and still have access to project
+   # Users that opted to be notified about project
     email_list = auth.emailing_list(project=job.project)
 
-    context = dict(state=job.state, subject=job.name, end_date=job.end_date, stdout_log=job.stdout_log,
-                   stderr_log=job.stderr_log)
+    context = dict(subject=job.project.name, job=job)
+
+    # Send notification emails
     notify(template_name="emailer/job_finished.html", email_list=email_list, send=True,
            extra_context=context)
 

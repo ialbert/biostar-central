@@ -40,16 +40,14 @@ def access_denied_message(user, access):
 
 
 def emailing_list(project):
+    "Return user emails for a given project."
 
     users = [a.user for a in
              project.access_set.filter(be_notified=True, access__gt=Access.NO_ACCESS)]
 
-
     emails = [user.email for user in users]
 
-    print(emails)
-    1/0
-    return
+    return emails
 
 def get_analysis_attr(analysis, project=None):
     "Get analysis attributes"

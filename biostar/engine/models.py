@@ -135,8 +135,6 @@ class Access(models.Model):
         super(Access, self).save(*args,**kwargs)
 
 
-
-
 @receiver(post_save, sender=Project)
 def create_access(sender, instance, created, **kwargs):
 

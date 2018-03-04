@@ -51,7 +51,7 @@ def notify(template_name, email_list, extra_context={},from_email=None, subject=
         context.update(extra_context)
         email.send(context=context, from_email=from_email, recipient_list=email_list)
 
-        if send:
+        if send and email_list:
             # Send the emails.
             send_all()
             logger.info("Emails have been sent")
