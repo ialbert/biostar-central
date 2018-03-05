@@ -30,6 +30,8 @@ class Profile(models.Model):
     ROLE_CHOICES = [(NORMAL, "Normal User"),(MODERATOR, "Moderator")]
     role = models.IntegerField(default=NORMAL, choices=ROLE_CHOICES)
 
+    notify = models.BooleanField(default=False)
+
     def __str__(self):
         return self.user.email
 

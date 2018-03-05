@@ -14,7 +14,8 @@ from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile
 
 
-from . import tasks, util
+from . import tasks
+from .diffs import color_diffs
 from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, Access)
@@ -70,25 +71,6 @@ def site_admin(request):
     projects = Project.objects.all()
     context = dict(projects=projects)
     return render(request, 'admin_index.html', context=context)
-
-
-def toggle_notifications(request):
-    "Allows user to toggle email notification to projects they have access to "
-
-    form = ToggleNotifications(user=request.user)
-
-    if request.method == "POST":
-        form = ToggleNotifications(data=request.POST, user=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse("profile"))
-
-
-    user = User.objects.filter(id=id).first()
-    context = dict(user=user, form=form)
-
-    return render(request, 'accounts/profile.html', context)
-
 
 
 def recycle_bin(request):
@@ -526,7 +508,7 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS)
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR)
 def recipe_view(request, uid):
     """
     Returns an analysis view based on its id.
@@ -742,7 +724,7 @@ def recipe_diff(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
 
     differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
-    differ = auth.color_diffs(differ)
+    differ = color_diffs(differ)
     context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
                    diff=mark_safe(''.join(differ)))
     counts = get_counts(recipe.project)
@@ -752,7 +734,7 @@ def recipe_diff(request, uid):
 
 
 # Ensure only moderators access when role=moderator and access=Access.NO_ACCESS
-@object_access(type=Analysis, role=Profile.MODERATOR, access=Access.NO_ACCESS, url='recipe_diff')
+@object_access(type=Analysis, role=Profile.MODERATOR, access=Access.NO_ACCESS, url='recipe_view')
 def recipe_approve(request, uid):
     "Approve changes made in recipe. Only moderators are allowed this action."
 
@@ -766,7 +748,7 @@ def recipe_approve(request, uid):
     return redirect(reverse('recipe_diff', kwargs=dict(uid=recipe.uid)))
 
 
-@object_access(type=Analysis, access=Access.WRITE_ACCESS, role=Profile.MODERATOR, url='recipe_diff')
+@object_access(type=Analysis, access=Access.WRITE_ACCESS, role=Profile.MODERATOR, url='recipe_view')
 def recipe_revert(request, uid):
     """
         Allowed to moderators and users with write access.

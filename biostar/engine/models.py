@@ -124,13 +124,7 @@ class Access(models.Model):
     access = models.IntegerField(default=READ_ACCESS, choices=ACCESS_CHOICES)
     date = models.DateTimeField(auto_now_add=True)
 
-    # Users can choose to be notified about project matters
-    be_notified = models.BooleanField(default=False)
-
     def save(self, *args, **kwargs):
-
-        if self.access == self.NO_ACCESS:
-            self.be_notified = False
 
         super(Access, self).save(*args,**kwargs)
 
