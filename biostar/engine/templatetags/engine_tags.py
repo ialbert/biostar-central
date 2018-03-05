@@ -86,6 +86,15 @@ def input(path, current):
     return mark_safe(input_template)
 
 
+@register.inclusion_tag('widgets/recipe_moderate.html')
+def recipes_moderate():
+
+
+    recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW,
+                                      deleted=False)[:10]
+
+    return dict(recipes=recipes)#dict(recipes=recipes)
+
 @register.simple_tag
 def file_url(object, path, current):
     """
@@ -152,6 +161,20 @@ def has_files(request):
     return True if files else False
 
 
+@register.simple_tag
+def get_projects(user):
+
+    "Used to return projects list in the profile."
+
+    projects = auth.get_project_list(user=user, include_public=False)
+
+
+    access = Access.objects.filter(project__in=projects, user=user,
+                                   access__gt=Access.NO_ACCESS)
+
+    return [(access, access.project) for access in access]
+
+
 def update_dict(iter):
 
     results=[dict(
@@ -193,11 +216,10 @@ def paste(project, request=None, board=''):
 
     # Map a clipboard to respective information
     info = dict(
-        recipe_clipboard={'url':"recipe_paste", 'nactive':"a recipe", 'redirl':"recipe_list"},
+        recipe_clipboard={'url':"recipe_paste", 'nactive':"a recipe", 'redir':"recipe_list"},
         data_clipboard={'url':"data_paste", 'nactive':f"{ndata} data",'redir':"data_list"},
         files_clipboard={'url':"files_paste", 'nactive':f"{ndata} file(s)", 'redir':"data_list"}
     )
-
     view_name = info.get(board, {}).get('url')
     paste_url = reverse(view_name, kwargs=dict(uid=project.uid))
     clear_url = reverse("clear_clipboard", kwargs=dict(uid=project.uid,

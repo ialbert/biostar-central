@@ -3,7 +3,7 @@ from functools import wraps
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
-from biostar.accounts.models import Profile
+
 from . import auth
 
 from . import models
@@ -17,7 +17,8 @@ class object_access:
     """
 
 
-    def __init__(self, type, access=models.Access.WRITE_ACCESS, url='', login_required=False):
+    def __init__(self, type, access=models.Access.WRITE_ACCESS, url='', role=None,
+                 login_required=False):
 
         # The object that will be checked for permission.
         self.type = type
@@ -30,6 +31,9 @@ class object_access:
 
         # Does the access require a logged in user.
         self.login_required = login_required
+
+        # Required role of user. Given precedent over access
+        self.role = role
 
     def __call__(self, function, *args, **kwargs):
         """
@@ -51,7 +55,7 @@ class object_access:
 
             # Check for access to the object.
             allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=self.access,
-                                                 login_required=self.login_required)
+                                                 login_required=self.login_required, role=self.role)
             # Access check did not pass, redirect.
             if not allow_access:
 

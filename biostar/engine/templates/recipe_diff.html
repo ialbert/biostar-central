@@ -7,23 +7,34 @@
 
 {% block content %}
 
-    {% if no_change %}
+    {% if not diff %}
         <div class="ui message"><i class="ui minus icon"></i> No Changes Detected.</div>
     {% endif %}
+
+    <div class="ui center aligned vertical segment">
+        <div class="ui buttons">
+
+            <a class="ui green button" href="{% url 'recipe_approve' recipe.uid %}">
+                <i class="check icon"></i>Approve</a>
+
+            <div class="or"></div>
+
+            <a class="ui  button" href="{% url 'recipe_revert' recipe.uid %}"><i
+            class="undo icon"></i>Revert</a>
+
+        </div>
+    </div>
 
     <div class="ui center aligned vertical segment">
         <a class="ui mini button" href="{% url 'recipe_code' recipe.uid %}">
             <i class="keyboard icon"></i>View Code
         </a>
-        <a class="ui mini button" href="{% url 'recipe_copy' recipe.uid %}">
+        <a class="ui mini button" href="{% url 'recipe_view' recipe.uid %}">
             <i class="setting icon"></i>View Recipe
-        </a>
-        <a class="ui mini button" href="{% url 'recipe_copy' recipe.uid %}">
-            <i class="clone icon"></i>Copy Recipe
         </a>
     </div>
 
-<pre>{{diff}}</pre>
+<pre><code>{{diff}}</code></pre>
 
 
 

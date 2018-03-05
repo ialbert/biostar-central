@@ -81,7 +81,6 @@ class Command(BaseCommand):
         except Exception as exc:
             logger.exception(f"JSON exception in file: {json}\n{exc}")
             return
-
         try:
             # Read the specification
             template = open(template_fname).read()

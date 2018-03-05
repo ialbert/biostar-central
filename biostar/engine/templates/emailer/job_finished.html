@@ -1,0 +1,90 @@
+
+
+{%  block subject %}
+
+    [biostar-engine] {{subject}}
+
+{% endblock %}
+
+
+{% block html %}
+    <p>
+        Hello,
+    </p>
+
+    <p>
+        You are receiving this email because you have enabled notifications for the project: <b>{{ job.project }}</b>
+    </p>
+
+    <p>
+        A job has finished in the project and results have been collected.
+
+    </p>
+    <p>
+        Here is some basic information about the job.
+    </p>
+
+    <p>
+        <b>Name: </b> {{ job.name }}
+    </p>
+
+    <p>
+        <b>State: </b> {{ job.get_state_display }} !
+    </p>
+
+    <p>
+        <b>Created by: </b> {{ job.owner.profile.name }}
+    </p>
+
+    <p>
+        <b>Created on: </b> {{ job.start_date }}
+
+    </p>
+    <p>
+        <b>Finished on: </b> {{ job.end_date }}
+
+    </p>
+    <p>
+        <b>Stdout log: </b> {{ job.stdout_log }}
+
+    </p>
+    <p>
+        <b>Stderr log: </b> {{ job.stderr_log }}
+
+    </p>
+
+    <p>
+        {{ site.name }} Team<br>
+        {{ protocol }}://{{ site.domain }}
+    </p>
+
+{% endblock %}
+
+{% block text %}
+
+    Hello,
+
+    You are receiving this email because you have enabled notifications for the project: {{ job.project }}
+
+    A job has finished in the project and results have been collected.
+
+    Here is some basic information about the job.
+
+    Name: {{ job.name }}
+
+    State : {{ job.get_state_display }}
+
+    Created by: {{ job.owner.profile.name }}
+
+    Created on: {{ job.start_date }}
+
+    Finished on: {{ job.end_date }}
+
+    Stdout log: {{ job.stdout_log }}
+
+    Stderr log: {{ job.stderr_log }}
+
+    {{ site.name }} Team
+    {{ protocol }}://{{ site.domain }}
+
+{% endblock %}

@@ -7,7 +7,9 @@ from django.template import Template, Context
 from django.utils.encoding import force_text
 
 from biostar.engine.models import Job
+from biostar.engine import auth
 from django.utils import timezone
+from biostar.emailer.auth import notify
 
 logger = logging.getLogger('engine')
 
@@ -206,6 +208,16 @@ def run(job, options={}):
         print(job.stdout_log)
         print("-" * 40)
         print(job.stderr_log)
+
+
+   # Users that opted to be notified about project
+    email_list = auth.emailing_list(project=job.project)
+
+    context = dict(subject=job.project.name, job=job)
+
+    # Send notification emails
+    notify(template_name="emailer/job_finished.html", email_list=email_list, send=True,
+           extra_context=context)
 
 
 class Command(BaseCommand):

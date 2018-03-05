@@ -2,6 +2,7 @@ import difflib
 import logging
 import uuid
 import hjson
+import re
 
 from mimetypes import guess_type
 from django.contrib import messages
@@ -10,7 +11,7 @@ from django.template import Template, Context
 from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
-
+from biostar.accounts.models import Profile
 from biostar import settings
 from . import util
 from .const import *
@@ -38,6 +39,15 @@ def access_denied_message(user, access):
     return tmpl.render(context=context)
 
 
+def emailing_list(project):
+    "Return user emails for a given project."
+
+    users = [a.user for a in
+             project.access_set.filter(be_notified=True, access__gt=Access.NO_ACCESS)]
+
+    emails = [user.email for user in users]
+
+    return emails
 
 def get_analysis_attr(analysis, project=None):
     "Get analysis attributes"
@@ -102,21 +112,76 @@ def template_changed(analysis, template):
 
     change = list(difflib.unified_diff(text1, text2))
 
-    # print(f"Change: {bool(change)}")
+    #print(f"Change: {bool(change)} {change}")
     return change
 
 
-def get_project_list(user):
+def count_diffs(diff_list, str_format=False):
+    nadd, nsub = 0, 0
+    for diff in diff_list:
+        if diff.startswith("-") and not diff.startswith("---"):
+            nsub += 1
+        elif diff.startswith("+") and not diff.startswith("+++"):
+            nadd += 1
+    if str_format:
+        nadd = f"{nadd} line" if nadd == 1 else f"{nadd} lines"
+        nsub = f"{nsub} line" if nsub == 1 else f"{nsub} lines"
+
+    return nadd, nsub
+
+
+def add_color(diff, back, strong):
+    return f"<span style='background-color:{back};'><strong style='color:{strong};'>{diff}</strong></span>"
+
+
+def color_diffs(diff_list):
+    colored_diffs = []
+    line = 1
+    nadd, nsub = count_diffs(diff_list, str_format=True)
+
+    for diff in diff_list:
+
+        if diff.startswith("-"):
+            diff = f"{diff.strip()} {nsub}\n" if diff.startswith("---") else diff
+            diff = add_color(diff=diff, back="#ff6666", strong="#661400")
+
+        elif diff.startswith("+"):
+            diff = f"{diff.strip()} {nadd}\n" if diff.startswith("+++") else diff
+            diff = add_color(diff=diff, back="#99ff99", strong="#008000")
+
+        elif diff.startswith("@@"):
+            # Extract line number from a string like: @@ -17,7 +17,7 @@
+
+            line = re.compile(r"\d+,").search(diff)
+            line = int(line.group(0).split(",")[0]) + 1
+            colored_diffs.append("\n" + diff + "..........\n")
+            continue
+
+        # Add the line number
+        color_line = f"<em style='color: gray;'>{line}</em>\t"
+        colored_diffs.append(color_line + diff)
+        line += 1
+
+    return colored_diffs
+
+
+
+def get_project_list(user, include_public=True):
     """
     Return projects visible to a user.
     """
+
+    privacy = Project.PRIVATE
+    if include_public:
+        privacy = Project.PUBLIC
 
     if user.is_anonymous:
         # Unauthenticated users see public projects.
         cond = Q(privacy=Project.PUBLIC)
     else:
         # Authenticated users see public projects and private projects with access rights.
-        cond =  Q(privacy=Project.PUBLIC) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
+
+        cond =  Q(privacy=privacy) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
 
     # Generate the query.
     query = Project.objects.filter(cond).distinct()
@@ -124,7 +189,7 @@ def get_project_list(user):
     return query
 
 
-def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, login_required=False):
+def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, login_required=False, role=None):
     """
     Validates object access.
     """
@@ -170,6 +235,17 @@ def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, l
             messages.error(request, msg)
             return False
 
+    # Give precedence to role over checking access
+    if role and user.profile.role == role:
+        return True
+
+    # Bail out if user has no other access or valid roles.
+    if (access == Access.NO_ACCESS) and role and user.profile.role != role:
+
+        display = dict(Profile.ROLE_CHOICES).get(role, '').lower()
+        messages.error(request, mark_safe(f"You have to be a <b>{display}</b> to preform action."))
+        return False
+
     # Prepare the access denied message.
     deny = access_denied_message(user=user, access=access_text)
 
@@ -200,64 +276,31 @@ def check_obj_access(user, instance, access=Access.WRITE_ACCESS, request=None, l
     return False
 
 
-def get_diff_str(old, new):
-
-    old = [line.strip() for line in old.split('\n') if len(line)]
-    new = [line.strip() for line in new.split('\n') if len(line)]
-
-    differ = '\n'.join(difflib.ndiff(old,new))
-
-    return  differ
-
-
-def update_project(project, name, summary='', text='', stream=None,
-                   privacy=None, sticky=None, save=True):
-
-    project.name = name or project.name
-    project.summary = summary or project.summary
-    project.text = text or project.text
-    project.privacy = privacy or project.privacy
-    project.sticky = sticky if sticky in (True, False) else project.sticky
-
-    if stream:
-        project.image.save(stream.name, stream, save=True)
-
-    if save:
-        project.save()
-
-    return project
-
-
-
-def create_project(user, name, uid=None, summary='', text='', stream='',
-                   privacy=Project.PRIVATE, sticky=True):
+def create_project(user, name, uid=None, summary='', text='', stream=None,
+                   privacy=Project.PRIVATE, sticky=True, update=False):
 
     uid = uid or util.get_uuid(8)
-    project = Project.objects.create(
-        name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
+    project = Project.objects.filter(uid=uid)
+
+    if project and not update:
+        return project.first()
+
+    if project:
+        # Update project
+        project.update(summary=summary, text=text, name=name)
+        # Need to manually call save()
+        project = project.first()
+        project.save()
+        logger.info(f"Updated project: {project.name} uid: {project.uid}")
+    else:
+        project = Project.objects.create(
+            name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
+        logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     if stream:
         project.image.save(stream.name, stream, save=True)
 
-    logger.info(f"Created project: {project.name} uid: {project.uid}")
-
     return project
-
-
-def update_recipe(recipe, json_text='', summary='', template='', name='', text='',
-                  security=Analysis.AUTHORIZED, save=True):
-
-    recipe.name = name or recipe.name
-    recipe.json_text = json_text or recipe.json_text
-    recipe.summary = summary or recipe.summary
-    recipe.template = template or recipe.template
-    recipe.text = text or recipe.text
-    recipe.security = security or recipe.security
-
-    if save:
-        recipe.save()
-
-    return recipe
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
@@ -268,12 +311,14 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
 
     analysis = Analysis.objects.filter(uid=uid)
     if analysis and not update:
-        return;
+        return analysis.first()
 
     if analysis:
         # Update analysis
-        Analysis.objects.filter(uid=uid).update(summary=summary, text=text, name=name,
-                                                template=template, json_text=json_text)
+        analysis.update(summary=summary, text=text, name=name,
+                        template=template, json_text=json_text)
+        analysis = analysis.first()
+        analysis.save()
         logger.info(f"Updated analysis: uid={analysis.uid} name={analysis.name}")
     else:
         # Create
@@ -487,15 +532,6 @@ def create_path(fname, data):
     path = os.path.abspath(os.path.join(data_dir, fname))
 
     return path
-
-
-
-def update_data(data, path, type, name, summary, text):
-    ""
-
-
-    return
-
 
 
 def create_data(project, user=None, stream=None, path='', name='',

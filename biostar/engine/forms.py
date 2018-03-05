@@ -160,6 +160,40 @@ class ChangeUserAccess(forms.Form):
         return user,new_access
 
 
+
+class ToggleNotifications(forms.Form):
+
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+
+    def save(self):
+
+        # User notification to a project is controlled using their access
+        all_access = self.cleaned_data
+
+        for access in all_access:
+            access.be_notified = not access.be_notified
+            access.save()
+
+    def clean(self):
+
+        project_uids = self.data.getlist('uids')
+        self.cleaned_data = []
+
+        for uid in project_uids:
+            project = Project.objects.filter(uid=uid).first()
+
+            # Make sure user has read access to project
+            has_access = auth.check_obj_access(user=self.user, instance=project,
+                                               access=Access.READ_ACCESS)
+            if has_access:
+                access = Access.objects.filter(project=project, user=self.user).first()
+                self.cleaned_data.append(access)
+
+
 def access_forms(users, project, exclude=()):
     """Generate a list of forms for a given user list
     Param exclude: a list of users to exclude"""
@@ -265,7 +299,7 @@ class DataCopyForm(forms.Form):
 
     def __init__(self, request, *args, **kwargs):
         self.request = request
-        super().__init__(*args, **kwargs)
+        super(DataCopyForm, self).__init__(*args, **kwargs)
 
     uids = forms.CharField(max_length=models.MAX_TEXT_LEN, required=False)
 

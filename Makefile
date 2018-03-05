@@ -25,6 +25,15 @@ install:
 	conda config --add channels bioconda
 	conda install --file conf/conda_requirements.txt -y
 
+
+update:
+    # Note: uid needs to be in 'settings' of JSON when updating to avoid duplication
+    # Will create new projects/recipes if uid not present.
+
+	python manage.py project --update --root ../biostar-recipes --json projects/tutorial-project.hjson
+	python manage.py analysis --update --json ../biostar-recipes/recipes/tutorial/hello3.hjson --template ../biostar-recipes/recipes/tutorial/hello3.sh
+
+
 recipes:
 	python manage.py project --root ../biostar-recipes --json projects/cookbook-project.hjson --privacy public --jobs
 	python manage.py project --root ../biostar-recipes --json projects/mothur-project.hjson --privacy public
@@ -39,6 +48,7 @@ recipes:
 verbose:
 	# Makes logging more verbose.
 	export DJANGO_LOG_LEVEL=DEBUG
+
 
 delete:
 	# Ensure the files that could hold secrets exist.

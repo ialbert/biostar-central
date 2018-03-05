@@ -22,7 +22,7 @@
             </div>
 
             {% for data in all_data %}
-                <div class="item">
+                <div class="ui item">
                     <input type="checkbox" name="uids" value="{{ data.uid }}">
                     <a href="{% url 'data_entry' data.uid %}">
                         <i class="folder icon"></i>{{ data.name }}

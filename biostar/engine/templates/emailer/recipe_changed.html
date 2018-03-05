@@ -1,0 +1,51 @@
+
+
+{%  block subject %}
+
+    [biostar-engine] {{subject}}
+
+{% endblock %}
+
+
+{% block html %}
+    <p>
+        Hello {{ target_email }},
+    </p>
+
+    <p>
+        This is an HTML email sent via the management command:
+    </p>
+
+    <p>
+        <b>python manage.py send</b>
+    </p>
+
+    {% if group %}
+        <p>
+            You are included in the {{group}} mailing list.
+        </p>
+    {% endif %}
+
+    <p>
+        {{ site.name }} Team<br>
+        {{ protocol }}://{{ site.domain }}
+    </p>
+
+{% endblock %}
+
+{% block text %}
+
+    Hello {{ target_email }},
+
+    This is a TEXT email sent via the management command:
+
+    python manage.py send
+
+    {% if group %}
+    You are included in the {{group}} mailing list.
+    {% endif %}
+
+    {{ site.name }} Team
+    {{ protocol }}://{{ site.domain }}
+
+{% endblock %}

@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from biostar.accounts.models import Profile
 
 
 from . import tasks, util
@@ -69,6 +70,25 @@ def site_admin(request):
     projects = Project.objects.all()
     context = dict(projects=projects)
     return render(request, 'admin_index.html', context=context)
+
+
+def toggle_notifications(request):
+    "Allows user to toggle email notification to projects they have access to "
+
+    form = ToggleNotifications(user=request.user)
+
+    if request.method == "POST":
+        form = ToggleNotifications(data=request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("profile"))
+
+
+    user = User.objects.filter(id=id).first()
+    context = dict(user=user, form=form)
+
+    return render(request, 'accounts/profile.html', context)
+
 
 
 def recycle_bin(request):
@@ -597,6 +617,8 @@ def recipe_paste(request, uid):
     attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security,
                  user=request.user)
     new_recipe = auth.create_analysis(**attrs)
+    # Ensure the diff gets inherited.
+    new_recipe.last_valid = recipe.last_valid
     new_recipe.save()
 
     msg = f"Pasted recipe <b>{recipe.name}</b> to project <b>{project.name}</b>."
@@ -607,7 +629,7 @@ def recipe_paste(request, uid):
     return redirect(url)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
 def recipe_code(request, uid):
     """
     Displays and allows edit on a recipe code.
@@ -711,31 +733,54 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.WRITE_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
 def recipe_diff(request, uid):
     """
     View used to show diff in template and authorize it.
     Restricted to moderators and staff members.
     """
-    user = request.user
     recipe = Analysis.objects.filter(uid=uid).first()
 
-    if not (user.profile.is_moderator or user.is_staff):
-
-        messages.error(request, "Only moderators or staff members can perform action.")
-        return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
-
-    # Compare last valid template to the one currently loaded
-    differ = auth.get_diff_str(recipe.last_valid, recipe.template)
-
-    no_change = recipe.last_valid.strip() == recipe.template.strip()
+    differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
+    differ = auth.color_diffs(differ)
     context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
-                   diff=differ, no_change=no_change)
+                   diff=mark_safe(''.join(differ)))
     counts = get_counts(recipe.project)
     context.update(counts)
 
     return render(request, "recipe_diff.html", context=context)
 
+
+# Ensure only moderators access when role=moderator and access=Access.NO_ACCESS
+@object_access(type=Analysis, role=Profile.MODERATOR, access=Access.NO_ACCESS, url='recipe_diff')
+def recipe_approve(request, uid):
+    "Approve changes made in recipe. Only moderators are allowed this action."
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+
+    recipe.last_valid = recipe.template
+    recipe.security = Analysis.AUTHORIZED
+    recipe.save()
+
+    messages.success(request, "Recipe changes have been approved.")
+    return redirect(reverse('recipe_diff', kwargs=dict(uid=recipe.uid)))
+
+
+@object_access(type=Analysis, access=Access.WRITE_ACCESS, role=Profile.MODERATOR, url='recipe_diff')
+def recipe_revert(request, uid):
+    """
+        Allowed to moderators and users with write access.
+        Revert changes made to recipes back to original.
+    """
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+
+    recipe.template = recipe.last_valid
+    recipe.security = Analysis.AUTHORIZED
+    recipe.save()
+
+    messages.success(request, "Recipe has been reverted to original.")
+    return redirect(reverse('recipe_diff', kwargs=dict(uid=recipe.uid)))
 
 
 @object_access(type=Analysis, access=Access.OWNER_ACCESS, url='recipe_view')
