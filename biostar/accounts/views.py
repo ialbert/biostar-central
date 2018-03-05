@@ -66,9 +66,9 @@ def toggle_notify(request):
     user.profile.notify = not user.profile.notify
     user.profile.save()
 
-    msg = "Emails notifications disabled"
+    msg = "Emails notifications disabled."
     if user.profile.notify:
-        msg = "Emails notifications enabled"
+        msg = "Emails notifications enabled."
 
     messages.success(request, msg)
     return redirect(reverse('profile'))

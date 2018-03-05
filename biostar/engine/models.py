@@ -274,6 +274,9 @@ class Analysis(models.Model):
     html = models.TextField(default='html')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    diff_author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="diff_author", null=True)
+    diff_date = models.DateField(blank=True, auto_now_add=True)
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
@@ -295,8 +298,11 @@ class Analysis(models.Model):
         now = timezone.now()
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
+        self.diff_date = self.diff_date or now
         self.name = self.name[:MAX_NAME_LEN]
         self.html = make_html(self.text)
+        self.diff_author = self.diff_author or self.owner
+
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""

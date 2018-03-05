@@ -87,13 +87,14 @@ def input(path, current):
 
 
 @register.inclusion_tag('widgets/recipe_moderate.html')
-def recipes_moderate():
+def recipes_moderate(cutoff=0):
 
 
     recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW,
-                                      deleted=False)[:10]
+                                      deleted=False).order_by("-date")
 
-    return dict(recipes=recipes)#dict(recipes=recipes)
+    cutoff = cutoff or len(recipes)
+    return dict(recipes=recipes[:cutoff])#dict(recipes=recipes)
 
 @register.simple_tag
 def file_url(object, path, current):

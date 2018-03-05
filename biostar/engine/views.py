@@ -9,6 +9,7 @@ from django.db.models import Q
 from sendfile import sendfile
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile
@@ -72,13 +73,9 @@ def site_admin(request):
     context = dict(projects=projects)
     return render(request, 'admin_index.html', context=context)
 
-
+@login_required
 def recycle_bin(request):
     "Recycle bin view for a user"
-
-    if request.user.is_anonymous:
-        messages.error(request, "You must be logged in to view recycle bin.")
-        return redirect("/")
 
     # Only searches projects you have access.
     all_projects = auth.get_project_list(user=request.user)
@@ -95,6 +92,21 @@ def recycle_bin(request):
     context = dict(jobs=del_jobs, data=del_data, recipes=del_recipes)
 
     return render(request, 'recycle_bin.html', context=context)
+
+
+@login_required
+def recipe_mod(request):
+    "Shows all recipes that are under review."
+
+    user = request.user
+
+    if not user.profile.is_moderator:
+        msg = mark_safe("You have to be a <b>moderator</b> to view this page.")
+        messages.error(request, msg)
+        return redirect("/")
+
+    context = dict()
+    return render(request, 'recipe_mod.html', context)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
@@ -644,7 +656,7 @@ def recipe_code(request, uid):
                 analysis.security = Analysis.UNDER_REVIEW
 
             # Moderators and staff members will automatically get authorized.
-            if user.is_staff:# or user.profile.is_moderator:
+            if user.is_staff:
                 analysis.security = Analysis.AUTHORIZED
 
             # Set the new template.
@@ -652,6 +664,8 @@ def recipe_code(request, uid):
 
             # Only the SAVE action commits the changes on the analysis.
             if save:
+                analysis.diff_author = user
+                analysis.diff_date = timezone.now()
                 analysis.save()
                 messages.info(request, "The recipe has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
@@ -734,7 +748,7 @@ def recipe_diff(request, uid):
 
 
 # Ensure only moderators access when role=moderator and access=Access.NO_ACCESS
-@object_access(type=Analysis, role=Profile.MODERATOR, access=Access.NO_ACCESS, url='recipe_view')
+@object_access(type=Analysis, role=Profile.MODERATOR, access=Access.NO_ACCESS, url='recipe_diff')
 def recipe_approve(request, uid):
     "Approve changes made in recipe. Only moderators are allowed this action."
 
@@ -745,7 +759,7 @@ def recipe_approve(request, uid):
     recipe.save()
 
     messages.success(request, "Recipe changes have been approved.")
-    return redirect(reverse('recipe_diff', kwargs=dict(uid=recipe.uid)))
+    return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
 
 
 @object_access(type=Analysis, access=Access.WRITE_ACCESS, role=Profile.MODERATOR, url='recipe_view')
@@ -762,7 +776,7 @@ def recipe_revert(request, uid):
     recipe.save()
 
     messages.success(request, "Recipe has been reverted to original.")
-    return redirect(reverse('recipe_diff', kwargs=dict(uid=recipe.uid)))
+    return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
 
 
 @object_access(type=Analysis, access=Access.OWNER_ACCESS, url='recipe_view')
