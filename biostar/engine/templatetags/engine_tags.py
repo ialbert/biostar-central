@@ -20,7 +20,7 @@ register = template.Library()
 JOB_COLORS = {
     Job.SPOOLED: "violet",
     Job.ERROR: "red", Job.QUEUED: "teal",
-    Job.RUNNING: "pink", Job.COMPLETED: "green"
+    Job.RUNNING: "orange", Job.COMPLETED: "green"
 }
 
 DATA_COLORS = {
