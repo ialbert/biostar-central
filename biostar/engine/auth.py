@@ -166,17 +166,22 @@ def color_diffs(diff_list):
 
 
 
-def get_project_list(user):
+def get_project_list(user, include_public=True):
     """
     Return projects visible to a user.
     """
+
+    privacy = Project.PRIVATE
+    if include_public:
+        privacy = Project.PUBLIC
 
     if user.is_anonymous:
         # Unauthenticated users see public projects.
         cond = Q(privacy=Project.PUBLIC)
     else:
         # Authenticated users see public projects and private projects with access rights.
-        cond =  Q(privacy=Project.PUBLIC) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
+
+        cond =  Q(privacy=privacy) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
 
     # Generate the query.
     query = Project.objects.filter(cond).distinct()

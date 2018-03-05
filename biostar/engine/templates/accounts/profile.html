@@ -61,15 +61,13 @@
 
                 <div class="ui divided list">
 
-                    {% for access in user.access_set.all %}
-
-                        {% if access.access > access.NO_ACCESS %}
+                    {% get_projects user=user as projects %}
+                    {% for access, project in projects %}
 
                         <div class="ui item">
-                            <input type="checkbox" name="uids" value="{{ access.project.uid }}">
+                            <input type="checkbox" name="uids" value="{{ project.uid }}">
                             <div class="ui tiny label">{{ access.get_access_display }}</div>
-                            <a href="{{ access.project.url }}">{{access.project}}</a>
-
+                            <a href="{{ project.url }}">{{project}}</a>
                             {% if access.be_notified %}
                                 <div class="ui tiny right floated label"><i class="bell icon"></i>
                                 Enabled
@@ -77,12 +75,14 @@
                             {% endif %}
 
                         </div>
-                        {% endif %}
-
                     {% endfor %}
 
                 </div>
             </form>
+
+            {% if not projects %}
+            <div class="ui warning message"><i class="ui warning circle icon"></i> No projects found.</div>
+            {% endif %}
         </div>
 
 

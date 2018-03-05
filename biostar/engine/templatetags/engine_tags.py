@@ -161,6 +161,20 @@ def has_files(request):
     return True if files else False
 
 
+@register.simple_tag
+def get_projects(user):
+
+    "Used to return projects list in the profile."
+
+    projects = auth.get_project_list(user=user, include_public=False)
+
+
+    access = Access.objects.filter(project__in=projects, user=user,
+                                   access__gt=Access.NO_ACCESS)
+
+    return [(access, access.project) for access in access]
+
+
 def update_dict(iter):
 
     results=[dict(
