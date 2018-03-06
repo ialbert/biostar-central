@@ -9,12 +9,15 @@ from django.db.models import Q
 from sendfile import sendfile
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile
+from biostar.emailer.auth import notify
 
 
-from . import tasks, util
+from . import tasks
+from .diffs import color_diffs
 from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, Access)
@@ -71,32 +74,9 @@ def site_admin(request):
     context = dict(projects=projects)
     return render(request, 'admin_index.html', context=context)
 
-
-def toggle_notifications(request):
-    "Allows user to toggle email notification to projects they have access to "
-
-    form = ToggleNotifications(user=request.user)
-
-    if request.method == "POST":
-        form = ToggleNotifications(data=request.POST, user=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse("profile"))
-
-
-    user = User.objects.filter(id=id).first()
-    context = dict(user=user, form=form)
-
-    return render(request, 'accounts/profile.html', context)
-
-
-
+@login_required
 def recycle_bin(request):
     "Recycle bin view for a user"
-
-    if request.user.is_anonymous:
-        messages.error(request, "You must be logged in to view recycle bin.")
-        return redirect("/")
 
     # Only searches projects you have access.
     all_projects = auth.get_project_list(user=request.user)
@@ -113,6 +93,21 @@ def recycle_bin(request):
     context = dict(jobs=del_jobs, data=del_data, recipes=del_recipes)
 
     return render(request, 'recycle_bin.html', context=context)
+
+
+@login_required
+def recipe_mod(request):
+    "Shows all recipes that are under review."
+
+    user = request.user
+
+    if not user.profile.is_moderator:
+        msg = mark_safe("You have to be a <b>moderator</b> to view this page.")
+        messages.error(request, msg)
+        return redirect("/")
+
+    context = dict()
+    return render(request, 'recipe_mod.html', context)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
@@ -526,7 +521,7 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS)
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR)
 def recipe_view(request, uid):
     """
     Returns an analysis view based on its id.
@@ -629,6 +624,15 @@ def recipe_paste(request, uid):
     return redirect(url)
 
 
+def notify_mods(context, recipe):
+
+    if recipe.security == Analysis.UNDER_REVIEW:
+        moderators = User.objects.filter(profile__role=Profile.MODERATOR)
+        emails = [mod.email for mod in moderators]
+        notify(template_name="emailer/moderator_email.html", email_list=emails, send=True,
+               extra_context=context)
+    return
+
 @object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
 def recipe_code(request, uid):
     """
@@ -660,9 +664,11 @@ def recipe_code(request, uid):
             # Changes to template will require a review ( only when saving ).
             if auth.template_changed(analysis=analysis, template=template) and save:
                 analysis.security = Analysis.UNDER_REVIEW
+                analysis.diff_author = user
+                analysis.diff_date = timezone.now()
 
-            # Moderators and staff members will automatically get authorized.
-            if user.is_staff:# or user.profile.is_moderator:
+            # Staff members will automatically get authorized.
+            if user.is_staff:
                 analysis.security = Analysis.AUTHORIZED
 
             # Set the new template.
@@ -671,6 +677,9 @@ def recipe_code(request, uid):
             # Only the SAVE action commits the changes on the analysis.
             if save:
                 analysis.save()
+                # Notify moderators of change.
+                context = dict(subject="Recipe Template Change", recipe=analysis)
+                notify_mods(context=context, recipe=analysis)
                 messages.info(request, "The recipe has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
     else:
@@ -742,7 +751,7 @@ def recipe_diff(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
 
     differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
-    differ = auth.color_diffs(differ)
+    differ = color_diffs(differ)
     context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
                    diff=mark_safe(''.join(differ)))
     counts = get_counts(recipe.project)
@@ -763,10 +772,10 @@ def recipe_approve(request, uid):
     recipe.save()
 
     messages.success(request, "Recipe changes have been approved.")
-    return redirect(reverse('recipe_diff', kwargs=dict(uid=recipe.uid)))
+    return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
 
 
-@object_access(type=Analysis, access=Access.WRITE_ACCESS, role=Profile.MODERATOR, url='recipe_diff')
+@object_access(type=Analysis, access=Access.WRITE_ACCESS, role=Profile.MODERATOR, url='recipe_view')
 def recipe_revert(request, uid):
     """
         Allowed to moderators and users with write access.
@@ -780,7 +789,7 @@ def recipe_revert(request, uid):
     recipe.save()
 
     messages.success(request, "Recipe has been reverted to original.")
-    return redirect(reverse('recipe_diff', kwargs=dict(uid=recipe.uid)))
+    return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
 
 
 @object_access(type=Analysis, access=Access.OWNER_ACCESS, url='recipe_view')

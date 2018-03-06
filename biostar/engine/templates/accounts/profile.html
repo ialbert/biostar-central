@@ -7,7 +7,7 @@
 {% block body %}
 
 
-     <div class="ui center aligned basic vertical segment">
+     <div class="ui center aligned vertical segment">
           <div class="ui mini buttons">
              <a class="ui mini button" href="{% url 'edit_profile'%}">
                 <i class="write icon"></i>Edit profile
@@ -18,8 +18,9 @@
             </a>
           </div>
      </div>
+        {% show_messages messages %}
 
-        <div class="ui center aligned vertical basic segment">
+        <div class="ui vertical basic segment">
                 <div class="item">
                     <b>Email </b> : {{user.email}}
                  </div>
@@ -34,9 +35,16 @@
                     </div>
 
             {% endif %}
+            {% if user.profile.notify %}
+            <div class="ui vertical basic segment">
+                Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
+            </div>
+
+            {% endif %}
+
 
          </div>
-            {% if user.profile.is_moderator %}{% recipes_moderate %}
+            {% if user.profile.is_moderator %}{% recipes_moderate cutoff=10 %}
             {% endif %}
 
         <div class="ui vertical segment">
@@ -44,45 +52,37 @@
                 <i class="Database icon"></i>Projects
             </div>
 
-            <form method="post" class="ui form" action="{% url 'toggle_notifications' %}">
-
-                {% csrf_token %}
-                <div class="ui center aligned basic segment">
-
-                    <a href="{% url 'project_create' %}" class="ui mini button">
-                        <i class="add circle icon"></i>Create Project</a>
-
-                     <button type="submit" class="ui blue mini button">
-                        <i class="mail icon"></i>Toggle Notifications
-                    </button>
-                <div class="muted">Enable/disable email notifications for selected projects</div>
-
-                </div>
-
                 <div class="ui divided list">
 
                     {% get_projects user=user as projects %}
                     {% for access, project in projects %}
 
                         <div class="ui item">
-                            <input type="checkbox" name="uids" value="{{ project.uid }}">
                             <div class="ui tiny label">{{ access.get_access_display }}</div>
                             <a href="{{ project.url }}">{{project}}</a>
-                            {% if access.be_notified %}
-                                <div class="ui tiny right floated label"><i class="bell icon"></i>
-                                Enabled
-                                </div>
-                            {% endif %}
-
                         </div>
                     {% endfor %}
 
                 </div>
-            </form>
 
             {% if not projects %}
             <div class="ui warning message"><i class="ui warning circle icon"></i> No projects found.</div>
             {% endif %}
+        </div>
+
+        <div class="ui center aligned vertical basic segment">
+
+            {% if user.profile.notify %}
+
+                <a class="ui mini red button" href="{% url 'toggle_notify' %}">
+                    <i class="bell slash icon"></i>Disable Email Notifications
+                </a>
+                {% else %}
+                <a class="ui mini green button" href="{% url 'toggle_notify' %}">
+                    <i class="bell icon"></i>Enable Email Notifications
+                </a>
+            {% endif %}
+
         </div>
 
 

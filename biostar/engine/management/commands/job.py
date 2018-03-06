@@ -210,14 +210,13 @@ def run(job, options={}):
         print(job.stderr_log)
 
 
-   # Users that opted to be notified about project
-    email_list = auth.emailing_list(project=job.project)
+    if job.owner.profile.notify:
 
-    context = dict(subject=job.project.name, job=job)
+        context = dict(subject=job.project.name, job=job)
 
-    # Send notification emails
-    notify(template_name="emailer/job_finished.html", email_list=email_list, send=True,
-           extra_context=context)
+        # Send notification emails
+        notify(template_name="emailer/job_finished.html", email_list=[job.owner.email], send=True,
+               extra_context=context)
 
 
 class Command(BaseCommand):

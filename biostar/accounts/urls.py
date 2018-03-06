@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^signup/$', views.user_signup, name="signup"),
     url(r'^profile/$', views.profile, name="profile"),
     url(r'^edit/profile/$', views.edit_profile, name='edit_profile'),
+    url(r'^toggle/notify/$', views.toggle_notify, name='toggle_notify'),
     url(r'^logout/$', views.user_logout, name="logout")
 
 ]

@@ -14,6 +14,13 @@
 {% block body %}
 
     {% show_messages messages %}
+    {% if user.is_authenticated and user.profile.is_moderator %}
+        <div class="ui message">
+            <i class="ui check circle icon"></i>
+            <a href="{% url 'recipe_mod' %}">Review and authorize</a> recipes that have been changed.
+        </div>
+
+    {% endif %}
     <div class="ui vertical segment">
 
         <div class="ui header">

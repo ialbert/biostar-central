@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Recipes under review
+{% endblock %}
+
+
+{% block body %}
+<div class="ui basic segment">
+{% recipes_moderate %}
+</div>
+{% endblock %}

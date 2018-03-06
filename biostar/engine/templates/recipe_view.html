@@ -27,7 +27,6 @@
 
             {% security_label analysis %}
 
-
             <div class="ui center aligned vertical segment">
 
                 <div class="ui buttons">
@@ -43,17 +42,12 @@
 
                 </div>
 
-
             </div>
 
             <div class="ui center aligned basic segment">
 
                 <a class="ui mini button" href="{% url 'recipe_code' analysis.uid %}">
                     <i class="keyboard icon"></i>View Code
-                </a>
-
-                <a class="ui mini button" href="{% url 'recipe_diff' analysis.uid %}">
-                    <i class="file alternate outline icon"></i>View Changes
                 </a>
 
                 <a class="ui mini button" href="{% url 'recipe_copy' analysis.uid %}">

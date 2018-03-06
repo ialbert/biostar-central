@@ -56,6 +56,25 @@ def profile(request):
     return render(request, 'accounts/profile.html', context)
 
 
+def toggle_notify(request):
+
+    if request.user.is_anonymous:
+        messages.error(request, "Must be logged in to edit profile")
+        return redirect("/")
+
+    user = request.user
+    user.profile.notify = not user.profile.notify
+    user.profile.save()
+
+    msg = "Emails notifications disabled."
+    if user.profile.notify:
+        msg = "Emails notifications enabled."
+
+    messages.success(request, msg)
+    return redirect(reverse('profile'))
+
+
+
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_signup(request):
 

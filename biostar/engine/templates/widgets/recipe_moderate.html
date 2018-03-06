@@ -1,21 +1,33 @@
 
 
-    <div class="ui small horizontal divider header">
-        <i class="setting icon"></i>Recipes Under Review
-    </div>
-    <ul class="ui list">
+<div class="ui small horizontal divider header">
+    <i class="setting icon"></i>Recipes Under Review
+</div>
+
+{% if recipes %}
+    <table class="ui celled table">
+
+     <thead>
+        <tr>
+          <th>Recipe</th>
+          <th>Edited by</th>
+          <th>Edited on</th>
+        </tr>
+    </thead>
+
+    <tbody>
     {% for recipe in recipes %}
-
-        <li>
-        <a href="{% url 'recipe_diff' recipe.uid %}">{{recipe.name}}</a>
-        </li>
-
+      <tr>
+          <td><a href="{% url 'recipe_diff' recipe.uid %}">{{recipe.name}}</a></td>
+          <td>{{recipe.diff_author.email}}</td>
+          <td>{{recipe.diff_date}}</td>
+      </tr>
     {% endfor %}
-    </ul>
+    </tbody>
+    </table>
+{% else %}
 
-     {% if not recipes %}
+    <div class="ui warning message"><i class="ui warning circle icon"></i> No recipes found.</div>
 
-        <div class="ui warning message"><i class="ui warning circle icon"></i> No recipes found.</div>
-
-    {% endif %}
+{% endif %}
 

@@ -6,7 +6,9 @@
 {% endblock %}
 
 {% block content %}
-
+    <div class="ui center aligned header">
+        Recipe: <a href="{{ recipe.url }}"><i class="setting icon"></i>{{ recipe.name }}</a>
+    </div>
     {% if not diff %}
         <div class="ui message"><i class="ui minus icon"></i> No Changes Detected.</div>
     {% endif %}

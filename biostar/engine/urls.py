@@ -49,11 +49,12 @@ urlpatterns = [
     url(r'^recipe/approve/(?P<uid>[-\w]+)/$', views.recipe_approve, name='recipe_approve'),
     url(r'^recipe/revert/(?P<uid>[-\w]+)/$', views.recipe_revert, name='recipe_revert'),
 
+
     # Actions
     url(r'^action/clear/(?P<uid>[-\w]+)/(?P<url>.+)/(?P<board>.+)/$', views.clear_clipboard, name='clear_clipboard'),
     url(r'^action/toggle/(?P<uid>[-\w]+)/(?P<obj_type>[-\w]+)/$', views.object_state_toggle, name='toggle_state'),
-    url(r'^action/toggle/notification/$', views.toggle_notifications, name='toggle_notifications'),
     url(r'^action/paste/(?P<uid>[-\w]+)/$', views.files_paste, name='files_paste'),
+    url(r'^action/moderate/$', views.recipe_mod, name='recipe_mod'),
 
     # Jobs
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
