@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile
+from biostar.emailer.auth import notify
 
 
 from . import tasks
@@ -623,6 +624,15 @@ def recipe_paste(request, uid):
     return redirect(url)
 
 
+def notify_mods(context, recipe):
+
+    if recipe.state == Analysis.UNDER_REVIEW:
+        moderators = User.objects.filter(profile__role=Profile.MODERATOR)
+        emails = [mod.email for mod in moderators]
+        notify(template_name="emailer/moderator_email.html", email_list=emails, send=True,
+               extra_context=context)
+    return
+
 @object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
 def recipe_code(request, uid):
     """
@@ -654,8 +664,10 @@ def recipe_code(request, uid):
             # Changes to template will require a review ( only when saving ).
             if auth.template_changed(analysis=analysis, template=template) and save:
                 analysis.security = Analysis.UNDER_REVIEW
+                analysis.diff_author = user
+                analysis.diff_date = timezone.now()
 
-            # Moderators and staff members will automatically get authorized.
+            # Staff members will automatically get authorized.
             if user.is_staff:
                 analysis.security = Analysis.AUTHORIZED
 
@@ -664,9 +676,10 @@ def recipe_code(request, uid):
 
             # Only the SAVE action commits the changes on the analysis.
             if save:
-                analysis.diff_author = user
-                analysis.diff_date = timezone.now()
                 analysis.save()
+                # Notify moderators of change.
+                context = dict(subject=project.name, recipe=analysis, user=user)
+                notify_mods(context=context, recipe=analysis)
                 messages.info(request, "The recipe has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
     else:
