@@ -626,7 +626,7 @@ def recipe_paste(request, uid):
 
 def notify_mods(context, recipe):
 
-    if recipe.state == Analysis.UNDER_REVIEW:
+    if recipe.security == Analysis.UNDER_REVIEW:
         moderators = User.objects.filter(profile__role=Profile.MODERATOR)
         emails = [mod.email for mod in moderators]
         notify(template_name="emailer/moderator_email.html", email_list=emails, send=True,
@@ -678,7 +678,7 @@ def recipe_code(request, uid):
             if save:
                 analysis.save()
                 # Notify moderators of change.
-                context = dict(subject=project.name, recipe=analysis, user=user)
+                context = dict(subject="Recipe Template Change", recipe=analysis)
                 notify_mods(context=context, recipe=analysis)
                 messages.info(request, "The recipe has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))

@@ -1,0 +1,68 @@
+
+
+{%  block subject %}
+
+    [biostar-engine] {{subject}}
+
+{% endblock %}
+
+
+{% block html %}
+    <p>
+        Hello,
+    </p>
+
+    <p>
+        You are receiving this email because you are a moderator.
+    </p>
+
+    <p>
+        A recipe has been modified and requires your attention.
+    </p>
+
+    <p>
+        Here is some basic information about the changes that took place.
+    </p>
+
+    <p>
+        Recipe name: {{recipe.name}}
+    </p>
+    <p>
+        Edited by: {{recipe.diff_author.email}}
+    </p>
+    <p>
+        Edited on: {{recipe.diff_date}}
+    </p>
+    <p>
+        New proposed template: {{recipe.template}}
+    </p>
+
+    <p>
+        {{ site.name }} Team<br>
+        {{ protocol }}://{{ site.domain }}
+    </p>
+
+{% endblock %}
+
+{% block text %}
+
+    Hello,
+
+    You are receiving this email because you are a moderator.
+
+    A recipe has been modified and requires your attention.
+
+    Here is some basic information about the changes that took place.
+
+    Recipe name: {{recipe.name}}
+
+    Edited by: {{recipe.diff_author.email}}
+
+    Edited on: {{recipe.diff_date}}
+
+    New proposed template: {{recipe.template}}
+
+    {{ site.name }} Team
+    {{ protocol }}://{{ site.domain }}
+
+{% endblock %}

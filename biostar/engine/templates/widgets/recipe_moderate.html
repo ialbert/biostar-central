@@ -10,7 +10,7 @@
      <thead>
         <tr>
           <th>Recipe</th>
-          <th>User</th>
+          <th>Edited by</th>
           <th>Edited on</th>
         </tr>
     </thead>
@@ -21,9 +21,7 @@
           <td><a href="{% url 'recipe_diff' recipe.uid %}">{{recipe.name}}</a></td>
           <td>{{recipe.diff_author.email}}</td>
           <td>{{recipe.diff_date}}</td>
-
       </tr>
-
     {% endfor %}
     </tbody>
     </table>
