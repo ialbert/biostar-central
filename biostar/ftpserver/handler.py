@@ -1,12 +1,14 @@
 
 import logging
 
-from pyftpdlib.authorizers import DummyAuthorizer
+from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
 from pyftpdlib.filesystems import AbstractedFS
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.log import config_logging
 
 from django.contrib.auth.models import AnonymousUser
+from biostar.accounts import auth as accounts_auth
+from biostar.accounts.models import User
 from biostar.engine import auth
 
 config_logging(level=logging.DEBUG)
@@ -84,8 +86,8 @@ class BiostarFileSystem(AbstractedFS):
         #self._cwd = f"foo({path})"
         self._cwd = self.fs2ftp(path)
 
-    def format_list(self, basedir, listing, ignore_err=True):
-        logger.info(f"listing={listing}")
+    #def format_list(self, basedir, listing, ignore_err=True):
+    #    logger.info(f"listing={listing}")
 
     def format_mlsx(self, basedir, listing, perms, facts, ignore_err=True):
         logger.info(f"basedir={basedir} listing={listing} facts={facts}")
@@ -158,9 +160,28 @@ class BiostarAuthorizer(DummyAuthorizer):
 
 
     def validate_authentication(self, username, password, handler):
-        "Validate user with biostar.accounts"
+        """
+        Validate user with biostar.accounts and then add to user_table.
+        The stored password in the user_table is a hashed-string
+        """
 
+        message, valid_django_user = accounts_auth.check_user(email=username, password=password)
 
+        if valid_django_user:
+
+            user = User.objects.filter(email__iexact=username).order_by('-id').first()
+            # Store the hash string
+            pwd = user.password
+
+            if self.has_user(username=username) and self.user_table[username]['pwd'] == pwd:
+                # Check if the user is added to user table with the correct password.
+                return
+
+            # Add to user_table since user is a valid biostar.account instance.
+            self.add_user(username=username, password=pwd, user=user)
+            return
+
+        raise AuthenticationFailed(f"{message}. Resolve issue through website.")
 
 
     def get_home_dir(self, username):

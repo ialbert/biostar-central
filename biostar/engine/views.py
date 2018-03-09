@@ -678,8 +678,8 @@ def recipe_code(request, uid):
             if save:
                 analysis.save()
                 # Notify moderators of change.
-                context = dict(subject="Recipe Template Change", recipe=analysis)
-                notify_mods(context=context, recipe=analysis)
+                #context = dict(subject="Recipe Template Change", recipe=analysis)
+                #notify_mods(context=context, recipe=analysis)
                 messages.info(request, "The recipe has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
     else:

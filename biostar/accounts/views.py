@@ -4,14 +4,15 @@ from django.contrib import messages
 from ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.contrib.auth.models import User
 from django.contrib.auth import views as auth_views
 from django.utils.safestring import mark_safe
 from django.conf import settings
+from django.contrib.auth import logout, login
 
 from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
-from .models import Profile
-from django.contrib import auth
+from .models import Profile, User
+from .auth import check_user
+
 
 logger = logging.getLogger('engine')
 
@@ -95,9 +96,7 @@ def user_signup(request):
                                        first_name=name)
             user.set_password(password)
             user.save()
-
-            auth.login(request, user)
-            logger.info(f"Signed up and logged in user.id={user.id}, user.email={user.email}")
+            logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
             messages.info(request, "Signup successful!")
             return redirect(reverse('login'))
     else:
@@ -113,7 +112,7 @@ def user_logout(request):
         form = LogoutForm(request.POST)
 
         if form.is_valid():
-            auth.logout(request)
+            logout(request)
             messages.info(request, "You have been logged out")
             return redirect("/")
 
@@ -126,6 +125,7 @@ def user_logout(request):
 
 def user_login(request):
 
+    form = LoginForm()
     if request.method == "POST":
         form = LoginForm(data=request.POST)
 
@@ -134,36 +134,19 @@ def user_login(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
 
-            # Due to an early bug emails may not be unique. Last subscription wins.
             user = User.objects.filter(email__iexact=email).order_by('-id').first()
+            message, valid_user = check_user(email=email, password=password)
 
-            if not user:
-                messages.error(request, "This email does not exist.")
-                return redirect(reverse("login"))
-
-            user = auth.authenticate(username=user.username, password=password)
-
-            if not user:
-                messages.error(request, "Invalid Password")
-                return redirect(reverse("login"))
-
-            if user.profile.state in [Profile.BANNED, Profile.SUSPENDED ]:
-                msg = f"Login not allowed. Account is <b> {user.profile.get_state_display()}</b>"
-                messages.error(request, mark_safe(msg))
-                return redirect("/")
-
-            elif user and not user.is_active:
-                messages.error(request, "This user is not active.")
-                return redirect(reverse("login"))
-
-            elif user and user.is_active:
-                auth.login(request, user)
+            if valid_user:
+                login(request, user)
                 messages.success(request, "Login successful!")
                 return redirect("/")
+            else:
+                messages.error(request, mark_safe(message))
 
         messages.error(request, mark_safe(form.errors))
 
-    form = LoginForm()
+
     context = dict(form=form)
     return render(request, "accounts/login.html", context=context)
 
