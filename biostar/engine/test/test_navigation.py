@@ -81,6 +81,7 @@ class SiteNavigation(TestCase):
         urls = [
             reverse('signup'),
             reverse("recycle_bin"),
+            reverse('recipe_mod'),
             reverse("data_copy", kwargs=self.data_params),
             reverse("recipe_copy", kwargs=self.analysis_params),
             reverse("data_paste", kwargs=self.proj_params),

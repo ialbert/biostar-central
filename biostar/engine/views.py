@@ -37,27 +37,27 @@ def valid_path(path):
     path = os.path.abspath(path)
     return path.startswith(__DOCS_DIR)
 
-
-def docs(request, name):
-    patt = join(__DOCS_DIR, name) + ".*"
-    files = glob.glob(patt)
-    if not files:
-        msg = f"Cannot be find the requested page: {name} "
-        messages.error(request, msg)
-        return redirect("index")
-    if len(files) > 1:
-        msg = f"Multiple files match: {{name}}"
-        messages.warning(request, msg)
-    target = files[0]
-    content = open(target).read()
-
-    # Render markdown into HTML.
-    if target.endswith(".md"):
-        content = mistune.markdown(content)
-
-    title = name.replace("-", " ").replace("_", " ").title()
-    context = dict(content=content, title=title)
-    return render(request, 'info/doc_base.html', context=context)
+#
+# def docs(request, name):
+#     patt = join(__DOCS_DIR, name) + ".*"
+#     files = glob.glob(patt)
+#     if not files:
+#         msg = f"Cannot be find the requested page: {name} "
+#         messages.error(request, msg)
+#         return redirect("index")
+#     if len(files) > 1:
+#         msg = f"Multiple files match: {{name}}"
+#         messages.warning(request, msg)
+#     target = files[0]
+#     content = open(target).read()
+#
+#     # Render markdown into HTML.
+#     if target.endswith(".md"):
+#         content = mistune.markdown(content)
+#
+#     title = name.replace("-", " ").replace("_", " ").title()
+#     context = dict(content=content, title=title)
+#     return render(request, 'info/doc_base.html', context=context)
 
 
 def index(request):

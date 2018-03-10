@@ -2,7 +2,7 @@ import logging, os
 from unittest.mock import patch, MagicMock
 from django.test import TestCase
 from django.test import Client
-from biostar.accounts import models, views
+from biostar.accounts import models, views, auth
 
 from django.urls import reverse
 
@@ -80,8 +80,8 @@ class LoginTest(TestCase):
 
         return
 
-    def test_invalid_email(self):
-        "Test unvalid email redirection"
+    def test_invalid_creds(self):
+        "Test invalid email and password"
         data1 = {"email": "foo", "password": self.password}
         data2 = {"email": self.user.email, "password": "bar"}
 
@@ -92,9 +92,9 @@ class LoginTest(TestCase):
             c = Client()
             resp = c.post(url, data=tests)
 
-            self.assertEqual(resp.status_code, 302)
-            self.assertTrue(resp.url == url,
-                            f"Invalid redirection when given wrong creds.\nexpected: {url}\ngot:{resp.url}")
+            self.assertEqual(resp.status_code, 200)
+
+
 
 class ProfileTest(TestCase):
 
@@ -102,6 +102,7 @@ class ProfileTest(TestCase):
     def setUp(self):
         self.password = "testing"
         self.user = models.User.objects.create_user(username="test", email="test@l.com")
+
         self.user.set_password(self.password)
         self.user.save()
 
@@ -133,5 +134,36 @@ class ProfileTest(TestCase):
         response = views.edit_profile(request=request)
 
         self.assertEqual(response.status_code, 302, "Can not redirect after editing profile")
-        self.assertTrue(reverse("profile") == response.url,
-                        "Could not redirect to correct page after editing")
+
+
+    def test_notify(self):
+        "Test the notification toggling"
+
+        url = reverse("toggle_notify")
+
+        request = util.fake_request(url=url, data={}, user=self.user)
+
+        response = views.toggle_notify(request=request)
+
+        self.assertEqual(response.status_code, 302)
+
+
+    def test_banned_user_login(self):
+        "Test banned user can not login "
+
+        self.user.profile.state = models.Profile.BANNED
+        self.user.profile.save()
+
+        message, valid = auth.check_user(email=self.user.email, password=self.password )
+
+        print(message, valid)
+
+        self.assertTrue(not valid)
+
+
+
+
+
+
+
+

@@ -98,8 +98,8 @@ class DataViewTest(TestCase):
 
         self.process_response(response=response, data=data, save=True)
 
-    def test_engine_tags(self):
-        "Test some template tags found in engine_tags.py"
+    def test_paste_engine_tag(self):
+        "Test paste template tags found in engine_tags.py"
 
         from biostar.engine.templatetags import engine_tags
 
@@ -112,6 +112,35 @@ class DataViewTest(TestCase):
             paste_template = engine_tags.paste(board=o, project=options[o]["project"])
             # Paste template needs to be rendered correctly for each clipboard
             self.assertTrue(o in paste_template["clear_url"], f"{o} : {paste_template}")
+
+
+    def test_data_navigate_copy(self):
+        "Test copying and pasting thru the data navigate view."
+
+        data = {'uids':self.data.uid}
+
+        url = reverse('data_navigate', kwargs=dict(uid=self.project.uid))
+
+        request = util.fake_request(url=url, data=data, user=self.owner)
+
+        response = views.data_navigate(request=request, uid=self.project.uid)
+
+        self.process_response(response=response, data=data)
+
+
+    def test_data_browser(self):
+        "Test file copy with data browser"
+
+        data = {'paths':os.path.basename(__file__)}
+
+        url = reverse('data_entry', kwargs=dict(uid=self.project.uid))
+        request = util.fake_request(url=url, data=data, user=self.owner)
+
+        response = views.data_browse(request=request,uid=self.project.uid)
+
+        self.process_response(response=response, data=data)
+
+
 
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"
