@@ -1,5 +1,6 @@
 
 import logging
+import time
 
 from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
 from pyftpdlib.filesystems import AbstractedFS
@@ -9,6 +10,7 @@ from pyftpdlib.log import config_logging
 from django.contrib.auth.models import AnonymousUser
 from biostar.accounts import auth as accounts_auth
 from biostar.accounts.models import User
+from biostar.engine.models import Project
 from biostar.engine import auth
 
 config_logging(level=logging.DEBUG)
@@ -18,16 +20,12 @@ logger.setLevel(logging.INFO)
 
 
 
-def perm_map():
-    return
+def perm_map(project, user):
+    "return permissions string user has to a project"
 
 
-def project_list(user):
+    return "r"
 
-    # Maintain same order as views (doesn't really show)
-    projects = auth.get_project_list(user=user).order_by("-sticky", "-privacy")
-    projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
-    return [p.name for p in projects]
 
 
 class BiostarFileSystem(AbstractedFS):
@@ -63,18 +61,28 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"path={path}")
         return True
 
+
     def isdir(self, path):
         logger.info(f"path={path}")
 
         #return True if path in self.project_list else False
         return True
 
+
     def listdir(self, path):
         # This is the root as initialized in the base class
+
         logger.info(f"path={path}")
 
         # Return list of public projects when Anonymous user logs in
-        return self.project_list
+        # return actual directory locations.
+        is_project = path  == '/'
+
+        if is_project:
+            return [p.uid for p in self.project_list]
+
+        return []
+
 
     def chdir(self, path):
         """
@@ -87,19 +95,48 @@ class BiostarFileSystem(AbstractedFS):
         self._cwd = self.fs2ftp(path)
 
     #def format_list(self, basedir, listing, ignore_err=True):
+
     #    logger.info(f"listing={listing}")
 
+    #    return
+
+
     def format_mlsx(self, basedir, listing, perms, facts, ignore_err=True):
+
         logger.info(f"basedir={basedir} listing={listing} facts={facts}")
 
-        lines = []
-        for project in listing:
+        if self.cmd_channel.use_gmt_times:
+            timefunc = time.gmtime
+        else:
+            timefunc = time.localtime
 
-            lines.append(f"type=dir;size=156;perm=r;modify=20071029155301;unique=8012; {project}")
+        is_project = basedir  == '/'
 
-        line = "\n".join(lines)
+        if is_project:
 
-        yield line.encode('utf8', self.cmd_channel.unicode_errors)
+            # Process showing the project dir.
+            lines = []
+
+            for project_uid in listing:
+                project = Project.objects.filter(uid=project_uid).first()
+                if not project:
+                    continue
+                perm = perm_map(project=project, user=self.user)
+                st = self.stat(project.get_project_dir())
+
+                # Generates unique fact (see pyftpdlib/filesystems.py:603 )
+                # same way pyftpdlib does.
+                unique = "%xg%x" % (st.st_dev, st.st_ino)
+
+                # Show the last time file has been modified.
+                modify = time.strftime("%Y%m%d%H%M%S", timefunc(st.st_mtime))
+
+                lines.append(f"type=dir;size={st.st_size};perm={perm};modify={modify};unique={unique}; {project},{project.uid}")
+
+            line = "\n".join(lines)
+
+            yield line.encode('utf8', self.cmd_channel.unicode_errors)
+
 
 
 class BiostarFTPHandler(FTPHandler):
@@ -122,15 +159,19 @@ class BiostarFTPHandler(FTPHandler):
 
     def on_logout(self, username):
         # do something when user logs out
+
         pass
 
     def on_file_sent(self, file):
         # do something when a file has been sent
         # Nothing too special here.
+
         pass
 
     def on_file_received(self, file):
         # do something when a file has been received
+
+
         pass
 
     def on_incomplete_file_sent(self, file):
@@ -170,7 +211,7 @@ class BiostarAuthorizer(DummyAuthorizer):
         if valid_django_user:
 
             user = User.objects.filter(email__iexact=username).order_by('-id').first()
-            # Store the hash string
+            # Stores the hash string
             pwd = user.password
 
             if self.has_user(username=username) and self.user_table[username]['pwd'] == pwd:

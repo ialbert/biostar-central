@@ -149,7 +149,7 @@ class RecipeViewTest(TestCase):
 
         # Check redirection on reverting
         self.process_response(response=revert_response, data={}, save=True)
-        
+
 
     def process_response(self, response, data, model=models.Analysis,save=False):
         "Check the response on POST request is redirected"
