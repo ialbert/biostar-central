@@ -2,6 +2,7 @@ import logging
 
 from biostar.emailer import auth
 from django.test import TestCase
+from biostar.emailer import models
 
 logger = logging.getLogger('engine')
 
@@ -22,6 +23,14 @@ class SendMailTest(TestCase):
                                  template_name=template_name, from_email=from_mail)
 
         self.assertTrue(successful, "Error sending mail")
+
+
+    def test_add_subs(self):
+        "Test adding subscription using auth"
+
+        group = models.EmailGroup()
+        group.save()
+        auth.add_subscription(email="Test@test.com", group=group, name='testing')
 
 
 

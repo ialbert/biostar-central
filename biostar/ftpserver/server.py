@@ -1,8 +1,6 @@
 from pyftpdlib.servers import FTPServer
 from pyftpdlib.log import config_logging
 from biostar.ftpserver.handler import BiostarFTPHandler, BiostarAuthorizer, BiostarFileSystem
-from biostar.accounts import models
-from biostar import  settings
 import logging
 
 
@@ -15,15 +13,6 @@ logger.setLevel(logging.INFO)
 def start():
     # Engine authorization comes from the accounts.
     authorizer = BiostarAuthorizer()
-
-    user = models.User.objects.filter(email="1@lvh.me").first()
-
-    authorizer.add_user("1@lvh.me",settings.DEFAULT_ADMIN_PASSWORD , user=user, perm='elradfmwMT')
-
-    # When parameter user is not specified; we use AnonymousUser
-    authorizer.add_user('user', '12345', perm='elradfmwMT')
-    authorizer.add_user('user2', '12345', perm='elradfmwMT')
-
     # Instantiate FTP handler class.
     handler = BiostarFTPHandler
     handler.authorizer = authorizer

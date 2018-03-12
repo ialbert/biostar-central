@@ -105,6 +105,22 @@ class JobViewTest(TestCase):
         management.call_command('job', list=True)
 
 
+    def test_job_serve(self):
+        "Test file serve function."
+        from django.http.response import FileResponse
+
+        management.call_command('job', id=self.job.id)
+        url = reverse('job_entry', kwargs=dict(uid=self.job.uid))
+
+        data = {"paths":"runlog/input.json"}
+
+        request = util.fake_request(url=url, data=data, user=self.owner)
+
+        response = views.job_serve(request=request, uid=self.job.uid, path=data["paths"])
+
+        self.assertTrue(isinstance(response, FileResponse), "Response is not a file.")
+
+
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"
 
