@@ -3,13 +3,11 @@ import os
 import warnings
 
 from pyftpdlib.authorizers import AuthenticationFailed
-from pyftpdlib.log import config_logging
+
 
 from django.contrib.auth.models import AnonymousUser
 from biostar.accounts import auth as accounts_auth
 from biostar.accounts.models import User
-
-#config_logging(level=logging.DEBUG)
 
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)

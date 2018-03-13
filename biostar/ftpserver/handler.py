@@ -5,15 +5,12 @@ import os
 
 from pyftpdlib.filesystems import AbstractedFS
 from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.log import config_logging
 
 from django.contrib.auth.models import AnonymousUser
 from biostar.engine.models import Project, Data
 from biostar.engine import auth
 
 from .authorizer import perm_map
-
-#config_logging(level=logging.DEBUG)
 
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
@@ -103,6 +100,7 @@ class BiostarFileSystem(AbstractedFS):
 
     def validpath(self, path):
         logger.info(f"path={path}")
+
         return True
 
 
@@ -169,7 +167,6 @@ class BiostarFileSystem(AbstractedFS):
             for data_uid in listing:
                 data = Data.objects.filter(uid=data_uid).first()
                 project = data.project
-
                 self.add_line(project=project, real_fname=data.get_data_dir(),
                               lines=lines, virtual_fname=f"{data}-{data.uid}", filetype="file")
 
