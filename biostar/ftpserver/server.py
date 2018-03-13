@@ -1,6 +1,7 @@
 from pyftpdlib.servers import FTPServer
 from pyftpdlib.log import config_logging
-from biostar.ftpserver.handler import BiostarFTPHandler, BiostarAuthorizer, BiostarFileSystem
+from biostar.ftpserver.handler import BiostarFTPHandler, BiostarFileSystem
+from biostar.ftpserver.authorizer import BiostarAuthorizer
 import logging
 
 
