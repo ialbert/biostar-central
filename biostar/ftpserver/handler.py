@@ -228,7 +228,7 @@ class BiostarAuthorizer(DummyAuthorizer):
     def add_user(self, username, password, user=AnonymousUser, perm='elr',
                  msg_login="Login successful.", msg_quit="Goodbye."):
 
-        data = {'pwd': str(password),
+        data = {
                 'user': user,
                 'perm': perm,
                 'operms': {},
