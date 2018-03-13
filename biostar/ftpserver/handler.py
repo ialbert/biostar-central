@@ -3,45 +3,63 @@ import logging
 import time
 import os
 
-from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
 from pyftpdlib.filesystems import AbstractedFS
 from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.log import config_logging
 
 from django.contrib.auth.models import AnonymousUser
-from biostar.accounts import auth as accounts_auth
-from biostar.accounts.models import User
 from biostar.engine.models import Project, Data
 from biostar.engine import auth
 
-config_logging(level=logging.DEBUG)
+from .authorizer import perm_map
 
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
 
 
-def perm_map(project, user):
 
-    """
+class BiostarFTPHandler(FTPHandler):
 
-    Read permissions:
-        "e" = change directory (CWD command)
-        "l" = list files (LIST, NLST, MLSD commands)
-        "r" = retrieve file from the server (RETR command)
-    Write permissions
-        "a" = append data to an existing file (APPE command)
-        "d" = delete file or directory (DELE, RMD commands)
-        "f" = rename file or directory (RNFR, RNTO commands)
-        "m" = create directory (MKD command)
-        "w" = store a file to the server (STOR, STOU commands)
+    def on_connect(self):
+        print("%s:%s connected" % (self.remote_ip, self.remote_port))
 
-    return permissions string user has to a project
+    def on_disconnect(self):
+        # do something when client disconnects
+        pass
 
-    """
+    def on_login(self, username):
+        # do something when user login
+
+        logger.info(f"user={username}, username={self.username}, auth={self.authenticated}")
+
+        # Tell the filesystem what user is logged in
+        # root is the actual directory
+        self.fs = self.abstracted_fs(root="/", cmd_channel=self, current_user=username)
+
+    def on_logout(self, username):
+        # do something when user logs out
+
+        pass
+
+    def on_file_sent(self, file):
+        # do something when a file has been sent
+        # Nothing too special here.
+
+        pass
+
+    def on_file_received(self, file):
+        # do something when a file has been received
 
 
-    return "elr"
+        pass
+
+    def on_incomplete_file_sent(self, file):
+        # do something when a file is partially sent
+        pass
+
+    def on_incomplete_file_received(self, file):
+        # remove partially uploaded files
+        pass
 
 
 
@@ -82,6 +100,7 @@ class BiostarFileSystem(AbstractedFS):
 
     def validpath(self, path):
         logger.info(f"path={path}")
+
         return True
 
 
@@ -148,7 +167,6 @@ class BiostarFileSystem(AbstractedFS):
             for data_uid in listing:
                 data = Data.objects.filter(uid=data_uid).first()
                 project = data.project
-
                 self.add_line(project=project, real_fname=data.get_data_dir(),
                               lines=lines, virtual_fname=f"{data}-{data.uid}", filetype="file")
 
@@ -178,96 +196,3 @@ class BiostarFileSystem(AbstractedFS):
         return
 
 
-class BiostarFTPHandler(FTPHandler):
-
-    def on_connect(self):
-        print("%s:%s connected" % (self.remote_ip, self.remote_port))
-
-    def on_disconnect(self):
-        # do something when client disconnects
-        pass
-
-    def on_login(self, username):
-        # do something when user login
-
-        logger.info(f"user={username}, username={self.username}, auth={self.authenticated}")
-
-        # Tell the filesystem what user is logged in
-        # root is the actual directory
-        self.fs = self.abstracted_fs(root="/", cmd_channel=self, current_user=username)
-
-    def on_logout(self, username):
-        # do something when user logs out
-
-        pass
-
-    def on_file_sent(self, file):
-        # do something when a file has been sent
-        # Nothing too special here.
-
-        pass
-
-    def on_file_received(self, file):
-        # do something when a file has been received
-
-
-        pass
-
-    def on_incomplete_file_sent(self, file):
-        # do something when a file is partially sent
-        pass
-
-    def on_incomplete_file_received(self, file):
-        # remove partially uploaded files
-        pass
-
-
-class BiostarAuthorizer(DummyAuthorizer):
-
-
-    def add_user(self, username, password, user=AnonymousUser, perm='elr',
-                 msg_login="Login successful.", msg_quit="Goodbye."):
-
-        data = {'pwd': str(password),
-                'user': user,
-                'perm': perm,
-                'operms': {},
-                'msg_login': str(msg_login),
-                'msg_quit': str(msg_quit)
-                }
-
-        self.user_table[username] = data
-
-
-    def validate_authentication(self, username, password, handler):
-        """
-        Validate user with biostar.accounts and then add to user_table.
-        The stored password in the user_table is a hashed-string
-        """
-
-        message, valid_django_user = accounts_auth.check_user(email=username, password=password)
-
-        if valid_django_user:
-
-            user = User.objects.filter(email__iexact=username).order_by('-id').first()
-            # Stores the hash string
-            pwd = user.password
-
-            if self.has_user(username=username) and self.user_table[username]['pwd'] == pwd:
-                # Check if the user is added to user table with the correct password.
-                return
-
-            # Add to user_table since user is a valid biostar.account instance.
-            self.add_user(username=username, password=pwd, user=user)
-            return
-
-        raise AuthenticationFailed(f"{message}. Resolve issue through website.")
-
-
-    def get_home_dir(self, username):
-        """
-        Return the user's home directory.
-        Needs to be here because the base class relies on it.
-        """
-        # Get the project list for the users here and set it as the home_dir
-        return '/tmp/this/should/not/be/used/'
