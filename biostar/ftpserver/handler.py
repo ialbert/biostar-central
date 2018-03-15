@@ -142,57 +142,46 @@ class BiostarFileSystem(AbstractedFS):
         self._cwd = self.fs2ftp(path)
 
 
+    def fs2ftp(self, fspath):
+
+        logger.info(f"fspath={fspath}")
+
+        return fspath
+
+
+    def format(self, listing, klass, lines=[]):
+
+        filetype = "dir"
+        timefunc = time.localtime
+        for uid in listing:
+            instance = project = klass.objects.filter(uid=uid).first()
+            rfname = instance.get_project_dir()
+            if isinstance(instance, Data):
+                rfname = instance.get_data_dir()
+                project = instance.project
+                filetype = 'file' if len(instance.get_files()) <= 1 else "dir"
+
+            if self.cmd_channel.use_gmt_times:
+                timefunc = time.gmtime
+
+            perm = perm_map(project=project, user=self.user)
+            st = self.stat(rfname)
+            unique = "%xg%x" % (st.st_dev, st.st_ino)
+            modify = time.strftime("%Y%m%d%H%M%S", timefunc(st.st_mtime))
+
+            lines.append(
+                f"type={filetype};size={st.st_size};perm={perm};modify={modify};unique={unique}; {instance}-{instance.uid}")
+
+
     def format_mlsx(self, basedir, listing, perms, facts, ignore_err=True):
 
         logger.info(f"basedir={basedir} listing={listing} facts={facts} perms={perms}")
-
         lines = []
-        is_project = basedir  == '/'
-
-        if is_project:
-
-            for project_uid in listing:
-                project = Project.objects.filter(uid=project_uid).first()
-                if not project:
-                    continue
-
-                # Virtual fname is what user sees
-                # and what we eventually parse in listdir.
-                self.add_line(project=project, real_fname=project.get_project_dir(),
-                              lines=lines, virtual_fname=f"{project}-{project.uid}")
-
+        if basedir  == '/':
+            self.format(listing=listing, klass=Project, lines=lines)
         else:
-            # Show the data as a file for now ( even the directories ).
-
-            for data_uid in listing:
-                data = Data.objects.filter(uid=data_uid).first()
-                project = data.project
-                self.add_line(project=project, real_fname=data.get_data_dir(),
-                              lines=lines, virtual_fname=f"{data}-{data.uid}", filetype="file")
+            self.format(listing=listing, klass=Data, lines=lines)
 
         line = "\n".join(lines)
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
-
-
-    def add_line(self, project, real_fname, virtual_fname, lines=[], filetype="dir"):
-        "Append file info to a list as a line"
-
-
-        if self.cmd_channel.use_gmt_times:
-            timefunc = time.gmtime
-        else:
-            timefunc = time.localtime
-
-        perm = perm_map(project=project, user=self.user)
-        st = self.stat(real_fname)
-
-        # Unique fact generated same as pyftpdlib
-        unique = "%xg%x" % (st.st_dev, st.st_ino)
-
-        # Show the last time file has been modified.
-        modify = time.strftime("%Y%m%d%H%M%S", timefunc(st.st_mtime))
-
-        lines.append(f"type={filetype};size={st.st_size};perm={perm};modify={modify};unique={unique}; {virtual_fname}")
-        return
-
 
