@@ -78,8 +78,6 @@ class BiostarFileSystem(AbstractedFS):
         # to reflect the real filesystem) users overriding this class
         # are responsible to set _cwd attribute as necessary.
 
-
-        #self._cwd = root
         self._cwd = root
         self._root = root
         self.cmd_channel = cmd_channel
@@ -113,22 +111,34 @@ class BiostarFileSystem(AbstractedFS):
     def listdir(self, path):
         # This is the root as initialized in the base class
 
-        logger.info(f"path={path}")
+        logger.info(f"path={path}, cwd={self._cwd}")
+        # List all projects.
+        if path == self._root:
+            return self.project_list
 
-        is_project = path  == '/'
-        if is_project:
-            # Return projects
-            return [p.uid for p in self.project_list]
+        # List data belonging to one project
+        project = Project.objects.filter(name=path.replace('/', '')).first()
+        if project:
+            data_list = Data.objects.filter(deleted=False, project=project)
+            return data_list
 
-        # Return data contents of a specific project
-        project_uid = os.path.split(path)[-1].split('-')[-1]
-        project = Project.objects.filter(uid=project_uid).first()
-        if not project:
-            return  []
+        path_list = os.path.split(path)
 
-        data_list = Data.objects.filter(deleted=False, project=project)
+        root_project, current_data = path_list[0], path_list[1]
 
-        return [d.uid for d in data_list]
+        project = Project.objects.filter(name=root_project.replace('/', '')).first()
+
+        # not the name
+        print(name)
+        return []
+
+        data = ''
+        # List contents of specific data dir
+
+        #root_data = []
+        #data_list = Data.objects.filter(deleted=False, project=project)
+
+        #return [d for d in data_list]
 
 
     def chdir(self, path):
@@ -149,16 +159,19 @@ class BiostarFileSystem(AbstractedFS):
         return fspath
 
 
-    def format(self, listing, klass, lines=[]):
+    def format_mlsx(self, basedir, listing, perms, facts, ignore_err=True):
+
+        logger.info(f"basedir={basedir} listing={listing} facts={facts} perms={perms}")
+        lines = []
 
         filetype = "dir"
         timefunc = time.localtime
         if self.cmd_channel.use_gmt_times:
             timefunc = time.gmtime
 
-        for uid in listing:
-            instance = project = klass.objects.filter(uid=uid).first()
+        for instance in listing:
             rfname = instance.get_project_dir()
+            project = instance
             if isinstance(instance, Data):
                 rfname = instance.get_data_dir()
                 project = instance.project
@@ -170,17 +183,7 @@ class BiostarFileSystem(AbstractedFS):
             modify = time.strftime("%Y%m%d%H%M%S", timefunc(st.st_mtime))
 
             lines.append(
-                f"type={filetype};size={st.st_size};perm={perm};modify={modify};unique={unique}; {instance}-{instance.uid}")
-
-
-    def format_mlsx(self, basedir, listing, perms, facts, ignore_err=True):
-
-        logger.info(f"basedir={basedir} listing={listing} facts={facts} perms={perms}")
-        lines = []
-        if basedir  == '/':
-            self.format(listing=listing, klass=Project, lines=lines)
-        else:
-            self.format(listing=listing, klass=Data, lines=lines)
+                f"type={filetype};size={st.st_size};perm={perm};modify={modify};unique={unique}; {instance}")
 
         line = "\n".join(lines)
         yield line.encode('utf8', self.cmd_channel.unicode_errors)

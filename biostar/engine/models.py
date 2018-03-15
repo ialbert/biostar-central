@@ -3,7 +3,7 @@ import logging
 import hjson
 import mistune
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -129,14 +129,20 @@ class Access(models.Model):
         super(Access, self).save(*args,**kwargs)
 
 
+@receiver(pre_save, sender=Project)
+def check_project_name(sender, instance, **kwargs):
+    if Project.objects.filter(name=instance.name).count() > 1 and instance.pk:
+        instance.name += f'_{instance.pk}'
+
+
 @receiver(post_save, sender=Project)
 def create_access(sender, instance, created, **kwargs):
 
     if created:
-
         # Creates an admin access for the user.
         access = Access.objects.create(user=instance.owner, project=instance, access=Access.OWNER_ACCESS)
         access.save()
+
 
 
 class Data(models.Model):
@@ -258,6 +264,14 @@ class Data(models.Model):
         obj['data_dir'] = self.get_data_dir()
         obj['project_dir'] = self.get_project_dir()
         obj['data_url'] = self.url()
+
+
+@receiver(pre_save, sender=Data)
+def check_data_name(sender, instance, **kwargs):
+
+    if Data.objects.filter(name=instance.name).count() > 1 and instance.pk:
+        instance.name += f"_{instance.pk}"
+
 
 
 class Analysis(models.Model):
