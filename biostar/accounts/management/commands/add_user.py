@@ -52,6 +52,6 @@ class Command(BaseCommand):
             else:
                 username = util.get_uuid(16)
                 user = User.objects.create(email=email, username=username, first_name=name)
-                user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
+                user.set_password(settings.SECRET_KEY)
                 user.save()
                 logger.info(f"Created user name={name} email={email}")

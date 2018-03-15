@@ -17,6 +17,39 @@ logger.setLevel(logging.INFO)
 
 
 
+def fetch_file_info(instance, basedir='/'):
+
+    rfname = project = ''
+    filetype = 'file'
+
+    if isinstance(instance, Project):
+        filetype = "dir"
+        rfname = instance.get_project_dir()
+        project = instance
+
+    if isinstance(instance, Data):
+        rfname = instance.get_data_dir()
+        project = instance.project
+        filetype = 'file' if len(instance.get_files()) <= 1 else "dir"
+
+    if isinstance(instance, str):
+        path_list = os.path.split(basedir)
+
+
+        project = Project.objects.filter(name=path_list[0].replace('/', '')).first()
+        data = Data.objects.filter(name= path_list[1].replace('/', ''),
+                                   project=project, deleted=False).first()
+
+        suffix = os.path.join(*os.path.split(basedir)[2:], instance)
+        full_path = os.path.join(data.get_data_dir(), suffix)
+        rfname = list(filter(lambda x : x.endswith(full_path), data.get_files()))[0]
+
+        filetype = 'dir' if rfname and os.path.isdir(rfname) else 'file'
+
+
+    return project, rfname, filetype
+
+
 
 class BiostarFTPHandler(FTPHandler):
 
@@ -123,22 +156,17 @@ class BiostarFileSystem(AbstractedFS):
             return data_list
 
         path_list = os.path.split(path)
-
         root_project, current_data = path_list[0], path_list[1]
 
         project = Project.objects.filter(name=root_project.replace('/', '')).first()
 
-        # not the name
-        print(name)
+        data = Data.objects.filter(deleted=False, project=project, name=current_data).first()
+
+        if data:
+            return [os.path.basename(p) for p in data.get_files()]
+
         return []
 
-        data = ''
-        # List contents of specific data dir
-
-        #root_data = []
-        #data_list = Data.objects.filter(deleted=False, project=project)
-
-        #return [d for d in data_list]
 
 
     def chdir(self, path):
@@ -163,19 +191,11 @@ class BiostarFileSystem(AbstractedFS):
 
         logger.info(f"basedir={basedir} listing={listing} facts={facts} perms={perms}")
         lines = []
-
-        filetype = "dir"
-        timefunc = time.localtime
-        if self.cmd_channel.use_gmt_times:
-            timefunc = time.gmtime
+        timefunc = time.localtime if self.cmd_channel.use_gmt_times else time.gmtime
 
         for instance in listing:
-            rfname = instance.get_project_dir()
-            project = instance
-            if isinstance(instance, Data):
-                rfname = instance.get_data_dir()
-                project = instance.project
-                filetype = 'file' if len(instance.get_files()) <= 1 else "dir"
+
+            project, rfname, filetype = fetch_file_info(instance, basedir=basedir)
 
             perm = perm_map(project=project, user=self.user)
             st = self.stat(rfname)
@@ -187,4 +207,5 @@ class BiostarFileSystem(AbstractedFS):
 
         line = "\n".join(lines)
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
+
 

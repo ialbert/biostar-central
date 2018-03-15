@@ -13,27 +13,25 @@ DEBUG = True
 # COMPRESS_ENABLED = True
 
 # Change this in production!
-SECRET_KEY = 'secretkey'
+SECRET_KEY = '1234'
 
-# The password for admin users.
+# The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "1234"
 
+# Admin users will be created automatically with DEFAULT_ADMIN_PASSWORD.
+ADMINS = [
+    ("Admin User", "admin@localhost")
+]
 
 # Maximum amount of cumulative uploaded files a user is allowed, in mega-bytes.
 MAX_UPLOAD_SIZE = 300
-
 
 # Set these for remote hosts.
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
 
-# Admin users.
-ADMINS = [
-    ("Admin User", "admin@localhost")
-]
-
-# Does the site allow signup
+# Should the site allow signup.
 ALLOW_SIGNUP = False
 
 # Helper function for building absolute paths.
@@ -43,7 +41,7 @@ def join(*args):
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
-# Application definition
+# Application specific parameters.
 PROTOCOL = "http"
 HTTP_PORT = ':8000'
 
@@ -59,9 +57,12 @@ INSTALLED_APPS = [
     'mailer',
     'compressor',
     'pagedown',
-    'biostar.emailer.apps.EmailerConfig',
+
+    # The order of apps matters in the template loading.
     'biostar.engine.apps.EngineConfig',
+    'biostar.emailer.apps.EmailerConfig',
     'biostar.accounts.apps.AccountsConfig',
+
     'biostar.ftpserver',
 ]
 

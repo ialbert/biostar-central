@@ -1,17 +1,15 @@
 import copy
 import shlex
-import hjson
 
+import hjson
 from django import forms
 from django.db.models import Sum
-from biostar import  settings
-from biostar.accounts.models import User
 from django.utils.safestring import mark_safe
 
+from biostar.accounts.models import User
 from . import models, auth, factory
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
-
 
 # Share the logger with models.
 logger = models.logger
@@ -25,7 +23,7 @@ def check_size(fobj, maxsize=0.3):
     # maxsize in megabytes!
 
     try:
-        if fobj and fobj.size > maxsize * 1024 * 1024.0 :
+        if fobj and fobj.size > maxsize * 1024 * 1024.0:
             curr_size = fobj.size / 1024 / 1024.0
             msg = f"File too large: {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
             raise forms.ValidationError(msg)
@@ -40,13 +38,12 @@ def check_upload_limit(file, user):
 
     uploaded_files = Data.objects.filter(owner=user, method=Data.UPLOAD)
     currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
-    to_mb = lambda x: x/ 1024/ 1024
+    to_mb = lambda x: x / 1024 / 1024
 
     projected = to_mb(file.size + currect_size)
     max_mb = user.profile.max_upload_size
 
     if projected > max_mb:
-
         msg = f"<b>Over your {max_mb:0.0001f} MB total upload limit.</b> "
         msg = msg + f"""
                 File too large: currently <b>{to_mb(file.size):0.0001f} MB</b>
@@ -58,17 +55,16 @@ def check_upload_limit(file, user):
 
 
 class ProjectForm(forms.ModelForm):
-
     image = forms.ImageField(required=False)
 
     # Should not edit uid because data directories get recreated
-    #uid = forms.CharField(max_length=32, required=False)
-    choices = list(filter(lambda x: x[0]!= Project.SHAREABLE, Project.PRIVACY_CHOICES))
+    # uid = forms.CharField(max_length=32, required=False)
+    choices = list(filter(lambda x: x[0] != Project.SHAREABLE, Project.PRIVACY_CHOICES))
     privacy = forms.IntegerField(widget=forms.Select(choices=choices))
 
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text','image', "privacy", "sticky"]
+        fields = ['name', 'summary', 'text', 'image', "privacy", "sticky"]
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -79,19 +75,16 @@ class ProjectForm(forms.ModelForm):
 
 
 class DataUploadForm(forms.ModelForm):
-
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
-
 
     file = forms.FileField(required=True)
     type = forms.CharField(max_length=32, required=False)
 
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'text', "sticky",  "type"]
-
+        fields = ['file', 'summary', 'text', "sticky", "type"]
 
     def clean_file(self):
         cleaned_data = super(DataUploadForm, self).clean()
@@ -117,7 +110,7 @@ class RecipeForm(forms.ModelForm):
 
     class Meta:
         model = Analysis
-        fields = ["name", "sticky", "image", "summary", "text", "uid" ]
+        fields = ["name", "sticky", "image", "summary", "text", "uid"]
 
     def clean_image(self):
         cleaned_data = super(RecipeForm, self).clean()
@@ -128,19 +121,18 @@ class RecipeForm(forms.ModelForm):
 
 
 class JobEditForm(forms.ModelForm):
-
     class Meta:
         model = Job
         fields = ['name', "image", 'text', 'sticky']
 
 
 class ChangeUserAccess(forms.Form):
-
     user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
     project_uid = forms.CharField(required=True, widget=forms.HiddenInput())
     choices = filter(lambda x: x[0] != Access.OWNER_ACCESS, Access.ACCESS_CHOICES)
     access = forms.IntegerField(initial=Access.NO_ACCESS,
                                 widget=forms.Select(choices=choices))
+
     def save(self):
         "Changes users access to a project"
 
@@ -157,7 +149,7 @@ class ChangeUserAccess(forms.Form):
                             access=self.cleaned_data.get("access", Access.NO_ACCESS))
         new_access.save()
 
-        return user,new_access
+        return user, new_access
 
 
 def access_forms(users, project, exclude=()):
@@ -184,9 +176,8 @@ def clean_text(textbox):
 
 
 class RecipeInterface(forms.Form):
-
     # The name of results when running the recipe.
-    #name = forms.CharField(max_length=256, label="Name", help_text="This is how you can identify the run.")
+    # name = forms.CharField(max_length=256, label="Name", help_text="This is how you can identify the run.")
 
     def __init__(self, request, analysis, json_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -217,7 +208,11 @@ class RecipeInterface(forms.Form):
             msg1 = "Only logged in users may execute recipes."
             raise forms.ValidationError(msg1)
 
-        # Check the permissions for
+        # The owner of the project may run any recipe in the project.
+        if self.project.owner == self.user:
+            return
+
+        # Check the permissions for the recipe.
         entry = Access.objects.filter(user=self.user, project=self.project).first()
 
         if not entry or entry.access < Access.WRITE_ACCESS:
@@ -309,7 +304,7 @@ class FileCopyForm(forms.Form):
                 raise forms.ValidationError(f"{p} does not exist")
 
         # Override cleaned_data to later access in save()
-        self.cleaned_data = list(map(join, [self.root_dir]*len(paths), paths))
+        self.cleaned_data = list(map(join, [self.root_dir] * len(paths), paths))
 
 
 class EditCode(forms.Form):

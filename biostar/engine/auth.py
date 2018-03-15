@@ -164,16 +164,18 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
 
     # If the project is public then any user can have read access.
     if project.privacy == Project.PUBLIC and access == Access.READ_ACCESS:
-            return True
+        return True
 
-    # Check if owner of the instance or project is the only one with access.
+    # The owner of an instance may access most components
+    # depending on their role (only a moderator can approve template changes).
+    if (project.owner == user or instance.owner == user) and (access == Access.OWNER_ACCESS):
+        return True
+
     if access == Access.OWNER_ACCESS:
-        if (instance.owner == user or project.owner == user):
-            return True
-        else:
-            msg = mark_safe("Only the creator of the object or project can perform that action.")
-            messages.error(request, msg)
-            return False
+        # If we made it this far the user is not the owner.
+        msg = mark_safe("Only the creator of the object or project can perform that action.")
+        messages.error(request, msg)
+        return False
 
     # Give precedence to role over checking access
     if role and user.profile.role == role:
@@ -181,7 +183,6 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
 
     # Bail out if user has no other access or valid roles.
     if (access == Access.NO_ACCESS) and role and user.profile.role != role:
-
         display = dict(Profile.ROLE_CHOICES).get(role, '').lower()
         messages.error(request, mark_safe(f"You have to be a <b>{display}</b> to preform action."))
         return False
