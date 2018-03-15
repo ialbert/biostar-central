@@ -153,6 +153,9 @@ class BiostarFileSystem(AbstractedFS):
 
         filetype = "dir"
         timefunc = time.localtime
+        if self.cmd_channel.use_gmt_times:
+            timefunc = time.gmtime
+
         for uid in listing:
             instance = project = klass.objects.filter(uid=uid).first()
             rfname = instance.get_project_dir()
@@ -160,9 +163,6 @@ class BiostarFileSystem(AbstractedFS):
                 rfname = instance.get_data_dir()
                 project = instance.project
                 filetype = 'file' if len(instance.get_files()) <= 1 else "dir"
-
-            if self.cmd_channel.use_gmt_times:
-                timefunc = time.gmtime
 
             perm = perm_map(project=project, user=self.user)
             st = self.stat(rfname)
