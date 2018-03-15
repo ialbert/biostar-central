@@ -166,6 +166,10 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
     if project.privacy == Project.PUBLIC and access == Access.READ_ACCESS:
             return True
 
+    # The owner of of a project may access all content in a project.
+    if project.owner == user:
+        return True
+
     # Check if owner of the instance or project is the only one with access.
     if access == Access.OWNER_ACCESS:
         if (instance.owner == user or project.owner == user):
