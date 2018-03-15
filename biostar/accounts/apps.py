@@ -17,7 +17,7 @@ class AccountsConfig(AppConfig):
 
 def init_users(sender, **kwargs):
     """
-    Creates admin users and groups if needed.
+    Creates admin users if needed.
     """
     from .models import User
 

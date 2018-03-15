@@ -1,5 +1,4 @@
 import logging
-
 import hjson
 import mistune
 from django.db import models
@@ -125,26 +124,23 @@ class Access(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-
-        super(Access, self).save(*args,**kwargs)
+        super(Access, self).save(*args, **kwargs)
 
 
 @receiver(post_save, sender=Project)
 def create_access(sender, instance, created, **kwargs):
-
     if created:
-
         # Creates an admin access for the user.
         access = Access.objects.create(user=instance.owner, project=instance, access=Access.OWNER_ACCESS)
         access.save()
 
 
 class Data(models.Model):
-    PENDING, READY, ERROR,  = 1, 2, 3
+    PENDING, READY, ERROR, = 1, 2, 3
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error")]
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
 
-    LINK, UPLOAD = 1,2
+    LINK, UPLOAD = 1, 2
     METHOD_CHOICE = [(LINK, "Linked Data"), (UPLOAD, "Uploaded Data")]
     method = models.IntegerField(default=LINK, choices=METHOD_CHOICE)
 
@@ -284,7 +280,8 @@ class Analysis(models.Model):
     last_valid = models.TextField(default='')
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
-    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN, help_text="Optional image")
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN,
+                              help_text="Optional image")
 
     def __str__(self):
         return self.name
@@ -302,7 +299,6 @@ class Analysis(models.Model):
         self.name = self.name[:MAX_NAME_LEN]
         self.html = make_html(self.text)
         self.diff_author = self.diff_author or self.owner
-
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
@@ -330,7 +326,7 @@ class Job(models.Model):
     QUEUED, RUNNING, COMPLETED, ERROR, SPOOLED, PAUSED = range(1, 7)
 
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"), (PAUSED, "Paused"),
-                     (SPOOLED, "Spooled"), (COMPLETED, "Completed"),(ERROR, "Error")]
+                     (SPOOLED, "Spooled"), (COMPLETED, "Completed"), (ERROR, "Error")]
 
     state = models.IntegerField(default=QUEUED, choices=STATE_CHOICES)
 
@@ -372,7 +368,6 @@ class Job(models.Model):
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
-
 
     path = models.FilePathField(default="")
 
@@ -433,6 +428,3 @@ class Job(models.Model):
             self.path = path
 
         super(Job, self).save(*args, **kwargs)
-
-
-
