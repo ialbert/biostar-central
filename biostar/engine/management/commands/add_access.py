@@ -75,7 +75,11 @@ class Command(BaseCommand):
                 logger.error(f"Invalid access type: uid={project.uid} email={email}  access={access}")
                 continue
 
-            # Create the access types
-            models.Access.objects.create(user=user, project=project, access=access_value)
+            if access_value == Access.OWNER_ACCESS:
+                project.owner = user
+                project.save()
+            else:
+                # Create the access types
+                models.Access.objects.create(user=user, project=project, access=access_value)
 
             logger.info(f'Access created uid={project.uid} email={email} access={access}')
