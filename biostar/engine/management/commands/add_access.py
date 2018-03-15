@@ -75,7 +75,7 @@ class Command(BaseCommand):
                 logger.error(f"Invalid access type: uid={project.uid} email={email}  access={access}")
                 continue
 
-            if access_value == Access.OWNER_ACCESS:
+            if (access_value == Access.OWNER_ACCESS):
                 project.owner = user
                 project.save()
             else:

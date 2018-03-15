@@ -40,7 +40,7 @@ recipes:
 	python manage.py project --root ../biostar-recipes --json projects/giraffe-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/handbook-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/usfish-project.hjson --privacy public
-	python manage.py project --root ../biostar-recipes --json projects/trout-project.hjson --privacy public
+	python manage.py project --root ../biostar-recipes --json projects/trout-project.hjson
 
 	@# Create initial users
 	python manage.py add_user initial/initial-users.csv

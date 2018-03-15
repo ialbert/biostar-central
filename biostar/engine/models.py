@@ -128,12 +128,15 @@ class Access(models.Model):
 
 
 @receiver(post_save, sender=Project)
-def create_access(sender, instance, created, **kwargs):
-    if created:
-        # Creates an admin access for the user.
-        access = Access.objects.create(user=instance.owner, project=instance, access=Access.OWNER_ACCESS)
-        access.save()
+def update_access(sender, instance, created, **kwargs):
 
+    # Drop previous OWNER_ACCES permissions if these exists.
+    # This is needed when projects change owners.
+    Access.objects.filter(project=instance, access=Access.OWNER_ACCESS).delete()
+
+    # Create the admin access for the current owner.
+    access = Access.objects.create(user=instance.owner, project=instance, access=Access.OWNER_ACCESS)
+    access.save()
 
 class Data(models.Model):
     PENDING, READY, ERROR, = 1, 2, 3
