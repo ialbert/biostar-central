@@ -162,15 +162,15 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
         messages.error(request, msg)
         return False
 
-    # The owner of a project may access every component of a project.
-    if project.owner == user:
-        return True
-
     # If the project is public then any user can have read access.
     if project.privacy == Project.PUBLIC and access == Access.READ_ACCESS:
-            return True
+        return True
 
-    # Check if owner of the instance or project is the only one with access.
+    # The owner of an instance may access most components
+    # depending on their role (only a moderator can approve template changes).
+    if (project.owner == user or instance.owner == user) and (access == Access.OWNER_ACCESS):
+        return True
+
     if access == Access.OWNER_ACCESS:
         # If we made it this far the user is not the owner.
         msg = mark_safe("Only the creator of the object or project can perform that action.")

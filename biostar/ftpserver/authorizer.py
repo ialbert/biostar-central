@@ -34,6 +34,8 @@ def perm_map(project, user):
     """
 
 
+
+
     return "elr"
 
 
@@ -104,11 +106,7 @@ class BiostarAuthorizer(object):
         self.user_table[username]['operms'][directory] = perm, recursive
 
     def get_home_dir(self, username):
-        """Return the user's home directory.
-        Since this is called during authentication (PASS),
-        AuthenticationFailed can be freely raised by subclasses in case
-        the provided username no longer exists.
-        """
+
         return self.user_table[username]['home']
 
 
@@ -139,18 +137,6 @@ class BiostarAuthorizer(object):
         Expected perm argument is one of the following letters:
         "elradfmwMT".
         """
-        if path is None:
-            return perm in self.user_table[username]['perm']
-
-        path = os.path.normcase(path)
-        for dir in self.user_table[username]['operms'].keys():
-            operm, recursive = self.user_table[username]['operms'][dir]
-            if self._issubpath(path, dir):
-                if recursive:
-                    return perm in operm
-                if (path == dir or os.path.dirname(path) == dir and not
-                        os.path.isdir(path)):
-                    return perm in operm
 
         return perm in self.user_table[username]['perm']
 
