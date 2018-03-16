@@ -169,8 +169,8 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
         return True
 
     # Give precedence to role access
-    if role:
-        return user.is_authenticated and user.profile.role == role
+    #if role:
+    #    return user.is_authenticated and user.profile.role == role
 
     # Check ownership access.
     if access == Access.OWNER_ACCESS:
@@ -180,8 +180,6 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
             msg = mark_safe("Only the creator of the object or project can perform that action.")
             messages.error(request, msg)
             return False
-
-
 
     # Bail out if user has no other access or valid roles.
     if (access == Access.NO_ACCESS) and role and user.profile.role != role:
