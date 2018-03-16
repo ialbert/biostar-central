@@ -1,18 +1,18 @@
 import difflib
 import logging
 import uuid
-import hjson
-import re
-
 from mimetypes import guess_type
+
+import hjson
+from biostar import settings
+from biostar.accounts.models import Profile
 from django.contrib import messages
 from django.db.models import Q
 from django.template import Template, Context
 from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
-from biostar.accounts.models import Profile
-from biostar import settings
+
 from . import util
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
@@ -52,6 +52,7 @@ def get_analysis_attr(analysis, project=None):
 
     return dict(project=project, json_text=json_text, template=template,
                 user=owner, summary=summary, name=name, text=text)
+
 
 def generate_script(job):
     """
@@ -102,7 +103,7 @@ def template_changed(analysis, template):
 
     change = list(difflib.unified_diff(text1, text2))
 
-    #print(f"Change: {bool(change)} {change}")
+    # print(f"Change: {bool(change)} {change}")
     return change
 
 
@@ -121,7 +122,7 @@ def get_project_list(user, include_public=True):
     else:
         # Authenticated users see public projects and private projects with access rights.
 
-        cond =  Q(privacy=privacy) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
+        cond = Q(privacy=privacy) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
 
     # Generate the query.
     query = Project.objects.filter(cond).distinct()
@@ -162,24 +163,25 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
         messages.error(request, msg)
         return False
 
+
     # If the project is public then any user can have read access.
     if project.privacy == Project.PUBLIC and access == Access.READ_ACCESS:
         return True
 
-    # The owner of an instance may access most components
-    # depending on their role (only a moderator can approve template changes).
-    if (project.owner == user or instance.owner == user) and (access == Access.OWNER_ACCESS):
-        return True
+    # Give precedence to role access
+    if role:
+        return user.is_authenticated and user.profile.role == role
 
+    # Check ownership access.
     if access == Access.OWNER_ACCESS:
-        # If we made it this far the user is not the owner.
-        msg = mark_safe("Only the creator of the object or project can perform that action.")
-        messages.error(request, msg)
-        return False
+        if project.owner == user or instance.owner == user:
+            return True
+        else:
+            msg = mark_safe("Only the creator of the object or project can perform that action.")
+            messages.error(request, msg)
+            return False
 
-    # Give precedence to role over checking access
-    if role and user.profile.role == role:
-        return True
+
 
     # Bail out if user has no other access or valid roles.
     if (access == Access.NO_ACCESS) and role and user.profile.role != role:
@@ -219,7 +221,6 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
 
 def create_project(user, name, uid=None, summary='', text='', stream=None,
                    privacy=Project.PRIVATE, sticky=True, update=False):
-
     uid = uid or util.get_uuid(8)
     project = Project.objects.filter(uid=uid)
 
@@ -264,8 +265,8 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     else:
         # Create
         analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
-                                       owner=owner, name=name, text=text, security=security,
-                                       template=template, sticky=sticky)
+                                           owner=owner, name=name, text=text, security=security,
+                                           template=template, sticky=sticky)
         logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
     if stream:
@@ -315,7 +316,6 @@ def make_summary(data, summary='', title='', name="widgets/job_summary.html"):
 
 
 def make_job_title(recipe, data):
-
     collect = []
     for key, obj in data.items():
         if obj.get('label'):
@@ -363,7 +363,6 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     return job
 
 
-
 def guess_mimetype(fname):
     "Return mimetype for a known text filename"
 
@@ -379,7 +378,6 @@ def guess_mimetype(fname):
 
 
 def load_data_clipboard(uid, request):
-
     board = request.session.get("data_clipboard") or []
 
     if isinstance(board, list):
@@ -389,7 +387,6 @@ def load_data_clipboard(uid, request):
 
 
 def dump_data_clipboard(request, reset=False):
-
     data_list = request.session.get("data_clipboard") or []
     board = []
     for data_uid in data_list:
@@ -397,7 +394,7 @@ def dump_data_clipboard(request, reset=False):
         data = Data.objects.filter(uid=data_uid).first()
         # Ensure user has read access to data in clipboard
         has_access = check_obj_access(instance=data, user=request.user, request=request,
-                                           access=Access.READ_ACCESS)
+                                      access=Access.READ_ACCESS)
         if has_access:
             board.append(data)
 
