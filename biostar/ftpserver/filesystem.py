@@ -11,6 +11,10 @@ from .authorizer import perm_map
 
 
 
+def split(path):
+    path = os.path.normpath(path)
+    return [x for x in path.split(os.sep) if x]
+
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
@@ -21,8 +25,6 @@ def fetch_file_info(instance, basedir='/'):
 
     rfname = project = ''
     filetype = 'file'
-
-    pname, dname = os.path.split(basedir)[:2]
 
     if isinstance(instance, Project):
         filetype = "dir"
@@ -35,16 +37,13 @@ def fetch_file_info(instance, basedir='/'):
         filetype = 'file' if len(instance.get_files()) <= 1 else "dir"
 
     if isinstance(instance, str):
-        suffix = os.path.join(*os.path.split(basedir)[2:], instance)
+        pname, dname = split(basedir)[0], split(basedir)[1]
 
-        project = Project.objects.filter(name=pname.replace('/', '')).first()
-        data = Data.objects.filter(name=dname.replace('/', ''), project=project, deleted=False).first()
-        full_path = os.path.join(data.get_data_dir(), suffix)
+        suffix = os.path.join(*split(basedir)[2:], instance)
+        project = Project.objects.filter(name=pname).first()
+        data = Data.objects.filter(name=dname, project=project, deleted=False).first()
+        rfname = os.path.join(data.get_data_dir(), suffix)
 
-        print(full_path, data.get_files(), suffix, instance)
-
-        rfname = [os.path.abspath(x.path) for x in os.scandir(data.get_data_dir())
-                  if x.path.endswith(full_path)][0]
         filetype = 'dir' if rfname and os.path.isdir(rfname) else 'file'
 
 
@@ -97,9 +96,6 @@ class BiostarFileSystem(AbstractedFS):
         return True
 
 
-    def split(self, path):
-        return path.split("/")
-
     def listdir(self, path):
         # This is the root as initialized in the base class
 
@@ -114,22 +110,19 @@ class BiostarFileSystem(AbstractedFS):
             data_list = Data.objects.filter(deleted=False, project=project)
             return data_list
 
-        path_list = self.split(path)
+        path_list = split(path)
         root_project, current_data = path_list[0], path_list[1]
-        project = Project.objects.filter(name=root_project.replace('/', '')).first()
+        project = Project.objects.filter(name=root_project).first()
 
         data = Data.objects.filter(deleted=False, project=project, name=current_data).first()
 
         if data and len(path_list) == 2:
-
-            # Skip the toc when return dir contents
+            # Skip the toc when returning dir contents
             return [os.path.basename(p.path) for p in os.scandir(data.get_data_dir())
                     if p.path != data.get_path()]
 
-        print(self.split(path),"LLLL")
-        suffix = os.path.join(*self.split(path)[2:])
+        suffix = os.path.join(*path_list[2:])
         full_path = os.path.join(data.get_data_dir(), suffix)
-        #print(full_path,  [ os.path.basename(item.path) for item in os.scandir(full_path) ])
         try:
             return [ os.path.basename(item.path) for item in os.scandir(full_path) ]
         except Exception:
