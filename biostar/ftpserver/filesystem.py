@@ -12,12 +12,13 @@ from .authorizer import perm_map
 
 
 def split(path):
+    "Splits using the os.sep "
     path = os.path.normpath(path)
     return [x for x in path.split(os.sep) if x]
 
+
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
-
 
 
 

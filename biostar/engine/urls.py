@@ -46,8 +46,6 @@ urlpatterns = [
     url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
     url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
     url(r'^recipe/diff/(?P<uid>[-\w]+)/$', views.recipe_diff, name='recipe_diff'),
-    url(r'^recipe/approve/(?P<uid>[-\w]+)/$', views.recipe_approve, name='recipe_approve'),
-    url(r'^recipe/revert/(?P<uid>[-\w]+)/$', views.recipe_revert, name='recipe_revert'),
 
 
     # Actions

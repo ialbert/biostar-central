@@ -13,31 +13,36 @@
         <div class="ui message"><i class="ui minus icon"></i> No Changes Detected.</div>
     {% endif %}
 
-    <div class="ui center aligned vertical segment">
-        <div class="ui buttons">
+    {% form_errors form %}
+    <form class="ui form" action="{% url 'recipe_diff' recipe.uid %}" method="POST">
+     {% csrf_token %}
 
-            <a class="ui green button" href="{% url 'recipe_approve' recipe.uid %}">
-                <i class="check icon"></i>Approve</a>
+        <div class="ui center aligned vertical segment">
+            <div class="ui buttons">
+                <button type="submit" name="action" value="APPROVE" class="ui green button">
+                    <i class="check icon"></i>Approve
+                </button>
 
-            <div class="or"></div>
+                    <div class="or"></div>
 
-            <a class="ui  button" href="{% url 'recipe_revert' recipe.uid %}"><i
-            class="undo icon"></i>Revert</a>
+                <button type="submit" name="action" value="REVERT" class="ui button">
+                    <i class="undo icon"></i>Revert
+                </button>
 
+            </div>
         </div>
-    </div>
 
-    <div class="ui center aligned vertical segment">
-        <a class="ui mini button" href="{% url 'recipe_code' recipe.uid %}">
-            <i class="keyboard icon"></i>View Code
-        </a>
-        <a class="ui mini button" href="{% url 'recipe_view' recipe.uid %}">
-            <i class="setting icon"></i>View Recipe
-        </a>
-    </div>
+        <div class="ui center aligned vertical segment">
+            <a class="ui mini button" href="{% url 'recipe_code' recipe.uid %}">
+                <i class="keyboard icon"></i>View Code
+            </a>
+            <a class="ui mini button" href="{% url 'recipe_view' recipe.uid %}">
+                <i class="setting icon"></i>View Recipe
+            </a>
+        </div>
 
-<pre><code>{{diff}}</code></pre>
+    <pre><code>{{diff}}</code></pre>
 
-
+    </form>
 
 {% endblock %}

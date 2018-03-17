@@ -117,6 +117,7 @@ class RecipeViewTest(TestCase):
         self.assertEqual(response.status_code, 200, "Can not load moderate page.")
 
 
+    @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
     def test_recipe_diff(self):
         "Test the recipe diff generation."
 
@@ -124,31 +125,14 @@ class RecipeViewTest(TestCase):
         self.recipe.save()
         url = reverse('recipe_diff', kwargs=dict(uid=self.recipe.uid))
 
-        request = util.fake_request(url=url, data={}, user=self.owner)
+        approve_request = util.fake_request(url=url, data={'action':"APPROVE"}, user=self.owner)
+        revert_request = util.fake_request(url=url, data={'action':"REVERT"}, user=self.owner)
 
-        response = views.recipe_diff(request=request, uid=self.recipe.uid)
+        for action in (approve_request, revert_request):
 
-        self.assertEqual(response.status_code, 200, "Can not load moderate page.")
+            response = views.recipe_diff(request=action, uid=self.recipe.uid)
 
-
-    @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
-    def test_recipe_actions(self):
-        "Test the approve and revert actions in views."
-
-        approve_url = reverse('recipe_approve', kwargs=dict(uid=self.recipe.uid))
-        revert_url = reverse('recipe_revert', kwargs=dict(uid=self.recipe.uid))
-
-        approve_request = util.fake_request(url=approve_url, data={}, user=self.owner)
-        revert_request = util.fake_request(url=revert_url, data={}, user=self.owner)
-
-        approve_response = views.recipe_approve(request=approve_request, uid=self.recipe.uid)
-        revert_response = views.recipe_revert(request=revert_request, uid=self.recipe.uid)
-
-        # Check redirection on approval
-        self.process_response(response=approve_response, data={}, save=True)
-
-        # Check redirection on reverting
-        self.process_response(response=revert_response, data={}, save=True)
+            self.process_response(response=response, data={'action':action}, save=True)
 
 
     def process_response(self, response, data, model=models.Analysis,save=False):
