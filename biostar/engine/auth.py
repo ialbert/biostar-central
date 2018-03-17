@@ -296,7 +296,7 @@ def make_job_title(recipe, data):
 
     if collect:
         label = ", ".join(collect)
-        name = f"{recipe.name} results with parameters: {label}"
+        name = f"Results for: {recipe.name} • Parameters: {label}"
     else:
         name = f"{recipe.name}"
 
