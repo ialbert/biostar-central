@@ -61,7 +61,7 @@ urlpatterns = [
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
-    url(r'^job/serve/(?P<uid>[-\w]+)/$', views.job_serve, name='job_serve'),
+    url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_serve, name='job_serve'),
 
     #url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)/(?P<name>.+)$', views.job_serve, name='job_serve')
 

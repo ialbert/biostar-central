@@ -914,9 +914,8 @@ def data_serve(request, uid, path):
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url='job_entry')
-def job_serve(request, uid):
+def job_serve(request, uid, path):
     """
     Serves files from a job directory.
     """
-    path = request.GET.get('path')
     return file_serve(request=request, path=path, uid=uid, klass=Job)

@@ -23,7 +23,7 @@
                         <i class="folder icon"></i>{{ file.name }}
                     </a>
                 {% else %}
-                    <a href="{% url 'job_serve' uid=job.uid %}?path={{ file.path }}">
+                    <a href="{% url 'job_serve' uid=job.uid path=file.path %}">
                         <i class="file text outline icon"></i>{{ file.name }}
                         <span class="ui right floated mini label">{{ file.size|filesizeformat }}</span>
                     </a>
