@@ -19,11 +19,9 @@
         <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>
     {% endif %}
 
+    {%  if user.is_authenticated %}
     <div class="ui center aligned vertical segment">
 
-         <a class="ui mini green button" href="{% url 'data_navigate' project.uid %}">
-            <i class="browser icon"></i>Browse Data
-        </a>
 
         <a class="ui mini button" href="{% url 'data_upload' project.uid %}">
             <i class="upload icon"></i>Upload File
@@ -38,7 +36,8 @@
 
     </div>
 
-    {% list_view data_list=data_list %}
+    {%  endif %}
 
+    {% list_view data_list=data_list %}
 
 {% endblock %}

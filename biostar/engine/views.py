@@ -202,31 +202,6 @@ def data_navigate(request, uid):
     return render(request, "data_navigator.html", context)
 
 
-@object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
-def job_browse(request, uid, path=''):
-    """
-    Browse the directory that corresponds to job results.
-    """
-    job = Job.objects.filter(uid=uid).first()
-    project = job.project
-
-    form = FileCopyForm(root_dir=job.path, request=request, uid=job.uid)
-    if request.method == "POST":
-        form = FileCopyForm(data=request.POST, uid=job.uid, request=request, root_dir=job.path)
-        if form.is_valid():
-            # Copies files to clipboard
-            nfiles = form.save()
-            msg = mark_safe(f"Copied <b>{nfiles}</b> file(s) to Clipboard from <b>{job.name}</b>")
-            messages.success(request, msg)
-            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
-
-    context = dict(activate='Selected Job', job=job, project=project, form=form)
-    counts = get_counts(project)
-    context.update(counts)
-
-    return file_browse(request=request, instance=job, path=path,
-                       template_name="job_browser.html", extra_context=context)
-
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
 def data_browse(request, uid, path='.'):

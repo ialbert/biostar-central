@@ -38,11 +38,17 @@ def sticky_label(obj):
 def build_path(path, name):
     return f'{path}/{name}'
 
-@register.inclusion_tag('widgets/file_listing.html', takes_context=True)
-def file_listing(context, path, files, object, form=None):
+@register.inclusion_tag('widgets/job_file_list.html', takes_context=True)
+def job_file_list(context, path, files, job, form=None):
     # Must to remap into a mutable class
     path = path.strip("/")
-    return dict(path=path, files=files, object=object, form=form, request=context['request'])
+    return dict(path=path, files=files, job=job, form=form)
+
+@register.inclusion_tag('widgets/data_file_list.html', takes_context=True)
+def data_file_list(context, path, files, project, form=None):
+    # Must to remap into a mutable class
+    path = path.strip("/")
+    return dict(path=path, files=files, project=project, form=form)
 
 
 @register.inclusion_tag('widgets/action_bar.html', takes_context=True)

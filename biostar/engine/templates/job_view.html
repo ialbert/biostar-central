@@ -30,8 +30,8 @@
     </div>
 
     <div class="ui vertical segment">
-        <div class="ui center aligned header">Files</div>
-        {% file_listing object=job path=path files=files %}
+        <div class="ui center aligned header">Result Files</div>
+        {% job_file_list job=job path=path files=files %}
     </div>
 
     <div class="ui vertical segment">
