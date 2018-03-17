@@ -26,10 +26,13 @@
     </div>
 
     <div class="ui vertical segment">
+        <div class="ui center aligned header">Files</div>
+        {% data_file_list data=data path=path files=files %}
+    </div>
+
+    <div class="ui vertical segment">
 
         <div class="ui relaxed bulleted list">
-            <div class="item">Size: {{ data.size|filesizeformat }}</div>
-            <div class="item">State: {% state_label data %}</div>
             {% if data.type %}
             <div class="item">Data Type: {% type_label data %} </div>
             {% endif %}
@@ -49,7 +52,7 @@
     </div>
 
     <div class="ui vertical segment">
-        <div class="ui center aligned header">Data Peek</div>
+        <div class="ui center aligned header">Data Content</div>
         <pre>{{ data.peek }}</pre>
     </div>
 

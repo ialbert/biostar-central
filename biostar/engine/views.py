@@ -348,14 +348,19 @@ def project_create(request):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
-def data_view(request, uid):
+def data_view(request, uid, path='.'):
     "Show information specific to each data."
 
     data = Data.objects.filter(uid=uid).first()
 
     project = data.project
-    context = dict(data=data, project=project, activate='Selected Data')
 
+    toc = data.get_path()
+    abspath = os.path.dirname(toc)
+    tocname = os.path.basename(toc)
+    files = util.scan_files(abspath=abspath, relpath=path, exclude=tocname)
+
+    context = dict(data=data, project=project, activate='Selected Data', files=files, path=path)
     counts = get_counts(project)
     context.update(counts)
 
@@ -820,12 +825,15 @@ def object_state_toggle(request, uid, obj_type):
 
 
 @object_access(type=Job, access=Access.READ_ACCESS)
-def job_view(request, uid, path='.'):
+def job_view(request, uid):
     '''
     Views the state of a single job.
     '''
     job = Job.objects.filter(uid=uid).first()
     project = job.project
+
+    # The path is a GET parameter
+    path = request.GET.get('path', "")
 
     # The job rooth directory
     root, exclude = job.path, ''
@@ -906,10 +914,9 @@ def data_serve(request, uid, path):
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url='job_entry')
-def job_serve(request, uid, path='', name=''):
+def job_serve(request, uid):
     """
     Serves files from a job directory.
     """
-
-    path = path + "/" + name if path else name
+    path = request.GET.get('path')
     return file_serve(request=request, path=path, uid=uid, klass=Job)

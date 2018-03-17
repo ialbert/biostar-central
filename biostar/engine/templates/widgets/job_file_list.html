@@ -8,10 +8,10 @@
     <div class="ui relaxed divided list">
 
         <div class="item">
-            {% if path != '.' %}
-                <a href="{% url 'job_view_path' uid=job.uid path=path %}/.."><i class="backward icon"></i>../</a>
+            {% if path %}
+                <a href="{% url 'job_view' uid=job.uid %}?path={{ back }}"><i class="backward icon"></i>../</a>
             {%  else %}
-                <a href="#"><i class="backward icon"></i>../</a>
+                <a href="#"><i class="home icon"></i>../</a>
             {% endif %}
         </div>
 
@@ -19,11 +19,11 @@
             <div class="item">
                 <input type="checkbox" name="paths" value="{{ file.path }}">
                 {% if file.is_dir %}
-                    <a href="{% url 'job_view_path' uid=job.uid path=file.path %}">
+                    <a href="{% url 'job_view' uid=job.uid %}?path={{ file.path }}">
                         <i class="folder icon"></i>{{ file.name }}
                     </a>
                 {% else %}
-                    <a href="{% url 'job_serve' uid=job.uid path=path name=file.name %}">
+                    <a href="{% url 'job_serve' uid=job.uid %}?path={{ file.path }}">
                         <i class="file text outline icon"></i>{{ file.name }}
                         <span class="ui right floated mini label">{{ file.size|filesizeformat }}</span>
                     </a>

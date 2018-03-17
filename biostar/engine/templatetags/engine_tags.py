@@ -40,9 +40,9 @@ def build_path(path, name):
 
 @register.inclusion_tag('widgets/job_file_list.html', takes_context=True)
 def job_file_list(context, path, files, job, form=None):
-    # Must to remap into a mutable class
-    path = path.strip("/")
-    return dict(path=path, files=files, job=job, form=form)
+
+    back = "/".join(path.split("/")[:-1])
+    return dict(path=path, files=files, job=job, form=form, back=back)
 
 @register.inclusion_tag('widgets/data_file_list.html', takes_context=True)
 def data_file_list(context, path, files, data, form=None):

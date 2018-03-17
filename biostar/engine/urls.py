@@ -22,6 +22,7 @@ urlpatterns = [
     # Data
     url(r'^data/list/(?P<uid>[-\w]+)/$', views.data_list, name='data_list'),
     url(r'^data/view/(?P<uid>[-\w]+)/$', views.data_view, name='data_view'),
+    url(r'^data/view/(?P<uid>[-\w]+)/(?P<path>.+)$', views.data_view, name='data_view_path'),
     url(r'^data/edit/(?P<uid>[-\w]+)/$', views.data_edit, name='data_edit'),
     url(r'^data/upload/(?P<uid>[-\w]+)/$', views.data_upload, name='data_upload'),
     url(r'^data/copy/(?P<uid>[-\w]+)/$', views.data_copy, name='data_copy'),
@@ -59,12 +60,10 @@ urlpatterns = [
     # Jobs
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
-    url(r'^job/view/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_view, name='job_view_path'),
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
+    url(r'^job/serve/(?P<uid>[-\w]+)/$', views.job_serve, name='job_serve'),
 
-    # Job file serve.
-    url(r'^job/serve/(?P<uid>[-\w]+)/(?P<name>.+)$', views.job_serve, name='job_serve_short'),
-    url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)/(?P<name>.+)$', views.job_serve, name='job_serve')
+    #url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)/(?P<name>.+)$', views.job_serve, name='job_serve')
 
 ]
 

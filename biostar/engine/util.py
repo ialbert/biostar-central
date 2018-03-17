@@ -52,7 +52,7 @@ def scan_files(relpath, abspath, exclude=None):
 
     def transform(f):
         b = File()
-        b.path = f'{relpath}/{f.name}'
+        b.path = f'{relpath}/{f.name}' if relpath else f.name
         b.is_dir = f.is_dir()
         b.name, b.size = f.name, f.stat().st_size
         return b
