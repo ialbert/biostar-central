@@ -9,7 +9,7 @@
 
         <div class="item">
             {% if path != '.' %}
-                <a href="{% url 'job_view_path' uid=object.uid path=path %}/.."><i class="backward icon"></i>../</a>
+                <a href="{% url 'job_view_path' uid=data.uid path=path %}/.."><i class="backward icon"></i>../</a>
             {% endif %}
         </div>
 
@@ -17,11 +17,11 @@
             <div class="item">
                 <input type="checkbox" name="paths" value="{{ file.path }}">
                 {% if file.is_dir %}
-                    <a href="{% url 'job_view_path' uid=object.uid path=file.path %}">
+                    <a href="{% url 'job_view_path' uid=data.uid path=file.path %}">
                         <i class="folder icon"></i>{{ file.name }}
                     </a>
                 {% else %}
-                    <a href="{% url 'job_serve' uid=object.uid path=path name=file.name %}">
+                    <a href="{% url 'job_serve' uid=data.uid path=path name=file.name %}">
                         <i class="file text outline icon"></i>{{ file.name }}
                         <span class="ui right floated mini label">{{ file.size|filesizeformat }}</span>
                     </a>

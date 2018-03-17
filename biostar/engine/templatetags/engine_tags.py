@@ -45,10 +45,10 @@ def job_file_list(context, path, files, job, form=None):
     return dict(path=path, files=files, job=job, form=form)
 
 @register.inclusion_tag('widgets/data_file_list.html', takes_context=True)
-def data_file_list(context, path, files, project, form=None):
+def data_file_list(context, path, files, data, form=None):
     # Must to remap into a mutable class
     path = path.strip("/")
-    return dict(path=path, files=files, project=project, form=form)
+    return dict(path=path, files=files, data=data, form=form)
 
 
 @register.inclusion_tag('widgets/action_bar.html', takes_context=True)
