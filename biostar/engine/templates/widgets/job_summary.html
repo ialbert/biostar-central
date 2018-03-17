@@ -1,8 +1,10 @@
 {% load engine_tags %}
 
-{% if data.items %}
-    Recipe parameters:
+<div>
+    {{ summary|markdown|safe }}
+</div>
 
+{% if data.items %}
     <ul>
         {% for key, obj in data.items %}
             {% if obj.label %}
@@ -16,9 +18,6 @@
             {% endif %}
         {% endfor %}
     </ul>
-
 {% endif %}
 
-<div>
-    {{ summary|markdown|safe }}
-</div>
+

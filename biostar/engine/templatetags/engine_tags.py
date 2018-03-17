@@ -28,16 +28,21 @@ DATA_COLORS = {
 }
 
 
+
 @register.simple_tag
 def sticky_label(obj):
     label = mark_safe('<span class ="ui label">Sticky</span>')
     return label if obj.sticky else ''
 
+@register.simple_tag
+def build_path(path, name):
+    return f'{path}/{name}'
 
-
-@register.inclusion_tag('widgets/file_listing.html')
-def file_listing(path, file_list, object, project_uid='', form=None):
-    return dict(path=path, file_list=file_list, object=object, project_uid=project_uid, form=form)
+@register.inclusion_tag('widgets/file_listing.html', takes_context=True)
+def file_listing(context, path, files, object, form=None):
+    # Must to remap into a mutable class
+    path = path.strip("/")
+    return dict(path=path, files=files, object=object, form=form, request=context['request'])
 
 
 @register.inclusion_tag('widgets/action_bar.html', takes_context=True)
@@ -78,13 +83,6 @@ def list_view(projects=None, data_list=None, recipe_list=None, job_list=None):
     return dict(projects=projects, data_list=data_list, recipe_list=recipe_list,
                 job_list=job_list)
 
-@register.simple_tag
-def input(path, current):
-
-    path = path + "/" if path else ""
-    input_template = f'<input type="checkbox" name="paths" value="{path}{current.name}">'
-    return mark_safe(input_template)
-
 
 @register.inclusion_tag('widgets/recipe_moderate.html')
 def recipes_moderate(cutoff=0):
@@ -122,7 +120,6 @@ def file_url(object, path, current):
             </a>
             """
     return mark_safe(file_template)
-
 
 @register.filter
 def has_data(request):
@@ -374,6 +371,8 @@ def form_errors(form):
     """
     Turns form errors into a data structure
     """
+    if not form:
+        return
 
     errorlist = [ ('', message) for message in form.non_field_errors() ]
 

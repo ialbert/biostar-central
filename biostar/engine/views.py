@@ -21,6 +21,7 @@ from .diffs import color_diffs
 from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, Access)
+from . import util
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -228,7 +229,7 @@ def job_browse(request, uid, path=''):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
-def data_browse(request, uid, path=''):
+def data_browse(request, uid, path='.'):
     """
     Browse the directory that corresponds to data.
     """
@@ -842,15 +843,30 @@ def object_state_toggle(request, uid, obj_type):
     return redirect(url)
 
 
+
 @object_access(type=Job, access=Access.READ_ACCESS)
-def job_view(request, uid):
+def job_view(request, uid, path='.'):
     '''
     Views the state of a single job.
     '''
     job = Job.objects.filter(uid=uid).first()
     project = job.project
 
-    context = dict(job=job, project=project, activate='Selected Result')
+    # The job rooth directory
+    root, exclude = job.path, ''
+
+    # Get the target directory.
+    abspath = join(job.path, path)
+
+    # Generate the files
+    if abspath.startswith(root) and os.path.exists(abspath):
+        files = util.scan_files(abspath=abspath, relpath=path)
+    else:
+        # Attempting to access a file outside of the root directory
+        messages.error(request, "Invalid path.")
+        files = []
+
+    context = dict(job=job, project=project, files=files, path=path, activate='Selected Result')
 
     counts = get_counts(project)
     context.update(counts)
@@ -915,8 +931,10 @@ def data_serve(request, uid, path):
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url='job_entry')
-def job_serve(request, uid, path):
+def job_serve(request, uid, path='', name=''):
     """
     Serves files from a job directory.
     """
+
+    path = path + "/" + name if path else name
     return file_serve(request=request, path=path, uid=uid, klass=Job)

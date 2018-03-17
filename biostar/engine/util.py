@@ -18,6 +18,48 @@ def fix_endings(text):
     return text.replace("\r\n", "\n")
 
 
+class File(object):
+    pass
+
+def project_files(project):
+    """
+    Lists project data as they were files
+    """
+
+    data = project.data_set.order_by("sticky", "-date").all()
+
+    def transform(f):
+        b = File()
+        b.path = f'{f.name}'
+        b.is_dir = True
+        b.name, b.size = f.name, f.size
+        return b
+
+    files = map(transform(data))
+
+    return files
+
+def scan_files(relpath, abspath, exclude=None):
+    """
+    Generates a list of file objects at an absolute path.s
+    """
+
+    # Pathlike objects with attributes such as name, is_file
+    files = list(filter(lambda p: p.name != exclude, os.scandir(abspath)))
+
+    # Sort the file list. Directories first, then by name.
+    files = sorted(files, key=lambda p: (p.is_file(), p.name))
+
+    def transform(f):
+        b = File()
+        b.path = f'{relpath}/{f.name}'
+        b.is_dir = f.is_dir()
+        b.name, b.size = f.name, f.stat().st_size
+        return b
+
+    files = map(transform, files)
+
+    return files
 
 def smart_preview(fname):
     CHUNK_SIZE, LINE_COUNT = 1024, 10

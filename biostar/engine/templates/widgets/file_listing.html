@@ -1,10 +1,36 @@
 {% load engine_tags %}
 
-
 {% form_errors form %}
 
 <form method="post" class="ui form" action=".">
     {% csrf_token %}
+
+    <div class="ui relaxed divided list">
+
+        <div class="item">
+            {% if path != '.' %}
+                <a href="{% url 'job_view_path' uid=object.uid path=path %}/.."><i class="backward icon"></i>../</a>
+            {% endif %}
+        </div>
+
+        {% for file in files %}
+            <div class="item">
+                <input type="checkbox" name="paths" value="{{ file.path }}">
+                {% if file.is_dir %}
+                    <a href="{% url 'job_view_path' uid=object.uid path=file.path %}">
+                        <i class="folder icon"></i>{{ file.name }}
+                    </a>
+                {% else %}
+                    <a href="{% url 'job_serve' uid=object.uid path=path name=file.name %}">
+                        <i class="file text outline icon"></i>{{ file.name }}
+                        <span class="ui right floated mini label">{{ file.size|filesizeformat }}</span>
+                    </a>
+                {% endif %}
+            </div>
+
+        {% endfor %}
+
+    </div>
 
     <div class="ui center aligned basic segment">
         <button type="submit" class="ui submit mini button">
@@ -12,30 +38,4 @@
         </button>
     </div>
 
-    <div class="ui relaxed divided list">
-
-        <div class="item">
-
-            {% if path %}
-                <a href="../"><i class="backward icon"></i>../</a>
-            {% elif project_uid %}
-                <a href="{% url 'data_navigate' project_uid %}"><i class="backward icon"></i>../</a>
-            {% else %}
-                <a href="{{ object.url }}"><i class="backward icon"></i>../</a>
-            {% endif %}
-
-        </div>
-
-        {% for entry in file_list %}
-
-            <div class="item">
-                {% input path=path current=entry %}
-                {% file_url object=object path=path current=entry %}
-            </div>
-
-        {% endfor %}
-
-
-
-    </div>
 </form>
