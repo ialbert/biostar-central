@@ -3,11 +3,11 @@ from django.core.management.base import BaseCommand
 
 from biostar.emailer import  models, auth
 
-
 from django.conf import settings
 
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
+
 
 class Command(BaseCommand):
     help = 'Send an email to a group.'
@@ -24,7 +24,6 @@ class Command(BaseCommand):
 
         parser.add_argument('--template', type=str, required=False,
                             default="test_email.html", help="Email template.")
-
 
     def handle(self, *args, **options):
 

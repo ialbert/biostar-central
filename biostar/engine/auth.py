@@ -145,51 +145,29 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
         messages.error(request, "Object does not exist.")
         return False
 
-    # A textual representation of the access
-    access_text = Access.ACCESS_MAP.get(access, 'Invalid')
-
     # Works for projects or objects with an attribute of project.
-    if hasattr(instance, "project"):
-        project = instance.project
-    else:
-        project = instance
+    project = instance if not hasattr(instance, "project") else instance.project
 
     # Check for logged in user and login requirement.
     if user.is_anonymous and login_required:
-        msg = f"""
-            You must be logged in to perform that action.
-        """
-        msg = mark_safe(msg)
-        messages.error(request, msg)
+        messages.error(request, "You must be logged in to perform that action.")
         return False
-
 
     # If the project is public then any user can have read access.
     if project.privacy == Project.PUBLIC and access == Access.READ_ACCESS:
         return True
-
-    # Give precedence to role access
-    if role:
-        return user.is_authenticated and user.profile.role == role
 
     # Check ownership access.
     if access == Access.OWNER_ACCESS:
         if project.owner == user or instance.owner == user:
             return True
         else:
-            msg = mark_safe("Only the creator of the object or project can perform that action.")
+            msg = "Only the creator of the object or project can perform that action."
             messages.error(request, msg)
             return False
 
-
-
-    # Bail out if user has no other access or valid roles.
-    if (access == Access.NO_ACCESS) and role and user.profile.role != role:
-        display = dict(Profile.ROLE_CHOICES).get(role, '').lower()
-        messages.error(request, mark_safe(f"You have to be a <b>{display}</b> to preform action."))
-        return False
-
     # Prepare the access denied message.
+    access_text = Access.ACCESS_MAP.get(access, 'Invalid')
     deny = access_denied_message(user=user, access=access_text)
 
     # Anonymous users have no other access permissions.
@@ -199,23 +177,17 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
 
     # Check user access.
     entry = Access.objects.filter(user=user, project=project).first()
+    entry = entry or Access(access=Access.NO_ACCESS)
+    # Check user role.
+    has_role = role and user.profile.role == role
 
-    # No access permissions for the user on the project.
-    if not entry:
-        messages.error(request, deny)
-        return False
-
-    # The stored access is less than the required access.
-    if entry.access < access:
+    if entry.access <  access and not has_role:
         messages.warning(request, deny)
         return False
-
-    # Permissions granted to the object.
-    if entry.access >= access:
+    if entry.access >= access or has_role:
         return True
 
-    # This should never trigger and is here to catch bugs.
-    messages.error(request, "Access denied! Invalid fall-through!")
+    messages.error(request, "Invalid fall through.")
     return False
 
 
