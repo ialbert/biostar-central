@@ -75,7 +75,6 @@ def toggle_notify(request):
     return redirect(reverse('profile'))
 
 
-
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_signup(request):
 
@@ -83,26 +82,26 @@ def user_signup(request):
         messages.info(request, "Signups are not enabled on this site.")
         return redirect("/")
 
-    # if request.method == 'POST':
-    #
-    #     form = SignUpForm(request.POST)
-    #     form.add_error(None, "Sign up is disabled")
-    #     if form.is_valid():
-    #         email = form.cleaned_data.get('email')
-    #         password = form.cleaned_data.get('password1')
-    #         name = email.split("@")[0]
-    #
-    #         user = User.objects.create(username=get_uuid(), email=email,
-    #                                    first_name=name)
-    #         user.set_password(password)
-    #         user.save()
-    #         logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
-    #         messages.info(request, "Signup successful!")
-    #         return redirect(reverse('login'))
-    # else:
-    #     form = SignUpForm()
-    # context = dict(form=form)
-    # return render(request, 'accounts/signup.html', context=context)
+    if request.method == 'POST':
+
+        form = SignUpForm(request.POST)
+        form.add_error(None, "Sign up is disabled")
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password1')
+            name = email.split("@")[0]
+
+            user = User.objects.create(username=get_uuid(), email=email,
+                                       first_name=name)
+            user.set_password(password)
+            user.save()
+            logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
+            messages.info(request, "Signup successful!")
+            return redirect(reverse('login'))
+    else:
+        form = SignUpForm()
+    context = dict(form=form)
+    return render(request, 'accounts/signup.html', context=context)
 
 
 def user_logout(request):

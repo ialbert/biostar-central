@@ -405,6 +405,9 @@ class Job(models.Model):
     def url(self):
         return reverse("job_view", kwargs=dict(uid=self.uid))
 
+    def get_project_dir(self):
+        return self.project.get_project_dir()
+
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"
@@ -448,3 +451,12 @@ class Job(models.Model):
             self.path = path
 
         super(Job, self).save(*args, **kwargs)
+
+
+@receiver(post_save, sender=Data)
+def check_job_name(sender, instance, created, **kwargs):
+
+    # Add primary key to the name if it already exists.
+    if Job.objects.filter(name=instance.name,
+                           project=instance.project).count() > 1:
+        instance.name += f"_{instance.pk}"

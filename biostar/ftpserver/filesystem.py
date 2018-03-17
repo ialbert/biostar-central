@@ -4,21 +4,53 @@ import os
 
 from pyftpdlib.filesystems import AbstractedFS
 from django.contrib.auth.models import AnonymousUser
-from biostar.engine.models import Project, Data
+from biostar.engine.models import Project, Data, Job
 from biostar.engine import auth
 
 from .authorizer import perm_map
 
 
 
-def split(path):
-    "Splits using the os.sep "
-    path = os.path.normpath(path)
-    return [x for x in path.split(os.sep) if x]
-
-
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
+
+
+class Bunch(object):
+    st_size = 0
+    def __init__(self, **kwargs):
+        self.__dict__.update(**kwargs)
+
+
+def split(path):
+    """
+    Splits using the os.sep.
+
+    """
+    path = [x for x in os.path.normpath(path).split(os.sep) if x]
+    return path
+
+
+
+def fetch(cond, list, idx):
+    # Returns None if cond is not met
+    # used to avoid Indexing Errors
+
+    return None if not cond else list[idx]
+
+
+def query_tab(tab, project, name=None):
+    "Return actual path for a path name in /data or /results"
+
+    klass_map = {'data': Data, 'results':Job }
+    instance = klass_map[tab].objects.filter(deleted=False, project=project, name=name).first()
+
+    path = ''
+    if tab == 'data' and instance:
+        path = instance.get_data_dir()
+    elif tab == 'results' and instance:
+        path = instance.path
+
+    return path
 
 
 
@@ -37,13 +69,26 @@ def fetch_file_info(instance, basedir='/'):
         project = instance.project
         filetype = 'file' if len(instance.get_files()) <= 1 else "dir"
 
-    if isinstance(instance, str):
-        pname, dname = split(basedir)[0], split(basedir)[1]
+    if isinstance(instance, Job):
+        rfname = instance.path
+        project = instance.project
+        filetype = 'dir'
 
-        suffix = os.path.join(*split(basedir)[2:], instance)
-        project = Project.objects.filter(name=pname).first()
-        data = Data.objects.filter(name=dname, project=project, deleted=False).first()
-        rfname = os.path.join(data.get_data_dir(), suffix)
+    if isinstance(instance, str):
+
+        path_list = split(basedir)
+
+        project_name = fetch(len(path_list) >= 1, path_list, 0)
+        project = Project.objects.filter(name=project_name).first()
+
+        tab = fetch(len(path_list) >= 2, path_list, 1)
+        name = fetch(len(path_list) >= 3, path_list, 2)
+        base = None if not len(path_list) >= 3 else path_list[3:]
+
+        suffix = instance if not base else os.path.join(*base, instance)
+        prefix = query_tab(tab=tab, project=project, name=name)
+
+        rfname = os.path.join(prefix, suffix)
 
         filetype = 'dir' if rfname and os.path.isdir(rfname) else 'file'
 
@@ -73,7 +118,7 @@ class BiostarFileSystem(AbstractedFS):
 
         logger.info(f"current_user={current_user}")
 
-        # Dict with all users
+        # Dict with all users stored by parent class
         self.user_table = self.cmd_channel.authorizer.user_table
 
         # Logged in user
@@ -87,6 +132,12 @@ class BiostarFileSystem(AbstractedFS):
 
     def validpath(self, path):
         logger.info(f"path={path}")
+        path_list = split(path)
+
+        # Check user did not leave /data or /results while in project.
+        tab = fetch(len(path_list) >= 2, path_list, 1)
+        if tab and (tab not in ('data', 'results')):
+            return False
 
         return True
 
@@ -101,34 +152,47 @@ class BiostarFileSystem(AbstractedFS):
         # This is the root as initialized in the base class
 
         logger.info(f"path={path}, cwd={self._cwd}")
-        # List all projects.
+
+        path_list = split(path)
+        project_name = fetch(len(path_list) >= 1, path_list, 0)
+        project = Project.objects.filter(name=project_name).first()
+        inside_project = project and len(path_list) == 2
+
+        # List all projects when user is at the root
         if path == self._root:
             return self.project_list
 
-        # List data belonging to one project
-        project = Project.objects.filter(name=path.replace('/', '')).first()
-        if project:
-            data_list = Data.objects.filter(deleted=False, project=project)
-            return data_list
+        # We can choose to browse /data or /results inside of a project.
+        if project and len(path_list) == 1:
+            return ['data', 'results']
 
-        path_list = split(path)
-        root_project, current_data = path_list[0], path_list[1]
-        project = Project.objects.filter(name=root_project).first()
+        # List project data under /data
+        if inside_project and path_list[1] == "data":
+            return Data.objects.filter(deleted=False, project=project) or []
 
-        data = Data.objects.filter(deleted=False, project=project, name=current_data).first()
+        # List project results under /results
+        if inside_project and path_list[1] == 'results':
+            return Job.objects.filter(deleted=False, project=project) or []
 
-        if data and len(path_list) == 2:
+        # At this point, len(path_list) > 2 and
+        # the tab should be in (data, results, None ).
+        # The latter is guaranteed by self.valid_path().
+        name = fetch(len(path_list) >= 3, path_list, 2)
+
+        actual_path = query_tab(tab=path_list[1], project=project, name=name)
+
+        # List the files inside of /data and /results tabs
+        if actual_path and len(path_list) == 3:
             # Skip the toc when returning dir contents
-            return [os.path.basename(p.path) for p in os.scandir(data.get_data_dir())
-                    if p.path != data.get_path()]
-
-        suffix = os.path.join(*path_list[2:])
-        full_path = os.path.join(data.get_data_dir(), suffix)
+            return [os.path.basename(p.path) for p in os.scandir(actual_path)]
         try:
+            # List sub-dirs found in /data and /results
+            suffix = os.path.join(*path_list[3:])
+            full_path = os.path.join(actual_path, suffix)
             return [ os.path.basename(item.path) for item in os.scandir(full_path) ]
         except Exception:
             return []
-
+        
 
     def chdir(self, path):
         """
@@ -146,12 +210,20 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"basedir={basedir} listing={listing} facts={facts} perms={perms}")
         lines = []
         timefunc = time.localtime if self.cmd_channel.use_gmt_times else time.gmtime
+        path_list = split(basedir)
+
+        name = fetch(len(path_list) >= 1, path_list, 0)
+        project = Project.objects.filter(name=name).first()
 
         for instance in listing:
 
-            project, rfname, filetype = fetch_file_info(instance, basedir=basedir)
+            # Handle /results and /data
+            if len(path_list) == 1:
+                perm, filetype, rfname = 'elr', 'dir', project.get_project_dir()
+            else:
+                project, rfname, filetype = fetch_file_info(instance, basedir=basedir)
+                perm = perm_map(project=project, user=self.user)
 
-            perm = perm_map(project=project, user=self.user)
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
             modify = time.strftime("%Y%m%d%H%M%S", timefunc(st.st_mtime))

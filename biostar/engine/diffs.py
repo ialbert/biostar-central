@@ -25,26 +25,31 @@ def color_diffs(diff_list):
     nadd, nsub = count_diffs(diff_list, str_format=True)
 
     for diff in diff_list:
+        try:
+            if diff.startswith("-"):
+                diff = f"{diff.strip()} {nsub}\n" if diff.startswith("---") else diff
+                diff = add_color(diff=diff, back="#ff6666", strong="#661400")
 
-        if diff.startswith("-"):
-            diff = f"{diff.strip()} {nsub}\n" if diff.startswith("---") else diff
-            diff = add_color(diff=diff, back="#ff6666", strong="#661400")
+            elif diff.startswith("+"):
+                diff = f"{diff.strip()} {nadd}\n" if diff.startswith("+++") else diff
+                diff = add_color(diff=diff, back="#99ff99", strong="#008000")
 
-        elif diff.startswith("+"):
-            diff = f"{diff.strip()} {nadd}\n" if diff.startswith("+++") else diff
-            diff = add_color(diff=diff, back="#99ff99", strong="#008000")
+            elif diff.startswith("@@"):
+                # Extract line number from a string like: @@ -17,7 +17,7 @@
 
-        elif diff.startswith("@@"):
-            # Extract line number from a string like: @@ -17,7 +17,7 @@
+                line = re.search(r"\d+,", diff)
+                line = int(line.group(0).split(",")[0]) + 1
+                colored_diffs.append("\n" + diff + "..........\n")
+                continue
 
-            line = re.search(r"\d+,", diff)
-            line = int(line.group(0).split(",")[0]) + 1
-            colored_diffs.append("\n" + diff + "..........\n")
-            continue
-
-        # Add the line number
-        color_line = f"<em style='color: gray;'>{line}</em>\t"
-        colored_diffs.append(color_line + diff)
-        line += 1
+            # Add the line number
+            color_line = f"<em style='color: gray;'>{line}</em>\t"
+            colored_diffs.append(color_line + diff)
+            line += 1
+        except Exception:
+            # We do not want this feature breaking the site
+            # so bail out on any error
+            colored_diffs = diff_list
+            break
 
     return colored_diffs
