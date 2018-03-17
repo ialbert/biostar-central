@@ -15,7 +15,6 @@ from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile
 from biostar.emailer.auth import notify
 
-
 from . import tasks
 from .diffs import color_diffs
 from .decorators import object_access
@@ -52,6 +51,7 @@ def site_admin(request):
     projects = Project.objects.all()
     context = dict(projects=projects)
     return render(request, 'admin_index.html', context=context)
+
 
 @login_required
 def recycle_bin(request):
@@ -202,7 +202,6 @@ def data_navigate(request, uid):
     return render(request, "data_navigator.html", context)
 
 
-
 @object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
 def data_browse(request, uid, path='.'):
     """
@@ -348,19 +347,29 @@ def project_create(request):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
-def data_view(request, uid, path='.'):
+def data_view(request, uid, ):
     "Show information specific to each data."
 
     data = Data.objects.filter(uid=uid).first()
-
     project = data.project
+    path = request.GET.get('path', '')
 
-    toc = data.get_path()
-    abspath = os.path.dirname(toc)
-    tocname = os.path.basename(toc)
-    files = util.scan_files(abspath=abspath, relpath=path, exclude=tocname)
+    if request.method == "POST":
+        form = FileCopyForm(request, data.uid, data.get_data_dir(), request.POST)
+        if form.is_valid():
+            # Copies data to clipboard
+            ndata = form.save()
+            msg = mark_safe(f"Copied <b>{ndata}</b> data from <b>{project.name}</b> to the Clipboard.")
+            messages.success(request, msg)
+            return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
+    else:
+        form = FileCopyForm(request, data.uid, data.get_data_dir())
 
-    context = dict(data=data, project=project, activate='Selected Data', files=files, path=path)
+    abspath = join(data.get_data_dir(), path)
+
+    files = util.scan_files(abspath=abspath, relpath=path)
+
+    context = dict(data=data, project=project, activate='Selected Data', files=files, path=path, form=form)
     counts = get_counts(project)
     context.update(counts)
 
@@ -584,13 +593,13 @@ def recipe_paste(request, uid):
 
 
 def notify_mods(context, recipe):
-
     if recipe.security == Analysis.UNDER_REVIEW:
         moderators = User.objects.filter(profile__role=Profile.MODERATOR)
         emails = [mod.email for mod in moderators]
         notify(template_name="emailer/moderator_email.html", email_list=emails, send=True,
                extra_context=context)
     return
+
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
 def recipe_code(request, uid):
@@ -637,8 +646,8 @@ def recipe_code(request, uid):
             if save:
                 analysis.save()
                 # Notify moderators of change.
-                #context = dict(subject="Recipe Template Change", recipe=analysis)
-                #notify_mods(context=context, recipe=analysis)
+                # context = dict(subject="Recipe Template Change", recipe=analysis)
+                # notify_mods(context=context, recipe=analysis)
                 messages.info(request, "The recipe has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
     else:
@@ -711,7 +720,7 @@ def recipe_diff(request, uid):
 
     differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
     differ = color_diffs(differ)
-    context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
+    context = dict(activate="Recent Template Change", project=recipe.project, recipe=recipe,
                    diff=mark_safe(''.join(differ)))
     counts = get_counts(recipe.project)
     context.update(counts)
@@ -823,7 +832,6 @@ def object_state_toggle(request, uid, obj_type):
     return redirect(url)
 
 
-
 @object_access(type=Job, access=Access.READ_ACCESS)
 def job_view(request, uid):
     '''
@@ -835,8 +843,19 @@ def job_view(request, uid):
     # The path is a GET parameter
     path = request.GET.get('path', "")
 
+    if request.method == "POST":
+        form = FileCopyForm(request, job.uid, job.path, request.POST)
+        if form.is_valid():
+            # Copies data to clipboard
+            ndata = form.save()
+            msg = mark_safe(f"Copied <b>{ndata}</b> files from <b>{job.name}</b> to the Clipboard.")
+            messages.success(request, msg)
+            return redirect(reverse("jobview", kwargs=dict(uid=job.uid)))
+    else:
+        form = FileCopyForm(request, job.uid, job.path)
+
     # The job rooth directory
-    root, exclude = job.path, ''
+    root = job.path
 
     # Get the target directory.
     abspath = join(job.path, path)
@@ -849,7 +868,7 @@ def job_view(request, uid):
         messages.error(request, "Invalid path.")
         files = []
 
-    context = dict(job=job, project=project, files=files, path=path, activate='Selected Result')
+    context = dict(job=job, project=project, files=files, path=path, activate='Selected Result', form=form)
 
     counts = get_counts(project)
     context.update(counts)
@@ -891,7 +910,7 @@ def file_serve(request, uid, path, klass):
     mimetype = auth.guess_mimetype(fname=path)
 
     # Get the filesize in Mb
-    size = os.path.getsize(file_path)/1024/1024
+    size = os.path.getsize(file_path) / 1024 / 1024
 
     # This behavior can be further customized in front end webserver.
     if size < 20:

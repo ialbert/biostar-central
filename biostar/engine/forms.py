@@ -280,7 +280,9 @@ class DataCopyForm(forms.Form):
 
 
 class FileCopyForm(forms.Form):
-    "Used to save paths found in jobs/data into files_clipboard"
+    """
+    Used to save paths found in jobs/data into files_clipboard"
+    """
 
     def __init__(self, request, uid, root_dir, *args, **kwargs):
         self.uid = uid
@@ -299,9 +301,7 @@ class FileCopyForm(forms.Form):
 
     def clean(self):
         paths = self.data.getlist('paths')
-        for p in paths:
-            if not os.path.exists(join(self.root_dir, p)):
-                raise forms.ValidationError(f"{p} does not exist")
+        paths = [ p for p in paths if os.path.exists(join(self.root_dir, p)) ]
 
         # Override cleaned_data to later access in save()
         self.cleaned_data = list(map(join, [self.root_dir] * len(paths), paths))

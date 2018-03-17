@@ -40,15 +40,20 @@ def build_path(path, name):
 
 @register.inclusion_tag('widgets/job_file_list.html', takes_context=True)
 def job_file_list(context, path, files, job, form=None):
-
     back = "/".join(path.split("/")[:-1])
     return dict(path=path, files=files, job=job, form=form, back=back)
 
-@register.inclusion_tag('widgets/data_file_list.html', takes_context=True)
-def data_file_list(context, path, files, data, form=None):
-    # Must to remap into a mutable class
-    path = path.strip("/")
-    return dict(path=path, files=files, data=data, form=form)
+@register.inclusion_tag('widgets/file_list.html', takes_context=True)
+def file_list(context, path, files, obj, form=None):
+
+    back = "/".join(path.split("/")[:-1])
+
+    if isinstance(obj, Data):
+        view_url, serve_url = 'data_view', 'data_serve'
+    else:
+        view_url, serve_url = 'job_view', 'job_serve'
+
+    return dict(path=path, files=files, obj=obj, form=form, back=back, view_url=view_url, serve_url=serve_url)
 
 
 @register.inclusion_tag('widgets/action_bar.html', takes_context=True)
@@ -377,8 +382,6 @@ def form_errors(form):
     """
     Turns form errors into a data structure
     """
-    if not form:
-        return
 
     errorlist = [ ('', message) for message in form.non_field_errors() ]
 

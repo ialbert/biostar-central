@@ -39,13 +39,13 @@ def project_files(project):
 
     return files
 
-def scan_files(relpath, abspath, exclude=None):
+def scan_files(relpath, abspath, exclude=[]):
     """
     Generates a list of file objects at an absolute path.s
     """
 
     # Pathlike objects with attributes such as name, is_file
-    files = list(filter(lambda p: p.name != exclude, os.scandir(abspath)))
+    files = list(filter(lambda p: p.name not in exclude, os.scandir(abspath)))
 
     # Sort the file list. Directories first, then by name.
     files = sorted(files, key=lambda p: (p.is_file(), p.name))
