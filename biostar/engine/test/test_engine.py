@@ -4,13 +4,21 @@ from django.test import TestCase
 from django.forms import ValidationError
 from django.core.files import File
 from django.urls import reverse
-from biostar.engine import models, views, auth, factory, forms, const
+from biostar.engine import models, views, auth, factory, forms, diffs
 from biostar.engine import util as engine_util
 
 
 from . import util
 
 logger = logging.getLogger('engine')
+
+
+class Bunch(object):
+    last_valid = template = ''
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
 
 
 class SiteAdminTest(TestCase):
@@ -39,6 +47,17 @@ class SiteAdminTest(TestCase):
         request = util.fake_request(url=url, data={}, method="GET",user=self.user)
         response = views.recycle_bin(request=request)
         self.assertEqual(response.status_code, 200, "Can not load recyle bin")
+
+
+    def test_diffs(self):
+        "Test the diffs module."
+
+        recipe = Bunch(template='Testing\nLll', last_valid="Test")
+        differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
+        differ = diffs.color_diffs(differ)
+
+        self.assertTrue(len(differ), 'Could not compute diff')
+
 
 class FactoryTest(TestCase):
 

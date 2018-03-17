@@ -710,54 +710,37 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR,
+               url='recipe_view', login_required=True)
 def recipe_diff(request, uid):
     """
     View used to show diff in template and authorize it.
     Restricted to moderators and staff members.
     """
     recipe = Analysis.objects.filter(uid=uid).first()
-
     differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
     differ = color_diffs(differ)
+
     context = dict(activate="Recent Template Change", project=recipe.project, recipe=recipe,
                    diff=mark_safe(''.join(differ)))
+
+    form = RecipeDiff(recipe=recipe, request=request, user=request.user)
+
+    if request.method == "POST":
+        form = RecipeDiff(recipe=recipe, user=request.user, data=request.POST,
+                          request=request)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
+
+    context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
+                   diff=mark_safe(''.join(differ)), form=form)
+
     counts = get_counts(recipe.project)
     context.update(counts)
 
     return render(request, "recipe_diff.html", context=context)
 
-
-# Ensure only moderators access when role=moderator and access=Access.NO_ACCESS
-@object_access(type=Analysis, role=Profile.MODERATOR, access=Access.NO_ACCESS, url='recipe_diff')
-def recipe_approve(request, uid):
-    "Approve changes made in recipe. Only moderators are allowed this action."
-
-    recipe = Analysis.objects.filter(uid=uid).first()
-
-    recipe.last_valid = recipe.template
-    recipe.security = Analysis.AUTHORIZED
-    recipe.save()
-
-    messages.success(request, "Recipe changes have been approved.")
-    return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
-
-
-@object_access(type=Analysis, access=Access.WRITE_ACCESS, role=Profile.MODERATOR, url='recipe_view')
-def recipe_revert(request, uid):
-    """
-        Allowed to moderators and users with write access.
-        Revert changes made to recipes back to original.
-    """
-
-    recipe = Analysis.objects.filter(uid=uid).first()
-
-    recipe.template = recipe.last_valid
-    recipe.security = Analysis.AUTHORIZED
-    recipe.save()
-
-    messages.success(request, "Recipe has been reverted to original.")
-    return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
 
 
 @object_access(type=Analysis, access=Access.OWNER_ACCESS, url='recipe_view')

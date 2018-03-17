@@ -37,7 +37,7 @@ def color_diffs(diff_list):
         elif diff.startswith("@@"):
             # Extract line number from a string like: @@ -17,7 +17,7 @@
 
-            line = re.compile(r"\d+,").search(diff)
+            line = re.search(r"\d+,", diff)
             line = int(line.group(0).split(",")[0]) + 1
             colored_diffs.append("\n" + diff + "..........\n")
             continue

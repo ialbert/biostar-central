@@ -5,8 +5,9 @@ import hjson
 from django import forms
 from django.db.models import Sum
 from django.utils.safestring import mark_safe
+from django.contrib import messages
 
-from biostar.accounts.models import User
+from biostar.accounts.models import User, Profile
 from . import models, auth, factory
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
@@ -72,6 +73,7 @@ class ProjectForm(forms.ModelForm):
         check_size(fobj=image)
 
         return image
+
 
 
 class DataUploadForm(forms.ModelForm):
@@ -173,6 +175,53 @@ def access_forms(users, project, exclude=()):
 
 def clean_text(textbox):
     return shlex.quote(textbox)
+
+
+class RecipeDiff(forms.Form):
+
+    REVERT, APPROVE = 'REVERT', 'APPROVE'
+
+    action = forms.CharField()
+
+    def __init__(self, recipe, user, request, *args, **kwargs):
+
+        self.recipe = recipe
+        self.user = user
+        self.request = request
+        super().__init__(*args, **kwargs)
+
+    def save(self):
+
+        action = self.cleaned_data.get("action")
+        if action == self.REVERT:
+            self.recipe.template = self.recipe.last_valid
+            messages.success(self.request, "Recipe has been reverted to original.")
+
+        elif action == self.APPROVE:
+            self.recipe.last_valid = self.recipe.template
+            messages.success(self.request, "Recipe changes have been approved.")
+
+        self.recipe.security = Analysis.AUTHORIZED
+        self.recipe.save()
+
+        return self.recipe
+
+    def clean(self):
+
+        cleaned_data = super(RecipeDiff, self).clean()
+        action = cleaned_data.get("action")
+        msg = "You don't have sufficient access rights to overwrite this entry."
+
+        entry = Access.objects.filter(user=self.user, project=self.recipe.project).first()
+        entry = entry or Access(access=Access.NO_ACCESS)
+        no_access = entry.access not in (Access.WRITE_ACCESS, Access.OWNER_ACCESS)
+
+        if action == self.REVERT and no_access and not self.user.profile.is_moderator:
+            raise forms.ValidationError(msg)
+
+        if action == self.APPROVE and not self.user.profile.is_moderator:
+            msg = "You have to be a moderator."
+            raise forms.ValidationError(msg)
 
 
 class RecipeInterface(forms.Form):

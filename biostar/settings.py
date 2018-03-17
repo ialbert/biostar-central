@@ -18,6 +18,9 @@ SECRET_KEY = '1234'
 # The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "1234"
 
+DEFAULT_FROM_EMAIL = "admin@localhost"
+
+
 # Admin users will be created automatically with DEFAULT_ADMIN_PASSWORD.
 ADMINS = [
     ("Admin User", "admin@localhost")

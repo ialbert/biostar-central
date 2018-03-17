@@ -127,12 +127,6 @@ class Access(models.Model):
         super(Access, self).save(*args, **kwargs)
 
 
-@receiver(pre_save, sender=Project)
-def check_project_name(sender, instance, **kwargs):
-    # Add the primary key to the name if it already exists.
-    if Project.objects.filter(name=instance.name).count() > 1 and instance.pk:
-        instance.name += f'_{instance.pk}'
-
 
 @receiver(post_save, sender=Project)
 def update_access(sender, instance, created, **kwargs):
@@ -144,6 +138,11 @@ def update_access(sender, instance, created, **kwargs):
     # Create the admin access for the current owner.
     access = Access.objects.create(user=instance.owner, project=instance, access=Access.OWNER_ACCESS)
     access.save()
+
+    # Checking the name is implemented as a post-save signal to
+    # ensure primary key exists.
+    if Project.objects.filter(name=instance.name).count() > 1:
+        instance.name += f'_{instance.pk}'
 
 
 class Data(models.Model):
@@ -266,10 +265,12 @@ class Data(models.Model):
         obj['data_url'] = self.url()
 
 
-@receiver(pre_save, sender=Data)
-def check_data_name(sender, instance, **kwargs):
+@receiver(post_save, sender=Data)
+def check_data_name(sender, instance, created, **kwargs):
+
     # Add primary key to the name if it already exists.
-    if Data.objects.filter(name=instance.name).count() > 1 and instance.pk:
+    if Data.objects.filter(name=instance.name,
+                           project=instance.project).count() > 1:
         instance.name += f"_{instance.pk}"
 
 
