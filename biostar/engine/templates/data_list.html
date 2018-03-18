@@ -8,10 +8,7 @@
 
 {% block content %}
 
-    {% if request|has_data %}
-        {% paste project=project board="data_clipboard" request=request %}
-
-    {% elif request|has_files %}
+    {% if request|has_files %}
         {% paste project=project board="files_clipboard"  request=request %}
     {% endif %}
 

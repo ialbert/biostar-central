@@ -83,28 +83,12 @@ class DataViewTest(TestCase):
         self.assertTrue(os.path.exists(data.get_data_dir()), "Directory not being linked")
 
 
-    @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
-    def test_data_paste(self):
-        "Test data paste view."
-
-        data = {}
-
-        url = reverse('data_paste', kwargs=dict(uid=self.project.uid))
-
-        request = util.fake_request(url=url, data=data, user=self.owner)
-        request.session["data_clipboard"] = [self.data.uid]
-
-        response = views.data_paste(request=request, uid=self.project.uid)
-
-        self.process_response(response=response, data=data, save=True)
-
     def test_paste_engine_tag(self):
         "Test paste template tags found in engine_tags.py"
 
         from biostar.engine.templatetags import engine_tags
 
         options = {"recipe_clipboard":dict(project=self.project),
-                    "data_clipboard":dict(project=self.project),
                    "files_clipboard":dict(project=self.project)
                    }
         for o in options:
@@ -112,33 +96,6 @@ class DataViewTest(TestCase):
             paste_template = engine_tags.paste(board=o, project=options[o]["project"])
             # Paste template needs to be rendered correctly for each clipboard
             self.assertTrue(o in paste_template["clear_url"], f"{o} : {paste_template}")
-
-
-    def test_data_navigate_copy(self):
-        "Test copying and pasting thru the data navigate view."
-
-        data = {'uids':self.data.uid}
-
-        url = reverse('data_navigate', kwargs=dict(uid=self.project.uid))
-
-        request = util.fake_request(url=url, data=data, user=self.owner)
-
-        response = views.data_navigate(request=request, uid=self.project.uid)
-
-        self.process_response(response=response, data=data)
-
-
-    def test_data_browser(self):
-        "Test file copy with data browser"
-
-        data = {'paths':os.path.basename(__file__)}
-
-        url = reverse('data_entry', kwargs=dict(uid=self.project.uid))
-        request = util.fake_request(url=url, data=data, user=self.owner)
-
-        response = views.data_browse(request=request,uid=self.project.uid)
-
-        self.process_response(response=response, data=data)
 
 
 

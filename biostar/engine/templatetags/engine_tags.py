@@ -75,19 +75,6 @@ def action_bar(context, instance, edit_url, extra=""):
                 action_url=action_url, extra=extra)
 
 
-def dir_url(object, path, current):
-
-    url = object.url()
-    path = path + "/" if path else ""
-
-    if isinstance(object, Job):
-        url = reverse("job_browser", kwargs=dict(uid=object.uid, path=path + current.name))
-    elif isinstance(object, Data):
-        url = reverse("data_browser", kwargs=dict(uid=object.uid, path=path + current.name))
-
-    return mark_safe(f'<a href="{url}"><i class="folder icon"></i>{current.name}</a>')
-
-
 @register.inclusion_tag('widgets/list_view.html')
 def list_view(projects=None, data_list=None, recipe_list=None, job_list=None):
 
@@ -104,46 +91,6 @@ def recipes_moderate(cutoff=0):
     cutoff = cutoff or len(recipes)
     return dict(recipes=recipes[:cutoff])
 
-@register.simple_tag
-def file_url(object, path, current):
-    """
-    Used in file navigator to render file info in template.
-    param: current is
-    """
-
-    assert isinstance(object, Data) or isinstance(object, Job)
-    if current.is_dir():
-        return dir_url( object=object, path=path, current=current)
-
-    path = path + "/" if path else ""
-    if isinstance(object, Data):
-        url = reverse("data_serve", kwargs=dict(uid=object.uid, path=path + current.name))
-    else:
-        url = reverse("job_serve", kwargs=dict(uid=object.uid, path=path + current.name))
-
-    byte = current.stat(follow_symlinks=True).st_size
-
-    # Make the size user friendly
-    size = f"{defaultfilters.filesizeformat(byte)}"
-    file_template = f"""
-            <a href="{url}"><i class="file text outline icon"></i>{current.name}
-            <span class="ui right floated mini label">{size}</span>
-            </a>
-            """
-    return mark_safe(file_template)
-
-@register.filter
-def has_data(request):
-    """
-    Checks if object in clipboard is a recipe.
-    """
-
-    uid = request.session.get("data_clipboard")
-
-    # Dump data clipboard without resting it
-    data_list = auth.dump_data_clipboard(request=request)
-
-    return bool(uid and data_list)
 
 @register.filter
 def is_checkbox(field):
@@ -225,7 +172,6 @@ def paste(project, request=None, board=''):
     # Map a clipboard to respective information
     info = dict(
         recipe_clipboard={'url':"recipe_paste", 'nactive':"a recipe", 'redir':"recipe_list"},
-        data_clipboard={'url':"data_paste", 'nactive':f"{ndata} data",'redir':"data_list"},
         files_clipboard={'url':"files_paste", 'nactive':f"{ndata} file(s)", 'redir':"data_list"}
     )
     view_name = info.get(board, {}).get('url')

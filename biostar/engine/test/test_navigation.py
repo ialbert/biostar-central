@@ -52,8 +52,8 @@ class SiteNavigation(TestCase):
             reverse('project_list'),
             reverse('data_list', kwargs=self.proj_params),
             reverse('data_view', kwargs=self.data_params),
-            reverse("data_entry", kwargs=self.data_params),
-            reverse("data_navigate", kwargs=self.proj_params),
+            reverse('data_upload', kwargs=self.proj_params),
+            reverse('data_edit', kwargs=self.data_params),
             reverse('project_view', kwargs=self.proj_params),
             reverse('project_users', kwargs=self.proj_params),
             reverse('project_create'),
@@ -65,14 +65,10 @@ class SiteNavigation(TestCase):
             reverse('recipe_diff', kwargs=self.analysis_params),
             reverse('recipe_run', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),
+            reverse('recipe_edit', kwargs=self.analysis_params),
             reverse('job_list', kwargs=self.proj_params),
             reverse('job_view', kwargs=self.job_params),
             reverse('job_edit', kwargs=self.job_params),
-            reverse('job_entry', kwargs=self.job_params),
-            reverse('data_upload', kwargs=self.proj_params),
-            reverse('data_edit', kwargs=self.data_params),
-            reverse('recipe_edit', kwargs=self.analysis_params),
-
         ]
 
         self.visit_urls(urls, [200])
@@ -83,9 +79,7 @@ class SiteNavigation(TestCase):
             reverse('signup'),
             reverse("recycle_bin"),
             reverse('recipe_mod'),
-            reverse("data_copy", kwargs=self.data_params),
             reverse("recipe_copy", kwargs=self.analysis_params),
-            reverse("data_paste", kwargs=self.proj_params),
             reverse("toggle_state", kwargs=dict(uid=self.job.uid, obj_type="job"))
         ]
 

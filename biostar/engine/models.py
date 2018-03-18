@@ -99,10 +99,6 @@ class Project(models.Model):
         self.uid_is_set()
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
-    @property
-    def path(self):
-        "Match consistency of job dir calls"
-        return self.get_project_dir()
 
     def get_data_dir(self):
         "Match consistency of data dir calls"
@@ -284,7 +280,6 @@ def check_data_name(sender, instance, created, **kwargs):
     if Data.objects.filter(name=instance.name,
                            project=instance.project).count() > 1:
         instance.name += f"_{instance.pk}"
-
 
 
 class Analysis(models.Model):

@@ -348,34 +348,6 @@ def guess_mimetype(fname):
     return mimetype
 
 
-def load_data_clipboard(uid, request):
-    board = request.session.get("data_clipboard") or []
-
-    if isinstance(board, list):
-        board.append(uid)
-
-    request.session["data_clipboard"] = board
-
-
-def dump_data_clipboard(request, reset=False):
-    data_list = request.session.get("data_clipboard") or []
-    board = []
-    for data_uid in data_list:
-
-        data = Data.objects.filter(uid=data_uid).first()
-        # Ensure user has read access to data in clipboard
-        has_access = check_obj_access(instance=data, user=request.user, request=request,
-                                      access=Access.READ_ACCESS)
-        if has_access:
-            board.append(data)
-
-    # Clear clipboard if reset=True
-    if reset:
-        request.session["data_clipboard"] = []
-
-    return board
-
-
 def findfiles(location, collect, skip=""):
     """
     Returns a list of all files in a directory.
@@ -444,7 +416,7 @@ def create_path(fname, data):
 
 
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', type="", skip="", uid=None):
+                text='', summary='', type="", skip="", uid=None, files=[]):
     "Param : skip (str) - full file path found in 'path' that will be ignored when linking."
 
     # We need absolute paths with no trailing slashes.
@@ -468,10 +440,13 @@ def create_data(project, user=None, stream=None, path='', name='',
         # Mark incoming file as uploaded
         data.method = Data.UPLOAD
 
-    link_files(path=path, skip=skip, data=data, summary=summary)
+    # Link files
+    all_files = [path] + files
+    for fname in all_files:
+        link_files(path=fname, skip=skip, data=data, summary=summary)
 
     # Invalid paths and empty streams still create the data but set the data state to error.
-    missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
+    missing = not (os.path.isdir(path) or os.path.isfile(path) or stream or files)
     if path and missing:
         state = Data.ERROR
         logger.error(f"Invalid data path: {path}")
