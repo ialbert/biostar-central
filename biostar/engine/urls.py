@@ -6,8 +6,6 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name="index"),
 
-    # url(r'^docs/(?P<name>[-\w]+)/$', views.docs, name='docs'),
-
     # Site
     url(r'^site/admin/$', views.site_admin, name='site_admin'),
     url(r'^site/bin/$', views.recycle_bin, name='recycle_bin'),
@@ -26,13 +24,6 @@ urlpatterns = [
     url(r'^data/upload/(?P<uid>[-\w]+)/$', views.data_upload, name='data_upload'),
     url(r'^data/copy/(?P<uid>[-\w]+)/$', views.data_copy, name='data_copy'),
     url(r'^data/paste/(?P<uid>[-\w]+)/$', views.data_paste, name='data_paste'),
-
-    # Data file browsing.
-    url(r'^data/navigate/(?P<uid>[-\w]+)/$', views.data_navigate, name='data_navigate'),
-    url(r'^data/browse/(?P<uid>[-\w]+)/$', views.data_browse, name='data_entry'),
-    url(r'^data/browse/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.data_browse, name='data_browser'),
-
-    # Data file serve.
     url(r'^data/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.data_serve, name='data_serve'),
 
     # Recipes
@@ -47,7 +38,6 @@ urlpatterns = [
     url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
     url(r'^recipe/diff/(?P<uid>[-\w]+)/$', views.recipe_diff, name='recipe_diff'),
 
-
     # Actions
     url(r'^action/clear/(?P<uid>[-\w]+)/(?P<url>.+)/(?P<board>.+)/$', views.clear_clipboard, name='clear_clipboard'),
     url(r'^action/toggle/(?P<uid>[-\w]+)/(?P<obj_type>[-\w]+)/$', views.object_state_toggle, name='toggle_state'),
@@ -58,13 +48,7 @@ urlpatterns = [
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
-
-    # Job file browsing.
-    url(r'^job/browse/(?P<uid>[-\w]+)/$', views.job_browse, name='job_entry'),
-    url(r'^job/browse/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_browse, name='job_browser'),
-
-    # Job file serve.
-    url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_serve, name='job_serve')
+    url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_serve, name='job_serve'),
 
 ]
 

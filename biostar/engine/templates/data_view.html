@@ -13,30 +13,25 @@
         </div>
     </div>
 
-     <div class="ui center aligned vertical segment">
-        <a class="ui mini green button" href="{% url 'data_entry' data.uid %}">
-            <i class="browser icon"></i>Browse Files
-        </a>
-        <a class="ui mini button" href="{% url 'data_copy' data.uid %}">
-            <i class="clone icon"></i>Copy Data
-        </a>
+    {% if user.is_authenticated %}
+        <div class="ui center aligned vertical segment">
+            {% action_bar data 'data_edit' %}
+        </div>
+    {% endif %}
 
-        {% action_bar data 'data_edit' %}
+    <div class="ui vertical segment">
+
+        {% if data.type %}
+             Type: {% type_label data %} &bull;
+        {% endif %}
+        Created by: {{ data.owner.first_name }}
 
     </div>
 
     <div class="ui vertical segment">
-
-        <div class="ui relaxed bulleted list">
-            <div class="item">Size: {{ data.size|filesizeformat }}</div>
-            <div class="item">State: {% state_label data %}</div>
-            {% if data.type %}
-            <div class="item">Data Type: {% type_label data %} </div>
-            {% endif %}
-            <div class="item">Created by: {{ data.owner.first_name }}</div>
-        </div>
+        <div class="ui center aligned header">Files</div>
+        {% file_list obj=data path=path files=files form=form %}
     </div>
-
 
     <div class="ui vertical segment">
         <div class="ui center aligned header">Data Summary</div>
@@ -49,7 +44,7 @@
     </div>
 
     <div class="ui vertical segment">
-        <div class="ui center aligned header">Data Peek</div>
+        <div class="ui center aligned header">Data Content</div>
         <pre>{{ data.peek }}</pre>
     </div>
 

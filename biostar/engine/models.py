@@ -232,7 +232,6 @@ class Data(models.Model):
 
     def get_data_dir(self):
         "The data directory"
-
         assert self.uid, "Sanity check. UID should always be set."
         return join(self.get_project_dir(), f"store-{self.uid}")
 
@@ -240,7 +239,8 @@ class Data(models.Model):
         return self.project.get_project_dir()
 
     def get_path(self):
-        return join(self.get_data_dir(), f"toc-{self.uid}.txt")
+        path = join(settings.TOC_ROOT, f"toc-{self.uid}.txt")
+        return path
 
     def can_unpack(self):
         cond = str(self.get_path()).endswith("tar.gz")
@@ -252,7 +252,6 @@ class Data(models.Model):
 
     def get_url(self, path=""):
         "Returns url to the data directory"
-
         return f"projects/proj-{self.project.uid}/store-{self.uid}/" + path
 
     def url(self):

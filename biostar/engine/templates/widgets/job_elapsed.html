@@ -1,9 +1,6 @@
 {% load humanize %}
 {% load engine_tags %}
-<a class="ui  {% job_color job %}  label"
-                           href="{% url 'recipe_view' job.analysis.uid %}">
-                            <i class="setting icon"></i> {{ job.get_state_display }}</a>
-
+<div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
 {% if job.elapsed %}
     &bull; Finished in {{ job.elapsed }}
 {%  endif %}

@@ -15,24 +15,23 @@
         </div>
 
         <div class="ui center aligned vertical segment">
-            <div class="ui buttons">
 
-                <a class="ui {% job_color job %}  button" href="{% url 'job_entry' job.uid %}">
-                    <i class="browser icon"></i>Browse Files</a>
+                <a class="ui mini button" href="{% url 'recipe_view' job.analysis.uid %}"><i
+                class="setting icon"></i>Go to Recipe</a>
 
-                <div class="or"></div>
+                {% action_bar job edit_url='job_edit' %}
 
-                <a class="ui  button" href="{% url 'recipe_view' job.analysis.uid %}"><i
-                class="setting icon"></i>View Recipe</a>
-
-            </div>
         </div>
-         <div class="ui center aligned basic segment">
 
-            {% action_bar job edit_url='job_edit' %}
+    </div>
 
-         </div>
+    <div class="ui center aligned vertical segment">
+        {% job_minutes job %}
+    </div>
 
+    <div class="ui vertical segment">
+        <div class="ui center aligned header">Files</div>
+        {% file_list obj=job path=path files=files form=form %}
     </div>
 
     <div class="ui vertical segment">
@@ -41,11 +40,7 @@
         {# {{ job.html | safe }} #}
     </div>
 
-    <div class="ui center aligned vertical segment">
 
-        {% job_minutes job %}
-
-    </div>
 
     <div class="ui vertical segment">
         <div class="ui center aligned header">Stdout Log</div>

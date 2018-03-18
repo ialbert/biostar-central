@@ -148,6 +148,12 @@ MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
 # The location of resusable data.
 LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 
+# The location for the table of contents.
+TOC_ROOT = join(MEDIA_ROOT, 'tocs')
+
+# Make the table of contents.
+os.makedirs(TOC_ROOT, exist_ok=True)
+
 # Sendfile settings go here.
 SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = '/protected/'
