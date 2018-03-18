@@ -39,7 +39,7 @@ def fetch(cond, list, idx):
 
 
 def query_tab(tab, project, name=None):
-    "Return actual path for a path name in /data or /results"
+    "Return actual path for a path name in /data or /results tab"
 
     klass_map = {'data': Data, 'results':Job }
     instance = klass_map[tab].objects.filter(deleted=False, project=project, name=name).first()
@@ -53,44 +53,33 @@ def query_tab(tab, project, name=None):
     return path
 
 
-
 def fetch_file_info(instance, basedir='/'):
 
-    rfname = project = ''
-    filetype = 'file'
+    rfname = None
+    path_list = split(basedir)
 
-    if isinstance(instance, Project):
-        filetype = "dir"
-        rfname = instance.get_project_dir()
-        project = instance
+    # Extract info from basedir
+    root_project = fetch(len(path_list) >= 1, path_list, 0)
+    tab = fetch(len(path_list) >= 2, path_list, 1)
+    name = fetch(len(path_list) >= 3, path_list, 2)
+    base = None if not len(path_list) >= 3 else path_list[3:]
 
-    if isinstance(instance, Data):
+    project = Project.objects.filter(name=root_project).first()
+    filetype = 'file' if isinstance(instance, Data) and len(instance.get_files()) <= 1 else "dir"
+
+    # Fetch the file if the instance is a database model.
+    if isinstance(instance, Data) or isinstance(instance, Job) or isinstance(instance, Project):
         rfname = instance.get_data_dir()
-        project = instance.project
-        filetype = 'file' if len(instance.get_files()) <= 1 else "dir"
 
-    if isinstance(instance, Job):
-        rfname = instance.path
-        project = instance.project
-        filetype = 'dir'
-
+    # Build the actual path if the instance is a virtual file path.
     if isinstance(instance, str):
-
-        path_list = split(basedir)
-
-        project_name = fetch(len(path_list) >= 1, path_list, 0)
-        project = Project.objects.filter(name=project_name).first()
-
-        tab = fetch(len(path_list) >= 2, path_list, 1)
-        name = fetch(len(path_list) >= 3, path_list, 2)
-        base = None if not len(path_list) >= 3 else path_list[3:]
 
         suffix = instance if not base else os.path.join(*base, instance)
         prefix = query_tab(tab=tab, project=project, name=name)
 
         rfname = os.path.join(prefix, suffix)
-
-        filetype = 'dir' if rfname and os.path.isdir(rfname) else 'file'
+        valid_dir = os.path.exists(rfname) and os.path.isdir(rfname)
+        filetype = 'dir' if valid_dir else 'file'
 
 
     return project, rfname, filetype
@@ -159,7 +148,7 @@ class BiostarFileSystem(AbstractedFS):
         inside_project = project and len(path_list) == 2
 
         # List all projects when user is at the root
-        if path == self._root:
+        if path == self.root:
             return self.project_list
 
         # We can choose to browse /data or /results inside of a project.
@@ -175,16 +164,15 @@ class BiostarFileSystem(AbstractedFS):
             return Job.objects.filter(deleted=False, project=project) or []
 
         # At this point, len(path_list) > 2 and
-        # the tab should be in (data, results, None ).
+        # the tab should be in (data, results).
         # The latter is guaranteed by self.valid_path().
         name = fetch(len(path_list) >= 3, path_list, 2)
-
         actual_path = query_tab(tab=path_list[1], project=project, name=name)
 
         # List the files inside of /data and /results tabs
         if actual_path and len(path_list) == 3:
-            # Skip the toc when returning dir contents
             return [os.path.basename(p.path) for p in os.scandir(actual_path)]
+
         try:
             # List sub-dirs found in /data and /results
             suffix = os.path.join(*path_list[3:])
@@ -192,7 +180,7 @@ class BiostarFileSystem(AbstractedFS):
             return [ os.path.basename(item.path) for item in os.scandir(full_path) ]
         except Exception:
             return []
-        
+
 
     def chdir(self, path):
         """
@@ -219,7 +207,7 @@ class BiostarFileSystem(AbstractedFS):
 
             # Handle /results and /data
             if len(path_list) == 1:
-                perm, filetype, rfname = 'elr', 'dir', project.get_project_dir()
+                perm, filetype, rfname = 'elr', 'dir', project.path
             else:
                 project, rfname, filetype = fetch_file_info(instance, basedir=basedir)
                 perm = perm_map(project=project, user=self.user)

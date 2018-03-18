@@ -145,8 +145,7 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
         messages.error(request, "Object does not exist.")
         return False
 
-    # Works for projects or objects with an attribute of project.
-    project = instance if not hasattr(instance, "project") else instance.project
+    project = instance.project
 
     # Check for logged in user and login requirement.
     if user.is_anonymous and login_required:
