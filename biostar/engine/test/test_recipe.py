@@ -90,7 +90,6 @@ class RecipeViewTest(TestCase):
         self.process_response(response=response, data=data, save=True)
 
 
-
     def test_recipe_mod_page(self):
         "test moderator view works"
 
