@@ -460,12 +460,3 @@ class Job(models.Model):
             self.path = path
 
         super(Job, self).save(*args, **kwargs)
-
-
-@receiver(post_save, sender=Data)
-def check_job_name(sender, instance, created, **kwargs):
-
-    # Add primary key to the name if it already exists.
-    if Job.objects.filter(name=instance.name,
-                           project=instance.project).count() > 1:
-        instance.name += f"_{instance.pk}"

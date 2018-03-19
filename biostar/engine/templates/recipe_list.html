@@ -7,7 +7,7 @@
 {% block content %}
 
     {% if request|has_recipe %}
-        {% paste project=project board="recipe_clipboard" %}
+        {% paste action_view='recipe_list' obj=project form=form contains="a recipe" %}
     {% endif %}
 
     {% if not recipe_list %}

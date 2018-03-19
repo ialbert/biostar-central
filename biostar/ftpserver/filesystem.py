@@ -54,11 +54,11 @@ def fetch_file_info(instance, project=None, tab='data', base=[], name=None):
     data_file = isinstance(instance, Data) and len(instance.get_files()) <= 1
     filetype = 'file' if data_file else "dir"
 
-    # Fetch the file if the instance is a database model.
+    # Fetch files when the instance is a database model.
     if isinstance(instance, Data) or isinstance(instance, Job) or isinstance(instance, Project):
         rfname = instance.get_data_dir()
 
-    # Build the actual path if the instance is a virtual file path.
+    # Build the real path when the instance is an ftp file path.
     if isinstance(instance, str):
 
         suffix = instance if not base else os.path.join(*base, instance)
@@ -142,7 +142,7 @@ class BiostarFileSystem(AbstractedFS):
         if name and not ( data or results ):
             return False
 
-        # The path is valid at this point, if base == None
+        # The path is valid at this point
         is_valid = True
         if base:
             actual_path = query_tab(tab=tab, project=project.first(), name=name)
@@ -258,7 +258,7 @@ class BiostarFileSystem(AbstractedFS):
 
 
     def extract(self, path_list):
-        "Extract relevant info from a path list."
+        "Extract relevant info from a path list without breaking on an index error."
         assert isinstance(path_list, list), "path_list should be a list."
 
         # Project user is under.
