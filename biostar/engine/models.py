@@ -100,6 +100,14 @@ class Project(models.Model):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
+    def get_data_dir(self):
+        "Match consistency of data dir calls"
+        return self.get_project_dir()
+
+    @property
+    def project(self):
+        return self
+
 class Access(models.Model):
     """
     Allows access of users to Projects.
@@ -274,7 +282,6 @@ def check_data_name(sender, instance, created, **kwargs):
         instance.name += f"_{instance.pk}"
 
 
-
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
@@ -404,6 +411,12 @@ class Job(models.Model):
     def url(self):
         return reverse("job_view", kwargs=dict(uid=self.uid))
 
+    def get_project_dir(self):
+        return self.project.get_project_dir()
+
+    def get_data_dir(self):
+        return self.path
+
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"
@@ -447,3 +460,12 @@ class Job(models.Model):
             self.path = path
 
         super(Job, self).save(*args, **kwargs)
+
+
+@receiver(post_save, sender=Data)
+def check_job_name(sender, instance, created, **kwargs):
+
+    # Add primary key to the name if it already exists.
+    if Job.objects.filter(name=instance.name,
+                           project=instance.project).count() > 1:
+        instance.name += f"_{instance.pk}"

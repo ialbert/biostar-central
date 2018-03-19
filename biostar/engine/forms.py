@@ -304,30 +304,6 @@ class RecipeInterface(forms.Form):
         return json_data
 
 
-class DataCopyForm(forms.Form):
-    "Used to store multiple data uids in data_clipboard with checkbox inputs"
-
-    def __init__(self, request, *args, **kwargs):
-        self.request = request
-        super(DataCopyForm, self).__init__(*args, **kwargs)
-
-    uids = forms.CharField(max_length=models.MAX_TEXT_LEN, required=False)
-
-    def save(self):
-        for uid in self.cleaned_data:
-            auth.load_data_clipboard(uid=uid, request=self.request)
-        return len(self.cleaned_data)
-
-    def clean(self):
-
-        uids = self.data.getlist('uids')
-        # Override cleaned_data to later access in save()
-        self.cleaned_data = []
-        for uid in uids:
-            if Data.objects.filter(uid=uid).exists:
-                self.cleaned_data.append(uid)
-
-
 class FileCopyForm(forms.Form):
     """
     Used to save paths found in jobs/data into files_clipboard"

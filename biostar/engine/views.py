@@ -175,94 +175,6 @@ def job_list(request, uid):
     return project_view(request=request, uid=uid, template_name="job_list.html", active='jobs')
 
 
-@object_access(type=Project, access=Access.READ_ACCESS, url='data_list')
-def data_navigate(request, uid):
-    """
-    Renders project data as if they were files.
-    """
-
-    project = Project.objects.filter(uid=uid).first()
-    # Same ordering as data_list
-    all_data = project.data_set.order_by("sticky", "-date").all()
-
-    if request.method == "POST":
-        form = DataCopyForm(data=request.POST, request=request)
-        if form.is_valid():
-            # Copies data to clipboard
-            ndata = form.save()
-            msg = mark_safe(f"Copied <b>{ndata}</b> data from <b>{project.name}</b> to the Clipboard.")
-            messages.success(request, msg)
-            return redirect(reverse("data_navigate", kwargs=dict(uid=project.uid)))
-    else:
-        form = DataCopyForm(request=request)
-
-    context = dict(activate='File Explorer', all_data=all_data, project=project, form=form)
-    counts = get_counts(project)
-    context.update(counts)
-    return render(request, "data_navigator.html", context)
-
-
-@object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
-def data_browse(request, uid, path='.'):
-    """
-    Browse the directory that corresponds to data.
-    """
-
-    data = Data.objects.filter(uid=uid).first()
-    project = data.project
-
-    form = FileCopyForm(root_dir=data.get_data_dir(), request=request, uid=data.uid)
-    if request.method == "POST":
-        form = FileCopyForm(data=request.POST, uid=data.uid, request=request, root_dir=data.get_data_dir())
-        if form.is_valid():
-            # Copies files to clipboard
-            nfiles = form.save()
-            msg = mark_safe(f"Copied <b>{nfiles}</b> file(s) to Clipboard from <b>{data.name}</b>")
-            messages.success(request, msg)
-            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
-
-    back_uid = None if path else project.uid
-    context = dict(activate='File Explorer', data=data, project=project, project_uid=back_uid, form=form)
-
-    counts = get_counts(project)
-    context.update(counts)
-
-    return file_browse(request=request, instance=data, path=path,
-                       template_name="data_browser.html", extra_context=context)
-
-
-def file_browse(request, instance, template_name, path='', extra_context={}):
-    """
-    Browse the filesystem that corresponds to a root folder.
-    """
-
-    # Instance is expected to be a Job or Data object.
-    if isinstance(instance, Job):
-        root, exclude = instance.path, ''
-    else:
-        # Exclude toc from file_list
-        exclude = os.path.basename(instance.get_path())
-        root = instance.get_data_dir()
-
-    # Get the root directory.
-    target_path = join(root, path)
-
-    if target_path.startswith(root) and os.path.exists(target_path):
-        # Pathlike objects with attributes such as name, is_file
-        file_list = list(filter(lambda p: p.name != exclude, os.scandir(target_path)))
-        # Sort the file list. Directories first, then by name.
-        file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
-    else:
-        # Attempting to access a file outside of the root directory
-        messages.error(request, "Invalid path.")
-        file_list = []
-
-    context = dict(file_list=file_list, instance=instance, path=path)
-    context.update(extra_context)
-
-    return render(request, template_name, context)
-
-
 def get_counts(project):
     data_count = Data.objects.filter(deleted=False, project=project).count()
     recipe_count = Analysis.objects.filter(deleted=False, project=project).count()
@@ -376,47 +288,6 @@ def data_view(request, uid, ):
     return render(request, "data_view.html", context)
 
 
-@object_access(type=Data, access=Access.READ_ACCESS, url='data_view')
-def data_copy(request, uid):
-    "Store Data object in data clipboard "
-
-    data = Data.objects.filter(uid=uid).first()
-
-    project = data.project
-
-    auth.load_data_clipboard(uid=uid, request=request)
-
-    messages.success(request, mark_safe(f"Copied data <b>{data.name}</b> to the clipboard."))
-
-    return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
-
-
-@object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
-def data_paste(request, uid):
-    """
-    Paste data in clipboard to project.
-    """
-
-    project = Project.objects.filter(uid=uid).first()
-
-    # A list of data objects in the data_clipboard
-    data_set = auth.dump_data_clipboard(request, reset=True)
-
-    for data in data_set:
-        # Create data in project by linking files ( excluding toc file ).
-        new_data = auth.create_data(project=project, name=f"Copy of {data.name}", text=data.text,
-                                    path=data.get_data_dir(), summary=data.summary,
-                                    type=data.type, skip=data.get_path(), user=request.user)
-        new_data.state = data.state
-        new_data.save()
-
-    if data_set:
-        msg = mark_safe(f"Pasted <b>{len(data_set)}</b> data to <b>{project.name}</b>.")
-        messages.success(request, msg)
-
-    return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
-
-
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
 def files_paste(request, uid):
     """
@@ -431,16 +302,23 @@ def files_paste(request, uid):
     if not root_path:
         return redirect(url)
 
-    # Some files in clipboard might be outside job path.
+    # Finish up the name
+    uid = files[-1]
+    instance = Job.objects.filter(uid=uid) or Data.objects.filter(uid=uid)
+    instance = instance.first()
+
+    # Some files in clipboard might be outside job pathe
     files = [f for f in files if f.startswith(root_path)]
+
+    type = '' if not isinstance(instance, Data) else instance.type
     # Add data to project
-    for file in files:
-        auth.create_data(project=project, path=file, user=request.user)
+    data = auth.create_data(project=project, files=files, user=request.user,
+                            name=f'Copy of {instance.name}', type=type)
 
     request.session["files_clipboard"] = None
-    msg = mark_safe(f"Pasted <b>{len(files)}</b> file(s) to project <b>{project.name}</b>.")
+    msg = mark_safe(f"Pasted <b>{len(files)}</b> file(s) to <b>{project.name}</b>.")
     messages.success(request, msg)
-    return redirect(url)
+    return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
 
 
 @object_access(type=Data, access=Access.OWNER_ACCESS, url='data_view')
@@ -592,15 +470,6 @@ def recipe_paste(request, uid):
     return redirect(url)
 
 
-def notify_mods(context, recipe):
-    if recipe.security == Analysis.UNDER_REVIEW:
-        moderators = User.objects.filter(profile__role=Profile.MODERATOR)
-        emails = [mod.email for mod in moderators]
-        notify(template_name="emailer/moderator_email.html", email_list=emails, send=True,
-               extra_context=context)
-    return
-
-
 @object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
 def recipe_code(request, uid):
     """
@@ -645,9 +514,6 @@ def recipe_code(request, uid):
             # Only the SAVE action commits the changes on the analysis.
             if save:
                 analysis.save()
-                # Notify moderators of change.
-                # context = dict(subject="Recipe Template Change", recipe=analysis)
-                # notify_mods(context=context, recipe=analysis)
                 messages.info(request, "The recipe has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
     else:
@@ -720,9 +586,6 @@ def recipe_diff(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
     differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
     differ = color_diffs(differ)
-
-    context = dict(activate="Recent Template Change", project=recipe.project, recipe=recipe,
-                   diff=mark_safe(''.join(differ)))
 
     form = RecipeDiff(recipe=recipe, request=request, user=request.user)
 
@@ -833,7 +696,7 @@ def job_view(request, uid):
             ndata = form.save()
             msg = mark_safe(f"Copied <b>{ndata}</b> files from <b>{job.name}</b> to the Clipboard.")
             messages.success(request, msg)
-            return redirect(reverse("jobview", kwargs=dict(uid=job.uid)))
+            return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
     else:
         form = FileCopyForm(request, job.uid, job.path)
 

@@ -22,8 +22,6 @@ urlpatterns = [
     url(r'^data/view/(?P<uid>[-\w]+)/$', views.data_view, name='data_view'),
     url(r'^data/edit/(?P<uid>[-\w]+)/$', views.data_edit, name='data_edit'),
     url(r'^data/upload/(?P<uid>[-\w]+)/$', views.data_upload, name='data_upload'),
-    url(r'^data/copy/(?P<uid>[-\w]+)/$', views.data_copy, name='data_copy'),
-    url(r'^data/paste/(?P<uid>[-\w]+)/$', views.data_paste, name='data_paste'),
     url(r'^data/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.data_serve, name='data_serve'),
 
     # Recipes
