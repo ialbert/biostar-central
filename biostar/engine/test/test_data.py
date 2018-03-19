@@ -83,21 +83,6 @@ class DataViewTest(TestCase):
         self.assertTrue(os.path.exists(data.get_data_dir()), "Directory not being linked")
 
 
-    def test_paste_engine_tag(self):
-        "Test paste template tags found in engine_tags.py"
-
-        from biostar.engine.templatetags import engine_tags
-
-        options = {"recipe_clipboard":dict(project=self.project),
-                   "files_clipboard":dict(project=self.project)
-                   }
-        for o in options:
-
-            paste_template = engine_tags.paste(board=o, project=options[o]["project"])
-            # Paste template needs to be rendered correctly for each clipboard
-            self.assertTrue(o in paste_template["clear_url"], f"{o} : {paste_template}")
-
-
 
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"

@@ -90,21 +90,6 @@ class RecipeViewTest(TestCase):
         self.process_response(response=response, data=data, save=True)
 
 
-    @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
-    def test_recipe_paste(self):
-        "Test recipe paste view"
-
-        data = {}
-
-        url = reverse('recipe_paste', kwargs=dict(uid=self.project.uid))
-
-        request = util.fake_request(url=url, data=data, user=self.owner)
-        request.session["recipe_clipboard"] = self.recipe.uid
-
-        response = views.recipe_paste(request=request, uid=self.project.uid)
-
-        self.process_response(response=response, data=data, save=True)
-
 
     def test_recipe_mod_page(self):
         "test moderator view works"

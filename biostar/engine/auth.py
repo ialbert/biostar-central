@@ -417,8 +417,6 @@ def create_data(project, user=None, stream=None, path='', name='',
             os.symlink(fname, dest)
             logger.info(f"Linked file: {fname}")
 
-        #link_files(path=fname, skip=skip, data=data, summary=summary)
-
     # Invalid paths and empty streams still create the data but set the data state to error.
     missing = not (os.path.isdir(path) or os.path.isfile(path) or stream or len(files))
     if path and missing:
