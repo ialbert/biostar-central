@@ -32,14 +32,11 @@ urlpatterns = [
     url(r'^recipe/edit/(?P<uid>[-\w]+)/$', views.recipe_edit, name='recipe_edit'),
     url(r'^recipe/code/(?P<uid>[-\w]+)/$', views.recipe_code, name='recipe_code'),
     url(r'^recipe/copy/(?P<uid>[-\w]+)/$', views.recipe_copy, name='recipe_copy'),
-    url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
-    url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
     url(r'^recipe/diff/(?P<uid>[-\w]+)/$', views.recipe_diff, name='recipe_diff'),
 
     # Actions
     url(r'^action/clear/(?P<uid>[-\w]+)/(?P<url>.+)/(?P<board>.+)/$', views.clear_clipboard, name='clear_clipboard'),
     url(r'^action/toggle/(?P<uid>[-\w]+)/(?P<obj_type>[-\w]+)/$', views.object_state_toggle, name='toggle_state'),
-    url(r'^action/paste/(?P<uid>[-\w]+)/$', views.files_paste, name='files_paste'),
     url(r'^action/moderate/$', views.recipe_mod, name='recipe_mod'),
 
     # Jobs

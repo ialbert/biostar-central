@@ -304,6 +304,82 @@ class RecipeInterface(forms.Form):
         return json_data
 
 
+class PasteForm(forms.Form):
+    """
+    Used to paste analysis and files from clipboards
+    """
+
+    PASTE, CLEAR = 'PASTE', 'CLEAR'
+
+    action = forms.CharField()
+
+    def __init__(self, project, request, board, *args, **kwargs):
+
+        self.project = project
+        self.request = request
+        self.board = board
+        super().__init__(*args, **kwargs)
+
+
+    def save(self):
+        instance = self.cleaned_data.get("instance")
+        action = self.cleaned_data.get('action')
+
+        pasting_file = (isinstance(instance, Data) or isinstance(instance, Job))
+
+        if action == self.CLEAR:
+            self.request.session[self.board] = None
+
+        if self.board == "recipe_clipboard" and action == self.PASTE:
+            # Paste a recipe.
+            attrs = auth.get_analysis_attr(instance, project=self.project)
+            attrs.update(stream=instance.image, name=f"Copy of {instance.name}",
+                         security=instance.security, user=self.request.user)
+            new_recipe = auth.create_analysis(**attrs)
+            # Ensure the diff gets inherited.
+            new_recipe.last_valid = instance.last_valid
+            new_recipe.save()
+            messages.success(self.request, mark_safe(f"Pasted <b> {new_recipe.name}</b>"))
+
+        if self.board == "files_clipboard" and pasting_file and action == self.PASTE:
+            # Some files in clipboard might be outside job pathe
+            files = self.request.session.get(self.board)
+            files = [f for f in files if f.startswith(instance.get_data_dir())]
+            type = '' if not isinstance(instance, Data) else instance.type
+            # Add data to project
+            data = auth.create_data(project=self.project, files=files, user=self.request.user,
+                                    name=f'Copy of {instance.name}', type=type)
+            messages.success(self.request, mark_safe(f"Pasted <b> {data.name}</b>"))
+
+    def clean(self):
+
+        cleaned_data = super(PasteForm, self).clean()
+        current = self.request.session.get(self.board)
+        instance = None
+        access = {self.PASTE: Access.WRITE_ACCESS, self.CLEAR:Access.READ_ACCESS}
+
+        if self.board == 'files_clipboard':
+            if not auth.validate_files_clipboard(request=self.request) :
+                raise forms.ValidationError("Invalid object in clipboard, copy again.")
+            else:
+                # Set instance to later access in save().
+                instance = Job.objects.filter(uid=current[-1]).first()
+                instance = instance or Data.objects.filter(uid=current[-1]).first()
+
+        if self.board == 'recipe_clipboard':
+            instance = Analysis.objects.filter(uid=current).first()
+
+        # Make sure user has access to project
+        has_access = auth.check_obj_access(instance=self.project, user=self.request.user, request=self.request,
+                                           access=access[cleaned_data['action']])
+        if not has_access:
+            raise forms.ValidationError("Paste to another project.")
+
+        # Update cleaned_data with instance.
+        self.cleaned_data.update(dict(instance=instance))
+
+
+
 class FileCopyForm(forms.Form):
     """
     Used to save paths found in jobs/data into files_clipboard"

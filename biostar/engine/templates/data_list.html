@@ -9,7 +9,7 @@
 {% block content %}
 
     {% if request|has_files %}
-        {% paste project=project board="files_clipboard"  request=request %}
+        {% paste action_view='data_list' obj=project form=form contains="files" %}
     {% endif %}
 
     {% if not data_list %}

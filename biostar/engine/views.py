@@ -153,19 +153,51 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
+def paste(project, post_request, board, msg="Pasted"):
+    "Used to paste data and job"
+
+    form = PasteForm(project=project, data=post_request.POST, request=post_request, board=board)
+    if form.is_valid():
+        form.save()
+        post_request.session[board] = None
+        return True, form
+    else:
+        return False, form
+
+
+@object_access(type=Project, access=Access.READ_ACCESS)
 def data_list(request, uid):
     """
     Returns the list of data for a project uid.
     """
+    project = Project.objects.filter(uid=uid).first()
+    if request.method == 'POST':
+        success, form = paste(project=project, post_request=request, board="files_clipboard")
+        if success:
+            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+    else:
+        form = PasteForm(project=project, request=request, board='files_clipboard')
 
-    return project_view(request=request, uid=uid, template_name="data_list.html", active='data')
+
+    return project_view(request=request, uid=uid, template_name="data_list.html",
+                        active='data', extra_context=dict(form=form))
 
 
+@object_access(type=Project, access=Access.READ_ACCESS)
 def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
     """
-    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes', more_info=True)
+    project = Project.objects.filter(uid=uid).first()
+    if request.method == 'POST':
+        success, form = paste(project=project, post_request=request, board="recipe_clipboard")
+        if success:
+            return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
+    else:
+        form = PasteForm(project=project, request=request, board='recipe_clipboard')
+
+    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes',
+                        more_info=True, extra_context=dict(form=form))
 
 
 def job_list(request, uid):
@@ -185,7 +217,9 @@ def get_counts(project):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
-def project_view(request, uid, template_name="recipe_list.html", active='recipes', more_info=None):
+def project_view(request, uid, template_name="recipe_list.html", active='recipes', more_info=None,
+                 extra_context={}):
+
     project = Project.objects.filter(uid=uid).first()
     # Show counts for the project.
     counts = get_counts(project)
@@ -208,6 +242,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
                    active=active, filter=filter, more_info=more_info)
     context.update(counts)
+    context.update(extra_context)
 
     return render(request, template_name, context)
 
@@ -273,7 +308,7 @@ def data_view(request, uid, ):
             ndata = form.save()
             msg = mark_safe(f"Copied <b>{ndata}</b> data from <b>{project.name}</b> to the Clipboard.")
             messages.success(request, msg)
-            return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
+            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
     else:
         form = FileCopyForm(request, data.uid, data.get_data_dir())
 
@@ -286,39 +321,6 @@ def data_view(request, uid, ):
     context.update(counts)
 
     return render(request, "data_view.html", context)
-
-
-@object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
-def files_paste(request, uid):
-    """
-    View used to paste result files copied from a job or data.
-    """
-
-    files = request.session.get("files_clipboard", None)
-    project = Project.objects.filter(uid=uid).first()
-    url = reverse("data_list", kwargs=dict(uid=project.uid))
-
-    root_path = auth.validate_files_clipboard(clipboard=files, request=request)
-    if not root_path:
-        return redirect(url)
-
-    # Finish up the name
-    uid = files[-1]
-    instance = Job.objects.filter(uid=uid) or Data.objects.filter(uid=uid)
-    instance = instance.first()
-
-    # Some files in clipboard might be outside job pathe
-    files = [f for f in files if f.startswith(root_path)]
-
-    type = '' if not isinstance(instance, Data) else instance.type
-    # Add data to project
-    data = auth.create_data(project=project, files=files, user=request.user,
-                            name=f'Copy of {instance.name}', type=type)
-
-    request.session["files_clipboard"] = None
-    msg = mark_safe(f"Pasted <b>{len(files)}</b> file(s) to <b>{project.name}</b>.")
-    messages.success(request, msg)
-    return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
 
 
 @object_access(type=Data, access=Access.OWNER_ACCESS, url='data_view')
@@ -359,7 +361,6 @@ def data_upload(request, uid):
             data = auth.create_data(stream=stream, name=name,
                                     text=text, user=owner, project=project, summary=summary,
                                     type=type)
-
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
@@ -434,40 +435,6 @@ def recipe_copy(request, uid):
     msg = mark_safe(msg)
     messages.success(request, msg)
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
-
-
-@object_access(type=Project, access=Access.WRITE_ACCESS, url='project_view')
-def recipe_paste(request, uid):
-    """
-    Paste recipe stored in the clipboard into project.
-    """
-
-    recipe_uid = request.session.get("recipe_clipboard")
-    recipe = Analysis.objects.filter(uid=recipe_uid).first()
-    project = Project.objects.filter(uid=uid).first()
-    url = reverse("recipe_list", kwargs=dict(uid=project.uid))
-
-    # Make sure user has read access to recipe in clipboard
-    has_access = auth.check_obj_access(instance=recipe, user=request.user, request=request,
-                                       access=Access.READ_ACCESS)
-    if not has_access:
-        request.session["recipe_clipboard"] = None
-        return redirect(url)
-
-    attrs = auth.get_analysis_attr(recipe, project=project)
-    attrs.update(stream=recipe.image, name=f"Copy of {recipe.name}", security=recipe.security,
-                 user=request.user)
-    new_recipe = auth.create_analysis(**attrs)
-    # Ensure the diff gets inherited.
-    new_recipe.last_valid = recipe.last_valid
-    new_recipe.save()
-
-    msg = f"Pasted recipe <b>{recipe.name}</b> to project <b>{project.name}</b>."
-    msg = mark_safe(msg)
-    messages.success(request, msg)
-    request.session["recipe_clipboard"] = None
-
-    return redirect(url)
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
@@ -696,7 +663,7 @@ def job_view(request, uid):
             ndata = form.save()
             msg = mark_safe(f"Copied <b>{ndata}</b> files from <b>{job.name}</b> to the Clipboard.")
             messages.success(request, msg)
-            return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
+            return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
     else:
         form = FileCopyForm(request, job.uid, job.path)
 

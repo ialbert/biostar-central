@@ -1,15 +1,23 @@
+{% load engine_tags %}
 
 
-<div class="ui center aligned basic segment">
-    <div class="ui  message">
-        <p>The clipboard contains <b>{{message}}</b>. You may now paste or clear it.</p>
-        <p>
-            <a class="ui green mini button" href="{{ paste_url }}">
-                <i class="sticky note icon"></i> Paste
-            </a>
-            <a class="ui orange mini button" href="{{ clear_url }}">
-                <i class="window close icon"></i> Clear Clipboard
-            </a>
-        </p>
+
+<form method="post" class="ui form" action="{{ action_url }}">
+{% csrf_token %}
+    <div class="ui center aligned basic segment">
+        <div class="ui  message">
+            <p>The clipboard contains <b>{{contains}}</b>. You may now paste or clear it.</p>
+             <div class="ui mini buttons">
+
+                <button type="submit" name="action" value="PASTE" class="ui green button">
+                    <i class="sticky note icon"></i> Paste
+                </button>
+                 <div class="or"></div>
+                <button type="submit" name="action" value="CLEAR" class="ui button">
+                    <i class="window close icon"></i> Clear
+                </button>
+
+             </div>
+        </div>
     </div>
-</div>
+</form>

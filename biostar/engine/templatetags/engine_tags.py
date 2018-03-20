@@ -105,7 +105,7 @@ def has_files(request):
     files = request.session.get("files_clipboard", None)
 
     # Last item loaded into files clipboard is the instance.uid the files belong to.
-    root_path = auth.validate_files_clipboard(request=request, clipboard=files)
+    root_path = auth.validate_files_clipboard(request=request)
     if not root_path:
         return False
 
@@ -161,26 +161,13 @@ def search(request):
 
 
 @register.inclusion_tag('widgets/paste.html')
-def paste(project, request=None, board=''):
+def paste(action_view, obj, form, contains="Nothing"):
     "Default provides template for pasting a recipe"
 
-    files = board == 'files_clipboard'
-    active_board = [] if not request else request.session.get(board, [])
-    # Last time in the files_clipboard is an instance.uid, not a file.
-    ndata = len(active_board) - 1 if files and active_board else len(active_board)
+    action_url = reverse(action_view, kwargs=dict(uid=obj.uid))
 
-    # Map a clipboard to respective information
-    info = dict(
-        recipe_clipboard={'url':"recipe_paste", 'nactive':"a recipe", 'redir':"recipe_list"},
-        files_clipboard={'url':"files_paste", 'nactive':f"{ndata} file(s)", 'redir':"data_list"}
-    )
-    view_name = info.get(board, {}).get('url')
-    paste_url = reverse(view_name, kwargs=dict(uid=project.uid))
-    clear_url = reverse("clear_clipboard", kwargs=dict(uid=project.uid,
-                                                       url=info.get(board, {}).get('redir'),
-                                                       board=board))
 
-    return dict(paste_url=paste_url, clear_url=clear_url, message=info.get(board, {}).get('nactive'))
+    return dict(action_url=action_url, form=form, contains=contains)
 
 
 @register.filter

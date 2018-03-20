@@ -246,7 +246,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     return analysis
 
 
-def validate_files_clipboard(request, clipboard):
+def validate_files_clipboard(request):
     """
     Further validate 'files_clipboard' by checking if expected 'uid' belongs to
     a job or data that a user has access to.
@@ -255,6 +255,7 @@ def validate_files_clipboard(request, clipboard):
 
     # Last item in clipboard is an instance.uid that the files belong to.
     path = None
+    clipboard = request.session.get("files_clipboard")
     uid = '' if not clipboard else clipboard[-1]
     if not uid:
         return path
@@ -266,7 +267,7 @@ def validate_files_clipboard(request, clipboard):
     has_access = check_obj_access(instance=instance, user=request.user, request=request,
                                   access=Access.READ_ACCESS)
     if has_access:
-        path = instance.path if isinstance(instance, Job) else instance.get_data_dir()
+        path = instance.get_data_dir()
     else:
         request.session["files_clipboard"] = None
         messages.error(request, "Do not have access to files in clipboard.")
@@ -348,51 +349,19 @@ def guess_mimetype(fname):
     return mimetype
 
 
-def findfiles(location, collect, skip=""):
+def findfiles(location, collect):
     """
     Returns a list of all files in a directory.
     """
 
     for item in os.scandir(location):
 
-        if os.path.abspath(item.path) == skip:
-            continue
-
         if item.is_dir():
-            findfiles(item.path, collect=collect, skip=skip)
+            findfiles(item.path, collect=collect)
         else:
             collect.append(os.path.abspath(item.path))
 
     return collect
-
-
-def link_files(path, data, skip='', summary=''):
-    "Param : data (instance) - An instance of a Data object"
-
-    files = []
-    if path and os.path.isdir(path):
-        # If the path is a directory, symlink all files in the directory.
-        logger.info(f"Linking path: {path}")
-        collect = findfiles(path, collect=[], skip=skip)
-        for fname in os.listdir(path):
-            if join(path, fname) == skip:
-                continue
-            dest = create_path(fname=fname, data=data)
-            src = os.path.join(path, fname)
-            os.symlink(src, dest)
-        # Append directory info to data summary
-        data.summary = f'Contains {len(collect)} files. {summary}'
-        logger.info(f"Linked {len(collect)} files.")
-        files.extend(collect)
-
-    elif path and os.path.isfile(path):
-        # The path is a file.
-        dest = create_path(path, data=data)
-        os.symlink(path, dest)
-        logger.info(f"Linked file: {path}")
-        files.append(dest)
-
-    return files
 
 
 def create_path(fname, data):
@@ -443,10 +412,13 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Link files
     all_files = [path] + files
     for fname in all_files:
-        link_files(path=fname, skip=skip, data=data, summary=summary)
+        if fname:
+            dest = create_path(fname=fname, data=data)
+            os.symlink(fname, dest)
+            logger.info(f"Linked file: {fname}")
 
     # Invalid paths and empty streams still create the data but set the data state to error.
-    missing = not (os.path.isdir(path) or os.path.isfile(path) or stream or files)
+    missing = not (os.path.isdir(path) or os.path.isfile(path) or stream or len(files))
     if path and missing:
         state = Data.ERROR
         logger.error(f"Invalid data path: {path}")
@@ -455,7 +427,7 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # Find all files in the data directory, skipping the table of contents.
     tocname = data.get_path()
-    collect = findfiles(data.get_data_dir(), collect=[], skip=tocname)
+    collect = findfiles(data.get_data_dir(), collect=[])
 
     # Create a sorted file path collection.
     collect.sort()
