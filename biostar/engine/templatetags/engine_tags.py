@@ -315,12 +315,14 @@ def form_errors(form):
     """
     Turns form errors into a data structure
     """
+    try:
+        errorlist = [ ('', message) for message in form.non_field_errors() ]
 
-    errorlist = [ ('', message) for message in form.non_field_errors() ]
-
-    for field in form:
-        for error in field.errors:
-            errorlist.append((f'{field.name}:', error))
+        for field in form:
+            for error in field.errors:
+                errorlist.append((f'{field.name}:', error))
+    except Exception:
+        errorlist = []
 
     context = dict(errorlist=errorlist)
 

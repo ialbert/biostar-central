@@ -324,52 +324,50 @@ class PasteForm(forms.Form):
     def save(self):
         instance = self.cleaned_data.get("instance")
         action = self.cleaned_data.get('action')
+        type = '' if not isinstance(instance, Data) else instance.type
+        # Data name is inherited from the file or directory.
+        recipe_name, summary, text = instance.name, instance.summary, instance.text
+        owner = self.request.user
 
-        pasting_file = (isinstance(instance, Data) or isinstance(instance, Job))
-
+        #Clear board
         if action == self.CLEAR:
             self.request.session[self.board] = None
+            return
 
+        # Paste a recipe.
         if self.board == "recipe_clipboard" and action == self.PASTE:
-            # Paste a recipe.
-            attrs = auth.get_analysis_attr(instance, project=self.project)
-            attrs.update(stream=instance.image, name=f"{instance.name}",
-                         security=instance.security, user=self.request.user)
-            new_recipe = auth.create_analysis(**attrs)
+            new_recipe = auth.create_analysis(project=self.project, json_text=instance.json_text,
+                                         template=instance.template, summary=summary,user=owner, name=recipe_name,
+                                         text=text, stream=instance.image, security=instance.security)
             # Ensure the diff gets inherited.
             new_recipe.last_valid = instance.last_valid
             new_recipe.save()
             messages.success(self.request, mark_safe(f"Pasted <b> {new_recipe.name}</b>"))
 
-        if self.board == "files_clipboard" and pasting_file and action == self.PASTE:
-            # Some files in clipboard might be outside job pathe
+        # Paste each file as a data
+        if self.board == "files_clipboard" and action == self.PASTE:
             files = self.request.session.get(self.board)
             files = [f for f in files if f.startswith(instance.get_data_dir())]
-            type = '' if not isinstance(instance, Data) else instance.type
-            # Add data to project
-            data = auth.create_data(project=self.project, files=files, user=self.request.user,
-                                    name=f'{instance.name}', type=type)
-            messages.success(self.request, mark_safe(f"Pasted <b> {data.name}</b>"))
+            for fname in files:
+                auth.create_data(project=self.project, path=fname, user=owner,
+                                type=type, summary=instance.summary)
+            messages.success(self.request, mark_safe(f"Pasted <b> {len(files)}</b> file(s) into project."))
 
     def clean(self):
 
         cleaned_data = super(PasteForm, self).clean()
-        current = self.request.session.get(self.board)
-        instance = None
+        # Get the live clipboard
+        live = self.request.session.get(self.board) or []
+        instance = Job.objects.filter(uid=live[-1]).first() or Data.objects.filter(uid=live[-1]).first()
         access = {self.PASTE: Access.WRITE_ACCESS, self.CLEAR:Access.READ_ACCESS}
 
-        if self.board == 'files_clipboard':
-            if not auth.validate_files_clipboard(request=self.request) :
+        if self.board == 'files_clipboard' and not auth.validate_files_clipboard(request=self.request):
                 raise forms.ValidationError("Invalid object in clipboard, copy again.")
-            else:
-                # Set instance to later access in save().
-                instance = Job.objects.filter(uid=current[-1]).first()
-                instance = instance or Data.objects.filter(uid=current[-1]).first()
 
         if self.board == 'recipe_clipboard':
-            instance = Analysis.objects.filter(uid=current).first()
+            instance = Analysis.objects.filter(uid=live).first()
 
-        # Make sure user has access to project
+        # Make sure user has correct access to project
         has_access = auth.check_obj_access(instance=self.project, user=self.request.user, request=self.request,
                                            access=access[cleaned_data['action']])
         if not has_access:
