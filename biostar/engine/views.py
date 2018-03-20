@@ -306,9 +306,9 @@ def data_view(request, uid, ):
         if form.is_valid():
             # Copies data to clipboard
             ndata = form.save()
-            msg = mark_safe(f"Copied <b>{ndata}</b> data from <b>{project.name}</b> to the Clipboard.")
+            msg = mark_safe(f"Copied <b>{ndata}</b> files from <b>{project.name}</b> to the Clipboard.")
             messages.success(request, msg)
-            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+            return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
     else:
         form = FileCopyForm(request, data.uid, data.get_data_dir())
 
@@ -428,13 +428,12 @@ def recipe_copy(request, uid):
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
-    project = recipe.project
     request.session["recipe_clipboard"] = recipe.uid
 
     msg = f"Copied recipe <b>{recipe.name}</b> to Clipboard."
     msg = mark_safe(msg)
     messages.success(request, msg)
-    return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
+    return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')

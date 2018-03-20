@@ -1,7 +1,7 @@
 {% load engine_tags %}
 
 
-
+{% form_errors form %}
 <form method="post" class="ui form" action="{{ action_url }}">
 {% csrf_token %}
     <div class="ui center aligned basic segment">

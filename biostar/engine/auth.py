@@ -39,21 +39,6 @@ def access_denied_message(user, access):
     return tmpl.render(context=context)
 
 
-def get_analysis_attr(analysis, project=None):
-    "Get analysis attributes"
-
-    project = project or analysis.project
-    json_text = analysis.json_text
-    template = analysis.template
-    owner = analysis.owner
-    summary = analysis.summary
-    name = analysis.name
-    text = analysis.text
-
-    return dict(project=project, json_text=json_text, template=template,
-                user=owner, summary=summary, name=name, text=text)
-
-
 def generate_script(job):
     """
     Generates a script from a job.
