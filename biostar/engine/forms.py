@@ -333,7 +333,7 @@ class PasteForm(forms.Form):
         if self.board == "recipe_clipboard" and action == self.PASTE:
             # Paste a recipe.
             attrs = auth.get_analysis_attr(instance, project=self.project)
-            attrs.update(stream=instance.image, name=f"Copy of {instance.name}",
+            attrs.update(stream=instance.image, name=f"{instance.name}",
                          security=instance.security, user=self.request.user)
             new_recipe = auth.create_analysis(**attrs)
             # Ensure the diff gets inherited.
@@ -348,7 +348,7 @@ class PasteForm(forms.Form):
             type = '' if not isinstance(instance, Data) else instance.type
             # Add data to project
             data = auth.create_data(project=self.project, files=files, user=self.request.user,
-                                    name=f'Copy of {instance.name}', type=type)
+                                    name=f'{instance.name}', type=type)
             messages.success(self.request, mark_safe(f"Pasted <b> {data.name}</b>"))
 
     def clean(self):

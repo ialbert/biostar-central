@@ -277,9 +277,12 @@ class Data(models.Model):
 def check_data_name(sender, instance, created, **kwargs):
 
     # Add primary key to the name if it already exists.
-    if Data.objects.filter(name=instance.name,
-                           project=instance.project).count() > 1:
-        instance.name += f"_{instance.pk}"
+    i = 0
+    name = instance.name
+    while created and Data.objects.filter(name=name, project=instance.project).exists():
+        i += 1
+        name = f"{instance.name} ({i})"
+        Data.objects.filter(name=instance.name, project=instance.project).update(name=name)
 
 
 class Analysis(models.Model):
