@@ -45,6 +45,7 @@ class JobViewTest(TestCase):
         response = views.object_state_toggle(request=request, uid=self.job.uid, obj_type="job")
         self.process_response(response=response, data={}, save=True)
 
+
     @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
     def test_job_edit(self):
         "Test job edit with POST request"

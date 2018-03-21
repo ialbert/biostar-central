@@ -30,6 +30,27 @@ DATA_COLORS = {
 
 
 @register.simple_tag
+def moderate(request):
+
+    url = reverse("recipe_mod")
+    user = request.user
+    recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW).count()
+
+    correct = f"<b>{recipes} recipes</b> need" if recipes > 1 else f"<b>{recipes} recipe</b> needs"
+    template = ''
+    if user.is_authenticated and user.profile.is_moderator and (recipes > 0):
+
+        template = f"""
+            <div class="ui mini message">
+            <i class="ui check circle icon"></i>
+            {correct} to be <a href={url}>reviewed and authorized</a>.
+            </div>
+            """
+
+    return mark_safe(template)
+
+
+@register.simple_tag
 def sticky_label(obj):
     label = mark_safe('<span class ="ui label">Sticky</span>')
     return label if obj.sticky else ''
