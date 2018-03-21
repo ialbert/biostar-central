@@ -83,6 +83,33 @@ class DataViewTest(TestCase):
         self.assertTrue(os.path.exists(data.get_data_dir()), "Directory not being linked")
 
 
+    def test_data_paste(self):
+
+        "Test data paste interface"
+        url = reverse('data_list', kwargs=dict(uid=self.data.project.uid))
+
+        data = {'action':'PASTE'}
+        request = util.fake_request(url=url, data=data, user=self.owner)
+
+        request.session["files_clipboard"] = [self.data.get_data_dir()]
+
+        response = views.data_list(request=request, uid=self.data.project.uid)
+        self.process_response(response=response, data=data)
+
+
+    def test_data_copy(self):
+        "Test data copy interface"
+
+        url = reverse('data_view', kwargs=dict(uid=self.data.uid))
+
+        data = {'paths':self.data.get_data_dir()}
+
+        request = util.fake_request(url=url, data=data, user=self.owner)
+
+        response = views.data_view(request=request, uid=self.data.uid)
+
+        self.process_response(response=response, data=data)
+
 
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"

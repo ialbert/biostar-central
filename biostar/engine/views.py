@@ -294,7 +294,7 @@ def project_create(request):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
-def data_view(request, uid, ):
+def data_view(request, uid):
     "Show information specific to each data."
 
     data = Data.objects.filter(uid=uid).first()
