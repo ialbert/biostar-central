@@ -145,7 +145,6 @@ class RecipeViewTest(TestCase):
         self.process_response(response=response, data=data)
 
 
-
     def test_recipe_update(self):
         "Test updating recipe through auth"
 
