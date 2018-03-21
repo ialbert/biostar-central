@@ -373,10 +373,18 @@ def recipe_view(request, uid):
     """
     Returns an analysis view based on its id.
     """
-    analysis = Analysis.objects.filter(uid=uid).first()
-    project = analysis.project
-    context = dict(analysis=analysis, project=project, activate='Selected Recipe')
+    recipe = Analysis.objects.filter(uid=uid).first()
+    project = recipe.project
 
+    if request.method == "POST":
+        form = RecipeCopyForm(data=request.POST, recipe=recipe, request=request)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
+    else:
+        form = RecipeCopyForm(recipe=recipe, request=request)
+
+    context = dict(recipe=recipe, project=project, activate='Selected Recipe', form=form)
     counts = get_counts(project)
     context.update(counts)
     return render(request, "recipe_view.html", context)
@@ -419,21 +427,6 @@ def recipe_run(request, uid):
     context.update(get_counts(project))
 
     return render(request, 'recipe_run.html', context)
-
-
-@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
-def recipe_copy(request, uid):
-    """
-    Store Analysis object in request.sessions['recipe_clipboard']
-    """
-
-    recipe = Analysis.objects.filter(uid=uid).first()
-    request.session["recipe_clipboard"] = recipe.uid
-
-    msg = f"Copied recipe <b>{recipe.name}</b> to Clipboard."
-    msg = mark_safe(msg)
-    messages.success(request, msg)
-    return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')

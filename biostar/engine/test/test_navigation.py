@@ -79,7 +79,6 @@ class SiteNavigation(TestCase):
             reverse('signup'),
             reverse("recycle_bin"),
             reverse('recipe_mod'),
-            reverse("recipe_copy", kwargs=self.analysis_params),
             reverse("toggle_state", kwargs=dict(uid=self.job.uid, obj_type="job"))
         ]
 

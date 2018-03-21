@@ -149,8 +149,12 @@ def update_access(sender, instance, created, **kwargs):
 
     # Checking the name is implemented as a post-save signal to
     # ensure primary key exists.
-    if Project.objects.filter(name=instance.name).count() > 1:
-        instance.name += f'_{instance.pk}'
+    count = Project.objects.filter(name=instance.name).count()
+    while created and count > 1:
+        name = f'{instance.name} ({count-1})'
+        count += 1
+        instance.name += f'({instance.pk}'
+        count += 1
 
 
 class Data(models.Model):
@@ -188,7 +192,6 @@ class Data(models.Model):
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.name = self.name[-MAX_NAME_LEN:]
-
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
@@ -277,12 +280,16 @@ class Data(models.Model):
 def check_data_name(sender, instance, created, **kwargs):
 
     # Add primary key to the name if it already exists.
+
+    # This method has a weird bug where is
+    # changes the name of the previos data and not the one currently uploaded.
     i = 0
     name = instance.name
     while created and Data.objects.filter(name=name, project=instance.project).exists():
         i += 1
         name = f"{instance.name} ({i})"
         Data.objects.filter(name=instance.name, project=instance.project).update(name=name)
+
 
 
 class Analysis(models.Model):
