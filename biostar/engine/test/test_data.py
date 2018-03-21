@@ -91,7 +91,10 @@ class DataViewTest(TestCase):
         data = {'action':'PASTE'}
         request = util.fake_request(url=url, data=data, user=self.owner)
 
-        request.session["files_clipboard"] = [self.data.get_data_dir()]
+        clipboard = [f.name for f in os.scandir(self.data.get_data_dir())]
+        clipboard.append(self.data.uid)
+
+        request.session["files_clipboard"] = clipboard
 
         response = views.data_list(request=request, uid=self.data.project.uid)
         self.process_response(response=response, data=data)

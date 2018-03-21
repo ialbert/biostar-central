@@ -102,6 +102,36 @@ class JobViewTest(TestCase):
         self.assertTrue(isinstance(response, FileResponse), "Response is not a file.")
 
 
+    def test_job_copy(self):
+        "Test job copy interface"
+
+        url = reverse('job_view', kwargs=dict(uid=self.job.uid))
+
+        data = {'paths':"runlog/input.json"}
+
+        request = util.fake_request(url=url, data=data, user=self.owner)
+
+        response = views.job_view(request=request, uid=self.job.uid)
+
+        self.process_response(response=response, data=data)
+
+
+    def test_job_paste(self):
+        "Test job paste interface"
+        url = reverse('job_list', kwargs=dict(uid=self.job.project.uid))
+
+        data = {'action': 'PASTE'}
+        request = util.fake_request(url=url, data=data, user=self.owner)
+
+        clipboard = [f.name for f in os.scandir(self.job.get_data_dir())]
+        clipboard.append(self.job.uid)
+
+        request.session["files_clipboard"] = clipboard
+
+        response = views.data_list(request=request, uid=self.job.project.uid)
+        self.process_response(response=response, data=data)
+
+
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"
 

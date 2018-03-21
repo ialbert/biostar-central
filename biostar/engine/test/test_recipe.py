@@ -119,6 +119,18 @@ class RecipeViewTest(TestCase):
             self.process_response(response=response, data={'action':action}, save=True)
 
 
+    def test_recipe_copy(self):
+        "Test recipe copy interface"
+
+        pass
+
+    def test_recipe_paste(self):
+        "Test recipe paste interface"
+        
+        pass
+
+
+
     def process_response(self, response, data, model=models.Analysis,save=False):
         "Check the response on POST request is redirected"
 
