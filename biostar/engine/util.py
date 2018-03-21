@@ -21,23 +21,6 @@ def fix_endings(text):
 class File(object):
     pass
 
-def project_files(project):
-    """
-    Lists project data as they were files
-    """
-
-    data = project.data_set.order_by("sticky", "-date").all()
-
-    def transform(f):
-        b = File()
-        b.path = f'{f.name}'
-        b.is_dir = True
-        b.name, b.size = f.name, f.size
-        return b
-
-    files = map(transform(data))
-
-    return files
 
 def scan_files(relpath, abspath, exclude=[]):
     """

@@ -122,13 +122,39 @@ class RecipeViewTest(TestCase):
     def test_recipe_copy(self):
         "Test recipe copy interface"
 
-        pass
+        url = reverse('recipe_view', kwargs=dict(uid=self.recipe.uid))
+
+        request = util.fake_request(url=url, data={}, user=self.owner)
+
+        response = views.recipe_view(request=request, uid=self.recipe.uid)
+
+        self.process_response(response=response, data={})
+
 
     def test_recipe_paste(self):
         "Test recipe paste interface"
-        
-        pass
 
+        url = reverse('recipe_list', kwargs=dict(uid=self.recipe.project.uid))
+
+        data = {'action': 'PASTE'}
+        request = util.fake_request(url=url, data=data, user=self.owner)
+
+        request.session["recipe_clipboard"] = self.recipe.uid
+
+        response = views.recipe_list(request=request, uid=self.recipe.project.uid)
+        self.process_response(response=response, data=data)
+
+
+
+    def test_recipe_update(self):
+        "Test updating recipe through auth"
+
+        changed = auth.create_analysis(project=self.project,
+                                       json_text=self.recipe.json_text,
+                                       template=self.recipe.template,
+                                       uid=self.recipe.uid, update=True)
+
+        self.assertEqual(changed.uid, self.recipe.uid)
 
 
     def process_response(self, response, data, model=models.Analysis,save=False):

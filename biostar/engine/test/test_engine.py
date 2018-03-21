@@ -59,6 +59,7 @@ class SiteAdminTest(TestCase):
         self.assertTrue(len(differ), 'Could not compute diff')
 
 
+
 class FactoryTest(TestCase):
 
     def setUp(self):
@@ -108,9 +109,9 @@ class FactoryTest(TestCase):
 
         field = factory.data_field_generator(field={}, project=self.project)
 
-
         if not field:
             self.assertFalse(f"data field generator failed")
+
 
 
 class UtilTests(TestCase):
@@ -128,4 +129,3 @@ class UtilTests(TestCase):
 
             with self.assertRaises(ValidationError):
                 forms.check_size(File(open(fname, "r")), maxsize=0.000001)
-

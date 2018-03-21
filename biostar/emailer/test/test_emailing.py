@@ -1,5 +1,5 @@
 import logging
-
+from django.core import management
 from biostar.emailer import auth
 from django.test import TestCase
 from biostar.emailer import models
@@ -31,6 +31,12 @@ class SendMailTest(TestCase):
         group = models.EmailGroup()
         group.save()
         auth.add_subscription(email="Test@test.com", group=group, name='testing')
+
+
+    def test_mailing(self):
+        "Test sending email using manage commands."
+        management.call_command('test_email')
+
 
 
 

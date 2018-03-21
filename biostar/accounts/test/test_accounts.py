@@ -1,6 +1,6 @@
 import logging, os
 from unittest.mock import patch, MagicMock
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test import Client
 from biostar.accounts import models, views, auth
 
@@ -93,6 +93,21 @@ class LoginTest(TestCase):
             resp = c.post(url, data=tests)
 
             self.assertEqual(resp.status_code, 200)
+
+
+class SignUpTest(TestCase):
+
+
+    def setUp(self):
+        self.password = "testing"
+
+
+    @override_settings(ALLOW_SIGNUP=True)
+    def test_signup(self):
+        "Test the signup interface."
+        pass
+
+
 
 
 

@@ -291,7 +291,6 @@ def check_data_name(sender, instance, created, **kwargs):
         Data.objects.filter(name=instance.name, project=instance.project).update(name=name)
 
 
-
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
