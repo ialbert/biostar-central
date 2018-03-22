@@ -7,7 +7,7 @@ def join(*args):
 
 KNOWN_EXTENSIONS = (
     ".fasta", ".fq", ".fastq", ".sam", ".bed", ".gff", ".fa",
-    ".r", ".gtf", ".gb", ".tsv", ".csv", ".rep"
+    ".r", ".gtf", ".gb", ".tsv", ".csv", ".rep", ".sh", ".md"
 )
 
 KNOWN_EXTENSIONS = set(KNOWN_EXTENSIONS)
