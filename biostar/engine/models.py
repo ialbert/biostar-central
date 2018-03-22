@@ -197,6 +197,7 @@ class Data(models.Model):
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
 
+
         # Build the data directory.
         data_dir = self.get_data_dir()
         if not os.path.isdir(data_dir):
@@ -283,14 +284,20 @@ def check_data_name(sender, instance, created, **kwargs):
 
     # This method has a weird bug where is
     # changes the name of the previos data and not the one currently uploaded.
-    #i = 0
-    #name = instance.name
-    #while created and Data.objects.filter(name=name, project=instance.project).exists():
-    #    i += 1
-    #    name = f"{instance.name} ({i})"
-    #    Data.objects.filter(pk=instance.pk).update(name=name)
-    #    if i > 100:
-    #        break
+    #if not created:
+    i = 0
+    name = instance.name
+    # Count is better since .exist() will add numbers to the first data.
+    get_count = lambda name :Data.objects.filter(name=name, project=instance.project).count()
+
+    while get_count(name=name) >= 1 and i < 100:
+        i += 1
+        name = f"{instance.name} ({i})"
+    Data.objects.filter(project=instance.project, uid=instance.uid).update(name=name)
+    #instance.name = name
+
+
+
 
 
 class Analysis(models.Model):

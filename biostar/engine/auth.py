@@ -254,7 +254,7 @@ def validate_files_clipboard(request):
     if has_access:
         path = instance.get_data_dir()
     else:
-        request.session["files_clipboard"] = None
+        #request.session["files_clipboard"] = None
         messages.error(request, "Do not have access to files in clipboard.")
 
     return path
