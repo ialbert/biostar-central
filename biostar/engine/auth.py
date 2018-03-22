@@ -379,7 +379,7 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Create the data.
     type = type or "DATA"
     uid = uid or util.get_uuid(8)
-    data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
+    data = Data(name=name, owner=user, state=Data.PENDING, project=project,
                                type=type, summary=summary, text=text, uid=uid)
 
     # The source of the data is a stream is written into the destination.
@@ -436,7 +436,7 @@ def create_data(project, user=None, stream=None, path='', name='',
     data.summary = summary
     data.file = tocname
 
-    # Trigger another save.
+    # Trigger one save.
     data.save()
 
     # Set log for data creation.
