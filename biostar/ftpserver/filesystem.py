@@ -60,7 +60,7 @@ def fetch_file_info(instance, project=None, tab='data', base=[], name=None):
 
     # Build the real path when the instance is an ftp file path.
     if isinstance(instance, str):
-        print(instance, "HHHHH")
+
         suffix = instance if not base else os.path.join(*base, instance)
         prefix = query_tab(tab=tab, project=project, name=name)
         rfname = os.path.join(prefix, suffix)
@@ -173,7 +173,6 @@ class BiostarFileSystem(AbstractedFS):
 
         # List all projects when user is at the root
         if path == self.root:
-            #TODO: unnecessary for now. but change it later
             #return [f"Project-{p}" for p in self.project_list]
             return self.project_list
 
@@ -254,9 +253,8 @@ class BiostarFileSystem(AbstractedFS):
         "Check if the logged in user is still a valid one. "
         user = self.user['user']
         if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
-            #TODO: figuring out how to log a user out.
-            #sys.exit()
-            pass
+            self.cmd_channel.close()
+            return
 
 
     def extract(self, path_list):
