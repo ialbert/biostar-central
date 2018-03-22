@@ -60,7 +60,7 @@ def fetch_file_info(instance, project=None, tab='data', base=[], name=None):
 
     # Build the real path when the instance is an ftp file path.
     if isinstance(instance, str):
-
+        print(instance, "HHHHH")
         suffix = instance if not base else os.path.join(*base, instance)
         prefix = query_tab(tab=tab, project=project, name=name)
         rfname = os.path.join(prefix, suffix)
@@ -173,6 +173,8 @@ class BiostarFileSystem(AbstractedFS):
 
         # List all projects when user is at the root
         if path == self.root:
+            #TODO: unnecessary for now. but change it later
+            #return [f"Project-{p}" for p in self.project_list]
             return self.project_list
 
         # We can choose to browse /data or /results inside of a project.
@@ -262,7 +264,7 @@ class BiostarFileSystem(AbstractedFS):
         assert isinstance(path_list, list), "path_list should be a list."
 
         # Project user is under.
-        root_project = fetch(len(path_list) >= 1, path_list, 0)
+        root_project = fetch(len(path_list) >= 1, path_list, 0) or ''
 
         # Tab picked ( data or results ).
         tab = fetch(len(path_list) >= 2, path_list, 1)

@@ -33,12 +33,13 @@ class BiostarFTPHandler(FTPHandler):
     def on_file_sent(self, file):
         # do something when a file has been sent
         # Nothing too special here.
+        print(file)
+        1/0
 
         pass
 
     def on_file_received(self, file):
         # do something when a file has been received
-
 
         pass
 
