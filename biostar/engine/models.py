@@ -278,13 +278,10 @@ class Data(models.Model):
 
 
 @receiver(post_save, sender=Data)
-def check_data_name(sender, instance, created, **kwargs):
-    pass
+def check_data_name(sender, instance, created, raw, update_fields, **kwargs):
     # Add primary key to the name if it already exists.
 
-    # This method has a weird bug where is
-    # changes the name of the previos data and not the one currently uploaded.
-    #if not created:
+
     i = 0
     name = instance.name
     # Count is better since .exist() will add numbers to the first data.
@@ -293,10 +290,9 @@ def check_data_name(sender, instance, created, **kwargs):
     while get_count(name=name) >= 1 and i < 100:
         i += 1
         name = f"{instance.name} ({i})"
+    print(created, raw, update_fields, "D")
+    print("-------------")
     Data.objects.filter(project=instance.project, uid=instance.uid).update(name=name)
-    #instance.name = name
-
-
 
 
 
