@@ -5,7 +5,7 @@
 
 {% block body %}
 
-    <div class="ui raised segment">
+
         <div class="ui center aligned header">
 
             <i class="add user icon"></i>Sign up
@@ -15,7 +15,7 @@
 
         <form method="post" class="ui form attached fluid" action="{% url 'signup' %}">
             <div class="ui centered card inputcolor">
-
+                {% form_errors form %}
                 <div class="ui basic segment">
 
                     {% csrf_token %}
@@ -34,8 +34,6 @@
                           {{ form.password2 }}
                      </div>
 
-                    {{ form.errors }}
-
                     <button type="submit" class="ui primary button">Sign up</button>
                     <a class="ui right floated button" href="/">Cancel</a>
 
@@ -43,6 +41,6 @@
             </div>
         </form>
 
-    </div>
+
 
 {% endblock %}

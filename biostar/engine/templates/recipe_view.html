@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block headtitle %}
-    {{ analysis.name }}
+    {{ recipe.name }}
 {% endblock %}
 
 {% block js %}
@@ -18,25 +18,25 @@
         <div class="ui vertical segment">
 
             <div class="ui center aligned header">
-                Recipe: <i class="setting icon"></i>{{ analysis.name }}
+                Recipe: <i class="setting icon"></i>{{ recipe.name }}
             </div>
 
             <div class="">
-                <img class="ui centered small image" src="{% img analysis %}">
+                <img class="ui centered small image" src="{% img recipe %}">
             </div>
 
-            {% security_label analysis %}
+            {% security_label recipe %}
 
             <div class="ui center aligned vertical segment">
 
                 <div class="ui buttons">
-                    <a class="ui green button" href="{% url 'recipe_run' analysis.uid %}">
+                    <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
                         <i class="spinner icon"></i> Run Recipe
                     </a>
 
                     <div class="or"></div>
 
-                    <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ analysis.uid }}">
+                    <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
                         <i class="bar chart icon"></i>View Results
                     </a>
 
@@ -45,16 +45,20 @@
             </div>
 
             <div class="ui center aligned basic segment">
+                {% form_errors form %}
 
-                <a class="ui mini button" href="{% url 'recipe_code' analysis.uid %}">
-                    <i class="keyboard icon"></i>View Code
-                </a>
+                 <form method="post" class="ui form" action="{%  url 'recipe_view' recipe.uid %}">
+                    {% csrf_token %}
+                     <a class="ui mini button" href="{% url 'recipe_code' recipe.uid %}">
+                        <i class="keyboard icon"></i>View Code
+                     </a>
 
-                <a class="ui mini button" href="{% url 'recipe_copy' analysis.uid %}">
-                    <i class="clone icon"></i>Copy Recipe
-                </a>
+                     <button type="submit" class="ui mini button">
+                        <i class="clone icon"></i>Copy Recipe
+                     </button>
+                     {% action_bar recipe edit_url='recipe_edit' %}
 
-                {% action_bar analysis edit_url='recipe_edit' %}
+                 </form>
 
             </div>
 
@@ -62,12 +66,12 @@
 
         <div class="ui vertical segment">
             <div class="ui basic segment">
-             {{ analysis.summary|markdown|safe }}
+             {{ recipe.summary|markdown|safe }}
             </div>
         </div>
 
         <div class="ui basic segment">
-            {{ analysis.html|safe }}
+            {{ recipe.html|safe }}
         </div>
 
     </div>

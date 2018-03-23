@@ -84,6 +84,14 @@ class ProjectViewTest(TestCase):
         self.process_response(response=response, data=data)
 
 
+    def test_project_update(self):
+        "Test updating the project"
+
+        changed = auth.create_project(user=self.owner, name="New name",
+                                      uid=self.project.uid, update=True)
+
+        self.assertEqual(changed.uid, self.project.uid)
+
     def test_access_forms(self):
         " Test generating a list of forms for a given user list"
 

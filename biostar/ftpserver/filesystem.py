@@ -173,6 +173,7 @@ class BiostarFileSystem(AbstractedFS):
 
         # List all projects when user is at the root
         if path == self.root:
+            #return [f"Project-{p}" for p in self.project_list]
             return self.project_list
 
         # We can choose to browse /data or /results inside of a project.
@@ -252,9 +253,8 @@ class BiostarFileSystem(AbstractedFS):
         "Check if the logged in user is still a valid one. "
         user = self.user['user']
         if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
-            #TODO: figuring out how to log a user out.
-            #sys.exit()
-            pass
+            self.cmd_channel.close()
+            return
 
 
     def extract(self, path_list):
@@ -262,7 +262,7 @@ class BiostarFileSystem(AbstractedFS):
         assert isinstance(path_list, list), "path_list should be a list."
 
         # Project user is under.
-        root_project = fetch(len(path_list) >= 1, path_list, 0)
+        root_project = fetch(len(path_list) >= 1, path_list, 0) or ''
 
         # Tab picked ( data or results ).
         tab = fetch(len(path_list) >= 2, path_list, 1)

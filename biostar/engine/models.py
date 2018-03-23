@@ -137,7 +137,7 @@ class Access(models.Model):
 
 
 @receiver(post_save, sender=Project)
-def update_access(sender, instance, created, **kwargs):
+def update_access(sender, instance, created, raw, update_fields, **kwargs):
 
     # Drop previous OWNER_ACCES permissions if these exists.
     # This is needed when projects change owners.
@@ -148,9 +148,14 @@ def update_access(sender, instance, created, **kwargs):
     access.save()
 
     # Checking the name is implemented as a post-save signal to
-    # ensure primary key exists.
-    if Project.objects.filter(name=instance.name).count() > 1:
-        instance.name += f'_{instance.pk}'
+    i = 0
+    name = instance.name
+    # Count works better since .exist() will include the first upload
+    while Project.objects.filter(name=name).count() > 1 and i < 100:
+        i += 1
+        name = f"{instance.name} ({i})"
+        Project.objects.filter(uid=instance.uid, pk=instance.pk).update(name=name)
+
 
 
 class Data(models.Model):
@@ -188,11 +193,11 @@ class Data(models.Model):
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.name = self.name[-MAX_NAME_LEN:]
-
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
+
 
         # Build the data directory.
         data_dir = self.get_data_dir()
@@ -276,13 +281,14 @@ class Data(models.Model):
 @receiver(post_save, sender=Data)
 def check_data_name(sender, instance, created, **kwargs):
 
-    # Add primary key to the name if it already exists.
     i = 0
     name = instance.name
-    while created and Data.objects.filter(name=name, project=instance.project).exists():
+    # Count works better since .exists() includes first uploads
+    # causing everything to start with a (1).
+    while Data.objects.filter(name=name, project=instance.project, deleted=False).count() > 1 and i < 100:
         i += 1
         name = f"{instance.name} ({i})"
-        Data.objects.filter(name=instance.name, project=instance.project).update(name=name)
+        Data.objects.filter(project=instance.project, uid=instance.uid, pk=instance.pk).update(name=name)
 
 
 class Analysis(models.Model):

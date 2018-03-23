@@ -1,6 +1,6 @@
 import logging, os
 from unittest.mock import patch, MagicMock
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test import Client
 from biostar.accounts import models, views, auth
 
@@ -33,6 +33,20 @@ class UserAccountTests(TestCase):
                 # Use this to prints the url and the code.
                 logger.error(f"Error accessing: {url}, code={resp.status_code}")
                 self.assertEqual(url, code)
+
+    def test_user_logout(self):
+        "Test user logout interface."
+
+        c = Client()
+        c.login(username=self.user.username, email=self.user.email,
+                password=self.password)
+
+        url = reverse("logout")
+        resp = c.post(url, data={})
+
+        self.assertEqual(resp.status_code, 302)
+
+
 
     def test_page_responses(self):
 
@@ -84,16 +98,38 @@ class LoginTest(TestCase):
         "Test invalid email and password"
         data1 = {"email": "foo", "password": self.password}
         data2 = {"email": self.user.email, "password": "bar"}
-
+        url = reverse("login")
         for tests in (data1, data2):
-
-            url = reverse("login")
 
             c = Client()
             resp = c.post(url, data=tests)
 
             self.assertEqual(resp.status_code, 200)
 
+
+class SignUpTest(TestCase):
+
+
+    def setUp(self):
+        self.password = "testing"
+        self.email = "test@email.com"
+
+
+    @override_settings(ALLOW_SIGNUP=True)
+    def test_signup(self):
+        "Test the signup interface."
+
+        valid = {"email": self.email, "password1":self.password, "password2": self.password, 'code':302}
+        invalid = {"email": self.email, "password1": self.password, "password2": "Fail", 'code':200}
+        url = reverse("signup")
+
+        for test in (valid, invalid):
+            code = test['code']
+            del test['code']
+
+            c = Client()
+            resp = c.post(url, data=test)
+            self.assertEqual(resp.status_code, code)
 
 
 class ProfileTest(TestCase):

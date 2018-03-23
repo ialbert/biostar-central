@@ -78,6 +78,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'biostar.engine.middleware.engine_middleware',
+
 ]
 
 ROOT_URLCONF = 'biostar.urls'

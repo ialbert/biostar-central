@@ -254,7 +254,7 @@ def validate_files_clipboard(request):
     if has_access:
         path = instance.get_data_dir()
     else:
-        request.session["files_clipboard"] = None
+        #request.session["files_clipboard"] = None
         messages.error(request, "Do not have access to files in clipboard.")
 
     return path
@@ -436,7 +436,7 @@ def create_data(project, user=None, stream=None, path='', name='',
     data.summary = summary
     data.file = tocname
 
-    # Trigger another save.
+    # Trigger one save.
     data.save()
 
     # Set log for data creation.

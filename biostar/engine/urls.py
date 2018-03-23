@@ -31,7 +31,6 @@ urlpatterns = [
     url(r'^recipe/run/(?P<uid>[-\w]+)/$', views.recipe_run, name='recipe_run'),
     url(r'^recipe/edit/(?P<uid>[-\w]+)/$', views.recipe_edit, name='recipe_edit'),
     url(r'^recipe/code/(?P<uid>[-\w]+)/$', views.recipe_code, name='recipe_code'),
-    url(r'^recipe/copy/(?P<uid>[-\w]+)/$', views.recipe_copy, name='recipe_copy'),
     url(r'^recipe/diff/(?P<uid>[-\w]+)/$', views.recipe_diff, name='recipe_diff'),
 
     # Actions

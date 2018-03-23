@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 
 
-class SignUpForm(forms.ModelForm):
+class SignUpForm(forms.Form):
 
     password1 = forms.CharField(
         label="Password",
@@ -20,11 +20,13 @@ class SignUpForm(forms.ModelForm):
         help_text="Enter the same password as before, for verification.",
     )
 
-    class Meta:
-
-        model = User
-        fields = ("email",)
-
+    email = forms.CharField(
+        label="Email",
+        strip=False,
+        widget=forms.TextInput,
+        max_length=254,
+        min_length=2,
+    )
 
     def clean_password2(self):
 

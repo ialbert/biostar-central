@@ -8,6 +8,7 @@
     <title>
         {# Page Title #}
         {% block headtitle %}Title{% endblock %}
+
     </title>
 
     {# Extra header content #}
@@ -47,6 +48,7 @@
     </div>
 
     {% block menu %}
+        {% moderate request=request %}
         {% menubar request=request %}
     {% endblock %}
 

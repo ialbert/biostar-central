@@ -6,7 +6,7 @@ WSGI_APPLICATION = 'conf.natay.natay_wsgi.application'
 
 SITE_ID = 1
 SITE_DOMAIN = "natay.software"
-SITE_NAME = "Awesome Software"
+SITE_NAME = "Software Demo"
 
 HTTP_PORT = ''
 PROTOCOL = 'https'

@@ -85,12 +85,10 @@ def user_signup(request):
     if request.method == 'POST':
 
         form = SignUpForm(request.POST)
-        form.add_error(None, "Sign up is disabled")
         if form.is_valid():
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password1')
             name = email.split("@")[0]
-
             user = User.objects.create(username=get_uuid(), email=email,
                                        first_name=name)
             user.set_password(password)

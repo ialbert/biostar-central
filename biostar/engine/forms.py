@@ -357,7 +357,8 @@ class PasteForm(forms.Form):
 
         cleaned_data = super(PasteForm, self).clean()
         # Get the live clipboard
-        live = self.request.session.get(self.board) or []
+        live = self.request.session.get(self.board) or ['']
+
         instance = Job.objects.filter(uid=live[-1]).first() or Data.objects.filter(uid=live[-1]).first()
         access = {self.PASTE: Access.WRITE_ACCESS, self.CLEAR:Access.READ_ACCESS}
 
@@ -376,6 +377,27 @@ class PasteForm(forms.Form):
         # Update cleaned_data with instance.
         self.cleaned_data.update(dict(instance=instance))
 
+
+
+class RecipeCopyForm(forms.Form):
+    "Used to copy recipe"
+
+    def __init__(self, recipe, request, *args, **kwargs):
+        self.recipe = recipe
+        self.request = request
+        super().__init__(*args, **kwargs)
+
+    def save(self):
+        self.request.session["recipe_clipboard"] = self.recipe.uid
+        msg = mark_safe(f"Copied recipe <b>{self.recipe.name}</b> to Clipboard.")
+        messages.success(self.request, msg)
+
+    def clean(self):
+        has_access = auth.check_obj_access(user=self.request.user, request=self.request,
+                                           instance=self.recipe, access=Access.READ_ACCESS)
+        if not has_access:
+            self.request.session["recipe_clipboard"] = None
+            raise forms.ValidationError("Copy another recipe.")
 
 
 class FileCopyForm(forms.Form):
@@ -404,6 +426,7 @@ class FileCopyForm(forms.Form):
 
         # Override cleaned_data to later access in save()
         self.cleaned_data = list(map(join, [self.root_dir] * len(paths), paths))
+
 
 
 class EditCode(forms.Form):
