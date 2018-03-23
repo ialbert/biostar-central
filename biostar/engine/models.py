@@ -285,7 +285,7 @@ def check_data_name(sender, instance, created, **kwargs):
     name = instance.name
     # Count works better since .exists() includes first uploads
     # causing everything to start with a (1).
-    while Data.objects.filter(name=name, project=instance.project).count() > 1 and i < 100:
+    while Data.objects.filter(name=name, project=instance.project, deleted=False).count() > 1 and i < 100:
         i += 1
         name = f"{instance.name} ({i})"
         Data.objects.filter(project=instance.project, uid=instance.uid, pk=instance.pk).update(name=name)
