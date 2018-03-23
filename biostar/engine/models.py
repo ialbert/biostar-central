@@ -280,12 +280,11 @@ class Data(models.Model):
 
 @receiver(post_save, sender=Data)
 def check_data_name(sender, instance, created, **kwargs):
-    # Add primary key to the name if it already exists.
 
     i = 0
     name = instance.name
     # Count works better since .exists() includes first uploads
-    # causing everything to start with a (1). 
+    # causing everything to start with a (1).
     while Data.objects.filter(name=name, project=instance.project).count() > 1 and i < 100:
         i += 1
         name = f"{instance.name} ({i})"
