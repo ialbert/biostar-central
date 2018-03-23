@@ -357,7 +357,7 @@ class PasteForm(forms.Form):
 
         cleaned_data = super(PasteForm, self).clean()
         # Get the live clipboard
-        live = self.request.session.get(self.board) or []
+        live = self.request.session.get(self.board) or ['']
 
         instance = Job.objects.filter(uid=live[-1]).first() or Data.objects.filter(uid=live[-1]).first()
         access = {self.PASTE: Access.WRITE_ACCESS, self.CLEAR:Access.READ_ACCESS}
