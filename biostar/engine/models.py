@@ -147,15 +147,6 @@ def update_access(sender, instance, created, raw, update_fields, **kwargs):
     access = Access.objects.create(user=instance.owner, project=instance, access=Access.OWNER_ACCESS)
     access.save()
 
-    # Checking the name is implemented as a post-save signal to
-    i = 0
-    name = instance.name
-    # Count works better since .exist() will include the first upload
-    while Project.objects.filter(name=name).count() > 1 and i < 100:
-        i += 1
-        name = f"{instance.name} ({i})"
-        Project.objects.filter(uid=instance.uid, pk=instance.pk).update(name=name)
-
 
 
 class Data(models.Model):
@@ -280,12 +271,12 @@ class Data(models.Model):
 
 @receiver(post_save, sender=Data)
 def check_data_name(sender, instance, created, **kwargs):
-
+    "Needed in post-save to make sure stuff in recycle does not mess up naming."
     i = 0
     name = instance.name
-    # Count works better since .exists() includes first uploads
-    # causing everything to start with a (1).
-    while Data.objects.filter(name=name, project=instance.project, deleted=False).count() > 1 and i < 100:
+    while Data.objects.exclude(pk=instance.pk).filter(name=name,
+                                                  project=instance.project,
+                                                  deleted=False).exists() and i < 100:
         i += 1
         name = f"{instance.name} ({i})"
         Data.objects.filter(project=instance.project, uid=instance.uid, pk=instance.pk).update(name=name)

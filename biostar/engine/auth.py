@@ -320,6 +320,19 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     return job
 
 
+# def check_data_name(name, data):
+#
+#     copy = name
+#     i = 0
+#     while Data.objects.exclude(pk=data.pk).filter(name=copy,
+#                                                   project=data.project,
+#                                                   deleted=False).exists() and i < 100:
+#         i += 1
+#         copy = f"{name} ({i})"
+#
+#     return copy
+
+
 def guess_mimetype(fname):
     "Return mimetype for a known text filename"
 
