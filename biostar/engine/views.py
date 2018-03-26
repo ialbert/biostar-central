@@ -621,12 +621,11 @@ def object_state_toggle(request, uid, obj_type):
     obj, view_name = obj_map[obj_type][0], obj_map[obj_type][1]
     instance = obj.objects.filter(uid=uid).first()
     url = reverse(view_name, kwargs=dict(uid=instance.project.uid))
-    bin_url = reverse('recycle_bin')
     # Make sure user has owner access to instance before toggling
     has_access = auth.check_obj_access(instance=instance, user=request.user, request=request,
                                        access=Access.OWNER_ACCESS)
 
-    msg = f"Deleted <b>{instance.name}</b>. View in <a href={bin_url}>Recycle Bin</a>."
+    msg = f"Deleted <b>{instance.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
     if has_access:
         # Toggle delete state
         instance.deleted = not instance.deleted

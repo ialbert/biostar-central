@@ -11,7 +11,7 @@ SITE_NAME = "Software Demo"
 HTTP_PORT = ''
 PROTOCOL = 'https'
 
-ALLOWED_HOSTS = [SITE_DOMAIN]
+ALLOWED_HOSTS = [SITE_DOMAIN, "165.227.92.172"]
 
 SITE_HEADER = '<img class="ui middle aligned small image" src="/static/images/shield.png"> <span>Demo the Biostar Engine</span>'
 

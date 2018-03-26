@@ -105,6 +105,31 @@ class BiostarFileSystem(AbstractedFS):
         super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
 
+    def ftp2fs(self, ftppath):
+
+        #assert isinstance(ftppath, unicode), ftppath
+
+        if os.path.normpath(self.root) == os.sep:
+            fs = os.path.normpath(self.ftpnorm(ftppath))
+        else:
+            p = self.ftpnorm(ftppath)[1:]
+            fs = os.path.normpath(os.path.join(self.root, p))
+
+        logger.info(f"fs={fs}, ftppath={ftppath}")
+
+        path_list = split(fs)
+        root_project, tab, name, base = self.extract(path_list=path_list)
+
+        project = Project.objects.filter(pk=root_project).first()
+
+        if tab and name:
+            actual_path = query_tab(tab=tab, project=project.first(), name=name)
+
+
+
+        return fs
+
+
     def validpath(self, path):
         """
         Deconstructs the path into :
@@ -126,7 +151,7 @@ class BiostarFileSystem(AbstractedFS):
         path_list = split(path)
 
         root_project, tab, name, base = self.extract(path_list=path_list)
-        project = Project.objects.filter(name=root_project)
+        project = Project.objects.filter(pk=root_project)
         data = Data.objects.filter(name=name, project=project.first(), deleted=False)
         results = Job.objects.filter(name=name, project=project.first(), deleted=False)
 
@@ -153,7 +178,6 @@ class BiostarFileSystem(AbstractedFS):
         return is_valid
 
 
-
     def isdir(self, path):
         logger.info(f"path={path}")
         #return True if path in self.project_list else False
@@ -168,13 +192,12 @@ class BiostarFileSystem(AbstractedFS):
         path_list = split(path)
         root_project, tab, name, base = self.extract(path_list=path_list)
 
-        project = Project.objects.filter(name=root_project).first()
+        project = Project.objects.filter(pk=root_project).first()
         inside_project = project and len(path_list) == 2
 
-        # List all projects when user is at the root
+        # List projects when user is at the root
         if path == self.root:
-            #return [f"Project-{p}" for p in self.project_list]
-            return self.project_list
+            return [f"Project-{p.name}{' '*6}({p.pk})" for p in self.project_list]
 
         # We can choose to browse /data or /results inside of a project.
         if project and len(path_list) == 1:
@@ -226,17 +249,21 @@ class BiostarFileSystem(AbstractedFS):
 
         root_project, tab, name, base = self.extract(path_list=path_list)
 
-        project = Project.objects.filter(name=root_project).first()
+        project = Project.objects.filter(pk=root_project).first()
 
         for instance in listing:
-
+            perm = perm_map(project=instance, user=self.user)
+            # Handle parsing project
+            if len(path_list) == 0:
+                current = Project.objects.filter(pk=self.parse_pk(name=instance)).first()
+                rfname, filetype = fetch_file_info(current, tab=tab, name=name,
+                                                   project=project, base=base)
             # Handle /results and /data
-            if len(path_list) == 1:
-                perm, filetype, rfname = 'elr', 'dir', project.get_data_dir()
+            elif len(path_list) == 1:
+                filetype, rfname = 'dir', project.get_data_dir()
             else:
                 rfname, filetype = fetch_file_info(instance, tab=tab, name=name,
                                                    project=project, base=base)
-                perm = perm_map(project=project, user=self.user)
 
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
@@ -256,13 +283,20 @@ class BiostarFileSystem(AbstractedFS):
             self.cmd_channel.close()
             return
 
+    def parse_pk(self, name):
+        "Parse a project pk from given project name."
+        return name.split(" ")[-1].replace("(","").replace(")","") or None
+
 
     def extract(self, path_list):
         "Extract relevant info from a path list without breaking on an index error."
         assert isinstance(path_list, list), "path_list should be a list."
 
-        # Project user is under.
+        # Project user is under
         root_project = fetch(len(path_list) >= 1, path_list, 0) or ''
+
+        # Build filesystem using project pk value since names can the same.
+        root_project = self.parse_pk(name=root_project)
 
         # Tab picked ( data or results ).
         tab = fetch(len(path_list) >= 2, path_list, 1)
