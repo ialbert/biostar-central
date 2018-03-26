@@ -1,10 +1,17 @@
 from django.db import models
 from django.conf import settings
-
+from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 
 from django.db.models import F
 
+User = get_user_model()
+
+
+
+
+def get_sentinel_user():
+    return User.objects.get_or_create(username='deleted').first()
 
 
 
@@ -71,10 +78,12 @@ class Post(models.Model):
     title = models.CharField(max_length=200, null=False)
 
     # The user that originally created the post.
-    author = models.ForeignKey(settings.AUTH_USER_MODEL)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,
+                               on_delete=models.SET(get_sentinel_user))
 
     # The user that edited the post most recently.
-    lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor')
+    lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor',
+                                      on_delete=models.SET(get_sentinel_user))
 
     # Indicates the information value of the post.
     rank = models.FloatField(default=0, blank=True)
