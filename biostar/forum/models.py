@@ -1,10 +1,11 @@
 import bleach
-
+from django.utils import timezone
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
-
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 from django.db.models import F
 
 from biostar.forum import util
@@ -59,7 +60,7 @@ class Tag(models.Model):
 
 
 class Post(models.Model):
-    "Represents a post in Biostar"
+    "Represents a post in a forum"
 
     #objects = PostManager()
 
@@ -153,8 +154,8 @@ class Post(models.Model):
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.CASCADE)
 
-    def parse_tags(self):
-        return util.split_tags(self.tag_val)
+    #def parse_tags(self):
+    #    return util.split_tags(self.tag_val)
 
     def add_tags(self, text):
         text = text.strip()
@@ -190,7 +191,7 @@ class Post(models.Model):
 
     @property
     def age_in_days(self):
-        delta = const.now() - self.creation_date
+        delta = timezone.now() - self.creation_date
         return delta.days
 
     def update_reply_count(self):
@@ -242,7 +243,7 @@ class Post(models.Model):
             self.title = self.parent.title if self.parent else self.title
             self.lastedit_user = self.author
             self.status = self.status or Post.PENDING
-            self.creation_date = self.creation_date or now()
+            self.creation_date = self.creation_date or timezone.now()
             self.lastedit_date = self.creation_date
 
             # Set the timestamps on the parent
@@ -265,36 +266,36 @@ class Post(models.Model):
 
 
 
-    @staticmethod
-    def check_root(sender, instance, created, *args, **kwargs):
-        "We need to ensure that the parent and root are set on object creation."
-        if created:
+@receiver(post_save, sender=Post)
+def check_root(sender, instance, created, *args, **kwargs):
+    "We need to ensure that the parent and root are set on object creation."
+    if created:
 
-            if not (instance.root or instance.parent):
-                # Neither root or parent are set.
-                instance.root = instance.parent = instance
+        if not (instance.root or instance.parent):
+            # Neither root or parent are set.
+            instance.root = instance.parent = instance
 
-            elif instance.parent:
-                # When only the parent is set the root must follow the parent root.
-                instance.root = instance.parent.root
+        elif instance.parent:
+            # When only the parent is set the root must follow the parent root.
+            instance.root = instance.parent.root
 
-            elif instance.root:
-                # The root should never be set on creation.
-                raise Exception('Root may not be set on creation')
+        elif instance.root:
+            # The root should never be set on creation.
+            raise Exception('Root may not be set on creation')
 
-            if instance.parent.type in (Post.ANSWER, Post.COMMENT):
-                # Answers and comments may only have comments associated with them.
-                instance.type = Post.COMMENT
+        if instance.parent.type in (Post.ANSWER, Post.COMMENT):
+            # Answers and comments may only have comments associated with them.
+            instance.type = Post.COMMENT
 
-            assert instance.root and instance.parent
+        assert instance.root and instance.parent
 
-            if not instance.is_toplevel:
-                # Title is inherited from top level.
-                instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
+        if not instance.is_toplevel:
+            # Title is inherited from top level.
+            instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
 
-                if instance.type == Post.ANSWER:
-                    Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
+            if instance.type == Post.ANSWER:
+                Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
 
-            instance.save()
+        instance.save()
 
 
