@@ -1,9 +1,13 @@
+import bleach
+
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 
 from django.db.models import F
+
+from biostar.forum import util
 
 User = get_user_model()
 
@@ -149,5 +153,148 @@ class Post(models.Model):
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.CASCADE)
 
+    def parse_tags(self):
+        return util.split_tags(self.tag_val)
+
+    def add_tags(self, text):
+        text = text.strip()
+        if not text:
+            return
+        # Sanitize the tag value
+        self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
+        # Clear old tags
+        self.tag_set.clear()
+        tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
+        self.tag_set.add(*tags)
+        #self.save()
+
+    @property
+    def as_text(self):
+        "Returns the body of the post after stripping the HTML tags"
+        text = bleach.clean(self.content, tags=[], attributes=[], styles={}, strip=True)
+        return text
+
+    def peek(self, length=300):
+        "A short peek at the post"
+        return self.as_text[:length]
+
+    def get_title(self):
+        if self.status == Post.OPEN:
+            return self.title
+        else:
+            return "(%s) %s" % ( self.get_status_display(), self.title)
+
+    @property
+    def is_open(self):
+        return self.status == Post.OPEN
+
+    @property
+    def age_in_days(self):
+        delta = const.now() - self.creation_date
+        return delta.days
+
+    def update_reply_count(self):
+        "This can be used to set the answer count."
+        if self.type == Post.ANSWER:
+            reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
+            Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
+
+    def delete(self, using=None):
+        # Collect tag names.
+        tag_names = [t.name for t in self.tag_set.all()]
+
+        # While there is a signal to do this it is much faster this way.
+        Tag.objects.filter(name__in=tag_names).update(count=F('count') - 1)
+
+        # Remove tags with zero counts.
+        Tag.objects.filter(count=0).delete()
+        super(Post, self).delete(using=using)
+
+    def save(self, *args, **kwargs):
+
+        # Sanitize the post body.
+        self.html = util.parse_html(self.content)
+
+        # Must add tags with instance method. This is just for safety.
+        self.tag_val = util.strip_tags(self.tag_val)
+
+        # Posts other than a question also carry the same tag
+        if self.is_toplevel and self.type != Post.QUESTION:
+            required_tag = self.get_type_display()
+            if required_tag not in self.tag_val:
+                self.tag_val += "," + required_tag
+
+        if not self.id:
+
+            # Set the titles
+            if self.parent and not self.title:
+                self.title = self.parent.title
+
+            if self.parent and self.parent.type in (Post.ANSWER, Post.COMMENT):
+                # Only comments may be added to a parent that is answer or comment.
+                self.type = Post.COMMENT
+
+            if self.type is None:
+                # Set post type if it was left empty.
+                self.type = self.COMMENT if self.parent else self.FORUM
+
+            # This runs only once upon object creation.
+            self.title = self.parent.title if self.parent else self.title
+            self.lastedit_user = self.author
+            self.status = self.status or Post.PENDING
+            self.creation_date = self.creation_date or now()
+            self.lastedit_date = self.creation_date
+
+            # Set the timestamps on the parent
+            if self.type == Post.ANSWER:
+                self.parent.lastedit_date = self.lastedit_date
+                self.parent.lastedit_user = self.lastedit_user
+                self.parent.save()
+
+        # Recompute post reply count
+        self.update_reply_count()
+
+        super(Post, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return "%s: %s (id=%s)" % (self.get_type_display(), self.title, self.id)
+
+    @property
+    def is_toplevel(self):
+        return self.type in Post.TOP_LEVEL
+
+
+
+    @staticmethod
+    def check_root(sender, instance, created, *args, **kwargs):
+        "We need to ensure that the parent and root are set on object creation."
+        if created:
+
+            if not (instance.root or instance.parent):
+                # Neither root or parent are set.
+                instance.root = instance.parent = instance
+
+            elif instance.parent:
+                # When only the parent is set the root must follow the parent root.
+                instance.root = instance.parent.root
+
+            elif instance.root:
+                # The root should never be set on creation.
+                raise Exception('Root may not be set on creation')
+
+            if instance.parent.type in (Post.ANSWER, Post.COMMENT):
+                # Answers and comments may only have comments associated with them.
+                instance.type = Post.COMMENT
+
+            assert instance.root and instance.parent
+
+            if not instance.is_toplevel:
+                # Title is inherited from top level.
+                instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
+
+                if instance.type == Post.ANSWER:
+                    Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
+
+            instance.save()
 
 

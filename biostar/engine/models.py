@@ -269,19 +269,6 @@ class Data(models.Model):
         obj['data_url'] = self.url()
 
 
-@receiver(post_save, sender=Data)
-def check_data_name(sender, instance, created, **kwargs):
-    "Needed in post-save to make sure stuff in recycle does not mess up naming."
-    i = 0
-    name = instance.name
-    while Data.objects.exclude(pk=instance.pk).filter(name=name,
-                                                  project=instance.project,
-                                                  deleted=False).exists() and i < 100:
-        i += 1
-        name = f"{instance.name} ({i})"
-        Data.objects.filter(project=instance.project, uid=instance.uid, pk=instance.pk).update(name=name)
-
-
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]

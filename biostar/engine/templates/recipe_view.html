@@ -47,7 +47,7 @@
             <div class="ui center aligned basic segment">
                 {% form_errors form %}
 
-                 <form method="post" class="ui form" action="{%  url 'recipe_view' recipe.uid %}">
+                 <form method="post" action="{%  url 'recipe_view' recipe.uid %}">
                     {% csrf_token %}
                      <a class="ui mini button" href="{% url 'recipe_code' recipe.uid %}">
                         <i class="keyboard icon"></i>View Code
@@ -56,9 +56,9 @@
                      <button type="submit" class="ui mini button">
                         <i class="clone icon"></i>Copy Recipe
                      </button>
-                     {% action_bar recipe edit_url='recipe_edit' %}
-
+                     {% action_bar recipe 'recipe_edit' %}
                  </form>
+
 
             </div>
 

@@ -6,6 +6,7 @@ from django import forms
 from django.db.models import Sum
 from django.utils.safestring import mark_safe
 from django.contrib import messages
+from django.urls import reverse
 
 from biostar.accounts.models import User, Profile
 from . import models, auth, factory
@@ -77,8 +78,9 @@ class ProjectForm(forms.ModelForm):
 
 
 class DataUploadForm(forms.ModelForm):
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, project, *args, **kwargs):
         self.user = user
+        self.project = project
         super().__init__(*args, **kwargs)
 
     file = forms.FileField(required=True)
@@ -95,6 +97,11 @@ class DataUploadForm(forms.ModelForm):
         check_size(fobj=fobj, maxsize=25)
         check_upload_limit(file=fobj, user=self.user)
 
+        # Check if this name already exists.
+        if Data.objects.filter(name=fobj.name, project=self.project, deleted=False).exists():
+            msg = "Name already exists. Upload another file or rename existing data."
+            raise forms.ValidationError(msg)
+
         return fobj
 
 
@@ -104,6 +111,15 @@ class DataEditForm(forms.ModelForm):
     class Meta:
         model = Data
         fields = ['name', 'summary', 'text', 'sticky', "type"]
+
+    def clean_name(self):
+        cleaned_data = super(DataEditForm, self).clean()
+        name = cleaned_data.get('name')
+
+        if auth.check_data_name(name=name, data=self.instance, bool=True):
+            raise forms.ValidationError("Name already exists.")
+        return name
+
 
 
 class RecipeForm(forms.ModelForm):
@@ -177,6 +193,62 @@ def clean_text(textbox):
     return shlex.quote(textbox)
 
 
+class StateToggle(forms.Form):
+
+    DELETE, RESTORE = "DELETE", "RESTORE"
+    action = forms.CharField(max_length=8)
+
+    def __init__(self, uid, object, request, *args, **kwargs):
+
+        self.uid = uid
+        self.object = object
+        self.request = request
+
+        super().__init__(*args, **kwargs)
+
+        return
+
+    def save(self):
+
+        action = self.cleaned_data["action"]
+        instance = self.object.objects.filter(uid=self.uid).first()
+        msg = f"Restored <b>{instance.name}</b>."
+        url = instance.url()
+
+        if action == self.DELETE:
+            msg = f"Deleted <b>{instance.name}</b>. View in Recycle Bin."
+            instance.deleted = True
+            url = reverse('recycle_bin')
+        elif action == self.RESTORE:
+            instance.deleted = False
+
+        instance.save()
+        messages.success(self.request, mark_safe(msg))
+        return url
+
+
+    def clean(self):
+
+        cleaned_data = super(StateToggle, self).clean()
+        action = cleaned_data.get("action")
+
+        # Make query and build urls
+        instance = self.object.objects.filter(uid=self.uid).first()
+        # Make sure user has owner access to instance before toggling
+        has_access = auth.check_obj_access(instance=instance, user=self.request.user, request=self.request,
+                                           access=Access.OWNER_ACCESS)
+        if not has_access:
+            raise forms.ValidationError("Only the owner can delete or restore")
+
+        if action == self.RESTORE and isinstance(instance, Data):
+            # Check data name here.
+            if Data.objects.exclude(pk=instance.pk).filter(name=instance.name,
+                                                            project=instance.project,
+                                                            deleted=False).exists():
+                raise forms.ValidationError("Name exists already, edit the name then restore.")
+
+
+
 class RecipeDiff(forms.Form):
 
     REVERT, APPROVE = 'REVERT', 'APPROVE'
@@ -193,6 +265,7 @@ class RecipeDiff(forms.Form):
     def save(self):
 
         action = self.cleaned_data.get("action")
+
         if action == self.REVERT:
             self.recipe.template = self.recipe.last_valid
             messages.success(self.request, "Recipe has been reverted to original.")
@@ -200,10 +273,8 @@ class RecipeDiff(forms.Form):
         elif action == self.APPROVE:
             self.recipe.last_valid = self.recipe.template
             messages.success(self.request, "Recipe changes have been approved.")
-
         self.recipe.security = Analysis.AUTHORIZED
         self.recipe.save()
-
         return self.recipe
 
     def clean(self):
@@ -211,13 +282,13 @@ class RecipeDiff(forms.Form):
         cleaned_data = super(RecipeDiff, self).clean()
         action = cleaned_data.get("action")
         msg = "You don't have sufficient access rights to overwrite this entry."
-
-        entry = Access.objects.filter(user=self.user, project=self.recipe.project).first()
-        entry = entry or Access(access=Access.NO_ACCESS)
-        no_access = entry.access not in (Access.WRITE_ACCESS, Access.OWNER_ACCESS)
-
-        if action == self.REVERT and no_access and not self.user.profile.is_moderator:
+        has_access = auth.check_obj_access(user=self.user, request=self.request, instance=self.recipe,
+                                           role=Profile.MODERATOR, access=Access.WRITE_ACCESS, login_required=True)
+        if not has_access:
             raise forms.ValidationError(msg)
+
+        if action not in (self.REVERT, self.APPROVE):
+            raise forms.ValidationError("Can only Delete and Restore.")
 
         if action == self.APPROVE and not self.user.profile.is_moderator:
             msg = "You have to be a moderator."

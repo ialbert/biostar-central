@@ -320,17 +320,18 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     return job
 
 
-# def check_data_name(name, data):
-#
-#     copy = name
-#     i = 0
-#     while Data.objects.exclude(pk=data.pk).filter(name=copy,
-#                                                   project=data.project,
-#                                                   deleted=False).exists() and i < 100:
-#         i += 1
-#         copy = f"{name} ({i})"
-#
-#     return copy
+def check_data_name(name, data, bool=False):
+
+    copy = name
+    i = 0
+    check_name = lambda name: Data.objects.exclude(pk=data.pk).filter(name=name,
+                                                  project=data.project,
+                                                  deleted=False).exists()
+    while check_name(copy) and i < 100:
+        i += 1
+        copy = f"{name} ({i})"
+
+    return check_name(name) if bool else copy
 
 
 def guess_mimetype(fname):
@@ -445,7 +446,7 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Set updated attributes
     data.size = size
     data.state = state
-    data.name = name
+    data.name = check_data_name(name, data=data)
     data.summary = summary
     data.file = tocname
 

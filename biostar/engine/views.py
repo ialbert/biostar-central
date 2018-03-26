@@ -1,4 +1,5 @@
 import glob
+import os
 import logging
 import mistune
 
@@ -348,9 +349,9 @@ def data_upload(request, uid):
 
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
-    form = DataUploadForm(user=owner)
+    form = DataUploadForm(user=owner, project=project)
     if request.method == "POST":
-        form = DataUploadForm(data=request.POST, files=request.FILES, user=owner)
+        form = DataUploadForm(data=request.POST, files=request.FILES, user=owner, project=project)
 
         if form.is_valid():
             text = form.cleaned_data["text"]
@@ -535,8 +536,7 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR,
-               url='recipe_view', login_required=True)
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR,url='recipe_view')
 def recipe_diff(request, uid):
     """
     View used to show diff in template and authorize it.
@@ -624,9 +624,14 @@ def object_state_toggle(request, uid, obj_type):
     # Make sure user has owner access to instance before toggling
     has_access = auth.check_obj_access(instance=instance, user=request.user, request=request,
                                        access=Access.OWNER_ACCESS)
+    msg = f"Deleted <b>{instance.name}</b>. View in Recycle Bin."
+    name_repeat = auth.check_data_name(name=instance.name, data=instance, bool=True)
 
-    msg = f"Deleted <b>{instance.name}</b>. View in <a href={reverse('recycle_bin')}>Recycle Bin</a>."
     if has_access:
+        if name_repeat and instance.deleted and isinstance(instance, Data):
+            messages.error(request, "Name already exists. Edit the data then restore.")
+            return redirect(instance.url())
+
         # Toggle delete state
         instance.deleted = not instance.deleted
         instance.save()
@@ -634,6 +639,7 @@ def object_state_toggle(request, uid, obj_type):
         messages.success(request, mark_safe(msg))
 
     return redirect(url)
+
 
 
 @object_access(type=Job, access=Access.READ_ACCESS)

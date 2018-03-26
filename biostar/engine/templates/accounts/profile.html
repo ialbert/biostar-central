@@ -35,12 +35,7 @@
                     </div>
 
             {% endif %}
-            {% if user.profile.notify %}
-            <div class="ui vertical basic segment">
-                Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
-            </div>
 
-            {% endif %}
 
 
          </div>
@@ -81,6 +76,13 @@
                 <a class="ui mini green button" href="{% url 'toggle_notify' %}">
                     <i class="bell icon"></i>Enable Email Notifications
                 </a>
+            {% endif %}
+
+            {% if user.profile.notify %}
+                <div class="ui vertical basic segment">
+                    Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
+                </div>
+
             {% endif %}
 
         </div>

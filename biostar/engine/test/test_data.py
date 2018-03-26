@@ -24,7 +24,7 @@ class DataViewTest(TestCase):
         self.project.save()
 
         # Set up generic data for editing
-        self.data = auth.create_data(project=self.project, path=__file__)
+        self.data = auth.create_data(project=self.project, path=__file__, name="test")
 
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
     def test_data_edit(self):
