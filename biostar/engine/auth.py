@@ -204,8 +204,6 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
                     name='', text='', stream=None, sticky=False, security=Analysis.UNDER_REVIEW, update=False):
     owner = user or project.owner
-    name = name or 'Analysis name'
-    text = text or 'Analysis text'
 
     analysis = Analysis.objects.filter(uid=uid)
     if analysis and not update:

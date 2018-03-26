@@ -61,13 +61,13 @@ class Project(models.Model):
     privacy = models.IntegerField(default=PRIVATE, choices=PRIVACY_CHOICES)
 
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
-    name = models.CharField(default="name", max_length=MAX_NAME_LEN)
-    summary = models.TextField(default='summary', max_length=MAX_TEXT_LEN)
+    name = models.CharField(default="New Project", max_length=MAX_NAME_LEN)
+    summary = models.TextField(default='Project summary.', max_length=MAX_TEXT_LEN)
     deleted = models.BooleanField(default=False)
 
     # We need to keep the owner.
     owner = models.ForeignKey(User, null=False, on_delete=models.CASCADE)
-    text = models.TextField(default='description', max_length=MAX_TEXT_LEN)
+    text = models.TextField(default='Project description.', max_length=MAX_TEXT_LEN)
 
     html = models.TextField(default='html', max_length=MAX_LOG_LEN)
     date = models.DateTimeField(auto_now_add=True)
@@ -158,14 +158,14 @@ class Data(models.Model):
     METHOD_CHOICE = [(LINK, "Linked Data"), (UPLOAD, "Uploaded Data")]
     method = models.IntegerField(default=LINK, choices=METHOD_CHOICE)
 
-    name = models.CharField(max_length=MAX_NAME_LEN, default="name")
-    summary = models.TextField(default='summary', blank=True, max_length=MAX_TEXT_LEN)
+    name = models.CharField(max_length=MAX_NAME_LEN, default="My Data")
+    summary = models.TextField(default='Data summary.', blank=True, max_length=MAX_TEXT_LEN)
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
     sticky = models.BooleanField(default=False)
     deleted = models.BooleanField(default=False)
 
     owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
-    text = models.TextField(default='description', max_length=MAX_TEXT_LEN, blank=True)
+    text = models.TextField(default='Data description.', max_length=MAX_TEXT_LEN, blank=True)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
@@ -290,9 +290,9 @@ class Analysis(models.Model):
     deleted = models.BooleanField(default=False)
     uid = models.CharField(max_length=32, unique=True)
     sticky = models.BooleanField(default=False)
-    name = models.CharField(max_length=MAX_NAME_LEN, default="No name")
-    summary = models.TextField(default='No summary.')
-    text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
+    name = models.CharField(max_length=MAX_NAME_LEN, default="My Recipe")
+    summary = models.TextField(default='This is the recipe summary.')
+    text = models.TextField(default='This is the recipe description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -322,7 +322,9 @@ class Analysis(models.Model):
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.diff_date = self.diff_date or now
-        self.name = self.name[:MAX_NAME_LEN]
+        self.text = self.text or "Recipe description"
+        self.summary = self.summary or "Recipe summary"
+        self.name = self.name[:MAX_NAME_LEN] or "New Recipe"
         self.html = make_html(self.text)
         self.diff_author = self.diff_author or self.owner
 
@@ -357,12 +359,12 @@ class Job(models.Model):
     state = models.IntegerField(default=QUEUED, choices=STATE_CHOICES)
 
     deleted = models.BooleanField(default=False)
-    name = models.CharField(max_length=MAX_NAME_LEN, default="name")
-    summary = models.TextField(default='summary')
+    name = models.CharField(max_length=MAX_NAME_LEN, default="New results")
+    summary = models.TextField(default='Result summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    text = models.TextField(default='description', max_length=MAX_TEXT_LEN)
+    text = models.TextField(default='Result description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
 
     # Job creation date
