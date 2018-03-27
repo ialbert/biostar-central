@@ -1,17 +1,17 @@
 # The Biostar Engine
 
-## Scripts on the web
+## Scripts on the Web
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
 The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts.
 
-The scripts that the software executes may written in `bash`, may be a `Makefile`, `R` commands just about any code that could be executed from command line.
+The script that the software executes may be written in `bash`, may be a `Makefile`, may be `R` commands in a file or just about any code that could be executed from command line.
 
-We call the scripts that the engine can execute *recipes*. Recipes with bioinformatics orientation are maintained separately in the [biostar-recipes][recipes] repository.
+We call the scripts that the engine can execute *recipes*. Recipes with bioinformatics focus are maintained separately in the [biostar-recipes][recipes] repository.
 
-The Biostar Engine is able to:
+In summary the Biostar Engine is able to:
 
 1. Generate a graphical user interface for the script
 2. Store the input data and the results of running the script
@@ -26,8 +26,8 @@ The Biostar Engine supports data storage and project management, and may be used
 
 More details on how the site works at:
 
-* [How to use the site?][how-to-use]
-* [What is a recipe?][recipe-docs]
+* [How to use the site?][engine-howto]
+* [What are recipes?][recipe-howto]
 
 In a nutshell, a recipe is created via an interface specification file and a script template.
 The site generates the interface from the interface specification, then asks the users to make selections, then passes down
