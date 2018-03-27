@@ -107,6 +107,7 @@ class BiostarFileSystem(AbstractedFS):
         super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
 
+
     def ftp2fs(self, ftppath):
 
         #assert isinstance(ftppath, unicode), ftppath
