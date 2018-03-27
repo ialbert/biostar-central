@@ -327,11 +327,14 @@ def check_data_name(name, data, bool=False):
     check_name = lambda name: Data.objects.exclude(pk=data.pk).filter(name=name,
                                                   project=data.project,
                                                   deleted=False).exists()
+    if bool:
+        return check_name(name)
+
     while check_name(copy) and i < 100:
         i += 1
         copy = f"{name} ({i})"
 
-    return check_name(name) if bool else copy
+    return  copy
 
 
 def guess_mimetype(fname):
