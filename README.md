@@ -1,21 +1,24 @@
 # The Biostar Engine
 
-## Better Solutions for an Imperfect World
-
-![Biostar Engine Badge](biostar/engine/static/images/badge-engine.svg)
+## Scripts on the web
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts. The scripts that the software executes may written for `bash`, may be a `Makefile`, `R` commands just about any program typically run from command line.
+The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts.
 
-![Usage Example](docs/images/usage-example.png)
+The scripts that the software executes may written in `bash`, may be a `Makefile`, `R` commands just about any code that could be executed from command line.
 
 We call the scripts that the engine can execute *recipes*. Recipes with bioinformatics orientation are maintained separately in the [biostar-recipes][recipes] repository.
 
+The Biostar Engine is able to:
+
+1. Generate a graphical user interface for the script
+2. Store the input data and the results of running the script
+
 [recipes]: https://github.com/biostars/biostar-recipes
 
-The Biostar Engine also supports data storage and project management, and may be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software seen at:
+The Biostar Engine supports data storage and project management, and may be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software seen at:
 
 * <https://www.bioinformatics.recipes>
 
@@ -24,13 +27,14 @@ The Biostar Engine also supports data storage and project management, and may be
 More details on how the site works at:
 
 * [How to use the site?][how-to-use]
-* [How to write recipes?][how-to-write]
+* [What is a recipe?][recipe-docs]
 
-In a nutshell a recipe is described by an interface description file and a script template.
-The site generates the interface, asks the users to fill in the data then creates and runs the script.
+In a nutshell, a recipe is created via an interface specification file and a script template.
+The site generates the interface from the interface specification, then asks the users to make selections, then passes down
+ the selection into the script.
 
-[how-to-use]: docs/how-to-use-the-site.md
-[how-to-write]: https://github.com/biostars/biostar-recipes/blob/master/docs/how-to-write-recipes.md
+[engine-howto]: docs/engine-howto.md
+[recipe-howto]: https://github.com/biostars/biostar-recipes/blob/master/docs/recipe-howto.md
 
 ## Installation
 
@@ -45,10 +49,17 @@ Our installation instructions rely on [conda][conda] though other alternatives a
     
 #### 2\. Clone the source server code and the recipe code:
 
+There are different repositories for the engine and the recipes.
+
+    # This contains the biostar-engine software that can run recipes.
     git clone git@github.com:biostars/biostar-engine.git
+
+    # This repository stores the various data analysis recipes.
     git clone git@github.com:biostars/biostar-recipes.git
     
 #### 3\. Install the python dependencies:
+
+To run the server you will need to install the dependencies:
 
     # Switch to the biostar-engine directory.
     cd biostar-engine
