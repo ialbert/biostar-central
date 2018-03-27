@@ -30,7 +30,7 @@ update:
     # Will create new projects/recipes if update flag is not set
 
 	python manage.py project --update --root ../biostar-recipes --json projects/tutorial-project.hjson
-	python manage.py analysis --json ../biostar-recipes/recipes/tutorial/interface.hjson --template ../biostar-recipes/recipes/tutorial/interface.sh
+	python manage.py analysis --update --json ../biostar-recipes/recipes/tutorial/interface.hjson --template ../biostar-recipes/recipes/tutorial/interface.sh
 
 
 recipes:
