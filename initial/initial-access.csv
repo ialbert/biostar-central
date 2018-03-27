@@ -1,10 +1,5 @@
 Email,Uid,Access
-aaron_maloy@fws.gov,fish,write
-aaron_maloy@fws.gov,trout,owner
-meredith_bartron@fws.gov,fish,write
-drc9@psu.edu,giraffe,read
-lxw34@psu.edu,giraffe,read
-testbuddy@lvh.me,cookbook,write
-testbuddy@lvh.me,tutorial,write
-readerbuddy@lvh.me,tutorial,read
-writerbuddy@lvh.me,tutorial,write
+testbuddy@localhost,cookbook,write
+testbuddy@localhost,tutorial,write
+readerbuddy@localhost,tutorial,read
+writerbuddy@localhost,tutorial,write

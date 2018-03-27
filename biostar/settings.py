@@ -13,26 +13,30 @@ DEBUG = True
 # COMPRESS_ENABLED = True
 
 # Change this in production!
-SECRET_KEY = '1234'
+SECRET_KEY = 'secret-key'
 
 # The password for admin users. Must be changed in production.
-DEFAULT_ADMIN_PASSWORD = "1234"
-
-DEFAULT_FROM_EMAIL = "admin@localhost"
-
+DEFAULT_ADMIN_PASSWORD = "password"
 
 # Admin users will be created automatically with DEFAULT_ADMIN_PASSWORD.
 ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
+# The default sender name on emails.
+DEFAULT_FROM_EMAIL = f"{ADMINS[0][0]} <{ADMINS[0][1]}>"
+
 # Maximum amount of cumulative uploaded files a user is allowed, in mega-bytes.
 MAX_UPLOAD_SIZE = 300
 
-# Set these for remote hosts.
+# These must be set remote hosts.
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
+
+# Deployment specific parameters.
+PROTOCOL = "http"
+HTTP_PORT = ':8000'
 
 # Should the site allow signup.
 ALLOW_SIGNUP = False
@@ -44,9 +48,6 @@ def join(*args):
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
-# Application specific parameters.
-PROTOCOL = "http"
-HTTP_PORT = ':8000'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -61,7 +62,7 @@ INSTALLED_APPS = [
     'compressor',
     'pagedown',
 
-    # The order of apps matters in the template loading.
+    # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',
     'biostar.accounts.apps.AccountsConfig',
@@ -104,9 +105,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'biostar.wsgi.application'
 
-# Database
+# Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
 DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
 
 DATABASES = {
@@ -118,7 +118,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -130,7 +129,6 @@ ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -146,13 +144,13 @@ USE_TZ = True
 
 MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
 
-# The location of resusable data.
+# The location of application specific data.
 LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 
 # The location for the table of contents.
 TOC_ROOT = join(MEDIA_ROOT, 'tocs')
 
-# Make the table of contents.
+# Ensure that the table of directory exists.
 os.makedirs(TOC_ROOT, exist_ok=True)
 
 # Sendfile settings go here.
