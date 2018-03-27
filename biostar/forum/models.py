@@ -5,13 +5,12 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
 from biostar.forum import util
 
 User = get_user_model()
-
 
 
 
@@ -25,8 +24,8 @@ class Vote(models.Model):
     UP, DOWN, BOOKMARK, ACCEPT = range(4)
     TYPE_CHOICES = [(UP, "Upvote"), (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL)
-    post = models.ForeignKey(Post, related_name='votes')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
+    post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
     date = models.DateTimeField(db_index=True, auto_now=True)
 
@@ -42,21 +41,9 @@ class Tag(models.Model):
     def fixcase(name):
         return name.upper() if len(name) == 1 else name.lower()
 
-    @staticmethod
-    def update_counts(sender, instance, action, pk_set, *args, **kwargs):
-        "Applies tag count updates upon post changes"
-
-        if action == 'post_add':
-            Tag.objects.filter(pk__in=pk_set).update(count=F('count') + 1)
-
-        if action == 'post_remove':
-            Tag.objects.filter(pk__in=pk_set).update(count=F('count') - 1)
-
-        if action == 'pre_clear':
-            instance.tag_set.all().update(count=F('count') - 1)
-
     def __str__(self):
         return self.name
+
 
 
 class Post(models.Model):
@@ -134,10 +121,10 @@ class Post(models.Model):
     has_accepted = models.BooleanField(default=False, blank=True)
 
     # This will maintain the ancestor/descendant relationship bewteen posts.
-    root = models.ForeignKey('self', related_name="descendants", null=True, blank=True)
+    root = models.ForeignKey('self', related_name="descendants", null=True, blank=True, on_delete=models.SET_NULL)
 
     # This will maintain parent/child replationships between posts.
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
 
     # This is the HTML that the user enters.
     content = models.TextField(default='')
@@ -149,21 +136,22 @@ class Post(models.Model):
     tag_val = models.CharField(max_length=100, default="", blank=True)
 
     # The tag set is built from the tag string and used only for fast filtering
-    tag_set = models.ManyToManyField(Tag, blank=True, )
+    tag_set = models.ManyToManyField(Tag, blank=True)
 
     # What site does the post belong to.
-    site = models.ForeignKey(Site, null=True, on_delete=models.CASCADE)
+    site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
 
-    #def parse_tags(self):
-    #    return util.split_tags(self.tag_val)
+    def parse_tags(self):
+        return util.split_tags(self.tag_val)
 
     def add_tags(self, text):
+
         text = text.strip()
         if not text:
             return
-        # Sanitize the tag value
+       # Sanitize the tag value
         self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
-        # Clear old tags
+       # Clear old tags
         self.tag_set.clear()
         tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
         self.tag_set.add(*tags)
@@ -200,16 +188,16 @@ class Post(models.Model):
             reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
             Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
 
-    def delete(self, using=None):
+    #def delete(self, using=None):
         # Collect tag names.
-        tag_names = [t.name for t in self.tag_set.all()]
+    #    tag_names = [t.name for t in self.tag_set.all()]
 
         # While there is a signal to do this it is much faster this way.
-        Tag.objects.filter(name__in=tag_names).update(count=F('count') - 1)
+    #    Tag.objects.filter(name__in=tag_names).update(count=F('count') - 1)
 
         # Remove tags with zero counts.
-        Tag.objects.filter(count=0).delete()
-        super(Post, self).delete(using=using)
+    #    Tag.objects.filter(count=0).delete()
+    #    super(Post, self).delete(using=using)
 
     def save(self, *args, **kwargs):
 
@@ -226,6 +214,7 @@ class Post(models.Model):
                 self.tag_val += "," + required_tag
 
         if not self.id:
+            # Is this suppose to happen on creation?
 
             # Set the titles
             if self.parent and not self.title:
@@ -250,6 +239,7 @@ class Post(models.Model):
             if self.type == Post.ANSWER:
                 self.parent.lastedit_date = self.lastedit_date
                 self.parent.lastedit_user = self.lastedit_user
+
                 self.parent.save()
 
         # Recompute post reply count
@@ -258,7 +248,7 @@ class Post(models.Model):
         super(Post, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "%s: %s (id=%s)" % (self.get_type_display(), self.title, self.id)
+        return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
 
     @property
     def is_toplevel(self):
@@ -269,6 +259,7 @@ class Post(models.Model):
 @receiver(post_save, sender=Post)
 def check_root(sender, instance, created, *args, **kwargs):
     "We need to ensure that the parent and root are set on object creation."
+
     if created:
 
         if not (instance.root or instance.parent):
@@ -299,3 +290,15 @@ def check_root(sender, instance, created, *args, **kwargs):
         instance.save()
 
 
+@receiver(m2m_changed, sender=Post.tag_set.through)
+def update_counts(sender, instance, action, pk_set, *args, **kwargs):
+    "Applies tag count updates upon post changes"
+
+    if action == 'post_add':
+        Tag.objects.filter(pk__in=pk_set).update(count=F('count') + 1)
+
+    if action == 'post_remove':
+        Tag.objects.filter(pk__in=pk_set).update(count=F('count') - 1)
+
+    if action == 'pre_clear':
+        instance.tag_set.all().update(count=F('count') - 1)
