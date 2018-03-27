@@ -5,9 +5,7 @@
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts.
-
-The Biostar Engine supports data storage and project management, and may be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software can be accessed at:
+The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts. In addition the software has data storage and project management support, and may be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software can be accessed at:
 
 * <https://www.bioinformatics.recipes>
 
