@@ -7,7 +7,11 @@
 
 The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts.
 
-The script that the software executes may be written in `bash`, may be a `Makefile`, may be `R` commands in a file or just about any code that could be executed from command line.
+The Biostar Engine supports data storage and project management, and may be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software can be accessed at:
+
+* <https://www.bioinformatics.recipes>
+
+The scripts that the software executes may be written in `bash`, may be a `Makefile`, may be `R` commands in a file or just about any code that could be executed from command line.
 
 We call the scripts that the engine can execute *recipes*. Recipes with bioinformatics focus are maintained separately in the [biostar-recipes][recipes] repository.
 
@@ -19,20 +23,16 @@ In summary the Biostar Engine is able to:
 
 [recipes]: https://github.com/biostars/biostar-recipes
 
-The Biostar Engine supports data storage and project management, and may be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software can be accessed at:
+## How does the software work?
 
-* <https://www.bioinformatics.recipes>
-
-## How does the site work?
+In a nutshell, a recipe is created via an interface specification file and a script template.
+The site generates the web interface from the interface specification file. Users can make selections in the web interface, these selections
+are then passed down into the script.
 
 More details on how the site works at:
 
 * [How to use the site?][engine-howto]
 * [What are recipes?][recipe-howto]
-
-In a nutshell, a recipe is created via an interface specification file and a script template.
-The site generates the interface from the interface specification, then asks the users to make selections, then passes down
- the selection into the script.
 
 [engine-howto]: docs/engine-howto.md
 [recipe-howto]: https://github.com/biostars/biostar-recipes/blob/master/docs/recipe-howto.md

@@ -11,7 +11,7 @@ The Biostar Engine is built to help executing data analysis pipelines. A typical
 
 ![Usage Example](images/usage-example.png)
 
-### Content types
+### Organization
 
 All content on the site is organized into *projects*. A project is a collection of *data*, *recipes* and *results*. Projects are typically created with a specific goal in mind and have content relevant to that goal.
 
@@ -35,7 +35,9 @@ Project that you have `WRITE ACCESS` to will have a thin green line under the pr
 
 This will help you immediately recognize what actions are allowable in a project.
 
-For example if the green line is missing you won't be able to execute a recipe in that project. To execute the recipe you would first need to make a copy of it into a project that you do have `WRITE ACCESS` to. This will not give you your own version of the same recipe that you can use as is or modify.
+For example if the green line is missing you won't be able to execute a recipe in that project.
+
+To execute the recipe you would first need to copy that recipe into one of your projects. By copying you have your own version of the same recipe that you can modify.
 
 ### Creating a project
 
