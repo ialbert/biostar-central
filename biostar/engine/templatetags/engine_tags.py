@@ -11,7 +11,7 @@ from django.test.client import RequestFactory
 
 from biostar import settings
 from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
-from biostar.engine import auth
+from biostar.engine import auth, forms
 
 
 logger = logging.getLogger("engine")
@@ -78,22 +78,22 @@ def file_list(context, path, files, obj, form=None):
 
 
 @register.inclusion_tag('widgets/action_bar.html', takes_context=True)
-def action_bar(context, instance, edit_url, extra=""):
+def action_bar(context, instance, edit_url):
 
     edit_url = reverse(edit_url, kwargs=dict(uid=instance.uid))
 
     if isinstance(instance, Job):
-        obj_type = "job"
+        obj_type, obj = "job", Job
     elif isinstance(instance, Data):
-        obj_type = "data"
+        obj_type, obj = "data", Data
     elif isinstance(instance, Analysis):
-        obj_type = "recipe"
+        obj_type, obj = "recipe", Analysis
     else:
-        obj_type = None
+        obj_type, obj = None, None
 
     action_url = reverse("toggle_state", kwargs=dict(uid=instance.uid, obj_type=obj_type))
     return dict(instance=instance, edit_url=edit_url, user=context["user"],
-                action_url=action_url, extra=extra)
+                action_url=action_url)
 
 
 @register.inclusion_tag('widgets/list_view.html')

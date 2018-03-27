@@ -5,6 +5,7 @@ from django.conf import settings
 
 import biostar.accounts.urls as accounts_urls
 import biostar.engine.urls as engine_urls
+import biostar.forum.urls as forum_urls
 
 
 urlpatterns = [
@@ -14,6 +15,9 @@ urlpatterns = [
 
     # The user account handler.
     url(r'^accounts/', include(accounts_urls)),
+
+    # The forum handler
+    #url(r'^forum/', include(forum_urls)),
 
     # The django generated admin site.
     url(r'^django/admin/', admin.site.urls, name='django_admin'),

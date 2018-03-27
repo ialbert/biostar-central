@@ -1,12 +1,16 @@
+import bleach
+from django.utils import timezone
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
-
+from django.dispatch import receiver
+from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
-User = get_user_model()
+from biostar.forum import util
 
+User = get_user_model()
 
 
 
@@ -20,8 +24,8 @@ class Vote(models.Model):
     UP, DOWN, BOOKMARK, ACCEPT = range(4)
     TYPE_CHOICES = [(UP, "Upvote"), (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL)
-    post = models.ForeignKey(Post, related_name='votes')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
+    post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
     date = models.DateTimeField(db_index=True, auto_now=True)
 
@@ -37,25 +41,13 @@ class Tag(models.Model):
     def fixcase(name):
         return name.upper() if len(name) == 1 else name.lower()
 
-    @staticmethod
-    def update_counts(sender, instance, action, pk_set, *args, **kwargs):
-        "Applies tag count updates upon post changes"
-
-        if action == 'post_add':
-            Tag.objects.filter(pk__in=pk_set).update(count=F('count') + 1)
-
-        if action == 'post_remove':
-            Tag.objects.filter(pk__in=pk_set).update(count=F('count') - 1)
-
-        if action == 'pre_clear':
-            instance.tag_set.all().update(count=F('count') - 1)
-
     def __str__(self):
         return self.name
 
 
+
 class Post(models.Model):
-    "Represents a post in Biostar"
+    "Represents a post in a forum"
 
     #objects = PostManager()
 
@@ -129,10 +121,10 @@ class Post(models.Model):
     has_accepted = models.BooleanField(default=False, blank=True)
 
     # This will maintain the ancestor/descendant relationship bewteen posts.
-    root = models.ForeignKey('self', related_name="descendants", null=True, blank=True)
+    root = models.ForeignKey('self', related_name="descendants", null=True, blank=True, on_delete=models.SET_NULL)
 
     # This will maintain parent/child replationships between posts.
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
 
     # This is the HTML that the user enters.
     content = models.TextField(default='')
@@ -144,10 +136,174 @@ class Post(models.Model):
     tag_val = models.CharField(max_length=100, default="", blank=True)
 
     # The tag set is built from the tag string and used only for fast filtering
-    tag_set = models.ManyToManyField(Tag, blank=True, )
+    tag_set = models.ManyToManyField(Tag, blank=True)
 
     # What site does the post belong to.
-    site = models.ForeignKey(Site, null=True, on_delete=models.CASCADE)
+    site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
+
+    def parse_tags(self):
+        return util.split_tags(self.tag_val)
+
+    def add_tags(self, text):
+
+        text = text.strip()
+        if not text:
+            return
+       # Sanitize the tag value
+        self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
+       # Clear old tags
+        self.tag_set.clear()
+        tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
+        self.tag_set.add(*tags)
+        #self.save()
+
+    @property
+    def as_text(self):
+        "Returns the body of the post after stripping the HTML tags"
+        text = bleach.clean(self.content, tags=[], attributes=[], styles={}, strip=True)
+        return text
+
+    def peek(self, length=300):
+        "A short peek at the post"
+        return self.as_text[:length]
+
+    def get_title(self):
+        if self.status == Post.OPEN:
+            return self.title
+        else:
+            return "(%s) %s" % ( self.get_status_display(), self.title)
+
+    @property
+    def is_open(self):
+        return self.status == Post.OPEN
+
+    @property
+    def age_in_days(self):
+        delta = timezone.now() - self.creation_date
+        return delta.days
+
+    def update_reply_count(self):
+        "This can be used to set the answer count."
+        if self.type == Post.ANSWER:
+            reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
+            Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
+
+    #def delete(self, using=None):
+        # Collect tag names.
+    #    tag_names = [t.name for t in self.tag_set.all()]
+
+        # While there is a signal to do this it is much faster this way.
+    #    Tag.objects.filter(name__in=tag_names).update(count=F('count') - 1)
+
+        # Remove tags with zero counts.
+    #    Tag.objects.filter(count=0).delete()
+    #    super(Post, self).delete(using=using)
+
+    def save(self, *args, **kwargs):
+
+        # Sanitize the post body.
+        self.html = util.parse_html(self.content)
+
+        # Must add tags with instance method. This is just for safety.
+        self.tag_val = util.strip_tags(self.tag_val)
+
+        # Posts other than a question also carry the same tag
+        if self.is_toplevel and self.type != Post.QUESTION:
+            required_tag = self.get_type_display()
+            if required_tag not in self.tag_val:
+                self.tag_val += "," + required_tag
+
+        # Recompute post reply count
+        self.update_reply_count()
+
+        super(Post, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
+
+    @property
+    def is_toplevel(self):
+        return self.type in Post.TOP_LEVEL
 
 
 
+
+@receiver(post_save, sender=Post)
+def set_post(sender, instance, created, *args, **kwargs ):
+
+    if created:
+        # Set the titles
+        if instance.parent and not instance.title:
+            instance.title = instance.parent.title
+
+        if instance.parent and instance.parent.type in (Post.ANSWER, Post.COMMENT):
+            # Only comments may be added to a parent that is answer or comment.
+            instance.type = Post.COMMENT
+
+        if instance.type is None:
+            # Set post type if it was left empty.
+            instance.type = Post.COMMENT if instance.parent else Post.FORUM
+
+        # This runs only once upon object creation.
+        instance.title = instance.parent.title if instance.parent else instance.title
+        instance.lastedit_user = instance.author
+        instance.status = instance.status or Post.PENDING
+        instance.creation_date = instance.creation_date or timezone.now()
+        instance.lastedit_date = instance.creation_date
+
+        # Set the timestamps on the parent
+        if instance.type == Post.ANSWER:
+            instance.parent.lastedit_date = instance.lastedit_date
+            instance.parent.lastedit_user = instance.lastedit_user
+            #TODO: will this cause recussion max when instance.root = instance.parent = instance
+            instance.parent.save()
+
+
+@receiver(post_save, sender=Post)
+def check_root(sender, instance, created, *args, **kwargs):
+    "We need to ensure that the parent and root are set on object creation."
+
+    if created:
+
+        if not (instance.root or instance.parent):
+            # Neither root or parent are set.
+            instance.root = instance.parent = instance
+
+        elif instance.parent:
+            # When only the parent is set the root must follow the parent root.
+            instance.root = instance.parent.root
+
+        elif instance.root:
+            # The root should never be set on creation.
+            raise Exception('Root may not be set on creation')
+
+        if instance.parent.type in (Post.ANSWER, Post.COMMENT):
+            # Answers and comments may only have comments associated with them.
+            instance.type = Post.COMMENT
+
+        assert instance.root and instance.parent
+
+        if not instance.is_toplevel:
+            # Title is inherited from top level.
+            instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
+
+            if instance.type == Post.ANSWER:
+                Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
+
+        instance.save()
+
+
+
+
+@receiver(m2m_changed, sender=Post.tag_set.through)
+def update_counts(sender, instance, action, pk_set, *args, **kwargs):
+    "Applies tag count updates upon post changes"
+
+    if action == 'post_add':
+        Tag.objects.filter(pk__in=pk_set).update(count=F('count') + 1)
+
+    if action == 'post_remove':
+        Tag.objects.filter(pk__in=pk_set).update(count=F('count') - 1)
+
+    if action == 'pre_clear':
+        instance.tag_set.all().update(count=F('count') - 1)
