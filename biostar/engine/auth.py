@@ -185,10 +185,11 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
 
     if project:
         # Update project
+        summary = summary or project.summary
+        text = text or project.text
+        name = name or project.name
         project.update(summary=summary, text=text, name=name)
-        # Need to manually call save()
         project = project.first()
-        project.save()
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
         project = Project.objects.create(
@@ -210,10 +211,13 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     # Only update when there is a flag
     if analysis and update:
         # Update analysis
-        analysis.update(summary=summary, text=text, name=name,
-                        template=template, json_text=json_text)
+        summary = summary or analysis.summary
+        text = text or analysis.text
+        name = name or analysis.name
+        template = template or analysis.template
+        json_text = json_text or analysis.json_text
+        analysis.update(summary=summary, text=text, name=name, template=template, json_text=json_text)
         analysis = analysis.first()
-        analysis.save()
         logger.info(f"Updated analysis: uid={analysis.uid} name={analysis.name}")
     else:
         # Create a new analysis
