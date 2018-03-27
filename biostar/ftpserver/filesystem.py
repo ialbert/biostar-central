@@ -75,6 +75,7 @@ def fetch_file_info(instance, project=None, tab='data', tail=[], name=None):
 
 class BiostarFileSystem(AbstractedFS):
 
+
     def __init__(self, root, cmd_channel, current_user=None):
 
         """
@@ -174,7 +175,7 @@ class BiostarFileSystem(AbstractedFS):
         # Check if its a real file first
         real_file = False if path == self.root else self.validate_actual_path(path=path)
 
-        # If its not a real file, then it needs a valid ftp filepath.
+        # If its not a real file, then check if its an ftp file path.
         if not real_file:
             virtual_path = self.validate_virtual_path(path_list=path_list)
 
@@ -183,7 +184,7 @@ class BiostarFileSystem(AbstractedFS):
 
     def isdir(self, path):
         "This actuall matters lol"
-
+        logger.info(f"path={path}")
         return True
 
 
@@ -209,11 +210,13 @@ class BiostarFileSystem(AbstractedFS):
 
         # List project data under /data
         if inside_project and tab == "data":
+            #TODO: redo the naming to include uids
             return Data.objects.filter(deleted=False, project=project, 
                                        state__in=(Data.READY, Data.PENDING)) or []
 
         # List project results under /results
         if inside_project and tab == 'results':
+            # TODO: redo the naming to include uids
             return Job.objects.filter(deleted=False, project=project) or []
 
         # At this point, len(path_list) > 2 and
@@ -313,7 +316,6 @@ class BiostarFileSystem(AbstractedFS):
         # Rest of the directory tree to build the actual path with.
         tail = None if not len(path_list) >= 3 else path_list[3:]
 
-
         return root_project, tab, name, tail
 
 
@@ -358,6 +360,7 @@ class BiostarFileSystem(AbstractedFS):
         "Validate the actual file path user is looking at."
 
         #TODO: Still validating job paths
+        return True
 
         logger.info(f"path={path}")
 

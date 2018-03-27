@@ -208,10 +208,9 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     text = text or 'Analysis text'
 
     analysis = Analysis.objects.filter(uid=uid)
-    if analysis and not update:
-        return analysis.first()
 
-    if analysis:
+    # Only update when there is a flag
+    if analysis and update:
         # Update analysis
         analysis.update(summary=summary, text=text, name=name,
                         template=template, json_text=json_text)
@@ -219,7 +218,8 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         analysis.save()
         logger.info(f"Updated analysis: uid={analysis.uid} name={analysis.name}")
     else:
-        # Create
+        # Create a new analysis
+        uid = None if analysis else uid
         analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)
