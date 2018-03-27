@@ -89,12 +89,12 @@ class Command(BaseCommand):
             return
 
         try:
-            name = json_data.get("settings", {}).get("name", "No name")
-            text = json_data.get("settings", {}).get("help", "No help")
+            name = json_data.get("settings", {}).get("name", "")
+            text = json_data.get("settings", {}).get("help", "")
             uid = json_data.get("settings", {}).get("uid", "")
             image = json_data.get("settings", {}).get("image", "")
             text = textwrap.dedent(text)
-            summary = json_data.get("settings", {}).get("summary", "No summary")
+            summary = json_data.get("settings", {}).get("summary", "")
 
             analysis = auth.create_analysis(
                 project=project, uid=uid, json_text=json_text,
