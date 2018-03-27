@@ -1,7 +1,6 @@
 import logging
 import time
 import os
-import sys
 
 from pyftpdlib.filesystems import AbstractedFS
 from django.contrib.auth.models import AnonymousUser
@@ -35,17 +34,19 @@ def split(path):
     return path
 
 
-def query_tab(tab, project, name=None):
+def query_tab(tab, project, name=None, show_instance=False):
     "Return actual path for a path name in /data or /results tab"
 
     klass_map = {'data': Data, 'results':Job }
     instance = klass_map[tab].objects.filter(deleted=False,
                                              project=project, name=name).first()
+    if show_instance:
+        return instance
 
     return None if not instance else instance.get_data_dir()
 
 
-def fetch_file_info(instance, project=None, tab='data', base=[], name=None):
+def fetch_file_info(instance, project=None, tab='data', tail=[], name=None):
     """
     Fetch the actual file path and filetype of a given instance.
     """
@@ -61,7 +62,7 @@ def fetch_file_info(instance, project=None, tab='data', base=[], name=None):
     # Build the real path when the instance is an ftp file path.
     if isinstance(instance, str):
 
-        suffix = instance if not base else os.path.join(*base, instance)
+        suffix = instance if not tail else os.path.join(*tail, instance)
         prefix = query_tab(tab=tab, project=project, name=name)
         rfname = os.path.join(prefix, suffix)
         is_dir = os.path.exists(rfname) and os.path.isdir(rfname)
@@ -100,7 +101,7 @@ class BiostarFileSystem(AbstractedFS):
         self.user = self.user_table.get(current_user) or dict(user=AnonymousUser)
 
         # Projects the user has access to
-        self.project_list = auth.get_project_list(user=self.user["user"])
+        self.projects = auth.get_project_list(user=self.user["user"])
 
         super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
@@ -118,27 +119,46 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"fs={fs}, ftppath={ftppath}")
 
         path_list = split(fs)
-        root_project, tab, name, base = self.extract(path_list=path_list)
+        root_project, tab, name, tail = self.extract(path_list=path_list)
 
-        project = Project.objects.filter(pk=root_project).first()
+        if not (tail or name):
+            # Only look at actual files, dir are returned as is
+            return fs
 
-        if tab and name:
-            actual_path = query_tab(tab=tab, project=project.first(), name=name)
+        assert tab in ('data', 'results'), "Can only look at /data or /results of project"
 
+        project = self.projects.filter(uid=root_project).first()
+        instance = query_tab(tab=tab, project=project, name=name, show_instance=True)
 
+        if not instance:
+            # We let self.valid_path handle invalid paths
+            return fs
 
-        return fs
+        # Single file data objects handled here
+        data_file = isinstance(instance, Data) and len(instance.get_files()) <= 1
+        if data_file and instance.get_files()[0]:
+            real_file =  instance.get_files()[0]
+            # self.valid_path handles the rest
+            return fs if not os.path.exists(real_file) else real_file
+
+        # Directories handled after this point.
+        base_dir = query_tab(tab=tab, project=project, name=name)
+
+        try:
+            fname = os.path.join(base_dir, *tail)
+            is_file = os.path.exists(fname) and os.path.isfile(fname)
+        except Exception as exc:
+            logger.error(f"{exc}")
+            fname, is_file = None, False
+
+        # Return abspath if its a file, otherwise continue.
+        return fname if is_file else fs
 
 
     def validpath(self, path):
         """
-        Deconstructs the path into :
-            - the root_project
-            - current tab
-            - Data or Job name
-            - rest of directory tree
-        Validates each part to make sure it exists and is valid.
-        Also checks user is not banned or suspended.
+        Validates a virtual file path when dealing with directory traversal
+        and also validates actual file paths when its time to download.
 
         :param path: current path requested by user
         :return: True if path is valid else False
@@ -149,38 +169,21 @@ class BiostarFileSystem(AbstractedFS):
         # Check the user still has access.
         self._check_user_status()
         path_list = split(path)
+        real_file, virtual_path = False, False
 
-        root_project, tab, name, base = self.extract(path_list=path_list)
-        project = Project.objects.filter(pk=root_project)
-        data = Data.objects.filter(name=name, project=project.first(), deleted=False)
-        results = Job.objects.filter(name=name, project=project.first(), deleted=False)
+        # Check if its a real file first
+        real_file = False if path == self.root else self.validate_actual_path(path=path)
 
-        # Root project must exist
-        if root_project and not project.exists():
-            return False
+        # If its not a real file, then it needs a valid ftp filepath.
+        if not real_file:
+            virtual_path = self.validate_virtual_path(path_list=path_list)
 
-        # Check user did not leave /data or /results while in project.
-        if tab and (tab not in ('data', 'results')):
-            return False
-
-        # Data or Job must be valid.
-        if name and not ( data or results ):
-            return False
-
-        # The path is valid at this point
-        is_valid = True
-        if base:
-            actual_path = query_tab(tab=tab, project=project.first(), name=name)
-            suffix = os.path.join(*base)
-            is_valid = os.path.exists( os.path.join(actual_path, suffix))
-
-        logger.info(f"path={is_valid}")
-        return is_valid
+        return real_file or virtual_path
 
 
     def isdir(self, path):
-        logger.info(f"path={path}")
-        #return True if path in self.project_list else False
+        "This actuall matters lol"
+
         return True
 
 
@@ -190,14 +193,15 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"path={path}, cwd={self._cwd}")
 
         path_list = split(path)
-        root_project, tab, name, base = self.extract(path_list=path_list)
+        root_project, tab, name, tail = self.extract(path_list=path_list)
 
-        project = Project.objects.filter(pk=root_project).first()
+        project = self.projects.filter(uid=root_project).first()
         inside_project = project and len(path_list) == 2
 
         # List projects when user is at the root
         if path == self.root:
-            return [f"Project-{p.name}{' '*6}({p.pk})" for p in self.project_list]
+            #projects = sorted(self.projects, key=lambda x: len(x.name))
+            return [f"Project-{p.name}{' '*6}({p.uid})" for p in self.projects]
 
         # We can choose to browse /data or /results inside of a project.
         if project and len(path_list) == 1:
@@ -205,7 +209,8 @@ class BiostarFileSystem(AbstractedFS):
 
         # List project data under /data
         if inside_project and tab == "data":
-            return Data.objects.filter(deleted=False, project=project) or []
+            return Data.objects.filter(deleted=False, project=project, 
+                                       state__in=(Data.READY, Data.PENDING)) or []
 
         # List project results under /results
         if inside_project and tab == 'results':
@@ -214,16 +219,16 @@ class BiostarFileSystem(AbstractedFS):
         # At this point, len(path_list) > 2 and
         # the tab should be in (data, results).
         # The latter is guaranteed by self.valid_path.
-        actual_path = query_tab(tab=tab, project=project, name=name)
+        base_dir = query_tab(tab=tab, project=project, name=name)
 
         # List the files inside of /data and /results tabs
-        if actual_path and len(path_list) == 3:
-            return [os.path.basename(p.path) for p in os.scandir(actual_path)]
+        if base_dir and len(path_list) == 3:
+            return [os.path.basename(p.path) for p in os.scandir(base_dir)]
 
         try:
             # List sub-dirs found in /data and /results
-            suffix = os.path.join(*base)
-            full_path = os.path.join(actual_path, suffix)
+            suffix = os.path.join(*tail)
+            full_path = os.path.join(base_dir, suffix)
             return [ os.path.basename(item.path) for item in os.scandir(full_path) ]
         except Exception:
             return []
@@ -247,23 +252,24 @@ class BiostarFileSystem(AbstractedFS):
         timefunc = time.localtime if self.cmd_channel.use_gmt_times else time.gmtime
         path_list = split(basedir)
 
-        root_project, tab, name, base = self.extract(path_list=path_list)
+        root_project, tab, name, tail = self.extract(path_list=path_list)
 
-        project = Project.objects.filter(pk=root_project).first()
+        project = self.projects.filter(uid=root_project).first()
 
         for instance in listing:
             perm = perm_map(project=instance, user=self.user)
-            # Handle parsing project
+            # Handle parsing project uid from path when path == self.root
             if len(path_list) == 0:
-                current = Project.objects.filter(pk=self.parse_pk(name=instance)).first()
-                rfname, filetype = fetch_file_info(current, tab=tab, name=name,
-                                                   project=project, base=base)
+                current = self.projects.filter(uid=self.parse_uid(name=instance))
+                
+                rfname, filetype = fetch_file_info(current.first(), tab=tab, name=name,
+                                                   project=project, tail=tail)
             # Handle /results and /data
             elif len(path_list) == 1:
                 filetype, rfname = 'dir', project.get_data_dir()
             else:
                 rfname, filetype = fetch_file_info(instance, tab=tab, name=name,
-                                                   project=project, base=base)
+                                                   project=project, tail=tail)
 
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
@@ -281,10 +287,10 @@ class BiostarFileSystem(AbstractedFS):
         user = self.user['user']
         if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
             self.cmd_channel.close()
-            return
+            return False
 
-    def parse_pk(self, name):
-        "Parse a project pk from given project name."
+    def parse_uid(self, name):
+        "Parse a project uid from given project name."
         return name.split(" ")[-1].replace("(","").replace(")","") or None
 
 
@@ -295,8 +301,8 @@ class BiostarFileSystem(AbstractedFS):
         # Project user is under
         root_project = fetch(len(path_list) >= 1, path_list, 0) or ''
 
-        # Build filesystem using project pk value since names can the same.
-        root_project = self.parse_pk(name=root_project)
+        # Build filesystem using project uid value since names can the same.
+        root_project = self.parse_uid(name=root_project)
 
         # Tab picked ( data or results ).
         tab = fetch(len(path_list) >= 2, path_list, 1)
@@ -305,7 +311,63 @@ class BiostarFileSystem(AbstractedFS):
         name = fetch(len(path_list) >= 3, path_list, 2)
 
         # Rest of the directory tree to build the actual path with.
-        base = None if not len(path_list) >= 3 else path_list[3:]
+        tail = None if not len(path_list) >= 3 else path_list[3:]
 
 
-        return root_project, tab, name, base
+        return root_project, tab, name, tail
+
+
+    def validate_virtual_path(self, path_list):
+
+        root_project, tab, name, tail = self.extract(path_list=path_list)
+        project = self.projects.filter(uid=root_project).first()
+
+        data = Data.objects.filter(name=name, project=project, deleted=False)
+        results = Job.objects.filter(name=name, project=project, deleted=False)
+
+        # Root project must exist
+        if root_project and not project:
+            return False
+
+        # Check user did not leave /data or /results while in project.
+        if tab and (tab not in ('data', 'results')):
+            return False
+
+        # Data or Job must be valid.
+        if name and not (data or results):
+            return False
+
+        # The path is valid at this point
+        is_valid = True
+        if tail:
+            # No need to break things while validating the path
+            try:
+                actual_path = query_tab(tab=tab, project=project, name=name)
+                suffix = os.path.join(*tail)
+                is_valid = os.path.exists(os.path.join(actual_path, suffix))
+            except Exception as exc:
+                logger.error(f"{exc}")
+                is_valid = False
+
+        logger.info(f"path={is_valid}")
+
+        return is_valid
+
+
+    def validate_actual_path(self, path):
+        "Validate the actual file path user is looking at."
+
+        #TODO: Still validating job paths
+
+        logger.info(f"path={path}")
+
+        valid_project_dirs = [p.get_project_dir() for p in self.projects]
+        #projects =
+        #valid_job_dirs = [job.get_data_dir() for job in self.projects.job_set.filter(deleted=False)]
+
+        for basedir in valid_project_dirs:
+            if path.startswith(basedir):
+                logger.info(f"path={path}, basedir={basedir}")
+                return True
+
+        return False
