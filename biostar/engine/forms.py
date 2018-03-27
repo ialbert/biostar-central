@@ -193,61 +193,6 @@ def clean_text(textbox):
     return shlex.quote(textbox)
 
 
-class StateToggle(forms.Form):
-
-    DELETE, RESTORE = "DELETE", "RESTORE"
-    action = forms.CharField(max_length=8)
-
-    def __init__(self, uid, object, request, *args, **kwargs):
-
-        self.uid = uid
-        self.object = object
-        self.request = request
-
-        super().__init__(*args, **kwargs)
-
-        return
-
-    def save(self):
-
-        action = self.cleaned_data["action"]
-        instance = self.object.objects.filter(uid=self.uid).first()
-        msg = f"Restored <b>{instance.name}</b>."
-        url = instance.url()
-
-        if action == self.DELETE:
-            msg = f"Deleted <b>{instance.name}</b>. View in Recycle Bin."
-            instance.deleted = True
-            url = reverse('recycle_bin')
-        elif action == self.RESTORE:
-            instance.deleted = False
-
-        instance.save()
-        messages.success(self.request, mark_safe(msg))
-        return url
-
-
-    def clean(self):
-
-        cleaned_data = super(StateToggle, self).clean()
-        action = cleaned_data.get("action")
-
-        # Make query and build urls
-        instance = self.object.objects.filter(uid=self.uid).first()
-        # Make sure user has owner access to instance before toggling
-        has_access = auth.check_obj_access(instance=instance, user=self.request.user, request=self.request,
-                                           access=Access.OWNER_ACCESS)
-        if not has_access:
-            raise forms.ValidationError("Only the owner can delete or restore")
-
-        if action == self.RESTORE and isinstance(instance, Data):
-            # Check data name here.
-            if Data.objects.exclude(pk=instance.pk).filter(name=instance.name,
-                                                            project=instance.project,
-                                                            deleted=False).exists():
-                raise forms.ValidationError("Name exists already, edit the name then restore.")
-
-
 
 class RecipeDiff(forms.Form):
 
