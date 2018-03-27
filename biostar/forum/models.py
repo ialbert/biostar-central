@@ -213,35 +213,6 @@ class Post(models.Model):
             if required_tag not in self.tag_val:
                 self.tag_val += "," + required_tag
 
-        if not self.id:
-            # Is this suppose to happen on creation?
-
-            # Set the titles
-            if self.parent and not self.title:
-                self.title = self.parent.title
-
-            if self.parent and self.parent.type in (Post.ANSWER, Post.COMMENT):
-                # Only comments may be added to a parent that is answer or comment.
-                self.type = Post.COMMENT
-
-            if self.type is None:
-                # Set post type if it was left empty.
-                self.type = self.COMMENT if self.parent else self.FORUM
-
-            # This runs only once upon object creation.
-            self.title = self.parent.title if self.parent else self.title
-            self.lastedit_user = self.author
-            self.status = self.status or Post.PENDING
-            self.creation_date = self.creation_date or timezone.now()
-            self.lastedit_date = self.creation_date
-
-            # Set the timestamps on the parent
-            if self.type == Post.ANSWER:
-                self.parent.lastedit_date = self.lastedit_date
-                self.parent.lastedit_user = self.lastedit_user
-
-                self.parent.save()
-
         # Recompute post reply count
         self.update_reply_count()
 
@@ -254,6 +225,38 @@ class Post(models.Model):
     def is_toplevel(self):
         return self.type in Post.TOP_LEVEL
 
+
+
+
+@receiver(post_save, sender=Post)
+def set_post(sender, instance, created, *args, **kwargs ):
+
+    if created:
+        # Set the titles
+        if instance.parent and not instance.title:
+            instance.title = instance.parent.title
+
+        if instance.parent and instance.parent.type in (Post.ANSWER, Post.COMMENT):
+            # Only comments may be added to a parent that is answer or comment.
+            instance.type = Post.COMMENT
+
+        if instance.type is None:
+            # Set post type if it was left empty.
+            instance.type = Post.COMMENT if instance.parent else Post.FORUM
+
+        # This runs only once upon object creation.
+        instance.title = instance.parent.title if instance.parent else instance.title
+        instance.lastedit_user = instance.author
+        instance.status = instance.status or Post.PENDING
+        instance.creation_date = instance.creation_date or timezone.now()
+        instance.lastedit_date = instance.creation_date
+
+        # Set the timestamps on the parent
+        if instance.type == Post.ANSWER:
+            instance.parent.lastedit_date = instance.lastedit_date
+            instance.parent.lastedit_user = instance.lastedit_user
+            #TODO: will this cause recussion max when instance.root = instance.parent = instance
+            instance.parent.save()
 
 
 @receiver(post_save, sender=Post)
@@ -288,6 +291,8 @@ def check_root(sender, instance, created, *args, **kwargs):
                 Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
 
         instance.save()
+
+
 
 
 @receiver(m2m_changed, sender=Post.tag_set.through)
