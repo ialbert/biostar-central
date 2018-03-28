@@ -7,7 +7,7 @@
 
 The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts. In addition the software has data storage and project management support, and may be used as web based file management software. An actively maintained deployment of the software can be accessed at:
 
-* <https://www.bioinformatics.recipes>
+* <https://www.bioinformatics.recipes> (may occasionally be offline during the beta-test)
 
 The scripts that the software executes may be written in `bash`, may be a `Makefile`, may be `R` commands in a file or just about any code that could be executed from command line.
 
@@ -39,6 +39,10 @@ More details on how the site works at:
 [engine-concepts]: docs/engine-concepts.md
 [engine-howto]: docs/engine-howto.md
 [recipe-howto]: https://github.com/biostars/biostar-recipes/blob/master/docs/recipe-howto.md
+
+## Note
+
+This software should be considered a beta-test, work-in-progress. A deployment-ready release is planned in the first half of 2018.
 
 ## Installation
 

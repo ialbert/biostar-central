@@ -12,7 +12,7 @@ A "data" in the Biostar Engine is a directory that may contain one or more (any 
 
 Each recipe parameter will have an automatic attribute called `toc` (table of contents) that returns the list of the file paths in the data.
 The file paths are absolute paths. the `toc` can be used to automate the processing of data. For example
-a data directory named `reads` contains FASTQ files with `.fq` extensions. To run `fastqc` on each file that mathes that
+a data directory named `reads` contains FASTQ files with `.fq` extensions. To run `fastqc` on each file that matches that
 the script may use:
 
     cat {{reads.toc}} | grep .fq | parallel fastqc {}
@@ -35,7 +35,7 @@ When a recipe parameter indicates the source of the parameter as `PROJECT` it wi
         source: PROJECT
     }
 
-Only data that mathes the word `FASTA` will be shown in the dropdown menu.
+Only data that matches the word `FASTA` will be shown in the dropdown menu.
 
 ### Data Types
 
@@ -55,5 +55,18 @@ Users may have read and write access to projects. A write access means that user
 
 Moderator permissions are site wide and specify the right to approve modifications to recipes. Because recipes execute arbitrary code only approved
 recipes may be executed.
+
+### Recipe diffs
+
+Whenever a recipe changes it creates a "diff" (difference). The recipe will not be executable until a moderator reviews and accepts the diff.
+
+### User types
+
+Users may fall in different categories: VISITOR, RESEARCHER, MODERATOR etc.
+
+Not all user types have access to all functionality. For example a VISITOR may see projects but not execute recipes.
+
+
+
 
 
