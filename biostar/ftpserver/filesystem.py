@@ -181,12 +181,12 @@ class BiostarFileSystem(AbstractedFS):
         path_list = split(path)
         real_file, virtual_path = False, False
 
-        # Check if its a real file first
-        real_file = False if path == self.root else self.validate_actual_path(path=path)
+        # Check if its a virtual path first
+        virtual_path = self.validate_virtual_path(path_list=path_list)
 
-        # If it's not a real file, then check if it's a 'fake' ftp file path.
-        if not real_file:
-            virtual_path = self.validate_virtual_path(path_list=path_list)
+        # If it's not a virtual ftp path, then it has to be a real file path.
+        if not virtual_path:
+            real_file =  self.validate_actual_path(path=path)
 
         return real_file or virtual_path
 
