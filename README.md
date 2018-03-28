@@ -5,7 +5,7 @@
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts. In addition the software has data storage and project management support, and may be used as simple Laboratory Information Management System (LIMS). An actively maintained deployment of the software can be accessed at:
+The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts. In addition the software has data storage and project management support, and may be used as web based file management software. An actively maintained deployment of the software can be accessed at:
 
 * <https://www.bioinformatics.recipes>
 
@@ -27,11 +27,16 @@ In a nutshell, a recipe is created via an interface specification file and a scr
 The site generates the web interface from the interface specification file. Users can make selections in the web interface, these selections
 are then passed down into the script.
 
+The Biostar Engine was designed for processing large projects composed of tens/hundreds/thousands of files. We have made an effort
+to represent data in a simplified way. For example all files of a sequencing run may be represented as just one *single* data entry. Read more about the subject in the [Concepts and definitions][engine-concepts] page.
+
 More details on how the site works at:
 
+* [Concepts and definitions][engine-concepts]
 * [How to use the site?][engine-howto]
 * [What are recipes?][recipe-howto]
 
+[engine-concepts]: docs/engine-concepts.md
 [engine-howto]: docs/engine-howto.md
 [recipe-howto]: https://github.com/biostars/biostar-recipes/blob/master/docs/recipe-howto.md
 
