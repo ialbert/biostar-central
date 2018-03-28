@@ -14,7 +14,7 @@ logger.setLevel(logging.INFO)
 
 
 
-def perm_map(project, user):
+def perm_map(root_project, user):
 
     """
 
@@ -32,9 +32,6 @@ def perm_map(project, user):
     return permissions string user has to a project
 
     """
-
-
-
 
     return "elr"
 
