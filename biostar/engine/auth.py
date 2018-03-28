@@ -185,10 +185,12 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
 
     if project:
         # Update project
+        current = project.first()
+        summary = summary or current.summary
+        text = text or current.text
+        name = name or current.name
         project.update(summary=summary, text=text, name=name)
-        # Need to manually call save()
         project = project.first()
-        project.save()
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
         project = Project.objects.create(
@@ -206,18 +208,22 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     owner = user or project.owner
 
     analysis = Analysis.objects.filter(uid=uid)
-    if analysis and not update:
-        return analysis.first()
 
-    if analysis:
+    # Only update when there is a flag
+    if analysis and update:
         # Update analysis
-        analysis.update(summary=summary, text=text, name=name,
-                        template=template, json_text=json_text)
+        current = analysis.first()
+        summary = summary or current.summary
+        text = text or current.text
+        name = name or current.name
+        template = template or current.template
+        json_text = json_text or current.json_text
+        analysis.update(summary=summary, text=text, name=name, template=template, json_text=json_text)
         analysis = analysis.first()
-        analysis.save()
         logger.info(f"Updated analysis: uid={analysis.uid} name={analysis.name}")
     else:
-        # Create
+        # Create a new analysis
+        uid = None if analysis else uid
         analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)
