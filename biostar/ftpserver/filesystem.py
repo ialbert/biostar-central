@@ -45,7 +45,7 @@ def query_tab(tab, pk=None, show_instance=False):
     return None if not instance else instance.get_data_dir()
 
 
-def fetch_file_info(fname, basedir, tab=None, tail=[], pk=None):
+def fetch_file_info(fname, tab=None, tail=[], pk=None):
     """
     Fetch the actual file path and filetype of a given instance.
     """
@@ -311,21 +311,21 @@ class BiostarFileSystem(AbstractedFS):
         perm = perm_map(root_project=root_project, user=self.user)
         is_project = root_project and (not tab)
 
-        for instance in listing:
+        for fname in listing:
 
             if basedir == self.root or is_project:
-                pk = root_project if is_project else parse_pk(string=instance)
+                pk = root_project if is_project else parse_pk(string=fname)
                 project = self.projects.filter(pk=pk).first()
                 filetype, rfname = 'dir', project.get_project_dir()
             else:
-                rfname, filetype = fetch_file_info(fname=instance, basedir=basedir, tab=tab, pk=pk, tail=tail)
+                rfname, filetype = fetch_file_info(fname=fname, tab=tab, pk=pk, tail=tail)
 
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
             modify = time.strftime("%Y%m%d%H%M%S", self.timefunc(st.st_mtime))
 
             lines.append(
-                f"type={filetype};size={st.st_size};perm={perm};modify={modify};unique={unique}; {instance}")
+                f"type={filetype};size={st.st_size};perm={perm};modify={modify};unique={unique}; {fname}")
 
         line = "\n".join(lines)
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
