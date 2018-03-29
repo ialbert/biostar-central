@@ -119,7 +119,7 @@ def parse_virtual_path(ftppath):
     return root_project, tab, pk, tail
 
 
-def get_real_filename(instance, place_holder, tail=[]):
+def filename(instance, place_holder, tail=[]):
 
     # Single file data objects handled here
     data_file = isinstance(instance, Data) and len(instance.get_files()) <= 1
@@ -139,7 +139,7 @@ def get_real_filename(instance, place_holder, tail=[]):
     return fname if is_file else place_holder
 
 
-def get_dir_list(base_dir, is_instance=False, tail=[]):
+def dir_list(base_dir, is_instance=False, tail=[]):
     "Return contents of a given base dir ( and a tail)."
 
     # List the files inside of /data and /results tabs
@@ -214,7 +214,7 @@ class BiostarFileSystem(AbstractedFS):
             return abs_ftppath
 
         # Attempt to return abs file path, otherwise returns place holder.
-        return get_real_filename(tail=tail, place_holder=abs_ftppath, instance=instance)
+        return filename(tail=tail, place_holder=abs_ftppath, instance=instance)
 
 
     def validpath(self, path):
@@ -289,7 +289,7 @@ class BiostarFileSystem(AbstractedFS):
         base_dir = query_tab(tab=tab, pk=pk)
 
         # Dir list returned is different depending on the tab
-        return get_dir_list(base_dir=base_dir, is_instance=is_instance, tail=tail)
+        return dir_list(base_dir=base_dir, is_instance=is_instance, tail=tail)
 
 
     def chdir(self, path):
