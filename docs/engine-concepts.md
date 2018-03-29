@@ -66,7 +66,18 @@ Users may fall in different categories: VISITOR, RESEARCHER, MODERATOR etc.
 
 Not all user types have access to all functionality. For example a VISITOR may see projects but not execute recipes.
 
+### Delete/Restore
 
+Users may delete data/recipes/results that they create. Their recyle bin store these entries and they may
 
+### FTP Access
 
+(work in progress)
+
+To facilitate large scale file exchange the site also contains a virtual FTP server that can be used to access files. This allows users to bypass the awkward web base upload/download interfaces.
+Run
+
+    make ftp
+
+then connect with your client.
 
