@@ -1,15 +1,10 @@
 
 import logging
-from pyftpdlib.handlers import FTPHandler, _strerror
+from pyftpdlib.handlers import FTPHandler
 
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
-
-
-
-class FilesystemError(Exception):
-    pass
 
 
 

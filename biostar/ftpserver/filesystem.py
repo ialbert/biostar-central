@@ -18,11 +18,11 @@ logger.setLevel(logging.INFO)
 
 
 
-def index(cond, list, idx):
+def index(list, idx):
     # Returns None if cond is not met
     # used to avoid Indexing Errors
 
-    return None if not cond else list[idx]
+    return None if not len(list) >= idx + 1 else list[idx]
 
 
 def split(path):
@@ -78,7 +78,7 @@ def fetch_file_info(fname, basedir, tab=None, tail=[], pk=None):
 def filesystem_mapper(queryset=None, tag=""):
     "Takes queryset returns correct ftp path to be parsed"
 
-    return [f"{p.pk}.{tag}{p.name}" for p in queryset] or []
+    return [f"{p.pk}.{tag}{p.name}" for p in queryset.order_by('pk')] or []
 
 
 def parse_pk(string):
@@ -100,16 +100,16 @@ def parse_virtual_path(ftppath):
     path_list = split(ftppath)
 
     # Project user is under
-    root_project = index(len(path_list) >= 1, path_list, 0) or ''
+    root_project = index(path_list, 0) or ''
 
     # Build filesystem using project pk value since names can the same.
     root_project = parse_pk(string=root_project)
 
     # Tab picked ( data or results ).
-    tab = index(len(path_list) >= 2, path_list, 1)
+    tab = index(path_list, 1)
 
     # Pk of specific Data or Job instance.
-    instance = index(len(path_list) >= 3, path_list, 2)
+    instance = index(path_list, 2)
 
     pk = parse_pk(string=instance)
 
