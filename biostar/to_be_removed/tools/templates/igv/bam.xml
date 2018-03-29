@@ -1,9 +1,0 @@
-<Track altColor="0,0,178" autoScale="true" color="175,175,175"
-       colorScale="ContinuousColorScale;0.0;37.0;255,255,255;175,175,175" displayMode="COLLAPSED"
-       featureVisibilityWindow="-1" fontSize="10" id="{{ path }}_coverage" name="{{ name }} Coverage"
-       showReference="false" snpThreshold="0.2" sortable="true" visible="true">
-    <DataRange baseline="0.0" drawBaseline="true" flipAxis="false" maximum="37.0" minimum="0.0" type="LINEAR"/>
-</Track>
-<Track autoScale="false" displayMode="EXPANDED" featureVisibilityWindow="-1"
-       fontSize="10" id="{{ path }}" name="{{ name }}" sortable="true" visible="true">
-</Track>
