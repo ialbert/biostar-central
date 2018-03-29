@@ -19,8 +19,8 @@ logger.setLevel(logging.INFO)
 
 
 def index(list, idx):
-    # Returns None if cond is not met
-    # used to avoid Indexing Errors
+    # Returns None if list is shorter than index
+    # used to avoid Indexing Errors and redundancy
 
     return None if not len(list) >= idx + 1 else list[idx]
 
