@@ -1,9 +1,15 @@
 
 import logging
-from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.handlers import FTPHandler, _strerror
 
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
+
+
+
+
+class FilesystemError(Exception):
+    pass
 
 
 
@@ -38,9 +44,6 @@ class BiostarFTPHandler(FTPHandler):
 
     def on_file_received(self, file):
         # do something when a file has been received
-
-        print(file)
-        1/0
         pass
 
     def on_incomplete_file_sent(self, file):
@@ -50,3 +53,12 @@ class BiostarFTPHandler(FTPHandler):
     def on_incomplete_file_received(self, file):
         # remove partially uploaded files
         pass
+
+
+    def ftp_MKD(self, path):
+
+        # Copied from parent class
+
+        new_dir = super(BiostarFTPHandler, self).ftp_MKD(path)
+
+        logger.info(f"new_dir={new_dir}, path={path}")

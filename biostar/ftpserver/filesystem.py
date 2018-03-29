@@ -4,7 +4,7 @@ import os
 
 from pyftpdlib.filesystems import AbstractedFS
 from django.contrib.auth.models import AnonymousUser
-from biostar.engine.models import Project, Data, Job
+from biostar.engine.models import Data, Job
 from biostar.engine import auth
 from biostar.accounts.models import Profile
 
@@ -51,22 +51,24 @@ def fetch_file_info(fname, basedir, tab=None, tail=[], pk=None):
     """
 
     # At /data or /results tab, fname is an ftp path that contains a Data or Job pk.
-    if len(split(basedir)) == 2:
-        pk = parse_pk(fname)
+    pk = pk or parse_pk(fname)
 
     instance = query_tab(tab=tab, pk=pk, show_instance=True)
     data_file = isinstance(instance, Data) and len(instance.get_files()) <= 1
 
     suffix = fname if not tail else os.path.join(*tail, fname)
+    full_path = os.path.join(instance.get_data_dir(), suffix)
     # There is an extra tail to patch together
     if instance and tail:
-        rfname = os.path.join(instance.get_data_dir(), suffix)
+        rfname = full_path
         filetype = 'dir' if (os.path.exists(rfname) and os.path.isdir(rfname)) else 'file'
 
     # No tail to deal with
     elif instance and not tail:
         rfname = instance.get_data_dir()
-        filetype = "file" if data_file else "dir"
+        is_file = (os.path.isfile(rfname) or data_file or os.path.isfile(full_path))
+        filetype = "file" if is_file else "dir"
+
     else:
         rfname, filetype= fname, "dir"
 
@@ -123,7 +125,6 @@ def get_real_filename(instance, place_holder, tail=[]):
     data_file = isinstance(instance, Data) and len(instance.get_files()) <= 1
     if data_file and instance.get_files()[0]:
         real_file = instance.get_files()[0]
-        # self.valid_path handles the rest
         return real_file if os.path.exists(real_file) else place_holder
 
     # Directories handled after this point.
@@ -138,11 +139,11 @@ def get_real_filename(instance, place_holder, tail=[]):
     return fname if is_file else place_holder
 
 
-def get_dir_list(base_dir, is_tab=False, tail=[]):
+def get_dir_list(base_dir, is_instance=False, tail=[]):
     "Return contents of a given base dir ( and a tail)."
 
     # List the files inside of /data and /results tabs
-    if base_dir and is_tab:
+    if base_dir and is_instance:
         return [os.path.basename(p.path) for p in os.scandir(base_dir)]
     try:
         # List sub-dirs found in /data and /results
@@ -174,6 +175,7 @@ class BiostarFileSystem(AbstractedFS):
         self._cwd = root
         self._root = root
         self.cmd_channel = cmd_channel
+        self.timefunc = time.localtime if cmd_channel.use_gmt_times else time.gmtime
 
         logger.info(f"current_user={current_user}")
 
@@ -190,32 +192,29 @@ class BiostarFileSystem(AbstractedFS):
 
 
     def ftp2fs(self, ftppath):
+        """
+        :param ftppath: virtual path requested by client
+        :return:
+        """
+        abs_ftppath = super(BiostarFileSystem, self).ftp2fs(ftppath)
 
-        assert isinstance(ftppath, str), ftppath
+        logger.info(f"fs={abs_ftppath}, ftppath={ftppath}")
 
-        if os.path.normpath(self.root) == os.sep:
-            fs = os.path.normpath(self.ftpnorm(ftppath))
-        else:
-            p = self.ftpnorm(ftppath)[1:]
-            fs = os.path.normpath(os.path.join(self.root, p))
-
-        logger.info(f"fs={fs}, ftppath={ftppath}")
-
-        root_project, tab, pk, tail = parse_virtual_path(ftppath=fs)
+        root_project, tab, pk, tail = parse_virtual_path(ftppath=abs_ftppath)
 
         if not pk:
             # Only look at actual files, dir are returned as is
-            return fs
+            return abs_ftppath
 
         assert tab in ('data', 'results'), tab
         instance = query_tab(tab=tab, pk=pk, show_instance=True)
 
         if not instance:
             # We let self.valid_path handle invalid paths
-            return fs
+            return abs_ftppath
 
         # Attempt to return abs file path, otherwise returns place holder.
-        return get_real_filename(tail=tail, place_holder=fs, instance=instance)
+        return get_real_filename(tail=tail, place_holder=abs_ftppath, instance=instance)
 
 
     def validpath(self, path):
@@ -246,24 +245,27 @@ class BiostarFileSystem(AbstractedFS):
     def isdir(self, path):
 
 
-        logger.info(f"path={path}")
-
         root_project, tab, pk, tail = parse_virtual_path(ftppath=path)
+        is_dir = True
 
         # If the virtual path does not have a 'tail' then its a dir.
-        if not tail:
-            return True
+        if not tail or path == self.root:
+            return is_dir
 
-        return os.path.exists(path) and os.path.isdir(path)
+        if tail:
+            path = os.path.join(query_tab(tab=tab, pk=pk), *tail)
+            is_dir = not (os.path.exists(path) and os.path.isfile(path))
+
+        logger.info(f"path={path}, is_dir={is_dir}")
+        return is_dir
 
 
     def listdir(self, path):
         # This is the root as initialized in the base class
 
-        logger.info(f"path={path}, cwd={self._cwd}")
+        logger.info(f"path={path}, cwd={self._cwd}, root={self.root}")
 
         root_project, tab, pk, tail = parse_virtual_path(ftppath=path)
-        path_list = split(path)
         data = Data.objects.filter(deleted=False, project__in=self.projects,
                                    state__in=(Data.READY, Data.PENDING))
         job = Job.objects.filter(deleted=False, project__in=self.projects)
@@ -273,20 +275,21 @@ class BiostarFileSystem(AbstractedFS):
             return filesystem_mapper(queryset=self.projects, tag="Project-")
 
         # Browse /data or /results inside of a project.
-        if self.projects.filter(pk=root_project) and len(path_list) == 1:
+        if self.projects.filter(pk=root_project) and not tab:
             return ['data', 'results']
 
         # List files in /data or /results
-        if self.projects.filter(pk=root_project) and len(path_list) == 2:
+        is_tab = tab and (not pk)
+        if self.projects.filter(pk=root_project) and is_tab:
             queryset = data if tab == 'data' else job
             return filesystem_mapper(queryset=queryset) or []
 
         # Take a look at specific instance in /data or /results
-        is_tab = len(path_list) == 3
+        is_instance = pk and (not tail)
         base_dir = query_tab(tab=tab, pk=pk)
 
         # Dir list returned is different depending on the tab
-        return get_dir_list(base_dir=base_dir, is_tab=is_tab, tail=tail)
+        return get_dir_list(base_dir=base_dir, is_instance=is_instance, tail=tail)
 
 
     def chdir(self, path):
@@ -301,18 +304,17 @@ class BiostarFileSystem(AbstractedFS):
 
 
     def format_mlsx(self, basedir, listing, perms, facts, ignore_err=True):
-
         logger.info(f"basedir={basedir} listing={listing} facts={facts} perms={perms}")
-        lines = []
-        timefunc = time.localtime if self.cmd_channel.use_gmt_times else time.gmtime
 
+        lines = []
         root_project, tab, pk, tail = parse_virtual_path(ftppath=basedir)
         perm = perm_map(root_project=root_project, user=self.user)
+        is_project = root_project and (not tab)
 
         for instance in listing:
 
-            if len(split(basedir)) in (0, 1):
-                pk = root_project if len(split(basedir)) else parse_pk(string=instance)
+            if basedir == self.root or is_project:
+                pk = root_project if is_project else parse_pk(string=instance)
                 project = self.projects.filter(pk=pk).first()
                 filetype, rfname = 'dir', project.get_project_dir()
             else:
@@ -320,7 +322,7 @@ class BiostarFileSystem(AbstractedFS):
 
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
-            modify = time.strftime("%Y%m%d%H%M%S", timefunc(st.st_mtime))
+            modify = time.strftime("%Y%m%d%H%M%S", self.timefunc(st.st_mtime))
 
             lines.append(
                 f"type={filetype};size={st.st_size};perm={perm};modify={modify};unique={unique}; {instance}")
