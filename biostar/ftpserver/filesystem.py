@@ -193,7 +193,7 @@ class BiostarFileSystem(AbstractedFS):
 
     def ftp2fs(self, ftppath):
         """
-        :param ftppath: virtual path requested by client
+        :param ftppath: relative virtual path requested by client
         :return:
         """
         abs_ftppath = super(BiostarFileSystem, self).ftp2fs(ftppath)
