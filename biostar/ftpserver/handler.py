@@ -56,4 +56,6 @@ class BiostarFTPHandler(FTPHandler):
 
         new_dir = super(BiostarFTPHandler, self).ftp_MKD(path)
 
+        print(new_dir)
+        1/0
         logger.info(f"new_dir={new_dir}, path={path}")

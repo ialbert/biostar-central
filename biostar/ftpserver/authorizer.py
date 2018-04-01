@@ -13,6 +13,10 @@ logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
 
+class AuthenticationFailed(Exception):
+    """Exception raised when authentication fails for any reason."""
+
+
 
 def perm_map(root_project, user):
 
@@ -32,16 +36,19 @@ def perm_map(root_project, user):
     return permissions string user has to a project
 
     """
+    write = 'wma'
 
-    return "elr"
+    return "elr"  + write
+
 
 
 class BiostarAuthorizer(object):
 
+    read_perms = "elr"
+    write_perms = "adfmwMT"
 
     def __init__(self):
         self.user_table = {}
-
 
     def add_user(self, username, user=AnonymousUser, perm='elr',
                  msg_login="Login successful.", msg_quit="Goodbye."):
@@ -89,8 +96,9 @@ class BiostarAuthorizer(object):
 
     def override_perm(self, username, directory, perm, recursive=False):
         """Override permissions for a given directory."""
-        1/0
+
         self._check_permissions(username, perm)
+
         if not os.path.isdir(directory):
             raise ValueError('no such directory: %r' % directory)
         directory = os.path.normcase(os.path.realpath(directory))
@@ -134,8 +142,21 @@ class BiostarAuthorizer(object):
         Expected perm argument is one of the following letters:
         "elradfmwMT".
         """
+        if path is None:
+            return perm in self.user_table[username]['perm']
+
+        path = os.path.normcase(path)
+        for dir in self.user_table[username]['operms'].keys():
+            operm, recursive = self.user_table[username]['operms'][dir]
+            if self._issubpath(path, dir):
+                if recursive:
+                    return perm in operm
+                if (path == dir or os.path.dirname(path) == dir and not
+                os.path.isdir(path)):
+                    return perm in operm
 
         return perm in self.user_table[username]['perm']
+
 
     def get_perms(self, username):
         """Return current user permissions."""
@@ -152,6 +173,18 @@ class BiostarAuthorizer(object):
         except KeyError:
             return "Goodbye."
 
+
+    def _check_permissions(self, username, perm):
+        warned = 0
+        for p in perm:
+            if p not in self.read_perms + self.write_perms:
+                raise ValueError('no such permission %r' % p)
+            if (username == 'anonymous' and
+                    p in self.write_perms and not
+                    warned):
+                warnings.warn("write permissions assigned to anonymous user.",
+                              RuntimeWarning)
+                warned = 1
 
     def _issubpath(self, a, b):
         """Return True if a is a sub-path of b or if the paths are equal."""
