@@ -189,6 +189,12 @@ class BiostarFileSystem(AbstractedFS):
         self.projects = auth.get_project_list(user=self.user["user"])
 
 
+        # Data and results in project
+        self.data = Data.objects.filter(deleted=False, project__in=self.projects,
+                                   state__in=(Data.READY, Data.PENDING))
+
+        self.jobs = Job.objects.filter(deleted=False, project__in=self.projects)
+
         # Get authorizer to set write permission on directories.
         self.authorizer = self.cmd_channel.authorizer
 
@@ -271,9 +277,6 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"path={path}, cwd={self._cwd}, root={self.root}")
 
         root_project, tab, pk, tail = parse_virtual_path(ftppath=path)
-        data = Data.objects.filter(deleted=False, project__in=self.projects,
-                                   state__in=(Data.READY, Data.PENDING))
-        job = Job.objects.filter(deleted=False, project__in=self.projects)
 
         # List projects when user is at the root
         if path == self.root:
@@ -286,7 +289,7 @@ class BiostarFileSystem(AbstractedFS):
         # List files in /data or /results
         is_tab = tab and (not pk)
         if self.projects.filter(pk=root_project) and is_tab:
-            queryset = data if tab == 'data' else job
+            queryset = self.data if tab == 'data' else self.jobs
             return filesystem_mapper(queryset=queryset) or []
 
         # Take a look at specific instance in /data or /results
@@ -315,6 +318,7 @@ class BiostarFileSystem(AbstractedFS):
         root_project, tab, pk, tail = parse_virtual_path(ftppath=basedir)
 
         is_project = root_project and (not tab)
+        perm = self.set_permissions(basedir=basedir)
 
         for fname in listing:
 
@@ -324,8 +328,6 @@ class BiostarFileSystem(AbstractedFS):
                 filetype, rfname = 'dir', project.get_project_dir()
             else:
                 rfname, filetype = fetch_file_info(fname=fname, tab=tab, pk=pk, tail=tail)
-
-            perm = self.set_permissions(path=fname, basedir=basedir)
 
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
@@ -360,7 +362,7 @@ class BiostarFileSystem(AbstractedFS):
             return False
 
         # Data or Job must be valid.
-        if pk and not (Data.objects.filter(pk=pk, deleted=False) or Job.objects.filter(pk=pk, deleted=False)):
+        if pk and not (self.data.filter(pk=pk) or self.jobs.filter(pk=pk)):
             return False
 
         # The path is valid at this point
@@ -385,10 +387,7 @@ class BiostarFileSystem(AbstractedFS):
 
 
         valid_project_dirs = [p.get_project_dir() for p in self.projects]
-        # Jobs found in the projects, that user has access to.
-        valid_jobs = Job.objects.filter(deleted=False, project__in=self.projects)
-
-        valid_job_dirs = [job.get_data_dir() for job in valid_jobs]
+        valid_job_dirs = [job.get_data_dir() for job in self.jobs]
 
         for basedir in valid_project_dirs + valid_job_dirs:
             if path.startswith(basedir):
@@ -398,12 +397,21 @@ class BiostarFileSystem(AbstractedFS):
         return False
 
 
-    def set_permissions(self, path, basedir):
+    def set_permissions(self, basedir):
 
+        self._check_user_status()
 
-        perms = ''
+        root_project, tab, pk, tail = parse_virtual_path(ftppath=basedir)
 
-        self.authorizer.override_perm(username=self.user, )
         perm = perm_map(root_project=root_project, user=self.user)
 
-        return perms
+        project = self.projects.filter(pk=root_project)
+
+        instance = ''
+
+        dirs = ''
+
+        self.authorizer.override_perm(username=self.user, directory=dirs, perm=perm)
+
+
+        return perm

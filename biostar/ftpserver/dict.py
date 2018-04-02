@@ -7,7 +7,7 @@ from collections.abc import MutableMapping
 class UserTable(MutableMapping):
 
 
-    def __getitem__(self, y): # real signature unknown; restored from __doc__
+    def __getitem__(self, y):
         """ x.__getitem__(y) <==> x[y] """
 
         pass
@@ -19,12 +19,15 @@ class UserTable(MutableMapping):
 
     def __len__(self, *args, **kwargs):
         """ Return len(self). """
-        pass
+
+        return len(self.keys())
+
 
     def __iter__(self, *args, **kwargs):
         """ Implement iter(self). """
-        # Just iterate thru keys
-        pass
+
+        return (k for k in self.keys())
+
 
     def __delitem__(self, *args, **kwargs):
         """ Delete self[key]. """

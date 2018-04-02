@@ -35,7 +35,7 @@ update:
 
 recipes:
 	python manage.py project --root ../biostar-recipes --json projects/cookbook-project.hjson --privacy public --jobs
-	#python manage.py project --root ../biostar-recipes --json projects/mothur-project.hjson --privacy public
+	python manage.py project --root ../biostar-recipes --json projects/mothur-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/giraffe-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/handbook-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/usfish-project.hjson --privacy public
