@@ -36,10 +36,15 @@ def query_tab(tab, pk=None, show_instance=False):
     return None if not instance else instance.get_data_dir()
 
 
-def filesystem_mapper(queryset=None, tag=""):
+def filesystem_mapper(queryset=None, instance=None, tag=""):
     "Takes queryset returns correct ftp path to be parsed"
 
-    return [f"{p.pk}.{tag}{p.name}" for p in queryset.order_by('pk')] or []
+    pattern = lambda pk, name: f"{pk}.{tag}{name}"
+
+    if instance:
+        return pattern(pk=instance.pk, name=instance.name)
+
+    return [ pattern(pk=p.pk, name=p.name) for p in queryset] or []
 
 
 def parse_pk(string):

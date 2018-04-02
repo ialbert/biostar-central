@@ -216,7 +216,8 @@ class BiostarFileSystem(AbstractedFS):
         # List files in /data or /results
         is_tab = tab and (not pk)
         if self.projects.filter(pk=root_project) and is_tab:
-            queryset = self.data if tab == 'data' else self.jobs
+            jobs = self.jobs.filter(project__pk=root_project)
+            queryset = self.data.filter(project__pk=root_project) if tab == 'data' else jobs
             return filesystem_mapper(queryset=queryset) or []
 
         # Take a look at specific instance in /data or /results
