@@ -188,6 +188,11 @@ class BiostarFileSystem(AbstractedFS):
         # Projects the user has access to
         self.projects = auth.get_project_list(user=self.user["user"])
 
+
+        # Get authorizer to set write permission on directories.
+        self.authorizer = self.cmd_channel.authorizer
+
+
         super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
 
@@ -308,7 +313,7 @@ class BiostarFileSystem(AbstractedFS):
 
         lines = []
         root_project, tab, pk, tail = parse_virtual_path(ftppath=basedir)
-        perm = perm_map(root_project=root_project, user=self.user)
+
         is_project = root_project and (not tab)
 
         for fname in listing:
@@ -319,6 +324,8 @@ class BiostarFileSystem(AbstractedFS):
                 filetype, rfname = 'dir', project.get_project_dir()
             else:
                 rfname, filetype = fetch_file_info(fname=fname, tab=tab, pk=pk, tail=tail)
+
+            perm = self.set_permissions(path=fname, basedir=basedir)
 
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
@@ -389,3 +396,14 @@ class BiostarFileSystem(AbstractedFS):
                 return True
 
         return False
+
+
+    def set_permissions(self, path, basedir):
+
+
+        perms = ''
+
+        self.authorizer.override_perm(username=self.user, )
+        perm = perm_map(root_project=root_project, user=self.user)
+
+        return perms

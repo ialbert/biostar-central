@@ -44,6 +44,8 @@ def perm_map(root_project, user):
 
 class BiostarAuthorizer(object):
 
+    """Copied from pyftpdlib, need to make out own user_table."""
+
     read_perms = "elr"
     write_perms = "adfmwMT"
 

@@ -5,12 +5,10 @@ from collections.abc import MutableMapping
 
 
 class UserTable(MutableMapping):
-    """__getitem__, __setitem__, __delitem__,
-    __iter__, and __len__."""
+
 
     def __getitem__(self, y): # real signature unknown; restored from __doc__
         """ x.__getitem__(y) <==> x[y] """
-
 
         pass
 
