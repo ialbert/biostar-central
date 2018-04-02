@@ -2,7 +2,6 @@ import logging
 import os
 import warnings
 
-from pyftpdlib.authorizers import AuthenticationFailed
 
 
 from django.contrib.auth.models import AnonymousUser
@@ -18,30 +17,6 @@ class AuthenticationFailed(Exception):
 
 
 
-def perm_map(root_project, user):
-
-    """
-
-    Read permissions:
-        "e" = change directory (CWD command)
-        "l" = list files (LIST, NLST, MLSD commands)
-        "r" = retrieve file from the server (RETR command)
-    Write permissions
-        "a" = append data to an existing file (APPE command)
-        "d" = delete file or directory (DELE, RMD commands)
-        "f" = rename file or directory (RNFR, RNTO commands)
-        "m" = create directory (MKD command)
-        "w" = store a file to the server (STOR, STOU commands)
-
-    return permissions string user has to a project
-
-    """
-    write = 'wma'
-
-    return "elr"  + write
-
-
-
 class BiostarAuthorizer(object):
 
     """Copied from pyftpdlib, need to make out own user_table."""
@@ -52,7 +27,7 @@ class BiostarAuthorizer(object):
     def __init__(self):
         self.user_table = {}
 
-    def add_user(self, username, user=AnonymousUser, perm='elr',
+    def add_user(self, username, user=AnonymousUser, perm='elrm',
                  msg_login="Login successful.", msg_quit="Goodbye."):
 
         data = {'user': user,
@@ -99,10 +74,11 @@ class BiostarAuthorizer(object):
     def override_perm(self, username, directory, perm, recursive=False):
         """Override permissions for a given directory."""
 
+        logger.info(f"username={username}")
         self._check_permissions(username, perm)
 
-        if not os.path.isdir(directory):
-            raise ValueError('no such directory: %r' % directory)
+        #if not os.path.isdir(directory):
+        #    raise ValueError('no such directory: %r' % directory)
         directory = os.path.normcase(os.path.realpath(directory))
         home = os.path.normcase(self.get_home_dir(username))
         if directory == home:
@@ -114,6 +90,7 @@ class BiostarAuthorizer(object):
 
     def get_home_dir(self, username):
 
+        logger.info(f"{username}")
         return self.user_table[username]['home']
 
 
