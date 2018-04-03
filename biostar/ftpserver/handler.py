@@ -63,8 +63,6 @@ class BiostarFTPHandler(FTPHandler):
         # name and in case it contains embedded double-quotes
         # they must be doubled (see RFC-959, chapter 7, appendix 2).
 
-
-
         root_project, tab, pk, tail = parse_virtual_path(ftppath=path)
 
         projects = self.fs.projects
@@ -78,7 +76,7 @@ class BiostarFTPHandler(FTPHandler):
             line = self.fs.fs2ftp(path)
             self.respond('257 "%s" directory created.' % line.replace('"', '""'))
 
-            return path
+            return self.fs.root
 
         project = projects.filter(pk=root_project)
 

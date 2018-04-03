@@ -333,7 +333,7 @@ class BiostarFileSystem(AbstractedFS):
 
 
         if tab and (not pk):
-            perm = "elrm" if tab == "data" else "elr"
+            perm = "elrmw" if tab == "data" else "elr"
 
         else:
             perm = "elr"
