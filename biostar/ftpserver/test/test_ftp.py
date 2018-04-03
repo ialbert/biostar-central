@@ -5,35 +5,17 @@ import ftplib
 from pyftpdlib.test import unittest
 from pyftpdlib.test import MProcessTestFTPd
 
-from django.test import TestCase
-
+#from django.test import TestCase
+from biostar.accounts.models import User
 
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
+USER = 'test@test'
+PASSWD = '1234'
 
-
-
-class CommandsTest(TestCase):
-
-
-    def setUp(self):
-        return
-
-
-    pass
-
-
-
-class DownloadTest(TestCase):
-
-    def setUp(self):
-        return
-
-
-
-
-    pass
+#Timeout in seconds
+TIMEOUT = 10
 
 
 
@@ -44,20 +26,22 @@ class TestFtpFsOperations(unittest.TestCase):
     client_class = ftplib.FTP
 
     def setUp(self):
+
+        # Create a user
+        self.user = User.objects.create_user(username='test', email=USER, password=PASSWD)
+
+        # Start the server
         self.server = self.server_class()
         self.server.start()
+
+        # Start up a client
         self.client = self.client_class(timeout=TIMEOUT)
         self.client.connect(self.server.host, self.server.port)
         self.client.login(USER, PASSWD)
-        self.tempfile = os.path.basename(touch(TESTFN))
-        self.tempdir = os.path.basename(tempfile.mkdtemp(dir=HOME))
 
-    def tearDown(self):
-        self.client.close()
-        self.server.stop()
-        safe_remove(self.tempfile)
-        if os.path.exists(self.tempdir):
-            shutil.rmtree(self.tempdir)
+        #
+        self.tempfile = os.path.basename(__file__)
+        self.tempdir = os.path.basename(tempfile.mkdtemp(dir=HOME))
 
 
     def test_mkd(self):
