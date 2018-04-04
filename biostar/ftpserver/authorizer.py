@@ -2,7 +2,6 @@ import logging
 import os
 import warnings
 
-from pyftpdlib.authorizers import AuthenticationFailed
 
 
 from django.contrib.auth.models import AnonymousUser
@@ -13,37 +12,22 @@ logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
 
+class AuthenticationFailed(Exception):
+    """Exception raised when authentication fails for any reason."""
 
-def perm_map(root_project, user):
-
-    """
-
-    Read permissions:
-        "e" = change directory (CWD command)
-        "l" = list files (LIST, NLST, MLSD commands)
-        "r" = retrieve file from the server (RETR command)
-    Write permissions
-        "a" = append data to an existing file (APPE command)
-        "d" = delete file or directory (DELE, RMD commands)
-        "f" = rename file or directory (RNFR, RNTO commands)
-        "m" = create directory (MKD command)
-        "w" = store a file to the server (STOR, STOU commands)
-
-    return permissions string user has to a project
-
-    """
-
-    return "elr"
 
 
 class BiostarAuthorizer(object):
 
+    """Copied from pyftpdlib, need to make out own user_table."""
+
+    read_perms = "elr"
+    write_perms = "adfmwMT"
 
     def __init__(self):
         self.user_table = {}
 
-
-    def add_user(self, username, user=AnonymousUser, perm='elr',
+    def add_user(self, username, user=AnonymousUser, perm='elrm',
                  msg_login="Login successful.", msg_quit="Goodbye."):
 
         data = {'user': user,
@@ -89,10 +73,12 @@ class BiostarAuthorizer(object):
 
     def override_perm(self, username, directory, perm, recursive=False):
         """Override permissions for a given directory."""
-        1/0
+
+        logger.info(f"username={username}")
         self._check_permissions(username, perm)
-        if not os.path.isdir(directory):
-            raise ValueError('no such directory: %r' % directory)
+
+        #if not os.path.isdir(directory):
+        #    raise ValueError('no such directory: %r' % directory)
         directory = os.path.normcase(os.path.realpath(directory))
         home = os.path.normcase(self.get_home_dir(username))
         if directory == home:
@@ -104,6 +90,7 @@ class BiostarAuthorizer(object):
 
     def get_home_dir(self, username):
 
+        logger.info(f"{username}")
         return self.user_table[username]['home']
 
 
@@ -134,8 +121,21 @@ class BiostarAuthorizer(object):
         Expected perm argument is one of the following letters:
         "elradfmwMT".
         """
+        if path is None:
+            return perm in self.user_table[username]['perm']
+
+        path = os.path.normcase(path)
+        for dir in self.user_table[username]['operms'].keys():
+            operm, recursive = self.user_table[username]['operms'][dir]
+            if self._issubpath(path, dir):
+                if recursive:
+                    return perm in operm
+                if (path == dir or os.path.dirname(path) == dir and not
+                os.path.isdir(path)):
+                    return perm in operm
 
         return perm in self.user_table[username]['perm']
+
 
     def get_perms(self, username):
         """Return current user permissions."""
@@ -152,6 +152,18 @@ class BiostarAuthorizer(object):
         except KeyError:
             return "Goodbye."
 
+
+    def _check_permissions(self, username, perm):
+        warned = 0
+        for p in perm:
+            if p not in self.read_perms + self.write_perms:
+                raise ValueError('no such permission %r' % p)
+            if (username == 'anonymous' and
+                    p in self.write_perms and not
+                    warned):
+                warnings.warn("write permissions assigned to anonymous user.",
+                              RuntimeWarning)
+                warned = 1
 
     def _issubpath(self, a, b):
         """Return True if a is a sub-path of b or if the paths are equal."""

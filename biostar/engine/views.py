@@ -313,9 +313,14 @@ def data_view(request, uid):
     else:
         form = FileCopyForm(request, data.uid, data.get_data_dir())
 
-    abspath = join(data.get_data_dir(), path)
+    root = data.get_data_dir()
+    abspath = join(root, path)
 
-    files = util.scan_files(abspath=abspath, relpath=path)
+    if abspath.startswith(root) and os.path.exists(abspath) and path:
+        files = util.scan_files(abspath=abspath, relpath=path)
+    else:
+        messages.error(request, "Invalid directory")
+        files = []
 
     context = dict(data=data, project=project, activate='Selected Data', files=files, path=path, form=form)
     counts = get_counts(project)
@@ -671,7 +676,7 @@ def job_view(request, uid):
     abspath = join(job.path, path)
 
     # Generate the files
-    if abspath.startswith(root) and os.path.exists(abspath):
+    if abspath.startswith(root) and os.path.exists(abspath) and path:
         files = util.scan_files(abspath=abspath, relpath=path)
     else:
         # Attempting to access a file outside of the root directory

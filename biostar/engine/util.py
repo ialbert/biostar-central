@@ -35,7 +35,7 @@ def scan_files(relpath, abspath, exclude=[]):
 
     def transform(f):
         b = File()
-        b.path = f'{relpath}/{f.name}' if relpath else f.name
+        b.path = os.path.join(relpath, f.name) if relpath else f.name
         b.is_dir = f.is_dir()
         if (os.path.isfile(b.path)):
             b.name, b.size = f.name, f.stat().st_size
@@ -67,7 +67,6 @@ def smart_preview(fname):
             lines = [ line.strip() for line in stream]
             text = '\n'.join(lines)
         else:
-            #TODO:Should we keep doing this to files we do not know?
             try:
                 stream = open(fname, 'rt')
                 text = stream.read(CHUNK_SIZE)

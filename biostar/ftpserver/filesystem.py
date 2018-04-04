@@ -8,8 +8,7 @@ from biostar.engine.models import Data, Job
 from biostar.engine import auth
 from biostar.accounts.models import Profile
 
-from .authorizer import perm_map
-
+from .util import parse_pk, parse_virtual_path, query_tab, filesystem_mapper
 
 
 logger = logging.getLogger("engine")
@@ -17,35 +16,7 @@ logger.setLevel(logging.INFO)
 
 
 
-
-def index(list, idx):
-    # Returns None if cond is not met
-    # used to avoid Indexing Errors
-
-    return None if not len(list) >= idx + 1 else list[idx]
-
-
-def split(path):
-    """
-    Completely splits path using the os.sep.
-
-    """
-    path = [x for x in os.path.normpath(path).split(os.sep) if x]
-    return path
-
-
-def query_tab(tab, pk=None, show_instance=False):
-    "Return actual path for a path name in /data or /results tab"
-
-    klass_map = {'data': Data, 'results':Job }
-    instance = klass_map[tab].objects.filter(deleted=False, pk=pk).first()
-    if show_instance:
-        return instance
-
-    return None if not instance else instance.get_data_dir()
-
-
-def fetch_file_info(fname, basedir, tab=None, tail=[], pk=None):
+def fetch_file_info(fname, tab=None, tail=[], pk=None):
     """
     Fetch the actual file path and filetype of a given instance.
     """
@@ -73,50 +44,6 @@ def fetch_file_info(fname, basedir, tab=None, tail=[], pk=None):
         rfname, filetype= fname, "dir"
 
     return rfname, filetype
-
-
-def filesystem_mapper(queryset=None, tag=""):
-    "Takes queryset returns correct ftp path to be parsed"
-
-    return [f"{p.pk}.{tag}{p.name}" for p in queryset.order_by('pk')] or []
-
-
-def parse_pk(string):
-    "Parse a project pk from given project name."
-
-    try:
-        pk = string.split(".")[0].strip()
-        return int(pk)
-    except Exception as exc:
-        logger.error(f"{exc}")
-        return None
-
-
-def parse_virtual_path(ftppath):
-    "Parse ftp file path into constituting root_project, tab, pk, and tail. "
-
-    assert isinstance(ftppath, str), ftppath
-
-    path_list = split(ftppath)
-
-    # Project user is under
-    root_project = index(path_list, 0) or ''
-
-    # Build filesystem using project pk value since names can the same.
-    root_project = parse_pk(string=root_project)
-
-    # Tab picked ( data or results ).
-    tab = index(path_list, 1)
-
-    # Pk of specific Data or Job instance.
-    instance = index(path_list, 2)
-
-    pk = parse_pk(string=instance)
-
-    # Rest of the directory tree to build the actual path with.
-    tail = [] if not len(path_list) >= 3 else path_list[3:]
-
-    return root_project, tab, pk, tail
 
 
 def filename(instance, place_holder, tail=[]):
@@ -155,7 +82,6 @@ def dir_list(base_dir, is_instance=False, tail=[]):
         return []
 
 
-
 class BiostarFileSystem(AbstractedFS):
 
 
@@ -183,10 +109,22 @@ class BiostarFileSystem(AbstractedFS):
         self.user_table = self.cmd_channel.authorizer.user_table
 
         # Logged in user
+        self.username = current_user
         self.user = self.user_table.get(current_user) or dict(user=AnonymousUser)
 
         # Projects the user has access to
         self.projects = auth.get_project_list(user=self.user["user"])
+
+
+        # Data and results in project
+        self.data = Data.objects.filter(deleted=False, project__in=self.projects,
+                                   state__in=(Data.READY, Data.PENDING))
+
+        self.jobs = Job.objects.filter(deleted=False, project__in=self.projects)
+
+        # Get authorizer to set write permission on directories.
+        self.authorizer = self.cmd_channel.authorizer
+
 
         super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
@@ -266,9 +204,6 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"path={path}, cwd={self._cwd}, root={self.root}")
 
         root_project, tab, pk, tail = parse_virtual_path(ftppath=path)
-        data = Data.objects.filter(deleted=False, project__in=self.projects,
-                                   state__in=(Data.READY, Data.PENDING))
-        job = Job.objects.filter(deleted=False, project__in=self.projects)
 
         # List projects when user is at the root
         if path == self.root:
@@ -281,7 +216,8 @@ class BiostarFileSystem(AbstractedFS):
         # List files in /data or /results
         is_tab = tab and (not pk)
         if self.projects.filter(pk=root_project) and is_tab:
-            queryset = data if tab == 'data' else job
+            jobs = self.jobs.filter(project__pk=root_project)
+            queryset = self.data.filter(project__pk=root_project) if tab == 'data' else jobs
             return filesystem_mapper(queryset=queryset) or []
 
         # Take a look at specific instance in /data or /results
@@ -308,24 +244,25 @@ class BiostarFileSystem(AbstractedFS):
 
         lines = []
         root_project, tab, pk, tail = parse_virtual_path(ftppath=basedir)
-        perm = perm_map(root_project=root_project, user=self.user)
-        is_project = root_project and (not tab)
 
-        for instance in listing:
+        is_project = root_project and (not tab)
+        perm = self.set_permissions(basedir=basedir)
+
+        for fname in listing:
 
             if basedir == self.root or is_project:
-                pk = root_project if is_project else parse_pk(string=instance)
+                pk = root_project if is_project else parse_pk(string=fname)
                 project = self.projects.filter(pk=pk).first()
                 filetype, rfname = 'dir', project.get_project_dir()
             else:
-                rfname, filetype = fetch_file_info(fname=instance, basedir=basedir, tab=tab, pk=pk, tail=tail)
+                rfname, filetype = fetch_file_info(fname=fname, tab=tab, pk=pk, tail=tail)
 
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
             modify = time.strftime("%Y%m%d%H%M%S", self.timefunc(st.st_mtime))
 
             lines.append(
-                f"type={filetype};size={st.st_size};perm={perm};modify={modify};unique={unique}; {instance}")
+                f"type={filetype};size={st.st_size};perm={perm};modify={modify};unique={unique}; {fname}")
 
         line = "\n".join(lines)
         yield line.encode('utf8', self.cmd_channel.unicode_errors)
@@ -353,7 +290,7 @@ class BiostarFileSystem(AbstractedFS):
             return False
 
         # Data or Job must be valid.
-        if pk and not (Data.objects.filter(pk=pk, deleted=False) or Job.objects.filter(pk=pk, deleted=False)):
+        if pk and not (self.data.filter(pk=pk) or self.jobs.filter(pk=pk)):
             return False
 
         # The path is valid at this point
@@ -378,10 +315,7 @@ class BiostarFileSystem(AbstractedFS):
 
 
         valid_project_dirs = [p.get_project_dir() for p in self.projects]
-        # Jobs found in the projects, that user has access to.
-        valid_jobs = Job.objects.filter(deleted=False, project__in=self.projects)
-
-        valid_job_dirs = [job.get_data_dir() for job in valid_jobs]
+        valid_job_dirs = [job.get_data_dir() for job in self.jobs]
 
         for basedir in valid_project_dirs + valid_job_dirs:
             if path.startswith(basedir):
@@ -389,3 +323,23 @@ class BiostarFileSystem(AbstractedFS):
                 return True
 
         return False
+
+
+    def set_permissions(self, basedir):
+
+        self._check_user_status()
+
+        root_project, tab, pk, tail = parse_virtual_path(ftppath=basedir)
+
+
+        if tab and (not pk):
+            perm = "elrmw" if tab == "data" else "elr"
+
+        else:
+            perm = "elr"
+
+        if basedir != self.root:
+            self.authorizer.override_perm(username=self.username, directory=basedir, perm=perm)
+
+
+        return perm
