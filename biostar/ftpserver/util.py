@@ -16,46 +16,15 @@ def index(list, idx):
     return None if not len(list) >= idx + 1 else list[idx]
 
 
-def split(path):
-    """
-    Completely splits path using the os.sep.
-
-    """
-    path = [x for x in os.path.normpath(path).split(os.sep) if x]
-    return path
-
-
-def query_tab(tab, pk=None, show_instance=False):
+def query_tab(tab, project, name=None, show_instance=False):
     "Return actual path for a path name in /data or /results tab"
 
     klass_map = {'data': Data, 'results':Job }
-    instance = klass_map[tab].objects.filter(deleted=False, pk=pk).first()
+    instance = klass_map[tab].objects.filter(deleted=False, name=name, project__name=project).first()
     if show_instance:
         return instance
 
     return None if not instance else instance.get_data_dir()
-
-
-def filesystem_mapper(queryset=None, instance=None, tag=""):
-    "Takes queryset returns correct ftp path to be parsed"
-
-    pattern = lambda pk, name: f"{pk}.{tag}{name}"
-
-    if instance:
-        return pattern(pk=instance.pk, name=instance.name)
-
-    return [ pattern(pk=p.pk, name=p.name) for p in queryset] or []
-
-
-def parse_pk(string):
-    "Parse a project pk from given project name."
-
-    try:
-        pk = string.split(".")[0].strip()
-        return int(pk)
-    except Exception as exc:
-        logger.error(f"{exc}")
-        return None
 
 
 def parse_virtual_path(ftppath):
@@ -63,13 +32,11 @@ def parse_virtual_path(ftppath):
 
     assert isinstance(ftppath, str), ftppath
 
-    path_list = split(ftppath)
+    # The virtual file path is always seperated by "/" regardless of os.
+    path_list = [x for x in os.path.normpath(ftppath).split("/") if x]
 
     # Project user is under
     root_project = index(path_list, 0) or ''
-
-    # Build filesystem using project pk value since names can the same.
-    root_project = parse_pk(string=root_project)
 
     # Tab picked ( data or results ).
     tab = index(path_list, 1)
@@ -77,9 +44,7 @@ def parse_virtual_path(ftppath):
     # Pk of specific Data or Job instance.
     instance = index(path_list, 2)
 
-    pk = parse_pk(string=instance)
-
     # Rest of the directory tree to build the actual path with.
     tail = [] if not len(path_list) >= 3 else path_list[3:]
 
-    return root_project, tab, pk, tail
+    return root_project, tab, instance, tail

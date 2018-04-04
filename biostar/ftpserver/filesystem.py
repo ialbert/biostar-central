@@ -8,7 +8,7 @@ from biostar.engine.models import Data, Job
 from biostar.engine import auth
 from biostar.accounts.models import Profile
 
-from .util import parse_pk, parse_virtual_path, query_tab, filesystem_mapper
+from .util import parse_virtual_path, query_tab
 
 
 logger = logging.getLogger("engine")
@@ -16,15 +16,15 @@ logger.setLevel(logging.INFO)
 
 
 
-def fetch_file_info(fname, tab=None, tail=[], pk=None):
+def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     """
     Fetch the actual file path and filetype of a given instance.
     """
 
     # At /data or /results tab, fname is an ftp path that contains a Data or Job pk.
-    pk = pk or parse_pk(fname)
+    name = name or fname
 
-    instance = query_tab(tab=tab, pk=pk, show_instance=True)
+    instance = query_tab(tab=tab, name=name, show_instance=True, project=project)
     data_file = isinstance(instance, Data) and len(instance.get_files()) <= 1
 
     suffix = fname if not tail else os.path.join(*tail, fname)
@@ -138,14 +138,14 @@ class BiostarFileSystem(AbstractedFS):
 
         logger.info(f"fs={abs_ftppath}, ftppath={ftppath}")
 
-        root_project, tab, pk, tail = parse_virtual_path(ftppath=abs_ftppath)
+        root_project, tab, name, tail = parse_virtual_path(ftppath=abs_ftppath)
 
-        if not pk:
+        if not name:
             # Only look at actual files, dir are returned as is
             return abs_ftppath
 
         assert tab in ('data', 'results'), tab
-        instance = query_tab(tab=tab, pk=pk, show_instance=True)
+        instance = query_tab(tab=tab, name=name, show_instance=True, project=root_project)
 
         if not instance:
             # We let self.valid_path handle invalid paths
@@ -183,7 +183,7 @@ class BiostarFileSystem(AbstractedFS):
     def isdir(self, path):
 
 
-        root_project, tab, pk, tail = parse_virtual_path(ftppath=path)
+        root_project, tab, name, tail = parse_virtual_path(ftppath=path)
         is_dir = True
 
         # If the virtual path does not have a 'tail' then its a dir.
@@ -191,7 +191,7 @@ class BiostarFileSystem(AbstractedFS):
             return is_dir
 
         if tail:
-            path = os.path.join(query_tab(tab=tab, pk=pk), *tail)
+            path = os.path.join(query_tab(tab=tab, name=name, project=root_project), *tail)
             is_dir = not (os.path.exists(path) and os.path.isfile(path))
 
         logger.info(f"path={path}, is_dir={is_dir}")
@@ -203,26 +203,27 @@ class BiostarFileSystem(AbstractedFS):
 
         logger.info(f"path={path}, cwd={self._cwd}, root={self.root}")
 
-        root_project, tab, pk, tail = parse_virtual_path(ftppath=path)
+        root_project, tab, name, tail = parse_virtual_path(ftppath=path)
 
         # List projects when user is at the root
         if path == self.root:
-            return filesystem_mapper(queryset=self.projects, tag="Project-")
+            return [x['name'] for x in self.projects.values("name") ]
+            #return filesystem_mapper(queryset=self.projects, tag="Project-")
 
         # Browse /data or /results inside of a project.
-        if self.projects.filter(pk=root_project) and not tab:
+        if self.projects.filter(name=root_project) and not tab:
             return ['data', 'results']
 
         # List files in /data or /results
-        is_tab = tab and (not pk)
-        if self.projects.filter(pk=root_project) and is_tab:
-            jobs = self.jobs.filter(project__pk=root_project)
-            queryset = self.data.filter(project__pk=root_project) if tab == 'data' else jobs
-            return filesystem_mapper(queryset=queryset) or []
+        is_tab = tab and (not name)
+        if self.projects.filter(name=root_project) and is_tab:
+            jobs = self.jobs.filter(project__name=root_project)
+            queryset = self.data.filter(project__name=root_project) if tab == 'data' else jobs
+            return [x['name'] for x in queryset.values("name") ] or []
 
         # Take a look at specific instance in /data or /results
-        is_instance = pk and (not tail)
-        base_dir = query_tab(tab=tab, pk=pk)
+        is_instance = name and (not tail)
+        base_dir = query_tab(tab=tab, name=name, project=root_project)
 
         # Dir list returned is different depending on the tab
         return dir_list(base_dir=base_dir, is_instance=is_instance, tail=tail)
@@ -243,7 +244,7 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"basedir={basedir} listing={listing} facts={facts} perms={perms}")
 
         lines = []
-        root_project, tab, pk, tail = parse_virtual_path(ftppath=basedir)
+        root_project, tab, name, tail = parse_virtual_path(ftppath=basedir)
 
         is_project = root_project and (not tab)
         perm = self.set_permissions(basedir=basedir)
@@ -251,11 +252,12 @@ class BiostarFileSystem(AbstractedFS):
         for fname in listing:
 
             if basedir == self.root or is_project:
-                pk = root_project if is_project else parse_pk(string=fname)
-                project = self.projects.filter(pk=pk).first()
+                name = root_project if is_project else fname
+                print(fname, "FUCK")
+                project = self.projects.filter(name=name).first()
                 filetype, rfname = 'dir', project.get_project_dir()
             else:
-                rfname, filetype = fetch_file_info(fname=fname, tab=tab, pk=pk, tail=tail)
+                rfname, filetype = fetch_file_info(fname=fname, tab=tab, name=name, tail=tail, project=root_project)
 
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
@@ -279,10 +281,10 @@ class BiostarFileSystem(AbstractedFS):
     def validate_virtual_path(self, path):
         "Validate the ftp file path user has requested."
 
-        root_project, tab, pk, tail = parse_virtual_path(ftppath=path)
+        root_project, tab, name, tail = parse_virtual_path(ftppath=path)
 
         # Root project must exist
-        if root_project and not self.projects.filter(pk=root_project):
+        if root_project and not self.projects.filter(name=root_project):
             return False
 
         # Check user did not leave /data or /results while in project.
@@ -290,7 +292,7 @@ class BiostarFileSystem(AbstractedFS):
             return False
 
         # Data or Job must be valid.
-        if pk and not (self.data.filter(pk=pk) or self.jobs.filter(pk=pk)):
+        if name and not (self.data.filter(name=name) or self.jobs.filter(name=name)):
             return False
 
         # The path is valid at this point
@@ -298,7 +300,7 @@ class BiostarFileSystem(AbstractedFS):
         if tail:
             # No need to break things while validating the path
             try:
-                actual_path = query_tab(tab=tab, pk=pk)
+                actual_path = query_tab(tab=tab, name=name, project=root_project)
                 suffix = os.path.join(*tail)
                 is_valid = os.path.exists(os.path.join(actual_path, suffix))
             except Exception as exc:
@@ -329,10 +331,10 @@ class BiostarFileSystem(AbstractedFS):
 
         self._check_user_status()
 
-        root_project, tab, pk, tail = parse_virtual_path(ftppath=basedir)
+        root_project, tab, name, tail = parse_virtual_path(ftppath=basedir)
 
 
-        if tab and (not pk):
+        if tab and (not name):
             perm = "elrmw" if tab == "data" else "elr"
 
         else:
@@ -340,6 +342,5 @@ class BiostarFileSystem(AbstractedFS):
 
         if basedir != self.root:
             self.authorizer.override_perm(username=self.username, directory=basedir, perm=perm)
-
 
         return perm

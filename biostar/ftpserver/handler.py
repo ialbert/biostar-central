@@ -5,7 +5,7 @@ from pyftpdlib.handlers import FTPHandler
 
 from biostar.engine import auth
 
-from .util import parse_virtual_path, filesystem_mapper
+from .util import parse_virtual_path
 
 
 logger = logging.getLogger("engine")
@@ -70,8 +70,7 @@ class BiostarFTPHandler(FTPHandler):
 
         if not root_project:
             # Create a new project
-            project = auth.create_project(user=user, name=os.path.basename(path))
-            path = filesystem_mapper(instance=project, tag="Project-")
+            auth.create_project(user=user, name=os.path.basename(path))
 
             line = self.fs.fs2ftp(path)
             self.respond('257 "%s" directory created.' % line.replace('"', '""'))
