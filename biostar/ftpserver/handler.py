@@ -76,7 +76,7 @@ class BiostarFTPHandler(FTPHandler):
             line = self.fs.fs2ftp(path)
             self.respond('257 "%s" directory created.' % line.replace('"', '""'))
 
-            return self.fs.root
+            return path
 
         project = projects.filter(pk=root_project)
 
