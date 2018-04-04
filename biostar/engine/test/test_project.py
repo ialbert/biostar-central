@@ -1,6 +1,6 @@
 
 import logging, os
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from unittest.mock import patch, MagicMock
 from django.urls import reverse
 from django.conf import settings
@@ -15,7 +15,7 @@ TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'engine', 'test'))
 logger = logging.getLogger('engine')
 
 
-
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class ProjectViewTest(TestCase):
 
 
