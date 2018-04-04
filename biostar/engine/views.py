@@ -315,11 +315,10 @@ def data_view(request, uid):
 
     root = data.get_data_dir()
     abspath = join(root, path)
-
-    if abspath.startswith(root) and os.path.exists(abspath) and path:
-        files = util.scan_files(abspath=abspath, relpath=path)
-    else:
-        messages.error(request, "Invalid directory")
+    try:
+        files = util.scan_files(abspath=abspath, relpath=path, root=root)
+    except util.InvalidDirectoryError as exc:
+        messages.error(request, f"{exc}")
         files = []
 
     context = dict(data=data, project=project, activate='Selected Data', files=files, path=path, form=form)
@@ -676,11 +675,10 @@ def job_view(request, uid):
     abspath = join(job.path, path)
 
     # Generate the files
-    if abspath.startswith(root) and os.path.exists(abspath) and path:
-        files = util.scan_files(abspath=abspath, relpath=path)
-    else:
-        # Attempting to access a file outside of the root directory
-        messages.error(request, "Invalid path.")
+    try:
+        files = util.scan_files(abspath=abspath, relpath=path, root=root)
+    except util.InvalidDirectoryError as exc:
+        messages.error(request, f"{exc}")
         files = []
 
     context = dict(job=job, project=project, files=files, path=path, activate='Selected Result', form=form)
@@ -698,28 +696,16 @@ def file_serve(request, uid, path, klass):
 
     # Get the object that corresponds to the entry.
     obj = klass.objects.filter(uid=uid).first()
-
-    # Different file layout for jobs and data.
-    if isinstance(obj, Data):
-        url = 'data_entry'
-        root = obj.get_data_dir()
-    else:
-        # Job type.
-        root = obj.path
-        url = 'job_entry'
+    root = obj.get_data_dir()
 
     # This will turn into an absolute path.
     file_path = join(root, path)
 
-    # This ensure only files in the object root can be accessed.
-    if not file_path.startswith(root):
-        messages.error(request, "Invalid path.")
-        return redirect(reverse(url, kwargs=dict(uid=uid)))
-
-    # Check that the file exists.
-    if not os.path.isfile(file_path):
-        messages.error(request, f"File not found: {path}")
-        return redirect(reverse(url, kwargs=dict(uid=uid)))
+    # Ensure only files in the object root can be accessed.
+    if not file_path.startswith(root) or not os.path.isfile(file_path):
+        msg = "Invalid path." if (not file_path.startswith(root)) else f"File not found: {path}"
+        messages.error(request, msg)
+        return redirect(obj.url())
 
     # The response will be the file content.
     mimetype = auth.guess_mimetype(fname=path)
