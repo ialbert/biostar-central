@@ -1,6 +1,12 @@
 
 import logging
+import os
 from pyftpdlib.handlers import FTPHandler
+
+from biostar.engine import auth
+
+from .util import parse_virtual_path, filesystem_mapper
+
 
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
@@ -53,7 +59,29 @@ class BiostarFTPHandler(FTPHandler):
     def ftp_MKD(self, path):
 
         # Copied from parent class
+        # The 257 response is supposed to include the directory
+        # name and in case it contains embedded double-quotes
+        # they must be doubled (see RFC-959, chapter 7, appendix 2).
 
-        new_dir = super(BiostarFTPHandler, self).ftp_MKD(path)
+        root_project, tab, pk, tail = parse_virtual_path(ftppath=path)
 
-        logger.info(f"new_dir={new_dir}, path={path}")
+        projects = self.fs.projects
+        user = self.fs.user["user"]
+
+        if not root_project:
+            # Create a new project
+            project = auth.create_project(user=user, name=os.path.basename(path))
+            path = filesystem_mapper(instance=project, tag="Project-")
+
+            line = self.fs.fs2ftp(path)
+            self.respond('257 "%s" directory created.' % line.replace('"', '""'))
+
+            return path
+
+        project = projects.filter(pk=root_project)
+
+
+        logger.info(f"new_dir={path}, path={path}, root_project={root_project}, projects={projects}")
+
+        1/0
+

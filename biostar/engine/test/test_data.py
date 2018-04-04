@@ -2,15 +2,19 @@ import logging
 import os
 from unittest.mock import patch, MagicMock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from biostar.engine import models, views, auth
 from . import util
+from django.conf import settings
+
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'test'))
+
 
 logger = logging.getLogger('engine')
 
-
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class DataViewTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)

@@ -1,14 +1,17 @@
 import logging
+import os
 from django.core import management
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.forms import ValidationError
 from django.core.files import File
 from django.urls import reverse
 from biostar.engine import models, views, auth, factory, forms, diffs
 from biostar.engine import util as engine_util
+from django.conf import settings
 
 
 from . import util
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'test'))
 
 logger = logging.getLogger('engine')
 
@@ -59,7 +62,7 @@ class SiteAdminTest(TestCase):
         self.assertTrue(len(differ), 'Could not compute diff')
 
 
-
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class FactoryTest(TestCase):
 
     def setUp(self):
