@@ -12,11 +12,6 @@ class InvalidDirectoryError(Exception):
         return "Can not access an invalid directory."
 
 
-class InvalidFileError(Exception):
-    def __str__(self):
-        return "Can not access an invalid file."
-
-
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
