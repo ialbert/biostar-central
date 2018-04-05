@@ -364,8 +364,10 @@ class BiostarFileSystem(AbstractedFS):
 
         if name:
             instance = query_tab(tab=tab, project=root_project, name=name)
-
-        access = Access.objects.filter(user=user, project=instance.project) or Access(access=Access.NO_ACCESS)
+            
+        access = None
+        if instance:
+            access = Access.objects.filter(user=user, project=instance.first().project) or Access(access=Access.NO_ACCESS)
 
         if access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
 
