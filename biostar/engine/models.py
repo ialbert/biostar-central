@@ -234,6 +234,28 @@ class Data(models.Model):
         path = join(settings.TOC_ROOT, f"toc-{self.uid}.txt")
         return path
 
+
+    def make_toc(self):
+        tocname = self.get_path()
+        collect = util.findfiles(self.get_data_dir(), collect=[])
+
+        # Create a sorted file path collection.
+        collect.sort()
+        # Write the table of contents.
+        with open(tocname, 'w') as fp:
+            fp.write("\n".join(collect))
+
+        # Find the cumulative size of the files.
+        size = 0
+        for elem in collect:
+            if os.path.isfile(elem):
+                size += os.stat(elem, follow_symlinks=True).st_size
+
+        self.size = size
+        self.file = tocname
+
+        return tocname
+
     def can_unpack(self):
         cond = str(self.get_path()).endswith("tar.gz")
         return cond
