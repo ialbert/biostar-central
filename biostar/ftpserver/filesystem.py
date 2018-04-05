@@ -4,7 +4,7 @@ import os
 
 from pyftpdlib.filesystems import AbstractedFS
 from django.contrib.auth.models import AnonymousUser
-from biostar.engine.models import Data, Job
+from biostar.engine.models import Data, Job, Access
 from biostar.engine import auth
 from biostar.accounts.models import Profile
 
@@ -207,7 +207,7 @@ class BiostarFileSystem(AbstractedFS):
 
         # List projects when user is at the root
         if path == self.root:
-            return [x['name'] for x in self.projects.values("name") ]
+            return [x.name for x in self.projects ]
             #return filesystem_mapper(queryset=self.projects, tag="Project-")
 
         # Browse /data or /results inside of a project.
@@ -219,7 +219,7 @@ class BiostarFileSystem(AbstractedFS):
         if self.projects.filter(name=root_project) and is_tab:
             jobs = self.jobs.filter(project__name=root_project)
             queryset = self.data.filter(project__name=root_project) if tab == 'data' else jobs
-            return [x['name'] for x in queryset.values("name") ] or []
+            return [x.name for x in queryset ] or []
 
         # Take a look at specific instance in /data or /results
         is_instance = name and (not tail)
@@ -251,9 +251,15 @@ class BiostarFileSystem(AbstractedFS):
 
         for fname in listing:
 
+            # Check if listing has multiple names
+            # Let user know that both names point to same thing.
+
+            if listing.count(fname) > 1:
+                msg = f'"{fname}" occurs twice. Both point to the same file.'
+                self.cmd_channel.respond(f'350  {msg}')
+
             if basedir == self.root or is_project:
                 name = root_project if is_project else fname
-                print(fname, "FUCK")
                 project = self.projects.filter(name=name).first()
                 filetype, rfname = 'dir', project.get_project_dir()
             else:
@@ -274,6 +280,7 @@ class BiostarFileSystem(AbstractedFS):
         "Check if the logged in user is still valid. "
         user = self.user['user']
         if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
+            self.cmd_channel.respond(f"550  Your account has been {user.profile.get_state_display()}")
             self.cmd_channel.close()
             return False
 
@@ -283,16 +290,16 @@ class BiostarFileSystem(AbstractedFS):
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=path)
 
-        # Root project must exist
-        if root_project and not self.projects.filter(name=root_project):
-            return False
-
         # Check user did not leave /data or /results while in project.
         if tab and (tab not in ('data', 'results')):
+            logger.info(f"is_valid={False}")
             return False
 
         # Data or Job must be valid.
-        if name and not (self.data.filter(name=name) or self.jobs.filter(name=name)):
+        data_or_job = (self.data.filter(project__name=root_project, name=name) or
+                       self.jobs.filter(project__name=root_project, name=name))
+        if name and not data_or_job:
+            logger.info(f"is_valid={False}")
             return False
 
         # The path is valid at this point
@@ -307,7 +314,7 @@ class BiostarFileSystem(AbstractedFS):
                 logger.error(f"{exc}")
                 is_valid = False
 
-        logger.info(f"path={is_valid}")
+        logger.info(f"is_valid={is_valid}")
 
         return is_valid
 
@@ -321,24 +328,52 @@ class BiostarFileSystem(AbstractedFS):
 
         for basedir in valid_project_dirs + valid_job_dirs:
             if path.startswith(basedir):
-                logger.info(f"path={path}, basedir={basedir}")
+                logger.info(f"path={path}, basedir={basedir}, is_valid={True}")
                 return True
 
+        logger.info(f"is_valid={False}")
         return False
 
 
     def set_permissions(self, basedir):
+        """
+                Read permissions:
+         - "e" = change directory (CWD command)
+         - "l" = list files (LIST, NLST, STAT, MLSD, MLST, SIZE, MDTM commands)
+         - "r" = retrieve file from the server (RETR command)
+        Write permissions:
+         - "a" = append data to an existing file (APPE command)
+         - "d" = delete file or directory (DELE, RMD commands)
+         - "f" = rename file or directory (RNFR, RNTO commands)
+         - "m" = create directory (MKD command)
+         - "w" = store a file to the server (STOR, STOU commands)
+         - "M" = change file mode (SITE CHMOD command)
+         - "T" = update file last modified time (MFMT command)
+
+        :param basedir:
+        :return:
+        """
 
         self._check_user_status()
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=basedir)
+        perm = "elr"
 
+        instance = self.projects.filter(name=name)
+        user = self.user["user"]
+
+        if name:
+            instance = query_tab(tab=tab, project=root_project, name=name)
+
+        access = Access.objects.filter(user=user, project=instance.project) or Access(access=Access.NO_ACCESS)
+
+        if access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
+
+            perm += 'mf' if access == Access.OWNER_ACCESS else "m"
 
         if tab and (not name):
-            perm = "elrmw" if tab == "data" else "elr"
+            perm = "elrmwf" if tab == "data" else "elr"
 
-        else:
-            perm = "elr"
 
         if basedir != self.root:
             self.authorizer.override_perm(username=self.username, directory=basedir, perm=perm)

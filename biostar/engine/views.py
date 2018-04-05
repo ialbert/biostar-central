@@ -154,7 +154,7 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
-def paste(project, post_request, board, msg="Pasted"):
+def paste(project, post_request, board):
     "Used to paste data and job"
 
     form = PasteForm(project=project, data=post_request.POST, request=post_request, board=board)
