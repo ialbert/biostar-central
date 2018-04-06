@@ -2,6 +2,7 @@ import difflib
 import logging
 import uuid
 from mimetypes import guess_type
+from itertools import chain
 
 import hjson
 from biostar import settings
@@ -17,7 +18,6 @@ from . import util
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
 
-CHUNK = 1024 * 1024
 
 logger = logging.getLogger("engine")
 
@@ -355,21 +355,6 @@ def guess_mimetype(fname):
     return mimetype
 
 
-def findfiles(location, collect):
-    """
-    Returns a list of all files in a directory.
-    """
-
-    for item in os.scandir(location):
-
-        if item.is_dir():
-            findfiles(item.path, collect=collect)
-        else:
-            collect.append(os.path.abspath(item.path))
-
-    return collect
-
-
 def create_path(fname, data):
     """
     Returns a proposed path based on fname to the storage folder of the data.
@@ -391,8 +376,7 @@ def create_path(fname, data):
 
 
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', type="", skip="", uid=None, files=[]):
-    "Param : skip (str) - full file path found in 'path' that will be ignored when linking."
+                text='', summary='', type="",  uid=None, files=[]):
 
     # We need absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/") if path else ""
@@ -405,19 +389,13 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # The source of the data is a stream is written into the destination.
     if stream:
-
         dest = create_path(data=data, fname=stream.name)
-        with open(dest, 'wb') as fp:
-            chunk = stream.read(CHUNK)
-            while chunk:
-                fp.write(chunk)
-                chunk = stream.read(CHUNK)
+        util.write_stream(stream=stream, dest=dest)
         # Mark incoming file as uploaded
         data.method = Data.UPLOAD
 
     # Link files
-    all_files = [path] + files
-    for fname in all_files:
+    for fname in chain([path], files):
         if fname:
             dest = create_path(fname=fname, data=data)
             os.symlink(fname, dest)
@@ -431,33 +409,15 @@ def create_data(project, user=None, stream=None, path='', name='',
     else:
         state = Data.READY
 
-    # Find all files in the data directory, skipping the table of contents.
-    tocname = data.get_path()
-    collect = findfiles(data.get_data_dir(), collect=[])
-
-    # Create a sorted file path collection.
-    collect.sort()
-    # Write the table of contents.
-    with open(tocname, 'w') as fp:
-        fp.write("\n".join(collect))
-
-    # Find the cumulative size of the files.
-    size = 0
-    for elem in collect:
-        if os.path.isfile(elem):
-            size += os.stat(elem, follow_symlinks=True).st_size
-
-    # Finalize the data name
-    name = name or os.path.split(path)[1] or 'Data'
+    # Make the table of content file with files in data_dir.
+    data.make_toc()
 
     # Set updated attributes
-    data.size = size
     data.state = state
-    data.name = check_data_name(name, data=data)
+    data.name = check_data_name(name or os.path.split(path)[1] or 'Data', data=data)
     data.summary = summary
-    data.file = tocname
 
-    # Trigger one save.
+    # Trigger another save.
     data.save()
 
     # Set log for data creation.

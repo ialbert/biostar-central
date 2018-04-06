@@ -7,6 +7,13 @@ import uuid
 from itertools import islice
 
 
+CHUNK = 1024 * 1024
+
+class InvalidDirectoryError(Exception):
+    def __str__(self):
+        return "Can not access an invalid directory."
+
+
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
@@ -22,10 +29,12 @@ class File(object):
     pass
 
 
-def scan_files(relpath, abspath, exclude=[]):
+def scan_files(relpath, abspath, root, exclude=[]):
     """
     Generates a list of file objects at an absolute path.s
     """
+    if not (abspath.startswith(root) and os.path.exists(abspath)) :
+        raise InvalidDirectoryError
 
     # Pathlike objects with attributes such as name, is_file
     files = list(filter(lambda p: p.name not in exclude, os.scandir(abspath)))
@@ -81,3 +90,27 @@ def smart_preview(fname):
     return text
 
 
+
+def write_stream(stream, dest):
+
+    with open(dest, 'wb') as fp:
+        chunk = stream.read(CHUNK)
+        while chunk:
+            fp.write(chunk)
+            chunk = stream.read(CHUNK)
+
+    return dest
+
+def findfiles(location, collect):
+    """
+    Returns a list of all files in a directory.
+    """
+
+    for item in os.scandir(location):
+
+        if item.is_dir():
+            findfiles(item.path, collect=collect)
+        else:
+            collect.append(os.path.abspath(item.path))
+
+    return collect

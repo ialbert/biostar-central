@@ -7,7 +7,7 @@ from pyftpdlib.test import MProcessTestFTPd
 
 from django.test import TestCase
 
-from biostar.ftpserver.util import filesystem_mapper
+#from biostar.ftpserver.util import filesystem_mapper
 from biostar.accounts.models import User
 
 logger = logging.getLogger("engine")
