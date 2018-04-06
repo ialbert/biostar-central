@@ -124,7 +124,7 @@ class UtilTests(TestCase):
 
     def test_smart_preview(self):
 
-        collect = auth.findfiles("biostar/engine/test/data", collect=[])
+        collect = engine_util.findfiles("biostar/engine/test/data", collect=[])
         for fname in collect:
 
             text = engine_util.smart_preview(fname)

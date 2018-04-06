@@ -7,6 +7,8 @@ import uuid
 from itertools import islice
 
 
+CHUNK = 1024 * 1024
+
 class InvalidDirectoryError(Exception):
     def __str__(self):
         return "Can not access an invalid directory."
@@ -88,3 +90,27 @@ def smart_preview(fname):
     return text
 
 
+
+def write_stream(stream, dest):
+
+    with open(dest, 'wb') as fp:
+        chunk = stream.read(CHUNK)
+        while chunk:
+            fp.write(chunk)
+            chunk = stream.read(CHUNK)
+
+    return dest
+
+def findfiles(location, collect):
+    """
+    Returns a list of all files in a directory.
+    """
+
+    for item in os.scandir(location):
+
+        if item.is_dir():
+            findfiles(item.path, collect=collect)
+        else:
+            collect.append(os.path.abspath(item.path))
+
+    return collect

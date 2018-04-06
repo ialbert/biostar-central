@@ -689,13 +689,12 @@ def job_view(request, uid):
     return render(request, "job_view.html", context=context)
 
 
-def file_serve(request, uid, path, klass):
+def file_serve(request, uid, path, obj):
     """
     Authenticates access through decorator before serving file.
     """
 
     # Get the object that corresponds to the entry.
-    obj = klass.objects.filter(uid=uid).first()
     root = obj.get_data_dir()
 
     # This will turn into an absolute path.
@@ -730,7 +729,8 @@ def data_serve(request, uid, path):
     """
     Serves files from a data directory.
     """
-    return file_serve(request=request, path=path, uid=uid, klass=Data)
+    obj = Data.objects.filter(uid=uid).first()
+    return file_serve(request=request, path=path, uid=uid, obj=obj)
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url='job_entry')
@@ -738,4 +738,5 @@ def job_serve(request, uid, path):
     """
     Serves files from a job directory.
     """
-    return file_serve(request=request, path=path, uid=uid, klass=Job)
+    obj = Job.objects.filter(uid=uid).first()
+    return file_serve(request=request, path=path, uid=uid, obj=obj)
