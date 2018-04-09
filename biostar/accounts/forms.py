@@ -53,6 +53,7 @@ class EditProfile(forms.Form):
 
     email = forms.CharField(label='Email', max_length=100)
     name = forms.CharField(label='First Name', max_length=100)
+    handler = forms.CharField(label="Handler", max_length=100)
 
     def __init__(self, user,  *args, **kwargs):
 
@@ -79,6 +80,16 @@ class EditProfile(forms.Form):
 
         return data
 
+
+    def clean_handler(self):
+
+        data = self.cleaned_data['handler']
+        handler = User.objects.exclude(pk=self.user.pk).filter(username=self.handler)
+
+        if handler.exists():
+            raise forms.ValidationError("This handler is already being used.")
+
+        return data
 
 class LoginForm(forms.Form):
 

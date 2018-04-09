@@ -82,7 +82,6 @@ def template_changed(analysis, template):
     Detects a change in the template.
     """
     # Empty template is seen as no change ( False)
-
     text1 = template.splitlines(keepends=True)
     text2 = analysis.template.splitlines(keepends=True)
 
