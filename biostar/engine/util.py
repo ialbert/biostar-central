@@ -90,7 +90,6 @@ def smart_preview(fname):
     return text
 
 
-
 def write_stream(stream, dest):
 
     with open(dest, 'wb') as fp:

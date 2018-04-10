@@ -1,7 +1,7 @@
 """
 Takes as input a CVS file with two columns
 
-Email, Name
+Email, Name, Handler
 
 """
 import csv
@@ -37,6 +37,7 @@ class Command(BaseCommand):
         for row in csv.DictReader(stream):
             name = row.get("Name", '')
             email = row.get("Email", '')
+            handler = row.get("Handler", '')
 
             # All fields must be filled in.
             if not (name and email):
@@ -46,11 +47,12 @@ class Command(BaseCommand):
             # Fix capitalization.
             name = name.strip()
             email = email.strip().lower()
+            handler = handler.strip()
 
             if User.objects.filter(email=email).exists():
                 logger.info(f"Skipped creation. User with email={email} already exists.")
             else:
-                username = util.get_uuid(16)
+                username = handler or util.get_uuid(16)
                 user = User.objects.create(email=email, username=username, first_name=name)
                 user.set_password(settings.SECRET_KEY)
                 user.save()

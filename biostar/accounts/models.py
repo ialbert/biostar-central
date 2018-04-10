@@ -54,3 +54,4 @@ def create_profile(sender, instance, created, **kwargs):
         role = Profile.MODERATOR if instance.is_staff else Profile.NORMAL
         Profile.objects.create(user=instance, name=instance.first_name, role=role)
 
+    instance.username = instance.username or f"user-{instance.pk}"

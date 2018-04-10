@@ -22,6 +22,9 @@
 
         <div class="ui vertical basic segment">
                 <div class="item">
+                    <b>Handler </b> : {{user.username }}
+                </div>
+                <div class="item">
                     <b>Email </b> : {{user.email}}
                  </div>
                  <div class="item">
@@ -35,8 +38,6 @@
                     </div>
 
             {% endif %}
-
-
 
          </div>
             {% if user.profile.is_moderator %}{% recipes_moderate cutoff=10 %}
