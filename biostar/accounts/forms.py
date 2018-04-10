@@ -84,7 +84,7 @@ class EditProfile(forms.Form):
     def clean_handler(self):
 
         data = self.cleaned_data['handler']
-        handler = User.objects.exclude(pk=self.user.pk).filter(username=self.handler)
+        handler = User.objects.exclude(pk=self.user.pk).filter(username=self.data)
 
         if handler.exists():
             raise forms.ValidationError("This handler is already being used.")

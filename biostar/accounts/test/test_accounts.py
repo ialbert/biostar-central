@@ -161,7 +161,7 @@ class ProfileTest(TestCase):
     def test_edit_profile(self):
         "Test editing profile with POST request"
 
-        data = {"email":"new@new.com", "name":"new name"}
+        data = {"email":"new@new.com", "name":"new name", "handler":"new"}
 
         url = reverse("edit_profile")
 
