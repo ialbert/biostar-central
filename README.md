@@ -60,10 +60,10 @@ Our installation instructions rely on [conda][conda] though other alternatives a
 There are different repositories for the engine and the recipes.
 
     # This repository contains the biostar-engine software that can run recipes.
-    git clone git@github.com:biostars/biostar-engine.git
+    git clone https://github.com/biostars/biostar-engine.git
 
     # This repository stores the various data analysis recipes.
-    git clone git@github.com:biostars/biostar-recipes.git
+    git clone https://github.com/biostars/biostar-recipes.git
     
 #### 3\. Install the python dependencies:
 
