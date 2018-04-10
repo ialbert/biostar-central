@@ -17,8 +17,8 @@
             <form method="post" class="ui form" action="{% url 'edit_profile' %}">
                 {% csrf_token %}
                 <div class="field">
-                    <label>Edit handler</label>
-                    {{ form.handler }}
+                    <label>Edit username</label>
+                    {{ form.username }}
                 </div>
                 <div class="field">
                     <label>Edit email</label>

@@ -53,7 +53,7 @@ class EditProfile(forms.Form):
 
     email = forms.CharField(label='Email', max_length=100)
     name = forms.CharField(label='First Name', max_length=100)
-    handler = forms.CharField(label="Handler", max_length=100)
+    username = forms.CharField(label="Username", max_length=100)
 
     def __init__(self, user,  *args, **kwargs):
 
@@ -81,13 +81,13 @@ class EditProfile(forms.Form):
         return data
 
 
-    def clean_handler(self):
+    def clean_username(self):
 
-        data = self.cleaned_data['handler']
-        handler = User.objects.exclude(pk=self.user.pk).filter(username=self.data)
+        data = self.cleaned_data['username']
+        username = User.objects.exclude(pk=self.user.pk).filter(username=self.data)
 
-        if handler.exists():
-            raise forms.ValidationError("This handler is already being used.")
+        if username.exists():
+            raise forms.ValidationError("This username is already being used.")
 
         return data
 
