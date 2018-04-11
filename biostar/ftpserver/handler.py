@@ -124,6 +124,7 @@ class BiostarFTPHandler(FTPHandler):
                 self.respond('550 File already exists.')
                 return
             else:
+                pass
 
 
 
