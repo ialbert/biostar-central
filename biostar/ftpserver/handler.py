@@ -46,6 +46,8 @@ class BiostarFTPHandler(FTPHandler):
 
     def on_file_received(self, file):
         # do something when a file has been received
+
+        logger.info(f"file={file}.")
         pass
 
     def on_incomplete_file_sent(self, file):
@@ -87,7 +89,7 @@ class BiostarFTPHandler(FTPHandler):
 
         if tab == "data" and name and not tail:
 
-            instance = query_tab(tab=tab, project=root_project, name=name)
+            instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
             if instance:
                 self.respond('550 Directory already exists.')
                 return
@@ -103,8 +105,28 @@ class BiostarFTPHandler(FTPHandler):
 
             return path
 
+
+        # Add the data to the tail and update the toc_name.
         logger.info(f"new_dir={path}, path={path}, root_project={root_project}, project={projects.filter(name=root_project)}")
 
         1/0
         return path
 
+
+    def ftp_STOR(self, file, mode='w'):
+
+        root_project, tab, name, tail = parse_virtual_path(ftppath=file)
+
+        if tab == 'data' and name and not tail:
+
+            instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
+            if instance:
+                self.respond('550 File already exists.')
+                return
+            else:
+
+
+
+        logger.info(f"file={file}")
+
+        pass
