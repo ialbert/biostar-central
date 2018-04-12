@@ -112,6 +112,21 @@ class BiostarFTPHandler(FTPHandler):
         1/0
         return path
 
+    def collect_incoming_data(self, data):
+        """Read incoming data and append to the input buffer."""
+        self._in_buffer.append(data)
+        self._in_buffer_len += len(data)
+        # Flush buffer if it gets too long (possible DoS attacks).
+        # RFC-959 specifies that a 500 response could be given in
+        # such cases
+        buflimit = 2048
+        if self._in_buffer_len > buflimit:
+            self.respond_w_warning('500 Command too long.')
+            self._in_buffer = []
+            self._in_buffer_len = 0
+
+        logger.info(f"data={data}, data_channel={self.data_channel}")
+
 
     def ftp_STOR(self, file, mode='w'):
 
@@ -124,10 +139,12 @@ class BiostarFTPHandler(FTPHandler):
                 self.respond('550 File already exists.')
                 return
             else:
+
+                data = auth.create_data(project=self.fs.projects.filter(name=root_project),
+                                        name=name)
+
+                return os.path.join(data.get_data_dir(), name)
                 pass
 
-
-
-        logger.info(f"file={file}")
-
-        pass
+        # Return the real file name here, taken from the name and stuff.
+        1/0
