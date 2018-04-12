@@ -355,7 +355,7 @@ class BiostarFileSystem(AbstractedFS):
         self._check_user_status()
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=basedir)
-        perm = "elr"
+        perm = "elwr"
 
         instance = self.projects.filter(name=root_project).first()
         user = self.user["user"]
