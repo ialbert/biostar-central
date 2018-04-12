@@ -107,9 +107,12 @@ class DataUploadForm(forms.ModelForm):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
         datatype = cleaned_data.get('type')
+        remapping = dict(fa='fasta')
 
         if fobj:
             ext = fobj.name.split(".")[-1]
+            
+            ext = remapping.get(ext, ext)
             if "." + ext in KNOWN_EXTENSIONS and not datatype:
                 datatype = ext.upper()
 

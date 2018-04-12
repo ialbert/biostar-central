@@ -1,5 +1,10 @@
 from ftplib import FTP
+from biostar.settings import *
 
-#ftp = FTP(source_address=('localhost', 8021))     # connect to host, default port
+ftp = FTP()     # connect to host, default port
 
-#ftp.login()
+
+ftp.connect(host=FTP_HOST, port=FTP_PORT)
+
+
+ftp.login()
