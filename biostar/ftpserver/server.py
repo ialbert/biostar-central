@@ -3,6 +3,7 @@ from pyftpdlib.log import config_logging
 from biostar.ftpserver.handler import BiostarFTPHandler
 from biostar.ftpserver.authorizer import BiostarAuthorizer
 from biostar.ftpserver.filesystem import BiostarFileSystem
+from biostar.settings import *
 import logging
 
 
@@ -25,7 +26,7 @@ def start():
     handler.banner = "Welcome to Biostar-Engine"
 
     # Listen on 0.0.0.0:8021
-    address = ('lvh.me', 8021)
+    address = (FTP_HOST, FTP_PORT)
     server = FTPServer(address, handler)
 
     # FTP connection settings.
