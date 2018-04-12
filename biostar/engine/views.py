@@ -61,13 +61,13 @@ def recycle_bin(request):
     # Only searches projects you have access.
     all_projects = auth.get_project_list(user=request.user)
 
-    del_data = Data.objects.filter(deleted=True, project__in=all_projects,
-                                   owner=request.user).order_by("date")
+    del_data = Data.objects.show_deleted(project__in=all_projects,
+                                        owner=request.user).order_by("date")
 
-    del_recipes = Analysis.objects.filter(deleted=True, project__in=all_projects,
+    del_recipes = Analysis.objects.show_deleted(project__in=all_projects,
                                           owner=request.user).order_by("date")
 
-    del_jobs = Job.objects.filter(deleted=True, project__in=all_projects,
+    del_jobs = Job.objects.show_deleted(project__in=all_projects,
                                   owner=request.user).order_by("date")
 
     context = dict(jobs=del_jobs, data=del_data, recipes=del_recipes)
@@ -209,9 +209,9 @@ def job_list(request, uid):
 
 
 def get_counts(project):
-    data_count = Data.objects.filter(deleted=False, project=project).count()
-    recipe_count = Analysis.objects.filter(deleted=False, project=project).count()
-    result_count = Job.objects.filter(deleted=False, project=project).count()
+    data_count = Data.objects.filter(project=project).count()
+    recipe_count = Analysis.objects.filter(project=project).count()
+    result_count = Job.objects.filter(project=project).count()
     return dict(
         data_count=data_count, recipe_count=recipe_count, result_count=result_count
     )
@@ -226,9 +226,9 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     counts = get_counts(project)
 
     # Select all the data in the project.
-    data_list = Data.objects.filter(deleted=False, project=project).order_by("sticky", "-date").all()
-    recipe_list = Analysis.objects.filter(deleted=False, project=project).order_by("-date").all()
-    job_list = Job.objects.filter(deleted=False, project=project).order_by("-date").all()
+    data_list = Data.objects.filter(project=project).order_by("sticky", "-date").all()
+    recipe_list = Analysis.objects.filter(project=project).order_by("-date").all()
+    job_list = Job.objects.filter(project=project).order_by("-date").all()
 
     # Filter job results by analysis
     filter = request.GET.get('filter', '')

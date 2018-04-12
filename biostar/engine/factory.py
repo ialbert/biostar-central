@@ -95,7 +95,7 @@ def data_field_generator(field, project, type="", extras=[]):
     are of a certain type.
     """
 
-    query = models.Data.objects.filter(project=project, deleted=False)
+    query = models.Data.objects.filter(project=project)
     if type:
         query = query.filter(type__iregex=type)
 
