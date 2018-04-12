@@ -41,7 +41,7 @@ def parse_virtual_path(ftppath):
     # Tab picked ( data or results ).
     tab = index(path_list, 1)
 
-    # Pk of specific Data or Job instance.
+    # Name of specific Data or Job instance.
     instance = index(path_list, 2)
 
     # Rest of the directory tree to build the actual path with.

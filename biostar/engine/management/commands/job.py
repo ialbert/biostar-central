@@ -233,6 +233,10 @@ class Command(BaseCommand):
                             type=int,
                             default=0,
                             help="Runs job specified by id.")
+        parser.add_argument('--uid',
+                            type=str,
+                            default='',
+                            help="Runs job specified by uid.")
 
         parser.add_argument('--show_script',
                             action='store_true',
@@ -263,6 +267,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         jobid = options['id']
+        jobuid = options['uid']
         next = options['next']
         queued = options['list']
 
@@ -275,12 +280,13 @@ class Command(BaseCommand):
                 run(job, options=options)
             return
 
-        if jobid:
-            job = Job.objects.filter(id=jobid).first()
+        if jobid or jobuid:
+
+            job = Job.objects.filter(uid=jobuid) or Job.objects.filter(id=jobid)
             if not job:
-                logger.info(f'job for id={jobid} missing')
+                logger.info(f'job for id={jobid}/uid={jobuid} missing')
             else:
-                run(job, options=options)
+                run(job.first(), options=options)
             return
 
         if queued:

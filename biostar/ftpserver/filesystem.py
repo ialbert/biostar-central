@@ -8,12 +8,16 @@ from biostar.engine.models import Data, Job, Access
 from biostar.engine import auth
 from biostar.accounts.models import Profile
 
-from .util import parse_virtual_path, query_tab
+from .util import parse_virtual_path, query_tab, index
 
 
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
+
+def is_data_file(data):
+
+    return isinstance(data, Data) and data.get_files()[0] and len(data.get_files()) == 1
 
 
 def fetch_file_info(fname, project, tab=None, tail=[], name=None):
@@ -25,7 +29,6 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     name = name or fname
 
     instance = query_tab(tab=tab, name=name, show_instance=True, project=project)
-    data_file = isinstance(instance, Data) and len(instance.get_files()) <= 1
 
     suffix = fname if not tail else os.path.join(*tail, fname)
     full_path = os.path.join(instance.get_data_dir(), suffix)
@@ -37,8 +40,7 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     # No tail to deal with
     elif instance and not tail:
         rfname = instance.get_data_dir()
-        is_file = (os.path.isfile(rfname) or data_file or os.path.isfile(full_path))
-        filetype = "file" if is_file else "dir"
+        filetype = "file" if is_data_file(instance) else "dir"
 
     else:
         rfname, filetype= fname, "dir"
@@ -49,9 +51,8 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
 def filename(instance, place_holder, tail=[]):
 
     # Single file data objects handled here
-    data_file = isinstance(instance, Data) and len(instance.get_files()) <= 1
-    if data_file and instance.get_files()[0]:
-        real_file = instance.get_files()[0]
+    if is_data_file(data=instance):# and instance.get_files()[0]:
+        real_file = index(instance.get_files(), 0) or ''
         return real_file if os.path.exists(real_file) else place_holder
 
     # Directories handled after this point.
@@ -255,7 +256,7 @@ class BiostarFileSystem(AbstractedFS):
             # Let user know that both names point to same thing.
 
             if listing.count(fname) > 1:
-                msg = f'"{fname}" occurs twice. Both point to the same file.'
+                msg = f'"{fname}" occurs twice. Both point to the same location.'
                 self.cmd_channel.respond(f'350  {msg}')
 
             if basedir == self.root or is_project:
@@ -295,10 +296,7 @@ class BiostarFileSystem(AbstractedFS):
             logger.info(f"is_valid={False}")
             return False
 
-        # Data or Job must be valid.
-        data_or_job = (self.data.filter(project__name=root_project, name=name) or
-                       self.jobs.filter(project__name=root_project, name=name))
-        if name and not data_or_job:
+        if name and not self.projects.filter(name=root_project):
             logger.info(f"is_valid={False}")
             return False
 
@@ -359,23 +357,23 @@ class BiostarFileSystem(AbstractedFS):
         root_project, tab, name, tail = parse_virtual_path(ftppath=basedir)
         perm = "elr"
 
-        instance = self.projects.filter(name=name)
+        instance = self.projects.filter(name=root_project).first()
         user = self.user["user"]
 
         if name:
-            instance = query_tab(tab=tab, project=root_project, name=name)
+            instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
 
         access = None
         if instance:
-            access = Access.objects.filter(user=user, project=instance.first().project) or Access(access=Access.NO_ACCESS)
+            access = Access.objects.filter(user=user, project=instance.project) or Access(access=Access.NO_ACCESS)
 
         if access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
-
+            # You can rename it if you are the owner.
             perm += 'mf' if access == Access.OWNER_ACCESS else "m"
 
         if tab and (not name):
+            # Can only read while in job dir.
             perm = "elrmwf" if tab == "data" else "elr"
-
 
         if basedir != self.root:
             self.authorizer.override_perm(username=self.username, directory=basedir, perm=perm)
