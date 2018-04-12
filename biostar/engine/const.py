@@ -12,6 +12,14 @@ KNOWN_EXTENSIONS = (
 
 KNOWN_EXTENSIONS = set(KNOWN_EXTENSIONS)
 
+
+REMAPPING = dict(
+                fa = 'fasta'
+            )
+
+
+
+
 RADIO = "RADIO"
 DROPDOWN = "DROPDOWN"
 INTEGER = "INTEGER"
