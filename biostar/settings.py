@@ -38,6 +38,9 @@ SITE_NAME = "Biostar Engine"
 PROTOCOL = "http"
 HTTP_PORT = ':8000'
 
+FTP_HOST = "localhost"
+FTP_PORT = 8021
+
 # Should the site allow signup.
 ALLOW_SIGNUP = False
 

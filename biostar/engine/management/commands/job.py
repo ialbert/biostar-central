@@ -156,6 +156,7 @@ def run(job, options={}):
             raise Exception(f"Job security error: {job.get_security_display()}")
 
         # Switch the job state to RUNNING.
+        job = Job.objects.filter(pk=job.pk).first()
         job.state = Job.RUNNING
         job.start_date = timezone.now()
         job.save()
@@ -169,11 +170,13 @@ def run(job, options={}):
             raise Exception(f"executing: {command}")
 
         # If we made it this far the job has finished.
+        job = Job.objects.filter(pk=job.pk).first()
         job.state = Job.COMPLETED
         job.save()
 
     except Exception as exc:
         # Handle all errors here.
+        job = Job.objects.filter(pk=job.pk).first()
         job.state = Job.ERROR
         job.save()
         stderr_log.append(f'{exc}')

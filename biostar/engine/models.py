@@ -50,6 +50,20 @@ def image_path(instance, filename):
     return imgpath
 
 
+
+class Manager(models.Manager):
+
+    def get_queryset(self):
+        "Regular queries exclude deleted stuff"
+        return super().get_queryset().filter(deleted=False)
+
+    def show_deleted(self, **kwargs):
+        "Only show deleted things"
+        return super().get_queryset().filter(deleted=True, **kwargs)
+
+
+
+
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
@@ -148,7 +162,6 @@ def update_access(sender, instance, created, raw, update_fields, **kwargs):
     access.save()
 
 
-
 class Data(models.Model):
     PENDING, READY, ERROR, = 1, 2, 3
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error")]
@@ -177,6 +190,8 @@ class Data(models.Model):
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
 
     uid = models.CharField(max_length=32, unique=True)
+
+    objects = Manager()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -318,6 +333,8 @@ class Analysis(models.Model):
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN,
                               help_text="Optional image")
 
+    objects = Manager()
+
     def __str__(self):
         return self.name
 
@@ -407,6 +424,8 @@ class Job(models.Model):
     valid = models.BooleanField(default=True)
 
     path = models.FilePathField(default="")
+
+    objects = Manager()
 
     def is_running(self):
         return self.state == Job.RUNNING

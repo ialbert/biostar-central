@@ -124,10 +124,15 @@ class BiostarFTPHandler(FTPHandler):
                 self.respond('550 File already exists.')
                 return
             else:
+
+                data = auth.create_data(project=self.fs.projects.filter(name=root_project).first(),
+                                        name=name)
+                self.fs.data = chain(self.fs.data, models.Data.objects.filter(pk=data.pk))
+
+                logger.info(f"{os.path.join(data.get_data_dir(), name)}")
+
+                return os.path.join(data.get_data_dir(), name)
                 pass
 
-
-
-        logger.info(f"file={file}")
-
-        pass
+        # Return the real file name here, taken from the name and stuff.
+        1/0

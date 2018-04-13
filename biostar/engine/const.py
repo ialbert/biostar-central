@@ -7,10 +7,17 @@ def join(*args):
 
 KNOWN_EXTENSIONS = (
     ".fasta", ".fq", ".fastq", ".sam", ".bed", ".gff", ".fa",
-    ".r", ".gtf", ".gb", ".tsv", ".csv", ".rep", ".sh", ".md"
+    ".r", ".gtf", ".gb", ".tsv", ".csv", ".rep", ".sh", ".md", ".txt"
 )
 
 KNOWN_EXTENSIONS = set(KNOWN_EXTENSIONS)
+
+
+REMAPPING = dict(
+                fa = 'fasta'
+            )
+
+
 
 RADIO = "RADIO"
 DROPDOWN = "DROPDOWN"

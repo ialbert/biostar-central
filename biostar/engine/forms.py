@@ -76,7 +76,6 @@ class ProjectForm(forms.ModelForm):
         return image
 
 
-
 class DataUploadForm(forms.ModelForm):
     def __init__(self, user, project, *args, **kwargs):
         self.user = user
@@ -103,6 +102,20 @@ class DataUploadForm(forms.ModelForm):
             raise forms.ValidationError(msg)
 
         return fobj
+
+    def clean_type(self):
+        cleaned_data = super(DataUploadForm, self).clean()
+        fobj = cleaned_data.get('file')
+        datatype = cleaned_data.get('type')
+
+        if fobj:
+            ext = fobj.name.split(".")[-1]
+
+            ext = REMAPPING.get(ext, ext)
+            if "." + ext in KNOWN_EXTENSIONS and not datatype:
+                datatype = ext.upper()
+
+        return datatype
 
 
 class DataEditForm(forms.ModelForm):

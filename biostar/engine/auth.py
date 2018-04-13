@@ -328,8 +328,7 @@ def check_data_name(name, data, bool=False):
     copy = name
     i = 0
     check_name = lambda name: Data.objects.exclude(pk=data.pk).filter(name=name,
-                                                  project=data.project,
-                                                  deleted=False).exists()
+                                                  project=data.project).exists()
     if bool:
         return check_name(name)
 
