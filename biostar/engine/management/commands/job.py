@@ -124,9 +124,6 @@ def run(job, options={}):
         script_template = Template(template)
         script = script_template.render(context)
 
-        # Store the script for the job.
-        job.script = script
-
         # Show the script.
         if show_script:
             print(f'{script}')
@@ -156,11 +153,9 @@ def run(job, options={}):
             raise Exception(f"Job security error: {job.get_security_display()}")
 
         # Switch the job state to RUNNING.
-        job = Job.objects.filter(pk=job.pk).first()
-        job.state = Job.RUNNING
-        job.start_date = timezone.now()
-        job.save()
-
+        Job.objects.filter(pk=job.pk).update(state=Job.RUNNING,
+                                             start_date=timezone.now(),
+                                             script=script)
         # Run the command.
         proc = subprocess.run(command, cwd=work_dir, shell=True,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -170,31 +165,26 @@ def run(job, options={}):
             raise Exception(f"executing: {command}")
 
         # If we made it this far the job has finished.
-        job = Job.objects.filter(pk=job.pk).first()
-        job.state = Job.COMPLETED
-        job.save()
+        logger.info(f"uid={job.uid}, name={job.name}")
+        Job.objects.filter(pk=job.pk).update(state=Job.COMPLETED)
 
     except Exception as exc:
         # Handle all errors here.
-        job = Job.objects.filter(pk=job.pk).first()
-        job.state = Job.ERROR
-        job.save()
+        Job.objects.filter(pk=job.pk).update(state=Job.ERROR)
         stderr_log.append(f'{exc}')
-        logger.info(f'job id={job.id} error {exc}')
+        logger.info(f'job id={job.pk} error {exc}')
 
     # Collect the output.
     if proc:
         stdout_log.extend(force_text(proc.stdout).splitlines())
         stderr_log.extend(force_text(proc.stderr).splitlines())
 
-    # Save the logs.
-    job.stdout_log = "\n".join(stdout_log)
-    job.stderr_log = "\n".join(stderr_log)
+    # Save the logs and end data
+    Job.objects.filter(pk=job.pk).update(end_date=timezone.now(),
+                                         stdout_log="\n".join(stdout_log),
+                                         stderr_log="\n".join(stderr_log))
 
-    # Set the end time
-    job.end_date = timezone.now()
-    job.save()
-
+    job = Job.objects.filter(pk=job.pk).first()
     # Create a log script in the output directory as well.
     with open(os.path.join(work_dir, stdout_fname), 'wt') as fp:
         fp.write(job.stdout_log)
@@ -206,12 +196,10 @@ def run(job, options={}):
     logger.info(f'Job id={job.id} finished, status={job.get_state_display()}')
     # Use -v 2 to see the output of the command.
     if verbosity > 1:
-        job = Job.objects.get(id=job.id)
         print("-" * 40)
         print(job.stdout_log)
         print("-" * 40)
         print(job.stderr_log)
-
 
     if job.owner.profile.notify:
 

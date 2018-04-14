@@ -624,12 +624,11 @@ def object_state_toggle(request, uid, obj_type):
     # Make query and build urls
     obj, view_name = obj_map[obj_type][0], obj_map[obj_type][1]
     instance = obj.objects.filter(uid=uid).first()
-
+    # Ensure running jobs do not get deleted.
     if isinstance(instance, Job) and instance.state == Job.RUNNING and not instance.deleted:
         messages.error(request, "Can not delete a running job. Wait until it finishes.")
         return redirect(instance.url())
-    
-    url = reverse(view_name, kwargs=dict(uid=instance.project.uid))
+
     # Make sure user has owner access to instance before toggling
     has_access = auth.check_obj_access(instance=instance, user=request.user, request=request,
                                        access=Access.OWNER_ACCESS)
@@ -647,7 +646,7 @@ def object_state_toggle(request, uid, obj_type):
         msg = msg if instance.deleted else f"Restored <b>{instance.name}</b>."
         messages.success(request, mark_safe(msg))
 
-    return redirect(url)
+    return redirect(reverse(view_name, kwargs=dict(uid=instance.project.uid)))
 
 
 

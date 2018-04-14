@@ -167,8 +167,8 @@ class Data(models.Model):
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error")]
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
 
-    LINK, UPLOAD = 1, 2
-    METHOD_CHOICE = [(LINK, "Linked Data"), (UPLOAD, "Uploaded Data")]
+    LINK, UPLOAD, TEXTAREA = 1, 2, 3
+    METHOD_CHOICE = [(LINK, "Linked Data"), (UPLOAD, "Uploaded Data"), (TEXTAREA, "Text Field")]
     method = models.IntegerField(default=LINK, choices=METHOD_CHOICE)
 
     name = models.CharField(max_length=MAX_NAME_LEN, default="My Data")
