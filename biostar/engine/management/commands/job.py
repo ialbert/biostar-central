@@ -179,7 +179,7 @@ def run(job, options={}):
         stdout_log.extend(force_text(proc.stdout).splitlines())
         stderr_log.extend(force_text(proc.stderr).splitlines())
 
-    # Save the logs and end data
+    # Save the logs and end time
     Job.objects.filter(pk=job.pk).update(end_date=timezone.now(),
                                          stdout_log="\n".join(stdout_log),
                                          stderr_log="\n".join(stderr_log))

@@ -2,7 +2,7 @@ import logging
 import hjson
 import mistune
 from django.db import models
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -57,10 +57,13 @@ class Manager(models.Manager):
         "Regular queries exclude deleted stuff"
         return super().get_queryset().filter(deleted=False)
 
-    def show_deleted(self, **kwargs):
+    def deleted(self, **kwargs):
         "Only show deleted things"
         return super().get_queryset().filter(deleted=True, **kwargs)
 
+    def all(self, **kwargs):
+        "Return everything"
+        return super().get_queryset().filter(**kwargs)
 
 
 
@@ -87,6 +90,8 @@ class Project(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     uid = models.CharField(max_length=32, unique=True)
+
+    objects = Manager()
 
     def save(self, *args, **kwargs):
         now = timezone.now()

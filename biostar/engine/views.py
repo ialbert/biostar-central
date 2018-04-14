@@ -61,13 +61,13 @@ def recycle_bin(request):
     # Only searches projects you have access.
     all_projects = auth.get_project_list(user=request.user)
 
-    del_data = Data.objects.show_deleted(project__in=all_projects,
+    del_data = Data.objects.deleted(project__in=all_projects,
                                         owner=request.user).order_by("date")
 
-    del_recipes = Analysis.objects.show_deleted(project__in=all_projects,
+    del_recipes = Analysis.objects.deleted(project__in=all_projects,
                                           owner=request.user).order_by("date")
 
-    del_jobs = Job.objects.show_deleted(project__in=all_projects,
+    del_jobs = Job.objects.deleted(project__in=all_projects,
                                   owner=request.user).order_by("date")
 
     context = dict(jobs=del_jobs, data=del_data, recipes=del_recipes)
@@ -298,7 +298,7 @@ def project_create(request):
 def data_view(request, uid):
     "Show information specific to each data."
 
-    data = Data.objects.filter(uid=uid).first()
+    data = Data.objects.all(uid=uid).first()
     project = data.project
     path = request.GET.get('path', '')
 
@@ -378,7 +378,7 @@ def recipe_view(request, uid):
     """
     Returns an analysis view based on its id.
     """
-    recipe = Analysis.objects.filter(uid=uid).first()
+    recipe = Analysis.objects.all(uid=uid).first()
     project = recipe.project
 
     if request.method == "POST":
@@ -573,7 +573,7 @@ def recipe_diff(request, uid):
 def recipe_edit(request, uid):
     "Edit meta-data associated with a recipe."
 
-    recipe = Analysis.objects.filter(uid=uid).first()
+    recipe = Analysis.objects.all(uid=uid).first()
     project = recipe.project
     action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
     form = RecipeForm(instance=recipe)
@@ -594,7 +594,7 @@ def recipe_edit(request, uid):
 def job_edit(request, uid):
     "Edit meta-data associated with a job."
 
-    job = Job.objects.filter(uid=uid).first()
+    job = Job.objects.all(uid=uid).first()
     project = job.project
     form = JobEditForm(instance=job)
 
@@ -623,7 +623,8 @@ def object_state_toggle(request, uid, obj_type):
 
     # Make query and build urls
     obj, view_name = obj_map[obj_type][0], obj_map[obj_type][1]
-    instance = obj.objects.filter(uid=uid).first()
+    instance = obj.objects.all(uid=uid).first()
+
     # Ensure running jobs do not get deleted.
     if isinstance(instance, Job) and instance.state == Job.RUNNING and not instance.deleted:
         messages.error(request, "Can not delete a running job. Wait until it finishes.")
@@ -655,7 +656,7 @@ def job_view(request, uid):
     '''
     Views the state of a single job.
     '''
-    job = Job.objects.filter(uid=uid).first()
+    job = Job.objects.all(uid=uid).first()
     project = job.project
 
     # The path is a GET parameter
@@ -733,7 +734,7 @@ def data_serve(request, uid, path):
     """
     Serves files from a data directory.
     """
-    obj = Data.objects.filter(uid=uid).first()
+    obj = Data.objects.all(uid=uid).first()
     return file_serve(request=request, path=path, uid=uid, obj=obj)
 
 
@@ -742,5 +743,5 @@ def job_serve(request, uid, path):
     """
     Serves files from a job directory.
     """
-    obj = Job.objects.filter(uid=uid).first()
+    obj = Job.objects.all(uid=uid).first()
     return file_serve(request=request, path=path, uid=uid, obj=obj)
