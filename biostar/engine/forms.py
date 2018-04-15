@@ -176,7 +176,27 @@ class DataUploadForm(forms.ModelForm):
 
 
 class DataEditForm(forms.ModelForm):
+
+
     type = forms.CharField(max_length=32, required=False)
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        print(self.instance)
+
+        if self.instance.method == Data.UPLOAD:
+            # TODO:What if the uploaded file gets linked when someone copies it cover?
+            
+            self.fields["file"] = forms.FileField(widget=forms.ClearableFileInput)
+
+        elif self.instance.method == Data.TEXTAREA:
+            initial = ''
+            self.fields["input_text"] = forms.CharField(max_length=1024, required=False, initial=initial)
+
+
+        return
 
     class Meta:
         model = Data
