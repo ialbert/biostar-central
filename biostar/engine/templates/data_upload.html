@@ -17,11 +17,27 @@
         {{ form.media }}
 
         <div class="field segment">
-              <label>{{ form.file.label_tag }}</label>
+              <label>File</label>
               {{ form.file }}
-             <p class="muted">What file or collection of files do you want to upload and analyze</p>
-         </div>
+             <p class="muted">What file or collection of files do you want to upload and analyze.</p>
 
+              <div class="ui horizontal divider">
+                Or
+              </div>
+
+             <label>Name</label>
+              {{ form.data_name }}
+             <p class="muted">Name of the data. This is inherited from the file if one is uploaded.</p>
+
+            <label>Input Text</label>
+                <textarea rows="10" cols="55" name="{{form.input_text.name}}" id="id_{{form.input_text.name}}"
+                          maxlength="{{form.input_text.maxlength}}">{% if form.input_text.value %}{{ form.input_text.value }}{% endif %}</textarea>
+             <p class="muted">Small piece of text to upload instead of a file ( 1000 characters ).</p>
+
+         </div>
+        <div class="ui small horizontal divider header">
+            <i class="ui pen square icon"></i>Extra Information
+        </div>
         <div class="field">
             <label>Data Type</label>
             {{ form.type }}

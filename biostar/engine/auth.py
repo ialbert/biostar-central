@@ -359,6 +359,7 @@ def create_path(fname, data):
     Attempts to preserve the extension but also removes all whitespace from the filenames.
     """
     # Select the file name.
+
     fname = os.path.basename(fname)
 
     # The data storage directory.

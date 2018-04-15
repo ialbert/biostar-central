@@ -358,14 +358,7 @@ def data_upload(request, uid):
         form = DataUploadForm(data=request.POST, files=request.FILES, user=owner, project=project)
 
         if form.is_valid():
-            text = form.cleaned_data["text"]
-            stream = form.cleaned_data["file"]
-            summary = form.cleaned_data["summary"]
-            type = form.cleaned_data["type"]
-            name = stream.name
-            data = auth.create_data(stream=stream, name=name,
-                                    text=text, user=owner, project=project, summary=summary,
-                                    type=type)
+            data = form.save()
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 

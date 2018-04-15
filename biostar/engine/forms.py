@@ -1,6 +1,6 @@
 import copy
 import shlex
-
+import tempfile
 import hjson
 from django import forms
 from django.db.models import Sum
@@ -82,22 +82,67 @@ class DataUploadForm(forms.ModelForm):
         self.project = project
         super().__init__(*args, **kwargs)
 
-    file = forms.FileField(required=True)
+    file = forms.FileField(required=False)
+    input_text = forms.CharField(max_length=1024, required=False)
+    # Name whenever there is a text field
+    data_name = forms.CharField(required=False)
     type = forms.CharField(max_length=32, required=False)
+
+
+    def save(self, **kwargs):
+
+        text = self.cleaned_data["text"]
+        stream = self.cleaned_data["file"]
+        input_text = self.cleaned_data['input_text']
+        summary = self.cleaned_data["summary"]
+        type = self.cleaned_data["type"]
+        name = self.cleaned_data['data_name']
+
+        if stream:
+            name = stream.name
+        else:
+            tmp_stream = tempfile.NamedTemporaryFile()
+            tmp_stream.name = name.replace(" ", '')
+            input_text = bytes(clean_text(input_text), encoding='utf-8')
+            tmp_stream.write(input_text)
+            tmp_stream.seek(0)
+            stream = tmp_stream
+
+        data = auth.create_data(stream=stream, name=name,text=text, user=self.user,
+                                project=self.project, summary=summary, type=type)
+        if not stream and input_text:
+            # Update the method
+            Data.objects.filter(pk=data.pk).update(method=Data.TEXTAREA)
+            tmp_stream.close()
+        return data
+
 
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'text', "sticky", "type"]
+        fields = ['file', 'input_text', 'data_name', 'summary', 'text', "sticky", "type"]
+
+    def clean(self):
+        cleaned_data = super(DataUploadForm, self).clean()
+
+        if not (cleaned_data.get("file") or cleaned_data.get("input_text")):
+            raise forms.ValidationError("Upload a file or write into the text field to create some data.")
+
+        if cleaned_data.get("input_text") and not cleaned_data.get("file"):
+            if not cleaned_data.get("data_name"):
+                raise forms.ValidationError("Name is required with text inputs.")
 
     def clean_file(self):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
 
+        if not fobj:
+            return fobj
+
         check_size(fobj=fobj, maxsize=25)
         check_upload_limit(file=fobj, user=self.user)
 
         # Check if this name already exists.
-        if Data.objects.filter(name=fobj.name, project=self.project, deleted=False).exists():
+        if Data.objects.filter(name=fobj.name, project=self.project).exists():
             msg = "Name already exists. Upload another file or rename existing data."
             raise forms.ValidationError(msg)
 
@@ -106,16 +151,28 @@ class DataUploadForm(forms.ModelForm):
     def clean_type(self):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
+        fobj = cleaned_data.get('data_name') if not fobj else fobj.name
         datatype = cleaned_data.get('type')
 
         if fobj:
-            ext = fobj.name.split(".")[-1]
+            ext = fobj.split(".")[-1]
 
             ext = REMAPPING.get(ext, ext)
             if "." + ext in KNOWN_EXTENSIONS and not datatype:
                 datatype = ext.upper()
 
         return datatype
+
+    def clean_data_name(self):
+        cleaned_data = super(DataUploadForm, self).clean()
+        name = cleaned_data.get('data_name')
+        fobj = cleaned_data.get('file')
+
+        if Data.objects.filter(name=name, project=self.project) and not fobj:
+            msg = "Name already exists. Use a different name or rename the existing data."
+            raise forms.ValidationError(msg)
+
+        return name
 
 
 class DataEditForm(forms.ModelForm):
