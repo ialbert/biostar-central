@@ -1,5 +1,6 @@
 import gzip, zipfile
 import mimetypes
+import tempfile
 import os
 import quopri
 import tarfile
@@ -99,6 +100,19 @@ def write_stream(stream, dest):
             chunk = stream.read(CHUNK)
 
     return dest
+
+
+
+def tmp_file(data, name):
+    assert isinstance(data, str), data
+
+    tmp_stream = tempfile.NamedTemporaryFile()
+    tmp_stream.name = name
+
+    tmp_stream.write(bytes(data, encoding='utf-8'))
+    tmp_stream.seek(0)
+
+    return tmp_stream
 
 def findfiles(location, collect):
     """

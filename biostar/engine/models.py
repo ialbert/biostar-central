@@ -57,11 +57,11 @@ class Manager(models.Manager):
         "Regular queries exclude deleted stuff"
         return super().get_queryset().filter(deleted=False)
 
-    def deleted(self, **kwargs):
+    def get_deleted(self, **kwargs):
         "Only show deleted things"
         return super().get_queryset().filter(deleted=True, **kwargs)
 
-    def all(self, **kwargs):
+    def get_all(self, **kwargs):
         "Return everything"
         return super().get_queryset().filter(**kwargs)
 
