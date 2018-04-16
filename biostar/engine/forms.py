@@ -192,9 +192,8 @@ class DataEditForm(forms.ModelForm):
             self.fields["file"] = forms.FileField(widget=forms.ClearableFileInput)
 
         elif self.instance.method == Data.TEXTAREA:
-            initial = ''
+            initial = '\n'.join(open(self.instance.get_files()[0], 'r').readlines())
             self.fields["input_text"] = forms.CharField(max_length=1024, required=False, initial=initial)
-
 
         return
 
