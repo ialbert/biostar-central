@@ -51,7 +51,7 @@ class object_access:
             user = request.user
 
             # Fetches the object that will be checked for permissions.
-            instance = self.type.objects.filter(uid=uid).first()
+            instance = self.type.objects.all(uid=uid).first()
 
             # Check for access to the object.
             allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=self.access,

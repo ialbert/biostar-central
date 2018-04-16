@@ -1,6 +1,6 @@
 from pyftpdlib.servers import FTPServer
 from pyftpdlib.log import config_logging
-from biostar.ftpserver.handler import BiostarFTPHandler
+from biostar.ftpserver.handler import BiostarFTPHandler, BiostarDTPHandler
 from biostar.ftpserver.authorizer import BiostarAuthorizer
 from biostar.ftpserver.filesystem import BiostarFileSystem
 from biostar.settings import *
@@ -16,10 +16,11 @@ logger.setLevel(logging.INFO)
 def start():
     # Engine authorization comes from the accounts.
     authorizer = BiostarAuthorizer()
-    # Instantiate FTP handler class.
+    # Instantiate FTP and DTP handler class.
     handler = BiostarFTPHandler
-    handler.authorizer = authorizer
+    handler.dtp_handler = BiostarDTPHandler
 
+    handler.authorizer = authorizer
     handler.abstracted_fs = BiostarFileSystem
 
     # Define a customized banner (string returned when client connects)

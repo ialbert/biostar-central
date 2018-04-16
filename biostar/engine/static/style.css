@@ -7,6 +7,10 @@ body {
     color: #4183c4;
 }
 
+.divide {
+    color: red;
+}
+
 .actionbar {
     margin-top:-20px !important;
 }

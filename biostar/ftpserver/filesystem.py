@@ -332,10 +332,12 @@ class BiostarFileSystem(AbstractedFS):
         logger.info(f"is_valid={False}")
         return False
 
-
-    def set_permissions(self, basedir):
+    def access_to_perm(self, access, **kwargs):
         """
-                Read permissions:
+        Map biostar-engine access control to pyftpdlib's
+
+        pyftplib permissions:
+        Read permissions:
          - "e" = change directory (CWD command)
          - "l" = list files (LIST, NLST, STAT, MLSD, MLST, SIZE, MDTM commands)
          - "r" = retrieve file from the server (RETR command)
@@ -348,25 +350,11 @@ class BiostarFileSystem(AbstractedFS):
          - "M" = change file mode (SITE CHMOD command)
          - "T" = update file last modified time (MFMT command)
 
-        :param basedir:
-        :return:
         """
 
-        self._check_user_status()
+        tab, name, tail = kwargs['tab'], kwargs['name'], kwargs['tail']
 
-        root_project, tab, name, tail = parse_virtual_path(ftppath=basedir)
         perm = "elwr"
-
-        instance = self.projects.filter(name=root_project).first()
-        user = self.user["user"]
-
-        if name:
-            instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
-
-        access = None
-        if instance:
-            access = Access.objects.filter(user=user, project=instance.project) or Access(access=Access.NO_ACCESS)
-
         if access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
             # You can rename it if you are the owner.
             perm += 'mf' if access == Access.OWNER_ACCESS else "m"
@@ -374,6 +362,25 @@ class BiostarFileSystem(AbstractedFS):
         if tab and (not name):
             # Can only read while in job dir.
             perm = "elrmwf" if tab == "data" else "elr"
+
+        return perm
+
+    def set_permissions(self, basedir):
+
+        self._check_user_status()
+
+        root_project, tab, name, tail = parse_virtual_path(ftppath=basedir)
+
+        instance = self.projects.filter(name=root_project).first()
+        user = self.user["user"]
+
+        if name:
+            instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
+
+        access = None if not instance else Access.objects.filter(user=user, project=instance.project)
+        access = access or Access(access=Access.NO_ACCESS)
+
+        perm = self.access_to_perm(access=access, tab=tab, tail=tail, name=name)
 
         if basedir != self.root:
             self.authorizer.override_perm(username=self.username, directory=basedir, perm=perm)
