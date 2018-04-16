@@ -1,7 +1,7 @@
 
 import logging
 import os
-from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.handlers import FTPHandler, DTPHandler
 from itertools import chain
 from biostar.engine import auth, models
 
@@ -12,6 +12,18 @@ from .util import parse_virtual_path, query_tab
 logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
+
+
+
+
+class BiostarDTPHandler(DTPHandler):
+
+
+    def send(self, data):
+        res = super(BiostarDTPHandler, self).send(data)
+
+        logger.info(f"results={res}, data={data}")
+        return res
 
 
 

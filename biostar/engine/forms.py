@@ -188,7 +188,7 @@ class DataEditForm(forms.ModelForm):
 
         if self.instance.method == Data.UPLOAD:
             # TODO:What if the uploaded file gets linked when someone copies it cover?
-            
+
             self.fields["file"] = forms.FileField(widget=forms.ClearableFileInput)
 
         elif self.instance.method == Data.TEXTAREA:
