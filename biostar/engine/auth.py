@@ -347,7 +347,7 @@ def guess_mimetype(fname):
     ext = os.path.splitext(fname)[1].lower()
 
     # Known text extensions ( .fasta, .fastq, etc.. )
-    if ext in KNOWN_EXTENSIONS:
+    if ext in KNOWN_TEXT_EXTENSIONS:
         mimetype = 'text/plain'
 
     return mimetype
