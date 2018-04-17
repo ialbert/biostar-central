@@ -61,13 +61,13 @@ def recycle_bin(request):
     # Only searches projects you have access.
     all_projects = auth.get_project_list(user=request.user)
 
-    del_data = Data.objects.deleted(project__in=all_projects,
+    del_data = Data.objects.get_deleted(project__in=all_projects,
                                         owner=request.user).order_by("date")
 
-    del_recipes = Analysis.objects.deleted(project__in=all_projects,
+    del_recipes = Analysis.objects.get_deleted(project__in=all_projects,
                                           owner=request.user).order_by("date")
 
-    del_jobs = Job.objects.deleted(project__in=all_projects,
+    del_jobs = Job.objects.get_deleted(project__in=all_projects,
                                   owner=request.user).order_by("date")
 
     context = dict(jobs=del_jobs, data=del_data, recipes=del_recipes)
@@ -226,7 +226,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     counts = get_counts(project)
 
     # Select all the data in the project.
-    data_list = Data.objects.filter(project=project).order_by("sticky", "-date").all()
+    data_list = Data.objects.filter(project=project).order_by("-sticky", "-date").all()
     recipe_list = Analysis.objects.filter(project=project).order_by("-date").all()
     job_list = Job.objects.filter(project=project).order_by("-date").all()
 
@@ -254,7 +254,6 @@ def project_edit(request, uid):
 
     project = Project.objects.filter(uid=uid).first()
     form = ProjectForm(instance=project)
-
     if request.method == "POST":
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
@@ -298,7 +297,7 @@ def project_create(request):
 def data_view(request, uid):
     "Show information specific to each data."
 
-    data = Data.objects.all(uid=uid).first()
+    data = Data.objects.get_all(uid=uid).first()
     project = data.project
     path = request.GET.get('path', '')
 
@@ -334,15 +333,16 @@ def data_edit(request, uid):
     Edit meta-data associated with Data.
     """
 
+
     data = Data.objects.filter(uid=uid).first()
-    form = DataEditForm(instance=data, initial=dict(type=data.type))
+    form = DataEditForm(instance=data, initial=dict(type=data.type), user=request.user)
 
     if request.method == "POST":
-        form = DataEditForm(data=request.POST, instance=data)
+        form = DataEditForm(data=request.POST, instance=data, user=request.user, files=request.FILES)
         if form.is_valid():
             form.save()
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
-
+        print(form.errors)
     context = dict(data=data, form=form)
     return render(request, 'data_edit.html', context)
 
@@ -371,7 +371,7 @@ def recipe_view(request, uid):
     """
     Returns an analysis view based on its id.
     """
-    recipe = Analysis.objects.all(uid=uid).first()
+    recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
 
     if request.method == "POST":
@@ -566,7 +566,7 @@ def recipe_diff(request, uid):
 def recipe_edit(request, uid):
     "Edit meta-data associated with a recipe."
 
-    recipe = Analysis.objects.all(uid=uid).first()
+    recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
     action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
     form = RecipeForm(instance=recipe)
@@ -587,7 +587,7 @@ def recipe_edit(request, uid):
 def job_edit(request, uid):
     "Edit meta-data associated with a job."
 
-    job = Job.objects.all(uid=uid).first()
+    job = Job.objects.get_all(uid=uid).first()
     project = job.project
     form = JobEditForm(instance=job)
 
@@ -616,7 +616,7 @@ def object_state_toggle(request, uid, obj_type):
 
     # Make query and build urls
     obj, view_name = obj_map[obj_type][0], obj_map[obj_type][1]
-    instance = obj.objects.all(uid=uid).first()
+    instance = obj.objects.get_all(uid=uid).first()
 
     # Ensure running jobs do not get deleted.
     if isinstance(instance, Job) and instance.state == Job.RUNNING and not instance.deleted:
@@ -649,7 +649,7 @@ def job_view(request, uid):
     '''
     Views the state of a single job.
     '''
-    job = Job.objects.all(uid=uid).first()
+    job = Job.objects.get_all(uid=uid).first()
     project = job.project
 
     # The path is a GET parameter
@@ -727,7 +727,7 @@ def data_serve(request, uid, path):
     """
     Serves files from a data directory.
     """
-    obj = Data.objects.all(uid=uid).first()
+    obj = Data.objects.get_all(uid=uid).first()
     return file_serve(request=request, path=path, uid=uid, obj=obj)
 
 
@@ -736,5 +736,5 @@ def job_serve(request, uid, path):
     """
     Serves files from a job directory.
     """
-    obj = Job.objects.all(uid=uid).first()
+    obj = Job.objects.get_all(uid=uid).first()
     return file_serve(request=request, path=path, uid=uid, obj=obj)

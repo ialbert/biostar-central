@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.urls import reverse
 
 from biostar.accounts.models import User, Profile
-from . import models, auth, factory
+from . import models, auth, factory, util
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
 
@@ -56,6 +56,22 @@ def check_upload_limit(file, user):
     return file
 
 
+def clean_file(fobj, user, project, check_name=True):
+
+    if not fobj:
+        return fobj
+
+    check_size(fobj=fobj, maxsize=25)
+    check_upload_limit(file=fobj, user=user)
+
+    # Check if this name already exists.
+    if check_name and Data.objects.filter(name=fobj.name, project=project).exists():
+        msg = "Name already exists. Upload another file or rename existing data."
+        raise forms.ValidationError(msg)
+
+    return fobj
+
+
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
 
@@ -77,13 +93,14 @@ class ProjectForm(forms.ModelForm):
 
 
 class DataUploadForm(forms.ModelForm):
+
     def __init__(self, user, project, *args, **kwargs):
         self.user = user
         self.project = project
         super().__init__(*args, **kwargs)
 
     file = forms.FileField(required=False)
-    input_text = forms.CharField(max_length=1024, required=False)
+    input_text = forms.CharField(max_length=10000, required=False)
     # Name whenever there is a text field
     data_name = forms.CharField(required=False)
     type = forms.CharField(max_length=32, required=False)
@@ -99,21 +116,17 @@ class DataUploadForm(forms.ModelForm):
         name = self.cleaned_data['data_name']
 
         if stream:
-            name = stream.name
+            name = name or stream.name
         else:
-            tmp_stream = tempfile.NamedTemporaryFile()
-            tmp_stream.name = name.replace(" ", '')
-            input_text = bytes(clean_text(input_text), encoding='utf-8')
-            tmp_stream.write(input_text)
-            tmp_stream.seek(0)
-            stream = tmp_stream
+            #input_text = clean_text(input_text)
+            stream = util.tmp_file(data=input_text, name=name.replace(" ", ''))
 
         data = auth.create_data(stream=stream, name=name,text=text, user=self.user,
                                 project=self.project, summary=summary, type=type)
-        if not stream and input_text:
-            # Update the method
+        if input_text and not self.cleaned_data["file"]:
             Data.objects.filter(pk=data.pk).update(method=Data.TEXTAREA)
-            tmp_stream.close()
+            stream.close()
+
         return data
 
 
@@ -135,18 +148,7 @@ class DataUploadForm(forms.ModelForm):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
 
-        if not fobj:
-            return fobj
-
-        check_size(fobj=fobj, maxsize=25)
-        check_upload_limit(file=fobj, user=self.user)
-
-        # Check if this name already exists.
-        if Data.objects.filter(name=fobj.name, project=self.project).exists():
-            msg = "Name already exists. Upload another file or rename existing data."
-            raise forms.ValidationError(msg)
-
-        return fobj
+        return clean_file(fobj=fobj, user=self.user, project=self.project)
 
     def clean_type(self):
         cleaned_data = super(DataUploadForm, self).clean()
@@ -181,21 +183,36 @@ class DataEditForm(forms.ModelForm):
     type = forms.CharField(max_length=32, required=False)
 
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
+
+        self.user = user
+
         super().__init__(*args, **kwargs)
 
-        print(self.instance)
-
         if self.instance.method == Data.UPLOAD:
-            # TODO:What if the uploaded file gets linked when someone copies it cover?
-
-            self.fields["file"] = forms.FileField(widget=forms.ClearableFileInput)
+            self.fields["file"] = forms.FileField(required=False)
 
         elif self.instance.method == Data.TEXTAREA:
-            initial = '\n'.join(open(self.instance.get_files()[0], 'r').readlines())
-            self.fields["input_text"] = forms.CharField(max_length=1024, required=False, initial=initial)
+            initial = ''.join(open(self.instance.get_files()[0], 'r').readlines())
+            self.fields["input_text"] = forms.CharField(max_length=10000, required=True, initial=initial)
 
-        return
+
+    def save(self, commit=True):
+
+        cleaned_data = super(DataEditForm, self).clean()
+        fobj = cleaned_data.get('file')
+        input_text = cleaned_data.get("input_text")
+        current_file = self.instance.get_files()[0]
+
+        if input_text:
+            # Rewrite the
+            fobj = util.tmp_file(data=input_text, name=os.path.basename(current_file))
+
+        if fobj:
+            util.write_stream(stream=fobj, dest=current_file)
+
+        return super(DataEditForm, self).save(commit)
+
 
     class Meta:
         model = Data
@@ -208,6 +225,13 @@ class DataEditForm(forms.ModelForm):
         if auth.check_data_name(name=name, data=self.instance, bool=True):
             raise forms.ValidationError("Name already exists.")
         return name
+
+    def clean_file(self):
+        cleaned_data = super(DataEditForm, self).clean()
+        return clean_file(fobj=cleaned_data.get('file'),
+                          user=self.user,
+                          project=self.instance.project,
+                          check_name=False)
 
 
 

@@ -13,17 +13,41 @@
             {% csrf_token %}
 
             <div class="field segment">
-                <label>Data Name</label>
+                <label>Name</label>
                 {{ form.name }}
-                <p class="muted">What do you want to call the data</p>
+                <p class="muted">Edit the data name</p>
             </div>
+
+            <div class="field">
+
+                {% if form.file %}
+                    {{ form.media }}
+                    <label>File</label>
+                    {{form.file}}
+                    <p class="muted">Replace content of stored file with this one. <b>This does not change the name.</b></p>
+
+                {% elif form.input_text %}
+                    <label>Input Text</label>
+                    <textarea rows="10" cols="55" name="{{form.input_text.name}}" id="id_{{form.input_text.name}}"
+                          maxlength="{{ form.input_text.field.max_length }}">{% if form.input_text.value %}{{ form.input_text.value }}{% endif %}</textarea>
+                    <p class="muted">Edit uploaded text ( {{ form.input_text.field.max_length }} characters ).</p>
+                {% else %}
+
+                <div class="ui small info message">Can not edit the source file since it is <b>linked</b>.</div>
+                {% endif %}
+
+            </div>
+            <div class="ui small horizontal divider header">
+            <i class="ui pen square icon"></i>Extra Information
+            </div>
+
             <div class="field">
                 <label>Data Type</label>
                 {{ form.type }}
                 <p class="muted">Data type used to sub-select during analysis.</p>
             </div>
             <div class="field">
-               <label class="ui checkbox" for="{{ field.id_for_label }}">
+               <label class="ui checkbox" for="{{ form.sticky.field.id_for_label }}">
                         {{ form.sticky }} <label>Sticky</label>
                </label>
                 <p class="muted">Makes the data stick to top of the list.</p>
