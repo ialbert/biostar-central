@@ -1,4 +1,5 @@
 import gzip, zipfile
+import io
 import mimetypes
 import tempfile
 import os
@@ -13,6 +14,18 @@ CHUNK = 1024 * 1024
 class InvalidDirectoryError(Exception):
     def __str__(self):
         return "Can not access an invalid directory."
+
+
+class ByteStream(io.BytesIO):
+    "BytesIO does not have the .name attr so we add it here"
+
+    def __init__(self, name, *args, **kwargs ):
+        self.stream_name = name
+        super(ByteStream, self).__init__(*args, **kwargs)
+
+    @property
+    def name(self):
+        return self.stream_name
 
 
 def get_uuid(limit=32):
@@ -47,10 +60,8 @@ def scan_files(relpath, abspath, root, exclude=[]):
         b = File()
         b.path = os.path.join(relpath, f.name) if relpath else f.name
         b.is_dir = f.is_dir()
-        if (os.path.isfile(b.path)):
-            b.name, b.size = f.name, f.stat().st_size
-        else:
-            b.name, b.size = f.name, 0
+
+        b.name, b.size = f.name, f.stat().st_size
         return b
 
     files = map(transform, files)
@@ -101,17 +112,6 @@ def write_stream(stream, dest):
 
     return dest
 
-
-def tmp_file(data, name):
-    assert isinstance(data, str), data
-
-    tmp_stream = tempfile.NamedTemporaryFile()
-    tmp_stream.name = name
-
-    tmp_stream.write(bytes(data, encoding='utf-8'))
-    tmp_stream.seek(0)
-
-    return tmp_stream
 
 
 def findfiles(location, collect):

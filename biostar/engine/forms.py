@@ -1,6 +1,5 @@
 import copy
 import shlex
-import tempfile
 import hjson
 from django import forms
 from django.db.models import Sum
@@ -15,6 +14,8 @@ from .models import Project, Data, Analysis, Job, Access
 
 # Share the logger with models.
 logger = models.logger
+
+TEXT_UPLOAD_MAX = 10000
 
 
 def join(*args):
@@ -100,7 +101,7 @@ class DataUploadForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     file = forms.FileField(required=False)
-    input_text = forms.CharField(max_length=10000, required=False)
+    input_text = forms.CharField(max_length=TEXT_UPLOAD_MAX, required=False)
     # Name whenever there is a text field
     data_name = forms.CharField(required=False)
     type = forms.CharField(max_length=32, required=False)
@@ -118,8 +119,9 @@ class DataUploadForm(forms.ModelForm):
         if stream:
             name = name or stream.name
         else:
-            #input_text = clean_text(input_text)
-            stream = util.tmp_file(data=input_text, name=name.replace(" ", ''))
+            # Returns a StringIO object with a .name attribute
+            stream = util.ByteStream(initial_bytes=bytes(input_text, encoding='utf-8'),
+                                     name=name.replace(" ", "_"))
 
         data = auth.create_data(stream=stream, name=name,text=text, user=self.user,
                                 project=self.project, summary=summary, type=type)
@@ -194,8 +196,9 @@ class DataEditForm(forms.ModelForm):
 
         elif self.instance.method == Data.TEXTAREA:
             initial = ''.join(open(self.instance.get_files()[0], 'r').readlines())
-            self.fields["input_text"] = forms.CharField(max_length=10000, required=True, initial=initial)
-
+            self.fields["input_text"] = forms.CharField(max_length=TEXT_UPLOAD_MAX,
+                                                        required=True,
+                                                        initial=initial)
 
     def save(self, commit=True):
 
@@ -205,9 +208,8 @@ class DataEditForm(forms.ModelForm):
         current_file = self.instance.get_files()[0]
 
         if input_text:
-            # Rewrite the
-            fobj = util.tmp_file(data=input_text, name=os.path.basename(current_file))
-
+            fobj = util.ByteStream(initial_bytes=bytes(input_text, encoding='utf-8'),
+                                   name=os.path.basename(current_file))
         if fobj:
             util.write_stream(stream=fobj, dest=current_file)
 
