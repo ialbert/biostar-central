@@ -66,6 +66,7 @@ def clean_file(fobj, user, project, check_name=True):
     check_upload_limit(file=fobj, user=user)
 
     # Check if this name already exists.
+    print(check_name)
     if check_name and Data.objects.filter(name=fobj.name, project=project).exists():
         msg = "Name already exists. Upload another file or rename existing data."
         raise forms.ValidationError(msg)
@@ -134,7 +135,7 @@ class DataUploadForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['file', 'input_text', 'data_name', 'summary', 'text', "sticky", "type"]
+        fields = ['data_name', 'file', 'input_text', 'summary', 'text', "sticky", "type"]
 
     def clean(self):
         cleaned_data = super(DataUploadForm, self).clean()
@@ -148,35 +149,37 @@ class DataUploadForm(forms.ModelForm):
 
     def clean_file(self):
         cleaned_data = super(DataUploadForm, self).clean()
-        fobj = cleaned_data.get('file')
+        check_name = True if not cleaned_data.get('data_name') else False
 
-        return clean_file(fobj=fobj, user=self.user, project=self.project)
+        return clean_file(fobj=cleaned_data.get('file'),
+                          user=self.user,
+                          project=self.project,
+                          check_name=check_name)
+
+    def clean_data_name(self):
+        cleaned_data = super(DataUploadForm, self).clean()
+        name = cleaned_data.get('data_name')
+
+        if name and Data.objects.filter(name=name, project=self.project):
+            msg = "Name already exists. Use a different name or rename the existing data."
+            raise forms.ValidationError(msg)
+
+        return name
 
     def clean_type(self):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
         fobj = cleaned_data.get('data_name') if not fobj else fobj.name
         datatype = cleaned_data.get('type')
+        ext = lambda f: f.split(".")[-1]
 
-        if fobj:
-            ext = fobj.split(".")[-1]
-
-            ext = REMAPPING.get(ext, ext)
-            if "." + ext in KNOWN_EXTENSIONS and not datatype:
-                datatype = ext.upper()
+        if fobj and EXT_TO_TYPE.get(ext(fobj)) and not datatype:
+            # There is a file and it's extension has a valid remapping
+            datatype = EXT_TO_TYPE[ext(fobj)]
 
         return datatype
 
-    def clean_data_name(self):
-        cleaned_data = super(DataUploadForm, self).clean()
-        name = cleaned_data.get('data_name')
-        fobj = cleaned_data.get('file')
 
-        if Data.objects.filter(name=name, project=self.project) and not fobj:
-            msg = "Name already exists. Use a different name or rename the existing data."
-            raise forms.ValidationError(msg)
-
-        return name
 
 
 class DataEditForm(forms.ModelForm):
