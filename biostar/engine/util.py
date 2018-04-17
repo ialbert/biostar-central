@@ -1,7 +1,6 @@
 import gzip, zipfile
 import io
 import mimetypes
-import tempfile
 import os
 import quopri
 import tarfile

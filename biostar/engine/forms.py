@@ -66,7 +66,6 @@ def clean_file(fobj, user, project, check_name=True):
     check_upload_limit(file=fobj, user=user)
 
     # Check if this name already exists.
-    print(check_name)
     if check_name and Data.objects.filter(name=fobj.name, project=project).exists():
         msg = "Name already exists. Upload another file or rename existing data."
         raise forms.ValidationError(msg)
@@ -96,16 +95,17 @@ class ProjectForm(forms.ModelForm):
 
 class DataUploadForm(forms.ModelForm):
 
+
+    file = forms.FileField(required=False)
+    input_text = forms.CharField(max_length=TEXT_UPLOAD_MAX, required=False)
+    data_name = forms.CharField(required=False)
+    type = forms.CharField(max_length=32, required=False)
+
+
     def __init__(self, user, project, *args, **kwargs):
         self.user = user
         self.project = project
         super().__init__(*args, **kwargs)
-
-    file = forms.FileField(required=False)
-    input_text = forms.CharField(max_length=TEXT_UPLOAD_MAX, required=False)
-    # Name whenever there is a text field
-    data_name = forms.CharField(required=False)
-    type = forms.CharField(max_length=32, required=False)
 
 
     def save(self, **kwargs):
@@ -120,7 +120,7 @@ class DataUploadForm(forms.ModelForm):
         if stream:
             name = name or stream.name
         else:
-            # Returns a StringIO object with a .name attribute
+            # Returns BytesIO object with an added .name attribute
             stream = util.ByteStream(initial_bytes=bytes(input_text, encoding='utf-8'),
                                      name=name.replace(" ", "_"))
 
@@ -131,7 +131,6 @@ class DataUploadForm(forms.ModelForm):
             stream.close()
 
         return data
-
 
     class Meta:
         model = Data
@@ -178,8 +177,6 @@ class DataUploadForm(forms.ModelForm):
             datatype = EXT_TO_TYPE[ext(fobj)]
 
         return datatype
-
-
 
 
 class DataEditForm(forms.ModelForm):
