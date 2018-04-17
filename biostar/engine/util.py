@@ -102,7 +102,6 @@ def write_stream(stream, dest):
     return dest
 
 
-
 def tmp_file(data, name):
     assert isinstance(data, str), data
 
@@ -113,6 +112,7 @@ def tmp_file(data, name):
     tmp_stream.seek(0)
 
     return tmp_stream
+
 
 def findfiles(location, collect):
     """
