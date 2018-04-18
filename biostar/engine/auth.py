@@ -375,7 +375,7 @@ def create_path(fname, data):
 
 
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', type="",  uid=None, files=[]):
+                text='', summary='', type="",  uid=None):
 
     # We need absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/") if path else ""
@@ -388,17 +388,17 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # The source of the data is a stream is written into the destination.
     if stream:
-        dest = create_path(data=data, fname=stream.name)
+        name = name or stream.name
+        dest = create_path(data=data, fname=name)
         util.write_stream(stream=stream, dest=dest)
         # Mark incoming file as uploaded
         data.method = Data.UPLOAD
 
-    # Link files
-    for fname in chain([path], files):
-        if fname:
-            dest = create_path(fname=fname, data=data)
-            os.symlink(fname, dest)
-            logger.info(f"Linked file: {fname}")
+    # Link file
+    if path:
+        dest = create_path(fname=path, data=data)
+        os.symlink(path, dest)
+        logger.info(f"Linked file: {path}")
 
     # Invalid paths and empty streams still create the data but set the data state to error.
     missing = not (os.path.isdir(path) or os.path.isfile(path) or stream or len(files))
@@ -420,6 +420,6 @@ def create_data(project, user=None, stream=None, path='', name='',
     data.save()
 
     # Set log for data creation.
-    logger.info(f"Added data type={data.type} name={data.name}")
+    logger.info(f"Added data type={data.type} name={data.name} pk={data.pk}")
 
     return data

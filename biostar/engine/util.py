@@ -15,18 +15,6 @@ class InvalidDirectoryError(Exception):
         return "Can not access an invalid directory."
 
 
-class ByteStream(io.BytesIO):
-    "BytesIO does not have the .name attr so we add it here"
-
-    def __init__(self, name, *args, **kwargs ):
-        self.stream_name = name
-        super(ByteStream, self).__init__(*args, **kwargs)
-
-    @property
-    def name(self):
-        return self.stream_name
-
-
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
@@ -103,7 +91,9 @@ def smart_preview(fname):
 
 def write_stream(stream, dest):
 
-    with open(dest, 'wb') as fp:
+    mode = 'w' if isinstance(stream ,io.StringIO) else 'wb'
+
+    with open(dest, mode) as fp:
         chunk = stream.read(CHUNK)
         while chunk:
             fp.write(chunk)
