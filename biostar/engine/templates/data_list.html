@@ -19,9 +19,8 @@
     {%  if user.is_authenticated %}
     <div class="ui center aligned vertical segment">
 
-
         <a class="ui mini button" href="{% url 'data_upload' project.uid %}">
-            <i class="upload icon"></i>Upload File
+            <i class="upload icon"></i>Add Data
         </a>
 
         <a class="ui mini button" href="{% url 'project_edit' project.uid %}">
