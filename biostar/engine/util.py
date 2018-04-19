@@ -47,8 +47,10 @@ def scan_files(relpath, abspath, root, exclude=[]):
         b = File()
         b.path = os.path.join(relpath, f.name) if relpath else f.name
         b.is_dir = f.is_dir()
-
-        b.name, b.size = f.name, f.stat().st_size
+        if os.path.exists(f.path):
+            b.name, b.size = f.name, f.stat().st_size
+        else:
+            b.name, b.size = f.name, 0
         return b
 
     files = map(transform, files)
