@@ -91,7 +91,7 @@ def smart_preview(fname):
 
 def write_stream(stream, dest):
 
-    mode = 'w' if isinstance(stream ,io.StringIO) else 'wb'
+    mode = 'w' if isinstance(stream , io.StringIO) else 'wb'
 
     with open(dest, mode) as fp:
         chunk = stream.read(CHUNK)

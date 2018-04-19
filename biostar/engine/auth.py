@@ -327,7 +327,7 @@ def check_data_name(name, data, bool=False):
 
     copy = name
     i = 0
-    check_name = lambda name: Data.objects.exclude(pk=data.pk).filter(name=name,
+    check_name = lambda n: Data.objects.exclude(pk=data.pk).filter(name=n,
                                                   project=data.project).exists()
     if bool:
         return check_name(name)
@@ -401,7 +401,7 @@ def create_data(project, user=None, stream=None, path='', name='',
         logger.info(f"Linked file: {path}")
 
     # Invalid paths and empty streams still create the data but set the data state to error.
-    missing = not (os.path.isdir(path) or os.path.isfile(path) or stream or len(files))
+    missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
     if path and missing:
         state = Data.ERROR
         logger.error(f"Invalid data path: {path}")
