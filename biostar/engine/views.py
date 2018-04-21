@@ -227,8 +227,8 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
 
     # Select all the data in the project.
     data_list = Data.objects.filter(project=project).order_by("-sticky", "-date").all()
-    recipe_list = Analysis.objects.filter(project=project).order_by("-date").all()
-    job_list = Job.objects.filter(project=project).order_by("-date").all()
+    recipe_list = Analysis.objects.filter(project=project).order_by("-sticky", "-date").all()
+    job_list = Job.objects.filter(project=project).order_by("-sticky", "-date").all()
 
     # Filter job results by analysis
     filter = request.GET.get('filter', '')
