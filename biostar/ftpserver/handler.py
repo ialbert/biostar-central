@@ -117,7 +117,6 @@ class BiostarFTPHandler(FTPHandler):
 
             return path
 
-
         # Add the data to the tail and update the toc_name.
         logger.info(f"new_dir={path}, path={path}, root_project={root_project}, project={projects.filter(name=root_project)}")
 
@@ -144,7 +143,6 @@ class BiostarFTPHandler(FTPHandler):
                 logger.info(f"{os.path.join(data.get_data_dir(), name)}")
 
                 return os.path.join(data.get_data_dir(), name)
-                pass
 
         # Return the real file name here, taken from the name and stuff.
         1/0

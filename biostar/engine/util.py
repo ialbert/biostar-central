@@ -10,10 +10,6 @@ from itertools import islice
 
 CHUNK = 1024 * 1024
 
-class InvalidDirectoryError(Exception):
-    def __str__(self):
-        return "Can not access an invalid directory."
-
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
@@ -35,7 +31,7 @@ def scan_files(relpath, abspath, root, exclude=[]):
     Generates a list of file objects at an absolute path.s
     """
     if not (abspath.startswith(root) and os.path.exists(abspath)) :
-        raise InvalidDirectoryError
+        raise Exception("Can not access an invalid directory.")
 
     # Pathlike objects with attributes such as name, is_file
     files = list(filter(lambda p: p.name not in exclude, os.scandir(abspath)))

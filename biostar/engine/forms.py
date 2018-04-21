@@ -174,6 +174,8 @@ class DataUploadForm(forms.ModelForm):
 
         datatype = EXT_TO_TYPE.get(ext, cleaned_data.get('type'))
 
+        datatype = datatype.upper()
+
         return datatype
 
 
@@ -233,7 +235,14 @@ class DataEditForm(forms.ModelForm):
                           project=self.instance.project,
                           check_name=False)
 
+    def clean_type(self):
+        cleaned_data = super(DataEditForm, self).clean()
 
+        datatype = cleaned_data.get('type')
+
+        datatype = datatype.upper()
+
+        return datatype
 
 class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)
