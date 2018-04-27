@@ -27,7 +27,7 @@ class BiostarAuthorizer(object):
     def __init__(self):
         self.user_table = {}
 
-    def add_user(self, username, user=AnonymousUser, perm='elrm',
+    def add_user(self, username, user=AnonymousUser, perm='elrwm',
                  msg_login="Login successful.", msg_quit="Goodbye."):
 
         data = {'user': user,

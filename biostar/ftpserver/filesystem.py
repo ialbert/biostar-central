@@ -142,6 +142,7 @@ class BiostarFileSystem(AbstractedFS):
         root_project, tab, name, tail = parse_virtual_path(ftppath=abs_ftppath)
 
         if not name:
+            logger.info(f"fs={abs_ftppath}, ftppath={ftppath}")
             # Only look at actual files, dir are returned as is
             return abs_ftppath
 
@@ -254,7 +255,6 @@ class BiostarFileSystem(AbstractedFS):
 
             # Check if listing has multiple names
             # Let user know that both names point to same thing.
-
             if listing.count(fname) > 1:
                 msg = f'"{fname}" occurs twice. Both point to the same location.'
                 self.cmd_channel.respond(f'350  {msg}')
@@ -264,7 +264,9 @@ class BiostarFileSystem(AbstractedFS):
                 project = self.projects.filter(name=name).first()
                 filetype, rfname = 'dir', project.get_project_dir()
             else:
-                rfname, filetype = fetch_file_info(fname=fname, tab=tab, name=name, tail=tail, project=root_project)
+                rfname, filetype = fetch_file_info(fname=fname, tab=tab,
+                                                   name=name, tail=tail,
+                                                   project=root_project)
 
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
@@ -357,11 +359,17 @@ class BiostarFileSystem(AbstractedFS):
         perm = "elwr"
         if access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
             # You can rename it if you are the owner.
-            perm += 'mf' if access == Access.OWNER_ACCESS else "m"
+            if access == Access.OWNER_ACCESS:
+                perm += 'mf'
+            else:
+                perm += 'm'
 
         if tab and (not name):
             # Can only read while in job dir.
-            perm = "elrmwf" if tab == "data" else "elr"
+            if tab == "data":
+                perm = "elrmwf"
+            else:
+                perm = "elr"
 
         return perm
 
