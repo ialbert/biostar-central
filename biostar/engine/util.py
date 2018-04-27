@@ -10,22 +10,6 @@ from itertools import islice
 
 CHUNK = 1024 * 1024
 
-class InvalidDirectoryError(Exception):
-    def __str__(self):
-        return "Can not access an invalid directory."
-
-
-class ByteStream(io.BytesIO):
-    "BytesIO does not have the .name attr so we add it here"
-
-    def __init__(self, name, *args, **kwargs ):
-        self.stream_name = name
-        super(ByteStream, self).__init__(*args, **kwargs)
-
-    @property
-    def name(self):
-        return self.stream_name
-
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
@@ -47,7 +31,7 @@ def scan_files(relpath, abspath, root, exclude=[]):
     Generates a list of file objects at an absolute path.s
     """
     if not (abspath.startswith(root) and os.path.exists(abspath)) :
-        raise InvalidDirectoryError
+        raise Exception("Can not access an invalid directory.")
 
     # Pathlike objects with attributes such as name, is_file
     files = list(filter(lambda p: p.name not in exclude, os.scandir(abspath)))
@@ -59,8 +43,10 @@ def scan_files(relpath, abspath, root, exclude=[]):
         b = File()
         b.path = os.path.join(relpath, f.name) if relpath else f.name
         b.is_dir = f.is_dir()
-
-        b.name, b.size = f.name, f.stat().st_size
+        if os.path.exists(f.path):
+            b.name, b.size = f.name, f.stat().st_size
+        else:
+            b.name, b.size = f.name, 0
         return b
 
     files = map(transform, files)
@@ -103,7 +89,9 @@ def smart_preview(fname):
 
 def write_stream(stream, dest):
 
-    with open(dest, 'wb') as fp:
+    mode = 'w' if isinstance(stream , io.StringIO) else 'wb'
+
+    with open(dest, mode) as fp:
         chunk = stream.read(CHUNK)
         while chunk:
             fp.write(chunk)

@@ -1,6 +1,8 @@
 import copy
 import shlex
 import hjson
+import io
+import os
 from django import forms
 from django.db.models import Sum
 from django.utils.safestring import mark_safe
@@ -120,9 +122,7 @@ class DataUploadForm(forms.ModelForm):
         if stream:
             name = name or stream.name
         else:
-            # Returns BytesIO object with an added .name attribute
-            stream = util.ByteStream(initial_bytes=bytes(input_text, encoding='utf-8'),
-                                     name=name.replace(" ", "_"))
+            stream = io.StringIO(initial_value=input_text)
 
         data = auth.create_data(stream=stream, name=name,text=text, user=self.user,
                                 project=self.project, summary=summary, type=type)
@@ -169,12 +169,12 @@ class DataUploadForm(forms.ModelForm):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
         fobj = cleaned_data.get('data_name') if not fobj else fobj.name
-        datatype = cleaned_data.get('type')
-        ext = lambda f: f.split(".")[-1]
 
-        if fobj and EXT_TO_TYPE.get(ext(fobj)) and not datatype:
-            # There is a file and it's extension has a valid remapping
-            datatype = EXT_TO_TYPE[ext(fobj)]
+        root, ext = os.path.splitext(fobj)
+
+        datatype = EXT_TO_TYPE.get(ext, cleaned_data.get('type'))
+
+        datatype = datatype.upper()
 
         return datatype
 
@@ -208,8 +208,8 @@ class DataEditForm(forms.ModelForm):
         current_file = self.instance.get_files()[0]
 
         if input_text:
-            fobj = util.ByteStream(initial_bytes=bytes(input_text, encoding='utf-8'),
-                                   name=os.path.basename(current_file))
+            fobj = io.StringIO(initial_value=input_text)
+
         if fobj:
             util.write_stream(stream=fobj, dest=current_file)
 
@@ -235,7 +235,14 @@ class DataEditForm(forms.ModelForm):
                           project=self.instance.project,
                           check_name=False)
 
+    def clean_type(self):
+        cleaned_data = super(DataEditForm, self).clean()
 
+        datatype = cleaned_data.get('type')
+
+        datatype = datatype.upper()
+
+        return datatype
 
 class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)

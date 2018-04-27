@@ -17,13 +17,7 @@ logger.setLevel(logging.INFO)
 
 
 class BiostarDTPHandler(DTPHandler):
-
-
-    def send(self, data):
-        res = super(BiostarDTPHandler, self).send(data)
-
-        logger.info(f"results={res}, data={data}")
-        return res
+    pass
 
 
 
@@ -117,7 +111,6 @@ class BiostarFTPHandler(FTPHandler):
 
             return path
 
-
         # Add the data to the tail and update the toc_name.
         logger.info(f"new_dir={path}, path={path}, root_project={root_project}, project={projects.filter(name=root_project)}")
 
@@ -141,10 +134,11 @@ class BiostarFTPHandler(FTPHandler):
                                         name=name)
                 self.fs.data = chain(self.fs.data, models.Data.objects.filter(pk=data.pk))
 
-                logger.info(f"{os.path.join(data.get_data_dir(), name)}")
+                testing = self.run_as_current_user(self.fs.open, file, mode + 'b')
+                #fd = self.data_channel.file_obj
+                logger.info(f"file={file}, testing={testing}")
 
                 return os.path.join(data.get_data_dir(), name)
-                pass
 
         # Return the real file name here, taken from the name and stuff.
         1/0

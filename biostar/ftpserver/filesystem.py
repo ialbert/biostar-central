@@ -17,7 +17,7 @@ logger.setLevel(logging.INFO)
 
 def is_data_file(data):
 
-    return isinstance(data, Data) and data.get_files()[0] and len(data.get_files()) == 1
+    return isinstance(data, Data) and len(data.get_files()) in (1, 0)
 
 
 def fetch_file_info(fname, project, tab=None, tail=[], name=None):
@@ -41,7 +41,6 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     elif instance and not tail:
         rfname = instance.get_data_dir()
         filetype = "file" if is_data_file(instance) else "dir"
-
     else:
         rfname, filetype= fname, "dir"
 
@@ -142,6 +141,7 @@ class BiostarFileSystem(AbstractedFS):
         root_project, tab, name, tail = parse_virtual_path(ftppath=abs_ftppath)
 
         if not name:
+            logger.info(f"fs={abs_ftppath}, ftppath={ftppath}")
             # Only look at actual files, dir are returned as is
             return abs_ftppath
 
@@ -254,7 +254,6 @@ class BiostarFileSystem(AbstractedFS):
 
             # Check if listing has multiple names
             # Let user know that both names point to same thing.
-
             if listing.count(fname) > 1:
                 msg = f'"{fname}" occurs twice. Both point to the same location.'
                 self.cmd_channel.respond(f'350  {msg}')
@@ -264,7 +263,9 @@ class BiostarFileSystem(AbstractedFS):
                 project = self.projects.filter(name=name).first()
                 filetype, rfname = 'dir', project.get_project_dir()
             else:
-                rfname, filetype = fetch_file_info(fname=fname, tab=tab, name=name, tail=tail, project=root_project)
+                rfname, filetype = fetch_file_info(fname=fname, tab=tab,
+                                                   name=name, tail=tail,
+                                                   project=root_project)
 
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
@@ -357,11 +358,17 @@ class BiostarFileSystem(AbstractedFS):
         perm = "elwr"
         if access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
             # You can rename it if you are the owner.
-            perm += 'mf' if access == Access.OWNER_ACCESS else "m"
+            if access == Access.OWNER_ACCESS:
+                perm += 'mf'
+            else:
+                perm += 'm'
 
         if tab and (not name):
             # Can only read while in job dir.
-            perm = "elrmwf" if tab == "data" else "elr"
+            if tab == "data":
+                perm = "elrmwf"
+            else:
+                perm = "elr"
 
         return perm
 
