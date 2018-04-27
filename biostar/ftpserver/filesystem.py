@@ -17,7 +17,7 @@ logger.setLevel(logging.INFO)
 
 def is_data_file(data):
 
-    return isinstance(data, Data) and data.get_files()[0] and len(data.get_files()) == 1
+    return isinstance(data, Data) and len(data.get_files()) in (1, 0)
 
 
 def fetch_file_info(fname, project, tab=None, tail=[], name=None):
@@ -41,7 +41,6 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     elif instance and not tail:
         rfname = instance.get_data_dir()
         filetype = "file" if is_data_file(instance) else "dir"
-
     else:
         rfname, filetype= fname, "dir"
 

@@ -130,15 +130,15 @@ class BiostarFTPHandler(FTPHandler):
                 return
             else:
 
-                #data = auth.create_data(project=self.fs.projects.filter(name=root_project).first(),
-                #                        name=name)
-                #self.fs.data = chain(self.fs.data, models.Data.objects.filter(pk=data.pk))
+                data = auth.create_data(project=self.fs.projects.filter(name=root_project).first(),
+                                        name=name)
+                self.fs.data = chain(self.fs.data, models.Data.objects.filter(pk=data.pk))
 
-                testing = super(BiostarFTPHandler, self).ftp_STOR(file=file, mode=mode)
-                fd = self.data_channel.file_obj
-                logger.info(f"file={file}, testing={testing}, file_obj={fd}")
+                testing = self.run_as_current_user(self.fs.open, file, mode + 'b')
+                #fd = self.data_channel.file_obj
+                logger.info(f"file={file}, testing={testing}")
 
-                return file #os.path.join(data.get_data_dir(), name)
+                return os.path.join(data.get_data_dir(), name)
 
         # Return the real file name here, taken from the name and stuff.
         1/0
