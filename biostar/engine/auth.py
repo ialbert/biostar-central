@@ -2,7 +2,6 @@ import difflib
 import logging
 import uuid
 from mimetypes import guess_type
-from itertools import chain
 
 import hjson
 from biostar import settings
@@ -332,7 +331,7 @@ def check_data_name(name, data, bool=False):
     if bool:
         return check_name(name)
 
-    while check_name(copy) and i < 100:
+    while check_name(copy) and i < 1000:
         i += 1
         copy = f"{name} ({i})"
 
@@ -389,7 +388,8 @@ def create_data(project, user=None, stream=None, path='', name='',
     # The source of the data is a stream is written into the destination.
     if stream:
         name = name or stream.name
-        dest = create_path(data=data, fname=name)
+        fname = '_'.join(name.split())
+        dest = create_path(data=data, fname=fname)
         util.write_stream(stream=stream, dest=dest)
         # Mark incoming file as uploaded
         data.method = Data.UPLOAD
@@ -413,7 +413,7 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # Set updated attributes
     data.state = state
-    data.name = check_data_name(name or os.path.split(path)[1] or 'Data', data=data)
+    data.name = check_data_name(name or os.path.basename(path) or 'Data', data=data)
     data.summary = summary
 
     # Trigger another save.
