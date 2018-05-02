@@ -388,7 +388,7 @@ def create_data(project, user=None, stream=None, path='', name='',
     # The source of the data is a stream is written into the destination.
     if stream:
         name = name or stream.name
-        fname = '_'.join(name)
+        fname = '_'.join(name.split())
         dest = create_path(data=data, fname=fname)
         util.write_stream(stream=stream, dest=dest)
         # Mark incoming file as uploaded
