@@ -172,7 +172,7 @@ class DataUploadForm(forms.ModelForm):
 
         root, ext = os.path.splitext(fobj)
 
-        datatype = EXT_TO_TYPE.get(ext, cleaned_data.get('type'))
+        datatype = EXT_TO_TYPE.get(ext[1:], cleaned_data.get('type'))
 
         datatype = datatype.upper()
 
