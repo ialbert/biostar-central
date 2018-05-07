@@ -17,6 +17,27 @@ logger.setLevel(logging.INFO)
 
 
 class BiostarDTPHandler(DTPHandler):
+    def enable_receiving(self, type, cmd):
+        """Enable receiving of data over the channel. Depending on the
+        TYPE currently in use it creates an appropriate wrapper for the
+        incoming data.
+
+         - (str) type: current transfer type, 'a' (ASCII) or 'i' (binary).
+        """
+        self._initialized = True
+        self.modify_ioloop_events(self.ioloop.READ)
+        self._wanted_io_events = self.ioloop.READ
+        self.cmd = cmd
+        if type == 'a':
+            if os.linesep == '\r\n':
+                self._data_wrapper = None
+            else:
+                self._data_wrapper = self._posix_ascii_data_wrapper
+        elif type == 'i':
+            self._data_wrapper = None
+        else:
+            raise TypeError("unsupported type")
+        self.receive = True
     pass
 
 
@@ -119,6 +140,7 @@ class BiostarFTPHandler(FTPHandler):
 
 
     def ftp_STOR(self, file, mode='w'):
+        1/0
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=file)
 
