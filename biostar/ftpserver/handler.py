@@ -18,6 +18,7 @@ logger.setLevel(logging.INFO)
 
 class BiostarDTPHandler(DTPHandler):
     def enable_receiving(self, type, cmd):
+        1/0
         """Enable receiving of data over the channel. Depending on the
         TYPE currently in use it creates an appropriate wrapper for the
         incoming data.

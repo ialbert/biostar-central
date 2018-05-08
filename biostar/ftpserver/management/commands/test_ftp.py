@@ -13,8 +13,8 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        #from biostar.accounts.models import User
-        ftp = FTP()     # connect to host, default port
+        import os
+        ftp = FTP()
 
         ftp.connect(host=FTP_HOST, port=FTP_PORT)
 
@@ -24,10 +24,30 @@ class Command(BaseCommand):
         #projects = auth.get_project_list(user=user)
 
         files = list(ftp.nlst())
-        print("ROOT dir")
         for f in files:
-            print(ftp.cwd(f))
+            #print(ftp.cwd(f))
             print(f)
 
-        #print(files, projects)
+        test_project = files[0]
+
+        # Switch the current working dir to the data directory of first project
+        ftp.cwd(os.path.join(test_project, "data"))
+
+        print(ftp.nlst())
+
+        # Try to upload a file.
+
+        file = open(__file__, 'rb')
+        fname  = os.path.basename(__file__)
+        cmd = f"STOR {fname}"
+
+        ftp.storlines(cmd=cmd, fp=file)
+
+        success = fname in list(ftp.nlst())
+        print(success, "FUCK")
+
+
+
+
+
 
