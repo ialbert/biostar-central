@@ -44,22 +44,19 @@ class BiostarFTPHandler(FTPHandler):
         pass
 
     def on_file_received(self, file):
-        """Only receives files the"""
+        """Only recieve files in data tabs"""
 
-        # do something when a file has been received
-        # Remake the toc
+        #TODO: hardcoded "store-1"
+        datauid = [s.split("-")[1] for s in file.split(os.sep) if "store-" in s][0]
 
+        data = models.Data.objects.filter(uid=datauid).first()
 
+        # Update the toc
         data.make_toc()
-
-        logger.info(f"Data size BEFORE save; {data.size}")
         # Trigger another save
         data.save()
+        return
 
-        logger.info(f"Data size AFTER save; {data.size}")
-
-        logger.info(f"file={file}.")
-        pass
 
     def on_incomplete_file_sent(self, file):
         # do something when a file is partially sent
@@ -90,8 +87,10 @@ class BiostarFTPHandler(FTPHandler):
                 return
             else:
                 # Create a new project
-                project = auth.create_project(user=user, name=root_project)
-                self.fs.projects = chain(projects, models.Project.objects.filter(pk=project.pk))
+                auth.create_project(user=user, name=root_project)
+
+                # Refresh projects tab
+                self.fs.projects = auth.get_project_list(user=user)
 
                 line = self.fs.fs2ftp(path)
                 self.respond('257 "%s" directory created.' % line.replace('"', '""'))
@@ -106,8 +105,9 @@ class BiostarFTPHandler(FTPHandler):
                 return
             else:
                 project = self.fs.projects.filter(name=root_project)
-                data = auth.create_data(project=project.first(), user=user, name=name)
-                self.fs.data = chain(self.fs.data, models.Data.objects.filter(pk=data.pk))
+                auth.create_data(project=project.first(), user=user, name=name)
+                self.fs.data = models.Data.objects.filter(project=project,
+                                                          state__in=(models.Data.READY, models.Data.PENDING))
 
                 line = self.fs.fs2ftp(path)
                 self.respond('257 "%s" directory created.' % line.replace('"', '""'))
@@ -155,4 +155,9 @@ class BiostarFTPHandler(FTPHandler):
             self.fs.data = models.Data.objects.filter(project=project)
 
             return file
+
+        else:
+            self.respond("550 Can not upload a file here.")
+            return
+
 

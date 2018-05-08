@@ -209,7 +209,6 @@ class Data(models.Model):
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
 
-
         # Build the data directory.
         data_dir = self.get_data_dir()
         if not os.path.isdir(data_dir):

@@ -115,12 +115,10 @@ class BiostarFileSystem(AbstractedFS):
         # Projects the user has access to
         self.projects = auth.get_project_list(user=self.user["user"])
 
-
         # Data and results in project
-        self.data = Data.objects.filter(deleted=False, project__in=self.projects,
-                                   state__in=(Data.READY, Data.PENDING))
+        self.data = Data.objects.filter(project__in=self.projects, state__in=(Data.READY, Data.PENDING))
 
-        self.jobs = Job.objects.filter(deleted=False, project__in=self.projects)
+        self.jobs = Job.objects.filter(project__in=self.projects)
 
         # Get authorizer to set write permission on directories.
         self.authorizer = self.cmd_channel.authorizer
@@ -334,6 +332,7 @@ class BiostarFileSystem(AbstractedFS):
         return False
 
     def access_to_perm(self, access, **kwargs):
+
         """
         Map biostar-engine access control to pyftpdlib's
 
@@ -355,20 +354,25 @@ class BiostarFileSystem(AbstractedFS):
 
         tab, name, tail = kwargs['tab'], kwargs['name'], kwargs['tail']
 
-        perm = "elwr"
+        perm = "elr"
         if access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
             # You can rename it if you are the owner.
             if access == Access.OWNER_ACCESS:
+                # Make directory and rename "files" which are really data or job objects.
                 perm += 'mf'
             else:
+                # Only make directories
                 perm += 'm'
 
         if tab and (not name):
-            # Can only read while in job dir.
+
             if tab == "data":
-                perm = "elrmwf"
+                # Write to destination if you are in a data dir
+                perm += "w"
             else:
+                # Can only read while in job dir ( currently).
                 perm = "elr"
+            logger.info(f"perm={perm}")
 
         return perm
 

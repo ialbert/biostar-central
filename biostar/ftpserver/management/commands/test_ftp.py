@@ -45,7 +45,7 @@ class Command(BaseCommand):
 
         success = fname in list(ftp.nlst())
 
-        print(f"Something happened! :{success}")
+        print(f"Upload successful :{success}")
 
 
 
