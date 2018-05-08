@@ -30,7 +30,7 @@ class Command(BaseCommand):
 
         test_project = files[0]
 
-        # Switch the current working dir to the data directory of first project
+        # Switch the current working dir to the data directory of test project
         ftp.cwd(os.path.join(test_project, "data"))
 
         print(ftp.nlst())
@@ -44,7 +44,7 @@ class Command(BaseCommand):
         ftp.storlines(cmd=cmd, fp=file)
 
         success = fname in list(ftp.nlst())
-        print(success)
+        print(f"Something happened! :{success}")
 
 
 

@@ -158,7 +158,6 @@ class BiostarFTPHandler(FTPHandler):
                 file = os.path.join(data.get_data_dir(), name)
                 fd = self.run_as_current_user(self.fs.open, file, mode + 'b')
             # Return the real file name here, taken from the name and stuff.
-            1/0
             if self.data_channel is not None:
                 resp = "Data connection already open. Transfer starting."
                 self.respond("125 " + resp)
@@ -168,4 +167,10 @@ class BiostarFTPHandler(FTPHandler):
                 resp = "File status okay. About to open data connection."
                 self.respond("150 " + resp)
                 self._in_dtp_queue = (fd, 'STOR')
+
             self.fs.data = chain(self.fs.data, models.Data.objects.filter(pk=data.pk))
+
+            # Remake the toc
+            data.make_toc()
+            return file
+
