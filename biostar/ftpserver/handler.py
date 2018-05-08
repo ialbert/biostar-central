@@ -142,44 +142,30 @@ class BiostarFTPHandler(FTPHandler):
 
     def ftp_STOR(self, file, mode='w'):
 
-
-
-        try:
-            fd = self.run_as_current_user(self.fs.open, file, mode + 'b')
-        except Exception as err:
-            self.respond('550 %s.' % err)
-            return
-
-        print(fd)
-        1/0
-
         # Make an empty file with the same name in the dest?
-    #
-    #     root_project, tab, name, tail = parse_virtual_path(ftppath=file)
-    #
-    #     if tab == 'data' and name and not tail:
-    #
-    #         instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
-    #         if instance:
-    #             self.respond('550 File already exists.')
-    #             return
-    #         else:
-    #             project = self.fs.projects.filter(name=root_project).first()
-    #             data = auth.create_data(project=project, name=name)
-    #             file = os.path.join(data.get_data_dir(), name)
-    #             fd = self.run_as_current_user(self.fs.open, file, mode + 'b')
-    #
-    #     # Return the real file name here, taken from the name and stuff.
-    #     1/0
 
-        if self.data_channel is not None:
-            resp = "Data connection already open. Transfer starting."
-            self.respond("125 " + resp)
-            self.data_channel.file_obj = fd
-            self.data_channel.enable_receiving(self._current_type, cmd)
-        else:
-            resp = "File status okay. About to open data connection."
-            self.respond("150 " + resp)
-            self._in_dtp_queue = (fd, cmd)
+        root_project, tab, name, tail = parse_virtual_path(ftppath=file)
 
-    #             self.fs.data = chain(self.fs.data, models.Data.objects.filter(pk=data.pk))
+        if tab == 'data' and name and not tail:
+
+            instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
+            if instance:
+                self.respond('550 File already exists.')
+                return
+            else:
+                project = self.fs.projects.filter(name=root_project).first()
+                data = auth.create_data(project=project, name=name)
+                file = os.path.join(data.get_data_dir(), name)
+                fd = self.run_as_current_user(self.fs.open, file, mode + 'b')
+            # Return the real file name here, taken from the name and stuff.
+            1/0
+            if self.data_channel is not None:
+                resp = "Data connection already open. Transfer starting."
+                self.respond("125 " + resp)
+                self.data_channel.file_obj = fd
+                self.data_channel.enable_receiving(self._current_type, 'STOR')
+            else:
+                resp = "File status okay. About to open data connection."
+                self.respond("150 " + resp)
+                self._in_dtp_queue = (fd, 'STOR')
+            self.fs.data = chain(self.fs.data, models.Data.objects.filter(pk=data.pk))
