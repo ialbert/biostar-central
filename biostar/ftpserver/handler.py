@@ -14,35 +14,6 @@ logger.setLevel(logging.INFO)
 
 
 
-
-
-class BiostarDTPHandler(DTPHandler):
-    def enable_receiving(self, type, cmd):
-        1/0
-        """Enable receiving of data over the channel. Depending on the
-        TYPE currently in use it creates an appropriate wrapper for the
-        incoming data.
-
-         - (str) type: current transfer type, 'a' (ASCII) or 'i' (binary).
-        """
-        self._initialized = True
-        self.modify_ioloop_events(self.ioloop.READ)
-        self._wanted_io_events = self.ioloop.READ
-        self.cmd = cmd
-        if type == 'a':
-            if os.linesep == '\r\n':
-                self._data_wrapper = None
-            else:
-                self._data_wrapper = self._posix_ascii_data_wrapper
-        elif type == 'i':
-            self._data_wrapper = None
-        else:
-            raise TypeError("unsupported type")
-        self.receive = True
-    pass
-
-
-
 class BiostarFTPHandler(FTPHandler):
 
     def on_connect(self):
@@ -73,7 +44,19 @@ class BiostarFTPHandler(FTPHandler):
         pass
 
     def on_file_received(self, file):
+        """Only receives files the"""
+
         # do something when a file has been received
+        # Remake the toc
+
+
+        data.make_toc()
+
+        logger.info(f"Data size BEFORE save; {data.size}")
+        # Trigger another save
+        data.save()
+
+        logger.info(f"Data size AFTER save; {data.size}")
 
         logger.info(f"file={file}.")
         pass
@@ -168,9 +151,8 @@ class BiostarFTPHandler(FTPHandler):
                 self.respond("150 " + resp)
                 self._in_dtp_queue = (fd, 'STOR')
 
-            self.fs.data = chain(self.fs.data, models.Data.objects.filter(pk=data.pk))
+            # Refresh the data tab
+            self.fs.data = models.Data.objects.filter(project=project)
 
-            # Remake the toc
-            data.make_toc()
             return file
 

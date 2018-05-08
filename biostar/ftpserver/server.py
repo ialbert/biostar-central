@@ -1,6 +1,6 @@
 from pyftpdlib.servers import FTPServer
 from pyftpdlib.log import config_logging
-from biostar.ftpserver.handler import BiostarFTPHandler, BiostarDTPHandler
+from biostar.ftpserver.handler import BiostarFTPHandler
 from biostar.ftpserver.authorizer import BiostarAuthorizer
 from biostar.ftpserver.filesystem import BiostarFileSystem
 from biostar.settings import *
@@ -18,7 +18,7 @@ def start():
     authorizer = BiostarAuthorizer()
     # Instantiate FTP and DTP handler class.
     handler = BiostarFTPHandler
-    handler.dtp_handler = BiostarDTPHandler
+    #handler.dtp_handler = BiostarDTPHandler
 
     handler.authorizer = authorizer
     handler.abstracted_fs = BiostarFileSystem

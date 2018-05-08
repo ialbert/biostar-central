@@ -263,7 +263,7 @@ def state_label(data, error_only=False):
     label = f'<span class="ui { DATA_COLORS.get(data.state, "") } label"> {data.get_state_display()} </span>'
 
     # Error produce error only.
-    if error_only and data.state != Data.ERROR:
+    if error_only and data.state not in (Data.ERROR, Data.PENDING):
         label = ""
 
     return mark_safe(label)
@@ -327,6 +327,7 @@ def size_label(data):
     """
     Returns a label for data sizes.
     """
+
     size = f"{defaultfilters.filesizeformat(data.size)}"
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
 

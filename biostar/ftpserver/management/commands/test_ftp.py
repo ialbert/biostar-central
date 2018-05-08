@@ -44,6 +44,7 @@ class Command(BaseCommand):
         ftp.storlines(cmd=cmd, fp=file)
 
         success = fname in list(ftp.nlst())
+
         print(f"Something happened! :{success}")
 
 

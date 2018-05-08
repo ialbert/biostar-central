@@ -316,7 +316,7 @@ def data_view(request, uid):
     abspath = join(root, path)
     try:
         files = util.scan_files(abspath=abspath, relpath=path, root=root)
-    except util.InvalidDirectoryError as exc:
+    except Exception as exc:
         messages.error(request, f"{exc}")
         files = []
 
@@ -675,7 +675,7 @@ def job_view(request, uid):
     # Generate the files
     try:
         files = util.scan_files(abspath=abspath, relpath=path, root=root)
-    except util.InvalidDirectoryError as exc:
+    except Exception as exc:
         messages.error(request, f"{exc}")
         files = []
 
