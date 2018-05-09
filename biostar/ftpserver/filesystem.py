@@ -15,12 +15,6 @@ logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
 
-def is_data_file(data):
-
-    files = data.get_files()
-    return False #isinstance(data, Data) and len(files[0]) and len(files) == 1
-
-
 def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     """
     Fetch the actual file path and filetype of a given instance.
@@ -35,16 +29,13 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     full_path = os.path.join(instance.get_data_dir(), suffix)
     # There is an extra tail to patch together
 
-    if instance and os.path.exists(full_path):
+    rfname = instance.get_data_dir()
+    filetype = "dir"
+
+    #TODO: NEED A DIFFRENT CONDITINON
+    if os.path.exists(full_path):
         rfname = full_path
         filetype = 'dir' if (os.path.isdir(rfname)) else 'file'
-
-    # No tail to deal with
-    elif instance and not tail:
-        rfname = instance.get_data_dir()
-        filetype = "dir"
-    else:
-        rfname, filetype= fname, "dir"
 
     return rfname, filetype
 
@@ -52,7 +43,7 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
 def filename(instance, place_holder, tail=[]):
 
     # Single file data objects handled here
-    if is_data_file(data=instance):# and instance.get_files()[0]:
+    if isinstance(instance, Data) and instance.get_files()[0] and len(instance.get_files()[0]) == 1 :
         real_file = index(instance.get_files(), 0) or ''
         return real_file if os.path.exists(real_file) else place_holder
 

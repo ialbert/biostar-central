@@ -108,7 +108,6 @@ class BiostarFTPHandler(FTPHandler):
                 auth.create_data(project=project.first(), user=user, name=name)
                 self.fs.data = models.Data.objects.filter(project=project,
                                                           state__in=(models.Data.READY, models.Data.PENDING))
-
                 line = self.fs.fs2ftp(path)
                 self.respond('257 "%s" directory created.' % line.replace('"', '""'))
 
