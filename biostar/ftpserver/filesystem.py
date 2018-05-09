@@ -17,7 +17,8 @@ logger.setLevel(logging.INFO)
 
 def is_data_file(data):
 
-    return isinstance(data, Data) and len(data.get_files()) in (1, 0)
+    files = data.get_files()
+    return False #isinstance(data, Data) and len(files[0]) and len(files) == 1
 
 
 def fetch_file_info(fname, project, tab=None, tail=[], name=None):
@@ -33,14 +34,15 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     suffix = fname if not tail else os.path.join(*tail, fname)
     full_path = os.path.join(instance.get_data_dir(), suffix)
     # There is an extra tail to patch together
-    if instance and tail:
+
+    if instance and os.path.exists(full_path):
         rfname = full_path
-        filetype = 'dir' if (os.path.exists(rfname) and os.path.isdir(rfname)) else 'file'
+        filetype = 'dir' if (os.path.isdir(rfname)) else 'file'
 
     # No tail to deal with
     elif instance and not tail:
         rfname = instance.get_data_dir()
-        filetype = "file" if is_data_file(instance) else "dir"
+        filetype = "dir"
     else:
         rfname, filetype= fname, "dir"
 
@@ -176,7 +178,7 @@ class BiostarFileSystem(AbstractedFS):
         if not virtual_path:
             real_file =  self.validate_actual_path(path=path)
 
-        return True #real_file or virtual_path
+        return real_file or virtual_path
 
 
     def isdir(self, path):
@@ -292,28 +294,14 @@ class BiostarFileSystem(AbstractedFS):
 
         # Check user did not leave /data or /results while in project.
         if tab and (tab not in ('data', 'results')):
-            logger.info(f"is_valid={False}")
+            logger.info(f"is_valid={False}, tab not in data or resutls")
             return False
 
         if name and not self.projects.filter(name=root_project):
-            logger.info(f"is_valid={False}")
+            logger.info(f"is_valid={False}, project does not exist")
             return False
 
-        # The path is valid at this point
-        is_valid = True
-        if tail:
-            # No need to break things while validating the path
-            try:
-                actual_path = query_tab(tab=tab, name=name, project=root_project)
-                suffix = os.path.join(*tail)
-                is_valid = os.path.exists(os.path.join(actual_path, suffix))
-            except Exception as exc:
-                logger.error(f"{exc}")
-                is_valid = False
-
-        logger.info(f"is_valid={is_valid}")
-
-        return is_valid
+        return True
 
 
     def validate_actual_path(self, path):
@@ -325,8 +313,8 @@ class BiostarFileSystem(AbstractedFS):
 
         for basedir in valid_project_dirs + valid_job_dirs:
             if path.startswith(basedir):
-                logger.info(f"path={path}, basedir={basedir}, is_valid={True}")
-                return True
+                logger.info(f"path={path}, basedir={basedir}, is_valid={True and os.path.exists(path=path)}")
+                return True and os.path.exists(path=path)
 
         logger.info(f"is_valid={False}")
         return False
@@ -354,7 +342,7 @@ class BiostarFileSystem(AbstractedFS):
 
         tab, name, tail = kwargs['tab'], kwargs['name'], kwargs['tail']
 
-        perm = "elr"
+        perm = "elrwm"
         if access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
             # You can rename it if you are the owner.
             if access == Access.OWNER_ACCESS:

@@ -149,7 +149,7 @@ class BiostarFTPHandler(FTPHandler):
             instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
 
             if tail and instance:
-                file = os.path.join(instance.get_data_dir(), tail)
+                file = os.path.join(instance.get_data_dir(), *tail)
             else:
                 instance = auth.create_data(project=project, name=name)
                 file = os.path.join(instance.get_data_dir(), name)
