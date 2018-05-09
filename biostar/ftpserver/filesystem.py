@@ -176,7 +176,7 @@ class BiostarFileSystem(AbstractedFS):
         if not virtual_path:
             real_file =  self.validate_actual_path(path=path)
 
-        return real_file or virtual_path
+        return True #real_file or virtual_path
 
 
     def isdir(self, path):
@@ -368,7 +368,7 @@ class BiostarFileSystem(AbstractedFS):
 
             if tab == "data":
                 # Write to destination if you are in a data dir
-                perm += "w"
+                perm = "elrwm"
             else:
                 # Can only read while in job dir ( currently).
                 perm = "elr"
