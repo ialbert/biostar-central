@@ -50,11 +50,12 @@ class BiostarFTPHandler(FTPHandler):
         datauid = [s.split("-")[1] for s in file.split(os.sep) if "store-" in s][0]
 
         data = models.Data.objects.filter(uid=datauid).first()
+        if data:
+            # Update the toc
+            data.make_toc()
+            # Trigger another save
+            data.save()
 
-        # Update the toc
-        data.make_toc()
-        # Trigger another save
-        data.save()
         return
 
 
@@ -97,14 +98,25 @@ class BiostarFTPHandler(FTPHandler):
 
             return path
 
-        if tab == "data" and name and not tail:
+        if tab == "data" and name:
 
             instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
-            if instance:
+            project = self.fs.projects.filter(name=root_project)
+
+            if instance and not tail:
                 self.respond('550 Directory already exists.')
                 return
+
+            if instance and tail:
+                file = os.path.join(instance.get_data_dir(), *tail)
+                self.run_as_current_user(self.fs.mkdir, file)
+                # Remake the toc file
+                instance.make_toc()
+                instance.save()
+                line = self.fs.fs2ftp(file)
+                self.respond('257 "%s" directory created.' % line.replace('"', '""'))
+
             else:
-                project = self.fs.projects.filter(name=root_project)
                 auth.create_data(project=project.first(), user=user, name=name)
                 self.fs.data = models.Data.objects.filter(project=project,
                                                           state__in=(models.Data.READY, models.Data.PENDING))
@@ -147,19 +159,28 @@ class BiostarFTPHandler(FTPHandler):
             project = self.fs.projects.filter(name=root_project).first()
             instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
 
-            if tail and instance:
+            if instance and not tail:
+                self.respond('550 File already exists.')
+                return
+
+            if instance and tail:
                 file = os.path.join(instance.get_data_dir(), *tail)
             else:
                 instance = auth.create_data(project=project, name=name)
                 file = os.path.join(instance.get_data_dir(), name)
                 # Refresh the data tab
-                self.fs.data = models.Data.objects.filter(project=project)
+                self.fs.data = models.Data.objects.filter(project=project,
+                                                          state__in=(models.Data.READY, models.Data.PENDING))
 
-            # Load the stream into the Data Transfer Protocol
+            # Load the stream into the DTP Data Transfer Protocol
             fd = self.run_as_current_user(self.fs.open, file, mode + 'b')
             self.load_dtp(file_object=fd)
 
             return file
+
+        elif os.path.exists(file):
+            self.respond('550 File already exists.')
+            return
 
         else:
             # Can only upload to the /data for now.

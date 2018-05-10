@@ -20,19 +20,17 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     Fetch the actual file path and filetype of a given instance.
     """
 
-    # At /data or /results tab, fname is an ftp path that contains a Data or Job pk.
+    # At /data or /results tab, fname is an ftp path that contains a Data or Job name.
     name = name or fname
 
     instance = query_tab(tab=tab, name=name, show_instance=True, project=project)
 
     suffix = fname if not tail else os.path.join(*tail, fname)
     full_path = os.path.join(instance.get_data_dir(), suffix)
-    # There is an extra tail to patch together
 
     rfname = instance.get_data_dir()
     filetype = "dir"
 
-    #TODO: NEED A DIFFRENT CONDITINON
     if os.path.exists(full_path):
         rfname = full_path
         filetype = 'dir' if (os.path.isdir(rfname)) else 'file'
