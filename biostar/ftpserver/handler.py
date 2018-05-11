@@ -165,6 +165,9 @@ class BiostarFTPHandler(FTPHandler):
 
             if instance and tail:
                 file = os.path.join(instance.get_data_dir(), *tail)
+                # Ensure that the sub dirs in tail exist
+                if not os.path.exists(os.path.dirname(file)):
+                    os.makedirs(os.path.dirname(file), exist_ok=True)
             else:
                 instance = auth.create_data(project=project, name=name)
                 file = os.path.join(instance.get_data_dir(), name)

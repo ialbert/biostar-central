@@ -123,7 +123,7 @@ class BiostarFileSystem(AbstractedFS):
             fname = abs_ftppath
             logger.error(f"{exc}")
 
-        # Attempt to return abs file path, otherwise returns place holder.
+        # Attempt to return a real file path, otherwise returns absolute ftppath.
         return fname
 
 
@@ -153,7 +153,6 @@ class BiostarFileSystem(AbstractedFS):
 
 
     def isdir(self, path):
-
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=path)
         is_dir = True
@@ -278,7 +277,6 @@ class BiostarFileSystem(AbstractedFS):
 
     def validate_actual_path(self, path):
         "Make sure user has access to real path requested."
-
 
         valid_project_dirs = [p.get_project_dir() for p in self.projects]
         valid_job_dirs = [job.get_data_dir() for job in self.jobs]
