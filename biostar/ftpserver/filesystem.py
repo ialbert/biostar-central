@@ -35,27 +35,8 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     return rfname, filetype
 
 
-def filename(instance, place_holder, tail=[]):
-
-
-    # Directories handled after this point.
-    try:
-        fname = os.path.join(instance.get_data_dir(), *tail)
-        is_file = os.path.exists(fname) and os.path.isfile(fname)
-    except Exception as exc:
-        logger.error(f"{exc}")
-        fname, is_file = None, False
-
-    # Return abspath if its a file, otherwise continue.
-    return fname if is_file else place_holder
-
-
-def dir_list(base_dir, is_instance=False, tail=[]):
+def dir_list(base_dir, tail=[]):
     "Return contents of a given base dir ( and a tail)."
-
-    # List the files inside of /data and /results tabs
-    if base_dir and is_instance:
-        return [os.path.basename(p.path) for p in os.scandir(base_dir)]
     try:
         # List sub-dirs found in /data and /results
         suffix = os.path.join(*tail)
@@ -134,8 +115,16 @@ class BiostarFileSystem(AbstractedFS):
             # We let self.valid_path handle invalid paths
             return abs_ftppath
 
+        try:
+            fullname = os.path.join(instance.get_data_dir(), *tail)
+            is_file = os.path.exists(fullname) and os.path.isfile(fullname)
+            fname = fullname if is_file else abs_ftppath
+        except Exception as exc:
+            fname = abs_ftppath
+            logger.error(f"{exc}")
+
         # Attempt to return abs file path, otherwise returns place holder.
-        return filename(tail=tail, place_holder=abs_ftppath, instance=instance)
+        return fname
 
 
     def validpath(self, path):
@@ -206,9 +195,12 @@ class BiostarFileSystem(AbstractedFS):
         # Take a look at specific instance in /data or /results
         is_instance = name and (not tail)
         base_dir = query_tab(tab=tab, name=name, project=root_project)
+        # List the files inside of /data and /results tabs
+        if base_dir and is_instance:
+            return [os.path.basename(p.path) for p in os.scandir(base_dir)]
 
         # Dir list returned is different depending on the tab
-        return dir_list(base_dir=base_dir, is_instance=is_instance, tail=tail)
+        return dir_list(base_dir=base_dir, tail=tail)
 
 
     def chdir(self, path):
