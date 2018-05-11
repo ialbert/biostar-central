@@ -171,7 +171,6 @@ class BiostarFTPHandler(FTPHandler):
                 # Refresh the data tab
                 self.fs.data = models.Data.objects.filter(project=project,
                                                           state__in=(models.Data.READY, models.Data.PENDING))
-
             # Load the stream into the DTP Data Transfer Protocol
             fd = self.run_as_current_user(self.fs.open, file, mode + 'b')
             self.load_dtp(file_object=fd)

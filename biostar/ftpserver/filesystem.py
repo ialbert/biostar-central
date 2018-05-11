@@ -20,30 +20,23 @@ def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     Fetch the actual file path and filetype of a given instance.
     """
 
-    # At /data or /results tab, fname is an ftp path that contains a Data or Job name.
-    name = name or fname
+    # Get the Job or Data instance from the name and tab
+    instance = query_tab(tab=tab, name=name or fname, show_instance=True, project=project)
+    assert instance, "Does not exist"
 
-    instance = query_tab(tab=tab, name=name, show_instance=True, project=project)
-
+    # Patch together the absolute path to the Job or Data file
     suffix = fname if not tail else os.path.join(*tail, fname)
     full_path = os.path.join(instance.get_data_dir(), suffix)
 
-    rfname = instance.get_data_dir()
-    filetype = "dir"
-
-    if os.path.exists(full_path):
-        rfname = full_path
-        filetype = 'dir' if (os.path.isdir(rfname)) else 'file'
+    # Return an actual filename with a type.
+    rfname = full_path if name else instance.get_data_dir()
+    filetype = 'dir' if (os.path.isdir(rfname)) else 'file'
 
     return rfname, filetype
 
 
 def filename(instance, place_holder, tail=[]):
 
-    # Single file data objects handled here
-    if isinstance(instance, Data) and instance.get_files()[0] and len(instance.get_files()[0]) == 1 :
-        real_file = index(instance.get_files(), 0) or ''
-        return real_file if os.path.exists(real_file) else place_holder
 
     # Directories handled after this point.
     try:
@@ -198,7 +191,6 @@ class BiostarFileSystem(AbstractedFS):
         # List projects when user is at the root
         if path == self.root:
             return [x.name for x in self.projects ]
-            #return filesystem_mapper(queryset=self.projects, tag="Project-")
 
         # Browse /data or /results inside of a project.
         if self.projects.filter(name=root_project) and not tab:
@@ -255,7 +247,6 @@ class BiostarFileSystem(AbstractedFS):
                 rfname, filetype = fetch_file_info(fname=fname, tab=tab,
                                                    name=name, tail=tail,
                                                    project=root_project)
-
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
             modify = time.strftime("%Y%m%d%H%M%S", self.timefunc(st.st_mtime))
