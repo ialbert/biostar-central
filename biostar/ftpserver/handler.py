@@ -67,6 +67,52 @@ class BiostarFTPHandler(FTPHandler):
         # remove partially uploaded files
         pass
 
+    def make_project_dir(self, root_project, path):
+        """
+        Create a project in the database and refresh the
+        projects tab in the FTP server so it shows up as a directory.
+        """
+        user = self.fs.user["user"]
+
+        if self.fs.projects.filter(name=root_project):
+            self.respond('550 Directory already exists.')
+            return
+        # Create a new project
+        auth.create_project(user=user, name=root_project)
+
+        # Refresh projects tab
+        self.fs.projects = auth.get_project_list(user=user)
+
+        line = self.fs.fs2ftp(path)
+        self.respond('257 "%s" directory created.' % line.replace('"', '""'))
+        return path
+
+
+    def make_data_dir(self, instance, tail, root_project, path, name):
+
+
+        project = self.fs.projects.filter(name=root_project)
+
+        if instance and tail:
+            file = os.path.join(instance.get_data_dir(), *tail)
+            self.run_as_current_user(self.fs.mkdir, file)
+            # Remake the toc file
+            instance.make_toc()
+            instance.save()
+            line = self.fs.fs2ftp(file)
+            self.respond('257 "%s" directory created.' % line.replace('"', '""'))
+
+        else:
+            user = self.fs.user["user"]
+            auth.create_data(project=project.first(), user=user, name=name)
+            self.fs.data = models.Data.objects.filter(project=project,
+                                                      state__in=(models.Data.READY, models.Data.PENDING))
+            line = self.fs.fs2ftp(path)
+            self.respond('257 "%s" directory created.' % line.replace('"', '""'))
+
+            logger.info(f"path={path}")
+
+        return
 
     def ftp_MKD(self, path):
 
@@ -77,61 +123,25 @@ class BiostarFTPHandler(FTPHandler):
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=path)
 
-        projects = self.fs.projects
-        user = self.fs.user["user"]
-
         # Creating a directory at the root dir
         if root_project and not tab:
-
-            if projects.filter(name=root_project):
-                self.respond('550 Directory already exists.')
-                return
-            else:
-                # Create a new project
-                auth.create_project(user=user, name=root_project)
-
-                # Refresh projects tab
-                self.fs.projects = auth.get_project_list(user=user)
-
-                line = self.fs.fs2ftp(path)
-                self.respond('257 "%s" directory created.' % line.replace('"', '""'))
-
-            return path
+            return self.make_project_dir(root_project=root_project, path=path)
 
         if tab == "data" and name:
 
             instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
-            project = self.fs.projects.filter(name=root_project)
-
             if instance and not tail:
                 self.respond('550 Directory already exists.')
                 return
 
-            if instance and tail:
-                file = os.path.join(instance.get_data_dir(), *tail)
-                self.run_as_current_user(self.fs.mkdir, file)
-                # Remake the toc file
-                instance.make_toc()
-                instance.save()
-                line = self.fs.fs2ftp(file)
-                self.respond('257 "%s" directory created.' % line.replace('"', '""'))
-
-            else:
-                auth.create_data(project=project.first(), user=user, name=name)
-                self.fs.data = models.Data.objects.filter(project=project,
-                                                          state__in=(models.Data.READY, models.Data.PENDING))
-                line = self.fs.fs2ftp(path)
-                self.respond('257 "%s" directory created.' % line.replace('"', '""'))
-
-                logger.info(f"path={path}")
-
+            self.make_data_dir(instance=instance, tail=tail, root_project=root_project,
+                               path=path, name=name)
             return path
 
-        # Add the data to the tail and update the toc_name.
-        logger.info(f"new_dir={path}, path={path}, root_project={root_project}, project={projects.filter(name=root_project)}")
-
-        1/0
-        return path
+        else:
+            # Can only upload to the /data for now.
+            self.respond("550 Can not create a directory here.")
+            return
 
 
     def load_dtp(self, file_object, cmd="STOR"):
@@ -145,7 +155,6 @@ class BiostarFTPHandler(FTPHandler):
             resp = "File status okay. About to open data connection."
             self.respond("150 " + resp)
             self._in_dtp_queue = (file_object, cmd)
-
 
 
     def ftp_STOR(self, file, mode='w'):
