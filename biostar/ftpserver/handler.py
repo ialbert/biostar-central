@@ -85,34 +85,24 @@ class BiostarFTPHandler(FTPHandler):
 
         line = self.fs.fs2ftp(path)
         self.respond('257 "%s" directory created.' % line.replace('"', '""'))
+        logger.info(f"path={path}")
         return path
 
 
-    def make_data_dir(self, instance, tail, root_project, path, name):
-
+    def make_data_dir(self, root_project, path, name):
 
         project = self.fs.projects.filter(name=root_project)
 
-        if instance and tail:
-            file = os.path.join(instance.get_data_dir(), *tail)
-            self.run_as_current_user(self.fs.mkdir, file)
-            # Remake the toc file
-            instance.make_toc()
-            instance.save()
-            line = self.fs.fs2ftp(file)
-            self.respond('257 "%s" directory created.' % line.replace('"', '""'))
+        user = self.fs.user["user"]
+        auth.create_data(project=project.first(), user=user, name=name)
+        # Refresh /data tab.
+        self.fs.data = models.Data.objects.filter(project=project,
+                                                  state__in=(models.Data.READY, models.Data.PENDING))
+        line = self.fs.fs2ftp(path)
+        self.respond('257 "%s" directory created.' % line.replace('"', '""'))
+        logger.info(f"path={path}")
+        return path
 
-        else:
-            user = self.fs.user["user"]
-            auth.create_data(project=project.first(), user=user, name=name)
-            self.fs.data = models.Data.objects.filter(project=project,
-                                                      state__in=(models.Data.READY, models.Data.PENDING))
-            line = self.fs.fs2ftp(path)
-            self.respond('257 "%s" directory created.' % line.replace('"', '""'))
-
-            logger.info(f"path={path}")
-
-        return
 
     def ftp_MKD(self, path):
 
@@ -123,10 +113,11 @@ class BiostarFTPHandler(FTPHandler):
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=path)
 
-        # Creating a directory at the root dir
+        # Creating a project directory at the root dir
         if root_project and not tab:
             return self.make_project_dir(root_project=root_project, path=path)
 
+        # Create a directory inside of the /results or /data tab
         if name:
 
             instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
@@ -134,22 +125,29 @@ class BiostarFTPHandler(FTPHandler):
                 self.respond('550 Directory already exists.')
                 return
             if not instance and tab == "results":
-                self.respond('550 Can not create a directory here.')
+                self.respond("550 Only running a recipe will create directories here.")
+                return
+            elif not instance and tab == "data":
+                self.make_data_dir(root_project=root_project, path=path, name=name)
                 return
 
-            if tab == "data":
-                self.make_data_dir(instance=instance, tail=tail, root_project=root_project,
-                               path=path, name=name)
-            elif tab == 'results':
+            if instance and tail:
                 file = os.path.join(instance.get_data_dir(), *tail)
+                if self.is_linked_dir(file=file, data_dir=instance.get_data_dir()):
+                    self.respond('550 Can not write to a linked directory.')
+                    return
+
                 self.run_as_current_user(self.fs.mkdir, file)
                 line = self.fs.fs2ftp(path)
                 self.respond('257 "%s" directory created.' % line.replace('"', '""'))
 
+            if tab == "data":
+                # Update the toc file and trigger another save.
+                instance.make_toc()
+                instance.save()
             return path
 
         else:
-            # Can only upload to the /data for now.
             self.respond("550 Can not create a directory here.")
             return
 
@@ -167,18 +165,32 @@ class BiostarFTPHandler(FTPHandler):
             self._in_dtp_queue = (file_object, cmd)
 
 
-    def ftp_STOR(self, file, mode='w'):
+    def is_linked_dir(self, file, data_dir):
+        "Check if a file in data_dir is inside of a linked directory"
 
-        # Make an empty file with the same name in the dest?
+        for fname in os.scandir(data_dir):
+
+            if file.startswith(fname.path) and fname.is_dir():
+                if os.path.islink(fname.path):
+                    return True
+                else:
+                    self.is_linked_dir(file=file, data_dir=fname.path)
+
+        return False
+
+
+    def ftp_STOR(self, file, mode='w'):
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=file)
 
-        def create_dirs(instance):
+        def create_dirs(file, instance):
+            not_linked = not self.is_linked_dir(file=file, data_dir=instance.get_data_dir())
 
-            file = os.path.join(instance.get_data_dir(), *tail)
-            # Ensure that the sub dirs in tail exist
-            if not os.path.exists(os.path.dirname(file)):
-                os.makedirs(os.path.dirname(file), exist_ok=True)
+            if not_linked:
+                file = os.path.join(instance.get_data_dir(), *tail)
+                # Ensure that the sub dirs in tail exist
+                if not os.path.exists(os.path.dirname(file)):
+                    os.makedirs(os.path.dirname(file), exist_ok=True)
 
             return file
 
@@ -194,10 +206,10 @@ class BiostarFTPHandler(FTPHandler):
             if instance and tail:
                 file = os.path.join(instance.get_data_dir(), *tail)
                 # Ensure that the sub dirs in tail exist
-                create_dirs(instance)
+                create_dirs(file, instance)
 
             elif not instance and tab == "results":
-                self.respond('550 Can not upload a file here.')
+                self.respond('550 Can not upload to the results tab.')
                 return
 
             elif not instance and tab == 'data':
@@ -205,12 +217,16 @@ class BiostarFTPHandler(FTPHandler):
                 if tail:
                     file = os.path.join(instance.get_data_dir(), *tail)
                     # Ensure that the sub dirs in tail exist
-                    create_dirs(instance)
+                    create_dirs(file, instance)
                 else:
                     file = os.path.join(instance.get_data_dir(), name)
                 # Refresh the data tab
                 self.fs.data = models.Data.objects.filter(project=project,
                                                           state__in=(models.Data.READY, models.Data.PENDING))
+
+            if self.is_linked_dir(file=file, data_dir=instance.get_data_dir()):
+                self.respond('550 Can not write to a linked directory.')
+                return
 
             # Load the stream into the DTP Data Transfer Protocol
             fd = self.run_as_current_user(self.fs.open, file, mode + 'b')
