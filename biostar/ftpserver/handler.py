@@ -127,15 +127,25 @@ class BiostarFTPHandler(FTPHandler):
         if root_project and not tab:
             return self.make_project_dir(root_project=root_project, path=path)
 
-        if tab == "data" and name:
+        if name:
 
             instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
             if instance and not tail:
                 self.respond('550 Directory already exists.')
                 return
+            if not instance and tab == "results":
+                self.respond('550 Can not create a directory here.')
+                return
 
-            self.make_data_dir(instance=instance, tail=tail, root_project=root_project,
+            if tab == "data":
+                self.make_data_dir(instance=instance, tail=tail, root_project=root_project,
                                path=path, name=name)
+            elif tab == 'results':
+                file = os.path.join(instance.get_data_dir(), *tail)
+                self.run_as_current_user(self.fs.mkdir, file)
+                line = self.fs.fs2ftp(path)
+                self.respond('257 "%s" directory created.' % line.replace('"', '""'))
+
             return path
 
         else:
@@ -163,7 +173,16 @@ class BiostarFTPHandler(FTPHandler):
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=file)
 
-        if tab == 'data' and name:
+        def create_dirs(instance):
+
+            file = os.path.join(instance.get_data_dir(), *tail)
+            # Ensure that the sub dirs in tail exist
+            if not os.path.exists(os.path.dirname(file)):
+                os.makedirs(os.path.dirname(file), exist_ok=True)
+
+            return file
+
+        if name:
 
             project = self.fs.projects.filter(name=root_project).first()
             instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
@@ -175,14 +194,24 @@ class BiostarFTPHandler(FTPHandler):
             if instance and tail:
                 file = os.path.join(instance.get_data_dir(), *tail)
                 # Ensure that the sub dirs in tail exist
-                if not os.path.exists(os.path.dirname(file)):
-                    os.makedirs(os.path.dirname(file), exist_ok=True)
-            else:
+                create_dirs(instance)
+
+            elif not instance and tab == "results":
+                self.respond('550 Can not upload a file here.')
+                return
+
+            elif not instance and tab == 'data':
                 instance = auth.create_data(project=project, name=name)
-                file = os.path.join(instance.get_data_dir(), name)
+                if tail:
+                    file = os.path.join(instance.get_data_dir(), *tail)
+                    # Ensure that the sub dirs in tail exist
+                    create_dirs(instance)
+                else:
+                    file = os.path.join(instance.get_data_dir(), name)
                 # Refresh the data tab
                 self.fs.data = models.Data.objects.filter(project=project,
                                                           state__in=(models.Data.READY, models.Data.PENDING))
+
             # Load the stream into the DTP Data Transfer Protocol
             fd = self.run_as_current_user(self.fs.open, file, mode + 'b')
             self.load_dtp(file_object=fd)

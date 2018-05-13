@@ -160,10 +160,12 @@ class BiostarFileSystem(AbstractedFS):
         # If the virtual path does not have a 'tail' then its a dir.
         if not tail or path == self.root:
             return is_dir
-
-        if tail:
-            path = os.path.join(query_tab(tab=tab, name=name, project=root_project), *tail)
-            is_dir = not (os.path.exists(path) and os.path.isfile(path))
+        try:
+            if tail:
+                path = os.path.join(query_tab(tab=tab, name=name, project=root_project), *tail)
+                is_dir = not (os.path.exists(path) and os.path.isfile(path))
+        except Exception as exc:
+            logger.error(f"{exc}")
 
         logger.info(f"path={path}, is_dir={is_dir}")
         return is_dir
@@ -196,6 +198,7 @@ class BiostarFileSystem(AbstractedFS):
         base_dir = query_tab(tab=tab, name=name, project=root_project)
         # List the files inside of /data and /results tabs
         if base_dir and is_instance:
+
             return [os.path.basename(p.path) for p in os.scandir(base_dir)]
 
         # Dir list returned is different depending on the tab
@@ -329,7 +332,7 @@ class BiostarFileSystem(AbstractedFS):
                 perm = "elrwm"
             else:
                 # Can only read while in job dir ( currently).
-                perm = "elr"
+                perm = "elrwm"
             logger.info(f"perm={perm}")
 
         return perm
