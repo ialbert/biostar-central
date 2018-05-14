@@ -1,12 +1,16 @@
+import logging
+import glob
+
 from django.core.management.base import BaseCommand
 
 from ftplib import FTP
-#from biostar.engine import auth
 from biostar.settings import *
-from biostar.engine.models import Project
 
-CURRENT_DIR = os.path.join(__file__, '..')
 
+CURRENT_FILE = os.path.abspath(__file__)
+
+
+logger = logging.getLogger("engine")
 
 class Command(BaseCommand):
     help = "Add users"
@@ -20,42 +24,35 @@ class Command(BaseCommand):
 
         ftp.login(user=ADMINS[0][1], passwd=DEFAULT_ADMIN_PASSWORD)
 
-        #user= User.objects.filter(email=ADMINS[0][1]).first()
-        #projects = auth.get_project_list(user=user)
-
-        # Get initial list of projects
+        # Initial list of projects
         projects = list(ftp.nlst())
-        for f in projects:
-            #print(ftp.cwd(f))
-            print(f)
+        print('\n'.join(projects))
+        print("-----")
 
-        # Test making a project
+        project_name = "Test FTP project"
+        # Create a new project at the root directory
+        print(ftp.mkd(project_name))
 
-        test_project = projects[0]
+        # Check to see the project has been created
+        project_created = project_name in list(ftp.nlst())
+        print(f"Project creation and upload successful: {project_created}\n-----")
 
-        # Switch the cwd to the /data directory of test_project
-        # Creating a dir here will create a Data object in test_project as well.
-        ftp.cwd(os.path.join(test_project, "data"))
-        print(ftp.nlst())
+        # Switch the cwd to the /data directory of newly created project.
+        # Creating a dir here will create a Data object in the project.
+        ftp.cwd(os.path.join(project_name, "data"))
 
-        # Point to current dir as the target file on local
-        file = open(CURRENT_DIR , 'rb')
-        fname  = os.path.basename(CURRENT_DIR)
+        # Point to the directory we want to upload
+        file = open(CURRENT_FILE , 'rb')
+        fname  = os.path.basename(CURRENT_FILE)
         cmd = f"STOR {fname}"
 
-        # Add file as a Data to the test_project
+        # Add directory as a Data object to test project
         ftp.storlines(cmd=cmd, fp=file)
 
-        # Check to see if the ftp server uploaded
-        ftp_upload_success = fname in list(ftp.nlst())
-        print(f"Upload successful :{ftp_upload_success}")
+        # Check to see Data object has been created in database
+        # and the dir is in the ftp server.
+        data_created =  fname in list(ftp.nlst())
+        print(f"Data object and files created: {data_created}. Look in {project_name}")
 
-        # Check to see Data object has been created
-        project = Project.objects.filter(name=test_project).first()
-
-        data_obj_created = fname in project.data_set
-        print(f"Data object created: {data_obj_created}. Look in {project}")
-
-
-
-
+        # Test download of entire test project we just uploaded
+        ftp.cwd("/")

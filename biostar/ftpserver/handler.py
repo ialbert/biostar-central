@@ -178,21 +178,23 @@ class BiostarFTPHandler(FTPHandler):
 
         return False
 
+    def create_dirs(self, file, instance, tail=[]):
+        # Ensure that the sub dirs in tail exist when uploading a file
+
+        not_linked = not self.is_linked_dir(file=file, data_dir=instance.get_data_dir())
+
+        if not_linked:
+            file = os.path.join(instance.get_data_dir(), *tail)
+
+            if not os.path.exists(os.path.dirname(file)):
+                os.makedirs(os.path.dirname(file), exist_ok=True)
+
+        return file
+
 
     def ftp_STOR(self, file, mode='w'):
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=file)
-
-        def create_dirs(file, instance):
-            not_linked = not self.is_linked_dir(file=file, data_dir=instance.get_data_dir())
-
-            if not_linked:
-                file = os.path.join(instance.get_data_dir(), *tail)
-                # Ensure that the sub dirs in tail exist
-                if not os.path.exists(os.path.dirname(file)):
-                    os.makedirs(os.path.dirname(file), exist_ok=True)
-
-            return file
 
         if name:
 
@@ -206,7 +208,7 @@ class BiostarFTPHandler(FTPHandler):
             if instance and tail:
                 file = os.path.join(instance.get_data_dir(), *tail)
                 # Ensure that the sub dirs in tail exist
-                create_dirs(file, instance)
+                self.create_dirs(file=file, instance=instance, tail=tail)
 
             elif not instance and tab == "results":
                 self.respond('550 Can not upload to the results tab.')
@@ -217,7 +219,7 @@ class BiostarFTPHandler(FTPHandler):
                 if tail:
                     file = os.path.join(instance.get_data_dir(), *tail)
                     # Ensure that the sub dirs in tail exist
-                    create_dirs(file, instance)
+                    self.create_dirs(file=file, instance=instance, tail=tail)
                 else:
                     file = os.path.join(instance.get_data_dir(), name)
                 # Refresh the data tab
