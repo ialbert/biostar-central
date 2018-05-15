@@ -18,15 +18,18 @@ def start():
     authorizer = BiostarAuthorizer()
     # Instantiate FTP and DTP handler class.
     handler = BiostarFTPHandler
-    #handler.dtp_handler = BiostarDTPHandler
 
     handler.authorizer = authorizer
     handler.abstracted_fs = BiostarFileSystem
 
+    # requires SSL for both control and data channel
+    #handler.tls_control_required = True
+    #handler.tls_data_required = True
+    #handler.certfile = 'keycert.pem'
+
     # Define a customized banner (string returned when client connects)
     handler.banner = "Welcome to Biostar-Engine"
 
-    # Listen on 0.0.0.0:8021
     address = (FTP_HOST, FTP_PORT)
     server = FTPServer(address, handler)
 

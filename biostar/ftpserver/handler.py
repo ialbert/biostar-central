@@ -1,8 +1,7 @@
 
 import logging
 import os
-from pyftpdlib.handlers import FTPHandler, DTPHandler
-from itertools import chain
+from pyftpdlib.handlers import FTPHandler, TLS_FTPHandler
 from biostar.engine import auth, models
 
 
@@ -46,7 +45,7 @@ class BiostarFTPHandler(FTPHandler):
     def on_file_received(self, file):
         """Only recieve files in data tabs"""
 
-        #TODO: hardcoded "store-1"
+        #TODO: hardcoded "store-"
         datauid = [s.split("-")[1] for s in file.split(os.sep) if "store-" in s][0]
 
         data = models.Data.objects.filter(uid=datauid).first()
@@ -57,7 +56,6 @@ class BiostarFTPHandler(FTPHandler):
             data.save()
 
         return
-
 
     def on_incomplete_file_sent(self, file):
         # do something when a file is partially sent
@@ -177,6 +175,7 @@ class BiostarFTPHandler(FTPHandler):
                     self.is_linked_dir(file=file, data_dir=fname.path)
 
         return False
+
 
     def create_dirs(self, file, instance, tail=[]):
         # Ensure that the sub dirs in tail exist when uploading a file

@@ -19,3 +19,4 @@ coverage
 pyftpdlib
 pandas
 requests
+pyopenssl

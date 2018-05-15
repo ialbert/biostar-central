@@ -287,12 +287,13 @@ class BiostarFileSystem(AbstractedFS):
         for basedir in valid_project_dirs + valid_job_dirs:
             if path.startswith(basedir):
                 logger.info(f"path={path}, basedir={basedir}, is_valid={True and os.path.exists(path=path)}")
-                return True and os.path.exists(path=path)
+                return os.path.exists(path=path)
 
         logger.info(f"is_valid={False}")
         return False
 
-    def access_to_perm(self, access, **kwargs):
+
+    def access_to_perm(self, access):
 
         """
         Map biostar-engine access control to pyftpdlib's
@@ -312,30 +313,20 @@ class BiostarFileSystem(AbstractedFS):
          - "T" = update file last modified time (MFMT command)
 
         """
+        # Note: Nobody is allowed to delete for now.
+        read_perms = "elr"
+        write_perms = "wm"
+        manager_perms = "f"
 
-        tab, name, tail = kwargs['tab'], kwargs['name'], kwargs['tail']
+        perm_map = {
+                    Access.NO_ACCESS: read_perms,
+                    Access.READ_ACCESS: read_perms,
+                    Access.WRITE_ACCESS: read_perms + write_perms,
+                    Access.OWNER_ACCESS: read_perms + write_perms + manager_perms
+                    }
 
-        perm = "elrwm"
-        if access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
-            # You can rename it if you are the owner.
-            if access == Access.OWNER_ACCESS:
-                # Make directory and rename "files" which are really data or job objects.
-                perm += 'mf'
-            else:
-                # Only make directories
-                perm += 'm'
+        return perm_map.get(access, "el")
 
-        if tab and (not name):
-
-            if tab == "data":
-                # Write to destination if you are in a data dir
-                perm = "elrwm"
-            else:
-                # Can only read while in job dir ( currently).
-                perm = "elrwm"
-            logger.info(f"perm={perm}")
-
-        return perm
 
     def set_permissions(self, basedir):
 
@@ -343,18 +334,16 @@ class BiostarFileSystem(AbstractedFS):
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=basedir)
 
-        instance = self.projects.filter(name=root_project).first()
+        project = self.projects.filter(name=root_project).first()
         user = self.user["user"]
 
-        if name:
-            instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
-
-        access = None if not instance else Access.objects.filter(user=user, project=instance.project)
+        access = None if not project else Access.objects.filter(user=user, project=project).first()
         access = access or Access(access=Access.NO_ACCESS)
 
-        perm = self.access_to_perm(access=access, tab=tab, tail=tail, name=name)
+        perm = self.access_to_perm(access=access.access)
 
         if basedir != self.root:
+            # This is where the permissions are set
             self.authorizer.override_perm(username=self.username, directory=basedir, perm=perm)
 
         return perm

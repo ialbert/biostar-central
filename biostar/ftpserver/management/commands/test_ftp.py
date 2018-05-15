@@ -39,7 +39,7 @@ class Command(BaseCommand):
         ftp.mkd("Test FTP Data")
         ftp.cwd("Test FTP Data")
 
-        # Make another directory
+        # Make another directory and enter it
         ftp.mkd("store")
         ftp.cwd("store")
 
@@ -51,8 +51,7 @@ class Command(BaseCommand):
         # Add directory as a Data object to test project
         ftp.storlines(cmd=cmd, fp=file)
 
-        # Check to see Data object has been created in database
-        # and the dir is in the ftp server.
+        # Check to see Data object has been created
         data_created =  fname in list(ftp.nlst())
         print(f"Data object and files created: {data_created}. Look in {project_name}\n-----")
 
