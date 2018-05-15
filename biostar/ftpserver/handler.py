@@ -131,9 +131,9 @@ class BiostarFTPHandler(FTPHandler):
 
             if instance and tail:
                 file = os.path.join(instance.get_data_dir(), *tail)
-                if self.is_linked_dir(file=file, data_dir=instance.get_data_dir()):
-                    self.respond('550 Can not write to a linked directory.')
-                    return
+                #if self.is_linked_dir(file=file, data_dir=instance.get_data_dir()):
+                #    self.respond('550 Can not write to a linked directory.')
+                #    return
 
                 self.run_as_current_user(self.fs.mkdir, file)
                 line = self.fs.fs2ftp(path)
@@ -180,13 +180,13 @@ class BiostarFTPHandler(FTPHandler):
     def create_dirs(self, file, instance, tail=[]):
         # Ensure that the sub dirs in tail exist when uploading a file
 
-        not_linked = not self.is_linked_dir(file=file, data_dir=instance.get_data_dir())
+        #not_linked = not self.is_linked_dir(file=file, data_dir=instance.get_data_dir())
 
-        if not_linked:
-            file = os.path.join(instance.get_data_dir(), *tail)
+        #if not_linked:
+        file = os.path.join(instance.get_data_dir(), *tail)
 
-            if not os.path.exists(os.path.dirname(file)):
-                os.makedirs(os.path.dirname(file), exist_ok=True)
+        if not os.path.exists(os.path.dirname(file)):
+            os.makedirs(os.path.dirname(file), exist_ok=True)
 
         return file
 
@@ -225,9 +225,9 @@ class BiostarFTPHandler(FTPHandler):
                 self.fs.data = models.Data.objects.filter(project=project,
                                                           state__in=(models.Data.READY, models.Data.PENDING))
 
-            if self.is_linked_dir(file=file, data_dir=instance.get_data_dir()):
-                self.respond('550 Can not write to a linked directory.')
-                return
+            #if self.is_linked_dir(file=file, data_dir=instance.get_data_dir()):
+            #    self.respond('550 Can not write to a linked directory.')
+            #    return
 
             # Load the stream into the DTP Data Transfer Protocol
             fd = self.run_as_current_user(self.fs.open, file, mode + 'b')
