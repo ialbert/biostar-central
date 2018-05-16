@@ -15,63 +15,28 @@ logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
 
-def is_data_file(data):
-
-    return isinstance(data, Data) and len(data.get_files()) in (1, 0)
-
-
 def fetch_file_info(fname, project, tab=None, tail=[], name=None):
     """
     Fetch the actual file path and filetype of a given instance.
     """
 
-    # At /data or /results tab, fname is an ftp path that contains a Data or Job pk.
-    name = name or fname
+    # Get the Job or Data instance from the name and tab
+    instance = query_tab(tab=tab, name=name or fname, show_instance=True, project=project)
+    assert instance, "Does not exist"
 
-    instance = query_tab(tab=tab, name=name, show_instance=True, project=project)
-
+    # Patch together the absolute path to the Job or Data file
     suffix = fname if not tail else os.path.join(*tail, fname)
     full_path = os.path.join(instance.get_data_dir(), suffix)
-    # There is an extra tail to patch together
-    if instance and tail:
-        rfname = full_path
-        filetype = 'dir' if (os.path.exists(rfname) and os.path.isdir(rfname)) else 'file'
 
-    # No tail to deal with
-    elif instance and not tail:
-        rfname = instance.get_data_dir()
-        filetype = "file" if is_data_file(instance) else "dir"
-    else:
-        rfname, filetype= fname, "dir"
+    # Return an actual filename with a type.
+    rfname = full_path if name else instance.get_data_dir()
+    filetype = 'dir' if (os.path.isdir(rfname)) else 'file'
 
     return rfname, filetype
 
 
-def filename(instance, place_holder, tail=[]):
-
-    # Single file data objects handled here
-    if is_data_file(data=instance):# and instance.get_files()[0]:
-        real_file = index(instance.get_files(), 0) or ''
-        return real_file if os.path.exists(real_file) else place_holder
-
-    # Directories handled after this point.
-    try:
-        fname = os.path.join(instance.get_data_dir(), *tail)
-        is_file = os.path.exists(fname) and os.path.isfile(fname)
-    except Exception as exc:
-        logger.error(f"{exc}")
-        fname, is_file = None, False
-
-    # Return abspath if its a file, otherwise continue.
-    return fname if is_file else place_holder
-
-
-def dir_list(base_dir, is_instance=False, tail=[]):
+def dir_list(base_dir, tail=[]):
     "Return contents of a given base dir ( and a tail)."
-
-    # List the files inside of /data and /results tabs
-    if base_dir and is_instance:
-        return [os.path.basename(p.path) for p in os.scandir(base_dir)]
     try:
         # List sub-dirs found in /data and /results
         suffix = os.path.join(*tail)
@@ -115,12 +80,10 @@ class BiostarFileSystem(AbstractedFS):
         # Projects the user has access to
         self.projects = auth.get_project_list(user=self.user["user"])
 
-
         # Data and results in project
-        self.data = Data.objects.filter(deleted=False, project__in=self.projects,
-                                   state__in=(Data.READY, Data.PENDING))
+        self.data = Data.objects.filter(project__in=self.projects, state__in=(Data.READY, Data.PENDING))
 
-        self.jobs = Job.objects.filter(deleted=False, project__in=self.projects)
+        self.jobs = Job.objects.filter(project__in=self.projects)
 
         # Get authorizer to set write permission on directories.
         self.authorizer = self.cmd_channel.authorizer
@@ -152,8 +115,16 @@ class BiostarFileSystem(AbstractedFS):
             # We let self.valid_path handle invalid paths
             return abs_ftppath
 
-        # Attempt to return abs file path, otherwise returns place holder.
-        return filename(tail=tail, place_holder=abs_ftppath, instance=instance)
+        try:
+            fullname = os.path.join(instance.get_data_dir(), *tail)
+            is_file = os.path.exists(fullname) and os.path.isfile(fullname)
+            fname = fullname if is_file else abs_ftppath
+        except Exception as exc:
+            fname = abs_ftppath
+            logger.error(f"{exc}")
+
+        # Attempt to return a real file path, otherwise returns absolute ftppath.
+        return fname
 
 
     def validpath(self, path):
@@ -183,17 +154,18 @@ class BiostarFileSystem(AbstractedFS):
 
     def isdir(self, path):
 
-
         root_project, tab, name, tail = parse_virtual_path(ftppath=path)
         is_dir = True
 
         # If the virtual path does not have a 'tail' then its a dir.
         if not tail or path == self.root:
             return is_dir
-
-        if tail:
-            path = os.path.join(query_tab(tab=tab, name=name, project=root_project), *tail)
-            is_dir = not (os.path.exists(path) and os.path.isfile(path))
+        try:
+            if tail:
+                path = os.path.join(query_tab(tab=tab, name=name, project=root_project), *tail)
+                is_dir = not (os.path.exists(path) and os.path.isfile(path))
+        except Exception as exc:
+            logger.error(f"{exc}")
 
         logger.info(f"path={path}, is_dir={is_dir}")
         return is_dir
@@ -209,7 +181,6 @@ class BiostarFileSystem(AbstractedFS):
         # List projects when user is at the root
         if path == self.root:
             return [x.name for x in self.projects ]
-            #return filesystem_mapper(queryset=self.projects, tag="Project-")
 
         # Browse /data or /results inside of a project.
         if self.projects.filter(name=root_project) and not tab:
@@ -225,9 +196,13 @@ class BiostarFileSystem(AbstractedFS):
         # Take a look at specific instance in /data or /results
         is_instance = name and (not tail)
         base_dir = query_tab(tab=tab, name=name, project=root_project)
+        # List the files inside of /data and /results tabs
+        if base_dir and is_instance:
+
+            return [os.path.basename(p.path) for p in os.scandir(base_dir)]
 
         # Dir list returned is different depending on the tab
-        return dir_list(base_dir=base_dir, is_instance=is_instance, tail=tail)
+        return dir_list(base_dir=base_dir, tail=tail)
 
 
     def chdir(self, path):
@@ -266,7 +241,6 @@ class BiostarFileSystem(AbstractedFS):
                 rfname, filetype = fetch_file_info(fname=fname, tab=tab,
                                                    name=name, tail=tail,
                                                    project=root_project)
-
             st = self.stat(rfname)
             unique = "%xg%x" % (st.st_dev, st.st_ino)
             modify = time.strftime("%Y%m%d%H%M%S", self.timefunc(st.st_mtime))
@@ -294,46 +268,33 @@ class BiostarFileSystem(AbstractedFS):
 
         # Check user did not leave /data or /results while in project.
         if tab and (tab not in ('data', 'results')):
-            logger.info(f"is_valid={False}")
+            logger.info(f"is_valid={False}, tab not in data or resutls")
             return False
 
         if name and not self.projects.filter(name=root_project):
-            logger.info(f"is_valid={False}")
+            logger.info(f"is_valid={False}, project does not exist")
             return False
 
-        # The path is valid at this point
-        is_valid = True
-        if tail:
-            # No need to break things while validating the path
-            try:
-                actual_path = query_tab(tab=tab, name=name, project=root_project)
-                suffix = os.path.join(*tail)
-                is_valid = os.path.exists(os.path.join(actual_path, suffix))
-            except Exception as exc:
-                logger.error(f"{exc}")
-                is_valid = False
-
-        logger.info(f"is_valid={is_valid}")
-
-        return is_valid
+        return True
 
 
     def validate_actual_path(self, path):
         "Make sure user has access to real path requested."
-
 
         valid_project_dirs = [p.get_project_dir() for p in self.projects]
         valid_job_dirs = [job.get_data_dir() for job in self.jobs]
 
         for basedir in valid_project_dirs + valid_job_dirs:
             if path.startswith(basedir):
-                logger.info(f"path={path}, basedir={basedir}, is_valid={True}")
-                return True
+                logger.info(f"path={path}, basedir={basedir}, is_valid={True and os.path.exists(path=path)}")
+                return os.path.exists(path=path)
 
         logger.info(f"is_valid={False}")
         return False
 
-    def access_to_perm(self, access, **kwargs):
+
+    def access_to_perm(self, access):
+
         """
         Map biostar-engine access control to pyftpdlib's
 
@@ -352,25 +313,20 @@ class BiostarFileSystem(AbstractedFS):
          - "T" = update file last modified time (MFMT command)
 
         """
+        # Note: Nobody is allowed to delete for now.
+        read_perms = "elr"
+        write_perms = "wm"
+        manager_perms = "f"
 
-        tab, name, tail = kwargs['tab'], kwargs['name'], kwargs['tail']
+        perm_map = {
+                    Access.NO_ACCESS: read_perms,
+                    Access.READ_ACCESS: read_perms,
+                    Access.WRITE_ACCESS: read_perms + write_perms,
+                    Access.OWNER_ACCESS: read_perms + write_perms + manager_perms
+                    }
 
-        perm = "elwr"
-        if access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
-            # You can rename it if you are the owner.
-            if access == Access.OWNER_ACCESS:
-                perm += 'mf'
-            else:
-                perm += 'm'
+        return perm_map.get(access, "el")
 
-        if tab and (not name):
-            # Can only read while in job dir.
-            if tab == "data":
-                perm = "elrmwf"
-            else:
-                perm = "elr"
-
-        return perm
 
     def set_permissions(self, basedir):
 
@@ -378,18 +334,16 @@ class BiostarFileSystem(AbstractedFS):
 
         root_project, tab, name, tail = parse_virtual_path(ftppath=basedir)
 
-        instance = self.projects.filter(name=root_project).first()
+        project = self.projects.filter(name=root_project).first()
         user = self.user["user"]
 
-        if name:
-            instance = query_tab(tab=tab, project=root_project, name=name, show_instance=True)
-
-        access = None if not instance else Access.objects.filter(user=user, project=instance.project)
+        access = None if not project else Access.objects.filter(user=user, project=project).first()
         access = access or Access(access=Access.NO_ACCESS)
 
-        perm = self.access_to_perm(access=access, tab=tab, tail=tail, name=name)
+        perm = self.access_to_perm(access=access.access)
 
         if basedir != self.root:
+            # This is where the permissions are set
             self.authorizer.override_perm(username=self.username, directory=basedir, perm=perm)
 
         return perm
