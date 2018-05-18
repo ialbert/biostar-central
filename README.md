@@ -85,7 +85,7 @@ All commands run through `make`. To initialize and run the test site use:
    
 Visit <http://localhost:8000> to see your site running. 
 
-The default admin email/password combination is: `admin@localhost/password`. Use these to log into the test site as an admin user.
+The default admin email/password combination is `admin@localhost` for both. Use these to log into the test site as an admin user.
 
 ## Bioinformatics environment
 
