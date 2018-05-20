@@ -525,7 +525,8 @@ def recipe_create(request, uid):
             messages.success(request, "Recipe created")
 
             return redirect(reverse('recipe_list', kwargs=dict(uid=project.uid)))
-
+        else:
+            print(form.errors)
     # The url to submit to.
     action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
     context = dict(project=project, form=form, action_url=action_url, name="New Recipe")
