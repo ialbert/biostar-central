@@ -525,8 +525,6 @@ def recipe_create(request, uid):
             messages.success(request, "Recipe created")
 
             return redirect(reverse('recipe_list', kwargs=dict(uid=project.uid)))
-        else:
-            print(form.errors)
     # The url to submit to.
     action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
     context = dict(project=project, form=form, action_url=action_url, name="New Recipe")
@@ -732,7 +730,7 @@ def data_serve(request, uid, path):
     return file_serve(request=request, path=path, uid=uid, obj=obj)
 
 
-@object_access(type=Job, access=Access.READ_ACCESS, url='job_entry')
+@object_access(type=Job, access=Access.READ_ACCESS, url='job_view')
 def job_serve(request, uid, path):
     """
     Serves files from a job directory.
