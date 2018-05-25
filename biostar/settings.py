@@ -16,7 +16,7 @@ DEBUG = True
 SECRET_KEY = 'secret-key'
 
 # The password for admin users. Must be changed in production.
-DEFAULT_ADMIN_PASSWORD = "password"
+DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
 # Admin users will be created automatically with DEFAULT_ADMIN_PASSWORD.
 ADMINS = [
