@@ -61,10 +61,14 @@ class object_access:
             if not allow_access:
 
                 # If there is a redirect url build with the uid.
-                if self.url and uid:
-                    target = reverse(self.url, kwargs=dict(uid=uid))
-                else:
-                    target = reverse('project_list')
+                try:
+                    if self.url and uid:
+                        target = reverse(self.url, kwargs=dict(uid=uid))
+                    else:
+                        target = reverse('project_list')
+                except Exception as exc:
+
+                    return redirect("/")
 
                 return redirect(target)
 

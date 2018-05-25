@@ -175,8 +175,6 @@ class BiostarFTPHandler(FTPHandler):
                     self.is_linked_dir(file=file, data_dir=fname.path)
 
         return False
-
-
     def create_dirs(self, file, instance, tail=[]):
         # Ensure that the sub dirs in tail exist when uploading a file
 
