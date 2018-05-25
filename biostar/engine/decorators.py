@@ -1,4 +1,5 @@
 from functools import wraps
+from django.contrib import messages
 
 from django.urls import reverse
 from django.shortcuts import redirect
@@ -8,14 +9,14 @@ from . import auth
 
 from . import models
 
-
+# Share the logger with models
+logger = models.logger
 
 class object_access:
     """
     Wraps a view and checks user access permissions to an instance.
     Redirects to the url on access error.
     """
-
 
     def __init__(self, type, access=models.Access.WRITE_ACCESS, url='', role=None,
                  login_required=False):
@@ -67,8 +68,9 @@ class object_access:
                     else:
                         target = reverse('project_list')
                 except Exception as exc:
-
-                    return redirect("/")
+                    messages.error(request, "Error trying to redirect")
+                    logger.error(f"{exc}")
+                    target = "/"
 
                 return redirect(target)
 

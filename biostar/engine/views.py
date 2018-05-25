@@ -731,7 +731,7 @@ def data_serve(request, uid, path):
     return file_serve(request=request, path=path, uid=uid, obj=obj)
 
 
-@object_access(type=Job, access=Access.READ_ACCESS, url='job_view')
+@object_access(type=Job, access=Access.READ_ACCESS, url='job_entry')
 def job_serve(request, uid, path):
     """
     Serves files from a job directory.
