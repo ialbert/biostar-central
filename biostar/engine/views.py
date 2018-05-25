@@ -333,7 +333,6 @@ def data_edit(request, uid):
     Edit meta-data associated with Data.
     """
 
-
     data = Data.objects.filter(uid=uid).first()
     form = DataEditForm(instance=data, initial=dict(type=data.type), user=request.user)
 
