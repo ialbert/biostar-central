@@ -24,7 +24,7 @@ def valid_language(text):
         lang = langdetect.detect(text)
         if lang not in supported_languages:
             raise ValidationError(
-                    'Language "{0}" is not one of the supported languages {1}!'.format(lang, supported_languages))
+                    f'Language "{lang}" is not one of the supported languages {supported_languages}!')
 
 
 def valid_title(text):
@@ -54,7 +54,6 @@ def valid_tag(text):
 
 
 class PostLongForm(forms.Form):
-    FIELDS = "title content post_type tag_val".split()
 
     POST_CHOICES = [(Post.QUESTION, "Question"),
                     (Post.JOB, "Job Ad"),
@@ -80,3 +79,23 @@ class PostLongForm(forms.Form):
     content = forms.CharField(widget=PagedownWidget, validators=[valid_language],
                               min_length=80, max_length=15000,
                               label="Enter your post below")
+
+    def save(self, author=None):
+        data = self.cleaned_data.get
+
+        title = data('title')
+        content = data('content')
+        post_type = int(data('post_type'))
+        tag_val = data('tag_val')
+
+        post = Post(
+            title=title, content=content, tag_val=tag_val,
+            author=author, type=post_type,
+        )
+        post.save()
+
+        return
+
+
+class PostShortForm(forms.Form):
+    content = forms.CharField(widget=PagedownWidget, min_length=20, max_length=5000)

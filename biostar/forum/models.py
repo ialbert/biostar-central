@@ -202,8 +202,7 @@ class Post(models.Model):
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
 
-    def parse_tags(self):
-        return util.split_tags(self.tag_val)
+    uid = models.CharField(max_length=32, unique=True)
 
     def add_tags(self, text):
 
@@ -261,6 +260,8 @@ class Post(models.Model):
        super(Post, self).delete(using=using, keep_parents=keep_parents)
 
     def save(self, *args, **kwargs):
+
+        self.uid = self.uuid or util.get_uuid(32)
 
         # Sanitize the post body.
         self.html = util.parse_html(self.content)
@@ -328,7 +329,8 @@ def set_post(sender, instance, created, *args, **kwargs ):
         if instance.type == Post.ANSWER:
             instance.parent.lastedit_date = instance.lastedit_date
             instance.parent.lastedit_user = instance.lastedit_user
-            #TODO: will this cause recussion max when instance.root = instance.parent = instance
+            #TODO: will this cause recussion max
+            # TODO: when the instance is its own parent?
             instance.parent.save()
 
 

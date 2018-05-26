@@ -3,6 +3,7 @@ import bleach
 import logging
 import requests
 import mistune
+import uuid
 #from html5lib.tokenizer import HTMLTokenizer
 
 
@@ -49,6 +50,9 @@ def clean(text):
     html = bleach.clean(text, tags=ALLOWED_TAGS,
                         attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
     return html
+
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
 
 
 def parse_html(text):

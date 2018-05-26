@@ -19,3 +19,16 @@ def post_permissions(request, post):
     return post
 
 
+
+
+def create_post():
+    return
+
+
+
+
+
+
+
+
+
