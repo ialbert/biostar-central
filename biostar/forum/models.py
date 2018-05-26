@@ -18,19 +18,77 @@ def get_sentinel_user():
     return User.objects.get_or_create(username='deleted').first()
 
 
+class PostManager(models.Manager):
 
-class Vote(models.Model):
-    # Post statuses.
-    UP, DOWN, BOOKMARK, ACCEPT = range(4)
-    TYPE_CHOICES = [(UP, "Upvote"), (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
+    def my_bookmarks(self, user):
+        query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)
+        query = query.select_related("root", "author", "lastedit_user")
+        query = query.prefetch_related("tag_set")
+        return query
 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
-    post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
-    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
-    date = models.DateTimeField(db_index=True, auto_now=True)
+    def my_posts(self, target, user):
 
-    def __str__(self):
-        return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
+        # Show all posts for moderators or targets
+        if user.is_moderator or user == target:
+            query = self.filter(author=target)
+        else:
+            query = self.filter(author=target).exclude(status=Post.DELETED)
+
+        query = query.select_related("root", "author", "lastedit_user")
+        query = query.prefetch_related("tag_set")
+        query = query.order_by("-creation_date")
+        return query
+
+    def fixcase(self, text):
+        return text.upper() if len(text) == 1 else text.lower()
+
+    def tag_search(self, text):
+        "Performs a query by one or more , separated tags"
+        include, exclude = [], []
+        # Split the given tags on ',' and '+'.
+        terms = text.split(',') if ',' in text else text.split('+')
+        for term in terms:
+            term = term.strip()
+            if term.endswith("!"):
+                exclude.append(self.fixcase(term[:-1]))
+            else:
+                include.append(self.fixcase(term))
+
+        if include:
+            query = self.filter(type__in=Post.TOP_LEVEL, tag_set__name__in=include).exclude(
+                tag_set__name__in=exclude)
+        else:
+            query = self.filter(type__in=Post.TOP_LEVEL).exclude(tag_set__name__in=exclude)
+
+        query = query.filter(status=Post.OPEN)
+
+        # Remove fields that are not used.
+        query = query.defer('content', 'html')
+
+        # Get the tags.
+        query = query.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").distinct()
+
+        return query
+
+    def get_thread(self, root, user):
+        # Populate the object to build a tree that contains all posts in the thread.
+        is_moderator = user.is_authenticated() and user.is_moderator
+        if is_moderator:
+            query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+        else:
+            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+
+        return query
+
+    def top_level(self, user):
+        "Returns posts based on a user type"
+        is_moderator = user.is_authenticated() and user.is_moderator
+        if is_moderator:
+            query = self.filter(type__in=Post.TOP_LEVEL)
+        else:
+            query = self.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
+
+        return query.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").defer("content", "html")
 
 
 class Tag(models.Model):
@@ -49,7 +107,7 @@ class Tag(models.Model):
 class Post(models.Model):
     "Represents a post in a forum"
 
-    #objects = PostManager()
+    objects = PostManager()
 
     # Post statuses.
     PENDING, OPEN, CLOSED, DELETED = range(4)
@@ -188,16 +246,16 @@ class Post(models.Model):
             reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
             Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
 
-    #def delete(self, using=None):
-        # Collect tag names.
-    #    tag_names = [t.name for t in self.tag_set.all()]
+    def delete(self, using=None, keep_parents=False):
+        #Collect tag names.
+       tag_names = [t.name for t in self.tag_set.all()]
 
-        # While there is a signal to do this it is much faster this way.
-    #    Tag.objects.filter(name__in=tag_names).update(count=F('count') - 1)
+        #While there is a signal to do this it is much faster this way.
+       Tag.objects.filter(name__in=tag_names).update(count=F('count') - 1)
 
-        # Remove tags with zero counts.
-    #    Tag.objects.filter(count=0).delete()
-    #    super(Post, self).delete(using=using)
+        #Remove tags with zero counts.
+       Tag.objects.filter(count=0).delete()
+       super(Post, self).delete(using=using, keep_parents=keep_parents)
 
     def save(self, *args, **kwargs):
 
@@ -226,6 +284,18 @@ class Post(models.Model):
         return self.type in Post.TOP_LEVEL
 
 
+class Vote(models.Model):
+    # Post statuses.
+    UP, DOWN, BOOKMARK, ACCEPT = range(4)
+    TYPE_CHOICES = [(UP, "Upvote"), (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
+
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
+    post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
+    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
+    date = models.DateTimeField(db_index=True, auto_now=True)
+
+    def __str__(self):
+        return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
 
 
 @receiver(post_save, sender=Post)

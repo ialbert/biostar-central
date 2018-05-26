@@ -69,7 +69,7 @@ INSTALLED_APPS = [
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',
     'biostar.accounts.apps.AccountsConfig',
-    #'biostar.forum.apps.ForumConfig',
+    'biostar.forum.apps.ForumConfig',
     'biostar.ftpserver',
 ]
 

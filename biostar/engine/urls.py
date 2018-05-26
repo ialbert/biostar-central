@@ -2,6 +2,7 @@ from django.conf.urls import url
 from django.urls import path
 
 from . import views
+from . import api
 
 urlpatterns = [
     url(r'^$', views.index, name="index"),
@@ -43,6 +44,10 @@ urlpatterns = [
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
     url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_serve, name='job_serve'),
+
+    # Apis
+    url(r'^api/recipe/(?P<uid>[-\w]+)/$', api.recipe_details, name='recipe_details'),
+
 
 ]
 

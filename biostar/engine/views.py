@@ -1,7 +1,5 @@
-import glob
 import os
 import logging
-import mistune
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -13,25 +11,25 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from biostar.accounts.models import Profile
-from biostar.emailer.auth import notify
+from biostar.accounts.models import Profile, User
 
-from . import tasks
+
+from . import tasks, auth, forms, util
+
 from .diffs import color_diffs
 from .decorators import object_access
-from .forms import *
 from .models import (Project, Data, Analysis, Job, Access)
-from . import util
+
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
-__DOCS_DIR = join(__CURRENT_DIR, "docs")
-
 logger = logging.getLogger('engine')
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
+
+__DOCS_DIR = join(__CURRENT_DIR, "docs")
 
 
 def valid_path(path):
@@ -123,10 +121,10 @@ def project_users(request, uid):
 
     # Search query separate for users.
     q = request.GET.get("q", "")
-    form = ChangeUserAccess()
+    form = forms.ChangeUserAccess()
 
     if request.method == "POST":
-        form = ChangeUserAccess(data=request.POST)
+        form = forms.ChangeUserAccess(data=request.POST)
 
         # User needs to be authenticated and have admin access to make any changes.
         if form.is_valid() and request.user.is_authenticated:
@@ -137,8 +135,8 @@ def project_users(request, uid):
 
     # Users that have been searched for.
     targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
-    current = access_forms(users=user_list, project=project, exclude=[request.user])
-    results = access_forms(users=targets, project=project, exclude=[request.user])
+    current = forms.access_forms(users=user_list, project=project, exclude=[request.user])
+    results = forms.access_forms(users=targets, project=project, exclude=[request.user])
     context = dict(current=current, project=project, results=results, form=form, activate='User Management',
                    q=q, user_access=user_access)
     counts = get_counts(project)
@@ -157,7 +155,7 @@ def project_list(request):
 def paste(project, post_request, board):
     "Used to paste data and job"
 
-    form = PasteForm(project=project, data=post_request.POST, request=post_request, board=board)
+    form = forms.PasteForm(project=project, data=post_request.POST, request=post_request, board=board)
     if form.is_valid():
         form.save()
         post_request.session[board] = None
@@ -177,7 +175,7 @@ def data_list(request, uid):
         if success:
             return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
     else:
-        form = PasteForm(project=project, request=request, board='files_clipboard')
+        form = forms.PasteForm(project=project, request=request, board='files_clipboard')
 
 
     return project_view(request=request, uid=uid, template_name="data_list.html",
@@ -195,7 +193,7 @@ def recipe_list(request, uid):
         if success:
             return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
     else:
-        form = PasteForm(project=project, request=request, board='recipe_clipboard')
+        form = forms.PasteForm(project=project, request=request, board='recipe_clipboard')
 
     return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes',
                         more_info=True, extra_context=dict(form=form))
@@ -253,9 +251,9 @@ def project_edit(request, uid):
     "Edit meta-data associated with a project."
 
     project = Project.objects.filter(uid=uid).first()
-    form = ProjectForm(instance=project)
+    form = forms.ProjectForm(instance=project)
     if request.method == "POST":
-        form = ProjectForm(request.POST, request.FILES, instance=project)
+        form = forms.ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
             form.save()
             return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
@@ -271,11 +269,11 @@ def project_create(request):
     Input is validated with a form and actual creation is routed through auth.create_project.
     """
     initial = dict(name="Project Name", text="project description", summary="project summary")
-    form = ProjectForm(initial=initial)
+    form = forms.ProjectForm(initial=initial)
 
     if request.method == "POST":
         # create new projects here ( just populates metadata ).
-        form = ProjectForm(request.POST, request.FILES)
+        form = forms.ProjectForm(request.POST, request.FILES)
         if form.is_valid():
             name = form.cleaned_data["name"]
             text = form.cleaned_data["text"]
@@ -302,7 +300,7 @@ def data_view(request, uid):
     path = request.GET.get('path', '')
 
     if request.method == "POST":
-        form = FileCopyForm(request, data.uid, data.get_data_dir(), request.POST)
+        form = forms.FileCopyForm(request, data.uid, data.get_data_dir(), request.POST)
         if form.is_valid():
             # Copies data to clipboard
             ndata = form.save()
@@ -310,7 +308,7 @@ def data_view(request, uid):
             messages.success(request, msg)
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
     else:
-        form = FileCopyForm(request, data.uid, data.get_data_dir())
+        form = forms.FileCopyForm(request, data.uid, data.get_data_dir())
 
     root = data.get_data_dir()
     abspath = join(root, path)
@@ -334,10 +332,10 @@ def data_edit(request, uid):
     """
 
     data = Data.objects.filter(uid=uid).first()
-    form = DataEditForm(instance=data, initial=dict(type=data.type), user=request.user)
+    form = forms.DataEditForm(instance=data, initial=dict(type=data.type), user=request.user)
 
     if request.method == "POST":
-        form = DataEditForm(data=request.POST, instance=data, user=request.user, files=request.FILES)
+        form = forms.DataEditForm(data=request.POST, instance=data, user=request.user, files=request.FILES)
         if form.is_valid():
             form.save()
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
@@ -352,9 +350,9 @@ def data_upload(request, uid):
 
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
-    form = DataUploadForm(user=owner, project=project)
+    form = forms.DataUploadForm(user=owner, project=project)
     if request.method == "POST":
-        form = DataUploadForm(data=request.POST, files=request.FILES, user=owner, project=project)
+        form = forms.DataUploadForm(data=request.POST, files=request.FILES, user=owner, project=project)
 
         if form.is_valid():
             data = form.save()
@@ -374,12 +372,12 @@ def recipe_view(request, uid):
     project = recipe.project
 
     if request.method == "POST":
-        form = RecipeCopyForm(data=request.POST, recipe=recipe, request=request)
+        form = forms.RecipeCopyForm(data=request.POST, recipe=recipe, request=request)
         if form.is_valid():
             form.save()
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
-        form = RecipeCopyForm(recipe=recipe, request=request)
+        form = forms.RecipeCopyForm(recipe=recipe, request=request)
 
     context = dict(recipe=recipe, project=project, activate='Selected Recipe', form=form)
     counts = get_counts(project)
@@ -397,7 +395,7 @@ def recipe_run(request, uid):
     project = analysis.project
 
     if request.method == "POST":
-        form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, data=request.POST)
+        form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, data=request.POST)
 
         if form.is_valid():
 
@@ -418,7 +416,7 @@ def recipe_run(request, uid):
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
     else:
         initial = dict(name=f"Results for: {analysis.name}")
-        form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
+        form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
 
     context = dict(project=project, analysis=analysis, form=form, activate='Run Recipe')
     context.update(get_counts(project))
@@ -442,7 +440,7 @@ def recipe_code(request, uid):
     name = analysis.name
 
     if request.method == "POST":
-        form = EditCode(user=user, project=project, data=request.POST)
+        form = forms.EditCode(user=user, project=project, data=request.POST)
 
         if form.is_valid():
 
@@ -475,10 +473,10 @@ def recipe_code(request, uid):
     else:
         # This gets triggered on a GET request.
         initial = dict(template=analysis.template, json=analysis.json_text)
-        form = EditCode(user=user, project=project, initial=initial)
+        form = forms.EditCode(user=user, project=project, initial=initial)
 
     # Bind the JSON to the form.
-    recipe = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=dict(name=name))
+    recipe = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=dict(name=name))
 
     # This generates a "fake" unsaved job.
     # Needs to fill in a few runtime only settings.
@@ -502,10 +500,10 @@ def recipe_create(request, uid):
     """
 
     project = Project.objects.filter(uid=uid).first()
-    form = RecipeForm(initial=dict(name="New Recipe"))
+    form = forms.RecipeForm(initial=dict(name="New Recipe"))
 
     if request.method == "POST":
-        form = RecipeForm(data=request.POST, files=request.FILES)
+        form = forms.RecipeForm(data=request.POST, files=request.FILES)
 
         if form.is_valid():
             # Recipe is authorized since the template is empty at this point.
@@ -541,10 +539,10 @@ def recipe_diff(request, uid):
     differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
     differ = color_diffs(differ)
 
-    form = RecipeDiff(recipe=recipe, request=request, user=request.user)
+    form = forms.RecipeDiff(recipe=recipe, request=request, user=request.user)
 
     if request.method == "POST":
-        form = RecipeDiff(recipe=recipe, user=request.user, data=request.POST,
+        form = forms.RecipeDiff(recipe=recipe, user=request.user, data=request.POST,
                           request=request)
         if form.is_valid():
             form.save()
@@ -567,10 +565,10 @@ def recipe_edit(request, uid):
     recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
     action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
-    form = RecipeForm(instance=recipe)
+    form = forms.RecipeForm(instance=recipe)
 
     if request.method == "POST":
-        form = RecipeForm(data=request.POST, files=request.FILES, instance=recipe)
+        form = forms.RecipeForm(data=request.POST, files=request.FILES, instance=recipe)
         if form.is_valid():
             recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
@@ -587,10 +585,10 @@ def job_edit(request, uid):
 
     job = Job.objects.get_all(uid=uid).first()
     project = job.project
-    form = JobEditForm(instance=job)
+    form = forms.JobEditForm(instance=job)
 
     if request.method == "POST":
-        form = JobEditForm(data=request.POST, files=request.FILES, instance=job)
+        form = forms.JobEditForm(data=request.POST, files=request.FILES, instance=job)
         if form.is_valid():
             form.save()
             return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
@@ -654,7 +652,7 @@ def job_view(request, uid):
     path = request.GET.get('path', "")
 
     if request.method == "POST":
-        form = FileCopyForm(request, job.uid, job.path, request.POST)
+        form = forms.FileCopyForm(request, job.uid, job.path, request.POST)
         if form.is_valid():
             # Copies data to clipboard
             ndata = form.save()
@@ -662,7 +660,7 @@ def job_view(request, uid):
             messages.success(request, msg)
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
     else:
-        form = FileCopyForm(request, job.uid, job.path)
+        form = forms.FileCopyForm(request, job.uid, job.path)
 
     # The job rooth directory
     root = job.path

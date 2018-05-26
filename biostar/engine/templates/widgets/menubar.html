@@ -12,9 +12,12 @@
         {% search request=request %}
     </div>
 
+
     {% if user.is_authenticated %}
         <div class="right menu">
-
+        <a class="item" href="{% url 'project_list' %}">
+            <i class="newspaper icon"></i>Forum
+        </a>
         <a class="item" href="{% url 'profile' %}">
             <i class="user icon"></i>
         </a>
@@ -32,6 +35,7 @@
     {% else %}
 
         <div class="right menu">
+            <a class="item" href="{% url 'project_list' %}"><i class="newspaper icon"></i>Forum</a>
             <a class="item" href="{% url 'login' %}"><i class="sign in icon"></i>Login</a>
             <a class="item" href="{% url 'signup' %}"><i class="add user icon"></i>Sign Up</a>
 
