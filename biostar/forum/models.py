@@ -1,4 +1,6 @@
 import bleach
+import logging
+
 from django.utils import timezone
 from django.db import models
 from django.conf import settings
@@ -13,6 +15,7 @@ from biostar.forum import util
 User = get_user_model()
 
 
+logger = logging.getLogger("engine")
 
 def get_sentinel_user():
     return User.objects.get_or_create(username='deleted').first()
