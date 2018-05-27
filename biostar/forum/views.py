@@ -2,6 +2,28 @@
 
 from . import forms
 
+from django.shortcuts import render, redirect, reverse
+
+
+
+
+def post_list(request):
+    "List view for posts"
+
+
+    return
+
+
+
+
+
+def post_view(request, uid):
+    "Return view for specific post"
+
+    return
+
+
+
 
 def new_post(request):
     "Make a new post"
@@ -12,17 +34,18 @@ def new_post(request):
         form = forms.PostLongForm(data=request.POST)
         if form.is_valid():
             # Create a new post by user
-            form.save(author=request.user)
-            return
+            post = form.save(author=request.user)
+            return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
 
-    return
+    context = dict(form=form)
 
+    return render(request, "post_edit.html", context=context)
 
 
 
 
 def new_answer(request, puid):
-    "Make a new answer to a post"
+    "Provide a short form to make a new answer to a post"
 
 
     return
@@ -32,7 +55,7 @@ def new_answer(request, puid):
 
 
 def edit_post(request, uid):
-    "Edit a post"
+    "Edit an existing post"
 
     return
 

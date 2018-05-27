@@ -3,7 +3,7 @@ from .models import Post
 from django.core.exceptions import ValidationError
 from django.conf import settings
 
-from . import  models
+from . import  models, auth
 from pagedown.widgets import PagedownWidget
 import langdetect
 
@@ -88,13 +88,10 @@ class PostLongForm(forms.Form):
         post_type = int(data('post_type'))
         tag_val = data('tag_val')
 
-        post = Post(
-            title=title, content=content, tag_val=tag_val,
-            author=author, type=post_type,
-        )
-        post.save()
+        post = auth.create_post(title=title, content=content, post_type=post_type,
+                                tag_val=tag_val, author=author)
 
-        return
+        return post
 
 
 class PostShortForm(forms.Form):
