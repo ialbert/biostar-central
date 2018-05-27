@@ -1,6 +1,6 @@
 
 
-from . import forms
+from . import forms, auth
 
 from django.shortcuts import render, redirect, reverse
 
@@ -9,6 +9,9 @@ from django.shortcuts import render, redirect, reverse
 
 def post_list(request):
     "List view for posts"
+
+
+    # show
 
 
     return
