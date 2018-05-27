@@ -86,7 +86,7 @@ class PostManager(models.Manager):
 
     def top_level(self, user):
         "Returns posts based on a user type"
-        is_moderator = user.is_authenticated() and user.is_moderator
+        is_moderator = user.is_authenticated and user.profile.is_moderator
         if is_moderator:
             query = self.filter(type__in=Post.TOP_LEVEL)
         else:
@@ -135,8 +135,8 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
 
     # The user that edited the post most recently.
-    #lastedit_user = models.ForeignKey(User, related_name='editor',
-    #                                  on_delete=models.SET(get_sentinel_user))
+    lastedit_user = models.ForeignKey(User, related_name='editor', null=True,
+                                      on_delete=models.SET(get_sentinel_user))
 
     # Indicates the information value of the post.
     rank = models.FloatField(default=0, blank=True)
@@ -265,6 +265,7 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
 
         self.uid = self.uid or util.get_uuid(32)
+        self.lastedit_user = self.lastedit_user or self.author
 
         # Sanitize the post body.
         self.html = util.parse_html(self.content)

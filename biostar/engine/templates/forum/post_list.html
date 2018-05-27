@@ -1,5 +1,5 @@
-{% extends "base_content.html" %}
-{% load engine_tags %}
+{% extends "base.html" %}
+{% load forum_tags %}
 
 {% block headtitle %}
     Post List
@@ -11,11 +11,11 @@
 <div class="row">
         <div class="col-md-9">
 
-            {% page_bar_sort_posts %}
+            {#% page_bar_sort_posts %#}
 
             <div id="post-list">
                 {% for post in posts %}
-                    {% post_count_box post '' topic %}
+                    {% post_count_box post=post %}
                 {% empty %}
 
                     <div class="alert alert-info">There are no results for this page.</div>
@@ -24,9 +24,10 @@
 
             </div>
 
-            {% page_bar_sort_posts %}
+            {#% page_bar_sort_posts %#}
 
         </div>
+</div>
 
 
 {% endblock %}

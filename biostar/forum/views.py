@@ -4,24 +4,21 @@ from . import forms, auth
 
 from django.shortcuts import render, redirect, reverse
 
-
+LATEST = "Latest"
 
 
 def post_list(request):
     "List view for posts"
 
+    posts = auth.posts_by_topic(request=request, topic=LATEST)
 
-    # show
+    context = dict(posts=posts)
 
-
-    return
-
-
-
+    return render(request, "forum/post_list.html", context=context)
 
 
 def post_view(request, uid):
-    "Return view for specific post"
+    "Return a detailed view for specific post"
 
     return
 
@@ -42,7 +39,7 @@ def new_post(request):
 
     context = dict(form=form)
 
-    return render(request, "post_edit.html", context=context)
+    return render(request, "forum/post_edit.html", context=context)
 
 
 

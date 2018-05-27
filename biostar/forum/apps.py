@@ -30,9 +30,16 @@ def init_post(sender,  **kwargs):
 
     user = User.objects.filter(email=email).first()
 
-    auth.create_post(title="foo", author=user, content="bar", tag_val=None,
-                    post_type=models.Post.FORUM)
+    # Make a couple of test posts
+    test_posts = {"foo":dict(tag_val="test foo", post_type=models.Post.FORUM, content="bar"),
+                  "bar":dict(tag_val="test bar", post_type=models.Post.DATA, content="foo")
+                  }
 
-    logger.info("Created test forum post")
+    for title, val in test_posts.items():
+
+        post = auth.create_post(title=title, author=user, content=val["content"],
+                         tag_val=val["tag_val"],post_type=val["post_type"])
+
+        logger.info(f"Created {title} post of {post.get_type_display()}")
 
     return
