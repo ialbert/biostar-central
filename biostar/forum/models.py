@@ -10,9 +10,10 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
+from biostar.accounts.models import User
 from biostar.forum import util
 
-User = get_user_model()
+#User = get_user_model()
 
 
 logger = logging.getLogger("engine")
@@ -95,7 +96,7 @@ class PostManager(models.Manager):
 
 
 class Tag(models.Model):
-    name = models.TextField(max_length=50, db_index=True)
+    name = models.TextField(max_length=50)
     count = models.IntegerField(default=0)
 
     @staticmethod
@@ -131,12 +132,11 @@ class Post(models.Model):
     title = models.CharField(max_length=200, null=False)
 
     # The user that originally created the post.
-    author = models.ForeignKey(settings.AUTH_USER_MODEL,
-                               on_delete=models.SET(get_sentinel_user))
+    author = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
 
     # The user that edited the post most recently.
-    lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor',
-                                      on_delete=models.SET(get_sentinel_user))
+    #lastedit_user = models.ForeignKey(User, related_name='editor',
+    #                                  on_delete=models.SET(get_sentinel_user))
 
     # Indicates the information value of the post.
     rank = models.FloatField(default=0, blank=True)
@@ -145,10 +145,10 @@ class Post(models.Model):
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
 
     # The type of the post: question, answer, comment.
-    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
+    type = models.IntegerField(choices=TYPE_CHOICES)
 
     # Number of upvotes for the post
-    vote_count = models.IntegerField(default=0, blank=True, db_index=True)
+    vote_count = models.IntegerField(default=0, blank=True)
 
     # The number of views for the post.
     view_count = models.IntegerField(default=0, blank=True)
@@ -169,14 +169,14 @@ class Post(models.Model):
     subs_count = models.IntegerField(default=0)
 
     # The total score of the thread (used for top level only)
-    thread_score = models.IntegerField(default=0, blank=True, db_index=True)
+    thread_score = models.IntegerField(default=0, blank=True)
 
     # Date related fields.
-    creation_date = models.DateTimeField(db_index=True)
-    lastedit_date = models.DateTimeField(db_index=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    lastedit_date = models.DateTimeField(auto_now_add=True)
 
     # Stickiness of the post.
-    sticky = models.BooleanField(default=False, db_index=True)
+    sticky = models.BooleanField(default=False)
 
     # Indicates whether the post has accepted answer.
     has_accepted = models.BooleanField(default=False, blank=True)
@@ -204,6 +204,9 @@ class Post(models.Model):
 
     uid = models.CharField(max_length=32, unique=True)
 
+    def parse_tags(self):
+        return util.split_tags(self.tag_val)
+
     def add_tags(self, text):
 
         text = text.strip()
@@ -215,7 +218,7 @@ class Post(models.Model):
         self.tag_set.clear()
         tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
         self.tag_set.add(*tags)
-        #self.save()
+        self.save()
 
     @property
     def as_text(self):
@@ -261,7 +264,7 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
 
-        self.uid = self.uuid or util.get_uuid(32)
+        self.uid = self.uid or util.get_uuid(32)
 
         # Sanitize the post body.
         self.html = util.parse_html(self.content)
@@ -295,8 +298,8 @@ class Vote(models.Model):
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
     post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
-    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
-    date = models.DateTimeField(db_index=True, auto_now=True)
+    type = models.IntegerField(choices=TYPE_CHOICES)
+    date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())

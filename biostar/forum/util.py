@@ -45,6 +45,10 @@ YOUTUBE_RE3 = re.compile(YOUTUBE_PATTERN3)
 TWITTER_RE = re.compile(TWITTER_PATTERN)
 
 
+
+def split_tags(text):
+    return text.split(",")
+
 def clean(text):
     "Sanitize text with no other substitutions"
     html = bleach.clean(text, tags=ALLOWED_TAGS,
