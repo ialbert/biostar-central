@@ -1,5 +1,6 @@
 import bleach
 import logging
+import datetime
 
 from django.utils import timezone
 from django.db import models
@@ -10,10 +11,9 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
-from biostar.accounts.models import User
-from biostar.forum import util
+from . import util
 
-#User = get_user_model()
+User = get_user_model()
 
 
 logger = logging.getLogger("engine")
@@ -251,6 +251,28 @@ class Post(models.Model):
             reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
             Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
 
+
+    @staticmethod
+    def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
+        "Views are updated per user session"
+
+        # Extract the IP number from the request.
+        ip1 = request.META.get('REMOTE_ADDR', '')
+        ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
+        # 'localhost' is not a valid ip address.
+        ip1 = '' if ip1.lower() == 'localhost' else ip1
+        ip2 = '' if ip2.lower() == 'localhost' else ip2
+        ip = ip1 or ip2 or '0.0.0.0'
+
+        now = util.now()
+        since = now - datetime.timedelta(minutes=minutes)
+
+        # One view per time interval from each IP address.
+        if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
+            PostView.objects.create(ip=ip, post=post, date=now)
+            Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
+        return post
+
     def delete(self, using=None, keep_parents=False):
         #Collect tag names.
        tag_names = [t.name for t in self.tag_set.all()]
@@ -304,6 +326,15 @@ class Vote(models.Model):
 
     def __str__(self):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
+
+
+class PostView(models.Model):
+    """
+    Keeps track of post views based on IP address.
+    """
+    ip = models.GenericIPAddressField(default='', null=True, blank=True)
+    post = models.ForeignKey(Post, related_name="post_views", on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
 
 
 @receiver(post_save, sender=Post)

@@ -1,11 +1,32 @@
-
-from .models import Post, Tag
+from .models import Post, Tag, Vote
 from django.contrib import messages
+
 
 LATEST = "latest"
 MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags open following bookmarks".split()
 POST_TYPES = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
                   forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
+
+
+
+def build_tree(thread, tree={}):
+
+    for post in thread:
+        if post.type == Post.COMMENT:
+            tree.setdefault(post.parent_id, []).append(post)
+    return
+
+
+def get_votes(user, thread, store={}):
+
+    if user.is_authenticated():
+        pids = [p.id for p in thread]
+        votes = Vote.objects.filter(post_id__in=pids, author=user).values_list("post_id", "type")
+
+        for post_id, vote_type in votes:
+            store.setdefault(vote_type, set()).add(post_id)
+
+    return store
 
 
 def post_permissions(request, post):

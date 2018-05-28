@@ -12,6 +12,12 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
+@register.inclusion_tag('wideg/post_body.html', takes_context=True)
+def post_body(context, post, user, tree):
+    "Renders the post body"
+    return dict(post=post, user=user, tree=tree, request=context['request'])
+
+
 def pluralize(value, word):
     if value > 1:
         return "%d %ss" % (value, word)
@@ -70,9 +76,3 @@ def boxclass(post):
         style = "unanswered"
 
     return style
-
-
-@register.inclusion_tag('widgets/post_count_box.html')
-def post_count_box(post):
-
-    return dict(post=post)
