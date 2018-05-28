@@ -76,7 +76,7 @@ def posts_by_topic(request, topic):
 
 
 
-def create_post(title, author, content, tag_val, post_type):
+def create_post(title, author, content, post_type, tag_val=None):
 
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,

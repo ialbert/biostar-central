@@ -31,14 +31,27 @@ def init_post(sender,  **kwargs):
     user = User.objects.filter(email=email).first()
 
     # Make a couple of test posts
-    test_posts = {"foo":dict(tag_val="test foo", post_type=models.Post.FORUM, content="bar"),
-                  "bar":dict(tag_val="test bar", post_type=models.Post.DATA, content="foo")
+    blog_title = "Welcome to Biostar-Engine!"
+    blog_tags = "pipelines,projects,scripts"
+    blog_content = "A small description on the biostar-engine and its use"
+
+    tutorial_title = "Get started with your first project"
+    tutorial_tags = "projects,data,recipes,results,GUI"
+    tutorial_content = "This is a tutorial on the in's and out's of the engine."
+
+    test_posts = {
+                blog_title: dict(tag_val=blog_tags, post_type=models.Post.BLOG, content=blog_content),
+                tutorial_title:dict(tag_val=tutorial_tags, post_type=models.Post.TUTORIAL,
+                                    content=tutorial_content),
                   }
 
     for title, val in test_posts.items():
 
+        if models.Post.objects.filter(title=title).exists():
+            continue
+
         post = auth.create_post(title=title, author=user, content=val["content"],
-                         tag_val=val["tag_val"],post_type=val["post_type"])
+                         tag_val=val.get("tag_val"),post_type=val["post_type"])
 
         logger.info(f"Created {title} post of {post.get_type_display()}")
 
