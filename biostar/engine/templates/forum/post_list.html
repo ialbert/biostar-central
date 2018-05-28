@@ -6,27 +6,53 @@
 {% endblock %}
 
 
-{% block content %}
+{% block body %}
 
-<div class="row">
-        <div class="col-md-9">
+<div class="ui basic segment">
+    <div class="ui relaxed divided list">
 
-            {#% page_bar_sort_posts %#}
+        {% for post in posts %}
 
-            <div id="post-list">
-                {% for post in posts %}
-                    {% post_count_box post=post %}
-                {% empty %}
+        <div class="item">
 
-                    <div class="alert alert-info">There are no results for this page.</div>
+            <div class="ui celled relaxed horizontal list">
 
-                {% endfor %}
+                <div class="item">
+                    <div class="content">
+                    {% if post.is_toplevel %}
+                        <div class="ui center aligned header">{{ post.thread_score }}</div>
+                        <div class="t">vote{{ post.thread_score|pluralize }}</div>
+                    {% else %}
+                        <div class="ui center aligned header">{{ post.vote_count }}</div>
+                        <div class="t">vote{{ post.vote_count|pluralize }}</div>
+                    {% endif %}
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="content">
+                        <div class="ui center aligned header">{{ post.root.reply_count }}</div>
+                        <div class="t">answer{{ post.root.reply_count|pluralize }}</div>
+                    </div>
+                </div>
+
+                 <div class="item">
+                     <div class="content">
+                        <div class="ui center aligned header">{{ post.root.view_count|bignum }}</div>
+                        <div class="t">views</div>
+                     </div>
+                 </div>
 
             </div>
 
-            {#% page_bar_sort_posts %#}
-
         </div>
+        {% empty %}
+
+        <div class="alert alert-info">There are no results for this page.</div>
+
+        {% endfor %}
+    </div>
+
 </div>
 
 
