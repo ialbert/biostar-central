@@ -4,17 +4,20 @@
     <a class="item" href="{% url 'index' %}">
         <i class="home icon"></i>
     </a>
+    <a class="item" href="{% url 'post_list' %}">
+        <i class="newspaper icon"></i>Forum
+    </a>
     <a class="item" href="{% url 'project_list' %}">
-        <i class="database icon"></i>Project List
+        <i class="database icon"></i>Projects
     </a>
 
     <div class="right menu">
         {% search request=request %}
     </div>
 
+
     {% if user.is_authenticated %}
         <div class="right menu">
-
         <a class="item" href="{% url 'profile' %}">
             <i class="user icon"></i>
         </a>
@@ -25,8 +28,11 @@
                 <a class="item" href="{% url 'site_admin' %}">
                     <i class="dashboard icon"></i>
                 </a>
-            {% endif %}
+            <a class="item" href="{% url 'logout' %}"><i class="sign in icon"></i></a>
+            {% else %}
             <a class="item" href="{% url 'logout' %}"><i class="sign in icon"></i>Logout</a>
+            {% endif %}
+
         </div>
 
     {% else %}

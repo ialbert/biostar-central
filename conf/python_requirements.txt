@@ -14,9 +14,9 @@ django-webtest
 django-sendfile
 pillow
 Pillow
-pysam
 coverage
 pyftpdlib
 pandas
 requests
 pyopenssl
+langdetect

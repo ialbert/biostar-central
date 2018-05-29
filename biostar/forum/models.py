@@ -1,4 +1,7 @@
 import bleach
+import logging
+import datetime
+
 from django.utils import timezone
 from django.db import models
 from django.conf import settings
@@ -8,33 +11,92 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
-from biostar.forum import util
+from . import util
 
 User = get_user_model()
 
 
+logger = logging.getLogger("engine")
 
 def get_sentinel_user():
     return User.objects.get_or_create(username='deleted').first()
 
 
+class PostManager(models.Manager):
 
-class Vote(models.Model):
-    # Post statuses.
-    UP, DOWN, BOOKMARK, ACCEPT = range(4)
-    TYPE_CHOICES = [(UP, "Upvote"), (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
+    def my_bookmarks(self, user):
+        query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)
+        query = query.select_related("root", "author", "lastedit_user")
+        query = query.prefetch_related("tag_set")
+        return query
 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
-    post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
-    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
-    date = models.DateTimeField(db_index=True, auto_now=True)
+    def my_posts(self, target, user):
 
-    def __str__(self):
-        return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
+        # Show all posts for moderators or targets
+        if user.is_moderator or user == target:
+            query = self.filter(author=target)
+        else:
+            query = self.filter(author=target).exclude(status=Post.DELETED)
+
+        query = query.select_related("root", "author", "lastedit_user")
+        query = query.prefetch_related("tag_set")
+        query = query.order_by("-creation_date")
+        return query
+
+    def fixcase(self, text):
+        return text.upper() if len(text) == 1 else text.lower()
+
+    def tag_search(self, text):
+        "Performs a query by one or more , separated tags"
+        include, exclude = [], []
+        # Split the given tags on ',' and '+'.
+        terms = text.split(',') if ',' in text else text.split('+')
+        for term in terms:
+            term = term.strip()
+            if term.endswith("!"):
+                exclude.append(self.fixcase(term[:-1]))
+            else:
+                include.append(self.fixcase(term))
+
+        if include:
+            query = self.filter(type__in=Post.TOP_LEVEL, tag_set__name__in=include).exclude(
+                tag_set__name__in=exclude)
+        else:
+            query = self.filter(type__in=Post.TOP_LEVEL).exclude(tag_set__name__in=exclude)
+
+        query = query.filter(status=Post.OPEN)
+
+        # Remove fields that are not used.
+        query = query.defer('content', 'html')
+
+        # Get the tags.
+        query = query.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").distinct()
+
+        return query
+
+    def get_thread(self, root, user):
+        # Populate the object to build a tree that contains all posts in the thread.
+        is_moderator = user.is_authenticated and user.is_moderator
+        if is_moderator:
+            query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+        else:
+            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+
+        return query
+
+    def top_level(self, user):
+        "Returns posts based on a user type"
+        is_moderator = user.is_authenticated and user.profile.is_moderator
+        if is_moderator:
+            query = self.filter(type__in=Post.TOP_LEVEL)
+        else:
+            query = self.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
+
+        return query.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").defer("content", "html")
 
 
 class Tag(models.Model):
-    name = models.TextField(max_length=50, db_index=True)
+    name = models.TextField(max_length=50)
     count = models.IntegerField(default=0)
 
     @staticmethod
@@ -49,7 +111,7 @@ class Tag(models.Model):
 class Post(models.Model):
     "Represents a post in a forum"
 
-    #objects = PostManager()
+    objects = PostManager()
 
     # Post statuses.
     PENDING, OPEN, CLOSED, DELETED = range(4)
@@ -70,11 +132,10 @@ class Post(models.Model):
     title = models.CharField(max_length=200, null=False)
 
     # The user that originally created the post.
-    author = models.ForeignKey(settings.AUTH_USER_MODEL,
-                               on_delete=models.SET(get_sentinel_user))
+    author = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
 
     # The user that edited the post most recently.
-    lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor',
+    lastedit_user = models.ForeignKey(User, related_name='editor', null=True,
                                       on_delete=models.SET(get_sentinel_user))
 
     # Indicates the information value of the post.
@@ -84,10 +145,10 @@ class Post(models.Model):
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
 
     # The type of the post: question, answer, comment.
-    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
+    type = models.IntegerField(choices=TYPE_CHOICES)
 
     # Number of upvotes for the post
-    vote_count = models.IntegerField(default=0, blank=True, db_index=True)
+    vote_count = models.IntegerField(default=0, blank=True)
 
     # The number of views for the post.
     view_count = models.IntegerField(default=0, blank=True)
@@ -108,14 +169,14 @@ class Post(models.Model):
     subs_count = models.IntegerField(default=0)
 
     # The total score of the thread (used for top level only)
-    thread_score = models.IntegerField(default=0, blank=True, db_index=True)
+    thread_score = models.IntegerField(default=0, blank=True)
 
     # Date related fields.
-    creation_date = models.DateTimeField(db_index=True)
-    lastedit_date = models.DateTimeField(db_index=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    lastedit_date = models.DateTimeField(auto_now_add=True)
 
     # Stickiness of the post.
-    sticky = models.BooleanField(default=False, db_index=True)
+    sticky = models.BooleanField(default=False)
 
     # Indicates whether the post has accepted answer.
     has_accepted = models.BooleanField(default=False, blank=True)
@@ -141,6 +202,8 @@ class Post(models.Model):
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
 
+    uid = models.CharField(max_length=32, unique=True)
+
     def parse_tags(self):
         return util.split_tags(self.tag_val)
 
@@ -155,7 +218,7 @@ class Post(models.Model):
         self.tag_set.clear()
         tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
         self.tag_set.add(*tags)
-        #self.save()
+        self.save()
 
     @property
     def as_text(self):
@@ -188,18 +251,43 @@ class Post(models.Model):
             reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
             Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
 
-    #def delete(self, using=None):
-        # Collect tag names.
-    #    tag_names = [t.name for t in self.tag_set.all()]
 
-        # While there is a signal to do this it is much faster this way.
-    #    Tag.objects.filter(name__in=tag_names).update(count=F('count') - 1)
+    @staticmethod
+    def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
+        "Views are updated per user session"
 
-        # Remove tags with zero counts.
-    #    Tag.objects.filter(count=0).delete()
-    #    super(Post, self).delete(using=using)
+        # Extract the IP number from the request.
+        ip1 = request.META.get('REMOTE_ADDR', '')
+        ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
+        # 'localhost' is not a valid ip address.
+        ip1 = '' if ip1.lower() == 'localhost' else ip1
+        ip2 = '' if ip2.lower() == 'localhost' else ip2
+        ip = ip1 or ip2 or '0.0.0.0'
+
+        now = util.now()
+        since = now - datetime.timedelta(minutes=minutes)
+
+        # One view per time interval from each IP address.
+        if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
+            PostView.objects.create(ip=ip, post=post, date=now)
+            Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
+        return post
+
+    def delete(self, using=None, keep_parents=False):
+        #Collect tag names.
+       tag_names = [t.name for t in self.tag_set.all()]
+
+        #While there is a signal to do this it is much faster this way.
+       Tag.objects.filter(name__in=tag_names).update(count=F('count') - 1)
+
+        #Remove tags with zero counts.
+       Tag.objects.filter(count=0).delete()
+       super(Post, self).delete(using=using, keep_parents=keep_parents)
 
     def save(self, *args, **kwargs):
+
+        self.uid = self.uid or util.get_uuid(8)
+        self.lastedit_user = self.lastedit_user or self.author
 
         # Sanitize the post body.
         self.html = util.parse_html(self.content)
@@ -226,6 +314,27 @@ class Post(models.Model):
         return self.type in Post.TOP_LEVEL
 
 
+class Vote(models.Model):
+    # Post statuses.
+    UP, DOWN, BOOKMARK, ACCEPT = range(4)
+    TYPE_CHOICES = [(UP, "Upvote"), (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
+
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
+    post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
+    type = models.IntegerField(choices=TYPE_CHOICES)
+    date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
+
+
+class PostView(models.Model):
+    """
+    Keeps track of post views based on IP address.
+    """
+    ip = models.GenericIPAddressField(default='', null=True, blank=True)
+    post = models.ForeignKey(Post, related_name="post_views", on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
 
 
 @receiver(post_save, sender=Post)
@@ -255,7 +364,8 @@ def set_post(sender, instance, created, *args, **kwargs ):
         if instance.type == Post.ANSWER:
             instance.parent.lastedit_date = instance.lastedit_date
             instance.parent.lastedit_user = instance.lastedit_user
-            #TODO: will this cause recussion max when instance.root = instance.parent = instance
+            #TODO: will this cause recussion max
+            # TODO: when the instance is its own parent?
             instance.parent.save()
 
 

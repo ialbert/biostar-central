@@ -259,6 +259,15 @@ class RecipeForm(forms.ModelForm):
 
         return image
 
+    def clean_uid(self):
+        cleaned_data  =  super(RecipeForm, self).clean()
+        uid = cleaned_data.get('uid')
+        if uid and not uid.isalnum():
+            msg = "Only alphanumeric characters allowed, no spaces."
+            raise forms.ValidationError(msg)
+
+        return uid
+
 
 class JobEditForm(forms.ModelForm):
     class Meta:

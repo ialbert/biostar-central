@@ -160,9 +160,8 @@ def run(job, options={}):
         proc = subprocess.run(command, cwd=work_dir, shell=True,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        # Return code indicates an error.
-        if (proc.returncode != 0):
-            raise Exception(f"executing: {command}")
+        # Rasies an error if returncode is anything but 0.
+        proc.check_returncode()
 
         # If we made it this far the job has finished.
         logger.info(f"uid={job.uid}, name={job.name}")
@@ -172,7 +171,7 @@ def run(job, options={}):
         # Handle all errors here.
         Job.objects.filter(pk=job.pk).update(state=Job.ERROR)
         stderr_log.append(f'{exc}')
-        logger.info(f'job id={job.pk} error {exc}')
+        logger.error(f'job id={job.pk} error {exc}')
 
     # Collect the output.
     if proc:

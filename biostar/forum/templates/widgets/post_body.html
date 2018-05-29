@@ -1,0 +1,59 @@
+{% load forum_tags %}
+
+
+    {% if post.is_toplevel %}
+
+        <div class="ui vertical segment">
+            <div class="ui large header" >{{ post.get_type_display }}: {{ post.get_title }}</div>
+        </div>
+
+    {% endif %}
+
+    <div class="ui items">
+        <div class="item">
+            <div class="ui image">
+                <i class="thumbs up large icon"></i>
+                <div class="ui center aligned header">{{ post.vote_count }}</div>
+                <i class="book large icon"></i>
+            </div>
+
+             <div class="content">
+                 <div class="description">
+                        <span itemprop="text">{{ post.html|safe }}</span>
+                 </div>
+                 <div class="extra">
+                     <div class="ui left floated" style="margin-bottom:0.5em;">
+                     {% if post.is_toplevel %}
+                            {% for tag in post.tag_set.all %}
+                                <a class="ui small label" href="#">{{ tag.name }}</a>
+                            {% endfor %}
+
+                        &bull; {{ post.root.view_count|bignum }} views
+
+
+                     {% endif %}
+                     </div>
+                     <div class="ui right floated">
+                        written on
+                        {{ post.creation_date.date }} by {{ post.author.profile.name }}
+
+                      {% if post.creation_date != post.lastedit_date %}
+                        modified {{ post.lastedit_date|time_ago }}
+                        {%  if post.author != post.lastedit_user %}
+                            by {{ post.lastedit_user.profile.name }}
+                        {%  endif %}
+                        &bull;
+                     {% endif %}
+                     </div>
+
+                 </div>
+
+             </div>
+        </div>
+
+    </div>
+
+
+
+
+

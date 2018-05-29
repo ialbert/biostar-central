@@ -1,0 +1,24 @@
+{% extends "wide_base.html" %}
+{% load forum_tags %}
+{% load static %}
+
+{% block page_title %}
+    {{ post.title }}
+{% endblock %}
+
+{% block body %}
+
+<div class="ui segment">
+
+
+        {# This is the toplevel post #}
+        {% post_body post=post user=request.user tree=post.tree %}
+
+        {# Render each answer for the post #}
+        {% for answer in post.answers %}
+            {% post_body post=answer user=request.user tree=post.tree %}
+        {% endfor %}
+
+</div>
+
+{% endblock %}

@@ -69,7 +69,7 @@ INSTALLED_APPS = [
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',
     'biostar.accounts.apps.AccountsConfig',
-    #'biostar.forum.apps.ForumConfig',
+    'biostar.forum.apps.ForumConfig',
     'biostar.ftpserver',
 ]
 
@@ -152,6 +152,9 @@ LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 
 # The location for the table of contents.
 TOC_ROOT = join(MEDIA_ROOT, 'tocs')
+
+# Time between two accesses from the same IP to qualify as a different view.
+POST_VIEW_MINUTES = 7
 
 # Ensure that the table of directory exists.
 os.makedirs(TOC_ROOT, exist_ok=True)

@@ -1,0 +1,89 @@
+{% extends "wide_base.html" %}
+{% load forum_tags %}
+
+{% block headtitle %}
+    Forum
+{% endblock %}
+
+
+{% block body %}
+
+<div class="ui segment">
+    <div class="ui relaxed divided list">
+
+        {% for post in posts %}
+
+        <div class="item">
+
+            <div class="ui relaxed horizontal list">
+
+                <div class="item" style="background-color:#d1d0cc">
+                    <div class="content" style="padding-left:10px">
+                    {% if post.is_toplevel %}
+                        <div class="ui center aligned small header">{{ post.thread_score }}</div>
+                        <div class="t">vote{{ post.thread_score|pluralize }}</div>
+                    {% else %}
+                        <div class="ui center aligned small header">{{ post.vote_count }}</div>
+                        <div class="t">vote{{ post.vote_count|pluralize }}</div>
+                    {% endif %}
+                    </div>
+                </div>
+
+                <div class="item"  style="background-color:#fff8db">
+                    <div class="content">
+                        <div class="ui center aligned small header">{{ post.root.reply_count }}</div>
+                        <div class="t">answer{{ post.root.reply_count|pluralize }}</div>
+                    </div>
+                </div>
+
+                 <div class="item" style="background-color:#fff8db">
+                     <div class="content">
+                        <div class="ui center aligned small header">{{ post.root.view_count|bignum }}</div>
+                        <div class="t">views</div>
+                     </div>
+                 </div>
+                <div class="item">
+                     <div class="content">
+                         <div class="ui small header">
+                            {% if post.type != post.QUESTION %}
+                                {{ post.get_type_display }}:
+                            {% endif %}
+                             <a href="{% url 'post_view' post.uid %}">{{ post.get_title }}</a>
+
+                         </div>
+                     <div class="" style="padding-top:10px">
+
+                        {% for tag in post.tag_set.all %}
+                            <a class="ui small label" href="#">{{ tag.name }}</a>
+                        {% endfor %}
+
+                     </div>
+
+                     </div>
+                </div>
+
+            </div>
+
+        <div class="ui right floated muted item ">
+            written {{ post.creation_date|time_ago }} by {{post.author }}
+
+            {% if post.author != post.lastedit_user %}
+                &bull; updated
+                <span class="ago2">{{ post.lastedit_date|time_ago }}</span> by
+                {{post.lastedit_user }}
+            {% endif %}
+        </div>
+
+    </div>
+
+        {% empty %}
+
+        <div class="alert alert-info">There are no results for this page.</div>
+
+        {% endfor %}
+    </div>
+
+</div>
+
+
+{% endblock %}

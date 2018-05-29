@@ -17,7 +17,7 @@ urlpatterns = [
     url(r'^accounts/', include(accounts_urls)),
 
     # The forum handler
-    #url(r'^forum/', include(forum_urls)),
+    url(r'^forum/', include(forum_urls)),
 
     # The django generated admin site.
     url(r'^django/admin/', admin.site.urls, name='django_admin'),

@@ -3,11 +3,14 @@ import bleach
 import logging
 import requests
 import mistune
+import uuid
+from datetime import datetime
 #from html5lib.tokenizer import HTMLTokenizer
 
 
 from . import settings
 from django.template import loader, Context
+from django.utils.timezone import utc
 
 logger = logging.getLogger(__name__)
 
@@ -44,11 +47,21 @@ YOUTUBE_RE3 = re.compile(YOUTUBE_PATTERN3)
 TWITTER_RE = re.compile(TWITTER_PATTERN)
 
 
+
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
+
+def split_tags(text):
+    return text.split(",")
+
 def clean(text):
     "Sanitize text with no other substitutions"
     html = bleach.clean(text, tags=ALLOWED_TAGS,
                         attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
     return html
+
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
 
 
 def parse_html(text):

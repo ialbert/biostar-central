@@ -1,2 +1,3 @@
 uwsgi
 matplotlib
+pysam

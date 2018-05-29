@@ -50,6 +50,8 @@ def moderate(request):
     return mark_safe(template)
 
 
+
+
 @register.simple_tag
 def sticky_label(obj):
     label = mark_safe('<span class ="ui label">Sticky</span>')
