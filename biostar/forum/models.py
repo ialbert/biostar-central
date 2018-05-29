@@ -76,7 +76,7 @@ class PostManager(models.Manager):
 
     def get_thread(self, root, user):
         # Populate the object to build a tree that contains all posts in the thread.
-        is_moderator = user.is_authenticated() and user.is_moderator
+        is_moderator = user.is_authenticated and user.is_moderator
         if is_moderator:
             query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
         else:
@@ -286,7 +286,7 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
 
-        self.uid = self.uid or util.get_uuid(32)
+        self.uid = self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.author
 
         # Sanitize the post body.

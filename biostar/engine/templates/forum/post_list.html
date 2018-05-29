@@ -48,13 +48,13 @@
                             {% if post.type != post.QUESTION %}
                                 {{ post.get_type_display }}:
                             {% endif %}
-                             <a href="#">{{ post.get_title }}</a>
+                             <a href="{% url 'post_view' post.uid %}">{{ post.get_title }}</a>
 
                          </div>
                      <div class="" style="padding-top:10px">
 
                         {% for tag in post.tag_set.all %}
-                            <a class="ui small label" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
+                            <a class="ui small label" href="#">{{ tag.name }}</a>
                         {% endfor %}
 
                      </div>

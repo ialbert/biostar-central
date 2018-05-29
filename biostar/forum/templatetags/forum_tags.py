@@ -12,7 +12,7 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
-@register.inclusion_tag('wideg/post_body.html', takes_context=True)
+@register.inclusion_tag('widgets/post_body.html', takes_context=True)
 def post_body(context, post, user, tree):
     "Renders the post body"
     return dict(post=post, user=user, tree=tree, request=context['request'])
@@ -46,7 +46,6 @@ def time_ago(date):
         diff = delta.days / 365.0
         unit = '%0.1f years' % diff
     return "%s ago" % unit
-
 
 
 @register.filter

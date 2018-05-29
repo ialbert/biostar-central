@@ -1,9 +1,9 @@
 
-
-from . import forms, auth
-
-from .models import Post, Vote
 from django.shortcuts import render, redirect, reverse
+from django.contrib import messages
+from . import forms, auth
+from .models import Post, Vote
+from .decorators import object_exists
 
 LATEST = "Latest"
 
@@ -17,7 +17,7 @@ def post_list(request):
 
     return render(request, "forum/post_list.html", context=context)
 
-
+@object_exists
 def post_view(request, uid):
     "Return a detailed view for specific post"
 
@@ -68,8 +68,8 @@ def post_view(request, uid):
     obj.tree = tree
     obj.answers = [p for p in thread if p.type == Post.ANSWER]
 
-    context = dict()
-    return render(request, "post_view.html", context=context)
+    context = dict(post=obj)
+    return render(request, "forum/post_view.html", context=context)
 
 
 
@@ -92,7 +92,7 @@ def new_post(request):
 
 
 
-
+@object_exists
 def new_answer(request, puid):
     "Provide a short form to make a new answer to a post"
 
@@ -102,7 +102,7 @@ def new_answer(request, puid):
 
 
 
-
+@object_exists
 def edit_post(request, uid):
     "Edit an existing post"
 

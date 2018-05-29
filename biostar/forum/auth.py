@@ -17,9 +17,11 @@ def build_tree(thread, tree={}):
     return
 
 
-def get_votes(user, thread, store={}):
+def get_votes(user, thread):
 
-    if user.is_authenticated():
+    store = {Vote.BOOKMARK: set(), Vote.UP:set()}
+
+    if user.is_authenticated:
         pids = [p.id for p in thread]
         votes = Vote.objects.filter(post_id__in=pids, author=user).values_list("post_id", "type")
 
@@ -36,7 +38,7 @@ def post_permissions(request, post):
     user = request.user
     is_editable = has_ownership = False
 
-    if user.is_authenticated():
+    if user.is_authenticated:
 
         if user == post.author :
             has_ownership = is_editable = True
