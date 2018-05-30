@@ -33,7 +33,7 @@ class PostManager(models.Manager):
     def my_posts(self, target, user):
 
         # Show all posts for moderators or targets
-        if user.is_moderator or user == target:
+        if user.profile.is_moderator or user == target:
             query = self.filter(author=target)
         else:
             query = self.filter(author=target).exclude(status=Post.DELETED)
@@ -76,7 +76,7 @@ class PostManager(models.Manager):
 
     def get_thread(self, root, user):
         # Populate the object to build a tree that contains all posts in the thread.
-        is_moderator = user.is_authenticated and user.is_moderator
+        is_moderator = user.is_authenticated and user.profile.is_moderator
         if is_moderator:
             query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
         else:
@@ -286,7 +286,7 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
 
-        self.uid = self.uid or util.get_uuid(8)
+        self.uid = self.uid or util.get_uuid(13)
         self.lastedit_user = self.lastedit_user or self.author
 
         # Sanitize the post body.
@@ -298,8 +298,11 @@ class Post(models.Model):
         # Posts other than a question also carry the same tag
         if self.is_toplevel and self.type != Post.QUESTION:
             required_tag = self.get_type_display()
-            if required_tag not in self.tag_val:
+
+            if self.tag_val and (required_tag not in self.tag_val.split()) :
                 self.tag_val += "," + required_tag
+            else:
+                self.tag_val = required_tag
 
         # Recompute post reply count
         self.update_reply_count()

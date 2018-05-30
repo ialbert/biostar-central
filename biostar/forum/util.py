@@ -153,7 +153,7 @@ def parse_html(text):
                         attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
 
     try:
-        html = bleach.linkify(html, callbacks=CALLBACKS, skip_pre=True)
+        html = bleach.linkify(html, callbacks=CALLBACKS, skip_tags=["pre"])
         # embed the objects
         for uid, obj in embed:
             emb_patt = '<a href="%s">%s</a>' % (uid, uid)

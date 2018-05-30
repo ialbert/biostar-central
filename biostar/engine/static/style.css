@@ -27,10 +27,6 @@ body {
     font-size: 1.08em;
 }
 
-.row:hover {
-    text-decoration: underline;
-}
-
 .runcolor {
     background: rgba(33, 186, 69, 0.13) !important;
 }

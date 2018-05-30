@@ -6,5 +6,13 @@
 </head>
 <body>
 
+{# This is the toplevel post #}
+{% post_body post=post user=request.user tree=post.tree %}
+
+{# Render each answer for the post #}
+{% for answer in post.answers %}
+    {% post_body post=answer user=request.user tree=post.tree %}
+{% endfor %}
+
 </body>
 </html>
