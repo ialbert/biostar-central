@@ -19,22 +19,6 @@ def post_body(context, post, user, tree):
 
 
 
-
-@register.simple_tag
-def outline_icon(post, type):
-
-    type_map = dict(answer=['ui comment', post.root.reply_count ],
-                    vote=['ui thumbs up', post.thread_score if post.is_toplevel else post.vote_count]
-                    )
-
-    make_outline = lambda : " outline icon" if type_map.get(type, [""])[1] == 0 else " icon"
-
-    icon = type_map.get(type, [""])[0] + make_outline()
-
-    return icon
-
-
-
 def pluralize(value, word):
     if value > 1:
         return "%d %ss" % (value, word)

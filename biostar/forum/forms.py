@@ -23,7 +23,12 @@ def english_only(text):
 def valid_language(text):
     supported_languages = settings.LANGUAGE_DETECTION
     if supported_languages:
-        lang = langdetect.detect(text)
+        try:
+            lang = langdetect.detect(text)
+        except Exception as exc:
+            logger.error(f"{exc}")
+            lang = None
+
         if lang not in supported_languages:
             raise ValidationError(
                     f'Language "{lang}" is not one of the supported languages {supported_languages}!')
@@ -35,10 +40,7 @@ def valid_title(text):
     if not text:
         raise ValidationError('Please enter a title')
 
-    if len(text) < 10:
-        raise ValidationError('The title is too short')
-
-    words = text.split(" ")
+    words = text.split()
     if len(words) < 3:
         raise ValidationError('More than two words please.')
 
@@ -61,7 +63,7 @@ class PostLongForm(forms.Form):
 
     title = forms.CharField(
         label="Post Title",
-        max_length=200, min_length=10, validators=[valid_title, english_only, valid_language],
+        max_length=200, min_length=2, validators=[valid_title, english_only],
         help_text="Descriptive titles promote better answers.")
 
     post_type = forms.ChoiceField(
@@ -74,8 +76,8 @@ class PostLongForm(forms.Form):
         help_text="Choose one or more tags to match the topic. To create a new tag just type it in comma seperated.",
     )
 
-    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[valid_language],
-                              min_length=80, max_length=15000,
+    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
+                              min_length=10, max_length=15000,
                               label="Enter your post below")
 
     def save(self, author=None):
