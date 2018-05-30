@@ -14,7 +14,7 @@
 </div>
     {# Render each answer for the post #}
     {% for answer in post.answers %}
-        <div class="ui vertical segment">
+        <div class="ui vertical small segment">
             {% post_body post=answer user=request.user tree=post.tree %}
         </div>
     {% endfor %}
