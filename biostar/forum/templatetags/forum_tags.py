@@ -3,6 +3,8 @@ from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from django import template
 
+from biostar.forum.models import Post
+
 
 logger = logging.getLogger("engine")
 
@@ -13,9 +15,11 @@ def now():
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree):
+def post_body(context, post, user, tree, form, add_comment=False):
     "Renders the post body"
-    return dict(post=post, user=user, tree=tree, request=context['request'])
+
+    return dict(post=post, user=user, tree=tree, request=context['request'],
+                add_comment=add_comment, form=form)
 
 
 
@@ -24,6 +28,22 @@ def pluralize(value, word):
         return "%d %ss" % (value, word)
     else:
         return "%d %s" % (value, word)
+
+
+@register.simple_tag
+def object_count(request, otype):
+
+    user = request.user
+    if user.is_authenticated:
+        if otype == "post":
+            return Post.objects.my_posts(target=user, user=user).count()
+        if otype == "follow":
+            # Stuff that produces notifications
+            return Post.objects.top_level(user).filter(subs__user=user)
+
+    return 0
+
+
 
 @register.filter
 def time_ago(date):

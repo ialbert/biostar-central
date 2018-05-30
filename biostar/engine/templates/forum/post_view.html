@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "forum_base.html" %}
 {% load forum_tags %}
 {% load engine_tags %}
 
@@ -10,12 +10,12 @@
 
 <div class="ui vertical segment">
     {# This is the toplevel post #}
-    {% post_body post=post user=request.user tree=post.tree %}
+    {% post_body post=post user=request.user tree=post.tree add_comment=add_comment form=form %}
 </div>
     {# Render each answer for the post #}
     {% for answer in post.answers %}
         <div class="ui vertical small segment">
-            {% post_body post=answer user=request.user tree=post.tree %}
+            {% post_body post=answer user=request.user tree=post.tree add_comment=add_comment form=form %}
         </div>
     {% endfor %}
 

@@ -94,7 +94,7 @@ class PostLongForm(forms.Form):
         return post
 
 
-class AnswersForm(forms.Form):
+class PostShortForm(forms.Form):
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html")
                               , min_length=20, max_length=5000)
 

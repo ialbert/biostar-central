@@ -2,10 +2,7 @@ from .models import Post, Tag, Vote
 from django.contrib import messages
 
 
-LATEST = "latest"
-MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags open following bookmarks".split()
-POST_TYPES = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
-                  forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
+
 
 
 
@@ -88,41 +85,46 @@ def posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
     user = request.user
 
+    latest = "latest"
+    myposts, mytags, unanswered, following, bookmarks = "myposts mytags open following bookmarks".split()
+    post_types = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
+                      forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
+
     # One letter tags are always uppercase
     topic = Tag.fixcase(topic)
 
-    if topic == MYPOSTS:
+    if topic == myposts:
         # Get the posts that the user wrote.
+        messages.success(request,'Filtering for posts you contribute to')
         return Post.objects.my_posts(target=user, user=user)
 
-    if topic == MYTAGS:
+    if topic == mytags:
         # Get the posts that the user wrote.
         messages.success(request,
                          'Posts matching the <b><i class="fa fa-tag"></i> My Tags</b> setting in your user profile')
         return Post.objects.tag_search(user.profile.my_tags)
 
-    if topic == UNANSWERED:
+    if topic == unanswered:
         # Get unanswered posts.
         return Post.objects.top_level(user).filter(type=Post.QUESTION, reply_count=0)
 
-    if topic == FOLLOWING:
+    if topic == following:
         # Get that posts that a user follows.
         messages.success(request, 'Threads that will produce notifications.')
         return Post.objects.top_level(user).filter(subs__user=user)
 
-    if topic == BOOKMARKS:
+    if topic == bookmarks:
         # Get that posts that a user bookmarked.
         return Post.objects.my_bookmarks(user)
 
-    if topic in POST_TYPES:
+    if topic in post_types:
         # A post type.
-        return Post.objects.top_level(user).filter(type=POST_TYPES[topic])
+        return Post.objects.top_level(user).filter(type=post_types[topic])
 
-    if topic and topic != LATEST:
+    if topic and topic != latest:
         # Any type of topic.
         if topic:
-            messages.info(request,
-                          "Showing: <code>%s</code> &bull; <a href='/'>reset</a>" % topic)
+            messages.info(request,f"Showing: {topic}" )
         return Post.objects.tag_search(topic)
 
     # Return latest by default.

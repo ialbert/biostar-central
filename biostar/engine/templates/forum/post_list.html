@@ -1,5 +1,6 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
+{% load engine_tags %}
 
 {% block headtitle %}
     Forum
@@ -8,36 +9,6 @@
 
 {% block body %}
 
-    <div class="ui center aligned vertical segment">
-        <div class="ui six item menu">
-
-            <a class="ui item" href="#">
-                <i class="world icon"></i>Community
-            </a>
-            <a class="ui item" href="#">
-                <i class="mail icon"></i>Messages
-                <div class="floating ui red label">0</div>
-            </a>
-            <a class="ui item" href="#">
-                <i class="thumbs up icon"></i>Votes
-                <div class="floating ui red label">0</div>
-            </a>
-            <a class="ui item" href="#">
-                <i class="comments icon"></i>My Posts
-                <div class="floating ui green label">2</div>
-            </a>
-            <a class="ui item" href="#">
-                <i class="tags icon"></i>My Tags
-            </a>
-            <a class="ui active green item" href="{% url 'post_create' %}">
-            <i class="add circle icon"></i>New Post
-            </a>
-
-        </div>
-
-
-
-    </div>
 
     <div class="ui relaxed mini divided list">
 
