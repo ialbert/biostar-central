@@ -61,7 +61,7 @@ class PostLongForm(forms.Form):
 
     title = forms.CharField(
         label="Post Title",
-        max_length=200, min_length=10, validators=[valid_title, english_only],
+        max_length=200, min_length=10, validators=[valid_title, english_only, valid_language],
         help_text="Descriptive titles promote better answers.")
 
     post_type = forms.ChoiceField(
@@ -92,6 +92,23 @@ class PostLongForm(forms.Form):
         return post
 
 
-class PostShortForm(forms.Form):
+class AnswersForm(forms.Form):
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html")
                               , min_length=20, max_length=5000)
+
+    def save(self, parent, author):
+        data = self.cleaned_data.get
+        answer = auth.create_post(title=parent.title,
+                                  parent=parent,
+                                  author=author,
+                                  content=data("content"),
+                                  post_type=Post.ANSWER
+                                  )
+        return answer
+
+
+
+
+
+
+

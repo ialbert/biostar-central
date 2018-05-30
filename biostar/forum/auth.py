@@ -130,11 +130,13 @@ def posts_by_topic(request, topic):
 
 
 
-def create_post(title, author, content, post_type, tag_val=""):
+def create_post(title, author, content, post_type, tag_val="", parent=None,root=None):
+    "Used to create posts across apps"
+
 
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
-        author=author, type=post_type,
+        author=author, type=post_type, parent=parent, root=root
     )
 
     post.add_tags(post.tag_val)

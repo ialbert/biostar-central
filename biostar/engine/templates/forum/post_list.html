@@ -24,19 +24,24 @@
                 <div class="row">
 
                     <div class="five wide column">
+
                         <div class="ui mini grey statistic">
 
+
                             {% if post.is_toplevel %}
-                                <div class="value"><i class="small thumbs up outline  icon"></i> {{ post.thread_score }}</div>
+                                <div class="value"><i class="{% outline_icon post=post type='vote' %} "></i>
+                                    {{ post.thread_score }}</div>
                                 <div class="label">Vote{{ post.thread_score|pluralize }}</div>
                             {% else %}
-                                <div class="value"><i class="small thumbs up icon"></i> {{ post.vote_count }}</div>
+                                <div class="value"><i class="{% outline_icon post=post type='vote' %}"></i>
+                                    {{ post.vote_count }}</div>
                                 <div class="label">Vote{{ post.vote_count|pluralize }}</div>
                             {% endif %}
                         </div>
 
                         <div class="ui mini purple statistic">
-                            <div class="value"> <i class="small comment outline icon"></i> {{ post.root.reply_count }}</div>
+                            <div class="value"> <i class="{% outline_icon post=post type='answer' %}"></i>
+                                {{ post.root.reply_count }}</div>
                             <div class="label">Answer{{ post.root.reply_count|pluralize }}</div>
                         </div>
                         <div class="ui mini statistic">
@@ -45,7 +50,7 @@
                         </div>
                     </div>
 
-                    <div class="eleven wide column">
+                    <div class="eleven wide left aligned column">
                         <div class="item">
                              <div class="content">
                                  <div class="ui header">

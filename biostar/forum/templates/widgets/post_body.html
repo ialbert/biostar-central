@@ -40,11 +40,12 @@
                         {{ post.creation_date.date }} by {{ post.author.profile.name }}
 
                       {% if post.creation_date != post.lastedit_date %}
+                         &bull;
                         modified {{ post.lastedit_date|time_ago }}
                         {%  if post.author != post.lastedit_user %}
                             by {{ post.lastedit_user.profile.name }}
                         {%  endif %}
-                        &bull;
+
                      {% endif %}
                      </div>
 
