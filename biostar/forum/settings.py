@@ -13,7 +13,3 @@ ALLOWED_ATTRIBUTES = {
     'table': ['border', 'cellpadding', 'cellspacing'],
 
 }
-
-
-# Configure language detection
-LANGUAGE_DETECTION = ['en']

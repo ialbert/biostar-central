@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Posts</title>
+
 </head>
 <body>
+
+    {% for post in posts %}
+
+        <a href="{% 'post_view' post.uid %}">{{post}}</a>
+
+    {% endfor %}
 
 </body>
 </html>

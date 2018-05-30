@@ -156,6 +156,9 @@ TOC_ROOT = join(MEDIA_ROOT, 'tocs')
 # Time between two accesses from the same IP to qualify as a different view.
 POST_VIEW_MINUTES = 7
 
+# Configure language detection
+LANGUAGE_DETECTION = ['en']
+
 # Ensure that the table of directory exists.
 os.makedirs(TOC_ROOT, exist_ok=True)
 

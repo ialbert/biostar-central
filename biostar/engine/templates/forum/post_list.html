@@ -1,4 +1,4 @@
-{% extends "wide_base.html" %}
+{% extends "base.html" %}
 {% load forum_tags %}
 
 {% block headtitle %}
@@ -8,71 +8,109 @@
 
 {% block body %}
 
-<div class="ui segment">
-    <div class="ui relaxed divided list">
+    <div class="ui center aligned vertical segment">
+
+        <div class="ui basic small buttons">
+            <a class="ui mini button" href="#">
+                <i class="world icon"></i>Community
+            </a>
+            <a class="ui mini button" href="#">
+                <i class="mail icon"></i>Messages
+            </a>
+            <a class="ui mini button" href="#">
+                <i class="thumbs up icon"></i>Votes
+            </a>
+            <a class="ui mini button" href="#">
+                <i class="comments icon"></i>My Posts
+            </a>
+            <a class="ui mini button" href="#">
+                <i class="tags icon"></i>My Tags
+            </a>
+        </div>
+
+
+        <a class="ui small basic button" href="{% url 'post_create' %}">
+            <i class="add circle icon"></i>New Post
+        </a>
+
+
+    </div>
+
+    <div class="ui relaxed mini divided list">
 
         {% for post in posts %}
 
         <div class="item">
 
-            <div class="ui relaxed horizontal list">
+            <div class="ui two column grid container">
+                <div class="row">
 
-                <div class="item" style="background-color:#d1d0cc">
-                    <div class="content" style="padding-left:10px">
-                    {% if post.is_toplevel %}
-                        <div class="ui center aligned small header">{{ post.thread_score }}</div>
-                        <div class="t">vote{{ post.thread_score|pluralize }}</div>
-                    {% else %}
-                        <div class="ui center aligned small header">{{ post.vote_count }}</div>
-                        <div class="t">vote{{ post.vote_count|pluralize }}</div>
-                    {% endif %}
-                    </div>
-                </div>
+                    <div class="five wide column">
 
-                <div class="item"  style="background-color:#fff8db">
-                    <div class="content">
-                        <div class="ui center aligned small header">{{ post.root.reply_count }}</div>
-                        <div class="t">answer{{ post.root.reply_count|pluralize }}</div>
-                    </div>
-                </div>
+                        <div class="ui mini grey statistic">
 
-                 <div class="item" style="background-color:#fff8db">
-                     <div class="content">
-                        <div class="ui center aligned small header">{{ post.root.view_count|bignum }}</div>
-                        <div class="t">views</div>
-                     </div>
-                 </div>
-                <div class="item">
-                     <div class="content">
-                         <div class="ui small header">
-                            {% if post.type != post.QUESTION %}
-                                {{ post.get_type_display }}:
+
+                            {% if post.is_toplevel %}
+                                <div class="value"><i class="{% outline_icon post=post type='vote' %} "></i>
+                                    {{ post.thread_score }}</div>
+                                <div class="label">Vote{{ post.thread_score|pluralize }}</div>
+                            {% else %}
+                                <div class="value"><i class="{% outline_icon post=post type='vote' %}"></i>
+                                    {{ post.vote_count }}</div>
+                                <div class="label">Vote{{ post.vote_count|pluralize }}</div>
                             {% endif %}
-                             <a href="{% url 'post_view' post.uid %}">{{ post.get_title }}</a>
+                        </div>
 
-                         </div>
-                     <div class="" style="padding-top:10px">
+                        <div class="ui mini purple statistic">
+                            <div class="value"> <i class="{% outline_icon post=post type='answer' %}"></i>
+                                {{ post.root.reply_count }}</div>
+                            <div class="label">Answer{{ post.root.reply_count|pluralize }}</div>
+                        </div>
+                        <div class="ui mini statistic">
+                           <div class="value">{{ post.root.view_count|bignum }}</div>
+                            <div class="label">Views</div>
+                        </div>
+                    </div>
 
-                        {% for tag in post.tag_set.all %}
-                            <a class="ui small label" href="#">{{ tag.name }}</a>
-                        {% endfor %}
+                    <div class="eleven wide left aligned column">
+                        <div class="item">
+                             <div class="content">
+                                 <div class="ui header">
+                                    {% if post.type != post.QUESTION %}
+                                        {{ post.get_type_display }}:
+                                    {% endif %}
+                                     <a href="{% url 'post_view' post.uid %}">{{ post.get_title }}</a>
 
-                     </div>
+                                 </div>
+                                <div class="sixteen wide column" style="padding-top:10px">
 
-                     </div>
+                                {% for tag in post.tag_set.all %}
+                                <a class="ui small label" href="#">{{ tag.name }}</a>
+                                {% endfor %}
+
+                                </div>
+                             </div>
+
+                        </div>
+                    </div>
+
+
+                    <div class="sixteen wide column">
+                    <div class="ui right floated muted item" style="padding-top:10px">
+
+                        written {{ post.creation_date|time_ago }} by {{post.author.profile.name }}
+
+                        {% if post.author != post.lastedit_user %}
+                        &bull; updated
+                        <span class="ago2">{{ post.lastedit_date|time_ago }}</span> by
+                        {{post.lastedit_user }}
+                        {% endif %}
+
+                    </div>
+                    </div>
                 </div>
-
             </div>
 
-        <div class="ui right floated muted item ">
-            written {{ post.creation_date|time_ago }} by {{post.author }}
-
-            {% if post.author != post.lastedit_user %}
-                &bull; updated
-                <span class="ago2">{{ post.lastedit_date|time_ago }}</span> by
-                {{post.lastedit_user }}
-            {% endif %}
-        </div>
 
     </div>
 
@@ -83,7 +121,6 @@
         {% endfor %}
     </div>
 
-</div>
 
 
 {% endblock %}

@@ -12,8 +12,10 @@ logger = models.logger
 
 
 def english_only(text):
+
+
     try:
-        text.decode('ascii')
+        text.encode('ascii')
     except Exception:
         raise ValidationError('Title may only contain plain text (ASCII) characters')
 
@@ -43,11 +45,7 @@ def valid_title(text):
 
 def valid_tag(text):
     "Validates form input for tags"
-    text = text.strip()
-    if not text:
-        raise ValidationError('Please enter at least one tag')
-    if len(text) > 50:
-        raise ValidationError('Tag line is too long (50 characters max)')
+
     words = text.split(",")
     if len(words) > 5:
         raise ValidationError('You have too many tags (5 allowed)')
@@ -63,7 +61,7 @@ class PostLongForm(forms.Form):
 
     title = forms.CharField(
         label="Post Title",
-        max_length=200, min_length=10, validators=[valid_title, english_only],
+        max_length=200, min_length=10, validators=[valid_title, english_only, valid_language],
         help_text="Descriptive titles promote better answers.")
 
     post_type = forms.ChoiceField(
@@ -71,12 +69,12 @@ class PostLongForm(forms.Form):
         choices=POST_CHOICES, help_text="Select a post type: Question, Forum, Job, Blog")
 
     tag_val = forms.CharField(
-        label="Post Tags",
-        required=True, validators=[valid_tag],
-        help_text="Choose one or more tags to match the topic. To create a new tag just type it in and press ENTER.",
+        label="Post Tags", max_length=50,
+        required=False, validators=[valid_tag],
+        help_text="Choose one or more tags to match the topic. To create a new tag just type it in comma seperated.",
     )
 
-    content = forms.CharField(widget=PagedownWidget, validators=[valid_language],
+    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[valid_language],
                               min_length=80, max_length=15000,
                               label="Enter your post below")
 
@@ -94,5 +92,23 @@ class PostLongForm(forms.Form):
         return post
 
 
-class PostShortForm(forms.Form):
-    content = forms.CharField(widget=PagedownWidget, min_length=20, max_length=5000)
+class AnswersForm(forms.Form):
+    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html")
+                              , min_length=20, max_length=5000)
+
+    def save(self, parent, author):
+        data = self.cleaned_data.get
+        answer = auth.create_post(title=parent.title,
+                                  parent=parent,
+                                  author=author,
+                                  content=data("content"),
+                                  post_type=Post.ANSWER
+                                  )
+        return answer
+
+
+
+
+
+
+
