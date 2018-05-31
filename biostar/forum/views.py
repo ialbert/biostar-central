@@ -6,13 +6,19 @@ from .models import Post, Vote
 from .decorators import object_exists
 from django.contrib.auth.decorators import login_required
 
-LATEST = "Latest"
+
 
 
 def post_list(request):
     "List view for posts"
 
-    posts = auth.posts_by_topic(request=request, topic=LATEST).order_by("-pk")
+    topic = request.GET.get("topic", 'latest')
+
+    if request.user.is_anonymous and topic != "latest":
+        messages.error(request, f"You must be logged in to perform action.")
+        topic = "latest"
+
+    posts = auth.posts_by_topic(request=request, topic=topic).order_by("-pk")
 
     context = dict(posts=posts)
 
@@ -27,10 +33,12 @@ def post_view(request, uid):
     user = request.user
 
     # Form used for answers
-    form = forms.AnswersForm()
+    form = forms.PostShortForm()
 
     # Get the parents info
     obj = Post.objects.filter(uid=uid).first()
+
+    add_comment = request.GET.get("add", '') == 'comment'
 
     # Raise 404 if a deleted post is viewed by an anonymous user
     if (obj.status == Post.DELETED) and not user.profile.is_moderator:
@@ -44,7 +52,7 @@ def post_view(request, uid):
     Post.update_post_views(obj, request=request)
 
     if request.method == "POST":
-        form = forms.AnswersForm(data=request.POST)
+        form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             form.save(parent=obj.parent, author=request.user)
             return redirect(reverse("post_view", kwargs=dict(uid=obj.root.uid)))
@@ -59,7 +67,7 @@ def post_view(request, uid):
     # Answers are added here as well.
     obj = auth.build_obj_tree(request=request, obj=obj)
 
-    context = dict(post=obj, form=form)
+    context = dict(post=obj, form=form, add_comment=add_comment)
     return render(request, "forum/post_view.html", context=context)
 
 

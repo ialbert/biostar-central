@@ -3,6 +3,8 @@ from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from django import template
 
+from biostar.forum.models import Post
+
 
 logger = logging.getLogger("engine")
 
@@ -13,25 +15,11 @@ def now():
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree):
+def post_body(context, post, user, tree, form, add_comment=False):
     "Renders the post body"
-    return dict(post=post, user=user, tree=tree, request=context['request'])
 
-
-
-
-@register.simple_tag
-def outline_icon(post, type):
-
-    type_map = dict(answer=['ui comment', post.root.reply_count ],
-                    vote=['ui thumbs up', post.thread_score if post.is_toplevel else post.vote_count]
-                    )
-
-    make_outline = lambda : " outline icon" if type_map.get(type, [""])[1] == 0 else " icon"
-
-    icon = type_map.get(type, [""])[0] + make_outline()
-
-    return icon
+    return dict(post=post, user=user, tree=tree, request=context['request'],
+                add_comment=add_comment, form=form)
 
 
 
@@ -40,6 +28,22 @@ def pluralize(value, word):
         return "%d %ss" % (value, word)
     else:
         return "%d %s" % (value, word)
+
+
+@register.simple_tag
+def object_count(request, otype):
+
+    user = request.user
+    if user.is_authenticated:
+        if otype == "post":
+            return Post.objects.my_posts(target=user, user=user).count()
+        if otype == "follow":
+            # Stuff that produces notifications
+            return Post.objects.top_level(user).filter(subs__user=user)
+
+    return 0
+
+
 
 @register.filter
 def time_ago(date):
