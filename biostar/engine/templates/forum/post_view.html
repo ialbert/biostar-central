@@ -8,13 +8,13 @@
 
 {% block body %}
 
-<div class="ui vertical segment">
+<div class="ui vertical large segment">
     {# This is the toplevel post #}
     {% post_body post=post user=request.user tree=post.tree form=form %}
 </div>
     {# Render each answer for the post #}
     {% for answer in post.answers %}
-        <div class="ui vertical small segment">
+        <div class="ui vertical segment">
             {% post_body post=answer user=request.user tree=post.tree form=form %}
         </div>
     {% endfor %}

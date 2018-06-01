@@ -5,7 +5,11 @@
     <div class="avatar"><i class="thumbs outline up icon"></i>{{ post.vote_count }}</div>
 
     <div class="content">
-      <div class="mini author">{{post.author.profile.name}}</div>
+      <div class="author">{{post.author.profile.name}}
+        <div class="metadata">
+        <span class="date">{{ post.lastedit_date|time_ago }}</span>
+      </div>
+      </div>
         <div class="text">
       {{ post.html|safe }}
         </div>

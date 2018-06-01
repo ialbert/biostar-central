@@ -72,7 +72,7 @@
 
                     {% if post.author != post.lastedit_user %}
                     &bull; updated
-                    <span class="ago2">{{ post.lastedit_date|time_ago }}</span> by
+                    <span class="">{{ post.lastedit_date|time_ago }}</span> by
                     {{post.lastedit_user }}
                     {% endif %}
 
