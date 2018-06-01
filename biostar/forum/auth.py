@@ -9,9 +9,10 @@ from django.contrib import messages
 def build_tree(thread, tree={}):
 
     for post in thread:
+
         if post.type == Post.COMMENT:
             tree.setdefault(post.parent_id, []).append(post)
-    return
+    return tree
 
 
 def get_votes(user, thread):
@@ -58,7 +59,7 @@ def build_obj_tree(request, obj):
               for p in Post.objects.get_thread(obj, user)]
 
     # Build tree and gather votes.
-    tree = build_tree(thread=thread)
+    tree = build_tree(thread=thread, tree={})
     votes = get_votes(user=user, thread=thread)
 
     # Shortcuts to each storage.

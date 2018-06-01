@@ -2,8 +2,10 @@ import logging
 from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from django import template
+from django.utils.safestring import mark_safe
 
 from biostar.forum.models import Post
+from biostar.forum import auth
 
 
 logger = logging.getLogger("engine")
@@ -21,6 +23,11 @@ def post_body(context, post, user, tree, form, add_comment=False):
     return dict(post=post, user=user, tree=tree, request=context['request'],
                 add_comment=add_comment, form=form)
 
+
+@register.filter
+def show_nonzero(value):
+    "The purpose of this is to return value or empty"
+    return value if value else ''
 
 
 def pluralize(value, word):
@@ -97,3 +104,46 @@ def boxclass(post):
         style = "unanswered"
 
     return style
+
+
+@register.simple_tag
+def render_comments(request, post, comment_template='widgets/comment_body.html'):
+
+
+    user = request.user
+    thread = Post.objects.get_thread(post.parent, user)
+    # Build tree
+    tree = auth.build_tree(thread=thread, tree={})
+
+    if tree and post.id in tree:
+        text = traverse_comments(request=request, post=post, tree=tree,
+                                 comment_template=comment_template)
+    else:
+        text = ''
+
+    return mark_safe(text)
+
+
+def traverse_comments(request, post, tree, comment_template):
+    "Traverses the tree and generates the page"
+
+    body = template.loader.get_template(comment_template)
+
+    def traverse(node):
+        data = ['<div class="ui comments">']
+        cont = {"post": node, 'user': request.user, 'request': request}
+        html = body.render(cont)
+        data.append(html)
+        for child in tree.get(node.id, []):
+            data.append(traverse(child))
+        data.append("</div>")
+        return '\n'.join(data)
+
+    # this collects the comments for the post
+    coll = []
+    for node in tree[post.id]:
+
+        coll.append(traverse(node))
+    return '\n'.join(coll)
+
+

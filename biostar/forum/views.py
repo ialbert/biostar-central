@@ -71,6 +71,29 @@ def post_view(request, uid):
     return render(request, "forum/post_view.html", context=context)
 
 
+@login_required
+def post_comment(request, uid):
+
+    # Get the parent post to add comment to
+    obj = Post.objects.filter(uid=uid).first()
+
+    # Form used for answers
+    form = forms.PostShortForm()
+
+    if request.method == "POST":
+
+        form = forms.PostShortForm(data=request.POST)
+
+        if form.is_valid():
+            form = forms.PostShortForm(data=request.POST)
+            if form.is_valid():
+                form.save(parent=obj, author=request.user, post_type=Post.COMMENT)
+            return redirect(reverse("post_view", kwargs=dict(uid=obj.root.uid)))
+
+    context = dict(form=form, post=obj)
+    return render(request, "forum/post_comment.html", context=context)
+
+
 
 @login_required
 def post_create(request):
