@@ -40,7 +40,7 @@ def subs_actions(post, user):
     form = forms.SubsForm(user=user, post=post, initial=initial)
     unsubbed = sub_type == models.Subscription.NO_MESSAGES
 
-    button = "Subscribe" if unsubbed else "Update subscription"
+    button = "Follow" if unsubbed else "Update"
 
     return dict(post=post, form=form, button=button)
 

@@ -358,11 +358,9 @@ class Subscription(models.Model):
         unique_together = (("user", "post"),)
 
     MESSAGING_CHOICES = [
-        (NO_MESSAGES, "No Messages"),
-        (DEFAULT_MESSAGES, "Default",),
-        (LOCAL_MESSAGE, "Local Messages",),
-        (EMAIL_MESSAGE, "Email Message",),
-        (ALL_MESSAGES, "Mailing List ( email for every new thread )",),
+        (NO_MESSAGES, "Not following"),
+        (LOCAL_MESSAGE, "Follow using Local Messages",),
+        (EMAIL_MESSAGE, "Follow using Emails",)
         ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs",on_delete=models.CASCADE)
