@@ -2,7 +2,6 @@ import bleach
 import logging
 import datetime
 
-from django.utils.timezone import utc
 from django.utils import timezone
 from django.db import models
 from django.conf import settings
@@ -16,8 +15,7 @@ from . import util
 
 User = get_user_model()
 
-# Message type selector.
-LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
+
 logger = logging.getLogger("engine")
 
 def get_sentinel_user():
@@ -26,7 +24,7 @@ def get_sentinel_user():
 
 class SubscriptionManager(models.Manager):
     def get_subs(self, post):
-        "Returns all suscriptions for a post"
+        "Returns all subscriptions for a post, exclude the "
         return self.filter(post=post.root).select_related("user")
 
 class PostManager(models.Manager):
@@ -354,24 +352,26 @@ class PostView(models.Model):
 class Subscription(models.Model):
     "Connects a post to a user"
 
+    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
+
     class Meta:
         unique_together = (("user", "post"),)
 
-
     MESSAGING_CHOICES = [
-        (DEFAULT_MESSAGES, "default",),
-        (LOCAL_MESSAGE, "local messages",),
-        (EMAIL_MESSAGE, "email",),
-        (ALL_MESSAGES, "email for every new thread (mailing list mode)",),
+        (NO_MESSAGES, "No Messages"),
+        (DEFAULT_MESSAGES, "Default",),
+        (LOCAL_MESSAGE, "Local Messages",),
+        (EMAIL_MESSAGE, "Email Message",),
+        (ALL_MESSAGES, "Mailing List ( email for every new thread )",),
         ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs",on_delete=models.CASCADE)
-    type = models.IntegerField(choices=MESSAGING_CHOICES, default="Hello", db_index=True)
-    date = models.DateTimeField("Date", db_index=True)
+    type = models.IntegerField(choices=MESSAGING_CHOICES, default=LOCAL_MESSAGE)
+    date = models.DateTimeField()
 
     objects = SubscriptionManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s to %s" % (self.user.name, self.post.title)
 
     def save(self, *args, **kwargs):
@@ -385,21 +385,6 @@ class Subscription(models.Model):
 
         sub =  Subscription.objects.filter(post=post, user=user)
         return None if user.is_anonymous else sub
-
-    @staticmethod
-    def create(sender, instance, created, *args, **kwargs):
-        "Creates a subscription of a user to a post"
-        user = instance.author
-        root = instance.root
-        if Subscription.objects.filter(post=root, user=user).count() == 0:
-            sub_type = user.profile.message_prefs
-            if sub_type == DEFAULT_MESSAGES:
-                sub_type = EMAIL_MESSAGE if instance.is_toplevel else LOCAL_MESSAGE
-            sub = Subscription(post=root, user=user, type=sub_type)
-            sub.date = datetime.datetime.utcnow().replace(tzinfo=utc)
-            sub.save()
-            # Increase the subscription count of the root.
-            Post.objects.filter(pk=root.id).update(subs_count=F('subs_count') + 1)
 
     @staticmethod
     def finalize_delete(sender, instance, *args, **kwargs):

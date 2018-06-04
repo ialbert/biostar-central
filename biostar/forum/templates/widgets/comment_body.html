@@ -1,0 +1,26 @@
+{% load forum_tags %}
+
+<div class="ui comment">
+
+    <div class="avatar"><i class="thumbs outline up icon"></i>{{ post.vote_count }}</div>
+
+    <div class="content">
+      <div class="author">{{post.author.profile.name}}
+
+      <div class="metadata">
+        <span class="date">{{ post.lastedit_date|time_ago }}</span>
+      </div>
+      </div>
+        <div class="text">
+      {{ post.html|safe }}
+        </div>
+        <div class="actions">
+        <a class="ui mini grey basic label" href="{% url 'post_comment' post.uid %}">
+            ADD REPLY
+        </a>
+        </div>
+
+    </div>
+</div>
+
+

@@ -163,7 +163,6 @@ def paste(project, post_request, board):
     else:
         return False, form
 
-
 @object_access(type=Project, access=Access.READ_ACCESS)
 def data_list(request, uid):
     """

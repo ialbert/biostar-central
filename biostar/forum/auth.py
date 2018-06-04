@@ -1,17 +1,20 @@
-from .models import Post, Tag, Vote
+
+import datetime
+
 from django.contrib import messages
+from django.utils.timezone import utc
+from django.db.models import F
 
-
-
-
+from .models import Post, Tag, Vote, Subscription
 
 
 def build_tree(thread, tree={}):
 
     for post in thread:
+
         if post.type == Post.COMMENT:
             tree.setdefault(post.parent_id, []).append(post)
-    return
+    return tree
 
 
 def get_votes(user, thread):
@@ -58,7 +61,7 @@ def build_obj_tree(request, obj):
               for p in Post.objects.get_thread(obj, user)]
 
     # Build tree and gather votes.
-    tree = build_tree(thread=thread)
+    tree = build_tree(thread=thread, tree={})
     votes = get_votes(user=user, thread=thread)
 
     # Shortcuts to each storage.
@@ -111,7 +114,8 @@ def posts_by_topic(request, topic):
     if topic == following:
         # Get that posts that a user follows.
         messages.success(request, 'Threads that will produce notifications.')
-        return Post.objects.top_level(user).filter(subs__user=user)
+        subs = Subscription.objects.exclude(type=Subscription.NO_MESSAGES).filter(user=user)
+        return Post.objects.top_level(user).filter(subs__in=subs)
 
     if topic == bookmarks:
         # Get that posts that a user bookmarked.
@@ -129,6 +133,28 @@ def posts_by_topic(request, topic):
 
     # Return latest by default.
     return Post.objects.top_level(user)
+
+
+
+def create_sub(post, sub_type, user):
+    "Creates a subscription of a user to a post"
+
+    root = post.root
+    sub = Subscription.objects.filter(post=root, user=user)
+    date = datetime.datetime.utcnow().replace(tzinfo=utc)
+
+    if sub_type == Subscription.DEFAULT_MESSAGES:
+        email, local = Subscription.EMAIL_MESSAGE, Subscription.LOCAL_MESSAGE
+        sub_type = email if post.is_toplevel else local
+
+    if sub.exists():
+        pass
+    else:
+        sub = Subscription.objects.create(post=root, user=user, type=sub_type, date=date)
+        # Increase the subscription count of the root.
+        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+
+    return sub
 
 
 
