@@ -94,9 +94,36 @@ class PostLongForm(forms.Form):
         return post
 
 
+class SubsForm(forms.Form):
+
+    choices = models.Subscription.MESSAGING_CHOICES
+    subtype = forms.IntegerField(widget=forms.Select(choices=choices))
+
+    def __init__(self, user, post, *args, **kwargs):
+
+        self.user = user
+        self.post = post
+
+        super(SubsForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+
+        sub_type = self.cleaned_data["subtype"]
+        sub = models.Subscription.get_sub(post=self.post, user=self.user).first()
+
+        if sub:
+            sub.type = sub_type
+            sub.save()
+        else:
+            sub = auth.create_sub(post=self.post, user=self.user, sub_type=sub_type)
+
+        return sub
+
+
+
 class PostShortForm(forms.Form):
-    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html")
-                              , min_length=20, max_length=5000)
+    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
+                              min_length=2, max_length=5000)
 
     def save(self, parent, author, post_type=Post.ANSWER):
         data = self.cleaned_data.get

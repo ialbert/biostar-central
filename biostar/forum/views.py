@@ -30,23 +30,14 @@ def post_list(request):
 def post_view(request, uid):
     "Return a detailed view for specific post"
 
-    user = request.user
-
     # Form used for answers
     form = forms.PostShortForm()
 
     # Get the parents info
     obj = Post.objects.filter(uid=uid).first()
 
-    add_comment = request.GET.get("add", '') == 'comment'
-
-    # Raise 404 if a deleted post is viewed by an anonymous user
-    if (obj.status == Post.DELETED) and not user.profile.is_moderator:
-        return redirect(reverse("post_list"))
-
     # Return root view if not at top level.
-    if not obj.is_toplevel:
-        return redirect(reverse("post_view", kwargs=dict(uid=obj.root.uid)))
+    obj = obj if obj.is_toplevel else obj.root
 
     # Update the post views.
     Post.update_post_views(obj, request=request)
@@ -60,14 +51,11 @@ def post_view(request, uid):
     # Adds the permissions
     obj = auth.post_permissions(request=request, post=obj)
 
-    # This will be piggybacked on the main object.
-    #post.sub = Subscription.get_sub(post=obj, user=user)
-
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
     obj = auth.build_obj_tree(request=request, obj=obj)
 
-    context = dict(post=obj, form=form, add_comment=add_comment)
+    context = dict(post=obj, form=form)
     return render(request, "forum/post_view.html", context=context)
 
 
@@ -92,6 +80,26 @@ def post_comment(request, uid):
 
     context = dict(form=form, post=obj)
     return render(request, "forum/post_comment.html", context=context)
+
+
+@object_exists
+@login_required
+def subs_action(request, uid):
+
+    # Post actions are being taken on
+    post = Post.objects.filter(uid=uid).first()
+    user = request.user
+    url = reverse("post_view", kwargs=dict(uid=post.uid))
+
+    if request.method == "POST" and user.is_authenticated:
+        form = forms.SubsForm(data=request.POST, post=post, user=user)
+
+        if form.is_valid():
+            sub = form.save()
+            msg = f"Updated Subscription to : {sub.get_type_display()}"
+            messages.success(request, msg)
+
+    return redirect(url)
 
 
 

@@ -4,7 +4,11 @@
 
     <div class="ui vertical segment">
         <div class="ui header" >{{ post.get_type_display }}: {{ post.get_title }}</div>
+
     </div>
+
+    {% subs_actions post=post user=request.user %}
+
 
     {% endif %}
 

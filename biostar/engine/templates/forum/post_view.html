@@ -10,7 +10,9 @@
 
 <div class="ui vertical large segment">
     {# This is the toplevel post #}
+
     {% post_body post=post user=request.user tree=post.tree form=form %}
+
 </div>
     {# Render each answer for the post #}
     {% for answer in post.answers %}

@@ -5,7 +5,7 @@ from django import template
 from django.utils.safestring import mark_safe
 
 from biostar.forum.models import Post
-from biostar.forum import auth
+from biostar.forum import auth, forms, models
 
 
 logger = logging.getLogger("engine")
@@ -22,6 +22,27 @@ def post_body(context, post, user, tree, form, add_comment=False):
 
     return dict(post=post, user=user, tree=tree, request=context['request'],
                 add_comment=add_comment, form=form)
+
+
+@register.inclusion_tag('widgets/subs_actions.html')
+def subs_actions(post, user):
+
+
+    if user.is_anonymous:
+        sub = None
+    else:
+        sub = models.Subscription.get_sub(user=user, post=post).first()
+
+    sub_type = models.Subscription.NO_MESSAGES if not sub else sub.type
+
+    initial = dict(subtype=sub_type)
+
+    form = forms.SubsForm(user=user, post=post, initial=initial)
+    unsubbed = sub_type == models.Subscription.NO_MESSAGES
+
+    button = "Subscribe" if unsubbed else "Update subscription"
+
+    return dict(post=post, form=form, button=button)
 
 
 @register.filter
@@ -46,7 +67,8 @@ def object_count(request, otype):
             return Post.objects.my_posts(target=user, user=user).count()
         if otype == "follow":
             # Stuff that produces notifications
-            return Post.objects.top_level(user).filter(subs__user=user)
+            query = models.Subscription.objects.exclude(type=models.Subscription.NO_MESSAGES).filter(user=user)
+            return query.count()
 
     return 0
 
