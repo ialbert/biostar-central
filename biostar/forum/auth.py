@@ -158,6 +158,51 @@ def create_sub(post, sub_type, user):
 
 
 
+def update_vote_count(post, vote_type):
+
+    inc = lambda x: x + 1
+    dec = lambda x: x - 1
+
+    inc_cond = lambda: vote_type in (Vote.BOOKMARK, Vote.UP)
+    update_count = lambda count: inc(count) if inc_cond() else dec(count)
+
+    vmap = {
+            Vote.BOOKMARK:post.book_count, Vote.UP:post.vote_count,
+            Vote.DOWN:post.vote_count, "book_down":post.book_count,
+            # Increment/decrement nothing when given vote.empty
+            Vote.EMPTY:0
+            }
+    count = vmap[vote_type]
+    update_count(count=count)
+
+    # Save the counts
+    post.save()
+
+
+def create_vote(author, post, vote_type, update=False):
+
+    vote = Vote.objects.filter(author=author, post=post)
+
+    # "Empty" action just means undoing previous action: upvote, bookmark, etc
+    empty_map = {Vote.BOOKMARK:"book_down", Vote.UP:Vote.DOWN,
+                 Vote.EMPTY:Vote.EMPTY, Vote.DOWN: Vote.UP}
+
+    if update and vote.exists():
+        # Update an existing vote type
+        prev = vote.type 
+        Vote.objects.filter(pk=vote.pk).update(type=vote_type)
+        # Update type for the counter when the type is empty
+        vote_type = empty_map[prev] if vote_type == Vote.EMPTY else vote_type
+    else:
+        vote = Vote.objects.create(post=post, author=author, type=vote_type)
+
+    # Update the post's vote/bookmark counts
+    update_vote_count(post=post, vote_type=vote_type)
+
+    return vote
+
+
+
 def create_post(title, author, content, post_type, tag_val="", parent=None,root=None):
     "Used to create posts across apps"
 

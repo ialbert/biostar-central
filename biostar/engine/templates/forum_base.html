@@ -70,7 +70,7 @@
             <a class="ui item" href="{% url 'post_list' %}?topic=myposts">
                 <i class="comments icon"></i>My Posts
                 {% object_count request=request otype="post" as num_posts%}
-                {% if num_posts %}<div class="floating ui green label">{{num_posts}}</div>{%endif%}
+                {% if num_posts %}<div class="ui green mini circular label">{{num_posts}}</div>{%endif%}
             </a>
             <a class="ui item" href="#">
                 <i class="tags icon"></i>My Tags
@@ -78,12 +78,12 @@
             <a class="ui item" href="{% url 'post_list' %}?topic=following">
                 <i class="eye icon"></i>Following
                 {% object_count request=request otype="follow" as num_follows%}
-                {% if num_follows %}<div class="floating ui green label">{{num_follows}}</div>{%endif%}
+                {% if num_follows %}<div class="ui green mini circular label">{{num_follows}}</div>{%endif%}
             </a>
             <a class="ui item" href="{% url 'post_list' %}?topic=bookmark">
                 <i class="book icon"></i>Bookmarks
                 {% object_count request=request otype="bookmark" as num_bookmarks %}
-                {% if num_bookmarks %}<div class="floating ui green label">{{num_bookmarks}}</div>{%endif%}
+                {% if num_bookmarks %}<div class="ui green mini circular label">{{num_bookmarks}}</div>{%endif%}
             </a>
             <a class="ui active green item" href="{% url 'post_create' %}">
             <i class="add circle icon"></i>New Post

@@ -97,6 +97,7 @@ class PostLongForm(forms.Form):
 class SubsForm(forms.Form):
 
     choices = models.Subscription.MESSAGING_CHOICES
+
     subtype = forms.IntegerField(widget=forms.Select(choices=choices))
 
     def __init__(self, user, post, *args, **kwargs):

@@ -1,10 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<div class="ui small header">Add your comment</div>
+<div class="ui basic segment inputcolor">
+<form method="post" class="ui form" action="{%  url 'post_comment' post.uid %}">
+    {{ form.media }}
+    {% csrf_token %}
 
-</body>
-</html>
+    <div class="field">
+        {{ form.content }}
+    </div>
+
+<button type="submit" class="ui submit green button">
+    <i class="check icon"></i>Add Comment
+</button>
+
+
+<a class="ui orange right floated button" href="{% url 'post_view' post.root.uid %}">
+    <i class="undo icon"></i>Cancel
+</a>
+
+</form>
+</div>
