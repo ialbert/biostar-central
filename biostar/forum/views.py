@@ -27,6 +27,34 @@ def post_list(request):
 
 
 @object_exists
+@login_required
+def update_vote(request, uid):
+
+    # Post to upvote/bookmark
+
+    post = Post.objects.filter(uid=uid).first()
+    user = request.user
+
+    vote_type = request.GET.get("type", "")
+
+    vote = Vote.objects.filter(post=post, author=user).first()
+
+    # Pressing vote button multiple times toggles
+    cond = (vote.type == vote_type and vote_type)
+    vote_type = Vote.EMPTY if cond else vote_type
+
+    if vote.exists():
+        # Update an existing vote
+        auth.create_vote(update=True,author=user, post=post, vote_type=vote_type)
+    else:
+        auth.create_vote(author=user, post=post, vote_type=vote_type)
+
+
+    return
+
+
+
+@object_exists
 def post_view(request, uid):
     "Return a detailed view for specific post"
 
@@ -100,7 +128,6 @@ def subs_action(request, uid):
             messages.success(request, msg)
 
     return redirect(url)
-
 
 
 @login_required

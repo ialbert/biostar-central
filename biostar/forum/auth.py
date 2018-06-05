@@ -158,6 +158,50 @@ def create_sub(post, sub_type, user):
 
 
 
+def update_vote_count(post, vote_type):
+
+    vmap = {Vote.BOOKMARK: post.book_count,
+            Vote.UP: post.vote_count,
+            Vote.DOWN: post.vote_count}
+
+    assert vote_type in vmap, vmap.keys()
+
+    inc = lambda x: x + 1
+    dec = lambda x: x - 1
+
+    inc_cond = lambda: vote_type in (Vote.BOOKMARK, Vote.UP)
+    update_count = lambda count: inc(count) if inc_cond() else dec(count)
+
+    vmap = {Vote.BOOKMARK:post.book_count, Vote.UP:post.vote_count, Vote.DOWN:post.vote_count}
+    count = vmap[vote_type]
+
+    update_count(count=count)
+
+    # Save the counts
+    post.save()
+
+
+
+def create_vote(author, post, vote_type, update=False):
+
+    vote = Vote.objects.filter(author=author, post=post)
+
+    if update and vote.exists():
+        # Update an existing vote type
+
+        pass #working out what to do when vote.empty
+        #Vote.objects.filter(pk=vote.pk).update(type=vote_type)
+    else:
+        vote = Vote.objects.create(post=post, author=author, type=vote_type)
+
+    # Update the post vote/bookmark counts
+    update_vote_count(post=post, vote_type=vote_type)
+
+
+    return vote
+
+
+
 def create_post(title, author, content, post_type, tag_val="", parent=None,root=None):
     "Used to create posts across apps"
 

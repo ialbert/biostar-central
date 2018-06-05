@@ -327,8 +327,9 @@ class Post(models.Model):
 
 class Vote(models.Model):
     # Post statuses.
-    UP, DOWN, BOOKMARK, ACCEPT = range(4)
-    TYPE_CHOICES = [(UP, "Upvote"), (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
+    EMPTY, UP, DOWN, BOOKMARK, ACCEPT = range(5)
+    TYPE_CHOICES = [(UP, "Upvote"), (EMPTY, "Empty"),
+                    (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
     post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
@@ -355,13 +356,14 @@ class Subscription(models.Model):
     LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
 
     class Meta:
-        unique_together = (("user", "post"),)
+        unique_together = (("user", "post"))
 
     MESSAGING_CHOICES = [
         (NO_MESSAGES, "Not following"),
-        (LOCAL_MESSAGE, "Follow using Local Messages",),
-        (EMAIL_MESSAGE, "Follow using Emails",)
+        (LOCAL_MESSAGE, "Follow using Local Messages"),
+        (EMAIL_MESSAGE, "Follow using Emails")
         ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs",on_delete=models.CASCADE)
     type = models.IntegerField(choices=MESSAGING_CHOICES, default=LOCAL_MESSAGE)
@@ -418,8 +420,6 @@ def set_post(sender, instance, created, *args, **kwargs ):
         if instance.type == Post.ANSWER:
             instance.parent.lastedit_date = instance.lastedit_date
             instance.parent.lastedit_user = instance.lastedit_user
-            #TODO: will this cause recussion max
-            # TODO: when the instance is its own parent?
             instance.parent.save()
 
 
