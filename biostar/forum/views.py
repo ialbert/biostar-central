@@ -31,11 +31,10 @@ def post_list(request):
 def update_vote(request, uid):
 
     # Post to upvote/bookmark
-
     post = Post.objects.filter(uid=uid).first()
     user = request.user
 
-    vote_type = request.GET.get("type", "")
+    vote_type = request.GET.get("type", Vote.EMPTY)
 
     vote = Vote.objects.filter(post=post, author=user).first()
 
@@ -49,8 +48,7 @@ def update_vote(request, uid):
     else:
         auth.create_vote(author=user, post=post, vote_type=vote_type)
 
-
-    return
+    return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
 
 
 
@@ -117,7 +115,6 @@ def subs_action(request, uid):
     # Post actions are being taken on
     post = Post.objects.filter(uid=uid).first()
     user = request.user
-    url = reverse("post_view", kwargs=dict(uid=post.uid))
 
     if request.method == "POST" and user.is_authenticated:
         form = forms.SubsForm(data=request.POST, post=post, user=user)
@@ -127,7 +124,7 @@ def subs_action(request, uid):
             msg = f"Updated Subscription to : {sub.get_type_display()}"
             messages.success(request, msg)
 
-    return redirect(url)
+    return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
 
 
 @login_required
