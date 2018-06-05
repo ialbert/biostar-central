@@ -157,47 +157,31 @@ def create_sub(post, sub_type, user):
     return sub
 
 
+def update_vote_count(post):
 
-def update_vote_count(post, vote_type):
+    vcount = Vote.objects.filter(post=post, type=Vote.UP).count()
+    bookcount = Vote.objects.filter(post=post, type=Vote.BOOKMARK).count()
 
-    inc = lambda x: x + 1
-    dec = lambda x: x - 1
+    thread = Post.objects.exclude(status=Post.DELETED).filter(root=post.root)
+    thread_score = Vote.objects.filter(post__in=thread, type=Vote.UP).count()
 
-    inc_cond = lambda: vote_type in (Vote.BOOKMARK, Vote.UP)
-    update_count = lambda count: inc(count) if inc_cond() else dec(count)
-
-    vmap = {
-            Vote.BOOKMARK:post.book_count, Vote.UP:post.vote_count,
-            Vote.DOWN:post.vote_count, "book_down":post.book_count,
-            # Increment/decrement nothing when given vote.empty
-            Vote.EMPTY:0
-            }
-    count = vmap[vote_type]
-    update_count(count=count)
-
-    # Save the counts
-    post.save()
+    # Update the thread score as well
+    Post.objects.filter(pk=post.pk).update(vote_count=vcount, book_count=bookcount,
+                                           thread_score=thread_score)
 
 
 def create_vote(author, post, vote_type, update=False):
 
-    vote = Vote.objects.filter(author=author, post=post)
+    vote = Vote.objects.filter(author=author, post=post).first()
 
-    # "Empty" action just means undoing previous action: upvote, bookmark, etc
-    empty_map = {Vote.BOOKMARK:"book_down", Vote.UP:Vote.DOWN,
-                 Vote.EMPTY:Vote.EMPTY, Vote.DOWN: Vote.UP}
-
-    if update and vote.exists():
+    if update and vote:
         # Update an existing vote type
-        prev = vote.type 
         Vote.objects.filter(pk=vote.pk).update(type=vote_type)
-        # Update type for the counter when the type is empty
-        vote_type = empty_map[prev] if vote_type == Vote.EMPTY else vote_type
     else:
         vote = Vote.objects.create(post=post, author=author, type=vote_type)
 
     # Update the post's vote/bookmark counts
-    update_vote_count(post=post, vote_type=vote_type)
+    update_vote_count(post=post)
 
     return vote
 
