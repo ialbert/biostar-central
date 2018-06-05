@@ -4,7 +4,7 @@ from django.utils.timezone import utc
 from django import template
 from django.utils.safestring import mark_safe
 
-from biostar.forum.models import Post
+from biostar.forum.models import Post, Vote
 from biostar.forum import auth, forms, models
 
 
@@ -69,6 +69,11 @@ def object_count(request, otype):
             # Stuff that produces notifications
             query = models.Subscription.objects.exclude(type=models.Subscription.NO_MESSAGES).filter(user=user)
             return query.count()
+        if otype == "bookmark":
+            return Post.objects.my_bookmarks(user).count()
+        if otype == "votes":
+
+            return  Post.objects.my_post_votes(user).count()
 
     return 0
 

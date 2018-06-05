@@ -37,17 +37,10 @@ def update_vote(request, uid):
 
     vote_type = vmap.get(request.GET.get("type"), Vote.EMPTY)
 
-    vote = Vote.objects.filter(post=post, author=user).first()
+    vote = Vote.objects.filter(post=post, author=user, type=vote_type).first()
 
-    if vote:
-        # Pressing button on something that already exists toggles it to empty
-        cond = (vote.type == vote_type and vote_type)
-        vote_type = Vote.EMPTY if cond else vote_type
-        # Update an existing vote
-        auth.create_vote(update=True,author=user, post=post, vote_type=vote_type)
-    else:
+    if not vote:
         auth.create_vote(author=user, post=post, vote_type=vote_type)
-
 
     return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
 

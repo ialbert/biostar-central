@@ -35,6 +35,15 @@ class PostManager(models.Manager):
         query = query.prefetch_related("tag_set")
         return query
 
+
+    def my_post_votes(self, user):
+        "Posts that received votes from other people "
+        query = self.filter(author=user, votes__type=Vote.UP)
+        query = query.select_related("root", "author", "lastedit_user")
+        query = query.prefetch_related("tag_set")
+        return query
+
+
     def my_posts(self, target, user):
 
         if user.is_anonymous or target.is_anonymous:

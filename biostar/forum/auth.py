@@ -89,7 +89,7 @@ def posts_by_topic(request, topic):
     user = request.user
 
     latest = "latest"
-    myposts, mytags, unanswered, following, bookmarks = "myposts mytags open following bookmarks".split()
+    myposts, mytags, unanswered, following, bookmarks, votes = "myposts mytags open following bookmarks votes".split()
     post_types = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
                       forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
@@ -119,7 +119,13 @@ def posts_by_topic(request, topic):
 
     if topic == bookmarks:
         # Get that posts that a user bookmarked.
+        messages.info(request, f"Showing: {topic}")
         return Post.objects.my_bookmarks(user)
+
+    if topic == votes:
+        messages.info(request, f"People voting on your posts")
+        return Post.objects.my_post_votes(user)
+
 
     if topic in post_types:
         # A post type.
