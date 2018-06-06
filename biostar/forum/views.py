@@ -33,19 +33,17 @@ def update_vote(request, uid):
     # Post to upvote/bookmark
     post = Post.objects.filter(uid=uid).first()
     user = request.user
+    vmap = {"upvote": Vote.UP, "bookmark": Vote.BOOKMARK}
 
-    vote_type = request.GET.get("type", Vote.EMPTY)
+    vote_type = vmap.get(request.GET.get("type"), Vote.EMPTY)
 
-    vote = Vote.objects.filter(post=post, author=user).first()
+    vote = Vote.objects.filter(post=post, author=user, type=vote_type).first()
 
-    # Pressing vote button multiple times toggles
-    cond = (vote.type == vote_type and vote_type)
-    vote_type = Vote.EMPTY if cond else vote_type
-
-    if vote.exists():
-        # Update an existing vote
-        auth.create_vote(update=True,author=user, post=post, vote_type=vote_type)
-    else:
+    if vote:
+        # Change vote to empty if clicked twice
+        auth.create_vote(update=True, author=user, post=post, vote_type=vote.type,
+                         updated_type=Vote.EMPTY)
+    elif not vote:
         auth.create_vote(author=user, post=post, vote_type=vote_type)
 
     return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))

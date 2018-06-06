@@ -64,8 +64,10 @@
             <a class="ui item" href="#">
                 <i class="mail icon"></i>Messages
             </a>
-            <a class="ui item" href="#">
+            <a class="ui item" href="{% url 'post_list' %}?topic=votes">
                 <i class="heart icon"></i>Votes
+                {% object_count request=request otype="votes" as num_votes%}
+                {% if num_votes %}<div class="ui green mini circular label">{{num_votes}}</div>{%endif%}
             </a>
             <a class="ui item" href="{% url 'post_list' %}?topic=myposts">
                 <i class="comments icon"></i>My Posts
@@ -80,7 +82,7 @@
                 {% object_count request=request otype="follow" as num_follows%}
                 {% if num_follows %}<div class="ui green mini circular label">{{num_follows}}</div>{%endif%}
             </a>
-            <a class="ui item" href="{% url 'post_list' %}?topic=bookmark">
+            <a class="ui item" href="{% url 'post_list' %}?topic=bookmarks">
                 <i class="book icon"></i>Bookmarks
                 {% object_count request=request otype="bookmark" as num_bookmarks %}
                 {% if num_bookmarks %}<div class="ui green mini circular label">{{num_bookmarks}}</div>{%endif%}

@@ -1,10 +1,25 @@
 {% load forum_tags %}
 
 <div class="ui comment" style="background-color: #e5e3e3;padding: 10px">
+    <div class="avatar">
+    <div class="ui items">
+<div class="item">
 
-    <div class="avatar"><i class="thumbs outline up icon"></i>{{ post.vote_count }}</div>
+<div class="ui image">
+        <a href="{% url 'update_vote' post.uid %}?type=upvote">
+            <i class="blue {% vote_icon request.user post 'upvote' %}"></i>
+        </a>
+<div class="ui center aligned tiny header">
+
+        {{ post.vote_count }}
+</div>
+              </div>
+        </div>
+</div>
+    </div>
 
     <div class="content">
+
       <div class="author">{{post.author.profile.name}}
 
       <div class="metadata">
@@ -18,7 +33,9 @@
         <a class="ui mini grey basic label" href="{% url 'post_comment' post.uid %}">
             ADD REPLY
         </a>
+
         </div>
+
 
     </div>
 </div>

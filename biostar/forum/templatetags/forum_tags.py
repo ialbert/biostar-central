@@ -4,7 +4,7 @@ from django.utils.timezone import utc
 from django import template
 from django.utils.safestring import mark_safe
 
-from biostar.forum.models import Post
+from biostar.forum.models import Post, Vote
 from biostar.forum import auth, forms, models
 
 
@@ -69,9 +69,35 @@ def object_count(request, otype):
             # Stuff that produces notifications
             query = models.Subscription.objects.exclude(type=models.Subscription.NO_MESSAGES).filter(user=user)
             return query.count()
+        if otype == "bookmark":
+            return Post.objects.my_bookmarks(user).count()
+        if otype == "votes":
+            return  Post.objects.my_post_votes(user).distinct().count()
 
     return 0
 
+
+@register.simple_tag
+def vote_icon(user, post, vtype):
+
+
+    main_map = {"bookmark":{"icon":"bookmark", "vote":Vote.BOOKMARK},
+                "upvote":{"icon":"thumbs up", "vote":Vote.UP}
+                }
+
+    icon, vote_type = main_map[vtype]["icon"], main_map[vtype]["vote"]
+
+    if user.is_authenticated:
+        vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
+    else:
+        vote = None
+
+    msg = f"{icon} icon"
+
+    if not vote:
+        msg += " outline"
+
+    return mark_safe(msg)
 
 
 @register.filter
