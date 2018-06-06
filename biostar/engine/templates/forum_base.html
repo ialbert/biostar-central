@@ -64,7 +64,7 @@
             <a class="ui item" href="#">
                 <i class="mail icon"></i>Messages
             </a>
-            <a class="ui item" href="#">
+            <a class="ui item" href="{% url 'post_list' %}?topic=votes">
                 <i class="heart icon"></i>Votes
                 {% object_count request=request otype="votes" as num_votes%}
                 {% if num_votes %}<div class="ui green mini circular label">{{num_votes}}</div>{%endif%}

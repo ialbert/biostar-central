@@ -7,7 +7,7 @@
 
 <div class="ui image">
         <a href="{% url 'update_vote' post.uid %}?type=upvote">
-            <i class="thumbs outline up blue icon"></i>
+            <i class="blue {% vote_icon request.user post 'upvote' %}"></i>
         </a>
 <div class="ui center aligned tiny header">
 

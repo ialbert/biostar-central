@@ -39,7 +39,11 @@ def update_vote(request, uid):
 
     vote = Vote.objects.filter(post=post, author=user, type=vote_type).first()
 
-    if not vote:
+    if vote:
+        # Change vote to empty if clicked twice
+        auth.create_vote(update=True, author=user, post=post, vote_type=vote.type,
+                         updated_type=Vote.EMPTY)
+    elif not vote:
         auth.create_vote(author=user, post=post, vote_type=vote_type)
 
     return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))

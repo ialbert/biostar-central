@@ -14,11 +14,11 @@
         <div class="item">
             <div class="ui image">
                 <a href="{% url 'update_vote' post.uid %}?type=upvote">
-                    <i class="thumbs up outline large icon"></i>
+                    <i class="large {% vote_icon request.user post 'upvote' %}"></i>
                 </a>
                 <div class="ui center aligned header">{{ post.vote_count }}</div>
                 <a href="{% url 'update_vote' post.uid %}?type=bookmark">
-                    <i class="bookmark outline large icon"></i>
+                    <i class="large {% vote_icon request.user post 'bookmark' %}"></i>
                 </a>
             </div>
 

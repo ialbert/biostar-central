@@ -124,7 +124,7 @@ def posts_by_topic(request, topic):
 
     if topic == votes:
         messages.info(request, f"People voting on your posts")
-        return Post.objects.my_post_votes(user)
+        return Post.objects.my_post_votes(user).distinct()
 
 
     if topic in post_types:
@@ -169,6 +169,7 @@ def update_vote_count(post):
     bookcount = Vote.objects.filter(post=post, type=Vote.BOOKMARK).count()
 
     thread = Post.objects.exclude(status=Post.DELETED).filter(root=post.root)
+
     thread_score = Vote.objects.filter(post__in=thread, type=Vote.UP).count()
 
     # Update the thread score as well
@@ -176,13 +177,13 @@ def update_vote_count(post):
                                            thread_score=thread_score)
 
 
-def create_vote(author, post, vote_type, update=False):
+def create_vote(author, post, vote_type, updated_type=Vote.EMPTY, update=False):
 
-    vote = Vote.objects.filter(author=author, post=post).first()
+    vote = Vote.objects.filter(author=author, post=post, type=vote_type).first()
 
     if update and vote:
         # Update an existing vote type
-        Vote.objects.filter(pk=vote.pk).update(type=vote_type)
+        Vote.objects.filter(pk=vote.pk).update(type=updated_type)
     else:
         vote = Vote.objects.create(post=post, author=author, type=vote_type)
 
