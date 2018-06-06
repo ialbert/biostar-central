@@ -168,9 +168,9 @@ def update_vote_count(post):
     vcount = Vote.objects.filter(post=post, type=Vote.UP).count()
     bookcount = Vote.objects.filter(post=post, type=Vote.BOOKMARK).count()
 
-    thread = Post.objects.exclude(status=Post.DELETED).filter(root=post.root)
+    thread = Post.objects.exclude(status=Post.DELETED).filter(root=post.root, votes__type=Vote.UP)
 
-    thread_score = Vote.objects.filter(post__in=thread, type=Vote.UP).count()
+    thread_score = thread.count()
 
     # Update the thread score as well
     Post.objects.filter(pk=post.pk).update(vote_count=vcount, book_count=bookcount,
