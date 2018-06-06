@@ -80,13 +80,17 @@ def object_count(request, otype):
 @register.simple_tag
 def vote_icon(user, post, vtype):
 
+
     main_map = {"bookmark":{"icon":"bookmark", "vote":Vote.BOOKMARK},
                 "upvote":{"icon":"thumbs up", "vote":Vote.UP}
                 }
 
     icon, vote_type = main_map[vtype]["icon"], main_map[vtype]["vote"]
 
-    vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
+    if user.is_authenticated:
+        vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
+    else:
+        vote = None
 
     msg = f"{icon} icon"
 
