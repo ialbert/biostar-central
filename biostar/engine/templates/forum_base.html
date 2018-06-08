@@ -72,7 +72,7 @@
             <a class="ui item" href="{% url 'post_list' %}?topic=myposts">
                 <i class="comments icon"></i>My Posts
                 {% object_count request=request otype="post" as num_posts%}
-                {% if num_posts %}<div class="ui green mini circular label">{{num_posts}}</div>{%endif%}
+                {% if num_posts %}<div class="ui mini circular label">{{num_posts}}</div>{%endif%}
             </a>
             <a class="ui item" href="#">
                 <i class="tags icon"></i>My Tags

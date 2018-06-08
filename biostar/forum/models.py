@@ -16,10 +16,29 @@ from . import util
 User = get_user_model()
 
 
+# The maximum length in characters for a typical name and text field.
+MAX_NAME_LEN = 256
+MAX_FIELD_LEN = 1024
+MAX_TEXT_LEN = 10000
+MAX_LOG_LEN = 20 * MAX_TEXT_LEN
+
 logger = logging.getLogger("engine")
 
 def get_sentinel_user():
     return User.objects.get_or_create(username='deleted').first()
+
+
+
+
+class MessageManager(models.Manager):
+
+    def inbox_for(self, user):
+        "Returns all messages that were received by the given user"
+        return self.filter(recipient=user)
+
+    def outbox_for(self, user):
+        "Returns all messages that were sent by the given user."
+        return self.filter(sender=user)
 
 
 class SubscriptionManager(models.Manager):
@@ -38,6 +57,7 @@ class PostManager(models.Manager):
 
     def my_post_votes(self, user):
         "Posts that received votes from other people "
+        vote_query =""
         query = self.filter(author=user, votes__type=Vote.UP)
         query = query.select_related("root", "author", "lastedit_user")
         query = query.prefetch_related("tag_set")
@@ -362,16 +382,16 @@ class PostView(models.Model):
 class Subscription(models.Model):
     "Connects a post to a user"
 
-    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
-
-    class Meta:
-        unique_together = (("user", "post"))
-
+    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, DIGEST_MESSAGES = range(5)
     MESSAGING_CHOICES = [
         (NO_MESSAGES, "Not following"),
         (LOCAL_MESSAGE, "Follow using Local Messages"),
         (EMAIL_MESSAGE, "Follow using Emails")
         ]
+
+    class Meta:
+        unique_together = (("user", "post"))
+
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs",on_delete=models.CASCADE)
@@ -399,6 +419,67 @@ class Subscription(models.Model):
     def finalize_delete(sender, instance, *args, **kwargs):
         # Decrease the subscription count of the post.
         Post.objects.filter(pk=instance.post.root_id).update(subs_count=F('subs_count') - 1)
+
+
+
+class MessageBody(models.Model):
+    """
+    A private message from user to user
+    """
+
+    text = models.TextField()
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL,  on_delete=models.SET(get_user_model))
+    subject = models.CharField(max_length=120)
+    parent_msg = models.ForeignKey(to='self', related_name='next_messages', null=True, blank=True,
+                                   on_delete=models.CASCADE)
+    sent_date = models.DateTimeField(null=False)
+
+    objects = MessageManager()
+
+    def __str__(self):
+        return self.subject
+
+    def save(self, **kwargs):
+        self.sent_date= self.sent_date or util.now()
+        super(MessageBody, self).save(**kwargs)
+
+
+
+# Connects user to message bodies
+class Message(models.Model):
+    "Connects recipients to sent messages"
+
+    LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(5)
+
+    MESSAGING_TYPE_CHOICES = [
+                            (LOCAL_MESSAGE, "Local messages"),
+                            (EMAIL_MESSAGE, "Email messages"),
+                            (DIGEST_MESSAGES, "Digest messages")
+                            ]
+
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user))
+    body = models.ForeignKey(MessageBody, related_name='messages', on_delete=models.CASCADE)
+    type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
+    unread = models.BooleanField(default=True)
+    sent_date = models.DateTimeField(db_index=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.sent_date = self.body.sent_date or util.now()
+        super(Message, self).save(**kwargs)
+
+    def __str__(self):
+        return u"Message %s, %s" % (self.recipient, self.body_id)
+
+    @staticmethod
+    def inbox_count_for(user):
+        "Returns the number of unread messages for the given user but does not mark them seen"
+        return MessageBody.objects.filter(recipient=user, unread=True).count()
+
+    def email_tuple(self, recipient_list, from_email=None):
+        "Returns an email tuple suitable to be mass emailed"
+        from_email = from_email or settings.DEFAULT_FROM_EMAIL
+        data = (self.body.subject, self.body.text, from_email, recipient_list)
+        return data
 
 
 

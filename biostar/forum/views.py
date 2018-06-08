@@ -9,6 +9,25 @@ from django.contrib.auth.decorators import login_required
 
 
 
+def messages_list(request):
+
+
+    return
+
+
+
+
+# def reset_counts(request, label):
+#     "Resets counts in the session"
+#     label = label.lower()
+#     counts = request.session.get(settings.SESSION_KEY, {})
+#     if label in counts:
+#         counts[label] = ''
+#         request.session[settings.SESSION_KEY] = counts
+
+
+
+
 def post_list(request):
     "List view for posts"
 

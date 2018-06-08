@@ -19,6 +19,19 @@ class ForumConfig(AppConfig):
 
 
 
+def init_messages(sender, **kwargs):
+
+
+
+    return
+
+
+
+
+
+
+
+
 def init_post(sender,  **kwargs):
 
     from django.contrib.auth import get_user_model
