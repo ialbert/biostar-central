@@ -14,6 +14,8 @@ class ForumConfig(AppConfig):
     def ready(self):
         # Triggered upon app initialization.
         post_migrate.connect(init_post, sender=self)
+        post_migrate.connect(init_messages, sender=self)
+
         pass
 
 
@@ -21,13 +23,25 @@ class ForumConfig(AppConfig):
 
 def init_messages(sender, **kwargs):
 
+    from django.contrib.auth import get_user_model
+    from . import auth
+
+    User = get_user_model()
+
+    name, email = settings.ADMINS[0]
+
+    sender = User.objects.filter(email=email).first()
+    body = "Hello from the biostar-engine developers, we hope you enjoy the website."
+    subject = "Welcome to the biostar-engine!"
+
+    recipient_list = [sender]
+
+
+    #auth.
+
 
 
     return
-
-
-
-
 
 
 

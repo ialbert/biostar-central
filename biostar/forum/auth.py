@@ -177,6 +177,25 @@ def update_vote_count(post):
                                            thread_score=thread_score)
 
 
+def create_message(body, sender, recipient_list, subject="", parent=None, mtype=None):
+    "Create batch message from sender for a given recipient_list"
+
+    subject = subject or f"Message from : {sender.profile.name}"
+
+
+
+    for rec in recipient_list:
+        pass
+
+
+
+
+    return
+
+
+
+
+
 def create_vote(author, post, vote_type, updated_type=Vote.EMPTY, update=False):
 
     vote = Vote.objects.filter(author=author, post=post, type=vote_type).first()

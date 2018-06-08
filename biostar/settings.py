@@ -166,6 +166,9 @@ os.makedirs(TOC_ROOT, exist_ok=True)
 SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = '/protected/'
 
+# Session settings go here
+SESSION_KEY = "session"
+
 #SENDFILE_BACKEND = "sendfile.backends.nginx"
 SENDFILE_BACKEND = "sendfile.backends.development"
 

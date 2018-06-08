@@ -30,16 +30,6 @@ def get_sentinel_user():
 
 
 
-class MessageManager(models.Manager):
-
-    def inbox_for(self, user):
-        "Returns all messages that were received by the given user"
-        return self.filter(recipient=user)
-
-    def outbox_for(self, user):
-        "Returns all messages that were sent by the given user."
-        return self.filter(sender=user)
-
 
 class SubscriptionManager(models.Manager):
     def get_subs(self, post):
@@ -422,27 +412,14 @@ class Subscription(models.Model):
 
 
 
-class MessageBody(models.Model):
-    """
-    A private message from user to user
-    """
+class MessageManager(models.Manager):
+    def inbox_for(self, user):
+        "Returns all messages that were received by the given user"
+        return self.filter(recipient=user)
 
-    text = models.TextField()
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL,  on_delete=models.SET(get_user_model))
-    subject = models.CharField(max_length=120)
-    parent_msg = models.ForeignKey(to='self', related_name='next_messages', null=True, blank=True,
-                                   on_delete=models.CASCADE)
-    sent_date = models.DateTimeField(null=False)
-
-    objects = MessageManager()
-
-    def __str__(self):
-        return self.subject
-
-    def save(self, **kwargs):
-        self.sent_date= self.sent_date or util.now()
-        super(MessageBody, self).save(**kwargs)
-
+    def outbox_for(self, user):
+        "Returns all messages that were sent by the given user."
+        return self.filter(sender=user)
 
 
 # Connects user to message bodies
@@ -456,9 +433,15 @@ class Message(models.Model):
                             (EMAIL_MESSAGE, "Email messages"),
                             (DIGEST_MESSAGES, "Digest messages")
                             ]
+    objects = MessageManager()
 
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user))
-    body = models.ForeignKey(MessageBody, related_name='messages', on_delete=models.CASCADE)
+
+    subject = models.CharField(max_length=120)
+    parent_msg = models.ForeignKey(to='self', related_name='next_messages', null=True, blank=True,
+                                   on_delete=models.CASCADE)
+    body = models.TextField(max_length=MAX_TEXT_LEN)
     type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
     unread = models.BooleanField(default=True)
     sent_date = models.DateTimeField(db_index=True, null=True)
@@ -473,7 +456,7 @@ class Message(models.Model):
     @staticmethod
     def inbox_count_for(user):
         "Returns the number of unread messages for the given user but does not mark them seen"
-        return MessageBody.objects.filter(recipient=user, unread=True).count()
+        return Message.objects.filter(recipient=user, unread=True).count()
 
     def email_tuple(self, recipient_list, from_email=None):
         "Returns an email tuple suitable to be mass emailed"
