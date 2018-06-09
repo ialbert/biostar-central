@@ -9,4 +9,36 @@
 
 
 {% block body %}
+
+   <div class="ui relaxed divided list">
+{% for message in objs %}
+
+    {% if message.unread %}
+        <div class="item" style="background: #d5f7cd;padding:5px">
+    {% else %}
+        <div class="item" >
+    {%endif%}
+
+      <i class="ui envelope large square icon"></i>
+      <div class="content">
+          <a class="header">{{message.subject}}</a>
+
+      <div class="ui muted item">
+          written {{message.sent_date|time_ago}} by {{message.sender.profile.name}}
+      </div>
+
+          <div class="description">
+
+          </div>
+
+      </div>
+
+
+  </div>
+            
+
+{% endfor %}
+   </div>
+
+
 {% endblock %}
