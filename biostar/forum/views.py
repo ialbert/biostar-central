@@ -2,19 +2,9 @@
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from . import forms, auth
-from .models import Post, Vote
+from .models import Post, Vote, Message
 from .decorators import object_exists
 from django.contrib.auth.decorators import login_required
-
-
-
-
-def messages_list(request):
-
-
-    return
-
-
 
 
 # def reset_counts(request, label):
@@ -27,9 +17,8 @@ def messages_list(request):
 
 
 
-
-def post_list(request):
-    "List view for posts"
+def list_view(request, template="forum/post_list.html", extra_context={}):
+    "List view for posts and messages"
 
     topic = request.GET.get("topic", 'latest')
 
@@ -37,15 +26,29 @@ def post_list(request):
         messages.error(request, f"You must be logged in to perform action.")
         topic = "latest"
 
-    posts = auth.posts_by_topic(request=request, topic=topic).order_by("-pk")
+    objs = auth.list_by_topic(request=request, topic=topic).order_by("-pk")
 
-    context = dict(posts=posts)
+    context = dict(objs=objs)
+    context.update(extra_context)
 
-    return render(request, "forum/post_list.html", context=context)
+    return render(request, template_name=template, context=context)
+
+
+@login_required
+def message_list(request):
+
+    return list_view(request, template="forum/message_list.html")
 
 
 
-@object_exists
+@object_exists(klass=Message)
+def message_view(request, uid):
+
+    return
+
+
+
+@object_exists(klass=Post)
 @login_required
 def update_vote(request, uid):
 
@@ -69,7 +72,7 @@ def update_vote(request, uid):
 
 
 
-@object_exists
+@object_exists(klass=Post)
 def post_view(request, uid):
     "Return a detailed view for specific post"
 
@@ -125,7 +128,7 @@ def post_comment(request, uid):
     return render(request, "forum/post_comment.html", context=context)
 
 
-@object_exists
+@object_exists(klass=Post)
 @login_required
 def subs_action(request, uid):
 
@@ -164,7 +167,7 @@ def post_create(request):
 
 
 
-@object_exists
+@object_exists(klass=Post)
 @login_required
 def edit_post(request, uid):
     "Edit an existing post"

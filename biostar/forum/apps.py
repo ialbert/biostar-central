@@ -19,12 +19,10 @@ class ForumConfig(AppConfig):
         pass
 
 
-
-
 def init_messages(sender, **kwargs):
 
     from django.contrib.auth import get_user_model
-    from . import auth
+    from . import auth, models
 
     User = get_user_model()
 
@@ -36,12 +34,8 @@ def init_messages(sender, **kwargs):
 
     recipient_list = [sender]
 
-
-    #auth.
-
-
-
-    return
+    auth.create_messages(body=body, subject=subject, recipient_list=recipient_list,
+                        mtype=models.Message.LOCAL_MESSAGE, sender=sender)
 
 
 

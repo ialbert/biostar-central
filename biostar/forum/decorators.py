@@ -1,20 +1,30 @@
-
+from functools import wraps
+from django.utils.decorators import available_attrs
 from django.shortcuts import redirect, reverse
 from django.contrib import messages
 
-from .models import Post
 
 
 
-def object_exists(func):
+class object_exists:
 
-    def _wrapper_function(request, uid):
+    def __init__(self, klass):
 
-        if not Post.objects.filter(uid=uid).exists():
-            messages.error(request, "Object does not exist.")
-            return redirect(reverse("post_list"))
-
-        return func(request, uid)
+        self.klass = klass
 
 
-    return _wrapper_function
+    def __call__(self, func, *args, **kwargs):
+
+        @wraps(func, assigned=available_attrs(func))
+        def _wrapper_function(request, *args, **kwargs):
+
+            # Each wrapped view must take an alphanumeric uid as parameter.
+            uid = kwargs.get('uid')
+
+            if not self.klass.objects.filter(uid=uid).exists():
+                messages.error(request, "Object does not exist.")
+                return redirect(reverse("post_list"))
+
+            return func(request, *args, **kwargs)
+
+        return _wrapper_function

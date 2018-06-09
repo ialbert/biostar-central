@@ -355,8 +355,15 @@ class Vote(models.Model):
     type = models.IntegerField(choices=TYPE_CHOICES)
     date = models.DateTimeField(auto_now=True)
 
+    uid = models.CharField(max_length=32, unique=True)
+
+
     def __str__(self):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
+
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or util.get_uuid(limit=16)
+        super(Vote, self).save(*args, **kwargs)
 
 
 class PostView(models.Model):
@@ -382,7 +389,7 @@ class Subscription(models.Model):
     class Meta:
         unique_together = (("user", "post"))
 
-
+    uid = models.CharField(max_length=32, unique=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs",on_delete=models.CASCADE)
     type = models.IntegerField(choices=MESSAGING_CHOICES, default=LOCAL_MESSAGE)
@@ -396,6 +403,7 @@ class Subscription(models.Model):
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
         self.date = self.date or util.now()
+        self.uid = self.uid or util.get_uuid(limit=16)
         super(Subscription, self).save(*args, **kwargs)
 
 
@@ -426,7 +434,7 @@ class MessageManager(models.Manager):
 class Message(models.Model):
     "Connects recipients to sent messages"
 
-    LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(5)
+    LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(3)
 
     MESSAGING_TYPE_CHOICES = [
                             (LOCAL_MESSAGE, "Local messages"),
@@ -435,7 +443,8 @@ class Message(models.Model):
                             ]
     objects = MessageManager()
 
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
+    uid = models.CharField(max_length=32, unique=True)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", on_delete=models.SET(get_user_model))
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user))
 
     subject = models.CharField(max_length=120)
@@ -447,11 +456,12 @@ class Message(models.Model):
     sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.sent_date = self.body.sent_date or util.now()
+        self.sent_date = self.sent_date or util.now()
+        self.uid = self.uid or util.get_uuid(limit=16)
         super(Message, self).save(**kwargs)
 
     def __str__(self):
-        return u"Message %s, %s" % (self.recipient, self.body_id)
+        return u"Message %s, %s" % (self.sender, self.recipient)
 
     @staticmethod
     def inbox_count_for(user):

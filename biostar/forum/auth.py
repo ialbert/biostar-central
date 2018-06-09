@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.utils.timezone import utc
 from django.db.models import F
 
-from .models import Post, Tag, Vote, Subscription
+from .models import Post, Tag, Vote, Subscription,Message
 
 
 def build_tree(thread, tree={}):
@@ -84,12 +84,13 @@ def build_obj_tree(request, obj):
 
 
 
-def posts_by_topic(request, topic):
+def list_by_topic(request, topic):
     "Returns a post query that matches a topic"
     user = request.user
 
     latest = "latest"
-    myposts, mytags, unanswered, following, bookmarks, votes = "myposts mytags open following bookmarks votes".split()
+    myposts, mytags, unanswered, following = ["myposts", "mytags", "open", "following"]
+    bookmarks, votes, message = ["bookmarks", "votes", "message"]
     post_types = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
                       forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
@@ -126,6 +127,8 @@ def posts_by_topic(request, topic):
         messages.info(request, f"People voting on your posts")
         return Post.objects.my_post_votes(user).distinct()
 
+    if topic == message:
+        return Message.objects.inbox_for(user=user)
 
     if topic in post_types:
         # A post type.
@@ -177,22 +180,19 @@ def update_vote_count(post):
                                            thread_score=thread_score)
 
 
-def create_message(body, sender, recipient_list, subject="", parent=None, mtype=None):
+def create_messages(body, sender, recipient_list, subject="", parent=None, mtype=None):
     "Create batch message from sender for a given recipient_list"
 
     subject = subject or f"Message from : {sender.profile.name}"
 
-
-
+    msg_list = []
     for rec in recipient_list:
-        pass
 
+        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject,
+                                     body=body, parent_msg=parent, type=mtype)
+        msg_list.append(msg)
 
-
-
-    return
-
-
+    return msg_list
 
 
 
