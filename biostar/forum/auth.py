@@ -90,7 +90,9 @@ def list_by_topic(request, topic):
 
     latest = "latest"
     myposts, mytags, unanswered, following = ["myposts", "mytags", "open", "following"]
-    bookmarks, votes, message = ["bookmarks", "votes", "message"]
+    bookmarks, votes, message, unread = ["bookmarks", "votes", "message", "unread"]
+    inbox,outbox, mentioned = ["inbox", "outbox", "mentioned"]
+
     post_types = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
                       forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
@@ -128,7 +130,16 @@ def list_by_topic(request, topic):
         return Post.objects.my_post_votes(user).distinct()
 
     if topic == message:
+        return Message.objects.filter(recipient=user, seen=False, unread=True)
+
+    if topic == unread:
+        return Message.objects.filter(recipient=user, unread=True)
+
+    if topic == inbox:
         return Message.objects.inbox_for(user=user)
+
+    if topic == outbox:
+        return Message.objects.outbox_for(user=user)
 
     if topic in post_types:
         # A post type.

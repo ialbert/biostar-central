@@ -37,8 +37,15 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
 @login_required
 def message_list(request):
 
+    active = request.GET.get("q", "inbox")
+
+    amap = dict(inbox="active", outbox="active",unread="active")
+    active = active if (active in amap) else "inbox"
+
+    context = {active:amap[active], "not_outbox":active != "outbox"}
+
     return list_view(request, template="forum/message_list.html",
-                     topic="message")
+                     topic=active, extra_context=context)
 
 
 
