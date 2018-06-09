@@ -61,7 +61,7 @@
             <a class="ui item" href="#">
                 <i class="world icon"></i>Community
             </a>
-            <a class="ui item" href="{% url 'message_list' %}?topic=message">
+            <a class="ui item" href="{% url 'message_list' %}">
                 <i class="mail icon"></i>Messages
                 {% object_count request=request otype="message" as num_msgs %}
                 {% if num_msgs %}<div class="ui green mini circular label">{{num_msgs}}</div>{%endif%}

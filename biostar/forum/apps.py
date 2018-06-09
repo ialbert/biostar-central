@@ -29,7 +29,7 @@ def init_messages(sender, **kwargs):
     name, email = settings.ADMINS[0]
 
     sender = User.objects.filter(email=email).first()
-    body = "Hello from the biostar-engine developers, we hope you enjoy the website."
+    body = "Hello from the biostar-engine developers, we hope you enjoy the website."*100
     subject = "Welcome to the biostar-engine!"
 
     recipient_list = [sender]

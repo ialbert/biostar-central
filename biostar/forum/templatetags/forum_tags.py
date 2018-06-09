@@ -45,6 +45,7 @@ def subs_actions(post, user):
     return dict(post=post, form=form, button=button)
 
 
+
 @register.filter
 def show_nonzero(value):
     "The purpose of this is to return value or empty"
@@ -73,10 +74,27 @@ def object_count(request, otype):
             return Post.objects.my_bookmarks(user).count()
         if otype == "votes":
             return  Post.objects.my_post_votes(user).distinct().count()
-        if otype =="message":
+        if otype == "message":
+            return Message.objects.filter(recipient=user, seen=False, unread=True).count()
+        if otype == "unread":
+            return Message.objects.filter(recipient=user, unread=True).count()
+        if otype =="inbox":
             return Message.objects.inbox_for(user=user).count()
+        if otype == "outbox":
+            return Message.objects.outbox_for(user=user).count()
+
+
+
 
     return 0
+
+
+
+@register.filter
+def preview_message(text, limit=130):
+
+    return text if len(text) <= limit else text[:limit] + " ..."
+
 
 
 @register.simple_tag

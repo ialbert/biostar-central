@@ -453,6 +453,8 @@ class Message(models.Model):
     body = models.TextField(max_length=MAX_TEXT_LEN)
     type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
     unread = models.BooleanField(default=True)
+    # Store if the message has been viewed at least once in listing
+    seen = models.BooleanField(default=False)
     sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -462,17 +464,6 @@ class Message(models.Model):
 
     def __str__(self):
         return u"Message %s, %s" % (self.sender, self.recipient)
-
-    @staticmethod
-    def inbox_count_for(user):
-        "Returns the number of unread messages for the given user but does not mark them seen"
-        return Message.objects.filter(recipient=user, unread=True).count()
-
-    def email_tuple(self, recipient_list, from_email=None):
-        "Returns an email tuple suitable to be mass emailed"
-        from_email = from_email or settings.DEFAULT_FROM_EMAIL
-        data = (self.body.subject, self.body.text, from_email, recipient_list)
-        return data
 
 
 

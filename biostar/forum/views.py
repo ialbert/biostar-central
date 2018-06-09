@@ -17,10 +17,10 @@ from django.contrib.auth.decorators import login_required
 
 
 
-def list_view(request, template="forum/post_list.html", extra_context={}):
+def list_view(request, template="forum/post_list.html", extra_context={}, topic=None):
     "List view for posts and messages"
 
-    topic = request.GET.get("topic", 'latest')
+    topic = topic or request.GET.get("topic", 'latest')
 
     if request.user.is_anonymous and topic != "latest":
         messages.error(request, f"You must be logged in to perform action.")
@@ -37,7 +37,8 @@ def list_view(request, template="forum/post_list.html", extra_context={}):
 @login_required
 def message_list(request):
 
-    return list_view(request, template="forum/message_list.html")
+    return list_view(request, template="forum/message_list.html",
+                     topic="message")
 
 
 
