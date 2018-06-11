@@ -1,0 +1,31 @@
+{% load forum_tags %}
+
+
+<div class="ui basic segment" style="padding-left:5px">
+    <div class="ui feed">
+        <a class="{{inbox}} event" href="{% url 'message_list' %}?q=inbox">
+          Inbox
+
+        {%if inbox_count %}<div class="ui label">{{inbox_count}}</div>{%endif%}
+        </a>
+        <a class="{{unread}} event" href="{% url 'message_list' %}?q=unread">
+          Unread
+
+        {%if unread_count %}<div class="ui label">{{unread_count}}</div>{%endif%}
+        </a>
+       <a class="{{mentoined}} event" href="{% url 'message_list' %}?q=mentioned">
+          Mentioned
+
+        {%if mentioned %}<div class="ui label">{{mentioned}}</div>{%endif%}
+        </a>
+
+        <a class="{{outbox}} event" href="{% url 'message_list' %}?q=outbox">
+          Outbox
+
+        {%if out_count %}<div class="ui label">{{out_count}}</div>{%endif%}
+        </a>
+        <a class="event">
+          Trash
+        </a>
+    </div>
+</div>

@@ -7,17 +7,9 @@ from .decorators import object_exists
 from django.contrib.auth.decorators import login_required
 
 
-# def reset_counts(request, label):
-#     "Resets counts in the session"
-#     label = label.lower()
-#     counts = request.session.get(settings.SESSION_KEY, {})
-#     if label in counts:
-#         counts[label] = ''
-#         request.session[settings.SESSION_KEY] = counts
 
-
-
-def list_view(request, template="forum/post_list.html", extra_context={}, topic=None):
+def list_view(request, template="forum/post_list.html", extra_context={}, topic=None,
+              extra_proc=lambda x:x):
     "List view for posts and messages"
 
     topic = topic or request.GET.get("topic", 'latest')
@@ -27,6 +19,9 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
         topic = "latest"
 
     objs = auth.list_by_topic(request=request, topic=topic).order_by("-pk")
+
+    # Apply extra protocols to queryset (updates, etc)
+    extra_proc(objs)
 
     context = dict(objs=objs)
     context.update(extra_context)
@@ -44,8 +39,12 @@ def message_list(request):
 
     context = {active:amap[active], "not_outbox":active != "outbox"}
 
+    # Change messages in list to "seen",
+    # still unread until message_view is visited.
+    update_seen = lambda query_set: Message.objects.filter(pk__in=query_set).update(seen=True)
+
     return list_view(request, template="forum/message_list.html",
-                     topic=active, extra_context=context)
+                     topic=active, extra_context=context, extra_proc=update_seen)
 
 
 

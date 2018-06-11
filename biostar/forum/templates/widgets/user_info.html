@@ -1,0 +1,18 @@
+{% load forum_tags %}
+
+<div class="ui right floated muted item" style="font-size: 13px">
+    {% if by_diff %}
+        written {{ post.creation_date|time_ago }}
+    {% else %}
+        written {{ post.creation_date.date }}
+    {% endif %}
+
+    by {{post.author.profile.name }}
+
+    {% if post.author != post.lastedit_user %}
+    &bull; updated
+    <span class="">{{ post.lastedit_date|time_ago }}</span> by
+    {{post.lastedit_user }}
+    {% endif %}
+
+</div>

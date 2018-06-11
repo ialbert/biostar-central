@@ -13,3 +13,5 @@ ALLOWED_ATTRIBUTES = {
     'table': ['border', 'cellpadding', 'cellspacing'],
 
 }
+
+FEED_COUNT = 25

@@ -1,12 +1,14 @@
 
 import datetime
+from datetime import timedelta
 
 from django.contrib import messages
 from django.utils.timezone import utc
 from django.db.models import F
+from django.conf import settings
 
 from .models import Post, Tag, Vote, Subscription,Message
-
+from . import util
 
 def build_tree(thread, tree={}):
 
@@ -15,6 +17,8 @@ def build_tree(thread, tree={}):
         if post.type == Post.COMMENT:
             tree.setdefault(post.parent_id, []).append(post)
     return tree
+
+
 
 
 def get_votes(user, thread):
@@ -232,6 +236,8 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
         title=title, content=content, tag_val=tag_val,
         author=author, type=post_type, parent=parent, root=root
     )
+
+    # Triggers another save in here
 
     post.add_tags(post.tag_val)
 

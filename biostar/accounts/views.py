@@ -10,9 +10,9 @@ from django.conf import settings
 from django.contrib.auth import logout, login
 
 from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
-from .models import Profile, User
+from .models import User, Profile
 from .auth import check_user
-
+from .util import now
 
 logger = logging.getLogger('engine')
 
@@ -136,6 +136,7 @@ def user_login(request):
 
             if valid_user:
                 login(request, user)
+                Profile.objects.filter(user=user).update(last_login=now())
                 messages.success(request, "Login successful!")
                 return redirect("/")
             else:

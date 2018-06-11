@@ -3,9 +3,11 @@ from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from django import template
 from django.utils.safestring import mark_safe
+from django.conf import settings
 
 from biostar.forum.models import Post, Vote, Message
 from biostar.forum import auth, forms, models
+
 
 
 logger = logging.getLogger("engine")
@@ -46,6 +48,30 @@ def subs_actions(post, user):
 
 
 
+@register.inclusion_tag('widgets/feed.html')
+def feed():
+    return dict()
+
+
+@register.inclusion_tag('widgets/user_info.html')
+def user_info(post, by_diff=False):
+    return dict(post=post, by_diff=by_diff)
+
+
+@register.inclusion_tag('widgets/listing.html')
+def listing(posts=None, messages=None):
+
+
+
+    is_post = True if posts else False
+    is_messages =  True if messages else False
+
+    objs = posts or messages
+
+    return dict(is_post=is_post, is_messages=is_messages, objs=objs)
+
+
+
 @register.filter
 def show_nonzero(value):
     "The purpose of this is to return value or empty"
@@ -63,6 +89,7 @@ def pluralize(value, word):
 def object_count(request, otype):
 
     user = request.user
+
     if user.is_authenticated:
         if otype == "post":
             return Post.objects.my_posts(target=user, user=user).count()
@@ -75,7 +102,8 @@ def object_count(request, otype):
         if otype == "votes":
             return  Post.objects.my_post_votes(user).distinct().count()
         if otype == "message":
-            return Message.objects.filter(recipient=user, seen=False, unread=True).count()
+            # Return the count stored in the message
+            return Message.objects.filter(recipient=user, seen=False).count()
         if otype == "unread":
             return Message.objects.filter(recipient=user, unread=True).count()
         if otype =="inbox":

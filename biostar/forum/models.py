@@ -30,7 +30,6 @@ def get_sentinel_user():
 
 
 
-
 class SubscriptionManager(models.Manager):
     def get_subs(self, post):
         "Returns all subscriptions for a post, exclude the "
@@ -47,8 +46,8 @@ class PostManager(models.Manager):
 
     def my_post_votes(self, user):
         "Posts that received votes from other people "
-        vote_query =""
-        query = self.filter(author=user, votes__type=Vote.UP)
+        vote_query = Vote.objects.exclude(author=user).filter(post__in=self.filter(author=user))
+        query = self.filter(author=user, votes__in=vote_query)
         query = query.select_related("root", "author", "lastedit_user")
         query = query.prefetch_related("tag_set")
         return query

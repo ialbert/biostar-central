@@ -26,9 +26,10 @@ class Profile(models.Model):
     STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
     state = models.IntegerField(default=NEW, choices=STATE_CHOICES)
 
-    NORMAL, MODERATOR = 1,2
-    ROLE_CHOICES = [(NORMAL, "Normal User"),(MODERATOR, "Moderator")]
+    NORMAL, MODERATOR, MANAGER = 1,2,3
+    ROLE_CHOICES = [(NORMAL, "Normal User"),(MODERATOR, "Moderator"), (MANAGER, "Manager")]
     role = models.IntegerField(default=NORMAL, choices=ROLE_CHOICES)
+    last_login = models.DateTimeField(auto_now_add=True)
 
     notify = models.BooleanField(default=False)
 
@@ -45,13 +46,18 @@ class Profile(models.Model):
     def is_moderator(self):
         return self.role == self.MODERATOR
 
+    @property
+    def is_manager(self):
+        return self.role == self.MANAGER
+
+
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
 
     if created:
         # Make sure staff users are also moderators.
-        role = Profile.MODERATOR if instance.is_staff else Profile.NORMAL
+        role = Profile.MANAGER if instance.is_staff else Profile.NORMAL
         Profile.objects.create(user=instance, name=instance.first_name, role=role)
 
     instance.username = instance.username or f"user-{instance.pk}"

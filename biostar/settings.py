@@ -82,6 +82,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'biostar.engine.middleware.engine_middleware',
+    'biostar.forum.middleware.forum_middleware'
 
 ]
 
@@ -168,6 +169,8 @@ SENDFILE_URL = '/protected/'
 
 # Session settings go here
 SESSION_KEY = "session"
+COUNT_INTERVAL_WEEKS = 10000
+
 
 #SENDFILE_BACKEND = "sendfile.backends.nginx"
 SENDFILE_BACKEND = "sendfile.backends.development"

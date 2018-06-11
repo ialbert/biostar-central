@@ -39,17 +39,8 @@
 
                  </div>
                  <div class="ui right floated muted" style="padding-top: 10px">
-                        written on
-                        {{ post.creation_date.date }} by {{ post.author.profile.name }}
 
-                      {% if post.creation_date != post.lastedit_date %}
-                         &bull;
-                        modified {{ post.lastedit_date|time_ago }}
-                        {%  if post.author != post.lastedit_user %}
-                            by {{ post.lastedit_user.profile.name }}
-                        {%  endif %}
-
-                     {% endif %}
+                     {% user_info post=post by_diff=False %}
                      </div>
                 <a class="ui mini grey label" href="{% url 'post_comment' post.uid %}">
                     ADD COMMENT

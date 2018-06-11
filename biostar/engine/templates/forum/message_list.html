@@ -9,6 +9,7 @@
 
 
 {% block body %}
+
 <div class="ui grid">
     <div class="three wide column">
         <div class="ui basic segment" style="padding-left:5px">
@@ -42,14 +43,13 @@
 
 </div>
 
-
-
 <div class="thirteen wide column">
 <div class="ui basic segment" >
    <div class="ui relaxed divided list">
+
 {% for message in objs %}
 
-    {% if not message.seen and not_outbox %}
+    {% if message.unread and not_outbox %}
         <div class="item" style="background: #d5f7cd;padding:5px">
 
     {% else %}
@@ -85,11 +85,10 @@
 
       </div>
 
-
 {% endfor %}
-   </div>
+</div>
 
-   </div>
+</div>
 </div>
 </div>
 

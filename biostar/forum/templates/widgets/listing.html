@@ -1,0 +1,70 @@
+{% load forum_tags %}
+
+{% if is_post %}
+
+    {% for post in objs %}
+
+        <div class="item">
+            <div class="ui horizontal list">
+
+                <div class="item">
+                    {% if post.is_toplevel %}
+                        <div class="ui center aligned header">
+                            {{ post.thread_score }}</div>
+                        <div class="content">vote{{ post.thread_score|pluralize }}</div>
+                    {% else %}
+                        <div class="ui center aligned header">
+                            {{ post.vote_count }}</div>
+                        <div class="content">vote{{ post.vote_count|pluralize }}</div>
+                    {% endif %}
+
+                </div>
+
+                <div class="item">
+                    <div class="ui center aligned header">
+                        {{ post.root.reply_count }}</div>
+                    <div class="content">answer{{ post.root.reply_count|pluralize }}</div>
+                </div>
+
+                <div class="item">
+
+                   <div class="ui center aligned header">{{ post.root.view_count|bignum }}</div>
+                    <div class="content">views</div>
+                </div>
+
+                <div class="item">
+                    <div class="ui text container">
+
+                        <div class="content" >
+                            <div class="ui tiny header">
+                                {% if post.type != post.QUESTION %}
+                                    {{ post.get_type_display }}:
+                                {% endif %}
+                                 <a href="{% url 'post_view' post.uid %}" >{{ post.get_title }}</a>
+
+                            </div>
+                            <div class='' style="padding-top:10px">
+
+                                {% for tag in post.tag_set.all %}
+                                    <a class="ui tiny label" href="#">{{ tag.name }}</a>
+                                {% endfor %}
+
+                                {% user_info post=post by_diff=True %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% empty %}
+
+    <div class="alert alert-info">There are no results for this page.</div>
+
+    {% endfor %}
+
+{% elif is_messages %}
+
+
+{% endif %}
