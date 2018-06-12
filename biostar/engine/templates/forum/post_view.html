@@ -7,6 +7,8 @@
 {% endblock %}
 
 {% block body %}
+<div class="ui doubling stackable grid container">
+<div class="thirteen wide column">
 
 <div class="ui vertical large segment">
     {# This is the toplevel post #}
@@ -54,7 +56,15 @@
 
     {% endif %}
     </div>
+</div>
 
+    <div class="three wide column">
+        {% feed %}
+
+    </div>
+
+
+</div>
 
 
 
