@@ -33,12 +33,13 @@ def user_box(user):
 @register.simple_tag
 def gravatar(user, size=80):
     #name = user.profile.name
-    if user.is_suspended:
+    if user.is_anonymous or user.profile.is_suspended:
         # Removes spammy images for suspended users
-        email = 'suspended@biostars.org'
+        email = 'suspended@biostars.org'.encode('utf8')
     else:
         email = user.email.encode('utf8')
-    hash = hashlib.md5(email).hexdigest(),
+
+    hash = hashlib.md5(email).hexdigest()
 
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
     gravatar_url += urllib.parse.urlencode({

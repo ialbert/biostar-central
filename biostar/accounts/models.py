@@ -30,10 +30,10 @@ class Profile(models.Model):
     max_upload_size = models.IntegerField(default=0)
 
     role = models.IntegerField(default=NORMAL, choices=ROLE_CHOICES)
-    last_login = models.DateTimeField()
+    last_login = models.DateTimeField(null=True)
 
     # The last visit by the user.
-    date_joined = models.DateTimeField()
+    date_joined = models.DateTimeField(auto_now_add=True)
 
     # User provided location.
     location = models.CharField(default="", max_length=255, blank=True)

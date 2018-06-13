@@ -25,6 +25,7 @@
              <div class="content">
                  <div class="description">
                         <span itemprop="text">{{ post.html|safe }}</span>
+                        {% user_box user=request.user %}
                  </div>
                  <div class="extra">
                      <div class="ui left floated" style="margin-bottom:0.5em;">

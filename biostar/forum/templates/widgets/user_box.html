@@ -1,21 +1,39 @@
 {% load forum_tags %}
 
-<div class="">
-    <div>
-        <a href="{{ user.get_absolute_url }}">{% gravatar user 82 %}</a>
-    </div>
-    <div class="uname">{{user.profile.name}}</div>
+
+<div class="ui segment">
+
+  <div class="ui medium rounded image">
+    <a href="{{ user.get_absolute_url }}">{% gravatar user 82 %}</a>
+  </div>
+
+
+</div>
+
+
+
+<div class="ui image label">
+
+
+  <div class="content">
+    <a class="header">{{user.profile.name}}</a>
+    <div class="meta">
     {% if lastlogin %}
         <div class="ago">visited {{ user.profile.last_login|time_ago }}</div>
     {% else %}
         <div class="ago">joined {{ user.profile.date_joined|time_ago }}</div>
     {% endif %}
-
-    <div class="loc">{{ user.profile.location }}</div>
+    </div>
+    <div class="description">
+      Kristy is an art director living in New York.
+    </div>
+  </div>
+  <div class="extra content">
+    <a>
+      <i class="map marker alternate icon"></i>
+      <div class="">{{ user.profile.location }}</div>
+    </a>
+  </div>
 </div>
 
-<div class="">
 
-       <div class="uname">{{user.profile.name}}</div>
-    <div class="loc">{{ user.profile.location }}</div>
-</div>
