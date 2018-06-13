@@ -48,7 +48,7 @@ def gravatar(user, size=80):
     }
     )
 
-    return mark_safe(f"""<img src={gravatar_url} height={size} width="{size}"/>""")
+    return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)

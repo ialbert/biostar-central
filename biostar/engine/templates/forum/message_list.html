@@ -29,6 +29,11 @@
                {% object_count request=request otype="mentioned" as mentioned %}
                 {%if mentioned %}<div class="ui label">{{mentioned}}</div>{%endif%}
                 </a>
+               <a class="{{mentoined}} item" href="{% url 'message_list' %}?q=projects">
+                  Projects
+               {% object_count request=request otype="mentioned" as mentioned %}
+                {%if mentioned %}<div class="ui label">{{mentioned}}</div>{%endif%}
+                </a>
 
                 <a class="{{outbox}} item" href="{% url 'message_list' %}?q=outbox">
                   Outbox

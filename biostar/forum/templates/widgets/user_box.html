@@ -1,39 +1,22 @@
 {% load forum_tags %}
 
 
-<div class="ui segment">
+<div class="ui segment center aligned compact">
 
-  <div class="ui medium rounded image">
-    <a href="{{ user.get_absolute_url }}">{% gravatar user 82 %}</a>
+  <div class="">
+    <a href="{{ user.get_absolute_url }}">{% gravatar user=user size=102 %}</a>
+  </div>
+    <div>
+    {{user.profile.name}}
   </div>
 
-
-</div>
-
-
-
-<div class="ui image label">
-
-
-  <div class="content">
-    <a class="header">{{user.profile.name}}</a>
-    <div class="meta">
-    {% if lastlogin %}
-        <div class="ago">visited {{ user.profile.last_login|time_ago }}</div>
+  <div class="ui muted mini centered" style="font-size: 13px">
+    {% if user.profile.last_login %}
+    <div class="">visted {{ user.profile.last_login|time_ago }}  </div>
     {% else %}
-        <div class="ago">joined {{ user.profile.date_joined|time_ago }}</div>
+        <div class="">Joined {{ user.profile.date_joined|time_ago }} by </div>
     {% endif %}
-    </div>
-    <div class="description">
-      Kristy is an art director living in New York.
-    </div>
   </div>
-  <div class="extra content">
-    <a>
-      <i class="map marker alternate icon"></i>
-      <div class="">{{ user.profile.location }}</div>
-    </a>
-  </div>
-</div>
 
+</div>
 

@@ -20,32 +20,59 @@
                 <a href="{% url 'update_vote' post.uid %}?type=bookmark">
                     <i class="large {% vote_icon request.user post 'bookmark' %}"></i>
                 </a>
+
             </div>
 
              <div class="content">
+
                  <div class="description">
                         <span itemprop="text">{{ post.html|safe }}</span>
-                        {% user_box user=request.user %}
+
                  </div>
+                                 <div class="ui right floated">
+                    {% user_box user=request.user %}
+                </div>
+                 {% if post.is_toplevel %}
                  <div class="extra">
-                     <div class="ui left floated" style="margin-bottom:0.5em;">
-                     {% if post.is_toplevel %}
+
+                     <div class="" style="margin-bottom:0.5em;">
+
                             {% for tag in post.tag_set.all %}
                                 <a class="ui small label" href="#">{{ tag.name }}</a>
                             {% endfor %}
                         &bull; {{ post.root.view_count|bignum }} views
-
-                     {% endif %}
                      </div>
 
                  </div>
+
+
+
                  <div class="ui right floated muted" style="padding-top: 10px">
 
                      {% user_info post=post by_diff=False %}
-                     </div>
+                 </div>
                 <a class="ui mini grey label" href="{% url 'post_comment' post.uid %}">
                     ADD COMMENT
                 </a>
+
+                 {% else %}
+
+
+                 <div class="extra">
+
+                    <div class="ui right floated muted" style="padding-top: 10px">
+                         {% user_info post=post by_diff=False %}
+                     </div>
+                     <div>ggg
+                     </div>
+                    <a class="ui mini grey label" href="{% url 'post_comment' post.uid %}">
+                        ADD COMMENT
+                    </a>
+
+                 </div>
+
+
+                 {% endif %}
 
                  {# Comments for each post rendered here #}
             <div class="ui comments">
