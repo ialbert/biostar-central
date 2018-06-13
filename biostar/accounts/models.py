@@ -15,6 +15,13 @@ def generate_uuid(limit=32):
 
 class Profile(models.Model):
 
+    NEW, TRUSTED, SUSPENDED, BANNED = range(1,5)
+    STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
+    state = models.IntegerField(default=NEW, choices=STATE_CHOICES)
+
+    NORMAL, MODERATOR, MANAGER = 1,2,3
+    ROLE_CHOICES = [(NORMAL, "Normal User"),(MODERATOR, "Moderator"), (MANAGER, "Manager")]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     uid = models.CharField(max_length=MAX_UID_LEN, unique=True)
     name = models.CharField(max_length=MAX_NAME_LEN, default='')
@@ -22,14 +29,29 @@ class Profile(models.Model):
     # Maximum amount of uploaded files a user is allowed to aggregate, in mega-bytes.
     max_upload_size = models.IntegerField(default=0)
 
-    NEW, TRUSTED, SUSPENDED, BANNED = range(1,5)
-    STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
-    state = models.IntegerField(default=NEW, choices=STATE_CHOICES)
-
-    NORMAL, MODERATOR, MANAGER = 1,2,3
-    ROLE_CHOICES = [(NORMAL, "Normal User"),(MODERATOR, "Moderator"), (MANAGER, "Manager")]
     role = models.IntegerField(default=NORMAL, choices=ROLE_CHOICES)
-    last_login = models.DateTimeField(auto_now_add=True)
+    last_login = models.DateTimeField()
+
+    # The last visit by the user.
+    date_joined = models.DateTimeField()
+
+    # User provided location.
+    location = models.CharField(default="", max_length=255, blank=True)
+
+    # User provided website.
+    website = models.URLField(default="", max_length=255, blank=True)
+
+    # Google scholar ID
+    scholar = models.CharField(default="", max_length=255, blank=True)
+
+    # Twitter ID
+    twitter_id = models.CharField(default="", max_length=255, blank=True)
+
+    # This field is used to select content for the user.
+    my_tags = models.TextField(default="", max_length=255, blank=True)
+
+    # Description provided by the user html.
+    info = models.TextField(default="", null=True, blank=True)
 
     notify = models.BooleanField(default=False)
 
@@ -49,6 +71,10 @@ class Profile(models.Model):
     @property
     def is_manager(self):
         return self.role == self.MANAGER
+
+    @property
+    def is_suspended(self):
+        return self.state == self.SUSPENDED
 
 
 

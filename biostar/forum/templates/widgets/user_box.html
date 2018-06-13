@@ -1,0 +1,21 @@
+{% load forum_tags %}
+
+<div class="">
+    <div>
+        <a href="{{ user.get_absolute_url }}">{% gravatar user 82 %}</a>
+    </div>
+    <div class="uname">{{user.profile.name}}</div>
+    {% if lastlogin %}
+        <div class="ago">visited {{ user.profile.last_login|time_ago }}</div>
+    {% else %}
+        <div class="ago">joined {{ user.profile.date_joined|time_ago }}</div>
+    {% endif %}
+
+    <div class="loc">{{ user.profile.location }}</div>
+</div>
+
+<div class="">
+
+       <div class="uname">{{user.profile.name}}</div>
+    <div class="loc">{{ user.profile.location }}</div>
+</div>

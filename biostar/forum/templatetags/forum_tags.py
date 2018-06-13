@@ -1,4 +1,6 @@
 import logging
+import hashlib
+import urllib.parse
 from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from django import template
@@ -18,12 +20,42 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
+
+@register.inclusion_tag('widgets/user_box.html')
+def user_box(user):
+
+    return dict(user=user)
+
+
+
+
+
+@register.simple_tag
+def gravatar(user, size=80):
+    #name = user.profile.name
+    if user.is_suspended:
+        # Removes spammy images for suspended users
+        email = 'suspended@biostars.org'
+    else:
+        email = user.email.encode('utf8')
+    hash = hashlib.md5(email).hexdigest(),
+
+    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
+    gravatar_url += urllib.parse.urlencode({
+        's': str(size),
+        'd': 'identicon',
+    }
+    )
+
+    return mark_safe(f"""<img src={gravatar_url} height={size} width="{size}"/>""")
+
+
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, add_comment=False):
+def post_body(context, post, user, tree, form):
     "Renders the post body"
 
     return dict(post=post, user=user, tree=tree, request=context['request'],
-                add_comment=add_comment, form=form)
+                form=form)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
