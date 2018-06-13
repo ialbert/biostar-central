@@ -82,8 +82,26 @@ def subs_actions(post, user):
 
 
 @register.inclusion_tag('widgets/feed.html')
-def feed():
-    return dict()
+def feed(user, post=None, limit=7):
+
+
+    # Show similar posts when inside of a view
+    if post:
+        return
+
+    recent_votes = Vote.objects.filter(type=Vote.UP).order_by("-pk")[:limit]
+    # Needs to be put in context of posts
+    recent_votes = Post.objects.filter(votes__in=recent_votes)
+
+    recent_locations = ''
+    recent_awards = ''
+    recent_replies = ''
+
+    context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
+                   recent_locations=recent_locations, recent_replies=recent_replies,
+                   post=post, user=user)
+
+    return context
 
 
 @register.inclusion_tag('widgets/user_info.html')
@@ -93,7 +111,6 @@ def user_info(post, by_diff=False):
 
 @register.inclusion_tag('widgets/listing.html')
 def listing(posts=None, messages=None):
-
 
 
     is_post = True if posts else False

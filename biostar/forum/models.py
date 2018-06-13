@@ -351,8 +351,8 @@ class Vote(models.Model):
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
     post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
-    type = models.IntegerField(choices=TYPE_CHOICES)
-    date = models.DateTimeField(auto_now=True)
+    type = models.IntegerField(choices=TYPE_CHOICES, default=EMPTY)
+    date = models.DateTimeField(auto_now_add=True)
 
     uid = models.CharField(max_length=32, unique=True)
 

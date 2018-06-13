@@ -1,31 +1,46 @@
 {% load forum_tags %}
 
 
-<div class="ui basic segment" style="padding-left:5px">
-    <div class="ui feed">
-        <a class="{{inbox}} event" href="{% url 'message_list' %}?q=inbox">
-          Inbox
 
-        {%if inbox_count %}<div class="ui label">{{inbox_count}}</div>{%endif%}
-        </a>
-        <a class="{{unread}} event" href="{% url 'message_list' %}?q=unread">
-          Unread
+<div class="ui basic segment">
+    <div class="ui large feed">
 
-        {%if unread_count %}<div class="ui label">{{unread_count}}</div>{%endif%}
-        </a>
-       <a class="{{mentoined}} event" href="{% url 'message_list' %}?q=mentioned">
-          Mentioned
+        <div class="event">
+            <div class="ui bulleted list">
+              <a class="ui small header">
+                  Recent Votes
+              </a>
 
-        {%if mentioned %}<div class="ui label">{{mentioned}}</div>{%endif%}
-        </a>
+                {% for post in recent_votes %}
 
-        <a class="{{outbox}} event" href="{% url 'message_list' %}?q=outbox">
-          Outbox
+                    <a class="item" href="{% url 'post_view' post.uid %}" style="font-size: 13px">
+                        {{ post.get_title }}
+                    </a>
 
-        {%if out_count %}<div class="ui label">{{out_count}}</div>{%endif%}
-        </a>
-        <a class="event">
-          Trash
-        </a>
+                {% empty %}
+                <div class="ui muted">No recent votes</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="event">
+              <div class="ui small header">
+                  Recent Locations <a href="#"> <i class="ui angle small double right icon"></i>  </a>
+              </div>
+        </div>
+
+
+        <div class="event">
+              <div class="ui small header">
+                  Recent Awards <a href="#">  <i class="ui angle small double right icon"></i></a>
+              </div>
+        </div>
+
+        <div class="event">
+              <div class="ui small header">
+                  Recent Replies
+              </div>
+        </div>
+
     </div>
 </div>
