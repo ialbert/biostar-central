@@ -32,6 +32,7 @@
                                  <div class="ui right floated">
                     {% user_box user=request.user %}
                 </div>
+
                  {% if post.is_toplevel %}
                  <div class="extra">
 
@@ -52,19 +53,23 @@
                 <a class="ui mini grey label" href="{% url 'post_comment' post.uid %}">
                     ADD COMMENT
                 </a>
+                 &bull;
+                 <a>link</a>
 
                  {% else %}
 
 
                  <div class="extra">
 
-                    <div class="ui right floated muted" style="padding-top: 10px">
+                    <div class="ui right floated muted" style="padding-top: 10px;">
                          {% user_info post=post by_diff=False %}
                      </div>
 
                     <a class="ui mini grey label" href="{% url 'post_comment' post.uid %}">
                         ADD COMMENT
                     </a>
+                     &bull;
+                     <a>link</a>
 
                  </div>
 

@@ -3,23 +3,25 @@
 
 
 <div class="ui basic segment">
-    <div class="ui large feed">
+    <div class="ui feed">
 
         <div class="event">
-            <div class="ui bulleted list">
-              <a class="ui small header">
+
+            <div class="ui bulleted relaxed list">
+                <a class="ui small header">
                   Recent Votes
               </a>
-
+                <ul class="ui list">
                 {% for post in recent_votes %}
 
-                    <a class="item" href="{% url 'post_view' post.uid %}" style="font-size: 13px">
-                        {{ post.get_title }}
-                    </a>
+                    <li   style="font-size: 13px">
+                        <a href="{% url 'post_view' post.uid %}">{{ post.get_title }}</a>
+                    </li>
 
                 {% empty %}
-                <div class="ui muted">No recent votes</div>
+                <li class="ui muted">No recent votes</li>
                 {% endfor %}
+                </ul>
             </div>
         </div>
 

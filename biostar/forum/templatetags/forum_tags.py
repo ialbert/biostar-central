@@ -89,9 +89,9 @@ def feed(user, post=None, limit=7):
     if post:
         return
 
-    recent_votes = Vote.objects.filter(type=Vote.UP).order_by("-pk")[:limit]
+    recent_votes = Vote.objects.filter(type=Vote.UP)[:limit]
     # Needs to be put in context of posts
-    recent_votes = Post.objects.filter(votes__in=recent_votes)
+    recent_votes = Post.objects.filter(votes__in=recent_votes).order_by("-pk")
 
     recent_locations = ''
     recent_awards = ''
