@@ -1,0 +1,46 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Community
+{% endblock %}
+
+
+
+
+{% block body %}
+
+<div class="ui doubling stackable grid">
+
+    <div class="twelve wide column">
+
+        {% pages objs=objs %}
+        <div class="ui basic segment">
+            <div class="ui horizontal list">
+
+                {% for user in objs %}
+
+                    <div class="item">
+                        {% user_box user=user %}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+        </div>
+
+        {% pages objs=objs %}
+    </div>
+
+
+    <div class="four wide column" style="padding-left:0px;">
+        {% feed user=request.user %}
+    </div>
+
+
+</div>
+
+
+
+{% endblock %}

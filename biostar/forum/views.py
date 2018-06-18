@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
-from . import forms, auth, settings
+from . import forms, auth
 from .models import Post, Vote, Message
 from .decorators import object_exists
 
@@ -68,8 +68,10 @@ def community_list(request):
 
     users_per_page = 50
     template = "forum/community_list.html"
+    topic = "community"
 
-    return list_view(request=request, template=template, per_page=users_per_page)
+    return list_view(request=request, template=template, per_page=users_per_page,
+                     topic=topic)
 
 
 @object_exists(klass=Message)

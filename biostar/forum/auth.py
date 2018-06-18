@@ -6,9 +6,13 @@ from django.contrib import messages
 from django.utils.timezone import utc
 from django.db.models import F
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from .models import Post, Tag, Vote, Subscription,Message
 from . import util
+
+User = get_user_model()
+
 
 def build_tree(thread, tree={}):
 
@@ -149,7 +153,8 @@ def list_by_topic(request, topic):
         # Users that make posts or votes are
         # considered part of the community
 
-        users = Post.objects.only('author')
+        post_set = Post.objects.all()
+        users  = User.objects.filter(post__in=post_set).distinct()
         return users
 
     if topic in post_types:

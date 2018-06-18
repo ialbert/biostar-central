@@ -10,7 +10,7 @@
 
 {% block body %}
 
-<div class="ui grid">
+<div class="ui doubling stackable grid">
     <div class="three wide column">
         <div class="ui basic segment" style="padding-left:5px">
             <div class="ui secondary vertical pointing menu">
@@ -50,6 +50,8 @@
 
 <div class="thirteen wide column">
 <div class="ui basic segment" >
+    {% pages objs=objs %}
+
    <div class="ui relaxed divided list">
 
 {% for message in objs %}
@@ -94,6 +96,7 @@
 </div>
 
 </div>
+    {% pages objs=objs %}
 </div>
 </div>
 
