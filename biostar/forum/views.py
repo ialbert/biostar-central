@@ -19,9 +19,12 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
     topic = topic or request.GET.get("topic", 'latest')
     page = request.GET.get('page')
 
-    if request.user.is_anonymous and topic != "latest":
-        messages.error(request, f"You must be logged in to perform action.")
-        topic = "latest"
+    is_private_topic = topic not in ("latest", "community")
+
+    if request.user.is_anonymous and is_private_topic:
+        messages.error(request, f"You must be logged in to view that topic.")
+
+        topic, template = "latest", "forum/post_list.html"
 
     objs = auth.list_by_topic(request=request, topic=topic).order_by("-pk")
 
@@ -34,7 +37,6 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
 
     context = dict(objs=objs)
     context.update(extra_context)
-
 
     return render(request, template_name=template, context=context)
 
