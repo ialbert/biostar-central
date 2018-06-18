@@ -2,15 +2,14 @@
 
 
 
-<div class="ui basic segment">
-    <div class="ui feed">
+    <div class="ui feed" style="margin-right:10px;">
 
         <div class="event">
 
-            <div class="ui bulleted relaxed list">
-                <a class="ui small header">
-                  Recent Votes
-              </a>
+            <div class="ui bulleted relaxed list" >
+        <a class="ui small header" >
+          Recent Votes
+        </a>
                 <ul class="ui list">
                 {% for post in recent_votes %}
 
@@ -18,8 +17,6 @@
                         <a href="{% url 'post_view' post.uid %}">{{ post.get_title }}</a>
                     </li>
 
-                {% empty %}
-                <li class="ui muted">No recent votes</li>
                 {% endfor %}
                 </ul>
             </div>
@@ -45,4 +42,3 @@
         </div>
 
     </div>
-</div>

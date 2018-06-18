@@ -19,7 +19,7 @@ def init_users(sender, **kwargs):
     """
     Creates admin users if needed.
     """
-    from .models import User
+    from .models import User, Profile
 
     logger.info("Setting up admin users")
 
@@ -28,6 +28,8 @@ def init_users(sender, **kwargs):
             user = User.objects.create(first_name=name, email=email, is_superuser=True, is_staff=True)
             user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
             user.save()
+            Profile.objects.filter(user__pk=user.pk).update(location="State College")
+
             logger.info(f"Created admin user: {user.email}")
 
 

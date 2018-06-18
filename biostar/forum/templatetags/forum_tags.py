@@ -28,6 +28,11 @@ def user_box(user):
 
 
 
+@register.inclusion_tag('widgets/pages.html')
+def pages(objs):
+
+    return dict(objs=objs)
+
 
 
 @register.simple_tag
@@ -276,13 +281,14 @@ def traverse_comments(request, post, tree, comment_template):
     body = template.loader.get_template(comment_template)
 
     def traverse(node):
+
         data = ['<div class="comment">']
         cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):
 
-            data.append('<div class="comments">')
+            data.append('<div class="comments" >')
             data.append(traverse(child))
             data.append("</div>")
 

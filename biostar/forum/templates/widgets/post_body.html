@@ -30,7 +30,7 @@
 
                  </div>
                                  <div class="ui right floated">
-                    {% user_box user=request.user %}
+                    {% user_box user=post.author %}
                 </div>
 
                  {% if post.is_toplevel %}
@@ -77,7 +77,7 @@
                  {% endif %}
 
                  {# Comments for each post rendered here #}
-            <div class="ui comments">
+            <div class="ui comments" style="max-width: 750px;">
                 {% render_comments request=request post=post %}
             </div>
 

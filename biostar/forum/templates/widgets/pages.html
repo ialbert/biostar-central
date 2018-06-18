@@ -1,0 +1,27 @@
+{% load forum_tags %}
+
+<div class="ui basic center aligned tiny segment">
+
+
+    {% if objs.has_previous %}
+
+        <a href="?page={{ objs.previous_page_number }}">
+        <i class="ui angle small double left icon"> </i>previous
+        </a>
+    &bull;
+    {% endif %}
+    {{objs.paginator.count}}
+    result{{objs.paginator.count|pluralize}} &bull;
+
+    <span class="current">
+        Page {{ objs.number }} of {{ objs.paginator.num_pages }}
+    </span>
+
+    {% if objs.has_next %}
+            &bull;
+            <a href="?page={{ objs.next_page_number }}">next
+            <i class="ui angle small double right icon"></i>
+            </a>
+    {% endif %}
+
+</div>

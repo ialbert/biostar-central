@@ -1,18 +1,23 @@
 
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
-from . import forms, auth
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+
+from . import forms, auth, settings
 from .models import Post, Vote, Message
 from .decorators import object_exists
-from django.contrib.auth.decorators import login_required
+
+
 
 
 
 def list_view(request, template="forum/post_list.html", extra_context={}, topic=None,
-              extra_proc=lambda x:x):
+              extra_proc=lambda x:x, per_page=25):
     "List view for posts and messages"
 
     topic = topic or request.GET.get("topic", 'latest')
+    page = request.GET.get('page')
 
     if request.user.is_anonymous and topic != "latest":
         messages.error(request, f"You must be logged in to perform action.")
@@ -23,8 +28,13 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
     # Apply extra protocols to queryset (updates, etc)
     extra_proc(objs)
 
+    # Get the page info
+    paginator = Paginator(objs, per_page)
+    objs = paginator.get_page(page)
+
     context = dict(objs=objs)
     context.update(extra_context)
+
 
     return render(request, template_name=template, context=context)
 
@@ -39,13 +49,27 @@ def message_list(request):
 
     context = {active:amap[active], "not_outbox":active != "outbox"}
 
-    # Change messages in list to "seen",
+    # Change messages in list to "seen" once user visits view,
     # still unread until message_view is visited.
     update_seen = lambda query_set: Message.objects.filter(pk__in=query_set).update(seen=True)
 
-    return list_view(request, template="forum/message_list.html",
-                     topic=active, extra_context=context, extra_proc=update_seen)
+    msg_per_page = 50
 
+    return list_view(request, template="forum/message_list.html",
+                     topic=active, extra_context=context, extra_proc=update_seen,
+                     per_page=msg_per_page)
+
+
+def community_list(request):
+
+
+    # Users that make posts or votes are
+    # considered part of the community
+
+    users_per_page = 50
+    template = "forum/community_list.html"
+
+    return list_view(request=request, template=template, per_page=users_per_page)
 
 
 @object_exists(klass=Message)

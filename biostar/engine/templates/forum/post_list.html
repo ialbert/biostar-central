@@ -9,24 +9,31 @@
 
 {% block body %}
 
+
+
 <div class="ui doubling stackable grid">
 
-    <div class="eleven wide column">
+    <div class="twelve wide column">
 
-        <div class="ui relaxed mini divided mini list">
+        {% pages objs=objs %}
+
+        <div class="ui small relaxed divided list">
 
             {% listing posts=objs %}
 
         </div>
 
+        {% pages objs=objs %}
+
     </div>
 
-    <div class="left aligned four wide column" style="">
+    <div class="four wide column" style="padding-left:0px;">
         {% feed user=request.user %}
 
     </div>
 
 
 </div>
+
 
 {% endblock %}

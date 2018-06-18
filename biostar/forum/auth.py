@@ -95,7 +95,7 @@ def list_by_topic(request, topic):
     latest = "latest"
     myposts, mytags, unanswered, following = ["myposts", "mytags", "open", "following"]
     bookmarks, votes, message, unread = ["bookmarks", "votes", "message", "unread"]
-    inbox,outbox, mentioned = ["inbox", "outbox", "mentioned"]
+    inbox,outbox, mentioned, community = ["inbox", "outbox", "mentioned", "community"]
 
     post_types = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
                       forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
@@ -144,6 +144,13 @@ def list_by_topic(request, topic):
 
     if topic == outbox:
         return Message.objects.outbox_for(user=user)
+
+    if topic == community:
+        # Users that make posts or votes are
+        # considered part of the community
+
+        users = Post.objects.only('author')
+        return users
 
     if topic in post_types:
         # A post type.
