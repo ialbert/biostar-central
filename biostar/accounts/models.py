@@ -61,7 +61,7 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         self.uid = self.uid or generate_uuid(8)
         self.max_upload_size = self.max_upload_size or settings.MAX_UPLOAD_SIZE
-        self.name = self.user.first_name
+        self.name = self.user.first_name or self.user.email.split("@")[0]
         super(Profile, self).save(*args, **kwargs)
 
     @property

@@ -67,12 +67,13 @@ def build_msg_tree(msg, tree=[]):
 
     # Check if it has a parent
     # and recursively add that to that tree.
-    if msg.parent_msg:
+    if msg.parent_msg and msg.parent_msg != msg:
         tree.append(msg.parent_msg)
         build_msg_tree(msg=msg.parent_msg, tree=tree)
-    else:
-        # End of tree, at the root message
-        return tree
+
+    # End of tree, at the root message
+    return tree
+
 
 
 def build_obj_tree(request, obj):

@@ -22,11 +22,14 @@
 <div class="ui basic segment" >
 
         {% for msg in tree %}
-
-
+        <div class="ui compact segment">
                 <div>
-                    <b>From : </b>{{ msg.sender.profile.name }}
+                    <b>From : </b>{%if msg.sender == request.user %} me {%else%}{{ msg.sender.profile.name }} {%endif%}
+
                 </div>
+            <div>
+                <b>To : </b>{%if msg.recipient == request.user %} me {%else%}{{ msg.recipient.profile.name }} {%endif%}
+            </div>
 
                 <div>
                     <b>Subject :</b> {{ msg.subject }}
@@ -37,10 +40,11 @@
                 </div>
                 <div class="ui divider"></div>
 
+
                 <div class="ui text container">
                     {{ msg.body }}
                 </div>
-
+        </div>
 
         {% endfor %}
 </div>

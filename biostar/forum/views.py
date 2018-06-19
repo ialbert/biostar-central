@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 
 from . import forms, auth
 from .models import Post, Vote, Message
-from .decorators import object_exists
+from .decorators import object_exists, message_access
 
 
 
@@ -82,6 +82,7 @@ def community_list(request):
 
 
 @object_exists(klass=Message, url="message_list")
+@message_access
 def message_view(request, uid):
 
     base_message = Message.objects.filter(uid=uid).first()
