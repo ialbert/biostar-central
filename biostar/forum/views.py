@@ -84,14 +84,17 @@ def community_list(request):
 @object_exists(klass=Message, url="message_list")
 def message_view(request, uid):
 
-
     base_message = Message.objects.filter(uid=uid).first()
 
     # Build the message tree from bottom up
     tree = auth.build_msg_tree(msg=base_message, tree=[])
 
+    # Update the unread flag
+    Message.objects.filter(pk=base_message.pk).update(unread=False)
 
-    return
+    context = dict(message=base_message, tree=tree)
+
+    return render(request, "forum/message_view.html", context=context)
 
 
 

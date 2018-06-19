@@ -38,7 +38,7 @@
                         {% if user.profile.last_login %}
                             <span class="muted">{{ user.profile.last_login|time_ago }}  </span>
                         {% else %}
-                            <span class="muted ">{{ user.profile.date_joined|time_ago }} by </span>
+                            <span class="muted ">{{ user.profile.date_joined|time_ago }} </span>
                         {% endif %}
 
                     </li>

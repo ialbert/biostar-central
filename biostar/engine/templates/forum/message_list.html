@@ -12,38 +12,11 @@
 
 <div class="ui doubling stackable grid">
     <div class="three wide column">
-        <div class="ui basic segment" style="padding-left:5px">
-            <div class="ui secondary vertical pointing menu">
-                <a class="{{inbox}} item" href="{% url 'message_list' %}?q=inbox">
-                  Inbox
-                {% object_count request=request otype="inbox" as inbox_count %}
-                {%if inbox_count %}<div class="ui label">{{inbox_count}}</div>{%endif%}
-                </a>
-                <a class="{{unread}} item" href="{% url 'message_list' %}?q=unread">
-                  Unread
-               {% object_count request=request otype="unread" as unread_count %}
-                {%if unread_count %}<div class="ui label">{{unread_count}}</div>{%endif%}
-                </a>
-               <a class="{{mentoined}} item" href="{% url 'message_list' %}?q=mentioned">
-                  Mentioned
-               {% object_count request=request otype="mentioned" as mentioned %}
-                {%if mentioned %}<div class="ui label">{{mentioned}}</div>{%endif%}
-                </a>
-               <a class="{{mentoined}} item" href="{% url 'message_list' %}?q=projects">
-                  Projects
-               {% object_count request=request otype="mentioned" as mentioned %}
-                {%if mentioned %}<div class="ui label">{{mentioned}}</div>{%endif%}
-                </a>
 
-                <a class="{{outbox}} item" href="{% url 'message_list' %}?q=outbox">
-                  Outbox
-               {% object_count request=request otype="outbox" as out_count %}
-                {%if out_count %}<div class="ui label">{{out_count}}</div>{%endif%}
-                </a>
-                <a class="item">
-                  Trash
-                </a>
-            </div>
+        <div class="ui basic segment" style="padding-left:5px">
+
+            {% message_menu inbox=inbox unread=unread mentioned=mentioned projects=projects outbox=outbox request=request %}
+
         </div>
 
 </div>
@@ -75,7 +48,9 @@
            </div>
            <div class="item">
                 <div class="content">
-                    <div class="ui small header">Subject: <a>{{message.subject}}</a></div>
+                    <div class="ui small header">Subject:
+                        <a href="{% url 'message_view' message.uid %}">{{message.subject}}</a>
+                    </div>
                 </div>
            </div>
 

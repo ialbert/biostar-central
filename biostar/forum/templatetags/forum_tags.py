@@ -43,6 +43,14 @@ def pages(objs, request):
     return dict(objs=objs, url=url)
 
 
+@register.inclusion_tag("widgets/message_menu.html")
+def message_menu(inbox=None, unread=None, mentioned=None,
+                 projects=None, outbox=None, request=None):
+
+    return dict(inbox=inbox,unread=unread,mentioned=mentioned,
+                projects=projects,outbox=outbox,request=request)
+
+
 
 @register.simple_tag
 def gravatar(user, size=80):

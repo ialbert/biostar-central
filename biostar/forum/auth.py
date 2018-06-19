@@ -60,7 +60,9 @@ def post_permissions(request, post):
 
 
 def build_msg_tree(msg, tree=[]):
-    # Add the message
+    "Build a flat tree with the msg being at the base ( index=0)"
+
+    # Add the current message
     tree.append(msg)
 
     # Check if it has a parent
@@ -70,7 +72,7 @@ def build_msg_tree(msg, tree=[]):
         build_msg_tree(msg=msg.parent_msg, tree=tree)
     else:
         # End of tree, at the root message
-        return
+        return tree
 
 
 def build_obj_tree(request, obj):

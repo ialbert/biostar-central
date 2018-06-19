@@ -1,0 +1,52 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    {{ message.subject }}
+{% endblock %}
+
+
+{% block body %}
+<div class="ui doubling stackable grid">
+    <div class="three wide column">
+
+        <div class="ui basic segment" style="padding-left:5px">
+
+            {% message_menu inbox=inbox unread=unread mentioned=mentioned projects=projects outbox=outbox request=request %}
+
+        </div>
+
+</div>
+<div class="thirteen wide column">
+<div class="ui basic segment" >
+
+        {% for msg in tree %}
+
+
+                <div>
+                    <b>From : </b>{{ msg.sender.profile.name }}
+                </div>
+
+                <div>
+                    <b>Subject :</b> {{ msg.subject }}
+                </div>
+
+                <div>
+                    <b>Sent :</b> {{ msg.sent_date }}
+                </div>
+                <div class="ui divider"></div>
+
+                <div class="ui text container">
+                    {{ msg.body }}
+                </div>
+
+
+        {% endfor %}
+</div>
+</div>
+</div>
+
+
+
+{% endblock %}
