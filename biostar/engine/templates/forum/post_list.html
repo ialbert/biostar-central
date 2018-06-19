@@ -15,15 +15,15 @@
 
     <div class="twelve wide column">
 
-        {% pages objs=objs %}
+        {% pages objs=objs request=request %}
 
         <div class="ui small relaxed divided list">
 
-            {% listing posts=objs %}
+            {% listing posts=objs  %}
 
         </div>
 
-        {% pages objs=objs %}
+        {% pages objs=objs request=request %}
 
     </div>
 

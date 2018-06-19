@@ -3,9 +3,9 @@
 <div class="ui container center aligned">
     {% if objs.has_previous %}
 
-        <a href="?page={{ objs.previous_page_number }}">
-        <i class="ui angle small double left icon"> </i>previous
-        </a>
+    <a href="{{ url }}?page={{ objs.previous_page_number }}">
+    <i class="ui angle small double left icon"> </i>previous
+    </a>
     &bull;
     {% endif %}
     {{objs.paginator.count}}
@@ -17,7 +17,7 @@
 
     {% if objs.has_next %}
             &bull;
-            <a href="?page={{ objs.next_page_number }}">next
+            <a href="{{ url }}?page={{ objs.next_page_number }}">next
             <i class="ui angle small double right icon"></i>
             </a>
     {% endif %}

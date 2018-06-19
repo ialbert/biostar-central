@@ -3,12 +3,12 @@
 
 
     <div class="ui large feed" style="margin-right:10px;">
-        <a class="ui small header" >
-          Recent Votes
-        </a>
+
+
         <div class="event">
 
             <div class="ui bulleted relaxed list" >
+                <b> Recent Votes </b>
 
                 <ul class="ui list">
                 {% for post in recent_votes %}
@@ -22,23 +22,73 @@
             </div>
         </div>
 
+
         <div class="event">
-              <div class="ui small header">
-                  Recent Locations <a href="#"> <i class="ui angle small double right icon"></i>  </a>
-              </div>
+            <div class="ui bulleted relaxed list" >
+                <b>Recent Locations</b>
+            <a href="#">
+                &bull;  All <i class="ui angle small double right icon"></i>
+            </a>
+                <ul class="ui list">
+                {% for user in recent_locations %}
+
+                    <li   style="font-size: 13px">
+                        {{user.profile.location }},
+
+                        {% if user.profile.last_login %}
+                            <span class="muted">{{ user.profile.last_login|time_ago }}  </span>
+                        {% else %}
+                            <span class="muted ">{{ user.profile.date_joined|time_ago }} by </span>
+                        {% endif %}
+
+                    </li>
+
+                {% endfor %}
+                </ul>
+
+            </div>
         </div>
 
 
         <div class="event">
-              <div class="ui small header">
-                  Recent Awards <a href="#">  <i class="ui angle small double right icon"></i></a>
-              </div>
+
+            <div class="ui bulleted relaxed list" >
+                <b>Recent Awards</b>
+                <a href="#"> &bull;  All <i class="ui angle small double right icon"></i>
+                </a>
+
+                <ul class="ui list">
+                {% for user in recent_awards %}
+
+                    <li   style="font-size: 13px">
+                        <a href="#">{{ user.profile.location }}</a>
+                    </li>
+
+                {% endfor %}
+                </ul>
+
+            </div>
+
         </div>
 
+
         <div class="event">
-              <div class="ui small header">
-                  Recent Replies
-              </div>
+            <div class="ui bulleted relaxed list" >
+                 <b>Recent Replies </b>
+
+                <ul class="ui list">
+                {% for user in recent_replies %}
+
+                    <li   style="font-size: 13px">
+                        <a href="#">{{ user.profile.location }}</a>
+                    </li>
+
+                {% endfor %}
+                </ul>
+
+
+            </div>
+
         </div>
 
     </div>

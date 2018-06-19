@@ -2,15 +2,18 @@ import logging
 import hashlib
 import urllib.parse
 from datetime import timedelta, datetime
+from django.shortcuts import  reverse
 from django.utils.timezone import utc
 from django import template
 from django.utils.safestring import mark_safe
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from biostar.forum.models import Post, Vote, Message
 from biostar.forum import auth, forms, models
 
 
+User = get_user_model()
 
 logger = logging.getLogger("engine")
 
@@ -29,9 +32,15 @@ def user_box(user):
 
 
 @register.inclusion_tag('widgets/pages.html')
-def pages(objs):
+def pages(objs, request):
 
-    return dict(objs=objs)
+    topic = request.GET.get("topic")
+
+    if topic:
+        url = reverse("post_list_topic", kwargs=dict(topic=topic))
+    else:
+        url = ''
+    return dict(objs=objs, url=url)
 
 
 
@@ -86,9 +95,9 @@ def subs_actions(post, user):
 
 
 
+
 @register.inclusion_tag('widgets/feed.html')
 def feed(user, post=None, limit=7):
-
 
     # Show similar posts when inside of a view
     if post:
@@ -98,7 +107,9 @@ def feed(user, post=None, limit=7):
     # Needs to be put in context of posts
     recent_votes = Post.objects.filter(votes__in=recent_votes).order_by("-pk")
 
-    recent_locations = ''
+    post_set = Post.objects.all()
+    recent_locations = User.objects.filter(post__in=post_set).distinct()[:limit]
+
     recent_awards = ''
     recent_replies = ''
 

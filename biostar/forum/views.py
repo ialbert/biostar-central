@@ -11,9 +11,8 @@ from .decorators import object_exists
 
 
 
-
 def list_view(request, template="forum/post_list.html", extra_context={}, topic=None,
-              extra_proc=lambda x:x, per_page=25):
+              extra_proc=lambda x:x, per_page=20):
     "List view for posts and messages"
 
     topic = topic or request.GET.get("topic", 'latest')
@@ -41,6 +40,12 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
     return render(request, template_name=template, context=context)
 
 
+def list_by_topic(request, topic):
+
+    return list_view(request=request, topic=topic)
+
+
+
 @login_required
 def message_list(request):
 
@@ -55,7 +60,7 @@ def message_list(request):
     # still unread until message_view is visited.
     update_seen = lambda query_set: Message.objects.filter(pk__in=query_set).update(seen=True)
 
-    msg_per_page = 50
+    msg_per_page = 20
 
     return list_view(request, template="forum/message_list.html",
                      topic=active, extra_context=context, extra_proc=update_seen,
@@ -76,8 +81,15 @@ def community_list(request):
                      topic=topic)
 
 
-@object_exists(klass=Message)
+@object_exists(klass=Message, url="message_list")
 def message_view(request, uid):
+
+
+    base_message = Message.objects.filter(uid=uid).first()
+
+    # Build the message tree from bottom up
+    tree = auth.build_msg_tree(msg=base_message, tree=[])
+
 
     return
 

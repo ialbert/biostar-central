@@ -8,9 +8,10 @@ from django.contrib import messages
 
 class object_exists:
 
-    def __init__(self, klass):
+    def __init__(self, klass, url=None):
 
         self.klass = klass
+        self.url = url or "post_list"
 
 
     def __call__(self, func, *args, **kwargs):
@@ -23,7 +24,7 @@ class object_exists:
 
             if not self.klass.objects.filter(uid=uid).exists():
                 messages.error(request, "Object does not exist.")
-                return redirect(reverse("post_list"))
+                return redirect(reverse(self.url))
 
             return func(request, *args, **kwargs)
 
