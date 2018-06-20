@@ -69,7 +69,6 @@ def message_list(request):
 
 def community_list(request):
 
-
     # Users that make posts or votes are
     # considered part of the community
 
