@@ -1,3 +1,5 @@
+import hjson
+
 from django.contrib import auth
 from .models import User, Profile
 
@@ -27,3 +29,18 @@ def check_user(email, password):
 
 
     return "Invalid fallthrough", False
+
+
+
+def create_user_from_json(json_dict):
+
+    user = ''
+
+
+    print(json_dict)
+    1/0
+
+
+
+
+    return user

@@ -3,12 +3,14 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.contrib.auth import get_user_model
 
+from biostar.accounts.models import Profile
 from . import forms, auth
 from .models import Post, Vote, Message
 from .decorators import object_exists, message_access
 
-
+User = get_user_model()
 
 
 def list_view(request, template="forum/post_list.html", extra_context={}, topic=None,
@@ -41,6 +43,7 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
 
 
 def list_by_topic(request, topic):
+    "Used to keep track of topics when going fr"
 
     return list_view(request=request, topic=topic)
 
@@ -56,15 +59,14 @@ def message_list(request):
 
     context = {active:amap[active], "not_outbox":active != "outbox"}
 
-    # Change messages in list to "seen" once user visits view,
-    # still unread until message_view is visited.
-    update_seen = lambda query_set: Message.objects.filter(pk__in=query_set).update(seen=True)
+    user = request.user
+
+    Profile.objects.filter(user=user).update(new_messages=0)
 
     msg_per_page = 20
 
     return list_view(request, template="forum/message_list.html",
-                     topic=active, extra_context=context, extra_proc=update_seen,
-                     per_page=msg_per_page)
+                     topic=active, extra_context=context, per_page=msg_per_page)
 
 
 def community_list(request):

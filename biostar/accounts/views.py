@@ -44,6 +44,7 @@ def edit_profile(request):
     return render(request, 'accounts/edit_profile.html', context)
 
 
+
 def profile(request):
 
     if request.user.is_anonymous:

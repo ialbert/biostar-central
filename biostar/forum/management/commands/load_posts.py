@@ -7,13 +7,19 @@ import os
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-logger = logging.getLogger(settings.LOGGER_NAME)
 
+from biostar.accounts import auth as accounts_auth
+
+
+logger = logging.getLogger(settings.LOGGER_NAME)
 
 
 
 def load_posts(posts_file, limit):
     "Load posts made by users"
+
+
+
 
     return
 
@@ -22,6 +28,7 @@ def load_posts(posts_file, limit):
 
 
 def load_votes(votes_file, limit):
+    ""
 
 
     return
@@ -29,14 +36,29 @@ def load_votes(votes_file, limit):
 
 
 
-def load_users(users_file, limit, pwd=None):
+def load_users(root, users_file, limit, pwd=None):
     "Recreate users from a users_file and gives random uid as password"
 
 
+    stream = open(users_file, 'r')
+
+
+    for user_spec in stream:
+
+        # open the json file corresponding to a user
+        json_path = os.path.join(root, user_spec)
+        json_stream = open(json_path, "r")
+
+        user_info = hjson.load(json_stream)
+
+        user = accounts_auth.create_user_from_json(user_info)
+
+        logger.info(f"Added name={user.profile.name} id={user.id} uid={user.profile.uid} from {json_path}")
+        json_stream.close()
+
+        1/0
+
     return
-
-
-
 
 
 class Command(BaseCommand):
@@ -68,7 +90,7 @@ class Command(BaseCommand):
 
         if users:
             users_file = os.path.join(root, users)
-            load_users(users_file=users_file, limit=nobjs)
+            load_users(users_file=users_file, limit=nobjs, root=root)
 
         if posts:
             post_file = os.path.join(root, posts)

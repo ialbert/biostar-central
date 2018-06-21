@@ -12,6 +12,9 @@ MAX_NAME_LEN = 80
 def generate_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
+#['status', 'website', 'scholar', 'text', 'twitter',
+# 'email', 'score', 'last_login', 'location',
+# 'date_joined', 'password', 'type', 'id', 'name']
 
 class Profile(models.Model):
 
@@ -32,6 +35,9 @@ class Profile(models.Model):
     role = models.IntegerField(default=NORMAL, choices=ROLE_CHOICES)
     last_login = models.DateTimeField(null=True)
 
+    # The number of new messages for the user.
+    new_messages = models.IntegerField(default=0)
+
     # The last visit by the user.
     date_joined = models.DateTimeField(auto_now_add=True)
 
@@ -44,14 +50,16 @@ class Profile(models.Model):
     # Google scholar ID
     scholar = models.CharField(default="", max_length=255, blank=True)
 
+    score = models.IntegerField(default=0)
+
     # Twitter ID
-    twitter_id = models.CharField(default="", max_length=255, blank=True)
+    twitter = models.CharField(default="", max_length=255, blank=True)
 
     # This field is used to select content for the user.
     my_tags = models.TextField(default="", max_length=255, blank=True)
 
     # Description provided by the user html.
-    info = models.TextField(default="", null=True, blank=True)
+    text = models.TextField(default="", null=True, blank=True)
 
     notify = models.BooleanField(default=False)
 

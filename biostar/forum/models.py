@@ -11,6 +11,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
+from biostar.accounts.models import Profile
 from . import util
 
 User = get_user_model()
@@ -452,8 +453,6 @@ class Message(models.Model):
     body = models.TextField(max_length=MAX_TEXT_LEN)
     type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
     unread = models.BooleanField(default=True)
-    # Store if the message has been viewed at least once in listing
-    seen = models.BooleanField(default=False)
     sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -463,6 +462,18 @@ class Message(models.Model):
 
     def __str__(self):
         return u"Message %s, %s" % (self.sender, self.recipient)
+
+
+
+@receiver(post_save, sender=Message)
+def update_new_messages(sender, instance, created, *args, **kwargs ):
+    "Update the user's new_messages flag on creation"
+
+    if created:
+        # Add 1 to recipient's new messages once uponce creation
+        user = instance.recipient
+        msgs = F('new_messages')
+        Profile.objects.filter(user=user).update(new_messages=msgs + 1)
 
 
 

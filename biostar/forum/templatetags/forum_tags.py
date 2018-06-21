@@ -177,16 +177,13 @@ def object_count(request, otype):
             return  Post.objects.my_post_votes(user).distinct().count()
         if otype == "message":
             # Return the count stored in the message
-            return Message.objects.filter(recipient=user, seen=False).count()
+            return user.profile.new_messages
         if otype == "unread":
             return Message.objects.filter(recipient=user, unread=True).count()
         if otype =="inbox":
             return Message.objects.inbox_for(user=user).count()
         if otype == "outbox":
             return Message.objects.outbox_for(user=user).count()
-
-
-
 
     return 0
 
