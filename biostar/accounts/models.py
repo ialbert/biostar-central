@@ -18,12 +18,13 @@ def generate_uuid(limit=32):
 
 class Profile(models.Model):
 
-    NEW, TRUSTED, SUSPENDED, BANNED = range(1,5)
+    NEW, TRUSTED, SUSPENDED, BANNED = range(4)
     STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
     state = models.IntegerField(default=NEW, choices=STATE_CHOICES)
 
-    NORMAL, MODERATOR, MANAGER = 1,2,3
-    ROLE_CHOICES = [(NORMAL, "Normal User"),(MODERATOR, "Moderator"), (MANAGER, "Manager")]
+    NORMAL, MODERATOR, MANAGER, BLOG = range(4)
+    ROLE_CHOICES = [(NORMAL, "Normal User"), (MODERATOR, "Moderator"), (MANAGER, "Manager"),
+                    (BLOG, "Blog User")]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     uid = models.CharField(max_length=MAX_UID_LEN, unique=True)
@@ -69,7 +70,7 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         self.uid = self.uid or generate_uuid(8)
         self.max_upload_size = self.max_upload_size or settings.MAX_UPLOAD_SIZE
-        self.name = self.user.first_name or self.user.email.split("@")[0]
+        self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         super(Profile, self).save(*args, **kwargs)
 
     @property

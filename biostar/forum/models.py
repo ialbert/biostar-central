@@ -168,6 +168,9 @@ class Post(models.Model):
     # Indicates the information value of the post.
     rank = models.FloatField(default=0, blank=True)
 
+    # Indicates whether the post has accepted answer.
+    has_accepted = models.BooleanField(default=False, blank=True)
+
     # Post status: open, closed, deleted.
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
 

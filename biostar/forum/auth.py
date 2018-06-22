@@ -1,6 +1,6 @@
 
 import datetime
-from datetime import timedelta
+import logging
 
 from django.contrib import messages
 from django.utils.timezone import utc
@@ -13,6 +13,8 @@ from . import util
 
 User = get_user_model()
 
+
+logger = logging.getLogger("engine")
 
 def build_tree(thread, tree={}):
 
@@ -254,6 +256,56 @@ def create_vote(author, post, vote_type, updated_type=Vote.EMPTY, update=False):
 
     return vote
 
+
+def create_vote_from_json(json_dict):
+    return
+
+
+def create_post_from_json(json_dict):
+
+    root_uid = json_dict.get("root_id")
+    parent_uid = json_dict.get("parent_id", None)
+
+    lastedit_user_uid = json_dict.get("lastedit_user_id")
+    author_uid = json_dict.get("author_id")
+
+    author = User.objects.filter(profile__uid=author_uid).first()
+    lastedit_user = User.objects.filter(profile__uid=lastedit_user_uid).first()
+
+    root = Post.objects.filter(uid=root_uid).first()
+    parent = Post.objects.filter(uid=parent_uid).first()
+
+    creation_date = json_dict.get("creation_date")
+    lastedit_date = json_dict.get("lastedit_date")
+
+    title = json_dict.get("title")
+    has_accepted = json_dict.get("has_accepted", False)
+    type = json_dict.get("type")
+    status = json_dict.get("status", Post.OPEN)
+    content = json_dict.get("text", "")
+    html = json_dict.get("html", "")
+    tag_val = json_dict.get("tag_val")
+
+    reply_count = json_dict.get("reply_count", 0)
+    thread_score = json_dict.get("thread_score", 0)
+    vote_count = json_dict.get("vote_count", 0)
+    view_count = json_dict.get("view_count", 0)
+
+    uid = json_dict.get("id")
+    post = Post.objects.filter(uid=uid)
+    if post:
+        logger.error(f"Post with uid={uid} already exists")
+        return post.first()
+
+    post = Post.objects.create(uid=uid, author=author, lastedit_user=lastedit_user,
+                               root=root, parent=parent, creation_date=creation_date,
+                               lastedit_date=lastedit_date, title=title, has_accepted=has_accepted,
+                               type=type, status=status, content=content, html=html, tag_val=tag_val,
+                               reply_count=reply_count, thread_score=thread_score, vote_count=vote_count,
+                               view_count=view_count)
+    logger.info(f"Created post.uid={post.uid}")
+
+    return post
 
 
 def create_post(title, author, content, post_type, tag_val="", parent=None,root=None):
