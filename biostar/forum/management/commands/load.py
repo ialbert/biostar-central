@@ -62,8 +62,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        # Collect the parameters.
-
         root = options["root"]
         nobjs = options["n"]
         posts = options["posts"]

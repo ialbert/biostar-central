@@ -303,6 +303,9 @@ def create_post_from_json(json_dict):
                                type=type, status=status, content=content, html=html, tag_val=tag_val,
                                reply_count=reply_count, thread_score=thread_score, vote_count=vote_count,
                                view_count=view_count)
+    # Trigger another save
+    post.add_tags(post.tag_val)
+
     logger.info(f"Created post.uid={post.uid}")
 
     return post
@@ -318,7 +321,6 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
     )
 
     # Triggers another save in here
-
     post.add_tags(post.tag_val)
 
     return post
