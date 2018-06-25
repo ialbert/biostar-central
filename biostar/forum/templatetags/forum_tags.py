@@ -106,26 +106,49 @@ def subs_actions(post, user):
 
 @register.inclusion_tag('widgets/feed.html')
 def feed(user, post=None, limit=7):
+    #TODO: temporary feed
 
     # Show similar posts when inside of a view
     if post:
         return
+    post_set = Post.objects.exclude(status=Post.DELETED).all()
 
     recent_votes = Vote.objects.filter(type=Vote.UP)[:limit]
     # Needs to be put in context of posts
-    recent_votes = Post.objects.filter(votes__in=recent_votes).order_by("-pk")
+    recent_votes = post_set.filter(votes__in=recent_votes).order_by("?")
 
-    post_set = Post.objects.all()
-    recent_locations = User.objects.filter(post__in=post_set).distinct()[:limit]
+    # TODO:change
+    recent_locations = User.objects.filter(post__in=post_set).order_by("?").distinct()
+
+    recent_locations = [x for x in recent_locations if x.profile.location][:limit]
 
     recent_awards = ''
-    recent_replies = ''
+    recent_replies = post_set.filter(type__in=[Post.COMMENT, Post.ANSWER],
+                                     ).order_by("?")[:limit]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
                    post=post, user=user)
 
     return context
+
+
+@register.filter
+def show_score_icon(score):
+
+    icon = "small circle"
+    if score > 500:
+        icon = "small star"
+
+    score_icon = f'<i class="ui {icon} icon"></i>'
+
+    return mark_safe(score_icon)
+
+@register.filter
+def show_score(score):
+
+    score = (score * 14) + 1
+    return score
 
 
 @register.inclusion_tag('widgets/user_info.html')

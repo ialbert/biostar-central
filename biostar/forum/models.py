@@ -1,6 +1,7 @@
 import bleach
 import logging
 import datetime
+import mistune
 
 from django.utils import timezone
 from django.db import models
@@ -320,7 +321,7 @@ class Post(models.Model):
         self.lastedit_user = self.lastedit_user or self.author
 
         # Sanitize the post body.
-        self.html = util.parse_html(self.content)
+        self.html = self.html or mistune.markdown(self.content)
 
         # Must add tags with instance method. This is just for safety.
         self.tag_val = util.strip_tags(self.tag_val)
@@ -349,7 +350,7 @@ class Post(models.Model):
 
 class Vote(models.Model):
     # Post statuses.
-    EMPTY, UP, DOWN, BOOKMARK, ACCEPT = range(5)
+    UP, DOWN, BOOKMARK, ACCEPT, EMPTY = range(5)
     TYPE_CHOICES = [(UP, "Upvote"), (EMPTY, "Empty"),
                     (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
 
@@ -359,7 +360,6 @@ class Vote(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     uid = models.CharField(max_length=32, unique=True)
-
 
     def __str__(self):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())

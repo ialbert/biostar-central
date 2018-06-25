@@ -50,13 +50,14 @@
                             </div>
 
                                 {% for tag in post.tag_set.all %}
-                                    <a class="ui tiny label" href="#" style="margin-top:5px">{{ tag.name }}</a>
+                                    <a class="ui tiny label" href="#" style="margin-top:5px;font-size: 13px;padding: 4px">
+                                        {{ tag.name }}</a>
                                 {% endfor %}
                     </div>
                 </div>
 
 
-            <div class="sixteen wide column">
+            <div class="sixteen wide column" style="padding-top: 5px">
             {% user_info post=post by_diff=True %}
             </div>
                 </div>

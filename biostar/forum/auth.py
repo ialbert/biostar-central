@@ -240,7 +240,6 @@ def create_messages(body, sender, recipient_list, subject="", parent=None, mtype
     return msg_list
 
 
-
 def create_vote(author, post, vote_type, updated_type=Vote.EMPTY, update=False):
 
     vote = Vote.objects.filter(author=author, post=post, type=vote_type).first()
@@ -255,10 +254,6 @@ def create_vote(author, post, vote_type, updated_type=Vote.EMPTY, update=False):
     update_vote_count(post=post)
 
     return vote
-
-
-def create_vote_from_json(json_dict):
-    return
 
 
 def create_post_from_json(json_dict):

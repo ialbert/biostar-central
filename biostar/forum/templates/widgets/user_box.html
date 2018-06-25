@@ -1,22 +1,42 @@
 {% load forum_tags %}
 
+<div class="ui one cards">
 
-<div class="ui segment center aligned compact" style="background: #f2f2dc">
+<div class="card" style="width: 155px; background: #fcfbf2">
 
-  <div class="">
-    <a href="{{ user.get_absolute_url }}">{% gravatar user=user size=102 %}</a>
-  </div>
-    <div>
-    {{user.profile.name}}
-  </div>
+    <div class="content">
+    <div class="center aligned author">
+      <div class="ui circular image">
+        <a href="{{ user.profile.name }}">{% gravatar user=user size=100 %}</a>
+      </div>
+    </div>
 
-  <div class="ui muted mini centered" style="font-size: 13px">
-    {% if user.profile.last_login %}
-    <div class="">visted {{ user.profile.last_login|time_ago }}  </div>
-    {% else %}
-        <div class="">Joined {{ user.profile.date_joined|time_ago }} by </div>
-    {% endif %}
-  </div>
+ <div class="center aligned description">
 
+      <div class="ui muted mini centered" style="font-size: 13px">
+        {% if user.profile.last_login %}
+        <div class="">visted {{ user.profile.last_login|time_ago }}  </div>
+        {% else %}
+            <div class="">Joined {{ user.profile.date_joined|time_ago }} </div>
+        {% endif %}
+      </div>
+
+
+        <div>
+        {{user.profile.name}} {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+      </div>
+
+        <div class="ui muted mini centered" style="font-size: 13px">
+
+            {{ user.profile.location }}
+
+        </div>
+ </div>
+
+ </div>
+
+    </div>
 </div>
+
+
 

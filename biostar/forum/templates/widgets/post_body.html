@@ -24,14 +24,14 @@
             </div>
 
              <div class="content">
+             <div class="ui right floated image" >
+                    {% user_box user=post.author %}
+             </div>
 
                  <div class="description">
-                        <span itemprop="text">{{ post.html|safe}}</span>
 
-                 </div>
-                                 <div class="ui right floated">
-                    {% user_box user=post.author %}
-                </div>
+                        <span itemprop="">{{ post.html|safe }}</span>
+                     </div>
 
                  {% if post.is_toplevel %}
                  <div class="extra">
@@ -39,7 +39,7 @@
                      <div class="" style="margin-bottom:0.5em;">
 
                             {% for tag in post.tag_set.all %}
-                                <a class="ui small label" href="#">{{ tag.name }}</a>
+                                <a class="ui small label" href="#" style="font-size: 13px;padding: 4px">{{ tag.name }}</a>
                             {% endfor %}
                         &bull; {{ post.root.view_count|bignum }} views
                      </div>
