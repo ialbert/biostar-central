@@ -16,7 +16,7 @@ logger = logging.getLogger(settings.LOGGER_NAME)
 
 
 def vote_loader(single_vote):
-    
+
     user_uid, post_uid, vote_type = single_vote.split("\t")
 
     user = Profile.objects.filter(uid=user_uid).first().user
@@ -94,12 +94,12 @@ class Command(BaseCommand):
 
         if users:
             users_file = os.path.join(root, users)
-            load_objects_from_file(root=root, source_file=users_file,
+            load_objects_from_file(root=root, source_file=users_file, is_json=True,
                                    limit=nobjs, loader=create_user_from_json)
 
         if posts:
             post_file = os.path.join(root, posts)
-            load_objects_from_file(root=root, source_file=post_file,
+            load_objects_from_file(root=root, source_file=post_file,is_json=True,
                                    limit=nobjs, loader=create_post_from_json)
 
         if votes:

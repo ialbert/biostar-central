@@ -6,20 +6,20 @@
 
 
         <div class="event">
+        <div class="ui container">
+<b> Recent Votes </b>
+            <div class="ui bulleted tiny  list" >
 
-            <div class="ui bulleted relaxed list" >
-                <b> Recent Votes </b>
-
-                <ul class="ui list">
                 {% for post in recent_votes %}
 
-                    <li   style="font-size: 13px">
+                   <div class="item"  style="">
                         <a href="{% url 'post_view' post.uid %}">{{ post.get_title }}</a>
-                    </li>
+                   </div>
 
                 {% endfor %}
-                </ul>
+
             </div>
+        </div>
         </div>
 
 
@@ -57,7 +57,7 @@
                 <b>Recent Awards</b>
                 <a href="#"> &bull;  All <i class="ui angle small double right icon"></i>
                 </a>
-            <div class="ui bulleted list" >
+            <div class="ui bulleted tiny list" >
 
                 {% for user in recent_locations %}
 

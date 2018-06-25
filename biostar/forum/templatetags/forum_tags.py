@@ -84,7 +84,6 @@ def post_body(context, post, user, tree, form):
 @register.inclusion_tag('widgets/subs_actions.html')
 def subs_actions(post, user):
 
-
     if user.is_anonymous:
         sub = None
     else:

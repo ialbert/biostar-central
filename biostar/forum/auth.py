@@ -282,8 +282,8 @@ def create_post_from_json(json_dict):
     tag_val = json_dict.get("tag_val")
 
     reply_count = json_dict.get("reply_count", 0)
-    thread_score = json_dict.get("thread_score", 0)
-    vote_count = json_dict.get("vote_count", 0)
+    #thread_score = json_dict.get("thread_score", 0)
+    #vote_count = json_dict.get("vote_count", 0)
     view_count = json_dict.get("view_count", 0)
 
     uid = json_dict.get("id")
@@ -296,7 +296,7 @@ def create_post_from_json(json_dict):
                                root=root, parent=parent, creation_date=creation_date,
                                lastedit_date=lastedit_date, title=title, has_accepted=has_accepted,
                                type=type, status=status, content=content, html=html, tag_val=tag_val,
-                               reply_count=reply_count, thread_score=thread_score, vote_count=vote_count,
+                               reply_count=reply_count, #thread_score=thread_score, vote_count=vote_count,
                                view_count=view_count)
     # Trigger another save
     post.add_tags(post.tag_val)
