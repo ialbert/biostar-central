@@ -44,7 +44,6 @@ def edit_profile(request):
     return render(request, 'accounts/edit_profile.html', context)
 
 
-
 def profile(request):
 
     if request.user.is_anonymous:
@@ -56,6 +55,26 @@ def profile(request):
     context = dict(user=user)
 
     return render(request, 'accounts/profile.html', context)
+
+
+def public_profile(request, uid):
+
+    user_profile = Profile.objects.filter(uid=uid).first()
+
+    active = request.GET.get("active", "posts")
+
+    if not user_profile:
+        messages.error(request, "User does not exist")
+        return redirect("/")
+
+    amap = dict(posts="active", projects="active")
+    active = active if (active in amap) else "posts"
+
+    context = dict(user=user_profile.user)
+
+    context.update({active: "active"})
+
+    return render(request, 'accounts/public_profile.html', context)
 
 
 def toggle_notify(request):
@@ -144,7 +163,6 @@ def user_login(request):
                 messages.error(request, mark_safe(message))
 
         messages.error(request, mark_safe(form.errors))
-
 
     context = dict(form=form)
     return render(request, "accounts/login.html", context=context)

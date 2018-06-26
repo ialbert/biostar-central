@@ -100,7 +100,17 @@ def subs_actions(post, user):
 
     return dict(post=post, form=form, button=button)
 
+@register.filter
+def show_email(user):
 
+    try:
+        head, tail = user.email.split("@")
+
+        email = head[0] + "*" * 10 + tail
+    except:
+        return user.email[0] + "*" * 10
+
+    return email
 
 
 @register.inclusion_tag('widgets/feed.html')

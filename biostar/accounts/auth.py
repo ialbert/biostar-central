@@ -64,6 +64,7 @@ def create_user_from_json(json_dict):
                                              website=json_dict.get("website", ""),
                                              scholar=json_dict.get("scholar", ""),
                                              text=json_dict.get("text", ""),
+                                             html=json_dict.get("text", ""),
                                              twitter=json_dict.get("twitter", ""),
                                              score=json_dict.get("score", 0),
                                              last_login=json_dict.get("last_login"),

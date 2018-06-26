@@ -7,13 +7,16 @@
         written {{ post.creation_date.date }}
     {% endif %}
 
-    by <a>{{post.author.profile.name }}</a> {{post.author.profile.score |show_score_icon}}
+    by <a href="{% url "public_profile"  post.author.profile.uid %}">{{post.author.profile.name }}</a>
+    {{post.author.profile.score |show_score_icon}}
     {{post.author.profile.score | show_score |bignum }}
 
     {% if post.author != post.lastedit_user %}
     &bull; updated
-    <span class="">{{ post.lastedit_date|time_ago }}</span> by
-    <a>{{post.lastedit_user.profile.name }}</a>  {{ post.lastedit_user.profile.score |show_score_icon }} {{ post.lastedit_user.profile.score | show_score | bignum }}
+    <span>{{ post.lastedit_date|time_ago }}</span> by
+    <a href="{% url "public_profile"  post.lastedit_user.profile.uid %}">{{post.lastedit_user.profile.name }}</a>
+        {{ post.lastedit_user.profile.score |show_score_icon }}
+        {{ post.lastedit_user.profile.score | show_score | bignum }}
     {% endif %}
 
 </div>

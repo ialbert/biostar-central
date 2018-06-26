@@ -6,8 +6,8 @@
 
     <div class="content">
     <div class="center aligned author">
-      <div class="ui circular image">
-        <a href="{{ user.profile.name }}">{% gravatar user=user size=100 %}</a>
+      <div class="ui rounded image">
+        <a href="{% url "public_profile" user.profile.uid %}">{% gravatar user=user size=100 %}</a>
       </div>
     </div>
 
@@ -23,7 +23,8 @@
 
 
         <div>
-        {{user.profile.name}} {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+            <a href="{% url "public_profile" user.profile.uid %}">{{user.profile.name}}</a>
+            {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
       </div>
 
         <div class="ui muted mini centered" style="font-size: 13px">

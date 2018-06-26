@@ -1,0 +1,133 @@
+{% extends "forum_base.html" %}
+{% load engine_tags %}
+{% load forum_tags %}
+
+
+{% block headtitle %}{{ user.profile.name }}{% endblock %}
+
+{% block body %}
+
+
+<div class="ui center aligned header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
+
+    <div class="ui relaxed grid">
+
+<div class="row">
+    <div class="five wide column">
+        <div class="ui center aligned basic large segment">
+          <div class="ui rounded image">
+            <a href="{% url "public_profile" user.profile.uid %}">{% gravatar user=user size=200 %}</a>
+
+            </div>
+            <div>
+        {{user.profile.name}} {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+            </div>
+        </div>
+
+    </div>
+
+    <div class="five wide column">
+
+
+        <div class="ui left aligned basic large segment">
+
+            <div>
+            <b>Reputation</b> : {{ user.profile.score | show_score }}
+            </div>
+            <div>
+            <b>Status</b> : {{ user.profile.get_state_display }}
+            </div>
+            <div>
+            <b>Location</b> : {{ user.profile.location }}
+            </div>
+
+            {% if user.profile.last_login  %}
+                <div>
+                <b>Last seen </b> : {{ user.profile.last_login |time_ago}}
+                </div>
+            {%  endif %}
+
+            <div>
+                <b>Joined</b> : {{ user.profile.date_joined|time_ago }}
+
+            </div>
+            <div> <b>Email</b> : {{ user |show_email }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="six wide column">
+
+
+        {{ user.profile.html |safe }}
+
+
+    </div>
+</div>
+
+    <div class="row">
+
+        <div class="sixteen wide column">
+        <div class="ui top attached tabular menu">
+
+        <div class="{{ posts }} item">
+            <a href="{% url "public_profile" user.profile.uid %}?active=posts">
+                Posts
+            </a>
+
+        </div>
+
+
+
+        <div class="{{ projects }} item">
+
+        <a href="{% url "public_profile" user.profile.uid %}?active=projects">
+           Projects
+        </a>
+
+
+        </div>
+
+            {% if user.profile.is_manager %}
+                <div class="{{ recipes }} item">
+
+                    <a href="{% url "public_profile" user.profile.uid %}?active=recipes">
+                       Projects
+                    </a>
+
+
+                </div>
+
+            {%  endif %}
+
+
+
+        </div>
+
+        {% if posts %}
+
+
+        {% elif projects %}
+
+
+        {% endif %}
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+    </div>
+
+
+
+{%  endblock %}

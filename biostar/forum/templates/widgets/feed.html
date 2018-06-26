@@ -8,7 +8,7 @@
         <div class="event">
         <div class="ui container">
 <b> Recent Votes </b>
-            <div class="ui bulleted tiny  list" >
+            <div class="ui bulleted tiny list" >
 
                 {% for post in recent_votes %}
 
@@ -26,7 +26,7 @@
         <div class="event">
         <div class="ui container">
         <b>Recent Locations</b>
-                  <a href="#">
+                  <a href="{% url "community_list" %}">
                 &bull;  All <i class="ui angle small double right icon"></i>
             </a>
             <div class="ui bulleted tiny list" >
@@ -74,7 +74,7 @@
 
 
         <div class="event">
-        <div class="ui container">
+        <div class="ui container" style="width: 300px">
 <b>Recent Replies </b>
             <div class="ui bulleted tiny relaxed list" >
 
@@ -84,7 +84,7 @@
                     <div class="item"   style="">
                         <a href="{% url "post_view" replies.uid %}"> {{ replies.title }}</a>
                         by
-                        <a>{{ replies.author.profile.name }}</a>
+                        <a href="{% url "public_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}</a>
 
                     <div class="muted">
                         {{ replies.content | preview_message }}

@@ -1,10 +1,13 @@
+import uuid
+import mistune
+
 from django.contrib.auth.models import User
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from biostar import settings
-import uuid
+
 
 MAX_UID_LEN = 32
 MAX_NAME_LEN = 80
@@ -23,7 +26,7 @@ class Profile(models.Model):
     state = models.IntegerField(default=NEW, choices=STATE_CHOICES)
 
     NORMAL, MODERATOR, MANAGER, BLOG = range(4)
-    ROLE_CHOICES = [(NORMAL, "Normal User"), (MODERATOR, "Moderator"), (MANAGER, "Manager"),
+    ROLE_CHOICES = [(NORMAL, "User"), (MODERATOR, "Moderator"), (MANAGER, "Manager"),
                     (BLOG, "Blog User")]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -62,6 +65,8 @@ class Profile(models.Model):
     # Description provided by the user html.
     text = models.TextField(default="", null=True, blank=True)
 
+    html = models.TextField(default="", null=True, blank=True)
+
     notify = models.BooleanField(default=False)
 
     def __str__(self):
@@ -69,6 +74,7 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or generate_uuid(8)
+        self.html = self.html or mistune.markdown(self.text)
         self.max_upload_size = self.max_upload_size or settings.MAX_UPLOAD_SIZE
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         super(Profile, self).save(*args, **kwargs)

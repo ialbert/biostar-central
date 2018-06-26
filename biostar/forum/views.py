@@ -57,7 +57,7 @@ def message_list(request):
     amap = dict(inbox="active", outbox="active",unread="active")
     active = active if (active in amap) else "inbox"
 
-    context = {active:amap[active], "not_outbox":active != "outbox"}
+    context = {active: "active", "not_outbox": active != "outbox"}
 
     user = request.user
 
