@@ -105,7 +105,7 @@ def get_project_list(user, include_public=True):
     else:
         # Authenticated users see public projects and private projects with access rights.
 
-        cond = Q(privacy=privacy) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
+        cond = Q(access__user=user, access__access__gt=Access.NO_ACCESS)
 
     # Generate the query.
     query = Project.objects.filter(cond).distinct()

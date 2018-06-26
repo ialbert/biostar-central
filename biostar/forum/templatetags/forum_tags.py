@@ -6,6 +6,7 @@ from django.shortcuts import  reverse
 from django.utils.timezone import utc
 from django import template
 from django.utils.safestring import mark_safe
+from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
@@ -30,16 +31,18 @@ def user_box(user):
     return dict(user=user)
 
 
-
 @register.inclusion_tag('widgets/pages.html')
-def pages(objs, request):
+def pages(objs, request=None, topic="", url="post_list_topic", uid=None):
 
-    topic = request.GET.get("topic")
+    topic = request.GET.get('topic', topic)
 
     if topic:
-        url = reverse("post_list_topic", kwargs=dict(topic=topic))
+        url = reverse(url, kwargs=dict(topic=topic))
+    elif uid:
+        url = reverse(url, kwargs=dict(uid=uid))
     else:
         url = ''
+
     return dict(objs=objs, url=url)
 
 
@@ -163,6 +166,20 @@ def show_score(score):
 @register.inclusion_tag('widgets/user_info.html')
 def user_info(post, by_diff=False):
     return dict(post=post, by_diff=by_diff)
+
+
+@register.simple_tag
+def get_posts(user, request, per_page=20):
+
+    posts = Post.objects.my_posts(target=user, user=user)
+    page = request.GET.get("page", 1)
+
+    paginator = Paginator(posts, per_page=per_page)
+    page = page if page is not None else 1
+
+    objs = paginator.get_page(page)
+
+    return objs
 
 
 @register.inclusion_tag('widgets/listing.html')

@@ -65,7 +65,7 @@ class Profile(models.Model):
     # Description provided by the user html.
     text = models.TextField(default="", null=True, blank=True)
 
-    html = models.TextField(default="", null=True, blank=True)
+    html = models.TextField(null=True, blank=True)
 
     notify = models.BooleanField(default=False)
 

@@ -8,6 +8,7 @@ from django.contrib.auth import views as auth_views
 from django.utils.safestring import mark_safe
 from django.conf import settings
 from django.contrib.auth import logout, login
+from django.contrib.auth.decorators import login_required
 
 from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
 from .models import User, Profile
@@ -44,19 +45,6 @@ def edit_profile(request):
     return render(request, 'accounts/edit_profile.html', context)
 
 
-def profile(request):
-
-    if request.user.is_anonymous:
-        messages.error(request, "Must be logged in to edit profile")
-        return redirect("/")
-
-    id = request.user.id
-    user = User.objects.filter(id=id).first()
-    context = dict(user=user)
-
-    return render(request, 'accounts/profile.html', context)
-
-
 def public_profile(request, uid):
 
     user_profile = Profile.objects.filter(uid=uid).first()
@@ -67,7 +55,7 @@ def public_profile(request, uid):
         messages.error(request, "User does not exist")
         return redirect("/")
 
-    amap = dict(posts="active", projects="active")
+    amap = dict(posts="active", projects="active", recipes="active")
     active = active if (active in amap) else "posts"
 
     context = dict(user=user_profile.user)
@@ -75,6 +63,13 @@ def public_profile(request, uid):
     context.update({active: "active"})
 
     return render(request, 'accounts/public_profile.html', context)
+
+
+@login_required
+def profile(request):
+    uid = request.user.profile.uid
+
+    return public_profile(request, uid)
 
 
 def toggle_notify(request):
@@ -92,7 +87,7 @@ def toggle_notify(request):
         msg = "Emails notifications enabled."
 
     messages.success(request, msg)
-    return redirect(reverse('profile'))
+    return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)

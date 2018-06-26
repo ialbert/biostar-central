@@ -28,8 +28,10 @@ def init_users(sender, **kwargs):
             user = User.objects.create(first_name=name, email=email, is_superuser=True, is_staff=True)
             user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
             user.save()
-            Profile.objects.filter(user__pk=user.pk).update(location="State College")
-
+            text = "Local user started with the website"
+            Profile.objects.filter(user__pk=user.pk).update(location="State College",
+                                                            text=text,
+                                                            html=text)
             logger.info(f"Created admin user: {user.email}")
 
 

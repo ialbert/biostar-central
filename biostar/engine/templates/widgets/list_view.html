@@ -17,7 +17,9 @@
                             <div class="meta">{{ project.summary|markdown|safe }}</div>
                             <div class="extra">
                                 {% privacy_label project %}
-                                Created on {{ project.date.date }} by {{ project.owner.first_name }}
+                                Created on {{ project.date.date }} by
+                                <a href="{% url "public_profile" project.owner.profile.uid %}">
+                                    {{ project.owner.profile.name }}</a>
                             </div>
 
                         </div>

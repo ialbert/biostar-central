@@ -56,6 +56,44 @@
 
         </div>
 
+        {%  if user == request.user %}
+
+             <div class="ui center aligned basic vertical segment">
+                  <div class="ui mini buttons">
+                     <a class="ui mini button" href="{% url 'edit_profile'%}">
+                        <i class="write icon"></i>Edit profile
+                    </a>
+                      <div class="or"></div>
+                    <a class="ui mini button" href="{% url 'recycle_bin' %}">
+                        <i class="trash icon"></i>Recycle Bin
+                    </a>
+                  </div>
+             </div>
+
+            <div class="ui center aligned vertical basic segment">
+
+                {% if user.profile.notify %}
+                  <div class="ui vertical basic segment">
+                    Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
+                  </div>
+
+                    <a class="ui mini red button" href="{% url 'toggle_notify' %}">
+                        <i class="bell slash icon"></i>Disable Email Notifications
+                    </a>
+                    {% else %}
+                    <a class="ui mini green button" href="{% url 'toggle_notify' %}">
+                        <i class="bell icon"></i>Enable Email Notifications
+                    </a>
+                {% endif %}
+            </div>
+
+
+
+        {% endif %}
+
+
+
+
     </div>
 
 
@@ -72,7 +110,7 @@
     <div class="row">
 
         <div class="sixteen wide column">
-        <div class="ui top attached tabular menu">
+        <div class="ui top attached tabular large menu">
 
         <div class="{{ posts }} item">
             <a href="{% url "public_profile" user.profile.uid %}?active=posts">
@@ -92,13 +130,12 @@
 
         </div>
 
-            {% if user.profile.is_manager %}
+            {% if user.profile.is_manager  and user == request.user %}
                 <div class="{{ recipes }} item">
 
                     <a href="{% url "public_profile" user.profile.uid %}?active=recipes">
-                       Projects
+                       Recipes to Manage
                     </a>
-
 
                 </div>
 
@@ -111,10 +148,36 @@
         {% if posts %}
 
 
+        {% get_posts user=user request=request as posts %}
+        {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
+
+        <div class="ui small relaxed divided list">
+
+            {% listing posts=posts %}
+
+        </div>
+
+        {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
+
+
         {% elif projects %}
+
+            {% get_projects user=user request=request as projects %}
+            {% pages objs=projects request=request uid=user.profile.uid url="public_profile" %}
+            {% list_view projects=projects %}
+
+            {% if not projects %}
+            <div class="ui warning message"><i class="ui warning circle icon"></i> No projects found.</div>
+            {% endif %}
+            {% pages objs=projects request=request uid=user.profile.uid url="public_profile" %}
+
+
+        {% elif recipes and user.profile.is_manager  and user == request.user %}
 
 
         {% endif %}
+
+
 
 
         </div>

@@ -109,7 +109,6 @@ def build_obj_tree(request, obj):
     return obj
 
 
-
 def list_by_topic(request, topic):
     "Returns a post query that matches a topic"
     user = request.user
@@ -172,7 +171,7 @@ def list_by_topic(request, topic):
         # considered part of the community
 
         post_set = Post.objects.all()
-        users  = User.objects.filter(post__in=post_set).distinct()
+        users = User.objects.filter(post__in=post_set).distinct()
         return users
 
     if topic in post_types:

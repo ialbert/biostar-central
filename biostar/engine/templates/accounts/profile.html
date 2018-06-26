@@ -7,17 +7,7 @@
 {% block body %}
 
 
-     <div class="ui center aligned vertical segment">
-          <div class="ui mini buttons">
-             <a class="ui mini button" href="{% url 'edit_profile'%}">
-                <i class="write icon"></i>Edit profile
-            </a>
-              <div class="or"></div>
-            <a class="ui mini button" href="{% url 'recycle_bin' %}">
-                <i class="trash icon"></i>Recycle Bin
-            </a>
-          </div>
-     </div>
+
         {% show_messages messages %}
 
         <div class="ui vertical basic segment">
@@ -48,45 +38,19 @@
                 <i class="Database icon"></i>Projects
             </div>
 
-                <div class="ui divided list">
 
-                    {% get_projects user=user as projects %}
-                    {% for access, project in projects %}
+            {% get_projects user=user as projects %}
+            {% list_view projects=projects %}
 
-                        <div class="ui item">
-                            <div class="ui tiny label">{{ access.get_access_display }}</div>
-                            <a href="{{ project.url }}">{{project}}</a>
-                        </div>
-                    {% endfor %}
 
-                </div>
+
 
             {% if not projects %}
             <div class="ui warning message"><i class="ui warning circle icon"></i> No projects found.</div>
             {% endif %}
         </div>
 
-        <div class="ui center aligned vertical basic segment">
 
-            {% if user.profile.notify %}
-
-                <a class="ui mini red button" href="{% url 'toggle_notify' %}">
-                    <i class="bell slash icon"></i>Disable Email Notifications
-                </a>
-                {% else %}
-                <a class="ui mini green button" href="{% url 'toggle_notify' %}">
-                    <i class="bell icon"></i>Enable Email Notifications
-                </a>
-            {% endif %}
-
-            {% if user.profile.notify %}
-                <div class="ui vertical basic segment">
-                    Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
-                </div>
-
-            {% endif %}
-
-        </div>
 
 
 {% endblock %}
