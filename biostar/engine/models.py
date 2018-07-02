@@ -208,6 +208,7 @@ class Data(models.Model):
         self.date = self.date or now
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
+        self.type = self.type.replace(" ", '')
 
         # Build the data directory.
         data_dir = self.get_data_dir()

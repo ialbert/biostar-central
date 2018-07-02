@@ -1,4 +1,9 @@
-{% extends "forum_base.html" %}
+
+{% extends "profile_base.html" %}
+
+
+
+
 {% load engine_tags %}
 {% load forum_tags %}
 
@@ -15,7 +20,7 @@
 <div class="row">
     <div class="five wide column">
         <div class="ui center aligned basic large segment">
-          <div class="ui rounded image">
+          <div class="ui circular image">
             <a href="{% url "public_profile" user.profile.uid %}">{% gravatar user=user size=200 %}</a>
 
             </div>
@@ -112,18 +117,19 @@
         <div class="sixteen wide column">
         <div class="ui top attached tabular large menu">
 
-        <div class="{{ posts }} item">
-            <a href="{% url "public_profile" user.profile.uid %}?active=posts">
-                Posts
-            </a>
+        {% if enable_forum %}
+            <div class="{{ has_posts }} item">
+                <a href="{% url "public_profile" user.profile.uid %}?active=has_posts">
+                    Posts
+                </a>
 
-        </div>
+            </div>
+        {%  endif %}
 
 
+        <div class="{{ has_projects }} item">
 
-        <div class="{{ projects }} item">
-
-        <a href="{% url "public_profile" user.profile.uid %}?active=projects">
+        <a href="{% url "public_profile" user.profile.uid %}?active=has_projects">
            Projects
         </a>
 
@@ -131,9 +137,9 @@
         </div>
 
             {% if user.profile.is_manager  and user == request.user %}
-                <div class="{{ recipes }} item">
+                <div class="{{ has_recipes }} item">
 
-                    <a href="{% url "public_profile" user.profile.uid %}?active=recipes">
+                    <a href="{% url "public_profile" user.profile.uid %}?active=has_recipes">
                        Recipes to Manage
                     </a>
 
@@ -145,22 +151,20 @@
 
         </div>
 
-        {% if posts %}
+        {% if has_posts %}
 
 
-        {% get_posts user=user request=request as posts %}
-        {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
+            {% get_posts user=user request=request as posts %}
+            {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
 
-        <div class="ui small relaxed divided list">
+            <div class="ui small relaxed divided list">
+                {% listing posts=posts %}
+            </div>
 
-            {% listing posts=posts %}
-
-        </div>
-
-        {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
+            {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
 
 
-        {% elif projects %}
+        {% elif has_projects %}
 
             {% get_projects user=user request=request as projects %}
             {% pages objs=projects request=request uid=user.profile.uid url="public_profile" %}
@@ -172,7 +176,8 @@
             {% pages objs=projects request=request uid=user.profile.uid url="public_profile" %}
 
 
-        {% elif recipes and user.profile.is_manager  and user == request.user %}
+        {% elif has_recipes and user.profile.is_manager  and user == request.user %}
+
 
 
         {% endif %}

@@ -377,4 +377,4 @@ def markdown(text):
 def menubar(context, request=None):
     user = context.request.user
 
-    return dict(user=user, request=request)
+    return dict(user=user, request=request, enable_forum=settings.ENABLE_FORUM)

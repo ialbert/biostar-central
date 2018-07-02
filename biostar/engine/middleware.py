@@ -18,6 +18,9 @@ def engine_middleware(get_response):
         response = get_response(request)
         # Can process response here after its been handled by the view
 
+        # Turn CORS on.
+        response["Access-Control-Allow-Origin"] = "*"
+
         return response
 
     return middleware

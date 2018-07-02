@@ -49,16 +49,16 @@ def public_profile(request, uid):
 
     user_profile = Profile.objects.filter(uid=uid).first()
 
-    active = request.GET.get("active", "posts")
+    active = request.GET.get("active", "has_projects")
 
     if not user_profile:
         messages.error(request, "User does not exist")
         return redirect("/")
 
-    amap = dict(posts="active", projects="active", recipes="active")
-    active = active if (active in amap) else "posts"
+    amap = dict(has_posts="active", has_projects="active", has_recipes="active")
+    active = active if (active in amap) else "has_projects"
 
-    context = dict(user=user_profile.user)
+    context = dict(user=user_profile.user, enable_forum=settings.ENABLE_FORUM)
 
     context.update({active: "active"})
 

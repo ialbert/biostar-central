@@ -185,9 +185,8 @@ def get_posts(user, request, per_page=20):
 @register.inclusion_tag('widgets/listing.html')
 def listing(posts=None, messages=None):
 
-
     is_post = True if posts else False
-    is_messages =  True if messages else False
+    is_messages = True if messages else False
 
     objs = posts or messages
 

@@ -167,6 +167,8 @@ os.makedirs(TOC_ROOT, exist_ok=True)
 SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = '/protected/'
 
+ENABLE_FORUM = False
+
 # Session settings go here
 SESSION_KEY = "session"
 COUNT_INTERVAL_WEEKS = 10000
