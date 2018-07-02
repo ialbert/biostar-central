@@ -37,7 +37,7 @@ class Command(BaseCommand):
         json = options['json']
         root = options['root']
 
-        if not id or uid:
+        if not (id or uid):
             logger.error(f"Must specify 'id' or 'uid' parameters.")
             return
 
@@ -51,13 +51,8 @@ class Command(BaseCommand):
         project = query.first()
 
         # Project must exist.
-        if not project and id:
-            logger.error(f"Project with id={id} not found!")
-            return
-
-        # Project must exist.
-        if not project and id:
-            logger.error(f"Project with uid={uid} not found!")
+        if not project:
+            logger.error(f"Project with not found! Given id={id} uid={uid}.")
             return
 
         # There 'data' field of the spec has the files.

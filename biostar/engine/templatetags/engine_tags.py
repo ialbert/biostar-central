@@ -6,6 +6,7 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.template import defaultfilters
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.test.client import RequestFactory
 
@@ -61,10 +62,12 @@ def sticky_label(obj):
 def build_path(path, name):
     return f'{path}/{name}'
 
+
 @register.inclusion_tag('widgets/job_file_list.html', takes_context=True)
 def job_file_list(context, path, files, job, form=None):
     back = "/".join(path.split("/")[:-1])
     return dict(path=path, files=files, job=job, form=form, back=back)
+
 
 @register.inclusion_tag('widgets/file_list.html', takes_context=True)
 def file_list(context, path, files, obj, form=None):
@@ -140,17 +143,22 @@ def has_files(request):
 
 
 @register.simple_tag
-def get_projects(user):
+def get_projects(user, request=None, per_page=20):
 
     "Used to return projects list in the profile."
 
-    projects = auth.get_project_list(user=user, include_public=False)
+    projects = auth.get_project_list(user=user, include_public=False).order_by("-pk")
 
+    if user != request.user:
+        # Don't list private projects when target != user
+        projects = projects.exclude(privacy=Project.PRIVATE)
 
-    access = Access.objects.filter(project__in=projects, user=user,
-                                   access__gt=Access.NO_ACCESS)
+    page = request.GET.get("page", 1)
 
-    return [(access, access.project) for access in access]
+    paginator = Paginator(projects, per_page=per_page)
+    objs = paginator.get_page(page)
+
+    return objs
 
 
 def update_dict(iter):
@@ -369,4 +377,4 @@ def markdown(text):
 def menubar(context, request=None):
     user = context.request.user
 
-    return dict(user=user, request=request)
+    return dict(user=user, request=request, enable_forum=settings.ENABLE_FORUM)

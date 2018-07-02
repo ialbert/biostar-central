@@ -248,6 +248,7 @@ class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)
     uid = forms.CharField(max_length=32, required=False)
 
+
     class Meta:
         model = Analysis
         fields = ["name", "sticky", "image", "summary", "text", "uid"]
@@ -267,6 +268,7 @@ class RecipeForm(forms.ModelForm):
             raise forms.ValidationError(msg)
 
         return uid
+
 
 
 class JobEditForm(forms.ModelForm):
@@ -359,15 +361,15 @@ class RecipeDiff(forms.Form):
         action = cleaned_data.get("action")
         msg = "You don't have sufficient access rights to overwrite this entry."
         has_access = auth.check_obj_access(user=self.user, request=self.request, instance=self.recipe,
-                                           role=Profile.MODERATOR, access=Access.WRITE_ACCESS, login_required=True)
+                                           role=Profile.MANAGER, access=Access.WRITE_ACCESS, login_required=True)
         if not has_access:
             raise forms.ValidationError(msg)
 
         if action not in (self.REVERT, self.APPROVE):
-            raise forms.ValidationError("Can only Delete and Restore.")
+            raise forms.ValidationError("Can only revert or approve changes.")
 
-        if action == self.APPROVE and not self.user.profile.is_moderator:
-            msg = "You have to be a moderator."
+        if action == self.APPROVE and not self.user.profile.is_manager:
+            msg = "You have to be a manager."
             raise forms.ValidationError(msg)
 
 

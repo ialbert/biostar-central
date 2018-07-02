@@ -1,8 +1,8 @@
 {% load forum_tags %}
 
-<div class="ui comment" style="background-color: #e5e3e3;padding: 10px">
+<div class="ui comment" style="background-color: #e5e3e3;">
     <div class="avatar">
-    <div class="ui items">
+
 <div class="item">
 
 <div class="ui image">
@@ -15,7 +15,7 @@
 </div>
               </div>
         </div>
-</div>
+
     </div>
 
     <div class="content">
@@ -33,9 +33,10 @@
         <a class="ui mini grey basic label" href="{% url 'post_comment' post.uid %}">
             ADD REPLY
         </a>
+            &bull;
+            <a style="color:#70a1ea">link</a>
 
         </div>
-
 
     </div>
 </div>

@@ -8,11 +8,12 @@ from django.contrib.auth import views as auth_views
 from django.utils.safestring import mark_safe
 from django.conf import settings
 from django.contrib.auth import logout, login
+from django.contrib.auth.decorators import login_required
 
 from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
-from .models import Profile, User
+from .models import User, Profile
 from .auth import check_user
-
+from .util import now
 
 logger = logging.getLogger('engine')
 
@@ -44,17 +45,31 @@ def edit_profile(request):
     return render(request, 'accounts/edit_profile.html', context)
 
 
-def profile(request):
+def public_profile(request, uid):
 
-    if request.user.is_anonymous:
-        messages.error(request, "Must be logged in to edit profile")
+    user_profile = Profile.objects.filter(uid=uid).first()
+
+    active = request.GET.get("active", "has_projects")
+
+    if not user_profile:
+        messages.error(request, "User does not exist")
         return redirect("/")
 
-    id = request.user.id
-    user = User.objects.filter(id=id).first()
-    context = dict(user=user)
+    amap = dict(has_posts="active", has_projects="active", has_recipes="active")
+    active = active if (active in amap) else "has_projects"
 
-    return render(request, 'accounts/profile.html', context)
+    context = dict(user=user_profile.user, enable_forum=settings.ENABLE_FORUM)
+
+    context.update({active: "active"})
+
+    return render(request, 'accounts/public_profile.html', context)
+
+
+@login_required
+def profile(request):
+    uid = request.user.profile.uid
+
+    return public_profile(request, uid)
 
 
 def toggle_notify(request):
@@ -72,7 +87,7 @@ def toggle_notify(request):
         msg = "Emails notifications enabled."
 
     messages.success(request, msg)
-    return redirect(reverse('profile'))
+    return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
@@ -136,13 +151,13 @@ def user_login(request):
 
             if valid_user:
                 login(request, user)
+                Profile.objects.filter(user=user).update(last_login=now())
                 messages.success(request, "Login successful!")
                 return redirect("/")
             else:
                 messages.error(request, mark_safe(message))
 
         messages.error(request, mark_safe(form.errors))
-
 
     context = dict(form=form)
     return render(request, "accounts/login.html", context=context)

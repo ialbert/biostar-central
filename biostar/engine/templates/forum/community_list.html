@@ -3,37 +3,44 @@
 {% load engine_tags %}
 
 {% block headtitle %}
-    Forum
+    Community
 {% endblock %}
 
 
+
+
 {% block body %}
-
-
 
 <div class="ui doubling stackable grid">
 
     <div class="twelve wide column">
 
         {% pages objs=objs request=request %}
+        <div class="ui basic segment">
+            <div class="ui horizontal list">
 
-        <div class="ui small relaxed divided list">
+                {% for user in objs %}
 
-            {% listing posts=objs  %}
+                    <div class="item">
+                        {% user_box user=user %}
+                    </div>
 
+                {% endfor %}
+
+            </div>
         </div>
 
         {% pages objs=objs request=request %}
-
     </div>
+
 
     <div class="four wide column" style="padding-left:0px;">
         {% feed user=request.user %}
-
     </div>
 
 
 </div>
+
 
 
 {% endblock %}

@@ -79,8 +79,8 @@ def recipe_mod(request):
 
     user = request.user
 
-    if not user.profile.is_moderator:
-        msg = mark_safe("You have to be a <b>moderator</b> to view this page.")
+    if not user.profile.is_manager:
+        msg = mark_safe("You have to be a <b>manager</b> to view this page.")
         messages.error(request, msg)
         return redirect("/")
 
@@ -362,7 +362,7 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR)
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MANAGER)
 def recipe_view(request, uid):
     """
     Returns an analysis view based on its id.
@@ -423,7 +423,7 @@ def recipe_run(request, uid):
     return render(request, 'recipe_run.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR, url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MANAGER, url='recipe_view')
 def recipe_code(request, uid):
     """
     Displays and allows edit on a recipe code.
@@ -528,7 +528,7 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MODERATOR,url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MANAGER,url='recipe_view')
 def recipe_diff(request, uid):
     """
     View used to show diff in template and authorize it.

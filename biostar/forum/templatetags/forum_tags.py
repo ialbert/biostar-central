@@ -1,12 +1,20 @@
 import logging
+import hashlib
+import urllib.parse
 from datetime import timedelta, datetime
+from django.shortcuts import  reverse
 from django.utils.timezone import utc
 from django import template
 from django.utils.safestring import mark_safe
+from django.core.paginator import Paginator
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
-from biostar.forum.models import Post, Vote
+from biostar.forum.models import Post, Vote, Message
 from biostar.forum import auth, forms, models
 
+
+User = get_user_model()
 
 logger = logging.getLogger("engine")
 
@@ -16,17 +24,68 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
+
+@register.inclusion_tag('widgets/user_box.html')
+def user_box(user):
+
+    return dict(user=user)
+
+
+@register.inclusion_tag('widgets/pages.html')
+def pages(objs, request=None, topic="", url="post_list_topic", uid=None):
+
+    topic = request.GET.get('topic', topic)
+
+    if topic:
+        url = reverse(url, kwargs=dict(topic=topic))
+    elif uid:
+        url = reverse(url, kwargs=dict(uid=uid))
+    else:
+        url = ''
+
+    return dict(objs=objs, url=url)
+
+
+@register.inclusion_tag("widgets/message_menu.html")
+def message_menu(inbox=None, unread=None, mentioned=None,
+                 projects=None, outbox=None, request=None):
+
+    return dict(inbox=inbox,unread=unread,mentioned=mentioned,
+                projects=projects,outbox=outbox,request=request)
+
+
+
+@register.simple_tag
+def gravatar(user, size=80):
+    #name = user.profile.name
+    if user.is_anonymous or user.profile.is_suspended:
+        # Removes spammy images for suspended users
+        email = 'suspended@biostars.org'.encode('utf8')
+    else:
+        email = user.email.encode('utf8')
+
+    hash = hashlib.md5(email).hexdigest()
+
+    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
+    gravatar_url += urllib.parse.urlencode({
+        's': str(size),
+        'd': 'identicon',
+    }
+    )
+
+    return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
+
+
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, add_comment=False):
+def post_body(context, post, user, tree, form):
     "Renders the post body"
 
     return dict(post=post, user=user, tree=tree, request=context['request'],
-                add_comment=add_comment, form=form)
+                form=form)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
 def subs_actions(post, user):
-
 
     if user.is_anonymous:
         sub = None
@@ -43,6 +102,96 @@ def subs_actions(post, user):
     button = "Follow" if unsubbed else "Update"
 
     return dict(post=post, form=form, button=button)
+
+@register.filter
+def show_email(user):
+
+    try:
+        head, tail = user.email.split("@")
+
+        email = head[0] + "*" * 10 + tail
+    except:
+        return user.email[0] + "*" * 10
+
+    return email
+
+
+@register.inclusion_tag('widgets/feed.html')
+def feed(user, post=None, limit=7):
+    #TODO: temporary feed
+
+    # Show similar posts when inside of a view
+    if post:
+        return
+    post_set = Post.objects.exclude(status=Post.DELETED).all()
+
+    recent_votes = Vote.objects.filter(type=Vote.UP)[:limit]
+    # Needs to be put in context of posts
+    recent_votes = post_set.filter(votes__in=recent_votes).order_by("?")
+
+    # TODO:change
+    recent_locations = User.objects.filter(post__in=post_set).order_by("?").distinct()
+
+    recent_locations = [x for x in recent_locations if x.profile.location][:limit]
+
+    recent_awards = ''
+    recent_replies = post_set.filter(type__in=[Post.COMMENT, Post.ANSWER],
+                                     ).order_by("?")[:limit]
+
+    context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
+                   recent_locations=recent_locations, recent_replies=recent_replies,
+                   post=post, user=user)
+
+    return context
+
+
+@register.filter
+def show_score_icon(score):
+
+    icon = "small circle"
+    if score > 500:
+        icon = "small star"
+
+    score_icon = f'<i class="ui {icon} icon"></i>'
+
+    return mark_safe(score_icon)
+
+@register.filter
+def show_score(score):
+
+    score = (score * 14) + 1
+    return score
+
+
+@register.inclusion_tag('widgets/user_info.html')
+def user_info(post, by_diff=False):
+    return dict(post=post, by_diff=by_diff)
+
+
+@register.simple_tag
+def get_posts(user, request, per_page=20):
+
+    posts = Post.objects.my_posts(target=user, user=user)
+    page = request.GET.get("page", 1)
+
+    paginator = Paginator(posts, per_page=per_page)
+    page = page if page is not None else 1
+
+    objs = paginator.get_page(page)
+
+    return objs
+
+
+@register.inclusion_tag('widgets/listing.html')
+def listing(posts=None, messages=None):
+
+    is_post = True if posts else False
+    is_messages = True if messages else False
+
+    objs = posts or messages
+
+    return dict(is_post=is_post, is_messages=is_messages, objs=objs)
+
 
 
 @register.filter
@@ -62,6 +211,7 @@ def pluralize(value, word):
 def object_count(request, otype):
 
     user = request.user
+
     if user.is_authenticated:
         if otype == "post":
             return Post.objects.my_posts(target=user, user=user).count()
@@ -73,8 +223,25 @@ def object_count(request, otype):
             return Post.objects.my_bookmarks(user).count()
         if otype == "votes":
             return  Post.objects.my_post_votes(user).distinct().count()
+        if otype == "message":
+            # Return the count stored in the message
+            return user.profile.new_messages
+        if otype == "unread":
+            return Message.objects.filter(recipient=user, unread=True).count()
+        if otype =="inbox":
+            return Message.objects.inbox_for(user=user).count()
+        if otype == "outbox":
+            return Message.objects.outbox_for(user=user).count()
 
     return 0
+
+
+
+@register.filter
+def preview_message(text, limit=130):
+
+    return text if len(text) <= limit else text[:limit] + " ..."
+
 
 
 @register.simple_tag
@@ -178,13 +345,14 @@ def traverse_comments(request, post, tree, comment_template):
     body = template.loader.get_template(comment_template)
 
     def traverse(node):
+
         data = ['<div class="comment">']
         cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):
 
-            data.append('<div class="comments">')
+            data.append('<div class="comments" >')
             data.append(traverse(child))
             data.append("</div>")
 

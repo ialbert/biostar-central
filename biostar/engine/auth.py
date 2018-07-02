@@ -104,7 +104,6 @@ def get_project_list(user, include_public=True):
         cond = Q(privacy=Project.PUBLIC)
     else:
         # Authenticated users see public projects and private projects with access rights.
-
         cond = Q(privacy=privacy) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
 
     # Generate the query.
@@ -161,9 +160,9 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
     entry = Access.objects.filter(user=user, project=project).first()
     entry = entry or Access(access=Access.NO_ACCESS)
     # Check user role.
-    has_role = role and user.profile.role == role
+    has_role = (role is not None) and user.profile.role == role
 
-    if entry.access <  access and not has_role:
+    if entry.access < access and not has_role:
         messages.warning(request, deny)
         return False
     if entry.access >= access or has_role:

@@ -1,0 +1,79 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Messages
+{% endblock %}
+
+
+
+{% block body %}
+
+<div class="ui doubling stackable grid">
+    <div class="three wide column">
+
+        <div class="ui basic segment" style="padding-left:5px">
+
+            {% message_menu inbox=inbox unread=unread mentioned=mentioned projects=projects outbox=outbox request=request %}
+
+        </div>
+
+</div>
+
+<div class="thirteen wide column">
+<div class="ui basic segment" >
+    {% pages objs=objs request=request %}
+
+   <div class="ui relaxed divided list">
+
+{% for message in objs %}
+
+    {% if message.unread and not_outbox %}
+        <div class="item" style="background: #d5f7cd;padding:5px">
+
+    {% else %}
+        <div class="item" >
+
+    {%endif%}
+
+
+       <div class="ui relaxed horizontal list">
+
+           <div class="item">
+
+               <div class="content">
+                   <div class="ui tiny header">{{message.sender.profile.name}}</div>
+               </div>
+           </div>
+           <div class="item">
+                <div class="content">
+                    <div class="ui small header">Subject:
+                        <a href="{% url 'message_view' message.uid %}">{{message.subject}}</a>
+                    </div>
+                </div>
+           </div>
+
+
+       </div>
+
+           <div class="ui right floated item">
+           {{message.sent_date|time_ago}}
+           </div>
+         <div class="ui muted item">
+              {{message.body|preview_message}}
+          </div>
+
+
+      </div>
+
+{% endfor %}
+</div>
+
+</div>
+    {% pages objs=objs request=request %}
+</div>
+</div>
+
+</div>
+{% endblock %}

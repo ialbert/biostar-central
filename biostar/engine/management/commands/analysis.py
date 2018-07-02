@@ -21,8 +21,11 @@ class Command(BaseCommand):
         parser.add_argument('--add', action='store_true', default=False,
                             help="Adds an analysis to a project")
 
-        parser.add_argument('--id', default=1,
+        parser.add_argument('--id',
                             help="Specifies the project id")
+
+        parser.add_argument('--uid',
+                            help="Specifies the project uid")
 
         parser.add_argument('--json',
                             help="The json specification file")
@@ -40,6 +43,7 @@ class Command(BaseCommand):
 
         json = options['json']
         pid = options['id']
+        uid = options["uid"]
         template_fname = options['template']
         jobs = options['jobs']
         update = options["update"]
@@ -56,11 +60,14 @@ class Command(BaseCommand):
             return
 
         # Get the target project.
-        project = Project.objects.filter(id=pid).first()
+        if pid:
+            project = Project.objects.filter(id=pid).first()
+        else:
+            project = Project.objects.filter(uid=uid).first()
 
         # Invalid project specified.
         if not project:
-            logger.error(f'No project with id={pid}')
+            logger.error(f'No project with id={pid} , uid={uid}')
             return
 
         # JSON file does not exist.

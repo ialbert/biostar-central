@@ -1,32 +1,106 @@
 
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
-from . import forms, auth
-from .models import Post, Vote
-from .decorators import object_exists
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.contrib.auth import get_user_model
+
+from biostar.accounts.models import Profile
+from . import forms, auth
+from .models import Post, Vote, Message
+from .decorators import object_exists, message_access
+
+User = get_user_model()
+
+
+def list_view(request, template="forum/post_list.html", extra_context={}, topic=None,
+              extra_proc=lambda x:x, per_page=20):
+    "List view for posts and messages"
+
+    topic = topic or request.GET.get("topic", 'latest')
+    page = request.GET.get('page')
+
+    is_private_topic = topic not in ("latest", "community")
+
+    if request.user.is_anonymous and is_private_topic:
+        messages.error(request, f"You must be logged in to view that topic.")
+
+        topic, template = "latest", "forum/post_list.html"
+
+    objs = auth.list_by_topic(request=request, topic=topic).order_by("-pk")
+
+    # Apply extra protocols to queryset (updates, etc)
+    extra_proc(objs)
+
+    # Get the page info
+    paginator = Paginator(objs, per_page)
+    objs = paginator.get_page(page)
+
+    context = dict(objs=objs)
+    context.update(extra_context)
+
+    return render(request, template_name=template, context=context)
+
+
+def list_by_topic(request, topic):
+    "Used to keep track of topics when going fr"
+
+    return list_view(request=request, topic=topic)
 
 
 
+@login_required
+def message_list(request):
 
-def post_list(request):
-    "List view for posts"
+    active = request.GET.get("q", "inbox")
 
-    topic = request.GET.get("topic", 'latest')
+    amap = dict(inbox="active", outbox="active",unread="active")
+    active = active if (active in amap) else "inbox"
 
-    if request.user.is_anonymous and topic != "latest":
-        messages.error(request, f"You must be logged in to perform action.")
-        topic = "latest"
+    context = {active: "active", "not_outbox": active != "outbox"}
 
-    posts = auth.posts_by_topic(request=request, topic=topic).order_by("-pk")
+    user = request.user
 
-    context = dict(posts=posts)
+    Profile.objects.filter(user=user).update(new_messages=0)
 
-    return render(request, "forum/post_list.html", context=context)
+    msg_per_page = 20
+
+    return list_view(request, template="forum/message_list.html",
+                     topic=active, extra_context=context, per_page=msg_per_page)
+
+
+def community_list(request):
+
+    # Users that make posts or votes are
+    # considered part of the community
+
+    users_per_page = 50
+    template = "forum/community_list.html"
+    topic = "community"
+
+    return list_view(request=request, template=template, per_page=users_per_page,
+                     topic=topic)
+
+
+@object_exists(klass=Message, url="message_list")
+@message_access
+def message_view(request, uid):
+
+    base_message = Message.objects.filter(uid=uid).first()
+
+    # Build the message tree from bottom up
+    tree = auth.build_msg_tree(msg=base_message, tree=[])
+
+    # Update the unread flag
+    Message.objects.filter(pk=base_message.pk).update(unread=False)
+
+    context = dict(message=base_message, tree=tree)
+
+    return render(request, "forum/message_view.html", context=context)
 
 
 
-@object_exists
+@object_exists(klass=Post)
 @login_required
 def update_vote(request, uid):
 
@@ -50,7 +124,7 @@ def update_vote(request, uid):
 
 
 
-@object_exists
+@object_exists(klass=Post)
 def post_view(request, uid):
     "Return a detailed view for specific post"
 
@@ -106,7 +180,7 @@ def post_comment(request, uid):
     return render(request, "forum/post_comment.html", context=context)
 
 
-@object_exists
+@object_exists(klass=Post)
 @login_required
 def subs_action(request, uid):
 
@@ -145,7 +219,7 @@ def post_create(request):
 
 
 
-@object_exists
+@object_exists(klass=Post)
 @login_required
 def edit_post(request, uid):
     "Edit an existing post"

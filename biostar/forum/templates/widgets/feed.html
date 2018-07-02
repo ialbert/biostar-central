@@ -1,0 +1,102 @@
+{% load forum_tags %}
+
+
+
+    <div class="ui large feed" style="margin-right:10px;">
+
+
+        <div class="event">
+        <div class="ui container">
+<b> Recent Votes </b>
+            <div class="ui bulleted tiny list" >
+
+                {% for post in recent_votes %}
+
+                   <div class="item"  style="">
+                        <a href="{% url 'post_view' post.uid %}">{{ post.get_title }}</a>
+                   </div>
+
+                {% endfor %}
+
+            </div>
+        </div>
+        </div>
+
+
+        <div class="event">
+        <div class="ui container">
+        <b>Recent Locations</b>
+                  <a href="{% url "community_list" %}">
+                &bull;  All <i class="ui angle small double right icon"></i>
+            </a>
+            <div class="ui bulleted tiny list" >
+
+                {% for user in recent_locations %}
+
+                    <div class="item"  style="">
+                        {{user.profile.location }},
+
+                        {% if user.profile.last_login %}
+                            <span class="muted">{{ user.profile.last_login|time_ago }}  </span>
+                        {% else %}
+                            <span class="muted ">{{ user.profile.date_joined|time_ago }} </span>
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+
+            </div>
+        </div>
+</div>
+
+
+        <div class="event">
+        <div class="ui container">
+                <b>Recent Awards</b>
+                <a href="#"> &bull;  All <i class="ui angle small double right icon"></i>
+                </a>
+            <div class="ui bulleted tiny list" >
+
+                {% for user in recent_locations %}
+
+                    <div class="item" >
+                        <a href="#">{{ user.profile.location }}</a>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+</div>
+
+
+        <div class="event">
+        <div class="ui container" style="width: 300px">
+<b>Recent Replies </b>
+            <div class="ui bulleted tiny relaxed list" >
+
+
+                {% for replies in recent_replies %}
+
+                    <div class="item"   style="">
+                        <a href="{% url "post_view" replies.uid %}"> {{ replies.title }}</a>
+                        by
+                        <a href="{% url "public_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}</a>
+
+                    <div class="muted">
+                        {{ replies.content | preview_message }}
+                        </div>
+                    </div>
+
+                {% endfor %}
+
+
+
+            </div>
+        </div>
+        </div>
+    </div>
+

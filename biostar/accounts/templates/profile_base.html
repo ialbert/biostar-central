@@ -56,54 +56,25 @@
     <div class="ui bottom attached segment">
         <div class="ui center aligned basic vertical segment">
 
-        <div class="ui secondary pointing eight item menu">
-
-            <a class="ui item" href="#">
-                <i class="world icon"></i>Community
-            </a>
-            <a class="ui item" href="#">
-                <i class="mail icon"></i>Messages
-            </a>
-            <a class="ui item" href="{% url 'post_list' %}?topic=votes">
-                <i class="heart icon"></i>Votes
-                {% object_count request=request otype="votes" as num_votes%}
-                {% if num_votes %}<div class="ui green mini circular label">{{num_votes}}</div>{%endif%}
-            </a>
-            <a class="ui item" href="{% url 'post_list' %}?topic=myposts">
-                <i class="comments icon"></i>My Posts
-                {% object_count request=request otype="post" as num_posts%}
-                {% if num_posts %}<div class="ui green mini circular label">{{num_posts}}</div>{%endif%}
-            </a>
-            <a class="ui item" href="#">
-                <i class="tags icon"></i>My Tags
-            </a>
-            <a class="ui item" href="{% url 'post_list' %}?topic=following">
-                <i class="eye icon"></i>Following
-                {% object_count request=request otype="follow" as num_follows%}
-                {% if num_follows %}<div class="ui green mini circular label">{{num_follows}}</div>{%endif%}
-            </a>
-            <a class="ui item" href="{% url 'post_list' %}?topic=bookmarks">
-                <i class="book icon"></i>Bookmarks
-                {% object_count request=request otype="bookmark" as num_bookmarks %}
-                {% if num_bookmarks %}<div class="ui green mini circular label">{{num_bookmarks}}</div>{%endif%}
-            </a>
-            <a class="ui active green item" href="{% url 'post_create' %}">
-            <i class="add circle icon"></i>New Post
-            </a>
-
-        </div>
-
 {% show_messages messages %}
 
     </div>
+
+
         {% block body %}
             {# Main body #}
             BODY
+
             {% block content %}
 
             {% endblock %}
+
         {% endblock %}
+
+
     </div>
+
+
 
     {% block footer %}
         <div class="ui vertical center aligned segment">

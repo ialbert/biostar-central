@@ -85,6 +85,17 @@ push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
 	git push
 
+load:
+	@tar -xvzf initial/initial-posts.tar.gz --directory initial
+
+	@# Load initial users first
+	python manage.py load --root initial/export-100 --users users.txt --n 100
+
+	@# Load initial posts after users
+	python manage.py load --root initial/export-100 --posts posts.txt --n 100
+
+	@# Load initial votes
+	python manage.py load --root initial/export-100 --votes votes.txt --n 100
 
 deploy_psu:
 	(cd conf/ansible && ansible-playbook -i hosts-psu server_deploy.yml --ask-become-pass --extra-vars "reset=True")

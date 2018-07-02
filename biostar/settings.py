@@ -82,6 +82,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'biostar.engine.middleware.engine_middleware',
+    'biostar.forum.middleware.forum_middleware'
 
 ]
 
@@ -165,6 +166,13 @@ os.makedirs(TOC_ROOT, exist_ok=True)
 # Sendfile settings go here.
 SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = '/protected/'
+
+ENABLE_FORUM = False
+
+# Session settings go here
+SESSION_KEY = "session"
+COUNT_INTERVAL_WEEKS = 10000
+
 
 #SENDFILE_BACKEND = "sendfile.backends.nginx"
 SENDFILE_BACKEND = "sendfile.backends.development"
