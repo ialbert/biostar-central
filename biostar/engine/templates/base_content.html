@@ -27,6 +27,9 @@
                 <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
                     <i class="bar chart icon"></i>{{ result_count }} Results
                 </a>
+                <a class="{% activate 'discussion' active %} item" href="{% url 'discussion_list' project.uid %}">
+                    <i class="comments icon"></i>{{ result_count }} Discussions
+                </a>
 
                 {% if activate %}
                     <a class="active item">

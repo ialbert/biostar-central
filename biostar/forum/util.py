@@ -8,22 +8,22 @@ from datetime import datetime
 #from html5lib.tokenizer import HTMLTokenizer
 
 
-from . import settings
+from . import const
 from django.template import loader, Context
 from django.utils.timezone import utc
 
 logger = logging.getLogger(__name__)
 
-ALLOWED_TAGS = bleach.ALLOWED_TAGS + settings.ALLOWED_TAGS
-ALLOWED_STYLES = bleach.ALLOWED_STYLES + settings.ALLOWED_STYLES
+ALLOWED_TAGS = bleach.ALLOWED_TAGS + const.ALLOWED_TAGS
+ALLOWED_STYLES = bleach.ALLOWED_STYLES + const.ALLOWED_STYLES
 ALLOWED_ATTRIBUTES = dict(bleach.ALLOWED_ATTRIBUTES)
-ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
+ALLOWED_ATTRIBUTES.update(const.ALLOWED_ATTRIBUTES)
 
 # Matching patterns will be filled in with post title or user name
 #TODO: Change this to match
-USER_PATTERN = r"^http(s)?://%s/u/(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
-POST_PATTERN1 = r"^http(s)?://%s/p/(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
-POST_PATTERN2 = r"^http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
+USER_PATTERN = r"^http(s)?://%s/u/(?P<uid>(\d+))(/)?$" % const.SITE_DOMAIN
+POST_PATTERN1 = r"^http(s)?://%s/p/(?P<uid>(\d+))(/)?$" % const.SITE_DOMAIN
+POST_PATTERN2 = r"^http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?$" % const.SITE_DOMAIN
 
 # Matches gists that may be embeded.
 GIST_PATTERN = r"^https://gist.github.com/(?P<uid>([\w/]+))"

@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile, User
-
+from biostar.forum.models import Post
 
 from . import tasks, auth, forms, util
 
@@ -163,6 +163,7 @@ def paste(project, post_request, board):
     else:
         return False, form
 
+
 @object_access(type=Project, access=Access.READ_ACCESS)
 def data_list(request, uid):
     """
@@ -176,9 +177,26 @@ def data_list(request, uid):
     else:
         form = forms.PasteForm(project=project, request=request, board='files_clipboard')
 
-
     return project_view(request=request, uid=uid, template_name="data_list.html",
                         active='data', extra_context=dict(form=form))
+
+
+@object_access(type=Project, access=Access.READ_ACCESS)
+def discussion_list(request, uid):
+
+    project = Project.objects.filter(uid=uid).first()
+    posts = project.post_set
+
+    context = dict(posts=posts)
+    return project_view(request=request, uid=uid, template_name="discussion_list.html",
+                        active='discussion', extra_context=context)
+
+
+@object_access(type=Post, access=Access.READ_ACCESS)
+def discussion_view(request, uid):
+
+
+    return
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
@@ -209,8 +227,10 @@ def get_counts(project):
     data_count = Data.objects.filter(project=project).count()
     recipe_count = Analysis.objects.filter(project=project).count()
     result_count = Job.objects.filter(project=project).count()
+    discussion_count = Post.objects.exclude(status=Post.DELETED).filter(project=project).count()
     return dict(
-        data_count=data_count, recipe_count=recipe_count, result_count=result_count
+        data_count=data_count, recipe_count=recipe_count, result_count=result_count,
+        discussion_count=discussion_count
     )
 
 

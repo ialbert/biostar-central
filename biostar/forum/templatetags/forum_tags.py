@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from biostar.forum.models import Post, Vote, Message
-from biostar.forum import auth, forms, models
+from biostar.forum import auth, forms, models, const
 
 
 User = get_user_model()
@@ -51,7 +51,9 @@ def message_menu(inbox=None, unread=None, mentioned=None,
                  projects=None, outbox=None, request=None):
 
     return dict(inbox=inbox,unread=unread,mentioned=mentioned,
-                projects=projects,outbox=outbox,request=request)
+                projects=projects, outbox=outbox,request=request,
+                active_tab=const.ACTIVE_TAB, const_in=const.INBOX,
+                const_out=const.OUTBOX, const_unread=const.UNREAD)
 
 
 

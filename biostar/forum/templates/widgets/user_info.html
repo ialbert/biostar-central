@@ -8,7 +8,8 @@
     {% endif %}
 
     by <a href="{% url "public_profile"  post.author.profile.uid %}">
-    {{post.author.profile.name }} <div class="ui avatar image">{% gravatar user=post.author size=100 %}</div>
+    <div class="ui avatar image">{% gravatar user=post.author size=100 %}</div>
+    {{post.author.profile.name }}
     </a>
     {{post.author.profile.score |show_score_icon}}
     {{post.author.profile.score | show_score |bignum }}
@@ -17,7 +18,8 @@
     &bull; updated
     <span>{{ post.lastedit_date|time_ago }}</span> by
     <a href="{% url "public_profile"  post.lastedit_user.profile.uid %}">
-        {{post.lastedit_user.profile.name }} <div class="ui avatar image">{% gravatar user=post.lastedit_user size=100 %}</div>
+       <div class="ui avatar image">{% gravatar user=post.lastedit_user size=100 %}</div>
+        {{post.lastedit_user.profile.name }}
 
     </a>
         {{ post.lastedit_user.profile.score |show_score_icon }}

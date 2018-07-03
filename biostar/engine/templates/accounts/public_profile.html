@@ -78,14 +78,15 @@
             <div class="ui center aligned vertical basic segment">
 
                 {% if user.profile.notify %}
-                  <div class="ui vertical basic segment">
-                    Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
-                  </div>
-
                     <a class="ui mini red button" href="{% url 'toggle_notify' %}">
                         <i class="bell slash icon"></i>Disable Email Notifications
                     </a>
-                    {% else %}
+
+                    <div class="ui vertical basic segment">
+                        Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
+                    </div>
+
+                {% else %}
                     <a class="ui mini green button" href="{% url 'toggle_notify' %}">
                         <i class="bell icon"></i>Enable Email Notifications
                     </a>
@@ -119,7 +120,7 @@
 
         {% if enable_forum %}
             <div class="{{ has_posts }} item">
-                <a href="{% url "public_profile" user.profile.uid %}?active=has_posts">
+                <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_post }}">
                     Posts
                 </a>
 
@@ -129,7 +130,7 @@
 
         <div class="{{ has_projects }} item">
 
-        <a href="{% url "public_profile" user.profile.uid %}?active=has_projects">
+        <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
            Projects
         </a>
 
@@ -139,15 +140,13 @@
             {% if user.profile.is_manager  and user == request.user %}
                 <div class="{{ has_recipes }} item">
 
-                    <a href="{% url "public_profile" user.profile.uid %}?active=has_recipes">
+                    <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_recipes }}">
                        Recipes to Manage
                     </a>
 
                 </div>
 
             {%  endif %}
-
-
 
         </div>
 
@@ -160,7 +159,9 @@
             <div class="ui small relaxed divided list">
                 {% listing posts=posts %}
             </div>
-
+            {% if not posts %}
+            <div class="ui warning message"><i class="ui warning circle icon"></i> No posts found.</div>
+            {% endif %}
             {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
 
 

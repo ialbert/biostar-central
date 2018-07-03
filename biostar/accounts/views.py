@@ -14,6 +14,7 @@ from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
 from .models import User, Profile
 from .auth import check_user
 from .util import now
+from .const import *
 
 logger = logging.getLogger('engine')
 
@@ -48,19 +49,25 @@ def edit_profile(request):
 def public_profile(request, uid):
 
     user_profile = Profile.objects.filter(uid=uid).first()
+    forum_not_enabled = not settings.ENABLE_FORUM
 
-    active = request.GET.get("active", "has_projects")
+    # Get the active tab, defaults to project
+    active_tab = request.GET.get(ACTIVE_TAB, HAS_PROJECT)
 
     if not user_profile:
-        messages.error(request, "User does not exist")
+        messages.error(request, "User profile does not exist")
         return redirect("/")
 
-    amap = dict(has_posts="active", has_projects="active", has_recipes="active")
-    active = active if (active in amap) else "has_projects"
+    active_tab = active_tab if (active_tab in PROFILE_TABS) else HAS_PROJECT
 
-    context = dict(user=user_profile.user, enable_forum=settings.ENABLE_FORUM)
+    if forum_not_enabled and active_tab == HAS_POSTS:
+        active_tab = HAS_PROJECT
 
-    context.update({active: "active"})
+    context = dict(user=user_profile.user, enable_forum=settings.ENABLE_FORUM,
+                   const_name=ACTIVE_TAB, const_post=HAS_POSTS, const_project=HAS_PROJECT,
+                   const_recipes=HAS_RECIPES)
+
+    context.update({active_tab: ACTIVE_TAB})
 
     return render(request, 'accounts/public_profile.html', context)
 

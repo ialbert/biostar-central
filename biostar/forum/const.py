@@ -13,3 +13,10 @@ ALLOWED_ATTRIBUTES = {
     'table': ['border', 'cellpadding', 'cellspacing'],
 
 }
+
+
+MESSAGE_TABS = ["inbox", "outbox", "unread"]
+
+INBOX, OUTBOX, UNREAD = MESSAGE_TABS
+
+ACTIVE_TAB = "active"

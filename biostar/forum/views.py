@@ -9,7 +9,7 @@ from biostar.accounts.models import Profile
 from . import forms, auth
 from .models import Post, Vote, Message
 from .decorators import object_exists, message_access
-
+from .const import *
 User = get_user_model()
 
 
@@ -43,6 +43,7 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
 
 
 def list_by_topic(request, topic):
+    #TODO: going to take out when refractoring
     "Used to keep track of topics when going fr"
 
     return list_view(request=request, topic=topic)
@@ -52,12 +53,11 @@ def list_by_topic(request, topic):
 @login_required
 def message_list(request):
 
-    active = request.GET.get("q", "inbox")
+    active_tab = request.GET.get(ACTIVE_TAB, INBOX)
 
-    amap = dict(inbox="active", outbox="active",unread="active")
-    active = active if (active in amap) else "inbox"
+    active_tab = active_tab if (active_tab in MESSAGE_TABS) else INBOX
 
-    context = {active: "active", "not_outbox": active != "outbox"}
+    context = {active_tab: ACTIVE_TAB, "not_outbox": active_tab != OUTBOX}
 
     user = request.user
 
@@ -66,7 +66,7 @@ def message_list(request):
     msg_per_page = 20
 
     return list_view(request, template="forum/message_list.html",
-                     topic=active, extra_context=context, per_page=msg_per_page)
+                     topic=active_tab, extra_context=context, per_page=msg_per_page)
 
 
 def community_list(request):

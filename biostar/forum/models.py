@@ -13,6 +13,7 @@ from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
 from biostar.accounts.models import Profile
+from biostar.engine.models import Project
 from . import util
 
 User = get_user_model()
@@ -161,6 +162,9 @@ class Post(models.Model):
 
     # The user that originally created the post.
     author = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
+
+    # The project that this post belongs to.
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
 
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(User, related_name='editor', null=True,
