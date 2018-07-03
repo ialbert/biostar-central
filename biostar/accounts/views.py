@@ -60,8 +60,15 @@ def public_profile(request, uid):
 
     active_tab = active_tab if (active_tab in PROFILE_TABS) else HAS_PROJECT
 
+<<<<<<< HEAD
     if forum_not_enabled and active_tab == HAS_POSTS:
         active_tab = HAS_PROJECT
+=======
+    if not settings.ENABLE_FORUM and active == "has_posts":
+        active = "has_projects"
+
+    context = dict(user=user_profile.user, enable_forum=settings.ENABLE_FORUM)
+>>>>>>> ff5c16608cb1c1b27fe3f6d3c823ce8d959a6554
 
     context = dict(user=user_profile.user, enable_forum=settings.ENABLE_FORUM,
                    const_name=ACTIVE_TAB, const_post=HAS_POSTS, const_project=HAS_PROJECT,
