@@ -58,6 +58,9 @@ def public_profile(request, uid):
     amap = dict(has_posts="active", has_projects="active", has_recipes="active")
     active = active if (active in amap) else "has_projects"
 
+    if not settings.ENABLE_FORUM and active == "has_posts":
+        active = "has_projects"
+
     context = dict(user=user_profile.user, enable_forum=settings.ENABLE_FORUM)
 
     context.update({active: "active"})
