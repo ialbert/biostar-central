@@ -35,7 +35,7 @@
                             {% if post.type != post.QUESTION %}
                                 {{ post.get_type_display }}:
                             {% endif %}
-                             <a href="{% url 'post_view' post.uid %}" >{{ post.get_title }}</a>
+                             <a href="{% url 'discussion_view' post.uid %}" >{{ post.get_title }}</a>
 
                         </div>
 

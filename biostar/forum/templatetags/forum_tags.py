@@ -79,11 +79,11 @@ def gravatar(user, size=80):
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form):
+def post_body(context, post, user, tree, form, include_userbox=True):
     "Renders the post body"
 
     return dict(post=post, user=user, tree=tree, request=context['request'],
-                form=form)
+                form=form, include_userbox=include_userbox)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')

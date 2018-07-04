@@ -1,0 +1,63 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+{% load forum_tags %}
+
+{% block headtitle %}
+    Discussion: {{ post.title }}
+{% endblock %}
+
+{% block content %}
+
+
+<div class="ui vertical small segment">
+    {# This is the toplevel post #}
+    {% post_body post=post user=request.user tree=post.tree form=form include_userbox=False %}
+
+</div>
+    {# Render each answer for the post #}
+    {% for answer in post.answers %}
+        <div class="ui vertical small grey segment">
+            {% post_body post=answer user=request.user tree=post.tree form=form include_userbox=False %}
+        </div>
+    {% endfor %}
+
+<div class="ui basic segment inputcolor">
+<div class="ui small header">Add your answer</div>
+
+    {% if request.user.is_authenticated %}
+        <form method="post" class="ui form" action="{%  url 'discussion_view' post.uid %}">
+            {{ form.media }}
+            {% csrf_token %}
+
+            {% form_errors form %}
+            <div class="ui mini info message">
+                <p><b>Note:</b> Answers should ONLY be used to respond to the original question at the top of this page! </p>
+                <p>Use the <span class="ui tiny label">ADD COMMENT</span> or <span class="ui tiny label">ADD REPLY</span> buttons
+                above to respond to someone, ask for clarifications, request more details etc.</p>
+            </div>
+            <div class="field">
+                {{ form.content }}
+            </div>
+
+       <button type="submit" class="ui submit green button">
+            <i class="check icon"></i>Submit
+       </button>
+
+        </form>
+
+    {% else %}
+
+        <div class="ui mini info message">
+        <p><a class="ui small label" href="{% url 'login' %}">
+            <i class="sign in icon"></i>Login</a> before adding your answer.</p>
+        </div>
+
+    {% endif %}
+    </div>
+
+
+
+
+
+
+{% endblock %}

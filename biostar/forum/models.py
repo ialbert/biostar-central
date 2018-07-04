@@ -31,14 +31,17 @@ def get_sentinel_user():
     return User.objects.get_or_create(username='deleted').first()
 
 
-
-
 class SubscriptionManager(models.Manager):
     def get_subs(self, post):
         "Returns all subscriptions for a post, exclude the "
         return self.filter(post=post.root).select_related("user")
 
+
 class PostManager(models.Manager):
+
+    def get_all(self, **kwargs):
+        "Return everything"
+        return super().get_queryset().filter(**kwargs)
 
     def my_bookmarks(self, user):
         query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)

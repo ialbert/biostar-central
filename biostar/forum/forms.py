@@ -130,13 +130,14 @@ class PostShortForm(forms.Form):
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                               min_length=2, max_length=5000)
 
-    def save(self, parent, author, post_type=Post.ANSWER):
+    def save(self, parent, author, post_type=Post.ANSWER, project=None):
         data = self.cleaned_data.get
         answer = auth.create_post(title=parent.title,
                                   parent=parent,
                                   author=author,
                                   content=data("content"),
-                                  post_type=post_type
+                                  post_type=post_type,
+                                  project=project
                                   )
         return answer
 
