@@ -28,7 +28,7 @@
                     <i class="bar chart icon"></i>{{ result_count }} Results
                 </a>
                 <a class="{% activate 'discussion' active %} item" href="{% url 'discussion_list' project.uid %}">
-                    <i class="comments icon"></i>{{ result_count }} Discussions
+                    <i class="comments icon"></i>{{ discussion_count }} Discussions
                 </a>
 
                 {% if activate %}

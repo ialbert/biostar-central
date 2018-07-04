@@ -47,6 +47,7 @@ urlpatterns = [
 
     # Discussions
     url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),
+    url(r'^discussion/create/(?P<uid>[-\w]+)/$', views.discussion_create, name='discussion_create'),
 
     # Apis
     url(r'^api/recipe/(?P<uid>[-\w]+)/$', api.recipe_details, name='recipe_details'),

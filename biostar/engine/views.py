@@ -12,7 +12,10 @@ from django.utils import timezone
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile, User
+
 from biostar.forum.models import Post
+from biostar.forum.forms import PostLongForm, PostShortForm
+
 
 from . import tasks, auth, forms, util
 
@@ -185,15 +188,40 @@ def data_list(request, uid):
 def discussion_list(request, uid):
 
     project = Project.objects.filter(uid=uid).first()
-    posts = project.post_set
+    posts = project.post_set.all()
 
     context = dict(posts=posts)
     return project_view(request=request, uid=uid, template_name="discussion_list.html",
                         active='discussion', extra_context=context)
 
 
+@object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True)
+def discussion_create(request, uid):
+
+    project = Project.objects.filter(uid=uid).first()
+    author = request.user
+
+    form = PostLongForm(project=project)
+
+    if request.method == "POST":
+        form = PostLongForm(project=project, data=request.POST)
+        if form.is_valid():
+            post = form.save(author=author)
+            return redirect(reverse("discussion_list", kwargs=dict(uid=project.uid)))
+
+    context = dict(form=form, project=project, activate='Start a Discussion')
+    counts = get_counts(project)
+    context.update(counts)
+    return render(request, "discussion_create.html", context=context)
+
+
 @object_access(type=Post, access=Access.READ_ACCESS)
 def discussion_view(request, uid):
+
+
+    discussion = Post.objects.filter(uid=uid).first()
+
+
 
 
     return

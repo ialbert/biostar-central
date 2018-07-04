@@ -305,13 +305,13 @@ def create_post_from_json(json_dict):
     return post
 
 
-def create_post(title, author, content, post_type, tag_val="", parent=None,root=None):
+def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None):
     "Used to create posts across apps"
-
 
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
-        author=author, type=post_type, parent=parent, root=root
+        author=author, type=post_type, parent=parent, root=root,
+        project=project
     )
 
     # Triggers another save in here

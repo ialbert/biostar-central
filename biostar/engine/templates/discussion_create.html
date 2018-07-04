@@ -1,0 +1,58 @@
+{% extends "base_content.html" %}
+
+{% load forum_tags %}
+{% load engine_tags %}
+
+
+{% block headtitle %}
+    New Discussion : {{ project.name }}
+{% endblock %}
+
+
+{% block content %}
+
+        {% form_errors form %}
+<div class="ui container segment inputcolor">
+
+        <form method="post" class="ui form" action="{%  url 'discussion_create' project.uid %}">
+
+            {{ form.media }}
+            {% csrf_token %}
+
+            <div class="required field">
+                <label>{{ form.title.label}}</label>
+                {{ form.title }}
+                <p class="muted">{{ form.title.help_text}}</p>
+            </div>
+
+            <div class="required field">
+                <label>{{ form.post_type.label}}</label>
+                {{ form.post_type }}
+                <p class="muted">{{ form.post_type.help_text}}</p>
+            </div>
+
+            <div class="field">
+                <label>{{ form.tag_val.label}}</label>
+                {{ form.tag_val }}
+                <p class="muted">{{ form.tag_val.help_text}}</p>
+            </div>
+
+
+            <div class="required field">
+                <label>{{ form.content.label }}</label>
+                {{ form.content }}
+            </div>
+
+
+        <button type="submit" class="ui submit green button">
+            <i class="check icon"></i>Submit
+        </button>
+
+        <a class="ui right floated button" href="{% url 'discussion_list' project.uid %}">
+             <i class="undo icon"></i>Cancel
+        </a>
+        </form>
+</div>
+
+
+{% endblock %}

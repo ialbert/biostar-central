@@ -229,12 +229,13 @@ def job_color(job):
     """
     return JOB_COLORS.get(job.state, "")
 
+
 @register.simple_tag
 def activate(value1, value2):
     """
     Returns a color based on job status.
     """
-    return "active" if value1  == value2 else ''
+    return "active" if value1 == value2 else ''
 
 
 @register.simple_tag
