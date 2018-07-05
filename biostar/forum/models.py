@@ -13,8 +13,7 @@ from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
 from biostar.accounts.models import Profile
-from biostar.engine.models import Project, Access
-from biostar.engine.auth import check_obj_access
+from biostar.engine.models import Project
 from . import util
 
 User = get_user_model()
