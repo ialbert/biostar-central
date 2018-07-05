@@ -37,7 +37,12 @@ class SubscriptionManager(models.Manager):
         "Returns all subscriptions for a post, exclude the "
         return self.filter(post=post.root).select_related("user")
 
+
 class PostManager(models.Manager):
+
+    def get_queryset(self):
+        "Regular queries exclude deleted stuff"
+        return super().get_queryset().exclude(status=Post.DELETED)
 
     def get_all(self, **kwargs):
         "Return everything"

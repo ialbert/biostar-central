@@ -21,6 +21,7 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
     page = request.GET.get('page')
 
     is_private_topic = topic not in ("latest", "community")
+    is_public_topic = topic in ("latest", "community")
 
     if request.user.is_anonymous and is_private_topic:
         messages.error(request, f"You must be logged in to view that topic.")
@@ -29,8 +30,12 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
 
     objs = auth.list_by_topic(request=request, topic=topic).order_by("-pk")
 
+    if is_public_topic:
+        # Projects not shown when looking at public topics
+        extra_proc = lambda q: q.filter(project=None)
+
     # Apply extra protocols to queryset (updates, etc)
-    extra_proc(objs)
+    objs = extra_proc(objs)
 
     # Get the page info
     paginator = Paginator(objs, per_page)
@@ -99,10 +104,9 @@ def message_view(request, uid):
     return render(request, "forum/message_view.html", context=context)
 
 
-
 @object_exists(klass=Post)
 @login_required
-def update_vote(request, uid):
+def update_vote(request, uid, redir_view="post_view"):
 
     # Post to upvote/bookmark
     post = Post.objects.filter(uid=uid).first()
@@ -120,7 +124,7 @@ def update_vote(request, uid):
     elif not vote:
         auth.create_vote(author=user, post=post, vote_type=vote_type)
 
-    return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
+    return redirect(reverse(redir_view, kwargs=dict(uid=post.uid)))
 
 
 

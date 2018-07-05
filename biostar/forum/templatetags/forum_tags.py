@@ -79,19 +79,23 @@ def gravatar(user, size=80):
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, include_userbox=True, comment_url="post_comment",
-              sub_redir="post_view"):
+def post_body(context, post, user, tree, form, include_userbox=True, comment_view="post_comment",
+              sub_redir="post_view", vote_view="update_vote", sub_view="subs_action"):
+    #TODO: this is really temporary ( the view names cannot be a string here.)
     "Renders the post body"
 
-    comment_url = reverse(comment_url, kwargs=dict(uid=post.uid))
+    vote_url = reverse(vote_view, kwargs=dict(uid=post.uid))
+    sub_url = reverse(sub_view, kwargs=dict(uid=post.uid))
+    comment_url = reverse(comment_view, kwargs=dict(uid=post.uid))
 
     return dict(post=post, user=user, tree=tree, request=context['request'],
                 form=form, include_userbox=include_userbox, comment_url=comment_url,
-                sub_redirview=sub_redir)
+                sub_redirview=sub_redir, vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url,
+                comment_view=comment_view)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
-def subs_actions(post, user, redir_view):
+def subs_actions(post, user, redir_view, sub_url):
 
     if user.is_anonymous:
         sub = None
@@ -107,7 +111,7 @@ def subs_actions(post, user, redir_view):
 
     button = "Follow" if unsubbed else "Update"
 
-    return dict(post=post, form=form, button=button, redir_view=redir_view)
+    return dict(post=post, form=form, button=button, redir_view=redir_view, sub_url=sub_url)
 
 @register.filter
 def show_email(user):
@@ -328,7 +332,8 @@ def boxclass(post):
 
 
 @register.simple_tag
-def render_comments(request, post, comment_url, comment_template='widgets/comment_body.html'):
+def render_comments(request, post, comment_view, vote_url, comment_template='widgets/comment_body.html'):
+
 
     user = request.user
     thread = Post.objects.get_thread(post.parent, user)
@@ -337,19 +342,20 @@ def render_comments(request, post, comment_url, comment_template='widgets/commen
 
     if tree and post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
-                                 comment_template=comment_template, comment_url=comment_url)
+                                 comment_template=comment_template, comment_view=comment_view)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template, comment_url):
+def traverse_comments(request, post, tree, comment_template, comment_view):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
 
     def traverse(node):
+        comment_url = reverse(comment_view, kwargs=dict(uid=node.uid))
 
         data = ['<div class="comment">']
         cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url}

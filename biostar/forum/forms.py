@@ -57,6 +57,7 @@ class PostLongForm(forms.Form):
 
     def __init__(self, project=None, *args, **kwargs):
         self.project = project
+
         super(PostLongForm, self).__init__(*args, **kwargs)
 
     POST_CHOICES = [(Post.QUESTION, "Question"),

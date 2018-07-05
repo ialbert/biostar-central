@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^post/view/(?P<uid>[-\w]+)$', views.post_view, name='post_view'),
     url(r'^post/edit/(?P<uid>[-\w]+)$', views.edit_post, name='post_edit'),
     url(r'^post/comment/(?P<uid>[-\w]+)$', views.post_comment, name='post_comment'),
-    url(r'^post/vote/(?P<uid>[-\w]+)$', views.update_vote, name='update_vote'),
+    url(r'^post/vote/(?P<uid>[-\w]+)/(?P<redir_view>[-\w]+)/$', views.update_vote, name='update_vote'),
 
     # Message urls
     url(r'^messages/list/$', views.message_list, name='message_list'),

@@ -195,6 +195,18 @@ def discussion_list(request, uid):
                         active='discussion', extra_context=context)
 
 
+@object_access(type=Post, access=Access.READ_ACCESS)
+def discussion_subs(request, uid):
+
+    return forum_views.subs_action(request=request, uid=uid, redir_view="discussion_view")
+
+
+@object_access(type=Post, access=Access.READ_ACCESS)
+def discussion_vote(request, uid):
+
+    return forum_views.update_vote(request=request, uid=uid, redir_view="discussion_view")
+
+
 @object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True)
 def discussion_create(request, uid):
     project = Project.objects.filter(uid=uid).first()

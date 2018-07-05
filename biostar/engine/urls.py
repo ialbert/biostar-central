@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^action/clear/(?P<uid>[-\w]+)/(?P<url>.+)/(?P<board>.+)/$', views.clear_clipboard, name='clear_clipboard'),
     url(r'^action/toggle/(?P<uid>[-\w]+)/(?P<obj_type>[-\w]+)/$', views.object_state_toggle, name='toggle_state'),
     url(r'^action/moderate/$', views.recipe_mod, name='recipe_mod'),
+    url(r'^action/subscribe/(?P<uid>[-\w]+)/$', views.discussion_subs, name='discussion_subs'),
 
     # Jobs
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
@@ -50,6 +51,8 @@ urlpatterns = [
     url(r'^discussion/create/(?P<uid>[-\w]+)/$', views.discussion_create, name='discussion_create'),
     url(r'^discussion/view/(?P<uid>[-\w]+)/$', views.discussion_view, name='discussion_view'),
     url(r'^discussion/comment/(?P<uid>[-\w]+)/$', views.discussion_comment, name='discussion_comment'),
+    url(r'^discussion/vote/(?P<uid>[-\w]+)/$', views.discussion_vote, name='discussion_vote'),
+
 
     # Apis
     url(r'^api/recipe/(?P<uid>[-\w]+)/$', api.recipe_details, name='recipe_details'),
