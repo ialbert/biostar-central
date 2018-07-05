@@ -13,7 +13,8 @@ from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
 from biostar.accounts.models import Profile
-from biostar.engine.models import Project
+from biostar.engine.models import Project, Access
+from biostar.engine.auth import check_obj_access
 from . import util
 
 User = get_user_model()
@@ -27,6 +28,7 @@ MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 
 logger = logging.getLogger("engine")
 
+
 def get_sentinel_user():
     return User.objects.get_or_create(username='deleted').first()
 
@@ -35,7 +37,6 @@ class SubscriptionManager(models.Manager):
     def get_subs(self, post):
         "Returns all subscriptions for a post, exclude the "
         return self.filter(post=post.root).select_related("user")
-
 
 class PostManager(models.Manager):
 
@@ -49,7 +50,6 @@ class PostManager(models.Manager):
         query = query.prefetch_related("tag_set")
         return query
 
-
     def my_post_votes(self, user):
         "Posts that received votes from other people "
         vote_query = Vote.objects.exclude(author=user).filter(post__in=self.filter(author=user))
@@ -57,7 +57,6 @@ class PostManager(models.Manager):
         query = query.select_related("root", "author", "lastedit_user")
         query = query.prefetch_related("tag_set")
         return query
-
 
     def my_posts(self, target, user):
 
@@ -118,7 +117,7 @@ class PostManager(models.Manager):
 
     def top_level(self, user):
         "Returns posts based on a user type"
-        is_moderator = user.is_authenticated and user.profile.is_moderator
+        is_moderator = user.is_authenticated and (user.profile.is_moderator or user.profile.is_manager)
         if is_moderator:
             query = self.filter(type__in=Post.TOP_LEVEL)
         else:
@@ -357,6 +356,7 @@ class Post(models.Model):
 
 class Vote(models.Model):
     # Post statuses.
+    
     UP, DOWN, BOOKMARK, ACCEPT, EMPTY = range(5)
     TYPE_CHOICES = [(UP, "Upvote"), (EMPTY, "Empty"),
                     (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]

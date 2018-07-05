@@ -11,13 +11,13 @@
 
 <div class="ui vertical small segment">
     {# This is the toplevel post #}
-    {% post_body post=post user=request.user tree=post.tree form=form include_userbox=False %}
+    {% post_body post=post user=request.user tree=post.tree form=form include_userbox=False comment_url="discussion_comment" sub_redir="discussion_view" %}
 
 </div>
     {# Render each answer for the post #}
     {% for answer in post.answers %}
         <div class="ui vertical small grey segment">
-            {% post_body post=answer user=request.user tree=post.tree form=form include_userbox=False %}
+            {% post_body post=answer user=request.user tree=post.tree form=form include_userbox=False comment_url="discussion_comment" sub_redir="discussion_view" %}
         </div>
     {% endfor %}
 
@@ -54,10 +54,5 @@
 
     {% endif %}
     </div>
-
-
-
-
-
 
 {% endblock %}

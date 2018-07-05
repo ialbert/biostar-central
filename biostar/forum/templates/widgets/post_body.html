@@ -3,7 +3,7 @@
     {% if post.is_toplevel %}
 
     <div class="ui vertical segment">
-        {% subs_actions post=post user=request.user %}
+        {% subs_actions post=post user=request.user redir_view=sub_redirview %}
         <div class="ui header" >{{ post.get_type_display }}: {{ post.get_title }}</div>
 
     </div>
@@ -53,7 +53,7 @@
 
                          {% user_info post=post by_diff=False %}
                      </div>
-                    <a class="ui mini grey label" href="{% url 'post_comment' post.uid %}">
+                    <a class="ui mini grey label" href="{{ comment_url }}">
                         ADD COMMENT
                     </a>
                      &bull;
@@ -68,7 +68,7 @@
                              {% user_info post=post by_diff=False %}
                          </div>
 
-                        <a class="ui mini grey label" href="{% url 'post_comment' post.uid %}">
+                        <a class="ui mini grey label" href="{{ comment_url }}">
                             ADD COMMENT
                         </a>
                          &bull;
@@ -81,7 +81,7 @@
 
                  {# Comments for each post rendered here #}
             <div class="ui comments" style="max-width: 750px;">
-                {% render_comments request=request post=post %}
+                {% render_comments request=request post=post comment_url=comment_url %}
             </div>
 
              </div>

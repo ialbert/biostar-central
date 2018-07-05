@@ -15,7 +15,7 @@ from biostar.accounts.models import Profile, User
 
 from biostar.forum.models import Post
 from biostar.forum.forms import PostLongForm, PostShortForm
-from biostar.forum import auth as forum_auth
+from biostar.forum import views as forum_views
 
 from . import tasks, auth, forms, util
 
@@ -197,56 +197,32 @@ def discussion_list(request, uid):
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True)
 def discussion_create(request, uid):
-
     project = Project.objects.filter(uid=uid).first()
-    author = request.user
 
-    form = PostLongForm(project=project)
+    template = "discussion_create.html"
 
-    if request.method == "POST":
-        form = PostLongForm(project=project, data=request.POST)
-        if form.is_valid():
-            post = form.save(author=author)
-            return redirect(reverse("discussion_view", kwargs=dict(uid=post.uid)))
-
-    context = dict(form=form, project=project, activate='Start a Discussion')
+    context = dict(project=project, activate='Start a Discussion')
     counts = get_counts(project)
     context.update(counts)
-    return render(request, "discussion_create.html", context=context)
+
+    return forum_views.post_create(request=request, template=template, extra_context=context,
+                                   url="discussion_view", project=project)
 
 
 @object_access(type=Post, access=Access.READ_ACCESS)
 def discussion_view(request, uid):
-    # Form used for answers
-    form = PostShortForm()
 
+    template = "discussion_view.html"
     # Get the parents info
     obj = Post.objects.filter(uid=uid).first()
     project = obj.root.project
 
-    # Return root view if not at top level.
-    obj = obj if obj.is_toplevel else obj.root
-
-    # Update the post views.
-    Post.update_post_views(obj, request=request)
-
-    if request.method == "POST":
-        form = PostShortForm(data=request.POST)
-        if form.is_valid():
-            form.save(parent=obj.parent, author=request.user, project=project)
-            return redirect(reverse("post_view", kwargs=dict(uid=obj.root.uid)))
-
-    # Adds the permissions
-    obj = forum_auth.post_permissions(request=request, post=obj)
-
-    # Populate the object to build a tree that contains all posts in the thread.
-    # Answers are added here as well.
-    obj = forum_auth.build_obj_tree(request=request, obj=obj)
-
-    context = dict(post=obj, form=form, project=project, activate="Discussion")
+    context = dict(project=project, activate="Discussion")
     counts = get_counts(project)
     context.update(counts)
-    return render(request, "discussion_view.html", context=context)
+
+    return forum_views.post_view(request=request, uid=uid, template=template, extra_context=context,
+                                 project=project, url="discussion_view")
 
 
 @object_access(type=Post, access=Access.WRITE_ACCESS)
@@ -254,21 +230,15 @@ def discussion_comment(request, uid):
 
     # Get the parent post to add comment to
     obj = Post.objects.filter(uid=uid).first()
+    template = "discussion_comment.html"
+    activate = "Comment"
+    project = obj.root.project
+    extra_context = dict(activate=activate, project=project)
+    counts = get_counts(project)
+    extra_context.update(counts)
 
-    # Form used for answers
-    form = PostShortForm()
-
-    if request.method == "POST":
-        form = PostShortForm(data=request.POST)
-        if form.is_valid():
-            form = PostShortForm(data=request.POST)
-            if form.is_valid():
-                form.save(parent=obj, author=request.user, post_type=Post.COMMENT,
-                          project=obj.root.project)
-            return redirect(reverse("post_view", kwargs=dict(uid=obj.root.uid)))
-
-    context = dict(form=form, post=obj)
-    return render(request, "discussion_comment.html", context=context)
+    return forum_views.post_comment(request=request, uid=uid, template=template, extra_context=extra_context,
+                                    project=project, url="discussion_view")
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
@@ -299,7 +269,9 @@ def get_counts(project):
     data_count = Data.objects.filter(project=project).count()
     recipe_count = Analysis.objects.filter(project=project).count()
     result_count = Job.objects.filter(project=project).count()
-    discussion_count = Post.objects.exclude(status=Post.DELETED).filter(project=project).count()
+    discussion_count = Post.objects.exclude(status=Post.DELETED).filter(project=project,
+                                                                        type__in=Post.TOP_LEVEL).count()
+
     return dict(
         data_count=data_count, recipe_count=recipe_count, result_count=result_count,
         discussion_count=discussion_count

@@ -79,15 +79,19 @@ def gravatar(user, size=80):
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, include_userbox=True):
+def post_body(context, post, user, tree, form, include_userbox=True, comment_url="post_comment",
+              sub_redir="post_view"):
     "Renders the post body"
 
+    comment_url = reverse(comment_url, kwargs=dict(uid=post.uid))
+
     return dict(post=post, user=user, tree=tree, request=context['request'],
-                form=form, include_userbox=include_userbox)
+                form=form, include_userbox=include_userbox, comment_url=comment_url,
+                sub_redirview=sub_redir)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
-def subs_actions(post, user):
+def subs_actions(post, user, redir_view):
 
     if user.is_anonymous:
         sub = None
@@ -103,7 +107,7 @@ def subs_actions(post, user):
 
     button = "Follow" if unsubbed else "Update"
 
-    return dict(post=post, form=form, button=button)
+    return dict(post=post, form=form, button=button, redir_view=redir_view)
 
 @register.filter
 def show_email(user):
@@ -134,7 +138,7 @@ def feed(user, post=None, limit=7):
     # TODO:change
     recent_locations = User.objects.filter(post__in=post_set).order_by("?").distinct()
 
-    recent_locations = [x for x in recent_locations if x.profile.location][:limit]
+    recent_locations = set([x for x in recent_locations if x.profile.location][:limit])
 
     recent_awards = ''
     recent_replies = post_set.filter(type__in=[Post.COMMENT, Post.ANSWER],
@@ -324,8 +328,7 @@ def boxclass(post):
 
 
 @register.simple_tag
-def render_comments(request, post, comment_template='widgets/comment_body.html'):
-
+def render_comments(request, post, comment_url, comment_template='widgets/comment_body.html'):
 
     user = request.user
     thread = Post.objects.get_thread(post.parent, user)
@@ -334,14 +337,14 @@ def render_comments(request, post, comment_template='widgets/comment_body.html')
 
     if tree and post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
-                                 comment_template=comment_template)
+                                 comment_template=comment_template, comment_url=comment_url)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template):
+def traverse_comments(request, post, tree, comment_template, comment_url):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
@@ -349,7 +352,7 @@ def traverse_comments(request, post, tree, comment_template):
     def traverse(node):
 
         data = ['<div class="comment">']
-        cont = {"post": node, 'user': request.user, 'request': request}
+        cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):

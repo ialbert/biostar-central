@@ -50,7 +50,6 @@ def image_path(instance, filename):
     return imgpath
 
 
-
 class Manager(models.Manager):
 
     def get_queryset(self):
@@ -64,7 +63,6 @@ class Manager(models.Manager):
     def get_all(self, **kwargs):
         "Return everything"
         return super().get_queryset().filter(**kwargs)
-
 
 
 class Project(models.Model):
@@ -127,6 +125,7 @@ class Project(models.Model):
     def project(self):
         return self
 
+
 class Access(models.Model):
     """
     Allows access of users to Projects.
@@ -147,6 +146,7 @@ class Access(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
     access = models.IntegerField(default=READ_ACCESS, choices=ACCESS_CHOICES)
     date = models.DateTimeField(auto_now_add=True)
 

@@ -30,7 +30,7 @@
                         answer{{ post.root.reply_count|pluralize }}
                     </td>
 
-                    <td style="padding: 0px">
+                    <td >
                        <div class="ui small header" >
                             {% if post.type != post.QUESTION %}
                                 {{ post.get_type_display }}:
@@ -38,9 +38,6 @@
                              <a href="{% url 'discussion_view' post.uid %}" >{{ post.get_title }}</a>
 
                         </div>
-
-
-
                             {% for tag in post.tag_set.all %}
                                 <a class="ui tiny label" href="#" style="font-size: 13px;padding: 4px">
                                     {{ tag.name }}</a>

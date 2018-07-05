@@ -125,7 +125,8 @@ def update_vote(request, uid):
 
 
 @object_exists(klass=Post)
-def post_view(request, uid):
+def post_view(request, uid, template="forum/post_view.html", url="post_view",
+              extra_context={}, project=None):
     "Return a detailed view for specific post"
 
     # Form used for answers
@@ -143,8 +144,8 @@ def post_view(request, uid):
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
-            form.save(parent=obj.parent, author=request.user)
-            return redirect(reverse("post_view", kwargs=dict(uid=obj.root.uid)))
+            form.save(parent=obj.parent, author=request.user, project=project)
+            return redirect(reverse(url, kwargs=dict(uid=obj.root.uid)))
 
     # Adds the permissions
     obj = auth.post_permissions(request=request, post=obj)
@@ -154,11 +155,15 @@ def post_view(request, uid):
     obj = auth.build_obj_tree(request=request, obj=obj)
 
     context = dict(post=obj, form=form)
-    return render(request, "forum/post_view.html", context=context)
+    context.update(extra_context)
+
+    return render(request, template, context=context)
 
 
 @login_required
-def post_comment(request, uid):
+def post_comment(request, uid, template="forum/post_comment.html", url="post_view", extra_context={},
+                 project=None):
+    """Used to structure a comment for viewing in biostar.engine and biostar.forum """
 
     # Get the parent post to add comment to
     obj = Post.objects.filter(uid=uid).first()
@@ -173,20 +178,24 @@ def post_comment(request, uid):
         if form.is_valid():
             form = forms.PostShortForm(data=request.POST)
             if form.is_valid():
-                form.save(parent=obj, author=request.user, post_type=Post.COMMENT)
-            return redirect(reverse("post_view", kwargs=dict(uid=obj.root.uid)))
+                form.save(parent=obj, author=request.user, post_type=Post.COMMENT,
+                          project=project)
+            return redirect(reverse(url, kwargs=dict(uid=obj.root.uid)))
 
     context = dict(form=form, post=obj)
-    return render(request, "forum/post_comment.html", context=context)
+    context.update(extra_context)
+
+    return render(request, template, context=context)
 
 
 @object_exists(klass=Post)
 @login_required
-def subs_action(request, uid):
+def subs_action(request, uid, redir_view="post_view"):
 
     # Post actions are being taken on
     post = Post.objects.filter(uid=uid).first()
     user = request.user
+    redir_url = reverse(redir_view, kwargs=dict(uid=post.root.uid))
 
     if request.method == "POST" and user.is_authenticated:
         form = forms.SubsForm(data=request.POST, post=post, user=user)
@@ -196,27 +205,27 @@ def subs_action(request, uid):
             msg = f"Updated Subscription to : {sub.get_type_display()}"
             messages.success(request, msg)
 
-    return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
+    return redirect(redir_url)
 
 
 @login_required
-def post_create(request):
+def post_create(request, project=None, template="forum/post_create.html", url="post_view",
+                extra_context={}):
     "Make a new post"
 
-    form = forms.PostLongForm()
+    form = forms.PostLongForm(project=project)
 
     if request.method == "POST":
-        form = forms.PostLongForm(data=request.POST)
+        form = forms.PostLongForm(data=request.POST, project=project)
         if form.is_valid():
             # Create a new post by user
             post = form.save(author=request.user)
-            return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
+            return redirect(reverse(url, kwargs=dict(uid=post.uid)))
 
     context = dict(form=form)
+    context.update(extra_context)
 
-    return render(request, "forum/post_create.html", context=context)
-
-
+    return render(request, template, context=context)
 
 
 @object_exists(klass=Post)
