@@ -356,7 +356,7 @@ class Post(models.Model):
 
 class Vote(models.Model):
     # Post statuses.
-    
+
     UP, DOWN, BOOKMARK, ACCEPT, EMPTY = range(5)
     TYPE_CHOICES = [(UP, "Upvote"), (EMPTY, "Empty"),
                     (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]

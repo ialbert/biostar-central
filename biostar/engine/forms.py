@@ -270,24 +270,6 @@ class RecipeForm(forms.ModelForm):
         return uid
 
 
-class ShortDiscussionForm(forms.Form):
-    pass
-
-
-class LongDiscussionForm(forms.Form):
-
-    def __init__(self, project):
-        self.project = project
-        return
-
-    def save(self):
-
-
-        return
-
-    pass
-
-
 class JobEditForm(forms.ModelForm):
     class Meta:
         model = Job
