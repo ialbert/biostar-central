@@ -6,9 +6,11 @@
 
     <div class="content">
     <div class="center aligned author">
+        <a href="{% url "public_profile" user.profile.uid %}">
       <div class="ui circular image">
-        <a href="{% url "public_profile" user.profile.uid %}">{% gravatar user=user size=100 %}</a>
+        {% gravatar user=user size=100 %}
       </div>
+        </a>
     </div>
 
  <div class="center aligned description">

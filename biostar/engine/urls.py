@@ -45,6 +45,12 @@ urlpatterns = [
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
     url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_serve, name='job_serve'),
 
+    # Discussions
+    url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),
+    url(r'^discussion/create/(?P<uid>[-\w]+)/$', views.discussion_create, name='discussion_create'),
+    url(r'^discussion/view/(?P<uid>[-\w]+)/$', views.discussion_view, name='discussion_view'),
+    url(r'^discussion/comment/(?P<uid>[-\w]+)/$', views.discussion_comment, name='discussion_comment'),
+
     # Apis
     url(r'^api/recipe/(?P<uid>[-\w]+)/$', api.recipe_details, name='recipe_details'),
 

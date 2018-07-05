@@ -1,7 +1,7 @@
 {% load forum_tags %}
 
 
-<form method="post" action="{% url 'subs_action' post.uid %}" class="ui tiny form">
+<form method="post" action="{% url 'subs_action' post.uid redir_view %}" class="ui tiny form">
     {% csrf_token %}
 
     {{ form.subtype}}

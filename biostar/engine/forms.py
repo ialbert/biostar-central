@@ -270,7 +270,6 @@ class RecipeForm(forms.ModelForm):
         return uid
 
 
-
 class JobEditForm(forms.ModelForm):
     class Meta:
         model = Job

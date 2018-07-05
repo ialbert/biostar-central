@@ -3,7 +3,7 @@
     {% if post.is_toplevel %}
 
     <div class="ui vertical segment">
-        {% subs_actions post=post user=request.user %}
+        {% subs_actions post=post user=request.user redir_view=sub_redirview %}
         <div class="ui header" >{{ post.get_type_display }}: {{ post.get_title }}</div>
 
     </div>
@@ -24,9 +24,12 @@
             </div>
 
              <div class="content">
-             <div class="ui right floated image" >
-                    {% user_box user=post.author %}
-             </div>
+
+             {% if include_userbox %}
+                 <div class="ui right floated image" >
+                        {% user_box user=post.author %}
+                 </div>
+             {% endif %}
 
                  <div class="description">
 
@@ -34,51 +37,51 @@
                      </div>
 
                  {% if post.is_toplevel %}
-                 <div class="extra">
+                     <div class="extra">
 
-                     <div class="" style="margin-bottom:0.5em;">
+                         <div class="" style="margin-bottom:0.5em;">
 
-                            {% for tag in post.tag_set.all %}
-                                <a class="ui small label" href="#" style="font-size: 13px;padding: 4px">{{ tag.name }}</a>
-                            {% endfor %}
-                        &bull; {{ post.root.view_count|bignum }} views
+                                {% for tag in post.tag_set.all %}
+                                    <a class="ui small label" href="#" style="font-size: 13px;padding: 4px">{{ tag.name }}</a>
+                                {% endfor %}
+                            &bull; {{ post.root.view_count|bignum }} views
+                         </div>
+
                      </div>
 
-                 </div>
+                     <div class="ui right floated muted" style="padding-top: 10px">
 
-                 <div class="ui right floated muted" style="padding-top: 10px">
-
-                     {% user_info post=post by_diff=False %}
-                 </div>
-                <a class="ui mini grey label" href="{% url 'post_comment' post.uid %}">
-                    ADD COMMENT
-                </a>
-                 &bull;
-                 <a>link</a>
-
-                 {% else %}
-
-
-                 <div class="extra">
-
-                    <div class="ui right floated muted" style="padding-top: 10px;">
                          {% user_info post=post by_diff=False %}
                      </div>
-
-                    <a class="ui mini grey label" href="{% url 'post_comment' post.uid %}">
+                    <a class="ui mini grey label" href="{{ comment_url }}">
                         ADD COMMENT
                     </a>
                      &bull;
                      <a>link</a>
 
-                 </div>
+                 {% else %}
+
+
+                     <div class="extra">
+
+                        <div class="ui right floated muted" style="padding-top: 10px;">
+                             {% user_info post=post by_diff=False %}
+                         </div>
+
+                        <a class="ui mini grey label" href="{{ comment_url }}">
+                            ADD COMMENT
+                        </a>
+                         &bull;
+                         <a>link</a>
+
+                     </div>
 
 
                  {% endif %}
 
                  {# Comments for each post rendered here #}
             <div class="ui comments" style="max-width: 750px;">
-                {% render_comments request=request post=post %}
+                {% render_comments request=request post=post comment_url=comment_url %}
             </div>
 
              </div>

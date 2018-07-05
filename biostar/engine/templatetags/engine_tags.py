@@ -144,7 +144,6 @@ def has_files(request):
 
 @register.simple_tag
 def get_projects(user, request=None, per_page=20):
-
     "Used to return projects list in the profile."
 
     projects = auth.get_project_list(user=user, include_public=False).order_by("-pk")
@@ -230,12 +229,13 @@ def job_color(job):
     """
     return JOB_COLORS.get(job.state, "")
 
+
 @register.simple_tag
 def activate(value1, value2):
     """
     Returns a color based on job status.
     """
-    return "active" if value1  == value2 else ''
+    return "active" if value1 == value2 else ''
 
 
 @register.simple_tag

@@ -9,7 +9,7 @@ from biostar.accounts.models import Profile
 from . import forms, auth
 from .models import Post, Vote, Message
 from .decorators import object_exists, message_access
-
+from .const import *
 User = get_user_model()
 
 
@@ -43,6 +43,7 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
 
 
 def list_by_topic(request, topic):
+    #TODO: going to take out when refractoring
     "Used to keep track of topics when going fr"
 
     return list_view(request=request, topic=topic)
@@ -52,12 +53,11 @@ def list_by_topic(request, topic):
 @login_required
 def message_list(request):
 
-    active = request.GET.get("q", "inbox")
+    active_tab = request.GET.get(ACTIVE_TAB, INBOX)
 
-    amap = dict(inbox="active", outbox="active",unread="active")
-    active = active if (active in amap) else "inbox"
+    active_tab = active_tab if (active_tab in MESSAGE_TABS) else INBOX
 
-    context = {active: "active", "not_outbox": active != "outbox"}
+    context = {active_tab: ACTIVE_TAB, "not_outbox": active_tab != OUTBOX}
 
     user = request.user
 
@@ -66,7 +66,7 @@ def message_list(request):
     msg_per_page = 20
 
     return list_view(request, template="forum/message_list.html",
-                     topic=active, extra_context=context, per_page=msg_per_page)
+                     topic=active_tab, extra_context=context, per_page=msg_per_page)
 
 
 def community_list(request):
@@ -125,7 +125,8 @@ def update_vote(request, uid):
 
 
 @object_exists(klass=Post)
-def post_view(request, uid):
+def post_view(request, uid, template="forum/post_view.html", url="post_view",
+              extra_context={}, project=None):
     "Return a detailed view for specific post"
 
     # Form used for answers
@@ -143,8 +144,8 @@ def post_view(request, uid):
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
-            form.save(parent=obj.parent, author=request.user)
-            return redirect(reverse("post_view", kwargs=dict(uid=obj.root.uid)))
+            form.save(parent=obj.parent, author=request.user, project=project)
+            return redirect(reverse(url, kwargs=dict(uid=obj.root.uid)))
 
     # Adds the permissions
     obj = auth.post_permissions(request=request, post=obj)
@@ -154,11 +155,15 @@ def post_view(request, uid):
     obj = auth.build_obj_tree(request=request, obj=obj)
 
     context = dict(post=obj, form=form)
-    return render(request, "forum/post_view.html", context=context)
+    context.update(extra_context)
+
+    return render(request, template, context=context)
 
 
 @login_required
-def post_comment(request, uid):
+def post_comment(request, uid, template="forum/post_comment.html", url="post_view", extra_context={},
+                 project=None):
+    """Used to structure a comment for viewing in biostar.engine and biostar.forum """
 
     # Get the parent post to add comment to
     obj = Post.objects.filter(uid=uid).first()
@@ -173,20 +178,24 @@ def post_comment(request, uid):
         if form.is_valid():
             form = forms.PostShortForm(data=request.POST)
             if form.is_valid():
-                form.save(parent=obj, author=request.user, post_type=Post.COMMENT)
-            return redirect(reverse("post_view", kwargs=dict(uid=obj.root.uid)))
+                form.save(parent=obj, author=request.user, post_type=Post.COMMENT,
+                          project=project)
+            return redirect(reverse(url, kwargs=dict(uid=obj.root.uid)))
 
     context = dict(form=form, post=obj)
-    return render(request, "forum/post_comment.html", context=context)
+    context.update(extra_context)
+
+    return render(request, template, context=context)
 
 
 @object_exists(klass=Post)
 @login_required
-def subs_action(request, uid):
+def subs_action(request, uid, redir_view="post_view"):
 
     # Post actions are being taken on
     post = Post.objects.filter(uid=uid).first()
     user = request.user
+    redir_url = reverse(redir_view, kwargs=dict(uid=post.root.uid))
 
     if request.method == "POST" and user.is_authenticated:
         form = forms.SubsForm(data=request.POST, post=post, user=user)
@@ -196,27 +205,27 @@ def subs_action(request, uid):
             msg = f"Updated Subscription to : {sub.get_type_display()}"
             messages.success(request, msg)
 
-    return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
+    return redirect(redir_url)
 
 
 @login_required
-def post_create(request):
+def post_create(request, project=None, template="forum/post_create.html", url="post_view",
+                extra_context={}):
     "Make a new post"
 
-    form = forms.PostLongForm()
+    form = forms.PostLongForm(project=project)
 
     if request.method == "POST":
-        form = forms.PostLongForm(data=request.POST)
+        form = forms.PostLongForm(data=request.POST, project=project)
         if form.is_valid():
             # Create a new post by user
             post = form.save(author=request.user)
-            return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
+            return redirect(reverse(url, kwargs=dict(uid=post.uid)))
 
     context = dict(form=form)
+    context.update(extra_context)
 
-    return render(request, "forum/post_create.html", context=context)
-
-
+    return render(request, template, context=context)
 
 
 @object_exists(klass=Post)

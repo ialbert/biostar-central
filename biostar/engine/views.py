@@ -13,6 +13,9 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile, User
 
+from biostar.forum.models import Post
+from biostar.forum.forms import PostLongForm, PostShortForm
+from biostar.forum import views as forum_views
 
 from . import tasks, auth, forms, util
 
@@ -163,6 +166,7 @@ def paste(project, post_request, board):
     else:
         return False, form
 
+
 @object_access(type=Project, access=Access.READ_ACCESS)
 def data_list(request, uid):
     """
@@ -176,9 +180,65 @@ def data_list(request, uid):
     else:
         form = forms.PasteForm(project=project, request=request, board='files_clipboard')
 
-
     return project_view(request=request, uid=uid, template_name="data_list.html",
                         active='data', extra_context=dict(form=form))
+
+
+@object_access(type=Project, access=Access.READ_ACCESS)
+def discussion_list(request, uid):
+
+    project = Project.objects.filter(uid=uid).first()
+    posts = project.post_set.filter(type__in=Post.TOP_LEVEL).all()
+
+    context = dict(posts=posts)
+    return project_view(request=request, uid=uid, template_name="discussion_list.html",
+                        active='discussion', extra_context=context)
+
+
+@object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True)
+def discussion_create(request, uid):
+    project = Project.objects.filter(uid=uid).first()
+
+    template = "discussion_create.html"
+
+    context = dict(project=project, activate='Start a Discussion')
+    counts = get_counts(project)
+    context.update(counts)
+
+    return forum_views.post_create(request=request, template=template, extra_context=context,
+                                   url="discussion_view", project=project)
+
+
+@object_access(type=Post, access=Access.READ_ACCESS)
+def discussion_view(request, uid):
+
+    template = "discussion_view.html"
+    # Get the parents info
+    obj = Post.objects.filter(uid=uid).first()
+    project = obj.root.project
+
+    context = dict(project=project, activate="Discussion")
+    counts = get_counts(project)
+    context.update(counts)
+
+    return forum_views.post_view(request=request, uid=uid, template=template, extra_context=context,
+                                 project=project, url="discussion_view")
+
+
+@object_access(type=Post, access=Access.WRITE_ACCESS)
+def discussion_comment(request, uid):
+
+    # Get the parent post to add comment to
+    obj = Post.objects.filter(uid=uid).first()
+    template = "discussion_comment.html"
+    activate = "Comment"
+    project = obj.root.project
+    extra_context = dict(activate=activate, project=project)
+    counts = get_counts(project)
+    extra_context.update(counts)
+
+    return forum_views.post_comment(request=request, uid=uid, template=template, extra_context=extra_context,
+                                    project=project, url="discussion_view")
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
@@ -209,8 +269,12 @@ def get_counts(project):
     data_count = Data.objects.filter(project=project).count()
     recipe_count = Analysis.objects.filter(project=project).count()
     result_count = Job.objects.filter(project=project).count()
+    discussion_count = Post.objects.exclude(status=Post.DELETED).filter(project=project,
+                                                                        type__in=Post.TOP_LEVEL).count()
+
     return dict(
-        data_count=data_count, recipe_count=recipe_count, result_count=result_count
+        data_count=data_count, recipe_count=recipe_count, result_count=result_count,
+        discussion_count=discussion_count
     )
 
 

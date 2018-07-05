@@ -13,6 +13,7 @@ from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
 from biostar.accounts.models import Profile
+from biostar.engine.models import Project
 from . import util
 
 User = get_user_model()
@@ -26,10 +27,9 @@ MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 
 logger = logging.getLogger("engine")
 
+
 def get_sentinel_user():
     return User.objects.get_or_create(username='deleted').first()
-
-
 
 
 class SubscriptionManager(models.Manager):
@@ -39,12 +39,15 @@ class SubscriptionManager(models.Manager):
 
 class PostManager(models.Manager):
 
+    def get_all(self, **kwargs):
+        "Return everything"
+        return super().get_queryset().filter(**kwargs)
+
     def my_bookmarks(self, user):
         query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)
         query = query.select_related("root", "author", "lastedit_user")
         query = query.prefetch_related("tag_set")
         return query
-
 
     def my_post_votes(self, user):
         "Posts that received votes from other people "
@@ -53,7 +56,6 @@ class PostManager(models.Manager):
         query = query.select_related("root", "author", "lastedit_user")
         query = query.prefetch_related("tag_set")
         return query
-
 
     def my_posts(self, target, user):
 
@@ -114,7 +116,7 @@ class PostManager(models.Manager):
 
     def top_level(self, user):
         "Returns posts based on a user type"
-        is_moderator = user.is_authenticated and user.profile.is_moderator
+        is_moderator = user.is_authenticated and (user.profile.is_moderator or user.profile.is_manager)
         if is_moderator:
             query = self.filter(type__in=Post.TOP_LEVEL)
         else:
@@ -161,6 +163,9 @@ class Post(models.Model):
 
     # The user that originally created the post.
     author = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
+
+    # The project that this post belongs to.
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
 
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(User, related_name='editor', null=True,
@@ -350,6 +355,7 @@ class Post(models.Model):
 
 class Vote(models.Model):
     # Post statuses.
+
     UP, DOWN, BOOKMARK, ACCEPT, EMPTY = range(5)
     TYPE_CHOICES = [(UP, "Upvote"), (EMPTY, "Empty"),
                     (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]

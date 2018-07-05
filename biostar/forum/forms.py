@@ -55,6 +55,10 @@ def valid_tag(text):
 
 class PostLongForm(forms.Form):
 
+    def __init__(self, project=None, *args, **kwargs):
+        self.project = project
+        super(PostLongForm, self).__init__(*args, **kwargs)
+
     POST_CHOICES = [(Post.QUESTION, "Question"),
                     (Post.JOB, "Job Ad"),
                     (Post.TUTORIAL, "Tutorial"), (Post.TOOL, "Tool"),
@@ -89,7 +93,7 @@ class PostLongForm(forms.Form):
         tag_val = data('tag_val')
 
         post = auth.create_post(title=title, content=content, post_type=post_type,
-                                tag_val=tag_val, author=author)
+                                tag_val=tag_val, author=author, project=self.project)
 
         return post
 
@@ -126,13 +130,14 @@ class PostShortForm(forms.Form):
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                               min_length=2, max_length=5000)
 
-    def save(self, parent, author, post_type=Post.ANSWER):
+    def save(self, parent, author, post_type=Post.ANSWER, project=None):
         data = self.cleaned_data.get
         answer = auth.create_post(title=parent.title,
                                   parent=parent,
                                   author=author,
                                   content=data("content"),
-                                  post_type=post_type
+                                  post_type=post_type,
+                                  project=project
                                   )
         return answer
 

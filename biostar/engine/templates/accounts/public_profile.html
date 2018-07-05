@@ -18,7 +18,7 @@
     <div class="ui relaxed grid">
 
 <div class="row">
-    <div class="five wide column">
+    <div class="four wide column">
         <div class="ui center aligned basic large segment">
           <div class="ui circular image">
             <a href="{% url "public_profile" user.profile.uid %}">{% gravatar user=user size=200 %}</a>
@@ -31,7 +31,7 @@
 
     </div>
 
-    <div class="five wide column">
+    <div class="seven wide column">
 
 
         <div class="ui left aligned basic large segment">
@@ -64,31 +64,29 @@
         {%  if user == request.user %}
 
              <div class="ui center aligned basic vertical segment">
-                  <div class="ui mini buttons">
-                     <a class="ui mini button" href="{% url 'edit_profile'%}">
+
+                 <a class="ui mini button" href="{% url 'edit_profile'%}">
                         <i class="write icon"></i>Edit profile
                     </a>
-                      <div class="or"></div>
+
                     <a class="ui mini button" href="{% url 'recycle_bin' %}">
                         <i class="trash icon"></i>Recycle Bin
                     </a>
-                  </div>
-             </div>
 
-            <div class="ui center aligned vertical basic segment">
 
                 {% if user.profile.notify %}
-                  <div class="ui vertical basic segment">
+                    <a class="ui mini red button" href="{% url 'toggle_notify' %}">
+                        <i class="bell slash icon"></i>Disable Notifications
+                    </a>
+                      <div class="ui vertical basic segment">
                     Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
                   </div>
-
-                    <a class="ui mini red button" href="{% url 'toggle_notify' %}">
-                        <i class="bell slash icon"></i>Disable Email Notifications
-                    </a>
                     {% else %}
                     <a class="ui mini green button" href="{% url 'toggle_notify' %}">
-                        <i class="bell icon"></i>Enable Email Notifications
+                        <i class="bell icon"></i>Enable Notifications
                     </a>
+
+
                 {% endif %}
             </div>
 
@@ -103,7 +101,7 @@
 
 
 
-    <div class="six wide column">
+    <div class="five wide column">
 
 
         {{ user.profile.html |safe }}
@@ -119,7 +117,7 @@
 
         {% if enable_forum %}
             <div class="{{ has_posts }} item">
-                <a href="{% url "public_profile" user.profile.uid %}?active=has_posts">
+                <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_post }}">
                     Posts
                 </a>
 
@@ -129,7 +127,7 @@
 
         <div class="{{ has_projects }} item">
 
-        <a href="{% url "public_profile" user.profile.uid %}?active=has_projects">
+        <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
            Projects
         </a>
 
@@ -139,7 +137,7 @@
             {% if user.profile.is_manager  and user == request.user %}
                 <div class="{{ has_recipes }} item">
 
-                    <a href="{% url "public_profile" user.profile.uid %}?active=has_recipes">
+                    <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_recipes }}">
                        Recipes to Manage
                     </a>
 
@@ -160,7 +158,9 @@
             <div class="ui small relaxed divided list">
                 {% listing posts=posts %}
             </div>
-
+            {% if not posts %}
+            <div class="ui warning message"><i class="ui warning circle icon"></i> No posts found.</div>
+            {% endif %}
             {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
 
 

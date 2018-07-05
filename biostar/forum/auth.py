@@ -7,9 +7,10 @@ from django.utils.timezone import utc
 from django.db.models import F
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.shortcuts import render, redirect, reverse
 
 from .models import Post, Tag, Vote, Subscription,Message
-from . import util
+from . import util, forms
 
 User = get_user_model()
 
@@ -77,7 +78,6 @@ def build_msg_tree(msg, tree=[]):
     return tree
 
 
-
 def build_obj_tree(request, obj):
 
     # Populate the object to build a tree that contains all posts in the thread.
@@ -127,6 +127,7 @@ def list_by_topic(request, topic):
     if topic == myposts:
         # Get the posts that the user wrote.
         messages.success(request,'Filtering for posts you contribute to')
+
         return Post.objects.my_posts(target=user, user=user)
 
     if topic == mytags:
@@ -305,13 +306,13 @@ def create_post_from_json(json_dict):
     return post
 
 
-def create_post(title, author, content, post_type, tag_val="", parent=None,root=None):
+def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None):
     "Used to create posts across apps"
-
 
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
-        author=author, type=post_type, parent=parent, root=root
+        author=author, type=post_type, parent=parent, root=root,
+        project=project
     )
 
     # Triggers another save in here

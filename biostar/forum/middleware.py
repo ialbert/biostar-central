@@ -4,8 +4,6 @@ from django.contrib import messages
 from biostar.accounts.models import Profile
 
 
-
-
 def forum_middleware(get_response):
 
     def middleware(request):
