@@ -13,7 +13,7 @@ from .const import *
 User = get_user_model()
 
 
-def list_view(request, template="forum/post_list.html", extra_context={}, topic=None,
+def list_view(request, template="post_list.html", extra_context={}, topic=None,
               extra_proc=lambda x:x, per_page=20):
     "List view for posts and messages"
 
@@ -26,7 +26,7 @@ def list_view(request, template="forum/post_list.html", extra_context={}, topic=
     if request.user.is_anonymous and is_private_topic:
         messages.error(request, f"You must be logged in to view that topic.")
 
-        topic, template = "latest", "forum/post_list.html"
+        topic, template = "latest", "post_list.html"
 
     objs = auth.list_by_topic(request=request, topic=topic).order_by("-pk")
 
@@ -70,7 +70,7 @@ def message_list(request):
 
     msg_per_page = 20
 
-    return list_view(request, template="forum/message_list.html",
+    return list_view(request, template="message_list.html",
                      topic=active_tab, extra_context=context, per_page=msg_per_page)
 
 
@@ -80,7 +80,7 @@ def community_list(request):
     # considered part of the community
 
     users_per_page = 50
-    template = "forum/community_list.html"
+    template = "community_list.html"
     topic = "community"
 
     return list_view(request=request, template=template, per_page=users_per_page,
@@ -101,7 +101,7 @@ def message_view(request, uid):
 
     context = dict(message=base_message, tree=tree)
 
-    return render(request, "forum/message_view.html", context=context)
+    return render(request, "message_view.html", context=context)
 
 
 @object_exists(klass=Post)
@@ -129,7 +129,7 @@ def update_vote(request, uid, redir_view="post_view"):
 
 
 @object_exists(klass=Post)
-def post_view(request, uid, template="forum/post_view.html", url="post_view",
+def post_view(request, uid, template="post_view.html", url="post_view",
               extra_context={}, project=None):
     "Return a detailed view for specific post"
 
@@ -165,7 +165,7 @@ def post_view(request, uid, template="forum/post_view.html", url="post_view",
 
 
 @login_required
-def post_comment(request, uid, template="forum/post_comment.html", url="post_view", extra_context={},
+def post_comment(request, uid, template="post_comment.html", url="post_view", extra_context={},
                  project=None):
     """Used to structure a comment for viewing in biostar.engine and biostar.forum """
 
@@ -213,14 +213,16 @@ def subs_action(request, uid, redir_view="post_view"):
 
 
 @login_required
-def post_create(request, project=None, template="forum/post_create.html", url="post_view",
-                extra_context={}):
+def post_create(request, project=None, template="post_create.html", url="post_view",
+                extra_context={}, filter_func=lambda x: x):
     "Make a new post"
 
-    form = forms.PostLongForm(project=project)
+    # Filter function ( filter_func ) is used to filter choices from the form
+    # between sites.
+    form = forms.PostLongForm(project=project, filter_func=filter_func)
 
     if request.method == "POST":
-        form = forms.PostLongForm(data=request.POST, project=project)
+        form = forms.PostLongForm(data=request.POST, project=project, filter_func=filter_func)
         if form.is_valid():
             # Create a new post by user
             post = form.save(author=request.user)

@@ -7,6 +7,9 @@ DATA_HOST=data.bioinformatics.recipes
 serve: init
 	python manage.py runserver
 
+serve_forum:
+	python manage_forum.py runserver 4000
+
 init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate -v 0
@@ -101,5 +104,5 @@ deploy_psu:
 	(cd conf/ansible && ansible-playbook -i hosts-psu server_deploy.yml --ask-become-pass --extra-vars "reset=True")
 
 deploy_www:
-	(cd conf/ansible && ansible-playbook -i hosts-www server_deploy.yml --ask-become-pass --extra-vars "reset=True")
+	(cd conf/ansible && ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "reset=True")
 

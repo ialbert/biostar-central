@@ -196,15 +196,15 @@ def discussion_list(request, uid):
 
 
 @object_access(type=Post, access=Access.READ_ACCESS)
-def discussion_subs(request, uid):
+def discussion_subs(request, uid, redir_view="discussion_view"):
 
-    return forum_views.subs_action(request=request, uid=uid, redir_view="discussion_view")
+    return forum_views.subs_action(request=request, uid=uid, redir_view=redir_view)
 
 
 @object_access(type=Post, access=Access.READ_ACCESS)
-def discussion_vote(request, uid):
+def discussion_vote(request, uid, redir_view="discussion_view"):
 
-    return forum_views.update_vote(request=request, uid=uid, redir_view="discussion_view")
+    return forum_views.update_vote(request=request, uid=uid, redir_view=redir_view)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True)
@@ -217,8 +217,14 @@ def discussion_create(request, uid):
     counts = get_counts(project)
     context.update(counts)
 
+    allowed_posts = [
+                    Post.QUESTION, Post.COMMENT, Post.ANSWER, Post.TOOL,
+                    Post.TUTORIAL, Post.DATA, Post.NEWS
+                    ]
+    filter_function = lambda x: x[0] in allowed_posts
+
     return forum_views.post_create(request=request, template=template, extra_context=context,
-                                   url="discussion_view", project=project)
+                                   url="discussion_view", project=project, filter_func=filter_function)
 
 
 @object_access(type=Post, access=Access.READ_ACCESS)
