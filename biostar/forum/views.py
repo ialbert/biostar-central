@@ -32,7 +32,7 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
 
     if is_public_topic:
         # Projects not shown when looking at public topics
-        extra_proc = lambda q: q.filter(project=None)
+        objs = objs.filter(project=None)
 
     # Apply extra protocols to queryset (updates, etc)
     objs = extra_proc(objs)
@@ -125,7 +125,6 @@ def update_vote(request, uid, redir_view="post_view"):
         auth.create_vote(author=user, post=post, vote_type=vote_type)
 
     return redirect(reverse(redir_view, kwargs=dict(uid=post.uid)))
-
 
 
 @object_exists(klass=Post)
