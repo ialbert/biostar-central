@@ -1,3 +1,4 @@
 uwsgi
 matplotlib
 pysam
+ansible

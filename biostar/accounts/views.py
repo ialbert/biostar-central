@@ -49,21 +49,24 @@ def edit_profile(request):
 def public_profile(request, uid):
 
     user_profile = Profile.objects.filter(uid=uid).first()
-    forum_not_enabled = not settings.ENABLE_FORUM
+    forum_enabled = settings.ENABLE_FORUM or settings.ONLY_ENABLE_FORUM
 
     # Get the active tab, defaults to project
-    active_tab = request.GET.get(ACTIVE_TAB, HAS_PROJECT)
+    active_tab = request.GET.get(ACTIVE_TAB, HAS_POSTS)
 
     if not user_profile:
         messages.error(request, "User profile does not exist")
         return redirect("/")
 
-    active_tab = active_tab if (active_tab in PROFILE_TABS) else HAS_PROJECT
+    active_tab = active_tab if (active_tab in PROFILE_TABS) else HAS_POSTS
 
-    if forum_not_enabled and active_tab == HAS_POSTS:
+    if (not forum_enabled) and active_tab == HAS_POSTS:
         active_tab = HAS_PROJECT
 
-    context = dict(user=user_profile.user, enable_forum=settings.ENABLE_FORUM,
+    if settings.ONLY_ENABLE_FORUM:
+        active_tab = HAS_POSTS
+
+    context = dict(user=user_profile.user, enable_forum=forum_enabled,
                    const_name=ACTIVE_TAB, const_post=HAS_POSTS, const_project=HAS_PROJECT,
                    const_recipes=HAS_RECIPES)
 

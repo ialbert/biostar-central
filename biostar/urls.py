@@ -8,21 +8,41 @@ import biostar.engine.urls as engine_urls
 import biostar.forum.urls as forum_urls
 
 
+ACCOUNTS = url(r'^accounts/', include(accounts_urls))
+ADMIN = url(r'^django/admin/', admin.site.urls, name='django_admin')
+
+# Default url patters for the engine.
 urlpatterns = [
 
     # The engine handler.
     url(r'^', include(engine_urls)),
 
     # The user account handler.
-    url(r'^accounts/', include(accounts_urls)),
+    ACCOUNTS,
 
     # The django generated admin site.
-    url(r'^django/admin/', admin.site.urls, name='django_admin'),
+    ADMIN,
 
 ]
 
+# Have the option to load the engine and forum together
 if settings.ENABLE_FORUM:
     urlpatterns += [url(r'^forum/', include(forum_urls))]
+
+# Urls mounted when forum is enabled by itself
+if settings.ONLY_ENABLE_FORUM:
+
+    urlpatterns = [
+
+                # The forum handler.
+                url(r'^', include(forum_urls)),
+
+                # The user account handler.
+                ACCOUNTS,
+
+                # The django generated admin site.
+                ADMIN,
+                ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)

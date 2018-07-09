@@ -1,8 +1,4 @@
-
 {% extends "profile_base.html" %}
-
-
-
 
 {% load engine_tags %}
 {% load forum_tags %}
@@ -68,10 +64,14 @@
                  <a class="ui mini button" href="{% url 'edit_profile'%}">
                         <i class="write icon"></i>Edit profile
                     </a>
+                         {% only_enable_forum as only_forum %}
+
+            {% if not only_forum %}
 
                     <a class="ui mini button" href="{% url 'recycle_bin' %}">
                         <i class="trash icon"></i>Recycle Bin
                     </a>
+            {% endif %}
 
 
                 {% if user.profile.notify %}
@@ -114,8 +114,9 @@
 
         <div class="sixteen wide column">
         <div class="ui top attached tabular large menu">
+        {% only_enable_forum as only_forum %}
 
-        {% if enable_forum %}
+        {% if enable_forum or only_forum %}
             <div class="{{ has_posts }} item">
                 <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_post }}">
                     Posts
@@ -124,17 +125,17 @@
             </div>
         {%  endif %}
 
+        {% if not only_forum %}
 
-        <div class="{{ has_projects }} item">
+            <div class="{{ has_projects }} item">
 
-        <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
-           Projects
-        </a>
+            <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
+               Projects
+            </a>
 
+            </div>
 
-        </div>
-
-            {% if user.profile.is_manager  and user == request.user %}
+            {% if user.profile.is_manager and user == request.user %}
                 <div class="{{ has_recipes }} item">
 
                     <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_recipes }}">
@@ -144,6 +145,8 @@
                 </div>
 
             {%  endif %}
+
+        {% endif %}
 
 
 
@@ -164,7 +167,7 @@
             {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
 
 
-        {% elif has_projects %}
+        {% elif has_projects and not only_forum %}
 
             {% get_projects user=user request=request as projects %}
             {% pages objs=projects request=request uid=user.profile.uid url="public_profile" %}
@@ -176,7 +179,7 @@
             {% pages objs=projects request=request uid=user.profile.uid url="public_profile" %}
 
 
-        {% elif has_recipes and user.profile.is_manager  and user == request.user %}
+        {% elif has_recipes and user.profile.is_manager and user == request.user and not only_forum %}
 
 
 
