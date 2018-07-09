@@ -7,7 +7,7 @@ from . import views
 urlpatterns = [
 
     # Post urls
-    url(r'^post/list/$', views.list_view, name='post_list'),
+    url(r'^/$', views.list_view, name='post_list'),
     url(r'^post/list/(?P<topic>[-\w]+)$', views.list_by_topic, name='post_list_topic'),
     url(r'^post/create/$', views.post_create, name='post_create'),
     url(r'^post/subs/action/(?P<uid>[-\w]+)/(?P<redir_view>[-\w]+)/$', views.subs_action, name='subs_action'),
