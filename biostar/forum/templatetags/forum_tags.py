@@ -56,6 +56,17 @@ def message_menu(inbox=None, unread=None, mentioned=None,
                 const_out=const.OUTBOX, const_unread=const.UNREAD)
 
 
+@register.simple_tag
+def only_enable_forum():
+
+    return settings.ONLY_ENABLE_FORUM
+
+
+@register.inclusion_tag('widgets/forum_menubar.html', takes_context=True)
+def forum_menubar(context, request=None):
+    user = context.request.user
+
+    return dict(user=user, request=request)
 
 @register.simple_tag
 def gravatar(user, size=80):
@@ -84,8 +95,8 @@ def post_body(context, post, user, tree, form, include_userbox=True, comment_vie
     #TODO: this is really temporary ( the view names cannot be a string here.)
     "Renders the post body"
 
-    vote_url = reverse(vote_view, kwargs=dict(uid=post.uid))
-    sub_url = reverse(sub_view, kwargs=dict(uid=post.uid))
+    vote_url = reverse(vote_view, kwargs=dict(uid=post.uid, redir_view=sub_redir))
+    sub_url = reverse(sub_view, kwargs=dict(uid=post.uid, redir_view=sub_redir))
     comment_url = reverse(comment_view, kwargs=dict(uid=post.uid))
 
     return dict(post=post, user=user, tree=tree, request=context['request'],

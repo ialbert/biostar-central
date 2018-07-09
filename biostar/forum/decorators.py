@@ -6,14 +6,12 @@ from django.contrib import messages
 from . import models
 
 
-
 class object_exists:
 
     def __init__(self, klass, url=None):
 
         self.klass = klass
         self.url = url or "post_list"
-
 
     def __call__(self, func, *args, **kwargs):
 
@@ -48,8 +46,6 @@ def message_access(func):
             return func(request, *args, **kwargs)
 
         return redirect(reverse("message_list"))
-
-
 
     return _wrapped_view
 

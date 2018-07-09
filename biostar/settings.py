@@ -167,7 +167,9 @@ os.makedirs(TOC_ROOT, exist_ok=True)
 SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = '/protected/'
 
-ENABLE_FORUM = True
+# Settings used to enable/disable the forum.
+ENABLE_FORUM = False
+ONLY_ENABLE_FORUM = False
 
 # Session settings go here
 SESSION_KEY = "session"

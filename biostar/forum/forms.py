@@ -55,25 +55,25 @@ def valid_tag(text):
 
 class PostLongForm(forms.Form):
 
-    def __init__(self, project=None, *args, **kwargs):
+    def __init__(self, project=None, filter_func=lambda x: x, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.project = project
 
-        super(PostLongForm, self).__init__(*args, **kwargs)
+        POST_CHOICES = [(Post.QUESTION, "Question"),
+                        (Post.JOB, "Job Ad"),
+                        (Post.TUTORIAL, "Tutorial"), (Post.TOOL, "Tool"),
+                        (Post.FORUM, "Forum"), (Post.NEWS, "News"),
+                        (Post.BLOG, "Blog"), (Post.PAGE, "Page")]
 
-    POST_CHOICES = [(Post.QUESTION, "Question"),
-                    (Post.JOB, "Job Ad"),
-                    (Post.TUTORIAL, "Tutorial"), (Post.TOOL, "Tool"),
-                    (Post.FORUM, "Forum"), (Post.NEWS, "News"),
-                    (Post.BLOG, "Blog"), (Post.PAGE, "Page")]
+        # Pass a filtering function to customize choices between sites.
+        choices = list(filter(filter_func, POST_CHOICES))
+        self.fields["post_type"] = forms.ChoiceField(label="Post Type", choices=choices,
+                                                     help_text="Select a post type: Question, Forum, Job, Blog")
 
     title = forms.CharField(
         label="Post Title",
         max_length=200, min_length=2, validators=[valid_title, english_only],
         help_text="Descriptive titles promote better answers.")
-
-    post_type = forms.ChoiceField(
-        label="Post Type",
-        choices=POST_CHOICES, help_text="Select a post type: Question, Forum, Job, Blog")
 
     tag_val = forms.CharField(
         label="Post Tags", max_length=50,
