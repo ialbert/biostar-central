@@ -12,7 +12,7 @@ from django.test.client import RequestFactory
 
 from biostar import settings
 from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
-from biostar.engine import auth, forms
+from biostar.engine import auth, forms, util
 
 
 logger = logging.getLogger("engine")
@@ -82,6 +82,18 @@ def file_list(context, path, files, obj, form=None):
     return dict(path=path, files=files, obj=obj, form=form, back=back, view_url=view_url, serve_url=serve_url)
 
 
+@register.simple_tag
+def get_qiime2view_link(file_serve_url):
+
+    site = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
+
+    full_url = site + file_serve_url
+
+    qiime_link = util.qiime2view_link(full_url)
+
+    return qiime_link
+
+
 @register.inclusion_tag('widgets/action_bar.html', takes_context=True)
 def action_bar(context, instance, edit_url):
 
@@ -142,11 +154,19 @@ def has_files(request):
     return True if files else False
 
 
+@register.filter
+def is_qiime_archive(file=None):
+
+    filename = file.path
+
+    return filename.endswith(".qza") or filename.endswith(".qzv")
+
+
 @register.simple_tag
 def get_projects(user, request=None, per_page=20):
     "Used to return projects list in the profile."
 
-    projects = auth.get_project_list(user=user, include_public=False).order_by("-pk")
+    projects = auth.get_project_list(user=user).order_by("-pk")
 
     if user != request.user:
         # Don't list private projects when target != user

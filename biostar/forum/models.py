@@ -548,6 +548,7 @@ def check_root(sender, instance, created, *args, **kwargs):
         if not instance.is_toplevel:
             # Title is inherited from top level.
             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
+            instance.project = instance.root.project
 
             if instance.type == Post.ANSWER:
                 Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)

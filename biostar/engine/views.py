@@ -14,7 +14,6 @@ from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile, User
 
 from biostar.forum.models import Post
-from biostar.forum.forms import PostLongForm, PostShortForm
 from biostar.forum import views as forum_views
 
 from . import tasks, auth, forms, util
@@ -766,7 +765,7 @@ def job_view(request, uid):
     return render(request, "job_view.html", context=context)
 
 
-def file_serve(request, uid, path, obj):
+def file_serve(request, path, obj):
     """
     Authenticates access through decorator before serving file.
     """
@@ -807,13 +806,13 @@ def data_serve(request, uid, path):
     Serves files from a data directory.
     """
     obj = Data.objects.get_all(uid=uid).first()
-    return file_serve(request=request, path=path, uid=uid, obj=obj)
+    return file_serve(request=request, path=path, obj=obj)
 
 
-@object_access(type=Job, access=Access.READ_ACCESS, url='job_view')
+#@object_access(type=Job, access=Access.READ_ACCESS, url='job_view')
 def job_serve(request, uid, path):
     """
     Serves files from a job directory.
     """
     obj = Job.objects.get_all(uid=uid).first()
-    return file_serve(request=request, path=path, uid=uid, obj=obj)
+    return file_serve(request=request, path=path, obj=obj)

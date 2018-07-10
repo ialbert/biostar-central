@@ -27,6 +27,19 @@
                         <i class="file text outline icon"></i>{{ file.name }}
                         <span class="ui right floated mini label">{{ file.size|filesizeformat }}</span>
                     </a>
+
+                    {% if file|is_qiime_archive %}
+                        {% url serve_url uid=obj.uid path=file.path as file_serve_url %}
+
+                        <a href="{% get_qiime2view_link file_serve_url %}" target="_blank">
+                        <span class="ui right floated tiny blue label">
+                            <i class="eye icon"></i>View</span>
+                        </a>
+
+                    {% endif %}
+
+
+
                 {% endif %}
             </div>
 
