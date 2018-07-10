@@ -95,18 +95,20 @@ def post_body(context, post, user, tree, form, include_userbox=True, comment_vie
     #TODO: this is really temporary ( the view names cannot be a string here.)
     "Renders the post body"
 
-    vote_url = reverse(vote_view, kwargs=dict(uid=post.uid, redir_view=sub_redir))
-    sub_url = reverse(sub_view, kwargs=dict(uid=post.uid, redir_view=sub_redir))
+    vote_url = reverse(vote_view, kwargs=dict(uid=post.uid))
+    sub_url = reverse(sub_view, kwargs=dict(uid=post.uid))
+    next_url = reverse(sub_redir, kwargs=dict(uid=post.uid))
     comment_url = reverse(comment_view, kwargs=dict(uid=post.uid))
 
     return dict(post=post, user=user, tree=tree, request=context['request'],
                 form=form, include_userbox=include_userbox, comment_url=comment_url,
-                sub_redirview=sub_redir, vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url,
-                comment_view=comment_view)
+                vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url,
+                comment_view=comment_view, next_url=next_url,
+                redir_field_name=const.REDIRECT_FIELD_NAME)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
-def subs_actions(post, user, redir_view, sub_url):
+def subs_actions(post, user, next, sub_url):
 
     if user.is_anonymous:
         sub = None
@@ -122,7 +124,8 @@ def subs_actions(post, user, redir_view, sub_url):
 
     button = "Follow" if unsubbed else "Update"
 
-    return dict(post=post, form=form, button=button, redir_view=redir_view, sub_url=sub_url)
+    return dict(post=post, form=form, button=button, next=next, sub_url=sub_url,
+                redir_field_name=const.REDIRECT_FIELD_NAME)
 
 @register.filter
 def show_email(user):

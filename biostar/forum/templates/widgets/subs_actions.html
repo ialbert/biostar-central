@@ -1,7 +1,8 @@
 {% load forum_tags %}
 
 
-<form method="post" action="{{ sub_url }}" class="ui tiny form">
+
+<form method="post" action="{{ sub_url }}?{{ redir_field_name}}={{ next }}" class="ui tiny form">
     {% csrf_token %}
 
     {{ form.subtype}}

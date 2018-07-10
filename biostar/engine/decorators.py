@@ -12,6 +12,7 @@ from . import models
 # Share the logger with models
 logger = models.logger
 
+
 class object_access:
     """
     Wraps a view and checks user access permissions to an instance.
