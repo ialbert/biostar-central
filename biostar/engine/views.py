@@ -196,15 +196,17 @@ def discussion_list(request, uid):
 
 
 @object_access(type=Post, access=Access.READ_ACCESS)
-def discussion_subs(request, uid, redir_view="discussion_view"):
+def discussion_subs(request, uid):
 
-    return forum_views.subs_action(request=request, uid=uid, redir_view=redir_view)
+    next_url = reverse("discussion_view", kwargs=dict(uid=uid))
+    return forum_views.subs_action(request=request, uid=uid, next=next_url)
 
 
 @object_access(type=Post, access=Access.READ_ACCESS)
-def discussion_vote(request, uid, redir_view="discussion_view"):
+def discussion_vote(request, uid):
 
-    return forum_views.update_vote(request=request, uid=uid, redir_view=redir_view)
+    next_url = reverse("discussion_view", kwargs=dict(uid=uid))
+    return forum_views.update_vote(request=request, uid=uid, next=next_url)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True)

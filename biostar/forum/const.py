@@ -14,7 +14,8 @@ ALLOWED_ATTRIBUTES = {
 
 }
 
-
+REDIRECT_FIELD_NAME = 'next'
+TOPIC_FIELD_NAME = "topic"
 MESSAGE_TABS = ["inbox", "outbox", "unread"]
 
 INBOX, OUTBOX, UNREAD = MESSAGE_TABS

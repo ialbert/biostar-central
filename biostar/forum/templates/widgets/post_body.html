@@ -3,7 +3,7 @@
     {% if post.is_toplevel %}
 
     <div class="ui vertical segment">
-        {% subs_actions post=post user=request.user redir_view=sub_redirview sub_url=sub_url %}
+        {% subs_actions post=post user=request.user next=next_url sub_url=sub_url %}
         <div class="ui header" >{{ post.get_type_display }}: {{ post.get_title }}</div>
 
     </div>
@@ -13,11 +13,11 @@
     <div class="ui items">
         <div class="item">
             <div class="ui image">
-                <a href="{{ vote_url }}?type=upvote">
+                <a href="{{ vote_url }}?type=upvote&{{ redir_field_name}}={{ next_url }}">
                     <i class="large {% vote_icon request.user post 'upvote' %}"></i>
                 </a>
                 <div class="ui center aligned header">{{ post.vote_count }}</div>
-                <a href="{{ vote_url }}?type=bookmark">
+                <a href="{{ vote_url }}?type=bookmark&{{ redir_field_name}}={{ next_url }}">
                     <i class="large {% vote_icon request.user post 'bookmark' %}"></i>
                 </a>
             </div>

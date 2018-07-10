@@ -10,6 +10,8 @@ KNOWN_TEXT_EXTENSIONS = (
     ".r", ".gtf", ".gb", ".tsv", ".csv", ".rep", ".sh", ".md", ".txt"
 )
 
+REDIRECT_FIELD_NAME = 'next'
+
 KNOWN_TEXT_EXTENSIONS = set(KNOWN_TEXT_EXTENSIONS)
 
 # Map a file extension to a biostar-engine datatype.

@@ -40,20 +40,11 @@
 </head>
 <body>
 
-{% only_enable_forum as only_forum %}
 
-{% if only_forum %}
 
-    {% with wide="" %}
-<div class="ui {{ wide }} container">
-    {% endwith %}
 
-{% else %}
-    {% with wide="text" %}
-<div class="ui {{ wide }} container">
-    {% endwith %}
+<div class="ui container">
 
-{% endif %}
 
     <div class="ui center aligned header">
         {% block title %}
@@ -63,7 +54,7 @@
 
     {% block menu %}
 
-
+        {% only_enable_forum as only_forum %}
         {% if only_forum %}
             {% forum_menubar request=request %}
         {% else %}

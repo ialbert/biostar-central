@@ -8,7 +8,7 @@ serve: init
 	python manage.py runserver
 
 serve_forum:
-	python manage_forum.py runserver 4000
+	python manage.py runserver 4000 --settings=biostar.forum.settings
 
 init:
 	@python manage.py collectstatic --noinput -v 0
@@ -104,5 +104,5 @@ deploy_psu:
 	(cd conf/ansible && ansible-playbook -i hosts-psu server_deploy.yml --ask-become-pass --extra-vars "reset=True")
 
 deploy_www:
-	(cd conf/ansible && ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "reset=True" -vvvv)
+	(cd conf/ansible && ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "reset=True")
 

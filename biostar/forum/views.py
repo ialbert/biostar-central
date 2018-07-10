@@ -106,7 +106,7 @@ def message_view(request, uid):
 
 @object_exists(klass=Post)
 @login_required
-def update_vote(request, uid, redir_view="post_view"):
+def update_vote(request, uid, next=None):
 
     # Post to upvote/bookmark
     post = Post.objects.filter(uid=uid).first()
@@ -116,6 +116,9 @@ def update_vote(request, uid, redir_view="post_view"):
     vote_type = vmap.get(request.GET.get("type"), Vote.EMPTY)
 
     vote = Vote.objects.filter(post=post, author=user, type=vote_type).first()
+    next_url = request.GET.get(REDIRECT_FIELD_NAME,
+                               request.POST.get(REDIRECT_FIELD_NAME))
+    next_url = next or next_url or "/"
 
     if vote:
         # Change vote to empty if clicked twice
@@ -124,7 +127,7 @@ def update_vote(request, uid, redir_view="post_view"):
     elif not vote:
         auth.create_vote(author=user, post=post, vote_type=vote_type)
 
-    return redirect(reverse(redir_view, kwargs=dict(uid=post.uid)))
+    return redirect(next_url)
 
 
 @object_exists(klass=Post)
@@ -193,12 +196,14 @@ def post_comment(request, uid, template="post_comment.html", url="post_view", ex
 
 @object_exists(klass=Post)
 @login_required
-def subs_action(request, uid, redir_view="post_view"):
+def subs_action(request, uid, next=None):
 
     # Post actions are being taken on
     post = Post.objects.filter(uid=uid).first()
     user = request.user
-    redir_url = reverse(redir_view, kwargs=dict(uid=post.root.uid))
+    next_url = request.GET.get(REDIRECT_FIELD_NAME,
+                               request.POST.get(REDIRECT_FIELD_NAME))
+    next_url = next or next_url or "/"
 
     if request.method == "POST" and user.is_authenticated:
         form = forms.SubsForm(data=request.POST, post=post, user=user)
@@ -208,7 +213,7 @@ def subs_action(request, uid, redir_view="post_view"):
             msg = f"Updated Subscription to : {sub.get_type_display()}"
             messages.success(request, msg)
 
-    return redirect(redir_url)
+    return redirect(next_url)
 
 
 @login_required
