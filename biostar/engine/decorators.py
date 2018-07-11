@@ -1,10 +1,10 @@
 from functools import wraps
 from django.contrib import messages
 
-from django.urls import reverse
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
 
+from biostar.shortcuts import reverse
 from . import auth
 
 from . import models
@@ -61,16 +61,10 @@ class object_access:
             # Access check did not pass, redirect.
             if not allow_access:
 
-                # If there is a redirect url build with the uid.
-                try:
-                    if self.url and uid:
-                        target = reverse(self.url, kwargs=dict(uid=uid))
-                    else:
-                        target = reverse('project_list')
-                except Exception as exc:
-                    messages.error(request, "Error trying to redirect")
-                    logger.error(f"{exc}")
-                    target = "/"
+                if self.url and uid:
+                    target = reverse(self.url, request=request, kwargs=dict(uid=uid))
+                else:
+                    target = reverse('project_list', request=request)
 
                 return redirect(target)
 

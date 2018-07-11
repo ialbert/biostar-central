@@ -1,10 +1,11 @@
 
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 
+from biostar.shortcuts import reverse
 from biostar.accounts.models import Profile
 from . import forms, auth
 from .models import Post, Vote, Message
@@ -151,7 +152,7 @@ def post_view(request, uid, template="post_view.html", url="post_view",
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             form.save(parent=obj.parent, author=request.user, project=project)
-            return redirect(reverse(url, kwargs=dict(uid=obj.root.uid)))
+            return redirect(reverse(url, request=request, kwargs=dict(uid=obj.root.uid)))
 
     # Adds the permissions
     obj = auth.post_permissions(request=request, post=obj)
@@ -186,7 +187,7 @@ def post_comment(request, uid, template="post_comment.html", url="post_view", ex
             if form.is_valid():
                 form.save(parent=obj, author=request.user, post_type=Post.COMMENT,
                           project=project)
-            return redirect(reverse(url, kwargs=dict(uid=obj.root.uid)))
+            return redirect(reverse(url, request=request, kwargs=dict(uid=obj.root.uid)))
 
     context = dict(form=form, post=obj)
     context.update(extra_context)
@@ -230,7 +231,7 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
         if form.is_valid():
             # Create a new post by user
             post = form.save(author=request.user)
-            return redirect(reverse(url, kwargs=dict(uid=post.uid)))
+            return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
 
     context = dict(form=form)
     context.update(extra_context)
