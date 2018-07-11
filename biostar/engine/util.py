@@ -100,6 +100,14 @@ def write_stream(stream, dest):
     return dest
 
 
+def qiime2view_link(file_url):
+
+    template = "https://view.qiime2.org/visualization/?type=html&src="
+
+    file_url = file_url.replace("/", "%2F").replace(":", "%3A")
+
+    return template + file_url
+
 
 def findfiles(location, collect):
     """

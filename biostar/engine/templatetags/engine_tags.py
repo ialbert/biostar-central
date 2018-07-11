@@ -5,14 +5,13 @@ from django import template
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.template import defaultfilters
 from django.utils.safestring import mark_safe
-from django.urls import reverse
 from django.core.paginator import Paginator
-from django.db.models import Q
-from django.test.client import RequestFactory
+
 
 from biostar import settings
+from biostar.shortcuts import reverse
 from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
-from biostar.engine import auth, forms
+from biostar.engine import auth, util
 
 
 logger = logging.getLogger("engine")
@@ -29,11 +28,10 @@ DATA_COLORS = {
 }
 
 
-
 @register.simple_tag
 def moderate(request):
 
-    url = reverse("recipe_mod")
+    url = reverse("recipe_mod", request=request)
     user = request.user
     recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW).count()
 
@@ -82,10 +80,23 @@ def file_list(context, path, files, obj, form=None):
     return dict(path=path, files=files, obj=obj, form=form, back=back, view_url=view_url, serve_url=serve_url)
 
 
+@register.simple_tag
+def get_qiime2view_link(file_serve_url):
+
+    site = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
+
+    full_url = site + file_serve_url
+
+    qiime_link = util.qiime2view_link(full_url)
+
+    return qiime_link
+
+
 @register.inclusion_tag('widgets/action_bar.html', takes_context=True)
 def action_bar(context, instance, edit_url):
 
-    edit_url = reverse(edit_url, kwargs=dict(uid=instance.uid))
+    request = context["request"]
+    edit_url = reverse(edit_url, request=request, kwargs=dict(uid=instance.uid))
 
     if isinstance(instance, Job):
         obj_type, obj = "job", Job
@@ -96,7 +107,7 @@ def action_bar(context, instance, edit_url):
     else:
         obj_type, obj = None, None
 
-    action_url = reverse("toggle_state", kwargs=dict(uid=instance.uid, obj_type=obj_type))
+    action_url = reverse("toggle_state", request=request, kwargs=dict(uid=instance.uid, obj_type=obj_type))
     return dict(instance=instance, edit_url=edit_url, user=context["user"],
                 action_url=action_url)
 
@@ -142,11 +153,19 @@ def has_files(request):
     return True if files else False
 
 
+@register.filter
+def is_qiime_archive(file=None):
+
+    filename = file.path
+
+    return filename.endswith(".qza") or filename.endswith(".qzv")
+
+
 @register.simple_tag
 def get_projects(user, request=None, per_page=20):
     "Used to return projects list in the profile."
 
-    projects = auth.get_project_list(user=user, include_public=False).order_by("-pk")
+    projects = auth.get_project_list(user=user).order_by("-pk")
 
     if user != request.user:
         # Don't list private projects when target != user
@@ -195,7 +214,6 @@ def paste(action_view, obj, form, contains="Nothing"):
     "Default provides template for pasting a recipe"
 
     action_url = reverse(action_view, kwargs=dict(uid=obj.uid))
-
 
     return dict(action_url=action_url, form=form, contains=contains)
 
@@ -313,6 +331,7 @@ def recipe_form(form):
     """
     return dict(form=form)
 
+
 @register.inclusion_tag('widgets/access_form.html')
 def access_form(project, user, form):
     """
@@ -325,6 +344,7 @@ def access_form(project, user, form):
 @register.inclusion_tag('widgets/project_action_bar.html')
 def project_action_bar(user, project):
     return dict(use=user, project=project)
+
 
 @register.inclusion_tag('widgets/job_elapsed.html')
 def job_minutes(job):

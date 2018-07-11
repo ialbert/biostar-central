@@ -80,7 +80,7 @@
 
                  {# Comments for each post rendered here #}
             <div class="ui comments" style="max-width: 750px;">
-                {% render_comments request=request post=post comment_view=comment_view vote_url=vote_url %}
+                {% render_comments request=request post=post comment_view=comment_view vote_view=vote_view next_url=next_url %}
             </div>
 
              </div>

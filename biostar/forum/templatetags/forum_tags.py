@@ -2,7 +2,6 @@ import logging
 import hashlib
 import urllib.parse
 from datetime import timedelta, datetime
-from django.shortcuts import  reverse
 from django.utils.timezone import utc
 from django import template
 from django.utils.safestring import mark_safe
@@ -10,6 +9,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
+from biostar.shortcuts import reverse
 from biostar.forum.models import Post, Vote, Message
 from biostar.forum import auth, forms, models, const
 
@@ -24,7 +24,6 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
-
 @register.inclusion_tag('widgets/user_box.html')
 def user_box(user):
 
@@ -37,9 +36,9 @@ def pages(objs, request=None, topic="", url="post_list_topic", uid=None):
     topic = request.GET.get('topic', topic)
 
     if topic:
-        url = reverse(url, kwargs=dict(topic=topic))
+        url = reverse(url, request=request, kwargs=dict(topic=topic))
     elif uid:
-        url = reverse(url, kwargs=dict(uid=uid))
+        url = reverse(url, request=request, kwargs=dict(uid=uid))
     else:
         url = ''
 
@@ -94,16 +93,17 @@ def post_body(context, post, user, tree, form, include_userbox=True, comment_vie
               sub_redir="post_view", vote_view="update_vote", sub_view="subs_action"):
     #TODO: this is really temporary ( the view names cannot be a string here.)
     "Renders the post body"
+    request = context['request']
 
-    vote_url = reverse(vote_view, kwargs=dict(uid=post.uid))
-    sub_url = reverse(sub_view, kwargs=dict(uid=post.uid))
-    next_url = reverse(sub_redir, kwargs=dict(uid=post.uid))
-    comment_url = reverse(comment_view, kwargs=dict(uid=post.uid))
+    vote_url = reverse(vote_view, request=request, kwargs=dict(uid=post.uid))
+    sub_url = reverse(sub_view, request=request, kwargs=dict(uid=post.uid))
+    next_url = reverse(sub_redir, request=request, kwargs=dict(uid=post.uid))
+    comment_url = reverse(comment_view, request=request, kwargs=dict(uid=post.uid))
 
-    return dict(post=post, user=user, tree=tree, request=context['request'],
+    return dict(post=post, user=user, tree=tree, request=request,
                 form=form, include_userbox=include_userbox, comment_url=comment_url,
                 vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url,
-                comment_view=comment_view, next_url=next_url,
+                comment_view=comment_view, next_url=next_url, vote_view=vote_view,
                 redir_field_name=const.REDIRECT_FIELD_NAME)
 
 
@@ -346,8 +346,7 @@ def boxclass(post):
 
 
 @register.simple_tag
-def render_comments(request, post, comment_view, vote_url, comment_template='widgets/comment_body.html'):
-
+def render_comments(request, post, comment_view, vote_view, next_url, comment_template='widgets/comment_body.html'):
 
     user = request.user
     thread = Post.objects.get_thread(post.parent, user)
@@ -356,23 +355,26 @@ def render_comments(request, post, comment_view, vote_url, comment_template='wid
 
     if tree and post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
-                                 comment_template=comment_template, comment_view=comment_view)
+                                 comment_template=comment_template, comment_view=comment_view,
+                                 vote_view=vote_view, next_url=next_url)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template, comment_view):
+def traverse_comments(request, post, tree, comment_template, comment_view, vote_view, next_url):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
 
     def traverse(node):
-        comment_url = reverse(comment_view, kwargs=dict(uid=node.uid))
+        comment_url = reverse(comment_view, request=request, kwargs=dict(uid=node.uid))
+        vote_url = reverse(vote_view, request=request, kwargs=dict(uid=node.uid))
 
         data = ['<div class="comment">']
-        cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url}
+        cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url,
+                "vote_url":vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):

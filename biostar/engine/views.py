@@ -9,12 +9,11 @@ from sendfile import sendfile
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from django.urls import reverse
 from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile, User
 
+from biostar.shortcuts import reverse
 from biostar.forum.models import Post
-from biostar.forum.forms import PostLongForm, PostShortForm
 from biostar.forum import views as forum_views
 
 from . import tasks, auth, forms, util
@@ -98,7 +97,7 @@ def clear_clipboard(request, uid, url="project_view", board=""):
     if board:
         request.session[board] = None
 
-    return redirect(reverse(url, kwargs=dict(uid=uid)))
+    return redirect(reverse(url, request=request, kwargs=dict(uid=uid)))
 
 
 def get_access(request, project):
@@ -134,7 +133,7 @@ def project_users(request, uid):
             user, access = form.save()
             msg = f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}"
             messages.success(request, mark_safe(msg))
-            return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
+            return redirect(reverse("project_users", request=request, kwargs=dict(uid=project.uid)))
 
     # Users that have been searched for.
     targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
@@ -176,7 +175,7 @@ def data_list(request, uid):
     if request.method == 'POST':
         success, form = paste(project=project, post_request=request, board="files_clipboard")
         if success:
-            return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+            return redirect(reverse("data_list", request=request, kwargs=dict(uid=project.uid)))
     else:
         form = forms.PasteForm(project=project, request=request, board='files_clipboard')
 
@@ -198,14 +197,14 @@ def discussion_list(request, uid):
 @object_access(type=Post, access=Access.READ_ACCESS)
 def discussion_subs(request, uid):
 
-    next_url = reverse("discussion_view", kwargs=dict(uid=uid))
+    next_url = reverse("discussion_view", request=request, kwargs=dict(uid=uid))
     return forum_views.subs_action(request=request, uid=uid, next=next_url)
 
 
 @object_access(type=Post, access=Access.READ_ACCESS)
 def discussion_vote(request, uid):
 
-    next_url = reverse("discussion_view", kwargs=dict(uid=uid))
+    next_url = reverse("discussion_view", request=request, kwargs=dict(uid=uid))
     return forum_views.update_vote(request=request, uid=uid, next=next_url)
 
 
@@ -270,7 +269,7 @@ def recipe_list(request, uid):
     if request.method == 'POST':
         success, form = paste(project=project, post_request=request, board="recipe_clipboard")
         if success:
-            return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
+            return redirect(reverse("recipe_list", request=request, kwargs=dict(uid=project.uid)))
     else:
         form = forms.PasteForm(project=project, request=request, board='recipe_clipboard')
 
@@ -339,7 +338,7 @@ def project_edit(request, uid):
         form = forms.ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
             form.save()
-            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
+            return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
 
     context = dict(project=project, form=form)
     return render(request, "project_edit.html", context=context)
@@ -368,7 +367,7 @@ def project_create(request):
             project = auth.create_project(user=owner, name=name, summary=summary, text=text,
                                           stream=stream, sticky=sticky, privacy=privacy)
             project.save()
-            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
+            return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
 
     context = dict(form=form)
     return render(request, "project_create.html", context=context)
@@ -389,7 +388,7 @@ def data_view(request, uid):
             ndata = form.save()
             msg = mark_safe(f"Copied <b>{ndata}</b> files from <b>{project.name}</b> to the Clipboard.")
             messages.success(request, msg)
-            return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
+            return redirect(reverse("data_view", request=request, kwargs=dict(uid=data.uid)))
     else:
         form = forms.FileCopyForm(request, data.uid, data.get_data_dir())
 
@@ -421,7 +420,7 @@ def data_edit(request, uid):
         form = forms.DataEditForm(data=request.POST, instance=data, user=request.user, files=request.FILES)
         if form.is_valid():
             form.save()
-            return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
+            return redirect(reverse("data_view", request=request, kwargs=dict(uid=data.uid)))
         print(form.errors)
     context = dict(data=data, form=form)
     return render(request, 'data_edit.html', context)
@@ -440,7 +439,7 @@ def data_upload(request, uid):
         if form.is_valid():
             data = form.save()
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
-            return redirect(reverse("data_list", kwargs={'uid': project.uid}))
+            return redirect(reverse("data_list", request=request, kwargs={'uid': project.uid}))
 
     context = dict(project=project, form=form)
     return render(request, 'data_upload.html', context)
@@ -458,7 +457,7 @@ def recipe_view(request, uid):
         form = forms.RecipeCopyForm(data=request.POST, recipe=recipe, request=request)
         if form.is_valid():
             form.save()
-            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
+            return redirect(reverse("recipe_view", request=request, kwargs=dict(uid=recipe.uid)))
     else:
         form = forms.RecipeCopyForm(recipe=recipe, request=request)
 
@@ -496,7 +495,7 @@ def recipe_run(request, uid):
             if tasks.HAS_UWSGI:
                 tasks.execute_job.spool(job_id=job.id)
 
-            return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
+            return redirect(reverse("job_list", request=request, kwargs=dict(uid=project.uid)))
     else:
         initial = dict(name=f"Results for: {analysis.name}")
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
@@ -552,7 +551,7 @@ def recipe_code(request, uid):
             if save:
                 analysis.save()
                 messages.info(request, "The recipe has been updated.")
-                return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
+                return redirect(reverse("recipe_view", request=request, kwargs=dict(uid=analysis.uid)))
     else:
         # This gets triggered on a GET request.
         initial = dict(template=analysis.template, json=analysis.json_text)
@@ -604,9 +603,9 @@ def recipe_create(request, uid):
             recipe.save()
             messages.success(request, "Recipe created")
 
-            return redirect(reverse('recipe_list', kwargs=dict(uid=project.uid)))
+            return redirect(reverse('recipe_list', request=request, kwargs=dict(uid=project.uid)))
     # The url to submit to.
-    action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
+    action_url = reverse('recipe_create', request=request, kwargs=dict(uid=project.uid))
     context = dict(project=project, form=form, action_url=action_url, name="New Recipe")
 
     return render(request, 'recipe_edit.html', context)
@@ -629,7 +628,7 @@ def recipe_diff(request, uid):
                           request=request)
         if form.is_valid():
             form.save()
-            return redirect(reverse('recipe_view', kwargs=dict(uid=recipe.uid)))
+            return redirect(reverse('recipe_view', request=request, kwargs=dict(uid=recipe.uid)))
 
     context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
                    diff=mark_safe(''.join(differ)), form=form)
@@ -640,21 +639,20 @@ def recipe_diff(request, uid):
     return render(request, "recipe_diff.html", context=context)
 
 
-
 @object_access(type=Analysis, access=Access.OWNER_ACCESS, url='recipe_view')
 def recipe_edit(request, uid):
     "Edit meta-data associated with a recipe."
 
     recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
-    action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
+    action_url = reverse('recipe_edit', request=request, kwargs=dict(uid=recipe.uid))
     form = forms.RecipeForm(instance=recipe)
 
     if request.method == "POST":
         form = forms.RecipeForm(data=request.POST, files=request.FILES, instance=recipe)
         if form.is_valid():
             recipe = form.save()
-            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
+            return redirect(reverse("recipe_view", request=request, kwargs=dict(uid=recipe.uid)))
 
     context = dict(analysis=recipe, project=project, form=form, action_url=action_url,
                    name=recipe.name)
@@ -674,7 +672,7 @@ def job_edit(request, uid):
         form = forms.JobEditForm(data=request.POST, files=request.FILES, instance=job)
         if form.is_valid():
             form.save()
-            return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
+            return redirect(reverse("job_view", request=request, kwargs=dict(uid=job.uid)))
 
     context = dict(job=job, project=project, form=form)
     return render(request, 'job_edit.html', context)
@@ -691,7 +689,7 @@ def object_state_toggle(request, uid, obj_type):
                    recipe=(Analysis, "recipe_list"))
     if not obj_map.get(obj_type):
         messages.error(request, "Can not toggle state.")
-        return redirect(reverse('project_list'))
+        return redirect(reverse('project_list', request=request))
 
     # Make query and build urls
     obj, view_name = obj_map[obj_type][0], obj_map[obj_type][1]
@@ -719,7 +717,7 @@ def object_state_toggle(request, uid, obj_type):
         msg = msg if instance.deleted else f"Restored <b>{instance.name}</b>."
         messages.success(request, mark_safe(msg))
 
-    return redirect(reverse(view_name, kwargs=dict(uid=instance.project.uid)))
+    return redirect(reverse(view_name, request=request, kwargs=dict(uid=instance.project.uid)))
 
 
 
@@ -741,7 +739,7 @@ def job_view(request, uid):
             ndata = form.save()
             msg = mark_safe(f"Copied <b>{ndata}</b> files from <b>{job.name}</b> to the Clipboard.")
             messages.success(request, msg)
-            return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
+            return redirect(reverse("job_list", request=request, kwargs=dict(uid=project.uid)))
     else:
         form = forms.FileCopyForm(request, job.uid, job.path)
 
@@ -766,7 +764,7 @@ def job_view(request, uid):
     return render(request, "job_view.html", context=context)
 
 
-def file_serve(request, uid, path, obj):
+def file_serve(request, path, obj):
     """
     Authenticates access through decorator before serving file.
     """
@@ -807,13 +805,13 @@ def data_serve(request, uid, path):
     Serves files from a data directory.
     """
     obj = Data.objects.get_all(uid=uid).first()
-    return file_serve(request=request, path=path, uid=uid, obj=obj)
+    return file_serve(request=request, path=path, obj=obj)
 
 
-@object_access(type=Job, access=Access.READ_ACCESS, url='job_view')
+#@object_access(type=Job, access=Access.READ_ACCESS, url='job_view')
 def job_serve(request, uid, path):
     """
     Serves files from a job directory.
     """
     obj = Job.objects.get_all(uid=uid).first()
-    return file_serve(request=request, path=path, uid=uid, obj=obj)
+    return file_serve(request=request, path=path, obj=obj)

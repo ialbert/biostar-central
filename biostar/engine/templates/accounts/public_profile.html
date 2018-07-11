@@ -170,6 +170,7 @@
         {% elif has_projects and not only_forum %}
 
             {% get_projects user=user request=request as projects %}
+
             {% pages objs=projects request=request uid=user.profile.uid url="public_profile" %}
             {% list_view projects=projects %}
 
