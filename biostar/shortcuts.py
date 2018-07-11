@@ -4,11 +4,8 @@ from django.contrib import messages
 
 def reverse(view, request=None, kwargs=dict()):
 
-    url = main_reverse(view, kwargs=kwargs)
-
-    print(url)
     try:
-        pass
+        url = main_reverse(view, kwargs=kwargs)
     except Exception as exc:
         url = "/"
         if request:
