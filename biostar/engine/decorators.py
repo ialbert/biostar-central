@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
 
-from biostar.shortcuts import reverse
+from biostar.utils.shortcuts import reverse
 from . import auth
 
 from . import models

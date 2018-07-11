@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
-from biostar.shortcuts import reverse
+from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Vote, Message
 from biostar.forum import auth, forms, models, const
 

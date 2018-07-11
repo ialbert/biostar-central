@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from biostar.accounts.models import Profile, User
 
-from biostar.shortcuts import reverse
+from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post
 from biostar.forum import views as forum_views
 

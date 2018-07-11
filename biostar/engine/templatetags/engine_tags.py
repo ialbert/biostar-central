@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 
 
 from biostar import settings
-from biostar.shortcuts import reverse
+from biostar.utils.shortcuts import reverse
 from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
 from biostar.engine import auth, util
 
