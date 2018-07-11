@@ -2,10 +2,13 @@ from django.urls import reverse as main_reverse
 from django.contrib import messages
 
 
-def reverse(view, request=None, **kwargs):
+def reverse(view, request=None, kwargs=dict()):
 
+    url = main_reverse(view, kwargs=kwargs)
+
+    print(url)
     try:
-        url = main_reverse(view, kwargs=kwargs)
+        pass
     except Exception as exc:
         url = "/"
         if request:
