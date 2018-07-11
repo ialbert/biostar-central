@@ -6,9 +6,8 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.template import defaultfilters
 from django.utils.safestring import mark_safe
 from django.core.paginator import Paginator
+from django.conf import settings
 
-
-from biostar import settings
 from biostar.utils.shortcuts import reverse
 from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
 from biostar.engine import auth, util
