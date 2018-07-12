@@ -5,6 +5,7 @@ import os
 import quopri
 import tarfile
 import uuid
+from urllib.parse import quote
 from itertools import islice
 
 
@@ -104,7 +105,7 @@ def qiime2view_link(file_url):
 
     template = "https://view.qiime2.org/visualization/?type=html&src="
 
-    file_url = file_url.replace("/", "%2F").replace(":", "%3A")
+    file_url = quote(string=file_url, safe="")
 
     return template + file_url
 
