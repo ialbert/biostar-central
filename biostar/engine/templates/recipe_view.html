@@ -49,11 +49,11 @@
 
                  <form method="post" action="{%  url 'recipe_view' recipe.uid %}">
                     {% csrf_token %}
-                     <a class="ui mini button" href="{% url 'recipe_code' recipe.uid %}">
+                     <a class="ui small button" href="{% url 'recipe_code' recipe.uid %}">
                         <i class="keyboard icon"></i>View Code
                      </a>
 
-                     <button type="submit" class="ui mini button">
+                     <button type="submit" class="ui small button">
                         <i class="clone icon"></i>Copy Recipe
                      </button>
                      {% action_bar recipe 'recipe_edit' %}

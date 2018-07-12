@@ -164,7 +164,7 @@ def is_qiime_archive(file=None):
 def get_projects(user, request=None, per_page=20):
     "Used to return projects list in the profile."
 
-    projects = auth.get_project_list(user=user).order_by("-pk")
+    projects = auth.get_project_list(user=user, include_public=False).order_by("-pk")
 
     if user != request.user:
         # Don't list private projects when target != user

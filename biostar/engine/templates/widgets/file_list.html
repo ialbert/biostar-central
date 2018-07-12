@@ -5,7 +5,7 @@
 <form method="post" class="ui form" action=".">
     {% csrf_token %}
 
-    <div class="ui relaxed divided list">
+    <div class="ui relaxed divided large list">
 
         <div class="item">
             {% if path %}
@@ -37,7 +37,7 @@
 
                     <a href="{% url serve_url uid=obj.uid path=file.path %}">
                         <i class="file text outline icon"></i>{{ file.name }}
-                        <span class="ui right floated tiny label">{{ file.size|filesizeformat }}</span>
+                        <span class="ui right floated small label">{{ file.size|filesizeformat }}</span>
                     </a>
 
 
@@ -49,7 +49,7 @@
     </div>
 
     <div class="ui center aligned basic segment">
-        <button type="submit" class="ui submit mini button">
+        <button type="submit" class="ui submit small button">
             <i class="clone icon"></i>Copy selected files
         </button>
     </div>

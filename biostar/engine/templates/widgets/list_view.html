@@ -3,7 +3,7 @@
 
 {% if projects %}
 
-     <div class="ui vertical segment">
+     <div class="ui vertical large segment">
 
             <div class="ui divided items">
                 {% for project in projects %}
@@ -32,6 +32,7 @@
 
 {% elif data_list %}
 
+<div class="ui vertical large segment">
     <div class="ui divided items">
 
             {% for data in data_list %}
@@ -55,10 +56,11 @@
             {% endfor %}
 
     </div>
+</div>
 
 
 {% elif recipe_list %}
-
+<div class="ui vertical large segment">
     <div class="ui divided link items">
 
             {% for recipe in recipe_list %}
@@ -84,9 +86,9 @@
             {% endfor %}
     </div>
 
-
+</div>
 {% elif job_list %}
-
+<div class="ui vertical large segment">
     <div class="ui divided link items">
 
             {% for job in job_list %}
@@ -108,5 +110,5 @@
             {% endfor %}
 
     </div>
-
+</div>
 {% endif %}
