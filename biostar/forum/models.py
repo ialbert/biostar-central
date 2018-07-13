@@ -142,7 +142,6 @@ class Tag(models.Model):
         return self.name
 
 
-
 class Post(models.Model):
     "Represents a post in a forum"
 

@@ -11,6 +11,7 @@ import biostar.forum.urls as forum_urls
 ACCOUNTS = url(r'^accounts/', include(accounts_urls))
 ADMIN = url(r'^django/admin/', admin.site.urls, name='django_admin')
 
+
 # Default url patters for the engine.
 urlpatterns = [
 
@@ -21,7 +22,7 @@ urlpatterns = [
     ACCOUNTS,
 
     # The django generated admin site.
-    ADMIN,
+    ADMIN
 
 ]
 
@@ -43,6 +44,10 @@ if settings.ONLY_ENABLE_FORUM:
                 # The django generated admin site.
                 ADMIN,
                 ]
+
+
+# Add the message urls
+urlpatterns += forum_urls.msg_urls
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)
