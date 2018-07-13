@@ -11,7 +11,7 @@
 
 <div class="ui vertical small segment">
     {# This is the toplevel post #}
-    {% post_body post=post user=request.user tree=post.tree form=form sub_view="discussion_subs" vote_view="discussion_vote" include_userbox=False comment_view="discussion_comment" sub_redir="discussion_view"  %}
+    {% post_body post=post user=request.user tree=post.tree form=form sub_view="discussion_subs" vote_view="discussion_vote" comment_view="discussion_comment" sub_redir="discussion_view"  %}
 
 </div>
     {# Render each answer for the post #}

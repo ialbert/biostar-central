@@ -76,18 +76,31 @@
 
                 {% if user.profile.notify %}
                     <a class="ui mini red button" href="{% url 'toggle_notify' %}">
-                        <i class="bell slash icon"></i>Disable Notifications
+                        <i class="mail icon"></i>Disable Emails
                     </a>
-                      <div class="ui vertical basic segment">
+                    {% if user.is_superuser %}
+                        <a class="ui mini blue button" href="{% url 'site_admin' %}">
+                            <i class="dashboard icon"></i> Site Admin
+                        </a>
+                    {% endif %}
+
+                 <div class="ui vertical basic segment">
                     Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
                   </div>
+
                     {% else %}
                     <a class="ui mini green button" href="{% url 'toggle_notify' %}">
-                        <i class="bell icon"></i>Enable Notifications
+                        <i class="mail icon"></i>Enable Emails
                     </a>
 
-
+                    {% if user.is_superuser %}
+                        <a class="ui mini blue button" href="{% url 'site_admin' %}">
+                            <i class="dashboard icon"></i> Site Admin
+                        </a>
+                    {% endif %}
                 {% endif %}
+
+
             </div>
 
 

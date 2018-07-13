@@ -18,7 +18,7 @@
         </div>
         {{ analysis.summary|markdown|safe }}
 
-        <div class="ui vertical segment ">
+        <div class="ui vertical segment">
 
             <form method="post" class="ui form" action="{% url 'recipe_run' analysis.uid %}">
                 <div class="ui form">
