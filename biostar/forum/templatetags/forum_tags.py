@@ -55,12 +55,6 @@ def message_menu(inbox=None, unread=None, mentioned=None,
                 const_out=const.OUTBOX, const_unread=const.UNREAD)
 
 
-@register.simple_tag
-def only_enable_forum():
-
-    return settings.ONLY_ENABLE_FORUM
-
-
 @register.inclusion_tag('widgets/forum_menubar.html', takes_context=True)
 def forum_menubar(context, request=None):
     user = context.request.user

@@ -187,7 +187,7 @@ def data_list(request, uid):
 def discussion_list(request, uid):
 
     project = Project.objects.filter(uid=uid).first()
-    posts = project.post_set.filter(type__in=Post.TOP_LEVEL).all()
+    posts = project.post_set.filter(type__in=Post.TOP_LEVEL).order_by("-pk").all()
 
     context = dict(posts=posts)
     return project_view(request=request, uid=uid, template_name="discussion_list.html",
