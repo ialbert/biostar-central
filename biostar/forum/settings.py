@@ -1,5 +1,5 @@
 from biostar.settings import *
 
 
-ONLY_ENABLE_FORUM = True
+ONLY_FORUM_URLS = True
 #ROOT_URLCONF = "biostar.forum.urls"

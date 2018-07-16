@@ -11,7 +11,7 @@
 
 <div class="ui center aligned header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
 
-    <div class="ui relaxed grid">
+<div class="ui relaxed grid">
 
 <div class="row">
     <div class="four wide column">
@@ -64,15 +64,11 @@
                  <a class="ui mini button" href="{% url 'edit_profile'%}">
                         <i class="write icon"></i>Edit profile
                     </a>
-                         {% only_enable_forum as only_forum %}
 
-            {% if not only_forum %}
 
-                    <a class="ui mini button" href="{% url 'recycle_bin' %}">
-                        <i class="trash icon"></i>Recycle Bin
-                    </a>
-            {% endif %}
-
+                <a class="ui mini button" href="{% url 'recycle_bin' %}">
+                    <i class="trash icon"></i>Recycle Bin
+                </a>
 
                 {% if user.profile.notify %}
                     <a class="ui mini red button" href="{% url 'toggle_notify' %}">
@@ -103,16 +99,8 @@
 
             </div>
 
-
-
         {% endif %}
-
-
-
-
     </div>
-
-
 
     <div class="five wide column">
 
@@ -126,19 +114,15 @@
     <div class="row">
 
         <div class="sixteen wide column">
+             <div class="ui vertical segment">
         <div class="ui top attached tabular large menu">
-        {% only_enable_forum as only_forum %}
 
-        {% if enable_forum or only_forum %}
             <div class="{{ has_posts }} item">
                 <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_post }}">
                     Posts
                 </a>
 
             </div>
-        {%  endif %}
-
-        {% if not only_forum %}
 
             <div class="{{ has_projects }} item">
 
@@ -159,10 +143,6 @@
 
             {%  endif %}
 
-        {% endif %}
-
-
-
         </div>
 
         {% if has_posts %}
@@ -180,7 +160,7 @@
             {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
 
 
-        {% elif has_projects and not only_forum %}
+        {% elif has_projects %}
 
             {% get_projects user=user request=request as projects %}
 
@@ -193,25 +173,17 @@
             {% pages objs=projects request=request uid=user.profile.uid url="public_profile" %}
 
 
-        {% elif has_recipes and user.profile.is_manager and user == request.user and not only_forum %}
+        {% elif has_recipes and user.profile.is_manager and user == request.user %}
 
-
-
+                 
         {% endif %}
 
-
-
-
+        </div>
         </div>
 
-
-
     </div>
 
-
-
-
-    </div>
+</div>
 
 
 

@@ -23,12 +23,21 @@
 
 
     {% if user.is_authenticated %}
+    {% object_count request=request otype="message" as num_msgs %}
         <div class="right menu">
-        <a class="item" href="{% url 'message_list' %}">
-            <i class="mail icon"></i> Messages
-               {% object_count request=request otype="message" as num_msgs %}
-                {% if num_msgs %}<div class="ui green mini circular label">{{num_msgs}}</div>{%endif%}
-        </a>
+
+        {% if num_msgs %}
+            <a class="green active item" href="{% url 'message_list' %}">
+                <i class="mail icon"></i>
+                    <div class="ui green label">{{num_msgs}}</div>
+            </a>
+        {% else %}
+            <a class="item" href="{% url 'message_list' %}">
+                <i class="mail icon"></i>
+            </a>
+
+        {%endif%}
+
         <a class="item" href="{% url 'profile' %}">
             <i class="user icon"></i>
         </a>

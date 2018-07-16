@@ -36,14 +36,16 @@ def moderate(request):
 
     correct = f"<b>{recipes} recipes</b> need" if recipes > 1 else f"<b>{recipes} recipe</b> needs"
     template = ''
-    if user.is_authenticated and user.profile.is_moderator and (recipes > 0):
+    if user.is_authenticated and user.profile.is_manager and (recipes > 0):
 
         template = f"""
-            <div class="ui mini message">
+            <div class="ui message">
             <i class="ui check circle icon"></i>
             {correct} to be <a href={url}>reviewed and authorized</a>.
             </div>
             """
+
+
 
     return mark_safe(template)
 

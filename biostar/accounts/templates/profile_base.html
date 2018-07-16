@@ -54,15 +54,10 @@
 
     {% block menu %}
 
-        {% only_enable_forum as only_forum %}
-        {% if only_forum %}
-            {% forum_menubar request=request %}
-        {% else %}
 
-            {% moderate request=request %}
-            {% menubar request=request %}
+    {% moderate request=request %}
+    {% menubar request=request %}
 
-        {% endif %}
 
     {% endblock %}
 
