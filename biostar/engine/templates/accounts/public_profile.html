@@ -175,7 +175,9 @@
 
         {% elif has_recipes and user.profile.is_manager and user == request.user %}
 
-                 
+             <div class="ui basic segment">
+                {% recipes_moderate %}
+            </div>
         {% endif %}
 
         </div>
