@@ -95,7 +95,7 @@ def clear_clipboard(request, uid, url="project_view", board=""):
     "Clear copied objects held in clipboard."
 
     if board:
-        request.session[board] = None
+        request.session[board] = []
 
     return redirect(reverse(url, request=request, kwargs=dict(uid=uid)))
 
@@ -371,6 +371,46 @@ def project_create(request):
 
     context = dict(form=form)
     return render(request, "project_create.html", context=context)
+
+
+@object_access(type=Data, access=Access.READ_ACCESS, url="data_list")
+def data_copy(request, uid):
+
+    data = Data.objects.filter(uid=uid).first()
+
+    current = request.session.get("data_clipboard", [])
+    current.append(data.uid)
+    # No duplicates in clipboard
+    request.session["data_clipboard"] = list(set(current))
+
+    next_url = reverse("data_view", kwargs=dict(uid=data.uid))
+    next_url = request.GET.get("next") or next_url
+    phrase = "is" if len(current) == 1 else "are"
+
+    msg = mark_safe(f"Copied <b>{data.name}</b>. There {phrase} {len(current)} data in the Clipboard.")
+    messages.info(request, msg)
+
+    return redirect(next_url)
+
+
+@object_access(type=Project, access=Access.WRITE_ACCESS, url="data_list")
+def data_paste(request, uid):
+
+    project = Project.objects.filter(uid=uid).first()
+
+    data_clipboard = request.session.get("data_clipboard", [])
+
+    for data_uid in data_clipboard:
+
+        data = Data.objects.filter(uid=data_uid).first()
+        owner = request.user
+        paths = [n.path for n in os.scandir(data.get_data_dir())]
+
+        auth.create_data(project=project, paths=paths, user=owner,
+                         name=data.name, type=data.type, summary=data.summary)
+
+    request.session["data_clipboard"] = []
+    return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
@@ -808,6 +848,7 @@ def data_serve(request, uid, path):
     return file_serve(request=request, path=path, obj=obj)
 
 
+@object_access(type=Job, access=Access.NO_ACCESS)
 def job_serve(request, uid, path):
     """
     Serves files from a job directory.

@@ -8,6 +8,7 @@ from django.db.models import Sum
 from django.utils.safestring import mark_safe
 from django.contrib import messages
 from django.urls import reverse
+from django.conf import settings
 
 from biostar.accounts.models import User, Profile
 from . import models, auth, factory, util
@@ -64,7 +65,7 @@ def clean_file(fobj, user, project, check_name=True):
     if not fobj:
         return fobj
 
-    check_size(fobj=fobj, maxsize=25)
+    check_size(fobj=fobj, maxsize=settings.MAX_FILE_SIZE_MB)
     check_upload_limit(file=fobj, user=user)
 
     # Check if this name already exists.
@@ -97,18 +98,15 @@ class ProjectForm(forms.ModelForm):
 
 class DataUploadForm(forms.ModelForm):
 
-
     file = forms.FileField(required=False)
     input_text = forms.CharField(max_length=TEXT_UPLOAD_MAX, required=False)
     data_name = forms.CharField(required=False)
     type = forms.CharField(max_length=32, required=False)
 
-
     def __init__(self, user, project, *args, **kwargs):
         self.user = user
         self.project = project
         super().__init__(*args, **kwargs)
-
 
     def save(self, **kwargs):
 
@@ -124,7 +122,7 @@ class DataUploadForm(forms.ModelForm):
         else:
             stream = io.StringIO(initial_value=input_text)
 
-        data = auth.create_data(stream=stream, name=name,text=text, user=self.user,
+        data = auth.create_data(stream=stream, name=name, text=text, user=self.user,
                                 project=self.project, summary=summary, type=type)
         if input_text and not self.cleaned_data["file"]:
             Data.objects.filter(pk=data.pk).update(method=Data.TEXTAREA)
@@ -145,45 +143,35 @@ class DataUploadForm(forms.ModelForm):
         if cleaned_data.get("input_text") and not cleaned_data.get("file"):
             if not cleaned_data.get("data_name"):
                 raise forms.ValidationError("Name is required with text inputs.")
+        return cleaned_data
 
     def clean_file(self):
         cleaned_data = super(DataUploadForm, self).clean()
-        check_name = True if not cleaned_data.get('data_name') else False
 
         return clean_file(fobj=cleaned_data.get('file'),
                           user=self.user,
-                          project=self.project,
-                          check_name=check_name)
-
-    def clean_data_name(self):
-        cleaned_data = super(DataUploadForm, self).clean()
-        name = cleaned_data.get('data_name')
-
-        if name and Data.objects.filter(name=name, project=self.project):
-            msg = "Name already exists. Use a different name or rename the existing data."
-            raise forms.ValidationError(msg)
-
-        return name
+                          project=self.project)
 
     def clean_type(self):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
-        fobj = cleaned_data.get('data_name') if not fobj else fobj.name
+        if fobj:
+            name = fobj.name
+        else:
+            name = cleaned_data.get('data_name')
 
-        root, ext = os.path.splitext(fobj)
+        root, ext = os.path.splitext(name)
+        ext = ext[1:]
+        datatype = EXT_TO_TYPE.get(ext, cleaned_data.get('type'))
 
-        datatype = EXT_TO_TYPE.get(ext[1:], cleaned_data.get('type'))
-
-        datatype = datatype.upper()
+        datatype = datatype.upper() or ext.upper()
 
         return datatype
 
 
 class DataEditForm(forms.ModelForm):
 
-
     type = forms.CharField(max_length=32, required=False)
-
 
     def __init__(self, user, *args, **kwargs):
 
@@ -467,7 +455,6 @@ class PasteForm(forms.Form):
         self.request = request
         self.board = board
         super().__init__(*args, **kwargs)
-
 
     def save(self):
         instance = self.cleaned_data.get("instance")

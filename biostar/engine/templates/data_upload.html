@@ -18,25 +18,29 @@
 
         <div class="field segment">
 
-             <label>Name</label>
-              {{ form.data_name }}
-             <p class="muted">Name of the data. Not required when uploading a file.</p>
-
-            <div class="ui small horizontal divider header">
-                <i class="ui upload icon"></i>Add Data
-            </div>
-
-            <div class="ui small center aligned vertical basic segment">
-                <p>Upload a file <b>or</b> write into the text box</p>
+            <div class="ui center aligned header">
+                <i class="ui upload icon"></i>Upload a File
             </div>
 
               <label>File</label>
               {{ form.file }}
              <p class="muted">File or collection of files you want to analyze.</p>
 
-              <div class="ui horizontal divider">
-                Or
-              </div>
+                <button type="submit" class="ui submit green button">
+                    <i class="write icon"></i>Upload
+                </button>
+                <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
+                     <i class="undo icon"></i>Cancel
+                </a>
+
+              <div class="ui divider"></div>
+            <div class="ui center aligned header">
+                <i class="ui edit icon"></i>Create Data
+            </div>
+
+             <label>Name</label>
+              {{ form.data_name }}
+             <p class="muted">Name of the data.</p>
 
             <label>Input Text</label>
                 <textarea rows="10" cols="55" name="{{form.input_text.name}}" id="id_{{form.input_text.name}}"
@@ -44,8 +48,16 @@
              <p class="muted">Write the data as text instead of uploading a file ( {{ form.input_text.field.max_length }} characters ).</p>
 
          </div>
+            <button type="submit" class="ui submit green button">
+            <i class="write icon"></i>Create
+            </button>
+            <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
+            <i class="undo icon"></i>Cancel
+            </a>
 
-        <div class="ui small horizontal divider header">
+        <div class="ui divider"></div>
+
+        <div class="ui center aligned header">
             <i class="ui pen square icon"></i>Extra Information
         </div>
 

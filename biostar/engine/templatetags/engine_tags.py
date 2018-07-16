@@ -113,11 +113,12 @@ def action_bar(context, instance, edit_url):
                 action_url=action_url)
 
 
-@register.inclusion_tag('widgets/list_view.html')
-def list_view(projects=None, data_list=None, recipe_list=None, job_list=None):
+@register.inclusion_tag('widgets/list_view.html', takes_context=True)
+def list_view(context, projects=None, data_list=None, recipe_list=None, job_list=None):
 
+    request = context["request"]
     return dict(projects=projects, data_list=data_list, recipe_list=recipe_list,
-                job_list=job_list)
+                job_list=job_list, request=request)
 
 
 @register.inclusion_tag('widgets/recipe_moderate.html')
@@ -128,6 +129,24 @@ def recipes_moderate(cutoff=0):
 
     cutoff = cutoff or len(recipes)
     return dict(recipes=recipes[:cutoff])
+
+
+@register.filter
+def has_data(request):
+
+    data_clipboard = request.session.get("data_clipboard", [])
+
+    return len(data_clipboard)
+
+
+@register.inclusion_tag('widgets/paste_data.html', takes_context=True)
+def paste_data(context, project):
+
+    request = context["request"]
+    clipboard = request.session.get("data_clipboard") or []
+    contains = f"{len(clipboard)} data"
+    context = dict(contains=contains, project=project)
+    return context
 
 
 @register.filter

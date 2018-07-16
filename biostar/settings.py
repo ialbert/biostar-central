@@ -44,6 +44,9 @@ FTP_PORT = 8021
 # Should the site allow signup.
 ALLOW_SIGNUP = False
 
+# Maximum size of each file upload in MB
+MAX_FILE_SIZE_MB = 100
+
 # Helper function for building absolute paths.
 def join(*args):
     return os.path.abspath(os.path.join(*args))
