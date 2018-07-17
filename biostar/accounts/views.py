@@ -60,12 +60,6 @@ def public_profile(request, uid):
 
     active_tab = active_tab if (active_tab in PROFILE_TABS) else HAS_POSTS
 
-    #if (not forum_enabled) and active_tab == HAS_POSTS:
-    #    active_tab = HAS_PROJECT
-
-    #if settings.ONLY_FORUM_URLS:
-    #    active_tab = HAS_POSTS
-
     context = dict(user=user_profile.user, enable_forum=forum_enabled,
                    const_name=ACTIVE_TAB, const_post=HAS_POSTS, const_project=HAS_PROJECT,
                    const_recipes=HAS_RECIPES)
