@@ -848,10 +848,14 @@ def data_serve(request, uid, path):
     return file_serve(request=request, path=path, obj=obj)
 
 
-@object_access(type=Job, access=Access.NO_ACCESS)
 def job_serve(request, uid, path):
     """
     Serves files from a job directory.
     """
     obj = Job.objects.get_all(uid=uid).first()
-    return file_serve(request=request, path=path, obj=obj)
+
+    if obj:
+        return file_serve(request=request, path=path, obj=obj)
+    else:
+        messages.error("Object does not exist")
+        return redirect("/")
