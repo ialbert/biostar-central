@@ -18,27 +18,30 @@
 
         <div class="field segment">
 
-            <div class="ui center aligned header">
-                <i class="ui upload icon"></i>Upload a File
+            <div class="ui  center aligned vertical basic segment">
+                <p class="ui header"><i class="ui upload icon"></i>Upload a file</p>
             </div>
 
               <label>File</label>
               {{ form.file }}
              <p class="muted">File or collection of files you want to analyze.</p>
 
-                <button type="submit" class="ui submit green button">
-                    <i class="write icon"></i>Upload
-                </button>
-                <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
-                     <i class="undo icon"></i>Cancel
-                </a>
+         <button type="submit" class="ui submit green button">
+            <i class="write icon"></i>Upload File
+        </button>
+        <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
+             <i class="undo icon"></i>Cancel
+        </a>
 
-              <div class="ui divider"></div>
-            <div class="ui center aligned header">
-                <i class="ui edit icon"></i>Create Data
+              <div class="ui divider">
+
+              </div>
+
+         <div class="ui  center aligned vertical basic segment">
+                <p class="ui header"><i class="edit icon"></i>Create Data</p>
             </div>
 
-             <label>Name</label>
+         <label>Name</label>
               {{ form.data_name }}
              <p class="muted">Name of the data.</p>
 
@@ -48,19 +51,25 @@
              <p class="muted">Write the data as text instead of uploading a file ( {{ form.input_text.field.max_length }} characters ).</p>
 
          </div>
-            <button type="submit" class="ui submit green button">
-            <i class="write icon"></i>Create
-            </button>
-            <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
-            <i class="undo icon"></i>Cancel
-            </a>
 
-        <div class="ui divider"></div>
+    <button type="submit" class="ui submit green button">
+            <i class="write icon"></i>Create Data
+        </button>
+        <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
+             <i class="undo icon"></i>Cancel
+        </a>
 
-        <div class="ui center aligned header">
+     <div class="ui divider">
+
+              </div>
+
+
+        <div class="ui  center aligned header">
             <i class="ui pen square icon"></i>Extra Information
         </div>
-
+        <p>
+            This information may be added later as well.
+        </p>
         <div class="field">
             <label>Data Type</label>
             {{ form.type }}
@@ -85,7 +94,7 @@
          </div>
 
         <button type="submit" class="ui submit green button">
-            <i class="write icon"></i>Upload
+            <i class="write icon"></i>Submit
         </button>
         <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
              <i class="undo icon"></i>Cancel
