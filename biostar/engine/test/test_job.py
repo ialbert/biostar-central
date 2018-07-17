@@ -76,7 +76,7 @@ class JobViewTest(TestCase):
         # Test clear clipboard view
         views.clear_clipboard(request=request, uid=self.project.uid, board="files_clipboard")
 
-        self.assertTrue(request.session.get("files_clipboard")==None, "Clear clipboard not working")
+        self.assertTrue(not request.session.get("files_clipboard"), "Clear clipboard not working")
 
 
     def test_job_runner(self):
