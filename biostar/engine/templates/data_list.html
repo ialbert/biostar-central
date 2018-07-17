@@ -10,6 +10,11 @@
 
     {% if request|has_files %}
         {% paste action_view='data_list' obj=project form=form contains="files" %}
+
+    {% elif request|has_data %}
+
+        {% paste_data project=project %}
+
     {% endif %}
 
     {% if not data_list %}

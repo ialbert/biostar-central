@@ -371,8 +371,15 @@ def create_path(fname, data):
     return path
 
 
+def link_file(path, data):
+    dest = create_path(fname=path, data=data)
+
+    os.symlink(path, dest)
+    return dest
+
+
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', type="",  uid=None):
+                text='', summary='', type="",  uid=None, paths=[]):
 
     # We need absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/") if path else ""
@@ -392,11 +399,15 @@ def create_data(project, user=None, stream=None, path='', name='',
         # Mark incoming file as uploaded
         data.method = Data.UPLOAD
 
-    # Link file
+    # Link single file
     if path:
-        dest = create_path(fname=path, data=data)
-        os.symlink(path, dest)
+        link_file(path=path, data=data)
         logger.info(f"Linked file: {path}")
+
+    # Link list of files
+    for p in paths:
+        link_file(path=p, data=data)
+        logger.info(f"Linked file: {p}")
 
     # Invalid paths and empty streams still create the data but set the data state to error.
     missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
@@ -411,7 +422,7 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # Set updated attributes
     data.state = state
-    data.name = check_data_name(name or os.path.basename(path) or 'Data', data=data)
+    data.name = name or os.path.basename(path) or 'Data'
     data.summary = summary
 
     # Trigger another save.
