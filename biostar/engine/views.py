@@ -857,5 +857,5 @@ def job_serve(request, uid, path):
     if obj:
         return file_serve(request=request, path=path, obj=obj)
     else:
-        messages.error("Object does not exist")
+        messages.error(request, "Object does not exist")
         return redirect("/")
