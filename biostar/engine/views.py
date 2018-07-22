@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
+from django.http import JsonResponse
 from sendfile import sendfile
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
@@ -373,24 +374,27 @@ def project_create(request):
     return render(request, "project_create.html", context=context)
 
 
-@object_access(type=Data, access=Access.READ_ACCESS, url="data_list")
-def data_copy(request, uid):
+def ajax_data_copy(request):
 
-    data = Data.objects.filter(uid=uid).first()
+    data_uid = request.GET.get("data_uid")
+    data = Data.objects.filter(uid=data_uid).first()
 
-    current = request.session.get("data_clipboard", [])
-    current.append(data.uid)
-    # No duplicates in clipboard
-    request.session["data_clipboard"] = list(set(current))
+    if data:
+        current = request.session.get("data_clipboard", [])
+        current.append(data.uid)
+        # No duplicates in clipboard
+        current = list(set(current))
+        request.session["data_clipboard"] = current
+        phrase = "is" if len(current) == 1 else "are"
 
-    next_url = reverse("data_view", kwargs=dict(uid=data.uid))
-    next_url = request.GET.get("next") or next_url
-    phrase = "is" if len(current) == 1 else "are"
+        msg = mark_safe(f"Copied {data.name}. There {phrase} {len(current)} data in the Clipboard.")
+    else:
+        msg = "Data does not exist"
 
-    msg = mark_safe(f"Copied <b>{data.name}</b>. There {phrase} {len(current)} data in the Clipboard.")
-    messages.info(request, msg)
+    json_response = {"message": msg}
 
-    return redirect(next_url)
+    # return a json object with success or not.
+    return JsonResponse(json_response)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url="data_list")
@@ -760,7 +764,6 @@ def object_state_toggle(request, uid, obj_type):
     return redirect(reverse(view_name, request=request, kwargs=dict(uid=instance.project.uid)))
 
 
-
 @object_access(type=Job, access=Access.READ_ACCESS)
 def job_view(request, uid):
     '''
@@ -857,5 +860,5 @@ def job_serve(request, uid, path):
     if obj:
         return file_serve(request=request, path=path, obj=obj)
     else:
-        messages.error("Object does not exist")
+        messages.error(request, "Object does not exist")
         return redirect("/")
