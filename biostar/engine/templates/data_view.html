@@ -16,7 +16,8 @@
     {% if user.is_authenticated %}
         <div class="ui center aligned vertical segment">
             {% action_bar data 'data_edit' %}
-                <a class="ui button" href="{% url 'data_copy' %}">
+
+            <a class="copy-data ui button" data-uid="{{data.uid}}">
                 <i class="copy icon"></i>Copy
             </a>
         </div>
