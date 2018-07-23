@@ -1,4 +1,35 @@
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
+csrftoken = getCookie('csrftoken');
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+};
+
+$.ajaxSetup({
+    crossDomain: false, // obviates need for sameOrigin test
+    beforeSend: function (xhr, settings) {
+        if (!csrfSafeMethod(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
 
 
 // Comments by authenticated users.
@@ -13,21 +44,26 @@ function add_comment(elem) {
 
     var csrf_html = jQuery("[name=csrfmiddlewaretoken]").val();
 
-    alert(csrf_html);
+    //alert(csrf_html);
 
-    // not a good way to submit a form :(
-    container.after('<div id="comment-row" class="ui basic segment inputcolor">\
-    <form id="comment-form" class="ui form" action=' + comment_url + ' method="post">' + csrf_html + '\
-        <div class="">\
-        <div class="">\
-            <div id="wmd-button-bar-2"></div>\
-            <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="6"></textarea></div> \
-        </div>\
-        <div><button type="submit" class="ui submit green button"><i class="check icon"></i>Add Comment</button>          \
-        <a class="ui orange right floated button" onclick="javascript:obj=$(\'#comment-row\').remove();"><i class="undo icon"></i> Cancel</a>   </div>       \
-    </form>            \
-    </div>'
-    )
+    container.after(`<div id="comment-row" class="ui basic segment inputcolor">
+    <form id="comment-form" class="ui form" action=${comment_url}  method="post">
+        
+        <div class="">
+            <div id="wmd-button-bar-2"></div>
+            <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="6"></textarea>
+        </div>
+        <div>
+            <button type="submit" class="ui submit green button">
+                <i class="check icon"></i>Add Comment
+            </button>
+            <a class="ui orange right floated button" onclick="javascript:obj=$(\'#comment-row\').remove();">
+            <i class="undo icon"></i> Cancel
+            </a>
+        </div>
+    </form>
+    </div>`
+    );
 
     var converter = new Markdown.Converter();
     var editor = new Markdown.Editor(converter, '-2');
@@ -66,6 +102,9 @@ $(document).ready(function () {
 
     });
 
+    $.ajaxSetup({data: {
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+    }});
 
     $(".add-comment").click(function (event) {
 
