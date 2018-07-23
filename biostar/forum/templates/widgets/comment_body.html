@@ -30,7 +30,7 @@
       {{ post.html|safe }}
         </div>
         <div class="actions">
-        <a class="ui mini grey basic label" href="{{ comment_url }}">
+        <a class="add-comment ui mini grey basic label" comment-url="{{ comment_url }}" data-value="{{post.uid}}">
             ADD REPLY
         </a>
             &bull;

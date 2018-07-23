@@ -52,11 +52,6 @@
 
                          {% user_info post=post by_diff=False %}
                      </div>
-                    <a class="ui mini grey label" href="{{ comment_url }}">
-                        ADD COMMENT
-                    </a>
-                     &bull;
-                     <a>link</a>
 
                  {% else %}
 
@@ -67,17 +62,15 @@
                              {% user_info post=post by_diff=False %}
                          </div>
 
-                        <a class="ui mini grey label" href="{{ comment_url }}">
-                            ADD COMMENT
-                        </a>
-                         &bull;
-                         <a>link</a>
-
                      </div>
-
 
                  {% endif %}
 
+            <a class="add-comment ui mini grey label" comment-url="{{ comment_url }}" data-value="{{post.uid}}">
+                ADD COMMENT
+            </a>
+             &bull;
+             <a>link</a>
                  {# Comments for each post rendered here #}
             <div class="ui comments" style="max-width: 750px;">
                 {% render_comments request=request post=post comment_view=comment_view vote_view=vote_view next_url=next_url %}

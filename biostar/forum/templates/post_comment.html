@@ -9,6 +9,7 @@
 {% block body %}
 <div class="ui small header">Add your comment</div>
         <div class="ui basic segment inputcolor">
+
         <form method="post" class="ui form" action="{%  url 'post_comment' post.uid %}">
             {{ form.media }}
             {% csrf_token %}
@@ -28,5 +29,6 @@
         </a>
 
         </form>
+
 </div>
 {% endblock %}

@@ -126,7 +126,6 @@ class SubsForm(forms.Form):
         return sub
 
 
-
 class PostShortForm(forms.Form):
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                               min_length=2, max_length=5000)

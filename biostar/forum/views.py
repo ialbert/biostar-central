@@ -217,6 +217,13 @@ def subs_action(request, uid, next=None):
     return redirect(next_url)
 
 
+def ajax_post_comment(request):
+    return
+
+
+
+
+
 @login_required
 def post_create(request, project=None, template="post_create.html", url="post_view",
                 extra_context={}, filter_func=lambda x: x):
