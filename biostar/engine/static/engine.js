@@ -1,38 +1,4 @@
-// using jQuery
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
 
-csrftoken = getCookie('csrftoken');
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-};
-
-$.ajaxSetup({
-    crossDomain: false, // obviates need for sameOrigin test
-    beforeSend: function (xhr, settings) {
-        if (!csrfSafeMethod(settings.type)) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
-
-
-// Comments by authenticated users.
 function add_comment(elem) {
 
     // remove comment body if exists.
@@ -44,11 +10,10 @@ function add_comment(elem) {
 
     var csrf_html = jQuery("[name=csrfmiddlewaretoken]").val();
 
-    //alert(csrf_html);
-
     container.after(`<div id="comment-row" class="ui basic segment inputcolor">
     <form id="comment-form" class="ui form" action=${comment_url}  method="post">
-        
+        <input type="hidden" name="csrfmiddlewaretoken" value=${csrf_html} />
+
         <div class="">
             <div id="wmd-button-bar-2"></div>
             <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="6"></textarea>
@@ -69,10 +34,11 @@ function add_comment(elem) {
     var editor = new Markdown.Editor(converter, '-2');
     editor.run();
 
-}
+};
 
 
 $(document).ready(function () {
+
 
      $('select')
         .dropdown()
@@ -102,14 +68,9 @@ $(document).ready(function () {
 
     });
 
-    $.ajaxSetup({data: {
-        csrfmiddlewaretoken: '{{ csrf_token }}'
-    }});
-
     $(".add-comment").click(function (event) {
-
         add_comment($(this));
+        });
 
-    });
 
 });

@@ -248,6 +248,7 @@ def discussion_view(request, uid):
 @object_access(type=Post, access=Access.WRITE_ACCESS)
 def discussion_comment(request, uid):
 
+    1/0
     # Get the parent post to add comment to
     obj = Post.objects.filter(uid=uid).first()
     template = "discussion_comment.html"
@@ -378,8 +379,11 @@ def ajax_data_copy(request):
 
     data_uid = request.GET.get("data_uid")
     data = Data.objects.filter(uid=data_uid).first()
+    user = request.user
+    allow_access = auth.check_obj_access(user=user, instance=data, request=request, access=Access.READ_ACCESS,
+                                         login_required=True)
 
-    if data:
+    if data and allow_access:
         current = request.session.get("data_clipboard", [])
         current.append(data.uid)
         # No duplicates in clipboard
@@ -389,7 +393,7 @@ def ajax_data_copy(request):
 
         msg = mark_safe(f"Copied {data.name}. There {phrase} {len(current)} data in the Clipboard.")
     else:
-        msg = "Data does not exist"
+        msg = "Copy error"
 
     json_response = {"message": msg}
 
