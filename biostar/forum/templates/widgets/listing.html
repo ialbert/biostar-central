@@ -2,67 +2,39 @@
 
 {% if is_post %}
 
+
+
     {% for post in objs %}
 
-        <div class="item">
-                <div class="ui doubling stackable right aligned grid">
-                <div class="row">
+        <div class="ui blue segment">
 
-                <div class="column">
+            <div class="ui container">
 
-                    {% if post.is_toplevel %}
-                        <div class="ui center aligned header">
-                            {{ post.thread_score }}  </div>
-                    vote{{ post.vote_count|pluralize }}
-
-                    {% else %}
-                        <div class="ui center aligned header">
-                            {{ post.vote_count }}  </div>
-                    vote{{ post.vote_count|pluralize }}
-
-
+                <div class="ui header" >
+                    {% if post.type != post.QUESTION %}
+                        {{ post.get_type_display }}:
                     {% endif %}
+                     <a href="{% url 'post_view' post.uid %}" >{{ post.get_title }}</a>
 
                 </div>
-
-                <div class="column">
-                    <div class="ui center aligned header">
-                        {{ post.root.reply_count }} </div>
-                    answer{{ post.root.reply_count|pluralize }}
-
-                </div>
-
-                <div class="column">
-
-                   <div class="ui center aligned header">{{ post.root.view_count|bignum }}</div>
-                    <div class="content">view{{ post.root.view_count|pluralize }}</div>
-                </div>
-
-                <div class="left floated left aligned thirteen wide column">
-                    <div class="ui container">
-
-                            <div class="ui   header" >
-                                {% if post.type != post.QUESTION %}
-                                    {{ post.get_type_display }}:
-                                {% endif %}
-                                 <a href="{% url 'post_view' post.uid %}" >{{ post.get_title }}</a>
-
-                            </div>
-
-                                {% for tag in post.tag_set.all %}
-                                    <a class="ui tiny label" href="#" style="margin-top:5px;font-size: 13px;padding: 4px">
-                                        {{ tag.name }}</a>
-                                {% endfor %}
-                    </div>
-                </div>
-
-
-            <div class="sixteen wide column" style="padding-top: 5px">
-            {% user_info post=post by_diff=True %}
-            </div>
-                </div>
+         <div class="ui tiny muted item">
+              {{post.content|preview_message}}
+          </div>
+                <div>
+                        {% for tag in post.tag_set.all %}
+                            <a class="ui tiny label" href="#" style="margin-top:5px;font-size: 13px;padding: 4px">
+                                {{ tag.name }}
+                            </a>
+                        {% endfor %}
                 </div>
             </div>
+            <div>
+                {% user_info post=post by_diff=True %}
+
+            </div>
+
+        </div>
+
 
     {% empty %}
 

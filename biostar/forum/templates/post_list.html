@@ -9,29 +9,23 @@
 
 {% block body %}
 
-<div class="ui doubling stackable grid">
 
-    <div class="twelve wide column">
 
-        {% pages objs=objs request=request %}
+<div class="ui grid">
 
-        <div class="ui small relaxed divided list">
-
-            {% listing posts=objs  %}
-
-        </div>
+<div class="eleven wide column">
 
         {% pages objs=objs request=request %}
 
-    </div>
+        {% listing posts=objs %}
+        {% pages objs=objs request=request %}
 
-    <div class="four wide column" style="padding-left:0px;">
+</div>
+<div class="five wide column">
+
         {% feed user=request.user %}
-
-    </div>
-
 
 </div>
 
-
+</div>
 {% endblock %}

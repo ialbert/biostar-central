@@ -195,6 +195,20 @@ def post_comment(request, uid, template="post_comment.html", url="post_view", ex
     return render(request, template, context=context)
 
 
+def ajax_comment(request):
+
+    if request.method == "POST":
+
+        form = forms.PostShortForm(data=request.POST)
+
+        if form.is_valid():
+            form = forms.PostShortForm(data=request.POST)
+            if form.is_valid():
+                form.save(parent=obj, author=request.user, post_type=Post.COMMENT,
+                          project=project)
+            #return redirect(reverse(url, request=request, kwargs=dict(uid=obj.root.uid)))
+
+
 @object_exists(klass=Post)
 @login_required
 def subs_action(request, uid, next=None):
@@ -215,11 +229,6 @@ def subs_action(request, uid, next=None):
             messages.success(request, msg)
 
     return redirect(next_url)
-
-
-def ajax_post_comment(request):
-    return
-
 
 
 

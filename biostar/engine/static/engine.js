@@ -73,4 +73,10 @@ $(document).ready(function () {
         });
 
 
+    $("#comment-form").click(function (event) {
+        add_comment($(this));
+        });
+
+
+
 });
