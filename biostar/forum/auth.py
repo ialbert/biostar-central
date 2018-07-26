@@ -277,7 +277,7 @@ def create_post_from_json(json_dict):
     has_accepted = json_dict.get("has_accepted", False)
     type = json_dict.get("type")
     status = json_dict.get("status", Post.OPEN)
-    content = json_dict.get("text", "")
+    content = util.strip_tags(json_dict.get("text", ""))
     html = json_dict.get("html", "")
     tag_val = json_dict.get("tag_val")
 

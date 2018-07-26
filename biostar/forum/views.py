@@ -15,7 +15,7 @@ User = get_user_model()
 
 
 def list_view(request, template="post_list.html", extra_context={}, topic=None,
-              extra_proc=lambda x:x, per_page=20):
+              extra_proc=lambda x:x, per_page=10):
     "List view for posts and messages"
 
     topic = topic or request.GET.get("topic", 'latest')

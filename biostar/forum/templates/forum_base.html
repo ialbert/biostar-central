@@ -57,10 +57,10 @@
 
     {% endblock %}
 
-    <div class="ui bottom attached  segment">
-        <div class="ui center aligned basic vertical segment">
+{% show_messages messages %}
+        <div class="ui aligned basic vertical segment">
 
-        <div class="ui secondary pointing eight item stackable menu">
+        <div class="ui top attached tabular eight item stackable menu">
 
             <a class="ui item" href="{% url 'community_list' %}">
                 <i class="world icon"></i>Community
@@ -81,7 +81,7 @@
                 {% object_count request=request otype="post" as num_posts%}
                 {% if num_posts %}<div class="ui mini circular label">{{num_posts}}</div>{%endif%}
             </a>
-            <a class="ui item" href="#">
+            <a class="ui active item" href="#">
                 <i class="tags icon"></i>My Tags
             </a>
             <a class="ui item" href="{% url 'post_list' %}?topic=following">
@@ -94,16 +94,14 @@
                 {% object_count request=request otype="bookmark" as num_bookmarks %}
                 {% if num_bookmarks %}<div class="ui mini circular label">{{num_bookmarks}}</div>{%endif%}
             </a>
-            <a class="ui active green item" href="{% url 'post_create' %}">
+            <a class="ui green item" href="{% url 'post_create' %}">
             <i class="add circle icon"></i>New Post
             </a>
 
         </div>
 
-{% show_messages messages %}
 
-    </div>
-
+<div class="ui bottom attached segment">
 
         {% block body %}
             {# Main body #}
@@ -114,9 +112,9 @@
             {% endblock %}
 
         {% endblock %}
+</div>
+        </div>
 
-
-    </div>
 
 
 
