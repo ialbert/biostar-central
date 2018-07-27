@@ -20,8 +20,9 @@
                                 {% privacy_label project %}
                                 Created on {{ project.date.date }} by
                                 <a href="{% url "public_profile" project.owner.profile.uid %}">
-                                {{ project.owner.profile.name }}
+
                                 <div class="ui mini avatar image">{% gravatar user=project.owner size=80 %}</div>
+                                {{ project.owner.profile.name }}
                                     </a>
                             </div>
 
