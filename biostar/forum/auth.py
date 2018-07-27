@@ -126,14 +126,10 @@ def list_by_topic(request, topic):
 
     if topic == myposts:
         # Get the posts that the user wrote.
-        messages.success(request,'Filtering for posts you contribute to')
-
         return Post.objects.my_posts(target=user, user=user)
 
     if topic == mytags:
         # Get the posts that the user wrote.
-        messages.success(request,
-                         'Posts matching the <b><i class="fa fa-tag"></i> My Tags</b> setting in your user profile')
         return Post.objects.tag_search(user.profile.my_tags)
 
     if topic == unanswered:
@@ -142,17 +138,14 @@ def list_by_topic(request, topic):
 
     if topic == following:
         # Get that posts that a user follows.
-        messages.success(request, 'Threads that will produce notifications.')
         subs = Subscription.objects.exclude(type=Subscription.NO_MESSAGES).filter(user=user)
         return Post.objects.top_level(user).filter(subs__in=subs)
 
     if topic == bookmarks:
         # Get that posts that a user bookmarked.
-        messages.info(request, f"Showing: {topic}")
         return Post.objects.my_bookmarks(user)
 
     if topic == votes:
-        messages.info(request, f"People voting on your posts")
         return Post.objects.my_post_votes(user).distinct()
 
     if topic == message:
@@ -181,13 +174,10 @@ def list_by_topic(request, topic):
 
     if topic and topic != latest:
         # Any type of topic.
-        if topic:
-            messages.info(request,f"Showing: {topic}" )
         return Post.objects.tag_search(topic)
 
     # Return latest by default.
     return Post.objects.top_level(user)
-
 
 
 def create_sub(post, sub_type, user):

@@ -60,43 +60,48 @@
 {% show_messages messages %}
         <div class="ui aligned basic vertical segment">
 
+        {% if post_view %}
+        <div class="ui top attached tabular nine item stackable menu">
+        {% else %}
         <div class="ui top attached tabular eight item stackable menu">
+        {% endif %}
 
-            <a class="ui item" href="{% url 'community_list' %}">
+            <a class="ui {{community}} item" href="{% url 'community_list' %}">
                 <i class="world icon"></i>Community
             </a>
-            <a class="ui item" href="{% url 'message_list' %}">
+            <a class="ui {{latest}} item" href="{% url 'post_list' %}?topic=latest">
+                <i class="comment alternate icon"></i>Latest
+            </a>
+            <a class="ui {{message}} {{inbox}} {{unread}} {{outbox}} {{mentioned}} {{projects}} {{trash}} item" href="{% url 'message_list' %}">
                 <i class="mail icon"></i>Messages
                 {% object_count request=request otype="message" as num_msgs %}
                 {% if num_msgs %}<div class="ui green mini circular label">{{num_msgs}}</div>{%endif%}
 
             </a>
-            <a class="ui item" href="{% url 'post_list' %}?topic=votes">
+            <a class="ui {{votes}} item" href="{% url 'post_list' %}?topic=votes">
                 <i class="heart icon"></i>Votes
                 {% object_count request=request otype="votes" as num_votes%}
                 {% if num_votes %}<div class="ui mini green circular label">{{num_votes}}</div>{%endif%}
             </a>
-            <a class="ui item" href="{% url 'post_list' %}?topic=myposts">
+            <a class="ui {{myposts}} item" href="{% url 'post_list' %}?topic=myposts">
                 <i class="comments icon"></i>My Posts
                 {% object_count request=request otype="post" as num_posts%}
                 {% if num_posts %}<div class="ui mini circular label">{{num_posts}}</div>{%endif%}
             </a>
-            <a class="ui active item" href="#">
+            <a class="ui {{mytags}} item" href="#">
                 <i class="tags icon"></i>My Tags
             </a>
-            <a class="ui item" href="{% url 'post_list' %}?topic=following">
+            <a class="ui {{following}} item" href="{% url 'post_list' %}?topic=following">
                 <i class="eye icon"></i>Following
                 {% object_count request=request otype="follow" as num_follows%}
                 {% if num_follows %}<div class="ui mini circular label">{{num_follows}}</div>{%endif%}
             </a>
-            <a class="ui item" href="{% url 'post_list' %}?topic=bookmarks">
+            <a class="ui {{bookmarks}} item" href="{% url 'post_list' %}?topic=bookmarks">
                 <i class="book icon"></i>Bookmarks
                 {% object_count request=request otype="bookmark" as num_bookmarks %}
                 {% if num_bookmarks %}<div class="ui mini circular label">{{num_bookmarks}}</div>{%endif%}
             </a>
-            <a class="ui green item" href="{% url 'post_create' %}">
-            <i class="add circle icon"></i>New Post
-            </a>
+            {% if post_view %}<a class="ui {{post_view}} item" href="#"><i class="comment icon"></i>Post</a> {% endif %}
 
         </div>
 
@@ -106,6 +111,7 @@
         {% block body %}
             {# Main body #}
             BODY
+
 
             {% block content %}
 

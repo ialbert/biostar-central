@@ -13,10 +13,10 @@
 
 <div class="ui doubling stackable grid">
 
-    <div class="twelve wide column">
-
+    <div class="eleven wide column">
+<div class="ui basic segment">
         {% pages objs=objs request=request %}
-        <div class="ui basic segment">
+</div>
             <div class="ui horizontal list">
 
                 {% for user in objs %}
@@ -28,13 +28,14 @@
                 {% endfor %}
 
             </div>
-        </div>
 
+<div class="ui basic segment">
         {% pages objs=objs request=request %}
+</div>
     </div>
 
 
-    <div class="four wide column" style="padding-left:0px;">
+    <div class="five wide column" style="padding-left:0px;">
         {% feed user=request.user %}
     </div>
 

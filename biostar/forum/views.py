@@ -43,7 +43,10 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
     objs = paginator.get_page(page)
 
     context = dict(objs=objs)
+    active_tab = {topic:"active"}
+
     context.update(extra_context)
+    context.update(active_tab)
 
     return render(request, template_name=template, context=context)
 
@@ -100,7 +103,10 @@ def message_view(request, uid):
     # Update the unread flag
     Message.objects.filter(pk=base_message.pk).update(unread=False)
 
-    context = dict(message=base_message, tree=tree)
+    active_tab = request.GET.get("active", "message")
+
+    context = dict(base_message=base_message, tree=tree)
+    context.update({active_tab: "active"})
 
     return render(request, "message_view.html", context=context)
 
@@ -161,7 +167,7 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     # Answers are added here as well.
     obj = auth.build_obj_tree(request=request, obj=obj)
 
-    context = dict(post=obj, form=form)
+    context = dict(post=obj, form=form, post_view="active")
     context.update(extra_context)
 
     return render(request, template, context=context)

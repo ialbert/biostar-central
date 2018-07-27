@@ -1,4 +1,4 @@
-{% extends "message_base.html" %}
+{% extends "forum_base.html" %}
 {% load forum_tags %}
 {% load engine_tags %}
 
@@ -49,7 +49,8 @@
            <div class="item">
                 <div class="content">
                     <div class="ui small header">Subject:
-                        <a href="{% url 'message_view' message.uid %}">{{message.subject}}</a>
+                        {% get_active_message_tab inbox=inbox unread=unread mentioned=mentioned projects=projects outbox=outbox as active_tab %}
+                        <a href="{% url 'message_view' message.uid %}?active={{active_tab}}">{{message.subject}}</a>
                     </div>
                 </div>
            </div>

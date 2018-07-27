@@ -338,6 +338,18 @@ def boxclass(post):
 
     return style
 
+@register.simple_tag
+def get_active_message_tab(**kwargs):
+
+    tab_list = filter(lambda x: kwargs[x] == "active", kwargs)
+
+    # Avoid index error when fetching from a list
+    index = lambda lst, idx: None if idx >= len(lst) else lst[idx]
+
+    active_tab = str(index(list(tab_list), 0))
+    return active_tab
+
+
 
 @register.simple_tag
 def render_comments(request, post, comment_view, vote_view, next_url, comment_template='widgets/comment_body.html'):

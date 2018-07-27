@@ -3,12 +3,16 @@
 
 
     <div class="ui large feed" style="margin-right:10px;">
-
+        <a class="ui green center aligned basic fluid large button" href="{% url 'post_create' %}">
+            <i class="add circle icon"></i>New Post
+        </a>
 
         <div class="event">
         <div class="ui container">
+            <div class="ui large segment">
 <b> Recent Votes </b>
-            <div class="ui bulleted tiny list" >
+
+            <div class="ui divided relaxed tiny list" >
 
                 {% for post in recent_votes %}
 
@@ -19,21 +23,28 @@
                 {% endfor %}
 
             </div>
+            </div>
         </div>
         </div>
 
 
         <div class="event">
         <div class="ui container">
+                 <div class="ui large segment">
         <b>Recent Locations</b>
                   <a href="{% url "community_list" %}">
                 &bull;  All <i class="ui angle small double right icon"></i>
             </a>
-            <div class="ui bulleted tiny list" >
+            <div class="ui relaxed divided tiny list" >
 
                 {% for user in recent_locations %}
 
                     <div class="item"  style="">
+
+
+                        <a href="{% url 'public_profile' user.profile.uid %}">
+                            <div class="ui avatar image">{% gravatar user=user size=100 %}</div>
+                            {{user.profile.name}}</a> from
                         {{user.profile.location }},
 
                         {% if user.profile.last_login %}
@@ -48,45 +59,62 @@
 
 
             </div>
+                 </div>
         </div>
 </div>
 
 
         <div class="event">
         <div class="ui container">
+            <div class="ui large segment">
                 <b>Recent Awards</b>
                 <a href="#"> &bull;  All <i class="ui angle small double right icon"></i>
                 </a>
-            <div class="ui bulleted tiny list" >
+            <div class="ui relaxed divided tiny list" >
 
                 {% for user in recent_locations %}
 
-                    <div class="item" >
-                        <a href="#">{{ user.profile.location }}</a>
-                    </div>
+                    <div class="item"  style="">
 
+
+                        <a href="{% url 'public_profile' user.profile.uid %}">
+                            <div class="ui avatar image">{% gravatar user=user size=100 %}</div>
+                            {{user.profile.name}}</a>
+
+                        {% if user.profile.last_login %}
+                            <span class="muted">{{ user.profile.last_login|time_ago }}  </span>
+                        {% else %}
+                            <span class="muted ">{{ user.profile.date_joined|time_ago }} </span>
+                        {% endif %}
+
+                    </div>
                 {% endfor %}
 
             </div>
-
+            </div>
         </div>
 </div>
 
 
         <div class="event">
-        <div class="ui container" style="width: 300px">
+        <div class="ui container">
+            <div class="ui large segment">
 <b>Recent Replies </b>
-            <div class="ui bulleted tiny relaxed list" >
+            <div class="ui tiny divided relaxed list" >
 
 
                 {% for replies in recent_replies %}
 
-                    <div class="item"   style="">
+                    <div class="item">
                         <a href="{% url "post_view" replies.uid %}"> {{ replies.title }}</a>
                         by
-                        <a href="{% url "public_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}</a>
+                        <a href="{% url "public_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}
 
-                    <div class="muted">
+                        </a>
+<span>              {{  replies.author.profile.score |show_score_icon }}
+        {{  replies.author.profile.score | show_score | bignum }}</span>
+
+                    <div class="muted" style="padding-top:5px;">
                         {{ replies.content | preview_message }}
                         </div>
                     </div>
@@ -96,6 +124,8 @@
 
 
             </div>
+            </div>
+
         </div>
         </div>
     </div>
