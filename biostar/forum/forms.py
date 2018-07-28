@@ -3,6 +3,7 @@ from .models import Post
 from django.core.exceptions import ValidationError
 from django.conf import settings
 
+from biostar.engine.models import Project
 from . import  models, auth
 from pagedown.widgets import PagedownWidget
 import langdetect
@@ -130,8 +131,14 @@ class PostShortForm(forms.Form):
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                               min_length=2, max_length=5000)
 
-    def save(self, parent, author, post_type=Post.ANSWER, project=None):
+    parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
+    project_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
+                                  required=False)
+
+    def save(self, author, post_type=Post.ANSWER):
         data = self.cleaned_data.get
+        parent = Post.objects.filter(uid=data("parent_uid")).first()
+        project = Project.objects.filter(uid=data("project_uid")).first()
         answer = auth.create_post(title=parent.title,
                                   parent=parent,
                                   author=author,
@@ -140,6 +147,11 @@ class PostShortForm(forms.Form):
                                   project=project
                                   )
         return answer
+
+    #def clean(self):
+    #    cleaned_data = super(PostShortForm, self).clean()
+    #    return
+
 
 
 

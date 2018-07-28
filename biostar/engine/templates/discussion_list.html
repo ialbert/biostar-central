@@ -18,47 +18,40 @@
         </div>
     {% endif %}
 
-<div class="ui vertical large segment">
-    <table class="ui very basic celled table">
+    {% for post in posts %}
+        <div class="ui blue raised segment">
 
-        <tbody>
-            {% for post in posts %}
-                <tr>
-                    <td class="collapsing">
-                        <div class="center aligned">
-                        {{ post.root.reply_count }}
-                        </div>
-                        answer{{ post.root.reply_count|pluralize }}
-                    </td>
+            <div class="ui container">
 
-                    <td >
-                       <div class="ui small header" >
-                            {% if post.type != post.QUESTION %}
-                                {{ post.get_type_display }}:
-                            {% endif %}
-                             <a href="{% url 'discussion_view' post.uid %}" >{{ post.get_title }}</a>
+                <div class="ui header" >
+                    {% if post.type != post.QUESTION %}
+                        {{ post.get_type_display }}:
+                    {% endif %}
+                     <a href="{% url 'discussion_view' post.uid %}" >{{ post.get_title }}</a>
 
-                        </div>
-                            {% for tag in post.tag_set.all %}
-                                <a class="ui tiny label" href="#" style="font-size: 13px;padding: 4px">
-                                    {{ tag.name }}</a>
-                            {% endfor %}
+                </div>
+         <div class="ui tiny muted item">
+              {{post.content|preview_message}}
+          </div>
+                <div>
+                        {% for tag in post.tag_set.all %}
+                            <a class="ui tiny label" href="#" style="margin-top:5px;font-size: 13px;padding: 4px">
+                                {{ tag.name }}
+                            </a>
+                        {% endfor %}
+                </div>
+            </div>
+            <div>
+                {% user_info post=post by_diff=True %}
 
+            </div>
 
-                    </td>
-
-
-
-
-                </tr>
-            {% endfor %}
-        </tbody>
-
-    </table>
+        </div>
+    {% endfor %}
 
     {% if not posts %}
 
         <div class="ui warning message"><i class="ui warning circle icon"></i> No discussions found.</div>
     {% endif %}
-</div>
+
 {% endblock %}

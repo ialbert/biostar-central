@@ -83,8 +83,8 @@ def gravatar(user, size=80):
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, include_userbox=True, comment_view="post_comment",
-              sub_redir="post_view", vote_view="update_vote", sub_view="subs_action"):
+def post_body(context, post, user, tree, form, include_userbox=True, comment_url="/",
+              sub_redir="post_view", vote_view="update_vote", sub_view="subs_action", project_uid=None):
     #TODO: this is really temporary ( the view names cannot be a string here.)
     "Renders the post body"
     request = context['request']
@@ -92,13 +92,11 @@ def post_body(context, post, user, tree, form, include_userbox=True, comment_vie
     vote_url = reverse(vote_view, request=request, kwargs=dict(uid=post.uid))
     sub_url = reverse(sub_view, request=request, kwargs=dict(uid=post.uid))
     next_url = reverse(sub_redir, request=request, kwargs=dict(uid=post.uid))
-    comment_url = reverse(comment_view, request=request, kwargs=dict(uid=post.uid))
 
     return dict(post=post, user=user, tree=tree, request=request,
                 form=form, include_userbox=include_userbox, comment_url=comment_url,
-                vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url,
-                comment_view=comment_view, next_url=next_url, vote_view=vote_view,
-                redir_field_name=const.REDIRECT_FIELD_NAME)
+                vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url, next_url=next_url, vote_view=vote_view,
+                redir_field_name=const.REDIRECT_FIELD_NAME, project_uid=project_uid)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
@@ -120,6 +118,7 @@ def subs_actions(post, user, next, sub_url):
 
     return dict(post=post, form=form, button=button, next=next, sub_url=sub_url,
                 redir_field_name=const.REDIRECT_FIELD_NAME)
+
 
 @register.filter
 def show_email(user):
@@ -352,7 +351,8 @@ def get_active_message_tab(**kwargs):
 
 
 @register.simple_tag
-def render_comments(request, post, comment_view, vote_view, next_url, comment_template='widgets/comment_body.html'):
+def render_comments(request, post, comment_view, vote_view, next_url, project_uid=None,
+                    comment_template='widgets/comment_body.html'):
 
     user = request.user
     thread = Post.objects.get_thread(post.parent, user)
@@ -362,14 +362,15 @@ def render_comments(request, post, comment_view, vote_view, next_url, comment_te
     if tree and post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
                                  comment_template=comment_template, comment_view=comment_view,
-                                 vote_view=vote_view, next_url=next_url)
+                                 vote_view=vote_view, next_url=next_url, project_uid=project_uid)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template, comment_view, vote_view, next_url):
+def traverse_comments(request, post, tree, comment_template, comment_view, vote_view, next_url,
+                      project_uid=None):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
@@ -380,7 +381,8 @@ def traverse_comments(request, post, tree, comment_template, comment_view, vote_
 
         data = ['<div class="comment">']
         cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url,
-                "vote_url":vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME}
+                "vote_url":vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME,
+                "project_uid": project_uid}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):

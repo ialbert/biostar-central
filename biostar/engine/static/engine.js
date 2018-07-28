@@ -5,13 +5,15 @@ function add_comment(elem) {
     $("#comment-row").remove();
 
     var post_uid = elem.attr('data-value');
+    var project_uid = elem.attr('project-uid');
     var container = elem.parent().parent();
     var comment_url = elem.attr("comment-url");
-
     var csrf_html = jQuery("[name=csrfmiddlewaretoken]").val();
 
     container.after(`<div id="comment-row" class="ui basic segment inputcolor">
     <form id="comment-form" class="ui form" action=${comment_url}  method="post">
+        <input type="hidden" name="parent_uid" id="parent_uid" value=${post_uid}/>
+        <input type="hidden" name="project_uid" id="project_uid" value=${project_uid}/>
         <input type="hidden" name="csrfmiddlewaretoken" value=${csrf_html} />
 
         <div class="">
@@ -19,7 +21,7 @@ function add_comment(elem) {
             <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="6"></textarea>
         </div>
         <div>
-            <button type="submit" class="ui submit green button">
+            <button class="ui submit green button" type="submit">
                 <i class="check icon"></i>Add Comment
             </button>
             <a class="ui orange right floated button" onclick="javascript:obj=$(\'#comment-row\').remove();">
@@ -62,18 +64,20 @@ $(document).ready(function () {
                 dataType: 'json',
                 data: {data_uid: data_uid},
                 success: function (data) {
-                    alert(data.message);
+                $("#copy-message-"+ data_uid).append(`
+                <div class="ui basic segment">
+                    <div class="ui fluid green message">
+                    ${data.message}
+                    </div>
+                </div>
+
+                `).fadeOut(5000);
                         },
                 });
 
     });
 
     $(".add-comment").click(function (event) {
-        add_comment($(this));
-        });
-
-
-    $("#comment-form").click(function (event) {
         add_comment($(this));
         });
 

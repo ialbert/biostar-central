@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
+from django.http import JsonResponse
 
 from biostar.utils.shortcuts import reverse
 from biostar.accounts.models import Profile
@@ -167,7 +168,7 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     # Answers are added here as well.
     obj = auth.build_obj_tree(request=request, obj=obj)
 
-    context = dict(post=obj, form=form, post_view="active")
+    context = dict(post=obj, form=form, post_view="active", comment_url=reverse("post_comment"))
     context.update(extra_context)
 
     return render(request, template, context=context)
@@ -202,17 +203,20 @@ def post_comment(request, uid, template="post_comment.html", url="post_view", ex
 
 
 def ajax_comment(request):
-
+    1/0
     if request.method == "POST":
-
         form = forms.PostShortForm(data=request.POST)
-
         if form.is_valid():
             form = forms.PostShortForm(data=request.POST)
             if form.is_valid():
-                form.save(parent=obj, author=request.user, post_type=Post.COMMENT,
-                          project=project)
-            #return redirect(reverse(url, request=request, kwargs=dict(uid=obj.root.uid)))
+                form.save(author=request.user, post_type=Post.COMMENT)
+                msg = "Added Comment"
+            else:
+                msg = "Error adding comment"
+
+    json_data = dict(message=msg)
+
+    return JsonResponse(json_data)
 
 
 @object_exists(klass=Post)
@@ -235,8 +239,6 @@ def subs_action(request, uid, next=None):
             messages.success(request, msg)
 
     return redirect(next_url)
-
-
 
 
 @login_required

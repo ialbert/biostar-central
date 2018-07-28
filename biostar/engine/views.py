@@ -236,8 +236,9 @@ def discussion_view(request, uid):
     # Get the parents info
     obj = Post.objects.filter(uid=uid).first()
     project = obj.root.project
+    comment_url = reverse("discussion_comment")
 
-    context = dict(project=project, activate="Discussion")
+    context = dict(project=project, activate="Discussion", comment_url=comment_url)
     counts = get_counts(project)
     context.update(counts)
 
@@ -248,7 +249,6 @@ def discussion_view(request, uid):
 @object_access(type=Post, access=Access.WRITE_ACCESS)
 def discussion_comment(request, uid):
 
-    1/0
     # Get the parent post to add comment to
     obj = Post.objects.filter(uid=uid).first()
     template = "discussion_comment.html"

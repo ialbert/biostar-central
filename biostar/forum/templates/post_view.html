@@ -13,13 +13,13 @@
 <div class="ui vertical segment">
     {# This is the toplevel post #}
 
-    {% post_body post=post user=request.user tree=post.tree form=form %}
+    {% post_body post=post user=request.user tree=post.tree form=form comment_url=comment_url %}
 
 </div>
     {# Render each answer for the post #}
     {% for answer in post.answers %}
         <div class="ui vertical grey segment">
-            {% post_body post=answer user=request.user tree=post.tree include_userbox=False form=form %}
+            {% post_body post=answer user=request.user tree=post.tree include_userbox=False form=form comment_url=comment_url %}
         </div>
     {% endfor %}
 

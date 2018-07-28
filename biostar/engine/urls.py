@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from django.urls import path
 
+from biostar.forum import views as forum_views
 from . import views
 from . import api
 
@@ -52,7 +53,7 @@ urlpatterns = [
     url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),
     url(r'^discussion/create/(?P<uid>[-\w]+)/$', views.discussion_create, name='discussion_create'),
     url(r'^discussion/view/(?P<uid>[-\w]+)/$', views.discussion_view, name='discussion_view'),
-    url(r'^discussion/comment/(?P<uid>[-\w]+)/$', views.discussion_comment, name='discussion_comment'),
+    url(r'^discussion/comment/$', forum_views.ajax_comment, name='discussion_comment'),
     url(r'^discussion/vote/(?P<uid>[-\w]+)/$', views.discussion_vote, name='discussion_vote'),
 
 

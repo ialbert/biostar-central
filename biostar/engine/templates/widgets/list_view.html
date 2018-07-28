@@ -20,9 +20,8 @@
                                 {% privacy_label project %}
                                 Created on {{ project.date.date }} by
                                 <a href="{% url "public_profile" project.owner.profile.uid %}">
-
-                                <div class="ui mini avatar image">{% gravatar user=project.owner size=80 %}</div>
                                 {{ project.owner.profile.name }}
+                                <div class="ui mini avatar image">{% gravatar user=project.owner size=80 %}</div>
                                     </a>
                             </div>
 
@@ -45,10 +44,12 @@
                     <div class="content">
 
                         {% if request.user.is_authenticated %}
-
+                            <div id="copy-message-{{data.uid}}"></div>
                             <a class="copy-data ui right floated label" data-uid="{{data.uid}}">
                                 <i class="copy icon"></i>Copy
+
                             </a>
+
 
                         {% endif %}
                         <a class="subheader" href="{% url 'data_view' data.uid %}">

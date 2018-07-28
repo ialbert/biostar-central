@@ -19,7 +19,7 @@ urlpatterns = [
     url(r'^create/$', views.post_create, name='post_create'),
     url(r'^sub/(?P<uid>[-\w]+)/$', views.subs_action, name='subs_action'),
     url(r'^edit/(?P<uid>[-\w]+)/$', views.edit_post, name='post_edit'),
-    url(r'^comment/(?P<uid>[-\w]+)/$', views.post_comment, name='post_comment'),
+    url(r'^comment/$', views.ajax_comment, name='post_comment'),
     url(r'^vote/(?P<uid>[-\w]+)/$', views.update_vote, name='update_vote'),
 
     # Community urls
