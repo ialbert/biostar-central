@@ -326,21 +326,33 @@ def bignum(number):
 @register.simple_tag
 def boxclass(post):
     # Create the css class for each row
-    if post.has_accepted:
-        style = "accepted"
+
+    if post.type == Post.JOB:
+        style = "orange"
+    elif post.type == Post.TUTORIAL:
+        style = "blue"
+    elif post.type == Post.TOOL:
+        style = "darkgreen"
+    elif post.type == Post.FORUM:
+        style = "gold"
+    elif post.type == Post.NEWS:
+        style = "purple"
+    elif post.has_accepted:
+        style = "olive"
     elif post.reply_count > 0:
-        style = "answered"
+        style = "teal"
     elif post.comment_count > 0:
-        style = "commented"
+        style = "grey"
     else:
-        style = "unanswered"
+        style = "maroon"
 
     return style
 
-@register.simple_tag
-def get_active_message_tab(**kwargs):
 
-    tab_list = filter(lambda x: kwargs[x] == "active", kwargs)
+@register.simple_tag
+def get_active_message_tab(**tabs_dict):
+
+    tab_list = filter(lambda x: tabs_dict[x] == "active", tabs_dict)
 
     # Avoid index error when fetching from a list
     index = lambda lst, idx: None if idx >= len(lst) else lst[idx]
@@ -351,7 +363,7 @@ def get_active_message_tab(**kwargs):
 
 
 @register.simple_tag
-def render_comments(request, post, comment_view, vote_view, next_url, project_uid=None,
+def render_comments(request, post, comment_url, vote_view, next_url, project_uid=None,
                     comment_template='widgets/comment_body.html'):
 
     user = request.user
@@ -361,7 +373,7 @@ def render_comments(request, post, comment_view, vote_view, next_url, project_ui
 
     if tree and post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
-                                 comment_template=comment_template, comment_view=comment_view,
+                                 comment_template=comment_template, comment_url=comment_url,
                                  vote_view=vote_view, next_url=next_url, project_uid=project_uid)
     else:
         text = ''
@@ -369,14 +381,13 @@ def render_comments(request, post, comment_view, vote_view, next_url, project_ui
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template, comment_view, vote_view, next_url,
+def traverse_comments(request, post, tree, comment_url, comment_template, vote_view, next_url,
                       project_uid=None):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
 
     def traverse(node):
-        comment_url = reverse(comment_view, request=request, kwargs=dict(uid=node.uid))
         vote_url = reverse(vote_view, request=request, kwargs=dict(uid=node.uid))
 
         data = ['<div class="comment">']

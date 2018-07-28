@@ -11,7 +11,43 @@ body {
     color: red;
 }
 
+.ui.maroon.label {
+  background-color: #8f2c47;
+  color: #fff;
+}
+.ui.maroon.header {
+  color: #8f2c47;
+}
 
+.ui.maroon.segment {
+  border-top: 2px solid #8f2c47!important;
+}
+
+.ui.darkgreen.label {
+  background-color: #326b2b;
+  color: #fff;
+}
+.ui.darkgreen.header {
+  color: #326b2b
+}
+
+.ui.darkgreen.segment {
+  border-top: 2px solid #326b2b!important;
+}
+
+
+
+.ui.gold.label {
+  background-color: #b5a805;
+  color: #fff;
+}
+.ui.gold.header {
+  color: #b5a805
+}
+
+.ui.gold.segment {
+  border-top: 2px solid #b5a805!important;
+}
 
 .actionbar {
     margin-top:-20px !important;

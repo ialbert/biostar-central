@@ -6,32 +6,57 @@
 
     {% for post in objs %}
 
-        <div class="ui blue raised segment">
+        <div class="ui  {% boxclass post %}  raised  segment">
 
-            <div class="ui container">
 
-                <div class="ui header" >
+        <div class="ui container">
+        {% if post.has_accepted %}
+            <div class="ui {% boxclass post %} bottom attached center aligned label" style="font-size: 1em;text-align: center;">Answered !</div>
+        {% endif %}
+            <div class="ui grey small label">
+                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">0</div>
+                <div >Votes</div>
+
+            </div>
+
+            <div class="ui {% boxclass post %} label small">
+
+                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">0</div>
+                <div >Answers</div>
+            </div>
+
+            <div class="ui small label">
+
+                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">0</div>
+                <div >Views</div>
+
+            </div>
+                <span class="ui header">
                     {% if post.type != post.QUESTION %}
                         {{ post.get_type_display }}:
                     {% endif %}
-                     <a href="{% url 'post_view' post.uid %}" >{{ post.get_title }}</a>
+                </span>
+            <span >
+                     <a href="{% url 'post_view' post.uid %}" class="ui {% boxclass post %} header">{{ post.get_title }}</a>
 
-                </div>
+                </span>
+
          <div class="ui tiny muted item">
               {{post.content|preview_message}}
           </div>
                 <div>
                         {% for tag in post.tag_set.all %}
-                            <a class="ui tiny label" href="#" style="margin-top:5px;font-size: 13px;padding: 4px">
+                            <a class="ui tiny label" href="#" style="margin-top:5px;font-size: 13px;padding: 2.5px">
                                 {{ tag.name }}
                             </a>
                         {% endfor %}
                 </div>
-            </div>
+
             <div>
                 {% user_info post=post by_diff=True %}
 
             </div>
+        </div>
 
         </div>
 

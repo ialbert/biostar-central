@@ -175,48 +175,20 @@ def post_view(request, uid, template="post_view.html", url="post_view",
 
 
 @login_required
-def post_comment(request, uid, template="post_comment.html", url="post_view", extra_context={},
-                 project=None):
-    """Used to structure a comment for viewing in biostar.engine and biostar.forum """
-
-    # Get the parent post to add comment to
-    obj = Post.objects.filter(uid=uid).first()
-
-    # Form used for answers
-    form = forms.PostShortForm()
-
-    if request.method == "POST":
-
-        form = forms.PostShortForm(data=request.POST)
-
-        if form.is_valid():
-            form = forms.PostShortForm(data=request.POST)
-            if form.is_valid():
-                form.save(parent=obj, author=request.user, post_type=Post.COMMENT,
-                          project=project)
-            return redirect(reverse(url, request=request, kwargs=dict(uid=obj.root.uid)))
-
-    context = dict(form=form, post=obj)
-    context.update(extra_context)
-
-    return render(request, template, context=context)
-
-
 def ajax_comment(request):
-    1/0
+
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             form = forms.PostShortForm(data=request.POST)
             if form.is_valid():
-                form.save(author=request.user, post_type=Post.COMMENT)
-                msg = "Added Comment"
+                redir_url = form.save(author=request.user, post_type=Post.COMMENT)
+                messages.success(request, "Added Comment")
+                return redirect(redir_url)
             else:
-                msg = "Error adding comment"
+                messages.error(request, "Error adding comment")
 
-    json_data = dict(message=msg)
-
-    return JsonResponse(json_data)
+    return redirect("/")
 
 
 @object_exists(klass=Post)

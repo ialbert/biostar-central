@@ -128,25 +128,29 @@ class SubsForm(forms.Form):
 
 
 class PostShortForm(forms.Form):
+
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                               min_length=2, max_length=5000)
 
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
     project_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
                                   required=False)
+    redir_url = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
+                                  required=True)
 
     def save(self, author, post_type=Post.ANSWER):
-        data = self.cleaned_data.get
-        parent = Post.objects.filter(uid=data("parent_uid")).first()
-        project = Project.objects.filter(uid=data("project_uid")).first()
-        answer = auth.create_post(title=parent.title,
-                                  parent=parent,
-                                  author=author,
-                                  content=data("content"),
-                                  post_type=post_type,
-                                  project=project
-                                  )
-        return answer
+        data = self.cleaned_data
+
+        parent = Post.objects.filter(uid=data.get("parent_uid")).first()
+        project = Project.objects.filter(uid=data.get("project_uid")).first()
+        auth.create_post(title=parent.title,
+                          parent=parent,
+                          author=author,
+                          content=data.get("content"),
+                          post_type=post_type,
+                          project=project
+                          )
+        return data.get("redir_url", "/")
 
     #def clean(self):
     #    cleaned_data = super(PostShortForm, self).clean()

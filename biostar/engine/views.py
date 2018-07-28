@@ -246,22 +246,6 @@ def discussion_view(request, uid):
                                  project=project, url="discussion_view")
 
 
-@object_access(type=Post, access=Access.WRITE_ACCESS)
-def discussion_comment(request, uid):
-
-    # Get the parent post to add comment to
-    obj = Post.objects.filter(uid=uid).first()
-    template = "discussion_comment.html"
-    activate = "Comment"
-    project = obj.root.project
-    extra_context = dict(activate=activate, project=project)
-    counts = get_counts(project)
-    extra_context.update(counts)
-
-    return forum_views.post_comment(request=request, uid=uid, template=template, extra_context=extra_context,
-                                    project=project, url="discussion_view")
-
-
 @object_access(type=Project, access=Access.READ_ACCESS)
 def recipe_list(request, uid):
     """
