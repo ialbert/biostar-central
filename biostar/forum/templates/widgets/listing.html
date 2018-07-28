@@ -14,21 +14,40 @@
             <div class="ui {% boxclass post %} bottom attached center aligned label" style="font-size: 1em;text-align: center;">Answered !</div>
         {% endif %}
             <div class="ui grey small label">
-                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">0</div>
-                <div >Votes</div>
+                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">
+
+
+                    {% if post.is_toplevel %}
+                        {{ post.thread_score }}
+                        </div>
+                        <div>Vote{{ post.thread_score|pluralize }}</div>
+
+
+                    {% else %}
+
+                        {{ post.vote_count }}
+                        </div>
+                        <div>Vote{{ post.vote_count|pluralize }}</div>
+                    {% endif %}
+
 
             </div>
 
             <div class="ui {% boxclass post %} label small">
 
-                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">0</div>
-                <div >Answers</div>
+                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">
+
+                    {{ post.root.reply_count }}
+                </div>
+                <div>Answer{{ post.root.reply_count|pluralize }}</div>
             </div>
 
             <div class="ui small label">
 
-                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">0</div>
-                <div >Views</div>
+                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">
+                    {{ post.root.view_count|bignum }}
+                </div>
+                <div >View{{ post.root.view_count|pluralize }}</div>
 
             </div>
                 <span class="ui header">
