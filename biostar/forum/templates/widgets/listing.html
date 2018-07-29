@@ -13,7 +13,7 @@
         {% if post.has_accepted %}
             <div class="ui {% boxclass post %} bottom attached center aligned label" style="font-size: 1em;text-align: center;">Answered !</div>
         {% endif %}
-            <div class="ui grey small label">
+            <div class="ui grey tiny label">
                 <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">
 
 
@@ -33,7 +33,7 @@
 
             </div>
 
-            <div class="ui {% boxclass post %} label small">
+            <div class="ui {% boxclass post %} label tiny">
 
                 <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">
 
@@ -42,7 +42,7 @@
                 <div>Answer{{ post.root.reply_count|pluralize }}</div>
             </div>
 
-            <div class="ui small label">
+            <div class="ui tiny label">
 
                 <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">
                     {{ post.root.view_count|bignum }}
