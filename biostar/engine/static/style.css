@@ -35,7 +35,9 @@ body {
   border-top: 2px solid #326b2b!important;
 }
 
-
+.ui.segments>.comment.segment {
+  border-top: none !important;
+}
 
 .ui.gold.label {
   background-color: #b5a805;

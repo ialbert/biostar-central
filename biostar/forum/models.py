@@ -218,9 +218,6 @@ class Post(models.Model):
     # Stickiness of the post.
     sticky = models.BooleanField(default=False)
 
-    # Indicates whether the post has accepted answer.
-    has_accepted = models.BooleanField(default=False, blank=True)
-
     # This will maintain the ancestor/descendant relationship bewteen posts.
     root = models.ForeignKey('self', related_name="descendants", null=True, blank=True, on_delete=models.SET_NULL)
 

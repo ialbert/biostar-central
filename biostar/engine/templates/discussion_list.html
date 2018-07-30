@@ -19,17 +19,26 @@
     {% endif %}
 
     {% for post in posts %}
-        <div class="ui blue raised segment">
+        <div class="ui {% boxclass post %} raised segment">
 
             <div class="ui container">
+            <div class="ui {% boxclass post %} label tiny">
 
-                <div class="ui header" >
+                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">
+
+                    {{ post.root.reply_count }}
+                </div>
+                <div>Answer{{ post.root.reply_count|pluralize }}</div>
+            </div>
+               <span class="ui header">
                     {% if post.type != post.QUESTION %}
                         {{ post.get_type_display }}:
                     {% endif %}
-                     <a href="{% url 'discussion_view' post.uid %}" >{{ post.get_title }}</a>
+                </span>
+            <span >
+                     <a href="{% url 'discussion_view' post.uid %}" class="ui {% boxclass post %} header">{{ post.get_title }}</a>
 
-                </div>
+                </span>
          <div class="ui tiny muted item">
               {{post.content|preview_message}}
           </div>

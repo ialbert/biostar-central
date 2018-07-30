@@ -1,35 +1,27 @@
 {% load forum_tags %}
 
-<div class="ui comment" style="background-color: #e5e3e3;">
-    <div class="avatar">
+<div class="ui blue segment">
 
-<div class="item">
 
-<div class="ui image">
-        <a href="{{ vote_url }}?type=upvote&{{ redir_field_name}}={{ next_url }}">
-            <i class="blue {% vote_icon request.user post 'upvote' %}"></i>
+        <a class="ui horizontal label" href="{{ vote_url }}?type=upvote&{{ redir_field_name}}={{ next_url }}">
+        <i class="blue {% vote_icon request.user post 'upvote' %}"></i>
+            {{ post.vote_count }}
         </a>
-<div class="ui center aligned tiny header">
 
-        {{ post.vote_count }}
-</div>
-              </div>
-        </div>
+    written {{ post.creation_date|time_ago }}
 
-    </div>
+    by <a href="{% url "public_profile"  post.author.profile.uid %}">
+    <div class="ui avatar image">{% gravatar user=post.author size=100 %}</div>
+    {{post.author.profile.name }}
+    </a>
+    {{post.author.profile.score |show_score_icon}}
+    {{post.author.profile.score | show_score |bignum }}
 
-    <div class="content">
 
-      <div class="author">{{post.author.profile.name}}
-
-      <div class="metadata">
-        <span class="date">{{ post.lastedit_date|time_ago }}</span>
-      </div>
-      </div>
-        <div class="text">
+    <p>
       {{ post.html|safe }}
-        </div>
-        <div class="actions">
+    </p>
+        <div class="">
         <a class="add-comment ui mini grey basic label" comment-url="{{ comment_url }}"
            data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
             ADD REPLY
@@ -39,12 +31,11 @@
 
         </div>
 
-
-    </div>
-
     <div id="comment-container-{{post.uid}}">
     </div>
 
 </div>
+
+
 
 

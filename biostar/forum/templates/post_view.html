@@ -19,7 +19,7 @@
     {# Render each answer for the post #}
     {% for answer in post.answers %}
         <div class="ui vertical grey segment">
-            {% post_body post=answer user=request.user tree=post.tree include_userbox=False form=form comment_url=comment_url %}
+            {% post_body post=answer user=request.user tree=post.tree form=form comment_url=comment_url %}
         </div>
     {% endfor %}
 

@@ -17,7 +17,7 @@
     {# Render each answer for the post #}
     {% for answer in post.answers %}
         <div class="ui vertical small grey segment">
-            {% post_body project_uid=project.uid post=answer user=request.user comment_url=comment_url tree=post.tree sub_view="discussion_subs" vote_view="discussion_vote" form=form include_userbox=False sub_redir="discussion_view"  %}
+            {% post_body project_uid=project.uid post=answer user=request.user comment_url=comment_url tree=post.tree sub_view="discussion_subs" vote_view="discussion_vote" form=form sub_redir="discussion_view"  %}
         </div>
     {% endfor %}
 
