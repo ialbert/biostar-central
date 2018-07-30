@@ -7,13 +7,16 @@
     {% for post in objs %}
 
         <div class="ui  {% boxclass post %}  raised  segment">
+      {% if post.has_accepted %}
 
+            <div class="ui {% boxclass post %} right corner label" style="">
+                <i class="check circle icon"></i>
+            </div>
 
-        <div class="ui container">
-        {% if post.has_accepted %}
-            <div class="ui {% boxclass post %} bottom attached center aligned label" style="font-size: 1em;text-align: center;">Answered !</div>
         {% endif %}
-            <div class="ui grey tiny label">
+        <div class="ui container">
+
+            <div class="ui grey left tiny label">
                 <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">
 
 
@@ -50,6 +53,7 @@
                 <div >View{{ post.root.view_count|pluralize }}</div>
 
             </div>
+
                 <span class="ui header">
                     {% if post.type != post.QUESTION %}
                         {{ post.get_type_display }}:

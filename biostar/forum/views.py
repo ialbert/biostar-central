@@ -158,7 +158,7 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
-            form.save(parent=obj.parent, author=request.user, project=project)
+            form.save(author=request.user)
             return redirect(reverse(url, request=request, kwargs=dict(uid=obj.root.uid)))
 
     # Adds the permissions

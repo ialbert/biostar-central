@@ -45,14 +45,7 @@
                         <a href="{% url 'public_profile' user.profile.uid %}">
                             <div class="ui avatar image">{% gravatar user=user size=100 %}</div>
                             {{user.profile.name}}</a> from
-                        {{user.profile.location }},
-
-                        {% if user.profile.last_login %}
-                            <span class="muted">{{ user.profile.last_login|time_ago }}  </span>
-                        {% else %}
-                            <span class="muted ">{{ user.profile.date_joined|time_ago }} </span>
-                        {% endif %}
-
+                        {{user.profile.location }}
                     </div>
 
                 {% endfor %}
