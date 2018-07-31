@@ -41,6 +41,7 @@
 
         <a class="item" href="{% url 'profile' %}">
             <i class="user icon"></i>
+            {{request.user.profile.name }}
         </a>
 
             <a class="item" href="{% url 'logout' %}"><i class="sign in icon"></i>Logout</a>

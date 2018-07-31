@@ -64,8 +64,10 @@
 
                 </span>
 
-         <div class="ui tiny muted item">
+         <div class="muted">
+
               {{post.content|preview_message}}
+            
           </div>
                 <div>
                         {% for tag in post.tag_set.all %}

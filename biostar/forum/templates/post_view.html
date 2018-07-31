@@ -27,7 +27,7 @@
 <div class="ui small header">Add your answer</div>
 
     {% if request.user.is_authenticated %}
-        <form method="post" class="ui form" action="{%  url 'discussion_view' post.uid %}">
+        <form method="post" class="ui form" action="{%  url 'post_view' post.uid %}">
             {{ form.media }}
             {% csrf_token %}
 
@@ -39,7 +39,7 @@
             </div>
             <input type="hidden" name="{{ form.parent_uid.name }}" id="{{ form.parent_uid.id_for_label }}" value={{post.uid}} />
             <input type="hidden" name="{{ form.project_uid.name }}" id="{{ form.project_uid.id_for_label }}" value={{project.uid}} />
-            <input type="hidden" name="{{ form.redir_url.name }}" id="{{ form.redir_url.id_for_label }}" value="{% url 'discussion_view' post.uid %}" />
+            <input type="hidden" name="{{ form.redir_url.name }}" id="{{ form.redir_url.id_for_label }}" value="{% url 'post_view' post.uid %}" />
             <div class="field">
                 {{ form.content }}
             </div>
