@@ -1,0 +1,18 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Biostar Forum
+{% endblock %}
+
+
+{% block body %}
+
+<div class="ui center aligned basic segment">
+
+    {% tags_banner limit=10000 listing=True %}
+
+</div>
+
+{% endblock %}

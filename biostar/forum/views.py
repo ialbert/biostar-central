@@ -28,7 +28,7 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
         # Project discussions not shown when looking at topics
         objs = objs.filter(project=None)
 
-    # Apply extra protocols to queryset (updates, etc)
+    # Apply extra protocols to queryset (updates, filters, etc)
     objs = extra_proc(objs)
 
     # Get the page info
@@ -105,7 +105,9 @@ def message_view(request, uid):
 
 
 def tags_list(request):
-    return
+
+    context = dict()
+    return render(request, "tags_list.html", context=context)
 
 
 @object_exists(klass=Post)

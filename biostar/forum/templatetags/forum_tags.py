@@ -86,7 +86,7 @@ def gravatar(user, size=80):
 
 
 @register.inclusion_tag('widgets/tags_banner.html')
-def tags_banner(limit=7):
+def tags_banner(limit=7, listing=False):
 
     default = ["latest", "open", "jobs", "news"]
 
@@ -96,9 +96,12 @@ def tags_banner(limit=7):
 
     tags = list(filter(lambda x: x["tags__name"] is not None, tags))
 
-    all_tags = default + tags
+    if listing:
+        all_tags = tags
+    else:
+        all_tags = default + tags
 
-    return dict(tags=all_tags, limit=limit)
+    return dict(tags=all_tags, limit=limit, listing=listing)
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
