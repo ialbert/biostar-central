@@ -24,8 +24,9 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
 
     objs = auth.list_by_topic(request=request, topic=topic).order_by("-pk")
 
-    # Project discussions not shown when looking at topics
-    objs = objs.filter(project=None)
+    if hasattr(objs.first(), "project"):
+        # Project discussions not shown when looking at topics
+        objs = objs.filter(project=None)
 
     # Apply extra protocols to queryset (updates, etc)
     objs = extra_proc(objs)
