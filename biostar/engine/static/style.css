@@ -27,6 +27,13 @@ body {
   background-color: #326b2b;
   color: #fff;
 }
+
+.ui.tagging.label {
+    margin-top:5px;
+    font-size: 13px;
+    padding: 2.5px
+}
+
 .ui.darkgreen.header {
   color: #326b2b
 }

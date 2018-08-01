@@ -30,7 +30,7 @@
                  </div>
              {% endif %}
 
-                 <div class="description">
+                 <div class="ui container">
 
                         {{ post.html|safe }}
                      </div>
@@ -40,8 +40,8 @@
 
                          <div class="" style="margin-bottom:0.5em;">
 
-                                {% for tag in post.tag_set.all %}
-                                    <a class="ui small label" href="#" style="font-size: 13px;padding: 4px">{{ tag.name }}</a>
+                                {% for tag in post.tags.all %}
+                                    <a class="ui small tagging label" href="#">{{ tag.name }}</a>
                                 {% endfor %}
                             &bull; {{ post.root.view_count|bignum }} views
                          </div>

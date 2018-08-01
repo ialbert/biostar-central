@@ -1,6 +1,7 @@
 import logging
 import hashlib
 import urllib.parse
+import itertools
 from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from django import template
@@ -8,7 +9,9 @@ from django.utils.safestring import mark_safe
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Count
 
+from taggit.models import Tag
 from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Vote, Message
 from biostar.forum import auth, forms, models, const
@@ -82,10 +85,26 @@ def gravatar(user, size=80):
     return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
 
 
+@register.inclusion_tag('widgets/tags_banner.html')
+def tags_banner(limit=7):
+
+    default = ["latest", "open", "jobs", "news"]
+
+    default = list(map(lambda x: dict(tags__name=x, tags__name__count=1), default))
+
+    tags = list(Post.objects.values("tags__name").annotate(Count('tags__name')))[:limit]
+
+    tags = list(filter(lambda x: x["tags__name"] is not None, tags))
+
+    all_tags = default + tags
+
+    return dict(tags=all_tags, limit=limit)
+
+
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
 def post_body(context, post, user, tree, form, include_userbox=True, comment_url="/",
               sub_redir="post_view", vote_view="update_vote", sub_view="subs_action", project_uid=None):
-    #TODO: this is really temporary ( the view names cannot be a string here.)
+
     "Renders the post body"
     request = context['request']
 

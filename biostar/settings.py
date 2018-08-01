@@ -67,7 +67,7 @@ INSTALLED_APPS = [
     'mailer',
     'compressor',
     'pagedown',
-
+    'taggit',
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',

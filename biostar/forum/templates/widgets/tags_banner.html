@@ -1,0 +1,13 @@
+{% load forum_tags %}
+
+
+    {% for tag in tags %}
+
+        <a class="ui basic grey button" href="{% url 'post_list' %}?topic={{tag.tags__name}}">{{tag.tags__name|upper}}</a>
+
+
+    {% endfor %}
+
+    <a class="ui basic grey button" href="{% url 'tags_list' %}">
+        ALL<i class="angle double right icon"></i>
+    </a>

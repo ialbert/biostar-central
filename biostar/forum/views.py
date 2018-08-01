@@ -4,37 +4,28 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
-from django.http import JsonResponse
 
 from biostar.utils.shortcuts import reverse
 from biostar.accounts.models import Profile
 from . import forms, auth
 from .models import Post, Vote, Message
-from .decorators import object_exists, message_access
+from .decorators import object_exists, message_access, protect_private_topics
 from .const import *
 User = get_user_model()
 
 
+@protect_private_topics
 def list_view(request, template="post_list.html", extra_context={}, topic=None,
               extra_proc=lambda x:x, per_page=10):
     "List view for posts and messages"
 
-    topic = topic or request.GET.get("topic", 'latest')
+    topic = topic or request.GET.get("topic", LATEST)
     page = request.GET.get('page')
-
-    is_private_topic = topic not in ("latest", "community")
-    is_public_topic = topic in ("latest", "community")
-
-    if request.user.is_anonymous and is_private_topic:
-        messages.error(request, f"You must be logged in to view that topic.")
-
-        topic, template = "latest", "post_list.html"
 
     objs = auth.list_by_topic(request=request, topic=topic).order_by("-pk")
 
-    if is_public_topic:
-        # Projects not shown when looking at public topics
-        objs = objs.filter(project=None)
+    # Project discussions not shown when looking at topics
+    objs = objs.filter(project=None)
 
     # Apply extra protocols to queryset (updates, etc)
     objs = extra_proc(objs)
@@ -110,6 +101,10 @@ def message_view(request, uid):
     context.update({active_tab: "active"})
 
     return render(request, "message_view.html", context=context)
+
+
+def tags_list(request):
+    return
 
 
 @object_exists(klass=Post)

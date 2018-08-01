@@ -21,3 +21,12 @@ MESSAGE_TABS = ["inbox", "outbox", "unread"]
 INBOX, OUTBOX, UNREAD = MESSAGE_TABS
 
 ACTIVE_TAB = "active"
+
+MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING = ["myposts", "mytags", "open", "following"]
+BOOKMARKS, VOTES, MESSAGE = ["bookmarks", "votes", "message"]
+MENTIONED, COMMUNITY, LATEST = ["mentioned", "community", "latest"]
+
+
+PRIVATE_TOPICS = [ MYPOSTS, MYTAGS, MESSAGE, MENTIONED, OUTBOX,
+                    INBOX, BOOKMARKS, UNREAD, FOLLOWING, VOTES
+                    ]

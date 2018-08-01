@@ -21,6 +21,8 @@ urlpatterns = [
     url(r'^edit/(?P<uid>[-\w]+)/$', views.edit_post, name='post_edit'),
     url(r'^comment/$', views.ajax_comment, name='post_comment'),
     url(r'^vote/(?P<uid>[-\w]+)/$', views.update_vote, name='update_vote'),
+    url(r'^tags/list/$', views.tags_list, name='tags_list'),
+
 
     # Community urls
     url(r'^community/list/$', views.community_list, name='community_list'),

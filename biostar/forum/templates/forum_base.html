@@ -59,7 +59,9 @@
 
 {% show_messages messages %}
         <div class="ui aligned basic vertical segment">
-
+            <div class="ui center aligned basic segment">
+        {% tags_banner %}
+            </div>
         {% if post_view %}
         <div class="ui top attached tabular nine item stackable menu">
         {% else %}

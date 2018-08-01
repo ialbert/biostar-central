@@ -67,11 +67,11 @@
          <div class="muted">
 
               {{post.content|preview_message}}
-            
+
           </div>
                 <div>
-                        {% for tag in post.tag_set.all %}
-                            <a class="ui tiny label" href="#" style="margin-top:5px;font-size: 13px;padding: 2.5px">
+                        {% for tag in post.tags.all %}
+                            <a class="ui tiny tagging label" href="{% url 'post_list' %}?topic={{tag}}">
                                 {{ tag.name }}
                             </a>
                         {% endfor %}
