@@ -149,7 +149,7 @@
 
 
             {% get_posts user=user request=request as posts %}
-            {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
+            {% pages objs=posts request=request  %}
 
             <div class="ui small relaxed divided list">
                 {% listing posts=posts %}
@@ -157,20 +157,20 @@
             {% if not posts %}
             <div class="ui warning message"><i class="ui warning circle icon"></i> No posts found.</div>
             {% endif %}
-            {% pages objs=posts request=request uid=user.profile.uid url="public_profile" %}
+            {% pages objs=posts request=request %}
 
 
         {% elif has_projects %}
 
             {% get_projects user=user request=request as projects %}
 
-            {% pages objs=projects request=request uid=user.profile.uid url="public_profile" %}
+            {% pages objs=projects request=request %}
             {% list_view projects=projects %}
 
             {% if not projects %}
             <div class="ui warning message"><i class="ui warning circle icon"></i> No projects found.</div>
             {% endif %}
-            {% pages objs=projects request=request uid=user.profile.uid url="public_profile" %}
+            {% pages objs=projects request=request %}
 
 
         {% elif has_recipes and user.profile.is_manager and user == request.user %}
