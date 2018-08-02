@@ -34,9 +34,10 @@ def user_box(user):
 
 
 @register.inclusion_tag('widgets/pages.html')
-def pages(objs, request=None, url="post_list", uid=None):
+def pages(objs, request):
 
     topic = request.GET.get('topic', request.GET.get("active"))
+
     url = request.path
 
     return dict(objs=objs, url=url, topic=topic)
@@ -80,9 +81,11 @@ def gravatar(user, size=80):
     return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
 
 
-@register.inclusion_tag('widgets/tags_banner.html')
-def tags_banner(limit=7, listing=False):
+@register.inclusion_tag('widgets/tags_banner.html', takes_context=True)
+def tags_banner(context, limit=7, listing=False):
 
+    request = context["request"]
+    page = request.GET.get("page")
     default = ["latest", "open", "jobs", "news"]
 
     default = list(map(lambda x: dict(tags__name=x, tags__name__count=1), default))
@@ -92,11 +95,13 @@ def tags_banner(limit=7, listing=False):
     tags = list(filter(lambda x: x["tags__name"] is not None, tags))
 
     if listing:
-        all_tags = tags
+        # Get the page info
+        paginator = Paginator(tags, 150)
+        all_tags = paginator.get_page(page)
     else:
         all_tags = default + tags
 
-    return dict(tags=all_tags, limit=limit, listing=listing)
+    return dict(tags=all_tags, limit=limit, listing=listing, request=request)
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)

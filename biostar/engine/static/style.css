@@ -28,7 +28,10 @@ body {
   color: #fff;
 }
 
-
+.ui.grid>.column.tagging:not(.row) {
+    padding-top: 0;
+    padding-bottom: 0;
+}
 .ui.tagging.label {
     margin-top:5px;
     font-size: 14px;

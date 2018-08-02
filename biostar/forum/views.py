@@ -21,6 +21,7 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
 
     topic = topic or request.GET.get("topic", LATEST)
     page = request.GET.get('page')
+    topic = topic.lower()
 
     # Message and forum objects listed separately
     if is_forum:
@@ -60,7 +61,7 @@ def message_list(request):
 
     active_tab = active_tab if (active_tab in MESSAGE_TABS) else INBOX
 
-    context = {active_tab: ACTIVE_TAB, "not_outbox": active_tab != OUTBOX}
+    context = {active_tab: ACTIVE_TAB, "not_outbox": active_tab != OUTBOX, "field_name": ACTIVE_TAB}
 
     user = request.user
 
@@ -98,10 +99,10 @@ def message_view(request, uid):
     # Update the unread flag
     Message.objects.filter(pk=base_message.pk).update(unread=False)
 
-    active_tab = request.GET.get("active", "message")
+    active_tab = request.GET.get(ACTIVE_TAB, "message")
 
-    context = dict(base_message=base_message, tree=tree)
-    context.update({active_tab: "active"})
+    context = dict(base_message=base_message, tree=tree, extra_tab="active",
+                   extra_tab_name=active_tab)
 
     return render(request, "message_view.html", context=context)
 
@@ -231,7 +232,7 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
             post = form.save(author=request.user)
             return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
 
-    context = dict(form=form)
+    context = dict(form=form, extra_tab="active", extra_tab_name="New Post")
     context.update(extra_context)
 
     return render(request, template, context=context)
