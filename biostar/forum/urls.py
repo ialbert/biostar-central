@@ -15,7 +15,6 @@ urlpatterns = [
     url(r'^$', views.list_view, name='post_list'),
     url(r'^view/(?P<uid>[-\w]+)/$', views.post_view, name='post_view'),
 
-    url(r'^list/(?P<topic>[-\w]+)/$', views.list_by_topic, name='post_list_topic'),
     url(r'^create/$', views.post_create, name='post_create'),
     url(r'^sub/(?P<uid>[-\w]+)/$', views.subs_action, name='subs_action'),
     url(r'^edit/(?P<uid>[-\w]+)/$', views.edit_post, name='post_edit'),

@@ -16,13 +16,19 @@ User = get_user_model()
 
 @protect_private_topics
 def list_view(request, template="post_list.html", extra_context={}, topic=None,
-              extra_proc=lambda x:x, per_page=10):
+              extra_proc=lambda x:x, per_page=10, is_forum=True):
     "List view for posts and messages"
 
     topic = topic or request.GET.get("topic", LATEST)
     page = request.GET.get('page')
 
-    objs = auth.list_by_topic(request=request, topic=topic).order_by("-pk")
+    # Message and forum objects listed separately
+    if is_forum:
+        listing_func = auth.list_posts_by_topic
+    else:
+        listing_func = auth.list_message_by_topic
+
+    objs = listing_func(request=request, topic=topic).order_by("-pk")
 
     if hasattr(objs.first(), "project"):
         # Project discussions not shown when looking at topics
@@ -47,14 +53,6 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
     return render(request, template_name=template, context=context)
 
 
-def list_by_topic(request, topic):
-    #TODO: going to take out when refractoring
-    "Used to keep track of topics when going fr"
-
-    return list_view(request=request, topic=topic)
-
-
-
 @login_required
 def message_list(request):
 
@@ -71,7 +69,8 @@ def message_list(request):
     msg_per_page = 20
 
     return list_view(request, template="message_list.html",
-                     topic=active_tab, extra_context=context, per_page=msg_per_page)
+                     topic=active_tab, extra_context=context, per_page=msg_per_page,
+                     is_forum=False)
 
 
 def community_list(request):

@@ -31,10 +31,16 @@ body {
 
 .ui.tagging.label {
     margin-top:5px;
-    font-size: 13px;
-    padding: 2.5px
+    font-size: 14px;
+    padding: 3px;
+    color:#8f2c47;
+    font-weight: 10;
 }
+.ui.tagging.label:hover {
+    background-color: #8f2c47;
+    color:white;
 
+}
 .ui.darkgreen.header {
   color: #326b2b
 }

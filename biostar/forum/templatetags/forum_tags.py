@@ -34,28 +34,23 @@ def user_box(user):
 
 
 @register.inclusion_tag('widgets/pages.html')
-def pages(objs, request=None, topic="", url="post_list_topic", uid=None):
+def pages(objs, request=None, url="post_list", uid=None):
 
-    topic = request.GET.get('topic', topic)
+    topic = request.GET.get('topic', request.GET.get("active"))
+    url = request.path
 
-    if topic:
-        url = reverse(url, request=request, kwargs=dict(topic=topic))
-    elif uid:
-        url = reverse(url, request=request, kwargs=dict(uid=uid))
-    else:
-        url = ''
-
-    return dict(objs=objs, url=url)
+    return dict(objs=objs, url=url, topic=topic)
 
 
 @register.inclusion_tag("widgets/message_menu.html")
-def message_menu(inbox=None, unread=None, mentioned=None,
-                 projects=None, outbox=None, request=None):
+def message_menu(extra_tab=None, request=None):
 
-    return dict(inbox=inbox,unread=unread,mentioned=mentioned,
-                projects=projects, outbox=outbox,request=request,
-                active_tab=const.ACTIVE_TAB, const_in=const.INBOX,
-                const_out=const.OUTBOX, const_unread=const.UNREAD)
+    extra = {extra_tab: "active"}
+    context = dict(request=request, active_tab=const.ACTIVE_TAB,
+                   const_in=const.INBOX, const_out=const.OUTBOX,
+                   const_unread=const.UNREAD)
+    context.update(extra)
+    return context
 
 
 @register.inclusion_tag('widgets/forum_menubar.html', takes_context=True)

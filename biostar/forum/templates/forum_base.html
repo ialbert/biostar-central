@@ -71,7 +71,7 @@
             <a class="ui {{latest}} item" href="{% url 'post_list' %}?topic=latest">
                 <i class="comment alternate icon"></i>Latest
             </a>
-            <a class="ui {{message}} {{inbox}} {{unread}} {{outbox}} {{mentioned}} {{projects}} {{trash}} item" href="{% url 'message_list' %}">
+            <a class="ui {{message}} item" href="{% url 'message_list' %}">
                 <i class="mail icon"></i>Messages
                 {% object_count request=request otype="message" as num_msgs %}
                 {% if num_msgs %}<div class="ui green mini circular label">{{num_msgs}}</div>{%endif%}

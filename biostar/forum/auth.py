@@ -111,7 +111,28 @@ def build_obj_tree(request, obj):
     return obj
 
 
-def list_by_topic(request, topic):
+def list_message_by_topic(request, topic):
+
+    user = request.user
+    # One letter tags are always uppercase
+    topic = fixcase(topic)
+
+    if topic == const.MESSAGE:
+        return Message.objects.inbox_for(user=user)
+
+    if topic == const.UNREAD:
+        return Message.objects.filter(recipient=user, unread=True)
+
+    if topic == const.INBOX:
+        return Message.objects.inbox_for(user=user)
+
+    if topic == const.OUTBOX:
+        return Message.objects.outbox_for(user=user)
+
+    return
+
+
+def list_posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
     user = request.user
 
@@ -144,18 +165,6 @@ def list_by_topic(request, topic):
 
     if topic == const.VOTES:
         return Post.objects.my_post_votes(user).distinct()
-
-    if topic == const.MESSAGE:
-        return Message.objects.filter(recipient=user, seen=False, unread=True)
-
-    if topic == const.UNREAD:
-        return Message.objects.filter(recipient=user, unread=True)
-
-    if topic == const.INBOX:
-        return Message.objects.inbox_for(user=user)
-
-    if topic == const.OUTBOX:
-        return Message.objects.outbox_for(user=user)
 
     if topic == const.COMMUNITY:
         # Users that make posts or votes are
