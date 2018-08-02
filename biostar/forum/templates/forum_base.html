@@ -59,14 +59,11 @@
 
 {% show_messages messages %}
         <div class="ui aligned basic vertical segment">
-        <div class="ui center aligned basic segment">
+        <div class="ui basic segment">
             {% tags_banner %}
         </div>
-        {% if post_view %}
-        <div class="ui top attached tabular nine item stackable menu">
-        {% else %}
-        <div class="ui top attached tabular eight item stackable menu">
-        {% endif %}
+
+        <div class="ui top attached tabular stackable menu">
 
             <a class="ui {{community}} item" href="{% url 'community_list' %}">
                 <i class="world icon"></i>Community
@@ -103,7 +100,9 @@
                 {% object_count request=request otype="bookmark" as num_bookmarks %}
                 {% if num_bookmarks %}<div class="ui mini circular label">{{num_bookmarks}}</div>{%endif%}
             </a>
-            {% if post_view %}<a class="ui {{post_view}} item" href="#"><i class="comment icon"></i>Post</a> {% endif %}
+            {% if extra_tab %}<a class="ui {{extra_tab}} item" href="#">
+                <i class="info circle icon"></i>{% if extra_tab_name %}{{ extra_tab_name|truncatechars:10 }}{%else%} Active{% endif %}</a>
+            {% endif %}
 
         </div>
 

@@ -1,20 +1,22 @@
 {% load forum_tags %}
 
 {% if listing %}
-<div class="ui horizontal list">
-    {% for tag in tags %}
-        <div class="item">
-        <a class="ui basic grey button" href="{% url 'post_list' %}?topic={{tag.tags__name}}">
-            {{tag.tags__name|upper}} x {{tag.tags__name__count}}</a>
-        </div>
 
-    {% endfor %}
-</div>
+    <div class="ui horizontal list">
+        {% for tag in tags %}
+            <div class="item">
+            <a class="ui basic grey button" href="{% url 'post_list' %}?topic={{tag.tags__name}}">
+                {{tag.tags__name|upper}} x {{tag.tags__name__count}}</a>
+            </div>
+
+        {% endfor %}
+    </div>
+
 {% else %}
+
     {% for tag in tags %}
 
         <a class="ui basic grey button" href="{% url 'post_list' %}?topic={{tag.tags__name}}">{{tag.tags__name|upper}}</a>
-
 
     {% endfor %}
     <a class="ui basic grey button" href="{% url 'tags_list' %}">

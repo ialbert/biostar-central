@@ -36,7 +36,10 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
     objs = paginator.get_page(page)
 
     context = dict(objs=objs)
-    active_tab = {topic:"active"}
+    if topic in TOPICS_WITH_TABS:
+        active_tab = {topic: "active"}
+    else:
+        active_tab = dict(extra_tab="active", extra_tab_name=topic.capitalize())
 
     context.update(extra_context)
     context.update(active_tab)
@@ -106,7 +109,7 @@ def message_view(request, uid):
 
 def tags_list(request):
 
-    context = dict()
+    context = dict(extra_tab="active", extra_tab_name="All Tags")
     return render(request, "tags_list.html", context=context)
 
 
@@ -165,8 +168,10 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
     obj = auth.build_obj_tree(request=request, obj=obj)
+    tab_name = obj.get_type_display().capitalize()
 
-    context = dict(post=obj, form=form, post_view="active", comment_url=reverse("post_comment"))
+    context = dict(post=obj, form=form, extra_tab="active", extra_tab_name=tab_name,
+                   comment_url=reverse("post_comment"))
     context.update(extra_context)
 
     return render(request, template, context=context)

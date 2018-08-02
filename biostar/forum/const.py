@@ -26,6 +26,11 @@ MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING = ["myposts", "mytags", "open", "followin
 BOOKMARKS, VOTES, MESSAGE = ["bookmarks", "votes", "message"]
 MENTIONED, COMMUNITY, LATEST = ["mentioned", "community", "latest"]
 
+# Topics that have a default tabs
+TOPICS_WITH_TABS = [
+                INBOX, OUTBOX, UNREAD, MYPOSTS, MYTAGS, FOLLOWING,
+                BOOKMARKS, VOTES, MESSAGE, MENTIONED, COMMUNITY, LATEST
+              ]
 
 PRIVATE_TOPICS = [ MYPOSTS, MYTAGS, MESSAGE, MENTIONED, OUTBOX,
                     INBOX, BOOKMARKS, UNREAD, FOLLOWING, VOTES

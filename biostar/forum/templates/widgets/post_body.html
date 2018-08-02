@@ -41,7 +41,7 @@
                          <div class="" style="margin-bottom:0.5em;">
 
                                 {% for tag in post.tags.all %}
-                                    <a class="ui small tagging label" href="#">{{ tag.name }}</a>
+                                    <a class="ui small tagging label" href="{% url 'post_list' %}?topic={{tag}}">{{ tag.name }}</a>
                                 {% endfor %}
                             &bull; {{ post.root.view_count|bignum }} views
                          </div>
