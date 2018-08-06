@@ -8,59 +8,6 @@
 
 {% block content %}
 
-    {% if user.is_authenticated %}
-        <div class="ui center aligned vertical segment">
-
-            <a class="ui small button" href="{% url 'discussion_create' project.uid %}">
-                <i class="comment alternate icon"></i>Start a Discussion!
-            </a>
-
-        </div>
-    {% endif %}
-
-    {% for post in posts %}
-        <div class="ui {% boxclass post %} raised segment">
-
-            <div class="ui container">
-            <div class="ui {% boxclass post %} label tiny">
-
-                <div style="font-size: 1.5em;padding-bottom: .2em;text-align: center;">
-
-                    {{ post.root.reply_count }}
-                </div>
-                <div>Answer{{ post.root.reply_count|pluralize }}</div>
-            </div>
-               <span class="ui header">
-                    {% if post.type != post.QUESTION %}
-                        {{ post.get_type_display }}:
-                    {% endif %}
-                </span>
-            <span >
-                     <a href="{% url 'discussion_view' post.uid %}" class="ui {% boxclass post %} header">{{ post.get_title }}</a>
-
-                </span>
-         <div class="ui tiny muted item">
-              {{post.content|preview_message}}
-          </div>
-                <div>
-                        {% for tag in post.tag_set.all %}
-                            <a class="ui tiny label" href="#" style="margin-top:5px;font-size: 13px;padding: 4px">
-                                {{ tag.name }}
-                            </a>
-                        {% endfor %}
-                </div>
-            </div>
-            <div>
-                {% user_info post=post by_diff=True %}
-
-            </div>
-
-        </div>
-    {% endfor %}
-
-    {% if not posts %}
-
-        <div class="ui warning message"><i class="ui warning circle icon"></i> No discussions found.</div>
-    {% endif %}
+    {% listing posts=posts discussion_view=True %}
 
 {% endblock %}

@@ -222,14 +222,14 @@ def get_posts(user, request, per_page=20):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(posts=None, messages=None):
+def listing(posts=None, messages=None, discussion_view=False):
 
     is_post = True if posts else False
     is_messages = True if messages else False
 
     objs = posts or messages
 
-    return dict(is_post=is_post, is_messages=is_messages, objs=objs)
+    return dict(is_post=is_post, is_messages=is_messages, objs=objs, discussion_view=discussion_view)
 
 
 

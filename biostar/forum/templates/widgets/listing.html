@@ -65,14 +65,16 @@
 
 
             <span >
-                     <a href="{% url 'post_view' post.uid %}" class="ui header">{{ post.get_title }}</a>
-
+                {% if discussion_view %}
+                <a href="{% url 'discussion_view' post.uid %}" class="ui header">{{ post.get_title }}</a>
+                {% else %}
+                 <a href="{% url 'post_view' post.uid %}" class="ui header">{{ post.get_title }}</a>
+                {% endif %}
                 </span>
             </div>
 <div class="ui basic segment preview">
          <div class="muted">
-
-              {{post.content|preview_message}}
+             {{post.content|preview_message}}
 
           </div>
 </div>
