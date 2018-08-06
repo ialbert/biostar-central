@@ -60,6 +60,7 @@ def forum_menubar(context, request=None):
 
     return dict(user=user, request=request)
 
+
 @register.simple_tag
 def gravatar(user, size=80):
     #name = user.profile.name
@@ -147,7 +148,6 @@ def show_email(user):
 
     try:
         head, tail = user.email.split("@")
-
         email = head[0] + "*" * 10 + tail
     except:
         return user.email[0] + "*" * 10

@@ -28,10 +28,29 @@ body {
   color: #fff;
 }
 
-.ui.grid>.column.tagging:not(.row) {
-    padding-top: 0;
-    padding-bottom: 0;
+.ui.stats.segment {
+    margin-left: -1em;
+    margin-bottom: -1em;
+    margin-right: 0em;
+    padding-top: 0px;
 }
+
+
+.ui.preview.segment {
+    margin-left: -1em;
+    margin-bottom: 0em;
+    margin-right: 0em;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    margin-top: -12;
+}
+
+.ui.title.segment {
+    margin:0em;
+    padding-top: 0px;
+}
+
+
 .ui.tagging.label {
     margin-top:5px;
     font-size: 14px;
