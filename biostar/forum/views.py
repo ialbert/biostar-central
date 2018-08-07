@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
-
+from django.conf import settings
 from biostar.utils.shortcuts import reverse
 from biostar.accounts.models import Profile
 from . import forms, auth
@@ -16,18 +16,17 @@ User = get_user_model()
 
 @protect_private_topics
 def list_view(request, template="post_list.html", extra_context={}, topic=None,
-              extra_proc=lambda x:x, per_page=10, is_forum=True):
+              extra_proc=lambda x:x, per_page=settings.ITEMS_PER_PAGE, is_message_list=False):
     "List view for posts and messages"
 
     topic = topic or request.GET.get("topic", LATEST)
     page = request.GET.get('page')
     topic = topic.lower()
 
-    # Message and forum objects listed separately
-    if is_forum:
-        listing_func = auth.list_posts_by_topic
-    else:
+    if is_message_list:
         listing_func = auth.list_message_by_topic
+    else:
+        listing_func = auth.list_posts_by_topic
 
     objs = listing_func(request=request, topic=topic).order_by("-pk")
 
@@ -57,21 +56,18 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
 @login_required
 def message_list(request):
 
-    active_tab = request.GET.get(ACTIVE_TAB, INBOX)
+    active_tab = request.GET.get(ACTIVE_MESSAGE_TAB, INBOX)
 
     active_tab = active_tab if (active_tab in MESSAGE_TABS) else INBOX
 
-    context = {active_tab: ACTIVE_TAB, "not_outbox": active_tab != OUTBOX, "field_name": ACTIVE_TAB}
+    context = {active_tab: ACTIVE_MESSAGE_TAB, "not_outbox": active_tab != OUTBOX, "field_name": ACTIVE_MESSAGE_TAB}
 
     user = request.user
 
     Profile.objects.filter(user=user).update(new_messages=0)
 
-    msg_per_page = 20
-
     return list_view(request, template="message_list.html",
-                     topic=active_tab, extra_context=context, per_page=msg_per_page,
-                     is_forum=False)
+                     topic=active_tab, extra_context=context, is_message_list=True)
 
 
 def community_list(request):
@@ -79,12 +75,10 @@ def community_list(request):
     # Users that make posts or votes are
     # considered part of the community
 
-    users_per_page = 50
     template = "community_list.html"
     topic = "community"
 
-    return list_view(request=request, template=template, per_page=users_per_page,
-                     topic=topic)
+    return list_view(request=request, template=template, topic=topic)
 
 
 @object_exists(klass=Message, url="message_list")

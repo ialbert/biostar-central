@@ -66,7 +66,7 @@
                 {% if discussion_view %}
                 <a href="{% url 'discussion_view' post.uid %}" class="ui blue title header" >{{ post.get_title}}</a>
                 {% else %}
-                 <a href="{% url 'post_view' post.uid %}" class="ui blue title header">{{ post.get_title|truncatechars:140 }}</a>
+                 <a href="{% url 'post_view' post.uid %}" class="ui blue title header">{{ post.get_title|truncatechars:150 }}</a>
                 {% endif %}
 
             </div>
@@ -76,7 +76,7 @@
 
         <div class="ui basic segment {{padding}} preview">
              <div class="muted">
-                 {{post.content|truncatechars:300}}
+                 {{post.content|truncatechars:430}}
 
               </div>
         </div>

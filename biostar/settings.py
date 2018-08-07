@@ -18,6 +18,16 @@ SECRET_KEY = 'secret-key'
 # The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
+ITEMS_PER_PAGE = 40
+TAGS_PER_PAGE = 150
+
+FORUM_ROOT_URLPATTERN = r'^'
+ENGINE_ROOT_URLPATTERN = r'^engine/'
+
+# Set the home page to the engine or forum
+INDEX_ROOT_URLPATTERN = FORUM_ROOT_URLPATTERN
+
+
 # Admin users will be created automatically with DEFAULT_ADMIN_PASSWORD.
 ADMINS = [
     ("Admin User", "admin@localhost")

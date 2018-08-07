@@ -20,7 +20,7 @@ MESSAGE_TABS = ["inbox", "outbox", "unread"]
 
 INBOX, OUTBOX, UNREAD = MESSAGE_TABS
 
-ACTIVE_TAB = "topic"
+ACTIVE_MESSAGE_TAB = "topic"
 
 MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING = ["myposts", "mytags", "open", "following"]
 BOOKMARKS, VOTES, MESSAGE = ["bookmarks", "votes", "message"]

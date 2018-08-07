@@ -47,7 +47,7 @@ def pages(objs, request):
 def message_menu(extra_tab=None, request=None):
 
     extra = {extra_tab: "active"}
-    context = dict(request=request, active_tab=const.ACTIVE_TAB,
+    context = dict(request=request, active_tab=const.ACTIVE_MESSAGE_TAB,
                    const_in=const.INBOX, const_out=const.OUTBOX,
                    const_unread=const.UNREAD)
     context.update(extra)
@@ -97,7 +97,7 @@ def tags_banner(context, limit=7, listing=False):
 
     if listing:
         # Get the page info
-        paginator = Paginator(tags, 150)
+        paginator = Paginator(tags, settings.TAGS_PER_PAGE)
         all_tags = paginator.get_page(page)
     else:
         all_tags = default + tags
@@ -235,9 +235,10 @@ def listing(posts=None, messages=None, discussion_view=False):
 @register.simple_tag
 def get_top_padding(post):
 
-    if len(post.get_title()) >= 66:
+    if len(post.get_title()) > 64:
         return "small-padding"
     return ""
+
 
 @register.filter
 def show_nonzero(value):
