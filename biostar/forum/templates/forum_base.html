@@ -87,7 +87,7 @@
                 {% object_count request=request otype="post" as num_posts%}
                 {% if num_posts %}<div class="ui mini circular label">{{num_posts}}</div>{%endif%}
             </a>
-            <a class="ui {{mytags}} item" href="#">
+            <a class="ui {{mytags}} item" href="{% url 'post_list' %}?topic=mytags">
                 <i class="tags icon"></i>My Tags
             </a>
             <a class="ui {{following}} item" href="{% url 'post_list' %}?topic=following">

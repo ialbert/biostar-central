@@ -42,12 +42,35 @@ body {
     margin-right: 0em;
     padding-bottom: 3px;
     padding-top: 3px;
-    margin-top: -12;
+    margin-top: 10;
+}
+
+.ui.preview.small-padding.segment {
+    margin-left: -1em;
+    margin-bottom: 0em;
+    margin-right: 0em;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    margin-top: -10;
 }
 
 .ui.title.segment {
     margin:0em;
     padding-top: 0px;
+}
+
+.ui.title.header {
+    font-size: 1.15em;
+    font-weight: 800;
+}
+
+.number-stat{
+    font-size: 1.5em;
+    padding-bottom: .2em;
+    text-align: center;
+}
+.detail-stat{
+    font-size: 1.1em;
 }
 
 

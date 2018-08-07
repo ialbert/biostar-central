@@ -232,6 +232,13 @@ def listing(posts=None, messages=None, discussion_view=False):
     return dict(is_post=is_post, is_messages=is_messages, objs=objs, discussion_view=discussion_view)
 
 
+@register.simple_tag
+def get_top_padding(post):
+
+    if len(post.get_title()) >= 66:
+
+        return "small-padding"
+    return ""
 
 @register.filter
 def show_nonzero(value):
