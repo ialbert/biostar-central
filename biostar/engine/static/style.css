@@ -11,7 +11,104 @@ body {
     color: red;
 }
 
+.ui.maroon.label {
+  background-color: #8f2c47;
+  color: #fff;
+}
+.ui.maroon.header {
+  color: #8f2c47;
+}
 
+.ui.maroon.segment {
+  border-top: 2px solid #8f2c47!important;
+}
+
+.ui.darkgreen.label {
+  background-color: #326b2b;
+  color: #fff;
+}
+
+.ui.stats.segment {
+    margin-left: -1em;
+    margin-bottom: -1em;
+    margin-right: 0em;
+    padding-top: 0px;
+}
+
+
+.ui.preview.segment {
+    margin-left: -1em;
+    margin-bottom: 0em;
+    margin-right: 0em;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    margin-top: 10;
+}
+
+.ui.preview.small-padding.segment {
+    margin-left: -1em;
+    margin-bottom: 0em;
+    margin-right: 0em;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    margin-top: -10;
+}
+
+.ui.title.segment {
+    margin:0em;
+    padding-top: 0px;
+}
+
+.ui.title.header {
+    font-size: 1.15em;
+    font-weight: 800;
+}
+
+.number-stat{
+    font-size: 1.5em;
+    padding-bottom: .2em;
+    text-align: center;
+}
+.detail-stat{
+    font-size: 1.1em;
+}
+
+
+.ui.tagging.label {
+    margin-top:5px;
+    font-size: 14px;
+    padding: 3px;
+    color:#8f2c47;
+    font-weight: 10;
+}
+.ui.tagging.label:hover {
+    background-color: #8f2c47;
+    color:white;
+
+}
+.ui.darkgreen.header {
+  color: #326b2b
+}
+
+.ui.darkgreen.segment {
+  border-top: 2px solid #326b2b!important;
+}
+
+.ui.segments>.comment.segment {
+  border-top: none !important;
+}
+
+.ui.gold.label {
+  background-color: #b5a805;
+  color: #fff;
+}
+.ui.gold.header {
+  color: #b5a805
+}
+
+.ui.gold.segment {
+  border-top: 2px solid #b5a805!important;
+}
 
 .actionbar {
     margin-top:-20px !important;

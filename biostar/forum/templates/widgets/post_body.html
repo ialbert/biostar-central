@@ -30,9 +30,9 @@
                  </div>
              {% endif %}
 
-                 <div class="description">
+                 <div class="ui container">
 
-                        <span itemprop="">{{ post.html|safe }}</span>
+                        {{ post.html|safe }}
                      </div>
 
                  {% if post.is_toplevel %}
@@ -40,8 +40,8 @@
 
                          <div class="" style="margin-bottom:0.5em;">
 
-                                {% for tag in post.tag_set.all %}
-                                    <a class="ui small label" href="#" style="font-size: 13px;padding: 4px">{{ tag.name }}</a>
+                                {% for tag in post.tags.all %}
+                                    <a class="ui small tagging label" href="{% url 'post_list' %}?topic={{tag}}">{{ tag.name }}</a>
                                 {% endfor %}
                             &bull; {{ post.root.view_count|bignum }} views
                          </div>
@@ -52,11 +52,6 @@
 
                          {% user_info post=post by_diff=False %}
                      </div>
-                    <a class="ui mini grey label" href="{{ comment_url }}">
-                        ADD COMMENT
-                    </a>
-                     &bull;
-                     <a>link</a>
 
                  {% else %}
 
@@ -67,21 +62,22 @@
                              {% user_info post=post by_diff=False %}
                          </div>
 
-                        <a class="ui mini grey label" href="{{ comment_url }}">
-                            ADD COMMENT
-                        </a>
-                         &bull;
-                         <a>link</a>
-
                      </div>
-
 
                  {% endif %}
 
+            <a class="add-comment ui mini grey label" comment-url="{{ comment_url }}"
+               data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
+                ADD COMMENT
+            </a>
+             &bull;
+             <a>link</a>
+                 <div id="comment-container-{{post.uid}}"></div>
                  {# Comments for each post rendered here #}
-            <div class="ui comments" style="max-width: 750px;">
-                {% render_comments request=request post=post comment_view=comment_view vote_view=vote_view next_url=next_url %}
-            </div>
+
+
+                {% render_comments project_uid=project_uid request=request post=post comment_url=comment_url vote_view=vote_view next_url=next_url %}
+
 
              </div>
 

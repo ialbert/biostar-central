@@ -20,4 +20,18 @@ MESSAGE_TABS = ["inbox", "outbox", "unread"]
 
 INBOX, OUTBOX, UNREAD = MESSAGE_TABS
 
-ACTIVE_TAB = "active"
+ACTIVE_TAB = "topic"
+
+MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING = ["myposts", "mytags", "open", "following"]
+BOOKMARKS, VOTES, MESSAGE = ["bookmarks", "votes", "message"]
+MENTIONED, COMMUNITY, LATEST = ["mentioned", "community", "latest"]
+
+# Topics that have a default tabs
+TOPICS_WITH_TABS = [
+                MYPOSTS, MYTAGS, FOLLOWING,
+                BOOKMARKS, VOTES, MESSAGE, COMMUNITY, LATEST
+              ]
+
+PRIVATE_TOPICS = [ MYPOSTS, MYTAGS, MESSAGE, MENTIONED, OUTBOX,
+                    INBOX, BOOKMARKS, UNREAD, FOLLOWING, VOTES
+                    ]

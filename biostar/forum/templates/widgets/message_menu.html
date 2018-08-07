@@ -2,34 +2,34 @@
 
 
 
-<div class="ui secondary vertical pointing menu">
-    <a class="{{inbox}} item" href="{% url 'message_list' %}?{{ active_tab }}={{ const_in }}">
+<div class="ui  vertical tabular menu">
+    <a class="{{Inbox}} blue item" href="{% url 'message_list' %}?{{ active_tab }}={{ const_in }}">
       Inbox
     {% object_count request=request otype="inbox" as inbox_count %}
     {%if inbox_count %}<div class="ui label">{{inbox_count}}</div>{%endif%}
     </a>
-    <a class="{{unread}} item" href="{% url 'message_list' %}?{{ active_tab }}={{ const_unread }}">
+    <a class="{{Unread}} blue item" href="{% url 'message_list' %}?{{ active_tab }}={{ const_unread }}">
       Unread
    {% object_count request=request otype="unread" as unread_count %}
     {%if unread_count %}<div class="ui label">{{unread_count}}</div>{%endif%}
     </a>
-   <a class="{{mentioned}} item" href="{% url 'message_list' %}?{{ active_tab }}=mentioned">
+   <a class="{{Mentioned}} blue item" href="{% url 'message_list' %}?{{ active_tab }}=mentioned">
       Mentioned
    {% object_count request=request otype="mentioned" as mentioned %}
     {%if mentioned %}<div class="ui label">{{mentioned}}</div>{%endif%}
     </a>
-   <a class="{{projects}} item" href="{% url 'message_list' %}?{{ active_tab }}=projects">
+   <a class="{{Projects}} blue item" href="{% url 'message_list' %}?{{ active_tab }}=projects">
       Projects
    {% object_count request=request otype="mentioned" as mentioned %}
     {%if mentioned %}<div class="ui label">{{mentioned}}</div>{%endif%}
     </a>
 
-    <a class="{{outbox}} item" href="{% url 'message_list' %}?{{ active_tab }}={{ const_out }}">
+    <a class="{{Outbox}} blue item" href="{% url 'message_list' %}?{{ active_tab }}={{ const_out }}">
       Outbox
    {% object_count request=request otype="outbox" as out_count %}
     {%if out_count %}<div class="ui label">{{out_count}}</div>{%endif%}
     </a>
-    <a class="item">
+    <a class="item red">
       Trash
     </a>
 </div>

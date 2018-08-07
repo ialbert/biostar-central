@@ -2,20 +2,20 @@
 import datetime
 import logging
 
-from django.contrib import messages
 from django.utils.timezone import utc
 from django.db.models import F
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.shortcuts import render, redirect, reverse
 
-from .models import Post, Tag, Vote, Subscription,Message
-from . import util, forms
+
+from .models import Post, Vote, Subscription, Message
+from . import util, const
 
 User = get_user_model()
 
 
 logger = logging.getLogger("engine")
+
 
 def build_tree(thread, tree={}):
 
@@ -26,6 +26,8 @@ def build_tree(thread, tree={}):
     return tree
 
 
+def fixcase(name):
+    return name.upper() if len(name) == 1 else name.lower()
 
 
 def get_votes(user, thread):
@@ -109,65 +111,62 @@ def build_obj_tree(request, obj):
     return obj
 
 
-def list_by_topic(request, topic):
+def list_message_by_topic(request, topic):
+
+    user = request.user
+    # One letter tags are always uppercase
+    topic = fixcase(topic)
+
+    if topic == const.MESSAGE:
+        return Message.objects.inbox_for(user=user)
+
+    if topic == const.UNREAD:
+        return Message.objects.filter(recipient=user, unread=True)
+
+    if topic == const.INBOX:
+        return Message.objects.inbox_for(user=user)
+
+    if topic == const.OUTBOX:
+        return Message.objects.outbox_for(user=user)
+
+    return
+
+
+def list_posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
     user = request.user
-
-    latest = "latest"
-    myposts, mytags, unanswered, following = ["myposts", "mytags", "open", "following"]
-    bookmarks, votes, message, unread = ["bookmarks", "votes", "message", "unread"]
-    inbox,outbox, mentioned, community = ["inbox", "outbox", "mentioned", "community"]
 
     post_types = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
                       forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
     # One letter tags are always uppercase
-    topic = Tag.fixcase(topic)
+    topic = fixcase(topic)
 
-    if topic == myposts:
+    if topic == const.MYPOSTS:
         # Get the posts that the user wrote.
-        messages.success(request,'Filtering for posts you contribute to')
-
         return Post.objects.my_posts(target=user, user=user)
 
-    if topic == mytags:
+    if topic == const.MYTAGS:
         # Get the posts that the user wrote.
-        messages.success(request,
-                         'Posts matching the <b><i class="fa fa-tag"></i> My Tags</b> setting in your user profile')
         return Post.objects.tag_search(user.profile.my_tags)
 
-    if topic == unanswered:
+    if topic == const.UNANSWERED:
         # Get unanswered posts.
         return Post.objects.top_level(user).filter(type=Post.QUESTION, reply_count=0)
 
-    if topic == following:
+    if topic == const.FOLLOWING:
         # Get that posts that a user follows.
-        messages.success(request, 'Threads that will produce notifications.')
         subs = Subscription.objects.exclude(type=Subscription.NO_MESSAGES).filter(user=user)
         return Post.objects.top_level(user).filter(subs__in=subs)
 
-    if topic == bookmarks:
+    if topic == const.BOOKMARKS:
         # Get that posts that a user bookmarked.
-        messages.info(request, f"Showing: {topic}")
         return Post.objects.my_bookmarks(user)
 
-    if topic == votes:
-        messages.info(request, f"People voting on your posts")
+    if topic == const.VOTES:
         return Post.objects.my_post_votes(user).distinct()
 
-    if topic == message:
-        return Message.objects.filter(recipient=user, seen=False, unread=True)
-
-    if topic == unread:
-        return Message.objects.filter(recipient=user, unread=True)
-
-    if topic == inbox:
-        return Message.objects.inbox_for(user=user)
-
-    if topic == outbox:
-        return Message.objects.outbox_for(user=user)
-
-    if topic == community:
+    if topic == const.COMMUNITY:
         # Users that make posts or votes are
         # considered part of the community
 
@@ -179,15 +178,12 @@ def list_by_topic(request, topic):
         # A post type.
         return Post.objects.top_level(user).filter(type=post_types[topic])
 
-    if topic and topic != latest:
+    if topic and topic != const.LATEST:
         # Any type of topic.
-        if topic:
-            messages.info(request,f"Showing: {topic}" )
         return Post.objects.tag_search(topic)
 
     # Return latest by default.
     return Post.objects.top_level(user)
-
 
 
 def create_sub(post, sub_type, user):
@@ -277,7 +273,7 @@ def create_post_from_json(json_dict):
     has_accepted = json_dict.get("has_accepted", False)
     type = json_dict.get("type")
     status = json_dict.get("status", Post.OPEN)
-    content = json_dict.get("text", "")
+    content = util.strip_tags(json_dict.get("text", ""))
     html = json_dict.get("html", "")
     tag_val = json_dict.get("tag_val")
 

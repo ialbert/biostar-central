@@ -3,6 +3,7 @@ from .models import Post
 from django.core.exceptions import ValidationError
 from django.conf import settings
 
+from biostar.engine.models import Project
 from . import  models, auth
 from pagedown.widgets import PagedownWidget
 import langdetect
@@ -126,21 +127,35 @@ class SubsForm(forms.Form):
         return sub
 
 
-
 class PostShortForm(forms.Form):
+
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                               min_length=2, max_length=5000)
 
-    def save(self, parent, author, post_type=Post.ANSWER, project=None):
-        data = self.cleaned_data.get
-        answer = auth.create_post(title=parent.title,
-                                  parent=parent,
-                                  author=author,
-                                  content=data("content"),
-                                  post_type=post_type,
-                                  project=project
-                                  )
-        return answer
+    parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
+    project_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
+                                  required=False)
+    redir_url = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
+                                  required=True)
+
+    def save(self, author, post_type=Post.ANSWER):
+        data = self.cleaned_data
+
+        parent = Post.objects.filter(uid=data.get("parent_uid")).first()
+        project = Project.objects.filter(uid=data.get("project_uid")).first()
+        auth.create_post(title=parent.title,
+                          parent=parent,
+                          author=author,
+                          content=data.get("content"),
+                          post_type=post_type,
+                          project=project
+                          )
+        return data.get("redir_url", "/")
+
+    #def clean(self):
+    #    cleaned_data = super(PostShortForm, self).clean()
+    #    return
+
 
 
 

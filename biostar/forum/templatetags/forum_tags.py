@@ -1,6 +1,7 @@
 import logging
 import hashlib
 import urllib.parse
+import itertools
 from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from django import template
@@ -8,7 +9,9 @@ from django.utils.safestring import mark_safe
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Count
 
+from taggit.models import Tag
 from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Vote, Message
 from biostar.forum import auth, forms, models, const
@@ -31,28 +34,24 @@ def user_box(user):
 
 
 @register.inclusion_tag('widgets/pages.html')
-def pages(objs, request=None, topic="", url="post_list_topic", uid=None):
+def pages(objs, request):
 
-    topic = request.GET.get('topic', topic)
+    topic = request.GET.get('topic', request.GET.get("active"))
 
-    if topic:
-        url = reverse(url, request=request, kwargs=dict(topic=topic))
-    elif uid:
-        url = reverse(url, request=request, kwargs=dict(uid=uid))
-    else:
-        url = ''
+    url = request.path
 
-    return dict(objs=objs, url=url)
+    return dict(objs=objs, url=url, topic=topic)
 
 
 @register.inclusion_tag("widgets/message_menu.html")
-def message_menu(inbox=None, unread=None, mentioned=None,
-                 projects=None, outbox=None, request=None):
+def message_menu(extra_tab=None, request=None):
 
-    return dict(inbox=inbox,unread=unread,mentioned=mentioned,
-                projects=projects, outbox=outbox,request=request,
-                active_tab=const.ACTIVE_TAB, const_in=const.INBOX,
-                const_out=const.OUTBOX, const_unread=const.UNREAD)
+    extra = {extra_tab: "active"}
+    context = dict(request=request, active_tab=const.ACTIVE_TAB,
+                   const_in=const.INBOX, const_out=const.OUTBOX,
+                   const_unread=const.UNREAD)
+    context.update(extra)
+    return context
 
 
 @register.inclusion_tag('widgets/forum_menubar.html', takes_context=True)
@@ -60,6 +59,7 @@ def forum_menubar(context, request=None):
     user = context.request.user
 
     return dict(user=user, request=request)
+
 
 @register.simple_tag
 def gravatar(user, size=80):
@@ -82,23 +82,44 @@ def gravatar(user, size=80):
     return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
 
 
+@register.inclusion_tag('widgets/tags_banner.html', takes_context=True)
+def tags_banner(context, limit=7, listing=False):
+
+    request = context["request"]
+    page = request.GET.get("page")
+    default = ["latest", "open", "jobs", "news"]
+
+    default = list(map(lambda x: dict(tags__name=x, tags__name__count=1), default))
+
+    tags = list(Post.objects.values("tags__name").annotate(Count('tags__name')))[:limit]
+
+    tags = list(filter(lambda x: x["tags__name"] is not None, tags))
+
+    if listing:
+        # Get the page info
+        paginator = Paginator(tags, 150)
+        all_tags = paginator.get_page(page)
+    else:
+        all_tags = default + tags
+
+    return dict(tags=all_tags, limit=limit, listing=listing, request=request)
+
+
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, include_userbox=True, comment_view="post_comment",
-              sub_redir="post_view", vote_view="update_vote", sub_view="subs_action"):
-    #TODO: this is really temporary ( the view names cannot be a string here.)
+def post_body(context, post, user, tree, form, include_userbox=True, comment_url="/",
+              sub_redir="post_view", vote_view="update_vote", sub_view="subs_action", project_uid=None):
+
     "Renders the post body"
     request = context['request']
 
     vote_url = reverse(vote_view, request=request, kwargs=dict(uid=post.uid))
     sub_url = reverse(sub_view, request=request, kwargs=dict(uid=post.uid))
     next_url = reverse(sub_redir, request=request, kwargs=dict(uid=post.uid))
-    comment_url = reverse(comment_view, request=request, kwargs=dict(uid=post.uid))
 
     return dict(post=post, user=user, tree=tree, request=request,
                 form=form, include_userbox=include_userbox, comment_url=comment_url,
-                vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url,
-                comment_view=comment_view, next_url=next_url, vote_view=vote_view,
-                redir_field_name=const.REDIRECT_FIELD_NAME)
+                vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url, next_url=next_url, vote_view=vote_view,
+                redir_field_name=const.REDIRECT_FIELD_NAME, project_uid=project_uid)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
@@ -121,12 +142,12 @@ def subs_actions(post, user, next, sub_url):
     return dict(post=post, form=form, button=button, next=next, sub_url=sub_url,
                 redir_field_name=const.REDIRECT_FIELD_NAME)
 
+
 @register.filter
 def show_email(user):
 
     try:
         head, tail = user.email.split("@")
-
         email = head[0] + "*" * 10 + tail
     except:
         return user.email[0] + "*" * 10
@@ -201,16 +222,23 @@ def get_posts(user, request, per_page=20):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(posts=None, messages=None):
+def listing(posts=None, messages=None, discussion_view=False):
 
     is_post = True if posts else False
     is_messages = True if messages else False
 
     objs = posts or messages
 
-    return dict(is_post=is_post, is_messages=is_messages, objs=objs)
+    return dict(is_post=is_post, is_messages=is_messages, objs=objs, discussion_view=discussion_view)
 
 
+@register.simple_tag
+def get_top_padding(post):
+
+    if len(post.get_title()) >= 66:
+
+        return "small-padding"
+    return ""
 
 @register.filter
 def show_nonzero(value):
@@ -327,20 +355,45 @@ def bignum(number):
 @register.simple_tag
 def boxclass(post):
     # Create the css class for each row
-    if post.has_accepted:
-        style = "accepted"
+
+    if post.type == Post.JOB:
+        style = "orange"
+    elif post.type == Post.TUTORIAL:
+        style = "blue"
+    elif post.type == Post.TOOL:
+        style = "darkgreen"
+    elif post.type == Post.FORUM:
+        style = "gold"
+    elif post.type == Post.NEWS:
+        style = "purple"
+    elif post.has_accepted:
+        style = "olive"
     elif post.reply_count > 0:
-        style = "answered"
+        style = "teal"
     elif post.comment_count > 0:
-        style = "commented"
+        style = "grey"
     else:
-        style = "unanswered"
+        style = "maroon"
 
     return style
 
 
 @register.simple_tag
-def render_comments(request, post, comment_view, vote_view, next_url, comment_template='widgets/comment_body.html'):
+def get_active_message_tab(**tabs_dict):
+
+    tab_list = filter(lambda x: tabs_dict[x] == "active", tabs_dict)
+
+    # Avoid index error when fetching from a list
+    index = lambda lst, idx: None if idx >= len(lst) else lst[idx]
+
+    active_tab = str(index(list(tab_list), 0))
+    return active_tab
+
+
+
+@register.simple_tag
+def render_comments(request, post, comment_url, vote_view, next_url, project_uid=None,
+                    comment_template='widgets/comment_body.html'):
 
     user = request.user
     thread = Post.objects.get_thread(post.parent, user)
@@ -349,31 +402,32 @@ def render_comments(request, post, comment_view, vote_view, next_url, comment_te
 
     if tree and post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
-                                 comment_template=comment_template, comment_view=comment_view,
-                                 vote_view=vote_view, next_url=next_url)
+                                 comment_template=comment_template, comment_url=comment_url,
+                                 vote_view=vote_view, next_url=next_url, project_uid=project_uid)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template, comment_view, vote_view, next_url):
+def traverse_comments(request, post, tree, comment_url, comment_template, vote_view, next_url,
+                      project_uid=None):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
 
     def traverse(node):
-        comment_url = reverse(comment_view, request=request, kwargs=dict(uid=node.uid))
         vote_url = reverse(vote_view, request=request, kwargs=dict(uid=node.uid))
 
-        data = ['<div class="comment">']
+        data = ['<div class="ui segments">']
         cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url,
-                "vote_url":vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME}
+                "vote_url":vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME,
+                "project_uid": project_uid}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):
 
-            data.append('<div class="comments" >')
+            data.append('<div class="ui segment comment" >')
             data.append(traverse(child))
             data.append("</div>")
 

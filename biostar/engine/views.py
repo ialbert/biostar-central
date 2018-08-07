@@ -236,29 +236,14 @@ def discussion_view(request, uid):
     # Get the parents info
     obj = Post.objects.filter(uid=uid).first()
     project = obj.root.project
+    comment_url = reverse("discussion_comment")
 
-    context = dict(project=project, activate="Discussion")
+    context = dict(project=project, activate="Discussion", comment_url=comment_url)
     counts = get_counts(project)
     context.update(counts)
 
     return forum_views.post_view(request=request, uid=uid, template=template, extra_context=context,
                                  project=project, url="discussion_view")
-
-
-@object_access(type=Post, access=Access.WRITE_ACCESS)
-def discussion_comment(request, uid):
-
-    # Get the parent post to add comment to
-    obj = Post.objects.filter(uid=uid).first()
-    template = "discussion_comment.html"
-    activate = "Comment"
-    project = obj.root.project
-    extra_context = dict(activate=activate, project=project)
-    counts = get_counts(project)
-    extra_context.update(counts)
-
-    return forum_views.post_comment(request=request, uid=uid, template=template, extra_context=extra_context,
-                                    project=project, url="discussion_view")
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
@@ -378,8 +363,11 @@ def ajax_data_copy(request):
 
     data_uid = request.GET.get("data_uid")
     data = Data.objects.filter(uid=data_uid).first()
+    user = request.user
+    allow_access = auth.check_obj_access(user=user, instance=data, request=request, access=Access.READ_ACCESS,
+                                         login_required=True)
 
-    if data:
+    if data and allow_access:
         current = request.session.get("data_clipboard", [])
         current.append(data.uid)
         # No duplicates in clipboard
@@ -389,7 +377,7 @@ def ajax_data_copy(request):
 
         msg = mark_safe(f"Copied {data.name}. There {phrase} {len(current)} data in the Clipboard.")
     else:
-        msg = "Data does not exist"
+        msg = "Copy error"
 
     json_response = {"message": msg}
 

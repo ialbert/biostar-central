@@ -11,13 +11,13 @@
 
 <div class="ui vertical small segment">
     {# This is the toplevel post #}
-    {% post_body post=post user=request.user tree=post.tree form=form sub_view="discussion_subs" vote_view="discussion_vote" comment_view="discussion_comment" sub_redir="discussion_view"  %}
+    {% post_body project_uid=project.uid comment_url=comment_url post=post user=request.user tree=post.tree form=form sub_view="discussion_subs" vote_view="discussion_vote" sub_redir="discussion_view"  %}
 
 </div>
     {# Render each answer for the post #}
     {% for answer in post.answers %}
         <div class="ui vertical small grey segment">
-            {% post_body post=answer user=request.user tree=post.tree sub_view="discussion_subs" vote_view="discussion_vote" form=form include_userbox=False comment_view="discussion_comment" sub_redir="discussion_view"  %}
+            {% post_body project_uid=project.uid post=answer user=request.user comment_url=comment_url tree=post.tree sub_view="discussion_subs" vote_view="discussion_vote" form=form sub_redir="discussion_view"  %}
         </div>
     {% endfor %}
 
@@ -35,6 +35,9 @@
                 <p>Use the <span class="ui tiny label">ADD COMMENT</span> or <span class="ui tiny label">ADD REPLY</span> buttons
                 above to respond to someone, ask for clarifications, request more details etc.</p>
             </div>
+            <input type="hidden" name="{{ form.parent_uid.name }}" id="{{ form.parent_uid.id_for_label }}" value={{post.uid}} />
+            <input type="hidden" name="{{ form.project_uid.name }}" id="{{ form.project_uid.id_for_label }}" value={{project.uid}} />
+            <input type="hidden" name="{{ form.redir_url.name }}" id="{{ form.redir_url.id_for_label }}" value="{% url 'discussion_view' post.uid %}" />
             <div class="field">
                 {{ form.content }}
             </div>

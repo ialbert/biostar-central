@@ -12,6 +12,8 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, m2m_changed
 from django.db.models import F
 
+from taggit.models import TagBase, GenericTaggedItemBase
+from taggit.managers import TaggableManager
 from biostar.accounts.models import Profile
 from biostar.engine.models import Project
 from . import util
@@ -51,7 +53,7 @@ class PostManager(models.Manager):
     def my_bookmarks(self, user):
         query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)
         query = query.select_related("root", "author", "lastedit_user")
-        query = query.prefetch_related("tag_set")
+        query = query.prefetch_related("tags")
         return query
 
     def my_post_votes(self, user):
@@ -59,7 +61,7 @@ class PostManager(models.Manager):
         vote_query = Vote.objects.exclude(author=user).filter(post__in=self.filter(author=user))
         query = self.filter(author=user, votes__in=vote_query)
         query = query.select_related("root", "author", "lastedit_user")
-        query = query.prefetch_related("tag_set")
+        query = query.prefetch_related("tags")
         return query
 
     def my_posts(self, target, user):
@@ -74,7 +76,7 @@ class PostManager(models.Manager):
             query = self.filter(author=target).exclude(status=Post.DELETED)
 
         query = query.select_related("root", "author", "lastedit_user")
-        query = query.prefetch_related("tag_set")
+        query = query.prefetch_related("tags")
         query = query.order_by("-creation_date")
         return query
 
@@ -94,10 +96,10 @@ class PostManager(models.Manager):
                 include.append(self.fixcase(term))
 
         if include:
-            query = self.filter(type__in=Post.TOP_LEVEL, tag_set__name__in=include).exclude(
-                tag_set__name__in=exclude)
+            query = self.filter(type__in=Post.TOP_LEVEL, tags__name__in=include).exclude(
+                tags__name__in=exclude)
         else:
-            query = self.filter(type__in=Post.TOP_LEVEL).exclude(tag_set__name__in=exclude)
+            query = self.filter(type__in=Post.TOP_LEVEL).exclude(tags__name__in=exclude)
 
         query = query.filter(status=Post.OPEN)
 
@@ -105,7 +107,7 @@ class PostManager(models.Manager):
         query = query.defer('content', 'html')
 
         # Get the tags.
-        query = query.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").distinct()
+        query = query.select_related("root", "author", "lastedit_user").prefetch_related("tags").distinct()
 
         return query
 
@@ -113,9 +115,11 @@ class PostManager(models.Manager):
         # Populate the object to build a tree that contains all posts in the thread.
         is_moderator = user.is_authenticated and user.profile.is_moderator
         if is_moderator:
-            query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+            query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted",
+                                                                                                      "-vote_count", "creation_date")
         else:
-            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "author",
+                                                                                       "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
         return query
 
@@ -127,19 +131,20 @@ class PostManager(models.Manager):
         else:
             query = self.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
 
-        return query.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").defer("content", "html")
+        return query.select_related("root", "author", "lastedit_user").prefetch_related("tags").defer("content", "html")
 
 
-class Tag(models.Model):
-    name = models.TextField(max_length=50)
+class CustomTag(TagBase):
     count = models.IntegerField(default=0)
 
-    @staticmethod
-    def fixcase(name):
-        return name.upper() if len(name) == 1 else name.lower()
+    class Meta:
+        verbose_name = "tag"
+        verbose_name_plural = "tags"
 
-    def __str__(self):
-        return self.name
+
+class TaggedItem(GenericTaggedItemBase):
+
+    tag = models.ForeignKey(CustomTag, on_delete=models.SET_NULL, null=True)
 
 
 class Post(models.Model):
@@ -218,13 +223,10 @@ class Post(models.Model):
     # Stickiness of the post.
     sticky = models.BooleanField(default=False)
 
-    # Indicates whether the post has accepted answer.
-    has_accepted = models.BooleanField(default=False, blank=True)
-
     # This will maintain the ancestor/descendant relationship bewteen posts.
     root = models.ForeignKey('self', related_name="descendants", null=True, blank=True, on_delete=models.SET_NULL)
 
-    # This will maintain parent/child replationships between posts.
+    # This will maintain parent/child relationships between posts.
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
 
     # This is the HTML that the user enters.
@@ -237,7 +239,7 @@ class Post(models.Model):
     tag_val = models.CharField(max_length=100, default="", blank=True)
 
     # The tag set is built from the tag string and used only for fast filtering
-    tag_set = models.ManyToManyField(Tag, blank=True)
+    tags = TaggableManager() # models.ManyToManyField(Tag, blank=True)
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
@@ -255,9 +257,9 @@ class Post(models.Model):
        # Sanitize the tag value
         self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
        # Clear old tags
-        self.tag_set.clear()
-        tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
-        self.tag_set.add(*tags)
+        tag_list = [x.lower() for x in self.parse_tags()]
+        self.tags.clear()
+        self.tags.add(*tag_list)
         self.save()
 
     @property
@@ -291,7 +293,6 @@ class Post(models.Model):
             reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
             Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
 
-
     @staticmethod
     def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
         "Views are updated per user session"
@@ -313,17 +314,6 @@ class Post(models.Model):
             Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
         return post
 
-    def delete(self, using=None, keep_parents=False):
-        #Collect tag names.
-       tag_names = [t.name for t in self.tag_set.all()]
-
-        #While there is a signal to do this it is much faster this way.
-       Tag.objects.filter(name__in=tag_names).update(count=F('count') - 1)
-
-        #Remove tags with zero counts.
-       Tag.objects.filter(count=0).delete()
-       super(Post, self).delete(using=using, keep_parents=keep_parents)
-
     def save(self, *args, **kwargs):
 
         self.uid = self.uid or util.get_uuid(13)
@@ -337,9 +327,9 @@ class Post(models.Model):
 
         # Posts other than a question also carry the same tag
         if self.is_toplevel and self.type != Post.QUESTION:
-            required_tag = self.get_type_display()
+            required_tag = self.get_type_display().lower()
 
-            if self.tag_val and (required_tag not in self.tag_val.split()) :
+            if self.tag_val and (required_tag not in self.tag_val.split()):
                 self.tag_val += "," + required_tag
             else:
                 self.tag_val = required_tag
@@ -388,7 +378,6 @@ class PostView(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
 
-
 class Subscription(models.Model):
     "Connects a post to a user"
 
@@ -430,7 +419,6 @@ class Subscription(models.Model):
     def finalize_delete(sender, instance, *args, **kwargs):
         # Decrease the subscription count of the post.
         Post.objects.filter(pk=instance.post.root_id).update(subs_count=F('subs_count') - 1)
-
 
 
 class MessageManager(models.Manager):
@@ -477,7 +465,6 @@ class Message(models.Model):
         return u"Message %s, %s" % (self.sender, self.recipient)
 
 
-
 @receiver(post_save, sender=Message)
 def update_new_messages(sender, instance, created, *args, **kwargs ):
     "Update the user's new_messages flag on creation"
@@ -487,7 +474,6 @@ def update_new_messages(sender, instance, created, *args, **kwargs ):
         user = instance.recipient
         msgs = F('new_messages')
         Profile.objects.filter(user=user).update(new_messages=msgs + 1)
-
 
 
 @receiver(post_save, sender=Post)
@@ -555,17 +541,15 @@ def check_root(sender, instance, created, *args, **kwargs):
         instance.save()
 
 
-
-
-@receiver(m2m_changed, sender=Post.tag_set.through)
-def update_counts(sender, instance, action, pk_set, *args, **kwargs):
-    "Applies tag count updates upon post changes"
-
-    if action == 'post_add':
-        Tag.objects.filter(pk__in=pk_set).update(count=F('count') + 1)
-
-    if action == 'post_remove':
-        Tag.objects.filter(pk__in=pk_set).update(count=F('count') - 1)
-
-    if action == 'pre_clear':
-        instance.tag_set.all().update(count=F('count') - 1)
+# @receiver(m2m_changed, sender=Post.tags.through)
+# def update_counts(sender, instance, action, pk_set, *args, **kwargs):
+#     "Applies tag count updates upon post changes"
+#
+#     if action == 'post_add':
+#         CustomTag.objects.filter(pk__in=pk_set).update(count=F('count') + 1)
+#
+#     if action == 'post_remove':
+#         CustomTag.objects.filter(pk__in=pk_set).update(count=F('count') - 1)
+#
+#     if action == 'pre_clear':
+#         instance.tags.all().update(count=F('count') - 1)

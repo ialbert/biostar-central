@@ -1,9 +1,9 @@
-{% extends "message_base.html" %}
+{% extends "forum_base.html" %}
 {% load forum_tags %}
 {% load engine_tags %}
 
 {% block headtitle %}
-    {{ message.subject }}
+    {{ base_message.subject }}
 {% endblock %}
 
 
@@ -13,7 +13,7 @@
 
         <div class="ui basic segment" style="padding-left:5px">
 
-            {% message_menu inbox=inbox unread=unread mentioned=mentioned projects=projects outbox=outbox request=request %}
+            {% message_menu extra_tab=extra_tab_name request=request %}
 
         </div>
 

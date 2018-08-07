@@ -12,7 +12,6 @@ logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
 
-
 class BiostarFTPHandler(FTPHandler):
 
     def on_connect(self):

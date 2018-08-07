@@ -12,12 +12,10 @@ from biostar import settings
 MAX_UID_LEN = 32
 MAX_NAME_LEN = 80
 
+
 def generate_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
-#['status', 'website', 'scholar', 'text', 'twitter',
-# 'email', 'score', 'last_login', 'location',
-# 'date_joined', 'password', 'type', 'id', 'name']
 
 class Profile(models.Model):
 

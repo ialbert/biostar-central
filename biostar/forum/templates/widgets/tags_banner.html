@@ -1,0 +1,35 @@
+{% load forum_tags %}
+
+{% if listing %}
+
+     <div class="ui doubling compact four column grid">
+
+         {% pages objs=tags request=request %}
+
+
+        {% for tag in tags %}
+        <div class="left aligned column tagging">
+            <a class="ui tagging label" href="{% url 'post_list' %}?topic={{tag.tags__name}}" style="font-size: 22px;">
+                {{tag.tags__name}} |
+                {{tag.tags__name__count}}
+            </a>
+
+        </div>
+        {% endfor %}
+
+         {% pages objs=tags request=request %}
+
+     </div>
+
+{% else %}
+
+    {% for tag in tags %}
+
+        <a class="ui basic button" href="{% url 'post_list' %}?topic={{tag.tags__name}}">{{tag.tags__name|upper|truncatechars:9}}</a>
+
+    {% endfor %}
+    <a class="ui basic grey button" href="{% url 'tags_list' %}">
+        ALL<i class="angle double right icon"></i>
+    </a>
+
+{% endif %}

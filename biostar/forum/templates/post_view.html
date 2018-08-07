@@ -8,18 +8,18 @@
 
 {% block body %}
 <div class="ui doubling stackable grid container">
-<div class="twelve wide column">
+<div class="eleven wide column">
 
 <div class="ui vertical segment">
     {# This is the toplevel post #}
 
-    {% post_body post=post user=request.user tree=post.tree form=form %}
+    {% post_body post=post user=request.user tree=post.tree form=form comment_url=comment_url %}
 
 </div>
     {# Render each answer for the post #}
     {% for answer in post.answers %}
         <div class="ui vertical grey segment">
-            {% post_body post=answer user=request.user tree=post.tree form=form %}
+            {% post_body post=answer user=request.user tree=post.tree form=form comment_url=comment_url %}
         </div>
     {% endfor %}
 
@@ -37,6 +37,9 @@
                 <p>Use the <span class="ui tiny label">ADD COMMENT</span> or <span class="ui tiny label">ADD REPLY</span> buttons
                 above to respond to someone, ask for clarifications, request more details etc.</p>
             </div>
+            <input type="hidden" name="{{ form.parent_uid.name }}" id="{{ form.parent_uid.id_for_label }}" value={{post.uid}} />
+            <input type="hidden" name="{{ form.project_uid.name }}" id="{{ form.project_uid.id_for_label }}" value={{project.uid}} />
+            <input type="hidden" name="{{ form.redir_url.name }}" id="{{ form.redir_url.id_for_label }}" value="{% url 'post_view' post.uid %}" />
             <div class="field">
                 {{ form.content }}
             </div>
@@ -58,7 +61,7 @@
     </div>
 </div>
 
-    <div class="four wide column" style="padding-left: 0px">
+    <div class="five wide column" style="padding-left: 0px">
         {% feed  user=request.user %}
     </div>
 

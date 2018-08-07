@@ -20,4 +20,3 @@ pyftpdlib
 pandas
 requests
 pyopenssl
-langdetect
