@@ -129,7 +129,7 @@ def list_message_by_topic(request, topic):
     if topic == const.OUTBOX:
         return Message.objects.outbox_for(user=user)
 
-    return
+    return Message.objects.inbox_for(user=user)
 
 
 def list_posts_by_topic(request, topic):

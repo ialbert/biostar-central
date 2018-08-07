@@ -236,7 +236,6 @@ def listing(posts=None, messages=None, discussion_view=False):
 def get_top_padding(post):
 
     if len(post.get_title()) >= 66:
-
         return "small-padding"
     return ""
 
