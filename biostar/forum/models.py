@@ -131,7 +131,7 @@ class PostManager(models.Manager):
         else:
             query = self.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
 
-        return query.select_related("root", "author", "author__profile", "lastedit_user").prefetch_related("tags")#.defer("content", "html")
+        return query.select_related("root", "author", "author__profile", "lastedit_user").prefetch_related("tags").defer("content", "html")
 
 
 class CustomTag(TagBase):

@@ -60,8 +60,12 @@ body {
 }
 
 .ui.title.header {
-    font-size: 1.25em;
-    font-weight: 800;
+    font-size: .83em;
+    font-weight: 9000;
+}
+
+.ui.divided.items>.post.item {
+    padding-bottom: 0;
 }
 
 .number-stat{

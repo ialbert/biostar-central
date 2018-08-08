@@ -3,25 +3,18 @@
 {% if is_post %}
 
 
-
+<div class="ui divided items">
     {% for post in objs %}
 
-        <div class="ui segment">
-      {% if post.has_accepted %}
+        <div class="post item">
 
-            <div class="ui {% boxclass post %} right corner label" style="">
-                <i class="check circle icon"></i>
-            </div>
 
-        {% endif %}
-        <div class="ui container">
 
-<div class="ui left basic compact floated segment stats">
-
+<div class="ui image">
             <div class="ui grey left label tiny">
 
                     {% if post.is_toplevel %}
-                    <div class="number-stat">
+                        <div class="number-stat">
                         {{ post.thread_score }}
                         </div>
                         <div class="detail-stat">Vote{{ post.thread_score|pluralize }}</div>
@@ -56,54 +49,50 @@
             </div>
 </div>
 
-            <div class="ui basic segment title">
-                <span class="ui header">
+<div class="middle aligned content">
+
+        <div class="header">
+
+                <span class="">
                     {% if post.type != post.QUESTION %}
                         {{ post.get_type_display }}:
                     {% endif %}
                 </span>
 
                 {% if discussion_view %}
-                <a href="{% url 'discussion_view' post.uid %}" class="ui blue title header" >{{ post.get_title}}</a>
+                <a href="{% url 'discussion_view' post.uid %}" class="ui mini blue title header " >{{ post.get_title}}</a>
                 {% else %}
-                 <a href="{% url 'post_view' post.uid %}" class="ui blue title header">{{ post.get_title|truncatechars:150 }}</a>
+                 <a href="{% url 'post_view' post.uid %}" class="ui mini blue title header ">{{ post.get_title|truncatechars:150 }}</a>
                 {% endif %}
 
-            </div>
-
-
-        {% get_top_padding post=post as padding %}
-
-        <div class="ui basic segment {{padding}} preview">
-             <div class="muted">
-                 {{post.content|truncatechars:430}}
-
-              </div>
-        </div>
-
-                <div style="padding-bottom:1px;">
-                        {% for tag in post.tags.all %}
-                            <a class="ui tiny tagging label" href="{% url 'post_list' %}?topic={{tag}}">
-                                {{ tag.name }}
-                            </a>
-                        {% endfor %}
-                </div>
-
-            <div>
-                {% user_info post=post by_diff=True %}
-
-            </div>
-        </div>
 
         </div>
 
 
+
+                    <div class="extra">
+
+                                   {% for tag in post.tags.all %}
+                <a class="ui tiny tagging label" href="{% url 'post_list' %}?topic={{tag}}">
+                    {{ tag.name }}
+                </a>
+            {% endfor %}
+
+
+        </div>
+</div>
+        </div>
+
+<div class="padding" style="padding:3px;">
+{% user_info post=post by_diff=True %}
+</div>
     {% empty %}
 
     <div class="alert alert-info">There are no results for this page.</div>
 
     {% endfor %}
 
+</div>
 {% elif is_messages %}
 
 
