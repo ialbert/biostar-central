@@ -44,6 +44,22 @@ def get_votes(user, thread):
     return store
 
 
+def get_votes_feed():
+    "Returns recent votes feed."
+
+    recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
+    # Needs to be put in context of posts
+    #recent_votes = post_set.filter(votes__in=recent_votes).order_by("?")
+
+
+    return
+
+
+def get_user_feeds():
+    "Returns the user location and awards feed."
+    return
+
+
 def post_permissions(request, post):
     """
     Sets permission attributes on a post.
@@ -184,8 +200,6 @@ def list_posts_by_topic(request, topic):
 
     # Return latest by default.
     query = Post.objects.top_level(user)
-
-    query = query.select_related("author", "author__profile")
 
     return query
 

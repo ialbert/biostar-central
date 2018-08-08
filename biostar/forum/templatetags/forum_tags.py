@@ -10,8 +10,9 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Count
+from django.db.models import Q
 
-from taggit.models import Tag
+from biostar.accounts.models import Profile
 from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Vote, Message
 from biostar.forum import auth, forms, models, const
@@ -162,21 +163,19 @@ def feed(user, post=None):
     # Show similar posts when inside of a view
     if post:
         return
-    post_set = Post.objects.exclude(status=Post.DELETED).all()
+
+    #post_set = Post.objects.exclude(status=Post.DELETED)
 
     recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
     # Needs to be put in context of posts
-    #recent_votes = post_set.filter(votes__in=recent_votes).order_by("?")
-
     recent_votes = recent_votes.select_related("post")
-    # TODO:change
-    recent_locations = User.objects.filter(post__in=post_set).select_related("profile").order_by("?").distinct()[:settings.LOCATION_FEED_COUNT]
 
-    #recent_locations = set([x for x in recent_locations if x.profile.location][:settings.LOCATION_FEED_COUNT])
+    recent_locations = User.objects.filter(
+        ~Q(profile__location="")).select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = ''
-    recent_replies = post_set.filter(type__in=[Post.COMMENT, Post.ANSWER],
-                                     ).order_by("?")[:settings.REPLIES_FEED_COUNT]
+    recent_replies = Post.objects.filter(~Q(status=Post.DELETED), type__in=[Post.COMMENT, Post.ANSWER]
+                                     ).select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
@@ -196,6 +195,7 @@ def show_score_icon(score):
 
     return mark_safe(score_icon)
 
+
 @register.filter
 def show_score(score):
 
@@ -205,6 +205,7 @@ def show_score(score):
 
 @register.inclusion_tag('widgets/user_info.html')
 def user_info(post, by_diff=False):
+
     return dict(post=post, by_diff=by_diff)
 
 

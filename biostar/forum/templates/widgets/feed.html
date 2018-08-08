@@ -63,27 +63,6 @@
                 <b>Recent Awards</b>
                 <a href="#"> &bull;  All <i class="ui angle small double right icon"></i>
                 </a>
-            <div class="ui relaxed divided tiny list" >
-
-                {% for user in recent_locations %}
-
-                    <div class="item"  style="">
-
-
-                        <a href="{% url 'public_profile' user.profile.uid %}">
-                            <div class="ui avatar image">{% gravatar user=user size=100 %}</div>
-                            {{user.profile.name}}</a>
-
-                        {% if user.profile.last_login %}
-                            <span class="muted">{{ user.profile.last_login|time_ago }}  </span>
-                        {% else %}
-                            <span class="muted ">{{ user.profile.date_joined|time_ago }} </span>
-                        {% endif %}
-
-                    </div>
-                {% endfor %}
-
-            </div>
             </div>
         </div>
 </div>

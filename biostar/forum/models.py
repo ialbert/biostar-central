@@ -44,7 +44,10 @@ class PostManager(models.Manager):
 
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
-        return super().get_queryset().exclude(status=Post.DELETED)
+        query = super().get_queryset().exclude(status=Post.DELETED)
+        query = query.select_related("root", "author", "author__profile","lastedit_user").prefetch_related("tags")
+
+        return query
 
     def get_all(self, **kwargs):
         "Return everything"
@@ -119,7 +122,10 @@ class PostManager(models.Manager):
                                                                                                       "-vote_count", "creation_date")
         else:
             query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "author",
-                                                                                       "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+                                                                                       "lastedit_user").order_by("type",
+                                                                                                                 "-has_accepted",
+                                                                                                                 "-vote_count",
+                                                                                                                 "creation_date")
 
         return query
 

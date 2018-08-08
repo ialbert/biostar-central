@@ -35,25 +35,6 @@ body {
     padding-top: 0px;
 }
 
-
-.ui.preview.segment {
-    margin-left: -1em;
-    margin-bottom: 0em;
-    margin-right: 0em;
-    padding-bottom: 3px;
-    padding-top: 3px;
-    margin-top: 10;
-}
-
-.ui.preview.small-padding.segment {
-    margin-left: -1em;
-    margin-bottom: 0em;
-    margin-right: 0em;
-    padding-bottom: 3px;
-    padding-top: 3px;
-    margin-top: -10;
-}
-
 .ui.title.segment {
     margin:0em;
     padding-top: 0px;
@@ -68,13 +49,29 @@ body {
     padding-bottom: 0;
 }
 
+
+.ui.transparent.label{
+    background: none #fff;
+    border-color: white;
+}
+.ui.stat.label{
+    width: 53;
+}
+
 .number-stat{
-    font-size: 1.5em;
+    font-size: 1.8em;
     padding-bottom: .2em;
     text-align: center;
 }
+.ui.forum.container {
+    width: 1200px;
+    }
+
+
+
 .detail-stat{
     font-size: 1.1em;
+    text-align: center;
 }
 
 
