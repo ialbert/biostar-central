@@ -11,7 +11,24 @@ from . import forms, auth
 from .models import Post, Vote, Message
 from .decorators import object_exists, message_access, protect_private_topics
 from .const import *
+
+
 User = get_user_model()
+
+
+def get_listing_func(is_message_list, active_tab, tag_topic):
+
+    if is_message_list:
+        listing_func = auth.list_message_by_topic
+    elif active_tab:
+        listing_func = auth.list_posts_by_topic
+    elif tag_topic:
+        listing_func = lambda request, topic: Post.objects.tag_search(topic)
+    else:
+        listing_func = auth.list_posts_by_topic
+
+    return listing_func
+
 
 
 @protect_private_topics
@@ -19,17 +36,16 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
               extra_proc=lambda x:x, per_page=settings.ITEMS_PER_PAGE, is_message_list=False):
     "List view for posts and messages"
 
-    topic = topic or request.GET.get("topic", LATEST)
+    active = topic or request.GET.get("active", "")
+    topic = topic or request.GET.get("topic", "")
+    if not (topic or active):
+        active = LATEST
+
     page = request.GET.get('page')
-    topic = topic.lower()
+    topic, active = topic.lower(), active.lower()
+    listing_func = get_listing_func(is_message_list=is_message_list, active_tab=active, tag_topic=topic)
 
-    if is_message_list:
-        listing_func = auth.list_message_by_topic
-    else:
-        listing_func = auth.list_posts_by_topic
-
-    objs = listing_func(request=request, topic=topic).order_by("-pk")
-
+    objs = listing_func(request=request, topic=active or topic).order_by("-pk")
     if hasattr(objs.first(), "project"):
         # Project discussions not shown when looking at topics
         objs = objs.filter(project=None)
@@ -42,10 +58,10 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
     objs = paginator.get_page(page)
 
     context = dict(objs=objs)
-    if topic in TOPICS_WITH_TABS:
-        active_tab = {topic: "active"}
+    if active in TOPICS_WITH_TABS:
+        active_tab = {active: "active"}
     else:
-        active_tab = dict(extra_tab="active", extra_tab_name=topic.capitalize())
+        active_tab = dict(extra_tab="active", extra_tab_name= active.capitalize() or topic.capitalize())
 
     context.update(extra_context)
     context.update(active_tab)
@@ -93,7 +109,7 @@ def message_view(request, uid):
     # Update the unread flag
     Message.objects.filter(pk=base_message.pk).update(unread=False)
 
-    active_tab = request.GET.get(ACTIVE_TAB, "message")
+    active_tab = request.GET.get(ACTIVE_MESSAGE_TAB, INBOX)
 
     context = dict(base_message=base_message, tree=tree, extra_tab="active",
                    extra_tab_name=active_tab)

@@ -6,9 +6,8 @@
 
          {% pages objs=tags request=request %}
 
-
         {% for tag in tags %}
-        <div class="left aligned column tagging">
+        <div class="left aligned column">
             <a class="ui tagging label" href="{% url 'post_list' %}?topic={{tag.tags__name}}" style="font-size: 22px;">
                 {{tag.tags__name}} |
                 {{tag.tags__name__count}}
@@ -23,6 +22,12 @@
 
 {% else %}
 
+    <a class="ui basic button" href="{% url 'post_list' %}?active=latest">
+        LATEST
+    </a>
+    <a class="ui basic button" href="{% url 'post_list' %}?active=open">
+        OPEN
+    </a>
     {% for tag in tags %}
 
         <a class="ui basic button" href="{% url 'post_list' %}?topic={{tag.tags__name}}">{{tag.tags__name|upper|truncatechars:9}}</a>

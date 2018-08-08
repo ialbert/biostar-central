@@ -49,7 +49,6 @@ def dir_list(base_dir, tail=[]):
 
 class BiostarFileSystem(AbstractedFS):
 
-
     def __init__(self, root, cmd_channel, current_user=None):
 
         """

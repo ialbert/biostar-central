@@ -87,7 +87,7 @@ def tags_banner(context, limit=7, listing=False):
 
     request = context["request"]
     page = request.GET.get("page")
-    default = ["latest", "open", "jobs", "news"]
+    default = ["job", "news"]
 
     default = list(map(lambda x: dict(tags__name=x, tags__name__count=1), default))
 
@@ -156,7 +156,7 @@ def show_email(user):
 
 
 @register.inclusion_tag('widgets/feed.html')
-def feed(user, post=None, limit=7):
+def feed(user, post=None):
     #TODO: temporary feed
 
     # Show similar posts when inside of a view
@@ -164,18 +164,18 @@ def feed(user, post=None, limit=7):
         return
     post_set = Post.objects.exclude(status=Post.DELETED).all()
 
-    recent_votes = Vote.objects.filter(type=Vote.UP)[:limit]
+    recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
     # Needs to be put in context of posts
     recent_votes = post_set.filter(votes__in=recent_votes).order_by("?")
 
     # TODO:change
     recent_locations = User.objects.filter(post__in=post_set).order_by("?").distinct()
 
-    recent_locations = set([x for x in recent_locations if x.profile.location][:limit])
+    recent_locations = set([x for x in recent_locations if x.profile.location][:settings.LOCATION_FEED_COUNT])
 
     recent_awards = ''
     recent_replies = post_set.filter(type__in=[Post.COMMENT, Post.ANSWER],
-                                     ).order_by("?")[:limit]
+                                     ).order_by("?")[:settings.REPLIES_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
@@ -234,8 +234,9 @@ def listing(posts=None, messages=None, discussion_view=False):
 
 @register.simple_tag
 def get_top_padding(post):
+    #TODO: temporary solve
 
-    if len(post.get_title()) > 64:
+    if len(post.get_title()) >= 63:
         return "small-padding"
     return ""
 
@@ -292,7 +293,6 @@ def preview_message(text, limit=130):
 
 @register.simple_tag
 def vote_icon(user, post, vtype):
-
 
     main_map = {"bookmark":{"icon":"bookmark", "vote":Vote.BOOKMARK},
                 "upvote":{"icon":"thumbs up", "vote":Vote.UP}
@@ -376,19 +376,6 @@ def boxclass(post):
         style = "maroon"
 
     return style
-
-
-@register.simple_tag
-def get_active_message_tab(**tabs_dict):
-
-    tab_list = filter(lambda x: tabs_dict[x] == "active", tabs_dict)
-
-    # Avoid index error when fetching from a list
-    index = lambda lst, idx: None if idx >= len(lst) else lst[idx]
-
-    active_tab = str(index(list(tab_list), 0))
-    return active_tab
-
 
 
 @register.simple_tag
