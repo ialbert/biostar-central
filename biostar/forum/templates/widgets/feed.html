@@ -14,10 +14,10 @@
 
             <div class="ui divided relaxed tiny list" >
 
-                {% for post in recent_votes %}
+                {% for vote in recent_votes %}
 
                    <div class="item"  style="">
-                        <a href="{% url 'post_view' post.uid %}">{{ post.get_title }}</a>
+                        <a href="{% url 'post_view' vote.post.uid %}">{{ vote.post.title }}</a>
                    </div>
 
                 {% endfor %}

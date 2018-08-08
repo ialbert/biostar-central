@@ -183,7 +183,11 @@ def list_posts_by_topic(request, topic):
         return Post.objects.tag_search(topic)
 
     # Return latest by default.
-    return Post.objects.top_level(user)
+    query = Post.objects.top_level(user)
+
+    query = query.select_related("author", "author__profile")
+
+    return query
 
 
 def create_sub(post, sub_type, user):

@@ -32,6 +32,7 @@ ENGINE_ROOT_URLPATTERN = r'^engine/'
 # Set the home page to the engine or forum
 INDEX_ROOT_URLPATTERN = FORUM_ROOT_URLPATTERN
 
+INTERNAL_IPS = ['127.0.0.1']
 
 # Admin users will be created automatically with DEFAULT_ADMIN_PASSWORD.
 ADMINS = [
@@ -83,6 +84,7 @@ INSTALLED_APPS = [
     'compressor',
     'pagedown',
     'taggit',
+    'debug_toolbar',
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',
@@ -100,7 +102,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'biostar.engine.middleware.engine_middleware',
-    'biostar.forum.middleware.forum_middleware'
+    'biostar.forum.middleware.forum_middleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 
 ]
 

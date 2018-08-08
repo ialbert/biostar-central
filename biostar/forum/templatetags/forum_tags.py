@@ -166,12 +166,13 @@ def feed(user, post=None):
 
     recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
     # Needs to be put in context of posts
-    recent_votes = post_set.filter(votes__in=recent_votes).order_by("?")
+    #recent_votes = post_set.filter(votes__in=recent_votes).order_by("?")
 
+    recent_votes = recent_votes.select_related("post")
     # TODO:change
-    recent_locations = User.objects.filter(post__in=post_set).order_by("?").distinct()
+    recent_locations = User.objects.filter(post__in=post_set).select_related("profile").order_by("?").distinct()[:settings.LOCATION_FEED_COUNT]
 
-    recent_locations = set([x for x in recent_locations if x.profile.location][:settings.LOCATION_FEED_COUNT])
+    #recent_locations = set([x for x in recent_locations if x.profile.location][:settings.LOCATION_FEED_COUNT])
 
     recent_awards = ''
     recent_replies = post_set.filter(type__in=[Post.COMMENT, Post.ANSWER],
