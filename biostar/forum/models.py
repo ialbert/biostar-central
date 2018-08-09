@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.dispatch import receiver
 from django.db.models.signals import post_save, m2m_changed
-from django.db.models import F
+from django.db.models import F, Q
 
 from taggit.models import TagBase, GenericTaggedItemBase
 from taggit.managers import TaggableManager
@@ -52,6 +52,12 @@ class PostManager(models.Manager):
     def get_all(self, **kwargs):
         "Return everything"
         return super().get_queryset().filter(**kwargs)
+
+    def following(self, user):
+        query = self.filter(~Q(subs__type=Subscription.NO_MESSAGES), subs__user=user).exclude(status=Post.DELETED)
+        query = query.select_related("root", "author", "lastedit_user")
+        query = query.prefetch_related("tags")
+        return query
 
     def my_bookmarks(self, user):
         query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)
@@ -137,7 +143,7 @@ class PostManager(models.Manager):
         else:
             query = self.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
 
-        return query.select_related("root", "author", "author__profile", "lastedit_user").prefetch_related("tags").defer("content", "html")
+        return query.select_related("root", "author", "author__profile", "lastedit_user").prefetch_related("tags")#.defer("content", "html")
 
 
 class CustomTag(TagBase):
@@ -546,16 +552,3 @@ def check_root(sender, instance, created, *args, **kwargs):
 
         instance.save()
 
-
-# @receiver(m2m_changed, sender=Post.tags.through)
-# def update_counts(sender, instance, action, pk_set, *args, **kwargs):
-#     "Applies tag count updates upon post changes"
-#
-#     if action == 'post_add':
-#         CustomTag.objects.filter(pk__in=pk_set).update(count=F('count') + 1)
-#
-#     if action == 'post_remove':
-#         CustomTag.objects.filter(pk__in=pk_set).update(count=F('count') - 1)
-#
-#     if action == 'pre_clear':
-#         instance.tags.all().update(count=F('count') - 1)

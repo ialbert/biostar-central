@@ -1,6 +1,7 @@
 
 import datetime
 import logging
+from functools import partial
 
 from django.utils.timezone import utc
 from django.db.models import F
@@ -127,25 +128,64 @@ def build_obj_tree(request, obj):
     return obj
 
 
+def query_topic(user, topic, tag_search=False):
+    "Maps known topics to their appropriate querying functions and args."
+
+    # Also has an extra "apply" for extra things
+    # to be done after applying "params" to "func"
+    if user.is_anonymous:
+        tags = ""
+    else:
+        tags = user.profile.my_tags
+
+    mapper = {
+
+        const.MYPOSTS: dict(func=Post.objects.my_posts, params=dict(target=user, user=user)),
+        const.MYTAGS: dict(func=Post.objects.tag_search, params=dict(text=tags)),
+        const.BOOKMARKS: dict(func=Post.objects.my_bookmarks, params=dict(user=user)),
+        const.FOLLOWING: dict(func=Post.objects.following, params=dict(user=user)),
+        const.LATEST: dict(func=Post.objects.top_level, params=dict(user=user)),
+
+        const.MESSAGE:  dict(func=Message.objects.inbox_for, params=dict(user=user)),
+        const.INBOX:    dict(func=Message.objects.inbox_for, params=dict(user=user)),
+        const.UNREAD: dict(func=Message.objects.filter, params=dict(recipient=user, unread=True)),
+        const.OUTBOX: dict(func=Message.objects.outbox_for, params=dict(user=user)),
+
+        const.VOTES: dict(func=Post.objects.my_post_votes, params=dict(user=user),
+                          apply=lambda q: q.distinct()),
+        const.UNANSWERED: dict(func=Post.objects.top_level, params=dict(user=user),
+                               apply=lambda q: q.filter(type=Post.QUESTION, reply_count=0)),
+        const.COMMUNITY: dict(func=User.objects.all, params=dict(),
+                              apply=lambda q: q.select_related("profile").distinct()),
+
+    }
+
+    if mapper.get(topic):
+        func, params = mapper[topic]["func"], mapper[topic].get("params")
+        apply = mapper[topic].get("apply", lambda q: q)
+        query = apply(func(**params))
+    else:
+        query = None
+
+    # Any topic
+    if tag_search and query is None:
+        query = Post.objects.tag_search(topic)
+
+    return query
+
+
 def list_message_by_topic(request, topic):
 
     user = request.user
     # One letter tags are always uppercase
     topic = fixcase(topic)
 
-    if topic == const.MESSAGE:
-        return Message.objects.inbox_for(user=user)
+    query = query_topic(user=user, topic=topic)
 
-    if topic == const.UNREAD:
-        return Message.objects.filter(recipient=user, unread=True)
+    if query is None:
+        query = Message.objects.inbox_for(user=user)
 
-    if topic == const.INBOX:
-        return Message.objects.inbox_for(user=user)
-
-    if topic == const.OUTBOX:
-        return Message.objects.outbox_for(user=user)
-
-    return Message.objects.inbox_for(user=user)
+    return query
 
 
 def list_posts_by_topic(request, topic):
@@ -157,49 +197,15 @@ def list_posts_by_topic(request, topic):
 
     # One letter tags are always uppercase
     topic = fixcase(topic)
+    query = query_topic(user=user, topic=topic, tag_search=True)
 
-    if topic == const.MYPOSTS:
-        # Get the posts that the user wrote.
-        return Post.objects.my_posts(target=user, user=user)
-
-    if topic == const.MYTAGS:
-        # Get the posts that the user wrote.
-        return Post.objects.tag_search(user.profile.my_tags)
-
-    if topic == const.UNANSWERED:
-        # Get unanswered posts.
-        return Post.objects.top_level(user).filter(type=Post.QUESTION, reply_count=0)
-
-    if topic == const.FOLLOWING:
-        # Get that posts that a user follows.
-        subs = Subscription.objects.exclude(type=Subscription.NO_MESSAGES).filter(user=user)
-        return Post.objects.top_level(user).filter(subs__in=subs)
-
-    if topic == const.BOOKMARKS:
-        # Get that posts that a user bookmarked.
-        return Post.objects.my_bookmarks(user)
-
-    if topic == const.VOTES:
-        return Post.objects.my_post_votes(user).distinct()
-
-    if topic == const.COMMUNITY:
-        # Users that make posts or votes are
-        # considered part of the community
-
-        post_set = Post.objects.all()
-        users = User.objects.filter(post__in=post_set).distinct()
-        return users
-
+    # A post type.
     if topic in post_types:
-        # A post type.
-        return Post.objects.top_level(user).filter(type=post_types[topic])
-
-    if topic and topic != const.LATEST:
-        # Any type of topic.
-        return Post.objects.tag_search(topic)
+        query = Post.objects.top_level(user).filter(type=post_types[topic])
 
     # Return latest by default.
-    query = Post.objects.top_level(user)
+    if query is None:
+        query = Post.objects.top_level(user)
 
     return query
 

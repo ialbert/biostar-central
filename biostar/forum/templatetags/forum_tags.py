@@ -164,8 +164,6 @@ def feed(user, post=None):
     if post:
         return
 
-    #post_set = Post.objects.exclude(status=Post.DELETED)
-
     recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
     # Needs to be put in context of posts
     recent_votes = recent_votes.select_related("post")
