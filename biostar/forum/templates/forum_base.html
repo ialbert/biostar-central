@@ -40,7 +40,7 @@
 </head>
 <body>
 
-<div class="ui forum container">
+<div class="ui container">
 
     <div class="ui center aligned header">
         {% block title %}
@@ -52,7 +52,7 @@
 
 
         {% moderate request=request %}
-        {% menubar request=request %}
+        {% menubar request=request with_search=False %}
 
 
     {% endblock %}
@@ -60,7 +60,7 @@
 {% show_messages messages %}
         <div class="ui aligned basic vertical segment">
         <div class="ui basic segment">
-            {% tags_banner %}
+
         </div>
 
         <div class="ui top attached tabular small stackable menu">
@@ -79,26 +79,18 @@
             </a>
             <a class="ui {{votes}} item" href="{% url 'post_list' %}?active=votes">
                 <i class="heart icon"></i>Votes
-                {% object_count request=request otype="votes" as num_votes%}
-                {% if num_votes %}<div class="ui mini green circular label">{{num_votes}}</div>{%endif%}
             </a>
             <a class="ui {{myposts}} item" href="{% url 'post_list' %}?active=myposts">
                 <i class="comments icon"></i>My Posts
-                {% object_count request=request otype="post" as num_posts%}
-                {% if num_posts %}<div class="ui mini circular label">{{num_posts}}</div>{%endif%}
             </a>
             <a class="ui {{mytags}} item" href="{% url 'post_list' %}?active=mytags">
                 <i class="tags icon"></i>My Tags
             </a>
             <a class="ui {{following}} item" href="{% url 'post_list' %}?active=following">
                 <i class="eye icon"></i>Following
-                {% object_count request=request otype="follow" as num_follows%}
-                {% if num_follows %}<div class="ui mini circular label">{{num_follows}}</div>{%endif%}
             </a>
             <a class="ui {{bookmarks}} item" href="{% url 'post_list' %}?active=bookmarks">
                 <i class="book icon"></i>Bookmarks
-                {% object_count request=request otype="bookmark" as num_bookmarks %}
-                {% if num_bookmarks %}<div class="ui mini circular label">{{num_bookmarks}}</div>{%endif%}
             </a>
             {% if extra_tab %}<a class="ui {{extra_tab}} item" href="#">
                 <i class="info circle icon"></i>{% if extra_tab_name %}{{ extra_tab_name|truncatechars:10 }}{%else%} Active{% endif %}</a>

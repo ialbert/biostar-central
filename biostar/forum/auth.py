@@ -131,13 +131,12 @@ def build_obj_tree(request, obj):
 def query_topic(user, topic, tag_search=False):
     "Maps known topics to their appropriate querying functions and args."
 
-    # Also has an extra "apply" for extra things
-    # to be done after applying "params" to "func"
     if user.is_anonymous:
         tags = ""
     else:
         tags = user.profile.my_tags
 
+    # Acts as a lazy evaluator, by calling a function when the correct topic are picked
     mapper = {
 
         const.MYPOSTS: dict(func=Post.objects.my_posts, params=dict(target=user, user=user)),
@@ -151,13 +150,13 @@ def query_topic(user, topic, tag_search=False):
         const.UNREAD: dict(func=Message.objects.filter, params=dict(recipient=user, unread=True)),
         const.OUTBOX: dict(func=Message.objects.outbox_for, params=dict(user=user)),
 
+        # "apply" is an added function that can do extra work to the resulting queryset.
         const.VOTES: dict(func=Post.objects.my_post_votes, params=dict(user=user),
                           apply=lambda q: q.distinct()),
         const.UNANSWERED: dict(func=Post.objects.top_level, params=dict(user=user),
                                apply=lambda q: q.filter(type=Post.QUESTION, reply_count=0)),
         const.COMMUNITY: dict(func=User.objects.all, params=dict(),
                               apply=lambda q: q.select_related("profile").distinct()),
-
     }
 
     if mapper.get(topic):
@@ -167,7 +166,7 @@ def query_topic(user, topic, tag_search=False):
     else:
         query = None
 
-    # Any topic
+    # Query any topic as a tag
     if tag_search and query is None:
         query = Post.objects.tag_search(topic)
 
@@ -195,7 +194,7 @@ def list_posts_by_topic(request, topic):
     post_types = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
                       forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
-    # One letter tags are always uppercase
+    # One letter tags are always uppercase.
     topic = fixcase(topic)
     query = query_topic(user=user, topic=topic, tag_search=True)
 

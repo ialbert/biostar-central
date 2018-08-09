@@ -414,7 +414,7 @@ def markdown(text):
 
 
 @register.inclusion_tag('widgets/menubar.html', takes_context=True)
-def menubar(context, request=None):
+def menubar(context, request=None, with_search=True):
     user = context.request.user
 
     forum_enabaled = context["forum_enabaled"]
@@ -425,4 +425,5 @@ def menubar(context, request=None):
     else:
         index_url = reverse("index")
 
-    return dict(user=user, request=request, enable_forum=settings.ENABLE_FORUM, index_url=index_url)
+    return dict(user=user, request=request, enable_forum=settings.ENABLE_FORUM, index_url=index_url,
+                with_search=with_search)

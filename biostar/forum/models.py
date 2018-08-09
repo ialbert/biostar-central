@@ -69,7 +69,8 @@ class PostManager(models.Manager):
         "Posts that received votes from other people "
         vote_query = Vote.objects.exclude(author=user).filter(post__in=self.filter(author=user))
         query = self.filter(author=user, votes__in=vote_query)
-        query = query.select_related("root", "author", "lastedit_user")
+        query = query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile")
         query = query.prefetch_related("tags")
         return query
 
@@ -84,7 +85,8 @@ class PostManager(models.Manager):
         else:
             query = self.filter(author=target).exclude(status=Post.DELETED)
 
-        query = query.select_related("root", "author", "lastedit_user")
+        query = query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile")
         query = query.prefetch_related("tags")
         query = query.order_by("-creation_date")
         return query
@@ -116,7 +118,8 @@ class PostManager(models.Manager):
         query = query.defer('content', 'html')
 
         # Get the tags.
-        query = query.select_related("root", "author", "lastedit_user").prefetch_related("tags").distinct()
+        query = query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile").prefetch_related("tags").distinct()
 
         return query
 
@@ -124,7 +127,8 @@ class PostManager(models.Manager):
         # Populate the object to build a tree that contains all posts in the thread.
         is_moderator = user.is_authenticated and user.profile.is_moderator
         if is_moderator:
-            query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted",
+            query = self.filter(root=root).select_related("root","author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile").order_by("type", "-has_accepted",
                                                                                                       "-vote_count", "creation_date")
         else:
             query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "author",
@@ -143,7 +147,8 @@ class PostManager(models.Manager):
         else:
             query = self.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
 
-        return query.select_related("root", "author", "author__profile", "lastedit_user").prefetch_related("tags")#.defer("content", "html")
+        return query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile").prefetch_related("tags")#.defer("content", "html")
 
 
 class CustomTag(TagBase):
@@ -202,16 +207,16 @@ class Post(models.Model):
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
 
     # The type of the post: question, answer, comment.
-    type = models.IntegerField(choices=TYPE_CHOICES)
+    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
 
     # Number of upvotes for the post
-    vote_count = models.IntegerField(default=0, blank=True)
+    vote_count = models.IntegerField(default=0, blank=True, db_index=True)
 
     # The number of views for the post.
-    view_count = models.IntegerField(default=0, blank=True)
+    view_count = models.IntegerField(default=0, blank=True, db_index=True)
 
     # The number of replies that a post has.
-    reply_count = models.IntegerField(default=0, blank=True)
+    reply_count = models.IntegerField(default=0, blank=True, db_index=True)
 
     # The number of comments that a post has.
     comment_count = models.IntegerField(default=0, blank=True)
@@ -226,11 +231,11 @@ class Post(models.Model):
     subs_count = models.IntegerField(default=0)
 
     # The total score of the thread (used for top level only)
-    thread_score = models.IntegerField(default=0, blank=True)
+    thread_score = models.IntegerField(default=0, blank=True, db_index=True)
 
     # Date related fields.
-    creation_date = models.DateTimeField(auto_now_add=True)
-    lastedit_date = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField(auto_now_add=True, db_index=True)
+    lastedit_date = models.DateTimeField(auto_now_add=True, db_index=True)
 
     # Stickiness of the post.
     sticky = models.BooleanField(default=False)
@@ -251,7 +256,7 @@ class Post(models.Model):
     tag_val = models.CharField(max_length=100, default="", blank=True)
 
     # The tag set is built from the tag string and used only for fast filtering
-    tags = TaggableManager() # models.ManyToManyField(Tag, blank=True)
+    tags = TaggableManager()
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
@@ -368,8 +373,8 @@ class Vote(models.Model):
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
     post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
-    type = models.IntegerField(choices=TYPE_CHOICES, default=EMPTY)
-    date = models.DateTimeField(auto_now_add=True)
+    type = models.IntegerField(choices=TYPE_CHOICES, default=EMPTY, db_index=True)
+    date = models.DateTimeField(auto_now_add=True, db_index=True)
 
     uid = models.CharField(max_length=32, unique=True)
 
@@ -436,11 +441,19 @@ class Subscription(models.Model):
 class MessageManager(models.Manager):
     def inbox_for(self, user):
         "Returns all messages that were received by the given user"
-        return self.filter(recipient=user)
+        query = self.filter(recipient=user)
+        query = query.select_related("recipient", "sender", "sender__profile",
+                                     "recipient__profile")
+
+        return query
 
     def outbox_for(self, user):
         "Returns all messages that were sent by the given user."
-        return self.filter(sender=user)
+
+        query = self.filter(sender=user)
+        query = query.select_related("recipient", "sender", "sender__profile",
+                                     "recipient__profile")
+        return query
 
 
 # Connects user to message bodies

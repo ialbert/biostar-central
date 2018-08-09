@@ -17,9 +17,12 @@
     {% endif %}
 
 
+    {% if with_search %}
     <div class="right menu">
+
         {% search request=request %}
     </div>
+    {% endif %}
 
 
 

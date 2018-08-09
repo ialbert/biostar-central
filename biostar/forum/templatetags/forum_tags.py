@@ -258,29 +258,17 @@ def pluralize(value, word):
 def object_count(request, otype):
 
     user = request.user
+    count = 0
 
     if user.is_authenticated:
-        if otype == "post":
-            return Post.objects.my_posts(target=user, user=user).count()
-        if otype == "follow":
-            # Stuff that produces notifications
-            query = models.Subscription.objects.exclude(type=models.Subscription.NO_MESSAGES).filter(user=user)
-            return query.count()
-        if otype == "bookmark":
-            return Post.objects.my_bookmarks(user).count()
-        if otype == "votes":
-            return  Post.objects.my_post_votes(user).distinct().count()
-        if otype == "message":
-            # Return the count stored in the message
-            return user.profile.new_messages
-        if otype == "unread":
-            return Message.objects.filter(recipient=user, unread=True).count()
-        if otype =="inbox":
-            return Message.objects.inbox_for(user=user).count()
-        if otype == "outbox":
-            return Message.objects.outbox_for(user=user).count()
 
-    return 0
+        if otype == "message":
+            count = user.profile.new_messages
+        else:
+            query = auth.query_topic(user=user, topic=otype)
+            count = count if query is None else query.count()
+
+    return count
 
 
 

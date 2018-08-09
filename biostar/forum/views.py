@@ -30,7 +30,6 @@ def get_listing_func(is_message_list, active_tab, tag_topic):
     return listing_func
 
 
-
 @protect_private_topics
 def list_view(request, template="post_list.html", extra_context={}, topic=None,
               extra_proc=lambda x:x, per_page=settings.ITEMS_PER_PAGE, is_message_list=False):
@@ -46,9 +45,6 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
     listing_func = get_listing_func(is_message_list=is_message_list, active_tab=active, tag_topic=topic)
 
     objs = listing_func(request=request, topic=active or topic).order_by("-pk")
-    if hasattr(objs.first(), "project"):
-        # Project discussions not shown when looking at topics
-        objs = objs.filter(project=None)
 
     # Apply extra protocols to queryset (updates, filters, etc)
     objs = extra_proc(objs)

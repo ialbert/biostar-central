@@ -21,7 +21,7 @@ class Profile(models.Model):
 
     NEW, TRUSTED, SUSPENDED, BANNED = range(4)
     STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
-    state = models.IntegerField(default=NEW, choices=STATE_CHOICES)
+    state = models.IntegerField(default=NEW, choices=STATE_CHOICES, db_index=True)
 
     NORMAL, MODERATOR, MANAGER, BLOG = range(4)
     ROLE_CHOICES = [(NORMAL, "User"), (MODERATOR, "Moderator"), (MANAGER, "Manager"),
@@ -29,22 +29,22 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     uid = models.CharField(max_length=MAX_UID_LEN, unique=True)
-    name = models.CharField(max_length=MAX_NAME_LEN, default='')
+    name = models.CharField(max_length=MAX_NAME_LEN, default='', db_index=True)
 
     # Maximum amount of uploaded files a user is allowed to aggregate, in mega-bytes.
     max_upload_size = models.IntegerField(default=0)
 
     role = models.IntegerField(default=NORMAL, choices=ROLE_CHOICES)
-    last_login = models.DateTimeField(null=True)
+    last_login = models.DateTimeField(null=True, db_index=True)
 
     # The number of new messages for the user.
-    new_messages = models.IntegerField(default=0)
+    new_messages = models.IntegerField(default=0, db_index=True)
 
     # The last visit by the user.
     date_joined = models.DateTimeField(auto_now_add=True)
 
     # User provided location.
-    location = models.CharField(default="", max_length=255, blank=True)
+    location = models.CharField(default="", max_length=255, blank=True, db_index=True)
 
     # User provided website.
     website = models.URLField(default="", max_length=255, blank=True)
@@ -52,7 +52,7 @@ class Profile(models.Model):
     # Google scholar ID
     scholar = models.CharField(default="", max_length=255, blank=True)
 
-    score = models.IntegerField(default=0)
+    score = models.IntegerField(default=0, db_index=True)
 
     # Twitter ID
     twitter = models.CharField(default="", max_length=255, blank=True)
