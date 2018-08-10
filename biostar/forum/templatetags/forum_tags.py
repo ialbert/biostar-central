@@ -37,11 +37,15 @@ def user_box(user):
 @register.inclusion_tag('widgets/pages.html')
 def pages(objs, request):
 
-    topic = request.GET.get('topic', request.GET.get("active"))
+    topic = request.GET.get('topic')
+    active = request.GET.get("active")
+
+    feild_name = "active" if active else "topic"
 
     url = request.path
+    topic = active or topic
 
-    return dict(objs=objs, url=url, topic=topic)
+    return dict(objs=objs, url=url, topic=topic, feild_name=feild_name)
 
 
 @register.inclusion_tag("widgets/message_menu.html")
@@ -84,7 +88,7 @@ def gravatar(user, size=80):
 
 
 @register.inclusion_tag('widgets/tags_banner.html', takes_context=True)
-def tags_banner(context, limit=7, listing=False):
+def tags_banner(context, limit=5, listing=False):
 
     request = context["request"]
     page = request.GET.get("page")
@@ -289,7 +293,7 @@ def vote_icon(user, post, vtype):
     icon, vote_type = main_map[vtype]["icon"], main_map[vtype]["vote"]
 
     if user.is_authenticated:
-        vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
+        vote = Vote.objects.filter(author=user, post=post, type=vote_type).exists()
     else:
         vote = None
 

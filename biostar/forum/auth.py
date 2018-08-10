@@ -36,29 +36,12 @@ def get_votes(user, thread):
     store = {Vote.BOOKMARK: set(), Vote.UP:set()}
 
     if user.is_authenticated:
-        pids = [p.id for p in thread]
-        votes = Vote.objects.filter(post_id__in=pids, author=user).values_list("post_id", "type")
+        votes = Vote.objects.filter(post__in=thread, author=user).values_list("post__id", "type")
 
         for post_id, vote_type in votes:
             store.setdefault(vote_type, set()).add(post_id)
 
     return store
-
-
-def get_votes_feed():
-    "Returns recent votes feed."
-
-    recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
-    # Needs to be put in context of posts
-    #recent_votes = post_set.filter(votes__in=recent_votes).order_by("?")
-
-
-    return
-
-
-def get_user_feeds():
-    "Returns the user location and awards feed."
-    return
 
 
 def post_permissions(request, post):
@@ -136,7 +119,7 @@ def query_topic(user, topic, tag_search=False):
     else:
         tags = user.profile.my_tags
 
-    # Acts as a lazy evaluator, by calling a function when the correct topic are picked
+    # Acts as a lazy evaluator by calling a function when its topic is picked
     mapper = {
 
         const.MYPOSTS: dict(func=Post.objects.my_posts, params=dict(target=user, user=user)),
@@ -161,8 +144,8 @@ def query_topic(user, topic, tag_search=False):
 
     if mapper.get(topic):
         func, params = mapper[topic]["func"], mapper[topic].get("params")
-        apply = mapper[topic].get("apply", lambda q: q)
-        query = apply(func(**params))
+        apply_extra = mapper[topic].get("apply", lambda q: q)
+        query = apply_extra(func(**params))
     else:
         query = None
 
@@ -307,8 +290,8 @@ def create_post_from_json(json_dict):
 
     uid = json_dict.get("id")
     post = Post.objects.filter(uid=uid)
-    if post:
-        logger.error(f"Post with uid={uid} already exists")
+    if post.exists() or status == Post.DELETED:
+        logger.error(f"Post with uid={uid} already exists or status is deleted.")
         return post.first()
 
     post = Post.objects.create(uid=uid, author=author, lastedit_user=lastedit_user,
