@@ -151,19 +151,6 @@ class PostManager(models.Manager):
                                     "lastedit_user", "lastedit_user__profile").prefetch_related("tags")#.defer("content", "html")
 
 
-class CustomTag(TagBase):
-    count = models.IntegerField(default=0)
-
-    class Meta:
-        verbose_name = "tag"
-        verbose_name_plural = "tags"
-
-
-class TaggedItem(GenericTaggedItemBase):
-
-    tag = models.ForeignKey(CustomTag, on_delete=models.SET_NULL, null=True)
-
-
 class Post(models.Model):
     "Represents a post in a forum"
 
