@@ -6,7 +6,6 @@ from django.conf import settings
 from biostar.engine.models import Project
 from . import  models, auth
 from pagedown.widgets import PagedownWidget
-import langdetect
 
 # Share logger with models
 logger = models.logger
