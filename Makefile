@@ -92,11 +92,11 @@ load:
 	@tar -xvzf initial/initial-posts.tar.gz --directory initial
 
 	@# Load initial users first
-	python manage.py load --root ~/Desktop/export-1000 --users users.txt --n 1000 || true
+	python manage.py load --root initial/export-100 --users users.txt --n 100 || true
 
-	python manage.py load --root ~/Desktop/export-1000 --posts posts.txt  --n 1000 || true
+	python manage.py load --root initial/export-100 --posts posts.txt  --n 100 || true
 
-	python manage.py load --root ~/Desktop/export-1000 --votes votes.txt  --n 1000 || true
+	python manage.py load --root initial/export-100 --votes votes.txt  --n 100 || true
 
 
 deploy_psu:
