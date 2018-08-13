@@ -45,7 +45,8 @@ class PostManager(models.Manager):
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
         query = super().get_queryset().exclude(status=Post.DELETED)
-        query = query.select_related("root", "author", "author__profile","lastedit_user").prefetch_related("tags")
+        query = query.select_related("root", "author", "author__profile","lastedit_user__profile",
+                                     "lastedit_user").prefetch_related("tags")
 
         return query
 
@@ -131,11 +132,12 @@ class PostManager(models.Manager):
                                     "lastedit_user", "lastedit_user__profile").order_by("type", "-has_accepted",
                                                                                                       "-vote_count", "creation_date")
         else:
-            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "author",
-                                                                                       "lastedit_user").order_by("type",
-                                                                                                                 "-has_accepted",
-                                                                                                                 "-vote_count",
-                                                                                                                 "creation_date")
+            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "parent", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile").order_by("type",
+                                                                                         "-has_accepted",
+                                                                                         "-vote_count",
+                                                                                         "creation_date")
+
 
         return query
 

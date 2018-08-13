@@ -41,8 +41,9 @@ body {
 }
 
 .ui.title.header {
-    font-size: .83em;
+    font-size: .80em;
     font-weight: 9000;
+
 }
 
 .ui.divided.items>.post.item {
@@ -56,12 +57,15 @@ body {
 }
 .ui.stat.label{
     width: 53;
+    margin: 0;
+    border-radius: 0;
 }
 
 .number-stat{
     font-size: 1.8em;
     padding-bottom: .2em;
     text-align: center;
+    font-weight: 800;
 }
 .ui.forum.container {
     width: 1230px;
@@ -72,6 +76,7 @@ body {
 .detail-stat{
     font-size: 1.1em;
     text-align: center;
+    font-weight: 200;
 }
 
 

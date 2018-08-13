@@ -49,11 +49,11 @@
             </div>
 </div>
 
-<div class="middle aligned content" style="padding-left:2;">
+<div class="content" style="padding-left:2;">
 
         <div class="header">
 
-                <span class="ui mini title header">
+                <span class="ui title header">
                     {% if post.type != post.QUESTION %}
                         {{ post.get_type_display }}:
                     {% endif %}
@@ -69,20 +69,18 @@
         </div>
 
 
-
             <div class="extra">
 
+                    {% get_tags_list post.tag_val as tags_list %}
 
-                    {% for tag in post.tags.all %}
+                    {% for tag in tags_list %}
                         <a class="ui tiny tagging label" href="{% url 'post_list' %}?topic={{tag}}">
-                        {{ tag.name }}
+                        {{ tag }}
                         </a>
                     {% endfor %}
-
                     <div style="padding:0px; font-size:12;" class="ui right floated basic segment">
                         {% user_info post=post by_diff=True %}
                     </div>
-
             </div>
 
 </div>

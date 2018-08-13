@@ -18,7 +18,8 @@ SECRET_KEY = 'secret-key'
 # The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
-ITEMS_PER_PAGE = 50
+ITEMS_PER_PAGE = 35
+USERS_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
 VOTE_FEED_COUNT = 10

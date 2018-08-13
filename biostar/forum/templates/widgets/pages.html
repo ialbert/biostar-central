@@ -2,7 +2,7 @@
 
 <div class="ui container center aligned">
     {% if objs.has_previous %}
-        {% if topic %}
+        {% if topic or active %}
         <a href="{{ url }}?page={{ objs.previous_page_number }}&{{feild_name}}={{topic}}">
                 <i class="ui angle small double left icon"> </i>previous
         </a>

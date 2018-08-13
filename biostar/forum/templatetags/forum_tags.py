@@ -15,7 +15,7 @@ from django.db.models import Q
 from biostar.accounts.models import Profile
 from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Vote, Message
-from biostar.forum import auth, forms, models, const
+from biostar.forum import auth, forms, models, const, util
 
 
 User = get_user_model()
@@ -46,6 +46,13 @@ def pages(objs, request):
     topic = active or topic
 
     return dict(objs=objs, url=url, topic=topic, feild_name=feild_name)
+
+
+@register.simple_tag
+def get_tags_list(tags_str):
+
+    return set(util.split_tags(tags_str))
+
 
 
 @register.inclusion_tag("widgets/message_menu.html")
@@ -92,20 +99,15 @@ def tags_banner(context, limit=5, listing=False):
 
     request = context["request"]
     page = request.GET.get("page")
-    default = ["job", "news"]
 
-    default = list(map(lambda x: dict(tags__name=x, tags__name__count=1), default))
-
-    tags = list(Post.objects.values("tags__name").annotate(Count('tags__name')))[:limit]
-
-    tags = list(filter(lambda x: x["tags__name"] is not None, tags))
+    tags = Post.objects.values("tags__name").annotate(Count('tags__name'))
 
     if listing:
         # Get the page info
         paginator = Paginator(tags, settings.TAGS_PER_PAGE)
         all_tags = paginator.get_page(page)
     else:
-        all_tags = default + tags
+        all_tags = tags
 
     return dict(tags=all_tags, limit=limit, listing=listing, request=request)
 
@@ -280,29 +282,6 @@ def object_count(request, otype):
 def preview_message(text, limit=130):
 
     return text if len(text) <= limit else text[:limit] + " ..."
-
-
-
-@register.simple_tag
-def vote_icon(user, post, vtype):
-
-    main_map = {"bookmark":{"icon":"bookmark", "vote":Vote.BOOKMARK},
-                "upvote":{"icon":"thumbs up", "vote":Vote.UP}
-                }
-
-    icon, vote_type = main_map[vtype]["icon"], main_map[vtype]["vote"]
-
-    if user.is_authenticated:
-        vote = Vote.objects.filter(author=user, post=post, type=vote_type).exists()
-    else:
-        vote = None
-
-    msg = f"{icon} icon"
-
-    if not vote:
-        msg += " outline"
-
-    return mark_safe(msg)
 
 
 @register.filter

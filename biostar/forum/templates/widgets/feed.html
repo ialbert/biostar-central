@@ -9,10 +9,10 @@
 
         <div class="event">
         <div class="ui container">
-            <div class="ui large segment">
+            <div class="ui large vertical segment">
 <b> Recent Votes </b>
 
-            <div class="ui divided relaxed tiny list" >
+            <div class="ui relaxed tiny list" >
 
                 {% for vote in recent_votes %}
 
@@ -30,12 +30,12 @@
 
         <div class="event">
         <div class="ui container">
-                 <div class="ui large segment">
+                 <div class="ui large vertical grey segment">
         <b>Recent Locations</b>
                   <a href="{% url "community_list" %}">
                 &bull;  All <i class="ui angle small double right icon"></i>
             </a>
-            <div class="ui relaxed divided tiny list" >
+            <div class="ui relaxed tiny list" >
 
                 {% for user in recent_locations %}
 
@@ -59,7 +59,7 @@
 
         <div class="event">
         <div class="ui container">
-            <div class="ui large segment">
+            <div class="ui large vertical grey segment">
                 <b>Recent Awards</b>
                 <a href="#"> &bull;  All <i class="ui angle small double right icon"></i>
                 </a>
@@ -70,9 +70,9 @@
 
         <div class="event">
         <div class="ui container">
-            <div class="ui large segment">
+            <div class="ui large vertical grey segment">
 <b>Recent Replies </b>
-            <div class="ui tiny divided relaxed list" >
+            <div class="ui tiny relaxed list" >
 
 
                 {% for replies in recent_replies %}

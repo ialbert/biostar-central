@@ -90,7 +90,7 @@ def community_list(request):
     template = "community_list.html"
     topic = "community"
 
-    return list_view(request=request, template=template, topic=topic)
+    return list_view(request=request, template=template, topic=topic, per_page=settings.USERS_PER_PAGE)
 
 
 @object_exists(klass=Message, url="message_list")
@@ -154,7 +154,8 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     form = forms.PostShortForm()
 
     # Get the parents info
-    obj = Post.objects.filter(uid=uid).first()
+    obj = Post.objects.select_related("root", "author", "author__profile","lastedit_user__profile",
+                                     "lastedit_user").filter(uid=uid).first()
 
     # Return root view if not at top level.
     obj = obj if obj.is_toplevel else obj.root
@@ -173,11 +174,11 @@ def post_view(request, uid, template="post_view.html", url="post_view",
 
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
-    obj = auth.build_obj_tree(request=request, obj=obj)
+    obj, thread = auth.build_obj_tree(request=request, obj=obj)
     tab_name = obj.get_type_display().capitalize()
 
     context = dict(post=obj, form=form, extra_tab="active", extra_tab_name=tab_name,
-                   comment_url=reverse("post_comment"))
+                   comment_url=reverse("post_comment"), answers=thread.filter(type=Post.ANSWER))
     context.update(extra_context)
 
     return render(request, template, context=context)

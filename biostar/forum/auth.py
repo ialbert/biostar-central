@@ -20,10 +20,10 @@ logger = logging.getLogger("engine")
 
 def build_tree(thread, tree={}):
 
-    for post in thread:
+    comments = thread.filter(type=Post.COMMENT)
 
-        if post.type == Post.COMMENT:
-            tree.setdefault(post.parent_id, []).append(post)
+    for post in comments:
+        tree.setdefault(post.parent_id, []).append(post)
     return tree
 
 
@@ -85,8 +85,8 @@ def build_obj_tree(request, obj):
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers sorted before comments.
     user = request.user
-    thread = [post_permissions(request=request, post=p)
-              for p in Post.objects.get_thread(obj, user)]
+
+    thread = Post.objects.get_thread(obj, user)
 
     # Build tree and gather votes.
     tree = build_tree(thread=thread, tree={})
@@ -102,13 +102,15 @@ def build_obj_tree(request, obj):
         post.has_upvote = post.id in upvotes
         post.can_accept = obj.author == user or post.has_accepted
 
-    # Add attributes by mutating the objects
-    map(decorate, thread + [obj])
+    # Add attributes by mutating the object
+    for p in thread:
+        decorate(p)
+    decorate(obj)
+
     # Additional attributes used during rendering
     obj.tree = tree
-    obj.answers = [p for p in thread if p.type == Post.ANSWER]
 
-    return obj
+    return obj, thread
 
 
 def query_topic(user, topic, tag_search=False):
@@ -136,10 +138,9 @@ def query_topic(user, topic, tag_search=False):
         # "apply" is an added function that can do extra work to the resulting queryset.
         const.VOTES: dict(func=Post.objects.my_post_votes, params=dict(user=user),
                           apply=lambda q: q.distinct()),
-        const.UNANSWERED: dict(func=Post.objects.top_level, params=dict(user=user),
+        const.OPEN: dict(func=Post.objects.top_level, params=dict(user=user),
                                apply=lambda q: q.filter(type=Post.QUESTION, reply_count=0)),
-        const.COMMUNITY: dict(func=User.objects.all, params=dict(),
-                              apply=lambda q: q.select_related("profile").distinct()),
+        const.COMMUNITY: dict(func=User.objects.select_related("profile").all, params=dict()),
     }
 
     if mapper.get(topic):

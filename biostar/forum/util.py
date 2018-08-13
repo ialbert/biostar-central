@@ -52,7 +52,10 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 def split_tags(text):
-    return text.split(",")
+
+    capitalize = lambda txt: txt.upper() if len(txt)==1 else txt
+
+    return [capitalize(x) for x in text.split(",") if len(x)]
 
 def clean(text):
     "Sanitize text with no other substitutions"
