@@ -35,42 +35,48 @@ body {
     padding-top: 0px;
 }
 
-
-.ui.preview.segment {
-    margin-left: -1em;
-    margin-bottom: 0em;
-    margin-right: 0em;
-    padding-bottom: 3px;
-    padding-top: 3px;
-    margin-top: 10;
-}
-
-.ui.preview.small-padding.segment {
-    margin-left: -1em;
-    margin-bottom: 0em;
-    margin-right: 0em;
-    padding-bottom: 3px;
-    padding-top: 3px;
-    margin-top: -10;
-}
-
 .ui.title.segment {
     margin:0em;
     padding-top: 0px;
 }
 
 .ui.title.header {
-    font-size: 1.15em;
-    font-weight: 800;
+    font-size: .80em;
+    font-weight: 9000;
+
+}
+
+.ui.divided.items>.post.item {
+    padding-bottom: 0;
+}
+
+
+.ui.transparent.label{
+    background: none #fff;
+    border-color: white;
+}
+.ui.stat.label{
+    width: 53;
+    margin: 0;
+    border-radius: 0;
 }
 
 .number-stat{
-    font-size: 1.5em;
+    font-size: 1.8em;
     padding-bottom: .2em;
     text-align: center;
+    font-weight: 800;
 }
+.ui.forum.container {
+    width: 1230px;
+    }
+
+
+
 .detail-stat{
     font-size: 1.1em;
+    text-align: center;
+    font-weight: 200;
 }
 
 
@@ -79,7 +85,7 @@ body {
     font-size: 14px;
     padding: 3px;
     color:#8f2c47;
-    font-weight: 10;
+    font-weight: 20;
 }
 .ui.tagging.label:hover {
     background-color: #8f2c47;

@@ -10,11 +10,12 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Count
+from django.db.models import Q
 
-from taggit.models import Tag
+from biostar.accounts.models import Profile
 from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Vote, Message
-from biostar.forum import auth, forms, models, const
+from biostar.forum import auth, forms, models, const, util
 
 
 User = get_user_model()
@@ -36,18 +37,29 @@ def user_box(user):
 @register.inclusion_tag('widgets/pages.html')
 def pages(objs, request):
 
-    topic = request.GET.get('topic', request.GET.get("active"))
+    topic = request.GET.get('topic')
+    active = request.GET.get("active")
+
+    feild_name = "active" if active else "topic"
 
     url = request.path
+    topic = active or topic
 
-    return dict(objs=objs, url=url, topic=topic)
+    return dict(objs=objs, url=url, topic=topic, feild_name=feild_name)
+
+
+@register.simple_tag
+def get_tags_list(tags_str):
+
+    return set(util.split_tags(tags_str))
+
 
 
 @register.inclusion_tag("widgets/message_menu.html")
 def message_menu(extra_tab=None, request=None):
 
     extra = {extra_tab: "active"}
-    context = dict(request=request, active_tab=const.ACTIVE_TAB,
+    context = dict(request=request, active_tab=const.ACTIVE_MESSAGE_TAB,
                    const_in=const.INBOX, const_out=const.OUTBOX,
                    const_unread=const.UNREAD)
     context.update(extra)
@@ -83,24 +95,19 @@ def gravatar(user, size=80):
 
 
 @register.inclusion_tag('widgets/tags_banner.html', takes_context=True)
-def tags_banner(context, limit=7, listing=False):
+def tags_banner(context, limit=5, listing=False):
 
     request = context["request"]
     page = request.GET.get("page")
-    default = ["latest", "open", "jobs", "news"]
 
-    default = list(map(lambda x: dict(tags__name=x, tags__name__count=1), default))
-
-    tags = list(Post.objects.values("tags__name").annotate(Count('tags__name')))[:limit]
-
-    tags = list(filter(lambda x: x["tags__name"] is not None, tags))
+    tags = Post.objects.values("tags__name").annotate(Count('tags__name'))
 
     if listing:
         # Get the page info
-        paginator = Paginator(tags, 150)
+        paginator = Paginator(tags, settings.TAGS_PER_PAGE)
         all_tags = paginator.get_page(page)
     else:
-        all_tags = default + tags
+        all_tags = tags
 
     return dict(tags=all_tags, limit=limit, listing=listing, request=request)
 
@@ -156,26 +163,23 @@ def show_email(user):
 
 
 @register.inclusion_tag('widgets/feed.html')
-def feed(user, post=None, limit=7):
+def feed(user, post=None):
     #TODO: temporary feed
 
     # Show similar posts when inside of a view
     if post:
         return
-    post_set = Post.objects.exclude(status=Post.DELETED).all()
 
-    recent_votes = Vote.objects.filter(type=Vote.UP)[:limit]
+    recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
     # Needs to be put in context of posts
-    recent_votes = post_set.filter(votes__in=recent_votes).order_by("?")
+    recent_votes = recent_votes.select_related("post")
 
-    # TODO:change
-    recent_locations = User.objects.filter(post__in=post_set).order_by("?").distinct()
-
-    recent_locations = set([x for x in recent_locations if x.profile.location][:limit])
+    recent_locations = User.objects.filter(
+        ~Q(profile__location="")).select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = ''
-    recent_replies = post_set.filter(type__in=[Post.COMMENT, Post.ANSWER],
-                                     ).order_by("?")[:limit]
+    recent_replies = Post.objects.filter(~Q(status=Post.DELETED), type__in=[Post.COMMENT, Post.ANSWER]
+                                     ).select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
@@ -195,6 +199,7 @@ def show_score_icon(score):
 
     return mark_safe(score_icon)
 
+
 @register.filter
 def show_score(score):
 
@@ -204,6 +209,7 @@ def show_score(score):
 
 @register.inclusion_tag('widgets/user_info.html')
 def user_info(post, by_diff=False):
+
     return dict(post=post, by_diff=by_diff)
 
 
@@ -234,11 +240,12 @@ def listing(posts=None, messages=None, discussion_view=False):
 
 @register.simple_tag
 def get_top_padding(post):
+    #TODO: temporary solve
 
-    if len(post.get_title()) >= 66:
-
+    if len(post.get_title()) >= 63:
         return "small-padding"
     return ""
+
 
 @register.filter
 def show_nonzero(value):
@@ -257,29 +264,17 @@ def pluralize(value, word):
 def object_count(request, otype):
 
     user = request.user
+    count = 0
 
     if user.is_authenticated:
-        if otype == "post":
-            return Post.objects.my_posts(target=user, user=user).count()
-        if otype == "follow":
-            # Stuff that produces notifications
-            query = models.Subscription.objects.exclude(type=models.Subscription.NO_MESSAGES).filter(user=user)
-            return query.count()
-        if otype == "bookmark":
-            return Post.objects.my_bookmarks(user).count()
-        if otype == "votes":
-            return  Post.objects.my_post_votes(user).distinct().count()
-        if otype == "message":
-            # Return the count stored in the message
-            return user.profile.new_messages
-        if otype == "unread":
-            return Message.objects.filter(recipient=user, unread=True).count()
-        if otype =="inbox":
-            return Message.objects.inbox_for(user=user).count()
-        if otype == "outbox":
-            return Message.objects.outbox_for(user=user).count()
 
-    return 0
+        if otype == "message":
+            count = user.profile.new_messages
+        else:
+            query = auth.query_topic(user=user, topic=otype)
+            count = count if query is None else query.count()
+
+    return count
 
 
 
@@ -287,30 +282,6 @@ def object_count(request, otype):
 def preview_message(text, limit=130):
 
     return text if len(text) <= limit else text[:limit] + " ..."
-
-
-
-@register.simple_tag
-def vote_icon(user, post, vtype):
-
-
-    main_map = {"bookmark":{"icon":"bookmark", "vote":Vote.BOOKMARK},
-                "upvote":{"icon":"thumbs up", "vote":Vote.UP}
-                }
-
-    icon, vote_type = main_map[vtype]["icon"], main_map[vtype]["vote"]
-
-    if user.is_authenticated:
-        vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
-    else:
-        vote = None
-
-    msg = f"{icon} icon"
-
-    if not vote:
-        msg += " outline"
-
-    return mark_safe(msg)
 
 
 @register.filter
@@ -376,19 +347,6 @@ def boxclass(post):
         style = "maroon"
 
     return style
-
-
-@register.simple_tag
-def get_active_message_tab(**tabs_dict):
-
-    tab_list = filter(lambda x: tabs_dict[x] == "active", tabs_dict)
-
-    # Avoid index error when fetching from a list
-    index = lambda lst, idx: None if idx >= len(lst) else lst[idx]
-
-    active_tab = str(index(list(tab_list), 0))
-    return active_tab
-
 
 
 @register.simple_tag

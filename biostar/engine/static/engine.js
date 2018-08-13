@@ -57,11 +57,12 @@ $(document).ready(function () {
 //    });
 
     $(".copy-data").click(function (event) {
-
+        event.preventDefault();
         var elem = $(this);
         var data_uid = elem.attr('data-uid');
+        var copy_url = elem.attr('copy-url');
 
-        $.ajax("/data/copy", {
+        $.ajax(copy_url, {
                 type: 'GET',
                 dataType: 'json',
                 data: {data_uid: data_uid},

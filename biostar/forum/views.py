@@ -4,36 +4,47 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
-
+from django.conf import settings
 from biostar.utils.shortcuts import reverse
 from biostar.accounts.models import Profile
 from . import forms, auth
 from .models import Post, Vote, Message
 from .decorators import object_exists, message_access, protect_private_topics
 from .const import *
+
+
 User = get_user_model()
+
+
+def get_listing_func(is_message_list, active_tab, tag_topic):
+
+    if is_message_list:
+        listing_func = auth.list_message_by_topic
+    elif active_tab:
+        listing_func = auth.list_posts_by_topic
+    elif tag_topic:
+        listing_func = lambda request, topic: Post.objects.tag_search(topic)
+    else:
+        listing_func = auth.list_posts_by_topic
+
+    return listing_func
 
 
 @protect_private_topics
 def list_view(request, template="post_list.html", extra_context={}, topic=None,
-              extra_proc=lambda x:x, per_page=10, is_forum=True):
+              extra_proc=lambda x:x, per_page=settings.ITEMS_PER_PAGE, is_message_list=False):
     "List view for posts and messages"
 
-    topic = topic or request.GET.get("topic", LATEST)
+    active = topic or request.GET.get("active", "")
+    topic = topic or request.GET.get("topic", "")
+    if not (topic or active):
+        active = LATEST
+
     page = request.GET.get('page')
-    topic = topic.lower()
+    topic, active = topic.lower(), active.lower()
+    listing_func = get_listing_func(is_message_list=is_message_list, active_tab=active, tag_topic=topic)
 
-    # Message and forum objects listed separately
-    if is_forum:
-        listing_func = auth.list_posts_by_topic
-    else:
-        listing_func = auth.list_message_by_topic
-
-    objs = listing_func(request=request, topic=topic).order_by("-pk")
-
-    if hasattr(objs.first(), "project"):
-        # Project discussions not shown when looking at topics
-        objs = objs.filter(project=None)
+    objs = listing_func(request=request, topic=active or topic).order_by("-pk")
 
     # Apply extra protocols to queryset (updates, filters, etc)
     objs = extra_proc(objs)
@@ -43,10 +54,10 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
     objs = paginator.get_page(page)
 
     context = dict(objs=objs)
-    if topic in TOPICS_WITH_TABS:
-        active_tab = {topic: "active"}
+    if active in TOPICS_WITH_TABS:
+        active_tab = {active: "active"}
     else:
-        active_tab = dict(extra_tab="active", extra_tab_name=topic.capitalize())
+        active_tab = dict(extra_tab="active", extra_tab_name= active.capitalize() or topic.capitalize())
 
     context.update(extra_context)
     context.update(active_tab)
@@ -57,21 +68,18 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
 @login_required
 def message_list(request):
 
-    active_tab = request.GET.get(ACTIVE_TAB, INBOX)
+    active_tab = request.GET.get(ACTIVE_MESSAGE_TAB, INBOX)
 
     active_tab = active_tab if (active_tab in MESSAGE_TABS) else INBOX
 
-    context = {active_tab: ACTIVE_TAB, "not_outbox": active_tab != OUTBOX, "field_name": ACTIVE_TAB}
+    context = {active_tab: ACTIVE_MESSAGE_TAB, "not_outbox": active_tab != OUTBOX, "field_name": ACTIVE_MESSAGE_TAB}
 
     user = request.user
 
     Profile.objects.filter(user=user).update(new_messages=0)
 
-    msg_per_page = 20
-
     return list_view(request, template="message_list.html",
-                     topic=active_tab, extra_context=context, per_page=msg_per_page,
-                     is_forum=False)
+                     topic=active_tab, extra_context=context, is_message_list=True)
 
 
 def community_list(request):
@@ -79,12 +87,10 @@ def community_list(request):
     # Users that make posts or votes are
     # considered part of the community
 
-    users_per_page = 50
     template = "community_list.html"
     topic = "community"
 
-    return list_view(request=request, template=template, per_page=users_per_page,
-                     topic=topic)
+    return list_view(request=request, template=template, topic=topic, per_page=settings.USERS_PER_PAGE)
 
 
 @object_exists(klass=Message, url="message_list")
@@ -99,7 +105,7 @@ def message_view(request, uid):
     # Update the unread flag
     Message.objects.filter(pk=base_message.pk).update(unread=False)
 
-    active_tab = request.GET.get(ACTIVE_TAB, "message")
+    active_tab = request.GET.get(ACTIVE_MESSAGE_TAB, INBOX)
 
     context = dict(base_message=base_message, tree=tree, extra_tab="active",
                    extra_tab_name=active_tab)
@@ -148,7 +154,8 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     form = forms.PostShortForm()
 
     # Get the parents info
-    obj = Post.objects.filter(uid=uid).first()
+    obj = Post.objects.select_related("root", "author", "author__profile","lastedit_user__profile",
+                                     "lastedit_user").filter(uid=uid).first()
 
     # Return root view if not at top level.
     obj = obj if obj.is_toplevel else obj.root
@@ -167,11 +174,11 @@ def post_view(request, uid, template="post_view.html", url="post_view",
 
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
-    obj = auth.build_obj_tree(request=request, obj=obj)
+    obj, thread = auth.build_obj_tree(request=request, obj=obj)
     tab_name = obj.get_type_display().capitalize()
 
     context = dict(post=obj, form=form, extra_tab="active", extra_tab_name=tab_name,
-                   comment_url=reverse("post_comment"))
+                   comment_url=reverse("post_comment"), answers=thread.filter(type=Post.ANSWER))
     context.update(extra_context)
 
     return render(request, template, context=context)

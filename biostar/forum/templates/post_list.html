@@ -1,6 +1,5 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
-{% load engine_tags %}
 
 {% block headtitle %}
     Biostar Forum
@@ -13,7 +12,7 @@
 
 <div class="ui stackable grid">
 
-<div class="eleven wide column">
+<div class="twelve wide column">
 
         {% pages objs=objs request=request %}
 
@@ -21,7 +20,7 @@
         {% pages objs=objs request=request %}
 
 </div>
-<div class="five wide column">
+<div class="four wide column">
 
         {% feed user=request.user %}
 

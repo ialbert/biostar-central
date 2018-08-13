@@ -4,7 +4,9 @@
 <div class="ui muted">
 
         <a class="ui horizontal label" href="{{ vote_url }}?type=upvote&{{ redir_field_name}}={{ next_url }}">
-        <i class="blue {% vote_icon request.user post 'upvote' %}"></i>
+            {% if post.has_upvote %}<i class="blue thumbs up icon"></i>{% else %}
+                    <i class="blue thumbs up outline icon"></i>
+                    {% endif %}
             {{ post.vote_count }}
         </a>
 

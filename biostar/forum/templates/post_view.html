@@ -8,7 +8,7 @@
 
 {% block body %}
 <div class="ui doubling stackable grid container">
-<div class="eleven wide column">
+<div class="twelve wide column">
 
 <div class="ui vertical segment">
     {# This is the toplevel post #}
@@ -17,7 +17,7 @@
 
 </div>
     {# Render each answer for the post #}
-    {% for answer in post.answers %}
+    {% for answer in answers %}
         <div class="ui vertical grey segment">
             {% post_body post=answer user=request.user tree=post.tree form=form comment_url=comment_url %}
         </div>
@@ -61,7 +61,7 @@
     </div>
 </div>
 
-    <div class="five wide column" style="padding-left: 0px">
+    <div class="four wide column" style="padding-left: 0px">
         {% feed  user=request.user %}
     </div>
 

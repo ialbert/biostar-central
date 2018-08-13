@@ -7,6 +7,7 @@ def engine(request):
     Note: This function is critically important!
     The site will not load up without it.
     '''
-    params = dict(user=request.user, VERSION=VERSION, request=request)
+    forum_enabaled = settings.ONLY_FORUM_URLS or settings.ENABLE_FORUM
+    params = dict(user=request.user, VERSION=VERSION, request=request, forum_enabaled=forum_enabaled)
 
     return params

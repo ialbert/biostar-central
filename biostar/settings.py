@@ -18,6 +18,23 @@ SECRET_KEY = 'secret-key'
 # The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
+ITEMS_PER_PAGE = 35
+USERS_PER_PAGE = 100
+TAGS_PER_PAGE = 50
+
+VOTE_FEED_COUNT = 10
+LOCATION_FEED_COUNT = 5
+AWARDS_FEED_COUNT = 10
+REPLIES_FEED_COUNT = 15
+
+FORUM_ROOT_URLPATTERN = r'^'
+ENGINE_ROOT_URLPATTERN = r'^engine/'
+
+# Set the home page to the engine or forum
+INDEX_ROOT_URLPATTERN = FORUM_ROOT_URLPATTERN
+
+INTERNAL_IPS = ['127.0.0.1']
+
 # Admin users will be created automatically with DEFAULT_ADMIN_PASSWORD.
 ADMINS = [
     ("Admin User", "admin@localhost")
@@ -68,6 +85,7 @@ INSTALLED_APPS = [
     'compressor',
     'pagedown',
     'taggit',
+    'debug_toolbar',
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',
@@ -85,7 +103,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'biostar.engine.middleware.engine_middleware',
-    'biostar.forum.middleware.forum_middleware'
+    'biostar.forum.middleware.forum_middleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 
 ]
 

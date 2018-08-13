@@ -1,4 +1,4 @@
-django >=2, <3
+django >=2, <2.1
 django-ratelimit
 django-recaptcha==1.0.5
 django-compressor
@@ -13,6 +13,7 @@ mistune
 django-pagedown
 django-webtest
 django-sendfile
+django-debug-toolbar
 pillow
 Pillow
 coverage

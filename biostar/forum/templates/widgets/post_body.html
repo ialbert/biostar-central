@@ -14,11 +14,15 @@
         <div class="item">
             <div class="ui image">
                 <a href="{{ vote_url }}?type=upvote&{{ redir_field_name}}={{ next_url }}">
-                    <i class="large {% vote_icon request.user post 'upvote' %}"></i>
+                    {% if post.has_upvote %}<i class="large thumbs up icon"></i>{% else %}
+                    <i class="large thumbs up outline icon"></i>
+                    {% endif %}
                 </a>
                 <div class="ui center aligned header">{{ post.vote_count }}</div>
                 <a href="{{ vote_url }}?type=bookmark&{{ redir_field_name}}={{ next_url }}">
-                    <i class="large {% vote_icon request.user post 'bookmark' %}"></i>
+                    {% if post.has_bookmark %}<i class="large bookmark icon"></i>{% else%}
+                    <i class="large bookmark outline icon"></i>
+                    {% endif %}
                 </a>
             </div>
 
@@ -40,15 +44,20 @@
 
                          <div class="" style="margin-bottom:0.5em;">
 
-                                {% for tag in post.tags.all %}
-                                    <a class="ui small tagging label" href="{% url 'post_list' %}?topic={{tag}}">{{ tag.name }}</a>
-                                {% endfor %}
+
+                    {% get_tags_list post.tag_val as tags_list %}
+
+                    {% for tag in tags_list %}
+                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?topic={{tag}}">
+                        {{ tag }}
+                        </a>
+                    {% endfor %}
                             &bull; {{ post.root.view_count|bignum }} views
                          </div>
 
                      </div>
 
-                     <div class="ui right floated muted" style="padding-top: 10px">
+                     <div class="ui right floated image">
 
                          {% user_info post=post by_diff=False %}
                      </div>
@@ -56,13 +65,10 @@
                  {% else %}
 
 
-                     <div class="extra">
-
-                        <div class="ui right floated muted" style="padding-top: 10px;">
+                     <div class="extra"></div>
+                        <div class="ui right floated image">
                              {% user_info post=post by_diff=False %}
                          </div>
-
-                     </div>
 
                  {% endif %}
 
@@ -70,7 +76,7 @@
                data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
                 ADD COMMENT
             </a>
-             &bull;
+                 |
              <a>link</a>
                  <div id="comment-container-{{post.uid}}"></div>
                  {# Comments for each post rendered here #}

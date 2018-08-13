@@ -9,15 +9,15 @@
 
         <div class="event">
         <div class="ui container">
-            <div class="ui large segment">
+            <div class="ui large vertical segment">
 <b> Recent Votes </b>
 
-            <div class="ui divided relaxed tiny list" >
+            <div class="ui relaxed tiny list" >
 
-                {% for post in recent_votes %}
+                {% for vote in recent_votes %}
 
                    <div class="item"  style="">
-                        <a href="{% url 'post_view' post.uid %}">{{ post.get_title }}</a>
+                        <a href="{% url 'post_view' vote.post.uid %}">{{ vote.post.title }}</a>
                    </div>
 
                 {% endfor %}
@@ -30,12 +30,12 @@
 
         <div class="event">
         <div class="ui container">
-                 <div class="ui large segment">
+                 <div class="ui large vertical grey segment">
         <b>Recent Locations</b>
                   <a href="{% url "community_list" %}">
                 &bull;  All <i class="ui angle small double right icon"></i>
             </a>
-            <div class="ui relaxed divided tiny list" >
+            <div class="ui relaxed tiny list" >
 
                 {% for user in recent_locations %}
 
@@ -59,31 +59,10 @@
 
         <div class="event">
         <div class="ui container">
-            <div class="ui large segment">
+            <div class="ui large vertical grey segment">
                 <b>Recent Awards</b>
                 <a href="#"> &bull;  All <i class="ui angle small double right icon"></i>
                 </a>
-            <div class="ui relaxed divided tiny list" >
-
-                {% for user in recent_locations %}
-
-                    <div class="item"  style="">
-
-
-                        <a href="{% url 'public_profile' user.profile.uid %}">
-                            <div class="ui avatar image">{% gravatar user=user size=100 %}</div>
-                            {{user.profile.name}}</a>
-
-                        {% if user.profile.last_login %}
-                            <span class="muted">{{ user.profile.last_login|time_ago }}  </span>
-                        {% else %}
-                            <span class="muted ">{{ user.profile.date_joined|time_ago }} </span>
-                        {% endif %}
-
-                    </div>
-                {% endfor %}
-
-            </div>
             </div>
         </div>
 </div>
@@ -91,9 +70,9 @@
 
         <div class="event">
         <div class="ui container">
-            <div class="ui large segment">
+            <div class="ui large vertical grey segment">
 <b>Recent Replies </b>
-            <div class="ui tiny divided relaxed list" >
+            <div class="ui tiny relaxed list" >
 
 
                 {% for replies in recent_replies %}

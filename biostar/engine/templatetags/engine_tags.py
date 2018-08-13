@@ -414,7 +414,16 @@ def markdown(text):
 
 
 @register.inclusion_tag('widgets/menubar.html', takes_context=True)
-def menubar(context, request=None):
+def menubar(context, request=None, with_search=True):
     user = context.request.user
 
-    return dict(user=user, request=request, enable_forum=settings.ENABLE_FORUM)
+    forum_enabaled = context["forum_enabaled"]
+
+    # The home button leads to the forum.
+    if forum_enabaled and (settings.INDEX_ROOT_URLPATTERN == settings.FORUM_ROOT_URLPATTERN):
+        index_url = reverse("post_list")
+    else:
+        index_url = reverse("index")
+
+    return dict(user=user, request=request, enable_forum=settings.ENABLE_FORUM, index_url=index_url,
+                with_search=with_search)

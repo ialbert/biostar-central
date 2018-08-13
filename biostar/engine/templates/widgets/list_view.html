@@ -45,9 +45,8 @@
 
                         {% if request.user.is_authenticated %}
                             <div id="copy-message-{{data.uid}}"></div>
-                            <a class="copy-data ui right floated label" data-uid="{{data.uid}}">
+                            <a class="copy-data ui right floated label" data-uid="{{data.uid}}" copy-url="{% url 'data_copy' %}">
                                 <i class="copy icon"></i>Copy
-
                             </a>
 
                         {% endif %}

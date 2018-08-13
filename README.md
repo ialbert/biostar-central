@@ -81,7 +81,7 @@ To run the server you will need to install the dependencies:
     conda config --add channels bioconda
 
     # Install the conda requirements.
-    conda install --file conf/conda-requirements.txt
+    conda install --file conf/conda_requirements.txt
 
 At this point the installation is complete.
 

@@ -6,7 +6,6 @@ from django.conf import settings
 from biostar.engine.models import Project
 from . import  models, auth
 from pagedown.widgets import PagedownWidget
-import langdetect
 
 # Share logger with models
 logger = models.logger
@@ -19,20 +18,6 @@ def english_only(text):
         text.encode('ascii')
     except Exception:
         raise ValidationError('Title may only contain plain text (ASCII) characters')
-
-
-def valid_language(text):
-    supported_languages = settings.LANGUAGE_DETECTION
-    if supported_languages:
-        try:
-            lang = langdetect.detect(text)
-        except Exception as exc:
-            logger.error(f"{exc}")
-            lang = None
-
-        if lang not in supported_languages:
-            raise ValidationError(
-                    f'Language "{lang}" is not one of the supported languages {supported_languages}!')
 
 
 def valid_title(text):

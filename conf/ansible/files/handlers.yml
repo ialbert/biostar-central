@@ -1,5 +1,5 @@
 - name: engine python install
-  shell: "source {{ conda_activate }} {{conda_env}} && pip install -r conf/python_requirements.txt"
+  shell: "source {{ conda_activate }} {{conda_env}} && pip install -r conf/pip_requirements.txt"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"

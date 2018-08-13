@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.dispatch import receiver
 from django.db.models.signals import post_save, m2m_changed
-from django.db.models import F
+from django.db.models import F, Q
 
 from taggit.models import TagBase, GenericTaggedItemBase
 from taggit.managers import TaggableManager
@@ -44,11 +44,21 @@ class PostManager(models.Manager):
 
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
-        return super().get_queryset().exclude(status=Post.DELETED)
+        query = super().get_queryset().exclude(status=Post.DELETED)
+        query = query.select_related("root", "author", "author__profile","lastedit_user__profile",
+                                     "lastedit_user").prefetch_related("tags")
+
+        return query
 
     def get_all(self, **kwargs):
         "Return everything"
         return super().get_queryset().filter(**kwargs)
+
+    def following(self, user):
+        query = self.filter(~Q(subs__type=Subscription.NO_MESSAGES), subs__user=user).exclude(status=Post.DELETED)
+        query = query.select_related("root", "author", "lastedit_user")
+        query = query.prefetch_related("tags")
+        return query
 
     def my_bookmarks(self, user):
         query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)
@@ -60,7 +70,8 @@ class PostManager(models.Manager):
         "Posts that received votes from other people "
         vote_query = Vote.objects.exclude(author=user).filter(post__in=self.filter(author=user))
         query = self.filter(author=user, votes__in=vote_query)
-        query = query.select_related("root", "author", "lastedit_user")
+        query = query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile")
         query = query.prefetch_related("tags")
         return query
 
@@ -75,7 +86,8 @@ class PostManager(models.Manager):
         else:
             query = self.filter(author=target).exclude(status=Post.DELETED)
 
-        query = query.select_related("root", "author", "lastedit_user")
+        query = query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile")
         query = query.prefetch_related("tags")
         query = query.order_by("-creation_date")
         return query
@@ -107,7 +119,8 @@ class PostManager(models.Manager):
         query = query.defer('content', 'html')
 
         # Get the tags.
-        query = query.select_related("root", "author", "lastedit_user").prefetch_related("tags").distinct()
+        query = query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile").prefetch_related("tags").distinct()
 
         return query
 
@@ -115,11 +128,16 @@ class PostManager(models.Manager):
         # Populate the object to build a tree that contains all posts in the thread.
         is_moderator = user.is_authenticated and user.profile.is_moderator
         if is_moderator:
-            query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted",
+            query = self.filter(root=root).select_related("root", "parent", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile").order_by("type", "-has_accepted",
                                                                                                       "-vote_count", "creation_date")
         else:
-            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "author",
-                                                                                       "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "parent", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile").order_by("type",
+                                                                                         "-has_accepted",
+                                                                                         "-vote_count",
+                                                                                         "creation_date")
+
 
         return query
 
@@ -131,20 +149,8 @@ class PostManager(models.Manager):
         else:
             query = self.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
 
-        return query.select_related("root", "author", "lastedit_user").prefetch_related("tags").defer("content", "html")
-
-
-class CustomTag(TagBase):
-    count = models.IntegerField(default=0)
-
-    class Meta:
-        verbose_name = "tag"
-        verbose_name_plural = "tags"
-
-
-class TaggedItem(GenericTaggedItemBase):
-
-    tag = models.ForeignKey(CustomTag, on_delete=models.SET_NULL, null=True)
+        return query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile").prefetch_related("tags")#.defer("content", "html")
 
 
 class Post(models.Model):
@@ -190,16 +196,16 @@ class Post(models.Model):
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
 
     # The type of the post: question, answer, comment.
-    type = models.IntegerField(choices=TYPE_CHOICES)
+    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
 
     # Number of upvotes for the post
-    vote_count = models.IntegerField(default=0, blank=True)
+    vote_count = models.IntegerField(default=0, blank=True, db_index=True)
 
     # The number of views for the post.
-    view_count = models.IntegerField(default=0, blank=True)
+    view_count = models.IntegerField(default=0, blank=True, db_index=True)
 
     # The number of replies that a post has.
-    reply_count = models.IntegerField(default=0, blank=True)
+    reply_count = models.IntegerField(default=0, blank=True, db_index=True)
 
     # The number of comments that a post has.
     comment_count = models.IntegerField(default=0, blank=True)
@@ -214,11 +220,11 @@ class Post(models.Model):
     subs_count = models.IntegerField(default=0)
 
     # The total score of the thread (used for top level only)
-    thread_score = models.IntegerField(default=0, blank=True)
+    thread_score = models.IntegerField(default=0, blank=True, db_index=True)
 
     # Date related fields.
-    creation_date = models.DateTimeField(auto_now_add=True)
-    lastedit_date = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField(auto_now_add=True, db_index=True)
+    lastedit_date = models.DateTimeField(auto_now_add=True, db_index=True)
 
     # Stickiness of the post.
     sticky = models.BooleanField(default=False)
@@ -239,7 +245,7 @@ class Post(models.Model):
     tag_val = models.CharField(max_length=100, default="", blank=True)
 
     # The tag set is built from the tag string and used only for fast filtering
-    tags = TaggableManager() # models.ManyToManyField(Tag, blank=True)
+    tags = TaggableManager()
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
@@ -356,8 +362,8 @@ class Vote(models.Model):
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
     post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
-    type = models.IntegerField(choices=TYPE_CHOICES, default=EMPTY)
-    date = models.DateTimeField(auto_now_add=True)
+    type = models.IntegerField(choices=TYPE_CHOICES, default=EMPTY, db_index=True)
+    date = models.DateTimeField(auto_now_add=True, db_index=True)
 
     uid = models.CharField(max_length=32, unique=True)
 
@@ -424,11 +430,19 @@ class Subscription(models.Model):
 class MessageManager(models.Manager):
     def inbox_for(self, user):
         "Returns all messages that were received by the given user"
-        return self.filter(recipient=user)
+        query = self.filter(recipient=user)
+        query = query.select_related("recipient", "sender", "sender__profile",
+                                     "recipient__profile")
+
+        return query
 
     def outbox_for(self, user):
         "Returns all messages that were sent by the given user."
-        return self.filter(sender=user)
+
+        query = self.filter(sender=user)
+        query = query.select_related("recipient", "sender", "sender__profile",
+                                     "recipient__profile")
+        return query
 
 
 # Connects user to message bodies
@@ -540,16 +554,3 @@ def check_root(sender, instance, created, *args, **kwargs):
 
         instance.save()
 
-
-# @receiver(m2m_changed, sender=Post.tags.through)
-# def update_counts(sender, instance, action, pk_set, *args, **kwargs):
-#     "Applies tag count updates upon post changes"
-#
-#     if action == 'post_add':
-#         CustomTag.objects.filter(pk__in=pk_set).update(count=F('count') + 1)
-#
-#     if action == 'post_remove':
-#         CustomTag.objects.filter(pk__in=pk_set).update(count=F('count') - 1)
-#
-#     if action == 'pre_clear':
-#         instance.tags.all().update(count=F('count') - 1)
