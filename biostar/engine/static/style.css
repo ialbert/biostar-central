@@ -27,6 +27,10 @@ body {
   background-color: #326b2b;
   color: #fff;
 }
+.ui.lightgreen.label {
+  background-color: #2d843b;
+  color: #fff;
+}
 
 .ui.stats.segment {
     margin-left: -1em;
@@ -105,8 +109,9 @@ body {
 }
 .ui.comment.segment {
   border-top: none !important;
-  padding: 6;
-  padding-bottom:2;
+  padding: 0;
+  padding-left: 20;
+  padding-bottom:0;
 }
 
 .ui.gold.label {

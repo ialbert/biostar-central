@@ -343,7 +343,7 @@ def boxclass(post):
     elif post.has_accepted:
         style = "olive"
     elif post.reply_count > 0:
-        style = "teal"
+        style = "lightgreen"
     elif post.comment_count > 0:
         style = "grey"
     else:
