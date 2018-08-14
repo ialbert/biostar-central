@@ -135,7 +135,7 @@ def subs_actions(post, user, next, sub_url):
     if user.is_anonymous:
         sub = None
     else:
-        sub = models.Subscription.get_sub(user=user, post=post).first()
+        sub = post.subs.filter(user=user).first()
 
     sub_type = models.Subscription.NO_MESSAGES if not sub else sub.type
 
@@ -164,26 +164,29 @@ def show_email(user):
 
 @register.inclusion_tag('widgets/feed.html')
 def feed(user, post=None):
-    #TODO: temporary feed
+
+    similar_posts = recent_votes = recent_awards = recent_locations = None
+    recent_replies = None
+    on_post_view = post is not None
 
     # Show similar posts when inside of a view
-    if post:
-        return
+    if on_post_view:
+        similar_posts = Post.objects.tag_search(text=post.tag_val, defer_content=False)[:settings.REPLIES_FEED_COUNT]
+    else:
+        recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
+        # Needs to be put in context of posts
+        recent_votes = recent_votes.select_related("post")
 
-    recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
-    # Needs to be put in context of posts
-    recent_votes = recent_votes.select_related("post")
+        recent_locations = User.objects.filter(
+            ~Q(profile__location="")).select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
 
-    recent_locations = User.objects.filter(
-        ~Q(profile__location="")).select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
-
-    recent_awards = ''
-    recent_replies = Post.objects.filter(~Q(status=Post.DELETED), type__in=[Post.COMMENT, Post.ANSWER]
-                                     ).select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
+        recent_awards = ''
+        recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER]
+                                             ).select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
-                   post=post, user=user)
+                   on_post_view=on_post_view, user=user, similar_posts=similar_posts)
 
     return context
 
@@ -350,15 +353,10 @@ def boxclass(post):
 
 
 @register.simple_tag
-def render_comments(request, post, comment_url, vote_view, next_url, project_uid=None,
+def render_comments(request, tree, post, comment_url, vote_view, next_url, project_uid=None,
                     comment_template='widgets/comment_body.html'):
 
-    user = request.user
-    thread = Post.objects.get_thread(post.parent, user)
-    # Build tree
-    tree = auth.build_tree(thread=thread, tree={})
-
-    if tree and post.id in tree:
+    if post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
                                  comment_template=comment_template, comment_url=comment_url,
                                  vote_view=vote_view, next_url=next_url, project_uid=project_uid)
@@ -385,19 +383,19 @@ def traverse_comments(request, post, tree, comment_url, comment_template, vote_v
         data.append(html)
         for child in tree.get(node.id, []):
 
-            data.append('<div class="ui segment comment" >')
+            data.append(f'<div class="ui segment comment commentcolor">')
             data.append(traverse(child))
             data.append("</div>")
 
         data.append("</div>")
-
         return '\n'.join(data)
 
     # this collects the comments for the post
     coll = []
     for node in tree[post.id]:
+        if node.is_comment:
+            coll.append(traverse(node))
 
-        coll.append(traverse(node))
     return '\n'.join(coll)
 
 

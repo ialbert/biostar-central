@@ -19,11 +19,13 @@ logger = logging.getLogger("engine")
 
 
 def build_tree(thread, tree={}):
+    "Needs to"
 
     comments = thread.filter(type=Post.COMMENT)
 
     for post in comments:
         tree.setdefault(post.parent_id, []).append(post)
+
     return tree
 
 
@@ -85,11 +87,14 @@ def build_obj_tree(request, obj):
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers sorted before comments.
     user = request.user
-
     thread = Post.objects.get_thread(obj, user)
 
-    # Build tree and gather votes.
-    tree = build_tree(thread=thread, tree={})
+    # Build tree.
+    tree = dict()
+    for post in thread:
+        tree.setdefault(post.parent_id, []).append(post)
+
+    # Gather votes
     votes = get_votes(user=user, thread=thread)
 
     # Shortcuts to each storage.
@@ -107,10 +112,7 @@ def build_obj_tree(request, obj):
         decorate(p)
     decorate(obj)
 
-    # Additional attributes used during rendering
-    obj.tree = tree
-
-    return obj, thread
+    return tree, thread
 
 
 def query_topic(user, topic, tag_search=False):

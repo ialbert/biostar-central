@@ -45,8 +45,6 @@ class PostManager(models.Manager):
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
         query = super().get_queryset().exclude(status=Post.DELETED)
-        query = query.select_related("root", "author", "author__profile","lastedit_user__profile",
-                                     "lastedit_user").prefetch_related("tags")
 
         return query
 
@@ -95,7 +93,7 @@ class PostManager(models.Manager):
     def fixcase(self, text):
         return text.upper() if len(text) == 1 else text.lower()
 
-    def tag_search(self, text):
+    def tag_search(self, text, defer_content=True):
         "Performs a query by one or more , separated tags"
         include, exclude = [], []
         # Split the given tags on ',' and '+'.
@@ -114,9 +112,9 @@ class PostManager(models.Manager):
             query = self.filter(type__in=Post.TOP_LEVEL).exclude(tags__name__in=exclude)
 
         query = query.filter(status=Post.OPEN)
-
-        # Remove fields that are not used.
-        query = query.defer('content', 'html')
+        if defer_content:
+            # Remove fields that are not used.
+            query = query.defer('content', 'html')
 
         # Get the tags.
         query = query.select_related("root", "author", "author__profile",
@@ -289,6 +287,10 @@ class Post(models.Model):
         return self.status == Post.OPEN
 
     @property
+    def is_comment(self):
+        return self.type == Post.COMMENT
+
+    @property
     def age_in_days(self):
         delta = timezone.now() - self.creation_date
         return delta.days
@@ -315,7 +317,7 @@ class Post(models.Model):
         since = now - datetime.timedelta(minutes=minutes)
 
         # One view per time interval from each IP address.
-        if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
+        if not PostView.objects.filter(ip=ip, post=post, date__gt=since).exists():
             PostView.objects.create(ip=ip, post=post, date=now)
             Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
         return post
