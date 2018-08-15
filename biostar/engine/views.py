@@ -251,13 +251,13 @@ def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
     """
-    project = Project.objects.filter(uid=uid).first()
     if request.method == 'POST':
+        project = Project.objects.filter(uid=uid).first()
         success, form = paste(project=project, post_request=request, board="recipe_clipboard")
         if success:
             return redirect(reverse("recipe_list", request=request, kwargs=dict(uid=project.uid)))
     else:
-        form = forms.PasteForm(project=project, request=request, board='recipe_clipboard')
+        form = None
 
     return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes',
                         more_info=True, extra_context=dict(form=form))

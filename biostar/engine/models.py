@@ -54,15 +54,15 @@ class Manager(models.Manager):
 
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
-        return super().get_queryset().filter(deleted=False)
+        return super().get_queryset().filter(deleted=False).select_related("owner", "owner__profile")
 
     def get_deleted(self, **kwargs):
         "Only show deleted things"
-        return super().get_queryset().filter(deleted=True, **kwargs)
+        return super().get_queryset().filter(deleted=True, **kwargs).select_related("owner", "owner__profile")
 
     def get_all(self, **kwargs):
         "Return everything"
-        return super().get_queryset().filter(**kwargs)
+        return super().get_queryset().filter(**kwargs).select_related("owner", "owner__profile")
 
 
 class Project(models.Model):
