@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.http import JsonResponse
+
 from biostar.utils.shortcuts import reverse
 from biostar.accounts.models import Profile
 from . import forms, auth
@@ -190,15 +192,17 @@ def ajax_comment(request):
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
-            form = forms.PostShortForm(data=request.POST)
-            if form.is_valid():
-                redir_url = form.save(author=request.user, post_type=Post.COMMENT)
-                messages.success(request, "Added Comment")
-                return redirect(redir_url)
-            else:
-                messages.error(request, "Error adding comment")
+            form.save(author=request.user, post_type=Post.COMMENT)
+            message = "Added Comment"
+        else:
+            message = f"Error adding comment: {form.errors()}"
+    # return a json object with success or not.
+    else:
+        message = "Not allowed"
 
-    return redirect("/")
+    json_response = {"message": message}
+    return JsonResponse(json_response)
+
 
 
 @object_exists(klass=Post)

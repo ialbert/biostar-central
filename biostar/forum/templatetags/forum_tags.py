@@ -375,7 +375,7 @@ def traverse_comments(request, post, tree, comment_url, comment_template, vote_v
     def traverse(node):
         vote_url = reverse(vote_view, request=request, kwargs=dict(uid=node.uid))
 
-        data = ['<div class="ui segments">']
+        data = ['<div class="ui comment segments">']
         cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url,
                 "vote_url":vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME,
                 "project_uid": project_uid}
@@ -383,7 +383,7 @@ def traverse_comments(request, post, tree, comment_url, comment_template, vote_v
         data.append(html)
         for child in tree.get(node.id, []):
 
-            data.append(f'<div class="ui segment comment commentcolor">')
+            data.append(f'<div class="ui segment comment basic">')
             data.append(traverse(child))
             data.append("</div>")
 
