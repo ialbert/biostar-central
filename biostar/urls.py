@@ -6,6 +6,7 @@ from django.conf import settings
 import biostar.accounts.urls as accounts_urls
 import biostar.engine.urls as engine_urls
 import biostar.forum.urls as forum_urls
+import biostar.message.urls as message_urls
 
 
 ACCOUNTS = url(r'^accounts/', include(accounts_urls))
@@ -23,7 +24,11 @@ urlpatterns = [
 
     ACCOUNTS,
 
-    url(settings.FORUM_ROOT_URLPATTERN, include(forum_urls))
+    # Forum urls
+    url(settings.FORUM_ROOT_URLPATTERN, include(forum_urls)),
+
+    # Message urls
+    url(settings.MESSAGE_ROOT_URL_PATTERN, include(message_urls)),
 
 ]
 
@@ -32,8 +37,11 @@ urlpatterns = [
 if settings.ONLY_FORUM_URLS:
 
     # Replace the engine handler with the forums
-    urlpatterns[0] = url(settings.FORUM_ROOT_URLPATTERN, include(forum_urls))
-
+    urlpatterns = [
+                    url(settings.FORUM_ROOT_URLPATTERN, include(forum_urls)),
+                    ADMIN, ACCOUNTS,
+                    url(settings.MESSAGE_ROOT_URL_PATTERN, include(message_urls))
+                    ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)

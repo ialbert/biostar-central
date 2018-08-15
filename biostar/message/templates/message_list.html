@@ -1,6 +1,7 @@
 {% extends "forum_base.html" %}
+{% load message_tags %}
 {% load forum_tags %}
-{% load engine_tags %}
+
 
 {% block headtitle %}
     Messages
@@ -62,7 +63,7 @@
            {{message.sent_date|time_ago}}
            </div>
          <div class="ui muted item">
-              {{message.body|preview_message}}
+              {{message.body|truncatechars:140}}
           </div>
 
 

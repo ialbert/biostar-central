@@ -16,7 +16,6 @@ function submit_comment (elem) {
             alert(data.message);
             }
 
-
     });
         return false;
 };

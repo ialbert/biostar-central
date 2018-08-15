@@ -1,0 +1,41 @@
+{% load message_tags %}
+
+
+
+{% get_all_message_count request=request as msg_counts %}
+
+
+<div class="ui  vertical tabular menu">
+
+            <a class=" green item" href="#">
+            <i class="write icon"></i>Compose
+        </a>
+    <a class="{{Inbox}} blue item" href="{% url 'message_list' %}?{{ active_tab }}={{ const_in }}">
+      Inbox
+
+    {%if msg_counts.inbox %}<div class="ui label">{{msg_counts.inbox}}</div>{%endif%}
+    </a>
+    <a class="{{Unread}} blue item" href="{% url 'message_list' %}?{{ active_tab }}={{ const_unread }}">
+      Unread
+    {%if msg_counts.unread %}<div class="ui label">{{msg_counts.unread}}</div>{%endif%}
+    </a>
+   <a class="{{Mentioned}} blue item" href="{% url 'message_list' %}?{{ active_tab }}=mentioned">
+      Mentioned
+
+    {% if msg_counts.mentioned %}<div class="ui label">{{msg_counts.mentioned}}</div>{%endif%}
+    </a>
+   <a class="{{Projects}} blue item" href="{% url 'message_list' %}?{{ active_tab }}=projects">
+      Projects
+
+    {% if msg_counts.projects %}<div class="ui label">{{msg_counts.projects}}</div>{%endif%}
+    </a>
+
+    <a class="{{Outbox}} blue item" href="{% url 'message_list' %}?{{ active_tab }}={{ const_out }}">
+      Outbox
+
+    {%if msg_counts.outbox %}<div class="ui label">{{msg_counts.outbox }}</div>{%endif%}
+    </a>
+    <a class="item red">
+      Trash
+    </a>
+</div>

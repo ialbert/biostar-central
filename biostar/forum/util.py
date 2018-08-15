@@ -48,6 +48,9 @@ TWITTER_RE = re.compile(TWITTER_PATTERN)
 
 
 
+def fixcase(name):
+    return name.upper() if len(name) == 1 else name.lower()
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 

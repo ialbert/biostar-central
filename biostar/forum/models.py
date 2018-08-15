@@ -9,12 +9,10 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.dispatch import receiver
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save
 from django.db.models import F, Q
 
-from taggit.models import TagBase, GenericTaggedItemBase
 from taggit.managers import TaggableManager
-from biostar.accounts.models import Profile
 from biostar.engine.models import Project
 from . import util
 
@@ -44,8 +42,14 @@ class PostManager(models.Manager):
 
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
-        query = super().get_queryset().exclude(status=Post.DELETED)
+        query = super().get_queryset().filter(project=None).exclude(status=Post.DELETED)
 
+        return query
+
+    def get_discussions(self, **kwargs):
+        "Get posts exclusively tied to projects"
+
+        query = super().get_queryset().exclude(project=None, status=Post.DELETED).filter(**kwargs)
         return query
 
     def get_all(self, **kwargs):
@@ -427,69 +431,6 @@ class Subscription(models.Model):
     def finalize_delete(sender, instance, *args, **kwargs):
         # Decrease the subscription count of the post.
         Post.objects.filter(pk=instance.post.root_id).update(subs_count=F('subs_count') - 1)
-
-
-class MessageManager(models.Manager):
-    def inbox_for(self, user):
-        "Returns all messages that were received by the given user"
-        query = self.filter(recipient=user)
-        query = query.select_related("recipient", "sender", "sender__profile",
-                                     "recipient__profile")
-
-        return query
-
-    def outbox_for(self, user):
-        "Returns all messages that were sent by the given user."
-
-        query = self.filter(sender=user)
-        query = query.select_related("recipient", "sender", "sender__profile",
-                                     "recipient__profile")
-        return query
-
-
-# Connects user to message bodies
-class Message(models.Model):
-    "Connects recipients to sent messages"
-
-    LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(3)
-
-    MESSAGING_TYPE_CHOICES = [
-                            (LOCAL_MESSAGE, "Local messages"),
-                            (EMAIL_MESSAGE, "Email messages"),
-                            (DIGEST_MESSAGES, "Digest messages")
-                            ]
-    objects = MessageManager()
-
-    uid = models.CharField(max_length=32, unique=True)
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", on_delete=models.SET(get_user_model))
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user))
-
-    subject = models.CharField(max_length=120)
-    parent_msg = models.ForeignKey(to='self', related_name='next_messages', null=True, blank=True,
-                                   on_delete=models.CASCADE)
-    body = models.TextField(max_length=MAX_TEXT_LEN)
-    type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
-    unread = models.BooleanField(default=True)
-    sent_date = models.DateTimeField(db_index=True, null=True)
-
-    def save(self, *args, **kwargs):
-        self.sent_date = self.sent_date or util.now()
-        self.uid = self.uid or util.get_uuid(limit=16)
-        super(Message, self).save(**kwargs)
-
-    def __str__(self):
-        return u"Message %s, %s" % (self.sender, self.recipient)
-
-
-@receiver(post_save, sender=Message)
-def update_new_messages(sender, instance, created, *args, **kwargs ):
-    "Update the user's new_messages flag on creation"
-
-    if created:
-        # Add 1 to recipient's new messages once uponce creation
-        user = instance.recipient
-        msgs = F('new_messages')
-        Profile.objects.filter(user=user).update(new_messages=msgs + 1)
 
 
 @receiver(post_save, sender=Post)

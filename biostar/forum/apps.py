@@ -7,44 +7,15 @@ from django.conf import settings
 logger = logging.getLogger('engine')
 
 
-
 class ForumConfig(AppConfig):
     name = 'biostar.forum'
 
     def ready(self):
         # Triggered upon app initialization.
         post_migrate.connect(init_post, sender=self)
-        post_migrate.connect(init_messages, sender=self)
 
         pass
 
-
-def init_messages(sender, **kwargs):
-
-    from django.contrib.auth import get_user_model
-    from . import auth, models
-
-    User = get_user_model()
-
-    name, email = settings.ADMINS[0]
-
-    sender = User.objects.filter(email=email).first()
-    body = "Hello from the biostar-engine developers, we hope you enjoy the website."
-    subject = "Welcome to the biostar-engine!"
-
-    test_2 = User.objects.filter(username="testing").first()
-    if not test_2:
-        test_2 = User.objects.create(username="testing", email="testing@test")
-    recipient_list = [sender, test_2]
-
-    msg = auth.create_messages(body=body, subject=subject, recipient_list=recipient_list,
-                        mtype=models.Message.LOCAL_MESSAGE, sender=sender)
-
-    # Test with a message tree whenever debugging
-    if settings.DEBUG:
-        msg1 = msg[1]
-        msg2 = msg[0]
-        models.Message.objects.filter(pk=msg2.pk).update(parent_msg=msg1)
 
 def init_post(sender,  **kwargs):
 

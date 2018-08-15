@@ -12,9 +12,8 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models import Q
 
-from biostar.accounts.models import Profile
 from biostar.utils.shortcuts import reverse
-from biostar.forum.models import Post, Vote, Message
+from biostar.forum.models import Post, Vote
 from biostar.forum import auth, forms, models, const, util
 
 
@@ -52,18 +51,6 @@ def pages(objs, request):
 def get_tags_list(tags_str):
 
     return set(util.split_tags(tags_str))
-
-
-
-@register.inclusion_tag("widgets/message_menu.html")
-def message_menu(extra_tab=None, request=None):
-
-    extra = {extra_tab: "active"}
-    context = dict(request=request, active_tab=const.ACTIVE_MESSAGE_TAB,
-                   const_in=const.INBOX, const_out=const.OUTBOX,
-                   const_unread=const.UNREAD)
-    context.update(extra)
-    return context
 
 
 @register.inclusion_tag('widgets/forum_menubar.html', takes_context=True)
@@ -231,23 +218,9 @@ def get_posts(user, request, per_page=20):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(posts=None, messages=None, discussion_view=False):
+def listing(posts=None, discussion_view=False):
 
-    is_post = True if posts else False
-    is_messages = True if messages else False
-
-    objs = posts or messages
-
-    return dict(is_post=is_post, is_messages=is_messages, objs=objs, discussion_view=discussion_view)
-
-
-@register.simple_tag
-def get_top_padding(post):
-    #TODO: temporary solve
-
-    if len(post.get_title()) >= 63:
-        return "small-padding"
-    return ""
+    return dict(objs=posts, discussion_view=discussion_view)
 
 
 @register.filter
@@ -278,13 +251,6 @@ def object_count(request, otype):
             count = count if query is None else query.count()
 
     return count
-
-
-
-@register.filter
-def preview_message(text, limit=130):
-
-    return text if len(text) <= limit else text[:limit] + " ..."
 
 
 @register.filter
@@ -393,8 +359,7 @@ def traverse_comments(request, post, tree, comment_url, comment_template, vote_v
     # this collects the comments for the post
     coll = []
     for node in tree[post.id]:
-        if node.is_comment:
-            coll.append(traverse(node))
+        coll.append(traverse(node))
 
     return '\n'.join(coll)
 

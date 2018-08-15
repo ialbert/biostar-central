@@ -2,7 +2,7 @@
 {% load compress %}
 {% load engine_tags %}
 {% load forum_tags %}
-
+{% load message_tags %}
 <html>
 <head>
 
@@ -71,7 +71,7 @@
             </a>
             <a class="ui {{message}} item" href="{% url 'message_list' %}">
                 <i class="mail icon"></i>Messages
-                {% object_count request=request otype="message" as num_msgs %}
+                {% message_count request=request otype="message" as num_msgs %}
                 {% if num_msgs %}<div class="ui green mini circular label">{{num_msgs}}</div>{%endif%}
 
             </a>

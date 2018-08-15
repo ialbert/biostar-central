@@ -187,8 +187,7 @@ def data_list(request, uid):
 @object_access(type=Project, access=Access.READ_ACCESS)
 def discussion_list(request, uid):
 
-    project = Project.objects.filter(uid=uid).first()
-    posts = project.post_set.filter(type__in=Post.TOP_LEVEL).order_by("-pk").all()
+    posts = Post.objects.get_discussions(project__uid=uid, type__in=Post.TOP_LEVEL).order_by("-pk").all()
 
     context = dict(posts=posts)
     return project_view(request=request, uid=uid, template_name="discussion_list.html",
@@ -274,8 +273,8 @@ def get_counts(project):
     data_count = Data.objects.filter(project=project).count()
     recipe_count = Analysis.objects.filter(project=project).count()
     result_count = Job.objects.filter(project=project).count()
-    discussion_count = Post.objects.exclude(status=Post.DELETED).filter(project=project,
-                                                                        type__in=Post.TOP_LEVEL).count()
+    discussion_count = Post.objects.get_discussions(project=project,
+                                                            type__in=Post.TOP_LEVEL).count()
 
     return dict(
         data_count=data_count, recipe_count=recipe_count, result_count=result_count,
