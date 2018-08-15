@@ -6,15 +6,15 @@ function submit_comment (elem) {
     action_url = comment_form.attr("action");
     var container = $("#comment-row");
 
-    alert(comment_form.attr("action"));
     $.ajax({
-        url : "create_post/", // the endpoint
+        url : action_url, // the endpoint
         type : "POST", // http method
-        data : comment_form..serialize(), // data sent with the post request
+        data : comment_form.serialize(), // data sent with the post request
 
-        success : function(json) {
+        success : function(data) {
             // remove the value from the input
-            console.log(json);
+            alert(data.message);
+            }
 
 
     });
