@@ -393,11 +393,12 @@ class PostView(models.Model):
 class Subscription(models.Model):
     "Connects a post to a user"
 
-    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, DIGEST_MESSAGES = range(5)
+    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DIGEST_MESSAGES = range(4)
     MESSAGING_CHOICES = [
         (NO_MESSAGES, "Not following"),
         (LOCAL_MESSAGE, "Follow using Local Messages"),
-        (EMAIL_MESSAGE, "Follow using Emails")
+        (EMAIL_MESSAGE, "Follow using Emails"),
+        (DIGEST_MESSAGES, "Send digests from time to time")
         ]
 
     class Meta:

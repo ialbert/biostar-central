@@ -152,9 +152,8 @@ def create_sub(post, sub_type, user):
     sub = Subscription.objects.filter(post=root, user=user)
     date = datetime.datetime.utcnow().replace(tzinfo=utc)
 
-    if sub_type == Subscription.DEFAULT_MESSAGES:
-        email, local = Subscription.EMAIL_MESSAGE, Subscription.LOCAL_MESSAGE
-        sub_type = email if post.is_toplevel else local
+    if post.is_toplevel:
+        sub_type = sub_type or Subscription.EMAIL_MESSAGE
 
     if sub.exists():
         pass
@@ -246,7 +245,8 @@ def create_post_from_json(json_dict):
     return post
 
 
-def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None):
+def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None,
+                sub_to_root=True):
     "Used to create posts across apps"
 
     post = Post.objects.create(
@@ -254,6 +254,9 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
         author=author, type=post_type, parent=parent, root=root,
         project=project
     )
+
+    if sub_to_root:
+        create_sub(post=post.root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
 
     # Triggers another save in here
     post.add_tags(post.tag_val)
