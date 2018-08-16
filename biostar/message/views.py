@@ -55,3 +55,9 @@ def message_list(request):
     Profile.objects.filter(user=user).update(new_messages=0)
 
     return render(request, "message_list.html", context)
+
+
+@login_required
+def message_compose(request):
+
+    return

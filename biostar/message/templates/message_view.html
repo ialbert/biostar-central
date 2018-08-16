@@ -24,11 +24,11 @@
         {% for msg in tree %}
         <div class="ui compact segment">
                 <div>
-                    <b>From : </b>{%if msg.sender == request.user %} me {%else%}{{ msg.sender.profile.name }} {%endif%}
+                    <b>From : </b>{{ msg.sender.profile.name }}
 
                 </div>
             <div>
-                <b>To : </b>{%if msg.recipient == request.user %} me {%else%}{{ msg.recipient.profile.name }} {%endif%}
+                <b>To : </b>{{ msg.recipient.profile.name }}
             </div>
 
                 <div>

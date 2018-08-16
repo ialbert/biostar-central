@@ -128,6 +128,7 @@ class PostShortForm(forms.Form):
 
         parent = Post.objects.filter(uid=data.get("parent_uid")).first()
         project = Project.objects.filter(uid=data.get("project_uid")).first()
+        #TODO: need to add a subscripton to the root post
         auth.create_post(title=parent.title,
                           parent=parent,
                           author=author,
@@ -135,6 +136,7 @@ class PostShortForm(forms.Form):
                           post_type=post_type,
                           project=project
                           )
+
         return data.get("redir_url", "/")
 
     #def clean(self):
