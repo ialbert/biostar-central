@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 
+from biostar.message.auth import parse_users
 from .models import Post, Vote, Subscription
 from . import util, const
 
@@ -258,6 +259,9 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
     if sub_to_root:
         create_sub(post=post.root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
 
+
+    # Check if the content has a user mentioned
+    
     # Triggers another save in here
     post.add_tags(post.tag_val)
 

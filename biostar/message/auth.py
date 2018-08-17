@@ -21,6 +21,14 @@ def query_topic(user, topic):
     return query
 
 
+def parse_users(msg_body):
+    return
+
+
+
+
+
+
 def list_message_by_topic(request, topic):
 
     user = request.user
