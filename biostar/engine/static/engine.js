@@ -1,4 +1,27 @@
 
+
+function submit_comment (elem) {
+
+    var comment_form = $("#comment-form");
+    action_url = comment_form.attr("action");
+    var container = $("#comment-row");
+
+    $.ajax({
+        url : action_url, // the endpoint
+        type : "POST", // http method
+        data : comment_form.serialize(), // data sent with the post request
+
+        success : function(data) {
+            // remove the value from the input
+            alert(data.message);
+            }
+
+    });
+        return false;
+};
+
+
+
 function add_comment(elem) {
 
     // remove comment body if exists.
@@ -11,7 +34,8 @@ function add_comment(elem) {
     var redir_url = elem.attr("redir-url")
     var csrf_html = jQuery("[name=csrfmiddlewaretoken]").val();
 
-    container.after(`<div id="comment-row" class="ui basic segment inputcolor">
+
+    container.after(` <div id="comment-row" class="ui basic segment inputcolor">
     <form id="comment-form" class="ui form" action=${comment_url}  method="post">
         <input type="hidden" name="parent_uid" id="parent_uid" value=${post_uid} />
         <input type="hidden" name="project_uid" id="project_uid" value=${project_uid} />
@@ -24,7 +48,7 @@ function add_comment(elem) {
         </div>
         <div>
 
-            <a class="ui submit green button" onclick="javascript:obj=$(\'#comment-form\').submit();">
+            <a class="ui submit green button" onclick="return submit_comment($(this));">
                 <i class="check icon"></i>Add Comment
             </a>
             <a class="ui orange right floated button" onclick="javascript:obj=$(\'#comment-row\').remove();">
@@ -82,12 +106,6 @@ $(document).ready(function () {
 
     $(".add-comment").click(function (event) {
         add_comment($(this));
-        });
-
-    $("#comment-form").submit(function (event) {
-        event.preventDefault();
-        alert("Pppp");
-        //add_comment($(this));
         });
 
 });

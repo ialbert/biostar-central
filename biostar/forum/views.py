@@ -5,22 +5,21 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.http import JsonResponse
+
 from biostar.utils.shortcuts import reverse
-from biostar.accounts.models import Profile
 from . import forms, auth
-from .models import Post, Vote, Message
-from .decorators import object_exists, message_access, protect_private_topics
+from .models import Post, Vote
+from .decorators import object_exists, protect_private_topics
 from .const import *
 
 
 User = get_user_model()
 
 
-def get_listing_func(is_message_list, active_tab, tag_topic):
+def get_listing_func(active_tab, tag_topic):
 
-    if is_message_list:
-        listing_func = auth.list_message_by_topic
-    elif active_tab:
+    if active_tab:
         listing_func = auth.list_posts_by_topic
     elif tag_topic:
         listing_func = lambda request, topic: Post.objects.tag_search(topic)
@@ -32,7 +31,7 @@ def get_listing_func(is_message_list, active_tab, tag_topic):
 
 @protect_private_topics
 def list_view(request, template="post_list.html", extra_context={}, topic=None,
-              extra_proc=lambda x:x, per_page=settings.ITEMS_PER_PAGE, is_message_list=False):
+              extra_proc=lambda x:x, per_page=settings.POSTS_PER_PAGE):
     "List view for posts and messages"
 
     active = topic or request.GET.get("active", "")
@@ -42,7 +41,7 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
 
     page = request.GET.get('page')
     topic, active = topic.lower(), active.lower()
-    listing_func = get_listing_func(is_message_list=is_message_list, active_tab=active, tag_topic=topic)
+    listing_func = get_listing_func(active_tab=active, tag_topic=topic)
 
     objs = listing_func(request=request, topic=active or topic).order_by("-pk")
 
@@ -65,23 +64,6 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
     return render(request, template_name=template, context=context)
 
 
-@login_required
-def message_list(request):
-
-    active_tab = request.GET.get(ACTIVE_MESSAGE_TAB, INBOX)
-
-    active_tab = active_tab if (active_tab in MESSAGE_TABS) else INBOX
-
-    context = {active_tab: ACTIVE_MESSAGE_TAB, "not_outbox": active_tab != OUTBOX, "field_name": ACTIVE_MESSAGE_TAB}
-
-    user = request.user
-
-    Profile.objects.filter(user=user).update(new_messages=0)
-
-    return list_view(request, template="message_list.html",
-                     topic=active_tab, extra_context=context, is_message_list=True)
-
-
 def community_list(request):
 
     # Users that make posts or votes are
@@ -91,26 +73,6 @@ def community_list(request):
     topic = "community"
 
     return list_view(request=request, template=template, topic=topic, per_page=settings.USERS_PER_PAGE)
-
-
-@object_exists(klass=Message, url="message_list")
-@message_access
-def message_view(request, uid):
-
-    base_message = Message.objects.filter(uid=uid).first()
-
-    # Build the message tree from bottom up
-    tree = auth.build_msg_tree(msg=base_message, tree=[])
-
-    # Update the unread flag
-    Message.objects.filter(pk=base_message.pk).update(unread=False)
-
-    active_tab = request.GET.get(ACTIVE_MESSAGE_TAB, INBOX)
-
-    context = dict(base_message=base_message, tree=tree, extra_tab="active",
-                   extra_tab_name=active_tab)
-
-    return render(request, "message_view.html", context=context)
 
 
 def tags_list(request):
@@ -174,10 +136,10 @@ def post_view(request, uid, template="post_view.html", url="post_view",
 
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
-    obj, thread = auth.build_obj_tree(request=request, obj=obj)
+    comment_tree, thread = auth.build_obj_tree(request=request, obj=obj)
     tab_name = obj.get_type_display().capitalize()
 
-    context = dict(post=obj, form=form, extra_tab="active", extra_tab_name=tab_name,
+    context = dict(post=obj, tree=comment_tree, form=form, extra_tab="active", extra_tab_name=tab_name,
                    comment_url=reverse("post_comment"), answers=thread.filter(type=Post.ANSWER))
     context.update(extra_context)
 
@@ -190,15 +152,17 @@ def ajax_comment(request):
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
-            form = forms.PostShortForm(data=request.POST)
-            if form.is_valid():
-                redir_url = form.save(author=request.user, post_type=Post.COMMENT)
-                messages.success(request, "Added Comment")
-                return redirect(redir_url)
-            else:
-                messages.error(request, "Error adding comment")
+            form.save(author=request.user, post_type=Post.COMMENT)
+            message = "Added Comment"
+        else:
+            message = f"Error adding comment: {form.errors()}"
+    # return a json object with success or not.
+    else:
+        message = "Not allowed"
 
-    return redirect("/")
+    json_response = {"message": message}
+    return JsonResponse(json_response)
+
 
 
 @object_exists(klass=Post)

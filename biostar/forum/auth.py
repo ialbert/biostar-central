@@ -1,7 +1,6 @@
 
 import datetime
 import logging
-from functools import partial
 
 from django.utils.timezone import utc
 from django.db.models import F
@@ -9,26 +8,14 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 
-from .models import Post, Vote, Subscription, Message
+from biostar.message.auth import parse_users
+from .models import Post, Vote, Subscription
 from . import util, const
 
 User = get_user_model()
 
 
 logger = logging.getLogger("engine")
-
-
-def build_tree(thread, tree={}):
-
-    comments = thread.filter(type=Post.COMMENT)
-
-    for post in comments:
-        tree.setdefault(post.parent_id, []).append(post)
-    return tree
-
-
-def fixcase(name):
-    return name.upper() if len(name) == 1 else name.lower()
 
 
 def get_votes(user, thread):
@@ -64,32 +51,20 @@ def post_permissions(request, post):
     return post
 
 
-def build_msg_tree(msg, tree=[]):
-    "Build a flat tree with the msg being at the base ( index=0)"
-
-    # Add the current message
-    tree.append(msg)
-
-    # Check if it has a parent
-    # and recursively add that to that tree.
-    if msg.parent_msg and msg.parent_msg != msg:
-        tree.append(msg.parent_msg)
-        build_msg_tree(msg=msg.parent_msg, tree=tree)
-
-    # End of tree, at the root message
-    return tree
-
-
 def build_obj_tree(request, obj):
 
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers sorted before comments.
     user = request.user
-
     thread = Post.objects.get_thread(obj, user)
 
-    # Build tree and gather votes.
-    tree = build_tree(thread=thread, tree={})
+    # Build comments tree.
+    comment_tree = dict()
+    for post in thread:
+        if post.is_comment:
+            comment_tree.setdefault(post.parent_id, []).append(post)
+
+    # Gather votes
     votes = get_votes(user=user, thread=thread)
 
     # Shortcuts to each storage.
@@ -107,10 +82,7 @@ def build_obj_tree(request, obj):
         decorate(p)
     decorate(obj)
 
-    # Additional attributes used during rendering
-    obj.tree = tree
-
-    return obj, thread
+    return comment_tree, thread
 
 
 def query_topic(user, topic, tag_search=False):
@@ -121,7 +93,7 @@ def query_topic(user, topic, tag_search=False):
     else:
         tags = user.profile.my_tags
 
-    # Acts as a lazy evaluator by calling a function when its topic is picked
+    # Acts as a lazy evaluator by only calling a function when its topic is picked
     mapper = {
 
         const.MYPOSTS: dict(func=Post.objects.my_posts, params=dict(target=user, user=user)),
@@ -129,11 +101,6 @@ def query_topic(user, topic, tag_search=False):
         const.BOOKMARKS: dict(func=Post.objects.my_bookmarks, params=dict(user=user)),
         const.FOLLOWING: dict(func=Post.objects.following, params=dict(user=user)),
         const.LATEST: dict(func=Post.objects.top_level, params=dict(user=user)),
-
-        const.MESSAGE:  dict(func=Message.objects.inbox_for, params=dict(user=user)),
-        const.INBOX:    dict(func=Message.objects.inbox_for, params=dict(user=user)),
-        const.UNREAD: dict(func=Message.objects.filter, params=dict(recipient=user, unread=True)),
-        const.OUTBOX: dict(func=Message.objects.outbox_for, params=dict(user=user)),
 
         # "apply" is an added function that can do extra work to the resulting queryset.
         const.VOTES: dict(func=Post.objects.my_post_votes, params=dict(user=user),
@@ -157,20 +124,6 @@ def query_topic(user, topic, tag_search=False):
     return query
 
 
-def list_message_by_topic(request, topic):
-
-    user = request.user
-    # One letter tags are always uppercase
-    topic = fixcase(topic)
-
-    query = query_topic(user=user, topic=topic)
-
-    if query is None:
-        query = Message.objects.inbox_for(user=user)
-
-    return query
-
-
 def list_posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
     user = request.user
@@ -179,7 +132,7 @@ def list_posts_by_topic(request, topic):
                       forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
     # One letter tags are always uppercase.
-    topic = fixcase(topic)
+    topic = util.fixcase(topic)
     query = query_topic(user=user, topic=topic, tag_search=True)
 
     # A post type.
@@ -200,9 +153,8 @@ def create_sub(post, sub_type, user):
     sub = Subscription.objects.filter(post=root, user=user)
     date = datetime.datetime.utcnow().replace(tzinfo=utc)
 
-    if sub_type == Subscription.DEFAULT_MESSAGES:
-        email, local = Subscription.EMAIL_MESSAGE, Subscription.LOCAL_MESSAGE
-        sub_type = email if post.is_toplevel else local
+    if post.is_toplevel:
+        sub_type = sub_type or Subscription.EMAIL_MESSAGE
 
     if sub.exists():
         pass
@@ -226,21 +178,6 @@ def update_vote_count(post):
     # Update the thread score as well
     Post.objects.filter(pk=post.pk).update(vote_count=vcount, book_count=bookcount,
                                            thread_score=thread_score)
-
-
-def create_messages(body, sender, recipient_list, subject="", parent=None, mtype=None):
-    "Create batch message from sender for a given recipient_list"
-
-    subject = subject or f"Message from : {sender.profile.name}"
-
-    msg_list = []
-    for rec in recipient_list:
-
-        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject,
-                                     body=body, parent_msg=parent, type=mtype)
-        msg_list.append(msg)
-
-    return msg_list
 
 
 def create_vote(author, post, vote_type, updated_type=Vote.EMPTY, update=False):
@@ -309,7 +246,8 @@ def create_post_from_json(json_dict):
     return post
 
 
-def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None):
+def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None,
+                sub_to_root=True):
     "Used to create posts across apps"
 
     post = Post.objects.create(
@@ -318,6 +256,12 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
         project=project
     )
 
+    if sub_to_root:
+        create_sub(post=post.root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
+
+
+    # Check if the content has a user mentioned
+    
     # Triggers another save in here
     post.add_tags(post.tag_val)
 

@@ -11,13 +11,13 @@
 
 <div class="ui vertical small segment">
     {# This is the toplevel post #}
-    {% post_body project_uid=project.uid comment_url=comment_url post=post user=request.user tree=post.tree form=form sub_view="discussion_subs" vote_view="discussion_vote" sub_redir="discussion_view"  %}
+    {% post_body project_uid=project.uid comment_url=comment_url post=post user=request.user tree=tree form=form sub_view="discussion_subs" vote_view="discussion_vote" sub_redir="discussion_view"  %}
 
 </div>
     {# Render each answer for the post #}
     {% for answer in post.answers %}
         <div class="ui vertical small grey segment">
-            {% post_body project_uid=project.uid post=answer user=request.user comment_url=comment_url tree=post.tree sub_view="discussion_subs" vote_view="discussion_vote" form=form sub_redir="discussion_view"  %}
+            {% post_body project_uid=project.uid post=answer user=request.user comment_url=comment_url tree=tree sub_view="discussion_subs" vote_view="discussion_vote" form=form sub_redir="discussion_view"  %}
         </div>
     {% endfor %}
 

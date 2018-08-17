@@ -1,7 +1,5 @@
 {% load forum_tags %}
 
-{% if is_post %}
-
 
 <div class="ui divided items">
     {% for post in objs %}
@@ -89,12 +87,8 @@
 
     {% empty %}
 
-    <div class="alert alert-info">There are no results for this page.</div>
+    <div class="ui warning message">There are no results for this page.</div>
 
     {% endfor %}
 
 </div>
-{% elif is_messages %}
-
-
-{% endif %}

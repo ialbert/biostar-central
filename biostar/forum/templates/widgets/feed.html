@@ -1,11 +1,45 @@
 {% load forum_tags %}
-
-
-
-    <div class="ui large feed" style="margin-right:10px;">
+    <div class="ui large feed">
         <a class="ui positive center aligned basic fluid large button" href="{% url 'post_create' %}">
             <i class="add circle icon"></i>New Post
         </a>
+{% if on_post_view %}
+
+        <div class="event">
+            <div class="ui container">
+
+                <div class="ui large vertical segment">
+                <b>Similar Posts </b>
+                <div class="ui tiny relaxed list" >
+
+
+                    {% for post in similar_posts %}
+
+                        <div class="item">
+                            <a href="{% url "post_view" post.uid %}"> {{ post.title }}</a>
+
+                            <div class="muted" style="padding-top:5px;">
+                            {{ post.content |truncatechars:140 }}
+                            </div>
+                        </div>
+
+                    {% empty %}
+                    <div class="item">
+                    No similar posts
+                    </div>
+                    {% endfor %}
+
+
+
+                </div>
+                </div>
+
+            </div>
+        </div>
+
+
+{% else %}
+
 
         <div class="event">
         <div class="ui container">
@@ -87,7 +121,7 @@
         {{  replies.author.profile.score | show_score | bignum }}</span>
 
                     <div class="muted" style="padding-top:5px;">
-                        {{ replies.content | preview_message }}
+                        {{ replies.content |truncatechars:140 }}
                         </div>
                     </div>
 
@@ -100,5 +134,6 @@
 
         </div>
         </div>
-    </div>
 
+{% endif %}
+    </div>

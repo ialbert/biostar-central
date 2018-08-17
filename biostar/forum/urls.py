@@ -17,10 +17,6 @@ urlpatterns = [
     # Community urls
     url(r'^community/list/$', views.community_list, name='community_list'),
 
-    # Message urls
-    url(r'^messages/list/$', views.message_list, name='message_list'),
-    url(r'^messages/view/(?P<uid>[-\w]+)/$', views.message_view, name='message_view'),
-
 ]
 
 

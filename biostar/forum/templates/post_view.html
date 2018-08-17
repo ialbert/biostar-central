@@ -13,13 +13,13 @@
 <div class="ui vertical segment">
     {# This is the toplevel post #}
 
-    {% post_body post=post user=request.user tree=post.tree form=form comment_url=comment_url %}
+    {% post_body post=post user=request.user tree=tree form=form comment_url=comment_url %}
 
 </div>
     {# Render each answer for the post #}
     {% for answer in answers %}
         <div class="ui vertical grey segment">
-            {% post_body post=answer user=request.user tree=post.tree form=form comment_url=comment_url %}
+            {% post_body post=answer user=request.user tree=tree form=form comment_url=comment_url %}
         </div>
     {% endfor %}
 
@@ -61,8 +61,8 @@
     </div>
 </div>
 
-    <div class="four wide column" style="padding-left: 0px">
-        {% feed  user=request.user %}
+    <div class="four wide column">
+        {% feed user=request.user post=post %}
     </div>
 
 

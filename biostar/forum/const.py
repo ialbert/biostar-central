@@ -15,12 +15,6 @@ ALLOWED_ATTRIBUTES = {
 }
 
 REDIRECT_FIELD_NAME = 'next'
-TOPIC_FIELD_NAME = "topic"
-MESSAGE_TABS = ["inbox", "outbox", "unread"]
-
-INBOX, OUTBOX, UNREAD = MESSAGE_TABS
-
-ACTIVE_MESSAGE_TAB = "active"
 
 MYPOSTS, MYTAGS, OPEN, FOLLOWING = ["myposts", "mytags", "open", "following"]
 BOOKMARKS, VOTES, MESSAGE = ["bookmarks", "votes", "message"]
@@ -32,6 +26,6 @@ TOPICS_WITH_TABS = [
                 BOOKMARKS, VOTES, MESSAGE, COMMUNITY, LATEST
               ]
 
-PRIVATE_TOPICS = [ MYPOSTS, MYTAGS, MESSAGE, MENTIONED, OUTBOX,
-                    INBOX, BOOKMARKS, UNREAD, FOLLOWING, VOTES
+PRIVATE_TOPICS = [ MYPOSTS, MYTAGS, MESSAGE, MENTIONED,
+                    BOOKMARKS, FOLLOWING, VOTES
                     ]

@@ -133,8 +133,10 @@ class PostShortForm(forms.Form):
                           author=author,
                           content=data.get("content"),
                           post_type=post_type,
-                          project=project
+                          project=project,
+                          sub_to_root=True
                           )
+
         return data.get("redir_url", "/")
 
     #def clean(self):

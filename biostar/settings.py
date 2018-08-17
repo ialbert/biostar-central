@@ -18,8 +18,9 @@ SECRET_KEY = 'secret-key'
 # The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
-ITEMS_PER_PAGE = 35
+POSTS_PER_PAGE = 35
 USERS_PER_PAGE = 100
+MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
 VOTE_FEED_COUNT = 10
@@ -29,6 +30,7 @@ REPLIES_FEED_COUNT = 15
 
 FORUM_ROOT_URLPATTERN = r'^'
 ENGINE_ROOT_URLPATTERN = r'^engine/'
+MESSAGE_ROOT_URL_PATTERN = r'^message/'
 
 # Set the home page to the engine or forum
 INDEX_ROOT_URLPATTERN = FORUM_ROOT_URLPATTERN
@@ -91,6 +93,7 @@ INSTALLED_APPS = [
     'biostar.emailer.apps.EmailerConfig',
     'biostar.accounts.apps.AccountsConfig',
     'biostar.forum.apps.ForumConfig',
+    'biostar.message.apps.MessageConfig',
     'biostar.ftpserver',
 ]
 

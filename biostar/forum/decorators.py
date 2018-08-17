@@ -3,7 +3,7 @@ from django.utils.decorators import available_attrs
 from django.shortcuts import redirect, reverse
 from django.contrib import messages
 
-from . import models, const
+from . import const
 
 
 class object_exists:
@@ -28,26 +28,6 @@ class object_exists:
             return func(request, *args, **kwargs)
 
         return _wrapper_function
-
-
-def message_access(func):
-
-    @wraps(func, assigned=available_attrs(func))
-    def _wrapped_view(request, *args, **kwargs):
-
-        # Each wrapped view must take an alphanumeric uid as parameter.
-        uid = kwargs.get('uid')
-        user = request.user
-
-        message = models.Message.objects.filter(uid=uid).first()
-
-        # Only sender and recipient see the message.
-        if user == message.sender or user == message.recipient:
-            return func(request, *args, **kwargs)
-
-        return redirect(reverse("message_list"))
-
-    return _wrapped_view
 
 
 def protect_private_topics(func):

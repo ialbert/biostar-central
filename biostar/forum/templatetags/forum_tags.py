@@ -12,9 +12,8 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models import Q
 
-from biostar.accounts.models import Profile
 from biostar.utils.shortcuts import reverse
-from biostar.forum.models import Post, Vote, Message
+from biostar.forum.models import Post, Vote
 from biostar.forum import auth, forms, models, const, util
 
 
@@ -52,18 +51,6 @@ def pages(objs, request):
 def get_tags_list(tags_str):
 
     return set(util.split_tags(tags_str))
-
-
-
-@register.inclusion_tag("widgets/message_menu.html")
-def message_menu(extra_tab=None, request=None):
-
-    extra = {extra_tab: "active"}
-    context = dict(request=request, active_tab=const.ACTIVE_MESSAGE_TAB,
-                   const_in=const.INBOX, const_out=const.OUTBOX,
-                   const_unread=const.UNREAD)
-    context.update(extra)
-    return context
 
 
 @register.inclusion_tag('widgets/forum_menubar.html', takes_context=True)
@@ -135,7 +122,7 @@ def subs_actions(post, user, next, sub_url):
     if user.is_anonymous:
         sub = None
     else:
-        sub = models.Subscription.get_sub(user=user, post=post).first()
+        sub = post.subs.filter(user=user).first()
 
     sub_type = models.Subscription.NO_MESSAGES if not sub else sub.type
 
@@ -164,26 +151,29 @@ def show_email(user):
 
 @register.inclusion_tag('widgets/feed.html')
 def feed(user, post=None):
-    #TODO: temporary feed
+
+    similar_posts = recent_votes = recent_awards = recent_locations = None
+    recent_replies = None
+    on_post_view = post is not None
 
     # Show similar posts when inside of a view
-    if post:
-        return
+    if on_post_view:
+        similar_posts = Post.objects.tag_search(text=post.tag_val, defer_content=False)[:settings.REPLIES_FEED_COUNT]
+    else:
+        recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
+        # Needs to be put in context of posts
+        recent_votes = recent_votes.select_related("post")
 
-    recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
-    # Needs to be put in context of posts
-    recent_votes = recent_votes.select_related("post")
+        recent_locations = User.objects.filter(
+            ~Q(profile__location="")).select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
 
-    recent_locations = User.objects.filter(
-        ~Q(profile__location="")).select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
-
-    recent_awards = ''
-    recent_replies = Post.objects.filter(~Q(status=Post.DELETED), type__in=[Post.COMMENT, Post.ANSWER]
-                                     ).select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
+        recent_awards = ''
+        recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER]
+                                             ).select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
-                   post=post, user=user)
+                   on_post_view=on_post_view, user=user, similar_posts=similar_posts)
 
     return context
 
@@ -228,23 +218,9 @@ def get_posts(user, request, per_page=20):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(posts=None, messages=None, discussion_view=False):
+def listing(posts=None, discussion_view=False):
 
-    is_post = True if posts else False
-    is_messages = True if messages else False
-
-    objs = posts or messages
-
-    return dict(is_post=is_post, is_messages=is_messages, objs=objs, discussion_view=discussion_view)
-
-
-@register.simple_tag
-def get_top_padding(post):
-    #TODO: temporary solve
-
-    if len(post.get_title()) >= 63:
-        return "small-padding"
-    return ""
+    return dict(objs=posts, discussion_view=discussion_view)
 
 
 @register.filter
@@ -275,13 +251,6 @@ def object_count(request, otype):
             count = count if query is None else query.count()
 
     return count
-
-
-
-@register.filter
-def preview_message(text, limit=130):
-
-    return text if len(text) <= limit else text[:limit] + " ..."
 
 
 @register.filter
@@ -340,7 +309,7 @@ def boxclass(post):
     elif post.has_accepted:
         style = "olive"
     elif post.reply_count > 0:
-        style = "teal"
+        style = "lightgreen"
     elif post.comment_count > 0:
         style = "grey"
     else:
@@ -350,15 +319,10 @@ def boxclass(post):
 
 
 @register.simple_tag
-def render_comments(request, post, comment_url, vote_view, next_url, project_uid=None,
+def render_comments(request, tree, post, comment_url, vote_view, next_url, project_uid=None,
                     comment_template='widgets/comment_body.html'):
 
-    user = request.user
-    thread = Post.objects.get_thread(post.parent, user)
-    # Build tree
-    tree = auth.build_tree(thread=thread, tree={})
-
-    if tree and post.id in tree:
+    if post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
                                  comment_template=comment_template, comment_url=comment_url,
                                  vote_view=vote_view, next_url=next_url, project_uid=project_uid)
@@ -377,7 +341,7 @@ def traverse_comments(request, post, tree, comment_url, comment_template, vote_v
     def traverse(node):
         vote_url = reverse(vote_view, request=request, kwargs=dict(uid=node.uid))
 
-        data = ['<div class="ui segments">']
+        data = ['<div class="ui comment segments">']
         cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url,
                 "vote_url":vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME,
                 "project_uid": project_uid}
@@ -385,19 +349,18 @@ def traverse_comments(request, post, tree, comment_url, comment_template, vote_v
         data.append(html)
         for child in tree.get(node.id, []):
 
-            data.append('<div class="ui segment comment" >')
+            data.append(f'<div class="ui segment comment basic">')
             data.append(traverse(child))
             data.append("</div>")
 
         data.append("</div>")
-
         return '\n'.join(data)
 
     # this collects the comments for the post
     coll = []
     for node in tree[post.id]:
-
         coll.append(traverse(node))
+
     return '\n'.join(coll)
 
 
