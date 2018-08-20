@@ -158,7 +158,7 @@ def create_sub(post,  user, sub_type=None):
     if exists and sub_type is None:
         return sub
     # Update an existing object
-    if exists:
+    elif exists:
         Subscription.objects.update(type=sub_type)
         # The sub is being changed to "No message"
         if sub_type == Subscription.NO_MESSAGES:
@@ -262,22 +262,20 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
         author=author, type=post_type, parent=parent, root=root,
         project=project
     )
-
-    # Subscribe the mentioned users to the root
-    #TODO: going to need to create seperate messages
     mentioned_users = parse_mentioned_users(content=content)
     root = root or post.root
-    for user in mentioned_users:
-        create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=user)
 
-    # Trigger notifications for anyone subscribed to the root
     if tasks.HAS_UWSGI:
         subs = Subscription.objects.filter(post=root)
+        # Trigger notifications for anyone subscribed to the root
         tasks.create_messages(subs=subs, recent_post=post)
 
-    # Subscribe the author of the root at the end to avoid getting message about own post.
+        # Trigger different notification for mentioned users.
+        tasks.notify_mentions(users=mentioned_users)
+
+    # Subscribe the author to the root
     if sub_to_root:
-        create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
+        create_sub(post=root, user=author)
 
     # Triggers another save in here
     post.add_tags(post.tag_val)

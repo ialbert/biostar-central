@@ -19,5 +19,15 @@ try:
         """
         return
 
+    @spool(pass_arguments=True)
+    def notify_mentions(users, post):
+        """
+        Create local messages when users get mentioned in a post
+        """
+
+        return
+
+
+
 except ModuleNotFoundError as exc:
     pass
