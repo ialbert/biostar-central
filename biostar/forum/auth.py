@@ -8,9 +8,9 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 
-from biostar.message.auth import parse_users
+from biostar.message.auth import parse_mentioned_users
 from .models import Post, Vote, Subscription
-from . import util, const
+from . import util, const, tasks
 
 User = get_user_model()
 
@@ -146,18 +146,25 @@ def list_posts_by_topic(request, topic):
     return query
 
 
-def create_sub(post, sub_type, user):
+def create_sub(post,  user, sub_type=None):
     "Creates a subscription of a user to a post"
 
     root = post.root
     sub = Subscription.objects.filter(post=root, user=user)
     date = datetime.datetime.utcnow().replace(tzinfo=utc)
+    exists = sub.exists()
 
-    if post.is_toplevel:
-        sub_type = sub_type or Subscription.EMAIL_MESSAGE
+    # Subscription already exists
+    if exists and sub_type is None:
+        return sub
+    # Update an existing object
+    if exists:
+        Subscription.objects.update(type=sub_type)
+        # The sub is being changed to "No message"
+        if sub_type == Subscription.NO_MESSAGES:
+            Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') - 1)
 
-    if sub.exists():
-        pass
+    # Create a new object
     else:
         sub = Subscription.objects.create(post=root, user=user, type=sub_type, date=date)
         # Increase the subscription count of the root.
@@ -170,7 +177,7 @@ def update_vote_count(post):
 
     vcount = Vote.objects.filter(post=post, type=Vote.UP).count()
     bookcount = Vote.objects.filter(post=post, type=Vote.BOOKMARK).count()
-
+    # TODO:Thread score compted wrong here
     thread = Post.objects.exclude(status=Post.DELETED).filter(root=post.root, votes__type=Vote.UP)
 
     thread_score = thread.count()
@@ -256,12 +263,22 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
         project=project
     )
 
+    # Subscribe the mentioned users to the root
+    #TODO: going to need to create seperate messages
+    mentioned_users = parse_mentioned_users(content=content)
+    root = root or post.root
+    for user in mentioned_users:
+        create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=user)
+
+    # Trigger notifications for anyone subscribed to the root
+    if tasks.HAS_UWSGI:
+        subs = Subscription.objects.filter(post=root)
+        tasks.create_messages(subs=subs, recent_post=post)
+
+    # Subscribe the author of the root at the end to avoid getting message about own post.
     if sub_to_root:
-        create_sub(post=post.root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
+        create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
 
-
-    # Check if the content has a user mentioned
-    
     # Triggers another save in here
     post.add_tags(post.tag_val)
 

@@ -393,7 +393,7 @@ class PostView(models.Model):
 class Subscription(models.Model):
     "Connects a post to a user"
 
-    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DIGEST_MESSAGES = range(4)
+    NO_MESSAGES, LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(4)
     MESSAGING_CHOICES = [
         (NO_MESSAGES, "Not following"),
         (LOCAL_MESSAGE, "Follow using Local Messages"),
@@ -425,13 +425,8 @@ class Subscription(models.Model):
     @staticmethod
     def get_sub(post, user):
 
-        sub =  Subscription.objects.filter(post=post, user=user)
+        sub = Subscription.objects.filter(post=post, user=user)
         return None if user.is_anonymous else sub
-
-    @staticmethod
-    def finalize_delete(sender, instance, *args, **kwargs):
-        # Decrease the subscription count of the post.
-        Post.objects.filter(pk=instance.post.root_id).update(subs_count=F('subs_count') - 1)
 
 
 @receiver(post_save, sender=Post)

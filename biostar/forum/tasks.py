@@ -12,39 +12,12 @@ try:
 
     HAS_UWSGI = True
 
-
-    @timer(30000)
-    def send_digest_messages():
-        "Send posts as a digest"
-        from biostar.forum.models import Subscription
-        from biostar.message.models import Message
-
-        digest_subs = Subscription.objects.filter(type=Subscription.DIGEST_MESSAGES)
-
+    @spool(pass_arguments=True)
+    def create_messages(subs):
+        """
+        Create messages to users subscribed to a post.
+        """
         return
-
-
-    @timer(300)
-    def send_local_messages():
-        "Send post subs as a local message"
-        from biostar.message.models import Message
-        from biostar.forum.models import Subscription
-
-        local_subs = Subscription.objects.filter(type=Subscription.LOCAL_MESSAGE)
-
-        return
-
-
-    @timer(30)
-    def send_email_messages():
-        "Send posts as a email messages"
-        from biostar.message.models import Message
-        from biostar.forum.models import Subscription
-
-        email_subs = Subscription.objects.filter(type=Subscription.LOCAL_MESSAGE)
-
-        return
-
 
 except ModuleNotFoundError as exc:
     pass

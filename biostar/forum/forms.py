@@ -1,6 +1,7 @@
 from django import forms
 from .models import Post
 from django.core.exceptions import ValidationError
+from django.db.models import F
 from django.conf import settings
 
 from biostar.engine.models import Project
@@ -101,13 +102,8 @@ class SubsForm(forms.Form):
     def save(self):
 
         sub_type = self.cleaned_data["subtype"]
-        sub = models.Subscription.get_sub(post=self.post, user=self.user).first()
 
-        if sub:
-            sub.type = sub_type
-            sub.save()
-        else:
-            sub = auth.create_sub(post=self.post, user=self.user, sub_type=sub_type)
+        sub = auth.create_sub(post=self.post, user=self.user, sub_type=sub_type)
 
         return sub
 

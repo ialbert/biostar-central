@@ -87,7 +87,6 @@ class BiostarFileSystem(AbstractedFS):
         # Get authorizer to set write permission on directories.
         self.authorizer = self.cmd_channel.authorizer
 
-
         super(BiostarFileSystem, self).__init__(root, cmd_channel)
 
 
