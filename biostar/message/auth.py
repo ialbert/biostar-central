@@ -13,16 +13,12 @@ def query_topic(user, topic):
 
     if mapper.get(topic):
         func, params = mapper[topic]["func"], mapper[topic].get("params")
-        apply_extra = mapper[topic].get("apply", lambda q: q)
-        query = apply_extra(func(**params))
+        query = func(**params)
     else:
         query = None
 
     return query
 
-
-def parse_mentioned_users(content):
-    return
 
 
 def list_message_by_topic(request, topic):

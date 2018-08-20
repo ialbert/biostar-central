@@ -8,7 +8,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 
-from biostar.message.auth import parse_mentioned_users
 from .models import Post, Vote, Subscription
 from . import util, const, tasks
 
@@ -253,6 +252,11 @@ def create_post_from_json(json_dict):
     return post
 
 
+def parse_mentioned_users(content):
+    users = []
+    return users
+
+
 def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None,
                 sub_to_root=True):
     "Used to create posts across apps"
@@ -273,7 +277,7 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
         # Trigger different notification for mentioned users.
         tasks.notify_mentions(users=mentioned_users)
 
-    # Subscribe the author to the root
+    # Subscribe the author to the root, if not already
     if sub_to_root:
         create_sub(post=root, user=author)
 
