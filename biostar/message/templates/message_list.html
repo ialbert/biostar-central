@@ -51,20 +51,19 @@
            <div class="item">
                 <div class="content">
                     <div class="ui small header">Subject:
-                        <a href="{% url 'message_view' message.uid %}?{{field_name}}={{extra_tab_name}}">{{message.subject}}</a>
+                        <a href="{% url 'message_view' message.uid %}?{{field_name}}={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
                     </div>
                 </div>
            </div>
-
-
-       </div>
-
            <div class="ui right floated item">
            {{message.sent_date|time_ago}}
            </div>
-         <div class="ui muted item">
+
+            <div class="ui muted item" style="padding-left:95px;">
               {{message.body|truncatechars:140}}
           </div>
+
+       </div>
 
 
       </div>

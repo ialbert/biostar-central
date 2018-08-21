@@ -1,13 +1,16 @@
 
+import bleach
 import datetime
 import logging
+import re
+import mistune
 
 from django.utils.timezone import utc
 from django.db.models import F
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
-
+from biostar.utils.shortcuts import reverse
 from .models import Post, Vote, Subscription
 from . import util, const, tasks
 
@@ -253,8 +256,31 @@ def create_post_from_json(json_dict):
 
 
 def parse_mentioned_users(content):
-    users = []
-    return users
+
+    # Any word preceded by a @ is considered a user handler.
+    handler_pattern = "\@[^\s]+"
+    # Drop leading @
+    users_list = set(x[1:] for x in re.findall(handler_pattern, content))
+
+    return User.objects.filter(username__in=users_list)
+
+
+def parse_html(text):
+    "Sanitize text and expand links to match content"
+
+    # This will collect the objects that could be embedded
+    mentioned_users = parse_mentioned_users(content=text)
+
+    html = mistune.markdown(text)
+
+    # embed the objects
+    for user in mentioned_users:
+        url = reverse("public_profile", kwargs=dict(uid=user.profile.uid))
+        handler = f"@{user.username}"
+        emb_patt = f'<a href="{url}">{handler}</a>'
+        html = html.replace(handler, emb_patt)
+
+    return html
 
 
 def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None,
@@ -264,28 +290,33 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
         author=author, type=post_type, parent=parent, root=root,
-        project=project
+        project=project, html=parse_html(content),
     )
-    mentioned_users = parse_mentioned_users(content=content)
+
     root = root or post.root
+    # Trigger notifications for subscribers and mentioned users
+    # async or synchronously
+
+    mentioned_users = parse_mentioned_users(content=content)
+    mention_params = dict(users=mentioned_users, root=root, author=author, content=content)
+    subs = Subscription.objects.filter(post=root)
+    subs_params = dict(subs=subs, author=author, root=root, content=content)
 
     if tasks.HAS_UWSGI:
-        subs = Subscription.objects.filter(post=root)
-        # Trigger notifications for anyone subscribed to the root
-        tasks.create_messages(subs=subs, recent_post=post)
-
-        # Trigger different notification for mentioned users.
-        tasks.notify_mentions(users=mentioned_users)
+        tasks.async_create_sub_messages(**subs_params)
+        tasks.async_notify_mentions(**mention_params)
+    else:
+        tasks.create_sub_messages(**subs_params)
+        tasks.notify_mentions(**mention_params)
 
     # Subscribe the author to the root, if not already
     if sub_to_root:
-        create_sub(post=root, user=author)
+        create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
 
     # Triggers another save in here
     post.add_tags(post.tag_val)
 
     return post
-
 
 
 

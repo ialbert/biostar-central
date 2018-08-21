@@ -1,7 +1,7 @@
 
 
-MESSAGE_TABS = ["inbox", "outbox", "unread"]
+MESSAGE_TABS = ["inbox", "outbox", "unread", "mentioned"]
 
-INBOX, OUTBOX, UNREAD = MESSAGE_TABS
+INBOX, OUTBOX, UNREAD, MENTIONED = MESSAGE_TABS
 
 ACTIVE_MESSAGE_TAB = "active"

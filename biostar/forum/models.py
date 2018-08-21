@@ -284,7 +284,7 @@ class Post(models.Model):
         if self.status == Post.OPEN:
             return self.title
         else:
-            return "(%s) %s" % ( self.get_status_display(), self.title)
+            return f"{self.get_status_display()} {self.title}"
 
     @property
     def is_open(self):

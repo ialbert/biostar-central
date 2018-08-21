@@ -55,6 +55,9 @@
             <div> <b>Email</b> : {{ user |show_email }}
             </div>
 
+            <div> <b>Handler</b> : @{{ user.username }}
+            </div>
+
         </div>
 
         {%  if user == request.user %}

@@ -18,6 +18,7 @@ def get_all_message_count(request):
         inbox = models.Message.objects.inbox_for(user=user)
         outbox = models.Message.objects.outbox_for(user=user).count()
         unread = inbox.filter(unread=True).count()
+        mentioned = inbox.filter(source=models.Message.MENTIONED).count()
 
     context = dict(outbox=outbox, inbox=inbox.count(), projects=projects, mentioned=mentioned,
                    unread=unread)

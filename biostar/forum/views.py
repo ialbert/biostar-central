@@ -181,6 +181,7 @@ def subs_action(request, uid, next=None):
 
         if form.is_valid():
             sub = form.save()
+            sub = sub.first()
             msg = f"Updated Subscription to : {sub.get_type_display()}"
             messages.success(request, msg)
 
