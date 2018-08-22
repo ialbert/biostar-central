@@ -22,6 +22,9 @@ class message_access:
             # Each wrapped view must take an alphanumeric uid as parameter.
             uid = kwargs.get('uid')
             user = request.user
+            if user.is_anonymous:
+                messages.error(request, "You need to be logged in to view messages.")
+                return redirect("/")
 
             # Only recipients get access to the inbox and sender to outbox.
             if self.access_to == OUTBOX:
