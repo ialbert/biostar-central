@@ -9,10 +9,10 @@ from django.utils.timezone import utc
 from django.db.models import F
 from django.conf import settings
 from django.contrib.auth import get_user_model
-
+from biostar.message import tasks
 from biostar.utils.shortcuts import reverse
 from .models import Post, Vote, Subscription
-from . import util, const, tasks
+from . import util, const
 
 User = get_user_model()
 

@@ -31,7 +31,7 @@
 
 {% for message in objs %}
 
-    {% if message.unread and not_outbox %}
+    {% if message.unread and is_inbox %}
         <div class="item" style="background: #d5f7cd;padding:5px">
 
     {% else %}

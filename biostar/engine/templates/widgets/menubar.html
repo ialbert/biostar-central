@@ -31,12 +31,12 @@
         <div class="right menu">
 
         {% if num_msgs %}
-            <a class="green active item" href="{% url 'message_list' %}">
+            <a class="green active item" href="{% url 'inbox' %}">
                 <i class="mail icon"></i>
                     <div class="ui green label">{{num_msgs}}</div>
             </a>
         {% else %}
-            <a class="item" href="{% url 'message_list' %}">
+            <a class="item" href="{% url 'inbox' %}">
                 <i class="mail icon"></i>
             </a>
 
