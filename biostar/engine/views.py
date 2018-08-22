@@ -208,7 +208,7 @@ def discussion_vote(request, uid):
     return forum_views.update_vote(request=request, uid=uid, next=next_url)
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True)
+@object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True, url="discussion_list")
 def discussion_create(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
@@ -271,11 +271,11 @@ def job_list(request, uid):
 
 
 def get_counts(project):
-    data_count = Data.objects.filter(project=project).count()
-    recipe_count = Analysis.objects.filter(project=project).count()
-    result_count = Job.objects.filter(project=project).count()
+    data_count = project.data_set.count()
+    recipe_count = project.analysis_set.count()
+    result_count = project.job_set.count()
     discussion_count = Post.objects.get_discussions(project=project,
-                                                            type__in=Post.TOP_LEVEL).count()
+                                                    type__in=Post.TOP_LEVEL).count()
 
     return dict(
         data_count=data_count, recipe_count=recipe_count, result_count=result_count,
@@ -292,9 +292,9 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     counts = get_counts(project)
 
     # Select all the data in the project.
-    data_list = Data.objects.filter(project=project).order_by("-sticky", "-date").all()
-    recipe_list = Analysis.objects.filter(project=project).order_by("-sticky", "-date").all()
-    job_list = Job.objects.filter(project=project).order_by("-sticky", "-date").all()
+    data_list = project.data_set.order_by("-sticky", "-date").all()
+    recipe_list = project.analysis_set.order_by("-sticky", "-date").all()
+    job_list = project.job_set.order_by("-sticky", "-date").all()
 
     # Filter job results by analysis
     filter = request.GET.get('filter', '')

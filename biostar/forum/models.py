@@ -50,11 +50,18 @@ class PostManager(models.Manager):
         "Get posts exclusively tied to projects"
 
         query = super().get_queryset().exclude(project=None, status=Post.DELETED).filter(**kwargs)
+        query = query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile", "project")
+        query = query.prefetch_related("tags")
         return query
 
     def get_all(self, **kwargs):
         "Return everything"
-        return super().get_queryset().filter(**kwargs)
+        query = super().get_queryset().filter(**kwargs)
+        query = query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile")
+        query = query.prefetch_related("tags")
+        return query
 
     def following(self, user):
         query = self.filter(~Q(subs__type=Subscription.NO_MESSAGES), subs__user=user).exclude(status=Post.DELETED)

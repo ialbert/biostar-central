@@ -147,7 +147,7 @@ class Access(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
-    access = models.IntegerField(default=READ_ACCESS, choices=ACCESS_CHOICES)
+    access = models.IntegerField(default=READ_ACCESS, choices=ACCESS_CHOICES, db_index=True)
     date = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

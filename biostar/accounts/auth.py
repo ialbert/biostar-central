@@ -42,14 +42,15 @@ def create_user_from_json(json_dict):
     if not email:
         return
 
-    username = util.get_uuid(16)
-    name = json_dict.get("name")
+    name = json_dict.get("name", "")
     user = User.objects.filter(email=email)
 
     # Create a user if email is unique
     if not user:
-        user = User.objects.create(email=email, username=username, first_name=name,
+        user = User.objects.create(email=email, first_name=name,
                                    password=password)
+        user.username = name.split()[0] + str(user.id)
+        user.save()
     else:
         logger.error("User with same email already exists.")
         return user.first()
