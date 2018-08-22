@@ -34,10 +34,9 @@ class message_access:
 
             if message:
                 return func(request, *args, **kwargs)
-            else:
-                messages.error(request, "Object does not exist")
 
-            return redirect(reverse("message_list"))
+            messages.error(request, "Object does not exist")
+            return redirect(reverse("inbox"))
 
         return _wrapped_view
 

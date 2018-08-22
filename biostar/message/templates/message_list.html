@@ -51,7 +51,12 @@
            <div class="item">
                 <div class="content">
                     <div class="ui small header">Subject:
-                        <a href="{% url 'message_view' message.uid %}?{{field_name}}={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
+
+                        {% if is_inbox %}
+                        <a href="{% url 'inbox_view' message.uid %}?{{field_name}}={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
+                        {% else %}
+                        <a href="{% url 'outbox_view' message.uid %}?{{field_name}}={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
+                        {% endif %}
                     </div>
                 </div>
            </div>
