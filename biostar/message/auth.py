@@ -26,7 +26,6 @@ def query_topic(user, topic):
 def list_message_by_topic(request, topic):
 
     user = request.user
-    # One letter tags are always uppercase
     topic = fixcase(topic)
 
     query = query_topic(user=user, topic=topic)
@@ -44,7 +43,7 @@ def build_msg_tree(msg, tree=[]):
     tree.append(msg)
 
     # Check if it has a parent
-    # and recursively add that to that tree.
+    # and recursively add that to the tree.
     if msg.parent_msg and msg.parent_msg != msg:
         tree.append(msg.parent_msg)
         build_msg_tree(msg=msg.parent_msg, tree=tree)
