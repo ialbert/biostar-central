@@ -38,9 +38,10 @@ def message_list(request, template="message_list.html", active_tab=None, listing
     paginator = Paginator(objs, settings.MESSAGES_PER_PAGE)
     objs = paginator.get_page(page)
 
-    context = {active_tab: ACTIVE_MESSAGE_TAB, "is_inbox": listing == INBOX,
-               "field_name": ACTIVE_MESSAGE_TAB, "extra_tab_name": active_tab.capitalize(),
-               "extra_tab": "active", "objs": objs}
+    context = dict(is_inbox=listing == INBOX, field_name=ACTIVE_MESSAGE_TAB,
+                   extra_tab_name=active_tab.capitalize(),extra_tab="active", objs=objs)
+
+    context.update({active_tab: ACTIVE_MESSAGE_TAB})
 
     user = request.user
 

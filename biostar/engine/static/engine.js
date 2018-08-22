@@ -5,6 +5,7 @@ function submit_comment (elem) {
     var comment_form = $("#comment-form");
     action_url = comment_form.attr("action");
     var container = $("#comment-row");
+    var redir_url = elem.attr("redir-url");
 
     $.ajax({
         url : action_url, // the endpoint
@@ -13,7 +14,7 @@ function submit_comment (elem) {
 
         success : function(data) {
             // remove the value from the input
-            alert(data.message);
+            location.reload(true);
             }
 
     });

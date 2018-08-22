@@ -21,7 +21,7 @@ class object_exists:
             # Each wrapped view must take an alphanumeric uid as parameter.
             uid = kwargs.get('uid')
 
-            if not self.klass.objects.filter(uid=uid).exists():
+            if not self.klass.objects.get_all(uid=uid).exists():
                 messages.error(request, "Object does not exist.")
                 return redirect(reverse(self.url))
 

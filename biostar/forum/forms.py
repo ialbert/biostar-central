@@ -122,9 +122,10 @@ class PostShortForm(forms.Form):
     def save(self, author, post_type=Post.ANSWER):
         data = self.cleaned_data
 
-        parent = Post.objects.filter(uid=data.get("parent_uid")).first()
+        parent = Post.objects.get_all(uid=data.get("parent_uid")).first()
         project = Project.objects.filter(uid=data.get("project_uid")).first()
-        auth.create_post(title=parent.title,
+
+        auth.create_post(title=parent.root.title,
                           parent=parent,
                           author=author,
                           content=data.get("content"),
@@ -132,7 +133,6 @@ class PostShortForm(forms.Form):
                           project=project,
                           sub_to_root=True
                           )
-
         return data.get("redir_url", "/")
 
     #def clean(self):

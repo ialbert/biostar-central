@@ -233,7 +233,8 @@ def discussion_view(request, uid):
 
     template = "discussion_view.html"
     # Get the parents info
-    obj = Post.objects.filter(uid=uid).first()
+    obj = Post.objects.get_discussions(uid=uid).first()
+
     project = obj.root.project
     comment_url = reverse("discussion_comment")
 
@@ -241,8 +242,8 @@ def discussion_view(request, uid):
     counts = get_counts(project)
     context.update(counts)
 
-    return forum_views.post_view(request=request, uid=uid, template=template, extra_context=context,
-                                 project=project, url="discussion_view")
+    return forum_views.post_view(request=request, template=template, extra_context=context,
+                                 url="discussion_view", uid=uid)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)

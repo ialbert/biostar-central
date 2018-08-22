@@ -109,16 +109,15 @@ def update_vote(request, uid, next=None):
 
 @object_exists(klass=Post)
 def post_view(request, uid, template="post_view.html", url="post_view",
-              extra_context={}, project=None):
+              extra_context={}):
     "Return a detailed view for specific post"
 
     # Form used for answers
     form = forms.PostShortForm()
 
     # Get the parents info
-    obj = Post.objects.select_related("root", "author", "author__profile","lastedit_user__profile",
-                                     "lastedit_user").filter(uid=uid).first()
-
+    obj = Post.objects.get_all(uid=uid).select_related("root", "author", "author__profile","lastedit_user__profile",
+                                     "lastedit_user").first()
     # Return root view if not at top level.
     obj = obj if obj.is_toplevel else obj.root
 
@@ -162,7 +161,6 @@ def ajax_comment(request):
 
     json_response = {"message": message}
     return JsonResponse(json_response)
-
 
 
 @object_exists(klass=Post)

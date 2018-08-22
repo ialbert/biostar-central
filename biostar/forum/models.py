@@ -130,11 +130,11 @@ class PostManager(models.Manager):
         # Populate the object to build a tree that contains all posts in the thread.
         is_moderator = user.is_authenticated and user.profile.is_moderator
         if is_moderator:
-            query = self.filter(root=root).select_related("root", "parent", "author", "author__profile",
+            query = self.get_all(root=root).select_related("root", "parent", "author", "author__profile",
                                     "lastedit_user", "lastedit_user__profile").order_by("type", "-has_accepted",
                                                                                                       "-vote_count", "creation_date")
         else:
-            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "parent", "author", "author__profile",
+            query = self.get_all(root=root).exclude(status=Post.DELETED).select_related("root", "parent", "author", "author__profile",
                                     "lastedit_user", "lastedit_user__profile").order_by("type",
                                                                                          "-has_accepted",
                                                                                          "-vote_count",
