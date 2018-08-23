@@ -1,14 +1,16 @@
 
+import bleach
 import datetime
 import logging
+import re
+import mistune
 
 from django.utils.timezone import utc
 from django.db.models import F
 from django.conf import settings
 from django.contrib.auth import get_user_model
-
-
-from biostar.message.auth import parse_users
+from biostar.message import tasks
+from biostar.utils.shortcuts import reverse
 from .models import Post, Vote, Subscription
 from . import util, const
 
@@ -146,18 +148,25 @@ def list_posts_by_topic(request, topic):
     return query
 
 
-def create_sub(post, sub_type, user):
+def create_sub(post,  user, sub_type=None):
     "Creates a subscription of a user to a post"
 
     root = post.root
     sub = Subscription.objects.filter(post=root, user=user)
     date = datetime.datetime.utcnow().replace(tzinfo=utc)
+    exists = sub.exists()
 
-    if post.is_toplevel:
-        sub_type = sub_type or Subscription.EMAIL_MESSAGE
+    # Subscription already exists
+    if exists and sub_type is None:
+        return sub
+    # Update an existing object
+    elif exists:
+        Subscription.objects.update(type=sub_type)
+        # The sub is being changed to "No message"
+        if sub_type == Subscription.NO_MESSAGES:
+            Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') - 1)
 
-    if sub.exists():
-        pass
+    # Create a new object
     else:
         sub = Subscription.objects.create(post=root, user=user, type=sub_type, date=date)
         # Increase the subscription count of the root.
@@ -170,7 +179,7 @@ def update_vote_count(post):
 
     vcount = Vote.objects.filter(post=post, type=Vote.UP).count()
     bookcount = Vote.objects.filter(post=post, type=Vote.BOOKMARK).count()
-
+    # TODO:Thread score compted wrong here
     thread = Post.objects.exclude(status=Post.DELETED).filter(root=post.root, votes__type=Vote.UP)
 
     thread_score = thread.count()
@@ -246,6 +255,34 @@ def create_post_from_json(json_dict):
     return post
 
 
+def parse_mentioned_users(content):
+
+    # Any word preceded by a @ is considered a user handler.
+    handler_pattern = "\@[^\s]+"
+    # Drop leading @
+    users_list = set(x[1:] for x in re.findall(handler_pattern, content))
+
+    return User.objects.filter(username__in=users_list)
+
+
+def parse_html(text):
+    "Sanitize text and expand links to match content"
+
+    # This will collect the objects that could be embedded
+    mentioned_users = parse_mentioned_users(content=text)
+
+    html = mistune.markdown(text)
+
+    # embed the objects
+    for user in mentioned_users:
+        url = reverse("public_profile", kwargs=dict(uid=user.profile.uid))
+        handler = f"@{user.username}"
+        emb_patt = f'<a href="{url}">{handler}</a>'
+        html = html.replace(handler, emb_patt)
+
+    return html
+
+
 def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None,
                 sub_to_root=True):
     "Used to create posts across apps"
@@ -253,20 +290,33 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
         author=author, type=post_type, parent=parent, root=root,
-        project=project
+        project=project, html=parse_html(content),
     )
 
+    root = root or post.root
+    # Trigger notifications for subscribers and mentioned users
+    # async or synchronously
+
+    mentioned_users = parse_mentioned_users(content=content)
+    mention_params = dict(users=mentioned_users, root=root, author=author, content=content)
+    subs = Subscription.objects.filter(post=root)
+    subs_params = dict(subs=subs, author=author, root=root, content=content)
+
+    if tasks.HAS_UWSGI:
+        tasks.async_create_sub_messages(**subs_params)
+        tasks.async_notify_mentions(**mention_params)
+    else:
+        tasks.create_sub_messages(**subs_params)
+        tasks.notify_mentions(**mention_params)
+
+    # Subscribe the author to the root, if not already
     if sub_to_root:
-        create_sub(post=post.root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
+        create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
 
-
-    # Check if the content has a user mentioned
-    
     # Triggers another save in here
     post.add_tags(post.tag_val)
 
     return post
-
 
 
 

@@ -9,6 +9,8 @@ def query_topic(user, topic):
         const.INBOX: dict(func=Message.objects.inbox_for, params=dict(user=user)),
         const.UNREAD: dict(func=Message.objects.filter, params=dict(recipient=user, unread=True)),
         const.OUTBOX: dict(func=Message.objects.outbox_for, params=dict(user=user)),
+        const.MENTIONED: dict(func=Message.objects.inbox_for, params=dict(user=user),
+                          apply=lambda q: q.filter(source=Message.MENTIONED)),
         }
 
     if mapper.get(topic):
@@ -21,18 +23,9 @@ def query_topic(user, topic):
     return query
 
 
-def parse_users(msg_body):
-    return
-
-
-
-
-
-
 def list_message_by_topic(request, topic):
 
     user = request.user
-    # One letter tags are always uppercase
     topic = fixcase(topic)
 
     query = query_topic(user=user, topic=topic)
@@ -50,7 +43,7 @@ def build_msg_tree(msg, tree=[]):
     tree.append(msg)
 
     # Check if it has a parent
-    # and recursively add that to that tree.
+    # and recursively add that to the tree.
     if msg.parent_msg and msg.parent_msg != msg:
         tree.append(msg.parent_msg)
         build_msg_tree(msg=msg.parent_msg, tree=tree)
@@ -59,16 +52,19 @@ def build_msg_tree(msg, tree=[]):
     return tree
 
 
-def create_messages(body, sender, recipient_list, subject="", parent=None, mtype=None):
+def create_messages(body, sender, recipient_list, subject="", parent=None,
+                    source=Message.REGULAR, mtype=None):
     "Create batch message from sender for a given recipient_list"
 
     subject = subject or f"Message from : {sender.profile.name}"
 
     msg_list = []
+
+    #TODO: do a bulk create for the whole recipeint list.
     for rec in recipient_list:
 
         msg = Message.objects.create(sender=sender, recipient=rec, subject=subject,
-                                     body=body, parent_msg=parent, type=mtype)
+                                     body=body, parent_msg=parent, type=mtype, source=source)
         msg_list.append(msg)
 
     return msg_list

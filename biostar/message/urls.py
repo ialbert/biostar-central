@@ -4,8 +4,10 @@ from django.conf.urls import url
 urlpatterns = [
 
     # Message urls
-    url(r'^list/$', views.message_list, name='message_list'),
-    url(r'^view/(?P<uid>[-\w]+)/$', views.message_view, name='message_view'),
+    url(r'^inbox/$', views.inbox_list, name='inbox'),
+    url(r'^outbox/$', views.outbox_list, name='outbox'),
+    url(r'^inbox/(?P<uid>[-\w]+)/$', views.inbox_message_view, name='inbox_view'),
+    url(r'^outbox/(?P<uid>[-\w]+)/$', views.outbox_message_view, name='outbox_view'),
     url(r'^compose/$', views.message_view, name='compose'),
 
     ]

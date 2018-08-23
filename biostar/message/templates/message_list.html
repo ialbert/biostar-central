@@ -31,7 +31,7 @@
 
 {% for message in objs %}
 
-    {% if message.unread and not_outbox %}
+    {% if message.unread and is_inbox %}
         <div class="item" style="background: #d5f7cd;padding:5px">
 
     {% else %}
@@ -51,20 +51,24 @@
            <div class="item">
                 <div class="content">
                     <div class="ui small header">Subject:
-                        <a href="{% url 'message_view' message.uid %}?{{field_name}}={{extra_tab_name}}">{{message.subject}}</a>
+
+                        {% if is_inbox %}
+                        <a href="{{message.inbox_url}}?{{field_name}}={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
+                        {% else %}
+                        <a href="{{message.outbox_url}}?{{field_name}}={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
+                        {% endif %}
                     </div>
                 </div>
            </div>
-
-
-       </div>
-
            <div class="ui right floated item">
            {{message.sent_date|time_ago}}
            </div>
-         <div class="ui muted item">
+
+            <div class="ui muted item" style="padding-left:95px;">
               {{message.body|truncatechars:140}}
           </div>
+
+       </div>
 
 
       </div>

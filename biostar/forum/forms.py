@@ -1,6 +1,7 @@
 from django import forms
 from .models import Post
 from django.core.exceptions import ValidationError
+from django.db.models import F
 from django.conf import settings
 
 from biostar.engine.models import Project
@@ -101,13 +102,8 @@ class SubsForm(forms.Form):
     def save(self):
 
         sub_type = self.cleaned_data["subtype"]
-        sub = models.Subscription.get_sub(post=self.post, user=self.user).first()
 
-        if sub:
-            sub.type = sub_type
-            sub.save()
-        else:
-            sub = auth.create_sub(post=self.post, user=self.user, sub_type=sub_type)
+        sub = auth.create_sub(post=self.post, user=self.user, sub_type=sub_type)
 
         return sub
 
@@ -126,9 +122,10 @@ class PostShortForm(forms.Form):
     def save(self, author, post_type=Post.ANSWER):
         data = self.cleaned_data
 
-        parent = Post.objects.filter(uid=data.get("parent_uid")).first()
+        parent = Post.objects.get_all(uid=data.get("parent_uid")).first()
         project = Project.objects.filter(uid=data.get("project_uid")).first()
-        auth.create_post(title=parent.title,
+
+        auth.create_post(title=parent.root.title,
                           parent=parent,
                           author=author,
                           content=data.get("content"),
@@ -136,7 +133,6 @@ class PostShortForm(forms.Form):
                           project=project,
                           sub_to_root=True
                           )
-
         return data.get("redir_url", "/")
 
     #def clean(self):

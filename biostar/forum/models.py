@@ -50,11 +50,18 @@ class PostManager(models.Manager):
         "Get posts exclusively tied to projects"
 
         query = super().get_queryset().exclude(project=None, status=Post.DELETED).filter(**kwargs)
+        query = query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile", "project")
+        query = query.prefetch_related("tags")
         return query
 
     def get_all(self, **kwargs):
         "Return everything"
-        return super().get_queryset().filter(**kwargs)
+        query = super().get_queryset().filter(**kwargs)
+        query = query.select_related("root", "author", "author__profile",
+                                    "lastedit_user", "lastedit_user__profile")
+        query = query.prefetch_related("tags")
+        return query
 
     def following(self, user):
         query = self.filter(~Q(subs__type=Subscription.NO_MESSAGES), subs__user=user).exclude(status=Post.DELETED)
@@ -130,11 +137,11 @@ class PostManager(models.Manager):
         # Populate the object to build a tree that contains all posts in the thread.
         is_moderator = user.is_authenticated and user.profile.is_moderator
         if is_moderator:
-            query = self.filter(root=root).select_related("root", "parent", "author", "author__profile",
+            query = self.get_all(root=root).select_related("root", "parent", "author", "author__profile",
                                     "lastedit_user", "lastedit_user__profile").order_by("type", "-has_accepted",
                                                                                                       "-vote_count", "creation_date")
         else:
-            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "parent", "author", "author__profile",
+            query = self.get_all(root=root).exclude(status=Post.DELETED).select_related("root", "parent", "author", "author__profile",
                                     "lastedit_user", "lastedit_user__profile").order_by("type",
                                                                                          "-has_accepted",
                                                                                          "-vote_count",
@@ -284,7 +291,7 @@ class Post(models.Model):
         if self.status == Post.OPEN:
             return self.title
         else:
-            return "(%s) %s" % ( self.get_status_display(), self.title)
+            return f"{self.get_status_display()} {self.title}"
 
     @property
     def is_open(self):
@@ -393,7 +400,7 @@ class PostView(models.Model):
 class Subscription(models.Model):
     "Connects a post to a user"
 
-    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DIGEST_MESSAGES = range(4)
+    NO_MESSAGES, LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(4)
     MESSAGING_CHOICES = [
         (NO_MESSAGES, "Not following"),
         (LOCAL_MESSAGE, "Follow using Local Messages"),
@@ -425,13 +432,8 @@ class Subscription(models.Model):
     @staticmethod
     def get_sub(post, user):
 
-        sub =  Subscription.objects.filter(post=post, user=user)
+        sub = Subscription.objects.filter(post=post, user=user)
         return None if user.is_anonymous else sub
-
-    @staticmethod
-    def finalize_delete(sender, instance, *args, **kwargs):
-        # Decrease the subscription count of the post.
-        Post.objects.filter(pk=instance.post.root_id).update(subs_count=F('subs_count') - 1)
 
 
 @receiver(post_save, sender=Post)

@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.models import F
 
+from biostar.utils.shortcuts import reverse
 from biostar.accounts.models import Profile
 from biostar.forum import util
 
@@ -97,6 +98,13 @@ class Message(models.Model):
     def from_mentions(self):
         return self.source == self.MENTIONED
 
+    @property
+    def inbox_url(self):
+        return reverse("inbox_view", kwargs=dict(uid=self.uid))
+
+    @property
+    def outbox_url(self):
+        return reverse("outbox_view", kwargs=dict(uid=self.uid))
 
 
 @receiver(post_save, sender=Message)
