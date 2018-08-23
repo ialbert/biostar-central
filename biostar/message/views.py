@@ -52,7 +52,7 @@ def message_list(request, template="message_list.html", active_tab=None, listing
 
 @message_access(access_to=INBOX)
 @login_required
-def inbox_view(request, uid):
+def inbox_message_view(request, uid):
     "Checks to see you are the recipient to a message."
 
     return message_view(request, uid)
@@ -60,7 +60,7 @@ def inbox_view(request, uid):
 
 @message_access(access_to=OUTBOX)
 @login_required
-def outbox_view(request, uid):
+def outbox_message_view(request, uid):
     "Checks to see if you are the sender of the message."
 
     return message_view(request, uid)
