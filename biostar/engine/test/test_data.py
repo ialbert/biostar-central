@@ -14,8 +14,10 @@ TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'test'))
 
 logger = logging.getLogger('engine')
 
+
 @override_settings(MEDIA_ROOT=TEST_ROOT)
 class DataViewTest(TestCase):
+
     def setUp(self):
         logger.setLevel(logging.WARNING)
 
