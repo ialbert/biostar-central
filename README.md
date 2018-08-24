@@ -1,11 +1,22 @@
 # The Biostar Engine
 
-## Scripts on the Web
+## Software for Better Science
+
+The software is currently in  beta testing (Aug 2018).
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that can execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts. In addition the software has data storage and project management support, and may be used as web based file management software. An actively maintained deployment of the software can be accessed at:
+The Biostar Engine is a [Python][python] and [Django][django] based scientific data analysis oriented application server that implements several distinct functionalities commonly required for scientific workflows.
+
+1. Provides a Question and Answer based forum for discussions (90% complete).
+2. Allows users to execute scripts over the web while providing a graphical user interface for selecting the parameters of these scripts (90% complete). 
+3. Offers a large data storage and project management support, and may be used as web based file management software (50% complete). 
+4. Offers a documentation/educational platform for generating and distributing HTML documentation with user access control (in planning phase).
+
+Importantly these functions are mostly independent and may be deployed individually.
+
+An actively maintained deployment of the software implementing the script management interface can be accessed at:
 
 * <https://www.bioinformatics.recipes> (may occasionally be offline during the beta-test)
 
@@ -73,7 +84,7 @@ To run the server you will need to install the dependencies:
     cd biostar-engine
 
     # Install server dependencies.
-    pip install -r conf/python_requirements.txt
+    pip install -r conf/pip_requirements.txt
 
     # Enable the required channels.
     conda config --add channels r
