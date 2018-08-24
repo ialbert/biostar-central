@@ -9,23 +9,7 @@
 {% block body %}
 
 
-
-
-        <div class="ui center aligned large basic left floated segment">
-            <div class="ui aligned header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
-
-          <div class="ui circular image">
-            <a href="{% url "public_profile" user.profile.uid %}">{% gravatar user=user size=200 %}</a>
-
-            </div>
-            <div>
-        {{user.profile.name}} {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
-            </div>
-        </div>
-
-
-
-        <div class="ui left aligned basic left floated large segment">
+        <div class="ui left aligned basic right floated large segment">
 
             <div>
             <b>Reputation</b> : {{ user.profile.score | show_score }}
@@ -48,18 +32,28 @@
 
             </div>
             {%  if user == request.user %}
-            <div> <b>Email</b> : {{ user.email }}
+            <div> <b>Email</b> : {{ user.email }}</div>
             {% else %}
-            <div> <b>Email</b> : {{ user |show_email }}
+            <div> <b>Email</b> : {{ user |show_email }}</div>
             {% endif %}
-            </div>
+
 
             <div> <b>Handler</b> : @{{ user.username }}
             </div>
 
         </div>
 
-        {%  if user == request.user %}
+        <div class="ui center aligned large basic segment">
+            <div class="ui aligned header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
+
+          <div class="ui image">
+            <a href="{% url "public_profile" user.profile.uid %}">{% gravatar user=user size=200 %}</a>
+
+        {{user.profile.name}} {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+            </div>
+
+
+                    {%  if user == request.user %}
 
              <div class="ui center aligned basic vertical segment">
 
@@ -101,6 +95,18 @@
             </div>
 
         {% endif %}
+
+
+
+
+
+        </div>
+
+
+
+
+
+
 
 
         {{ user.profile.html |safe }}
