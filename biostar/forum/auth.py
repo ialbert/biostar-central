@@ -310,8 +310,8 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
         tasks.notify_mentions(**mention_params)
 
     # Subscribe the author to the root, if not already
-    if sub_to_root:
-        create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
+    #if sub_to_root:
+    #    create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
 
     # Triggers another save in here
     post.add_tags(post.tag_val)

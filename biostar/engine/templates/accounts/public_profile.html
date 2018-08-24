@@ -9,13 +9,11 @@
 {% block body %}
 
 
-<div class="ui center aligned header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
 
-<div class="ui relaxed grid">
 
-<div class="row">
-    <div class="four wide column">
-        <div class="ui center aligned basic large segment">
+        <div class="ui center aligned large basic left floated segment">
+            <div class="ui aligned header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
+
           <div class="ui circular image">
             <a href="{% url "public_profile" user.profile.uid %}">{% gravatar user=user size=200 %}</a>
 
@@ -25,12 +23,9 @@
             </div>
         </div>
 
-    </div>
-
-    <div class="seven wide column">
 
 
-        <div class="ui left aligned basic large segment">
+        <div class="ui left aligned basic left floated large segment">
 
             <div>
             <b>Reputation</b> : {{ user.profile.score | show_score }}
@@ -52,7 +47,11 @@
                 <b>Joined</b> : {{ user.profile.date_joined|time_ago }}
 
             </div>
+            {%  if user == request.user %}
+            <div> <b>Email</b> : {{ user.email }}
+            {% else %}
             <div> <b>Email</b> : {{ user |show_email }}
+            {% endif %}
             </div>
 
             <div> <b>Handler</b> : @{{ user.username }}
@@ -67,7 +66,6 @@
                  <a class="ui mini button" href="{% url 'edit_profile'%}">
                         <i class="write icon"></i>Edit profile
                     </a>
-
 
                 <a class="ui mini button" href="{% url 'recycle_bin' %}">
                     <i class="trash icon"></i>Recycle Bin
@@ -103,20 +101,11 @@
             </div>
 
         {% endif %}
-    </div>
-
-    <div class="five wide column">
 
 
         {{ user.profile.html |safe }}
 
 
-    </div>
-</div>
-
-    <div class="row">
-
-        <div class="sixteen wide column">
              <div class="ui vertical segment">
         <div class="ui top attached tabular large menu">
 
@@ -184,11 +173,8 @@
         {% endif %}
 </div>
         </div>
-        </div>
 
-    </div>
 
-</div>
 
 
 
