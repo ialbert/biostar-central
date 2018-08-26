@@ -21,18 +21,34 @@
         {{post.author.profile.score | show_score |bignum }}
 
     </div>
-    <p>
+
       {{ post.html|safe }}
-    </p>
-        <div class="">
+
+
         <a class="add-comment ui mini grey basic label" comment-url="{{ comment_url }}"
            data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
             ADD REPLY
         </a>
-            &bull;
-            <a style="color:#70a1ea">link</a>
 
-        </div>
+                 {% can_edit post=post user=user as editable%}
+                  {% if editable %}
+                 &bull;
+                 <a comment-url="{{ comment_url }}"
+                    data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
+                edit
+                </a>
+                 {% endif %}
+
+
+
+                 {% if user.is_authenticated and user.profile.is_moderator or user.profile.is_manager %}
+            &bull;
+                 <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}" data-value="{{post.uid}}">
+                moderate
+                </a>
+                <div id="mod-container-{{post.uid}}"></div>
+
+                 {% endif %}
 
     <div id="comment-container-{{post.uid}}">
     </div>

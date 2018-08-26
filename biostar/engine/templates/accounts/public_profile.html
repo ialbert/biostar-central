@@ -9,53 +9,56 @@
 {% block body %}
 
 
-        <div class="ui left aligned basic right floated large segment">
+   <div class="ui center aligned basic segment">
+
+        <div class="ui aligned large header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
+   </div>
+<div class="ui horizontal segments">
+
+        <div class="ui center aligned large segment">
 
             <div>
-            <b>Reputation</b> : {{ user.profile.score | show_score }}
+           {% gravatar user=user size=200 %}
             </div>
-            <div>
+              <a href="{% url 'public_profile' user.profile.uid %}">{{user.profile.name}}</a> {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+        </div>
+
+        <div class="ui large segment">
+            <div class="ui relaxed list">
+            <div class="item">
+            <b>Reputation</b>: {{ user.profile.score | show_score }}
+            </div>
+            <div class="item">
             <b>Status</b> : {{ user.profile.get_state_display }}
             </div>
-            <div>
+            <div class="item">
             <b>Location</b> : {{ user.profile.location }}
             </div>
 
             {% if user.profile.last_login  %}
-                <div>
+                <div class="item">
                 <b>Last seen </b> : {{ user.profile.last_login |time_ago}}
                 </div>
             {%  endif %}
 
-            <div>
+            <div class="item">
                 <b>Joined</b> : {{ user.profile.date_joined|time_ago }}
 
             </div>
             {%  if user == request.user %}
-            <div> <b>Email</b> : {{ user.email }}</div>
+            <div class="item"> <b>Email</b> : {{ user.email }}</div>
             {% else %}
-            <div> <b>Email</b> : {{ user |show_email }}</div>
+            <div class="item"> <b>Email</b> : {{ user |show_email }}</div>
             {% endif %}
 
 
-            <div> <b>Handler</b> : @{{ user.username }}
+            <div class="item"> <b>Handler</b> : @{{ user.username }}
+            </div>
             </div>
 
-        </div>
+{%  if user == request.user %}
 
-        <div class="ui center aligned large basic segment">
-            <div class="ui aligned header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
-
-          <div class="ui image">
-            <a href="{% url "public_profile" user.profile.uid %}">{% gravatar user=user size=200 %}</a>
-
-        {{user.profile.name}} {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
-            </div>
-
-
-                    {%  if user == request.user %}
-
-             <div class="ui center aligned basic vertical segment">
+             <div class="ui basic vertical segment">
 
                  <a class="ui mini button" href="{% url 'edit_profile'%}">
                         <i class="write icon"></i>Edit profile
@@ -95,15 +98,10 @@
             </div>
 
         {% endif %}
-
-
-
-
-
         </div>
 
 
-
+</div>
 
 
 

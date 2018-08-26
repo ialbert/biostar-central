@@ -3,7 +3,10 @@ from .models import Post
 from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.conf import settings
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field, Fieldset, Submit, ButtonHolder
 
+from biostar.utils.shortcuts import reverse
 from biostar.engine.models import Project
 from . import  models, auth
 from pagedown.widgets import PagedownWidget
@@ -108,6 +111,22 @@ class SubsForm(forms.Form):
         return sub
 
 
+class EditPostForm(forms.Form):
+
+    def __init__(self, post, *args, **kwargs):
+        super(EditPostForm, self).__init__(*args, **kwargs)
+
+
+        if post.is_toplevel:
+            # Add a feild for the tags.
+            pass
+
+        return
+
+    def save(self):
+        return
+
+
 class PostShortForm(forms.Form):
 
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
@@ -140,8 +159,73 @@ class PostShortForm(forms.Form):
     #    return
 
 
+class PostModForm(forms.Form):
 
+    BUMP_POST, OPEN, TOGGLE_ACCEPT, MOVE_TO_ANSWER, \
+        MOVE_TO_COMMENT, DUPLICATE, CROSSPOST, CLOSE_OFFTOPIC, DELETE = range(9)
 
+    CHOICES = [
+        (BUMP_POST, "Bump a post"),
+        (OPEN, "Open a closed or deleted post"),
+        (TOGGLE_ACCEPT, "Toggle accepted status"),
+        (MOVE_TO_ANSWER, "Move post to an answer"),
+        (MOVE_TO_COMMENT, "Move post to a comment on the top level post"),
+        (DUPLICATE, "Duplicated post (top level)"),
+        (CROSSPOST, "Cross posted at other site"),
+        (CLOSE_OFFTOPIC, "Close post (top level)"),
+        (DELETE, "Delete post"),
+    ]
+
+    action = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), label="Select Action")
+
+    comment = forms.CharField(required=False, max_length=200,
+                              help_text="Enter a reason (required when closing, crosspost). This will be inserted into a template comment.")
+
+    dupe = forms.CharField(required=False, max_length=200,
+                           help_text="One or more duplicated post numbers, space or comma separated (required for duplicate closing).",
+                           label="Duplicate number(s)")
+
+    def __init__(self, post, *args, **kwargs):
+        self.post = post
+        super(PostModForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.error_text_inline = False
+        self.helper.help_text_inline = True
+        self.helper.form_action = reverse("post_moderate", kwargs=dict(uid=self.post.uid))
+
+        self.helper.layout = Layout(
+            Fieldset(
+                'Select moderation option',
+                'action',
+                'comment',
+                'dupe',
+            ),
+            ButtonHolder(
+                Submit('submit', 'Submit')
+            )
+        )
+
+    def clean(self):
+        cleaned_data = super(PostModForm, self).clean()
+        action = cleaned_data.get("action")
+        comment = cleaned_data.get("comment")
+        dupe = cleaned_data.get("dupe")
+
+        if action == self.CLOSE_OFFTOPIC and not comment:
+            raise forms.ValidationError("Unable to close. Please add a comment!")
+
+        if action == self.CROSSPOST and not comment:
+            raise forms.ValidationError("Please add URL into the comment!")
+
+        if action == self.DUPLICATE and not dupe:
+            raise forms.ValidationError("Unable to close duplicate. Please fill in the post numbers")
+
+        if dupe:
+            dupe = dupe.replace(",", " ")
+            dupes = dupe.split()[:5]
+            cleaned_data['dupe'] = dupes
+
+        return cleaned_data
 
 
 

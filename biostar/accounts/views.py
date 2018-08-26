@@ -108,13 +108,13 @@ def user_signup(request):
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password1')
             name = email.split("@")[0]
-            user = User.objects.create(username=get_uuid(), email=email,
-                                       first_name=name)
+            user = User.objects.create(email=email, first_name=name)
             user.set_password(password)
+            user.username = name.split()[0] + str(user.id)
             user.save()
             logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
             messages.info(request, "Signup successful!")
-            return redirect(reverse('login'))
+            return redirect("/")
     else:
         form = SignUpForm()
     context = dict(form=form)

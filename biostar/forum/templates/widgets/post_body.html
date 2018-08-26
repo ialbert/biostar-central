@@ -76,11 +76,26 @@
                data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
                 ADD COMMENT
             </a>
+                 {% can_edit post=post user=user as editable%}
+                  {% if editable %}
                  |
-             <a>link</a>
-                 <div id="comment-container-{{post.uid}}"></div>
-                 {# Comments for each post rendered here #}
+                 <a class="moderate-post" comment-url="{{ comment_url }}"
+                    data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
+                edit
+                </a>
+                 {% endif %}
 
+                 {% if user.is_authenticated and user.profile.is_moderator or user.profile.is_manager %}
+                 |
+                 <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}" data-value="{{post.uid}}">
+                moderate
+                </a>
+                 <div id="mod-container-{{post.uid}}"></div>
+                 {% endif %}
+
+
+<div id="comment-container-{{post.uid}}"></div>
+                 {# Comments for each post rendered here #}
 
                 {% render_comments tree=tree project_uid=project_uid request=request post=post comment_url=comment_url vote_view=vote_view next_url=next_url %}
 

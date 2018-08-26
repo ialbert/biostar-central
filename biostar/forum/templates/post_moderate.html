@@ -1,0 +1,11 @@
+
+{% load forum_tags %}
+{% load crispy_forms_tags %}
+
+<div class="inputcolor">
+
+    <h4>Moderating {{ post.get_type_display }}: {{ post.title }}</h4>
+
+    {% crispy form %}
+
+</div>

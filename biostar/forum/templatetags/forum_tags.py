@@ -99,6 +99,12 @@ def tags_banner(context, limit=5, listing=False):
     return dict(tags=all_tags, limit=limit, listing=listing, request=request)
 
 
+@register.simple_tag
+def can_edit(post, user):
+
+    return post.is_editable(user=user)
+
+
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
 def post_body(context, post, user, tree, form, include_userbox=True, comment_url="/",
               sub_redir="post_view", vote_view="update_vote", sub_view="subs_action", project_uid=None):

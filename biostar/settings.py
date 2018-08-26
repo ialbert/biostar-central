@@ -61,7 +61,7 @@ FTP_HOST = "localhost"
 FTP_PORT = 8021
 
 # Should the site allow signup.
-ALLOW_SIGNUP = False
+ALLOW_SIGNUP = True
 
 # Maximum size of each file upload in MB
 MAX_FILE_SIZE_MB = 100
@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     'pagedown',
     'taggit',
     'debug_toolbar',
+    'crispy_forms',
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',
