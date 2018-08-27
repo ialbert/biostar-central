@@ -156,20 +156,20 @@ class ProfileTest(TestCase):
         response = views.profile(request=request)
         self.assertEqual(response.status_code, 200, "Can not load user profile")
 
-
-    @patch('biostar.accounts.models.User', MagicMock(name="save"))
-    def test_edit_profile(self):
-        "Test editing profile with POST request"
-
-        data = {"email":"new@new.com", "name":"new name", "username":"new"}
-
-        url = reverse("edit_profile")
-
-        request = util.fake_request(url=url, data=data, user=self.user)
-
-        response = views.edit_profile(request=request)
-
-        self.assertEqual(response.status_code, 302, "Can not redirect after editing profile")
+    #
+    # @patch('biostar.accounts.models.User', MagicMock(name="save"))
+    # def test_edit_profile(self):
+    #     "Test editing profile with POST request"
+    #
+    #     data = {"email":"new@new.com", "name":"new name", "username":"new"}
+    #
+    #     url = reverse("edit_profile")
+    #
+    #     request = util.fake_request(url=url, data=data, user=self.user)
+    #
+    #     response = views.edit_profile(request=request)
+    #
+    #     self.assertEqual(response.status_code, 302, "Can not redirect after editing profile")
 
 
     def test_notify(self):

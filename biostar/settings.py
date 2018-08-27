@@ -88,7 +88,6 @@ INSTALLED_APPS = [
     'pagedown',
     'taggit',
     'debug_toolbar',
-    'crispy_forms',
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',
