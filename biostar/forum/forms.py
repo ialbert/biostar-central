@@ -3,10 +3,8 @@ from .models import Post
 from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.conf import settings
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Fieldset, Submit, ButtonHolder
 
-from biostar.utils.shortcuts import reverse
+
 from biostar.engine.models import Project
 from . import  models, auth
 from pagedown.widgets import PagedownWidget
@@ -188,22 +186,6 @@ class PostModForm(forms.Form):
     def __init__(self, post, *args, **kwargs):
         self.post = post
         super(PostModForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.error_text_inline = False
-        self.helper.help_text_inline = True
-        self.helper.form_action = reverse("post_moderate", kwargs=dict(uid=self.post.uid))
-
-        self.helper.layout = Layout(
-            Fieldset(
-                'Select moderation option',
-                'action',
-                'comment',
-                'dupe',
-            ),
-            ButtonHolder(
-                Submit('submit', 'Submit')
-            )
-        )
 
     def clean(self):
         cleaned_data = super(PostModForm, self).clean()
