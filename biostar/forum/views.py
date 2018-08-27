@@ -209,7 +209,7 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
 @login_required
 def post_moderate(request, uid):
 
-    post = Post.objects.filter(uid=uid).first()
+    post = Post.objects.get_all(uid=uid).first()
     form = forms.PostModForm(post=post)
 
     if request.method == "POST":
