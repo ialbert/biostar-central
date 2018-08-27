@@ -283,6 +283,20 @@ class Post(models.Model):
         text = bleach.clean(self.content, tags=[], attributes=[], styles={}, strip=True)
         return text
 
+    def is_editable(self, user):
+
+        is_editable = False
+
+        if user.is_authenticated:
+
+            if user == self.author:
+                is_editable = True
+
+            elif user.profile.is_moderator or user.profile.is_manager or user.is_staff:
+                is_editable = True
+
+        return is_editable
+
     def peek(self, length=300):
         "A short peek at the post"
         return self.as_text[:length]
@@ -335,7 +349,7 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
 
-        self.uid = self.uid or util.get_uuid(13)
+        self.uid = self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.author
 
         # Sanitize the post body.

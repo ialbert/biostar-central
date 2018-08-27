@@ -130,9 +130,6 @@ def post_view(request, uid, template="post_view.html", url="post_view",
             form.save(author=request.user)
             return redirect(reverse(url, request=request, kwargs=dict(uid=obj.root.uid)))
 
-    # Adds the permissions
-    obj = auth.post_permissions(request=request, post=obj)
-
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
     comment_tree, thread = auth.build_obj_tree(request=request, obj=obj)
@@ -210,8 +207,32 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
 
 @object_exists(klass=Post)
 @login_required
+def post_moderate(request, uid):
+
+    post = Post.objects.get_all(uid=uid).first()
+    form = forms.PostModForm(post=post)
+
+    if request.method == "POST":
+        1/0
+        form = forms.PostModForm(post=post, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return
+
+    context = dict(form=form, post=post)
+    return render(request, "post_moderate.html", context)
+
+
+@object_exists(klass=Post)
+@login_required
 def edit_post(request, uid):
     "Edit an existing post"
+
+    post = Post.objects.filter(uid=uid).first()
+
+    if request.method == "POST":
+        return
+
 
     return
 

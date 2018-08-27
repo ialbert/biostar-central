@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 
-
+from pagedown.widgets import PagedownWidget
 
 class SignUpForm(forms.Form):
 
@@ -48,12 +48,17 @@ class LogoutForm(forms.Form):
     pass
 
 
-
 class EditProfile(forms.Form):
 
     email = forms.CharField(label='Email', max_length=100)
-    name = forms.CharField(label='First Name', max_length=100)
-    username = forms.CharField(label="Username", max_length=100)
+    name = forms.CharField(label='Name', max_length=100)
+    username = forms.CharField(label="Handler", max_length=100)
+    location = forms.CharField(label="Location", max_length=100, required=False)
+    website = forms.URLField(label="Website", max_length=225, required=False)
+    twitter = forms.CharField(label="Twitter Id", max_length=100, required=False)
+    scholar = forms.CharField(label="Scholar", max_length=100, required=False)
+    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
+                              min_length=2, max_length=5000)
 
     def __init__(self, user,  *args, **kwargs):
 
@@ -61,11 +66,13 @@ class EditProfile(forms.Form):
 
         super(EditProfile, self).__init__(*args, **kwargs)
 
-
     def save(self):
 
         self.user.email = self.cleaned_data['email']
-        self.user.first_name = self.cleaned_data['name']
+        self.user.profile.name = self.cleaned_data['name']
+        self.user.profile.location = self.cleaned_data['location']
+        self.user.profile.website = self.cleaned_data['website']
+
         self.user.save()
 
         return self.user
@@ -80,7 +87,6 @@ class EditProfile(forms.Form):
 
         return data
 
-
     def clean_username(self):
 
         data = self.cleaned_data['username']
@@ -90,6 +96,7 @@ class EditProfile(forms.Form):
             raise forms.ValidationError("This username is already being used.")
 
         return data
+
 
 class LoginForm(forms.Form):
 

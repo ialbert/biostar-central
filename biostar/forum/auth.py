@@ -33,25 +33,6 @@ def get_votes(user, thread):
     return store
 
 
-def post_permissions(request, post):
-    """
-    Sets permission attributes on a post.
-    """
-    user = request.user
-    is_editable = has_ownership = False
-
-    if user.is_authenticated:
-
-        if user == post.author :
-            has_ownership = is_editable = True
-        elif user.profile.is_moderator or user.is_staff:
-            is_editable = True
-
-    post.is_editable = is_editable
-    post.has_ownership = has_ownership
-
-    return post
-
 
 def build_obj_tree(request, obj):
 
@@ -59,12 +40,6 @@ def build_obj_tree(request, obj):
     # Answers sorted before comments.
     user = request.user
     thread = Post.objects.get_thread(obj, user)
-
-    # Build comments tree.
-    comment_tree = dict()
-    for post in thread:
-        if post.is_comment:
-            comment_tree.setdefault(post.parent_id, []).append(post)
 
     # Gather votes
     votes = get_votes(user=user, thread=thread)
@@ -79,10 +54,15 @@ def build_obj_tree(request, obj):
         post.has_upvote = post.id in upvotes
         post.can_accept = obj.author == user or post.has_accepted
 
-    # Add attributes by mutating the object
-    for p in thread:
-        decorate(p)
+    # Build comments tree.
+    comment_tree = dict()
     decorate(obj)
+
+    for post in thread:
+        if post.is_comment:
+            comment_tree.setdefault(post.parent_id, []).append(post)
+        # Add attributes by mutating the object
+        decorate(post=post)
 
     return comment_tree, thread
 

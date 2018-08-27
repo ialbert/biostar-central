@@ -1,0 +1,49 @@
+
+{% load forum_tags %}
+
+<div class="ui segment inputcolor">
+
+    <b>Moderating {{ post.get_type_display }}: {{ post.title }}</b>
+
+
+    <form method="post" class="ui form" action="{%  url 'post_moderate' post.uid %}">
+
+        {% csrf_token %}
+
+        <h3>Select moderation option</h3>
+        <div class="ui divider"></div>
+
+        <div class="ui segment">
+            <b>Select an action*</b>
+            {{form.action}}
+        </div>
+
+        <div class="ui segment">
+            <b>Comment</b>
+            {{form.comment}}
+                        <div class="ui muted">
+                Enter a reason (required when closing, crosspost). This will be inserted into a template comment.
+            </div>
+        </div>
+
+        <div class="ui segment">
+            <b>Duplicate number(s)</b>
+            {{form.dupe}}
+            <div class="ui muted">
+                One or more duplicated post numbers, space or comma separated (required for duplicate closing).
+            </div>
+        </div>
+
+        <button type="submit" class="ui blue button">
+            <i class="check icon"></i>
+            Submit
+        </button>
+
+        <a class="ui orange right floated button" onclick="javascript:obj=$('#modpanel').remove();">
+            <i class="cancel icon"></i>
+            Cancel
+        </a>
+
+    </form>
+
+</div>

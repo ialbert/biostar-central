@@ -9,6 +9,7 @@ from django.urls import reverse
 
 logger = logging.getLogger('engine')
 
+
 class ForumNavigation(TestCase):
 
     def setUp(self):
@@ -36,6 +37,14 @@ class ForumNavigation(TestCase):
 
         urls = [
             reverse('post_list'),
+            # reverse('post_view', kwargs=dict()),
+            # reverse('post_create', kwargs=dict()),
+            # reverse("subs_action", kwargs=dict()),
+            # reverse("post_comment", kwargs=dict()),
+            # reverse("update_vote", kwargs=dict()),
+            # reverse("tags_list", kwargs=dict()),
+            # reverse("community_list", kwargs=dict())
+
 
         ]
 

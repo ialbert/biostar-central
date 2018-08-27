@@ -9,65 +9,60 @@
 {% block body %}
 
 
-<div class="ui center aligned header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
+   <div class="ui center aligned basic segment">
 
-<div class="ui relaxed grid">
+        <div class="ui aligned large header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
+   </div>
+<div class="ui horizontal segments">
 
-<div class="row">
-    <div class="four wide column">
-        <div class="ui center aligned basic large segment">
-          <div class="ui circular image">
-            <a href="{% url "public_profile" user.profile.uid %}">{% gravatar user=user size=200 %}</a>
+        <div class="ui center aligned large segment">
 
-            </div>
             <div>
-        {{user.profile.name}} {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+           {% gravatar user=user size=200 %}
             </div>
+              <a href="{% url 'public_profile' user.profile.uid %}">{{user.profile.name}}</a> {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
         </div>
 
-    </div>
-
-    <div class="seven wide column">
-
-
-        <div class="ui left aligned basic large segment">
-
-            <div>
-            <b>Reputation</b> : {{ user.profile.score | show_score }}
+        <div class="ui large segment">
+            <div class="ui relaxed list">
+            <div class="item">
+            <b>Reputation</b>: {{ user.profile.score | show_score }}
             </div>
-            <div>
+            <div class="item">
             <b>Status</b> : {{ user.profile.get_state_display }}
             </div>
-            <div>
+            <div class="item">
             <b>Location</b> : {{ user.profile.location }}
             </div>
 
             {% if user.profile.last_login  %}
-                <div>
+                <div class="item">
                 <b>Last seen </b> : {{ user.profile.last_login |time_ago}}
                 </div>
             {%  endif %}
 
-            <div>
+            <div class="item">
                 <b>Joined</b> : {{ user.profile.date_joined|time_ago }}
 
             </div>
-            <div> <b>Email</b> : {{ user |show_email }}
+            {%  if user == request.user %}
+            <div class="item"> <b>Email</b> : {{ user.email }}</div>
+            {% else %}
+            <div class="item"> <b>Email</b> : {{ user |show_email }}</div>
+            {% endif %}
+
+
+            <div class="item"> <b>Handler</b> : @{{ user.username }}
+            </div>
             </div>
 
-            <div> <b>Handler</b> : @{{ user.username }}
-            </div>
+{%  if user == request.user %}
 
-        </div>
-
-        {%  if user == request.user %}
-
-             <div class="ui center aligned basic vertical segment">
+             <div class="ui basic vertical segment">
 
                  <a class="ui mini button" href="{% url 'edit_profile'%}">
                         <i class="write icon"></i>Edit profile
                     </a>
-
 
                 <a class="ui mini button" href="{% url 'recycle_bin' %}">
                     <i class="trash icon"></i>Recycle Bin
@@ -103,20 +98,18 @@
             </div>
 
         {% endif %}
-    </div>
+        </div>
 
-    <div class="five wide column">
+
+</div>
+
+
+
 
 
         {{ user.profile.html |safe }}
 
 
-    </div>
-</div>
-
-    <div class="row">
-
-        <div class="sixteen wide column">
              <div class="ui vertical segment">
         <div class="ui top attached tabular large menu">
 
@@ -184,11 +177,8 @@
         {% endif %}
 </div>
         </div>
-        </div>
 
-    </div>
 
-</div>
 
 
 

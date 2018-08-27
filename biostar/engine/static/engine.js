@@ -3,9 +3,8 @@
 function submit_comment (elem) {
 
     var comment_form = $("#comment-form");
-    action_url = comment_form.attr("action");
+    var action_url = comment_form.attr("action");
     var container = $("#comment-row");
-    var redir_url = elem.attr("redir-url");
 
     $.ajax({
         url : action_url, // the endpoint
@@ -13,14 +12,27 @@ function submit_comment (elem) {
         data : comment_form.serialize(), // data sent with the post request
 
         success : function(data) {
-            // remove the value from the input
-            location.reload(true);
+            location.reload(container);
             }
 
     });
         return false;
 };
 
+// Triggered on post moderation.
+function moderate_post(elem) {
+
+    $('#modpanel').remove();
+
+    var post_uid = elem.attr('data-value');
+
+    var container = $("#mod-container-" + post_uid);
+    var mod_url = elem.attr('mod-url');
+
+    var page = $('<div id="modpanel"></div>').load(mod_url)
+    container.after(page)
+
+}
 
 
 function add_comment(elem) {
@@ -107,6 +119,10 @@ $(document).ready(function () {
 
     $(".add-comment").click(function (event) {
         add_comment($(this));
+        });
+
+    $(".moderate-post").click(function (event) {
+        moderate_post($(this));
         });
 
 });
