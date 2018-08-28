@@ -11,7 +11,7 @@ from django.contrib.sites.models import Site
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.models import F, Q
-
+from biostar.utils.shortcuts import reverse
 from taggit.managers import TaggableManager
 from biostar.engine.models import Project
 from . import util
@@ -319,6 +319,9 @@ class Post(models.Model):
     def age_in_days(self):
         delta = timezone.now() - self.creation_date
         return delta.days
+
+    def get_absolute_url(self):
+        return reverse("post_view", kwargs=dict(uid=self.uid))
 
     def update_reply_count(self):
         "This can be used to set the answer count."

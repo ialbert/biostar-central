@@ -60,11 +60,20 @@ def split_tags(text):
 
     return [capitalize(x) for x in text.split(",") if len(x)]
 
+
+def render(name, **kwds):
+    "Helper function to render a template"
+    tmpl = loader.get_template(name)
+    page = tmpl.render(kwds)
+    return page
+
+
 def clean(text):
     "Sanitize text with no other substitutions"
     html = bleach.clean(text, tags=ALLOWED_TAGS,
                         attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
     return html
+
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
@@ -93,15 +102,6 @@ def strip_tags(text):
     "Strip html tags from text"
     text = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
     return text
-
-
-def render(name, **kwds):
-    "Helper function to render a template"
-    tmpl = loader.get_template(name)
-    cont = Context(kwds)
-    page = tmpl.render(cont)
-    return page
-
 
 def test():
     pass
