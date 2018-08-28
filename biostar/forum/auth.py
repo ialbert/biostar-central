@@ -342,7 +342,7 @@ def moderate_post(request, action, post, comment=None, dupes=[]):
 
         DUPLICATE: dict(func=query_func(uid=post.uid).update,
                         params=dict(status=Post.CLOSED),
-                        apply=lambda q: query_func(uid=post.uid).filter(uid__in=dupes),
+                        apply=lambda q: query_func(uid__in=dupes),
                         content="messages/duplicate_posts.html"),
     }
 
