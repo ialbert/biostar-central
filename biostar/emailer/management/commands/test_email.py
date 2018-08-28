@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         from_email = settings.DEFAULT_FROM_EMAIL
-        subject = "[biostar] test email "
+        subject = "test email "
 
         recipient_list = [ settings.ADMINS[0][1] ]
 
