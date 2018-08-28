@@ -321,7 +321,7 @@ class Post(models.Model):
         return delta.days
 
     def get_absolute_url(self):
-        return reverse("post_view", kwargs=dict(uid=self.uid))
+        return reverse("post_view", kwargs=dict(uid=self.root.uid))
 
     def update_reply_count(self):
         "This can be used to set the answer count."

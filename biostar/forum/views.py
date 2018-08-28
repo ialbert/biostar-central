@@ -223,7 +223,7 @@ def post_moderate(request, uid):
         else:
             msg = ','.join([y for x in form.errors.values() for y in x])
             messages.error(request, msg)
-            return redirect(post.get_absolute_url())
+            return redirect(post.root.get_absolute_url())
 
     context = dict(form=form, post=post)
     return render(request, "post_moderate.html", context)
