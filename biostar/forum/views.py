@@ -200,7 +200,7 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
             post = form.save(author=request.user)
             return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
 
-    context = dict(form=form, extra_tab="active", extra_tab_name="New Post")
+    context = dict(form=form, extra_tab="active", extra_tab_name="New Post", action_url=reverse("post_create"))
     context.update(extra_context)
 
     return render(request, template, context=context)
@@ -234,13 +234,25 @@ def post_moderate(request, uid):
 def edit_post(request, uid):
     "Edit an existing post"
 
-    post = Post.objects.filter(uid=uid).first()
+    post = Post.objects.get_all(uid=uid).first()
+    if post.is_toplevel:
+        template, edit_form = "post_create.html", forms.PostLongForm
+    else:
+        template, edit_form = "shortpost_edit.html", forms.PostShortForm
 
+    user = request.user
+    form = edit_form(post=post, user=user)
     if request.method == "POST":
-        return
+        form = edit_form(post=post, data=request.POST, user=user)
+        if form.is_valid():
+            form.save(edit=True)
+            messages.success(request, f"Edited :{post.title}")
+            return redirect(reverse("post_view", kwargs=dict(uid=uid)))
 
+    context = dict(form=form, post=post, action_url=reverse("post_edit", kwargs=dict(uid=uid)),
+                   extra_tab="active", extra_tab_name="Edit Post")
 
-    return
+    return render(request, template, context)
 
 
 def not_implemented(request, **kwargs):

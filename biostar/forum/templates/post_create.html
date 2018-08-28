@@ -13,7 +13,7 @@
         {% form_errors form %}
 <div class="ui container segment inputcolor">
 
-        <form method="post" class="ui form" action="{%  url 'post_create' %}">
+        <form method="post" class="ui form" action="{{action_url}}">
 
             {{ form.media }}
             {% csrf_token %}

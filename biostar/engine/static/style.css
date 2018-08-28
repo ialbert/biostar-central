@@ -7,8 +7,15 @@ body {
     color: #4183c4;
 }
 
-.divide {
-    color: red;
+.extrainfo {
+  margin-top:30;
+  padding: 0;
+
+}
+
+.ui.userinfo.segment {
+  margin: 0;
+  padding: 0;
 }
 
 .ui.maroon.label {
