@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.http import JsonResponse
+from django.utils.safestring import mark_safe
 
 from biostar.utils.shortcuts import reverse
 from . import forms, auth
@@ -209,15 +210,20 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
 @login_required
 def post_moderate(request, uid):
 
+    user = request.user
     post = Post.objects.get_all(uid=uid).first()
-    form = forms.PostModForm(post=post)
+    form = forms.PostModForm(post=post, user=user, request=request)
 
     if request.method == "POST":
-        1/0
-        form = forms.PostModForm(post=post, data=request.POST)
+
+        form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
         if form.is_valid():
-            form.save()
-            return
+            url = form.save()
+            return redirect(url)
+        else:
+            msg = ','.join([y for x in form.errors.values() for y in x])
+            messages.error(request, msg)
+            return redirect(post.root.get_absolute_url())
 
     context = dict(form=form, post=post)
     return render(request, "post_moderate.html", context)

@@ -8,7 +8,7 @@ from django.conf import settings
 from biostar.engine.models import Project
 from . import  models, auth
 from pagedown.widgets import PagedownWidget
-
+from .const import *
 # Share logger with models
 logger = models.logger
 
@@ -114,7 +114,6 @@ class EditPostForm(forms.Form):
     def __init__(self, post, *args, **kwargs):
         super(EditPostForm, self).__init__(*args, **kwargs)
 
-
         if post.is_toplevel:
             # Add a feild for the tags.
             pass
@@ -159,12 +158,9 @@ class PostShortForm(forms.Form):
 
 class PostModForm(forms.Form):
 
-    BUMP_POST, OPEN, TOGGLE_ACCEPT, MOVE_TO_ANSWER, \
-        MOVE_TO_COMMENT, DUPLICATE, CROSSPOST, CLOSE_OFFTOPIC, DELETE = range(9)
-
     CHOICES = [
         (BUMP_POST, "Bump a post"),
-        (OPEN, "Open a closed or deleted post"),
+        (MOD_OPEN, "Open a closed or deleted post"),
         (TOGGLE_ACCEPT, "Toggle accepted status"),
         (MOVE_TO_ANSWER, "Move post to an answer"),
         (MOVE_TO_COMMENT, "Move post to a comment on the top level post"),
@@ -183,23 +179,45 @@ class PostModForm(forms.Form):
                            help_text="One or more duplicated post numbers, space or comma separated (required for duplicate closing).",
                            label="Duplicate number(s)")
 
-    def __init__(self, post, *args, **kwargs):
+    def __init__(self, post, request, user, *args, **kwargs):
         self.post = post
+        self.user = user
+        self.request = request
         super(PostModForm, self).__init__(*args, **kwargs)
 
-    def clean(self):
-        cleaned_data = super(PostModForm, self).clean()
-        action = cleaned_data.get("action")
+    def save(self):
+
+        cleaned_data = self.cleaned_data
+        action = int(cleaned_data.get("action"))
         comment = cleaned_data.get("comment")
         dupe = cleaned_data.get("dupe")
 
-        if action == self.CLOSE_OFFTOPIC and not comment:
+        url = auth.moderate_post(post=self.post, request=self.request,
+                                 action=action, comment=comment, dupes=dupe)
+        return url
+
+    def clean(self):
+        cleaned_data = super(PostModForm, self).clean()
+        action = int(cleaned_data.get("action"))
+        comment = cleaned_data.get("comment")
+        dupe = cleaned_data.get("dupe")
+
+        if not (self.user.profile.is_moderator or self.user.profile.is_manager):
+            raise forms.ValidationError( "Only a moderator/manager may perform these actions")
+
+        if action in (CLOSE_OFFTOPIC, DUPLICATE, BUMP_POST) and not self.post.is_toplevel:
+            raise forms.ValidationError("You can only perform these actions to a top-level post")
+        elif action in (TOGGLE_ACCEPT, MOVE_TO_COMMENT) and self.post.type != Post.ANSWER:
+            raise forms.ValidationError("You can only perform these actions to an answer.")
+        elif action == MOVE_TO_ANSWER and self.post.type != Post.COMMENT:
+            raise forms.ValidationError("You can only perform these actions to a comment.")
+        if action == CLOSE_OFFTOPIC and not comment:
             raise forms.ValidationError("Unable to close. Please add a comment!")
 
-        if action == self.CROSSPOST and not comment:
+        if action == CROSSPOST and not comment:
             raise forms.ValidationError("Please add URL into the comment!")
 
-        if action == self.DUPLICATE and not dupe:
+        if action == DUPLICATE and not dupe:
             raise forms.ValidationError("Unable to close duplicate. Please fill in the post numbers")
 
         if dupe:

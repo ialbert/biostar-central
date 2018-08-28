@@ -76,6 +76,8 @@
                data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
                 ADD COMMENT
             </a>
+
+                 <a href="#">link</a>
                  {% can_edit post=post user=user as editable%}
                   {% if editable %}
                  |
@@ -94,7 +96,7 @@
                  {% endif %}
 
 
-<div id="comment-container-{{post.uid}}"></div>
+                <div id="comment-container-{{post.uid}}"></div>
                  {# Comments for each post rendered here #}
 
                 {% render_comments tree=tree project_uid=project_uid request=request post=post comment_url=comment_url vote_view=vote_view next_url=next_url %}
