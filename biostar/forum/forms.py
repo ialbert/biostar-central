@@ -198,7 +198,7 @@ class PostModForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(PostModForm, self).clean()
-        action = cleaned_data.get("action")
+        action = int(cleaned_data.get("action"))
         comment = cleaned_data.get("comment")
         dupe = cleaned_data.get("dupe")
 
