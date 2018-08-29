@@ -9,7 +9,6 @@ from biostar.emailer import auth
 
 logger = logging.getLogger(__name__)
 
-
 class Command(BaseCommand):
     help = 'tests email settings'
 
@@ -27,7 +26,7 @@ class Command(BaseCommand):
             to_emails = to_emails.split(",")
 
         from_email = settings.DEFAULT_FROM_EMAIL
-        subject = "test email "
+        subject = "test email"
 
         recipient_list = to_emails or [settings.ADMINS[0][1]]
 
