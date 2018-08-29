@@ -4,6 +4,8 @@ DATA_FILE=recipes-initial-data.tar.gz
 DATA_DIR=/export/sites/main_data/initial
 DATA_HOST=data.bioinformatics.recipes
 
+all: reset load serve
+
 serve: init
 	python manage.py runserver
 
