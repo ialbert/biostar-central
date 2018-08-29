@@ -6,7 +6,7 @@ from biostar.emailer import sender
 from mailer.engine import send_all
 
 from django.conf import settings
-from .models import  EmailAddress, Subscription
+from .models import EmailAddress, Subscription
 
 logger = logging.getLogger("engine")
 

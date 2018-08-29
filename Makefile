@@ -7,8 +7,11 @@ DATA_HOST=data.bioinformatics.recipes
 serve: init
 	python manage.py runserver
 
+test_emails:
+	python manage.py test_email 4000 --settings=conf.natay.site_settings
+
 serve_forum:
-	python manage.py runserver 4000 --settings=biostar.forum.settings
+	python manage.py runserver --settings=biostar.forum.settings
 
 init:
 	@python manage.py collectstatic --noinput -v 0
