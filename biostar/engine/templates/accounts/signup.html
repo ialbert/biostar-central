@@ -14,7 +14,7 @@
         {% show_messages messages %}
 
         <form method="post" class="ui form attached fluid" action="{% url 'signup' %}">
-            <div class="ui centered card inputcolor">
+            <div class="ui centered card inputcolor" style="width:400;">
                 {% form_errors form %}
                 <div class="ui basic segment">
 
@@ -33,11 +33,17 @@
                           <label>Password Confirmation</label>
                           {{ form.password2 }}
                      </div>
+                    <div class="field">
+                        <label>Captcha</label>
+                    <div class="g-recaptcha" data-sitekey="{{captcha_site_key}}"></div>
 
-                    <button type="submit" class="ui primary button">Sign up</button>
-                    <a class="ui right floated button" href="/">Cancel</a>
+                    </div>
+
+                    <button type="submit" class="ui primary button"><i class="check icon"></i>Sign up</button>
+                    <a class="ui right floated button" href="/"><i class="cancel icon"></i>Cancel</a>
 
                 </div>
+
             </div>
         </form>
 

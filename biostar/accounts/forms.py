@@ -1,7 +1,9 @@
 from django import forms
+from captcha.fields import ReCaptchaField
 from django.contrib.auth.models import User
 
 from pagedown.widgets import PagedownWidget
+
 
 class SignUpForm(forms.Form):
 
@@ -43,6 +45,11 @@ class SignUpForm(forms.Form):
             raise forms.ValidationError("This email is already being used.")
         return data
 
+
+class SignUpWithCaptcha(SignUpForm):
+    captcha = ReCaptchaField()
+
+    
 
 class LogoutForm(forms.Form):
     pass

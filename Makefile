@@ -9,7 +9,7 @@ all: reset load serve
 serve: init
 	python manage.py runserver
 
-test_mail: verbose
+test_email:
 	# Actually send emails with --send args
 	python manage.py test_email --send --settings=conf.natay.site_settings
 

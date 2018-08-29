@@ -14,6 +14,7 @@ django-pagedown
 django-webtest
 django-sendfile
 django-debug-toolbar
+django-recaptcha
 sparkpost
 pillow
 Pillow
