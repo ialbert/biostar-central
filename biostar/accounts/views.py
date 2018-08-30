@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 
-from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
+from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile, SignUpWithCaptcha
 from .models import User, Profile
 from .auth import check_user
 from .util import now
@@ -103,7 +103,7 @@ def user_signup(request):
 
     if request.method == 'POST':
 
-        form = SignUpForm(request.POST)
+        form = SignUpWithCaptcha(request.POST)
         if form.is_valid():
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password1')
@@ -116,8 +116,8 @@ def user_signup(request):
             messages.info(request, "Signup successful!")
             return redirect("/")
     else:
-        form = SignUpForm()
-    context = dict(form=form)
+        form = SignUpWithCaptcha()
+    context = dict(form=form, captcha_site_key=settings.RECAPTCHA_PUBLIC_KEY)
     return render(request, 'accounts/signup.html', context=context)
 
 
@@ -178,9 +178,9 @@ def password_reset(request):
 
 def password_reset_done(request):
     context = dict()
-
     return auth_views.password_reset_done(request, extra_context=context,
                                           template_name="accounts/password_reset_done.html")
+
 
 def pass_reset_confirm(request, uidb64, token):
     context = dict()

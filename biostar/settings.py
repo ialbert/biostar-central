@@ -18,6 +18,9 @@ SECRET_KEY = 'secret-key'
 # The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
+RECAPTCHA_PUBLIC_KEY = ""
+RECAPTCHA_PRIVATE_KEY = ""
+
 POSTS_PER_PAGE = 35
 USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
@@ -88,6 +91,7 @@ INSTALLED_APPS = [
     'pagedown',
     'taggit',
     'debug_toolbar',
+    'snowpenguin.django.recaptcha2',
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',

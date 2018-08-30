@@ -43,9 +43,11 @@ def valid_tag(text):
 
 class PostLongForm(forms.Form):
 
-    def __init__(self, project=None, filter_func=lambda x: x, *args, **kwargs):
+    def __init__(self, project=None, filter_func=lambda x: x, post=None, user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.project = project
+        self.post = post
+        self.user = user
 
         POST_CHOICES = [(Post.QUESTION, "Question"),
                         (Post.JOB, "Job Ad"),
@@ -55,25 +57,29 @@ class PostLongForm(forms.Form):
 
         # Pass a filtering function to customize choices between sites.
         choices = list(filter(filter_func, POST_CHOICES))
+        inital_title = inital_tags = inital_content = ""
+        inital_type = Post.FORUM
+        if self.post:
+            inital_title = self.post.title
+            inital_tags = self.post.tag_val
+            inital_content = self.post.content
+            inital_type = self.post.type
+
         self.fields["post_type"] = forms.ChoiceField(label="Post Type", choices=choices,
-                                                     help_text="Select a post type: Question, Forum, Job, Blog")
+                                                     help_text="Select a post type: Question, Forum, Job, Blog",
+                                                     initial=inital_type)
+        self.fields["title"] = forms.CharField(label="Post Title", max_length=200, min_length=2, initial=inital_title,
+                                               validators=[valid_title, english_only],
+                                               help_text="Descriptive titles promote better answers.")
+        self.fields["tag_val"] = forms.CharField(label="Post Tags", max_length=50, required=False, validators=[valid_tag],
+                                                 help_text="""Choose one or more tags to match the topic. 
+                                                        To create a new tag just type it in comma seperated.""",
+                                                 initial=inital_tags)
+        self.fields["content"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
+                                                 min_length=10, max_length=15000, initial=inital_content,
+                                                 label="Enter your post below")
 
-    title = forms.CharField(
-        label="Post Title",
-        max_length=200, min_length=2, validators=[valid_title, english_only],
-        help_text="Descriptive titles promote better answers.")
-
-    tag_val = forms.CharField(
-        label="Post Tags", max_length=50,
-        required=False, validators=[valid_tag],
-        help_text="Choose one or more tags to match the topic. To create a new tag just type it in comma seperated.",
-    )
-
-    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
-                              min_length=10, max_length=15000,
-                              label="Enter your post below")
-
-    def save(self, author=None):
+    def save(self, author=None, edit=False):
         data = self.cleaned_data.get
 
         title = data('title')
@@ -81,10 +87,28 @@ class PostLongForm(forms.Form):
         post_type = int(data('post_type'))
         tag_val = data('tag_val')
 
-        post = auth.create_post(title=title, content=content, post_type=post_type,
-                                tag_val=tag_val, author=author, project=self.project)
+        if edit:
+            self.post.title = title
+            self.post.content = content
+            self.post.type = post_type
+            self.post.html = auth.parse_html(content)
+            self.post.save()
+            # Triggers another save
+            self.post.add_tags(text=tag_val)
+        else:
+            self.post = auth.create_post(title=title, content=content, post_type=post_type,
+                                         tag_val=tag_val, author=author, project=self.project)
 
-        return post
+        return self.post
+
+    def clean(self):
+
+        if self.post and self.user != self.post.author:
+            if self.user.profile.is_manager or self.user.profile.is_moderator:
+                pass
+            else:
+                raise forms.ValidationError("Only the author or a moderator can edit a post.")
+
 
 
 class SubsForm(forms.Form):
@@ -109,25 +133,18 @@ class SubsForm(forms.Form):
         return sub
 
 
-class EditPostForm(forms.Form):
-
-    def __init__(self, post, *args, **kwargs):
-        super(EditPostForm, self).__init__(*args, **kwargs)
-
-        if post.is_toplevel:
-            # Add a feild for the tags.
-            pass
-
-        return
-
-    def save(self):
-        return
-
-
 class PostShortForm(forms.Form):
 
-    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
-                              min_length=2, max_length=5000)
+    def __init__(self, user=None, post=None, *args, **kwargs):
+
+        self.user = user
+        self.post = post
+
+        super().__init__(*args, **kwargs)
+        inital_content = "" if not self.post else self.post.content
+        self.fields["content"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
+                                                 min_length=2, max_length=5000,
+                                                 initial=inital_content)
 
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
     project_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
@@ -135,20 +152,28 @@ class PostShortForm(forms.Form):
     redir_url = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
                                   required=True)
 
-    def save(self, author, post_type=Post.ANSWER):
+    def save(self, author=None, post_type=Post.ANSWER, edit=False):
         data = self.cleaned_data
+        content = data.get("content")
+        project = data.get("project_uid")
+        parent = data.get("parent_uid")
 
-        parent = Post.objects.get_all(uid=data.get("parent_uid")).first()
-        project = Project.objects.filter(uid=data.get("project_uid")).first()
+        if edit:
+            self.post.content = content
+            self.post.html = auth.parse_html(content)
+            self.post.save()
+        else:
+            parent = Post.objects.get_all(uid=parent).first()
+            project = Project.objects.filter(uid=project).first()
 
-        auth.create_post(title=parent.root.title,
-                          parent=parent,
-                          author=author,
-                          content=data.get("content"),
-                          post_type=post_type,
-                          project=project,
-                          sub_to_root=True
-                          )
+            auth.create_post(title=parent.root.title,
+                              parent=parent,
+                              author=author,
+                              content= content,
+                              post_type=post_type,
+                              project=project,
+                              sub_to_root=True
+                              )
         return data.get("redir_url", "/")
 
     #def clean(self):

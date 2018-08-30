@@ -1,7 +1,10 @@
 from django import forms
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
-
+from django.conf import settings
 from pagedown.widgets import PagedownWidget
+
 
 class SignUpForm(forms.Form):
 
@@ -42,6 +45,15 @@ class SignUpForm(forms.Form):
         if User.objects.filter(email=data).exists():
             raise forms.ValidationError("This email is already being used.")
         return data
+
+
+class SignUpWithCaptcha(SignUpForm):
+
+    def __init__(self, *args, **kwargs):
+        super(SignUpWithCaptcha, self).__init__(*args, **kwargs)
+
+        if settings.RECAPTCHA_PRIVATE_KEY:
+            self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
 
 
 class LogoutForm(forms.Form):

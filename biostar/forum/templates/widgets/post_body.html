@@ -42,7 +42,7 @@
                  {% if post.is_toplevel %}
                      <div class="extra">
 
-                         <div class="" style="margin-bottom:0.5em;">
+                         <div class="" style="">
 
 
                     {% get_tags_list post.tag_val as tags_list %}
@@ -57,7 +57,7 @@
 
                      </div>
 
-                     <div class="ui right floated image">
+                     <div class="ui right floated basic segment userinfo">
 
                          {% user_info post=post by_diff=False %}
                      </div>
@@ -66,12 +66,12 @@
 
 
                      <div class="extra"></div>
-                        <div class="ui right floated image">
+                        <div class="ui right floated basic segment userinfo">
                              {% user_info post=post by_diff=False %}
                          </div>
 
                  {% endif %}
-
+                 <div class="extrainfo">
             <a class="add-comment ui mini grey label" comment-url="{{ comment_url }}"
                data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
                 ADD COMMENT
@@ -81,8 +81,7 @@
                  {% can_edit post=post user=user as editable%}
                   {% if editable %}
                  |
-                 <a class="moderate-post" comment-url="{{ comment_url }}"
-                    data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
+                 <a href="{% url 'post_edit' post.uid %}">
                 edit
                 </a>
                  {% endif %}
@@ -101,7 +100,7 @@
 
                 {% render_comments tree=tree project_uid=project_uid request=request post=post comment_url=comment_url vote_view=vote_view next_url=next_url %}
 
-
+                 </div>
              </div>
 
         </div>

@@ -9,8 +9,12 @@ all: reset load serve
 serve: init
 	python manage.py runserver
 
+test_email:
+	# Actually send emails with --send args
+	python manage.py test_email --send --settings=conf.natay.site_settings
+
 serve_forum:
-	python manage.py runserver 4000 --settings=biostar.forum.settings
+	python manage.py runserver --settings=biostar.forum.settings
 
 init:
 	@python manage.py collectstatic --noinput -v 0

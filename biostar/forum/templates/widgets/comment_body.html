@@ -32,8 +32,7 @@
                  {% can_edit post=post user=user as editable%}
                   {% if editable %}
                  &bull;
-                 <a comment-url="{{ comment_url }}"
-                    data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
+                 <a href="{% url 'post_edit' post.uid %}">
                 edit
                 </a>
                  {% endif %}
