@@ -3,6 +3,8 @@
 {% load engine_tags %}
 {% load forum_tags %}
 
+{% load recaptcha2 %}
+
 <html>
 <head>
 
@@ -20,7 +22,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src='https://www.google.com/recaptcha/api.js'></script>
+    {% recaptcha_init %}
+
 
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">

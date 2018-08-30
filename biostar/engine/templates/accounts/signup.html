@@ -1,5 +1,6 @@
 {% extends "profile_base.html" %}
 {% load engine_tags %}
+{% load recaptcha2 %}
 {% block headtitle %}Welcome{% endblock %}
 
 
@@ -35,8 +36,7 @@
                      </div>
                     <div class="field">
                         <label>Captcha</label>
-                    <div class="g-recaptcha" data-sitekey="{{captcha_site_key}}"></div>
-
+                        {{form.captcha}}
                     </div>
 
                     <button type="submit" class="ui primary button"><i class="check icon"></i>Sign up</button>

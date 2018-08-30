@@ -1,5 +1,6 @@
 from django import forms
-from captcha.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
 
 from pagedown.widgets import PagedownWidget
@@ -47,9 +48,8 @@ class SignUpForm(forms.Form):
 
 
 class SignUpWithCaptcha(SignUpForm):
-    captcha = ReCaptchaField()
+    captcha = ReCaptchaField(widget=ReCaptchaWidget())
 
-    
 
 class LogoutForm(forms.Form):
     pass
