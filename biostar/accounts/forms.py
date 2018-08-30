@@ -2,7 +2,7 @@ from django import forms
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
-
+from django.conf import settings
 from pagedown.widgets import PagedownWidget
 
 
@@ -48,7 +48,12 @@ class SignUpForm(forms.Form):
 
 
 class SignUpWithCaptcha(SignUpForm):
-    captcha = ReCaptchaField(widget=ReCaptchaWidget())
+
+    def __init__(self, *args, **kwargs):
+        super(SignUpWithCaptcha, self).__init__(*args, **kwargs)
+
+        if settings.RECAPTCHA_PRIVATE_KEY:
+            self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
 
 
 class LogoutForm(forms.Form):

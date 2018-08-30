@@ -1,6 +1,5 @@
 {% extends "profile_base.html" %}
 {% load engine_tags %}
-{% load recaptcha2 %}
 {% block headtitle %}Welcome{% endblock %}
 
 
@@ -15,7 +14,7 @@
         {% show_messages messages %}
 
         <form method="post" class="ui form attached fluid" action="{% url 'signup' %}">
-            <div class="ui centered card inputcolor" style="width:400;">
+            <div class="ui centered card inputcolor" style="width:330;">
                 {% form_errors form %}
                 <div class="ui basic segment">
 
@@ -34,10 +33,13 @@
                           <label>Password Confirmation</label>
                           {{ form.password2 }}
                      </div>
-                    <div class="field">
-                        <label>Captcha</label>
-                        {{form.captcha}}
-                    </div>
+
+                    {% if form.captcha %}
+                        <div class="field">
+                            <label>Captcha</label>
+                            {{form.captcha}}
+                        </div>
+                    {% endif %}
 
                     <button type="submit" class="ui primary button"><i class="check icon"></i>Sign up</button>
                     <a class="ui right floated button" href="/"><i class="cancel icon"></i>Cancel</a>

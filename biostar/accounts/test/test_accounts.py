@@ -46,8 +46,6 @@ class UserAccountTests(TestCase):
 
         self.assertEqual(resp.status_code, 302)
 
-
-
     def test_page_responses(self):
 
         urls = [
@@ -65,8 +63,6 @@ class UserAccountTests(TestCase):
 
     def test_redirect(self):
         urls = [
-
-            reverse('signup')
         ]
         self.visit_urls(urls, 302)
 
