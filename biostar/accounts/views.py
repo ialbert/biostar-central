@@ -112,6 +112,10 @@ def user_signup(request):
             user.set_password(password)
             user.username = name.split()[0] + str(user.id)
             user.save()
+            login(request, user)
+            Profile.objects.filter(user=user).update(last_login=now())
+            messages.success(request, "Login successful!")
+
             logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
             messages.info(request, "Signup successful!")
             return redirect("/")
