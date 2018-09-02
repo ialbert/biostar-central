@@ -1,0 +1,32 @@
+{% load forum_tags %}
+
+<div class="ui segment inputcolor">
+
+    <b>Moderating User : {{target.profile.name}}</b>
+
+
+    <form method="post" class="ui form" action="{%  url 'user_moderate' target.profile.uid %}">
+
+        {% csrf_token %}
+
+        <h3>Select moderation option</h3>
+        <div class="ui divider"></div>
+
+        <div class="ui segment">
+            <b>Select an action*</b>
+            {{form.action}}
+        </div>
+
+        <button type="submit" class="ui blue button">
+            <i class="check icon"></i>
+            Submit
+        </button>
+
+        <a class="ui orange right floated button" onclick="javascript:obj=$('#modpanel').remove();">
+            <i class="cancel icon"></i>
+            Cancel
+        </a>
+
+    </form>
+
+</div>

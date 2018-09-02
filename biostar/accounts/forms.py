@@ -4,6 +4,7 @@ from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
 from django.conf import settings
 from pagedown.widgets import PagedownWidget
+from .models import Profile
 
 
 class SignUpForm(forms.Form):
@@ -70,7 +71,22 @@ class EditProfile(forms.Form):
     twitter = forms.CharField(label="Twitter Id", max_length=100, required=False)
     scholar = forms.CharField(label="Scholar", max_length=100, required=False)
     text = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
-                              min_length=2, max_length=5000)
+                           min_length=2, max_length=5000)
+    my_tags = forms.CharField(max_length=100, required=False,
+                              help_text="""Post with tags listed here will show up in the My Tags tab. 
+                              Use a comma to separate tags. 
+                              Add a <code>!</code> to remove a tag. Example: <code>galaxy, bed, solid!</code> (optional)
+                              """
+                              )
+    digest_prefs = forms.ChoiceField(required=True, choices=Profile.DIGEST_CHOICES, label="Email Digest",
+                                     help_text="""(This feature is not working yet!). 
+                                     Sets the frequence of digest emails. 
+                                     A digest email is a summary of events on the site."""
+                                     )
+
+    message_prefs = forms.ChoiceField(required=True, choices=Profile.MESSAGING_TYPE_CHOICES, label="Notifications",
+                                      help_text="""Default mode  sends you an email 
+                                      if you receive anwers to questions that you've posted.""")
 
     def __init__(self, user,  *args, **kwargs):
 
@@ -115,3 +131,39 @@ class LoginForm(forms.Form):
     email = forms.CharField(label='Email', max_length=100)
     password = forms.CharField(label='Password', max_length=100,
                                widget=forms.PasswordInput)
+
+
+class UserModerate(forms.Form):
+
+    CHOICES = [
+        (Profile.NEW, "Reinstate as new user"),
+        (Profile.TRUSTED, "Reinstate as trusted user"),
+        (Profile.BANNED, "Ban user"),
+        (Profile.SUSPENDED, "Suspend user")
+    ]
+
+    action = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), label="Select Action")
+
+    def __init__(self, source, target, request, *args, **kwargs):
+        self.source = source
+        self.target = target
+        self.request = request
+        super(UserModerate, self).__init__(*args, **kwargs)
+
+    def save(self):
+        cleaned_data = self.cleaned_data
+        state = cleaned_data["action"]
+
+        Profile.objects.filter(user=self.target).update(state=state)
+
+        return
+
+    def clean(self):
+        cleaned_data = super(UserModerate, self).clean()
+        if not self.source.profile.is_moderator:
+            forms.ValidationError("You need to be a moderator to perform that action")
+
+
+
+
+

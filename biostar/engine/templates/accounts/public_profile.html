@@ -20,7 +20,19 @@
             <div>
            {% gravatar user=user size=200 %}
             </div>
-              <a href="{% url 'public_profile' user.profile.uid %}">{{user.profile.name}}</a> {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+
+            <div><a href="{% url 'public_profile' user.profile.uid %}">{{user.profile.name}}</a>
+                {{ user.profile.score |show_score_icon}}{{ user.profile.score | show_score |bignum }}</div>
+
+        {% if can_moderate %}
+
+        <a class="ui large orange moderate-user label" style="margin-top:17;" data-value="{{user.profile.uid}}" mod-url="{% url 'user_moderate' user.profile.uid %}">
+            Moderate User</a>
+             <div class="ui left aligned basic large segment">
+            <div id="mod-container-{{user.profile.uid}}"></div>
+             </div>
+        {% endif %}
+
         </div>
 
         <div class="ui large segment">

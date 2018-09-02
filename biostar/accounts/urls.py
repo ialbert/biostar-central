@@ -14,6 +14,7 @@ urlpatterns = [
         views.pass_reset_confirm, name='password_reset_confirm'),
     url(r'^reset/done/$', views.password_reset_complete, name='password_reset_complete'),
 
+    url(r'^moderate/(?P<uid>[-\w]+)/$', views.user_moderate, name="user_moderate"),
     url(r'^login/$', views.user_login, name="login"),
     url(r'^signup/$', views.user_signup, name="signup"),
     url(r'^profile/$', views.profile, name="profile"),

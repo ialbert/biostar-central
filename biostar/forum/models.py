@@ -422,14 +422,13 @@ class Subscription(models.Model):
         (NO_MESSAGES, "Not following"),
         (LOCAL_MESSAGE, "Follow using Local Messages"),
         (EMAIL_MESSAGE, "Follow using Emails"),
-        (DIGEST_MESSAGES, "Send digests from time to time")
         ]
 
     class Meta:
         unique_together = (("user", "post"))
 
     uid = models.CharField(max_length=32, unique=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs",on_delete=models.CASCADE)
     type = models.IntegerField(choices=MESSAGING_CHOICES, default=LOCAL_MESSAGE)
     date = models.DateTimeField()

@@ -126,32 +126,42 @@
 
         <div class="two fields">
 
-          <div class="field">
+          <div class="field inputcolor">
 
               <b>Email Digest</b>
-            {{ form.website }}
-
+            {{ form.digest_prefs }}
+              <div class="muted">
+              {{ form.digest_prefs.help_text }}
+              </div>
           </div>
 
-          <div class="field">
+          <div class="field inputcolor">
 
               <b>Notifications </b>
-            {{ form.website }}
+            {{ form.message_prefs }}
+              <div class="muted">
+              {{ form.message_prefs.help_text  }}
+              </div>
 
           </div>
 
         </div>
-                 <div class="field">
+                 <div class="field inputcolor">
 
               <b>My Tags</b>
-            {{ form.website }}
+            {{ form.my_tags}}
+             <div class="muted">
+             {{ form.my_tags.help_text|safe }}
+             </div>
+
 
           </div>
 </div>
 
     <div class="ui divider"></div>
-    <b>Add some information about yourself</b>
-   <div class="field">
+
+   <div class="field inputcolor">
+       <b>Add some information about yourself</b>
                 {{ form.text }}
             </div>
 

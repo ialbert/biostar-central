@@ -36,7 +36,7 @@ def init_messages(sender, **kwargs):
     recipient_list = [sender, test_2]
 
     msg = auth.create_messages(body=body, subject=subject, recipient_list=recipient_list,
-                        mtype=models.Message.LOCAL_MESSAGE, sender=sender)
+                        sender=sender)
 
     # Test with a message tree whenever debugging
     if settings.DEBUG:
