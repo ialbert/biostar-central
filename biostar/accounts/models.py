@@ -76,7 +76,6 @@ class Profile(models.Model):
 
     html = models.TextField(null=True, blank=True)
 
-    #
     email_verified = models.BooleanField(default=False)
 
     # Notify when the a recipe has been complete.
