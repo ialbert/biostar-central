@@ -7,9 +7,9 @@ function submit_comment (elem) {
     var container = $("#comment-row");
 
     $.ajax({
-        url : action_url, // the endpoint
-        type : "POST", // http method
-        data : comment_form.serialize(), // data sent with the post request
+        url : action_url,
+        type : "POST",
+        data : comment_form.serialize(),
 
         success : function(data) {
             location.reload(container);

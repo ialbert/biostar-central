@@ -29,19 +29,15 @@ def edit_profile(request):
         messages.error(request, "Must be logged in to edit profile")
         return redirect("/")
 
-    id = request.user.id
-    user = User.objects.filter(id=id).first()
+    user = request.user
+    form = forms.EditProfile(user=user)
 
     if request.method == "POST":
         form = forms.EditProfile(data=request.POST, user=user)
         if form.is_valid():
             form.save()
-            return redirect("profile")
+            return redirect(reverse("public_profile", kwargs=dict(uid=user.profile.uid)))
 
-        messages.error(request, mark_safe(form.errors))
-
-    initial = dict(email=user.email, name=user.first_name, username=user.username)
-    form = forms.EditProfile(initial=initial, user=user)
     context = dict(user=user, form=form)
     return render(request, 'accounts/edit_profile.html', context)
 
