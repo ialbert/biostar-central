@@ -141,20 +141,7 @@ def user_signup(request):
 
         form = forms.SignUpWithCaptcha(request.POST)
         if form.is_valid():
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password1')
-            name = email.split("@")[0]
-            user = User.objects.create(email=email, first_name=name)
-            user.set_password(password)
-            user.username = name.split()[0] + str(user.id)
-            user.save()
-
-            #login(request, user)
-            #Profile.objects.filter(user=user).update(last_login=now())
-            #messages.success(request, "Login successful!")
-
-            send_verification_email(user=user)
-            logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
+            form.save()
             msg = mark_safe("Signup successful! <b>Please verify your email to complete registration.</b>")
             messages.info(request, msg)
 

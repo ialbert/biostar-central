@@ -1,3 +1,5 @@
+
+import logging
 import mistune
 from django import forms
 
@@ -8,6 +10,10 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from pagedown.widgets import PagedownWidget
 from .models import Profile
+from . import auth, util
+
+
+logger = logging.getLogger("engine")
 
 
 class SignUpForm(forms.Form):
@@ -50,6 +56,22 @@ class SignUpForm(forms.Form):
             raise forms.ValidationError("This email is already being used.")
         return data
 
+    def save(self):
+
+        email = self.cleaned_data.get('email')
+        password = self.cleaned_data.get('password1')
+        name = email.split("@")[0]
+        username = name.split()[0] + str(util.get_uuid(4))
+        user = User.objects.create(email=email, first_name=name, username=username)
+        user.set_password(password)
+        user.save()
+
+        # Send
+        auth.send_verification_email(user=user)
+        logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
+
+        return user
+
 
 class SignUpWithCaptcha(SignUpForm):
 
@@ -84,7 +106,7 @@ class EditProfile(forms.Form):
         self.fields["scholar"] = forms.CharField(label="Scholar", max_length=100, initial=self.user.profile.scholar,
                                                  required=False)
         self.fields["text"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
-                               min_length=2, max_length=5000, initial=self.user.profile.text)
+                               min_length=2, max_length=5000, initial=self.user.profile.text, required=False)
         self.fields["my_tags"] = forms.CharField(max_length=100, required=False, initial=self.user.profile.my_tags,
                                   help_text="""Post with tags listed here will show up in the My Tags tab. 
                                   Use a comma to separate tags. 

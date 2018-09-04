@@ -34,7 +34,7 @@
 
         {% endif %}
 
-        {% if allow_self_moderate %}
+        {% if allow_self_moderate and user == request.user %}
             {% if user.profile.is_moderator %}
 
             <a class="ui large red label" style="margin-top:17" href="{% url 'toggle_moderate' %}">
@@ -49,7 +49,7 @@
         {% endif %}
 
 
-        {% if user.is_superuser %}
+        {% if user == request.user and user.is_superuser %}
             <a class="ui large blue label" style="margin-top:17" href="{% url 'site_admin' %}">
                 <i class="dashboard icon"></i> Site Admin
             </a>
