@@ -74,7 +74,7 @@ def gravatar(user, size=80):
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
     gravatar_url += urllib.parse.urlencode({
         's': str(size),
-        'd': 'identicon',
+        'd': 'retro',
     }
     )
 
@@ -206,9 +206,9 @@ def show_score(score):
 
 
 @register.inclusion_tag('widgets/user_info.html')
-def user_info(post, by_diff=False):
+def user_info(post, by_diff=False, with_image=True):
 
-    return dict(post=post, by_diff=by_diff)
+    return dict(post=post, by_diff=by_diff, with_image=with_image)
 
 
 @register.simple_tag
@@ -226,9 +226,9 @@ def get_posts(user, request, per_page=20):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(posts=None, discussion_view=False):
+def listing(posts=None, discussion_view=False, side_image=False):
 
-    return dict(objs=posts, discussion_view=discussion_view)
+    return dict(objs=posts, discussion_view=discussion_view, side_image=side_image)
 
 
 @register.filter

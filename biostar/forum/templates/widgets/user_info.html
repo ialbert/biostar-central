@@ -8,7 +8,9 @@
     {% endif %}
 
     by <a href="{% url "public_profile"  post.author.profile.uid %}">
+    {% if with_image %}
     <div class="ui avatar image">{% gravatar user=post.author size=100 %}</div>
+    {% endif %}
     {{post.author.profile.name }}
     </a>
     {{post.author.profile.score |show_score_icon}}
@@ -18,7 +20,9 @@
     &bull; updated
     <span>{{ post.lastedit_date|time_ago }}</span> by
     <a href="{% url "public_profile"  post.lastedit_user.profile.uid %}">
+    {% if with_image %}
        <div class="ui avatar image">{% gravatar user=post.lastedit_user size=100 %}</div>
+    {% endif %}
         {{post.lastedit_user.profile.name }}
 
     </a>

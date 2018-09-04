@@ -222,7 +222,7 @@ def email_verify_account(request, uidb64, token):
         messages.success(request, "Email verified!")
         return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
 
-    messages.error(request, "Link is expired.") 
+    messages.error(request, "Link is expired.")
     return redirect("/")
 
 
