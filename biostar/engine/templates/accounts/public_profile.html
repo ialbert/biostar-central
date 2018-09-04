@@ -33,6 +33,22 @@
              </div>
 
         {% endif %}
+
+        {% if allow_self_moderate %}
+            {% if user.profile.is_moderator %}
+
+            <a class="ui large red label" style="margin-top:17" href="{% url 'toggle_moderate' %}">
+                <i class="cancel icon"></i> Stop being moderator
+            </a>
+            {% else %}
+                        <a class="ui large green label" style="margin-top:17" href="{% url 'toggle_moderate' %}">
+                <i class="check icon"></i> Become a moderator
+            </a>
+
+            {% endif %}
+        {% endif %}
+
+
         {% if user.is_superuser %}
             <a class="ui large blue label" style="margin-top:17" href="{% url 'site_admin' %}">
                 <i class="dashboard icon"></i> Site Admin

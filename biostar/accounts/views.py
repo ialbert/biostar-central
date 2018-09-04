@@ -46,6 +46,21 @@ def edit_profile(request):
 
 
 @login_required
+def toggle_moderate(request):
+
+    user = request.user
+
+    if settings.ALLOW_SELF_MODERATE:
+
+        role = Profile.NORMAL if user.profile.is_moderator else Profile.MODERATOR
+        Profile.objects.filter(user=user).update(role=role)
+        mapper = {Profile.MODERATOR:" a moderator"}
+        messages.success(request, f"You are now {mapper.get(role, 'not a moderator')}")
+
+    return redirect(reverse("public_profile", kwargs=dict(uid=user.profile.uid)))
+
+
+@login_required
 def user_moderate(request, uid):
 
     source = request.user

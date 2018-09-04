@@ -78,8 +78,12 @@ def create_user_from_json(json_dict):
         return user.first()
 
     # Recreate profile
+    if settings.ALLOW_SELF_MODERATE:
+        role = Profile.MODERATOR
+    else:
+        role = json_dict.get("type", Profile.NORMAL)
+
     state = json_dict.get("status", Profile.NEW)
-    role = json_dict.get("type", Profile.NORMAL)
 
     # Given user-id is going to be loaded as a uid
     uid = json_dict.get("id", util.get_uuid(16))
