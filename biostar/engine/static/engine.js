@@ -7,9 +7,9 @@ function submit_comment (elem) {
     var container = $("#comment-row");
 
     $.ajax({
-        url : action_url, // the endpoint
-        type : "POST", // http method
-        data : comment_form.serialize(), // data sent with the post request
+        url : action_url,
+        type : "POST",
+        data : comment_form.serialize(),
 
         success : function(data) {
             location.reload(container);
@@ -19,21 +19,21 @@ function submit_comment (elem) {
         return false;
 };
 
-// Triggered on post moderation.
-function moderate_post(elem) {
+// Triggered on moderation.
+function moderate(elem) {
 
     $('#modpanel').remove();
 
-    var post_uid = elem.attr('data-value');
+    // Could be a user or post uid
+    var data_uid = elem.attr('data-value');
 
-    var container = $("#mod-container-" + post_uid);
+    var container = $("#mod-container-" + data_uid);
     var mod_url = elem.attr('mod-url');
 
     var page = $('<div id="modpanel"></div>').load(mod_url)
     container.after(page)
 
-}
-
+};
 
 function add_comment(elem) {
 
@@ -47,7 +47,7 @@ function add_comment(elem) {
     var redir_url = elem.attr("redir-url")
     var csrf_html = jQuery("[name=csrfmiddlewaretoken]").val();
 
-
+    // Going to be refactored out and loaded separately
     container.after(` <div id="comment-row" class="ui basic segment inputcolor">
     <form id="comment-form" class="ui form" action=${comment_url}  method="post">
         <input type="hidden" name="parent_uid" id="parent_uid" value=${post_uid} />
@@ -122,7 +122,11 @@ $(document).ready(function () {
         });
 
     $(".moderate-post").click(function (event) {
-        moderate_post($(this));
+        moderate($(this));
+        });
+
+    $(".moderate-user").click(function (event) {
+        moderate($(this));
         });
 
 });

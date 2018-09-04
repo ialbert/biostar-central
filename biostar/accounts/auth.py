@@ -1,9 +1,14 @@
 import hjson
 import logging
-
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from django.contrib import auth
+from django.conf import settings
+
+from biostar.emailer.auth import notify
 from .models import User, Profile
 from . import util
+from .tokens import account_verification_token
 
 logger = logging.getLogger('engine')
 
@@ -32,6 +37,23 @@ def check_user(email, password):
         return "Login successful!", True
 
     return "Invalid fallthrough", False
+
+
+def send_verification_email(user):
+
+    from_email = settings.DEFAULT_FROM_EMAIL
+    userid = urlsafe_base64_encode(force_bytes(user.pk)).decode()
+    token = account_verification_token.make_token(user)
+    template = "accounts/email_verify.html"
+    email_list = [user.email]
+    context = dict(token=token, userid=userid, user=user)
+
+    # Send the verification email
+    notify(template_name=template, email_list=email_list,
+           extra_context=context, from_email=from_email,
+           subject="Verify your email", send=True)
+
+    return True
 
 
 def create_user_from_json(json_dict):

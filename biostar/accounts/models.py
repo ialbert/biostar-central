@@ -27,6 +27,17 @@ class Profile(models.Model):
     ROLE_CHOICES = [(NORMAL, "User"), (MODERATOR, "Moderator"), (MANAGER, "Manager"),
                     (BLOG, "Blog User")]
 
+    NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST = range(4)
+    DIGEST_CHOICES = [(NO_DIGEST, 'Never'), (DAILY_DIGEST, 'Daily'),
+                      (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly')]
+
+    LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(3)
+    MESSAGING_TYPE_CHOICES = [
+                            (LOCAL_MESSAGE, "Local messages"),
+                            (EMAIL_MESSAGE, "Email messages"),
+                            (DIGEST_MESSAGES, "Digest email messages")
+                            ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     uid = models.CharField(max_length=MAX_UID_LEN, unique=True)
     name = models.CharField(max_length=MAX_NAME_LEN, default='', db_index=True)
@@ -58,14 +69,25 @@ class Profile(models.Model):
     twitter = models.CharField(default="", max_length=255, blank=True)
 
     # This field is used to select content for the user.
-    my_tags = models.TextField(default="", max_length=255, blank=True)
+    my_tags = models.CharField(default="", max_length=100)
 
     # Description provided by the user html.
     text = models.TextField(default="", null=True, blank=True)
 
     html = models.TextField(null=True, blank=True)
 
+    email_verified = models.BooleanField(default=False)
+
+    # Notify when the a recipe has been complete.
     notify = models.BooleanField(default=False)
+    message_prefs = models.IntegerField(choices=MESSAGING_TYPE_CHOICES,
+                                        default=LOCAL_MESSAGE)
+
+    # Subscription to daily and weekly digests.
+    digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=WEEKLY_DIGEST)
+
+    # Opt-in to all messages from the site
+    opt_in = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.email
@@ -77,9 +99,18 @@ class Profile(models.Model):
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         super(Profile, self).save(*args, **kwargs)
 
+    def can_moderate(self, source):
+        "Check if the source user can moderate the target( self.user)"
+
+        if source == self.user:
+            return False
+
+        return source.is_authenticated and (source.profile.is_manager or source.profile.is_moderator)
+
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        # Managers can moderate as well.
+        return self.role == self.MODERATOR or self.role == self.MANAGER
 
     @property
     def is_manager(self):
@@ -88,7 +119,6 @@ class Profile(models.Model):
     @property
     def is_suspended(self):
         return self.state == self.SUSPENDED
-
 
 
 @receiver(post_save, sender=User)

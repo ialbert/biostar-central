@@ -4,12 +4,11 @@
 <div class="ui divided items">
     {% for post in objs %}
 
-        <div class="post item">
-
+        <div class="post item {{post.deleted_class}}">
 
 
 <div class="ui image">
-            <div class="ui grey left stat label mini" >
+            <div class="ui grey left stat label mini " >
 
                     {% if post.is_toplevel %}
                         <div class="number-stat">

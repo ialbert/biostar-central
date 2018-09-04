@@ -42,7 +42,7 @@ class PostManager(models.Manager):
 
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
-        query = super().get_queryset().filter(project=None).exclude(status=Post.DELETED)
+        query = super().get_queryset().filter(project=None)
 
         return query
 
@@ -305,7 +305,7 @@ class Post(models.Model):
         if self.status == Post.OPEN:
             return self.title
         else:
-            return f"{self.get_status_display()} {self.title}"
+            return f"({self.get_status_display()}) {self.title}"
 
     @property
     def is_open(self):
@@ -382,6 +382,10 @@ class Post(models.Model):
     def is_toplevel(self):
         return self.type in Post.TOP_LEVEL
 
+    @property
+    def deleted_class(self):
+        return "deleted" if self.status == Post.DELETED else ""
+
 
 class Vote(models.Model):
     # Post statuses.
@@ -422,14 +426,13 @@ class Subscription(models.Model):
         (NO_MESSAGES, "Not following"),
         (LOCAL_MESSAGE, "Follow using Local Messages"),
         (EMAIL_MESSAGE, "Follow using Emails"),
-        (DIGEST_MESSAGES, "Send digests from time to time")
         ]
 
     class Meta:
         unique_together = (("user", "post"))
 
     uid = models.CharField(max_length=32, unique=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs",on_delete=models.CASCADE)
     type = models.IntegerField(choices=MESSAGING_CHOICES, default=LOCAL_MESSAGE)
     date = models.DateTimeField()

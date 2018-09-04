@@ -9,10 +9,13 @@ from django.utils.safestring import mark_safe
 from django.conf import settings
 from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
+from django.utils.encoding import force_text, force_bytes
+from django.utils.http import urlsafe_base64_decode
 
-from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile, SignUpWithCaptcha
+from .tokens import account_verification_token
+from . import forms
 from .models import User, Profile
-from .auth import check_user
+from .auth import check_user, send_verification_email
 from .util import now
 from .const import *
 
@@ -29,21 +32,38 @@ def edit_profile(request):
         messages.error(request, "Must be logged in to edit profile")
         return redirect("/")
 
-    id = request.user.id
-    user = User.objects.filter(id=id).first()
+    user = request.user
+    form = forms.EditProfile(user=user)
 
     if request.method == "POST":
-        form = EditProfile(data=request.POST, user=user)
+        form = forms.EditProfile(data=request.POST, user=user)
         if form.is_valid():
-            form.save()
-            return redirect("profile")
+            form.save(request=request)
+            return redirect(reverse("public_profile", kwargs=dict(uid=user.profile.uid)))
 
-        messages.error(request, mark_safe(form.errors))
-
-    initial = dict(email=user.email, name=user.first_name, username=user.username)
-    form = EditProfile(initial=initial, user=user)
     context = dict(user=user, form=form)
     return render(request, 'accounts/edit_profile.html', context)
+
+
+@login_required
+def user_moderate(request, uid):
+
+    source = request.user
+    target = User.objects.filter(profile__uid=uid).first()
+    form = forms.UserModerate(source=source, target=target, request=request)
+
+    if request.method == "POST":
+
+        form = forms.UserModerate(source=source, data=request.POST, target=target, request=request)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("public_profile", kwargs=dict(uid=uid)))
+        else:
+            msg = ','.join([y for x in form.errors.values() for y in x])
+            messages.error(request, msg)
+
+    context = dict(form=form, target=target)
+    return render(request, "accounts/user_moderate.html", context)
 
 
 def public_profile(request, uid):
@@ -59,10 +79,11 @@ def public_profile(request, uid):
         return redirect("/")
 
     active_tab = active_tab if (active_tab in PROFILE_TABS) else HAS_POSTS
+    can_moderate = user_profile.can_moderate(source=request.user)
 
     context = dict(user=user_profile.user, enable_forum=forum_enabled,
                    const_name=ACTIVE_TAB, const_post=HAS_POSTS, const_project=HAS_PROJECT,
-                   const_recipes=HAS_RECIPES)
+                   const_recipes=HAS_RECIPES, can_moderate=can_moderate)
 
     context.update({active_tab: ACTIVE_TAB})
 
@@ -103,7 +124,7 @@ def user_signup(request):
 
     if request.method == 'POST':
 
-        form = SignUpWithCaptcha(request.POST)
+        form = forms.SignUpWithCaptcha(request.POST)
         if form.is_valid():
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password1')
@@ -112,15 +133,19 @@ def user_signup(request):
             user.set_password(password)
             user.username = name.split()[0] + str(user.id)
             user.save()
-            login(request, user)
-            Profile.objects.filter(user=user).update(last_login=now())
-            messages.success(request, "Login successful!")
 
+            #login(request, user)
+            #Profile.objects.filter(user=user).update(last_login=now())
+            #messages.success(request, "Login successful!")
+
+            send_verification_email(user=user)
             logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
-            messages.info(request, "Signup successful!")
+            msg = mark_safe("Signup successful! <b>Please verify your email to complete registration.</b>")
+            messages.info(request, msg)
+
             return redirect("/")
     else:
-        form = SignUpWithCaptcha()
+        form = forms.SignUpWithCaptcha()
     context = dict(form=form, captcha_site_key=settings.RECAPTCHA_PUBLIC_KEY)
     return render(request, 'accounts/signup.html', context=context)
 
@@ -129,14 +154,14 @@ def user_logout(request):
 
     if request.method == "POST":
 
-        form = LogoutForm(request.POST)
+        form = forms.LogoutForm(request.POST)
 
         if form.is_valid():
             logout(request)
             messages.info(request, "You have been logged out")
             return redirect("/")
 
-    form = LogoutForm()
+    form = forms.LogoutForm()
 
     context = dict(form=form)
 
@@ -145,9 +170,9 @@ def user_logout(request):
 
 def user_login(request):
 
-    form = LoginForm()
+    form = forms.LoginForm()
     if request.method == "POST":
-        form = LoginForm(data=request.POST)
+        form = forms.LoginForm(data=request.POST)
 
         if form.is_valid():
 
@@ -169,6 +194,36 @@ def user_login(request):
 
     context = dict(form=form)
     return render(request, "accounts/login.html", context=context)
+
+
+@login_required
+def send_email_verify(request):
+    "Send one-time valid link to validate email"
+
+    # Sends verification email with a token
+    user = request.user
+
+    send_verification_email(user=user)
+
+    messages.success(request, "Verification sent, check your email.")
+
+    return redirect(reverse("public_profile", kwargs=dict(uid=user.profile.uid)))
+
+
+def email_verify_account(request, uidb64, token):
+    "Verify one time link sent to a users email"
+
+    uid = force_text(urlsafe_base64_decode(uidb64))
+    user = User.objects.filter(pk=uid).first()
+
+    if user and account_verification_token.check_token(user, token):
+        Profile.objects.filter(user=user).update(email_verified=True)
+        login(request, user)
+        messages.success(request, "Email verified!")
+        return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
+
+    messages.error(request, "Link is expired.") 
+    return redirect("/")
 
 
 def password_reset(request):

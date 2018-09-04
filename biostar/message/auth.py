@@ -1,5 +1,6 @@
 from .models import Message
 from biostar.forum.util import fixcase
+from biostar.accounts.models import Profile
 from . import const
 
 
@@ -53,7 +54,7 @@ def build_msg_tree(msg, tree=[]):
 
 
 def create_messages(body, sender, recipient_list, subject="", parent=None,
-                    source=Message.REGULAR, mtype=None):
+                    source=Message.REGULAR, mtype=Profile.LOCAL_MESSAGE):
     "Create batch message from sender for a given recipient_list"
 
     subject = subject or f"Message from : {sender.profile.name}"

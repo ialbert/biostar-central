@@ -116,6 +116,8 @@ def post_body(context, post, user, tree, form, include_userbox=True, comment_url
     sub_url = reverse(sub_view, request=request, kwargs=dict(uid=post.uid))
     next_url = reverse(sub_redir, request=request, kwargs=dict(uid=post.uid))
 
+    print(post.status == Post.DELETED, post)
+
     return dict(post=post, user=user, tree=tree, request=request,
                 form=form, include_userbox=include_userbox, comment_url=comment_url,
                 vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url, next_url=next_url, vote_view=vote_view,

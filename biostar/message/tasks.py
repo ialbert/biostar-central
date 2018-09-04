@@ -1,6 +1,7 @@
 import logging
 from django.conf import settings
 from biostar.message import models, auth
+from biostar.accounts.models import Profile
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -54,7 +55,7 @@ def notify_mentions(users, root, author, content):
     subject = f"Mentioned in a post: {title}"
 
     message = auth.create_messages(body=body, subject=subject, recipient_list=users,
-                                   mtype=models.Message.LOCAL_MESSAGE, sender=author,
+                                   mtype=Profile.LOCAL_MESSAGE, sender=author,
                                    source=models.Message.MENTIONED)
 
     return message
@@ -87,6 +88,6 @@ def create_sub_messages(subs, root, author, content):
     subject = f"Subscription to : {title}"
 
     message = auth.create_messages(body=body, subject=subject, recipient_list=subbed_users,
-                                   mtype=models.Message.LOCAL_MESSAGE, sender=author)
+                                   mtype=Profile.LOCAL_MESSAGE, sender=author)
 
     return message

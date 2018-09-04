@@ -54,13 +54,8 @@ class MessageManager(models.Manager):
 class Message(models.Model):
     "Connects recipients to sent messages"
 
-    LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(3)
-    MESSAGING_TYPE_CHOICES = [
-                            (LOCAL_MESSAGE, "Local messages"),
-                            (EMAIL_MESSAGE, "Email messages"),
-                            (DIGEST_MESSAGES, "Digest email messages")
-                            ]
-    type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
+    MESSAGING_TYPE_CHOICES = Profile.MESSAGING_TYPE_CHOICES
+    type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=Profile.LOCAL_MESSAGE, db_index=True)
 
     PROJECTS, MENTIONED, REGULAR = range(3)
     SOURCE_TYPE_CHOICES = [

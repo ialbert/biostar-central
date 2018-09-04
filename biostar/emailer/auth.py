@@ -30,7 +30,7 @@ def add_subscription(email, group, name=''):
 
 def notify(template_name, email_list, extra_context={},from_email=None, subject="Subject", send=False):
 
-    from_email = from_email or settings.ADMINS[0][1]
+    from_email = from_email or settings.DEFAULT_FROM_EMAIL
 
     # Test the templates exists
     if os.path.isfile(template_name):
@@ -47,7 +47,7 @@ def notify(template_name, email_list, extra_context={},from_email=None, subject=
         site = Site.objects.get_current()
 
         # Accumulate the emails into the database.
-        context= dict(site=site, protocol=settings.PROTOCOL, subject=subject)
+        context = dict(site=site, protocol=settings.PROTOCOL, subject=subject)
         context.update(extra_context)
         email.send(context=context, from_email=from_email, recipient_list=email_list)
 
