@@ -45,6 +45,10 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
     listing_func = get_listing_func(active_tab=active, tag_topic=topic)
 
     objs = listing_func(request=request, topic=active or topic).order_by("-pk")
+    user = request.user
+
+    if user.is_authenticated and not user.profile.is_moderator:
+        objs = objs.exclude(status=Post.DELETED)
 
     # Apply extra protocols to queryset (updates, filters, etc)
     objs = extra_proc(objs)
@@ -67,13 +71,13 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
 
 def community_list(request):
 
-    # Users that make posts or votes are
-    # considered part of the community
+    objs = User.objects.select_related("profile").all()
+    paginator = Paginator(objs, settings.USERS_PER_PAGE)
+    page = request.GET.get("page", 1)
+    objs = paginator.get_page(page)
+    context = dict(community="active", objs=objs)
 
-    template = "community_list.html"
-    topic = "community"
-
-    return list_view(request=request, template=template, topic=topic, per_page=settings.USERS_PER_PAGE)
+    return render(request, "community_list.html", context=context)
 
 
 def tags_list(request):

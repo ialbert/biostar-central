@@ -10,10 +10,15 @@ urlpatterns = [
     url(r'^password/reset/$', views.password_reset, name='password_reset'),
     url(r'^password/reset/done/$', views.password_reset_done, name='password_reset_done'),
 
+    url(r'^verify/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        views.email_verify_account, name='email_verify_account'),
+
     url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.pass_reset_confirm, name='password_reset_confirm'),
-    url(r'^reset/done/$', views.password_reset_complete, name='password_reset_complete'),
 
+    url(r'^verify/$', views.send_email_verify, name="send_email_verify"),
+
+    url(r'^reset/done/$', views.password_reset_complete, name='password_reset_complete'),
     url(r'^moderate/(?P<uid>[-\w]+)/$', views.user_moderate, name="user_moderate"),
     url(r'^login/$', views.user_login, name="login"),
     url(r'^signup/$', views.user_signup, name="signup"),

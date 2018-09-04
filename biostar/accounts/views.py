@@ -9,10 +9,13 @@ from django.utils.safestring import mark_safe
 from django.conf import settings
 from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
+from django.utils.encoding import force_text, force_bytes
+from django.utils.http import urlsafe_base64_decode
 
+from .tokens import account_verification_token
 from . import forms
 from .models import User, Profile
-from .auth import check_user
+from .auth import check_user, send_verification_email
 from .util import now
 from .const import *
 
@@ -35,7 +38,7 @@ def edit_profile(request):
     if request.method == "POST":
         form = forms.EditProfile(data=request.POST, user=user)
         if form.is_valid():
-            form.save()
+            form.save(request=request)
             return redirect(reverse("public_profile", kwargs=dict(uid=user.profile.uid)))
 
     context = dict(user=user, form=form)
@@ -130,12 +133,16 @@ def user_signup(request):
             user.set_password(password)
             user.username = name.split()[0] + str(user.id)
             user.save()
-            login(request, user)
-            Profile.objects.filter(user=user).update(last_login=now())
-            messages.success(request, "Login successful!")
 
+            #login(request, user)
+            #Profile.objects.filter(user=user).update(last_login=now())
+            #messages.success(request, "Login successful!")
+
+            send_verification_email(user=user)
             logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
-            messages.info(request, "Signup successful!")
+            msg = mark_safe("Signup successful! <b>Please verify your email to complete registration.</b>")
+            messages.info(request, msg)
+
             return redirect("/")
     else:
         form = forms.SignUpWithCaptcha()
@@ -187,6 +194,36 @@ def user_login(request):
 
     context = dict(form=form)
     return render(request, "accounts/login.html", context=context)
+
+
+@login_required
+def send_email_verify(request):
+    "Send one-time valid link to validate email"
+
+    # Sends verification email with a token
+    user = request.user
+
+    send_verification_email(user=user)
+
+    messages.success(request, "Verification sent, check your email.")
+
+    return redirect(reverse("public_profile", kwargs=dict(uid=user.profile.uid)))
+
+
+def email_verify_account(request, uidb64, token):
+    "Verify one time link sent to a users email"
+
+    uid = force_text(urlsafe_base64_decode(uidb64))
+    user = User.objects.filter(pk=uid).first()
+
+    if user and account_verification_token.check_token(user, token):
+        Profile.objects.filter(user=user).update(email_verified=True)
+        login(request, user)
+        messages.success(request, "Email verified!")
+        return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
+
+    messages.error(request, "Link is expired.") 
+    return redirect("/")
 
 
 def password_reset(request):

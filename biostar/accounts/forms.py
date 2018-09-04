@@ -1,5 +1,7 @@
 import mistune
 from django import forms
+
+from django.contrib import messages
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
@@ -101,9 +103,17 @@ class EditProfile(forms.Form):
                                           if you receive anwers to questions that you've posted.""",
                                           initial=self.user.profile.message_prefs)
 
-    def save(self):
+    def save(self, request):
+
+        email = self.cleaned_data['email']
+        email_verified = self.user.profile.email_verified
+
+        if self.user.email != email:
+            messages.info(request, "Email has to be reverified since it has changed")
+            email_verified = False
 
         self.user.email = self.cleaned_data['email']
+
         self.user.username = self.cleaned_data["username"]
         self.user.save()
 
@@ -116,7 +126,8 @@ class EditProfile(forms.Form):
                                                       my_tags=self.cleaned_data["my_tags"],
                                                       digest_prefs=self.cleaned_data["digest_prefs"],
                                                       message_prefs=self.cleaned_data["message_prefs"],
-                                                      html=mistune.markdown(self.cleaned_data["text"]))
+                                                      html=mistune.markdown(self.cleaned_data["text"]),
+                                                      email_verified=email_verified)
         return self.user
 
     def clean_email(self):
@@ -134,6 +145,8 @@ class EditProfile(forms.Form):
         data = self.cleaned_data['username']
         username = User.objects.exclude(pk=self.user.pk).filter(username=self.data)
 
+        if len(data.split()) > 1:
+            raise forms.ValidationError("No spaces allowed in username/handlers.")
         if username.exists():
             raise forms.ValidationError("This username is already being used.")
 

@@ -13,6 +13,10 @@ body {
 
 }
 
+.deleted {
+    background-color:#f7e4de !important;;
+}
+
 .ui.userinfo.segment {
   margin: 0;
   padding: 0;

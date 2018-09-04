@@ -31,11 +31,22 @@
              <div class="ui left aligned basic large segment">
             <div id="mod-container-{{user.profile.uid}}"></div>
              </div>
+
+        {% endif %}
+        {% if user.is_superuser %}
+            <a class="ui large blue label" style="margin-top:17" href="{% url 'site_admin' %}">
+                <i class="dashboard icon"></i> Site Admin
+            </a>
         {% endif %}
 
         </div>
 
         <div class="ui large segment">
+            {% if can_moderate or request.user == user %}
+                {% if user.profile.email_verified %}<div class="ui top left attached basic green large label">
+                <i class="check icon"></i> Email Verified</div>{% endif %}
+            {% endif %}
+
             <div class="ui relaxed list">
             <div class="item">
             <b>Reputation</b>: {{ user.profile.score | show_score }}
@@ -82,29 +93,24 @@
 
                 {% if user.profile.notify %}
                     <a class="ui mini red button" href="{% url 'toggle_notify' %}">
-                        <i class="mail icon"></i>Disable Emails
+                        <i class="mail icon"></i>Disable Recipe Emails
                     </a>
-                    {% if user.is_superuser %}
-                        <a class="ui mini blue button" href="{% url 'site_admin' %}">
-                            <i class="dashboard icon"></i> Site Admin
-                        </a>
-                    {% endif %}
-
-                 <div class="ui vertical basic segment">
-                    Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
-                  </div>
-
                     {% else %}
                     <a class="ui mini green button" href="{% url 'toggle_notify' %}">
-                        <i class="mail icon"></i>Enable Emails
+                        <i class="mail icon"></i>Enable Recipe Emails
                     </a>
-
-                    {% if user.is_superuser %}
-                        <a class="ui mini blue button" href="{% url 'site_admin' %}">
-                            <i class="dashboard icon"></i> Site Admin
-                        </a>
-                    {% endif %}
                 {% endif %}
+
+                                  {% if not user.profile.email_verified %}
+                 <a class="ui mini blue button" href="{% url 'send_email_verify' %}">
+                 <i class="check icon"></i>Verify Email</a>
+                 {% endif %}
+
+                 {% if user.profile.notify %}
+                  <div class="ui vertical basic segment">
+                    Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
+                  </div>
+                 {% endif %}
 
 
             </div>
@@ -114,10 +120,6 @@
 
 
 </div>
-
-
-
-
 
         {{ user.profile.html |safe }}
 

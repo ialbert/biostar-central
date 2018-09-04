@@ -91,7 +91,6 @@ def query_topic(user, topic, tag_search=False):
                           apply=lambda q: q.distinct()),
         OPEN: dict(func=Post.objects.top_level, params=dict(user=user),
                                apply=lambda q: q.filter(type=Post.QUESTION, reply_count=0)),
-        COMMUNITY: dict(func=User.objects.select_related("profile").all, params=dict()),
     }
 
     if mapper.get(topic):

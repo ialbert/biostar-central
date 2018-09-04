@@ -10,7 +10,7 @@
 
     {% endif %}
 
-    <div class="ui items">
+    <div class="ui items {{post.deleted_class}}">
         <div class="item">
             <div class="ui image">
                 <a href="{{ vote_url }}?type=upvote&{{ redir_field_name}}={{ next_url }}">

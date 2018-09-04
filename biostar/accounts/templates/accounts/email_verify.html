@@ -1,0 +1,40 @@
+
+{# This will be the subject of the email #}
+{%  block subject %}
+
+    [biostar-engine] {{subject}}
+
+{% endblock %}
+
+{# This will be the subject of the email #}
+
+{% block html %}
+
+To verify your account belonging to {{ user.email }},
+click the link below:
+
+{{ protocol }}://{{ site.domain }}{% url 'email_verify_account' uidb64=userid token=token %}
+
+If clicking the link above doesn't work, please copy and paste the URL in a new browser
+window instead.
+
+Sincerely,
+The Biostar Team
+
+
+{% endblock %}
+
+{% block text %}
+To verify your account belonging to {{ user.email }},
+click the link below:
+
+{{ protocol }}://{{ site.domain }}{% url 'account_verify' uidb64=userid token=token %}
+
+If clicking the link above doesn't work, please copy and paste the URL in a new browser
+window instead.
+
+Sincerely,
+The Biostar Team
+
+{% endblock %}
+
