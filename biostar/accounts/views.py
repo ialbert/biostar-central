@@ -46,6 +46,21 @@ def edit_profile(request):
 
 
 @login_required
+def toggle_moderate(request):
+
+    user = request.user
+
+    if settings.ALLOW_SELF_MODERATE:
+
+        role = Profile.NORMAL if user.profile.is_moderator else Profile.MODERATOR
+        Profile.objects.filter(user=user).update(role=role)
+        mapper = {Profile.MODERATOR:" a moderator"}
+        messages.success(request, f"You are now {mapper.get(role, 'not a moderator')}")
+
+    return redirect(reverse("public_profile", kwargs=dict(uid=user.profile.uid)))
+
+
+@login_required
 def user_moderate(request, uid):
 
     source = request.user
@@ -126,20 +141,7 @@ def user_signup(request):
 
         form = forms.SignUpWithCaptcha(request.POST)
         if form.is_valid():
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password1')
-            name = email.split("@")[0]
-            user = User.objects.create(email=email, first_name=name)
-            user.set_password(password)
-            user.username = name.split()[0] + str(user.id)
-            user.save()
-
-            #login(request, user)
-            #Profile.objects.filter(user=user).update(last_login=now())
-            #messages.success(request, "Login successful!")
-
-            send_verification_email(user=user)
-            logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
+            form.save()
             msg = mark_safe("Signup successful! <b>Please verify your email to complete registration.</b>")
             messages.info(request, msg)
 
@@ -222,7 +224,7 @@ def email_verify_account(request, uidb64, token):
         messages.success(request, "Email verified!")
         return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
 
-    messages.error(request, "Link is expired.") 
+    messages.error(request, "Link is expired.")
     return redirect("/")
 
 

@@ -49,6 +49,15 @@
 <div class="content" style="padding-left:2;">
 
         <div class="header">
+            {% if side_image %}
+                 <a class="ui mini avatar image" href="{% url 'public_profile' post.author.profile.uid %}" style="width:25px">
+                     {% gravatar user=post.author size=50 %}</a>
+
+                {% if post.author != post.lastedit_user %}
+                 <a class="ui mini avatar image" href="{% url 'public_profile' post.lastedit_user.profile.uid %}" style="width:25px">
+                     {% gravatar user=post.lastedit_user size=50 %}</a>
+                {% endif %}
+            {% endif %}
 
                 <span class="ui title header">
                     {% if post.type != post.QUESTION %}
@@ -76,7 +85,7 @@
                         </a>
                     {% endfor %}
                     <div style="padding:0px; font-size:12;" class="ui right floated basic segment">
-                        {% user_info post=post by_diff=True %}
+                        {% user_info post=post by_diff=True with_image=False %}
                     </div>
             </div>
 

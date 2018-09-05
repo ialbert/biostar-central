@@ -74,7 +74,7 @@ def gravatar(user, size=80):
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
     gravatar_url += urllib.parse.urlencode({
         's': str(size),
-        'd': 'identicon',
+        'd': 'retro',
     }
     )
 
@@ -115,8 +115,6 @@ def post_body(context, post, user, tree, form, include_userbox=True, comment_url
     vote_url = reverse(vote_view, request=request, kwargs=dict(uid=post.uid))
     sub_url = reverse(sub_view, request=request, kwargs=dict(uid=post.uid))
     next_url = reverse(sub_redir, request=request, kwargs=dict(uid=post.uid))
-
-    print(post.status == Post.DELETED, post)
 
     return dict(post=post, user=user, tree=tree, request=request,
                 form=form, include_userbox=include_userbox, comment_url=comment_url,
@@ -206,9 +204,9 @@ def show_score(score):
 
 
 @register.inclusion_tag('widgets/user_info.html')
-def user_info(post, by_diff=False):
+def user_info(post, by_diff=False, with_image=True):
 
-    return dict(post=post, by_diff=by_diff)
+    return dict(post=post, by_diff=by_diff, with_image=with_image)
 
 
 @register.simple_tag
@@ -226,9 +224,9 @@ def get_posts(user, request, per_page=20):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(posts=None, discussion_view=False):
+def listing(posts=None, discussion_view=False, side_image=False):
 
-    return dict(objs=posts, discussion_view=discussion_view)
+    return dict(objs=posts, discussion_view=discussion_view, side_image=side_image)
 
 
 @register.filter

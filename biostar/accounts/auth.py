@@ -66,23 +66,25 @@ def create_user_from_json(json_dict):
 
     name = json_dict.get("name", "")
     user = User.objects.filter(email=email)
+    # Given user-id is going to be loaded as a uid
+    uid = json_dict.get("id", util.get_uuid(16))
 
     # Create a user if email is unique
     if not user:
         user = User.objects.create(email=email, first_name=name,
                                    password=password)
-        user.username = name.split()[0] + str(user.id)
+        user.username = name.split()[0] + str(uid)
         user.save()
     else:
         logger.error("User with same email already exists.")
         return user.first()
 
     # Recreate profile
-    state = json_dict.get("status", Profile.NEW)
-    role = json_dict.get("type", Profile.NORMAL)
 
-    # Given user-id is going to be loaded as a uid
-    uid = json_dict.get("id", util.get_uuid(16))
+    role = json_dict.get("type", Profile.MODERATOR if settings.ALLOW_SELF_MODERATE else Profile.NORMAL)
+
+    state = json_dict.get("status", Profile.NEW)
+
     Profile.objects.filter(user=user).update(uid=uid, state=state, role=role,
                                              website=json_dict.get("website", ""),
                                              scholar=json_dict.get("scholar", ""),

@@ -1,5 +1,6 @@
 
 from django.conf.urls import url, include
+from django.conf import settings
 from . import views
 
 urlpatterns = [
@@ -29,4 +30,9 @@ urlpatterns = [
     url(r'^logout/$', views.user_logout, name="logout")
 
 ]
+
+if settings.ALLOW_SELF_MODERATE:
+    # Allow users to toggle their moderation state
+    urlpatterns += [url(r'^toggle/moderate/$', views.toggle_moderate, name="toggle_moderate")]
+
 

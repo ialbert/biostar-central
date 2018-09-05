@@ -292,7 +292,7 @@ class Post(models.Model):
             if user == self.author:
                 is_editable = True
 
-            elif user.profile.is_moderator or user.profile.is_manager or user.is_staff:
+            elif user.profile.is_moderator or user.profile.is_manager:
                 is_editable = True
 
         return is_editable
