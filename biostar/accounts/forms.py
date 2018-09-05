@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from pagedown.widgets import PagedownWidget
 from .models import Profile
-from . import auth, util
+from . import auth
 
 
 logger = logging.getLogger("engine")
@@ -61,9 +61,11 @@ class SignUpForm(forms.Form):
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password1')
         name = email.split("@")[0]
-        username = name.split()[0] + str(util.get_uuid(4))
-        user = User.objects.create(email=email, first_name=name, username=username)
+        user = User.objects.create(email=email, first_name=name)
         user.set_password(password)
+
+        # TODO: needs to change
+        user.username = name.split()[0] + str(user.profile.uid)
         user.save()
 
         # Send
