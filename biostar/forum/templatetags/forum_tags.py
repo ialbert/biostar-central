@@ -223,6 +223,14 @@ def get_posts(user, request, per_page=20):
     return objs
 
 
+@register.simple_tag
+def get_thread_users(post, limit=3):
+
+    users = post.thread_users.all()[:limit]
+
+    return users
+
+
 @register.inclusion_tag('widgets/listing.html')
 def listing(posts=None, discussion_view=False, side_image=False):
 

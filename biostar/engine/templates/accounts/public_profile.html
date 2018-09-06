@@ -178,7 +178,7 @@
             {% pages objs=posts request=request  %}
 
             <div class="ui small relaxed divided list">
-                {% listing posts=posts %}
+                {% listing posts=posts side_image=True %}
             </div>
             {% if not posts %}
             <div class="ui warning message"><i class="ui warning circle icon"></i> No posts found.</div>

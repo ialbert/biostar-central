@@ -42,7 +42,8 @@ class PostManager(models.Manager):
 
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
-        query = super().get_queryset().filter(project=None)
+        query = super().get_queryset().filter(project=None).prefetch_related("tags", "thread_users__profile",
+                                                                             "thread_users")
 
         return query
 
@@ -52,7 +53,7 @@ class PostManager(models.Manager):
         query = super().get_queryset().exclude(project=None, status=Post.DELETED).filter(**kwargs)
         query = query.select_related("root", "author", "author__profile",
                                     "lastedit_user", "lastedit_user__profile", "project")
-        query = query.prefetch_related("tags")
+        query = query.prefetch_related("tags", "thread_users")
         return query
 
     def get_all(self, **kwargs):
@@ -60,7 +61,7 @@ class PostManager(models.Manager):
         query = super().get_queryset().filter(**kwargs)
         query = query.select_related("root", "author", "author__profile",
                                     "lastedit_user", "lastedit_user__profile")
-        query = query.prefetch_related("tags")
+        query = query.prefetch_related("tags", "thread_users", "thread_users__profile")
         return query
 
     def following(self, user):
@@ -194,6 +195,9 @@ class Post(models.Model):
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(User, related_name='editor', null=True,
                                       on_delete=models.SET(get_sentinel_user))
+
+    # Store users contributing to the thread as "tags" to query later.
+    thread_users = models.ManyToManyField(User, related_name="thread_users")
 
     # Indicates the information value of the post.
     rank = models.FloatField(default=0, blank=True)
@@ -370,10 +374,14 @@ class Post(models.Model):
             else:
                 self.tag_val = required_tag
 
-        # Recompute post reply count
-        self.update_reply_count()
-
         super(Post, self).save(*args, **kwargs)
+
+        thread = Post.objects.filter(status=self.OPEN, root=self.root)
+        reply_count = thread.exclude(pk=self.parent.pk).filter(type=self.ANSWER).count()
+        thread_score = thread.exclude(pk=self.root.pk).count()
+
+        Post.objects.filter(pk=self.parent.pk).update(reply_count=reply_count)
+        Post.objects.filter(pk=self.root.pk).update(thread_score=thread_score)
 
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
@@ -485,6 +493,26 @@ def set_post(sender, instance, created, *args, **kwargs ):
             instance.parent.lastedit_user = instance.lastedit_user
             instance.parent.save()
 
+
+@receiver(post_save, sender=Post)
+def check_thread_users(sender, instance, created, *args, **kwargs):
+
+    # Add the author to the thread_users of the root relation_set.
+
+    obj = instance.root if instance.root else instance
+    users = list(Post.objects.get_all(pk=obj.pk).values_list("thread_users", flat=True))
+    user_pks = users + [instance.author.pk]
+    user_pks = set(user_pks)
+
+    obj.thread_users.clear()
+
+    for pk in user_pks:
+        if pk:
+            user = User.objects.filter(pk=pk).first()
+            obj.thread_users.add(user)
+
+
+    return
 
 @receiver(post_save, sender=Post)
 def check_root(sender, instance, created, *args, **kwargs):

@@ -7,7 +7,7 @@ import mistune
 
 from django.contrib import messages
 from django.utils.timezone import utc
-from django.db.models import F
+from django.db.models import F, Q
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from biostar.message import tasks
@@ -158,16 +158,13 @@ def create_sub(post,  user, sub_type=None):
 
 def update_vote_count(post):
 
-    vcount = Vote.objects.filter(post=post, type=Vote.UP).count()
-    bookcount = Vote.objects.filter(post=post, type=Vote.BOOKMARK).count()
-    # TODO:Thread score compted wrong here
-    thread = Post.objects.exclude(status=Post.DELETED).filter(root=post.root, votes__type=Vote.UP)
+    query = Q(post__root=post) if post.is_toplevel else Q(post=post)
 
-    thread_score = thread.count()
+    vcount = Vote.objects.filter(query, type=Vote.UP).count()
+    bookcount = Vote.objects.filter(query, type=Vote.BOOKMARK).count()
 
     # Update the thread score as well
-    Post.objects.filter(pk=post.pk).update(vote_count=vcount, book_count=bookcount,
-                                           thread_score=thread_score)
+    Post.objects.filter(pk=post.pk).update(vote_count=vcount, book_count=bookcount)
 
 
 def create_vote(author, post, vote_type, updated_type=Vote.EMPTY, update=False):
@@ -211,7 +208,7 @@ def create_post_from_json(json_dict):
     html = json_dict.get("html", "")
     tag_val = json_dict.get("tag_val")
 
-    reply_count = json_dict.get("reply_count", 0)
+    #reply_count = json_dict.get("reply_count", 0)
     #thread_score = json_dict.get("thread_score", 0)
     #vote_count = json_dict.get("vote_count", 0)
     view_count = json_dict.get("view_count", 0)
@@ -226,7 +223,7 @@ def create_post_from_json(json_dict):
                                root=root, parent=parent, creation_date=creation_date,
                                lastedit_date=lastedit_date, title=title, has_accepted=has_accepted,
                                type=type, status=status, content=content, html=html, tag_val=tag_val,
-                               reply_count=reply_count, #thread_score=thread_score, vote_count=vote_count,
+                               #reply_count=reply_count, #thread_score=thread_score, vote_count=vote_count,
                                view_count=view_count)
     # Trigger another save
     post.add_tags(post.tag_val)

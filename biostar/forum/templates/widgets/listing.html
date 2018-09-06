@@ -10,30 +10,28 @@
 <div class="ui image">
             <div class="ui grey left stat label mini " >
 
-                    {% if post.is_toplevel %}
-                        <div class="number-stat">
-                        {{ post.thread_score }}
-                        </div>
-                        <div class="detail-stat">Vote{{ post.thread_score|pluralize }}</div>
 
-
-                    {% else %}
                     <div class="number-stat">
                         {{ post.vote_count }}
                         </div>
                         <div class="detail-stat">Vote{{ post.vote_count|pluralize }}</div>
-                    {% endif %}
-
 
             </div>
 
             <div class="ui {% boxclass post %} label stat mini">
+                {% if post.is_toplevel %}
+                    <div class="number-stat">
+                    {{ post.thread_score }}
+                    </div>
+                    <div class="detail-stat">Remark{{ post.thread_score|pluralize }}</div>
 
-                <div class="number-stat">
+                {% else %}
+                    <div class="number-stat">
 
-                    {{ post.root.reply_count }}
-                </div>
-                <div class="detail-stat">Answer{{ post.root.reply_count|pluralize }}</div>
+                        {{ post.root.reply_count }}
+                    </div>
+                    <div class="detail-stat">Remark{{ post.root.reply_count|pluralize }}</div>
+                {% endif %}
             </div>
 
             <div class="ui label basic transparent stat mini">
@@ -50,13 +48,14 @@
 
         <div class="header">
             {% if side_image %}
-                 <a class="ui mini avatar image" href="{% url 'public_profile' post.author.profile.uid %}" style="width:25px">
-                     {% gravatar user=post.author size=50 %}</a>
+                {% get_thread_users post=post limit=5 as extra_users %}
 
-                {% if post.author != post.lastedit_user %}
-                 <a class="ui mini avatar image" href="{% url 'public_profile' post.lastedit_user.profile.uid %}" style="width:25px">
-                     {% gravatar user=post.lastedit_user size=50 %}</a>
-                {% endif %}
+                {% for user in extra_users %}
+                 <a class="ui mini avatar image" href="{% url 'public_profile' user.profile.uid %}" style="width:25px">
+                     {% gravatar user=user size=50 %}</a>
+
+                {% endfor %}
+
             {% endif %}
 
                 <span class="ui title header">

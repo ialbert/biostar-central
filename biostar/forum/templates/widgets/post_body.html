@@ -72,10 +72,18 @@
 
                  {% endif %}
                  <div class="extrainfo">
+
+             {% if user.is_authenticated %}
             <a class="add-comment ui mini grey label" comment-url="{{ comment_url }}"
                data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
                 ADD COMMENT
             </a>
+             {% else %}
+             <a class="ui mini grey label" href="{% url 'login' %}">
+                ADD COMMENT
+            </a>
+
+             {% endif %}
 
                  <a href="#">link</a>
                  {% can_edit post=post user=user as editable%}

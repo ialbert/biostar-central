@@ -30,10 +30,15 @@ function moderate(elem) {
     var container = $("#mod-container-" + data_uid);
     var mod_url = elem.attr('mod-url');
 
-    var page = $('<div id="modpanel"></div>').load(mod_url)
+    var page = $('<div id="modpanel"></div>').load(mod_url);
     container.after(page)
 
 };
+
+
+function add_answer(elem) {
+
+}
 
 function add_comment(elem) {
 
@@ -119,6 +124,10 @@ $(document).ready(function () {
 
     $(".add-comment").click(function (event) {
         add_comment($(this));
+        });
+
+    $(".add-answer").click(function (event) {
+        add_answer($(this));
         });
 
     $(".moderate-post").click(function (event) {
