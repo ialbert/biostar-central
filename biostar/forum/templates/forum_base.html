@@ -52,7 +52,6 @@
 
         {% menubar request=request with_search=False %}
 
-
     {% endblock %}
         {% if user.is_authenticated and not user.profile.email_verified %}
         <div class="ui warning message"><b><i class="circle info icon"></i>Please verify your email.</b>
