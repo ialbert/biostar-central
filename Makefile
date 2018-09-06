@@ -7,7 +7,7 @@ DATA_HOST=data.bioinformatics.recipes
 all: reset load serve
 
 serve: init
-	python manage.py runserver --settings=conf.natay.site_settings
+	python manage.py runserver
 
 test_email:
 	# Actually send emails with --send args
