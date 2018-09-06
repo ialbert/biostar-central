@@ -52,6 +52,11 @@
         {% moderate request=request %}
         {% menubar request=request %}
     {% endblock %}
+    {% if user.is_authenticated and not user.profile.email_verified %}
+        <div class="ui warning message"><b><i class="circle info icon"></i>Please verify your email.</b>
+        <a href="{% url 'send_email_verify' %}">Send verification email</a>
+        </div>
+    {% endif %}
 
     <div class="ui bottom attached segment">
 

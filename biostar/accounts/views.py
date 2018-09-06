@@ -141,8 +141,11 @@ def user_signup(request):
 
         form = forms.SignUpWithCaptcha(request.POST)
         if form.is_valid():
-            form.save()
-            msg = mark_safe("Signup successful! <b>Please verify your email to complete registration.</b>")
+            user = form.save()
+            login(request, user)
+            Profile.objects.filter(user=user).update(last_login=now())
+            messages.success(request, "Login successful!")
+            msg = mark_safe("Signup successful!")
             messages.info(request, msg)
 
             return redirect("/")

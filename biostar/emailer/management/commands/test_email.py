@@ -26,7 +26,7 @@ class Command(BaseCommand):
         if to_emails:
             to_emails = to_emails.split(",")
 
-        from_email = settings.DEFAULT_FROM_EMAIL
+        from_email = settings.ADMINS[0][1]
         subject = "test email"
 
         recipient_list = to_emails or [settings.ADMINS[0][1]]
