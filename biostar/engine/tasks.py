@@ -6,6 +6,7 @@ import logging, time, shutil, subprocess
 from django.core import management
 from django.utils.encoding import force_text
 
+
 import time
 
 logger = logging.getLogger("engine")
@@ -19,6 +20,15 @@ try:
     from uwsgidecorators import *
 
     HAS_UWSGI = True
+
+    @timer(20)
+    def send_emails(**kwargs):
+        """
+        Sends  queued emails
+        """
+        from mailer.engine import send_all
+        send_all()
+        logger.info("send_all()")
 
     @timer(30)
     def scheduler(args):
