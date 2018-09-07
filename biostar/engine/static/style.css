@@ -3,6 +3,18 @@ body {
     padding-top: 1rem;
 }
 
+.ui.tabular.colored.menu {
+    border-bottom: 1px solid #2185d0!important;
+
+}
+
+.ui.attached.colored.segment {
+    border-bottom: 1px solid #2185d0!important;
+    border-left: 1px solid #2185d0!important;
+    border-right: 1px solid #2185d0!important;
+
+}
+
 .ui.items>.item>.content>a.header {
     color: #4183c4;
 }
