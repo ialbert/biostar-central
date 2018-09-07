@@ -5,7 +5,7 @@ This is active only when deployed via UWSGI
 import logging, time, shutil, subprocess
 from django.core import management
 from django.utils.encoding import force_text
-from mailer.engine import send_all
+
 
 import time
 
@@ -20,6 +20,18 @@ try:
     from uwsgidecorators import *
 
     HAS_UWSGI = True
+
+    @timer(20)
+    def send_emails(*args ,**kwargs):
+        """
+        Sends  queued emails
+        """
+        try:
+            from mailer.engine import send_all
+            send_all()
+            logger.info("send_all()")
+        except exc as Exception:
+            logger.error(exc)
 
     @timer(30)
     def scheduler(args):
@@ -55,14 +67,6 @@ try:
         logger.info(f"-> JOB START {value} ")
         time.sleep(N)
         logger.info(f"<- JOB END {value}")
-
-    @timer(20)
-    def send_emails(value):
-        """
-        Sends  queued emails
-        """
-        send_all()
-        logger.info("send_all()")
 
     @spool(pass_arguments=True)
     def execute_job(job_id):
