@@ -45,7 +45,7 @@ def notify(template_name, email_list, extra_context={}, from_email=None, subject
 
         # Accumulate the emails into the database.
         context = dict(domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL, port=settings.HTTP_PORT,
-                       subject=subject)
+                       subject=subject, name=settings.SITE_NAME)
         context.update(extra_context)
         email.send(context=context, from_email=from_email, recipient_list=email_list)
 
