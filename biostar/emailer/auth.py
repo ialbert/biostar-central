@@ -28,9 +28,9 @@ def add_subscription(email, group, name=''):
     Subscription.objects.create(group=group, address=address)
 
 
-def notify(template_name, email_list, extra_context={},from_email=None, subject="Subject", send=False):
+def notify(template_name, email_list, extra_context={}, from_email=None, subject="Subject", send=False):
 
-    from_email = from_email or settings.DEFAULT_FROM_EMAIL
+    from_email = from_email or settings.ADMINS[0][1]
 
     # Test the templates exists
     if os.path.isfile(template_name):
@@ -43,12 +43,9 @@ def notify(template_name, email_list, extra_context={},from_email=None, subject=
         # The object that parsers the template.
         email = sender.EmailTemplate(template_name)
 
-        # This is the context passed to each template.
-        site = Site.objects.get_current()
-
         # Accumulate the emails into the database.
         context = dict(domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL, port=settings.HTTP_PORT,
-                       subject=subject)
+                       subject=subject, name=settings.SITE_NAME)
         context.update(extra_context)
         email.send(context=context, from_email=from_email, recipient_list=email_list)
 

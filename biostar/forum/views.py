@@ -71,7 +71,7 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
 
 def community_list(request):
 
-    objs = User.objects.select_related("profile").all()
+    objs = User.objects.select_related("profile").order_by("-last_login")
     paginator = Paginator(objs, settings.USERS_PER_PAGE)
     page = request.GET.get("page", 1)
     objs = paginator.get_page(page)
