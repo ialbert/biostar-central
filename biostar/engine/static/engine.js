@@ -31,6 +31,12 @@ $.ajaxSetup({
     }
 });
 
+function mod_votecount(elem, k) {
+    count = parseInt(elem.siblings('.count').text()) || 0
+    count += k
+    elem.siblings('.count').text(count)
+}
+
 function pop_over(elem, msg, cls) {
     var text = '<div></div>'
     var tag = $(text).insertAfter(elem)
@@ -98,9 +104,12 @@ function toggle_button(elem) {
     // Toggles the state of the buttons and updates the label messages
     if (icon.hasClass('outline')) {
         icon.removeClass('outline');
+        change = 1
     } else {
         icon.addClass('outline');
+        change = -1
     }
+    mod_votecount(elem, change)
 }
 
 function ajax_vote(elem, post_uid, vote_type, vote_url) {

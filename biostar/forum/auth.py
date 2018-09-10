@@ -205,22 +205,6 @@ def preform_vote(post, user, vote_type):
     return msg
 
 
-def create_vote(author, post, vote_type, updated_type=Vote.EMPTY, update=False):
-
-    vote = Vote.objects.filter(author=author, post=post, type=vote_type).first()
-
-    if update and vote:
-        # Update an existing vote type
-        Vote.objects.filter(pk=vote.pk).update(type=updated_type)
-    else:
-        vote = Vote.objects.create(post=post, author=author, type=vote_type)
-
-    # Update the post's vote/bookmark counts
-    #update_vote_count(post=post)
-
-    return vote
-
-
 def create_post_from_json(json_dict):
 
     root_uid = json_dict.get("root_id")

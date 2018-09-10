@@ -18,7 +18,7 @@
                     <i class="large thumbs up outline icon"></i>
                 </a>
 
-                <div class="ui center aligned header">{{ post.vote_count }}</div>
+                <div class="ui center aligned count header">{{ post.vote_count }}</div>
 
                 <a class="vote" data-post_uid="{{post.uid}}" data-type="bookmark" vote-url="{% url 'vote' %}">
                     <i class="large bookmark outline icon"></i>
@@ -31,6 +31,8 @@
                     <a class="vote" data-post_uid="{{post.uid}}" data-type="accept" vote-url="{% url 'vote' %}">
                         <i class="large check circle green outline icon"></i>
                     </a>
+                {% elif post.has_accepted and not post.is_toplevel %}
+                    <i class="large check circle green icon"></i>
                 {% endif %}
 
             </div>

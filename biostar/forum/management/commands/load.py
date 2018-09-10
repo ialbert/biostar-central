@@ -6,7 +6,7 @@ import os
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from biostar.forum.auth import create_post_from_json, create_vote
+from biostar.forum.auth import create_post_from_json, preform_vote
 from biostar.forum.models import Post, Vote
 from biostar.accounts.auth import create_user_from_json
 from biostar.accounts.models import Profile
@@ -28,7 +28,7 @@ def vote_loader(single_vote):
                     post.uid={post_uid} and vote_type={vote_type} already exists""")
         return vote.first()
 
-    vote = create_vote(author=user, post=post, vote_type=int(vote_type))
+    vote = preform_vote(user=user, post=post, vote_type=int(vote_type))
 
     return vote
 

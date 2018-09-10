@@ -17,6 +17,9 @@ body {
     background-color:#f7e4de !important;;
 }
 
+.count {
+    padding-right:10px !important;;
+}
 .accepted {
     background-color: #f9fcf9 !important;;
 }
