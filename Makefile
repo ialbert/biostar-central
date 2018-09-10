@@ -60,10 +60,8 @@ verbose:
 
 
 soft_delete:
-	# Ensure the files that could hold secrets exist.
-	# Remove the database and old media.
+	# Used to load data without deleting old media and spoolers
 	rm -rf export/logs/*.log
-	rm -rf export/spooler/*spool*
 	rm -f export/database/engine.db
 	rm -rf export/static/CACHE
 	rm -rf *.egg
@@ -81,7 +79,7 @@ delete:
 	rm -rf *.egg
 	rm -rf *.egg-info
 
-reset: delete init recipes
+reset: soft_delete init recipes
 
 postgres:
 	#dropdb --if-exists testbuddy_engine
@@ -120,9 +118,8 @@ dumpdata:
 	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > export/database/dbdump.json
 
 
-loaddata: soft_delete init
+loaddata:
 	python manage.py loaddata export/database/dbdump.json
-
 
 deploy_psu:
 	(cd conf/ansible && ansible-playbook -i hosts-psu server_deploy.yml --ask-become-pass --extra-vars "reset=True")
