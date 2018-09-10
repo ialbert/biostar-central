@@ -99,11 +99,6 @@ def tags_banner(context, limit=5, listing=False):
     return dict(tags=all_tags, limit=limit, listing=listing, request=request)
 
 
-@register.simple_tag
-def can_edit(post, user):
-
-    return post.is_editable(user=user)
-
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
 def post_body(context, post, user, tree, form, include_userbox=True,
@@ -344,18 +339,6 @@ def render_comments(request, tree, post, next_url, project_uid=None,
         text = ''
 
     return mark_safe(text)
-
-
-@register.simple_tag
-def vote_outline(post, user, vote_type):
-
-    type_map = dict(upvote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
-    vote_type = type_map[vote_type]
-
-    if user.is_authenticated and post.has_vote(user=user, vote_type=vote_type):
-        return ""
-
-    return "outline"
 
 
 def traverse_comments(request, post, tree, comment_template, next_url,

@@ -229,15 +229,18 @@ class Data(models.Model):
         """
         Returns a preview of the data
         """
-        target = self.get_path()
-        lines = open(target, 'rt').readlines()
-        if len(lines) == 1:
-            target = lines[0]
-            return util.smart_preview(target)
-        else:
-            data_dir = self.get_data_dir()
-            rels = [os.path.relpath(path, data_dir) for path in lines]
-            return "".join(rels)
+        try:
+            target = self.get_path()
+            lines = open(target, 'rt').readlines()
+            if len(lines) == 1:
+                target = lines[0]
+                return util.smart_preview(target)
+            else:
+                data_dir = self.get_data_dir()
+                rels = [os.path.relpath(path, data_dir) for path in lines]
+                return "".join(rels)
+        except Exception as exc:
+            return f"Error :{exc}"
 
     def __str__(self):
         return self.name
