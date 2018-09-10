@@ -59,6 +59,17 @@ verbose:
 	export DJANGO_LOG_LEVEL=DEBUG
 
 
+soft_delete:
+	# Ensure the files that could hold secrets exist.
+	# Remove the database and old media.
+	rm -rf export/logs/*.log
+	rm -rf export/spooler/*spool*
+	rm -f export/database/engine.db
+	rm -rf export/static/CACHE
+	rm -rf *.egg
+	rm -rf *.egg-info
+
+
 delete:
 	# Ensure the files that could hold secrets exist.
 	# Remove the database and old media.
@@ -103,6 +114,14 @@ load:
 	python manage.py load --root initial/export-100 --posts posts.txt  --n 100 || true
 
 	python manage.py load --root initial/export-100 --votes votes.txt  --n 100 || true
+
+
+dumpdata:
+	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > export/database/dbdump.json
+
+
+loaddata: soft_delete init
+	python manage.py loaddata export/database/dbdump.json
 
 
 deploy_psu:
