@@ -10,20 +10,29 @@
 
     {% endif %}
 
-    <div class="ui items {{post.deleted_class}}">
+    <div class="ui items {{post.deleted_class}} {{post.accepted_class}}">
         <div class="item">
             <div class="ui image">
-                <a href="{{ vote_url }}?type=upvote&{{ redir_field_name}}={{ next_url }}">
-                    {% if post.has_upvote %}<i class="large thumbs up icon"></i>{% else %}
+
+                <a class="vote" data-post_uid="{{post.uid}}" data-type="upvote" vote-url="{% url 'vote' %}">
                     <i class="large thumbs up outline icon"></i>
-                    {% endif %}
                 </a>
+
                 <div class="ui center aligned header">{{ post.vote_count }}</div>
-                <a href="{{ vote_url }}?type=bookmark&{{ redir_field_name}}={{ next_url }}">
-                    {% if post.has_bookmark %}<i class="large bookmark icon"></i>{% else%}
+
+                <a class="vote" data-post_uid="{{post.uid}}" data-type="bookmark" vote-url="{% url 'vote' %}">
                     <i class="large bookmark outline icon"></i>
-                    {% endif %}
                 </a>
+
+                <div></div>
+
+                {% if user == post.root.author and not post.is_toplevel %}
+
+                    <a class="vote" data-post_uid="{{post.uid}}" data-type="accept" vote-url="{% url 'vote' %}">
+                        <i class="large check circle green outline icon"></i>
+                    </a>
+                {% endif %}
+
             </div>
 
              <div class="content">
@@ -74,7 +83,7 @@
                  <div class="extrainfo">
 
              {% if user.is_authenticated %}
-            <a class="add-comment ui mini grey label" comment-url="{{ comment_url }}"
+            <a class="add-comment ui mini grey label" comment-url="{% url 'post_comment' %}"
                data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
                 ADD COMMENT
             </a>
@@ -106,7 +115,7 @@
                 <div id="comment-container-{{post.uid}}"></div>
                  {# Comments for each post rendered here #}
 
-                {% render_comments tree=tree project_uid=project_uid request=request post=post comment_url=comment_url vote_view=vote_view next_url=next_url %}
+                {% render_comments tree=tree project_uid=project_uid request=request post=post next_url=next_url %}
 
                  </div>
              </div>

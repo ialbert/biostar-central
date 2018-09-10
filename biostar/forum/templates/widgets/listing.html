@@ -8,13 +8,22 @@
 
 
 <div class="ui image">
+
             <div class="ui grey left stat label mini " >
 
+                {% if post.is_toplevel %}
+                            <div class="number-stat">
+                            {{ post.thread_votecount }}
+                            </div>
+                            <div class="detail-stat">Vote{{ post.thread_votecount|pluralize }}</div>
 
-                    <div class="number-stat">
-                        {{ post.vote_count }}
-                        </div>
-                        <div class="detail-stat">Vote{{ post.vote_count|pluralize }}</div>
+                {% else %}
+                            <div class="number-stat">
+                            {{ post.vote_count }}
+                            </div>
+                            <div class="detail-stat">Vote{{ post.vote_count|pluralize }}</div>
+
+                {% endif %}
 
             </div>
 
@@ -47,16 +56,6 @@
 <div class="content" style="padding-left:2;">
 
         <div class="header">
-            {% if side_image %}
-                {% get_thread_users post=post limit=5 as extra_users %}
-
-                {% for user in extra_users %}
-                 <a class="ui mini avatar image" href="{% url 'public_profile' user.profile.uid %}" style="width:25px">
-                     {% gravatar user=user size=50 %}</a>
-
-                {% endfor %}
-
-            {% endif %}
 
                 <span class="ui title header">
                     {% if post.type != post.QUESTION %}
@@ -69,7 +68,16 @@
                 {% else %}
                  <a href="{% url 'post_view' post.uid %}" class="ui mini blue title header ">{{ post.get_title|truncatechars:150 }}</a>
                 {% endif %}
+            {% if side_image %}
+                {% get_thread_users post=post limit=5 as extra_users %}
 
+                {% for user in extra_users %}
+                 <a class="ui mini avatar image" href="{% url 'public_profile' user.profile.uid %}" style="width:25px">
+                     {% gravatar user=user size=50 %}</a>
+
+                {% endfor %}
+
+            {% endif %}
 
         </div>
 

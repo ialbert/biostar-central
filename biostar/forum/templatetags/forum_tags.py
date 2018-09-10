@@ -106,19 +106,19 @@ def can_edit(post, user):
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, include_userbox=True, comment_url="/",
-              sub_redir="post_view", vote_view="update_vote", sub_view="subs_action", project_uid=None):
+def post_body(context, post, user, tree, form, include_userbox=True,
+              sub_redir="post_view", sub_view="subs_action", project_uid=None):
 
     "Renders the post body"
     request = context['request']
 
-    vote_url = reverse(vote_view, request=request, kwargs=dict(uid=post.uid))
+    vote_url = reverse("vote")
     sub_url = reverse(sub_view, request=request, kwargs=dict(uid=post.uid))
     next_url = reverse(sub_redir, request=request, kwargs=dict(uid=post.uid))
 
     return dict(post=post, user=user, tree=tree, request=request,
-                form=form, include_userbox=include_userbox, comment_url=comment_url,
-                vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url, next_url=next_url, vote_view=vote_view,
+                form=form, include_userbox=include_userbox,
+                vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url, next_url=next_url,
                 redir_field_name=const.REDIRECT_FIELD_NAME, project_uid=project_uid)
 
 
@@ -333,27 +333,28 @@ def boxclass(post):
 
 
 @register.simple_tag
-def render_comments(request, tree, post, comment_url, vote_view, next_url, project_uid=None,
+def render_comments(request, tree, post, next_url, project_uid=None,
                     comment_template='widgets/comment_body.html'):
 
     if post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
-                                 comment_template=comment_template, comment_url=comment_url,
-                                 vote_view=vote_view, next_url=next_url, project_uid=project_uid)
+                                 comment_template=comment_template,
+                                 next_url=next_url, project_uid=project_uid)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_url, comment_template, vote_view, next_url,
+def traverse_comments(request, post, tree, comment_template, next_url,
                       project_uid=None):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
+    comment_url = reverse("post_comment")
 
     def traverse(node):
-        vote_url = reverse(vote_view, request=request, kwargs=dict(uid=node.uid))
+        vote_url = reverse("vote")
 
         data = ['<div class="ui comment segments">']
         cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url,

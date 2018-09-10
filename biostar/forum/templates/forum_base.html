@@ -54,15 +54,14 @@
 
     {% endblock %}
         {% if user.is_authenticated and not user.profile.email_verified %}
-        <div class="ui warning message"><b><i class="circle info icon"></i>Please verify your email.</b>
+        <div class="ui warning attached message" ><b><i class="circle info icon"></i>Please verify your email.</b>
         <a href="{% url 'send_email_verify' %}">Send verification email</a>
         </div>
     {% endif %}
 
 
 {% show_messages messages %}
-        <div class="ui aligned basic vertical segment">
-        <div class="ui basic center aligned segment">
+        <div class="ui basic center aligned tags segment">
             {% tags_banner %}
         </div>
 
@@ -115,8 +114,6 @@
 
         {% endblock %}
 </div>
-        </div>
-
 
 
 

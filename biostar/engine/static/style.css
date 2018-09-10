@@ -17,10 +17,20 @@ body {
     background-color:#f7e4de !important;;
 }
 
+.accepted {
+    background-color: #f9fcf9 !important;;
+}
+
 .ui.userinfo.segment {
   margin: 0;
   padding: 0;
 }
+
+.ui.tags.segment {
+  padding: 0;
+  margin: 5;
+}
+
 
 .ui.maroon.label {
   background-color: #8f2c47;

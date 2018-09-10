@@ -11,7 +11,10 @@ urlpatterns = [
     url(r'^sub/(?P<uid>[-\w]+)/$', views.subs_action, name='subs_action'),
     url(r'^edit/(?P<uid>[-\w]+)/$', views.edit_post, name='post_edit'),
     url(r'^comment/$', views.ajax_comment, name='post_comment'),
-    url(r'^vote/(?P<uid>[-\w]+)/$', views.update_vote, name='update_vote'),
+
+    url(r'^vote/$', views.ajax_vote, name='vote'),
+
+
     url(r'^tags/list/$', views.tags_list, name='tags_list'),
     url(r'moderate/(?P<uid>[-\w]+)/$', views.post_moderate, name="post_moderate"),
 

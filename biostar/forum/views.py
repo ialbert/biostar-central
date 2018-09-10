@@ -7,11 +7,13 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.http import JsonResponse
 from django.utils.safestring import mark_safe
+from django.db import transaction
 
 from biostar.utils.shortcuts import reverse
 from . import forms, auth
 from .models import Post, Vote
-from .decorators import object_exists, protect_private_topics
+from .decorators import (object_exists, protect_private_topics, ajax_error,
+                         ajax_error_wrapper, ajax_success)
 from .const import *
 
 
@@ -86,30 +88,32 @@ def tags_list(request):
     return render(request, "tags_list.html", context=context)
 
 
-@object_exists(klass=Post)
-@login_required
-def update_vote(request, uid, next=None):
+@ajax_error_wrapper
+def ajax_vote(request):
 
-    # Post to upvote/bookmark
-    post = Post.objects.filter(uid=uid).first()
     user = request.user
-    vmap = {"upvote": Vote.UP, "bookmark": Vote.BOOKMARK}
+    type_map = dict(upvote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
 
-    vote_type = vmap.get(request.GET.get("type"), Vote.EMPTY)
+    vote_type = request.POST['vote_type']
+    vote_type = type_map[vote_type]
+    post_uid = request.POST['post_uid']
 
-    vote = Vote.objects.filter(post=post, author=user, type=vote_type).first()
-    next_url = request.GET.get(REDIRECT_FIELD_NAME,
-                               request.POST.get(REDIRECT_FIELD_NAME))
-    next_url = next or next_url or "/"
+    # Check the post that is voted on.
+    post = Post.objects.get_all(uid=post_uid).first()
 
-    if vote:
-        # Change vote to empty if clicked twice
-        auth.create_vote(update=True, author=user, post=post, vote_type=vote.type,
-                         updated_type=Vote.EMPTY)
-    elif not vote:
-        auth.create_vote(author=user, post=post, vote_type=vote_type)
+    if post.author == user and vote_type == Vote.UP:
+        return ajax_error("You can not upvote your own post.")
 
-    return redirect(next_url)
+    if post.author == user and vote_type == Vote.ACCEPT:
+        return ajax_error("You can not accept your own post.")
+
+    if post.root.author != user and vote_type == Vote.ACCEPT:
+        return ajax_error("Only the person asking the question may accept this answer.")
+
+    with transaction.atomic():
+        msg = auth.preform_vote(post=post, user=user, vote_type=vote_type)
+
+    return ajax_success(msg)
 
 
 @object_exists(klass=Post)
@@ -141,25 +145,23 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     tab_name = obj.get_type_display().capitalize()
 
     context = dict(post=obj, tree=comment_tree, form=form, extra_tab="active", extra_tab_name=tab_name,
-                   comment_url=reverse("post_comment"), answers=thread.filter(type=Post.ANSWER))
+                   answers=thread.filter(type=Post.ANSWER))
     context.update(extra_context)
 
     return render(request, template, context=context)
 
 
 @login_required
+@ajax_error_wrapper
 def ajax_comment(request):
 
-    if request.method == "POST":
-        form = forms.PostShortForm(data=request.POST)
-        if form.is_valid():
-            form.save(author=request.user, post_type=Post.COMMENT)
-            message = "Added Comment"
-        else:
-            message = f"Error adding comment: {form.errors()}"
-    # return a json object with success or not.
+    form = forms.PostShortForm(data=request.POST)
+    if form.is_valid():
+        form.save(author=request.user, post_type=Post.COMMENT)
+        message = "Added Comment"
     else:
-        message = "Not allowed"
+        message = f"Error adding comment: {form.errors}"
+    # return a json object with success or not.
 
     json_response = {"message": message}
     return JsonResponse(json_response)
