@@ -2,9 +2,13 @@
 
 <div class="ui segment basic commentcolor">
 <div class="ui muted">
-{% vote_outline post=post user=user vote_type="upvote" as upvote %}
+
         <a class="vote" data-post_uid="{{post.uid}}" data-type="upvote" vote-url="{% url 'vote' %}">
-            <i class="blue thumbs up {{upvote}} icon"></i>
+       {% if post.has_upvote %}
+            <i class=" thumbs up icon"></i>
+        {% else %}
+            <i class=" thumbs up outline icon"></i>
+        {% endif %}
 
         </a>
 <span class="count">{{ post.vote_count }}</span>
@@ -27,8 +31,7 @@
             ADD REPLY
         </a>
 
-                 {% can_edit post=post user=user as editable%}
-                  {% if editable %}
+                  {% if post.is_editable %}
                  &bull;
                  <a href="{% url 'post_edit' post.uid %}">
                 edit

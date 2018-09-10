@@ -68,15 +68,15 @@ function submit_comment (elem) {
 
         success: function (data) {
             if (data.status == 'error') {
-                alert(data.msg)
+                //alert(data.msg)
+                pop_over(elem, data.msg, data.status)
             } else {
-                //pop_over(elem, data.msg, data.status)
                 location.reload(container);
             }
 
         },
-        error: function () { // Hard failure, like network error
-             alert(data.msg)
+        error: function () { 
+             pop_over(elem, data.msg, data.status)
         }
 
     });

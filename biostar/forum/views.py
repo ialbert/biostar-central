@@ -141,11 +141,11 @@ def post_view(request, uid, template="post_view.html", url="post_view",
 
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
-    comment_tree, thread = auth.build_obj_tree(request=request, obj=obj)
+    comment_tree, answers, thread = auth.build_obj_tree(request=request, obj=obj)
     tab_name = obj.get_type_display().capitalize()
 
     context = dict(post=obj, tree=comment_tree, form=form, extra_tab="active", extra_tab_name=tab_name,
-                   answers=thread.filter(type=Post.ANSWER))
+                   answers=answers)
     context.update(extra_context)
 
     return render(request, template, context=context)

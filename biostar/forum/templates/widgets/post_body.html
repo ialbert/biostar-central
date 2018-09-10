@@ -13,27 +13,35 @@
     <div class="ui items {{post.deleted_class}} {{post.accepted_class}}">
         <div class="item">
             <div class="ui image">
-                {% vote_outline post=post user=user vote_type="upvote" as upvote %}
+
 
                 <a class="vote" data-post_uid="{{post.uid}}" data-type="upvote" vote-url="{% url 'vote' %}">
-                    <i class="large thumbs up {{upvote}} icon"></i>
+                    {% if post.has_upvote %}
+                        <i class="large thumbs up icon"></i>
+                    {% else %}
+                        <i class="large thumbs up outline icon"></i>
+                    {% endif %}
+
                 </a>
 
                 <div class="ui center aligned count header">{{ post.vote_count }}</div>
 
-                {% vote_outline post=post user=user vote_type="bookmark" as bookmark %}
                 <a class="vote" data-post_uid="{{post.uid}}" data-type="bookmark" vote-url="{% url 'vote' %}">
-                    <i class="large bookmark {{bookmark}} icon"></i>
+                    {% if post.has_bookmark %}
+                        <i class="large bookmark icon"></i>
+                    {% else %}
+                        <i class="large bookmark outline icon"></i>
+                    {% endif %}
+
                 </a>
 
                 <div></div>
 
                 {% if user == post.root.author and not post.is_toplevel %}
-                
-                {% vote_outline post=post user=user vote_type="accept" as accept %}
 
                     <a class="vote" data-post_uid="{{post.uid}}" data-type="accept" vote-url="{% url 'vote' %}">
-                        <i class="large check circle green {{accept}} icon"></i>
+                        {% if not post.has_accepted %}<i class="large check circle green outline icon"></i>
+                        {% else %}<i class="large check circle green icon"></i>{% endif %}
                     </a>
                 {% elif post.has_accepted and not post.is_toplevel %}
                     <i class="large check circle green icon"></i>
@@ -101,8 +109,8 @@
              {% endif %}
 
                  <a href="#">link</a>
-                 {% can_edit post=post user=user as editable%}
-                  {% if editable %}
+
+                  {% if post.is_editable %}
                  |
                  <a href="{% url 'post_edit' post.uid %}">
                 edit

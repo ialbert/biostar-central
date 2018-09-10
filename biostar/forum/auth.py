@@ -4,6 +4,7 @@ import datetime
 import logging
 import re
 import mistune
+from itertools import chain
 
 from django.contrib import messages
 from django.utils.timezone import utc
@@ -38,6 +39,20 @@ def get_votes(user, thread):
     return store
 
 
+def is_editable(source, target):
+
+    is_editable = False
+
+    if source.is_authenticated:
+
+        if source == target:
+            is_editable = True
+
+        elif source.profile.is_moderator or source.profile.is_manager:
+            is_editable = True
+
+    return is_editable
+
 
 def build_obj_tree(request, obj):
 
@@ -52,24 +67,25 @@ def build_obj_tree(request, obj):
     # Shortcuts to each storage.
     bookmarks = votes[Vote.BOOKMARK]
     upvotes = votes[Vote.UP]
-
-    def decorate(post):
-        # Can the current user accept answers
-        post.has_bookmark = post.id in bookmarks
-        post.has_upvote = post.id in upvotes
-        post.can_accept = obj.author == user or post.has_accepted
-
     # Build comments tree.
     comment_tree = dict()
-    decorate(obj)
 
-    for post in thread:
-        if post.is_comment:
-            comment_tree.setdefault(post.parent_id, []).append(post)
-        # Add attributes by mutating the object
-        decorate(post=post)
+    def decorate(query):
+        # Can the current user accept answers
+        for post in query:
+            if post.is_comment:
+                comment_tree.setdefault(post.parent_id, []).append(post)
 
-    return comment_tree, thread
+            post.has_bookmark = post.id in bookmarks
+            post.has_upvote = post.id in upvotes
+            post.is_editable = is_editable(source=user, target=post.author)
+
+    answers = thread.filter(type=Post.ANSWER)
+
+    # Decorate the objects for easier access
+    decorate(chain([obj], thread, answers))
+
+    return comment_tree, answers, thread
 
 
 def query_topic(user, topic, tag_search=False):

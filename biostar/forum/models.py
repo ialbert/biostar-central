@@ -287,20 +287,6 @@ class Post(models.Model):
         text = bleach.clean(self.content, tags=[], attributes=[], styles={}, strip=True)
         return text
 
-    def is_editable(self, user):
-
-        is_editable = False
-
-        if user.is_authenticated:
-
-            if user == self.author:
-                is_editable = True
-
-            elif user.profile.is_moderator or user.profile.is_manager:
-                is_editable = True
-
-        return is_editable
-
     def peek(self, length=300):
         "A short peek at the post"
         return self.as_text[:length]
