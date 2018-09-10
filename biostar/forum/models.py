@@ -217,7 +217,7 @@ class Post(models.Model):
     # The number of views for the post.
     view_count = models.IntegerField(default=0, blank=True, db_index=True)
 
-    # The number of replies that a post has.
+    # The number of answers that a post has.
     reply_count = models.IntegerField(default=0, blank=True, db_index=True)
 
     # The number of comments that a post has.
@@ -226,13 +226,13 @@ class Post(models.Model):
     # Bookmark count.
     book_count = models.IntegerField(default=0)
 
-    # Indicates indexing is needed.
-    changed = models.BooleanField(default=True)
-
     # How many people follow that thread.
     subs_count = models.IntegerField(default=0)
 
-    # The total score of the thread (used for top level only)
+    # The total numbers of votes for a top-level post.
+    thread_votecount = models.IntegerField(default=0)
+
+    # The total number of comments + answers for a thread
     thread_score = models.IntegerField(default=0, blank=True, db_index=True)
 
     # Date related fields.
@@ -394,6 +394,15 @@ class Post(models.Model):
     def deleted_class(self):
         return "deleted" if self.status == Post.DELETED else ""
 
+    @property
+    def accepted_class(self):
+        return "accepted" if (self.has_accepted and not self.is_toplevel) else ""
+
+    def has_vote(self, vote_type, user):
+        "Check if post has a vote_type made by user"
+        vote = Vote.objects.filter(type=vote_type, author=user, post=self)
+        return vote.exists()
+
 
 class Vote(models.Model):
     # Post statuses.
@@ -455,7 +464,6 @@ class Subscription(models.Model):
         self.date = self.date or util.now()
         self.uid = self.uid or util.get_uuid(limit=16)
         super(Subscription, self).save(*args, **kwargs)
-
 
     @staticmethod
     def get_sub(post, user):

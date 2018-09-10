@@ -2,14 +2,12 @@
 
 <div class="ui segment basic commentcolor">
 <div class="ui muted">
+{% vote_outline post=post user=user vote_type="upvote" as upvote %}
+        <a class="vote" data-post_uid="{{post.uid}}" data-type="upvote" vote-url="{% url 'vote' %}">
+            <i class="blue thumbs up {{upvote}} icon"></i>
 
-        <a class="ui horizontal label" href="{{ vote_url }}?type=upvote&{{ redir_field_name}}={{ next_url }}">
-            {% if post.has_upvote %}<i class="blue thumbs up icon"></i>{% else %}
-                    <i class="blue thumbs up outline icon"></i>
-                    {% endif %}
-            {{ post.vote_count }}
         </a>
-
+<span class="count">{{ post.vote_count }}</span>
 
         written {{ post.creation_date|time_ago }}
 
@@ -25,7 +23,7 @@
       {{ post.html|safe }}
 
         <a class="add-comment ui mini grey basic label" comment-url="{{ comment_url }}"
-           data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
+           data-value="{{post.uid}}" project-uid="{{project_uid}}">
             ADD REPLY
         </a>
 

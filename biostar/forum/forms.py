@@ -149,8 +149,6 @@ class PostShortForm(forms.Form):
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
     project_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
                                   required=False)
-    redir_url = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
-                                  required=True)
 
     def save(self, author=None, post_type=Post.ANSWER, edit=False):
         data = self.cleaned_data
@@ -166,7 +164,7 @@ class PostShortForm(forms.Form):
             parent = Post.objects.get_all(uid=parent).first()
             project = Project.objects.filter(uid=project).first()
 
-            auth.create_post(title=parent.root.title,
+            self.post = auth.create_post(title=parent.root.title,
                               parent=parent,
                               author=author,
                               content= content,
@@ -174,7 +172,7 @@ class PostShortForm(forms.Form):
                               project=project,
                               sub_to_root=True
                               )
-        return data.get("redir_url", "/")
+        return self.post
 
     #def clean(self):
     #    cleaned_data = super(PostShortForm, self).clean()

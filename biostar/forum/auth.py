@@ -10,7 +10,10 @@ from django.utils.timezone import utc
 from django.db.models import F, Q
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db import transaction
+
 from biostar.message import tasks
+from biostar.accounts.models import Profile
 from biostar.utils.shortcuts import reverse
 from .models import Post, Vote, Subscription
 from . import util
@@ -156,31 +159,50 @@ def create_sub(post,  user, sub_type=None):
     return sub
 
 
-def update_vote_count(post):
+@transaction.atomic
+def preform_vote(post, user, vote_type):
 
-    query = Q(post__root=post) if post.is_toplevel else Q(post=post)
+    vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
 
-    vcount = Vote.objects.filter(query, type=Vote.UP).count()
-    bookcount = Vote.objects.filter(query, type=Vote.BOOKMARK).count()
-
-    # Update the thread score as well
-    Post.objects.filter(pk=post.pk).update(vote_count=vcount, book_count=bookcount)
-
-
-def create_vote(author, post, vote_type, updated_type=Vote.EMPTY, update=False):
-
-    vote = Vote.objects.filter(author=author, post=post, type=vote_type).first()
-
-    if update and vote:
-        # Update an existing vote type
-        Vote.objects.filter(pk=vote.pk).update(type=updated_type)
+    if vote:
+        msg = "%s removed" % vote.get_type_display()
+        change = -1
+        vote.delete()
     else:
-        vote = Vote.objects.create(post=post, author=author, type=vote_type)
+        change = +1
+        vote = Vote.objects.create(author=user, post=post, type=vote_type)
+        msg = "%s added" % vote.get_type_display()
 
-    # Update the post's vote/bookmark counts
-    update_vote_count(post=post)
+    if post.author != user:
+        # Update the user reputation only if the author is different.
+        Profile.objects.filter(user=post.author).update(score=F('score') + change)
 
-    return vote
+    # The thread vote count represents all votes in a thread
+    Post.objects.get_all(pk=post.root_id).update(thread_votecount=F('thread_votecount') + change)
+
+    if vote_type == Vote.BOOKMARK:
+
+        # Apply the vote
+        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change)
+        Post.objects.get_all(pk=post.root_id).update(book_count=F('book_count') + change)
+
+    elif vote_type == Vote.ACCEPT:
+
+        if change > 0:
+            # There does not seem to be a negation operator for F objects.
+            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=True)
+            Post.objects.get_all(pk=post.root_id).update(has_accepted=True)
+        else:
+            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=False)
+            accepted_siblings = Post.objects.get_all(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
+
+            # Only set root as not accepted if there are no accepted siblings
+            if accepted_siblings == 0:
+                Post.objects.get_all(pk=post.root_id).update(has_accepted=False)
+    else:
+        Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
+
+    return msg
 
 
 def create_post_from_json(json_dict):

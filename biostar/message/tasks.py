@@ -19,21 +19,18 @@ try:
 
 
     @spool(pass_arguments=True)
-    def async_create_sub_messages(subs, author, content, post_type):
+    def async_create_sub_messages(subs, root, author, content):
         """
         Create messages to users subscribed to a post.
         """
-
-        return
-
+        return create_sub_messages(subs, root, author, content)
 
     @spool(pass_arguments=True)
     def async_notify_mentions(users, root, author, content):
         """
         Create local messages when users get mentioned in a post
         """
-
-        return
+        return notify_mentions(users, root, author, content)
 
 except ModuleNotFoundError as exc:
     pass
@@ -59,10 +56,6 @@ def notify_mentions(users, root, author, content):
                                    source=models.Message.MENTIONED)
 
     return message
-
-
-def create_discussion_messages():
-    return
 
 
 def create_sub_messages(subs, root, author, content):
