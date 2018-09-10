@@ -400,8 +400,9 @@ class Post(models.Model):
 
     def has_vote(self, vote_type, user):
         "Check if post has a vote_type made by user"
-        vote = Vote.objects.filter(type=vote_type, user=user, post=self.post)
+        vote = Vote.objects.filter(type=vote_type, author=user, post=self)
         return vote.exists()
+
 
 class Vote(models.Model):
     # Post statuses.

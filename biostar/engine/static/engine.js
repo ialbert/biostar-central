@@ -32,9 +32,16 @@ $.ajaxSetup({
 });
 
 function mod_votecount(elem, k) {
-    count = parseInt(elem.siblings('.count').text()) || 0
-    count += k
-    elem.siblings('.count').text(count)
+    var vote_type = elem.attr('data-type');
+
+    if (vote_type == 'bookmark') {
+
+    } else {
+        count = parseInt(elem.siblings('.count').text()) || 0
+        count += k
+        elem.siblings('.count').text(count)
+    }
+
 }
 
 function pop_over(elem, msg, cls) {

@@ -346,6 +346,18 @@ def render_comments(request, tree, post, next_url, project_uid=None,
     return mark_safe(text)
 
 
+@register.simple_tag
+def vote_outline(post, user, vote_type):
+
+    type_map = dict(upvote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
+    vote_type = type_map[vote_type]
+
+    if user.is_authenticated and post.has_vote(user=user, vote_type=vote_type):
+        return ""
+
+    return "outline"
+
+
 def traverse_comments(request, post, tree, comment_template, next_url,
                       project_uid=None):
     "Traverses the tree and generates the page"
