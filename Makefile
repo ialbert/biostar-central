@@ -119,7 +119,7 @@ dumpdata:
 
 
 loaddata:
-	python manage.py loaddata export/database/dbdump.json
+	python manage.py loaddata export/database/dbdump.json --ignorenonexistent --exclude engine
 
 deploy_psu:
 	(cd conf/ansible && ansible-playbook -i hosts-psu server_deploy.yml --ask-become-pass --extra-vars "reset=True")
