@@ -199,8 +199,10 @@ def preform_vote(post, user, vote_type):
     if vote_type == Vote.BOOKMARK:
 
         # Apply the vote
-        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change)
-        Post.objects.get_all(pk=post.root_id).update(book_count=F('book_count') + change)
+        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change,
+                                                  vote_count=F('vote_count') + change)
+        if post != post.root:
+            Post.objects.get_all(pk=post.root_id).update(book_count=F('book_count') + change)
 
     elif vote_type == Vote.ACCEPT:
 

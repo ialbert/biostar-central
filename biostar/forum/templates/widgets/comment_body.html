@@ -1,8 +1,9 @@
 {% load forum_tags %}
 
 <div class="ui segment basic commentcolor">
-<div class="ui muted">
 
+<div class="ui muted">
+<a name="{{post.uid}}"></a>
         <a class="vote" data-post_uid="{{post.uid}}" data-type="upvote" vote-url="{% url 'vote' %}">
        {% if post.has_upvote %}
             <i class=" thumbs up icon"></i>
@@ -30,6 +31,8 @@
            data-value="{{post.uid}}" project-uid="{{project_uid}}">
             ADD REPLY
         </a>
+     &bull;
+        <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
 
                   {% if post.is_editable %}
                  &bull;
@@ -48,6 +51,7 @@
                 <div id="mod-container-{{post.uid}}"></div>
 
                  {% endif %}
+
 
     <div id="comment-container-{{post.uid}}">
     </div>

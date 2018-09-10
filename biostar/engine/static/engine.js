@@ -31,18 +31,15 @@ $.ajaxSetup({
     }
 });
 
+
 function mod_votecount(elem, k) {
-    var vote_type = elem.attr('data-type');
 
-    if (vote_type == 'bookmark') {
-
-    } else {
-        count = parseInt(elem.siblings('.count').text()) || 0
-        count += k
-        elem.siblings('.count').text(count)
-    }
+    count = parseInt(elem.siblings('.count').text()) || 0
+    count += k
+    elem.siblings('.count').text(count)
 
 }
+
 
 function pop_over(elem, msg, cls) {
     var text = '<div></div>'
@@ -53,6 +50,7 @@ function pop_over(elem, msg, cls) {
         $(this).remove()
     });
 }
+
 
 function submit_comment (elem) {
 
@@ -75,7 +73,7 @@ function submit_comment (elem) {
             }
 
         },
-        error: function () { 
+        error: function () {
              pop_over(elem, data.msg, data.status)
         }
 
