@@ -16,18 +16,18 @@
 
         <div class="ui vertical segment">
 
-            <div class="ui top attached tabular menu">
+            <div class="ui top attached tabular colored blue menu">
 
-                <a class="{% activate 'data' active %} item" href="{% url 'data_list' project.uid %}">
+                <a class="{% activate 'data' active %}  item" href="{% url 'data_list' project.uid %}">
                     <i class="file text icon"></i>{{ data_count }} Data
                 </a>
-                <a class="{% activate 'recipes' active %} item" href="{% url 'recipe_list' project.uid %}">
+                <a class="{% activate 'recipes' active %}  item" href="{% url 'recipe_list' project.uid %}">
                     <i class="settings icon"></i> {{ recipe_count }} Recipes
                 </a>
                 <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
                     <i class="bar chart icon"></i>{{ result_count }} Results
                 </a>
-                <a class="{% activate 'discussion' active %} item" href="{% url 'discussion_list' project.uid %}">
+                <a class="{% activate 'discussion' active %}  item" href="{% url 'discussion_list' project.uid %}">
                     <i class="comments icon"></i>{{ discussion_count }} Discussions
                 </a>
 
@@ -39,7 +39,7 @@
 
             </div>
 
-            <div class="ui bottom attached segment">
+            <div class="ui bottom attached colored segment">
 
                 {% show_messages messages %}
 
