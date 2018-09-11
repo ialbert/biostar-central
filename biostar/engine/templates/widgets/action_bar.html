@@ -4,13 +4,15 @@
     <i class="edit icon"></i> Edit Info
 </a>
 
-{% if user.is_authenticated and not instance.deleted %}
-<a class="ui small button {{ extra}}" href="{{ action_url }}">
-    <i class="trash icon"></i> Delete
-</a>
-{% elif user.is_authenticated and instance.deleted %}
-
-<a class="ui small button {{extra}}" href="{{ action_url }}">
+{% if instance.deleted %}
+    <a class="ui small button {{extra}}" href="{{ action_url }}">
     <i class="undo icon"></i> Restore
 </a>
+
+{% else %}
+
+    <a class="ui small button {{ extra}}" href="{{ action_url }}">
+    <i class="trash icon"></i> Delete
+</a>
+
 {% endif %}

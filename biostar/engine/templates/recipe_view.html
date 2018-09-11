@@ -39,14 +39,12 @@
 
     <div class="ui vertical  segment">
 
-
-
             {% form_errors form %}
 
             {% csrf_token %}
 
 
-            <div class="five ui mini buttons">
+            <div class="six ui mini buttons">
                 <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
                     <i class="spinner icon"></i> Run Recipe
                 </a>
