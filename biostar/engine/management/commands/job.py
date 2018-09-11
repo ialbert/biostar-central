@@ -94,13 +94,13 @@ def run(job, options={}):
         # The name of the file that contain the commands.
         script_name = execute.get("filename", "recipe.sh")
 
-        # Make the log directory.
+        # Make the log directory that stores sdout, stderr.
         LOG_DIR = 'runlog'
         log_dir = os.path.join(work_dir, f"{LOG_DIR}")
         if not os.path.isdir(log_dir):
             os.mkdir(log_dir)
 
-        # Runtime information will be saved in the log.
+        # Runtime information will be saved in the log files.
         json_fname = f"{LOG_DIR}/input.json"
         stdout_fname = f"{LOG_DIR}/stdout.txt"
         stderr_fname = f"{LOG_DIR}/stderr.txt"
@@ -108,7 +108,7 @@ def run(job, options={}):
         # Build the command line
         command = execute.get("command", "bash recipe.sh")
 
-        # The command can be substituted as well.
+        # The commands can be substituted as well.
         context = Context(json_data)
         command_template = Template(command)
         command = command_template.render(context)
@@ -152,7 +152,7 @@ def run(job, options={}):
         if job.security != Job.AUTHORIZED:
             raise Exception(f"Job security error: {job.get_security_display()}")
 
-        # Switch the job state to RUNNING.
+        # Switch the job state to RUNNING and save the script field.
         Job.objects.filter(pk=job.pk).update(state=Job.RUNNING,
                                              start_date=timezone.now(),
                                              script=script)
@@ -160,7 +160,7 @@ def run(job, options={}):
         proc = subprocess.run(command, cwd=work_dir, shell=True,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        # Rasies an error if returncode is anything but 0.
+        # Raise an error if returncode is anything but 0.
         proc.check_returncode()
 
         # If we made it this far the job has finished.
@@ -183,7 +183,9 @@ def run(job, options={}):
                                          stdout_log="\n".join(stdout_log),
                                          stderr_log="\n".join(stderr_log))
 
+    # Reselect the job to get refresh fields.
     job = Job.objects.filter(pk=job.pk).first()
+
     # Create a log script in the output directory as well.
     with open(os.path.join(work_dir, stdout_fname), 'wt') as fp:
         fp.write(job.stdout_log)
@@ -192,7 +194,9 @@ def run(job, options={}):
     with open(os.path.join(work_dir, stderr_fname), 'wt') as fp:
         fp.write(job.stderr_log)
 
+    # Log job status.
     logger.info(f'Job id={job.id} finished, status={job.get_state_display()}')
+
     # Use -v 2 to see the output of the command.
     if verbosity > 1:
         print("-" * 40)
