@@ -336,8 +336,8 @@ def show_messages(messages):
     return dict(messages=messages)
 
 
-@register.inclusion_tag('widgets/project_name_bar.html', takes_context=True)
-def project_name_bar(context, project):
+@register.inclusion_tag('widgets/project_title.html', takes_context=True)
+def project_title(context, project):
     """
     Returns a label for project.
     """

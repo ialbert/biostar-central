@@ -85,12 +85,7 @@
                             <i class="setting icon"></i> {{ recipe.name }}
                         </a>
                         <div class="description">{{ recipe.summary|markdown|safe }}</div>
-                        <div class="meta">
-                            {% sticky_label recipe %}
-                            <a href="{% url 'job_list' recipe.project.uid %}?filter={{ recipe.uid }}">
-                                <i class="bar chart icon"></i> view results
-                            </a>
-                        </div>
+
                     </div>
                 </div>
 
