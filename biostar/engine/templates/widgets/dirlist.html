@@ -1,0 +1,7 @@
+<div class="ui relaxed divided large list">
+    {%  for tstamp, path, nice, size in paths %}
+        <div class="item"><a href="{%  url "job_serve" uid=obj.uid path=path %}">{{ nice }}</a>
+        <span class="ui right floated small label">{{size|filesizeformat }}</span>
+        </div>
+    {% endfor %}
+</div>

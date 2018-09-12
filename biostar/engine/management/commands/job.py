@@ -101,9 +101,9 @@ def run(job, options={}):
             os.mkdir(log_dir)
 
         # Runtime information will be saved in the log files.
-        json_fname = f"{LOG_DIR}/input.json"
-        stdout_fname = f"{LOG_DIR}/stdout.txt"
-        stderr_fname = f"{LOG_DIR}/stderr.txt"
+        json_fname = f"{log_dir}/input.json"
+        stdout_fname = f"{log_dir}/stdout.txt"
+        stderr_fname = f"{log_dir}/stderr.txt"
 
         # Build the command line
         command = execute.get("command", "bash recipe.sh")
@@ -142,8 +142,13 @@ def run(job, options={}):
             fp.write(script)
 
         # Create a file that stores the json data for reference.
-        with open(os.path.join(work_dir, json_fname), 'wt') as fp:
+        with open(json_fname, 'wt') as fp:
             fp.write(hjson.dumps(json_data, indent=4))
+
+        # Initial create each of the stdout, stderr file placeholders.
+        for path in [stdout_fname, stderr_fname]:
+            with open(path, 'wt') as fp:
+                pass
 
         # Show the command that is executed.
         logger.info(f'Job id={job.id} executing: {full_command}')
@@ -187,11 +192,11 @@ def run(job, options={}):
     job = Job.objects.filter(pk=job.pk).first()
 
     # Create a log script in the output directory as well.
-    with open(os.path.join(work_dir, stdout_fname), 'wt') as fp:
+    with open(stdout_fname, 'wt') as fp:
         fp.write(job.stdout_log)
 
     # Create a log script in the output directory as well.
-    with open(os.path.join(work_dir, stderr_fname), 'wt') as fp:
+    with open(stderr_fname, 'wt') as fp:
         fp.write(job.stderr_log)
 
     # Log job status.

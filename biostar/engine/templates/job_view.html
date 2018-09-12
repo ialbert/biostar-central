@@ -40,7 +40,7 @@
             <a class="ui small  button" href="{% url 'recipe_view' job.analysis.uid %}"><i
             class="setting icon"></i>Go to Recipe</a>
 
-             <a class="ui small button" href="#"><i
+            <a class="ui small button" href="#"><i
             class="setting icon"></i>Copy Selection</a>
 
             {% action_bar job edit_url='job_edit' %}
@@ -50,12 +50,14 @@
 
     </div>
 
-
     <div class="ui vertical segment">
         <div class="ui aligned header">Created Files</div>
-        {% file_list obj=job path=path files=files form=form %}
+
+        {% directory_list job %}
+
     </div>
 
+    
     <div class="ui vertical segment">
         <div class="ui aligned header">Run Parameters</div>
         {{ job.summary|safe }}

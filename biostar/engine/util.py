@@ -1,13 +1,12 @@
-import gzip, zipfile
+import gzip
 import io
 import mimetypes
 import os
 import quopri
 import tarfile
 import uuid
-from urllib.parse import quote
 from itertools import islice
-
+from urllib.parse import quote
 
 CHUNK = 1024 * 1024
 
@@ -19,6 +18,7 @@ def get_uuid(limit=32):
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
+
 def fix_endings(text):
     return text.replace("\r\n", "\n")
 
@@ -27,11 +27,37 @@ class File(object):
     pass
 
 
+FILE_ICON = '''
+<div class="item">
+  <i class="file icon"></i> %s
+</div>
+'''
+
+FOLDER_ICON = '''
+<div class="item">
+  <i class="blue folder icon"></i> %s
+  <div class="list">
+'''
+
+FILE_ICON = FILE_ICON.strip()
+FOLDER_ICON = FOLDER_ICON.strip()
+
+def directory_tree(path, collect=[]):
+    for entry in os.scandir(path):
+        if entry.is_dir():
+            collect.append(FOLDER_ICON % entry.name)
+            directory_tree(entry, collect=collect)
+            collect.append(f'</div>')
+            collect.append(f'</div>')
+        else:
+            collect.append(FILE_ICON % entry.name)
+    return collect
+
 def scan_files(relpath, abspath, root, exclude=[]):
     """
     Generates a list of file objects at an absolute path.s
     """
-    if not (abspath.startswith(root) and os.path.exists(abspath)) :
+    if not (abspath.startswith(root) and os.path.exists(abspath)):
         raise Exception("Can not access an invalid directory.")
 
     # Pathlike objects with attributes such as name, is_file
@@ -51,8 +77,10 @@ def scan_files(relpath, abspath, root, exclude=[]):
         return b
 
     files = map(transform, files)
+    files = list(files)
 
     return files
+
 
 def smart_preview(fname):
     CHUNK_SIZE, LINE_COUNT = 1024, 10
@@ -71,7 +99,7 @@ def smart_preview(fname):
         elif mimetype == 'text/plain':
             stream = open(fname, 'rt')
             stream = islice(stream, LINE_COUNT)
-            lines = [ line.strip() for line in stream]
+            lines = [line.strip() for line in stream]
             text = '\n'.join(lines)
         else:
             try:
@@ -89,8 +117,7 @@ def smart_preview(fname):
 
 
 def write_stream(stream, dest):
-
-    mode = 'w' if isinstance(stream , io.StringIO) else 'wb'
+    mode = 'w' if isinstance(stream, io.StringIO) else 'wb'
 
     with open(dest, mode) as fp:
         chunk = stream.read(CHUNK)
@@ -102,7 +129,6 @@ def write_stream(stream, dest):
 
 
 def qiime2view_link(file_url):
-
     template = "https://view.qiime2.org/visualization/?type=html&src="
 
     file_url = quote(string=file_url, safe="")
