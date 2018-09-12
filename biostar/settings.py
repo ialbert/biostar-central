@@ -36,6 +36,11 @@ FORUM_ROOT_URLPATTERN = r'^'
 ENGINE_ROOT_URLPATTERN = r'^engine/'
 MESSAGE_ROOT_URL_PATTERN = r'^message/'
 
+
+SOCIALACCOUNT_EMAIL_VERIFICATION = None
+SOCIALACCOUNT_EMAIL_REQUIRED = False
+SOCIALACCOUNT_QUERY_EMAIL = True
+
 # Set the home page to the engine or forum
 INDEX_ROOT_URLPATTERN = FORUM_ROOT_URLPATTERN
 
@@ -82,7 +87,6 @@ def join(*args):
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
-SOCIALACCOUNT_QUERY_EMAIL = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
