@@ -1,8 +1,6 @@
 {% load staticfiles %}
 {% load compress %}
 {% load engine_tags %}
-{% load forum_tags %}
-
 {% load recaptcha2 %}
 
 <html>
@@ -24,7 +22,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     {% recaptcha_init %}
 
-
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'style.css' %}" rel="stylesheet">
@@ -43,11 +40,7 @@
 </head>
 <body>
 
-
-
-
 <div class="ui container">
-
 
     <div class="ui center aligned header">
         {% block title %}
@@ -56,42 +49,25 @@
     </div>
 
     {% block menu %}
-
-
-    {% moderate request=request %}
-    {% menubar request=request with_search=False %}
-
-
+        {% moderate request=request %}
+        {% menubar request=request %}
     {% endblock %}
-
-        {% if request.user.is_authenticated and not request.user.profile.email_verified %}
+    {% if user.is_authenticated and not user.profile.email_verified %}
         <div class="ui warning attached message"><b><i class="circle info icon"></i>Please verify your email.</b>
         <a href="{% url 'send_email_verify' %}">Send verification email</a>
         </div>
     {% endif %}
 
-
     <div class="ui bottom attached segment">
-        <div class="ui center aligned basic vertical segment">
-
-{% show_messages messages %}
-
-    </div>
-
 
         {% block body %}
             {# Main body #}
             BODY
-
             {% block content %}
 
             {% endblock %}
-
         {% endblock %}
-
-
     </div>
-
 
     {% block footer %}
         <div class="ui vertical center aligned segment">

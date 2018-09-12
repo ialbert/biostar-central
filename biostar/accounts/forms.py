@@ -138,6 +138,7 @@ class EditProfile(forms.Form):
 
         self.user.email = self.cleaned_data['email']
 
+
         self.user.username = self.cleaned_data["username"]
         self.user.save()
 
@@ -167,12 +168,12 @@ class EditProfile(forms.Form):
     def clean_username(self):
 
         data = self.cleaned_data['username']
-        username = User.objects.exclude(pk=self.user.pk).filter(username=self.data)
+        username = User.objects.exclude(pk=self.user.pk).filter(username=data)
 
         if len(data.split()) > 1:
             raise forms.ValidationError("No spaces allowed in username/handlers.")
         if username.exists():
-            raise forms.ValidationError("This username is already being used.")
+            raise forms.ValidationError("This handler is already being used.")
 
         return data
 

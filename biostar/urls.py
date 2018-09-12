@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 
+
 import biostar.accounts.urls as accounts_urls
 import biostar.engine.urls as engine_urls
 import biostar.forum.urls as forum_urls

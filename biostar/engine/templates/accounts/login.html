@@ -1,17 +1,25 @@
 {% extends "profile_base.html" %}
 {% load engine_tags %}
+{% load socialaccount %}
 {% block headtitle %}Login{% endblock %}
 
 {% block body %}
 
-        <div class="ui center aligned header">
+{% if social_login %}
 
-            <i class="user icon"></i>User Login
+     {% include 'widgets/social_login.html' with is_login=True %}
 
-        </div>
+  <div class="ui horizontal divider">
+    Or
+  </div>
+{% endif %}
+
+
         <form class="ui form" method="post" action="{% url 'login' %}">
-            <div class="ui centered card inputcolor">
-
+            <div class="ui centered segment inputcolor socialbox">
+            <div class="ui header logintext">
+                <i class="user icon"></i>User Login
+            </div>
                 <div class="ui basic segment">
 
                     {% csrf_token %}

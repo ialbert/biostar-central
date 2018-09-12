@@ -53,13 +53,15 @@ function pop_over(elem, msg, cls) {
 
 
 function submit_comment (elem) {
+    event.preventDefault();
 
     var comment_form = $("#comment-form");
     var action_url = comment_form.attr("action");
+    var method = comment_form.attr("method")
     var container = $("#comment-row");
 
     $.ajax({
-        url : action_url,
+        url : "/comment/",
         type : "POST",
         ContentType: 'application/json',
         data : comment_form.serialize(),
@@ -170,7 +172,7 @@ function add_comment(elem) {
         </div>
         <div>
 
-            <a class="ui submit green button" onclick="return submit_comment($(this));">
+            <a class="ui submit green button" onclick="return submit_comment($(this));return false;">
                 <i class="check icon"></i>Add Comment
             </a>
             <a class="ui orange right floated button" onclick="javascript:obj=$(\'#comment-row\').remove();">
@@ -228,6 +230,7 @@ $(document).ready(function () {
     });
 
     $(".add-comment").click(function (event) {
+        event.preventDefault();
         add_comment($(this));
         });
 
@@ -243,8 +246,7 @@ $(document).ready(function () {
         moderate($(this));
         });
 
-
-    $('.vote').each(function () {
+    $('.vote').each(function (event) {
 
         $($(this)).click(function () {
             var elem = $(this);

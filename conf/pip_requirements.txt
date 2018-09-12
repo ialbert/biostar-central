@@ -13,6 +13,7 @@ mistune
 django-pagedown
 django-webtest
 django-sendfile
+django-allauth
 django-debug-toolbar
 django-recaptcha2
 sparkpost
