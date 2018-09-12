@@ -62,9 +62,10 @@ function submit_comment (elem) {
 
     $.ajax({
         url : "/comment/",
-        type : "POST",
-        ContentType: 'application/json',
-        data : comment_form.serialize(),
+        type: "POST",
+        dataType: "json",
+        ContentType: "application/json",
+        data: comment_form.serialize(),
 
         success: function (data) {
             if (data.status == 'error') {
@@ -157,14 +158,12 @@ function add_comment(elem) {
     var project_uid = elem.attr('project-uid');
     var container = $("#comment-container-"+ post_uid);
     var comment_url = elem.attr("comment-url");
-    var csrf_html = jQuery("[name=csrfmiddlewaretoken]").val();
 
     // Going to be refactored out and loaded separately
     container.after(`<div id="comment-row" class="ui basic segment inputcolor">
     <form id="comment-form" class="ui form" action=${comment_url}  method="post">
         <input type="hidden" name="parent_uid" id="parent_uid" value=${post_uid} />
         <input type="hidden" name="project_uid" id="project_uid" value=${project_uid} />
-        <input type="hidden" name="csrfmiddlewaretoken" value=${csrf_html} />
 
         <div class="">
             <div id="wmd-button-bar-2"></div>
