@@ -3,6 +3,7 @@
 DATA_FILE=recipes-initial-data.tar.gz
 DATA_DIR=/export/sites/main_data/initial
 DATA_HOST=data.bioinformatics.recipes
+DUMPFILE=export/database/dbdump_`date +'%y.%m.%d.%H:%M:%S'`.json
 
 all: reset load serve
 
@@ -115,11 +116,11 @@ load:
 
 
 dumpdata:
-	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > export/database/dbdump.json
-
+	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > $(DUMPFILE)
 
 loaddata:
-	python manage.py loaddata export/database/dbdump.json
+	echo `***Environment variable LOADFILE needs to be set to the data dump file.`
+	python manage.py loaddata $(LOADFILE) --ignorenonexistent --exclude engine
 
 deploy_psu:
 	(cd conf/ansible && ansible-playbook -i hosts-psu server_deploy.yml --ask-become-pass --extra-vars "reset=True")

@@ -11,6 +11,7 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import force_text, force_bytes
 from django.utils.http import urlsafe_base64_decode
+from allauth.socialaccount.models import SocialApp
 
 from .tokens import account_verification_token
 from . import forms
@@ -142,7 +143,7 @@ def user_signup(request):
         form = forms.SignUpWithCaptcha(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user,  backend='django.contrib.auth.backends.ModelBackend')
             Profile.objects.filter(user=user).update(last_login=now())
             messages.success(request, "Login successful!")
             msg = mark_safe("Signup successful!")
@@ -151,7 +152,14 @@ def user_signup(request):
             return redirect("/")
     else:
         form = forms.SignUpWithCaptcha()
-    context = dict(form=form, captcha_site_key=settings.RECAPTCHA_PUBLIC_KEY)
+
+    # Check to see if any 3rd party social login APIs have been provided
+    if SocialApp.objects.all().count() >= 1:
+        social_login = True
+    else:
+        social_login = False
+
+    context = dict(form=form, captcha_site_key=settings.RECAPTCHA_PUBLIC_KEY, social_login=social_login)
     return render(request, 'accounts/signup.html', context=context)
 
 
@@ -188,7 +196,7 @@ def user_login(request):
             message, valid_user = check_user(email=email, password=password)
 
             if valid_user:
-                login(request, user)
+                login(request, user,  backend='django.contrib.auth.backends.ModelBackend')
                 Profile.objects.filter(user=user).update(last_login=now())
                 messages.success(request, "Login successful!")
                 return redirect("/")
@@ -197,7 +205,13 @@ def user_login(request):
 
         messages.error(request, mark_safe(form.errors))
 
-    context = dict(form=form)
+    # Check to see if any 3rd party social login APIs have been provided
+    if SocialApp.objects.all().count() >= 1:
+        social_login = True
+    else:
+        social_login = False
+
+    context = dict(form=form, social_login=social_login)
     return render(request, "accounts/login.html", context=context)
 
 

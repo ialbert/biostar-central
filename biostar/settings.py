@@ -31,6 +31,7 @@ LOCATION_FEED_COUNT = 5
 AWARDS_FEED_COUNT = 10
 REPLIES_FEED_COUNT = 15
 
+LOGIN_REDIRECT_URL = '/'
 FORUM_ROOT_URLPATTERN = r'^'
 ENGINE_ROOT_URLPATTERN = r'^engine/'
 MESSAGE_ROOT_URL_PATTERN = r'^message/'
@@ -72,13 +73,16 @@ ALLOW_SELF_MODERATE = True
 # Maximum size of each file upload in MB
 MAX_FILE_SIZE_MB = 100
 
+
 # Helper function for building absolute paths.
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
+SOCIALACCOUNT_QUERY_EMAIL = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -95,6 +99,10 @@ INSTALLED_APPS = [
     'taggit',
     'debug_toolbar',
     'snowpenguin.django.recaptcha2',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',
@@ -138,6 +146,11 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
 
 WSGI_APPLICATION = 'biostar.wsgi.application'
 
