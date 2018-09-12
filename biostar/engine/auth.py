@@ -260,7 +260,7 @@ def validate_files_clipboard(request):
     return path
 
 
-def make_summary(data, summary='', title='', name="widgets/job_summary.html"):
+def make_job_summary(data, summary='', title='', name="widgets/job_summary.html"):
     '''
     Summarizes job parameters.
     '''
@@ -273,6 +273,9 @@ def make_summary(data, summary='', title='', name="widgets/job_summary.html"):
 
 
 def make_job_title(recipe, data):
+
+    '''
+    # Turned off currently.
     collect = []
     for key, obj in data.items():
         if obj.get('label'):
@@ -284,6 +287,9 @@ def make_job_title(recipe, data):
         name = f"Results for: {recipe.name} | Parameters: {label}"
     else:
         name = f"Results for: {recipe.name}"
+    '''
+
+    name = f"Results for: {recipe.name}"
 
     return name
 
@@ -303,7 +309,7 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     json_data = hjson.loads(json_text)
 
     # Generate the summary from the data.
-    summary = make_summary(json_data, summary=analysis.summary)
+    summary = make_job_summary(json_data, summary=analysis.summary)
 
     # Generate a meaningful job title.
     name = make_job_title(recipe=analysis, data=json_data)

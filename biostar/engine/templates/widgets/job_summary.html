@@ -1,9 +1,5 @@
 {% load engine_tags %}
 
-<div>
-    {{ summary|markdown|safe }}
-</div>
-
 {% if data.items %}
     <ul>
         {% for key, obj in data.items %}
@@ -18,6 +14,8 @@
             {% endif %}
         {% endfor %}
     </ul>
+{% else %}
+    <div>No user parameters were set.</div>
 {% endif %}
 
 

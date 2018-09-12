@@ -13,69 +13,70 @@
 {% endblock %}
 
 {% block content %}
-    <div class="ui vertical segment">
+     <form method="post" action="{% url 'recipe_view' recipe.uid %}">
+    <div class="ui  large vertical segment">
 
-        <div class="ui vertical segment">
+        <div class="ui divided link items">
 
-            <div class="ui center aligned header">
-                Recipe: <i class="setting icon"></i>{{ recipe.name }}
-            </div>
-
-            <div class="">
-                <img class="ui centered small image" src="{% img recipe %}">
-            </div>
-
-            {% security_label recipe %}
-
-            <div class="ui center aligned vertical segment">
-
-                <div class="ui buttons">
-                    <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
-                        <i class="spinner icon"></i> Run Recipe
-                    </a>
-
-                    <div class="or"></div>
-
-                    <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                        <i class="bar chart icon"></i>View Results
-                    </a>
-
+            <div class="item">
+                <div class="ui tiny image">
+                    <img src="{% img recipe %}">
                 </div>
-
+                <div class="content">
+                        <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+                        <i class="setting icon"></i> {{ recipe.name }}
+                    </a>
+                    <div class="description">{{ recipe.summary|markdown|safe }}</div>
+                </div>
             </div>
 
-            <div class="ui center aligned basic segment">
-                {% form_errors form %}
 
-                 <form method="post" action="{%  url 'recipe_view' recipe.uid %}">
-                    {% csrf_token %}
-                     <a class="ui small button" href="{% url 'recipe_code' recipe.uid %}">
-                        <i class="keyboard icon"></i>View Code
-                     </a>
-
-                     <button type="submit" class="ui small button">
-                        <i class="clone icon"></i>Copy Recipe
-                     </button>
-                     {% action_bar recipe 'recipe_edit' %}
-                 </form>
-
-
-            </div>
-
-        </div>
-
-        <div class="ui vertical segment">
-            <div class="ui basic segment">
-             {{ recipe.summary|markdown|safe }}
-            </div>
-        </div>
-
-        <div class="ui basic segment">
-            {{ recipe.html|safe }}
         </div>
 
     </div>
 
+    {% security_label recipe %}
+
+    <div class="ui vertical  segment">
+
+            {% form_errors form %}
+
+            {% csrf_token %}
+
+
+            <div class="six ui mini buttons">
+                <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
+                    <i class="spinner icon"></i> Run Recipe
+                </a>
+
+                <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                    <i class="bar chart icon"></i>Recipe Results
+                </a>
+
+
+                <a class="ui button" href="{% url 'recipe_code' recipe.uid %}">
+                    <i class="keyboard icon"></i>View Code
+                </a>
+
+                <button type="submit" class="ui small button">
+                    <i class="clone icon"></i>Copy Recipe
+                </button>
+
+                {% action_bar recipe 'recipe_edit' %}
+
+            </div>
+
+
+
+    </div>
+
+    <div class="ui large vertical segment">
+        {{ recipe.html|safe }}
+    </div>
+
+
+
+ </form>
 
 {% endblock %}
 

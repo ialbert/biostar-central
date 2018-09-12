@@ -8,59 +8,71 @@
 
 {% block body %}
 
-        {% project_name_bar project %}
+    {% project_title project %}
 
-        <div class="ui  vertical {%  access_color user=user project=project %} segment">
+
+
+    <div class="ui vertical segment">
+
+        <div class="ui top attached tabular colored blue menu">
+
+            <a class="{% activate 'data' active %}  item" href="{% url 'data_list' project.uid %}">
+                <i class="file text icon"></i>{{ data_count }} Data
+            </a>
+            <a class="{% activate 'recipes' active %}  item" href="{% url 'recipe_list' project.uid %}">
+                <i class="settings icon"></i> {{ recipe_count }} Recipes
+            </a>
+
+            <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
+                <i class="bar chart icon"></i>{{ result_count }} Results
+            </a>
+
+             {% if activate %}
+                <div class="active item">
+                    <i class="info circle icon"></i> Selection
+                </div>
+            {% else %}
+                 <div class=" item">
+                    <i class="info circle icon"></i> Selection
+                </div>
+            {% endif %}
+
+            <a class="{% activate 'discussion' active %}  item" href="{% url 'discussion_list' project.uid %}">
+                <i class="comments icon"></i>{{ discussion_count }} Discussions
+            </a>
+
+
+
+        </div>
+
+        <div class="ui bottom attached colored segment">
+
+            {% show_messages messages %}
+
+            <p>
+                {% block content %}
+                    Content
+                {% endblock %}
+            </p>
+        </div>
+
+        <div class="ui large vertical segment">
+            <div class="ui subheader">Project Summary</div>
             {{ project.summary|markdown|safe }}
         </div>
 
-        <div class="ui vertical segment">
-
-            <div class="ui top attached tabular colored blue menu">
-
-                <a class="{% activate 'data' active %}  item" href="{% url 'data_list' project.uid %}">
-                    <i class="file text icon"></i>{{ data_count }} Data
-                </a>
-                <a class="{% activate 'recipes' active %}  item" href="{% url 'recipe_list' project.uid %}">
-                    <i class="settings icon"></i> {{ recipe_count }} Recipes
-                </a>
-                <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
-                    <i class="bar chart icon"></i>{{ result_count }} Results
-                </a>
-                <a class="{% activate 'discussion' active %}  item" href="{% url 'discussion_list' project.uid %}">
-                    <i class="comments icon"></i>{{ discussion_count }} Discussions
-                </a>
-
-                {% if activate %}
-                    <a class="active item">
-                        <i class="info circle icon"></i> {{ activate }}
-                    </a>
-                {% endif %}
-
-            </div>
-
-            <div class="ui bottom attached colored segment">
-
-                {% show_messages messages %}
-
-                <p>
-                    {% block content %}
-                        Content
-                    {% endblock %}
-                </p>
-            </div>
-
-         {% if more_info %}
-            <div class="ui basic segment">
+        {% if more_info %}
+            <div class="ui large vertical segment">
+                <div class="ui subheader">Project Information</div>
                 <div class="project help">
                     {{ more_info|safe }}
                 </div>
             </div>
         {% endif %}
 
-        </div>
+    </div>
 
-        {#  Additional help included for the page #}
+    {#  Additional help included for the page #}
 
 
 {% endblock %}
