@@ -134,11 +134,11 @@ def has_data(request):
 
 
 @register.inclusion_tag('widgets/paste_data.html', takes_context=True)
-def paste_data(context, project):
+def paste_data(context, project, clipboard="data_clipboard"):
     request = context["request"]
-    clipboard = request.session.get("data_clipboard") or []
+    clipboard = request.session.get(clipboard) or []
     contains = f"{len(clipboard)} data"
-    context = dict(contains=contains, project=project)
+    context = dict(contains=contains, project=project, request=request)
     return context
 
 

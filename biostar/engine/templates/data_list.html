@@ -11,11 +11,10 @@
     {% if request|has_files %}
         {% paste action_view='data_list' obj=project form=form contains="files" %}
 
-    {% elif request|has_data %}
-
-        {% paste_data project=project %}
-
     {% endif %}
+
+    {% paste_data project=project %}
+    {% paste_results
 
     {% if not data_list %}
         <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>

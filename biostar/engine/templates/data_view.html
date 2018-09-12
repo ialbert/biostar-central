@@ -45,12 +45,11 @@
 
     <div class="ui  vertical segment">
         <div class="five ui mini buttons">
-        {% action_bar data 'data_edit' %}
-
-        <a class="copy-data ui button" data-uid="{{ data.uid }}">
+                    <a class="copy-data ui button" data-uid="{{ data.uid }}">
             <i class="copy icon"></i>Copy
         </a>
-
+        {% action_bar data 'data_edit' %}
+            
         </div>
 
     </div>

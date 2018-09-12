@@ -1,14 +1,20 @@
-<div class="ui center aligned basic segment">
-<div class="ui  message">
-<p>The clipboard contains <b>{{contains}}</b>, can still copy more. You may now paste or clear it.</p>
-     <div class="ui mini buttons">
-        <a class="ui green button" href="{% url 'data_paste' project.uid %}">
-            <i class="sticky note icon"></i> Paste
-        </a>
-         <div class="or"></div>
-        <a class="ui button" href="{% url 'clear_clipboard' project.uid 'data_list' 'data_clipboard' %}">
-            <i class="window close icon"></i> Clear
-        </a>
-     </div>
-</div>
-</div>
+{% load engine_tags %}
+
+{% if request|has_data %}
+
+    <div class="ui center aligned basic segment">
+    <div class="ui  message">
+    <p>The clipboard contains <b>{{contains}}</b>, can still copy more. You may now paste or clear it.</p>
+         <div class="ui mini buttons">
+            <a class="ui green button" href="{% url 'data_paste' project.uid %}">
+                <i class="sticky note icon"></i> Paste
+            </a>
+             <div class="or"></div>
+            <a class="ui button" href="{% url 'clear_clipboard' project.uid 'data_list' 'data_clipboard' %}">
+                <i class="window close icon"></i> Clear
+            </a>
+         </div>
+    </div>
+    </div>
+
+{% endif %}
