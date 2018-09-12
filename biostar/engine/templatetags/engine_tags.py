@@ -1,17 +1,18 @@
-from textwrap import dedent
 import json
 import logging
+import os
+from textwrap import dedent
+
 from django import template
+from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.core.paginator import Paginator
 from django.template import defaultfilters
 from django.utils.safestring import mark_safe
-from django.core.paginator import Paginator
-from django.conf import settings
 
-from biostar.utils.shortcuts import reverse
-from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
 from biostar.engine import auth, util
-
+from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
+from biostar.utils.shortcuts import reverse
 
 logger = logging.getLogger("engine")
 register = template.Library()
@@ -23,13 +24,16 @@ JOB_COLORS = {
 }
 
 DATA_COLORS = {
-    Data.PENDING: "teal", Data.READY:"green", Data.ERROR :"red"
+    Data.PENDING: "teal", Data.READY: "green", Data.ERROR: "red"
 }
+
+
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
 
 
 @register.simple_tag
 def moderate(request):
-
     url = reverse("recipe_mod", request=request)
     user = request.user
     recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW).count()
@@ -37,7 +41,6 @@ def moderate(request):
     correct = f"<b>{recipes} recipes</b> need" if recipes > 1 else f"<b>{recipes} recipe</b> needs"
     template = ''
     if user.is_authenticated and user.profile.is_manager and (recipes > 0):
-
         template = f"""
             <div class="ui message">
             <i class="ui check circle icon"></i>
@@ -45,17 +48,14 @@ def moderate(request):
             </div>
             """
 
-
-
     return mark_safe(template)
-
-
 
 
 @register.simple_tag
 def sticky_label(obj):
     label = mark_safe('<span class ="ui label">Sticky</span>')
     return label if obj.sticky else ''
+
 
 @register.simple_tag
 def build_path(path, name):
@@ -70,7 +70,6 @@ def job_file_list(context, path, files, job, form=None):
 
 @register.inclusion_tag('widgets/file_list.html', takes_context=True)
 def file_list(context, path, files, obj, form=None):
-
     back = "/".join(path.split("/")[:-1])
 
     if isinstance(obj, Data):
@@ -83,7 +82,6 @@ def file_list(context, path, files, obj, form=None):
 
 @register.simple_tag
 def get_qiime2view_link(file_serve_url):
-
     site = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 
     full_url = site + file_serve_url
@@ -95,7 +93,6 @@ def get_qiime2view_link(file_serve_url):
 
 @register.inclusion_tag('widgets/action_bar.html', takes_context=True)
 def action_bar(context, instance, edit_url):
-
     request = context["request"]
     edit_url = reverse(edit_url, request=request, kwargs=dict(uid=instance.uid))
 
@@ -115,7 +112,6 @@ def action_bar(context, instance, edit_url):
 
 @register.inclusion_tag('widgets/list_view.html', takes_context=True)
 def list_view(context, projects=None, data_list=None, recipe_list=None, job_list=None):
-
     request = context["request"]
     return dict(projects=projects, data_list=data_list, recipe_list=recipe_list,
                 job_list=job_list, request=request)
@@ -123,7 +119,6 @@ def list_view(context, projects=None, data_list=None, recipe_list=None, job_list
 
 @register.inclusion_tag('widgets/recipe_moderate.html')
 def recipes_moderate(cutoff=0):
-
     recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW,
                                       deleted=False).order_by("-date")
 
@@ -133,7 +128,6 @@ def recipes_moderate(cutoff=0):
 
 @register.filter
 def has_data(request):
-
     data_clipboard = request.session.get("data_clipboard", [])
 
     return len(data_clipboard)
@@ -141,7 +135,6 @@ def has_data(request):
 
 @register.inclusion_tag('widgets/paste_data.html', takes_context=True)
 def paste_data(context, project):
-
     request = context["request"]
     clipboard = request.session.get("data_clipboard") or []
     contains = f"{len(clipboard)} data"
@@ -175,7 +168,6 @@ def has_files(request):
 
 @register.filter
 def is_qiime_archive(file=None):
-
     filename = file.path
 
     return filename.endswith(".qza") or filename.endswith(".qzv")
@@ -200,27 +192,25 @@ def get_projects(user, request=None, per_page=20):
 
 
 def update_dict(iter):
-
-    results=[dict(
-                title=d.name,
-                description=d.summary,
-                url=d.url()) for d in iter
-            ]
+    results = [dict(
+        title=d.name,
+        description=d.summary,
+        url=d.url()) for d in iter
+    ]
 
     return results
 
 
 @register.inclusion_tag('widgets/search.html')
 def search(request):
-
     projects = auth.get_project_list(user=request.user)
 
-    data = Data.objects.filter(deleted=False,project__in=projects)
+    data = Data.objects.filter(deleted=False, project__in=projects)
     recipe = Analysis.objects.filter(deleted=False, project__in=projects)
     jobs = Job.objects.filter(deleted=False, project__in=projects)
     projects = projects.filter(deleted=False)
 
-    content = [dict(name="Projects",results =update_dict(iter=projects)),
+    content = [dict(name="Projects", results=update_dict(iter=projects)),
                dict(name="Data", results=update_dict(iter=data)),
                dict(name="Recipes", results=update_dict(iter=recipe)),
                dict(name="Jobs", results=update_dict(iter=jobs)),
@@ -248,10 +238,9 @@ def has_recipe(request):
     return bool(uid and recipe)
 
 
-
 @register.simple_tag
 def privacy_label(project):
-    label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>' )
+    label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>')
     return label
 
 
@@ -259,6 +248,7 @@ def privacy_label(project):
 def security_label(analysis):
     context = dict(analysis=analysis)
     return context
+
 
 @register.simple_tag
 def job_color(job):
@@ -280,11 +270,11 @@ def activate(value1, value2):
 def data_color(data):
     "Return a color based on data status."
 
-    return DATA_COLORS.get(data.state,  "")
+    return DATA_COLORS.get(data.state, "")
+
 
 @register.simple_tag
 def access_color(user, project):
-
     if user.is_authenticated:
         access = Access.objects.filter(user=user, project=project).first()
     else:
@@ -298,16 +288,15 @@ def access_color(user, project):
 
 @register.simple_tag
 def type_label(data):
-
     if data.type:
-        label = lambda x:f"<span class='ui label' > {x} </span>"
+        label = lambda x: f"<span class='ui label' > {x} </span>"
         types = [label(t) for t in data.type.split(',')]
         return mark_safe(''.join(types))
     return ""
 
+
 @register.simple_tag
 def state_label(data, error_only=False):
-
     label = f'<span class="ui { DATA_COLORS.get(data.state, "") } label"> {data.get_state_display()} </span>'
 
     # Error produce error only.
@@ -334,6 +323,10 @@ def show_messages(messages):
     Renders the messages
     """
     return dict(messages=messages)
+
+
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
 
 
 @register.inclusion_tag('widgets/project_title.html', takes_context=True)
@@ -368,7 +361,6 @@ def project_action_bar(user, project):
 
 @register.inclusion_tag('widgets/job_elapsed.html')
 def job_minutes(job):
-
     return dict(job=job)
 
 
@@ -382,13 +374,47 @@ def size_label(data):
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
 
 
+@register.inclusion_tag('widgets/dirlist.html')
+def directory_list(obj):
+    """
+    Returns a label for data sizes.
+    """
+
+    # Starting location.
+    root = obj.get_data_dir()
+
+    paths = []
+
+    # Walk the filesystem and collect all files.
+    for fpath, fdirs, fnames in os.walk(root):
+        paths.extend([join(fpath, fname) for fname in fnames])
+
+    IMAGE_EXT =  [ "png", "jpg", "gif", "jpeg"]
+    # Add timestamp and size to each object.
+    def transform(path):
+        tstamp = os.stat(path).st_birthtime
+        size = os.stat(path).st_size
+        relp = os.path.relpath(path, root)
+        nice = relp.replace("/", " / ")
+        is_image = relp.split(".")[-1] in IMAGE_EXT
+        return tstamp, relp, nice, size, is_image
+
+    # Transform the paths.
+    paths = map(transform, paths)
+
+    # Sort by fields.
+    paths = sorted(paths)
+
+    return dict(paths=paths, obj=obj)
+
+
 @register.inclusion_tag('widgets/form_errors.html')
 def form_errors(form):
     """
     Turns form errors into a data structure
     """
     try:
-        errorlist = [ ('', message) for message in form.non_field_errors() ]
+        errorlist = [('', message) for message in form.non_field_errors()]
 
         for field in form:
             for error in field.errors:
