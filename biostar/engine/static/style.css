@@ -145,8 +145,22 @@ body {
     border: none transparent;
 }
 
+.socialbox{
+    width:450 !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+
+}
+
+.logintext{
+    padding-top:5 !important;
+    padding-left:5 !important;
+    margin-bottom:0 !important;
+}
+
 .ui.commentcolor.segment {
     background-color:#f2f2f2!important;;
+    padding:2;
 }
 .ui.comment.segment {
   border-top: none !important;

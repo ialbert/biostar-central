@@ -1,13 +1,14 @@
+import mistune
+from pagedown.widgets import PagedownWidget
 from django import forms
 from .models import Post
 from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.conf import settings
-
-
 from biostar.engine.models import Project
-from . import  models, auth
-from pagedown.widgets import PagedownWidget
+
+from . import  models, auth, util
+
 from .const import *
 # Share logger with models
 logger = models.logger
@@ -62,7 +63,7 @@ class PostLongForm(forms.Form):
         if self.post:
             inital_title = self.post.title
             inital_tags = self.post.tag_val
-            inital_content = self.post.content
+            inital_content = self.post.html
             inital_type = self.post.type
 
         self.fields["post_type"] = forms.ChoiceField(label="Post Type", choices=choices,
@@ -83,7 +84,8 @@ class PostLongForm(forms.Form):
         data = self.cleaned_data.get
 
         title = data('title')
-        content = data('content')
+        html = data("content")
+        content = util.strip_tags(html)
         post_type = int(data('post_type'))
         tag_val = data('tag_val')
 
@@ -91,7 +93,7 @@ class PostLongForm(forms.Form):
             self.post.title = title
             self.post.content = content
             self.post.type = post_type
-            self.post.html = auth.parse_html(content)
+            self.post.html = html
             self.post.save()
             # Triggers another save
             self.post.add_tags(text=tag_val)
@@ -108,7 +110,6 @@ class PostLongForm(forms.Form):
                 pass
             else:
                 raise forms.ValidationError("Only the author or a moderator can edit a post.")
-
 
 
 class SubsForm(forms.Form):
@@ -141,7 +142,7 @@ class PostShortForm(forms.Form):
         self.post = post
 
         super().__init__(*args, **kwargs)
-        inital_content = "" if not self.post else self.post.content
+        inital_content = "" if not self.post else self.post.html
         self.fields["content"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                                                  min_length=2, max_length=5000,
                                                  initial=inital_content)
@@ -152,13 +153,14 @@ class PostShortForm(forms.Form):
 
     def save(self, author=None, post_type=Post.ANSWER, edit=False):
         data = self.cleaned_data
-        content = data.get("content")
+        html = data.get("content")
         project = data.get("project_uid")
         parent = data.get("parent_uid")
+        content = util.strip_tags(html)
 
         if edit:
+            self.post.html = html
             self.post.content = content
-            self.post.html = auth.parse_html(content)
             self.post.save()
         else:
             parent = Post.objects.get_all(uid=parent).first()
@@ -167,10 +169,10 @@ class PostShortForm(forms.Form):
             self.post = auth.create_post(title=parent.root.title,
                               parent=parent,
                               author=author,
-                              content= content,
+                              content=content,
                               post_type=post_type,
                               project=project,
-                              sub_to_root=True
+                              sub_to_root=True,
                               )
         return self.post
 

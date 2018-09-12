@@ -36,8 +36,7 @@
 
                 {% else %}
                     <div class="number-stat">
-
-                        {{ post.root.reply_count }}
+                        {{ post.reply_count }}
                     </div>
                     <div class="detail-stat">Remark{{ post.root.reply_count|pluralize }}</div>
                 {% endif %}
