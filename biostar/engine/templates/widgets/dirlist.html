@@ -1,7 +1,16 @@
 <div class="ui relaxed divided large list">
-    {%  for tstamp, path, nice, size in paths %}
-        <div class="item"><a href="{%  url "job_serve" uid=obj.uid path=path %}">{{ nice }}</a>
-        <span class="ui right floated small label">{{size|filesizeformat }}</span>
+    {% for tstamp, path, nice, size, is_image in paths %}
+        <div class="item">
+
+            {% if is_image %}
+                <img class="ui tiny image" src="{% url "job_serve" uid=obj.uid path=path %}">
+            {% endif %}
+
+            <a href="{% url "job_serve" uid=obj.uid path=path %}">{{ nice }}</a>
+
+
+            <span class="ui right floated small label">{{ size|filesizeformat }}</span>
+
         </div>
     {% endfor %}
 </div>

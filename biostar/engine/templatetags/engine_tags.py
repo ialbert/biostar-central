@@ -389,13 +389,15 @@ def directory_list(obj):
     for fpath, fdirs, fnames in os.walk(root):
         paths.extend([join(fpath, fname) for fname in fnames])
 
+    IMAGE_EXT =  [ "png", "jpg", "gif", "jpeg"]
     # Add timestamp and size to each object.
     def transform(path):
         tstamp = os.stat(path).st_birthtime
         size = os.stat(path).st_size
         relp = os.path.relpath(path, root)
         nice = relp.replace("/", " / ")
-        return tstamp, relp, nice, size
+        is_image = relp.split(".")[-1] in IMAGE_EXT
+        return tstamp, relp, nice, size, is_image
 
     # Transform the paths.
     paths = map(transform, paths)
