@@ -18,6 +18,7 @@ init:
 
 delete:
 	# Delete the database,logs and CACHE files
+	# Keeps media and spool
 	rm -rf export/logs/*.log
 	rm -f export/database/engine.db
 	rm -rf export/static/CACHE
@@ -25,13 +26,14 @@ delete:
 	rm -rf *.egg-info
 
 full_delete: delete
-	# Perform a delete, a media and spooler delete
+	# Perform a full delete of all content.
 	rm -rf export/spooler/*spool*
 	rm -rf export/media/*
 
 # Resets the site without removing jobs.
 reset: delete init
 
+# Removes all content from the site.
 hard_reset: full_delete init
 
 loaddata:
@@ -40,17 +42,14 @@ loaddata:
 dumpdata:
 	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > $(DUMP_FILE)
 	cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
-	# Datadump count
+	# Produce a datadump count as a reminder.
 	@ls -1 export/database/*.json | wc -l
-
 
 uwsgi:
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
-
 serve_forum:
 	python manage.py runserver --settings=biostar.forum.settings
-
 
 install:
 	pip install -r conf/python_requirements.txt
@@ -58,14 +57,6 @@ install:
 	conda config --add channels conda-forge
 	conda config --add channels bioconda
 	conda install --file conf/conda_requirements.txt -y
-
-
-update:
-    # Will create new projects/recipes if update flag is not set
-
-	python manage.py project --update --root ../biostar-recipes --json projects/tutorial-project.hjson
-	python manage.py analysis --update --json ../biostar-recipes/recipes/tutorial/interface.hjson --template ../biostar-recipes/recipes/tutorial/interface.sh
-
 
 tutorial:
 	python manage.py project --root ../biostar-recipes --json projects/tutorial-project.hjson --privacy public --jobs
@@ -86,11 +77,6 @@ recipes: tutorial
 verbose:
 	# Makes logging more verbose.
 	export DJANGO_LOG_LEVEL=DEBUG
-
-
-reset: delete init
-
-full_reset: full_delete init recipes
 
 postgres:
 	#dropdb --if-exists testbuddy_engine
@@ -125,7 +111,6 @@ biostar_load:
 	python manage.py load --root initial/export-100 --posts posts.txt  --n 100 || true
 
 	python manage.py load --root initial/export-100 --votes votes.txt  --n 100 || true
-
 
 
 deploy_psu:

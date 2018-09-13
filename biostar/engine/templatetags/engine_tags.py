@@ -392,13 +392,13 @@ def directory_list(obj):
         relp = os.path.relpath(path, root)
         nice = relp.replace("/", " / ")
         is_image = relp.split(".")[-1] in IMAGE_EXT
-        return tstamp, relp, nice, size, is_image
+        return  relp, nice, tstamp, size, is_image
 
     # Transform the paths.
     paths = map(transform, paths)
 
     # Sort by the tuple fields..
-    paths = sorted(paths, reverse=True)
+    paths = sorted(paths)
 
     return dict(paths=paths, obj=obj, serve_url=serve_url)
 

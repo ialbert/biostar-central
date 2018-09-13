@@ -69,15 +69,16 @@
             <div class="ui vertical segment">
 
                 <div class="ui three mini buttons">
-                    <a class="ui button" href="{% url 'data_upload' project.uid %}">
-                        <i class="upload icon"></i>Add Data
+                    <a class="ui green button" href="{% url 'data_upload' project.uid %}">
+                        <i class="plus icon"></i>Add Data
                     </a>
 
                     <a class="ui  button" href="{% url 'project_edit' project.uid %}">
-                        <i class="edit icon"></i>Edit Project Info
+                        <i class="edit icon"></i>Edit Project
                     </a>
+
                     <a class="ui  button" href="{% url 'project_users' project.uid %}">
-                        <i class="users icon"></i>Manage Project Access
+                        <i class="users icon"></i>Manage Access
                     </a>
 
                 </div>
@@ -85,8 +86,10 @@
 
             <div class="ui vertical segment">
 
+                <div class="ui header">Project Summary</div>
                 {{ project.summary|markdown|safe }}
 
+                <div class="ui header">Project Info</div>
                 {{ project.html|safe }}
 
             </div>

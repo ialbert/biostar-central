@@ -1,6 +1,6 @@
 {% if paths %}
     <div class="ui relaxed divided large list">
-        {% for tstamp, path, nice, size, is_image in paths %}
+        {% for  path, nice, tstamp, size, is_image in paths %}
             <div class="item">
 
                 <a href="{% url serve_url uid=obj.uid path=path %}">
