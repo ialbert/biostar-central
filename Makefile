@@ -60,18 +60,8 @@ verbose:
 	export DJANGO_LOG_LEVEL=DEBUG
 
 
-soft_delete:
+hard_delete:
 	# Used to load data without deleting old media and spoolers
-	rm -rf export/logs/*.log
-	rm -f export/database/engine.db
-	rm -rf export/static/CACHE
-	rm -rf *.egg
-	rm -rf *.egg-info
-
-
-delete:
-	# Ensure the files that could hold secrets exist.
-	# Remove the database and old media.
 	rm -rf export/logs/*.log
 	rm -rf export/spooler/*spool*
 	rm -f export/database/engine.db
@@ -80,9 +70,19 @@ delete:
 	rm -rf *.egg
 	rm -rf *.egg-info
 
-hard_reset: delete init recipes
 
-reset: soft_delete init recipes
+delete:
+	# Ensure the files that could hold secrets exist.
+	# Remove the database and old media.
+	rm -rf export/logs/*.log
+	rm -f export/database/engine.db
+	rm -rf export/static/CACHE
+	rm -rf *.egg
+	rm -rf *.egg-info
+
+hard_reset: hard_delete init recipes
+
+reset: delete init recipes
 
 postgres:
 	#dropdb --if-exists testbuddy_engine
