@@ -1,32 +1,56 @@
-
 # Test data specific variables.
 DATA_FILE=recipes-initial-data.tar.gz
 DATA_DIR=/export/sites/main_data/initial
 DATA_HOST=data.bioinformatics.recipes
-DUMPFILE=export/database/dbdump_`date +'%y.%m.%d.%H:%M:%S'`.json
 
-all: reset load serve
+# Data dump files.
+DUMP_FILE=export/database/engine.json
+BACKUP_DUMP_FILE=export/database/engine_`date +'%s'`.json
 
-serve: init
+all: serve
+
+serve:
 	python manage.py runserver
 
-test_email:
-	# Actually send emails with --send args
-	python manage.py test_email --send --settings=conf.natay.site_settings
+init:
+	python manage.py collectstatic --noinput -v 0
+	python manage.py migrate -v 0
+
+delete:
+	# Delete the database,logs and CACHE files
+	rm -rf export/logs/*.log
+	rm -f export/database/engine.db
+	rm -rf export/static/CACHE
+	rm -rf *.egg
+	rm -rf *.egg-info
+
+full_delete: delete
+	# Perform a delete, a media and spooler delete
+	rm -rf export/spooler/*spool*
+	rm -rf export/media/*
+
+# Resets the site without removing jobs.
+reset: delete init
+
+hard_reset: full_delete init
+
+loaddata:
+	python manage.py loaddata $(DUMP_FILE)
+
+dumpdata:
+	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > $(DUMP_FILE)
+	cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
+	# Datadump count
+	@ls -1 export/database/*.json | wc -l
+
+
+uwsgi:
+	uwsgi  --ini conf/devel/devel_uwsgi.ini
+
 
 serve_forum:
 	python manage.py runserver --settings=biostar.forum.settings
 
-init:
-	@python manage.py collectstatic --noinput -v 0
-	@python manage.py migrate -v 0
-	python manage.py project --root ../biostar-recipes --json projects/tutorial-project.hjson --privacy public --jobs
-
-uwsgi: init
-	uwsgi  --ini conf/devel/devel_uwsgi.ini
-
-nginx: init
-	uwsgi  --ini conf/devel/devel_nginx_uwsgi.ini
 
 install:
 	pip install -r conf/python_requirements.txt
@@ -43,15 +67,19 @@ update:
 	python manage.py analysis --update --json ../biostar-recipes/recipes/tutorial/interface.hjson --template ../biostar-recipes/recipes/tutorial/interface.sh
 
 
-recipes:
+tutorial:
+	python manage.py project --root ../biostar-recipes --json projects/tutorial-project.hjson --privacy public --jobs
+
+# Load all recipes
+recipes: tutorial
 	python manage.py project --root ../biostar-recipes --json projects/cookbook-project.hjson --privacy public --jobs
-	#python manage.py project --root ../biostar-recipes --json projects/mothur-project.hjson --privacy public
+	python manage.py project --root ../biostar-recipes --json projects/mothur-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/giraffe-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/handbook-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/usfish-project.hjson --privacy public
 	python manage.py project --root ../biostar-recipes --json projects/trout-project.hjson
 
-	@# Create initial users
+	# Create initial users
 	python manage.py add_user initial/initial-users.csv
 	python manage.py add_access initial/initial-access.csv
 
@@ -60,30 +88,9 @@ verbose:
 	export DJANGO_LOG_LEVEL=DEBUG
 
 
-hard_delete:
-	# Ensure the files that could hold secrets exist.
-	# Remove the database and old media.
-	# Used to load data without deleting old media and spoolers
-	rm -rf export/logs/*.log
-	rm -rf export/spooler/*spool*
-	rm -f export/database/engine.db
-	rm -rf export/static/CACHE
-	rm -rf export/media/*
-	rm -rf *.egg
-	rm -rf *.egg-info
+reset: delete init
 
-
-delete:
-	# Delete without touching old media and spoolers
-	rm -rf export/logs/*.log
-	rm -f export/database/engine.db
-	rm -rf export/static/CACHE
-	rm -rf *.egg
-	rm -rf *.egg-info
-
-hard_reset: hard_delete init recipes
-
-reset: delete init recipes
+full_reset: full_delete init recipes
 
 postgres:
 	#dropdb --if-exists testbuddy_engine
@@ -107,7 +114,9 @@ push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
 	git push
 
-load:
+# Biostar data load
+biostar_load:
+
 	@tar -xvzf initial/initial-posts.tar.gz --directory initial
 
 	@# Load initial users first
@@ -118,12 +127,6 @@ load:
 	python manage.py load --root initial/export-100 --votes votes.txt  --n 100 || true
 
 
-dumpdata:
-	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > $(DUMPFILE)
-
-loaddata:
-	echo "***Environment variable LOADFILE needs to be set to the data dump file."
-	python manage.py loaddata $(LOADFILE) --ignorenonexistent
 
 deploy_psu:
 	(cd conf/ansible && ansible-playbook -i hosts-psu server_deploy.yml --ask-become-pass --extra-vars "reset=True")

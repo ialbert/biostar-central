@@ -10,28 +10,47 @@
 
     {% paste_data project=project %}
 
-    {% if not data_list %}
-        <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>
-    {% endif %}
 
-    {%  if user.is_authenticated %}
-    <div class="ui center aligned vertical segment">
+    <div class="ui vertical segment">
+        <div class="ui divided items">
 
-        <a class="ui small button" href="{% url 'data_upload' project.uid %}">
-            <i class="upload icon"></i>Add Data
-        </a>
+            {% for data in data_list %}
 
-        <a class="ui small button" href="{% url 'project_edit' project.uid %}">
-            <i class="edit icon"></i>Edit Project
-        </a>
-        <a class="ui small button" href="{% url 'project_users' project.uid %}">
-            <i class="users icon"></i>Manage Access
-        </a>
+                <div class="item">
+                    <div class="content">
 
+                        {% if request.user.is_authenticated %}
+                            <div id="copy-message-{{ data.uid }}"></div>
+                            <a class="copy-data ui right floated label" data-uid="{{ data.uid }}"
+                               copy-url="{% url 'data_copy' %}"
+                               board="data_clipboard">
+                                <i class="copy icon"></i>Copy
+                            </a>
+                        {% endif %}
+
+                        <a class="subheader" href="{% url 'data_view' data.uid %}">
+                            <i class="file icon"></i>{{ data.name }}
+                        </a>
+                        <div class="meta">
+                            <div class="ui small labels">
+                                {% size_label data %}
+                                {% type_label data %}
+                                {% state_label data error_only=True %}
+                            </div>
+                        </div>
+                        <div class="meta">{{ data.summary|safe }}</div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="item ">
+                    <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>
+                </div>
+
+            {% endfor %}
+
+        </div>
     </div>
 
-    {%  endif %}
 
-    {% list_view data_list=data_list %}
 
 {% endblock %}

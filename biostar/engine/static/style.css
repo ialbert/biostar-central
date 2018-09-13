@@ -22,7 +22,10 @@ body {
 .extrainfo {
   margin-top:30;
   padding: 0;
+}
 
+.imgpad {
+    padding-right: 1em;
 }
 
 .deleted {

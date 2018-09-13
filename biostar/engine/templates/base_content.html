@@ -25,12 +25,12 @@
                 <i class="bar chart icon"></i>{{ result_count }} Results
             </a>
 
-             {% if activate %}
+            {% if activate %}
                 <div class="active item">
                     <i class="info circle icon"></i> Selection
                 </div>
             {% else %}
-                 <div class=" item">
+                <div class=" item">
                     <i class="info circle icon"></i> Selection
                 </div>
             {% endif %}
@@ -38,7 +38,6 @@
             <a class="{% activate 'discussion' active %}  item" href="{% url 'discussion_list' project.uid %}">
                 <i class="comments icon"></i>{{ discussion_count }} Discussions
             </a>
-
 
 
         </div>
@@ -54,23 +53,48 @@
             </p>
         </div>
 
-        <div class="ui large vertical segment">
-            <div class="ui subheader">Project Summary</div>
-            {{ project.summary|markdown|safe }}
-        </div>
-
-        {% if more_info %}
-            <div class="ui large vertical segment">
-                <div class="ui subheader">Project Information</div>
-                <div class="project help">
-                    {{ more_info|safe }}
-                </div>
-            </div>
-        {% endif %}
 
     </div>
 
-    {#  Additional help included for the page #}
+    {% if show_summary %}
 
+        <div class="ui top attached tabular  menu">
+            <a class="active  item">
+                <i class="settings text icon"></i> Project Actions
+            </a>
+        </div>
+
+        <div class="ui bottom attached segment">
+
+            <div class="ui vertical segment">
+
+                <div class="ui three mini buttons">
+                    <a class="ui button" href="{% url 'data_upload' project.uid %}">
+                        <i class="upload icon"></i>Add Data
+                    </a>
+
+                    <a class="ui  button" href="{% url 'project_edit' project.uid %}">
+                        <i class="edit icon"></i>Edit Project Info
+                    </a>
+                    <a class="ui  button" href="{% url 'project_users' project.uid %}">
+                        <i class="users icon"></i>Manage Project Access
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="ui vertical segment">
+
+                {{ project.summary|markdown|safe }}
+
+                {{ project.html|safe }}
+
+            </div>
+
+        </div>
+
+
+
+    {% endif %}
 
 {% endblock %}
