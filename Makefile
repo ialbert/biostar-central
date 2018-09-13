@@ -61,6 +61,8 @@ verbose:
 
 
 hard_delete:
+	# Ensure the files that could hold secrets exist.
+	# Remove the database and old media.
 	# Used to load data without deleting old media and spoolers
 	rm -rf export/logs/*.log
 	rm -rf export/spooler/*spool*
@@ -72,8 +74,7 @@ hard_delete:
 
 
 delete:
-	# Ensure the files that could hold secrets exist.
-	# Remove the database and old media.
+	# Delete without touching old media and spoolers
 	rm -rf export/logs/*.log
 	rm -f export/database/engine.db
 	rm -rf export/static/CACHE
@@ -122,7 +123,7 @@ dumpdata:
 
 loaddata:
 	echo "***Environment variable LOADFILE needs to be set to the data dump file."
-	python manage.py loaddata $(LOADFILE) --ignorenonexistent --exclude engine
+	python manage.py loaddata $(LOADFILE) --ignorenonexistent
 
 deploy_psu:
 	(cd conf/ansible && ansible-playbook -i hosts-psu server_deploy.yml --ask-become-pass --extra-vars "reset=True")
