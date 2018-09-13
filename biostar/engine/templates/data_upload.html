@@ -1,105 +1,75 @@
-{% extends "engine_base.html" %}
+{% extends "base_content.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
     Upload Data
 {% endblock %}
 
+{% block content %}
 
-{% block body %}
+    <div class="ui basic segment">
+        You have two methods do add data to the site.
+    </div>
 
-
-<div class="ui segment inputcolor">
-        {% form_errors form %}
-    <form method="post" class="ui form" enctype="multipart/form-data" action="{%  url 'data_upload' project.uid %}">
-
+    <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'data_upload' project.uid %}">
         {% csrf_token %}
-        {{ form.media }}
 
-        <div class="field segment">
+        <div class="ui segment inputcolor">
+            {% form_errors form %}
 
-            <div class="ui  center aligned vertical basic segment">
-                <p class="ui header"><i class="ui upload icon"></i>Upload a file</p>
+            {{ form.media }}
+
+            <p class="ui header"><i class="ui upload icon"></i>Upload a file</p>
+
+            <p>You may upload a file from your computer.</p>
+
+            <div class="field">
+                {{ form.file }}
+                <p class="muted">File or zip collection of files you want to analyze.</p>
             </div>
+            
+            <button type="submit" class="ui submit green button">
+                <i class="write icon"></i>Upload File
+            </button>
+            <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
+                <i class="undo icon"></i>Cancel
+            </a>
 
-              <label>File</label>
-              {{ form.file }}
-             <p class="muted">File or collection of files you want to analyze.</p>
+        </div>
 
-         <button type="submit" class="ui submit green button">
-            <i class="write icon"></i>Upload File
-        </button>
-        <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
-             <i class="undo icon"></i>Cancel
-        </a>
+    </form>
 
-              <div class="ui divider">
 
-              </div>
+    <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'data_upload' project.uid %}">
+        {% csrf_token %}
 
-         <div class="ui  center aligned vertical basic segment">
-                <p class="ui header"><i class="edit icon"></i>Create Data</p>
-            </div>
+        <div class="ui segment inputcolor">
 
-         <label>Name</label>
-              {{ form.data_name }}
-             <p class="muted">Name of the data.</p>
+            <p class="ui header"><i class="edit icon"></i>Direct Data Entry</p>
+
+            <p>You may manually create a dataset here.</p>
+
+            <label>Name</label>
+            {{ form.data_name }}
+            <p class="muted">Name of the data.</p>
 
             <label>Input Text</label>
-                <textarea rows="10" cols="55" name="{{form.input_text.name}}" id="id_{{form.input_text.name}}"
-                          maxlength="{{ form.input_text.field.max_length }}">{% if form.input_text.value %}{{ form.input_text.value }}{% endif %}</textarea>
-             <p class="muted">Write the data as text instead of uploading a file ( {{ form.input_text.field.max_length }} characters ).</p>
 
-         </div>
+            <textarea rows="10" cols="55" name="{{ form.input_text.name }}" id="id_{{ form.input_text.name }}"
+                      maxlength="{{ form.input_text.field.max_length }}">{% if form.input_text.value %}
+                {{ form.input_text.value }}{% endif %}</textarea>
+            <p class="muted">Enter data as text instead of uploading a file ( {{ form.input_text.field.max_length }}
+                characters ).</p>
 
-    <button type="submit" class="ui submit green button">
+        </div>
+
+        <button type="submit" class="ui submit green button">
             <i class="write icon"></i>Create Data
         </button>
         <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
-             <i class="undo icon"></i>Cancel
-        </a>
-
-     <div class="ui divider">
-
-              </div>
-
-
-        <div class="ui  center aligned header">
-            <i class="ui pen square icon"></i>Extra Information
-        </div>
-        <p>
-            This information may be added later as well.
-        </p>
-        <div class="field">
-            <label>Data Type</label>
-            {{ form.type }}
-            <p class="muted">Data type used to sub-select during analysis.</p>
-        </div>
-        <div class="field">
-           <label class="ui checkbox" for="{{ field.id_for_label }}">
-                    {{ form.sticky }} <label>Sticky</label>
-           </label>
-               <p class="muted">Makes the data stick to top of the list.</p>
-        </div>
-        <div class="field">
-            <label>Summary</label>
-            {{ form.summary }}
-            <p class="muted">A brief summary shown inline with the data (markdown OK).</p>
-        </div>
-
-        <div class="field segment">
-              <label>Data Description</label>
-             {{ form.text }}
-                <p class="muted">A detailed explanation of what is in the data collection (markdown OK).</p>
-         </div>
-
-        <button type="submit" class="ui submit green button">
-            <i class="write icon"></i>Submit
-        </button>
-        <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
-             <i class="undo icon"></i>Cancel
+            <i class="undo icon"></i>Cancel
         </a>
 
     </form>
-</div>
+
 {% endblock %}

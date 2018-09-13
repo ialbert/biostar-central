@@ -1,32 +1,29 @@
-import os
 import logging
+import os
 
-from django.contrib.auth.decorators import login_required
+from biostar.accounts.models import Profile, User
+from biostar.forum import views as forum_views
+from biostar.forum.models import Post
+from biostar.utils.shortcuts import reverse
 from django.contrib import messages
-from django.db.models import Q
-
-from django.http import JsonResponse
-from sendfile import sendfile
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from biostar.accounts.models import Profile, User
-
-from biostar.utils.shortcuts import reverse
-from biostar.forum.models import Post
-from biostar.forum import views as forum_views
+from sendfile import sendfile
 
 from . import tasks, auth, forms, util
-
-from .diffs import color_diffs
 from .decorators import object_access
+from .diffs import color_diffs
 from .models import (Project, Data, Analysis, Job, Access)
-
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
 logger = logging.getLogger('engine')
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -66,10 +63,10 @@ def recycle_bin(request):
                                         owner=request.user).order_by("date")
 
     del_recipes = Analysis.objects.get_deleted(project__in=all_projects,
-                                          owner=request.user).order_by("date")
+                                               owner=request.user).order_by("date")
 
     del_jobs = Job.objects.get_deleted(project__in=all_projects,
-                                  owner=request.user).order_by("date")
+                                       owner=request.user).order_by("date")
 
     context = dict(jobs=del_jobs, data=del_data, recipes=del_recipes)
 
@@ -170,7 +167,6 @@ def data_list(request, uid):
 
 @object_access(type=Project, access=Access.READ_ACCESS)
 def discussion_list(request, uid):
-
     posts = Post.objects.get_discussions(project__uid=uid, type__in=Post.TOP_LEVEL).order_by("-pk").all()
 
     context = dict(posts=posts)
@@ -180,7 +176,6 @@ def discussion_list(request, uid):
 
 @object_access(type=Post, access=Access.READ_ACCESS)
 def discussion_subs(request, uid):
-
     next_url = reverse("discussion_view", request=request, kwargs=dict(uid=uid))
     return forum_views.subs_action(request=request, uid=uid, next=next_url)
 
@@ -196,9 +191,9 @@ def discussion_create(request, uid):
     context.update(counts)
 
     allowed_posts = [
-                    Post.QUESTION, Post.COMMENT, Post.ANSWER, Post.TOOL,
-                    Post.TUTORIAL, Post.DATA, Post.NEWS
-                    ]
+        Post.QUESTION, Post.COMMENT, Post.ANSWER, Post.TOOL,
+        Post.TUTORIAL, Post.DATA, Post.NEWS
+    ]
     filter_function = lambda x: x[0] in allowed_posts
 
     return forum_views.post_create(request=request, template=template, extra_context=context,
@@ -207,7 +202,6 @@ def discussion_create(request, uid):
 
 @object_access(type=Post, access=Access.READ_ACCESS)
 def discussion_view(request, uid):
-
     template = "discussion_view.html"
     # Get the parents info
     obj = Post.objects.get_discussions(uid=uid).first()
@@ -255,7 +249,6 @@ def get_counts(project):
 @object_access(type=Project, access=Access.READ_ACCESS)
 def project_view(request, uid, template_name="recipe_list.html", active='recipes', show_summary=None,
                  extra_context={}):
-
     project = Project.objects.filter(uid=uid).first()
     # Show counts for the project.
     counts = get_counts(project)
@@ -270,7 +263,6 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     if recipe_filter:
         recipe_filter = Analysis.objects.filter(uid=recipe_filter).first()
         job_list = job_list.filter(analysis=recipe_filter)
-
 
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
                    active=active, recipe_filter=recipe_filter, show_summary=show_summary)
@@ -326,7 +318,6 @@ def project_create(request):
 
 
 def ajax_copy(request, modeltype):
-
     user = request.user
     data_uid = request.GET.get("data_uid")
     board = request.GET.get("board")
@@ -348,28 +339,24 @@ def ajax_copy(request, modeltype):
         status = "error"
         request.session[board] = []
 
-    response = JsonResponse({"message": msg, "status":status})
+    response = JsonResponse({"message": msg, "status": status})
     return response
 
 
 def ajax_job_copy(request):
-
     return ajax_copy(modeltype=Job, request=request)
 
 
 def ajax_data_copy(request):
-
     return ajax_copy(modeltype=Data, request=request)
 
 
 def ajax_recipe_copy(request):
-
     return ajax_copy(modeltype=Analysis, request=request)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url="recipe_list")
 def recipe_paste(request, uid):
-
     project = Project.objects.filter(uid=uid).first()
 
     board = request.GET.get("board")
@@ -471,6 +458,7 @@ def data_upload(request, uid):
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     form = forms.DataUploadForm(user=owner, project=project)
+
     if request.method == "POST":
         form = forms.DataUploadForm(data=request.POST, files=request.FILES, user=owner, project=project)
 
@@ -479,7 +467,12 @@ def data_upload(request, uid):
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", request=request, kwargs={'uid': project.uid}))
 
-    context = dict(project=project, form=form)
+    context = dict(project=project, form=form, activate="FOO")
+
+    counts = get_counts(project)
+
+    context.update(counts)
+
     return render(request, 'data_upload.html', context)
 
 
@@ -508,7 +501,8 @@ def recipe_run(request, uid):
     project = analysis.project
 
     if request.method == "POST":
-        form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, data=request.POST)
+        form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
+                                     data=request.POST)
 
         if form.is_valid():
 
@@ -589,7 +583,8 @@ def recipe_code(request, uid):
         form = forms.EditCode(user=user, project=project, initial=initial)
 
     # Bind the JSON to the form.
-    recipe = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=dict(name=name))
+    recipe = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
+                                   initial=dict(name=name))
 
     # This generates a "fake" unsaved job.
     # Needs to fill in a few runtime only settings.
@@ -642,7 +637,7 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MANAGER,url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MANAGER, url='recipe_view')
 def recipe_diff(request, uid):
     """
     View used to show diff in template and authorize it.
@@ -656,12 +651,12 @@ def recipe_diff(request, uid):
 
     if request.method == "POST":
         form = forms.RecipeDiff(recipe=recipe, user=request.user, data=request.POST,
-                          request=request)
+                                request=request)
         if form.is_valid():
             form.save()
             return redirect(reverse('recipe_view', request=request, kwargs=dict(uid=recipe.uid)))
 
-    context = dict(activate="Recent Template Change",  project=recipe.project, recipe=recipe,
+    context = dict(activate="Recent Template Change", project=recipe.project, recipe=recipe,
                    diff=mark_safe(''.join(differ)), form=form)
 
     counts = get_counts(recipe.project)
@@ -775,7 +770,7 @@ def job_view(request, uid):
         messages.error(request, f"{exc}")
         files = []
 
-    context = dict(job=job, project=project,  activate='Selected Result', files=files, path=path)
+    context = dict(job=job, project=project, activate='Selected Result', files=files, path=path)
 
     counts = get_counts(project)
     context.update(counts)

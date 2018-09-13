@@ -7,11 +7,9 @@
 
 {% block content %}
 
-
     <div class="ui vertical segment">
 
         <div class="ui divided link items">
-
 
             <div class="item ">
                 <div>
@@ -32,7 +30,7 @@
     </div>
 
 
-<div id="copy-message-{{data.uid}}"></div>
+    <div id="copy-message-{{ data.uid }}"></div>
 
     <div class="ui vertical segment">
 
@@ -41,8 +39,8 @@
             <a class="ui  button" href="{% url 'recipe_view' job.analysis.uid %}"><i
             class="setting icon"></i>View Recipe</a>
 
-            <a class="copy-data ui button" data-uid="{{job.uid}}" copy-url="{% url 'job_copy' %}"
-           board="results_clipboard">
+            <a class="copy-data ui button" data-uid="{{ job.uid }}" copy-url="{% url 'job_copy' %}"
+               board="results_clipboard">
                 <i class="copy icon"></i>Copy Results
             </a>
 
