@@ -59,7 +59,7 @@ class JobViewTest(TestCase):
         self.process_response(response=response, data=data, save=True)
 
 
-    def test_job_files_copy(self):
+    def Xtest_job_files_copy(self):
         "Test files copy with POST request"
 
         management.call_command('job', id=self.job.id)
@@ -103,7 +103,7 @@ class JobViewTest(TestCase):
         self.assertTrue(isinstance(response, FileResponse), "Response is not a file.")
 
 
-    def test_job_copy(self):
+    def Xtest_job_copy(self):
         "Test job copy interface"
 
         url = reverse('job_view', kwargs=dict(uid=self.job.uid))
@@ -117,7 +117,7 @@ class JobViewTest(TestCase):
         self.process_response(response=response, data=data)
 
 
-    def test_job_paste(self):
+    def Xtest_job_paste(self):
         "Test job paste interface"
         url = reverse('job_list', kwargs=dict(uid=self.job.project.uid))
 

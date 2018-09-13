@@ -219,23 +219,12 @@ def search(request):
     return dict(content=json.dumps(content))
 
 
-@register.inclusion_tag('widgets/paste.html')
-def paste(action_view, obj, form, contains="Nothing"):
-    "Default provides template for pasting a recipe"
-
-    action_url = reverse(action_view, kwargs=dict(uid=obj.uid))
-
-    return dict(action_url=action_url, form=form, contains=contains)
-
-
 @register.filter
 def has_recipe(request):
     """
     Checks if object in clipboard is a recipe.
     """
-    uid = request.session.get("recipe_clipboard")
-    recipe = Analysis.objects.filter(uid=uid).first()
-    return bool(uid and recipe)
+    return request.session.get("recipe_clipboard")
 
 
 @register.simple_tag

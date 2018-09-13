@@ -25,7 +25,6 @@ urlpatterns = [
     url(r'^data/edit/(?P<uid>[-\w]+)/$', views.data_edit, name='data_edit'),
     url(r'^data/upload/(?P<uid>[-\w]+)/$', views.data_upload, name='data_upload'),
     url(r'^data/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.data_serve, name='data_serve'),
-    url(r'^data/copy/$', views.ajax_data_copy, name='data_copy'),
     url(r'^data/paste/(?P<uid>[-\w]+)/$', views.data_paste, name='data_paste'),
 
     # Recipes
@@ -36,9 +35,10 @@ urlpatterns = [
     url(r'^recipe/edit/(?P<uid>[-\w]+)/$', views.recipe_edit, name='recipe_edit'),
     url(r'^recipe/code/(?P<uid>[-\w]+)/$', views.recipe_code, name='recipe_code'),
     url(r'^recipe/diff/(?P<uid>[-\w]+)/$', views.recipe_diff, name='recipe_diff'),
+    url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
 
     # Actions
-    url(r'^action/clear/(?P<uid>[-\w]+)/(?P<url>.+)/(?P<board>.+)/$', views.clear_clipboard, name='clear_clipboard'),
+    url(r'^action/clear/(?P<uid>[-\w]+)/$', views.clear_clipboard, name='clear_clipboard'),
     url(r'^action/toggle/(?P<uid>[-\w]+)/(?P<obj_type>[-\w]+)/$', views.object_state_toggle, name='toggle_state'),
     url(r'^action/moderate/$', views.recipe_mod, name='recipe_mod'),
     url(r'^action/subscribe/(?P<uid>[-\w]+)/$', views.discussion_subs, name='discussion_subs'),
@@ -54,8 +54,11 @@ urlpatterns = [
     url(r'^discussion/create/(?P<uid>[-\w]+)/$', views.discussion_create, name='discussion_create'),
     url(r'^discussion/view/(?P<uid>[-\w]+)/$', views.discussion_view, name='discussion_view'),
     url(r'^discussion/comment/$', forum_views.ajax_comment, name='discussion_comment'),
-    url(r'^discussion/vote/(?P<uid>[-\w]+)/$', views.discussion_vote, name='discussion_vote'),
 
+    # Ajax calls
+    url(r'^data/copy/$', views.ajax_data_copy, name='data_copy'),
+    url(r'^result/copy/$', views.ajax_job_copy, name='job_copy'),
+    url(r'^recipe/copy/$', views.ajax_recipe_copy, name='recipe_copy'),
 
     # Apis
     url(r'^api/recipe/(?P<uid>[-\w]+)/$', api.recipe_details, name='recipe_details'),

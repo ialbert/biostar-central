@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-     <form method="post" action="{% url 'recipe_view' recipe.uid %}">
+
     <div class="ui  large vertical segment">
 
         <div class="ui divided link items">
@@ -36,6 +36,7 @@
     </div>
 
     {% security_label recipe %}
+<div id="copy-message-{{recipe.uid}}"></div>
 
     <div class="ui vertical  segment">
 
@@ -44,7 +45,7 @@
             {% csrf_token %}
 
 
-            <div class="six ui mini buttons">
+            <div class="six ui small buttons">
                 <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
                     <i class="spinner icon"></i> Run Recipe
                 </a>
@@ -58,9 +59,11 @@
                     <i class="keyboard icon"></i>View Code
                 </a>
 
-                <button type="submit" class="ui small button">
-                    <i class="clone icon"></i>Copy Recipe
-                </button>
+                <a class="copy-data ui small button" data-uid="{{recipe.uid}}" copy-url="{% url 'recipe_copy' %}"
+                   board="recipe_clipboard">
+                    <i class="copy icon"></i>Copy Recipe
+                </a>
+
 
                 {% action_bar recipe 'recipe_edit' %}
 
@@ -75,8 +78,6 @@
     </div>
 
 
-
- </form>
 
 {% endblock %}
 

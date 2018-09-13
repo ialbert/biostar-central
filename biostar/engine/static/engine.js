@@ -204,16 +204,17 @@ $(document).ready(function () {
 //    });
 
     $(".copy-data").click(function (event) {
-        event.preventDefault();
+
         var elem = $(this);
         var data_uid = elem.attr('data-uid');
         var copy_url = elem.attr('copy-url');
+        var board = elem.attr('board');
 
         $.ajax(copy_url, {
                 type: 'GET',
                 dataType: 'json',
                 ContentType: 'application/json',
-                data: {data_uid: data_uid},
+                data: {data_uid: data_uid, board: board},
                 success: function (data) {
                 $("#copy-message-"+ data_uid).append(`
                 <div class="ui basic segment">

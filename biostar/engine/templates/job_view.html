@@ -32,16 +32,19 @@
     </div>
 
 
+<div id="copy-message-{{data.uid}}"></div>
 
     <div class="ui large vertical segment">
 
-        <div class="five ui mini buttons">
+        <div class="five ui small buttons">
 
-            <a class="ui small  button" href="{% url 'recipe_view' job.analysis.uid %}"><i
+            <a class="ui  button" href="{% url 'recipe_view' job.analysis.uid %}"><i
             class="setting icon"></i>Go to Recipe</a>
 
-            <a class="ui small button" href="#"><i
-            class="setting icon"></i>Copy Selection</a>
+            <a class="copy-data ui button" data-uid="{{job.uid}}" copy-url="{% url 'job_copy' %}"
+           board="results_clipboard">
+                <i class="copy icon"></i>Copy Results
+            </a>
 
             {% action_bar job edit_url='job_edit' %}
 

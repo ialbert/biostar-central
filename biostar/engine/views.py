@@ -92,13 +92,16 @@ def recipe_mod(request):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
-def clear_clipboard(request, uid, url="project_view", board=""):
+def clear_clipboard(request, uid):
     "Clear copied objects held in clipboard."
+
+    next_url = request.GET.get("next", reverse("project_view", kwargs=dict(uid=uid)))
+    board = request.GET.get("board")
 
     if board:
         request.session[board] = []
 
-    return redirect(reverse(url, request=request, kwargs=dict(uid=uid)))
+    return redirect(next_url)
 
 
 def get_access(request, project):
@@ -155,33 +158,14 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
-def paste(project, post_request, board):
-    "Used to paste data and job"
-
-    form = forms.PasteForm(project=project, data=post_request.POST, request=post_request, board=board)
-    if form.is_valid():
-        form.save()
-        post_request.session[board] = None
-        return True, form
-    else:
-        return False, form
-
-
 @object_access(type=Project, access=Access.READ_ACCESS)
 def data_list(request, uid):
     """
     Returns the list of data for a project uid.
     """
-    project = Project.objects.filter(uid=uid).first()
-    if request.method == 'POST':
-        success, form = paste(project=project, post_request=request, board="files_clipboard")
-        if success:
-            return redirect(reverse("data_list", request=request, kwargs=dict(uid=project.uid)))
-    else:
-        form = forms.PasteForm(project=project, request=request, board='files_clipboard')
 
     return project_view(request=request, uid=uid, template_name="data_list.html",
-                        active='data', extra_context=dict(form=form))
+                        active='data')
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
@@ -199,13 +183,6 @@ def discussion_subs(request, uid):
 
     next_url = reverse("discussion_view", request=request, kwargs=dict(uid=uid))
     return forum_views.subs_action(request=request, uid=uid, next=next_url)
-
-
-@object_access(type=Post, access=Access.READ_ACCESS)
-def discussion_vote(request, uid):
-
-    next_url = reverse("discussion_view", request=request, kwargs=dict(uid=uid))
-    return forum_views.update_vote(request=request, uid=uid, next=next_url)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True, url="discussion_list")
@@ -251,16 +228,9 @@ def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
     """
-    if request.method == 'POST':
-        project = Project.objects.filter(uid=uid).first()
-        success, form = paste(project=project, post_request=request, board="recipe_clipboard")
-        if success:
-            return redirect(reverse("recipe_list", request=request, kwargs=dict(uid=project.uid)))
-    else:
-        form = None
 
     return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes',
-                        more_info=True, extra_context=dict(form=form))
+                        more_info=True)
 
 
 def job_list(request, uid):
@@ -359,49 +329,100 @@ def project_create(request):
     return render(request, "project_create.html", context=context)
 
 
-def ajax_data_copy(request):
+def ajax_copy(request, modeltype):
 
-    data_uid = request.GET.get("data_uid")
-    data = Data.objects.filter(uid=data_uid).first()
     user = request.user
-    allow_access = auth.check_obj_access(user=user, instance=data, request=request, access=Access.READ_ACCESS,
-                                         login_required=True)
+    data_uid = request.GET.get("data_uid")
+    board = request.GET.get("board")
+    instance = modeltype.objects.filter(uid=data_uid).first()
 
-    if data and allow_access:
-        current = request.session.get("data_clipboard", [])
-        current.append(data.uid)
+    allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=Access.READ_ACCESS,
+                                         login_required=True)
+    if allow_access:
+        current = request.session.get(board, [])
+        current.append(instance.uid)
         # No duplicates in clipboard
         current = list(set(current))
-        request.session["data_clipboard"] = current
+        request.session[board] = current
         phrase = "is" if len(current) == 1 else "are"
-
-        msg = mark_safe(f"Copied {data.name}. There {phrase} {len(current)} data in the Clipboard.")
+        status = "success"
+        msg = mark_safe(f"Copied {instance.name}. There {phrase} {len(current)} object in the clipboard.")
     else:
         msg = "Copy error"
+        status = "error"
+        request.session[board] = []
 
-    json_response = {"message": msg}
+    response = JsonResponse({"message": msg, "status":status})
+    return response
 
-    # return a json object with success or not.
-    return JsonResponse(json_response)
+
+def ajax_job_copy(request):
+
+    return ajax_copy(modeltype=Job, request=request)
+
+
+def ajax_data_copy(request):
+
+    return ajax_copy(modeltype=Data, request=request)
+
+
+def ajax_recipe_copy(request):
+
+    return ajax_copy(modeltype=Analysis, request=request)
+
+
+@object_access(type=Project, access=Access.WRITE_ACCESS, url="recipe_list")
+def recipe_paste(request, uid):
+
+    project = Project.objects.filter(uid=uid).first()
+
+    board = request.GET.get("board")
+
+    clipboard = request.session.get(board, [])
+
+    for uid in clipboard:
+        instance = Analysis.objects.filter(uid=uid).first()
+
+        if instance:
+            name, summary, text = instance.name, instance.summary, instance.text
+            new_recipe = auth.create_analysis(project=project, json_text=instance.json_text,
+                                              template=instance.template, summary=summary, user=request.user, name=name,
+                                              text=text, stream=instance.image, security=instance.security)
+            # Ensure the diff gets inherited.
+            new_recipe.last_valid = instance.last_valid
+            new_recipe.save()
+
+    request.session[board] = []
+    messages.success(request, "Pasted recipes in clipboard")
+    return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url="data_list")
 def data_paste(request, uid):
+    """Used to paste results and data as a Data object"""
 
     project = Project.objects.filter(uid=uid).first()
+    owner = request.user
+    board = request.GET.get("board")
+    clipboard = request.session.get(board, [])
 
-    data_clipboard = request.session.get("data_clipboard", [])
+    for data_uid in clipboard:
 
-    for data_uid in data_clipboard:
+        if board == "data_clipboard":
+            data = Data.objects.filter(uid=data_uid).first()
+            dtype = data.type
 
-        data = Data.objects.filter(uid=data_uid).first()
-        owner = request.user
-        paths = [n.path for n in os.scandir(data.get_data_dir())]
+        else:
+            data = Job.objects.filter(uid=data_uid).first()
+            dtype = "DATA"
 
-        auth.create_data(project=project, paths=paths, user=owner,
-                         name=data.name, type=data.type, summary=data.summary)
+        if data:
+            paths = [n.path for n in os.scandir(data.get_data_dir())]
+            auth.create_data(project=project, paths=paths, user=owner,
+                             name=data.name, type=dtype, summary=data.summary)
 
-    request.session["data_clipboard"] = []
+    request.session[board] = []
+    messages.success(request, "Pasted data in clipboard")
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
@@ -413,17 +434,6 @@ def data_view(request, uid):
     project = data.project
     path = request.GET.get('path', '')
 
-    if request.method == "POST":
-        form = forms.FileCopyForm(request, data.uid, data.get_data_dir(), request.POST)
-        if form.is_valid():
-            # Copies data to clipboard
-            ndata = form.save()
-            msg = mark_safe(f"Copied <b>{ndata}</b> files from <b>{project.name}</b> to the Clipboard.")
-            messages.success(request, msg)
-            return redirect(reverse("data_view", request=request, kwargs=dict(uid=data.uid)))
-    else:
-        form = forms.FileCopyForm(request, data.uid, data.get_data_dir())
-
     root = data.get_data_dir()
     abspath = join(root, path)
     try:
@@ -432,7 +442,7 @@ def data_view(request, uid):
         messages.error(request, f"{exc}")
         files = []
 
-    context = dict(data=data, project=project, activate='Selected Data', files=files, path=path, form=form)
+    context = dict(data=data, project=project, activate='Selected Data', files=files, path=path)
     counts = get_counts(project)
     context.update(counts)
 
@@ -484,18 +494,11 @@ def recipe_view(request, uid):
     """
     recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
+    context = dict(recipe=recipe, project=project, activate='Selected Recipe')
 
-    if request.method == "POST":
-        form = forms.RecipeCopyForm(data=request.POST, recipe=recipe, request=request)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse("recipe_view", request=request, kwargs=dict(uid=recipe.uid)))
-    else:
-        form = forms.RecipeCopyForm(recipe=recipe, request=request)
-
-    context = dict(recipe=recipe, project=project, activate='Selected Recipe', form=form)
     counts = get_counts(project)
     context.update(counts)
+
     return render(request, "recipe_view.html", context)
 
 
@@ -763,17 +766,6 @@ def job_view(request, uid):
     # The path is a GET parameter
     path = request.GET.get('path', "")
 
-    if request.method == "POST":
-        form = forms.FileCopyForm(request, job.uid, job.path, request.POST)
-        if form.is_valid():
-            # Copies data to clipboard
-            ndata = form.save()
-            msg = mark_safe(f"Copied <b>{ndata}</b> files from <b>{job.name}</b> to the Clipboard.")
-            messages.success(request, msg)
-            return redirect(reverse("job_list", request=request, kwargs=dict(uid=project.uid)))
-    else:
-        form = forms.FileCopyForm(request, job.uid, job.path)
-
     # The job rooth directory
     root = job.path
 
@@ -787,7 +779,7 @@ def job_view(request, uid):
         messages.error(request, f"{exc}")
         files = []
 
-    context = dict(job=job, project=project, files=files, path=path, activate='Selected Result', form=form)
+    context = dict(job=job, project=project,  activate='Selected Result', files=files, path=path)
 
     counts = get_counts(project)
     context.update(counts)
