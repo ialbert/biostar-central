@@ -387,7 +387,7 @@ def directory_list(obj):
 
     # Add more metadata to each path.
     def transform(path):
-        tstamp = os.stat(path).st_birthtime
+        tstamp = os.stat(path).st_mtime
         size = os.stat(path).st_size
         relp = os.path.relpath(path, root)
         nice = relp.replace("/", " / ")
