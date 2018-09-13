@@ -6,14 +6,8 @@
 
 {% block body %}
 
-{% if social_login %}
 
-    {% include 'widgets/social_login.html' with is_login=False %}
-
-  <div class="ui horizontal divider">
-    Or
-  </div>
-{% endif %}
+        {% include 'widgets/social_login.html' with is_login=False social_login=social_login %}
 
 
         {% show_messages messages %}

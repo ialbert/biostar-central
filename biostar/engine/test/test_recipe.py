@@ -119,7 +119,7 @@ class RecipeViewTest(TestCase):
             self.process_response(response=response, data={'action':action}, save=True)
 
 
-    def test_recipe_copy(self):
+    def Xtest_recipe_copy(self):
         "Test recipe copy interface"
 
         url = reverse('recipe_view', kwargs=dict(uid=self.recipe.uid))
@@ -131,7 +131,7 @@ class RecipeViewTest(TestCase):
         self.process_response(response=response, data={})
 
 
-    def test_recipe_paste(self):
+    def Xtest_recipe_paste(self):
         "Test recipe paste interface"
 
         url = reverse('recipe_list', kwargs=dict(uid=self.recipe.project.uid))

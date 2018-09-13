@@ -153,13 +153,8 @@ def user_signup(request):
     else:
         form = forms.SignUpWithCaptcha()
 
-    # Check to see if any 3rd party social login APIs have been provided
-    if SocialApp.objects.all().count() >= 1:
-        social_login = True
-    else:
-        social_login = False
-
-    context = dict(form=form, captcha_site_key=settings.RECAPTCHA_PUBLIC_KEY, social_login=social_login)
+    context = dict(form=form, captcha_site_key=settings.RECAPTCHA_PUBLIC_KEY,
+                   social_login=SocialApp.objects.all())
     return render(request, 'accounts/signup.html', context=context)
 
 
@@ -205,13 +200,7 @@ def user_login(request):
 
         messages.error(request, mark_safe(form.errors))
 
-    # Check to see if any 3rd party social login APIs have been provided
-    if SocialApp.objects.all().count() >= 1:
-        social_login = True
-    else:
-        social_login = False
-
-    context = dict(form=form, social_login=social_login)
+    context = dict(form=form, social_login=SocialApp.objects.all())
     return render(request, "accounts/login.html", context=context)
 
 
@@ -244,6 +233,15 @@ def email_verify_account(request, uidb64, token):
     messages.error(request, "Link is expired.")
     return redirect("/")
 
+
+def signup_not_valid(request):
+
+    msg = f"""Signing in with Google is not allowed since you have an existing account. 
+        <a href={reverse("password_reset")}><i class="info icon"></i> Forgot you password? </a> Reset it to log in.
+    """
+
+    messages.warning(request, msg)
+    return redirect("/")
 
 def password_reset(request):
     context = dict()

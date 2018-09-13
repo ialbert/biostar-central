@@ -2,6 +2,7 @@
 from django.conf.urls import url, include
 from django.conf import settings
 from allauth.socialaccount.providers.google import urls as google_urls
+from allauth.socialaccount.urls import urlpatterns as extra_urlpatterns
 from . import views
 
 urlpatterns = [
@@ -40,3 +41,5 @@ if settings.ALLOW_SELF_MODERATE:
     urlpatterns += [url(r'^toggle/moderate/$', views.toggle_moderate, name="toggle_moderate")]
 
 
+for pattern in extra_urlpatterns:
+    urlpatterns += [url(pattern.pattern, views.signup_not_valid, name=pattern.name)]

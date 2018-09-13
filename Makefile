@@ -80,6 +80,8 @@ delete:
 	rm -rf *.egg
 	rm -rf *.egg-info
 
+hard_reset: delete init recipes
+
 reset: soft_delete init recipes
 
 postgres:
@@ -119,7 +121,7 @@ dumpdata:
 	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > $(DUMPFILE)
 
 loaddata:
-	echo `***Environment variable LOADFILE needs to be set to the data dump file.`
+	echo "***Environment variable LOADFILE needs to be set to the data dump file."
 	python manage.py loaddata $(LOADFILE) --ignorenonexistent --exclude engine
 
 deploy_psu:
