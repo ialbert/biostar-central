@@ -7,29 +7,57 @@
 {% block content %}
 
     {% if request|has_recipe %}
-            <div class="ui center aligned basic segment">
-        <div class="ui  message">
-            <p>The clipboard contains <b>recipes</b>. You may now paste or clear it.</p>
-             <div class="ui mini buttons">
+        <div class="ui center aligned basic segment">
+            <div class="ui  message">
+                <p>The clipboard contains <b>recipes</b>. You may now paste or clear it.</p>
+                <div class="ui mini buttons">
 
-            <a class="ui green button" href="{% url 'recipe_paste' project.uid %}?board=recipe_clipboard">
-                <i class="sticky note icon"></i> Paste
-            </a>
-                 <div class="or"></div>
-           <a class="ui button" href="{% url 'clear_clipboard' project.uid %}?next={% url 'recipe_list' project.uid %}&board=recipe_clipboard">
-                <i class="window close icon"></i> Clear
-            </a>
+                    <a class="ui green button" href="{% url 'recipe_paste' project.uid %}?board=recipe_clipboard">
+                        <i class="sticky note icon"></i> Paste
+                    </a>
+                    <div class="or"></div>
+                    <a class="ui button"
+                       href="{% url 'clear_clipboard' project.uid %}?next={% url 'recipe_list' project.uid %}&board=recipe_clipboard">
+                        <i class="window close icon"></i> Clear
+                    </a>
 
-             </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="ui vertical large segment">
+        <div class="ui divided link items">
+            {% for recipe in recipe_list %}
+                <div class="item">
+                    <div class="">
+                        <img class="ui tiny image imgpad" src="{% img recipe %}">
+                    </div>
+                    <div class="content">
+                        {% if request.user.is_authenticated %}
+                            <div id="copy-message-{{ recipe.uid }}"></div>
+                            <a class="copy-data ui right floated label" data-uid="{{ recipe.uid }}"
+                               copy-url="{% url 'recipe_copy' %}"
+                               board="recipe_clipboard">
+                                <i class="copy icon"></i>Copy
+                            </a>
+                        {% endif %}
+                        <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+                            <i class="setting icon"></i> {{ recipe.name }}
+                        </a>
+                        <div class="description">{{ recipe.summary|markdown|safe }}</div>
+
+                    </div>
+                </div>
+            {% empty %}
+                <div class="ui warning message item"><i class="ui warning circle icon"></i>No recipes found.</div>
+            {% endfor %}
         </div>
     </div>
-    {% endif %}
 
-    {% if not recipe_list %}
-        <div class="ui warning message"><i class="ui warning circle icon"></i>No recipes found.</div>
-    {% endif %}
 
-    {% list_view recipe_list=recipe_list %}
+
+
 
 
 {% endblock %}

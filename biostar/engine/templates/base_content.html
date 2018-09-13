@@ -25,12 +25,12 @@
                 <i class="bar chart icon"></i>{{ result_count }} Results
             </a>
 
-             {% if activate %}
+            {% if activate %}
                 <div class="active item">
                     <i class="info circle icon"></i> Selection
                 </div>
             {% else %}
-                 <div class=" item">
+                <div class=" item">
                     <i class="info circle icon"></i> Selection
                 </div>
             {% endif %}
@@ -38,7 +38,6 @@
             <a class="{% activate 'discussion' active %}  item" href="{% url 'discussion_list' project.uid %}">
                 <i class="comments icon"></i>{{ discussion_count }} Discussions
             </a>
-
 
 
         </div>
@@ -54,12 +53,14 @@
             </p>
         </div>
 
-        <div class="ui large vertical segment">
-            <div class="ui subheader">Project Summary</div>
-            {{ project.summary|markdown|safe }}
-        </div>
-
         {% if more_info %}
+
+            <div class="ui large vertical segment">
+                <div class="ui subheader">Project Summary</div>
+                {{ project.summary|markdown|safe }}
+            </div>
+
+
             <div class="ui large vertical segment">
                 <div class="ui subheader">Project Information</div>
                 <div class="project help">

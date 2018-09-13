@@ -363,23 +363,29 @@ def size_label(data):
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
 
 
-@register.inclusion_tag('widgets/dirlist.html')
+@register.inclusion_tag('widgets/directory_list.html')
 def directory_list(obj):
     """
-    Returns a label for data sizes.
+    Generates an HTML listing for files in a directory.
     """
 
     # Starting location.
     root = obj.get_data_dir()
 
+    # The serve url depends on data type..
+    serve_url = "job_serve" if isinstance(obj, Job)  else "data_serve"
+
+    # This will collet the valid filepaths.
     paths = []
 
     # Walk the filesystem and collect all files.
     for fpath, fdirs, fnames in os.walk(root):
         paths.extend([join(fpath, fname) for fname in fnames])
 
-    IMAGE_EXT =  [ "png", "jpg", "gif", "jpeg"]
-    # Add timestamp and size to each object.
+    # Image extension types.
+    IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
+
+    # Add more metadata to each path.
     def transform(path):
         tstamp = os.stat(path).st_birthtime
         size = os.stat(path).st_size
@@ -391,10 +397,10 @@ def directory_list(obj):
     # Transform the paths.
     paths = map(transform, paths)
 
-    # Sort by fields.
+    # Sort by the tuple fields..
     paths = sorted(paths)
 
-    return dict(paths=paths, obj=obj)
+    return dict(paths=paths, obj=obj, serve_url=serve_url)
 
 
 @register.inclusion_tag('widgets/form_errors.html')

@@ -273,24 +273,7 @@ def make_job_summary(data, summary='', title='', name="widgets/job_summary.html"
 
 
 def make_job_title(recipe, data):
-
-    '''
-    # Turned off currently.
-    collect = []
-    for key, obj in data.items():
-        if obj.get('label'):
-            value = obj.get('name') or obj.get('value')
-            collect.append(str(value))
-
-    if collect:
-        label = ", ".join(collect)
-        name = f"Results for: {recipe.name} | Parameters: {label}"
-    else:
-        name = f"Results for: {recipe.name}"
-    '''
-
-    name = f"Results for: {recipe.name}"
-
+    name = f"Results: {recipe.name}"
     return name
 
 

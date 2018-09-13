@@ -22,6 +22,33 @@
         <div class="ui warning message"><i class="ui warning circle icon"></i> No results found.</div>
     {% endif %}
 
-    {% list_view job_list=job_list %}
+
+    <div class="ui vertical large segment">
+        <div class="ui divided link items">
+
+            {% for job in job_list %}
+
+                <div class="item ">
+                    <div class="">
+                        <img class="ui tiny image imgpad" src="{% img job.analysis %}">
+                    </div>
+
+                    <div class="content">
+                        <a class="subheader" href="{% url 'job_view' job.uid %}">
+                            <i class="bar chart icon"></i>{{ job.name }}
+                        </a>
+
+                        <div class="meta">{% job_minutes job %}</div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="item ">
+                    <div class="ui warning message"><i class="ui warning circle icon"></i> No results found.</div>
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
 
 {% endblock %}
