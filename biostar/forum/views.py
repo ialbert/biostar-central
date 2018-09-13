@@ -136,8 +136,9 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
-            form.save(author=request.user)
-            return redirect(reverse(url, request=request, kwargs=dict(uid=obj.root.uid)))
+            post = form.save(author=request.user)
+            location = reverse(url, request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
+            return redirect(location)
 
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
@@ -152,19 +153,23 @@ def post_view(request, uid, template="post_view.html", url="post_view",
 
 
 @login_required
-@ajax_error_wrapper
 def ajax_comment(request):
 
-    form = forms.PostShortForm(data=request.POST)
-    if form.is_valid():
-        form.save(author=request.user, post_type=Post.COMMENT)
-        message = "Added Comment"
-    else:
-        message = f"Error adding comment: {form.errors}"
-    # return a json object with success or not.
+    location = reverse("post_list")
+    if request.method == "POST":
+        form = forms.PostShortForm(data=request.POST)
+        if form.is_valid():
+            post = form.save(author=request.user, post_type=Post.COMMENT)
+            messages.success(request, "Added comments")
+            location = reverse("post_view", kwargs=dict(uid=post.uid)) + "#" + post.uid
 
-    json_response = {"message": message}
-    return JsonResponse(json_response)
+        else:
+            messages.error(request, "Error adding coments")
+            parent = Post.objects.get_all(uid=request.POST.get("parent_uid")).first()
+            location = reverse("post_view", kwargs=dict(uid=parent.uid)) + "#" + parent.uid
+    else:
+        messages.error(request, "Not allowed")
+    return redirect(location)
 
 
 @object_exists(klass=Post)
@@ -174,7 +179,7 @@ def subs_action(request, uid, next=None):
     # Post actions are being taken on
     post = Post.objects.filter(uid=uid).first()
     user = request.user
-    next_url = request.GET.get(REDIRECT_FIELD_NAME,
+    next_url = request.GET2.get(REDIRECT_FIELD_NAME,
                                request.POST.get(REDIRECT_FIELD_NAME))
     next_url = next or next_url or "/"
 

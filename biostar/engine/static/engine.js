@@ -51,39 +51,6 @@ function pop_over(elem, msg, cls) {
     });
 }
 
-
-function submit_comment (elem) {
-    event.preventDefault();
-
-    var comment_form = $("#comment-form");
-    var action_url = comment_form.attr("action");
-    var method = comment_form.attr("method")
-    var container = $("#comment-row");
-
-    $.ajax({
-        url : "/comment/",
-        type: "POST",
-        dataType: "json",
-        ContentType: "application/json",
-        data: comment_form.serialize(),
-
-        success: function (data) {
-            if (data.status == 'error') {
-                //alert(data.msg)
-                pop_over(elem, data.msg, data.status)
-            } else {
-                location.reload(container);
-            }
-
-        },
-        error: function () {
-             pop_over(elem, data.msg, data.status)
-        }
-
-    });
-        return false;
-};
-
 // Triggered on moderation.
 function moderate(elem) {
 
@@ -158,12 +125,14 @@ function add_comment(elem) {
     var project_uid = elem.attr('project-uid');
     var container = $("#comment-container-"+ post_uid);
     var comment_url = elem.attr("comment-url");
+    var csrf_html = jQuery("[name=csrfmiddlewaretoken]").val();
 
     // Going to be refactored out and loaded separately
     container.after(`<div id="comment-row" class="ui basic segment inputcolor">
     <form id="comment-form" class="ui form" action=${comment_url}  method="post">
         <input type="hidden" name="parent_uid" id="parent_uid" value=${post_uid} />
         <input type="hidden" name="project_uid" id="project_uid" value=${project_uid} />
+        <input type="hidden" name="csrfmiddlewaretoken" value=${csrf_html} />
 
         <div class="">
             <div id="wmd-button-bar-2"></div>
@@ -171,9 +140,9 @@ function add_comment(elem) {
         </div>
         <div>
 
-            <a class="ui submit green button" onclick="return submit_comment($(this));return false;">
+            <button class="ui submit green button" type="submit">
                 <i class="check icon"></i>Add Comment
-            </a>
+            </button>
             <a class="ui orange right floated button" onclick="javascript:obj=$(\'#comment-row\').remove();">
             <i class="undo icon"></i> Cancel
             </a>

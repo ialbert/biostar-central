@@ -1,0 +1,21 @@
+
+<div id="comment-row" class="ui basic segment inputcolor">
+    <form id="comment-form" class="ui form" action=${comment_url}  method="post">
+        <input type="hidden" name="parent_uid" id="parent_uid" value=${post_uid} />
+        <input type="hidden" name="project_uid" id="project_uid" value=${project_uid} />
+
+        <div class="">
+            <div id="wmd-button-bar-2"></div>
+            <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="6"></textarea>
+        </div>
+        <div>
+
+            <a class="ui submit green button" onclick="return submit_comment($(this));return false;">
+                <i class="check icon"></i>Add Comment
+            </a>
+            <a class="ui orange right floated button" onclick="javascript:obj=$(\'#comment-row\').remove();">
+            <i class="undo icon"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
