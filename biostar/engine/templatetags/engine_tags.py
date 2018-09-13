@@ -379,7 +379,7 @@ def directory_list(obj):
     paths = []
 
     # Walk the filesystem and collect all files.
-    for fpath, fdirs, fnames in os.walk(root):
+    for fpath, fdirs, fnames in os.walk(root, followlinks=True):
         paths.extend([join(fpath, fname) for fname in fnames])
 
     # Image extension types.
@@ -398,7 +398,7 @@ def directory_list(obj):
     paths = map(transform, paths)
 
     # Sort by the tuple fields..
-    paths = sorted(paths)
+    paths = sorted(paths, reverse=True)
 
     return dict(paths=paths, obj=obj, serve_url=serve_url)
 

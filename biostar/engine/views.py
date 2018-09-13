@@ -165,7 +165,7 @@ def data_list(request, uid):
     """
 
     return project_view(request=request, uid=uid, template_name="data_list.html",
-                        active='data')
+                        active='data', show_summary=True)
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
@@ -229,8 +229,7 @@ def recipe_list(request, uid):
     Returns the list of recipes for a project uid.
     """
 
-    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes',
-                        more_info=True)
+    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes')
 
 
 def job_list(request, uid):
@@ -254,7 +253,7 @@ def get_counts(project):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
-def project_view(request, uid, template_name="recipe_list.html", active='recipes', more_info=None,
+def project_view(request, uid, template_name="recipe_list.html", active='recipes', show_summary=None,
                  extra_context={}):
 
     project = Project.objects.filter(uid=uid).first()
@@ -267,17 +266,14 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     job_list = project.job_set.order_by("-sticky", "-date").all()
 
     # Filter job results by analysis
-    filter = request.GET.get('filter', '')
-    if filter:
-        filter = Analysis.objects.filter(uid=filter).first()
-        job_list = job_list.filter(analysis=filter)
+    recipe_filter = request.GET.get('filter', '')
+    if recipe_filter:
+        recipe_filter = Analysis.objects.filter(uid=recipe_filter).first()
+        job_list = job_list.filter(analysis=recipe_filter)
 
-    # This is not quite right to be here.
-    if more_info:
-        more_info = project.html
 
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
-                   active=active, filter=filter, more_info=more_info)
+                   active=active, recipe_filter=recipe_filter, show_summary=show_summary)
     context.update(counts)
     context.update(extra_context)
 

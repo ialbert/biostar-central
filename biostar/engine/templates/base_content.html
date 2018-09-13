@@ -53,25 +53,48 @@
             </p>
         </div>
 
-        {% if more_info %}
-
-            <div class="ui large vertical segment">
-                <div class="ui subheader">Project Summary</div>
-                {{ project.summary|markdown|safe }}
-            </div>
-
-
-            <div class="ui large vertical segment">
-                <div class="ui subheader">Project Information</div>
-                <div class="project help">
-                    {{ more_info|safe }}
-                </div>
-            </div>
-        {% endif %}
 
     </div>
 
-    {#  Additional help included for the page #}
+    {% if show_summary %}
 
+        <div class="ui top attached tabular  menu">
+            <a class="active  item">
+                <i class="settings text icon"></i> Project Actions
+            </a>
+        </div>
+
+        <div class="ui bottom attached segment">
+
+            <div class="ui vertical segment">
+
+                <div class="ui three mini buttons">
+                    <a class="ui button" href="{% url 'data_upload' project.uid %}">
+                        <i class="upload icon"></i>Add Data
+                    </a>
+
+                    <a class="ui  button" href="{% url 'project_edit' project.uid %}">
+                        <i class="edit icon"></i>Edit Project Info
+                    </a>
+                    <a class="ui  button" href="{% url 'project_users' project.uid %}">
+                        <i class="users icon"></i>Manage Project Access
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="ui vertical segment">
+
+                {{ project.summary|markdown|safe }}
+
+                {{ project.html|safe }}
+
+            </div>
+
+        </div>
+
+
+
+    {% endif %}
 
 {% endblock %}
