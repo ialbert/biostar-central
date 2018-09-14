@@ -35,11 +35,104 @@
 
 {% elif data_list %}
 
+{# Used to list in recycle bin #}
 
+<div class="ui divided items">
+{% for data in data_list %}
 
+                <div class="item">
+                    <div class="content">
 
+                        {% if request.user.is_authenticated %}
+                            <div id="copy-message-{{ data.uid }}"></div>
+                            <a class="copy-data ui right floated label" data-uid="{{ data.uid }}"
+                               copy-url="{% url 'data_copy' %}">
+                                <i class="copy icon"></i>Copy
+                            </a>
+                        {% endif %}
+
+                        <a class="subheader" href="{% url 'data_view' data.uid %}">
+                            <i class="file icon"></i>{{ data.name }}
+                        </a>
+                        <div class="meta">
+                            <div class="ui small labels">
+                                {% size_label data %}
+                                {% type_label data %}
+                                {% state_label data error_only=True %}
+                            </div>
+                        </div>
+                        <div class="meta">{{ data.summary|safe }}</div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="item ">
+                    <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>
+                </div>
+
+            {% endfor %}
+</div>
 {% elif recipe_list %}
 
+{# Used to list in recycle bin #}
+
+    <div class="ui divided link items">
+            {% for recipe in recipe_list %}
+                <div class="item">
+                    <div class="">
+                        <img class="ui tiny image imgpad" src="{% img recipe %}">
+                    </div>
+                    <div class="content">
+                        {% if request.user.is_authenticated %}
+                            <div id="copy-message-{{ recipe.uid }}"></div>
+                            <a class="copy-data ui right floated label" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
+                                <i class="copy icon"></i>Copy
+                            </a>
+                        {% endif %}
+                        <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+                            <i class="setting icon"></i> {{ recipe.name }}
+                        </a>
+                        <div class="description">{{ recipe.summary|markdown|safe }}</div>
+
+                    </div>
+                </div>
+            {% empty %}
+            <div class="item">
+                <div class="ui warning message"><i class="ui warning circle icon"></i>No recipes found.</div>
+            </div>
+            {% endfor %}
+        </div>
 {% elif job_list %}
 
+{# Used to list in recycle bin #}
+
+       <div class="ui divided link items">
+
+            {% for job in job_list %}
+
+                <div class="item ">
+                    <div class="">
+                        <img class="ui tiny image imgpad" src="{% img job.analysis %}">
+                    </div>
+
+                    <div class="content">
+                {% if user.is_authenticated %}
+                    <div id="copy-message-{{ job.uid }}"></div>
+                    <a class="copy-data ui right floated label" data-uid="{{ job.uid }}" copy-url="{% url 'job_copy' %}">
+                        <i class="copy icon"></i>Copy
+                    </a>
+                {% endif %}
+                        <a class="subheader" href="{% url 'job_view' job.uid %}">
+                            <i class="bar chart icon"></i>{{ job.name }}
+                        </a>
+
+                        <div class="meta">{% job_minutes job %}</div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="item ">
+                    <div class="ui warning message"><i class="ui warning circle icon"></i> No results found.</div>
+                </div>
+            {% endfor %}
+
+        </div>
 {% endif %}

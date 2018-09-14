@@ -223,13 +223,6 @@ class DataEditForm(forms.ModelForm):
         model = Data
         fields = ['name', 'summary', 'text', 'sticky', "type"]
 
-    def clean_name(self):
-        cleaned_data = super(DataEditForm, self).clean()
-        name = cleaned_data.get('name')
-
-        if auth.check_data_name(name=name, data=self.instance, bool=True):
-            raise forms.ValidationError("Name already exists.")
-        return name
 
     def clean_file(self):
         cleaned_data = super(DataEditForm, self).clean()

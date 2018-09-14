@@ -18,9 +18,7 @@
                     </div>
                     <div class="content">
                         {% if request.user.is_authenticated %}
-                            <div id="copy-message-{{ recipe.uid }}"></div>
-                            <a class="copy-data ui right floated label" data-uid="{{ recipe.uid }}"
-                               copy-url="{% url 'recipe_copy' %}">
+                            <a class="copy-data ui right floated label" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
                                 <i class="copy icon"></i>Copy
                             </a>
                         {% endif %}
@@ -28,7 +26,7 @@
                             <i class="setting icon"></i> {{ recipe.name }}
                         </a>
                         <div class="description">{{ recipe.summary|markdown|safe }}</div>
-
+                        <div id="copy-message-{{ recipe.uid }}"></div>
                     </div>
                 </div>
             {% empty %}

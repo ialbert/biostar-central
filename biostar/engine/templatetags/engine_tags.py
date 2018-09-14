@@ -113,6 +113,7 @@ def action_bar(context, instance, edit_url):
 @register.inclusion_tag('widgets/list_view.html', takes_context=True)
 def list_view(context, projects=None, data_list=None, recipe_list=None, job_list=None):
     request = context["request"]
+
     return dict(projects=projects, data_list=data_list, recipe_list=recipe_list,
                 job_list=job_list, request=request)
 

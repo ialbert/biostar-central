@@ -226,7 +226,7 @@ def email_verify_account(request, uidb64, token):
 
     if user and account_verification_token.check_token(user, token):
         Profile.objects.filter(user=user).update(email_verified=True)
-        login(request, user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         messages.success(request, "Email verified!")
         return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
 

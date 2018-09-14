@@ -203,7 +203,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
                     name='', text='', stream=None, sticky=False, security=Analysis.UNDER_REVIEW, update=False):
     owner = user or project.owner
 
-    analysis = Analysis.objects.filter(uid=uid)
+    analysis = Analysis.objects.get_all(uid=uid)
 
     # Only update when there is a flag
     if analysis and update:
@@ -278,22 +278,6 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
-
-
-def check_data_name(name, data, bool=False):
-
-    copy = name
-    i = 0
-    check_name = lambda n: Data.objects.exclude(pk=data.pk).filter(name=n,
-                                                  project=data.project).exists()
-    if bool:
-        return check_name(name)
-
-    while check_name(copy) and i < 1000:
-        i += 1
-        copy = f"{name} ({i})"
-
-    return  copy
 
 
 def guess_mimetype(fname):

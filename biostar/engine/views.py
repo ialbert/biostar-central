@@ -262,8 +262,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     # Filter job results by analysis
     recipe_filter = request.GET.get('filter', '')
     if recipe_filter:
-        recipe_filter = Analysis.objects.filter(uid=recipe_filter).first()
-        job_list = job_list.filter(analysis=recipe_filter)
+        job_list = job_list.filter(analysis__uid=recipe_filter)
 
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
                    active=active, recipe_filter=recipe_filter, show_summary=show_summary)
@@ -313,12 +312,12 @@ def ajax_copy(request, modeltype, msg="Copied!", board=None):
 
     user = request.user
     data_uid = request.GET.get("data_uid")
-    instance = modeltype.objects.filter(uid=data_uid).first()
+    instance = modeltype.objects.get_all(uid=data_uid).first()
 
     entry = None if instance is None else Access.objects.filter(user=user, project=instance.project).first()
     entry = entry or Access(access=Access.NO_ACCESS)
 
-    if entry.access >= Access.READ_ACCESS:
+    if entry.access >= Access.READ_ACCESS or instance.project.is_public:
         current = request.session.get(board, [])
         current.append(instance.uid)
         # No duplicates in clipboard
@@ -364,7 +363,7 @@ def recipe_paste(request, uid):
     clipboard = request.session.get(const.RECIPE_CLIPBOARD, [])
 
     for uid in clipboard:
-        instance = Analysis.objects.filter(uid=uid).first()
+        instance = Analysis.objects.get_all(uid=uid).first()
 
         if instance:
             name, summary, text = instance.name, instance.summary, instance.text
@@ -392,11 +391,11 @@ def data_paste(request, uid):
     for datauid in clipboard:
 
         if board == const.DATA_CLIPBOARD:
-            obj = Data.objects.filter(uid=datauid).first()
+            obj = Data.objects.get_all(uid=datauid).first()
             dtype = obj.type
 
         else:
-            obj = Job.objects.filter(uid=datauid).first()
+            obj = Job.objects.get_all(uid=datauid).first()
             dtype = "DATA"
 
         if obj:
@@ -429,7 +428,7 @@ def data_edit(request, uid):
     Edit meta-data associated with Data.
     """
 
-    data = Data.objects.filter(uid=uid).first()
+    data = Data.objects.get_all(uid=uid).first()
     form = forms.DataEditForm(instance=data, initial=dict(type=data.type), user=request.user)
 
     if request.method == "POST":
@@ -482,7 +481,7 @@ def recipe_view(request, uid):
     return render(request, "recipe_view.html", context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view', show_deleted=False)
 def recipe_run(request, uid):
     """
     View used to execute recipes and start a 'Queued' job.
@@ -533,7 +532,7 @@ def recipe_code(request, uid):
     user = request.user
 
     # There has to be a recipe to work with.
-    analysis = Analysis.objects.filter(uid=uid).first()
+    analysis = Analysis.objects.get_all(uid=uid).first()
     project = analysis.project
     name = analysis.name
 
@@ -634,7 +633,7 @@ def recipe_diff(request, uid):
     View used to show diff in template and authorize it.
     Restricted to moderators and staff members.
     """
-    recipe = Analysis.objects.filter(uid=uid).first()
+    recipe = Analysis.objects.get_all(uid=uid).first()
     differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
     differ = color_diffs(differ)
 
@@ -721,12 +720,8 @@ def object_state_toggle(request, uid, obj_type):
     has_access = auth.check_obj_access(instance=instance, user=request.user, request=request,
                                        access=Access.OWNER_ACCESS)
     msg = f"Deleted <b>{instance.name}</b>. View in Recycle Bin."
-    name_repeat = auth.check_data_name(name=instance.name, data=instance, bool=True)
 
     if has_access:
-        if name_repeat and instance.deleted and isinstance(instance, Data):
-            messages.error(request, "Name already exists. Edit the data then restore.")
-            return redirect(instance.url())
 
         # Toggle delete state
         instance.deleted = not instance.deleted
