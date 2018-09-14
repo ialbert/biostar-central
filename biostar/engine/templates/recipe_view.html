@@ -41,81 +41,41 @@
 
         {% csrf_token %}
 
-        <div class="ui grid">
 
-            {#  Interface on large screens #}
-            <div class="one column tablet computer only row">
+        <div class="ui seven small buttons">
 
-                <div class="ui seven small buttons">
+            <button class="ui button" onclick="window.history.back()">
+                <i class="chevron left icon"></i>Back
+            </button>
 
-                    <button class="ui button" onclick="window.history.back()">
-                        <i class="chevron left icon"></i>Back
-                    </button>
+            <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
+                <i class="spinner icon"></i> Run
+            </a>
 
-                    <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
-                        <i class="spinner icon"></i> Run
-                    </a>
+            <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                <i class="bar chart icon"></i>Results
+            </a>
 
-                    <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                        <i class="bar chart icon"></i>Results
-                    </a>
+            <a class="ui button" href="{% url 'recipe_code_view' recipe.uid %}">
+                <i class="keyboard icon"></i>Code
+            </a>
 
-                    <a class="ui button" href="{% url 'recipe_code_view' recipe.uid %}">
-                        <i class="keyboard icon"></i>Code
-                    </a>
+            <a class="copy-data ui button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
+                <i class="copy icon"></i>Copy
+            </a>
 
-                    <a class="copy-data ui button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
-                        <i class="copy icon"></i>Copy
-                    </a>
+            <a class="ui button " href="{% url "recipe_edit" uid=recipe.uid %}">
+                <i class="edit icon"></i> Edit
+            </a>
 
-                    <a class="ui button " href="{% url "recipe_edit" uid=recipe.uid %}">
-                        <i class="edit icon"></i> Edit
-                    </a>
-
-                    <a class="ui button " href="#">
-                        <i class="edit icon"></i> Delete
-                    </a>
-
-                </div>
-
-            </div>
-
-            {#  Interface on mobile #}
-            <div class="one column mobile only row">
-
-                <div class="ui seven small buttons">
-
-                    <button class="ui button" onclick="window.history.back()">
-                        <i class="chevron left icon"></i>
-                    </button>
-
-                    <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
-                        <i class="spinner icon"></i>
-                    </a>
-
-                    <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                        <i class="bar chart icon"></i>
-                    </a>
-
-                    <a class="ui button" href="{% url 'recipe_code_view' recipe.uid %}">
-                        <i class="keyboard icon"></i>
-                    </a>
-
-                    <a class="copy-data ui button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
-                        <i class="copy icon"></i>
-                    </a>
-
-                </div>
-
-
-            </div>
-
+            <a class="ui button " href="#">
+                <i class="edit icon"></i> Delete
+            </a>
 
         </div>
 
-
     </div>
-
+    
     <div class="ui vertical segment">
         {{ recipe.html|safe }}
     </div>
