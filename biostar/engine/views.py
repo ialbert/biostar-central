@@ -458,7 +458,7 @@ def data_upload(request, uid):
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", request=request, kwargs={'uid': project.uid}))
 
-    context = dict(project=project, form=form, activate="FOO")
+    context = dict(project=project, form=form, activate="Add Data")
 
     counts = get_counts(project)
 
@@ -474,12 +474,27 @@ def recipe_view(request, uid):
     """
     recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
-    context = dict(recipe=recipe, project=project, activate='Selected Recipe')
+    context = dict(recipe=recipe, project=project, activate='View Recipe')
 
     counts = get_counts(project)
     context.update(counts)
 
     return render(request, "recipe_view.html", context)
+
+
+@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MANAGER)
+def recipe_code_view(request, uid):
+    """
+    Returns an analysis code view based on its id.
+    """
+    recipe = Analysis.objects.get_all(uid=uid).first()
+    project = recipe.project
+    context = dict(recipe=recipe, project=project, activate='Recipe Code')
+
+    counts = get_counts(project)
+    context.update(counts)
+
+    return render(request, "recipe_view_code.html", context)
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
@@ -523,7 +538,7 @@ def recipe_run(request, uid):
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MANAGER, url='recipe_view')
-def recipe_code(request, uid):
+def recipe_code_edit(request, uid):
     """
     Displays and allows edit on a recipe code.
 
@@ -589,7 +604,7 @@ def recipe_code(request, uid):
 
     # Populate the context.
     context = dict(project=project, analysis=analysis, form=form, script=script, recipe=recipe)
-    return render(request, 'recipe_code.html', context)
+    return render(request, 'recipe_edit_code.html', context)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url='recipe_list')
@@ -761,7 +776,7 @@ def job_view(request, uid):
         messages.error(request, f"{exc}")
         files = []
 
-    context = dict(job=job, project=project, activate='Selected Result', files=files, path=path)
+    context = dict(job=job, project=project, activate='View Result', files=files, path=path)
 
     counts = get_counts(project)
     context.update(counts)

@@ -51,15 +51,15 @@ class RecipeViewTest(TestCase):
 
 
     @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
-    def test_recipe_code(self):
+    def test_recipe_code_edit(self):
         "Test the recipe preview/save code view with POST request"
 
         data = {'action': "SAVE", 'template':'#test change', 'json':"{}"}
-        url = reverse('recipe_code', kwargs=dict(uid=self.recipe.uid))
+        url = reverse('recipe_code_edit', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
 
-        response = views.recipe_code(request=request, uid=self.recipe.uid)
+        response = views.recipe_code_edit(request=request, uid=self.recipe.uid)
 
         self.process_response(response=response, data=data, save=True)
 

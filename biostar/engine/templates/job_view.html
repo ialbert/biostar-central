@@ -34,10 +34,18 @@
 
     <div class="ui vertical segment">
 
-        <div class="five ui small buttons">
+        <div class="seven ui small buttons">
+
+              <button class="ui button" onclick="window.history.back()">
+                <i class="chevron left icon"></i>Back
+            </button>
 
             <a class="ui  button" href="{% url 'recipe_view' job.analysis.uid %}"><i
             class="setting icon"></i>View Recipe</a>
+
+             <a class="ui button" href="{% url 'recipe_code_view' job.analysis.uid %}">
+                <i class="keyboard icon"></i>View Code
+            </a>
 
             <a class="copy-data ui button" data-uid="{{ job.uid }}" copy-url="{% url 'job_copy' %}">
                 <i class="copy icon"></i>Copy Results

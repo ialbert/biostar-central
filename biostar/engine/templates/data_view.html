@@ -33,16 +33,20 @@
         </div>
     </div>
 
-<div id="copy-message-{{data.uid}}"></div>
-    <div class="ui  vertical segment">
+    <div id="copy-message-{{ data.uid }}"></div>
+    <div class="ui vertical segment">
 
-        <div class="five ui small buttons">
+        <div class="six ui small buttons">
 
-        <a class="copy-data ui button" data-uid="{{data.uid}}" copy-url="{% url 'data_copy' %}">
-            <i class="copy icon"></i>Copy
-        </a>
+            <button class="ui button" onclick="window.history.back()">
+                <i class="chevron left icon"></i>Back
+            </button>
 
-        {% action_bar data 'data_edit' %}
+            <a class="copy-data ui button" data-uid="{{ data.uid }}" copy-url="{% url 'data_copy' %}">
+                <i class="copy icon"></i>Copy
+            </a>
+
+            {% action_bar data 'data_edit' %}
 
         </div>
 
@@ -59,12 +63,12 @@
         <div>{{ data.summary|safe }}</div>
     </div>
 
-    {%  if data.html %}
-    <div class="ui vertical segment">
-        <div class="ui aligned header">Data Info</div>
-        <div>{{ data.html|safe }}</div>
-    </div>
-    {%  endif %}
+    {% if data.html %}
+        <div class="ui vertical segment">
+            <div class="ui aligned header">Data Info</div>
+            <div>{{ data.html|safe }}</div>
+        </div>
+    {% endif %}
 
     <div class="ui vertical segment">
         <div class="ui aligned header">Data Content</div>
