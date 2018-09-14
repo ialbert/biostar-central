@@ -66,7 +66,7 @@
 
 
             <a class="ui button" href="{% url 'recipe_code_edit' recipe.uid %}">
-                <i class="keyboard icon"></i>Edit Code
+                <i class="keyboard icon"></i>Edit Interface
             </a>
 
             <a class="copy-data ui small button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
@@ -79,7 +79,32 @@
     <div class="ui segment inputcolor">
 
         <div class="ui basic segment">
-            <textarea class="code" name="template" id="template">{{ recipe.template }}</textarea>
+
+            <form method="post" class="ui form" action="{% url "recipe_code_view" uid=recipe.uid %}">
+                {% csrf_token %}
+
+                <div class="field">
+                    <textarea class="code" name="template" id="template">{{ recipe.template }}</textarea>
+                </div>
+
+                <div class="inline field">
+                    <label>Security: </label>
+                    {{ recipe.get_security_display }}
+                </div>
+
+
+                <div class="field">
+                    <button type="submit" class="ui green button">
+                        <i class="save icon"></i>Change Code
+                    </button>
+                </div>
+
+                <div class="ui info message">
+                    <b>Note:</b> If you modify the code it will have to be re-authorized by moderators
+                    before you can run the recipe.
+                </div>
+            </form>
+
         </div>
     </div>
 

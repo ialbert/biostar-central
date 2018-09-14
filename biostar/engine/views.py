@@ -486,14 +486,34 @@ def recipe_code_view(request, uid):
     """
     Returns an analysis code view based on its id.
     """
+    user = request.user
     recipe = Analysis.objects.get_all(uid=uid).first()
+
+    if request.method == "POST":
+        form = forms.RecipeCodeEdit(request.POST)
+        if form.is_valid():
+
+            template = form.cleaned_data.get('template').strip()
+
+            if template != recipe.template:
+                recipe.template = template
+                recipe.security = auth.authorize_analysis(user=user, recipe=recipe)
+                recipe.save()
+                messages.success(request, f"The recipe has been updated.")
+            else:
+                messages.info(request, f"The recipe has not been modified.")
+
+            return redirect(reverse("recipe_code_view", request=request, kwargs={'uid': recipe.uid}))
+        else:
+            messages.error(request, f"Invalid code change.")
+
     project = recipe.project
     context = dict(recipe=recipe, project=project, activate='Recipe Code')
 
     counts = get_counts(project)
     context.update(counts)
 
-    return render(request, "recipe_view_code.html", context)
+    return render(request, "recipe_code_view.html", context)
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view', show_deleted=False)

@@ -240,6 +240,22 @@ class DataEditForm(forms.ModelForm):
 
         return datatype
 
+
+class RecipeCodeEdit(forms.ModelForm):
+
+    uid = forms.CharField(max_length=32, required=False)
+
+    class Meta:
+        model = Analysis
+        fields = ["template"]
+
+    # Turn all input into Unix line ending.
+    def clean_template(self):
+        cleaned_data = super(RecipeCodeEdit, self).clean()
+        template = cleaned_data.get('template')
+        template = "\n".join(template.splitlines())
+        return template
+
 class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)
     uid = forms.CharField(max_length=32, required=False)

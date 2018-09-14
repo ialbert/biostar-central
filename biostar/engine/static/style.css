@@ -291,9 +291,23 @@ pre {
 .tablet {
 
 }
+
+.fitme {
+
+}
+
+@media all and (max-width: 1024px) {
+
+    .fitme {
+        display: block;
+        padding-top: 1ex;
+    }
+}
+
 @media all and (max-width: 768px) {
+
   .tablet {
-      color: blue;
       display: none!important;
   }
+
 }
