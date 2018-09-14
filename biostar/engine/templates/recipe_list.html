@@ -6,25 +6,8 @@
 
 {% block content %}
 
-    {% if request|has_recipe %}
-        <div class="ui center aligned basic segment">
-            <div class="ui  message">
-                <p>The clipboard contains <b>recipes</b>. You may now paste or clear it.</p>
-                <div class="ui mini buttons">
 
-                    <a class="ui green button" href="{% url 'recipe_paste' project.uid %}?board=recipe_clipboard">
-                        <i class="sticky note icon"></i> Paste
-                    </a>
-                    <div class="or"></div>
-                    <a class="ui button"
-                       href="{% url 'clear_clipboard' project.uid %}?next={% url 'recipe_list' project.uid %}&board=recipe_clipboard">
-                        <i class="window close icon"></i> Clear
-                    </a>
-
-                </div>
-            </div>
-        </div>
-    {% endif %}
+    {% paste project=project current=recipe_board %}
 
     <div class="ui vertical segment">
         <div class="ui divided link items">
@@ -37,8 +20,7 @@
                         {% if request.user.is_authenticated %}
                             <div id="copy-message-{{ recipe.uid }}"></div>
                             <a class="copy-data ui right floated label" data-uid="{{ recipe.uid }}"
-                               copy-url="{% url 'recipe_copy' %}"
-                               board="recipe_clipboard">
+                               copy-url="{% url 'recipe_copy' %}">
                                 <i class="copy icon"></i>Copy
                             </a>
                         {% endif %}
@@ -50,7 +32,9 @@
                     </div>
                 </div>
             {% empty %}
-                <div class="ui warning message item"><i class="ui warning circle icon"></i>No recipes found.</div>
+            <div class="item">
+                <div class="ui warning message"><i class="ui warning circle icon"></i>No recipes found.</div>
+            </div>
             {% endfor %}
         </div>
     </div>

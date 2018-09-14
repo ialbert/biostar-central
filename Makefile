@@ -1,4 +1,3 @@
-
 # Test data specific variables.
 DATA_FILE=recipes-initial-data.tar.gz
 DATA_DIR=/export/sites/main_data/initial

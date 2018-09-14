@@ -95,6 +95,21 @@ class ProjectForm(forms.ModelForm):
 
         return image
 
+    def custom_save(self, owner):
+        """Used to save on creation using custom function."""
+
+        name = self.cleaned_data["name"]
+        text = self.cleaned_data["text"]
+        summary = self.cleaned_data["summary"]
+        stream = self.cleaned_data["image"]
+        sticky = self.cleaned_data["sticky"]
+        privacy = self.cleaned_data["privacy"]
+        project = auth.create_project(user=owner, name=name, summary=summary, text=text,
+                                      stream=stream, sticky=sticky, privacy=privacy)
+        project.save()
+
+        return project
+
 
 class DataUploadForm(forms.ModelForm):
 

@@ -10,7 +10,7 @@ from django.core.paginator import Paginator
 from django.template import defaultfilters
 from django.utils.safestring import mark_safe
 
-from biostar.engine import auth, util
+from biostar.engine import auth, util, const
 from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
 from biostar.utils.shortcuts import reverse
 
@@ -133,12 +133,17 @@ def has_data(request):
     return len(data_clipboard)
 
 
-@register.inclusion_tag('widgets/paste_data.html', takes_context=True)
-def paste_data(context, project, clipboard="data_clipboard"):
+@register.inclusion_tag('widgets/paste.html', takes_context=True)
+def paste(context, project, current=""):
+
     request = context["request"]
-    clipboard = request.session.get(clipboard) or []
-    contains = f"{len(clipboard)} data"
-    context = dict(contains=contains, project=project, request=request)
+
+    board = request.session.get(current) or []
+
+    clipboard_count = len(board) if request.user.is_authenticated else 0
+
+    extra_context = dict(clipboard_count=clipboard_count, project=project, current=current, context=context)
+    context.update(extra_context)
     return context
 
 
@@ -147,23 +152,6 @@ def is_checkbox(field):
     "Check if current field is a checkbox"
 
     return True if field.field.widget.input_type == "checkbox" else False
-
-
-@register.filter
-def has_files(request):
-    "Checks if object in clipboard is a list of files belonging to a job"
-    files = request.session.get("files_clipboard", None)
-
-    # Last item loaded into files clipboard is the instance.uid the files belong to.
-    root_path = auth.validate_files_clipboard(request=request)
-    if not root_path:
-        return False
-
-    # Some files in clipboard might be outside job path.
-    files = [f for f in files if f.startswith(root_path)]
-
-    # Files might still be empty at this point
-    return True if files else False
 
 
 @register.filter
@@ -217,14 +205,6 @@ def search(request):
                ]
 
     return dict(content=json.dumps(content))
-
-
-@register.filter
-def has_recipe(request):
-    """
-    Checks if object in clipboard is a recipe.
-    """
-    return request.session.get("recipe_clipboard")
 
 
 @register.simple_tag
@@ -373,32 +353,35 @@ def directory_list(obj):
     root = obj.get_data_dir()
 
     # The serve url depends on data type..
-    serve_url = "job_serve" if isinstance(obj, Job)  else "data_serve"
+    serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
 
     # This will collet the valid filepaths.
     paths = []
+    try:
+        # Walk the filesystem and collect all files.
+        for fpath, fdirs, fnames in os.walk(root, followlinks=True):
+            paths.extend([join(fpath, fname) for fname in fnames])
+        # Image extension types.
+        IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
 
-    # Walk the filesystem and collect all files.
-    for fpath, fdirs, fnames in os.walk(root, followlinks=True):
-        paths.extend([join(fpath, fname) for fname in fnames])
+        # Add more metadata to each path.
+        def transform(path):
+            tstamp = os.stat(path).st_mtime
+            size = os.stat(path).st_size
+            relp = os.path.relpath(path, root)
+            nice = relp.replace("/", " / ")
+            is_image = relp.split(".")[-1] in IMAGE_EXT
+            return  relp, nice, tstamp, size, is_image
 
-    # Image extension types.
-    IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
+        # Transform the paths.
+        paths = map(transform, paths)
 
-    # Add more metadata to each path.
-    def transform(path):
-        tstamp = os.stat(path).st_mtime
-        size = os.stat(path).st_size
-        relp = os.path.relpath(path, root)
-        nice = relp.replace("/", " / ")
-        is_image = relp.split(".")[-1] in IMAGE_EXT
-        return  relp, nice, tstamp, size, is_image
+        # Sort by the tuple fields..
+        paths = sorted(paths)
 
-    # Transform the paths.
-    paths = map(transform, paths)
-
-    # Sort by the tuple fields..
-    paths = sorted(paths)
+    except Exception as exc:
+        logging.error(exc)
+        paths = []
 
     return dict(paths=paths, obj=obj, serve_url=serve_url)
 

@@ -12,6 +12,10 @@ KNOWN_TEXT_EXTENSIONS = (
 
 REDIRECT_FIELD_NAME = 'next'
 
+DATA_CLIPBOARD = "data_clipboard"
+RESULTS_CLIPBOARD = "results_clipboard"
+RECIPE_CLIPBOARD = "recipe_clipboard"
+
 KNOWN_TEXT_EXTENSIONS = set(KNOWN_TEXT_EXTENSIONS)
 
 # Map a file extension to a biostar-engine datatype.

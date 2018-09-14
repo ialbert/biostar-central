@@ -12,8 +12,8 @@ from django.db import transaction
 from biostar.utils.shortcuts import reverse
 from . import forms, auth
 from .models import Post, Vote
-from .decorators import (object_exists, protect_private_topics, ajax_error,
-                         ajax_error_wrapper, ajax_success)
+from .decorators import object_exists, protect_private_topics
+from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success
 from .const import *
 
 
@@ -88,7 +88,7 @@ def tags_list(request):
     return render(request, "tags_list.html", context=context)
 
 
-@ajax_error_wrapper
+@ajax_error_wrapper(method="POST")
 def ajax_vote(request):
 
     user = request.user
@@ -136,8 +136,9 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
-            form.save(author=request.user)
-            return redirect(reverse(url, request=request, kwargs=dict(uid=obj.root.uid)))
+            post = form.save(author=request.user)
+            location = reverse(url, request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
+            return redirect(location)
 
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
@@ -152,19 +153,23 @@ def post_view(request, uid, template="post_view.html", url="post_view",
 
 
 @login_required
-@ajax_error_wrapper
-def ajax_comment(request):
+def comment(request):
 
-    form = forms.PostShortForm(data=request.POST)
-    if form.is_valid():
-        form.save(author=request.user, post_type=Post.COMMENT)
-        message = "Added Comment"
-    else:
-        message = f"Error adding comment: {form.errors}"
-    # return a json object with success or not.
+    location = reverse("post_list")
+    get_view = lambda p:"discussion_view" if p.belongs_to_project else "post_view"
 
-    json_response = {"message": message}
-    return JsonResponse(json_response)
+    if request.method == "POST":
+        form = forms.PostShortForm(data=request.POST)
+        if form.is_valid():
+            post = form.save(author=request.user, post_type=Post.COMMENT)
+            messages.success(request, "Added comment")
+            location = reverse(get_view(post), kwargs=dict(uid=post.uid)) + "#" + post.uid
+        else:
+            messages.error(request, f"Error adding comment:{form.errors}")
+            parent = Post.objects.get_all(uid=request.POST.get("parent_uid")).first()
+            location = location if parent is None else reverse(get_view(parent), kwargs=dict(uid=parent.root.uid))
+
+    return redirect(location)
 
 
 @object_exists(klass=Post)
@@ -174,7 +179,7 @@ def subs_action(request, uid, next=None):
     # Post actions are being taken on
     post = Post.objects.filter(uid=uid).first()
     user = request.user
-    next_url = request.GET.get(REDIRECT_FIELD_NAME,
+    next_url = request.GET2.get(REDIRECT_FIELD_NAME,
                                request.POST.get(REDIRECT_FIELD_NAME))
     next_url = next or next_url or "/"
 

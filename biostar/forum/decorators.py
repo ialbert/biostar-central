@@ -31,38 +31,6 @@ class object_exists:
         return _wrapper_function
 
 
-def ajax_msg(msg, status, **kwargs):
-    payload = dict(status=status, msg=msg)
-    payload.update(kwargs)
-    return JsonResponse(payload)
-
-
-ajax_success = partial(ajax_msg, status='success')
-ajax_error = partial(ajax_msg, status='error')
-
-
-class ajax_error_wrapper(object):
-    """
-    Used as decorator to trap/display  errors in the ajax calls
-    """
-
-    def __init__(self, func):
-        self.func = func
-
-    def __call__(self, request):
-        try:
-            if request.method != 'POST':
-                return ajax_error('POST method must be used.')
-
-            if not request.user.is_authenticated:
-                return ajax_error('You must be logged in to do that')
-
-            return self.func(request)
-
-        except Exception as exc:
-            return ajax_error('Error: %s' % exc)
-
-
 def protect_private_topics(func):
 
     @wraps(func, assigned=available_attrs(func))
