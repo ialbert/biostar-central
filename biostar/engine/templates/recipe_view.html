@@ -60,11 +60,18 @@
                 <i class="keyboard icon"></i>View Code
             </a>
 
-            <a class="copy-data ui small button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
+            <a class="copy-data ui button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
                 <i class="copy icon"></i>Copy Recipe
             </a>
 
-            {% action_bar recipe 'recipe_edit' %}
+            <a class="ui button " href="{%  url "recipe_edit" uid=recipe.uid %}">
+                <i class="edit icon"></i> Edit Recipe
+            </a>
+
+             <a class="ui button " href="#">
+                <i class="edit icon"></i> Delete Recipe
+            </a>
+
 
         </div>
 

@@ -1,18 +1,18 @@
 
 
 <a class="ui small button {{ extra }}" href="{{ edit_url }}">
-    <i class="edit icon"></i> Edit Info
+    <i class="edit icon"></i> Edit {{ label }}
 </a>
 
 {% if instance.deleted %}
     <a class="ui small button {{extra}}" href="{{ action_url }}">
-    <i class="undo icon"></i> Restore
+    <i class="undo icon"></i> Restore {{ label }}
 </a>
 
 {% else %}
 
     <a class="ui small button {{ extra}}" href="{{ action_url }}">
-    <i class="trash icon"></i> Delete
+    <i class="trash icon"></i> Delete {{ label }}
 </a>
 
 {% endif %}

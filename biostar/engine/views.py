@@ -709,6 +709,8 @@ def job_edit(request, uid):
     context = dict(job=job, project=project, form=form)
     return render(request, 'job_edit.html', context)
 
+def delete_recipe(request, uid):
+    pass
 
 def object_state_toggle(request, uid, obj_type):
     """
