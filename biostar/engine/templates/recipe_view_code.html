@@ -1,0 +1,102 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+{% load staticfiles %}
+{% load compress %}
+
+{% block headtitle %}
+    {{ recipe.name }}
+{% endblock %}
+
+{% block js %}
+
+    {% compress css %}
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'style.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'lib/codemirror.css' %}">
+    {% endcompress %}
+
+    {% compress js %}
+        <script src="{% static 'semantic.min.js' %}"></script>
+        <script src="{% static 'engine.js' %}"></script>
+        <script src="{% static 'lib/codemirror.js' %}"></script>
+        <script src="{% static 'lib/mode/simple.js' %}"></script>
+        <script src="{% static 'lib/mode/engine.js' %}"></script>
+    {% endcompress %}
+
+    <style>
+        .CodeMirror {
+            height: auto !important;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="ui vertical segment">
+        <div class="ui divided link items">
+            <div class="item">
+                <div>
+                    <img class="ui tiny image imgpad" src="{% img recipe %}">
+                </div>
+                <div class="content">
+                    <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+                        <i class="setting icon"></i> {{ activate }}: {{ recipe.name }}
+                    </a>
+                    <div class="description">{{ recipe.summary|markdown|safe }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui vertical segment">
+        <div class="ui seven small  buttons">
+
+            <button class="ui button" onclick="window.history.back()">
+                <i class="chevron left icon"></i>Back
+            </button>
+
+            <a class="ui button" href="{% url 'recipe_view' recipe.uid %}">
+                <i class="setting icon"></i> View Recipe
+            </a>
+
+            <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                <i class="bar chart icon"></i>Recipe Results
+            </a>
+
+
+            <a class="ui button" href="{% url 'recipe_code_edit' recipe.uid %}">
+                <i class="keyboard icon"></i>Edit Code
+            </a>
+
+            <a class="copy-data ui small button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
+                <i class="copy icon"></i>Copy Recipe
+            </a>
+
+            {% action_bar recipe 'recipe_edit' %}
+
+        </div>
+    </div>
+
+    <div class="ui segment inputcolor">
+
+        <div class="ui basic segment">
+            <textarea class="code" name="template" id="template">{{ recipe.template }}</textarea>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block script %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var json_edit = CodeMirror.fromTextArea(
+                document.getElementById("template"), {
+                    lineNumbers: true,
+                    mode: "engine"
+                }
+            );
+        });
+    </script>
+{% endblock %}

@@ -7,10 +7,6 @@
 
 {% block content %}
 
-    <div class="ui basic segment">
-        You have two methods do add data to the site.
-    </div>
-
     <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'data_upload' project.uid %}">
         {% csrf_token %}
 
@@ -39,6 +35,7 @@
 
     </form>
 
+    <div class="ui divider">&nbsp;</div>
 
     <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'data_upload' project.uid %}">
         {% csrf_token %}
