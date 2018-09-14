@@ -31,7 +31,7 @@ class ajax_error_wrapper:
                 return ajax_error(f'{self.method} method must be used.')
 
             if not request.user.is_authenticated:
-                return ajax_error('You must be logged in to do that')
+                return ajax_error('You must be logged in to do that.')
 
             return func(request, *args, **kwargs)
 

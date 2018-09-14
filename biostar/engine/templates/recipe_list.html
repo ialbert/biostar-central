@@ -20,8 +20,7 @@
                         {% if request.user.is_authenticated %}
                             <div id="copy-message-{{ recipe.uid }}"></div>
                             <a class="copy-data ui right floated label" data-uid="{{ recipe.uid }}"
-                               copy-url="{% url 'recipe_copy' %}"
-                               board="{{recipe_board}}">
+                               copy-url="{% url 'recipe_copy' %}">
                                 <i class="copy icon"></i>Copy
                             </a>
                         {% endif %}

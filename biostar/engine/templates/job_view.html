@@ -39,8 +39,7 @@
             <a class="ui  button" href="{% url 'recipe_view' job.analysis.uid %}"><i
             class="setting icon"></i>View Recipe</a>
 
-            <a class="copy-data ui button" data-uid="{{ job.uid }}" copy-url="{% url 'job_copy' %}"
-               board="{{results_board}}">
+            <a class="copy-data ui button" data-uid="{{ job.uid }}" copy-url="{% url 'job_copy' %}">
                 <i class="copy icon"></i>Copy Results
             </a>
 

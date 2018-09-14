@@ -381,6 +381,7 @@ def directory_list(obj):
 
     except Exception as exc:
         logging.error(exc)
+        paths = []
 
     return dict(paths=paths, obj=obj, serve_url=serve_url)
 

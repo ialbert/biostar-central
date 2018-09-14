@@ -309,11 +309,10 @@ def project_create(request):
     return render(request, "project_create.html", context=context)
 
 
-def ajax_copy(request, modeltype):
+def ajax_copy(request, modeltype, msg="Copied!", board=None):
 
     user = request.user
     data_uid = request.GET.get("data_uid")
-    board = request.GET.get("board")
     instance = modeltype.objects.filter(uid=data_uid).first()
 
     entry = None if instance is None else Access.objects.filter(user=user, project=instance.project).first()
@@ -325,12 +324,10 @@ def ajax_copy(request, modeltype):
         # No duplicates in clipboard
         current = list(set(current))
         request.session[board] = current
-        phrase = "is" if len(current) == 1 else "are"
         status = "success"
-        msg = mark_safe(f"Copied {instance.name}. There {phrase} {len(current)} object in the clipboard.")
+        msg += f" Clipboard has {len(current)} object(s)."
     else:
-        msg = "You need read access to copy."
-        status = "error"
+        msg = status = "error"
         request.session[board] = []
 
     response = JsonResponse({"msg": msg, "status": status})
@@ -339,17 +336,23 @@ def ajax_copy(request, modeltype):
 
 @ajax_error_wrapper(method="GET")
 def ajax_job_copy(request):
-    return ajax_copy(modeltype=Job, request=request)
+
+    msg = "Copied to results clipboard!"
+    return ajax_copy(modeltype=Job, request=request, msg=msg, board=const.RESULTS_CLIPBOARD)
 
 
 @ajax_error_wrapper(method="GET")
 def ajax_data_copy(request):
-    return ajax_copy(modeltype=Data, request=request)
+
+    msg = "Copied to data clipboard!"
+    return ajax_copy(modeltype=Data, request=request, msg=msg, board=const.DATA_CLIPBOARD)
 
 
 @ajax_error_wrapper(method="GET")
 def ajax_recipe_copy(request):
-    return ajax_copy(modeltype=Analysis, request=request)
+
+    msg = "Copied to recipe clipboard!"
+    return ajax_copy(modeltype=Analysis, request=request, msg=msg, board=const.RECIPE_CLIPBOARD)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url="recipe_list")
@@ -690,11 +693,6 @@ def job_edit(request, uid):
 
     context = dict(job=job, project=project, form=form)
     return render(request, 'job_edit.html', context)
-
-
-def ajax_delete(request):
-
-    return
 
 
 def object_state_toggle(request, uid, obj_type):

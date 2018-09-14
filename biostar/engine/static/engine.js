@@ -173,13 +173,12 @@ $(document).ready(function () {
         var elem = $(this);
         var data_uid = elem.attr('data-uid');
         var copy_url = elem.attr('copy-url');
-        var board = elem.attr('board');
 
         $.ajax(copy_url, {
                 type: 'GET',
                 dataType: 'json',
                 ContentType: 'application/json',
-                data: {data_uid: data_uid, board: board},
+                data: {data_uid: data_uid},
                 success: function (data) {
                 pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
                 },
