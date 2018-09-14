@@ -38,6 +38,13 @@ def access_denied_message(user, access):
     return tmpl.render(context=context)
 
 
+def authorize_analysis(user, recipe):
+
+    if user.is_staff:
+        return Analysis.AUTHORIZED
+
+    return Analysis.UNDER_REVIEW
+
 def generate_script(job):
     """
     Generates a script from a job.

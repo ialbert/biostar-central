@@ -49,27 +49,27 @@
             </button>
 
             <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
-                <i class="spinner icon"></i> <span class="tablet">Run</span>
+                <i class="spinner icon"></i> Run
             </a>
 
             <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                <i class="bar chart icon"></i> <span class="tablet">Results</span>
+                <i class="bar chart icon"></i> Results
             </a>
 
             <a class="ui button" href="{% url 'recipe_code_view' recipe.uid %}">
-                <i class="keyboard icon"></i> <span class="tablet">Code</span>
+                <i class="keyboard icon"></i> Code
             </a>
 
             <a class="copy-data ui button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
-                <i class="copy icon"></i> <span class="tablet">Copy</span>
+                <i class="copy icon"></i> Copy
             </a>
 
-            <a class="ui button" href="{% url "recipe_edit" uid=recipe.uid %}">
-                <i class="edit icon"></i> <span class="tablet">Edit</span>
+            <a class="ui button tablet" href="{% url "recipe_edit" uid=recipe.uid %}">
+                <i class="edit icon"></i> Edit
             </a>
 
             <a class="ui button tablet" href="#">
-                <i class="trash icon"></i> <span class="tablet">Delete</span>
+                <i class="trash icon"></i> Delete
             </a>
 
 

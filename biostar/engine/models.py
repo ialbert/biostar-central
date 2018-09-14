@@ -316,7 +316,9 @@ class Data(models.Model):
 
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
+
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
+
     security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
 
     deleted = models.BooleanField(default=False)
