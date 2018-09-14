@@ -2,15 +2,14 @@
 {% load forum_tags %}
 
 <div class="ui top attached large stackable menu">
-    <a class="item" href="{{ index_url }}">
+
+    <a class="item" href="{%  url "index" %}">
         <i class="home icon"></i>
     </a>
 
-    {% if enable_forum %}
-        <a class="item" href="{% url 'post_list' %}">
-            <i class="newspaper icon"></i>Forum
-        </a>
-    {% endif %}
+    <a class="item" href="{% url 'post_list' %}">
+        <i class="newspaper icon"></i>Forum
+    </a>
 
     <a class="item" href="{% url 'project_list' %}">
         <i class="database icon"></i>Projects

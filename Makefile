@@ -31,7 +31,7 @@ full_delete: delete
 	rm -rf export/media/*
 
 # Resets the site without removing jobs.
-reset: delete init
+reset: delete init loaddata
 
 # Removes all content from the site.
 hard_reset: full_delete init
