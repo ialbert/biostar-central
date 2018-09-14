@@ -45,8 +45,14 @@
             <a class="copy-data ui button" data-uid="{{ data.uid }}" copy-url="{% url 'data_copy' %}">
                 <i class="copy icon"></i>Copy
             </a>
+            <a class="ui button" href="{% url "data_edit" uid=data.uid %}">
+                <i class="edit icon"></i> <span class="tablet">Edit</span>
+            </a>
 
-            {% action_bar data 'data_edit' %}
+            <a class="ui button tablet" href="#">
+                <i class="trash icon"></i> <span class="tablet">Delete</span>
+            </a>
+
 
         </div>
         <div id="copy-message-{{ data.uid }}"></div>
