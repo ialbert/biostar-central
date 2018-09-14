@@ -44,33 +44,34 @@
 
         <div class="ui seven small buttons">
 
-            <button class="ui button" onclick="window.history.back()">
+            <button class="ui button tablet" onclick="window.history.back()">
                 <i class="chevron left icon"></i>Back
             </button>
 
             <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
-                <i class="spinner icon"></i> Run
+                <i class="spinner icon"></i> <span class="tablet">Run</span>
             </a>
 
             <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                <i class="bar chart icon"></i>Results
+                <i class="bar chart icon"></i> <span class="tablet">Results</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_code_view' recipe.uid %}">
-                <i class="keyboard icon"></i>Code
+                <i class="keyboard icon"></i> <span class="tablet">Code</span>
             </a>
 
             <a class="copy-data ui button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
-                <i class="copy icon"></i>Copy
+                <i class="copy icon"></i> <span class="tablet">Copy</span>
             </a>
 
-            <a class="ui button " href="{% url "recipe_edit" uid=recipe.uid %}">
-                <i class="edit icon"></i> Edit
+            <a class="ui button" href="{% url "recipe_edit" uid=recipe.uid %}">
+                <i class="edit icon"></i> <span class="tablet">Edit</span>
             </a>
 
-            <a class="ui button " href="#">
-                <i class="edit icon"></i> Delete
+            <a class="ui button tablet" href="#">
+                <i class="trash icon"></i> <span class="tablet">Delete</span>
             </a>
+
 
         </div>
         <div id="copy-message-{{ recipe.uid }}"></div>

@@ -1,26 +1,24 @@
 {% load engine_tags %}
 {% load forum_tags %}
 
-<div class="ui top attached large stackable menu">
+<div class="ui top attached menu">
 
-    <a class="item" href="{%  url "index" %}">
+    <a class="item tablet" href="{%  url "index" %}">
         <i class="home icon"></i>
     </a>
 
     <a class="item" href="{% url 'post_list' %}">
-        <i class="newspaper icon"></i>Forum
+        <i class="newspaper icon"></i> <span class="tablet">Forum</span>
     </a>
 
     <a class="item" href="{% url 'project_list' %}">
-        <i class="database icon"></i>Projects
+        <i class="database icon"></i> <span class="tablet">Projects</span>
     </a>
 
-
     {% if with_search %}
-    <div class="right menu">
-
-        {% search request=request %}
-    </div>
+        <div class="right menu tablet">
+            {% search request=request %}
+        </div>
     {% endif %}
 
 
@@ -43,10 +41,12 @@
 
         <a class="item" href="{% url 'profile' %}">
             <i class="user icon"></i>
-            {{request.user.profile.name }}
+            <span class="tablet">{{request.user.profile.name }}</span>
         </a>
 
-            <a class="item" href="{% url 'logout' %}"><i class="sign in icon"></i>Logout</a>
+            <a class="item" href="{% url 'logout' %}">
+                <i class="sign in icon"></i><span class="tablet">Logout</span>
+            </a>
 
         </div>
 
