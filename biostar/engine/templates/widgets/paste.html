@@ -1,0 +1,61 @@
+{% load engine_tags %}
+
+
+{% if clipboard_count and current == data_board %}
+
+    <div class="ui center aligned basic segment">
+    <div class="ui  message">
+        <p>Clipboard contains <b>{{clipboard_count}} data</b>, can still copy more.You may now paste or clear it.</p>
+         <div class="ui mini buttons">
+            <a class="ui green button" href="{% url 'data_paste' project.uid %}?board={{data_board}}">
+                <i class="sticky note icon"></i> Paste
+            </a>
+             <div class="or"></div>
+            <a class="ui button" href="{% url 'clear_clipboard' project.uid %}?next={% url 'data_list' project.uid %}&board={{data_board}}">
+                <i class="window close icon"></i> Clear
+            </a>
+         </div>
+    </div>
+    </div>
+
+{% elif clipboard_count and current == recipe_board %}
+
+    <div class="ui center aligned basic segment">
+        <div class="ui  message">
+            <p>Recipe clipboard contains <b>{{clipboard_count}} recipes</b>, can still copy more. You may now paste or clear it.</p>
+            <div class="ui mini buttons">
+
+                <a class="ui green button" href="{% url 'recipe_paste' project.uid %}">
+                    <i class="sticky note icon"></i> Paste
+                </a>
+                <div class="or"></div>
+                <a class="ui button"
+                   href="{% url 'clear_clipboard' project.uid %}?next={% url 'recipe_list' project.uid %}&board={{recipe_board}}">
+                    <i class="window close icon"></i> Clear
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+
+{% elif clipboard_count and current == results_board %}
+
+
+    <div class="ui center aligned basic segment">
+    <div class="ui  message">
+        <p>Clipboard contains <b>{{clipboard_count}} results</b>, can still copy more. You may now paste or clear it.</p>
+         <div class="ui mini buttons">
+            <a class="ui green button" href="{% url 'data_paste' project.uid %}?board={{results_board}}">
+                <i class="sticky note icon"></i> Paste
+            </a>
+             <div class="or"></div>
+            <a class="ui button" href="{% url 'clear_clipboard' project.uid %}?next={% url 'data_list' project.uid %}&board={{results_board}}">
+                <i class="window close icon"></i> Clear
+            </a>
+         </div>
+    </div>
+    </div>
+
+
+{% endif %}

@@ -30,7 +30,7 @@
     </div>
 
 
-    <div id="copy-message-{{ data.uid }}"></div>
+    <div id="copy-message-{{ job.uid }}"></div>
 
     <div class="ui vertical segment">
 
@@ -40,7 +40,7 @@
             class="setting icon"></i>View Recipe</a>
 
             <a class="copy-data ui button" data-uid="{{ job.uid }}" copy-url="{% url 'job_copy' %}"
-               board="results_clipboard">
+               board="{{results_board}}">
                 <i class="copy icon"></i>Copy Results
             </a>
 

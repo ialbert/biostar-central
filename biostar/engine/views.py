@@ -1,10 +1,6 @@
 import logging
 import os
 
-from biostar.accounts.models import Profile, User
-from biostar.forum import views as forum_views
-from biostar.forum.models import Post
-from biostar.utils.shortcuts import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
@@ -15,7 +11,13 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from sendfile import sendfile
 
-from . import tasks, auth, forms, util
+from biostar.accounts.models import Profile, User
+from biostar.forum import views as forum_views
+from biostar.forum.models import Post
+from biostar.utils.shortcuts import reverse
+from biostar.utils.decorators import ajax_error_wrapper
+
+from . import tasks, auth, forms, util, const
 from .decorators import object_access
 from .diffs import color_diffs
 from .models import (Project, Data, Analysis, Job, Access)
@@ -88,7 +90,6 @@ def recipe_mod(request):
     return render(request, 'recipe_mod.html', context)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS, url='project_view')
 def clear_clipboard(request, uid):
     "Clear copied objects held in clipboard."
 
@@ -301,16 +302,7 @@ def project_create(request):
         # create new projects here ( just populates metadata ).
         form = forms.ProjectForm(request.POST, request.FILES)
         if form.is_valid():
-            name = form.cleaned_data["name"]
-            text = form.cleaned_data["text"]
-            summary = form.cleaned_data["summary"]
-            stream = form.cleaned_data["image"]
-            sticky = form.cleaned_data["sticky"]
-            privacy = form.cleaned_data["privacy"]
-            owner = request.user
-            project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                          stream=stream, sticky=sticky, privacy=privacy)
-            project.save()
+            project = form.custom_save(owner=request.user)
             return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
 
     context = dict(form=form)
@@ -318,14 +310,16 @@ def project_create(request):
 
 
 def ajax_copy(request, modeltype):
+
     user = request.user
     data_uid = request.GET.get("data_uid")
     board = request.GET.get("board")
     instance = modeltype.objects.filter(uid=data_uid).first()
 
-    allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=Access.READ_ACCESS,
-                                         login_required=True)
-    if allow_access:
+    entry = None if instance is None else Access.objects.filter(user=user, project=instance.project).first()
+    entry = entry or Access(access=Access.NO_ACCESS)
+
+    if entry.access >= Access.READ_ACCESS:
         current = request.session.get(board, [])
         current.append(instance.uid)
         # No duplicates in clipboard
@@ -335,33 +329,36 @@ def ajax_copy(request, modeltype):
         status = "success"
         msg = mark_safe(f"Copied {instance.name}. There {phrase} {len(current)} object in the clipboard.")
     else:
-        msg = "Copy error"
+        msg = "You need read access to copy."
         status = "error"
         request.session[board] = []
 
-    response = JsonResponse({"message": msg, "status": status})
+    response = JsonResponse({"msg": msg, "status": status})
     return response
 
 
+@ajax_error_wrapper(method="GET")
 def ajax_job_copy(request):
     return ajax_copy(modeltype=Job, request=request)
 
 
+@ajax_error_wrapper(method="GET")
 def ajax_data_copy(request):
     return ajax_copy(modeltype=Data, request=request)
 
 
+@ajax_error_wrapper(method="GET")
 def ajax_recipe_copy(request):
     return ajax_copy(modeltype=Analysis, request=request)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url="recipe_list")
 def recipe_paste(request, uid):
+    """Used to paste recipes in a clipboard as a new recipes."""
+
     project = Project.objects.filter(uid=uid).first()
 
-    board = request.GET.get("board")
-
-    clipboard = request.session.get(board, [])
+    clipboard = request.session.get(const.RECIPE_CLIPBOARD, [])
 
     for uid in clipboard:
         instance = Analysis.objects.filter(uid=uid).first()
@@ -375,34 +372,34 @@ def recipe_paste(request, uid):
             new_recipe.last_valid = instance.last_valid
             new_recipe.save()
 
-    request.session[board] = []
-    messages.success(request, "Pasted recipes in clipboard")
+    request.session[const.RECIPE_CLIPBOARD] = []
+    messages.success(request, mark_safe(f"Pasted <b>{len(clipboard)} recipes</b>  in clipboard"))
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url="data_list")
 def data_paste(request, uid):
-    """Used to paste results and data as a Data object"""
+    """Used to paste objects in results and data clipboards as a Data object."""
 
     project = Project.objects.filter(uid=uid).first()
     owner = request.user
     board = request.GET.get("board")
     clipboard = request.session.get(board, [])
 
-    for data_uid in clipboard:
+    for datauid in clipboard:
 
-        if board == "data_clipboard":
-            data = Data.objects.filter(uid=data_uid).first()
-            dtype = data.type
+        if board == const.DATA_CLIPBOARD:
+            obj = Data.objects.filter(uid=datauid).first()
+            dtype = obj.type
 
         else:
-            data = Job.objects.filter(uid=data_uid).first()
+            obj = Job.objects.filter(uid=datauid).first()
             dtype = "DATA"
 
-        if data:
-            paths = [n.path for n in os.scandir(data.get_data_dir())]
+        if obj:
+            paths = [n.path for n in os.scandir(obj.get_data_dir())]
             auth.create_data(project=project, paths=paths, user=owner,
-                             name=data.name, type=dtype, summary=data.summary)
+                             name=obj.name, type=dtype, summary=obj.summary)
 
     request.session[board] = []
     messages.success(request, "Pasted data in clipboard")
@@ -415,17 +412,8 @@ def data_view(request, uid):
 
     data = Data.objects.get_all(uid=uid).first()
     project = data.project
-    path = request.GET.get('path', '')
 
-    root = data.get_data_dir()
-    abspath = join(root, path)
-    try:
-        files = util.scan_files(abspath=abspath, relpath=path, root=root)
-    except Exception as exc:
-        messages.error(request, f"{exc}")
-        files = []
-
-    context = dict(data=data, project=project, activate='Selected Data', files=files, path=path)
+    context = dict(data=data, project=project, activate='Selected Data')
     counts = get_counts(project)
     context.update(counts)
 
@@ -702,6 +690,11 @@ def job_edit(request, uid):
 
     context = dict(job=job, project=project, form=form)
     return render(request, 'job_edit.html', context)
+
+
+def ajax_delete(request):
+
+    return
 
 
 def object_state_toggle(request, uid, obj_type):

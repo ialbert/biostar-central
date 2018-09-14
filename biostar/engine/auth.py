@@ -231,35 +231,6 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     return analysis
 
 
-def validate_files_clipboard(request):
-    """
-    Further validate 'files_clipboard' by checking if expected 'uid' belongs to
-    a job or data that a user has access to.
-    Returns the root_path for all files in clipboard
-    """
-
-    # Last item in clipboard is an instance.uid that the files belong to.
-    path = None
-    clipboard = request.session.get("files_clipboard")
-    uid = '' if not clipboard else clipboard[-1]
-    if not uid:
-        return path
-
-    instance = Job.objects.filter(uid=uid) or Data.objects.filter(uid=uid)
-    instance = instance.first()
-
-    # Make sure user has read access needed to copy files to clipboard.
-    has_access = check_obj_access(instance=instance, user=request.user, request=request,
-                                  access=Access.READ_ACCESS)
-    if has_access:
-        path = instance.get_data_dir()
-    else:
-        #request.session["files_clipboard"] = None
-        messages.error(request, "Do not have access to files in clipboard.")
-
-    return path
-
-
 def make_job_summary(data, summary='', title='', name="widgets/job_summary.html"):
     '''
     Summarizes job parameters.

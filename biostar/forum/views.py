@@ -12,8 +12,8 @@ from django.db import transaction
 from biostar.utils.shortcuts import reverse
 from . import forms, auth
 from .models import Post, Vote
-from .decorators import (object_exists, protect_private_topics, ajax_error,
-                         ajax_error_wrapper, ajax_success)
+from .decorators import object_exists, protect_private_topics
+from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success
 from .const import *
 
 
@@ -88,7 +88,7 @@ def tags_list(request):
     return render(request, "tags_list.html", context=context)
 
 
-@ajax_error_wrapper
+@ajax_error_wrapper(method="POST")
 def ajax_vote(request):
 
     user = request.user
@@ -153,22 +153,22 @@ def post_view(request, uid, template="post_view.html", url="post_view",
 
 
 @login_required
-def ajax_comment(request):
+def comment(request):
 
     location = reverse("post_list")
+    get_view = lambda p:"discussion_view" if p.belongs_to_project else "post_view"
+
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             post = form.save(author=request.user, post_type=Post.COMMENT)
-            messages.success(request, "Added comments")
-            location = reverse("post_view", kwargs=dict(uid=post.uid)) + "#" + post.uid
-
+            messages.success(request, "Added comment")
+            location = reverse(get_view(post), kwargs=dict(uid=post.uid)) + "#" + post.uid
         else:
-            messages.error(request, "Error adding coments")
+            messages.error(request, f"Error adding comment:{form.errors}")
             parent = Post.objects.get_all(uid=request.POST.get("parent_uid")).first()
-            location = reverse("post_view", kwargs=dict(uid=parent.uid)) + "#" + parent.uid
-    else:
-        messages.error(request, "Not allowed")
+            location = location if parent is None else reverse(get_view(parent), kwargs=dict(uid=parent.root.uid))
+
     return redirect(location)
 
 

@@ -68,10 +68,6 @@ function moderate(elem) {
 };
 
 
-function add_answer(elem) {
-
-};
-
 function toggle_button(elem) {
 
     var icon = elem.children("i.icon");
@@ -185,15 +181,11 @@ $(document).ready(function () {
                 ContentType: 'application/json',
                 data: {data_uid: data_uid, board: board},
                 success: function (data) {
-                $("#copy-message-"+ data_uid).append(`
-                <div class="ui basic segment">
-                    <div class="ui fluid green message">
-                    ${data.message}
-                    </div>
-                </div>
+                pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
+                },
+                error: function () {
+                }
 
-                `).fadeOut(2000);
-                        },
                 });
 
     });

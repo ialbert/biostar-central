@@ -384,10 +384,9 @@ class Post(models.Model):
     def accepted_class(self):
         return "accepted" if (self.has_accepted and not self.is_toplevel) else ""
 
-    def has_vote(self, vote_type, user):
-        "Check if post has a vote_type made by user"
-        vote = Vote.objects.filter(type=vote_type, author=user, post=self)
-        return vote.exists()
+    @property
+    def belongs_to_project(self):
+        return self.project is not None
 
 
 class Vote(models.Model):
@@ -491,22 +490,19 @@ def set_post(sender, instance, created, *args, **kwargs ):
 @receiver(post_save, sender=Post)
 def check_thread_users(sender, instance, created, *args, **kwargs):
 
-    # Add the author to the thread_users of the root relation_set.
+    # Add the author to the thread_users of the root.
 
     obj = instance.root if instance.root else instance
     users = list(Post.objects.get_all(pk=obj.pk).values_list("thread_users", flat=True))
     user_pks = users + [instance.author.pk]
     user_pks = set(user_pks)
 
+    # Clear theard users
     obj.thread_users.clear()
 
-    for pk in user_pks:
-        if pk:
-            user = User.objects.filter(pk=pk).first()
-            obj.thread_users.add(user)
+    users = User.objects.filter(pk__in=user_pks)
+    obj.thread_users.add(*users)
 
-
-    return
 
 @receiver(post_save, sender=Post)
 def check_root(sender, instance, created, *args, **kwargs):

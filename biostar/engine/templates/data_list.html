@@ -8,8 +8,9 @@
 
 {% block content %}
 
-    {% paste_data project=project %}
+    {% paste project=project current=data_board %}
 
+    {% paste project=project current=results_board %}
 
     <div class="ui vertical segment">
         <div class="ui divided items">
@@ -23,7 +24,7 @@
                             <div id="copy-message-{{ data.uid }}"></div>
                             <a class="copy-data ui right floated label" data-uid="{{ data.uid }}"
                                copy-url="{% url 'data_copy' %}"
-                               board="data_clipboard">
+                               board="{{data_board}}">
                                 <i class="copy icon"></i>Copy
                             </a>
                         {% endif %}
