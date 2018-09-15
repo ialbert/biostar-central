@@ -161,7 +161,6 @@ class Access(models.Model):
         super(Access, self).save(*args, **kwargs)
 
 
-
 @receiver(post_save, sender=Project)
 def update_access(sender, instance, created, raw, update_fields, **kwargs):
 

@@ -61,15 +61,19 @@
             </a>
 
             <a class="copy-data ui button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
-                <i class="copy icon"></i> <span class="fitme">Recipe Code</span>
+                <i class="copy icon"></i> <span class="fitme">Copy Recipe</span>
             </a>
 
-            <a class="ui button tablet" href="{% url "recipe_edit" uid=recipe.uid %}">
+            <a class="ui button tablet" href="{% url "recipe_edit" recipe.uid %}">
                 <i class="edit icon"></i> <span class="fitme">Edite Recipe</span>
             </a>
 
-            <a class="ui button tablet" href="#">
+            <a class="ui button tablet" href="{% url 'recipe_delete' recipe.uid %}">
+                {% if recipe.deleted %}
+                <i class="undo icon"></i> <span class="fitme">Restore</span>
+                {% else %}
                 <i class="trash icon"></i> <span class="fitme">Delete</span>
+                {% endif %}
             </a>
 
 

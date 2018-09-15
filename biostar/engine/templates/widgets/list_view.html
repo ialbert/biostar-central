@@ -44,9 +44,7 @@
                     <div class="content">
 
                         {% if request.user.is_authenticated %}
-                            <div id="copy-message-{{ data.uid }}"></div>
-                            <a class="copy-data ui right floated label" data-uid="{{ data.uid }}"
-                               copy-url="{% url 'data_copy' %}">
+                            <a class="copy-data ui right floated label" data-uid="{{ data.uid }}" copy-url="{% url 'data_copy' %}">
                                 <i class="copy icon"></i>Copy
                             </a>
                         {% endif %}
@@ -62,6 +60,7 @@
                             </div>
                         </div>
                         <div class="meta">{{ data.summary|safe }}</div>
+                        <div id="copy-message-{{ data.uid }}"></div>
                     </div>
                 </div>
             {% empty %}
@@ -83,7 +82,7 @@
                     </div>
                     <div class="content">
                         {% if request.user.is_authenticated %}
-                            <div id="copy-message-{{ recipe.uid }}"></div>
+
                             <a class="copy-data ui right floated label" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
                                 <i class="copy icon"></i>Copy
                             </a>
@@ -92,6 +91,7 @@
                             <i class="setting icon"></i> {{ recipe.name }}
                         </a>
                         <div class="description">{{ recipe.summary|markdown|safe }}</div>
+                        <div id="copy-message-{{ recipe.uid }}"></div>
 
                     </div>
                 </div>
@@ -115,17 +115,21 @@
                     </div>
 
                     <div class="content">
-                {% if user.is_authenticated %}
-                    <div id="copy-message-{{ job.uid }}"></div>
+
+                {% if request.user.is_authenticated %}
+
                     <a class="copy-data ui right floated label" data-uid="{{ job.uid }}" copy-url="{% url 'job_copy' %}">
                         <i class="copy icon"></i>Copy
                     </a>
+
                 {% endif %}
+
                         <a class="subheader" href="{% url 'job_view' job.uid %}">
                             <i class="bar chart icon"></i>{{ job.name }}
                         </a>
 
                         <div class="meta">{% job_minutes job %}</div>
+                        <div id="copy-message-{{ job.uid }}"></div>
                     </div>
                 </div>
             {% empty %}

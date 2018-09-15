@@ -5,13 +5,16 @@ from mimetypes import guess_type
 
 import hjson
 from biostar import settings
+
 from biostar.accounts.models import Profile
 from django.contrib import messages
 from django.db.models import Q
 from django.template import Template, Context
 from django.template import loader
-from django.test.client import RequestFactory
 from django.utils.safestring import mark_safe
+from django.contrib.messages.storage import fallback
+from django.test import RequestFactory
+
 
 from . import util
 from .const import *
@@ -29,6 +32,25 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
+def fake_request(url="/", data={}, user="", method="POST"):
+    "Make a fake request; defaults to POST."
+
+    methods = {"POST": RequestFactory().post, "GET": RequestFactory().get}
+
+    assert method in methods
+
+    request = methods[method](url, data)
+
+    # Mimic messaging system
+    request.session = {}
+    messages = fallback.FallbackStorage(request=request)
+    request._messages = messages
+
+    request.user = user
+
+    return request
+
+
 def access_denied_message(user, access):
     """
     Generates the access denied message
@@ -44,6 +66,7 @@ def authorize_analysis(user, recipe):
         return Analysis.AUTHORIZED
 
     return Analysis.UNDER_REVIEW
+
 
 def generate_script(job):
     """
@@ -126,7 +149,7 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
     # but also to allow this function to be called outside a web view
     # where there are no requests.
 
-    request = request or RequestFactory()
+    request = request or fake_request()
 
     # The object does not exist.
     if not instance:
@@ -285,6 +308,16 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
+
+
+def delete_object(obj, request):
+
+    obj.deleted = not obj.deleted
+    obj.save()
+    msg = f"Deleted <b>{obj.name}</b>." if obj.deleted else f"Restored <b>{obj.name}</b>."
+    messages.success(request, mark_safe(msg))
+
+    return obj.deleted
 
 
 def guess_mimetype(fname):

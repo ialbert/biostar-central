@@ -48,7 +48,17 @@
                 <i class="copy icon"></i>Copy Results
             </a>
 
-            {% action_bar job edit_url='job_edit' %}
+            <a class="ui button tablet" href="{% url "job_edit" job.uid %}">
+                <i class="edit icon"></i> <span class="fitme">Edite Results</span>
+            </a>
+
+            <a class="ui button tablet" href="{% url "job_delete" job.uid %}">
+                {% if job.deleted %}
+                <i class="undo icon"></i> <span class="fitme">Restore</span>
+                {% else %}
+                <i class="trash icon"></i> <span class="fitme">Delete</span>
+                {% endif %}
+            </a>
 
 
         </div>
