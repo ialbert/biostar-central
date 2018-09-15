@@ -495,7 +495,7 @@ def recipe_code_view(request, uid):
         if form.is_valid():
 
             template = form.cleaned_data.get('template').strip()
-            
+
             if template != recipe.template:
                 recipe.template = template
                 recipe.security = auth.authorize_analysis(user=user, recipe=recipe)

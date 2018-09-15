@@ -21,39 +21,42 @@
      </div>
 
 {% else %}
+<div class="ui eleven secondary stackable item menu">
 
-    <a class="ui basic button" href="{% url 'post_list' %}?active=latest">
+    <a class="ui item" href="{% url 'post_list' %}?active=latest">
         LATEST
     </a>
-    <a class="ui basic button" href="{% url 'post_list' %}?active=open">
+    <a class="ui item" href="{% url 'post_list' %}?active=open">
         OPEN
     </a>
-    <a class="ui basic button" href="{% url 'post_list' %}?topic=rna-seq">
+    <a class="ui item" href="{% url 'post_list' %}?topic=rna-seq">
         RNA-SEQ
     </a>
-    <a class="ui basic button" href="{% url 'post_list' %}?topic=chip-seq">
+    <a class="ui item" href="{% url 'post_list' %}?topic=chip-seq">
         CHIP-SEQ
     </a>
-    <a class="ui basic button" href="{% url 'post_list' %}?topic=snp">
+    <a class="ui item" href="{% url 'post_list' %}?topic=snp">
         SNP
     </a>
-    <a class="ui basic button" href="{% url 'post_list' %}?topic=assembly">
+    <a class="ui item" href="{% url 'post_list' %}?topic=assembly">
         ASSEMBLY
     </a>
-    <a class="ui basic button" href="{% url 'post_list' %}?active=tutorials">
+    <a class="ui item" href="{% url 'post_list' %}?active=tutorials">
         TUTORIALS
     </a>
-    <a class="ui basic button" href="{% url 'post_list' %}?active=tools">
+    <a class="ui item" href="{% url 'post_list' %}?active=tools">
         TOOLS
     </a>
-    <a class="ui basic button" href="{% url 'post_list' %}?active=jobs">
+    <a class="ui item" href="{% url 'post_list' %}?active=jobs">
         JOBS
     </a>
-    <a class="ui basic button" href="{% url 'post_list' %}?active=forum">
+    <a class="ui item" href="{% url 'post_list' %}?active=forum">
         FORUM
     </a>
-    <a class="ui basic grey button" href="{% url 'tags_list' %}">
+    <a class="ui item" href="{% url 'tags_list' %}">
         ALL<i class="angle double right icon"></i>
     </a>
+
+</div>
 
 {% endif %}
