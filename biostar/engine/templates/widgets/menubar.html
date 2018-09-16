@@ -40,7 +40,7 @@
 
         <a class="item" href="{% url 'profile' %}">
             <i class="user icon"></i>
-            <span class="tablet">{{request.user.profile.name }}</span>
+            <span class="tablet">{{user.profile.name }}</span>
         </a>
 
             <a class="item" href="{% url 'logout' %}">
