@@ -314,8 +314,10 @@ def ajax_copy(request, modeltype, msg="Copied!", board=None):
     data_uid = request.GET.get("data_uid")
     instance = modeltype.objects.get_all(uid=data_uid).first()
 
-    entry = None if instance is None else Access.objects.filter(user=user, project=instance.project).first()
-    entry = entry or Access(access=Access.NO_ACCESS)
+    if instance is None:
+        entry = Access(access=Access.NO_ACCESS)
+    else:
+        entry = Access.objects.filter(user=user, project=instance.project).first()
 
     if entry.access >= Access.READ_ACCESS or instance.project.is_public:
         current = request.session.get(board, [])
