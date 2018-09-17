@@ -270,8 +270,6 @@ class RecipeCodeEdit(forms.ModelForm):
         template = "\n".join(template.splitlines())
         return template
 
-    def save(self):
-        return
 
 class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)
@@ -352,7 +350,6 @@ def access_forms(users, project, exclude=()):
 
 def clean_text(textbox):
     return shlex.quote(textbox)
-
 
 
 class RecipeDiff(forms.Form):
