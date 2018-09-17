@@ -38,6 +38,10 @@
 
         {%endif%}
 
+        <a class=" item" href="{% url 'recycle_bin' %}">
+            <i class="trash icon"></i>
+        </a>
+
         <a class="item" href="{% url 'profile' %}">
             <i class="user icon"></i>
             <span class="tablet">{{user.profile.name }}</span>

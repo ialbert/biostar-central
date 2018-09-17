@@ -49,7 +49,7 @@ ADMINS = [
 DEFAULT_FROM_EMAIL = f"{ADMINS[0][0]} <{ADMINS[0][1]}>"
 
 # Maximum amount of cumulative uploaded files a user is allowed, in mega-bytes.
-MAX_UPLOAD_SIZE = 300
+MAX_UPLOAD_SIZE = 0
 
 # These must be set remote hosts.
 SITE_ID = 1
@@ -70,7 +70,7 @@ ALLOW_SIGNUP = True
 ALLOW_SELF_MODERATE = True
 
 # Maximum size of each file upload in MB
-MAX_FILE_SIZE_MB = 100
+MAX_FILE_SIZE_MB = 300
 
 
 # Helper function for building absolute paths.
