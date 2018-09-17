@@ -49,7 +49,7 @@ ADMINS = [
 DEFAULT_FROM_EMAIL = f"{ADMINS[0][0]} <{ADMINS[0][1]}>"
 
 # Maximum amount of cumulative uploaded files a user is allowed, in mega-bytes.
-MAX_UPLOAD_SIZE = 0
+MAX_UPLOAD_SIZE = 300
 
 # These must be set remote hosts.
 SITE_ID = 1
