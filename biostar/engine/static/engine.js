@@ -46,7 +46,7 @@ function pop_over(elem, msg, cls) {
     var tag = $(text).insertAfter(elem)
     tag.addClass('ui message ' + cls)
     tag.text(msg)
-    tag.delay(1000).fadeOut(1000, function () {
+    tag.delay(1000).fadeOut(500, function () {
         $(this).remove()
     });
 }

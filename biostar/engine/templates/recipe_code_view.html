@@ -73,13 +73,11 @@
                 <i class="copy icon"></i>Copy Recipe
             </a>
 
-            {% action_bar recipe 'recipe_edit' %}
-
         </div>
     </div>
 
     <div class="ui segment inputcolor">
-
+  {% form_errors form %}
         <div class="ui basic segment">
 
             <form method="post" class="ui form" action="{% url "recipe_code_view" uid=recipe.uid %}">

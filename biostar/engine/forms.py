@@ -223,13 +223,6 @@ class DataEditForm(forms.ModelForm):
         model = Data
         fields = ['name', 'summary', 'text', 'sticky', "type"]
 
-    def clean_name(self):
-        cleaned_data = super(DataEditForm, self).clean()
-        name = cleaned_data.get('name')
-
-        if auth.check_data_name(name=name, data=self.instance, bool=True):
-            raise forms.ValidationError("Name already exists.")
-        return name
 
     def clean_file(self):
         cleaned_data = super(DataEditForm, self).clean()
@@ -252,9 +245,23 @@ class RecipeCodeEdit(forms.ModelForm):
 
     uid = forms.CharField(max_length=32, required=False)
 
+    def __init__(self, user, recipe, *args, **kwargs):
+        self.user = user
+        self.recipe = recipe
+
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = Analysis
         fields = ["template"]
+
+    def clean(self):
+
+        # Check if the user is a manager or has write access before making changes.
+        entry = auth.check_obj_access(user=self.user, instance=self.recipe, access=Access.WRITE_ACCESS,
+                                      login_required=True, role=Profile.MANAGER)
+        if not entry:
+            raise forms.ValidationError("You need write access to change the code.")
 
     # Turn all input into Unix line ending.
     def clean_template(self):
@@ -262,6 +269,7 @@ class RecipeCodeEdit(forms.ModelForm):
         template = cleaned_data.get('template')
         template = "\n".join(template.splitlines())
         return template
+
 
 class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)
@@ -342,7 +350,6 @@ def access_forms(users, project, exclude=()):
 
 def clean_text(textbox):
     return shlex.quote(textbox)
-
 
 
 class RecipeDiff(forms.Form):

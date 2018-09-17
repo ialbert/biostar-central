@@ -20,7 +20,7 @@ class object_access:
     """
 
     def __init__(self, type, access=models.Access.WRITE_ACCESS, url='', role=None,
-                 login_required=False):
+                 login_required=False, show_deleted=True):
 
         # The object that will be checked for permission.
         self.type = type
@@ -36,6 +36,9 @@ class object_access:
 
         # Required role of user. Given precedent over access
         self.role = role
+
+        # Allow to show deleted objects in the view
+        self.show_deleted = show_deleted
 
     def __call__(self, function, *args, **kwargs):
         """
@@ -58,14 +61,16 @@ class object_access:
             # Check for access to the object.
             allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=self.access,
                                                  login_required=self.login_required, role=self.role)
+            if self.url and uid:
+                target = reverse(self.url, request=request, kwargs=dict(uid=uid))
+            else:
+                target = reverse('project_list', request=request)
+
             # Access check did not pass, redirect.
             if not allow_access:
-
-                if self.url and uid:
-                    target = reverse(self.url, request=request, kwargs=dict(uid=uid))
-                else:
-                    target = reverse('project_list', request=request)
-
+                return redirect(target)
+            elif not self.show_deleted and instance.deleted:
+                messages.error(request, "Can not preform this action while object is in the recycle bin.")
                 return redirect(target)
 
             # Return the wrapped function.

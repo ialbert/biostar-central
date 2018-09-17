@@ -116,10 +116,17 @@ class Project(models.Model):
         self.uid_is_set()
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
-
     def get_data_dir(self):
         "Match consistency of data dir calls"
         return self.get_project_dir()
+
+    @property
+    def is_public(self):
+        return self.privacy == self.PUBLIC
+
+    @property
+    def is_private(self):
+        return self.privacy == self.PRIVATE
 
     @property
     def project(self):
@@ -152,7 +159,6 @@ class Access(models.Model):
 
     def save(self, *args, **kwargs):
         super(Access, self).save(*args, **kwargs)
-
 
 
 @receiver(post_save, sender=Project)

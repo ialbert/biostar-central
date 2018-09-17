@@ -10,26 +10,30 @@ import biostar.forum.urls as forum_urls
 import biostar.message.urls as message_urls
 
 
-ACCOUNTS = url(r'^accounts/', include(accounts_urls))
-ADMIN = url(r'^django/admin/', admin.site.urls, name='django_admin')
+if settings.ENGINE_AS_ROOT:
+    engine_url_pattern = r'^'
+    forum_url_pattern = r'^forum/'
+else:
+    engine_url_pattern = r'^projects/'
+    forum_url_pattern = r'^'
 
 
 # Default url patters for the engine.
 urlpatterns = [
 
     # The engine handler.
-    url(settings.ENGINE_ROOT_URLPATTERN, include(engine_urls)),
+    url(engine_url_pattern, include(engine_urls)),
 
     # The django generated admin site.
-    ADMIN,
+    url(r'^django/admin/', admin.site.urls, name='django_admin'),
 
-    ACCOUNTS,
+    url(r'^accounts/', include(accounts_urls)),
 
     # Forum urls
-    url(settings.FORUM_ROOT_URLPATTERN, include(forum_urls)),
+    url(forum_url_pattern, include(forum_urls)),
 
     # Message urls
-    url(settings.MESSAGE_ROOT_URL_PATTERN, include(message_urls)),
+    url(r'^message/', include(message_urls)),
 
 ]
 
@@ -39,9 +43,10 @@ if settings.ONLY_FORUM_URLS:
 
     # Replace the engine handler with the forums
     urlpatterns = [
-                    url(settings.FORUM_ROOT_URLPATTERN, include(forum_urls)),
-                    ADMIN, ACCOUNTS,
-                    url(settings.MESSAGE_ROOT_URL_PATTERN, include(message_urls))
+                    url(r'^$', include(forum_urls)),
+                    url(r'^django/admin/', admin.site.urls, name='django_admin'),
+                    url(r'^accounts/', include(accounts_urls)),
+                    url(r'^message/', include(message_urls))
                     ]
 
 if settings.DEBUG:

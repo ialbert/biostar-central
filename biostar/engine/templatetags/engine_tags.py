@@ -91,28 +91,10 @@ def get_qiime2view_link(file_serve_url):
     return qiime_link
 
 
-@register.inclusion_tag('widgets/action_bar.html', takes_context=True)
-def action_bar(context, instance, edit_url):
-    request = context["request"]
-    edit_url = reverse(edit_url, request=request, kwargs=dict(uid=instance.uid))
-
-    if isinstance(instance, Job):
-        obj_type, obj = "job", Job
-    elif isinstance(instance, Data):
-        obj_type, obj = "data", Data
-    elif isinstance(instance, Analysis):
-        obj_type, obj = "recipe", Analysis
-    else:
-        obj_type, obj = None, None
-
-    action_url = reverse("toggle_state", request=request, kwargs=dict(uid=instance.uid, obj_type=obj_type))
-    return dict(instance=instance, edit_url=edit_url, user=context["user"],
-                action_url=action_url)
-
-
 @register.inclusion_tag('widgets/list_view.html', takes_context=True)
 def list_view(context, projects=None, data_list=None, recipe_list=None, job_list=None):
     request = context["request"]
+
     return dict(projects=projects, data_list=data_list, recipe_list=recipe_list,
                 job_list=job_list, request=request)
 
@@ -421,13 +403,4 @@ def markdown(text):
 def menubar(context, request=None, with_search=True):
     user = context.request.user
 
-    forum_enabaled = context["forum_enabaled"]
-
-    # The home button leads to the forum.
-    if forum_enabaled and (settings.INDEX_ROOT_URLPATTERN == settings.FORUM_ROOT_URLPATTERN):
-        index_url = reverse("post_list")
-    else:
-        index_url = reverse("index")
-
-    return dict(user=user, request=request, enable_forum=settings.ENABLE_FORUM, index_url=index_url,
-                with_search=with_search)
+    return dict(user=user, request=request, enable_forum=settings.ENABLE_FORUM, with_search=with_search)

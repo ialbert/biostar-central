@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^data/upload/(?P<uid>[-\w]+)/$', views.data_upload, name='data_upload'),
     url(r'^data/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.data_serve, name='data_serve'),
     url(r'^data/paste/(?P<uid>[-\w]+)/$', views.data_paste, name='data_paste'),
+    url(r'^data/delete/(?P<uid>[-\w]+)/$', views.data_delete, name='data_delete'),
 
     # Recipes
     url(r'^recipe/list/(?P<uid>[-\w]+)/$', views.recipe_list, name='recipe_list'),
@@ -37,10 +38,10 @@ urlpatterns = [
     url(r'^recipe/code/edit/(?P<uid>[-\w]+)/$', views.recipe_code_edit, name='recipe_code_edit'),
     url(r'^recipe/diff/(?P<uid>[-\w]+)/$', views.recipe_diff, name='recipe_diff'),
     url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
+    url(r'^recipe/delete/(?P<uid>[-\w]+)/$', views.recipe_delete, name='recipe_delete'),
 
     # Actions
     url(r'^action/clear/(?P<uid>[-\w]+)/$', views.clear_clipboard, name='clear_clipboard'),
-    url(r'^action/toggle/(?P<uid>[-\w]+)/(?P<obj_type>[-\w]+)/$', views.object_state_toggle, name='toggle_state'),
     url(r'^action/moderate/$', views.recipe_mod, name='recipe_mod'),
     url(r'^action/subscribe/(?P<uid>[-\w]+)/$', views.discussion_subs, name='discussion_subs'),
 
@@ -49,6 +50,7 @@ urlpatterns = [
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
     url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_serve, name='job_serve'),
+    url(r'^job/delete/(?P<uid>[-\w]+)/$', views.job_delete, name='job_delete'),
 
     # Discussions
     url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),
