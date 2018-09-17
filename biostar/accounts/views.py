@@ -234,16 +234,6 @@ def email_verify_account(request, uidb64, token):
     return redirect("/")
 
 
-def signup_not_valid(request):
-
-    msg = f"""Signing in with Google is not allowed since you have an existing account. 
-        <a href={reverse("password_reset")}><i class="info icon"></i> Forgot you password? </a> Reset it to log in.
-    """
-
-    messages.warning(request, msg)
-    return redirect("/")
-
-
 def external_login(request):
 
     payload = request.GET.get()
