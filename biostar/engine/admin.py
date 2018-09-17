@@ -11,6 +11,10 @@ class AccessAdmin(admin.ModelAdmin):
         'project',
     )
 
+    readonly_fields = (
+        'user',
+    )
+
     pass
 
 @admin.register(Job)
