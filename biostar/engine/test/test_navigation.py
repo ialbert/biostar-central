@@ -80,7 +80,6 @@ class SiteNavigation(TestCase):
             reverse('signup'),
             reverse("recycle_bin"),
             reverse('recipe_mod'),
-            reverse("toggle_state", kwargs=dict(uid=self.job.uid, obj_type="job"))
         ]
 
         self.visit_urls(urls, [302, 200])
