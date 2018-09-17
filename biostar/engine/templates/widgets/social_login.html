@@ -8,7 +8,7 @@
         <div class="ui segment socialbox">
 
             <div class="ui header logintext">
-                {% if is_login %}<i class="angle double right icon"></i>Quick Login
+                <i class="angle double right icon"></i>Social Login
                 {% else %}<i class="add user icon"></i>Social Signup
                 {% endif %}
             </div>
@@ -18,17 +18,13 @@
                     to login.</div>
 
     <div class="ui list">
-            <div class="header">
-                {% if is_login %}Click the name of a provider to log in.
-                {% else %} Click the name of a provider to sign up.
-                {% endif %}
-            </div>
 
             {% for provider in social_login.iterator %}
-
-            <a class="item" href="{% provider_login_url provider.provider %}" style="font-size:20">
-                <i class="{{provider.name|lower}} large icon"></i>{{provider.name|title}}</a>
+                <a class="item" href="{% provider_login_url provider.provider %}">
+                    <i class="{{provider.name|lower}} large icon"></i>{{provider.name|title}}
+                </a>
             {% endfor %}
+
     </div>
 
         <div>
