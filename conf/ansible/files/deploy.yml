@@ -1,4 +1,4 @@
-- name: Create a backup file
+- name: Create a backup
   shell: "server_backup.sh"
   args:
     executable: /bin/bash
