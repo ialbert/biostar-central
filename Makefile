@@ -39,11 +39,13 @@ hard_reset: full_delete init
 loaddata:
 	python manage.py loaddata $(DUMP_FILE)
 
-dumpdata:
+backup:
 	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > $(DUMP_FILE)
 	cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
 	# Produce a datadump count as a reminder.
 	@ls -1 export/database/*.json | wc -l
+
+dumpdata: backup
 
 uwsgi:
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
