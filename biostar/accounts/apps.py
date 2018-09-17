@@ -22,10 +22,9 @@ def init_social(sender, **kwargs):
 
     from allauth.socialaccount.models import SocialApp
     from allauth.socialaccount.providers.google.provider import GoogleProvider
-    from allauth.socialaccount.providers import registry
     from django.contrib.sites.models import Site
 
-    provider = registry.by_id(GoogleProvider.id)
+    provider = GoogleProvider
     name = "google"
 
     client_id = settings.CLIENT_ID
@@ -58,7 +57,7 @@ def init_users(sender, **kwargs):
             user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
             user.save()
             text = "Local user started with the website"
-            Profile.objects.filter(user__pk=user.pk).update(location="Earth",
+            Profile.objects.filter(user__pk=user.pk).update(location="State College",
                                                             text=text,
                                                             html=text)
             logger.info(f"Created admin user: {user.email}")
