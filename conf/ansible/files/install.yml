@@ -84,3 +84,4 @@
   with_items:
     - server_migrate.sh
     - server_reset.sh
+    - server_backup.sh
