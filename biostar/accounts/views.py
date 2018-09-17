@@ -143,7 +143,7 @@ def user_signup(request):
         form = forms.SignUpWithCaptcha(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user,  backend='django.contrib.auth.backends.ModelBackend')
+            login(request, user,  backend='allauth.account.auth_backends.AuthenticationBackend')
             Profile.objects.filter(user=user).update(last_login=now())
             messages.success(request, "Login successful!")
             msg = mark_safe("Signup successful!")
@@ -191,7 +191,7 @@ def user_login(request):
             message, valid_user = check_user(email=email, password=password)
 
             if valid_user:
-                login(request, user,  backend='django.contrib.auth.backends.ModelBackend')
+                login(request, user,  backend='allauth.account.auth_backends.AuthenticationBackend')
                 Profile.objects.filter(user=user).update(last_login=now())
                 messages.success(request, "Login successful!")
                 return redirect("/")
@@ -226,7 +226,7 @@ def email_verify_account(request, uidb64, token):
 
     if user and account_verification_token.check_token(user, token):
         Profile.objects.filter(user=user).update(email_verified=True)
-        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        login(request, user, backend='allauth.account.auth_backends.AuthenticationBackend')
         messages.success(request, "Email verified!")
         return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
 
@@ -246,12 +246,9 @@ def signup_not_valid(request):
 
 def external_login(request):
 
-
-    payload =  request.GET.get()
-
+    payload = request.GET.get()
 
     return
-
 
 
 def password_reset(request):
