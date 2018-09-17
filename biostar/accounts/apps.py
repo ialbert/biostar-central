@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger('engine')
 
+
 class AccountsConfig(AppConfig):
     name = 'biostar.accounts'
 
@@ -17,31 +18,30 @@ class AccountsConfig(AppConfig):
 
 
 def init_social(sender, **kwargs):
-    """Initialize social account apps."""
+    """Initialize social account login."""
 
-
-    #TODO: need to add the site
     from allauth.socialaccount.models import SocialApp
-    from allauth.socialaccount.providers import google
+    from allauth.socialaccount.providers.google.provider import GoogleProvider
+    from allauth.socialaccount.providers import registry
     from django.contrib.sites.models import Site
 
-    provider = google
+    provider = registry.by_id(GoogleProvider.id)
     name = "google"
 
     client_id = settings.CLIENT_ID
     client_secret = settings.CLIENT_SECRET
-
     site = Site.objects.filter(domain=settings.SITE_DOMAIN)
 
-    social_app = SocialApp.objects.filter(provider=provider, client_id=client_id,
+    social_app = SocialApp.objects.filter(provider=provider.id, client_id=client_id,
                                           secret=client_secret, sites__in=site)
+
     if social_app.exists():
         return
 
-    social_app = SocialApp.objects.create(provider=provider, client_id=client_id, name=name,
+    social_app = SocialApp.objects.create(provider=provider.id, client_id=client_id, name=name,
                                           secret=client_secret)
     social_app.sites.add(site.first())
-    1/0
+    social_app.save()
 
 
 def init_users(sender, **kwargs):
