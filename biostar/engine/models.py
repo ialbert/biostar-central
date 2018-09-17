@@ -157,6 +157,9 @@ class Access(models.Model):
     access = models.IntegerField(default=READ_ACCESS, choices=ACCESS_CHOICES, db_index=True)
     date = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.user} on {self.project.name}"
+
     def save(self, *args, **kwargs):
         super(Access, self).save(*args, **kwargs)
 

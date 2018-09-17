@@ -1,3 +1,9 @@
+- name: Create a backup
+  shell: "./server_backup.sh"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+
 - name: Update the biostar-engine
   git:
     repo: "{{ engine_git }}"

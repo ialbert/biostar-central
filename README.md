@@ -148,6 +148,10 @@ Run all tests:
 
     make test
 
+Back up the data
+
+    make backup
+
 ## Deployment
 
 The site is built with Django therefore the official Django documentation applies to maintaining and deploying the site:
