@@ -63,6 +63,11 @@ HTTP_PORT = ':8000'
 FTP_HOST = "localhost"
 FTP_PORT = 8021
 
+# Client ID and secret used for localhost social logins.
+CLIENT_ID = "1077340834026-batlaahlt945s5rcllgn35hj8auh08mf.apps.googleusercontent.com"
+CLIENT_SECRET = "KdiE49f52LZX6JSshGoR6OPX"
+
+
 # Should the site allow signup.
 ALLOW_SIGNUP = True
 

@@ -12,7 +12,36 @@ class AccountsConfig(AppConfig):
         # Triggered upon app initialization.
         post_migrate.connect(init_site, sender=self)
         post_migrate.connect(init_users, sender=self)
+        post_migrate.connect(init_social, sender=self)
         pass
+
+
+def init_social(sender, **kwargs):
+    """Initialize social account apps."""
+
+
+    #TODO: need to add the site
+    from allauth.socialaccount.models import SocialApp
+    from allauth.socialaccount.providers import google
+    from django.contrib.sites.models import Site
+
+    provider = google
+    name = "google"
+
+    client_id = settings.CLIENT_ID
+    client_secret = settings.CLIENT_SECRET
+
+    site = Site.objects.filter(domain=settings.SITE_DOMAIN)
+
+    social_app = SocialApp.objects.filter(provider=provider, client_id=client_id,
+                                          secret=client_secret, sites__in=site)
+    if social_app.exists():
+        return
+
+    social_app = SocialApp.objects.create(provider=provider, client_id=client_id, name=name,
+                                          secret=client_secret)
+    social_app.sites.add(site.first())
+    1/0
 
 
 def init_users(sender, **kwargs):
@@ -29,7 +58,7 @@ def init_users(sender, **kwargs):
             user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
             user.save()
             text = "Local user started with the website"
-            Profile.objects.filter(user__pk=user.pk).update(location="State College",
+            Profile.objects.filter(user__pk=user.pk).update(location="Earth",
                                                             text=text,
                                                             html=text)
             logger.info(f"Created admin user: {user.email}")
