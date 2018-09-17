@@ -243,6 +243,17 @@ def signup_not_valid(request):
     messages.warning(request, msg)
     return redirect("/")
 
+
+def external_login(request):
+
+
+    payload =  request.GET.get()
+
+
+    return
+
+
+
 def password_reset(request):
     context = dict()
 
