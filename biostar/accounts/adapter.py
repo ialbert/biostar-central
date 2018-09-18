@@ -1,5 +1,6 @@
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from .models import User
+from biostar.utils.shortcuts import reverse
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
@@ -19,6 +20,4 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
         if user.exists():
             sociallogin.connect(request, user.first())
-
-
 

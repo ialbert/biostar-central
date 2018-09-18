@@ -24,22 +24,27 @@ def init_social(sender, **kwargs):
     from allauth.socialaccount.providers.google.provider import GoogleProvider
     from django.contrib.sites.models import Site
 
-    provider = GoogleProvider
-    name = "google"
+    # Map a name to a provider
+    provider_map = dict(google=GoogleProvider)
 
-    client_id = settings.CLIENT_ID
-    client_secret = settings.CLIENT_SECRET
-    site = Site.objects.filter(domain=settings.SITE_DOMAIN)
+    for client in settings.SOCIAL_CLIENT:
 
-    social_app = SocialApp.objects.filter(provider=provider.id, client_id=client_id,
-                                          secret=client_secret, sites__in=site)
-    if social_app.exists():
-        return
+        name = client[0]
+        client_id = client[1]
+        client_secret = client[2]
+        provider = provider_map.get(name.lower())
 
-    social_app = SocialApp.objects.create(provider=provider.id, client_id=client_id, name=name,
-                                          secret=client_secret)
-    social_app.sites.add(site.first())
-    social_app.save()
+        site = Site.objects.filter(domain=settings.SITE_DOMAIN)
+
+        social_app = SocialApp.objects.filter(provider=provider.id, client_id=client_id,
+                                              secret=client_secret, sites__in=site)
+        if social_app.exists():
+            return
+
+        social_app = SocialApp.objects.create(provider=provider.id, client_id=client_id, name=name,
+                                              secret=client_secret)
+        social_app.sites.add(site.first())
+        social_app.save()
 
 
 def init_users(sender, **kwargs):
