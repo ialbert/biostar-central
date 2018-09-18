@@ -306,6 +306,22 @@ pre {
 
 }
 
+
+.headerimage {
+    width: 200px!important;
+    padding: 0!important;
+    margin: 0!important;
+    padding-bottom: 5px!important;
+}
+
+
+.mainmenubar {
+    width: 900px !important;
+    padding: 0 !important;
+    margin-left: 0 !important;
+    margin-top: 0!important;
+}
+
 @media all and (max-width: 1024px) {
 
     .fitme {
@@ -320,6 +336,12 @@ pre {
       display: none!important;
   }
 
+    .mainmenubar {
+    width: auto!important;
+    padding: 0 !important;
+    margin-left: 0 !important;
+}
+
 }
 
 @media all and (max-width: 500px) {
@@ -327,5 +349,11 @@ pre {
   .phone {
       display: none!important;
   }
+
+  .mainmenubar {
+    width: auto!important;
+    padding: 0 !important;
+    margin-left: 0 !important;
+}
 
 }

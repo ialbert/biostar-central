@@ -382,6 +382,8 @@ class Post(models.Model):
 
     @property
     def accepted_class(self):
+        if self.status == Post.DELETED:
+            return "deleted"
         return "accepted" if (self.has_accepted and not self.is_toplevel) else ""
 
     @property

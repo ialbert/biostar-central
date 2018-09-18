@@ -45,24 +45,25 @@
     <div class="ui center aligned header">
         {% block title %}
             {% include "forum_header.html" %}
+<div class="ui right floated basic mainmenubar segment">
+            {% menubar request=request with_search=False %}
+</div>
+
         {% endblock %}
     </div>
 
 
     {% block menu %}
 
-        {% menubar request=request with_search=False %}
+
 
     {% endblock %}
 
 
 
 {% show_messages messages %}
-        <div class="ui basic center aligned tags segment">
-            {% tags_banner %}
-        </div>
 
-        <div class="ui top attached tabular small menu">
+        <div class="ui top attached tabular tiny menu">
 
             <a class="ui {{community}} item tablet" href="{% url 'community_list' %}">
                 <i class="world icon"></i>Community

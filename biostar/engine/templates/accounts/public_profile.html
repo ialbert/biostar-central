@@ -28,7 +28,7 @@
 
         <a class="ui orange moderate-user profile label" data-value="{{user.profile.uid}}" mod-url="{% url 'user_moderate' user.profile.uid %}">
             Moderate</a>
-             <div class="ui aligned basic large segment" style="margin:0;padding:0;">
+             <div class="ui left aligned basic large segment" style="margin:0;padding:0;">
             <div id="mod-container-{{user.profile.uid}}"></div>
              </div>
 
@@ -117,11 +117,11 @@
                 </a>
 
                 {% if user.profile.notify %}
-                    <a class="ui red profile label" href="{% url 'toggle_notify' %}">
+                    <a class="ui profile label" href="{% url 'toggle_notify' %}">
                         <i class="mail icon"></i>Disable Recipe Emails
                     </a>
                     {% else %}
-                    <a class="ui green profile label" href="{% url 'toggle_notify' %}">
+                    <a class="ui profile label" href="{% url 'toggle_notify' %}">
                         <i class="mail icon"></i>Enable Recipe Emails
                     </a>
                 {% endif %}

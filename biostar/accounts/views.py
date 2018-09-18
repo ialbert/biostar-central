@@ -176,7 +176,7 @@ def impersonate_user(request):
     messages.success(request, "Login successful!")
 
     logger.info(f"""uid={request.user.profile.uid} impersonated 
-                    uid={target.profile.uid}.""")
+                    uid={profile.uid}.""")
 
     return redirect("/")
 
