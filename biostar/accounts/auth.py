@@ -67,7 +67,7 @@ def create_user_from_json(json_dict):
     name = json_dict.get("name", "")
     user = User.objects.filter(email=email)
     # Given user-id is going to be loaded as a uid
-    uid = json_dict.get("id", util.get_uuid(16))
+    uid = json_dict.get("id", util.get_uuid(8))
 
     # Create a user if email is unique
     if not user:

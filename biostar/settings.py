@@ -15,6 +15,9 @@ DEBUG = True
 # Change this in production!
 SECRET_KEY = 'secret-key'
 
+# Private key used to validate external logins
+LOGIN_PRIVATE_KEY = "private-key"
+
 # The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 

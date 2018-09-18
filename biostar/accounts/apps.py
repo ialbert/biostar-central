@@ -18,7 +18,7 @@ class AccountsConfig(AppConfig):
 
 
 def init_social(sender, **kwargs):
-    """Initialize social account login."""
+    """Initialize social account providers."""
 
     from allauth.socialaccount.models import SocialApp
     from allauth.socialaccount.providers.google.provider import GoogleProvider
@@ -33,7 +33,6 @@ def init_social(sender, **kwargs):
 
     social_app = SocialApp.objects.filter(provider=provider.id, client_id=client_id,
                                           secret=client_secret, sites__in=site)
-
     if social_app.exists():
         return
 

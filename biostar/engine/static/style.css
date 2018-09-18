@@ -296,6 +296,10 @@ pre {
 
 }
 
+.phone {
+
+}
+
 @media all and (max-width: 1024px) {
 
     .fitme {
@@ -304,9 +308,17 @@ pre {
     }
 }
 
-@media all and (max-width: 768px) {
+@media all and (max-width: 999px) {
 
   .tablet {
+      display: none!important;
+  }
+
+}
+
+@media all and (max-width: 500px) {
+
+  .phone {
       display: none!important;
   }
 
