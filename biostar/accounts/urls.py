@@ -2,7 +2,6 @@
 from django.conf.urls import url, include
 from django.conf import settings
 from allauth.socialaccount.providers.google import urls as google_urls
-from allauth.socialaccount.urls import urlpatterns as extra_urlpatterns
 from . import views
 
 urlpatterns = [
@@ -11,7 +10,7 @@ urlpatterns = [
     #url('^', include('django.contrib.auth.urls')),
 
     # Used for 3rd party logins.
-    url("^external/", include(google_urls)),
+    url("^social/", include(google_urls)),
 
     url(r'^password/reset/$', views.password_reset, name='password_reset'),
     url(r'^password/reset/done/$', views.password_reset_done, name='password_reset_done'),
@@ -32,7 +31,10 @@ urlpatterns = [
     url(r'^profile/(?P<uid>[-\w]+)/$', views.public_profile, name="public_profile"),
     url(r'^edit/profile/$', views.edit_profile, name='edit_profile'),
     url(r'^toggle/notify/$', views.toggle_notify, name='toggle_notify'),
-    url(r'^logout/$', views.user_logout, name="logout")
+    url(r'^logout/$', views.user_logout, name="logout"),
+
+    # External url login
+    url(r'^external/$', views.external_login, name="external")
 
 ]
 
@@ -41,5 +43,3 @@ if settings.ALLOW_SELF_MODERATE:
     urlpatterns += [url(r'^toggle/moderate/$', views.toggle_moderate, name="toggle_moderate")]
 
 
-for pattern in extra_urlpatterns:
-    urlpatterns += [url(pattern.pattern, views.signup_not_valid, name=pattern.name)]

@@ -3,7 +3,6 @@ import uuid, logging
 from django.contrib import messages
 from ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.contrib.auth import views as auth_views
 from django.utils.safestring import mark_safe
 from django.conf import settings
@@ -11,13 +10,15 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import force_text, force_bytes
 from django.utils.http import urlsafe_base64_decode
-from allauth.socialaccount.models import SocialApp
+from django.core import signing
 
+from biostar.utils.shortcuts import reverse
+from allauth.socialaccount.models import SocialApp
 from .tokens import account_verification_token
 from . import forms
 from .models import User, Profile
 from .auth import check_user, send_verification_email
-from .util import now
+from .util import now, get_uuid
 from .const import *
 
 logger = logging.getLogger('engine')
@@ -143,7 +144,7 @@ def user_signup(request):
         form = forms.SignUpWithCaptcha(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user,  backend='django.contrib.auth.backends.ModelBackend')
+            login(request, user,  backend="django.contrib.auth.backends.ModelBackend")
             Profile.objects.filter(user=user).update(last_login=now())
             messages.success(request, "Login successful!")
             msg = mark_safe("Signup successful!")
@@ -191,7 +192,7 @@ def user_login(request):
             message, valid_user = check_user(email=email, password=password)
 
             if valid_user:
-                login(request, user,  backend='django.contrib.auth.backends.ModelBackend')
+                login(request, user,  backend="django.contrib.auth.backends.ModelBackend")
                 Profile.objects.filter(user=user).update(last_login=now())
                 messages.success(request, "Login successful!")
                 return redirect("/")
@@ -226,7 +227,7 @@ def email_verify_account(request, uidb64, token):
 
     if user and account_verification_token.check_token(user, token):
         Profile.objects.filter(user=user).update(email_verified=True)
-        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         messages.success(request, "Email verified!")
         return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
 
@@ -234,14 +235,33 @@ def email_verify_account(request, uidb64, token):
     return redirect("/")
 
 
-def signup_not_valid(request):
+def external_login(request):
 
-    msg = f"""Signing in with Google is not allowed since you have an existing account. 
-        <a href={reverse("password_reset")}><i class="info icon"></i> Forgot you password? </a> Reset it to log in.
-    """
+    payload = request.GET.get("payload", "")
 
-    messages.warning(request, msg)
-    return redirect("/")
+    try:
+        signer = signing.Signer(settings.LOGIN_PRIVATE_KEY)
+        user_email = signer.unsign(payload)
+        user = User.objects.filter(email=user_email).first()
+
+        if not user:
+            name = user_email.split("@")[0]
+            user = User.objects.create(email=user_email, first_name=name,
+                                       password=str(get_uuid(16)))
+            user.username = name.split()[0] + str(get_uuid(8))
+            user.save()
+            msg = f"Signed up, <a href={reverse('password_reset')}><b> Please reset your password.</b></a>"
+            messages.success(request, mark_safe(msg))
+
+        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+        messages.success(request, "Logged in!")
+        return redirect("/")
+
+    except Exception as exc:
+        print("Tampering detected!")
+
+    return
+
 
 def password_reset(request):
     context = dict()

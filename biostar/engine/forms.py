@@ -49,11 +49,13 @@ def check_upload_limit(file, user):
     projected = to_mb(file.size + currect_size)
     max_mb = user.profile.max_upload_size
 
+    allowed = (max_mb - to_mb(currect_size)) or 0
+
     if projected > max_mb:
         msg = f"<b>Over your {max_mb:0.0001f} MB total upload limit.</b> "
         msg = msg + f"""
                 File too large: currently <b>{to_mb(file.size):0.0001f} MB</b>
-                should be <b> < {(max_mb-to_mb(currect_size)):0.001f} MB</b>
+                should be <b> < {allowed:0.001f} MB</b>
                 """
         raise forms.ValidationError(mark_safe(msg))
 
@@ -165,7 +167,7 @@ class DataUploadForm(forms.ModelForm):
 
         return clean_file(fobj=cleaned_data.get('file'),
                           user=self.user,
-                          project=self.project)
+                          project=self.project, check_name=False)
 
     def clean_type(self):
         cleaned_data = super(DataUploadForm, self).clean()

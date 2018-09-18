@@ -69,7 +69,7 @@ class Profile(models.Model):
     twitter = models.CharField(default="", max_length=255, blank=True)
 
     # This field is used to select content for the user.
-    my_tags = models.CharField(default="", max_length=100)
+    my_tags = models.CharField(default="", max_length=100, blank=True)
 
     # Description provided by the user html.
     text = models.TextField(default="", null=True, blank=True)

@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger('engine')
 
+
 class AccountsConfig(AppConfig):
     name = 'biostar.accounts'
 
@@ -12,7 +13,33 @@ class AccountsConfig(AppConfig):
         # Triggered upon app initialization.
         post_migrate.connect(init_site, sender=self)
         post_migrate.connect(init_users, sender=self)
+        post_migrate.connect(init_social, sender=self)
         pass
+
+
+def init_social(sender, **kwargs):
+    """Initialize social account providers."""
+
+    from allauth.socialaccount.models import SocialApp
+    from allauth.socialaccount.providers.google.provider import GoogleProvider
+    from django.contrib.sites.models import Site
+
+    provider = GoogleProvider
+    name = "google"
+
+    client_id = settings.CLIENT_ID
+    client_secret = settings.CLIENT_SECRET
+    site = Site.objects.filter(domain=settings.SITE_DOMAIN)
+
+    social_app = SocialApp.objects.filter(provider=provider.id, client_id=client_id,
+                                          secret=client_secret, sites__in=site)
+    if social_app.exists():
+        return
+
+    social_app = SocialApp.objects.create(provider=provider.id, client_id=client_id, name=name,
+                                          secret=client_secret)
+    social_app.sites.add(site.first())
+    social_app.save()
 
 
 def init_users(sender, **kwargs):

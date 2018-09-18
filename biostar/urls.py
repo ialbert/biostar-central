@@ -24,13 +24,13 @@ urlpatterns = [
     # The engine handler.
     url(engine_url_pattern, include(engine_urls)),
 
+    # Forum urls
+    url(forum_url_pattern, include(forum_urls)),
+    
     # The django generated admin site.
     url(r'^django/admin/', admin.site.urls, name='django_admin'),
 
     url(r'^accounts/', include(accounts_urls)),
-
-    # Forum urls
-    url(forum_url_pattern, include(forum_urls)),
 
     # Message urls
     url(r'^message/', include(message_urls)),

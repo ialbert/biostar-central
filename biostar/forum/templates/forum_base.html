@@ -62,37 +62,38 @@
             {% tags_banner %}
         </div>
 
-        <div class="ui top attached tabular small stackable menu">
+        <div class="ui top attached tabular small menu">
 
-            <a class="ui {{community}} item" href="{% url 'community_list' %}">
+            <a class="ui {{community}} item tablet" href="{% url 'community_list' %}">
                 <i class="world icon"></i>Community
             </a>
             <a class="ui {{latest}} item" href="{% url 'post_list' %}?active=latest">
-                <i class="comment alternate icon"></i>Latest
+                <i class="comment alternate icon"></i><span class="tablet">Latest</span>
             </a>
-            <a class="ui {{message}} item" href="{% url 'inbox' %}">
+            <a class="ui {{message}} item tablet" href="{% url 'inbox' %}">
                 <i class="mail icon"></i>Messages
                 {% message_count request=request otype="message" as num_msgs %}
                 {% if num_msgs %}<div class="ui green mini circular label">{{num_msgs}}</div>{%endif%}
 
             </a>
             <a class="ui {{votes}} item" href="{% url 'post_list' %}?active=votes">
-                <i class="heart icon"></i>Votes
+                <i class="heart icon"></i> <span class="tablet">Votes</span>
             </a>
             <a class="ui {{myposts}} item" href="{% url 'post_list' %}?active=myposts">
-                <i class="comments icon"></i>My Posts
+                <i class="comments icon"></i> <span class="tablet">My Posts</span>
             </a>
             <a class="ui {{mytags}} item" href="{% url 'post_list' %}?active=mytags">
-                <i class="tags icon"></i>My Tags
+                <i class="tags icon"></i><span class="tablet">My Tags</span>
             </a>
             <a class="ui {{following}} item" href="{% url 'post_list' %}?active=following">
-                <i class="eye icon"></i>Following
+                <i class="eye icon"></i><span class="tablet">Following</span>
             </a>
             <a class="ui {{bookmarks}} item" href="{% url 'post_list' %}?active=bookmarks">
-                <i class="book icon"></i>Bookmarks
+                <i class="book icon"></i><span class="tablet">Bookmarks</span>
             </a>
             {% if extra_tab %}<a class="ui {{extra_tab}} item" href="#">
-                <i class="info circle icon"></i>{% if extra_tab_name %}{{ extra_tab_name|truncatechars:10 }}{%else%} Active{% endif %}</a>
+            <i class="info circle icon"></i><span class="tablet">{% if extra_tab_name %}{{ extra_tab_name|truncatechars:10 }}{%else%} Active{% endif %}</span>
+        </a>
             {% endif %}
 
         </div>

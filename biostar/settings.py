@@ -15,6 +15,9 @@ DEBUG = True
 # Change this in production!
 SECRET_KEY = 'secret-key'
 
+# Private key used to validate external logins
+LOGIN_PRIVATE_KEY = "private-key"
+
 # The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
@@ -63,6 +66,11 @@ HTTP_PORT = ':8000'
 FTP_HOST = "localhost"
 FTP_PORT = 8021
 
+# Client ID and secret used for localhost social logins.
+CLIENT_ID = "1077340834026-batlaahlt945s5rcllgn35hj8auh08mf.apps.googleusercontent.com"
+CLIENT_SECRET = "KdiE49f52LZX6JSshGoR6OPX"
+
+
 # Should the site allow signup.
 ALLOW_SIGNUP = True
 
@@ -70,7 +78,7 @@ ALLOW_SIGNUP = True
 ALLOW_SELF_MODERATE = True
 
 # Maximum size of each file upload in MB
-MAX_FILE_SIZE_MB = 100
+MAX_FILE_SIZE_MB = 300
 
 
 # Helper function for building absolute paths.
@@ -81,6 +89,7 @@ def join(*args):
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
+SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -145,6 +154,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",

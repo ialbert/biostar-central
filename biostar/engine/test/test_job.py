@@ -34,17 +34,6 @@ class JobViewTest(TestCase):
         self.job.save()
 
 
-    @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
-    def test_job_toggle(self):
-        "Test object_state_toggle using a job. "
-
-        url = reverse('toggle_state', kwargs=dict(uid=self.job.uid, obj_type='job'))
-
-        request = util.fake_request(url=url, data={}, user=self.owner)
-
-        response = views.object_state_toggle(request=request, uid=self.job.uid, obj_type="job")
-        self.process_response(response=response, data={}, save=True)
-
 
     @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
     def test_job_edit(self):
