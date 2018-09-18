@@ -256,6 +256,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 SOCIAL_CLIENTS = [
 
-    ("Google", "1077340834026-batlaahlt945s5rcllgn35hj8auh08mf.apps.googleusercontent.com", "KdiE49f52LZX6JSshGoR6OPX")
 
 ]

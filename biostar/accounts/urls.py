@@ -1,7 +1,6 @@
 
 from django.conf.urls import url, include
 from django.conf import settings
-from allauth.socialaccount.providers.google import urls as google_urls
 from . import views
 
 urlpatterns = [
@@ -10,7 +9,7 @@ urlpatterns = [
     #url('^', include('django.contrib.auth.urls')),
 
     # Used for 3rd party logins.
-    url("^social/", include(google_urls)),
+    url("^social/", include('allauth.urls')),
 
     url(r'^password/reset/$', views.password_reset, name='password_reset'),
     url(r'^password/reset/done/$', views.password_reset_done, name='password_reset_done'),

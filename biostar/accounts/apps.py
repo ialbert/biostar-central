@@ -30,6 +30,7 @@ def init_social(sender, **kwargs):
     for provider in registry.get_list():
         providers[provider.name.lower()] = provider
 
+
     # Create social apps as needed.
     for client in settings.SOCIAL_CLIENTS:
 
@@ -39,13 +40,14 @@ def init_social(sender, **kwargs):
 
         # If app exists we are done.
         if app.exists():
-            return
+            continue
 
         # Create this social app.
         logger.info(f"Creating social social app: {name}")
 
         # Identify the social app
         provider = providers.get(name.lower())
+
         if not provider:
             logger.error(f"Invalid provider name: {name}")
             continue
