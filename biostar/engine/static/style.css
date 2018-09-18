@@ -300,6 +300,12 @@ pre {
 
 }
 
+
+.profile{
+    margin-top:17 !important;
+
+}
+
 @media all and (max-width: 1024px) {
 
     .fitme {

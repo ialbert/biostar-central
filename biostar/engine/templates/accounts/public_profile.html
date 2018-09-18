@@ -26,22 +26,24 @@
 
         {% if can_moderate %}
 
-        <a class="ui large orange moderate-user label" style="margin-top:17;" data-value="{{user.profile.uid}}" mod-url="{% url 'user_moderate' user.profile.uid %}">
-            Moderate User</a>
-             <div class="ui left aligned basic large segment">
+        <a class="ui orange moderate-user profile label" data-value="{{user.profile.uid}}" mod-url="{% url 'user_moderate' user.profile.uid %}">
+            Moderate</a>
+             <div class="ui aligned basic large segment" style="margin:0;padding:0;">
             <div id="mod-container-{{user.profile.uid}}"></div>
              </div>
 
         {% endif %}
 
+
         {% if allow_self_moderate and user == request.user %}
             {% if user.profile.is_moderator %}
 
-            <a class="ui large red label" style="margin-top:17" href="{% url 'toggle_moderate' %}">
+            <a class="ui red profile label" href="{% url 'toggle_moderate' %}">
                 <i class="cancel icon"></i> Stop being moderator
             </a>
             {% else %}
-                        <a class="ui large green label" style="margin-top:17" href="{% url 'toggle_moderate' %}">
+
+            <a class="ui green profile label" href="{% url 'toggle_moderate' %}">
                 <i class="check icon"></i> Become a moderator
             </a>
 
@@ -49,10 +51,18 @@
         {% endif %}
 
 
-        {% if user == request.user and user.is_superuser %}
-            <a class="ui large blue label" style="margin-top:17" href="{% url 'site_admin' %}">
-                <i class="dashboard icon"></i> Site Admin
+            {% if user == request.user and user.is_superuser %}
+                <a class="ui blue profile label"  href="{% url 'site_admin' %}">
+                    <i class="dashboard icon"></i> Site Admin
+                </a>
+            {% endif %}
+
+        {% if request.user.is_superuser %}
+
+            <a class="ui profile label" href="{% url 'impersonate' %}?uid={{user.profile.uid}}">
+                <i class="address card icon"></i> Impersonate
             </a>
+
         {% endif %}
 
         </div>
@@ -91,36 +101,30 @@
             {% endif %}
 
 
-            <div class="item"> <b>Handler</b> : {{ user.username }}
+            <div class="item"> <b>Handle</b> : {{ user.username }}
             </div>
             </div>
 
 {%  if user == request.user %}
 
-             <div class="ui basic vertical segment">
 
-                 <a class="ui mini button" href="{% url 'edit_profile'%}">
+                 <a class="ui profile label" href="{% url 'edit_profile'%}">
                         <i class="write icon"></i>Edit profile
                     </a>
 
-                <a class="ui mini button" href="{% url 'recycle_bin' %}">
+                <a class="ui profile label" href="{% url 'recycle_bin' %}">
                     <i class="trash icon"></i>Recycle Bin
                 </a>
 
                 {% if user.profile.notify %}
-                    <a class="ui mini red button" href="{% url 'toggle_notify' %}">
+                    <a class="ui red profile label" href="{% url 'toggle_notify' %}">
                         <i class="mail icon"></i>Disable Recipe Emails
                     </a>
                     {% else %}
-                    <a class="ui mini green button" href="{% url 'toggle_notify' %}">
+                    <a class="ui green profile label" href="{% url 'toggle_notify' %}">
                         <i class="mail icon"></i>Enable Recipe Emails
                     </a>
                 {% endif %}
-
-                                  {% if not user.profile.email_verified %}
-                 <a class="ui mini blue button" href="{% url 'send_email_verify' %}">
-                 <i class="check icon"></i>Verify Email</a>
-                 {% endif %}
 
                  {% if user.profile.notify %}
                   <div class="ui vertical basic segment">
@@ -129,7 +133,6 @@
                  {% endif %}
 
 
-            </div>
 
         {% endif %}
         </div>

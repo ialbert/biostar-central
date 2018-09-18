@@ -10,7 +10,9 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import force_text, force_bytes
 from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.decorators import user_passes_test
 from django.core import signing
+
 
 from biostar.utils.shortcuts import reverse
 from allauth.socialaccount.models import SocialApp
@@ -157,6 +159,26 @@ def user_signup(request):
     context = dict(form=form, captcha_site_key=settings.RECAPTCHA_PUBLIC_KEY,
                    social_login=SocialApp.objects.all())
     return render(request, 'accounts/signup.html', context=context)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def impersonate_user(request):
+
+    target = request.GET.get("uid", "")
+    profile = Profile.objects.filter(uid=target).first()
+
+    if not profile:
+        messages.error(request, "User does not exists.")
+        return redirect("/")
+
+    user = profile.user
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    messages.success(request, "Login successful!")
+
+    logger.info(f"""uid={request.user.profile.uid} impersonated 
+                    uid={target.profile.uid}.""")
+
+    return redirect("/")
 
 
 def user_logout(request):
