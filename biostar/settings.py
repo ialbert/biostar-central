@@ -66,10 +66,6 @@ HTTP_PORT = ':8000'
 FTP_HOST = "localhost"
 FTP_PORT = 8021
 
-# List of social login clients tuples.
-# ( name, client_id, secret )
-SOCIAL_CLIENT = []
-
 # Should the site allow signup.
 ALLOW_SIGNUP = True
 
@@ -109,6 +105,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
 
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
@@ -253,3 +250,11 @@ LOGGER_NAME = "engine"
 
 # The email delivery engine.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# List of social login clients tuples.
+# ( name, client_id, secret )
+
+SOCIAL_CLIENTS = [
+
+
+]
