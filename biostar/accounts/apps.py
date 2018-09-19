@@ -1,7 +1,8 @@
-from django.db.models.signals import post_migrate
+import logging
+
 from django.apps import AppConfig
 from django.conf import settings
-import logging
+from django.db.models.signals import post_migrate
 
 logger = logging.getLogger('engine')
 
@@ -21,30 +22,43 @@ def init_social(sender, **kwargs):
     """Initialize social account providers."""
 
     from allauth.socialaccount.models import SocialApp
-    from allauth.socialaccount.providers.google.provider import GoogleProvider
+    from allauth.socialaccount.providers import registry
     from django.contrib.sites.models import Site
 
-    # Map a name to a provider
-    provider_map = dict(google=GoogleProvider)
+    # Populate the provider map based existing apps.
+    providers = dict()
+    for provider in registry.get_list():
+        providers[provider.name.lower()] = provider
 
-    for client in settings.SOCIAL_CLIENT:
 
-        name = client[0]
-        client_id = client[1]
-        client_secret = client[2]
-        provider = provider_map.get(name.lower())
+    # Create social apps as needed.
+    for client in settings.SOCIAL_CLIENTS:
 
-        site = Site.objects.filter(domain=settings.SITE_DOMAIN)
+        name, client_id, client_secret = client
 
-        social_app = SocialApp.objects.filter(provider=provider.id, client_id=client_id,
-                                              secret=client_secret, sites__in=site)
-        if social_app.exists():
-            return
+        app = SocialApp.objects.filter(client_id=client_id)
 
-        social_app = SocialApp.objects.create(provider=provider.id, client_id=client_id, name=name,
-                                              secret=client_secret)
-        social_app.sites.add(site.first())
-        social_app.save()
+        # If app exists we are done.
+        if app.exists():
+            continue
+
+        # Create this social app.
+        logger.info(f"Creating social social app: {name}")
+
+        # Identify the social app
+        provider = providers.get(name.lower())
+
+        if not provider:
+            logger.error(f"Invalid provider name: {name}")
+            continue
+
+        # Create the provider here.
+        site = Site.objects.filter(domain=settings.SITE_DOMAIN).first()
+
+        app = SocialApp.objects.create(provider=provider.id, client_id=client_id, name=name,
+                                       secret=client_secret)
+        app.sites.add(site)
+        app.save()
 
 
 def init_users(sender, **kwargs):
@@ -88,4 +102,3 @@ def init_site(sender, **kwargs):
     # Get the current site
     site = Site.objects.get(id=settings.SITE_ID)
     logger.info("site.name={}, site.domain={}".format(site.name, site.domain))
-
