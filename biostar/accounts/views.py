@@ -162,7 +162,10 @@ def user_signup(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def impersonate_user(request):
+def debug_user(request):
+    """
+    Allows superusers to log in as a regular user to troubleshoot problems.
+    """
 
     target = request.GET.get("uid", "")
     profile = Profile.objects.filter(uid=target).first()

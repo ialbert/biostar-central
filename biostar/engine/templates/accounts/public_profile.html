@@ -59,8 +59,8 @@
 
         {% if request.user.is_superuser %}
 
-            <a class="ui profile label" href="{% url 'impersonate' %}?uid={{user.profile.uid}}">
-                <i class="address card icon"></i> Impersonate
+            <a class="ui profile label" href="{% url 'debug_user' %}?uid={{user.profile.uid}}">
+                <i class="address card icon"></i> Log in as user
             </a>
 
         {% endif %}
@@ -178,6 +178,7 @@
 
 
             {% get_posts user=user request=request as posts %}
+
             {% pages objs=posts request=request  %}
 
             <div class="ui small relaxed divided list">
