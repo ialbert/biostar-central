@@ -30,7 +30,6 @@ def init_social(sender, **kwargs):
     for provider in registry.get_list():
         providers[provider.name.lower()] = provider
 
-
     # Create social apps as needed.
     for client in settings.SOCIAL_CLIENTS:
 
