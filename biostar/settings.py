@@ -101,11 +101,7 @@ INSTALLED_APPS = [
     'taggit',
     'debug_toolbar',
     'snowpenguin.django.recaptcha2',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.github',
+
 
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
@@ -114,6 +110,13 @@ INSTALLED_APPS = [
     'biostar.forum.apps.ForumConfig',
     'biostar.message.apps.MessageConfig',
     'biostar.ftpserver',
+
+     # Allauth templates come last.
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
 ]
 
 MIDDLEWARE = [
