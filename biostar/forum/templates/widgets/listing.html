@@ -63,9 +63,11 @@
                 </span>
 
                 {% if discussion_view %}
-                <a href="{% url 'discussion_view' post.uid %}#{{post.uid}}" class="ui mini blue title header " >{{ post.get_title}}</a>
+                <a href="{% url 'discussion_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
+                   class="ui mini blue title header " >{{ post.get_title}}</a>
                 {% else %}
-                 <a href="{% url 'post_view' post.uid %}#{{post.uid}}" class="ui mini blue title header ">{{ post.get_title|truncatechars:150 }}</a>
+                 <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
+                    class="ui mini blue title header ">{{ post.get_title|truncatechars:150 }}</a>
                 {% endif %}
             {% if side_image %}
                 {% get_thread_users post=post limit=5 as extra_users %}
