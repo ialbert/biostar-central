@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^toggle/notify/$', views.toggle_notify, name='toggle_notify'),
     url(r'^logout/$', views.user_logout, name="logout"),
 
-    url(r'^impersonate/$', views.impersonate_user, name="impersonate"),
+    url(r'^debug/user$', views.debug_user, name="debug_user"),
 
     # External url login
     url(r'^external/$', views.external_login, name="external")
