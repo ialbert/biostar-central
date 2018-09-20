@@ -28,10 +28,6 @@ MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 logger = logging.getLogger("engine")
 
 
-def get_sentinel_user():
-    return User.objects.get_or_create(username='deleted').first()
-
-
 class SubscriptionManager(models.Manager):
     def get_subs(self, post):
         "Returns all subscriptions for a post, exclude the "
@@ -187,14 +183,14 @@ class Post(models.Model):
     title = models.CharField(max_length=200, null=False)
 
     # The user that originally created the post.
-    author = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # The project that this post belongs to.
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
 
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(User, related_name='editor', null=True,
-                                      on_delete=models.SET(get_sentinel_user))
+                                      on_delete=models.CASCADE)
 
     # Store users contributing to the thread as "tags" to query later.
     thread_users = models.ManyToManyField(User, related_name="thread_users")

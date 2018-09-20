@@ -22,10 +22,6 @@ MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 logger = logging.getLogger("engine")
 
 
-def get_sentinel_user():
-    return User.objects.get_or_create(username='deleted').first()
-
-
 class MessageManager(models.Manager):
 
     def get_queryset(self):
@@ -67,8 +63,8 @@ class Message(models.Model):
 
     objects = MessageManager()
     uid = models.CharField(max_length=32, unique=True)
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", on_delete=models.SET(get_user_model))
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user))
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", on_delete=models.CASCADE)
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     subject = models.CharField(max_length=120)
     parent_msg = models.ForeignKey(to='self', related_name='next_messages', null=True, blank=True,
