@@ -87,7 +87,7 @@ def tags_banner(context, limit=5, listing=False):
     request = context["request"]
     page = request.GET.get("page")
 
-    tags = Post.objects.values("tags__name").annotate(Count('tags__name'))
+    tags = Post.objects.order_by("-pk").values("tags__name").annotate(Count('tags__name'))
 
     if listing:
         # Get the page info
