@@ -18,4 +18,4 @@ SITE_HEADER = '<i class="barcode icon"></i> Metagenomics Barcode Data Repository
 try:
     from .biostar_test_secrets import *
 except ImportError as exc:
-    print("No main_secrets module could be imported")
+    print("No biostar_test_secrets module could be imported")

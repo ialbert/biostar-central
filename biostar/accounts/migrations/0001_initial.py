@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('scholar', models.CharField(blank=True, default='', max_length=255)),
                 ('score', models.IntegerField(db_index=True, default=0)),
                 ('twitter', models.CharField(blank=True, default='', max_length=255)),
-                ('my_tags', models.CharField(default='', max_length=100)),
+                ('my_tags', models.CharField(default='', blank=True, max_length=100)),
                 ('text', models.TextField(blank=True, default='', null=True)),
                 ('html', models.TextField(blank=True, null=True)),
                 ('email_verified', models.BooleanField(default=False)),
