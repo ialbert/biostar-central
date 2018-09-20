@@ -1,6 +1,5 @@
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from .models import User
-from biostar.utils.shortcuts import reverse
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):

@@ -179,7 +179,7 @@ def subs_action(request, uid, next=None):
     # Post actions are being taken on
     post = Post.objects.filter(uid=uid).first()
     user = request.user
-    next_url = request.GET2.get(REDIRECT_FIELD_NAME,
+    next_url = request.GET.get(REDIRECT_FIELD_NAME,
                                request.POST.get(REDIRECT_FIELD_NAME))
     next_url = next or next_url or "/"
 
@@ -211,6 +211,7 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
             post = form.save(author=request.user)
             return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
 
+    print(form.errors)
     context = dict(form=form, extra_tab="active", extra_tab_name="New Post", action_url=reverse("post_create"))
     context.update(extra_context)
 

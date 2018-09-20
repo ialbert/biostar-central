@@ -45,9 +45,6 @@
     <div class="ui center aligned header">
         {% block title %}
             {% include "forum_header.html" %}
-<div class="ui right floated basic mainmenubar segment">
-            {% menubar request=request with_search=False %}
-</div>
 
         {% endblock %}
     </div>
@@ -55,7 +52,7 @@
 
     {% block menu %}
 
-
+        {% menubar request=request with_search=False %}
 
     {% endblock %}
 
