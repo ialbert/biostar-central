@@ -17,9 +17,6 @@ class PostTest(TestCase):
         logger.setLevel(logging.WARNING)
         self.owner = User.objects.create(username="test", email="test@test.com", password="testing")
 
-        # Used to test voting and adding answers.
-        self.user2 = User.objects.create(username="user", email="user@test.com", password="test")
-
         # Create an existing test post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",
                                      post_type=models.Post.QUESTION)
@@ -67,20 +64,19 @@ class PostTest(TestCase):
 
     def test_vote(self):
         """Test the ajax voting using POST request """
+        user2 = User.objects.create(username="user", email="user@test.com", password="test")
 
-        answer = auth.create_post(title="answer", author=self.user2, content="test foo bar too for",
+        answer = auth.create_post(title="answer", author=user2, content="test foo bar too for",
                                   post_type=models.Post.ANSWER, parent=self.post)
 
         self.make_votes(post=answer, user=self.owner)
         self.make_votes(post=self.post, user=self.owner)
-        self.make_votes(post=self.post, user=self.user2)
+        self.make_votes(post=self.post, user=user2)
 
         return
 
     def test_answer(self):
 
-
-        
         return
 
     def test_moderate(self):
