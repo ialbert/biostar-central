@@ -3,11 +3,11 @@ from biostar.settings import *
 DEBUG = False
 
 SITE_ID = 1
-SITE_DOMAIN = "www.metabarcode.com"
-SITE_NAME = "Metabarcode Site"
+SITE_DOMAIN = "test.biostars.org"
+SITE_NAME = "Test Biostar"
 
 HTTP_PORT = ''
-PROTOCOL = 'https'
+PROTOCOL = 'http'
 
 ALLOWED_HOSTS = [SITE_DOMAIN]
 
@@ -16,6 +16,6 @@ WSGI_APPLICATION = 'conf.main.main_wsgi.application'
 SITE_HEADER = '<i class="barcode icon"></i> Metagenomics Barcode Data Repository'
 
 try:
-    from .main_secrets import *
+    from .biostar_test_secrets import *
 except ImportError as exc:
-    print("No main_secrets module could be imported")
+    print("No biostar_test_secrets module could be imported")
