@@ -26,10 +26,6 @@ from .const import *
 logger = logging.getLogger('engine')
 
 
-def get_uuid(limit=32):
-    return str(uuid.uuid4())[:limit]
-
-
 def edit_profile(request):
 
     if request.user.is_anonymous:
@@ -278,14 +274,15 @@ def external_login(request):
             msg = f"Signed up, <a href={reverse('password_reset')}><b> Please reset your password.</b></a>"
             messages.success(request, mark_safe(msg))
 
+        url = reverse("public_view", kwargs=dict(uid=user.profile.uid))
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         messages.success(request, "Logged in!")
-        return redirect("/")
+        return redirect(url)
 
     except Exception as exc:
-        print("Tampering detected!")
+        logger.error(f"Error:{exc}")
 
-    return
+    return redirect("/")
 
 
 def password_reset(request):

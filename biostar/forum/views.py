@@ -267,13 +267,6 @@ def edit_post(request, uid):
     return render(request, template, context)
 
 
-def not_implemented(request, **kwargs):
-
-    messages.info(request, "Url is disabled")
-
-    return redirect("/")
-
-
 
 
 
