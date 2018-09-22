@@ -43,13 +43,8 @@ def is_editable(source, target):
 
     is_editable = False
 
-    if source.is_authenticated:
-
-        if source == target:
-            is_editable = True
-
-        elif source.profile.is_moderator or source.profile.is_manager:
-            is_editable = True
+    if source.is_authenticated and (source == target or source.profile.is_moderator):
+        is_editable = True
 
     return is_editable
 
@@ -175,6 +170,35 @@ def create_sub(post,  user, sub_type=None):
     return sub
 
 
+def trigger_vote(vote_type, post, change):
+
+    query_func = Post.objects.get_all
+
+    if vote_type == Vote.BOOKMARK:
+
+        # Apply the vote
+        query_func(uid=post.uid).update(book_count=F('book_count') + change,
+                                        vote_count=F('vote_count') + change)
+        if post != post.root:
+            query_func(pk=post.root_id).update(book_count=F('book_count') + change)
+
+    elif vote_type == Vote.ACCEPT:
+
+        if change > 0:
+            # There does not seem to be a negation operator for F objects.
+            query_func(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=True)
+            query_func(pk=post.root_id).update(has_accepted=True)
+        else:
+            query_func(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=False)
+            accepted_siblings = query_func(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
+
+            # Only set root as not accepted if there are no accepted siblings
+            if accepted_siblings == 0:
+                query_func(pk=post.root_id).update(has_accepted=False)
+    else:
+        query_func(uid=post.uid).update(vote_count=F('vote_count') + change)
+
+
 @transaction.atomic
 def preform_vote(post, user, vote_type):
 
@@ -196,29 +220,7 @@ def preform_vote(post, user, vote_type):
     # The thread vote count represents all votes in a thread
     Post.objects.get_all(pk=post.root_id).update(thread_votecount=F('thread_votecount') + change)
 
-    if vote_type == Vote.BOOKMARK:
-
-        # Apply the vote
-        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change,
-                                                  vote_count=F('vote_count') + change)
-        if post != post.root:
-            Post.objects.get_all(pk=post.root_id).update(book_count=F('book_count') + change)
-
-    elif vote_type == Vote.ACCEPT:
-
-        if change > 0:
-            # There does not seem to be a negation operator for F objects.
-            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=True)
-            Post.objects.get_all(pk=post.root_id).update(has_accepted=True)
-        else:
-            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=False)
-            accepted_siblings = Post.objects.get_all(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
-
-            # Only set root as not accepted if there are no accepted siblings
-            if accepted_siblings == 0:
-                Post.objects.get_all(pk=post.root_id).update(has_accepted=False)
-    else:
-        Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
+    trigger_vote(vote_type=vote_type, post=post, change=change)
 
     return msg
 
@@ -263,7 +265,6 @@ def create_post_from_json(json_dict):
                                root=root, parent=parent, creation_date=creation_date,
                                lastedit_date=lastedit_date, title=title, has_accepted=has_accepted,
                                type=type, status=status, content=content, html=html, tag_val=tag_val,
-                               #reply_count=reply_count, #thread_score=thread_score, vote_count=vote_count,
                                view_count=view_count)
     # Trigger another save
     post.add_tags(post.tag_val)
@@ -306,7 +307,6 @@ def delete_post(post, request):
     # Remove means to delete the post from the database with no trace.
 
     # Posts with children or older than some value can only be deleted not removed
-
     # The children of a post.
     children = Post.objects.filter(parent_id=post.id).exclude(pk=post.id)
 

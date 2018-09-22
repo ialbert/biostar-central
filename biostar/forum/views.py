@@ -63,7 +63,7 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
     if active in TOPICS_WITH_TABS:
         active_tab = {active: "active"}
     else:
-        active_tab = dict(extra_tab="active", extra_tab_name= active.capitalize() or topic.capitalize())
+        active_tab = dict(extra_tab="active", extra_tab_name=active.capitalize() or topic.capitalize())
 
     context.update(extra_context)
     context.update(active_tab)
@@ -156,7 +156,7 @@ def post_view(request, uid, template="post_view.html", url="post_view",
 def comment(request):
 
     location = reverse("post_list")
-    get_view = lambda p:"discussion_view" if p.belongs_to_project else "post_view"
+    get_view = lambda p:"discussion_view" if (p.project is not None) else "post_view"
 
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
