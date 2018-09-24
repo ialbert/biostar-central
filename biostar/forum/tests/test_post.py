@@ -3,7 +3,7 @@ import logging
 from django.test import TestCase
 from django.urls import reverse
 
-from biostar.forum import models, views, auth
+from biostar.forum import models, views, auth, forms
 from biostar.engine.test.util import fake_request
 from biostar.accounts.models import User
 
@@ -80,6 +80,10 @@ class PostTest(TestCase):
         return
 
     def test_moderate(self):
+
+        # Test every moderation action
+        for action in forms.PostModForm.CHOICES:
+            pass
 
         return
 
