@@ -153,40 +153,23 @@
 
             </div>
 
-
             <div class="{{ projects }} item">
 
                 <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
                    Projects
                 </a>
 
-
             </div>
-
-            {% if user.profile.is_manager and user == request.user %}
-                <div class="{{ recipes }} item">
-
-                    <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_recipes }}">
-                       Recipes to Manage
-                    </a>
-
-                </div>
-
-            {%  endif %}
 
         </div>
 
         <div class="ui bottom attached segment">
             {% pages objs=objs request=request  %}
-
-                        {% if posts %}
-                            {% listing posts=objs side_image=True %}
-                        {% elif projects %}
-                            {% list_view projects=objs %}
-                        {% elif recipes %}
-                            {% recipes_moderate %}
-                        {% endif %}
-
+                {% if posts %}
+                    {% listing posts=objs side_image=True %}
+                {% elif projects %}
+                    {% list_view projects=objs %}
+                {% endif %}
             {% pages objs=objs request=request %}
         </div>
 

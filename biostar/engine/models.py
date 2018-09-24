@@ -326,7 +326,7 @@ class Data(models.Model):
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
 
-    AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
+    AUTH_CHOICES = [(AUTHORIZED, "Runnable"), (UNDER_REVIEW, "Not Runnable")]
 
     security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
 
@@ -388,8 +388,13 @@ class Analysis(models.Model):
         assert self.uid, "Sanity check. UID should always be set."
         return reverse("recipe_view", kwargs=dict(uid=self.uid))
 
-    def authorized(self):
+    def runnable(self):
         return self.security == self.AUTHORIZED
+
+    @property
+    def running_css(self):
+        "css display for running and not running jobs"
+        return "runnable" if self.security == self.AUTHORIZED else "not_runnable"
 
 
 class Job(models.Model):

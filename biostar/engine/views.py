@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.db.models import Sum
 from sendfile import sendfile
 
 from biostar.accounts.models import Profile, User
@@ -463,7 +464,11 @@ def data_upload(request, uid):
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", request=request, kwargs={'uid': project.uid}))
 
-    context = dict(project=project, form=form, activate="Add Data")
+    uploaded_files = Data.objects.filter(owner=owner, method=Data.UPLOAD)
+    currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
+    allowed = (owner.profile.max_upload_size - (currect_size/ 1024 / 1024)) or 0
+
+    context = dict(project=project, form=form, activate="Add Data", allowed=f"{allowed:.2f}")
 
     counts = get_counts(project)
 

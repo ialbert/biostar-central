@@ -166,6 +166,12 @@ body {
     padding:2!important;;
 }
 
+
+.not_runnable{
+    background-color:#f7e4de !important;
+
+}
+
 .deleted.commentcolor {
     background-color:#f7e4de !important;
     padding:2!important;

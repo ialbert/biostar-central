@@ -1,11 +1,5 @@
-{% if not analysis.authorized %}
-    <div class="ui error message">
-        <div class="header">
-            <i class="warning circle icon"></i>The script for this recipe has been changed.
-        </div>
-        <p>
-            For security reasons it must be <a href="	{%  url  'recipe_diff' analysis.uid %}">reviewed and authorized</a> by a
-            moderator.
-        </p>
+{% if not analysis.runnable %}
+    <div class="ui error small message">
+        <i class="warning circle icon"></i>The script for this recipe has changed and is <b>not currently runnable.</b>
     </div>
 {% endif %}

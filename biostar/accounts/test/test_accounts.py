@@ -3,6 +3,9 @@ from unittest.mock import patch, MagicMock
 from django.test import TestCase, override_settings
 from django.test import Client
 from biostar.accounts import models, views, auth
+from biostar.engine.auth import create_project
+from biostar.forum.auth import create_post
+from biostar.forum.models import Post
 from django.core import signing
 
 from django.conf import settings
@@ -199,6 +202,22 @@ class ProfileTest(TestCase):
         response = views.toggle_notify(request=request)
 
         self.assertEqual(response.status_code, 302)
+
+
+    def test_user_delete(self):
+        "Test deleting a user."
+
+        # Set up projects/posts to key user to
+        project = create_project(user=self.user, name="test project", text="Text", summary="summary",
+                                uid="testing")
+
+        posts = create_post(title="Title of post", author=self.user, content="Post content",
+                            post_type=Post.QUESTION)
+
+        self.user.delete()
+
+        #print(posts, project, self.user)
+        #1/0
 
     def test_banned_user_login(self):
         "Test banned user can not login "
