@@ -12,14 +12,15 @@ from django.utils.encoding import force_text, force_bytes
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.decorators import user_passes_test
 from django.core import signing
+from django.core.paginator import Paginator
 
-
+from biostar.utils.decorators import object_exists
 from biostar.utils.shortcuts import reverse
 from allauth.socialaccount.models import SocialApp
 from .tokens import account_verification_token
 from . import forms
 from .models import User, Profile
-from .auth import check_user, send_verification_email
+from .auth import check_user, send_verification_email, query_topic
 from .util import now, get_uuid
 from .const import *
 
@@ -81,24 +82,28 @@ def user_moderate(request, uid):
     return render(request, "accounts/user_moderate.html", context)
 
 
+@object_exists(klass=Profile)
 def public_profile(request, uid):
 
-    user_profile = Profile.objects.filter(uid=uid).first()
-    forum_enabled = settings.ENABLE_FORUM or settings.ONLY_ENABLE_FORUM
+    profile = Profile.objects.filter(uid=uid).first()
 
     # Get the active tab, defaults to project
-    active_tab = request.GET.get(ACTIVE_TAB, HAS_POSTS)
+    active_tab = request.GET.get(ACTIVE_TAB, POSTS)
 
-    if not user_profile:
-        messages.error(request, "User profile does not exist")
-        return redirect("/")
+    can_moderate = profile.can_moderate(source=request.user)
 
-    active_tab = active_tab if (active_tab in PROFILE_TABS) else HAS_POSTS
-    can_moderate = user_profile.can_moderate(source=request.user)
+    objs = query_topic(user=profile.user, request=request, active=active_tab)
 
-    context = dict(user=user_profile.user, enable_forum=forum_enabled,
-                   const_name=ACTIVE_TAB, const_post=HAS_POSTS, const_project=HAS_PROJECT,
-                   const_recipes=HAS_RECIPES, can_moderate=can_moderate)
+    page = request.GET.get("page", 1)
+
+    paginator = Paginator(objs, per_page=20)
+    page = page if page is not None else 1
+
+    objs = paginator.get_page(page)
+
+    context = dict(user=profile.user, objs=objs,
+                   const_name=ACTIVE_TAB, const_post=POSTS, const_project=PROJECT,
+                   const_recipes=RECIPES, can_moderate=can_moderate)
 
     context.update({active_tab: ACTIVE_TAB})
 
@@ -274,13 +279,13 @@ def external_login(request):
             msg = f"Signed up, <a href={reverse('password_reset')}><b> Please reset your password.</b></a>"
             messages.success(request, mark_safe(msg))
 
-        url = reverse("public_view", kwargs=dict(uid=user.profile.uid))
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         messages.success(request, "Logged in!")
-        return redirect(url)
+        return redirect("/")
 
     except Exception as exc:
         logger.error(f"Error:{exc}")
+        messages.error(request, "Error unsigning.")
 
     return redirect("/")
 

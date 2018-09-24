@@ -5,9 +5,12 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib import auth
 from django.conf import settings
 
+from biostar.forum.models import Post
+from biostar.engine.auth import get_project_list
+from biostar.engine.models import Project
 from biostar.emailer.auth import notify
 from .models import User, Profile
-from . import util
+from . import util, const
 from .tokens import account_verification_token
 
 logger = logging.getLogger('engine')
@@ -54,6 +57,28 @@ def send_verification_email(user):
            subject="Verify your email", send=True)
 
     return True
+
+
+def query_topic(user, request, active):
+
+    # Exclude private topics from list when source isnt the same as target.
+    exclude_private = lambda q: q.order_by("-pk") if user == request.user else q.exclude(privacy=Project.PRIVATE)
+
+    mapper = {
+        const.POSTS: dict(func=Post.objects.my_posts, params=dict(target=user, user=user)),
+        const.PROJECT: dict(func=get_project_list, params=dict(user=user, include_public=False),
+                            apply=exclude_private),
+        const.RECIPES: dict()
+    }
+
+    if mapper.get(active):
+        func, params = mapper[active]["func"], mapper[active].get("params")
+        apply_extra = mapper[active].get("apply", lambda q: q)
+        query = apply_extra(func(**params))
+    else:
+        query = []
+
+    return query
 
 
 def create_user_from_json(json_dict):

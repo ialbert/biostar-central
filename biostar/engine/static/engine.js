@@ -123,7 +123,7 @@ function add_comment(elem) {
     var comment_url = elem.attr("comment-url");
     var csrf_html = jQuery("[name=csrfmiddlewaretoken]").val();
 
-    alert(comment_url);
+    //alert(comment_url);
     // Going to be refactored out and loaded separately
     container.after(`<div id="comment-row" class="ui basic segment inputcolor">
     <form id="comment-form" class="ui form" action=${comment_url}  method="post">

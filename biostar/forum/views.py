@@ -12,8 +12,8 @@ from django.db import transaction
 from biostar.utils.shortcuts import reverse
 from . import forms, auth
 from .models import Post, Vote
-from .decorators import object_exists, protect_private_topics
-from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success
+from .decorators import protect_private_topics
+from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from .const import *
 
 
@@ -177,7 +177,7 @@ def comment(request):
 def subs_action(request, uid, next=None):
 
     # Post actions are being taken on
-    post = Post.objects.filter(uid=uid).first()
+    post = Post.objects.get_all(uid=uid).first()
     user = request.user
     next_url = request.GET.get(REDIRECT_FIELD_NAME,
                                request.POST.get(REDIRECT_FIELD_NAME))

@@ -42,7 +42,7 @@
             <i class="trash icon"></i>
         </a>
 
-        <a class="item" href="{% url 'profile' %}">
+        <a class="item" href="{% url 'public_profile' user.profile.uid %}">
             <i class="user icon"></i>
             <span class="tablet">{{user.profile.name }}</span>
         </a>
