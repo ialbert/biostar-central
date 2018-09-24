@@ -26,7 +26,6 @@ urlpatterns = [
     url(r'^moderate/(?P<uid>[-\w]+)/$', views.user_moderate, name="user_moderate"),
     url(r'^login/$', views.user_login, name="login"),
     url(r'^signup/$', views.user_signup, name="signup"),
-    url(r'^profile/$', views.profile, name="profile"),
     url(r'^profile/(?P<uid>[-\w]+)/$', views.public_profile, name="public_profile"),
     url(r'^edit/profile/$', views.edit_profile, name='edit_profile'),
     url(r'^toggle/notify/$', views.toggle_notify, name='toggle_notify'),

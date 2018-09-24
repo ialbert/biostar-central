@@ -53,13 +53,6 @@ def get_tags_list(tags_str):
     return set(util.split_tags(tags_str))
 
 
-@register.inclusion_tag('widgets/forum_menubar.html', takes_context=True)
-def forum_menubar(context, request=None):
-    user = context.request.user
-
-    return dict(user=user, request=request)
-
-
 @register.simple_tag
 def gravatar(user, size=80):
     #name = user.profile.name
@@ -99,21 +92,19 @@ def tags_banner(context, limit=5, listing=False):
     return dict(tags=all_tags, limit=limit, listing=listing, request=request)
 
 
-
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, include_userbox=True,
-              sub_redir="post_view", sub_view="subs_action", project_uid=None):
+def post_body(context, post, user, tree, form, include_userbox=True, next_url=None,
+            project_uid=None, sub_url=None):
 
     "Renders the post body"
     request = context['request']
 
-    vote_url = reverse("vote")
-    sub_url = reverse(sub_view, request=request, kwargs=dict(uid=post.uid))
-    next_url = reverse(sub_redir, request=request, kwargs=dict(uid=post.uid))
+    sub_url = sub_url or reverse("subs_action", request=request, kwargs=dict(uid=post.uid))
+    next_url = next_url or reverse("post_view", request=request, kwargs=dict(uid=post.uid))
 
     return dict(post=post, user=user, tree=tree, request=request,
                 form=form, include_userbox=include_userbox,
-                vote_redir=sub_redir, sub_url=sub_url, vote_url=vote_url, next_url=next_url,
+                sub_url=sub_url, next_url=next_url,
                 redir_field_name=const.REDIRECT_FIELD_NAME, project_uid=project_uid)
 
 
@@ -202,20 +193,6 @@ def show_score(score):
 def user_info(post, by_diff=False, with_image=True):
 
     return dict(post=post, by_diff=by_diff, with_image=with_image)
-
-
-@register.simple_tag
-def get_posts(user, request, per_page=20):
-
-    posts = Post.objects.my_posts(target=user, user=user)
-    page = request.GET.get("page", 1)
-
-    paginator = Paginator(posts, per_page=per_page)
-    page = page if page is not None else 1
-
-    objs = paginator.get_page(page)
-
-    return objs
 
 
 @register.simple_tag

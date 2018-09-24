@@ -1,5 +1,5 @@
 
-PROFILE_TABS = ["has_projects", "has_recipes", "has_posts"]
+PROFILE_TABS = ["projects", "recipes", "posts"]
 
-HAS_PROJECT, HAS_RECIPES, HAS_POSTS = PROFILE_TABS
+PROJECT, RECIPES, POSTS = PROFILE_TABS
 ACTIVE_TAB = "active"

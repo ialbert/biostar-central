@@ -128,7 +128,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'biostar.engine.middleware.engine_middleware',
-    'biostar.forum.middleware.forum_middleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 
 ]

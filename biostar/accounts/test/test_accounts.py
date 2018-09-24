@@ -3,7 +3,9 @@ from unittest.mock import patch, MagicMock
 from django.test import TestCase, override_settings
 from django.test import Client
 from biostar.accounts import models, views, auth
+from django.core import signing
 
+from django.conf import settings
 from django.urls import reverse
 
 from . import util
@@ -52,7 +54,7 @@ class UserAccountTests(TestCase):
             reverse('index'),
             reverse('logout'),
             reverse('login'),
-            reverse('profile'),
+            reverse('public_profile', kwargs=dict(uid=self.user.profile.uid)),
             reverse('edit_profile'),
             reverse('password_reset'),
             reverse('password_reset_done'),
@@ -102,6 +104,25 @@ class LoginTest(TestCase):
 
             self.assertEqual(resp.status_code, 200)
 
+    def test_external_login(self):
+        """Test login with external login"""
+
+        signer = signing.Signer(settings.LOGIN_PRIVATE_KEY)
+        payload = signer.sign("test@test.com")
+
+        data = {"payload": payload}
+        url = reverse("external")
+
+        request = util.fake_request(url=url, data=data, user=self.user, method="GET")
+        response = views.external_login(request=request)
+
+        self.assertEqual(response.status_code, 302)
+
+        user = models.User.objects.filter(email="test@test.com")
+        self.assertTrue(user.exists())
+
+        return
+
 
 class SignUpTest(TestCase):
 
@@ -144,29 +165,29 @@ class ProfileTest(TestCase):
     def test_profile(self):
         "Test profile with a logged in user with GET Request"
         data = {}
-        url = reverse("profile")
-
+        url = reverse('public_profile', kwargs=dict(uid=self.user.profile.uid))
 
         request = util.fake_request(url=url, data=data, user=self.user, method="GET")
 
-        response = views.profile(request=request)
+        response = views.public_profile(request=request, uid=self.user.profile.uid)
         self.assertEqual(response.status_code, 200, "Can not load user profile")
 
-    #
-    # @patch('biostar.accounts.models.User', MagicMock(name="save"))
-    # def test_edit_profile(self):
-    #     "Test editing profile with POST request"
-    #
-    #     data = {"email":"new@new.com", "name":"new name", "username":"new"}
-    #
-    #     url = reverse("edit_profile")
-    #
-    #     request = util.fake_request(url=url, data=data, user=self.user)
-    #
-    #     response = views.edit_profile(request=request)
-    #
-    #     self.assertEqual(response.status_code, 302, "Can not redirect after editing profile")
 
+    @patch('biostar.accounts.models.User', MagicMock(name="save"))
+    def test_edit_profile(self):
+        "Test editing profile with POST request."
+
+        data = {"email":"new@new.com", "name":"new name", "username":"new",
+                "digest_prefs" : models.Profile.DAILY_DIGEST,
+                "message_prefs" : models.Profile.LOCAL_MESSAGE}
+
+        url = reverse("edit_profile")
+
+        request = util.fake_request(url=url, data=data, user=self.user)
+
+        response = views.edit_profile(request=request)
+
+        self.assertEqual(response.status_code, 302, "Can not redirect after editing profile")
 
     def test_notify(self):
         "Test the notification toggling"
@@ -178,7 +199,6 @@ class ProfileTest(TestCase):
         response = views.toggle_notify(request=request)
 
         self.assertEqual(response.status_code, 302)
-
 
     def test_banned_user_login(self):
         "Test banned user can not login "

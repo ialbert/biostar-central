@@ -161,9 +161,14 @@ body {
     margin-bottom:0 !important;
 }
 
-.ui.commentcolor.segment {
+.commentcolor {
     background-color:#f2f2f2!important;;
-    padding:2;
+    padding:2!important;;
+}
+
+.deleted.commentcolor {
+    background-color:#f7e4de !important;
+    padding:2!important;
 }
 .ui.comment.segment {
   border-top: none !important;
@@ -309,7 +314,7 @@ pre {
 
 
 .headerimage {
-    width: 200px!important;
+    width: 140px!important;
     padding: 0!important;
     margin: 0!important;
     padding-bottom: 5px!important;

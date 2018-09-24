@@ -17,6 +17,13 @@ def generate_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
+class Manager(models.Manager):
+
+    def get_all(self, **kwargs):
+        "Return everything"
+        return super().get_queryset().filter(**kwargs)
+
+
 class Profile(models.Model):
 
     NEW, TRUSTED, SUSPENDED, BANNED = range(4)
@@ -88,6 +95,8 @@ class Profile(models.Model):
 
     # Opt-in to all messages from the site
     opt_in = models.BooleanField(default=False)
+
+    objects = Manager()
 
     def __str__(self):
         return self.user.email

@@ -28,10 +28,6 @@ MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 logger = logging.getLogger("engine")
 
 
-def get_sentinel_user():
-    return User.objects.get_or_create(username='deleted').first()
-
-
 class SubscriptionManager(models.Manager):
     def get_subs(self, post):
         "Returns all subscriptions for a post, exclude the "
@@ -44,7 +40,6 @@ class PostManager(models.Manager):
         "Regular queries exclude deleted stuff"
         query = super().get_queryset().filter(project=None).prefetch_related("tags", "thread_users__profile",
                                                                              "thread_users")
-
         return query
 
     def get_discussions(self, **kwargs):
@@ -78,8 +73,8 @@ class PostManager(models.Manager):
 
     def my_post_votes(self, user):
         "Posts that received votes from other people "
-        vote_query = Vote.objects.exclude(author=user).filter(post__in=self.filter(author=user))
-        query = self.filter(author=user, votes__in=vote_query)
+        query = self.filter(author=user)
+        query = self.filter(votes__post__in=query).exclude(votes__author=user)
         query = query.select_related("root", "author", "author__profile",
                                     "lastedit_user", "lastedit_user__profile")
         query = query.prefetch_related("tags")
@@ -147,8 +142,6 @@ class PostManager(models.Manager):
                                                                                          "-has_accepted",
                                                                                          "-vote_count",
                                                                                          "creation_date")
-
-
         return query
 
     def top_level(self, user):
@@ -187,14 +180,14 @@ class Post(models.Model):
     title = models.CharField(max_length=200, null=False)
 
     # The user that originally created the post.
-    author = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # The project that this post belongs to.
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
 
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(User, related_name='editor', null=True,
-                                      on_delete=models.SET(get_sentinel_user))
+                                      on_delete=models.CASCADE)
 
     # Store users contributing to the thread as "tags" to query later.
     thread_users = models.ManyToManyField(User, related_name="thread_users")
@@ -319,6 +312,11 @@ class Post(models.Model):
             reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
             Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
 
+        thread_score = Post.objects.filter(Q(type=Post.ANSWER) | Q(type=Post.COMMENT), parent=self.parent,
+                                           status=Post.OPEN).count()
+
+        Post.objects.filter(pk=self.parent_id).update(thread_score=thread_score)
+
     @staticmethod
     def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
         "Views are updated per user session"
@@ -385,10 +383,6 @@ class Post(models.Model):
         if self.status == Post.DELETED:
             return "deleted"
         return "accepted" if (self.has_accepted and not self.is_toplevel) else ""
-
-    @property
-    def belongs_to_project(self):
-        return self.project is not None
 
 
 class Vote(models.Model):
@@ -498,6 +492,12 @@ def check_thread_users(sender, instance, created, *args, **kwargs):
     users = list(Post.objects.get_all(pk=obj.pk).values_list("thread_users", flat=True))
     user_pks = users + [instance.author.pk]
     user_pks = set(user_pks)
+
+    users = User.objects.filter(post__thread_users__in=obj.thread_users.all())
+
+
+    #print(users, obj.thread_users, user_pks)
+    #1/0
 
     # Clear theard users
     obj.thread_users.clear()

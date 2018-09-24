@@ -134,7 +134,7 @@
 
 
 
-        {% endif %}
+{% endif %}
         </div>
 
 
@@ -146,23 +146,25 @@
              <div class="ui vertical segment">
         <div class="ui top attached tabular large menu">
 
-            <div class="{{ has_posts }} item">
+            <div class="{{ posts }} item">
                 <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_post }}">
                     Posts
                 </a>
 
             </div>
 
-            <div class="{{ has_projects }} item">
 
-            <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
-               Projects
-            </a>
+            <div class="{{ projects }} item">
+
+                <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
+                   Projects
+                </a>
+
 
             </div>
 
             {% if user.profile.is_manager and user == request.user %}
-                <div class="{{ has_recipes }} item">
+                <div class="{{ recipes }} item">
 
                     <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_recipes }}">
                        Recipes to Manage
@@ -173,47 +175,21 @@
             {%  endif %}
 
         </div>
-<div class="ui bottom attached segment">
-        {% if has_posts %}
 
+        <div class="ui bottom attached segment">
+            {% pages objs=objs request=request  %}
 
-            {% get_posts user=user request=request as posts %}
+                        {% if posts %}
+                            {% listing posts=objs side_image=True %}
+                        {% elif projects %}
+                            {% list_view projects=objs %}
+                        {% elif recipes %}
+                            {% recipes_moderate %}
+                        {% endif %}
 
-            {% pages objs=posts request=request  %}
-
-            <div class="ui small relaxed divided list">
-                {% listing posts=posts side_image=True %}
-            </div>
-            {% if not posts %}
-            <div class="ui warning message"><i class="ui warning circle icon"></i> No posts found.</div>
-            {% endif %}
-            {% pages objs=posts request=request %}
-
-
-        {% elif has_projects %}
-
-            {% get_projects user=user request=request as projects %}
-
-            {% pages objs=projects request=request %}
-            {% list_view projects=projects %}
-
-            {% if not projects %}
-            <div class="ui warning message"><i class="ui warning circle icon"></i> No projects found.</div>
-            {% endif %}
-            {% pages objs=projects request=request %}
-
-
-        {% elif has_recipes and user.profile.is_manager and user == request.user %}
-
-             <div class="ui basic segment">
-                {% recipes_moderate %}
-            </div>
-        {% endif %}
-</div>
+            {% pages objs=objs request=request %}
         </div>
 
-
-
-
+        </div>
 
 {%  endblock %}

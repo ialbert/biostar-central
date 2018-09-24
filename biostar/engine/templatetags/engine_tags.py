@@ -143,24 +143,6 @@ def is_qiime_archive(file=None):
     return filename.endswith(".qza") or filename.endswith(".qzv")
 
 
-@register.simple_tag
-def get_projects(user, request=None, per_page=20):
-    "Used to return projects list in the profile."
-
-    projects = auth.get_project_list(user=user, include_public=False).order_by("-pk")
-
-    if user != request.user:
-        # Don't list private projects when target != user
-        projects = projects.exclude(privacy=Project.PRIVATE)
-
-    page = request.GET.get("page", 1)
-
-    paginator = Paginator(projects, per_page=per_page)
-    objs = paginator.get_page(page)
-
-    return objs
-
-
 def update_dict(iter):
     results = [dict(
         title=d.name,

@@ -178,6 +178,7 @@ def discussion_list(request, uid):
 @object_access(type=Post, access=Access.READ_ACCESS)
 def discussion_subs(request, uid):
     next_url = reverse("discussion_view", request=request, kwargs=dict(uid=uid))
+
     return forum_views.subs_action(request=request, uid=uid, next=next_url)
 
 
@@ -203,14 +204,16 @@ def discussion_create(request, uid):
 
 @object_access(type=Post, access=Access.READ_ACCESS)
 def discussion_view(request, uid):
+
     template = "discussion_view.html"
     # Get the parents info
     obj = Post.objects.get_discussions(uid=uid).first()
 
     project = obj.root.project
-    comment_url = reverse("discussion_comment")
+    sub_url = reverse("discussion_subs", kwargs=dict(uid=obj.uid))
+    next_url = reverse("discussion_view", kwargs=dict(uid=obj.uid))
 
-    context = dict(project=project, activate="Discussion", comment_url=comment_url)
+    context = dict(project=project, activate="Discussion", sub_url=sub_url, next_url=next_url)
     counts = get_counts(project)
     context.update(counts)
 
