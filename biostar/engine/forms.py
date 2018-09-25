@@ -44,6 +44,7 @@ def check_upload_limit(file, user):
 
     uploaded_files = Data.objects.filter(owner=user, method=Data.UPLOAD)
     currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
+
     to_mb = lambda x: x / 1024 / 1024
 
     projected = to_mb(file.size + currect_size)

@@ -125,12 +125,10 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     form = forms.PostShortForm()
 
     # Get the parents info
-    obj = Post.objects.get_all(uid=uid).select_related("root", "author", "author__profile","lastedit_user__profile",
-                                     "lastedit_user").first()
+    obj = Post.objects.get_all(uid=uid).first()
     # Return root view if not at top level.
     obj = obj if obj.is_toplevel else obj.root
 
-    # Update the post views.
     Post.update_post_views(obj, request=request)
 
     if request.method == "POST":
@@ -211,7 +209,6 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
             post = form.save(author=request.user)
             return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
 
-    print(form.errors)
     context = dict(form=form, extra_tab="active", extra_tab_name="New Post", action_url=reverse("post_create"))
     context.update(extra_context)
 

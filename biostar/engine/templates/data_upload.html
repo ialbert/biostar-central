@@ -7,6 +7,9 @@
 
 {% block content %}
 
+
+<div class="ui message">You can upload <b>{{allowed}} MB</b> </div>
+
     <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'data_upload' project.uid %}">
         {% csrf_token %}
 
