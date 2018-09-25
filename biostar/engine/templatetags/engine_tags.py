@@ -332,10 +332,14 @@ def directory_list(obj):
         def transform(path):
             tstamp = os.stat(path).st_mtime
             size = os.stat(path).st_size
-            relp = os.path.relpath(path, root)
-            nice = relp.replace("/", " / ")
-            is_image = relp.split(".")[-1] in IMAGE_EXT
-            return  relp, nice, tstamp, size, is_image
+            rel_path = os.path.relpath(path, root)
+            elems = os.path.split(rel_path)
+            dir_names = elems[:-1]
+            if dir_names[0] == '':
+                dir_names = []
+            last_name = elems[-1]
+            is_image = last_name.split(".")[-1] in IMAGE_EXT
+            return rel_path, dir_names, last_name, tstamp, size, is_image
 
         # Transform the paths.
         paths = map(transform, paths)
