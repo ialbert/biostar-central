@@ -44,9 +44,6 @@ def check_upload_limit(file, user):
     Checks if the file pushes user over their upload limit."
     """
 
-    # Convets to MB for reportings.
-    to_mb = lambda x: int(round(x / 1024 / 1024))
-
     # Existing data.
     data = Data.objects.filter(owner=user, method=Data.UPLOAD)
 
@@ -54,16 +51,16 @@ def check_upload_limit(file, user):
     current_size = data.aggregate(Sum("size"))["size__sum"] or 0
 
     # The projected size in MB.
-    projected_mb = to_mb(file.size + current_size)
-
-    # The uploaded file in MB.
-    file_mb = to_mb(file.size)
+    projected_size = file.size + current_size
 
     # Maximal cumulative sizes.
-    max_mb = user.profile.max_upload_size
+    max_size = user.profile.max_upload_size * 1024 * 1024
 
-    if projected_mb > max_mb:
-        msg = f"You don't have enough storage to save the data of size <b>{file_mb} MB</b>"
+    # Current file size in MB
+    file_mb = file.size / 1024 / 1024
+
+    if projected_size > max_size:
+        msg = f"You don't have enough storage space for data of size <b>{file_mb:.2f} MB</b>"
         raise forms.ValidationError(mark_safe(msg))
 
     return file

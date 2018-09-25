@@ -23,7 +23,7 @@
                 </div>
                 <div class="content">
                     <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                        <i class="setting icon"></i> {{ activate }}: {{ recipe.name }}
+                        <i class="setting icon"></i>{{ recipe.name }}
                     </a>
                     <div class="description">{{ recipe.summary|markdown|safe }}</div>
                 </div>
