@@ -64,7 +64,14 @@ def authorize_run(user, recipe):
     """
     Returns runnable.
     """
-    return recipe.runnable() or user.is_staff
+
+    if user.is_anonymous:
+        return False
+
+    if user.is_staff:
+        return True
+
+    return recipe.runnable()
 
 
 def generate_script(job):

@@ -438,10 +438,14 @@ class RecipeInterface(forms.Form):
         # Validate default fields.
         super(RecipeInterface, self).clean()
 
-        # Validate the recipe run permission.
+        if self.user.is_anonymous:
+            msg = "You must be logged in."
+            raise forms.ValidationError(msg)
+
         if not auth.authorize_run(user=self.user, recipe=self.analysis):
             msg = "Insufficient permission to execute recipe."
             raise forms.ValidationError(msg)
+
 
 
     def fill_json_data(self):
