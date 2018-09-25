@@ -10,8 +10,9 @@
 {% endblock %}
 
 {% block content %}
-{% security_label analysis %}
+
     <div class="ui raised segment inputcolor">
+
 
         <div class="ui center aligned header">
             Executing Recipe: <a href="{% url 'recipe_view' analysis.uid %}"><i class="setting icon"></i>{{ analysis.name }}</a>
@@ -37,6 +38,7 @@
                         </a>
                     </div>
 
+                    {% security_label analysis %}
 
                 </div>
             </form>

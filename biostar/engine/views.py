@@ -5,19 +5,18 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
+from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.db.models import Sum
 from sendfile import sendfile
 
 from biostar.accounts.models import Profile, User
 from biostar.forum import views as forum_views
 from biostar.forum.models import Post
-from biostar.utils.shortcuts import reverse
 from biostar.utils.decorators import ajax_error_wrapper
-
+from biostar.utils.shortcuts import reverse
 from . import tasks, auth, forms, util, const
 from .decorators import object_access
 from .diffs import color_diffs
@@ -205,7 +204,6 @@ def discussion_create(request, uid):
 
 @object_access(type=Post, access=Access.READ_ACCESS)
 def discussion_view(request, uid):
-
     template = "discussion_view.html"
     # Get the parents info
     obj = Post.objects.get_discussions(uid=uid).first()
@@ -313,7 +311,6 @@ def project_create(request):
 
 
 def ajax_copy(request, modeltype, msg="Copied!", board=None):
-
     user = request.user
     data_uid = request.GET.get("data_uid")
     instance = modeltype.objects.get_all(uid=data_uid).first()
@@ -342,47 +339,60 @@ def ajax_copy(request, modeltype, msg="Copied!", board=None):
 
 @ajax_error_wrapper(method="GET")
 def ajax_job_copy(request):
-
     msg = "Copied to results clipboard!"
     return ajax_copy(modeltype=Job, request=request, msg=msg, board=const.RESULTS_CLIPBOARD)
 
 
 @ajax_error_wrapper(method="GET")
 def ajax_data_copy(request):
-
     msg = "Copied to data clipboard!"
     return ajax_copy(modeltype=Data, request=request, msg=msg, board=const.DATA_CLIPBOARD)
 
 
 @ajax_error_wrapper(method="GET")
 def ajax_recipe_copy(request):
-
     msg = "Copied to recipe clipboard!"
     return ajax_copy(modeltype=Analysis, request=request, msg=msg, board=const.RECIPE_CLIPBOARD)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url="recipe_list")
 def recipe_paste(request, uid):
-    """Used to paste recipes in a clipboard as a new recipes."""
+    """
+    Pastes recipes from clipboard as a new recipes.
+    """
 
+    # The user performing the action.
+    user = request.user
+
+    # The project the paste will use.
     project = Project.objects.filter(uid=uid).first()
 
-    clipboard = request.session.get(const.RECIPE_CLIPBOARD, [])
+    # Contains the uids for the recipes that are to be copied.
+    recipe_uids = request.session.get(const.RECIPE_CLIPBOARD, [])
 
-    for uid in clipboard:
-        instance = Analysis.objects.get_all(uid=uid).first()
+    # Select valid recipe uids.
+    recipes = [Analysis.objects.get_all(uid=uid).first() for uid in recipe_uids]
 
-        if instance:
-            name, summary, text = instance.name, instance.summary, instance.text
-            new_recipe = auth.create_analysis(project=project, json_text=instance.json_text,
-                                              template=instance.template, summary=summary, user=request.user, name=name,
-                                              text=text, stream=instance.image, security=instance.security)
-            # Ensure the diff gets inherited.
-            new_recipe.last_valid = instance.last_valid
-            new_recipe.save()
+    # Keep existing recipes.
+    recipes = filter(None, recipes)
 
+    # The copy function for each recipe.
+    def copy(instance):
+        recipe = auth.create_analysis(project=project, user=user,
+                                      json_text=instance.json_text,
+                                      template=instance.template, summary=instance.summary,
+                                      name=instance.name, text=instance.text, stream=instance.image)
+        return recipe
+
+    # The list of new object created by the copy.
+    new_recipes = list(map(copy, recipes))
+
+    # Reset the session.
     request.session[const.RECIPE_CLIPBOARD] = []
-    messages.success(request, mark_safe(f"Pasted <b>{len(clipboard)} recipes</b>  in clipboard"))
+
+    # Notification after paste.
+    messages.success(request, mark_safe(f"Pasted <b>{len(new_recipes)} recipes</b>  in clipboard"))
+
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
 
@@ -466,7 +476,7 @@ def data_upload(request, uid):
 
     uploaded_files = Data.objects.filter(owner=owner, method=Data.UPLOAD)
     currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
-    allowed = (owner.profile.max_upload_size - (currect_size/ 1024 / 1024)) or 0
+    allowed = (owner.profile.max_upload_size - (currect_size / 1024 / 1024)) or 0
 
     context = dict(project=project, form=form, activate="Add Data", allowed=f"{allowed:.2f}")
 
@@ -742,7 +752,6 @@ def job_edit(request, uid):
 
 @object_access(type=Analysis, access=Access.OWNER_ACCESS, url="recipe_view")
 def recipe_delete(request, uid):
-
     recipe = Analysis.objects.get_all(uid=uid).first()
 
     auth.delete_object(obj=recipe, request=request)
@@ -752,7 +761,6 @@ def recipe_delete(request, uid):
 
 @object_access(type=Job, access=Access.OWNER_ACCESS, url="job_view")
 def job_delete(request, uid):
-
     job = Job.objects.get_all(uid=uid).first()
 
     running_job = job.state == Job.RUNNING and not job.deleted
@@ -767,7 +775,6 @@ def job_delete(request, uid):
 
 @object_access(type=Data, access=Access.OWNER_ACCESS, url="data_view")
 def data_delete(request, uid):
-
     data = Data.objects.get_all(uid=uid).first()
 
     auth.delete_object(obj=data, request=request)
