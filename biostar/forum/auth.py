@@ -294,7 +294,7 @@ def parse_html(text):
 
     # embed the objects
     for user in mentioned_users:
-        url = reverse("public_profile", kwargs=dict(uid=user.profile.uid))
+        url = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
         handler = f"@{user.username}"
         emb_patt = f'<a href="{url}">{handler}</a>'
         html = html.replace(handler, emb_patt)

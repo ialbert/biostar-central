@@ -76,7 +76,7 @@
                     <div class="item"  style="">
 
 
-                        <a href="{% url 'public_profile' user.profile.uid %}">
+                        <a href="{% url "user_profile" user.profile.uid %}">
                             <div class="ui avatar image">{% gravatar user=user size=100 %}</div>
                             {{user.profile.name}}</a> from
                         {{user.profile.location }}
@@ -114,7 +114,7 @@
                     <div class="item">
                         <a href="{% url "post_view" replies.uid %}"> {{ replies.title }}</a>
                         by
-                        <a href="{% url "public_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}
+                        <a href="{% url "user_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}
 
                         </a>
 <span>              {{  replies.author.profile.score |show_score_icon }}

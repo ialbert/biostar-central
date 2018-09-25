@@ -57,7 +57,7 @@ class UserAccountTests(TestCase):
             reverse('index'),
             reverse('logout'),
             reverse('login'),
-            reverse('public_profile', kwargs=dict(uid=self.user.profile.uid)),
+            reverse("user_profile", kwargs=dict(uid=self.user.profile.uid)),
             reverse('edit_profile'),
             reverse('password_reset'),
             reverse('password_reset_done'),
@@ -168,11 +168,11 @@ class ProfileTest(TestCase):
     def test_profile(self):
         "Test profile with a logged in user with GET Request"
         data = {}
-        url = reverse('public_profile', kwargs=dict(uid=self.user.profile.uid))
+        url = reverse("user_profile", kwargs=dict(uid=self.user.profile.uid))
 
         request = util.fake_request(url=url, data=data, user=self.user, method="GET")
 
-        response = views.public_profile(request=request, uid=self.user.profile.uid)
+        response = views.user_profile(request=request, uid=self.user.profile.uid)
         self.assertEqual(response.status_code, 200, "Can not load user profile")
 
 

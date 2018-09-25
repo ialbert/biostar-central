@@ -256,7 +256,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # List of social login clients tuples.
 # ( name, client_id, secret )
 
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+
 SOCIAL_CLIENTS = [
+
+    ("Google", "547073349197-ri3eku9fdpi1ble7eoc4amlsrh7m2oiv.apps.googleusercontent.com", "DR1-zMqOLTqRGvhSDb5rQBMg")
 
 ]
 

@@ -21,7 +21,7 @@
            {% gravatar user=user size=200 %}
             </div>
 
-            <div><a href="{% url 'public_profile' user.profile.uid %}">{{user.profile.name}}</a>
+            <div><a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
                 {{ user.profile.score |show_score_icon}}{{ user.profile.score | show_score |bignum }}</div>
 
         {% if can_moderate %}
@@ -131,7 +131,7 @@
         <div class="ui top attached tabular large menu">
 
             <div class="{{ posts }} item">
-                <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_post }}">
+                <a href="{% url "user_profile" user.profile.uid %}?{{ const_name }}={{ const_post }}">
                     Posts
                 </a>
 
@@ -139,7 +139,7 @@
 
             <div class="{{ projects }} item">
 
-                <a href="{% url "public_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
+                <a href="{% url "user_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
                    Projects
                 </a>
 

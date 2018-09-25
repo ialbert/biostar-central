@@ -1,34 +1,33 @@
-import uuid, logging
+import logging
 
-from django.contrib import messages
-from ratelimit.decorators import ratelimit
-from django.shortcuts import render, redirect
-from django.contrib.auth import views as auth_views
-from django.utils.safestring import mark_safe
+from allauth.socialaccount.models import SocialApp
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout, login
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from django.utils.encoding import force_text, force_bytes
-from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.decorators import user_passes_test
 from django.core import signing
 from django.core.paginator import Paginator
+from django.shortcuts import render, redirect
+from django.utils.encoding import force_text
+from django.utils.http import urlsafe_base64_decode
+from django.utils.safestring import mark_safe
+from ratelimit.decorators import ratelimit
 
 from biostar.utils.decorators import object_exists
 from biostar.utils.shortcuts import reverse
-from allauth.socialaccount.models import SocialApp
-from .tokens import account_verification_token
 from . import forms
-from .models import User, Profile
 from .auth import check_user, send_verification_email, query_topic
-from .util import now, get_uuid
 from .const import *
+from .models import User, Profile
+from .tokens import account_verification_token
+from .util import now, get_uuid
 
 logger = logging.getLogger('engine')
 
 
 def edit_profile(request):
-
     if request.user.is_anonymous:
         messages.error(request, "Must be logged in to edit profile")
         return redirect("/")
@@ -40,7 +39,7 @@ def edit_profile(request):
         form = forms.EditProfile(data=request.POST, user=user)
         if form.is_valid():
             form.save(request=request)
-            return redirect(reverse("public_profile", kwargs=dict(uid=user.profile.uid)))
+            return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 
     context = dict(user=user, form=form)
     return render(request, 'accounts/edit_profile.html', context)
@@ -48,22 +47,19 @@ def edit_profile(request):
 
 @login_required
 def toggle_moderate(request):
-
     user = request.user
 
     if settings.ALLOW_SELF_MODERATE:
-
         role = Profile.NORMAL if user.profile.is_moderator else Profile.MODERATOR
         Profile.objects.filter(user=user).update(role=role)
-        mapper = {Profile.MODERATOR:" a moderator"}
+        mapper = {Profile.MODERATOR: " a moderator"}
         messages.success(request, f"You are now {mapper.get(role, 'not a moderator')}")
 
-    return redirect(reverse("public_profile", kwargs=dict(uid=user.profile.uid)))
+    return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 
 
 @login_required
 def user_moderate(request, uid):
-
     source = request.user
     target = User.objects.filter(profile__uid=uid).first()
     form = forms.UserModerate(source=source, target=target, request=request)
@@ -73,7 +69,7 @@ def user_moderate(request, uid):
         form = forms.UserModerate(source=source, data=request.POST, target=target, request=request)
         if form.is_valid():
             form.save()
-            return redirect(reverse("public_profile", kwargs=dict(uid=uid)))
+            return redirect(reverse("user_profile", kwargs=dict(uid=uid)))
         else:
             msg = ','.join([y for x in form.errors.values() for y in x])
             messages.error(request, msg)
@@ -83,8 +79,7 @@ def user_moderate(request, uid):
 
 
 @object_exists(klass=Profile)
-def public_profile(request, uid):
-
+def user_profile(request, uid):
     profile = Profile.objects.filter(uid=uid).first()
 
     # Get the active tab, defaults to project
@@ -107,18 +102,11 @@ def public_profile(request, uid):
 
     context.update({active_tab: ACTIVE_TAB})
 
-    return render(request, 'accounts/public_profile.html', context)
+    return render(request, 'accounts/user_profile.html', context)
 
-
-@login_required
-def profile(request):
-    uid = request.user.profile.uid
-
-    return public_profile(request, uid)
 
 
 def toggle_notify(request):
-
     if request.user.is_anonymous:
         messages.error(request, "Must be logged in to edit profile")
         return redirect("/")
@@ -132,12 +120,11 @@ def toggle_notify(request):
         msg = "Emails notifications enabled."
 
     messages.success(request, msg)
-    return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
+    return redirect(reverse('user_profile', kwargs=dict(uid=user.profile.uid)))
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_signup(request):
-
     if not settings.ALLOW_SIGNUP:
         messages.info(request, "Signups are not enabled on this site.")
         return redirect("/")
@@ -147,7 +134,7 @@ def user_signup(request):
         form = forms.SignUpWithCaptcha(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user,  backend="django.contrib.auth.backends.ModelBackend")
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             Profile.objects.filter(user=user).update(last_login=now())
             messages.success(request, "Login successful!")
             msg = mark_safe("Signup successful!")
@@ -186,7 +173,6 @@ def debug_user(request):
 
 
 def user_logout(request):
-
     if request.method == "POST":
 
         form = forms.LogoutForm(request.POST)
@@ -204,7 +190,6 @@ def user_logout(request):
 
 
 def user_login(request):
-
     form = forms.LoginForm()
     if request.method == "POST":
         form = forms.LoginForm(data=request.POST)
@@ -218,7 +203,7 @@ def user_login(request):
             message, valid_user = check_user(email=email, password=password)
 
             if valid_user:
-                login(request, user,  backend="django.contrib.auth.backends.ModelBackend")
+                login(request, user, backend="django.contrib.auth.backends.ModelBackend")
                 Profile.objects.filter(user=user).update(last_login=now())
                 messages.success(request, "Login successful!")
                 return redirect("/")
@@ -242,7 +227,7 @@ def send_email_verify(request):
 
     messages.success(request, "Verification sent, check your email.")
 
-    return redirect(reverse("public_profile", kwargs=dict(uid=user.profile.uid)))
+    return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 
 
 def email_verify_account(request, uidb64, token):
@@ -255,14 +240,13 @@ def email_verify_account(request, uidb64, token):
         Profile.objects.filter(user=user).update(email_verified=True)
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         messages.success(request, "Email verified!")
-        return redirect(reverse('public_profile', kwargs=dict(uid=user.profile.uid)))
+        return redirect(reverse('user_profile', kwargs=dict(uid=user.profile.uid)))
 
     messages.error(request, "Link is expired.")
     return redirect("/")
 
 
 def external_login(request):
-
     payload = request.GET.get("payload", "")
 
     try:
@@ -299,6 +283,7 @@ def password_reset(request):
                                      email_template_name="accounts/password_reset_email.html"
                                      )
 
+
 def password_reset_done(request):
     context = dict()
     return auth_views.password_reset_done(request, extra_context=context,
@@ -310,10 +295,11 @@ def pass_reset_confirm(request, uidb64, token):
 
     return auth_views.password_reset_confirm(request, extra_context=context,
                                              template_name="accounts/password_reset_confirm.html",
-                                            uidb64=uidb64, token=token)
+                                             uidb64=uidb64, token=token)
+
 
 def password_reset_complete(request):
     context = dict()
 
     return auth_views.password_reset_complete(request, extra_context=context,
-                                              template_name="accounts/password_reset_complete.html",)
+                                              template_name="accounts/password_reset_complete.html", )

@@ -7,7 +7,7 @@
         written {{ post.creation_date.date }}
     {% endif %}
 
-    by <a href="{% url "public_profile"  post.author.profile.uid %}">
+    by <a href="{% url "user_profile"  post.author.profile.uid %}">
     {% if with_image %}
     <div class="ui avatar image">{% gravatar user=post.author size=100 %}</div>
     {% endif %}
@@ -19,7 +19,7 @@
     {% if post.author != post.lastedit_user %}
     &bull; updated
     <span>{{ post.lastedit_date|time_ago }}</span> by
-    <a href="{% url "public_profile"  post.lastedit_user.profile.uid %}">
+    <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
     {% if with_image %}
        <div class="ui avatar image">{% gravatar user=post.lastedit_user size=100 %}</div>
     {% endif %}

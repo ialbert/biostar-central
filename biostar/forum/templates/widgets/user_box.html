@@ -3,7 +3,7 @@
 <div class="ui center aligned segment" style="width:150px; background: #f9fbff;padding-left:0px; padding-right:0px;">
 
     <div class="center aligned author">
-        <a href="{% url "public_profile" user.profile.uid %}">
+        <a href="{% url "user_profile" user.profile.uid %}">
       <div class="ui circular image">
         {% gravatar user=user size=80 %}
       </div>
@@ -11,7 +11,7 @@
     </div>
 
 
-            <a href="{% url "public_profile" user.profile.uid %}">{{user.profile.name}}</a>
+            <a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
             {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
 <div>
         {% if user.profile.last_login %}
