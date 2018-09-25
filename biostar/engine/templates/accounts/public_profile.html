@@ -35,22 +35,6 @@
         {% endif %}
 
 
-        {% if allow_self_moderate and user == request.user %}
-            {% if user.profile.is_moderator %}
-
-            <a class="ui red profile label" href="{% url 'toggle_moderate' %}">
-                <i class="cancel icon"></i> Stop being moderator
-            </a>
-            {% else %}
-
-            <a class="ui green profile label" href="{% url 'toggle_moderate' %}">
-                <i class="check icon"></i> Become a moderator
-            </a>
-
-            {% endif %}
-        {% endif %}
-
-
             {% if user == request.user and user.is_superuser %}
                 <a class="ui blue profile label"  href="{% url 'site_admin' %}">
                     <i class="dashboard icon"></i> Site Admin

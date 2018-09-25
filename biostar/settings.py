@@ -70,7 +70,7 @@ FTP_PORT = 8021
 ALLOW_SIGNUP = True
 
 # Allow users to toggle their status moderator
-ALLOW_SELF_MODERATE = True
+ALLOW_SELF_MODERATE = False
 
 # Maximum size of each file upload in MB
 MAX_FILE_SIZE_MB = 300
