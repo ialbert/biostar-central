@@ -392,7 +392,7 @@ class Vote(models.Model):
     TYPE_CHOICES = [(UP, "Upvote"), (EMPTY, "Empty"),
                     (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_user_model))
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, default=EMPTY, db_index=True)
     date = models.DateTimeField(auto_now_add=True, db_index=True)
