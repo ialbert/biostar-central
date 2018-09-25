@@ -32,14 +32,14 @@ def init_messages(sender, **kwargs):
 
     test_2 = User.objects.filter(username="testing").first()
     if not test_2:
+        # Create user and send message once.
         test_2 = User.objects.create(username="testing", email="testing@test")
-    recipient_list = [sender, test_2]
+        recipient_list = [sender, test_2]
+        msg = auth.create_messages(body=body, subject=subject, recipient_list=recipient_list,
+                            sender=sender)
 
-    msg = auth.create_messages(body=body, subject=subject, recipient_list=recipient_list,
-                        sender=sender)
-
-    # Test with a message tree whenever debugging
-    if settings.DEBUG:
-        msg1 = msg[1]
-        msg2 = msg[0]
-        models.Message.objects.filter(pk=msg2.pk).update(parent_msg=msg1)
+        # Test with a message tree whenever debugging
+        if settings.DEBUG:
+            msg1 = msg[1]
+            msg2 = msg[0]
+            models.Message.objects.filter(pk=msg2.pk).update(parent_msg=msg1)
