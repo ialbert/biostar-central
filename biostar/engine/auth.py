@@ -60,12 +60,11 @@ def access_denied_message(user, access):
     return tmpl.render(context=context)
 
 
-def authorize_analysis(user, recipe):
-
-    if user.is_staff:
-        return Analysis.AUTHORIZED
-
-    return Analysis.UNDER_REVIEW
+def authorize_run(user, recipe):
+    """
+    Returns runnable.
+    """
+    return recipe.runnable() or user.is_staff
 
 
 def generate_script(job):
@@ -278,7 +277,7 @@ def make_job_title(recipe, data):
     return name
 
 
-def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=None, uid=None, save=True):
+def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=Job.QUEUED, uid=None, save=True):
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
 
@@ -300,7 +299,7 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     # Create the job instance.
     job = Job(name=name, summary=summary, state=state, json_text=json_text,
-              security=analysis.security, project=project, analysis=analysis, owner=owner,
+              security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
               template=analysis.template, uid=uid)
 
     if save:

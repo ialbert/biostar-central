@@ -467,6 +467,7 @@ def data_upload(request, uid):
     form = forms.DataUploadForm(user=owner, project=project)
 
     if request.method == "POST":
+
         form = forms.DataUploadForm(data=request.POST, files=request.FILES, user=owner, project=project)
 
         if form.is_valid():
@@ -475,10 +476,14 @@ def data_upload(request, uid):
             return redirect(reverse("data_list", request=request, kwargs={'uid': project.uid}))
 
     uploaded_files = Data.objects.filter(owner=owner, method=Data.UPLOAD)
-    currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
-    allowed = (owner.profile.max_upload_size - (currect_size / 1024 / 1024)) or 0
 
-    context = dict(project=project, form=form, activate="Add Data", allowed=f"{allowed:.2f}")
+    # The current size of the existing data
+    current_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
+
+    # Maximum data that may be uploaded.
+    maximum_size = owner.profile.max_upload_size * 1024 * 1024
+
+    context = dict(project=project, form=form, activate="Add Data", maximum_size=maximum_size, current_size=current_size)
 
     counts = get_counts(project)
 
@@ -519,7 +524,7 @@ def recipe_code_view(request, uid):
 
             if template != recipe.template:
                 recipe.template = template
-                recipe.security = auth.authorize_analysis(user=user, recipe=recipe)
+                recipe.security = Analysis.UNDER_REVIEW
                 recipe.diff_author = user
                 recipe.diff_date = timezone.now()
                 recipe.save()
@@ -545,12 +550,16 @@ def recipe_run(request, uid):
     """
 
     analysis = Analysis.objects.filter(uid=uid).first()
+
     project = analysis.project
 
+    # Form submission.
     if request.method == "POST":
+
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
                                      data=request.POST)
 
+        # The form validation will authorize the job.
         if form.is_valid():
 
             # The desired name of for the results.
@@ -559,12 +568,16 @@ def recipe_run(request, uid):
             # Generates the JSON data from the bound form field.
             json_data = form.fill_json_data()
 
-            # Create the job from the json.
-            state = Job.SPOOLED if tasks.HAS_UWSGI else Job.QUEUED
-            job = auth.create_job(analysis=analysis, user=request.user, json_data=json_data, name=name, state=state)
+            # Create the job from the recipe and incoming json data.
+            job = auth.create_job(analysis=analysis, user=request.user,
+                                  json_data=json_data, name=name)
 
             # Spool the job right away if UWSGI exists.
             if tasks.HAS_UWSGI:
+                # Update the job state.
+                Job.objects.filter(id=job.id).update(state=Job.SPOOLED)
+
+                # Spool via UWSGI.
                 tasks.execute_job.spool(job_id=job.id)
 
             return redirect(reverse("job_list", request=request, kwargs=dict(uid=project.uid)))
@@ -573,6 +586,7 @@ def recipe_run(request, uid):
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
 
     context = dict(project=project, analysis=analysis, form=form, activate='Run Recipe')
+
     context.update(get_counts(project))
 
     return render(request, 'recipe_run.html', context)

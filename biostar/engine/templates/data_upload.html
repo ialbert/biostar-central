@@ -7,9 +7,6 @@
 
 {% block content %}
 
-
-<div class="ui message">You can upload <b>{{allowed}} MB</b> </div>
-
     <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'data_upload' project.uid %}">
         {% csrf_token %}
 
@@ -20,7 +17,10 @@
 
             <p class="ui header"><i class="ui upload icon"></i>Upload a file</p>
 
-            <p>You may upload a file from your computer.</p>
+            <p>
+                Your storage space is <b>{{ maximum_size|filesizeformat }}</b>.
+                Across all projects you use <b>{{ current_size|filesizeformat }}</b>.
+            </p>
 
             <div class="field">
                 {{ form.file }}
