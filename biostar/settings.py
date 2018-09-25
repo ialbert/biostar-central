@@ -102,7 +102,6 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'snowpenguin.django.recaptcha2',
 
-
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',
@@ -111,7 +110,7 @@ INSTALLED_APPS = [
     'biostar.message.apps.MessageConfig',
     'biostar.ftpserver',
 
-     # Allauth templates come last.
+    # Allauth templates come last.
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -152,7 +151,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
@@ -225,10 +223,12 @@ ONLY_FORUM_URLS = False
 
 # Session settings go here
 SESSION_KEY = "session"
+
 COUNT_INTERVAL_WEEKS = 10000
 
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
-#SENDFILE_BACKEND = "sendfile.backends.nginx"
+# SENDFILE_BACKEND = "sendfile.backends.nginx"
 SENDFILE_BACKEND = "sendfile.backends.development"
 
 MEDIA_URL = '/media/'
@@ -259,9 +259,19 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 LOGIN_REDIRECT_URL = "/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
+# Default clients redirect to localhost.
+# Default clients may not be operational. See the
+# django allauth documentataion on how to set them up.
+
+#
+# Callback example settings:
+#
+# http://localhost:8000/accounts/social/google/login/callback/
+# http://localhost:8000/accounts/social/github/login/callback/
+#
 SOCIAL_CLIENTS = [
 
-    ("Google", "547073349197-ri3eku9fdpi1ble7eoc4amlsrh7m2oiv.apps.googleusercontent.com", "DR1-zMqOLTqRGvhSDb5rQBMg")
+    ("Google", "547073349197-ri3eku9fdpi1ble7eoc4amlsrh7m2oiv.apps.googleusercontent.com", "DR1-zMqOLTqRGvhSDb5rQBMg"),
+    ("GitHub", "d8493ce8967ea5abbd73", "04ff5043ebce2317d3c26bfe90fbc5e67fa38d05")
 
 ]
-
