@@ -78,9 +78,13 @@ def user_moderate(request, uid):
     return render(request, "accounts/user_moderate.html", context)
 
 
-@object_exists(klass=Profile)
 def user_profile(request, uid):
+
     profile = Profile.objects.filter(uid=uid).first()
+
+    if not profile:
+        messages.error(request, "User does not exist")
+        return redirect("/")
 
     # Get the active tab, defaults to project
     active_tab = request.GET.get(ACTIVE_TAB, POSTS)
