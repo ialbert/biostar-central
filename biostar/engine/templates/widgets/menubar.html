@@ -7,9 +7,11 @@
         <i class="home icon"></i>
     </a>
 
+    {% if 0 %}
     <a class="item" href="{% url 'post_list' %}">
         <i class="newspaper icon"></i> <span class="tablet">Forum</span>
     </a>
+    {% endif %}
 
     <a class="item" href="{% url 'project_list' %}">
         <i class="database icon"></i> <span class="tablet">Projects</span>
@@ -23,19 +25,20 @@
 
 
     {% if user.is_authenticated %}
-    {% object_count request=request otype="message" as num_msgs %}
-        <div class="right menu">
+    <div class="right menu">
+        {% if 0 %}
+            {% object_count request=request otype="message" as num_msgs %}
+            {% if num_msgs %}
+                <a class="green active item" href="{% url 'inbox' %}">
+                    <i class="mail icon"></i>
+                        <div class="ui green label">{{num_msgs}}</div>
+                </a>
+            {% else %}
+                <a class="item" href="{% url 'inbox' %}">
+                    <i class="mail icon"></i>
+                </a>
 
-        {% if num_msgs %}
-            <a class="green active item" href="{% url 'inbox' %}">
-                <i class="mail icon"></i>
-                    <div class="ui green label">{{num_msgs}}</div>
-            </a>
-        {% else %}
-            <a class="item" href="{% url 'inbox' %}">
-                <i class="mail icon"></i>
-            </a>
-
+            {%endif%}
         {%endif%}
 
         <a class=" item" href="{% url 'recycle_bin' %}">
