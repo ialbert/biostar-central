@@ -12,6 +12,67 @@ from . import models
 # Share the logger with models
 logger = models.logger
 
+class read_access:
+    """
+    Controls READ level access to urls
+    """
+
+    def __init__(self, type):
+        self.type = type
+        self.fallback_url = reverse("project_list")
+
+    def __call__(self, function, *args, **kwargs):
+        # Pass function attributes to the wrapper
+        @wraps(function, assigned=available_attrs(function))
+        def wrapper(request, *args, **kwargs):
+
+            # Each wrapped view must take an alphanumeric uid as parameter.
+            uid = kwargs.get('uid')
+
+            # The user is set in the request.
+            user = request.user
+
+            # Fetches the object that will be checked for permissions.
+            instance = self.type.objects.filter(uid=uid).first()
+
+            # Object does not exist.
+            if not instance:
+                messages.error(request, f"Object id {uid} does not exist")
+                return redirect(self.fallback_url)
+
+            # Get project for the instance.
+            project = instance.project
+
+            # Allow read access to public projects
+            if project.is_public:
+                return function(request, *args, **kwargs)
+
+            # Anonymous users may not access non public projects.
+            if user.is_anonymous:
+                messages.error(request, f"You must be logged in to access object id {uid}")
+                return redirect(self.fallback_url)
+
+            # Check the presence of READ or WRITE access
+            read_or_write = [models.Access.READ_ACCESS, models.Access.WRITE_ACCESS]
+            access = models.Access.objects.filter(user=user, project=project, access__in=read_or_write).first()
+
+            # Project owners may read their project.
+            if access or project.owner == user:
+                return function(request, *args, **kwargs)
+
+            # Deny access by default.
+            messages.error(request, f"Read access denied to object id {uid}")
+            return redirect(self.fallback_url)
+
+        return wrapper
+
+
+class write_access:
+    """
+    Controls WRITE level access to urls.
+    """
+    pass
+
 
 class object_access:
     """
@@ -77,5 +138,3 @@ class object_access:
             return function(request, *args, **kwargs)
 
         return _wrapped_view
-
-
