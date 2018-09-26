@@ -44,7 +44,7 @@
                     <div class="content">
 
                         {% if request.user.is_authenticated %}
-                            <a class="copy-data ui right floated label" data-uid="{{ data.uid }}" copy-url="{% url 'data_copy' %}">
+                            <a class="ui right floated label" href="{% url "data_copy" data.uid %}?next={% url "data_list" data.project.uid %}">
                                 <i class="copy icon"></i>Copy
                             </a>
                         {% endif %}
@@ -83,7 +83,7 @@
                     <div class="content">
                         {% if request.user.is_authenticated %}
 
-                            <a class="copy-data ui right floated label" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
+                            <a class="ui right floated label" " href="{% url "recipe_copy" recipe.uid %}"?next={% url "recipe_list" recipe.project.uid %}>
                                 <i class="copy icon"></i>Copy
                             </a>
                         {% endif %}
@@ -118,7 +118,7 @@
 
                 {% if request.user.is_authenticated %}
 
-                    <a class="copy-data ui right floated label" data-uid="{{ job.uid }}" copy-url="{% url 'job_copy' %}">
+                    <a class="ui right floated label" href="{% url "job_copy" job.uid %}"?next={% url "job_list" job.project.uid %}>
                         <i class="copy icon"></i>Copy
                     </a>
 
