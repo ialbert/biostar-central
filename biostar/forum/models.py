@@ -280,15 +280,6 @@ class Post(models.Model):
         text = bleach.clean(self.content, tags=[], attributes=[], styles={}, strip=True)
         return text
 
-    def peek(self, length=300):
-        "A short peek at the post"
-        return self.as_text[:length]
-
-    def get_title(self):
-        if self.status == Post.OPEN:
-            return self.title
-        else:
-            return f"({self.get_status_display()}) {self.title}"
 
     @property
     def is_open(self):
@@ -297,11 +288,6 @@ class Post(models.Model):
     @property
     def is_comment(self):
         return self.type == Post.COMMENT
-
-    @property
-    def age_in_days(self):
-        delta = timezone.now() - self.creation_date
-        return delta.days
 
     def get_absolute_url(self):
         return reverse("post_view", kwargs=dict(uid=self.root.uid))
@@ -487,23 +473,11 @@ def set_post(sender, instance, created, *args, **kwargs ):
 def check_thread_users(sender, instance, created, *args, **kwargs):
 
     # Add the author to the thread_users of the root.
-
     obj = instance.root if instance.root else instance
-    users = list(Post.objects.get_all(pk=obj.pk).values_list("thread_users", flat=True))
-    user_pks = users + [instance.author.pk]
-    user_pks = set(user_pks)
 
-    users = User.objects.filter(post__thread_users__in=obj.thread_users.all())
+    obj.thread_users.remove(instance.author)
 
-
-    #print(users, obj.thread_users, user_pks)
-    #1/0
-
-    # Clear theard users
-    obj.thread_users.clear()
-
-    users = User.objects.filter(pk__in=user_pks)
-    obj.thread_users.add(*users)
+    obj.thread_users.add(instance.author)
 
 
 @receiver(post_save, sender=Post)

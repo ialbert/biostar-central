@@ -1,6 +1,6 @@
 import logging
 import os
-
+import time
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
@@ -466,9 +466,11 @@ def data_upload(request, uid):
 
     uploaded_files = Data.objects.filter(owner=owner, method=Data.UPLOAD)
     currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
-    allowed = (owner.profile.max_upload_size - (currect_size/ 1024 / 1024)) or 0
+    max_upload = (owner.profile.max_upload_size - (currect_size/ 1024 / 1024)) or 0
 
-    context = dict(project=project, form=form, activate="Add Data", allowed=f"{allowed:.2f}")
+    allowed = max_upload > 0
+    context = dict(project=project, form=form, activate="Add Data", max_upload=f"{max_upload:.2f}",
+                   allowed=allowed)
 
     counts = get_counts(project)
 

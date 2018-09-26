@@ -5,7 +5,7 @@
         <div class="ui vertical segment">
             <a name="{{post.uid}}" style="padding:0;"></a>
             {% subs_actions post=post user=request.user next=next_url sub_url=sub_url %}
-            <div class="ui header" >{{ post.get_type_display }}: {{ post.get_title }}</div>
+            <div class="ui header" >{{ post.get_type_display }}: {{ post.title }}</div>
 
         </div>
 

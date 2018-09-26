@@ -7,9 +7,11 @@
 
 {% block content %}
 
-
-<div class="ui message">You can upload <b>{{allowed}} MB</b> </div>
-
+{% if allowed %}
+<div class="ui message">You can upload <b>{{max_upload}} MB</b> </div>
+{% else %}
+<div class="ui warning message">You are out of space.</div>
+{% endif %}
     <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'data_upload' project.uid %}">
         {% csrf_token %}
 
