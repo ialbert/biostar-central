@@ -21,7 +21,7 @@
                     <div class="content">
 
                         {% if request.user.is_authenticated %}
-                            <a class="copy-data ui right floated label" data-uid="{{ data.uid }}" copy-url="{% url 'data_copy' %}">
+                            <a class="ui right floated label" href="{% url "data_copy" data.uid %}?next={% url "data_list" data.project.uid %}">
                                 <i class="copy icon"></i>Copy
                             </a>
                         {% endif %}

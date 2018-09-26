@@ -53,11 +53,12 @@
                 <i class="keyboard icon"></i> <span class="fitme">Recipe Code</span>
             </a>
 
+
             <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
                 <i class="bar chart icon"></i> <span class="fitme">Recipe Results</span>
             </a>
 
-            <a class="copy-data ui button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
+            <a class="ui button" href="{% url "recipe_copy" recipe.uid %}?next={% url "recipe_view" recipe.uid %}">
                 <i class="copy icon"></i> <span class="fitme">Copy Recipe</span>
             </a>
 
