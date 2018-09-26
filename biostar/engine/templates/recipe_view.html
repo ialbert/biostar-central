@@ -23,7 +23,7 @@
                 </div>
                 <div class="content">
                     <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                        <i class="setting icon"></i>{{ recipe.name }}
+                        <i class="setting icon"></i>{{ activate }}: {{ recipe.name }}
                     </a>
                     <div class="description">{{ recipe.summary|markdown|safe }}</div>
                 </div>
@@ -49,12 +49,12 @@
                 <i class="spinner icon"></i> <span class="fitme">Run</span>
             </a>
 
-            <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                <i class="bar chart icon"></i> <span class="fitme">Recipe Results</span>
-            </a>
-
             <a class="ui button" href="{% url 'recipe_code_view' recipe.uid %}">
                 <i class="keyboard icon"></i> <span class="fitme">Recipe Code</span>
+            </a>
+
+            <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                <i class="bar chart icon"></i> <span class="fitme">Recipe Results</span>
             </a>
 
             <a class="copy-data ui button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
@@ -67,9 +67,9 @@
 
             <a class="ui button tablet" href="{% url 'recipe_delete' recipe.uid %}">
                 {% if recipe.deleted %}
-                <i class="undo icon"></i> <span class="fitme">Restore</span>
+                    <i class="undo icon"></i> <span class="fitme">Restore</span>
                 {% else %}
-                <i class="trash icon"></i> <span class="fitme">Delete</span>
+                    <i class="trash icon"></i> <span class="fitme">Delete</span>
                 {% endif %}
             </a>
 

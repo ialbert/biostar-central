@@ -499,7 +499,7 @@ def recipe_view(request, uid):
     """
     recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
-    context = dict(recipe=recipe, project=project, activate='View Recipe')
+    context = dict(recipe=recipe, project=project, activate='Recipe View')
 
     counts = get_counts(project)
     context.update(counts)

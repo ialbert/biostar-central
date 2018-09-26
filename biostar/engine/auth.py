@@ -166,7 +166,7 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
 
     # Check for logged in user and login requirement.
     if user.is_anonymous and login_required:
-        messages.error(request, "You must be logged in to perform that action.")
+        messages.error(request, "You must be logged in.")
         return False
 
     # If the project is public then any user can have read access.
