@@ -14,7 +14,7 @@ logger = models.logger
 
 class read_access:
     """
-    Controls READ level access to urls
+    Controls READ level access to urls.
     """
 
     def __init__(self, type):
