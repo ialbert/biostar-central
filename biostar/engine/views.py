@@ -616,13 +616,12 @@ def recipe_code_edit(request, uid):
 
             # Changes to template will require a review ( only when saving ).
             if auth.template_changed(analysis=analysis, template=template) and save:
-                analysis.security = Analysis.UNDER_REVIEW
                 analysis.diff_author = user
                 analysis.diff_date = timezone.now()
 
-            # Staff members will automatically get authorized.
-            if user.is_staff:
-                analysis.security = Analysis.AUTHORIZED
+            # Recipes edited by non staff members need to be authorized.
+            if not user.is_staff:
+                analysis.security = Analysis.UNDER_REVIEW
 
             # Set the new template.
             analysis.template = template
