@@ -251,7 +251,9 @@ def get_counts(project):
 @object_access(type=Project, access=Access.READ_ACCESS)
 def project_view(request, uid, template_name="recipe_list.html", active='recipes', show_summary=None,
                  extra_context={}):
+
     project = Project.objects.filter(uid=uid).first()
+
     # Show counts for the project.
     counts = get_counts(project)
 
@@ -261,9 +263,12 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     job_list = project.job_set.order_by("-sticky", "-date").all()
 
     # Filter job results by analysis
-    recipe_filter = request.GET.get('filter', '')
+    filter_uid = request.GET.get('filter', '')
+    recipe_filter = Analysis.objects.filter(uid=filter_uid).first()
+
+    # The recipe filter exists
     if recipe_filter:
-        job_list = job_list.filter(analysis__uid=recipe_filter)
+        job_list = job_list.filter(analysis=recipe_filter)
 
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
                    active=active, recipe_filter=recipe_filter, show_summary=show_summary)
@@ -504,7 +509,9 @@ def recipe_code_view(request, uid):
     form = forms.RecipeCodeEdit(user=user, recipe=recipe)
 
     if request.method == "POST":
+
         form = forms.RecipeCodeEdit(data=request.POST, user=user, recipe=recipe)
+
         if form.is_valid():
 
             template = form.cleaned_data.get('template').strip()
