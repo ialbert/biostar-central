@@ -19,4 +19,3 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
         if user.exists():
             sociallogin.connect(request, user.first())
-

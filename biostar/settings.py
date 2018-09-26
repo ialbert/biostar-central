@@ -75,6 +75,8 @@ ALLOW_SELF_MODERATE = False
 # Maximum size of each file upload in MB
 MAX_FILE_SIZE_MB = 300
 
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 # Helper function for building absolute paths.
 def join(*args):
