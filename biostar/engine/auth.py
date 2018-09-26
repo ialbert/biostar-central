@@ -4,10 +4,11 @@ import uuid
 from mimetypes import guess_type
 
 import hjson
-from biostar import settings
+from django.conf import settings
 
 from biostar.accounts.models import Profile
 from django.contrib import messages
+from django.http import JsonResponse
 from django.db.models import Q
 from django.template import Template, Context
 from django.template import loader
@@ -58,6 +59,29 @@ def access_denied_message(user, access):
     tmpl = loader.get_template('widgets/access_denied_message.html')
     context = dict(user=user, access=access)
     return tmpl.render(context=context)
+
+
+def copy(request, instance, board, user):
+    """Used to append instance.uid into request.session[board]"""
+
+    if instance is None:
+        entry = Access(access=Access.NO_ACCESS)
+    else:
+        entry = Access.objects.filter(user=user, project=instance.project).first()
+        entry = entry or Access(access=Access.NO_ACCESS)
+
+    if entry.access >= Access.READ_ACCESS or instance.project.is_public:
+        board_items = request.session.get(board, [])
+        board_items.append(instance.uid)
+        # No duplicates in clipboard
+        board_items = list(set(board_items))
+        request.session[board] = board_items
+        messages.success(request, f"Copied data, there are {len(board_items)} in clipboard.")
+    else:
+        board_items = request.session[board] = []
+        messages.warning(request, "You are not allowed to copy this.")
+
+    return board_items
 
 
 def authorize_run(user, recipe):

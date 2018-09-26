@@ -127,6 +127,7 @@ class object_access:
             else:
                 target = reverse('project_list', request=request)
 
+            target = request.GET.get("next") or target
             # Access check did not pass, redirect.
             if not allow_access:
                 return redirect(target)

@@ -45,7 +45,7 @@
                 <i class="keyboard icon"></i>View Code
             </a>
 
-            <a class="copy-data ui button" data-uid="{{ job.uid }}" copy-url="{% url 'job_copy' %}">
+            <a class="ui button" href="{% url "job_copy" job.uid %}?next={% url "job_view" job.uid %}">
                 <i class="copy icon"></i>Copy Results
             </a>
 

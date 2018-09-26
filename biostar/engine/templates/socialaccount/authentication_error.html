@@ -1,11 +1,15 @@
-{% extends "socialaccount/base.html" %}
+{% extends "profile_base.html" %}
 
-{% load i18n %}
+{% load engine_tags %}
+{% load forum_tags %}
 
-{% block head_title %}{% trans "Social Network Login Failure" %}{% endblock %}
 
-{% block content %}
-<h1>{% trans "Social Network Login Failure!!!!" %}</h1>
+{% block headtitle %}Error Logging in{% endblock %}
 
-<p>{% trans "An error occurred while attempting to login via your social network account." %}</p>
+{% block body %}
+
+<div class="ui large error message">
+  <i class="info circle icon"></i>  Error logging in with provider, please choose another method.
+</div>
+
 {% endblock %}

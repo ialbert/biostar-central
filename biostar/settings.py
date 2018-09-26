@@ -75,6 +75,8 @@ ALLOW_SELF_MODERATE = False
 # Maximum size of each file upload in MB
 MAX_FILE_SIZE_MB = 300
 
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 # Helper function for building absolute paths.
 def join(*args):
@@ -255,9 +257,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # List of social login clients tuples.
 # ( name, client_id, secret )
-
-LOGIN_REDIRECT_URL = "/"
-ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 # Default clients redirect to localhost.
 # Default clients may not be operational. See the
