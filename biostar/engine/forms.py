@@ -40,24 +40,27 @@ def check_size(fobj, maxsize=0.3):
 
 
 def check_upload_limit(file, user):
-    "Checks if the intended file pushes user over their upload limit."
+    """
+    Checks if the file pushes user over their upload limit."
+    """
 
-    uploaded_files = Data.objects.filter(owner=user, method=Data.UPLOAD)
-    currect_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
+    # Existing data.
+    data = Data.objects.filter(owner=user, method=Data.UPLOAD)
 
-    to_mb = lambda x: x / 1024 / 1024
+    # The current cumulative size of the current data.
+    current_size = data.aggregate(Sum("size"))["size__sum"] or 0
 
-    projected = to_mb(file.size + currect_size)
-    max_mb = user.profile.max_upload_size
+    # The projected size in MB.
+    projected_size = file.size + current_size
 
-    allowed = (max_mb - to_mb(currect_size)) or 0
+    # Maximal cumulative sizes.
+    max_size = user.profile.max_upload_size * 1024 * 1024
 
-    if projected > max_mb:
-        msg = f"<b>Over your {max_mb:0.0001f} MB total upload limit.</b> "
-        msg = msg + f"""
-                File too large: currently <b>{to_mb(file.size):0.0001f} MB</b>
-                should be <b> < {allowed:0.001f} MB</b>
-                """
+    # Current file size in MB
+    file_mb = file.size / 1024 / 1024
+
+    if projected_size > max_size:
+        msg = f"You don't have enough storage space for data of size <b>{file_mb:.2f} MB</b>"
         raise forms.ValidationError(mark_safe(msg))
 
     return file
@@ -69,6 +72,7 @@ def clean_file(fobj, user, project, check_name=True):
         return fobj
 
     check_size(fobj=fobj, maxsize=settings.MAX_FILE_SIZE_MB)
+
     check_upload_limit(file=fobj, user=user)
 
     # Check if this name already exists.
@@ -153,22 +157,24 @@ class DataUploadForm(forms.ModelForm):
         fields = ['data_name', 'file', 'input_text', 'summary', 'text', "sticky", "type"]
 
     def clean(self):
-        cleaned_data = super(DataUploadForm, self).clean()
 
-        if not (cleaned_data.get("file") or cleaned_data.get("input_text")):
+        cleaned_data = super(DataUploadForm, self).clean()
+        upload = cleaned_data.get("file")
+        text = cleaned_data.get("input_text")
+
+        if not (upload or text):
             raise forms.ValidationError("Upload a file or write into the text field to create some data.")
 
-        if cleaned_data.get("input_text") and not cleaned_data.get("file"):
+        if upload:
+            clean_file(fobj=upload, user=self.user,
+                       project=self.project, check_name=False)
+
+        else:
             if not cleaned_data.get("data_name"):
                 raise forms.ValidationError("Name is required with text inputs.")
+
         return cleaned_data
 
-    def clean_file(self):
-        cleaned_data = super(DataUploadForm, self).clean()
-
-        return clean_file(fobj=cleaned_data.get('file'),
-                          user=self.user,
-                          project=self.project, check_name=False)
 
     def clean_type(self):
         cleaned_data = super(DataUploadForm, self).clean()
@@ -428,26 +434,19 @@ class RecipeInterface(forms.Form):
                 self.fields[name] = field
 
     def clean(self):
-        cleaned_data = super(RecipeInterface, self).clean()
+
+        # Validate default fields.
+        super(RecipeInterface, self).clean()
 
         if self.user.is_anonymous:
-            msg1 = "Only logged in users may execute recipes."
-            raise forms.ValidationError(msg1)
+            msg = "You must be logged in."
+            raise forms.ValidationError(msg)
 
-        # The owner of the project may run any recipe in the project.
-        if self.project.owner == self.user:
-            return
+        if not auth.authorize_run(user=self.user, recipe=self.analysis):
+            msg = "Insufficient permission to execute recipe."
+            raise forms.ValidationError(msg)
 
-        # Check the permissions for the recipe.
-        entry = Access.objects.filter(user=self.user, project=self.project).first()
 
-        if not entry or entry.access < Access.WRITE_ACCESS:
-            msg2 = "You don't have write access to this project. Copy this analysis to another project."
-            raise forms.ValidationError(msg2)
-
-        if self.analysis.security != Analysis.AUTHORIZED:
-            msg3 = "The recipe has been modified. It must be reviewed by a staff member to authorize it."
-            raise forms.ValidationError(msg3)
 
     def fill_json_data(self):
         """

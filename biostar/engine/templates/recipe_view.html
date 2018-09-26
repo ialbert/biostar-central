@@ -23,7 +23,7 @@
                 </div>
                 <div class="content">
                     <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                        <i class="setting icon"></i> {{ activate }}: {{ recipe.name }}
+                        <i class="setting icon"></i>{{ recipe.name }}
                     </a>
                     <div class="description">{{ recipe.summary|markdown|safe }}</div>
                 </div>
@@ -31,9 +31,6 @@
         </div>
 
     </div>
-
-    {% security_label recipe %}
-
 
     <div class="ui vertical segment">
 
@@ -65,7 +62,7 @@
             </a>
 
             <a class="ui button tablet" href="{% url "recipe_edit" recipe.uid %}">
-                <i class="edit icon"></i> <span class="fitme">Edite Recipe</span>
+                <i class="edit icon"></i> <span class="fitme">Edit Recipe</span>
             </a>
 
             <a class="ui button tablet" href="{% url 'recipe_delete' recipe.uid %}">
