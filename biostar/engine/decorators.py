@@ -71,7 +71,56 @@ class write_access:
     """
     Controls WRITE level access to urls.
     """
-    pass
+
+    def __init__(self, type):
+        self.type = type
+        self.fallback_url = reverse("project_list")
+
+    def __call__(self, function, *args, **kwargs):
+        """
+        Decorator used to test if a user has rights to access an instance
+        """
+
+        # Pass function attributes to the wrapper
+        @wraps(function, assigned=available_attrs(function))
+        def _wrapped_view(request, *args, **kwargs):
+
+            pass
+
+
+class owner_only:
+    """
+    Controls privileges left to owner
+    """
+    def __init__(self, type):
+        self.type = type
+        self.fallback_url = reverse("project_list")
+
+    def __call__(self, function, *args, **kwargs):
+        """
+        Decorator used to test if a user has rights to access an instance
+        """
+
+        # Pass function attributes to the wrapper
+        @wraps(function, assigned=available_attrs(function))
+        def _wrapped_view(request, *args, **kwargs):
+            # Each wrapped view must take an alphanumeric uid as parameter.
+            uid = kwargs.get('uid')
+
+            # The user is set in the request.
+            user = request.user
+
+            # Fetches the object that will be checked for permissions.
+            instance = self.type.objects.filter(uid=uid).first()
+
+            # Project owners may read their project.
+            if instance.owner == user or instance.project.owner == user:
+                return function(request, *args, **kwargs)
+
+            messages.error(request, "You have to be the owner to preform this action.")
+            return redirect(self.fallback_url)
+
+        return _wrapped_view
 
 
 class object_access:
