@@ -5,22 +5,17 @@ from mimetypes import guess_type
 
 import hjson
 from django.conf import settings
-
-from biostar.accounts.models import Profile
 from django.contrib import messages
-from django.http import JsonResponse
+from django.contrib.messages.storage import fallback
 from django.db.models import Q
 from django.template import Template, Context
 from django.template import loader
-from django.utils.safestring import mark_safe
-from django.contrib.messages.storage import fallback
 from django.test import RequestFactory
-
+from django.utils.safestring import mark_safe
 
 from . import util
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
-
 
 logger = logging.getLogger("engine")
 
@@ -292,9 +287,9 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
 
 
 def make_job_summary(data, summary='', title='', name="widgets/job_summary.html"):
-    '''
-    Summarizes job parameters.
-    '''
+    """
+    Creates informative job summary that shows job parameters.
+    """
 
     context = dict(data=data, summary=summary, title=title)
     template = loader.get_template(name)
@@ -304,7 +299,29 @@ def make_job_summary(data, summary='', title='', name="widgets/job_summary.html"
 
 
 def make_job_title(recipe, data):
-    name = f"Results: {recipe.name}"
+    """
+    Creates informative job title that shows job parameters.
+    """
+    params = data.values()
+ 
+    # Extracts the field that gets displayed for a parameter
+    def extract(param):
+        if not param.get("display"):
+            return None
+        if param.get("source"):
+            return param.get("name")
+        return param.get("value")
+
+    vals = map(extract, params)
+    vals = filter(None, vals)
+    vals = map(str, vals)
+    vals = ", ".join(vals)
+
+    if vals:
+        name = f"Results for {recipe.name}: {vals}"
+    else:
+        name = f"Results for {recipe.name}"
+
     return name
 
 
@@ -341,7 +358,6 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
 
 def delete_object(obj, request):
-
     obj.deleted = not obj.deleted
     obj.save()
     msg = f"Deleted <b>{obj.name}</b>." if obj.deleted else f"Restored <b>{obj.name}</b>."
@@ -393,8 +409,7 @@ def link_file(path, data):
 
 
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', type="",  uid=None, paths=[]):
-
+                text='', summary='', type="", uid=None, paths=[]):
     # We need absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/") if path else ""
 
