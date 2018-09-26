@@ -33,14 +33,15 @@
 
         <div class="seven ui small buttons">
 
-              <button class="ui button" onclick="window.history.back()">
+            <button class="ui button" onclick="window.history.back()">
                 <i class="chevron left icon"></i>Back
             </button>
 
-            <a class="ui  button" href="{% url 'recipe_view' job.analysis.uid %}"><i
-            class="setting icon"></i>View Recipe</a>
+            <a class="ui  button" href="{% url 'recipe_view' job.analysis.uid %}">
+                <i class="setting icon"></i>View Recipe
+            </a>
 
-             <a class="ui button" href="{% url 'recipe_code_view' job.analysis.uid %}">
+            <a class="ui button" href="{% url 'recipe_code_view' job.analysis.uid %}">
                 <i class="keyboard icon"></i>View Code
             </a>
 
@@ -54,15 +55,15 @@
 
             <a class="ui button tablet" href="{% url "job_delete" job.uid %}">
                 {% if job.deleted %}
-                <i class="undo icon"></i> <span class="fitme">Restore</span>
+                    <i class="undo icon"></i> <span class="fitme">Restore</span>
                 {% else %}
-                <i class="trash icon"></i> <span class="fitme">Delete</span>
+                    <i class="trash icon"></i> <span class="fitme">Delete</span>
                 {% endif %}
             </a>
 
 
         </div>
-         <div id="copy-message-{{ job.uid }}"></div>
+        <div id="copy-message-{{ job.uid }}"></div>
 
     </div>
 

@@ -17,7 +17,7 @@ from biostar.forum.models import Post
 from biostar.utils.decorators import ajax_error_wrapper
 from biostar.utils.shortcuts import reverse
 from . import tasks, auth, forms, util, const
-from .decorators import object_access
+from .decorators import object_access, read_access, write_access
 from .diffs import color_diffs
 from .models import (Project, Data, Analysis, Job, Access)
 
@@ -479,14 +479,14 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MANAGER)
+@read_access(type=Analysis)
 def recipe_view(request, uid):
     """
     Returns an analysis view based on its id.
     """
     recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
-    context = dict(recipe=recipe, project=project, activate='View Recipe')
+    context = dict(recipe=recipe, project=project, activate='Recipe View')
 
     counts = get_counts(project)
     context.update(counts)
