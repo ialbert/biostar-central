@@ -69,8 +69,8 @@
                 <i class="keyboard icon"></i>Edit Interface
             </a>
 
-            <a class="copy-data ui small button" data-uid="{{ recipe.uid }}" copy-url="{% url 'recipe_copy' %}">
-                <i class="copy icon"></i>Copy Recipe
+            <a class="ui button" href="{% url "recipe_copy" recipe.uid %}?next={% url "recipe_code_view" recipe.uid %}">
+                <i class="copy icon"></i> <span class="fitme">Copy Recipe</span>
             </a>
 
         </div>

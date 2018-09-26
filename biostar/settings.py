@@ -258,9 +258,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # List of social login clients tuples.
 # ( name, client_id, secret )
 
-LOGIN_REDIRECT_URL = "/"
-ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
-
 # Default clients redirect to localhost.
 # Default clients may not be operational. See the
 # django allauth documentataion on how to set them up.

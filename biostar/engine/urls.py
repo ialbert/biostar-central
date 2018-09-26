@@ -59,9 +59,13 @@ urlpatterns = [
     url(r'^comment/$', forum_views.comment, name='discussion_comment'),
 
     # Ajax calls
-    url(r'^data/copy/$', views.ajax_data_copy, name='data_copy'),
-    url(r'^result/copy/$', views.ajax_job_copy, name='job_copy'),
-    url(r'^recipe/copy/$', views.ajax_recipe_copy, name='recipe_copy'),
+    #url(r'^data/copy/$', views.ajax_data_copy, name='data_copy'),
+    #url(r'^result/copy/$', views.ajax_job_copy, name='job_copy'),
+    #url(r'^recipe/copy/$', views.ajax_recipe_copy, name='recipe_copy'),
+
+    url(r'^data/copy/(?P<uid>[-\w]+)/$', views.data_copy, name='data_copy'),
+    url(r'^result/copy/(?P<uid>[-\w]+)/$', views.job_copy, name='job_copy'),
+    url(r'^recipe/copy/(?P<uid>[-\w]+)/$', views.recipe_copy, name='recipe_copy'),
 
     # Apis
     url(r'^api/recipe/(?P<uid>[-\w]+)/$', api.recipe_details, name='recipe_details'),

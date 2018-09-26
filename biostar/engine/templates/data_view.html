@@ -42,7 +42,7 @@
                 <i class="chevron left icon"></i>Back
             </button>
 
-            <a class="copy-data ui button" data-uid="{{ data.uid }}" copy-url="{% url 'data_copy' %}">
+            <a class="ui button" href="{% url "data_copy" data.uid %}?next={% url "data_view" data.uid %}">
                 <i class="copy icon"></i>Copy Data
             </a>
             <a class="ui button" href="{% url 'data_edit' data.uid %}">

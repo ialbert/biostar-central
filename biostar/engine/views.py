@@ -1,12 +1,11 @@
 import logging
 import os
-import time
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 from django.db.models import Sum
-from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -310,49 +309,37 @@ def project_create(request):
     return render(request, "project_create.html", context=context)
 
 
-def ajax_copy(request, modeltype, msg="Copied!", board=None):
-    user = request.user
-    data_uid = request.GET.get("data_uid")
-    instance = modeltype.objects.get_all(uid=data_uid).first()
+@object_access(type=Data, login_required=True, access=Access.READ_ACCESS)
+def data_copy(request, uid):
 
-    if instance is None:
-        entry = Access(access=Access.NO_ACCESS)
-    else:
-        entry = Access.objects.filter(user=user, project=instance.project).first()
-        entry = entry or Access(access=Access.NO_ACCESS)
+    data = Data.objects.get_all(uid=uid).first()
+    next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
-    if entry.access >= Access.READ_ACCESS or instance.project.is_public:
-        current = request.session.get(board, [])
-        current.append(instance.uid)
-        # No duplicates in clipboard
-        current = list(set(current))
-        request.session[board] = current
-        status = "success"
-        msg += f" Clipboard has {len(current)} object(s)."
-    else:
-        msg = status = "error"
-        request.session[board] = []
+    auth.copy(request=request, instance=data, board=const.DATA_CLIPBOARD, user=request.user)
 
-    response = JsonResponse({"msg": msg, "status": status})
-    return response
+    return redirect(next_url)
 
 
-@ajax_error_wrapper(method="GET")
-def ajax_job_copy(request):
-    msg = "Copied to results clipboard!"
-    return ajax_copy(modeltype=Job, request=request, msg=msg, board=const.RESULTS_CLIPBOARD)
+@object_access(type=Analysis, login_required=True, access=Access.READ_ACCESS)
+def recipe_copy(request, uid):
+
+    recipe = Analysis.objects.get_all(uid=uid).first()
+    next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
+
+    auth.copy(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD, user=request.user)
+
+    return redirect(next_url)
 
 
-@ajax_error_wrapper(method="GET")
-def ajax_data_copy(request):
-    msg = "Copied to data clipboard!"
-    return ajax_copy(modeltype=Data, request=request, msg=msg, board=const.DATA_CLIPBOARD)
+@object_access(type=Job, login_required=True, access=Access.READ_ACCESS)
+def job_copy(request, uid):
 
+    job = Job.objects.get_all(uid=uid).first()
+    next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
-@ajax_error_wrapper(method="GET")
-def ajax_recipe_copy(request):
-    msg = "Copied to recipe clipboard!"
-    return ajax_copy(modeltype=Analysis, request=request, msg=msg, board=const.RECIPE_CLIPBOARD)
+    auth.copy(request=request, instance=job, board=const.RESULTS_CLIPBOARD, user=request.user)
+
+    return redirect(next_url)
 
 
 @object_access(type=Project, access=Access.WRITE_ACCESS, url="recipe_list")
