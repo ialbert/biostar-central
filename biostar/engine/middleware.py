@@ -9,8 +9,9 @@ def engine_middleware(get_response):
     def middleware(request):
 
         user = request.user
+        board =  request.session.get(DATA_CLIPBOARD) or []
+        print(board, "BOARD", len(board))
 
-        print(request.session.get(RECIPE_CLIPBOARD), "BOARD", len(request.session.get(RECIPE_CLIPBOARD)))
 
         # Banned and suspended users are not allowed
         if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
