@@ -1,6 +1,6 @@
 from django.contrib import auth
 from django.contrib import messages
-
+from biostar.engine.const import *
 from biostar.accounts.models import Profile
 
 
@@ -9,6 +9,8 @@ def engine_middleware(get_response):
     def middleware(request):
 
         user = request.user
+
+        print(request.session.get(RECIPE_CLIPBOARD), "BOARD", len(request.session.get(RECIPE_CLIPBOARD)))
 
         # Banned and suspended users are not allowed
         if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):

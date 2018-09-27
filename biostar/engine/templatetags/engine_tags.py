@@ -122,6 +122,7 @@ def paste(context, project, current=""):
 
     board = request.session.get(current) or []
 
+    print(board, "TAGS", len(board))
     clipboard_count = len(board) if request.user.is_authenticated else 0
 
     extra_context = dict(clipboard_count=clipboard_count, project=project, current=current, context=context)
