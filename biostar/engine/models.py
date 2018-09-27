@@ -301,7 +301,7 @@ class Data(models.Model):
         return f"projects/proj-{self.project.uid}/store-{self.uid}/" + path
 
     def url(self):
-        return (reverse('data_view', kwargs=dict(uid=self.uid)))
+        return reverse('data_view', kwargs=dict(uid=self.uid))
 
     def fill_dict(self, obj):
         """

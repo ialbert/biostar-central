@@ -17,7 +17,7 @@ from biostar.forum.models import Post
 from biostar.utils.decorators import ajax_error_wrapper
 from biostar.utils.shortcuts import reverse
 from . import tasks, auth, forms, util, const
-from .decorators import object_access, read_access, write_access
+from .decorators import object_access, read_access, write_access, owner_only
 from .diffs import color_diffs
 from .models import (Project, Data, Analysis, Job, Access)
 
@@ -278,7 +278,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     return render(request, template_name, context)
 
 
-@object_access(type=Project, access=Access.OWNER_ACCESS, url='data_list')
+@owner_only(type=Project, fallback_view="data_list")
 def project_edit(request, uid):
     "Edit meta-data associated with a project."
 
@@ -450,7 +450,7 @@ def data_edit(request, uid):
     return render(request, 'data_edit.html', context)
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
+@write_access(type=Project, fallback_view="data_list")
 def data_upload(request, uid):
     "Data upload view routed through auth.create_data."
 
