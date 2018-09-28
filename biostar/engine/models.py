@@ -198,7 +198,7 @@ class Data(models.Model):
 
     type = models.CharField(max_length=MAX_NAME_LEN, default="DATA")
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    size = models.IntegerField(default=0)
+    size = models.BigIntegerField(default=0)
 
     # FilePathField points to an existing file
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
@@ -326,7 +326,7 @@ class Data(models.Model):
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
 
-    AUTH_CHOICES = [(AUTHORIZED, "Runnable"), (UNDER_REVIEW, "Not Runnable")]
+    AUTH_CHOICES = [(AUTHORIZED, "All users may run recipe"), (UNDER_REVIEW, "Only moderators may run recipe")]
 
     security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
 

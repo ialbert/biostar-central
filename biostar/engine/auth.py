@@ -303,7 +303,7 @@ def make_job_title(recipe, data):
     Creates informative job title that shows job parameters.
     """
     params = data.values()
- 
+
     # Extracts the field that gets displayed for a parameter
     def extract(param):
         if not param.get("display"):
