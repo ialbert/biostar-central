@@ -1,3 +1,5 @@
+from biostar.settings import *
+
 DEBUG = True
 
 WSGI_APPLICATION = 'conf.devel.devel_wsgi.application'
