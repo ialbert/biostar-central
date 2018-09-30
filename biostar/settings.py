@@ -231,6 +231,7 @@ COUNT_INTERVAL_WEEKS = 10000
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 # SENDFILE_BACKEND = "sendfile.backends.nginx"
+
 SENDFILE_BACKEND = "sendfile.backends.development"
 
 MEDIA_URL = '/media/'

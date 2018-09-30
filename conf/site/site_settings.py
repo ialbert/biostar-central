@@ -11,7 +11,7 @@ PROTOCOL = 'https'
 
 ALLOWED_HOSTS = [SITE_DOMAIN]
 
-WSGI_APPLICATION = 'conf.main.main_wsgi.application'
+WSGI_APPLICATION = 'conf.site.site_wsgi.application'
 
 SITE_HEADER = '<i class="barcode icon"></i>Bioinformatics Recipes'
 
