@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from sendfile import sendfile
-
+from django.contrib.sessions.models import Session
 from biostar.accounts.models import Profile, User
 from biostar.forum import views as forum_views
 from biostar.forum.models import Post
@@ -92,11 +92,20 @@ def recipe_mod(request):
 def clear_clipboard(request, uid):
     "Clear copied objects held in clipboard."
 
+    print(request.session.items(), "clear before data")
+    print(request.session.session_key, "clear before key")
+
     next_url = request.GET.get("next", reverse("project_view", kwargs=dict(uid=uid)))
     board = request.GET.get("board")
 
     if board:
         request.session[board] = []
+
+    s = Session.objects.filter(pk=request.session.session_key).first()
+
+    print(request.session.items(), "clear after items")
+    print(request.session.session_key, "clear after key")
+    print(s.get_decoded(), "clear after DB")
 
     return redirect(next_url)
 
@@ -320,7 +329,7 @@ def data_copy(request, uid):
     data = Data.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
-    auth.copy(request=request, instance=data, board=const.DATA_CLIPBOARD, user=request.user)
+    auth.copy(request=request, instance=data, board=const.DATA_CLIPBOARD)
 
     return redirect(next_url)
 
@@ -331,7 +340,7 @@ def recipe_copy(request, uid):
     recipe = Analysis.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
-    auth.copy(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD, user=request.user)
+    auth.copy(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD)
 
     return redirect(next_url)
 
@@ -342,7 +351,7 @@ def job_copy(request, uid):
     job = Job.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
-    auth.copy(request=request, instance=job, board=const.RESULTS_CLIPBOARD, user=request.user)
+    auth.copy(request=request, instance=job, board=const.RESULTS_CLIPBOARD)
 
     return redirect(next_url)
 

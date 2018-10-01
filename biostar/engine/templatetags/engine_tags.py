@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator
 from django.template import defaultfilters
+from django.contrib.sessions.models import Session
 from django.utils.safestring import mark_safe
 
 from biostar.engine import auth, util, const
@@ -120,9 +121,14 @@ def paste(context, project, current=""):
 
     request = context["request"]
 
-    board = request.session.get(current) or []
+    #request.session.modified = True
+    s = Session.objects.filter(pk=request.session.session_key).first()
+    data = s.get_decoded()
+    board = data.get(current) or []
 
-    print(board, "TAGS", len(board))
+    print(data, "paste board from db")
+    print(request.session.get(current), "paste board from request")
+
     clipboard_count = len(board) if request.user.is_authenticated else 0
 
     extra_context = dict(clipboard_count=clipboard_count, project=project, current=current, context=context)
