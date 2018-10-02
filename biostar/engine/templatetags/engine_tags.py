@@ -126,8 +126,10 @@ def paste(context, project, current=""):
     data = s.get_decoded()
     board = data.get(current) or []
 
-    print(data, "paste board from db")
-    print(request.session.get(current), "paste board from request")
+    #print(data, "paste tags: board from db")
+    #print(request.session.get(current), "paste tags: board from request")
+    print(request.session.get("foo"), "paste template tags: foo in request.session")
+    print(data.get("foo"), "paste template tag: foo in Session DB")
 
     clipboard_count = len(board) if request.user.is_authenticated else 0
 

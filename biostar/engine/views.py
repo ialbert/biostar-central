@@ -376,7 +376,12 @@ def recipe_paste(request, uid):
     # Select valid recipe uids.
     recipes = [Analysis.objects.get_all(uid=uid).first() for uid in recipe_uids]
 
-    print(recipe_uids, recipes, "Actual pasting count")
+    #print(recipe_uids, recipes, "paste view")
+    print(request.session.get("foo"), "recipe_paste view: foo in request.session")
+
+    request.session["foo"] = None
+    print(request.session.get("foo"), "recipe_paste view: foo changed in request.session after paste")
+    request.session.modified = True
 
     # Keep existing recipes.
     recipes = filter(None, recipes)

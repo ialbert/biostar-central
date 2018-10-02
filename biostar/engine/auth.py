@@ -68,17 +68,22 @@ def copy(request, instance, board):
     board_items.append(instance.uid)
     # No duplicates in clipboard
     board_items = list(set(board_items))
-    print(board_items, "copy before")
+
+    request.session["foo"] = "bar"
+
+    print(request.session.get("foo"), "auth.copy : foo put in")
+
+    #print(board_items, "copy before")
 
     request.session[board] = board_items
     messages.success(request, f"Copied data, there are {len(board_items)} in clipboard.")
 
-    print(request.session.get(board, []), "copy after")
+    #print(request.session.get(board, []), "copy after")
 
-    s = Session.objects.filter(pk=request.session.session_key).first()
-    db_board = s.get_decoded()
+    #s = Session.objects.filter(pk=request.session.session_key).first()
+    #db_board = s.get_decoded()
 
-    print(db_board.get(board))
+    #print(db_board.get(board))
 
     return board_items
 
