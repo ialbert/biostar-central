@@ -123,7 +123,6 @@ class Profile(models.Model):
 
     @property
     def trusted(self):
-        # Trusted
         return self.user.is_staff or self.state == self.TRUSTED
 
     @property

@@ -63,7 +63,7 @@ class read_access:
                 return function(request, *args, **kwargs)
 
             # Deny access by default.
-            messages.error(request, f"Read access denied to object uid: {uid}")
+            messages.error(request, f"Read access denied to object id: {uid}")
             return redirect(self.fallback_url)
 
         return wrapper
@@ -98,7 +98,7 @@ class write_access:
             # Fetches the object that will be checked for permissions.
             instance = self.type.objects.get_all(uid=uid).first()
             if not instance:
-                messages.error(request, f"Object uid {uid} does not exist.")
+                messages.error(request, f"Object id {uid} does not exist.")
                 return redirect(reverse("project_list"))
 
             project = instance.project
@@ -114,7 +114,7 @@ class write_access:
             else:
                 target = request.GET.get("next") or instance.url()
 
-            messages.error(request, f"Write access denied to object uid: {uid}")
+            messages.error(request, f"Write access denied to object id: {uid}")
             return redirect(target)
 
         return _wrapped_view
