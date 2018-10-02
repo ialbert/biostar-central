@@ -229,7 +229,7 @@ def discussion_view(request, uid):
                                  url="discussion_view", uid=uid)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS)
+@read_access(type=Project)
 def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
@@ -258,7 +258,7 @@ def get_counts(project):
     )
 
 
-@object_access(type=Project, access=Access.READ_ACCESS)
+@read_access(type=Project)
 def project_view(request, uid, template_name="recipe_list.html", active='recipes', show_summary=None,
                  extra_context={}):
 
@@ -288,7 +288,7 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     return render(request, template_name, context)
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, url="data_list")
+@write_access(type=Project, fallback_view="data_list")
 def project_edit(request, uid):
     "Edit meta-data associated with a project."
 
@@ -325,7 +325,7 @@ def project_create(request):
     return render(request, "project_create.html", context=context)
 
 
-@object_access(type=Data, login_required=True, access=Access.READ_ACCESS)
+@read_access(type=Data)
 def data_copy(request, uid):
 
     data = Data.objects.get_all(uid=uid).first()
@@ -336,7 +336,7 @@ def data_copy(request, uid):
     return redirect(next_url)
 
 
-@object_access(type=Analysis, login_required=True, access=Access.READ_ACCESS)
+@read_access(type=Analysis)
 def recipe_copy(request, uid):
 
     recipe = Analysis.objects.get_all(uid=uid).first()
@@ -347,7 +347,7 @@ def recipe_copy(request, uid):
     return redirect(next_url)
 
 
-@object_access(type=Job, login_required=True, access=Access.READ_ACCESS)
+@read_access(type=Job)
 def job_copy(request, uid):
 
     job = Job.objects.get_all(uid=uid).first()
@@ -358,7 +358,7 @@ def job_copy(request, uid):
     return redirect(next_url)
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, url="recipe_list")
+@write_access(type=Project, fallback_view="recipe_list")
 def recipe_paste(request, uid):
     """
     Pastes recipes from clipboard as a new recipes.
@@ -401,7 +401,7 @@ def recipe_paste(request, uid):
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, url="data_list")
+@write_access(type=Project, fallback_view="data_list")
 def data_paste(request, uid):
     """Used to paste objects in results and data clipboards as a Data object."""
 
@@ -430,7 +430,7 @@ def data_paste(request, uid):
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
-@object_access(type=Data, access=Access.READ_ACCESS)
+@read_access(type=Data)
 def data_view(request, uid):
     "Show information specific to each data."
 
@@ -444,7 +444,7 @@ def data_view(request, uid):
     return render(request, "data_view.html", context)
 
 
-@object_access(type=Data, access=Access.OWNER_ACCESS, url='data_view')
+@write_access(type=Data, fallback_view="data_view")
 def data_edit(request, uid):
     """
     Edit meta-data associated with Data.
@@ -512,7 +512,7 @@ def recipe_view(request, uid):
     return render(request, "recipe_view.html", context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
+@read_access(type=Analysis)
 def recipe_code_view(request, uid):
     """
     Returns an analysis code view based on its id.
