@@ -18,6 +18,12 @@ RECIPE_CLIPBOARD = "recipe_clipboard"
 
 KNOWN_TEXT_EXTENSIONS = set(KNOWN_TEXT_EXTENSIONS)
 
+# The maximum length in characters for a typical name and text field.
+MAX_NAME_LEN = 256
+MAX_FIELD_LEN = 1024
+MAX_TEXT_LEN = 10000
+MAX_LOG_LEN = 20 * MAX_TEXT_LEN
+
 # Map a file extension to a biostar-engine datatype.
 EXT_TO_TYPE = dict(
 

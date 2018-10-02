@@ -35,7 +35,7 @@ class read_access:
             user = request.user
 
             # Fetches the object that will be checked for permissions.
-            instance = self.type.objects.filter(uid=uid).first()
+            instance = self.type.objects.get_all(uid=uid).first()
 
             # Object does not exist.
             if not instance:
@@ -96,7 +96,7 @@ class write_access:
                 return redirect(reverse("project_list"))
 
             # Fetches the object that will be checked for permissions.
-            instance = self.type.objects.filter(uid=uid).first()
+            instance = self.type.objects.get_all(uid=uid).first()
             if not instance:
                 messages.error(request, f"Object uid {uid} does not exist.")
                 return redirect(reverse("project_list"))

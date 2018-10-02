@@ -122,6 +122,11 @@ class Profile(models.Model):
         return self.role == self.MODERATOR or self.role == self.MANAGER
 
     @property
+    def trusted(self):
+        # Trusted
+        return self.user.is_staff or self.state == self.TRUSTED
+
+    @property
     def is_manager(self):
         return self.role == self.MANAGER
 

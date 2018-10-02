@@ -53,7 +53,12 @@
                   {{ form.text }}
                 <p class="muted">A detailed explanation of the project (markdown OK).</p>
              </div>
-
+            {% if form.captcha %}
+                <div class="field">
+                    <label>Captcha</label>
+                    {{form.captcha}}
+                </div>
+            {% endif %}
             <button type="submit" class="ui submit green button">
                 <i class="save icon"></i>Create
             </button>

@@ -9,7 +9,8 @@ from django.utils.safestring import mark_safe
 from django.contrib import messages
 from django.urls import reverse
 from django.conf import settings
-
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from biostar.accounts.models import User, Profile
 from . import models, auth, factory, util
 from .const import *
@@ -19,7 +20,6 @@ from .models import Project, Data, Analysis, Job, Access
 logger = models.logger
 
 TEXT_UPLOAD_MAX = 10000
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -83,13 +83,32 @@ def clean_file(fobj, user, project, check_name=True):
     return fobj
 
 
+def add_captcha_field(request, fields):
+    """Used to dynamically load captcha field into forms"""
+
+    # Trusted users do not need a captcha check
+    if request.user.is_authenticated and request.user.profile.trusted:
+        return
+    # Mutates the fields dict to add captcha field.
+    if settings.RECAPTCHA_PRIVATE_KEY:
+        fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
+    return
+
+
 class ProjectForm(forms.ModelForm):
+
     image = forms.ImageField(required=False)
 
     # Should not edit uid because data directories get recreated
     # uid = forms.CharField(max_length=32, required=False)
     choices = list(filter(lambda x: x[0] != Project.SHAREABLE, Project.PRIVACY_CHOICES))
     privacy = forms.IntegerField(widget=forms.Select(choices=choices))
+
+    def __init__(self, request, create=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+        self.create = create
+        add_captcha_field(request=request, fields=self.fields)
 
     class Meta:
         model = Project
@@ -101,6 +120,20 @@ class ProjectForm(forms.ModelForm):
         check_size(fobj=image)
 
         return image
+
+    def clean(self):
+        cleaned_data = super(ProjectForm, self).clean()
+
+        user = self.request.user
+        projects = Project.objects.get_all(owner=user)
+
+        # Trusted users can create as many projects
+        if user.is_authenticated and (user.is_staff or user.profile.trusted):
+            return
+        if self.create and projects.count() > settings.MAX_PROJECTS:
+            raise forms.ValidationError(f"You have exceeded the maximum of project allowed:{settings.MAX_PROJECTS}.")
+
+        return cleaned_data
 
     def custom_save(self, owner):
         """Used to save on creation using custom function."""
@@ -254,11 +287,12 @@ class RecipeCodeEdit(forms.ModelForm):
 
     uid = forms.CharField(max_length=32, required=False)
 
-    def __init__(self, user, recipe, *args, **kwargs):
+    def __init__(self, user, recipe, request, *args, **kwargs):
         self.user = user
         self.recipe = recipe
-
+        self.request = request
         super().__init__(*args, **kwargs)
+        add_captcha_field(request=request, fields=self.fields)
 
     class Meta:
         model = Analysis

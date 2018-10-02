@@ -14,12 +14,6 @@ from .const import *
 
 logger = logging.getLogger("engine")
 
-# The maximum length in characters for a typical name and text field.
-MAX_NAME_LEN = 256
-MAX_FIELD_LEN = 1024
-MAX_TEXT_LEN = 10000
-MAX_LOG_LEN = 20 * MAX_TEXT_LEN
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))

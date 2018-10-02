@@ -11,6 +11,8 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from sendfile import sendfile
 from django.contrib.sessions.models import Session
+from ratelimit.decorators import ratelimit
+
 from biostar.accounts.models import Profile, User
 from biostar.forum import views as forum_views
 from biostar.forum.models import Post
@@ -121,7 +123,7 @@ def get_access(request, project):
     return user_access, user_list
 
 
-@object_access(type=Project, access=Access.OWNER_ACCESS, url='data_list')
+@write_access(type=Project, fallback_view="data_list")
 def project_users(request, uid):
     """
     Manage project users
@@ -163,7 +165,7 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS)
+@read_access(type=Project)
 def data_list(request, uid):
     """
     Returns the list of data for a project uid.
@@ -173,7 +175,7 @@ def data_list(request, uid):
                         active='data', show_summary=True)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS)
+@read_access(type=Project)
 def discussion_list(request, uid):
     posts = Post.objects.get_discussions(project__uid=uid, type__in=Post.TOP_LEVEL).order_by("-pk").all()
 
@@ -182,14 +184,14 @@ def discussion_list(request, uid):
                         active='discussion', extra_context=context)
 
 
-@object_access(type=Post, access=Access.READ_ACCESS)
+@read_access(type=Post)
 def discussion_subs(request, uid):
     next_url = reverse("discussion_view", request=request, kwargs=dict(uid=uid))
 
     return forum_views.subs_action(request=request, uid=uid, next=next_url)
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True, url="discussion_list")
+@write_access(type=Project, fallback_view="discussion_list")
 def discussion_create(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
@@ -209,7 +211,7 @@ def discussion_create(request, uid):
                                    url="discussion_view", project=project, filter_func=filter_function)
 
 
-@object_access(type=Post, access=Access.READ_ACCESS)
+@read_access(type=Post)
 def discussion_view(request, uid):
     template = "discussion_view.html"
     # Get the parents info
@@ -291,9 +293,9 @@ def project_edit(request, uid):
     "Edit meta-data associated with a project."
 
     project = Project.objects.filter(uid=uid).first()
-    form = forms.ProjectForm(instance=project)
+    form = forms.ProjectForm(instance=project, request=request)
     if request.method == "POST":
-        form = forms.ProjectForm(request.POST, request.FILES, instance=project)
+        form = forms.ProjectForm(data=request.POST, files=request.FILES, instance=project, request=request)
         if form.is_valid():
             form.save()
             return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
@@ -303,17 +305,18 @@ def project_edit(request, uid):
 
 
 @login_required
+@ratelimit(key='ip', rate='10/h', block=True, method=ratelimit.UNSAFE)
 def project_create(request):
     """
     View used create an empty project belonging to request.user.
     Input is validated with a form and actual creation is routed through auth.create_project.
     """
     initial = dict(name="Project Name", text="project description", summary="project summary")
-    form = forms.ProjectForm(initial=initial)
+    form = forms.ProjectForm(initial=initial, request=request, create=True)
 
     if request.method == "POST":
         # create new projects here ( just populates metadata ).
-        form = forms.ProjectForm(request.POST, request.FILES)
+        form = forms.ProjectForm(request=request, data=request.POST, create=True, files=request.FILES)
         if form.is_valid():
             project = form.custom_save(owner=request.user)
             return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
@@ -372,6 +375,8 @@ def recipe_paste(request, uid):
 
     # Select valid recipe uids.
     recipes = [Analysis.objects.get_all(uid=uid).first() for uid in recipe_uids]
+
+    print(recipe_uids, recipes, "Actual pasting count")
 
     # Keep existing recipes.
     recipes = filter(None, recipes)
@@ -514,11 +519,11 @@ def recipe_code_view(request, uid):
     """
     user = request.user
     recipe = Analysis.objects.get_all(uid=uid).first()
-    form = forms.RecipeCodeEdit(user=user, recipe=recipe)
+    form = forms.RecipeCodeEdit(user=user, recipe=recipe, request=request)
 
     if request.method == "POST":
 
-        form = forms.RecipeCodeEdit(data=request.POST, user=user, recipe=recipe)
+        form = forms.RecipeCodeEdit(data=request.POST, user=user, recipe=recipe, request=request)
 
         if form.is_valid():
 
