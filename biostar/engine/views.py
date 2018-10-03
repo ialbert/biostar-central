@@ -10,7 +10,6 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from sendfile import sendfile
-from django.contrib.sessions.models import Session
 from ratelimit.decorators import ratelimit
 
 from biostar.accounts.models import Profile, User

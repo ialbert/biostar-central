@@ -233,7 +233,11 @@ COUNT_INTERVAL_WEEKS = 10000
 
 #SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_ENGINE = "django.contrib.sessions.backends.file"
-SESSION_FILE_PATH = MEDIA_ROOT
+SESSION_FILE_PATH = join(MEDIA_ROOT, 'sessions')
+
+# Ensure that the sessions directory exists.
+os.makedirs(SESSION_FILE_PATH, exist_ok=True)
+
 
 # SENDFILE_BACKEND = "sendfile.backends.nginx"
 

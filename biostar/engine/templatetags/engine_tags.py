@@ -8,7 +8,6 @@ from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator
 from django.template import defaultfilters
-from django.contrib.sessions.models import Session
 from django.utils.safestring import mark_safe
 
 from biostar.engine import auth, util, const

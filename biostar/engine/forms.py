@@ -475,6 +475,9 @@ class RecipeInterface(forms.Form):
             msg = "Insufficient permission to execute recipe."
             raise forms.ValidationError(msg)
 
+        if self.analysis.deleted:
+            msg = "Can not run a deleted recipe."
+            raise forms.ValidationError(msg)
 
     def fill_json_data(self):
         """

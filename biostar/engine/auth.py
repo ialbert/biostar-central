@@ -4,7 +4,6 @@ import uuid
 from mimetypes import guess_type
 
 import hjson
-from django.contrib.sessions.models import Session
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.storage import fallback
