@@ -100,9 +100,6 @@ class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
 
     # Should not edit uid because data directories get recreated
-    # uid = forms.CharField(max_length=32, required=False)
-    choices = list(filter(lambda x: x[0] != Project.SHAREABLE, Project.PRIVACY_CHOICES))
-    privacy = forms.IntegerField(widget=forms.Select(choices=choices))
 
     def __init__(self, request, create=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -112,7 +109,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text', 'image', "privacy", "sticky"]
+        fields = ['name', 'summary', 'text', 'image']
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -142,10 +139,8 @@ class ProjectForm(forms.ModelForm):
         text = self.cleaned_data["text"]
         summary = self.cleaned_data["summary"]
         stream = self.cleaned_data["image"]
-        sticky = self.cleaned_data["sticky"]
-        privacy = self.cleaned_data["privacy"]
         project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                      stream=stream, sticky=sticky, privacy=privacy)
+                                      stream=stream)
         project.save()
 
         return project
@@ -287,12 +282,10 @@ class RecipeCodeEdit(forms.ModelForm):
 
     uid = forms.CharField(max_length=32, required=False)
 
-    def __init__(self, user, recipe, request, *args, **kwargs):
+    def __init__(self, user, recipe, *args, **kwargs):
         self.user = user
         self.recipe = recipe
-        self.request = request
         super().__init__(*args, **kwargs)
-        add_captcha_field(request=request, fields=self.fields)
 
     class Meta:
         model = Analysis
@@ -467,6 +460,8 @@ class RecipeInterface(forms.Form):
             if field:
                 self.fields[name] = field
 
+        add_captcha_field(request=request, fields=self.fields)
+
     def clean(self):
 
         # Validate default fields.
@@ -479,7 +474,6 @@ class RecipeInterface(forms.Form):
         if not auth.authorize_run(user=self.user, recipe=self.analysis):
             msg = "Insufficient permission to execute recipe."
             raise forms.ValidationError(msg)
-
 
 
     def fill_json_data(self):

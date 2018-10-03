@@ -93,20 +93,11 @@ def recipe_mod(request):
 def clear_clipboard(request, uid):
     "Clear copied objects held in clipboard."
 
-    print(request.session.items(), "clear before data")
-    print(request.session.session_key, "clear before key")
-
     next_url = request.GET.get("next", reverse("project_view", kwargs=dict(uid=uid)))
     board = request.GET.get("board")
 
     if board:
         request.session[board] = []
-
-    s = Session.objects.filter(pk=request.session.session_key).first()
-
-    print(request.session.items(), "clear after items")
-    print(request.session.session_key, "clear after key")
-    print(s.get_decoded(), "clear after DB")
 
     return redirect(next_url)
 
@@ -305,7 +296,7 @@ def project_edit(request, uid):
 
 
 @login_required
-@ratelimit(key='ip', rate='10/h', block=True, method=ratelimit.UNSAFE)
+@ratelimit(key='ip', rate='5/h', block=True, method=ratelimit.UNSAFE)
 def project_create(request):
     """
     View used create an empty project belonging to request.user.
@@ -375,13 +366,6 @@ def recipe_paste(request, uid):
 
     # Select valid recipe uids.
     recipes = [Analysis.objects.get_all(uid=uid).first() for uid in recipe_uids]
-
-    #print(recipe_uids, recipes, "paste view")
-    print(request.session.get("foo"), "recipe_paste view: foo in request.session")
-
-    request.session["foo"] = None
-    print(request.session.get("foo"), "recipe_paste view: foo changed in request.session after paste")
-    request.session.modified = True
 
     # Keep existing recipes.
     recipes = filter(None, recipes)
@@ -524,11 +508,11 @@ def recipe_code_view(request, uid):
     """
     user = request.user
     recipe = Analysis.objects.get_all(uid=uid).first()
-    form = forms.RecipeCodeEdit(user=user, recipe=recipe, request=request)
+    form = forms.RecipeCodeEdit(user=user, recipe=recipe)
 
     if request.method == "POST":
 
-        form = forms.RecipeCodeEdit(data=request.POST, user=user, recipe=recipe, request=request)
+        form = forms.RecipeCodeEdit(data=request.POST, user=user, recipe=recipe)
 
         if form.is_valid():
 
@@ -555,13 +539,14 @@ def recipe_code_view(request, uid):
     return render(request, "recipe_code_view.html", context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view', show_deleted=False)
+@read_access(type=Analysis)
+@ratelimit(key='ip', rate='10/h', block=True, method=ratelimit.UNSAFE)
 def recipe_run(request, uid):
     """
     View used to execute recipes and start a 'Queued' job.
     """
 
-    analysis = Analysis.objects.filter(uid=uid).first()
+    analysis = Analysis.objects.get_all(uid=uid).first()
 
     project = analysis.project
 
@@ -587,7 +572,7 @@ def recipe_run(request, uid):
             # Spool the job right away if UWSGI exists.
             if tasks.HAS_UWSGI:
                 # Update the job state.
-                Job.objects.filter(id=job.id).update(state=Job.SPOOLED)
+                Job.objects.get_all(id=job.id).update(state=Job.SPOOLED)
 
                 # Spool via UWSGI.
                 tasks.execute_job.spool(job_id=job.id)
