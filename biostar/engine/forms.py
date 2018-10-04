@@ -9,7 +9,8 @@ from django.utils.safestring import mark_safe
 from django.contrib import messages
 from django.urls import reverse
 from django.conf import settings
-
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from biostar.accounts.models import User, Profile
 from . import models, auth, factory, util
 from .const import *
@@ -19,7 +20,6 @@ from .models import Project, Data, Analysis, Job, Access
 logger = models.logger
 
 TEXT_UPLOAD_MAX = 10000
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -83,17 +83,32 @@ def clean_file(fobj, user, project, check_name=True):
     return fobj
 
 
+def add_captcha_field(request, fields):
+    """Used to dynamically load captcha field into forms"""
+
+    # Trusted users do not need a captcha check
+    if request.user.is_authenticated and request.user.profile.trusted:
+        return
+    # Mutates the fields dict to add captcha field.
+    if settings.RECAPTCHA_PRIVATE_KEY:
+        fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
+    return
+
+
 class ProjectForm(forms.ModelForm):
+
     image = forms.ImageField(required=False)
 
     # Should not edit uid because data directories get recreated
-    # uid = forms.CharField(max_length=32, required=False)
-    choices = list(filter(lambda x: x[0] != Project.SHAREABLE, Project.PRIVACY_CHOICES))
-    privacy = forms.IntegerField(widget=forms.Select(choices=choices))
+
+    def __init__(self, request, create=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+        self.create = create
 
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text', 'image', "privacy", "sticky"]
+        fields = ['name', 'summary', 'text', 'image']
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -102,6 +117,20 @@ class ProjectForm(forms.ModelForm):
 
         return image
 
+    def clean(self):
+        cleaned_data = super(ProjectForm, self).clean()
+
+        user = self.request.user
+        projects = Project.objects.get_all(owner=user)
+
+        # Trusted users can create as many projects
+        if user.is_authenticated and (user.is_staff or user.profile.trusted):
+            return
+        if self.create and projects.count() > settings.MAX_PROJECTS:
+            raise forms.ValidationError(f"You have exceeded the maximum of project allowed:{settings.MAX_PROJECTS}.")
+
+        return cleaned_data
+
     def custom_save(self, owner):
         """Used to save on creation using custom function."""
 
@@ -109,10 +138,8 @@ class ProjectForm(forms.ModelForm):
         text = self.cleaned_data["text"]
         summary = self.cleaned_data["summary"]
         stream = self.cleaned_data["image"]
-        sticky = self.cleaned_data["sticky"]
-        privacy = self.cleaned_data["privacy"]
         project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                      stream=stream, sticky=sticky, privacy=privacy)
+                                      stream=stream)
         project.save()
 
         return project
@@ -173,6 +200,9 @@ class DataUploadForm(forms.ModelForm):
             if not cleaned_data.get("data_name"):
                 raise forms.ValidationError("Name is required with text inputs.")
 
+        total_count = Data.objects.get_all(owner=self.user).count()
+        if total_count > settings.MAX_DATA:
+            raise forms.ValidationError(f"Exceeded maximum amount of data:{settings.MAX_DATA}.")
         return cleaned_data
 
 
@@ -257,7 +287,6 @@ class RecipeCodeEdit(forms.ModelForm):
     def __init__(self, user, recipe, *args, **kwargs):
         self.user = user
         self.recipe = recipe
-
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -433,6 +462,8 @@ class RecipeInterface(forms.Form):
             if field:
                 self.fields[name] = field
 
+        add_captcha_field(request=request, fields=self.fields)
+
     def clean(self):
 
         # Validate default fields.
@@ -446,7 +477,9 @@ class RecipeInterface(forms.Form):
             msg = "Insufficient permission to execute recipe."
             raise forms.ValidationError(msg)
 
-
+        if self.analysis.deleted:
+            msg = "Can not run a deleted recipe."
+            raise forms.ValidationError(msg)
 
     def fill_json_data(self):
         """

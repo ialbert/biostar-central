@@ -12,6 +12,8 @@ from . import models
 # Share the logger with models
 logger = models.logger
 
+
+
 class read_access:
     """
     Controls READ level access to urls.
@@ -33,7 +35,7 @@ class read_access:
             user = request.user
 
             # Fetches the object that will be checked for permissions.
-            instance = self.type.objects.filter(uid=uid).first()
+            instance = self.type.objects.get_all(uid=uid).first()
 
             # Object does not exist.
             if not instance:
@@ -61,7 +63,7 @@ class read_access:
                 return function(request, *args, **kwargs)
 
             # Deny access by default.
-            messages.error(request, f"Read access denied to object id {uid}")
+            messages.error(request, f"Read access denied to object id: {uid}")
             return redirect(self.fallback_url)
 
         return wrapper
@@ -72,9 +74,9 @@ class write_access:
     Controls WRITE level access to urls.
     """
 
-    def __init__(self, type):
+    def __init__(self, type, fallback_view=None):
         self.type = type
-        self.fallback_url = reverse("project_list")
+        self.fallback_view = fallback_view
 
     def __call__(self, function, *args, **kwargs):
         """
@@ -89,9 +91,16 @@ class write_access:
 
             # The user is set in the request.
             user = request.user
+            if user.is_anonymous:
+                messages.error(request, "You need to be logged in to preform actions.")
+                return redirect(reverse("project_list"))
 
             # Fetches the object that will be checked for permissions.
-            instance = self.type.objects.filter(uid=uid).first()
+            instance = self.type.objects.get_all(uid=uid).first()
+            if not instance:
+                messages.error(request, f"Object id {uid} does not exist.")
+                return redirect(reverse("project_list"))
+
             project = instance.project
             access = models.Access.objects.filter(user=user, project=project, access=models.Access.WRITE_ACCESS).first()
 
@@ -99,23 +108,16 @@ class write_access:
             if access or instance.project.owner == user:
                 return function(request, *args, **kwargs)
 
-            messages.error(request, "You have to be the owner to preform this action.")
-            return redirect(self.fallback_url)
+            # Build redirect url
+            if self.fallback_view:
+                target = reverse(self.fallback_view, kwargs=dict(uid=uid))
+            else:
+                target = request.GET.get("next") or instance.url()
 
-            pass
+            messages.error(request, f"Write access denied to object id: {uid}")
+            return redirect(target)
 
-
-class owner_only:
-    """
-    Controls privileges left to owner
-    """
-    def __init__(self, type):
-        self.type = type
-        self.fallback_url = reverse("project_list")
-
-    def __call__(self, function, *args, **kwargs):
-
-        return 
+        return _wrapped_view
 
 
 class object_access:

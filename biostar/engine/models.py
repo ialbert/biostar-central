@@ -14,12 +14,6 @@ from .const import *
 
 logger = logging.getLogger("engine")
 
-# The maximum length in characters for a typical name and text field.
-MAX_NAME_LEN = 256
-MAX_FIELD_LEN = 1024
-MAX_TEXT_LEN = 10000
-MAX_LOG_LEN = 20 * MAX_TEXT_LEN
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -167,13 +161,10 @@ class Access(models.Model):
 @receiver(post_save, sender=Project)
 def update_access(sender, instance, created, raw, update_fields, **kwargs):
 
-    # Drop previous OWNER_ACCES permissions if these exists.
-    # This is needed when projects change owners.
-    Access.objects.filter(project=instance, access=Access.OWNER_ACCESS).delete()
-
-    # Create the admin access for the current owner.
-    access = Access.objects.create(user=instance.owner, project=instance, access=Access.OWNER_ACCESS)
-    access.save()
+    # Give the owner WRITE ACCESS if they do not have it.
+    entry = Access.objects.filter(user=instance.owner, project=instance, access=Access.WRITE_ACCESS)
+    if entry.first() is None:
+        entry = Access.objects.create(user=instance.owner, project=instance, access=Access.WRITE_ACCESS)
 
 
 class Data(models.Model):
@@ -301,7 +292,7 @@ class Data(models.Model):
         return f"projects/proj-{self.project.uid}/store-{self.uid}/" + path
 
     def url(self):
-        return (reverse('data_view', kwargs=dict(uid=self.uid)))
+        return reverse('data_view', kwargs=dict(uid=self.uid))
 
     def fill_dict(self, obj):
         """

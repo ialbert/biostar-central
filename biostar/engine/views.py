@@ -10,11 +10,11 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from sendfile import sendfile
+from ratelimit.decorators import ratelimit
 
 from biostar.accounts.models import Profile, User
 from biostar.forum import views as forum_views
 from biostar.forum.models import Post
-from biostar.utils.decorators import ajax_error_wrapper
 from biostar.utils.shortcuts import reverse
 from . import tasks, auth, forms, util, const
 from .decorators import object_access, read_access, write_access
@@ -113,7 +113,7 @@ def get_access(request, project):
     return user_access, user_list
 
 
-@object_access(type=Project, access=Access.OWNER_ACCESS, url='data_list')
+@write_access(type=Project, fallback_view="data_list")
 def project_users(request, uid):
     """
     Manage project users
@@ -155,7 +155,7 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS)
+@read_access(type=Project)
 def data_list(request, uid):
     """
     Returns the list of data for a project uid.
@@ -165,7 +165,7 @@ def data_list(request, uid):
                         active='data', show_summary=True)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS)
+@read_access(type=Project)
 def discussion_list(request, uid):
     posts = Post.objects.get_discussions(project__uid=uid, type__in=Post.TOP_LEVEL).order_by("-pk").all()
 
@@ -174,14 +174,14 @@ def discussion_list(request, uid):
                         active='discussion', extra_context=context)
 
 
-@object_access(type=Post, access=Access.READ_ACCESS)
+@read_access(type=Post)
 def discussion_subs(request, uid):
     next_url = reverse("discussion_view", request=request, kwargs=dict(uid=uid))
 
     return forum_views.subs_action(request=request, uid=uid, next=next_url)
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, login_required=True, url="discussion_list")
+@write_access(type=Project, fallback_view="discussion_list")
 def discussion_create(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
@@ -201,7 +201,7 @@ def discussion_create(request, uid):
                                    url="discussion_view", project=project, filter_func=filter_function)
 
 
-@object_access(type=Post, access=Access.READ_ACCESS)
+@read_access(type=Post)
 def discussion_view(request, uid):
     template = "discussion_view.html"
     # Get the parents info
@@ -219,7 +219,7 @@ def discussion_view(request, uid):
                                  url="discussion_view", uid=uid)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS)
+@read_access(type=Project)
 def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
@@ -248,7 +248,7 @@ def get_counts(project):
     )
 
 
-@object_access(type=Project, access=Access.READ_ACCESS)
+@read_access(type=Project)
 def project_view(request, uid, template_name="recipe_list.html", active='recipes', show_summary=None,
                  extra_context={}):
 
@@ -278,14 +278,14 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     return render(request, template_name, context)
 
 
-@object_access(type=Project, access=Access.OWNER_ACCESS, url='data_list')
+@write_access(type=Project, fallback_view="data_list")
 def project_edit(request, uid):
     "Edit meta-data associated with a project."
 
     project = Project.objects.filter(uid=uid).first()
-    form = forms.ProjectForm(instance=project)
+    form = forms.ProjectForm(instance=project, request=request)
     if request.method == "POST":
-        form = forms.ProjectForm(request.POST, request.FILES, instance=project)
+        form = forms.ProjectForm(data=request.POST, files=request.FILES, instance=project, request=request)
         if form.is_valid():
             form.save()
             return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
@@ -295,17 +295,18 @@ def project_edit(request, uid):
 
 
 @login_required
+@ratelimit(key='ip', rate='5/h', block=True, method=ratelimit.UNSAFE)
 def project_create(request):
     """
     View used create an empty project belonging to request.user.
     Input is validated with a form and actual creation is routed through auth.create_project.
     """
     initial = dict(name="Project Name", text="project description", summary="project summary")
-    form = forms.ProjectForm(initial=initial)
+    form = forms.ProjectForm(initial=initial, request=request, create=True)
 
     if request.method == "POST":
         # create new projects here ( just populates metadata ).
-        form = forms.ProjectForm(request.POST, request.FILES)
+        form = forms.ProjectForm(request=request, data=request.POST, create=True, files=request.FILES)
         if form.is_valid():
             project = form.custom_save(owner=request.user)
             return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
@@ -314,40 +315,40 @@ def project_create(request):
     return render(request, "project_create.html", context=context)
 
 
-@object_access(type=Data, login_required=True, access=Access.READ_ACCESS)
+@read_access(type=Data)
 def data_copy(request, uid):
 
     data = Data.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
-    auth.copy(request=request, instance=data, board=const.DATA_CLIPBOARD, user=request.user)
+    auth.copy(request=request, instance=data, board=const.DATA_CLIPBOARD)
 
     return redirect(next_url)
 
 
-@object_access(type=Analysis, login_required=True, access=Access.READ_ACCESS)
+@read_access(type=Analysis)
 def recipe_copy(request, uid):
 
     recipe = Analysis.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
-    auth.copy(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD, user=request.user)
+    auth.copy(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD)
 
     return redirect(next_url)
 
 
-@object_access(type=Job, login_required=True, access=Access.READ_ACCESS)
+@read_access(type=Job)
 def job_copy(request, uid):
 
     job = Job.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
-    auth.copy(request=request, instance=job, board=const.RESULTS_CLIPBOARD, user=request.user)
+    auth.copy(request=request, instance=job, board=const.RESULTS_CLIPBOARD)
 
     return redirect(next_url)
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, url="recipe_list")
+@write_access(type=Project, fallback_view="recipe_list")
 def recipe_paste(request, uid):
     """
     Pastes recipes from clipboard as a new recipes.
@@ -388,7 +389,7 @@ def recipe_paste(request, uid):
     return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, url="data_list")
+@write_access(type=Project, fallback_view="data_list")
 def data_paste(request, uid):
     """Used to paste objects in results and data clipboards as a Data object."""
 
@@ -417,7 +418,7 @@ def data_paste(request, uid):
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
-@object_access(type=Data, access=Access.READ_ACCESS)
+@read_access(type=Data)
 def data_view(request, uid):
     "Show information specific to each data."
 
@@ -431,7 +432,7 @@ def data_view(request, uid):
     return render(request, "data_view.html", context)
 
 
-@object_access(type=Data, access=Access.OWNER_ACCESS, url='data_view')
+@write_access(type=Data, fallback_view="data_view")
 def data_edit(request, uid):
     """
     Edit meta-data associated with Data.
@@ -450,7 +451,7 @@ def data_edit(request, uid):
     return render(request, 'data_edit.html', context)
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, url='data_list')
+@write_access(type=Project, fallback_view="data_list")
 def data_upload(request, uid):
     "Data upload view routed through auth.create_data."
 
@@ -499,7 +500,7 @@ def recipe_view(request, uid):
     return render(request, "recipe_view.html", context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view')
+@read_access(type=Analysis)
 def recipe_code_view(request, uid):
     """
     Returns an analysis code view based on its id.
@@ -537,13 +538,14 @@ def recipe_code_view(request, uid):
     return render(request, "recipe_code_view.html", context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, url='recipe_view', show_deleted=False)
+@read_access(type=Analysis)
+@ratelimit(key='ip', rate='10/h', block=True, method=ratelimit.UNSAFE)
 def recipe_run(request, uid):
     """
     View used to execute recipes and start a 'Queued' job.
     """
 
-    analysis = Analysis.objects.filter(uid=uid).first()
+    analysis = Analysis.objects.get_all(uid=uid).first()
 
     project = analysis.project
 
@@ -569,7 +571,7 @@ def recipe_run(request, uid):
             # Spool the job right away if UWSGI exists.
             if tasks.HAS_UWSGI:
                 # Update the job state.
-                Job.objects.filter(id=job.id).update(state=Job.SPOOLED)
+                Job.objects.get_all(id=job.id).update(state=Job.SPOOLED)
 
                 # Spool via UWSGI.
                 tasks.execute_job.spool(job_id=job.id)

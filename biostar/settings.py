@@ -40,6 +40,12 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
 
+# Maximum number of projects allowed
+MAX_PROJECTS = 20
+
+# Maximum amount of data allowed
+MAX_DATA = 100
+
 # Set the home page to the engine or forum
 INTERNAL_IPS = ['127.0.0.1']
 
@@ -228,7 +234,13 @@ SESSION_KEY = "session"
 
 COUNT_INTERVAL_WEEKS = 10000
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+#SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_ENGINE = "django.contrib.sessions.backends.file"
+SESSION_FILE_PATH = join(MEDIA_ROOT, 'sessions')
+
+# Ensure that the sessions directory exists.
+os.makedirs(SESSION_FILE_PATH, exist_ok=True)
+
 
 # SENDFILE_BACKEND = "sendfile.backends.nginx"
 

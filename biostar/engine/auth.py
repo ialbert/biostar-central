@@ -56,25 +56,20 @@ def access_denied_message(user, access):
     return tmpl.render(context=context)
 
 
-def copy(request, instance, board, user):
+def copy(request, instance, board):
     """Used to append instance.uid into request.session[board]"""
 
     if instance is None:
-        entry = Access(access=Access.NO_ACCESS)
-    else:
-        entry = Access.objects.filter(user=user, project=instance.project).first()
-        entry = entry or Access(access=Access.NO_ACCESS)
+        messages.error(request, "Object does not exist")
+        return []
 
-    if entry.access >= Access.READ_ACCESS or instance.project.is_public:
-        board_items = request.session.get(board, [])
-        board_items.append(instance.uid)
-        # No duplicates in clipboard
-        board_items = list(set(board_items))
-        request.session[board] = board_items
-        messages.success(request, f"Copied data, there are {len(board_items)} in clipboard.")
-    else:
-        board_items = request.session[board] = []
-        messages.warning(request, "You are not allowed to copy this.")
+    board_items = request.session.get(board, [])
+    board_items.append(instance.uid)
+    # No duplicates in clipboard
+    board_items = list(set(board_items))
+
+    request.session[board] = board_items
+    messages.success(request, f"Copied items, there are {len(board_items)} in clipboard.")
 
     return board_items
 
@@ -90,7 +85,12 @@ def authorize_run(user, recipe):
     if user.is_staff:
         return True
 
-    return recipe.runnable()
+    # Only users with write access can run recipes
+    entry = Access.objects.filter(project=recipe.project, user=user, access=Access.WRITE_ACCESS).first()
+    if entry:
+        return recipe.runnable()
+
+    return False
 
 
 def generate_script(job):
@@ -158,8 +158,9 @@ def get_project_list(user, include_public=True):
         cond = Q(privacy=Project.PUBLIC)
     else:
         # Authenticated users see public projects and private projects with access rights.
-        cond = Q(privacy=privacy) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
-
+        cond = Q(owner=user, privacy=Project.PRIVATE) | Q(privacy=privacy) | Q(access__user=user,
+                                                                               access__access__in=[Access.READ_ACCESS,
+                                                                                                   Access.WRITE_ACCESS])
     # Generate the query.
     query = Project.objects.filter(cond).distinct()
 
@@ -227,7 +228,7 @@ def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, logi
 
 
 def create_project(user, name, uid=None, summary='', text='', stream=None,
-                   privacy=Project.PRIVATE, sticky=True, update=False):
+                   privacy=Project.PRIVATE, sticky=False, update=False):
     uid = uid or util.get_uuid(8)
     project = Project.objects.filter(uid=uid)
 

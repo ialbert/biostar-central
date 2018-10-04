@@ -23,7 +23,7 @@ class ProjectViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username="test", email="test@l.com")
+        self.owner = models.User.objects.create_user(username="test", email="test@l.com", is_staff=True)
         self.owner.set_password("test")
 
         # Set up project to edit

@@ -1,6 +1,5 @@
 from django.contrib import auth
 from django.contrib import messages
-
 from biostar.accounts.models import Profile
 
 

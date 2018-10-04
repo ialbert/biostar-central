@@ -119,9 +119,7 @@ def has_data(request):
 def paste(context, project, current=""):
 
     request = context["request"]
-
     board = request.session.get(current) or []
-
     clipboard_count = len(board) if request.user.is_authenticated else 0
 
     extra_context = dict(clipboard_count=clipboard_count, project=project, current=current, context=context)
@@ -133,7 +131,13 @@ def paste(context, project, current=""):
 def is_checkbox(field):
     "Check if current field is a checkbox"
 
-    return True if field.field.widget.input_type == "checkbox" else False
+    try:
+        if field.field.widget.input_type == "checkbox":
+            return True
+    except Exception as exc:
+        logger.error(exc)
+
+    return False
 
 
 @register.filter
