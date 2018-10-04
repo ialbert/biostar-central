@@ -105,7 +105,6 @@ class ProjectForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.request = request
         self.create = create
-        add_captcha_field(request=request, fields=self.fields)
 
     class Meta:
         model = Project
@@ -201,6 +200,9 @@ class DataUploadForm(forms.ModelForm):
             if not cleaned_data.get("data_name"):
                 raise forms.ValidationError("Name is required with text inputs.")
 
+        total_count = Data.objects.get_all(owner=self.user).count()
+        if total_count > settings.MAX_DATA:
+            raise forms.ValidationError(f"Exceeded maximum amount of data:{settings.MAX_DATA}.")
         return cleaned_data
 
 

@@ -40,8 +40,11 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
 
-# Users only allowed 20 projects
+# Maximum number of projects allowed
 MAX_PROJECTS = 20
+
+# Maximum amount of data allowed
+MAX_DATA = 100
 
 # Set the home page to the engine or forum
 INTERNAL_IPS = ['127.0.0.1']
