@@ -2,7 +2,7 @@ import copy
 import shlex
 import hjson
 import io
-import os
+
 from django import forms
 from django.db.models import Sum
 from django.utils.safestring import mark_safe
@@ -201,7 +201,7 @@ class DataUploadForm(forms.ModelForm):
                 raise forms.ValidationError("Name is required with text inputs.")
 
         total_count = Data.objects.get_all(owner=self.user).count()
-        if total_count > settings.MAX_DATA:
+        if total_count >= settings.MAX_DATA:
             raise forms.ValidationError(f"Exceeded maximum amount of data:{settings.MAX_DATA}.")
         return cleaned_data
 
