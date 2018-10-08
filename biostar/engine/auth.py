@@ -60,7 +60,11 @@ def copy(request, instance, board):
     """Used to append instance.uid into request.session[board]"""
 
     if instance is None:
-        messages.error(request, "Object does not exist")
+        messages.error(request, "Object does not exist.")
+        return []
+
+    if request.user.is_anonymous:
+        messages.error(request, "You need to be logged in.")
         return []
 
     board_items = request.session.get(board, [])
