@@ -98,7 +98,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
     fieldsets = (("Analysis Metadata",
                     {'fields': ("name","owner",("uid","sticky"),
-                                 "deleted", "image"),
+                                 "deleted", "image", "privacy"),
                      "classes": ('extrapretty')}
                   ),
 
