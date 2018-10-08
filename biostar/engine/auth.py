@@ -68,6 +68,10 @@ def copy(request, instance, board):
     # No duplicates in clipboard
     board_items = list(set(board_items))
 
+    if len(board_items) >= settings.MAX_CLIPBOARD:
+        messages.warning(request, f"Exceeded maximum items allowed in a clipboard, Please paste or clear.")
+        return board_items
+
     request.session[board] = board_items
     messages.success(request, f"Copied items, there are {len(board_items)} in clipboard.")
 

@@ -1,5 +1,5 @@
 import logging, os, csv
-from subprocess import call
+import shutil
 
 from django.core.management.base import BaseCommand
 from biostar.engine.models import Data, Job
@@ -26,7 +26,7 @@ def delete(queryset):
             continue
 
         # Delete the root dir of the object
-        call(["rm", "-rf", basedir])
+        shutil.rmtree(basedir)
 
         print(basedir, "deleted")
 
@@ -48,7 +48,7 @@ class Command(BaseCommand):
         jobs.delete()
 
         # Delete files associated with jobs
-        call(["rm", "-rf"] + job_paths)
+        list(map(shutil.rmtree, job_paths))
 
         # Delete the data next
         delete(data)
