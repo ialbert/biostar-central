@@ -481,6 +481,12 @@ class RecipeInterface(forms.Form):
             msg = "Can not run a deleted recipe."
             raise forms.ValidationError(msg)
 
+        # Non-staff users have job limits.
+        running_jobs = Job.objects.filter(owner=self.user, state=Job.RUNNING)
+        if (not self.user.is_staff) and running_jobs.count() >= settings.MAX_RUNNING_JOBS:
+            msg = "Exceeded maximum amount of running jobs allowed. Please wait until some finish."
+            raise forms.ValidationError(msg)
+
     def fill_json_data(self):
         """
         Produces a filled in JSON data based on user input.
