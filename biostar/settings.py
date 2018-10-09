@@ -49,6 +49,9 @@ MAX_DATA = 100
 # Maximum amount of items per clipboard
 MAX_CLIPBOARD = 5
 
+# Maximum amount of total running jobs allowed for non-staff user.
+MAX_RUNNING_JOBS = 5
+
 # Set the home page to the engine or forum
 INTERNAL_IPS = ['127.0.0.1']
 
@@ -237,12 +240,10 @@ SESSION_KEY = "session"
 
 COUNT_INTERVAL_WEEKS = 10000
 
-#SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
-SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-#SESSION_FILE_PATH = join(MEDIA_ROOT, 'sessions')
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_SAVE_EVERY_REQUEST = True
+#SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
-# Ensure that the sessions directory exists.
-#os.makedirs(SESSION_FILE_PATH, exist_ok=True)
 
 
 # SENDFILE_BACKEND = "sendfile.backends.nginx"

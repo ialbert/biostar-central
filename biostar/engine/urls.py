@@ -3,7 +3,6 @@ from django.urls import path
 
 from biostar.forum import views as forum_views
 from . import views
-from . import api
 
 urlpatterns = [
     url(r'^$', views.index, name="index"),
@@ -66,10 +65,6 @@ urlpatterns = [
     url(r'^data/copy/(?P<uid>[-\w]+)/$', views.data_copy, name='data_copy'),
     url(r'^result/copy/(?P<uid>[-\w]+)/$', views.job_copy, name='job_copy'),
     url(r'^recipe/copy/(?P<uid>[-\w]+)/$', views.recipe_copy, name='recipe_copy'),
-
-    # Apis
-    url(r'^api/recipe/(?P<uid>[-\w]+)/$', api.recipe_details, name='recipe_details'),
-
 
 ]
 
