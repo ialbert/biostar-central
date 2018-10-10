@@ -390,52 +390,6 @@ def clean_text(textbox):
     return shlex.quote(textbox)
 
 
-class RecipeDiff(forms.Form):
-
-    REVERT, APPROVE = 'REVERT', 'APPROVE'
-
-    action = forms.CharField()
-
-    def __init__(self, recipe, user, request, *args, **kwargs):
-
-        self.recipe = recipe
-        self.user = user
-        self.request = request
-        super().__init__(*args, **kwargs)
-
-    def save(self):
-
-        action = self.cleaned_data.get("action")
-
-        if action == self.REVERT:
-            self.recipe.template = self.recipe.last_valid
-            messages.success(self.request, "Recipe has been reverted to original.")
-
-        elif action == self.APPROVE:
-            self.recipe.last_valid = self.recipe.template
-            messages.success(self.request, "Recipe changes have been approved.")
-        self.recipe.security = Analysis.AUTHORIZED
-        self.recipe.save()
-        return self.recipe
-
-    def clean(self):
-
-        cleaned_data = super(RecipeDiff, self).clean()
-        action = cleaned_data.get("action")
-        msg = "You don't have sufficient access rights to overwrite this entry."
-        has_access = auth.check_obj_access(user=self.user, request=self.request, instance=self.recipe,
-                                           role=Profile.MANAGER, access=Access.WRITE_ACCESS, login_required=True)
-        if not has_access:
-            raise forms.ValidationError(msg)
-
-        if action not in (self.REVERT, self.APPROVE):
-            raise forms.ValidationError("Can only revert or approve changes.")
-
-        if action == self.APPROVE and not self.user.profile.is_manager:
-            msg = "You have to be a manager."
-            raise forms.ValidationError(msg)
-
-
 class RecipeInterface(forms.Form):
     # The name of results when running the recipe.
     # name = forms.CharField(max_length=256, label="Name", help_text="This is how you can identify the run.")

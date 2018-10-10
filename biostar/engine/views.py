@@ -73,7 +73,6 @@ def recycle_bin(request):
     return render(request, 'recycle_bin.html', context=context)
 
 
-
 def clear_clipboard(request, uid):
     "Clear copied objects held in clipboard."
 
