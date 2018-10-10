@@ -18,7 +18,6 @@ from biostar.forum.models import Post
 from biostar.utils.shortcuts import reverse
 from . import tasks, auth, forms, util, const
 from .decorators import read_access, write_access
-from .diffs import color_diffs
 from .models import (Project, Data, Analysis, Job, Access)
 
 # The current directory
@@ -73,20 +72,6 @@ def recycle_bin(request):
 
     return render(request, 'recycle_bin.html', context=context)
 
-
-@login_required
-def recipe_mod(request):
-    "Shows all recipes that are under review."
-
-    user = request.user
-
-    if not user.profile.is_manager:
-        msg = mark_safe("You have to be a <b>manager</b> to view this page.")
-        messages.error(request, msg)
-        return redirect("/")
-
-    context = dict()
-    return render(request, 'recipe_mod.html', context)
 
 
 def clear_clipboard(request, uid):
@@ -691,33 +676,6 @@ def recipe_create(request, uid):
     context = dict(project=project, form=form, action_url=action_url, name="New Recipe")
 
     return render(request, 'recipe_edit.html', context)
-
-
-@read_access(type=Analysis)
-def recipe_diff(request, uid):
-    """
-    View used to show diff in template and authorize it.
-    """
-    recipe = Analysis.objects.get_all(uid=uid).first()
-    differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
-    differ = color_diffs(differ)
-
-    form = forms.RecipeDiff(recipe=recipe, request=request, user=request.user)
-
-    if request.method == "POST":
-        form = forms.RecipeDiff(recipe=recipe, user=request.user, data=request.POST,
-                                request=request)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('recipe_view', request=request, kwargs=dict(uid=recipe.uid)))
-
-    context = dict(activate="Recent Template Change", project=recipe.project, recipe=recipe,
-                   diff=mark_safe(''.join(differ)), form=form)
-
-    counts = get_counts(recipe.project)
-    context.update(counts)
-
-    return render(request, "recipe_diff.html", context=context)
 
 
 @write_access(type=Analysis, fallback_view='recipe_view')

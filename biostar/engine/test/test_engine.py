@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from django.forms import ValidationError
 from django.core.files import File
 from django.urls import reverse
-from biostar.engine import models, views, auth, factory, forms, diffs
+from biostar.engine import models, views, auth, factory, forms
 from biostar.engine import util as engine_util
 from django.conf import settings
 
@@ -51,15 +51,6 @@ class SiteAdminTest(TestCase):
         response = views.recycle_bin(request=request)
         self.assertEqual(response.status_code, 200, "Can not load recyle bin")
 
-
-    def test_diffs(self):
-        "Test the diffs module."
-
-        recipe = Bunch(template='Testing\nLll', last_valid="Test")
-        differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
-        differ = diffs.color_diffs(differ)
-
-        self.assertTrue(len(differ), 'Could not compute diff')
 
 
 @override_settings(MEDIA_ROOT=TEST_ROOT)
