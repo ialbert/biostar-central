@@ -556,5 +556,5 @@ class EditCode(forms.Form):
             if self.user.is_anonymous:
                 raise forms.ValidationError(msg)
             entry = Access.objects.filter(user=self.user, project=self.project).first()
-            if not entry or entry.access < Access.WRITE_ACCESS:
+            if not entry or entry.access != Access.WRITE_ACCESS:
                 raise forms.ValidationError(msg)
