@@ -63,7 +63,6 @@ class SiteNavigation(TestCase):
             reverse("recipe_code_view", kwargs=self.analysis_params),
             reverse("recipe_code_edit", kwargs=self.analysis_params),
             reverse('recipe_create', kwargs=self.proj_params),
-            reverse('recipe_diff', kwargs=self.analysis_params),
             reverse('recipe_run', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse('recipe_edit', kwargs=self.analysis_params),
@@ -79,7 +78,6 @@ class SiteNavigation(TestCase):
         urls = [
             reverse('signup'),
             reverse("recycle_bin"),
-            reverse('recipe_mod'),
         ]
 
         self.visit_urls(urls, [302, 200])

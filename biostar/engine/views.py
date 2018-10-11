@@ -17,8 +17,7 @@ from biostar.forum import views as forum_views
 from biostar.forum.models import Post
 from biostar.utils.shortcuts import reverse
 from . import tasks, auth, forms, util, const
-from .decorators import object_access, read_access, write_access
-from .diffs import color_diffs
+from .decorators import read_access, write_access
 from .models import (Project, Data, Analysis, Job, Access)
 
 # The current directory
@@ -72,21 +71,6 @@ def recycle_bin(request):
     context = dict(jobs=del_jobs, data=del_data, recipes=del_recipes)
 
     return render(request, 'recycle_bin.html', context=context)
-
-
-@login_required
-def recipe_mod(request):
-    "Shows all recipes that are under review."
-
-    user = request.user
-
-    if not user.profile.is_manager:
-        msg = mark_safe("You have to be a <b>manager</b> to view this page.")
-        messages.error(request, msg)
-        return redirect("/")
-
-    context = dict()
-    return render(request, 'recipe_mod.html', context)
 
 
 def clear_clipboard(request, uid):
@@ -588,7 +572,7 @@ def recipe_run(request, uid):
     return render(request, 'recipe_run.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MANAGER, url='recipe_view')
+@read_access(type=Analysis)
 def recipe_code_edit(request, uid):
     """
     Displays and allows edit on a recipe code.
@@ -657,7 +641,7 @@ def recipe_code_edit(request, uid):
     return render(request, 'recipe_edit_code.html', context)
 
 
-@object_access(type=Project, access=Access.WRITE_ACCESS, url='recipe_list')
+@write_access(type=Project, fallback_view='recipe_list')
 def recipe_create(request, uid):
     """
     Create recipe with empty template and json spec
@@ -693,34 +677,7 @@ def recipe_create(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS, role=Profile.MANAGER, url='recipe_view')
-def recipe_diff(request, uid):
-    """
-    View used to show diff in template and authorize it.
-    """
-    recipe = Analysis.objects.get_all(uid=uid).first()
-    differ = auth.template_changed(template=recipe.last_valid, analysis=recipe)
-    differ = color_diffs(differ)
-
-    form = forms.RecipeDiff(recipe=recipe, request=request, user=request.user)
-
-    if request.method == "POST":
-        form = forms.RecipeDiff(recipe=recipe, user=request.user, data=request.POST,
-                                request=request)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('recipe_view', request=request, kwargs=dict(uid=recipe.uid)))
-
-    context = dict(activate="Recent Template Change", project=recipe.project, recipe=recipe,
-                   diff=mark_safe(''.join(differ)), form=form)
-
-    counts = get_counts(recipe.project)
-    context.update(counts)
-
-    return render(request, "recipe_diff.html", context=context)
-
-
-@object_access(type=Analysis, access=Access.OWNER_ACCESS, url='recipe_view')
+@write_access(type=Analysis, fallback_view='recipe_view')
 def recipe_edit(request, uid):
     "Edit meta-data associated with a recipe."
 
@@ -741,7 +698,7 @@ def recipe_edit(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Job, access=Access.OWNER_ACCESS, url="job_view")
+@write_access(type=Job, fallback_view="job_view")
 def job_edit(request, uid):
     "Edit meta-data associated with a job."
 
@@ -759,7 +716,7 @@ def job_edit(request, uid):
     return render(request, 'job_edit.html', context)
 
 
-@object_access(type=Analysis, access=Access.OWNER_ACCESS, url="recipe_view")
+@write_access(type=Analysis, fallback_view="recipe_view")
 def recipe_delete(request, uid):
     recipe = Analysis.objects.get_all(uid=uid).first()
 
@@ -768,7 +725,7 @@ def recipe_delete(request, uid):
     return redirect(reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
 
-@object_access(type=Job, access=Access.OWNER_ACCESS, url="job_view")
+@write_access(type=Job, fallback_view="job_view")
 def job_delete(request, uid):
     job = Job.objects.get_all(uid=uid).first()
 
@@ -782,7 +739,7 @@ def job_delete(request, uid):
     return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
 
-@object_access(type=Data, access=Access.OWNER_ACCESS, url="data_view")
+@write_access(type=Data, fallback_view="data_view")
 def data_delete(request, uid):
     data = Data.objects.get_all(uid=uid).first()
 
@@ -791,7 +748,7 @@ def data_delete(request, uid):
     return redirect(reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
 
-@object_access(type=Job, access=Access.READ_ACCESS)
+@read_access(type=Job)
 def job_view(request, uid):
     '''
     Views the state of a single job.
@@ -858,7 +815,7 @@ def file_serve(request, path, obj):
     return data
 
 
-@object_access(type=Data, access=Access.READ_ACCESS, url='data_navigate')
+@read_access(type=Data)
 def data_serve(request, uid, path):
     """
     Serves files from a data directory.

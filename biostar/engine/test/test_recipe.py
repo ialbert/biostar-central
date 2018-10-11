@@ -90,35 +90,6 @@ class RecipeViewTest(TestCase):
         self.process_response(response=response, data=data, save=True)
 
 
-    def test_recipe_mod_page(self):
-        "test moderator view works"
-
-        url = reverse('recipe_mod')
-        request = util.fake_request(url=url, data={}, user=self.owner)
-
-        response = views.recipe_mod(request=request)
-
-        self.assertEqual(response.status_code, 200, "Can not load moderate page.")
-
-
-    @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
-    def test_recipe_diff(self):
-        "Test the recipe diff generation."
-
-        self.recipe.last_valid = "Test"
-        self.recipe.save()
-        url = reverse('recipe_diff', kwargs=dict(uid=self.recipe.uid))
-
-        approve_request = util.fake_request(url=url, data={'action':"APPROVE"}, user=self.owner)
-        revert_request = util.fake_request(url=url, data={'action':"REVERT"}, user=self.owner)
-
-        for action in (approve_request, revert_request):
-
-            response = views.recipe_diff(request=action, uid=self.recipe.uid)
-
-            self.process_response(response=response, data={'action':action}, save=True)
-
-
     def Xtest_recipe_copy(self):
         "Test recipe copy interface"
 
