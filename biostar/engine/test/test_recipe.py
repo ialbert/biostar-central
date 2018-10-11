@@ -63,18 +63,6 @@ class RecipeViewTest(TestCase):
 
         self.process_response(response=response, data=data, save=True)
 
-    @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
-    def test_recipe_create(self):
-        "Test recipe create with POST request"
-
-        data = { "name": "test", "sticky":True, "summary":"summary", "text":"text" }
-        url = reverse('recipe_create', kwargs=dict(uid=self.project.uid))
-
-        request = util.fake_request(url=url, data=data, user=self.owner)
-
-        response = views.recipe_create(request=request, uid=self.project.uid)
-
-        self.process_response(response=response, data=data, save=True)
 
     @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
     def test_recipe_edit(self):

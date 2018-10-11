@@ -470,7 +470,6 @@ class RecipeInterface(forms.Form):
         return json_data
 
 
-
 class EditCode(forms.Form):
     SAVE = "SAVE"
 

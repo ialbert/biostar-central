@@ -27,61 +27,6 @@ class File(object):
     pass
 
 
-FILE_ICON = '''
-<div class="item">
-  <i class="file icon"></i> %s
-</div>
-'''
-
-FOLDER_ICON = '''
-<div class="item">
-  <i class="blue folder icon"></i> %s
-  <div class="list">
-'''
-
-FILE_ICON = FILE_ICON.strip()
-FOLDER_ICON = FOLDER_ICON.strip()
-
-def directory_tree(path, collect=[]):
-    for entry in os.scandir(path):
-        if entry.is_dir():
-            collect.append(FOLDER_ICON % entry.name)
-            directory_tree(entry, collect=collect)
-            collect.append(f'</div>')
-            collect.append(f'</div>')
-        else:
-            collect.append(FILE_ICON % entry.name)
-    return collect
-
-def scan_files(relpath, abspath, root, exclude=[]):
-    """
-    Generates a list of file objects at an absolute path.s
-    """
-    if not (abspath.startswith(root) and os.path.exists(abspath)):
-        raise Exception("Can not access an invalid directory.")
-
-    # Pathlike objects with attributes such as name, is_file
-    files = list(filter(lambda p: p.name not in exclude, os.scandir(abspath)))
-
-    # Sort the file list. Directories first, then by name.
-    files = sorted(files, key=lambda p: (p.is_file(), p.name))
-
-    def transform(f):
-        b = File()
-        b.path = os.path.join(relpath, f.name) if relpath else f.name
-        b.is_dir = f.is_dir()
-        if os.path.exists(f.path):
-            b.name, b.size = f.name, f.stat().st_size
-        else:
-            b.name, b.size = f.name, 0
-        return b
-
-    files = map(transform, files)
-    files = list(files)
-
-    return files
-
-
 def smart_preview(fname):
     CHUNK_SIZE, LINE_COUNT = 1024, 10
     try:

@@ -62,7 +62,6 @@ class SiteNavigation(TestCase):
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse("recipe_code_view", kwargs=self.analysis_params),
             reverse("recipe_code_edit", kwargs=self.analysis_params),
-            reverse('recipe_create', kwargs=self.proj_params),
             reverse('recipe_run', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse('recipe_edit', kwargs=self.analysis_params),
