@@ -175,66 +175,6 @@ def get_project_list(user, include_public=True):
     return query
 
 
-def check_obj_access(user, instance, access=Access.NO_ACCESS, request=None, login_required=False, role=None):
-    """
-    Validates object access.
-    """
-    # This is so that we can inform users in more granularity
-    # but also to allow this function to be called outside a web view
-    # where there are no requests.
-
-    request = request or fake_request()
-
-    # The object does not exist.
-    if not instance:
-        messages.error(request, "Object does not exist.")
-        return False
-
-    project = instance.project
-
-    # Check for logged in user and login requirement.
-    if user.is_anonymous and login_required:
-        messages.error(request, "You must be logged in.")
-        return False
-
-    # If the project is public then any user can have read access.
-    if project.privacy == Project.PUBLIC and access == Access.READ_ACCESS:
-        return True
-
-    # Check ownership access.
-    if access == Access.OWNER_ACCESS:
-        if project.owner == user or instance.owner == user:
-            return True
-        else:
-            msg = "Only the creator of the object or project can perform that action."
-            messages.error(request, msg)
-            return False
-
-    # Prepare the access denied message.
-    access_text = Access.ACCESS_MAP.get(access, 'Invalid')
-    deny = access_denied_message(user=user, access=access_text)
-
-    # Anonymous users have no other access permissions.
-    if user.is_anonymous:
-        messages.error(request, deny)
-        return False
-
-    # Check user access.
-    entry = Access.objects.filter(user=user, project=project).first()
-    entry = entry or Access(access=Access.NO_ACCESS)
-    # Check user role.
-    has_role = (role is not None) and user.profile.role == role
-
-    if entry.access < access and not has_role:
-        messages.warning(request, deny)
-        return False
-    if entry.access >= access or has_role:
-        return True
-
-    messages.error(request, "Invalid fall through.")
-    return False
-
-
 def create_project(user, name, uid=None, summary='', text='', stream=None,
                    privacy=Project.PRIVATE, sticky=False, update=False):
     uid = uid or util.get_uuid(8)

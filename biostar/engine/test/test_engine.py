@@ -52,14 +52,11 @@ class SiteAdminTest(TestCase):
         self.assertEqual(response.status_code, 200, "Can not load recyle bin")
 
 
-
 @override_settings(MEDIA_ROOT=TEST_ROOT)
 class FactoryTest(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
-
-
         owner = models.User.objects.filter(is_superuser=True).first()
         self.project = auth.create_project(user=owner, name="test",
                                            text="Text", summary="summary", uid="testing")

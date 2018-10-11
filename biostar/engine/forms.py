@@ -257,11 +257,9 @@ class DataEditForm(forms.ModelForm):
 
         return super(DataEditForm, self).save(commit)
 
-
     class Meta:
         model = Data
         fields = ['name', 'summary', 'text', 'sticky', "type"]
-
 
     def clean_file(self):
         cleaned_data = super(DataEditForm, self).clean()
@@ -295,10 +293,9 @@ class RecipeCodeEdit(forms.ModelForm):
 
     def clean(self):
 
-        # Check if the user is a manager or has write access before making changes.
-        entry = auth.check_obj_access(user=self.user, instance=self.recipe, access=Access.WRITE_ACCESS,
-                                      login_required=True, role=Profile.MANAGER)
-        if not entry:
+        # Check if the user has write access before making changes.
+        entry = Access.objects.filter(user=self.user, project=self.recipe.project, access=Access.WRITE_ACCESS).first()
+        if entry is None or entry.access != Access.WRITE_ACCESS:
             raise forms.ValidationError("You need write access to change the code.")
 
     # Turn all input into Unix line ending.
