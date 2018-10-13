@@ -8,7 +8,6 @@ from functools import partial
 from biostar.codes.models import QPCRSample, QPCRMeasurement, Location, QPCRExperiment
 
 
-
 class Bunch(object):
     def __init__(self, **kwargs):
 
@@ -245,7 +244,7 @@ def load_experiment(csvfile):
     experiment.save()
 
 
-def load_data(sample_sheet, data_dir=None, zip_file=None):
+def load_all(sample_sheet, data_dir=None, zip_file=None):
     """Load sample sheet and data into the database."""
 
     # Load the sample independent of other things.

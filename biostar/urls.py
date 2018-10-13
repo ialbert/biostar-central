@@ -32,7 +32,6 @@ urlpatterns = [
 
     url(r'^accounts/', include(accounts_urls)),
 
-
     # Message urls
     url(r'^message/', include(message_urls)),
 
