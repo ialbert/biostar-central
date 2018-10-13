@@ -123,6 +123,7 @@ INSTALLED_APPS = [
     'biostar.forum.apps.ForumConfig',
     'biostar.message.apps.MessageConfig',
     'biostar.ftpserver',
+    'biostar.codes',
 
     # Allauth templates come last.
     'allauth',
@@ -175,12 +176,21 @@ WSGI_APPLICATION = 'biostar.wsgi.application'
 
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
+ENGINE_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
+
+CODES_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'codes.db')
+
+DATABASE_ROUTERS = ['biostar.codes.dbrouter.CodesRouter']
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATABASE_NAME,
+        'NAME': ENGINE_DATABASE_NAME,
+    },
+    'codes_db': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': CODES_DATABASE_NAME,
+
     }
 }
 
@@ -243,7 +253,6 @@ COUNT_INTERVAL_WEEKS = 10000
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_SAVE_EVERY_REQUEST = True
 #SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-
 
 
 # SENDFILE_BACKEND = "sendfile.backends.nginx"
