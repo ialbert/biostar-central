@@ -222,6 +222,10 @@ USE_TZ = True
 
 MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
 
+# Directory where files are extracted to
+EXTRACT_TO = join(BASE_DIR, "..", "export", "extracted")
+os.makedirs(EXTRACT_TO, exist_ok=True)
+
 # The location of application specific data.
 LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 

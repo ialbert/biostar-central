@@ -3,6 +3,7 @@ import csv
 import datetime
 import zipfile
 from functools import partial
+from django.conf import settings
 
 # Try import models without setting up django
 from biostar.codes.models import QPCRSample, QPCRMeasurement, Location, QPCRExperiment
@@ -136,7 +137,7 @@ def bunch_samplesheet_row(row, header):
     return bunched
 
 
-def load_samplesheet(sample_sheet):
+def load_qpcr_samplesheet(sample_sheet):
     """Create Location and Sample objects from csv file."""
 
     csv_reader = csv.reader(open(sample_sheet, "r"), delimiter=",")
@@ -206,7 +207,7 @@ def bunch_measurement_row(row, header):
     return bunched
 
 
-def load_experiment(csvfile):
+def load_qpcr_experiment(csvfile):
     """Creates Experiment and Measurement objects from the qPCR measurement."""
 
     measurements = csv.reader(open(csvfile, "r"), delimiter=",")
@@ -244,17 +245,17 @@ def load_experiment(csvfile):
     experiment.save()
 
 
-def load_all(sample_sheet, data_dir=None, zip_file=None):
+def load_qpcr(sample_sheet, data_dir=None, zip_file=None):
     """Load sample sheet and data into the database."""
 
     # Load the sample independent of other things.
-    load_samplesheet(sample_sheet=sample_sheet)
+    load_qpcr_samplesheet(sample_sheet=sample_sheet)
 
     # Iterate over files and load into database
     results = [] if not data_dir else os.scandir(data_dir)
 
     # Load experiments
-    list(map(load_experiment, results))
+    list(map(load_qpcr_experiment, results))
 
     # Unpack and load zipfile
     if zip_file:
@@ -262,9 +263,9 @@ def load_all(sample_sheet, data_dir=None, zip_file=None):
         zip_ref = zipfile.ZipFile(zip_file, 'r')
         files = list(filter(lambda x: not x.filename.startswith("__"), zip_ref.infolist()))
 
-        extract = partial(zip_ref.extract, path=os.path.join(BASE_DIR, "data"))
+        extract = partial(zip_ref.extract, path=settings.EXTRACT_TO)
 
         # Extract and return a list of files.
         output = list(filter(lambda f: os.path.isfile(f), map(extract, files)))
 
-        list(map(load_experiment, output))
+        list(map(load_qpcr_experiment, output))

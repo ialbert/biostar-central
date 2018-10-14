@@ -1,8 +1,6 @@
 
 
-
 def search(reqeust):
-
 
     print(reqeust.GET)
     1/0

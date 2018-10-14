@@ -4,14 +4,14 @@ from django.core.exceptions import AppRegistryNotReady, ImproperlyConfigured
 
 try:
     # Try import models without setting up django
-    from biostar.codes.auth import load_all
+    from biostar.codes.auth import load_qpcr
 except (AppRegistryNotReady, ImproperlyConfigured):
     import django
     import os
     # Set up django before loading models ( only run once ).
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "biostar.settings")
     django.setup()
-    from biostar.codes.auth import load_all
+    from biostar.codes.auth import load_qpcr
 
 
 def main():
@@ -30,7 +30,7 @@ def main():
                                 Unpacked to created experiments and measurement.""")
 
     args = parse.parse_args()
-    load_all(sample_sheet=args.sample_sheet, data_dir=args.data_dir, zip_file=args.zipfile)
+    load_qpcr(sample_sheet=args.sample_sheet, data_dir=args.data_dir, zip_file=args.zipfile)
 
 
 if __name__ == "__main__":
