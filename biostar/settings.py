@@ -178,20 +178,12 @@ WSGI_APPLICATION = 'biostar.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 ENGINE_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
 
-CODES_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'codes.db')
-
-DATABASE_ROUTERS = ['biostar.codes.dbrouter.CodesRouter']
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ENGINE_DATABASE_NAME,
     },
-    'codes_db': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': CODES_DATABASE_NAME,
 
-    }
 }
 
 # Password validation
