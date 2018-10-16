@@ -13,7 +13,7 @@ __CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 CHOICE_MAP = dict(
     read=Access.READ_ACCESS,
     write=Access.WRITE_ACCESS,
-    owner=Access.OWNER_ACCESS
+    owner=Access.WRITE_ACCESS
 )
 
 CHOICES = list(CHOICE_MAP.keys())
@@ -25,8 +25,6 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('fname', default=0,
                             help="Specifies project by id")
-
-
 
     def handle(self, *args, **options):
         fname = options['fname']
@@ -75,7 +73,7 @@ class Command(BaseCommand):
                 logger.error(f"Invalid access type: uid={project.uid} email={email}  access={access}")
                 continue
 
-            if (access_value == Access.OWNER_ACCESS):
+            if access == "owner":
                 project.owner = user
                 project.save()
             else:

@@ -2,7 +2,7 @@ import difflib
 import logging
 import uuid
 from mimetypes import guess_type
-
+from functools import partial
 import hjson
 from django.conf import settings
 from django.contrib import messages
@@ -351,9 +351,11 @@ def create_path(fname, data):
 
 
 def link_file(path, data):
-    dest = create_path(fname=path, data=data)
-
-    os.symlink(path, dest)
+    dest = None
+    if path:
+        dest = create_path(fname=path, data=data)
+        os.symlink(path, dest)
+        logger.info(f"Linked file: {path}")
     return dest
 
 
@@ -377,15 +379,9 @@ def create_data(project, user=None, stream=None, path='', name='',
         # Mark incoming file as uploaded
         data.method = Data.UPLOAD
 
-    # Link single file
-    if path:
-        link_file(path=path, data=data)
-        logger.info(f"Linked file: {path}")
-
-    # Link list of files
-    for p in paths:
-        link_file(path=p, data=data)
-        logger.info(f"Linked file: {p}")
+    # Link files
+    linker = partial(link_file, data=data)
+    list(map(linker, set(paths + [path]) ))
 
     # Invalid paths and empty streams still create the data but set the data state to error.
     missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)

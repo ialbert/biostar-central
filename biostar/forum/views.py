@@ -20,18 +20,6 @@ from .const import *
 User = get_user_model()
 
 
-def get_listing_func(active_tab, tag_topic):
-
-    if active_tab:
-        listing_func = auth.list_posts_by_topic
-    elif tag_topic:
-        listing_func = lambda request, topic: Post.objects.tag_search(topic)
-    else:
-        listing_func = auth.list_posts_by_topic
-
-    return listing_func
-
-
 @protect_private_topics
 def list_view(request, template="post_list.html", extra_context={}, topic=None,
               extra_proc=lambda x:x, per_page=settings.POSTS_PER_PAGE):
@@ -44,9 +32,8 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
 
     page = request.GET.get('page')
     topic, active = topic.lower(), active.lower()
-    listing_func = get_listing_func(active_tab=active, tag_topic=topic)
 
-    objs = listing_func(request=request, topic=active or topic).order_by("-pk")
+    objs = auth.list_posts_by_topic(request=request, topic=active or topic).order_by("-pk")
     user = request.user
 
     if user.is_authenticated and not user.profile.is_moderator:
@@ -117,8 +104,7 @@ def ajax_vote(request):
 
 
 @object_exists(klass=Post)
-def post_view(request, uid, template="post_view.html", url="post_view",
-              extra_context={}):
+def post_view(request, uid, template="post_view.html", url="post_view", extra_context={}):
     "Return a detailed view for specific post"
 
     # Form used for answers
@@ -129,7 +115,7 @@ def post_view(request, uid, template="post_view.html", url="post_view",
     # Return root view if not at top level.
     obj = obj if obj.is_toplevel else obj.root
 
-    Post.update_post_views(obj, request=request)
+    auth.update_post_views(post=obj, request=request)
 
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)

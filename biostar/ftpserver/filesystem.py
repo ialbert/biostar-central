@@ -320,7 +320,6 @@ class BiostarFileSystem(AbstractedFS):
                     Access.NO_ACCESS: read_perms,
                     Access.READ_ACCESS: read_perms,
                     Access.WRITE_ACCESS: read_perms + write_perms,
-                    Access.OWNER_ACCESS: read_perms + write_perms + manager_perms
                     }
 
         return perm_map.get(access, "el")

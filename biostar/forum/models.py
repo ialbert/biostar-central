@@ -36,48 +36,45 @@ class SubscriptionManager(models.Manager):
 
 class PostManager(models.Manager):
 
+    def select_prefetch(self, query):
+
+        # Prefetch tags and thread user info
+        query = query.prefetch_related("tags", "thread_users__profile", "thread_users")
+        query = query.select_related("root", "author", "author__profile", "lastedit_user", "lastedit_user__profile")
+        return query
+
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
-        query = super().get_queryset().filter(project=None).prefetch_related("tags", "thread_users__profile",
-                                                                             "thread_users")
+
+        query = self.select_prefetch(super().get_queryset().filter(project=None))
         return query
 
     def get_discussions(self, **kwargs):
         "Get posts exclusively tied to projects"
 
         query = super().get_queryset().exclude(project=None, status=Post.DELETED).filter(**kwargs)
-        query = query.select_related("root", "author", "author__profile",
-                                    "lastedit_user", "lastedit_user__profile", "project")
-        query = query.prefetch_related("tags", "thread_users")
+        query = self.select_prefetch(query.select_related("project"))
         return query
 
     def get_all(self, **kwargs):
         "Return everything"
-        query = super().get_queryset().filter(**kwargs)
-        query = query.select_related("root", "author", "author__profile",
-                                    "lastedit_user", "lastedit_user__profile")
-        query = query.prefetch_related("tags", "thread_users", "thread_users__profile")
+        query = self.select_prefetch(super().get_queryset().filter(**kwargs))
         return query
 
     def following(self, user):
         query = self.filter(~Q(subs__type=Subscription.NO_MESSAGES), subs__user=user).exclude(status=Post.DELETED)
-        query = query.select_related("root", "author", "lastedit_user")
-        query = query.prefetch_related("tags")
+        query = self.select_prefetch(query)
         return query
 
     def my_bookmarks(self, user):
         query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)
-        query = query.select_related("root", "author", "lastedit_user")
-        query = query.prefetch_related("tags")
+        query = self.select_prefetch(query)
         return query
 
     def my_post_votes(self, user):
         "Posts that received votes from other people "
-        query = self.filter(author=user)
-        query = self.filter(votes__post__in=query).exclude(votes__author=user)
-        query = query.select_related("root", "author", "author__profile",
-                                    "lastedit_user", "lastedit_user__profile")
-        query = query.prefetch_related("tags")
+        query = self.filter(votes__post__author=user).exclude(votes__author=user)
+        query = self.select_prefetch(query)
         return query
 
     def my_posts(self, target, user):
@@ -91,26 +88,21 @@ class PostManager(models.Manager):
         else:
             query = self.filter(author=target).exclude(status=Post.DELETED)
 
-        query = query.select_related("root", "author", "author__profile",
-                                    "lastedit_user", "lastedit_user__profile")
-        query = query.prefetch_related("tags")
-        query = query.order_by("-creation_date")
+        query = self.select_prefetch(query).order_by("-creation_date")
         return query
-
-    def fixcase(self, text):
-        return text.upper() if len(text) == 1 else text.lower()
 
     def tag_search(self, text, defer_content=True):
         "Performs a query by one or more , separated tags"
         include, exclude = [], []
         # Split the given tags on ',' and '+'.
         terms = text.split(',') if ',' in text else text.split('+')
+        fixcase = lambda text:text.upper() if len(text) == 1 else text.lower()
         for term in terms:
             term = term.strip()
             if term.endswith("!"):
-                exclude.append(self.fixcase(term[:-1]))
+                exclude.append(fixcase(term[:-1]))
             else:
-                include.append(self.fixcase(term))
+                include.append(fixcase(term))
 
         if include:
             query = self.filter(type__in=Post.TOP_LEVEL, tags__name__in=include).exclude(
@@ -124,36 +116,27 @@ class PostManager(models.Manager):
             query = query.defer('content', 'html')
 
         # Get the tags.
-        query = query.select_related("root", "author", "author__profile",
-                                    "lastedit_user", "lastedit_user__profile").prefetch_related("tags").distinct()
-
+        query = self.select_prefetch(query=query).distinct()
         return query
 
     def get_thread(self, root, user):
         # Populate the object to build a tree that contains all posts in the thread.
         is_moderator = user.is_authenticated and user.profile.is_moderator
-        if is_moderator:
-            query = self.get_all(root=root).select_related("root", "parent", "author", "author__profile",
-                                    "lastedit_user", "lastedit_user__profile").order_by("type", "-has_accepted",
-                                                                                                      "-vote_count", "creation_date")
-        else:
-            query = self.get_all(root=root).exclude(status=Post.DELETED).select_related("root", "parent", "author", "author__profile",
-                                    "lastedit_user", "lastedit_user__profile").order_by("type",
-                                                                                         "-has_accepted",
-                                                                                         "-vote_count",
-                                                                                         "creation_date")
+
+        query = self.get_all(root=root)
+        query = query if is_moderator else query.exclude(status=Post.DELETED)
+
+        query = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
         return query
 
     def top_level(self, user):
         "Returns posts based on a user type"
         is_moderator = user.is_authenticated and (user.profile.is_moderator or user.profile.is_manager)
-        if is_moderator:
-            query = self.filter(type__in=Post.TOP_LEVEL)
-        else:
-            query = self.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
+        query = self.filter(type__in=Post.TOP_LEVEL)
+        query = query if is_moderator else query.exclude(status=Post.DELETED)
 
-        return query.select_related("root", "author", "author__profile",
-                                    "lastedit_user", "lastedit_user__profile").prefetch_related("tags")#.defer("content", "html")
+        query = self.select_prefetch(query=query)
+        return query
 
 
 class Post(models.Model):
@@ -280,7 +263,6 @@ class Post(models.Model):
         text = bleach.clean(self.content, tags=[], attributes=[], styles={}, strip=True)
         return text
 
-
     @property
     def is_open(self):
         return self.status == Post.OPEN
@@ -302,27 +284,6 @@ class Post(models.Model):
                                            status=Post.OPEN).count()
 
         Post.objects.filter(pk=self.parent_id).update(thread_score=thread_score)
-
-    @staticmethod
-    def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
-        "Views are updated per user session"
-
-        # Extract the IP number from the request.
-        ip1 = request.META.get('REMOTE_ADDR', '')
-        ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
-        # 'localhost' is not a valid ip address.
-        ip1 = '' if ip1.lower() == 'localhost' else ip1
-        ip2 = '' if ip2.lower() == 'localhost' else ip2
-        ip = ip1 or ip2 or '0.0.0.0'
-
-        now = util.now()
-        since = now - datetime.timedelta(minutes=minutes)
-
-        # One view per time interval from each IP address.
-        if not PostView.objects.filter(ip=ip, post=post, date__gt=since).exists():
-            PostView.objects.create(ip=ip, post=post, date=now)
-            Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
-        return post
 
     def save(self, *args, **kwargs):
 
@@ -470,19 +431,13 @@ def set_post(sender, instance, created, *args, **kwargs ):
 
 
 @receiver(post_save, sender=Post)
-def check_thread_users(sender, instance, created, *args, **kwargs):
-
-    # Add the author to the thread_users of the root.
-    obj = instance.root if instance.root else instance
-
-    obj.thread_users.remove(instance.author)
-
-    obj.thread_users.add(instance.author)
-
-
-@receiver(post_save, sender=Post)
 def check_root(sender, instance, created, *args, **kwargs):
     "We need to ensure that the parent and root are set on object creation."
+
+    # Add the author to the thread_users of the root.
+    obj = instance.root if instance.root is not None else instance
+    obj.thread_users.remove(instance.author)
+    obj.thread_users.add(instance.author)
 
     if created:
 

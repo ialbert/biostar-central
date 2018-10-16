@@ -123,7 +123,6 @@ INSTALLED_APPS = [
     'biostar.forum.apps.ForumConfig',
     'biostar.message.apps.MessageConfig',
     'biostar.ftpserver',
-    'biostar.codes',
 
     # Allauth templates come last.
     'allauth',

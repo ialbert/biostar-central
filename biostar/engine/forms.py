@@ -341,9 +341,8 @@ class JobEditForm(forms.ModelForm):
 class ChangeUserAccess(forms.Form):
     user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
     project_uid = forms.CharField(required=True, widget=forms.HiddenInput())
-    choices = filter(lambda x: x[0] != Access.OWNER_ACCESS, Access.ACCESS_CHOICES)
     access = forms.IntegerField(initial=Access.NO_ACCESS,
-                                widget=forms.Select(choices=choices))
+                                widget=forms.Select(choices=Access.ACCESS_CHOICES))
 
     def save(self):
         "Changes users access to a project"

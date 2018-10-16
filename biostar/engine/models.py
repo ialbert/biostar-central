@@ -140,7 +140,6 @@ class Access(models.Model):
         (NO_ACCESS, "No Access"),
         (READ_ACCESS, "Read Access"),
         (WRITE_ACCESS, "Write Access"),
-        (OWNER_ACCESS, "Owner Access")
     ]
 
     ACCESS_MAP = dict(ACCESS_CHOICES)
