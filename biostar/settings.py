@@ -237,7 +237,7 @@ SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = '/protected/'
 
 # Settings used to enable/disable the forum.
-ENABLE_FORUM = True
+ENABLE_FORUM = False
 ONLY_FORUM_URLS = False
 
 # Session settings go here
