@@ -2,8 +2,10 @@ import copy
 import shlex
 import hjson
 import io
+import re
 
 from django import forms
+from django.template import Template, Context
 from django.db.models import Sum
 from django.utils.safestring import mark_safe
 from django.contrib import messages
@@ -302,6 +304,7 @@ class RecipeCodeEdit(forms.ModelForm):
     def clean_template(self):
         cleaned_data = super(RecipeCodeEdit, self).clean()
         template = cleaned_data.get('template')
+
         template = "\n".join(template.splitlines())
         return template
 
@@ -436,6 +439,21 @@ class RecipeInterface(forms.Form):
         if (not self.user.is_staff) and running_jobs.count() >= settings.MAX_RUNNING_JOBS:
             msg = "Exceeded maximum amount of running jobs allowed. Please wait until some finish."
             raise forms.ValidationError(msg)
+
+        self.validate_char_fields()
+
+    def validate_char_fields(self):
+        """Validate Character fields """
+
+        # Match any alphanumerical string with a given
+        valid_pattern = r"\w{0," + str(settings.MAX_CHARFIELD_LENGTH) + "}"
+
+        for field in self.json_data:
+
+            if self.json_data[field].get("display") == TEXTBOX and not re.fullmatch(valid_pattern,
+                                                                                    self.cleaned_data[field]):
+                msg = f"{field} is not a valid pattern. Valid pattern is: {valid_pattern}"
+                raise forms.ValidationError(msg)
 
     def fill_json_data(self):
         """

@@ -40,6 +40,9 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
 
+# Maximum length for the character field in recipe interface
+MAX_CHARFIELD_LENGTH = 3
+
 # Maximum number of projects allowed
 MAX_PROJECTS = 20
 
