@@ -445,14 +445,20 @@ class RecipeInterface(forms.Form):
     def validate_char_fields(self):
         """Validate Character fields """
 
-        # Match any alphanumerical string with a given
-        valid_pattern = r"\w{0," + str(settings.MAX_CHARFIELD_LENGTH) + "}"
+        # Match any alphanumerical string with a given length
+        valid_pattern = r"\w+"
 
         for field in self.json_data:
+            val = self.cleaned_data.get(field)
+            if (val is None) or (self.json_data[field].get("display") != TEXTBOX):
+                continue
 
-            if self.json_data[field].get("display") == TEXTBOX and not re.fullmatch(valid_pattern,
-                                                                                    self.cleaned_data[field]):
-                msg = f"{field} is not a valid pattern. Valid pattern is: {valid_pattern}"
+            if len(val) > settings.MAX_CHARFIELD_LENGTH:
+                msg = f"{field} : too many characters. Max characters: {settings.MAX_CHARFIELD_LENGTH}"
+                raise forms.ValidationError(msg)
+
+            if re.fullmatch(valid_pattern, val) is None:
+                msg = f"{field} : contains special characters, only letters and numbers allowed."
                 raise forms.ValidationError(msg)
 
     def fill_json_data(self):
