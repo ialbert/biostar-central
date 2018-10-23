@@ -506,9 +506,17 @@ class EditCode(forms.Form):
         action = cleaned_data.get("action")
 
         if action == self.SAVE:
-            msg = "You don't have sufficient access rights to overwrite this entry."
+
             if self.user.is_anonymous:
+                msg = "Anonymous users may not save the form."
                 raise forms.ValidationError(msg)
-            entry = Access.objects.filter(user=self.user, project=self.project).first()
-            if not entry or entry.access != Access.WRITE_ACCESS:
+
+            # Write access to the object.
+            allow = Access.objects.filter(user=self.user, project=self.project, access=Access.WRITE_ACCESS).exists()
+
+            # Conditions of when we allow the save.
+            allow = allow or self.user.is_staff
+
+            if not allow:
+                msg = "Anonymous users may not save the form."
                 raise forms.ValidationError(msg)
