@@ -459,7 +459,7 @@ class RecipeInterface(forms.Form):
             regex_pattern = self.json_data[field].get("regex", default_pattern)
 
             if re.fullmatch(regex_pattern, val) is None:
-                msg = f"{field} : contains invalid pattern. Valid pattern:{regex_pattern}."
+                msg = f"{field} : contains invalid patterns. Valid pattern:{regex_pattern}."
                 raise forms.ValidationError(msg)
 
     def fill_json_data(self):
