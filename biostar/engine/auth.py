@@ -353,7 +353,9 @@ def create_path(fname, data):
 def link_file(path, data):
     dest = create_path(fname=path, data=data)
 
-    os.symlink(path, dest)
+    if not os.path.exists(dest):
+        os.symlink(path, dest)
+
     return dest
 
 
