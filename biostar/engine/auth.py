@@ -351,11 +351,9 @@ def create_path(fname, data):
 
 
 def link_file(path, data):
-    dest = None
-    if path:
-        dest = create_path(fname=path, data=data)
-        os.symlink(path, dest)
-        logger.info(f"Linked file: {path}")
+    dest = create_path(fname=path, data=data)
+
+    os.symlink(path, dest)
     return dest
 
 
@@ -379,9 +377,13 @@ def create_data(project, user=None, stream=None, path='', name='',
         # Mark incoming file as uploaded
         data.method = Data.UPLOAD
 
-    # Link files
-    linker = partial(link_file, data=data)
-    list(map(linker, set(paths + [path]) ))
+    if path:
+        paths.append(path)
+
+    # Link list of files
+    for p in paths:
+        link_file(path=p, data=data)
+        logger.info(f"Linked file: {p}")
 
     # Invalid paths and empty streams still create the data but set the data state to error.
     missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
