@@ -380,7 +380,8 @@ def create_data(project, user=None, stream=None, path='', name='',
         data.method = Data.UPLOAD
 
     if path:
-        paths.append(path)
+        link_file(path=path, data=data)
+        logger.info(f"Linked file: {path}")
 
     # Link list of files
     for p in paths:

@@ -444,7 +444,7 @@ class RecipeInterface(forms.Form):
     def validate_text_fields(self):
         """Validate Character fields """
 
-        # Default pattern matches any ascii string with a given length
+        # Default pattern matches any alphanumeric string with a given length
         default_pattern = r"^\w{1,10}$"
 
         for field in self.json_data:

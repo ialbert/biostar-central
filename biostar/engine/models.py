@@ -498,7 +498,7 @@ class Job(models.Model):
         self.name = self.name or self.analysis.name
         # write an index.html to the file
         if not os.path.isdir(self.path):
-            path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
+            path = join(settings.MEDIA_ROOT, "jobs", f"{self.uid}")
             os.makedirs(path)
             self.path = path
 
