@@ -175,13 +175,14 @@ WSGI_APPLICATION = 'biostar.wsgi.application'
 
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
+ENGINE_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATABASE_NAME,
-    }
+        'NAME': ENGINE_DATABASE_NAME,
+    },
+
 }
 
 # Password validation
@@ -212,6 +213,10 @@ USE_TZ = True
 
 MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
 
+# Directory where files are extracted to
+EXTRACT_TO = join(BASE_DIR, "..", "export", "extracted")
+os.makedirs(EXTRACT_TO, exist_ok=True)
+
 # The location of application specific data.
 LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 
@@ -232,7 +237,7 @@ SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = '/protected/'
 
 # Settings used to enable/disable the forum.
-ENABLE_FORUM = True
+ENABLE_FORUM = False
 ONLY_FORUM_URLS = False
 
 # Session settings go here
@@ -243,7 +248,6 @@ COUNT_INTERVAL_WEEKS = 10000
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_SAVE_EVERY_REQUEST = True
 #SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-
 
 
 # SENDFILE_BACKEND = "sendfile.backends.nginx"

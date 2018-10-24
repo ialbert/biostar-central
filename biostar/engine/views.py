@@ -641,42 +641,6 @@ def recipe_code_edit(request, uid):
     return render(request, 'recipe_edit_code.html', context)
 
 
-@write_access(type=Project, fallback_view='recipe_list')
-def recipe_create(request, uid):
-    """
-    Create recipe with empty template and json spec
-    """
-
-    project = Project.objects.filter(uid=uid).first()
-    form = forms.RecipeForm(initial=dict(name="New Recipe"))
-
-    if request.method == "POST":
-        form = forms.RecipeForm(data=request.POST, files=request.FILES)
-
-        if form.is_valid():
-            # Recipe is authorized since the template is empty at this point.
-            security = Analysis.AUTHORIZED
-            name = form.cleaned_data["name"]
-            text = form.cleaned_data["text"]
-            summary = form.cleaned_data["summary"]
-            stream = form.cleaned_data["image"]
-            sticky = form.cleaned_data["sticky"]
-            uid = form.cleaned_data["uid"]
-
-            recipe = auth.create_analysis(project=project, json_text="{}", template="",
-                                          user=request.user, summary=summary, name=name, text=text,
-                                          security=security, stream=stream, sticky=sticky, uid=uid)
-            recipe.save()
-            messages.success(request, "Recipe created")
-
-            return redirect(reverse('recipe_list', request=request, kwargs=dict(uid=project.uid)))
-    # The url to submit to.
-    action_url = reverse('recipe_create', request=request, kwargs=dict(uid=project.uid))
-    context = dict(project=project, form=form, action_url=action_url, name="New Recipe")
-
-    return render(request, 'recipe_edit.html', context)
-
-
 @write_access(type=Analysis, fallback_view='recipe_view')
 def recipe_edit(request, uid):
     "Edit meta-data associated with a recipe."
@@ -759,20 +723,7 @@ def job_view(request, uid):
     # The path is a GET parameter
     path = request.GET.get('path', "")
 
-    # The job rooth directory
-    root = job.path
-
-    # Get the target directory.
-    abspath = join(job.path, path)
-
-    # Generate the files
-    try:
-        files = util.scan_files(abspath=abspath, relpath=path, root=root)
-    except Exception as exc:
-        messages.error(request, f"{exc}")
-        files = []
-
-    context = dict(job=job, project=project, activate='View Result', files=files, path=path)
+    context = dict(job=job, project=project, activate='View Result',  path=path)
 
     counts = get_counts(project)
     context.update(counts)

@@ -2,8 +2,10 @@ import copy
 import shlex
 import hjson
 import io
+import re
 
 from django import forms
+from django.template import Template, Context
 from django.db.models import Sum
 from django.utils.safestring import mark_safe
 from django.contrib import messages
@@ -205,7 +207,6 @@ class DataUploadForm(forms.ModelForm):
             raise forms.ValidationError(f"Exceeded maximum amount of data:{settings.MAX_DATA}.")
         return cleaned_data
 
-
     def clean_type(self):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
@@ -257,11 +258,9 @@ class DataEditForm(forms.ModelForm):
 
         return super(DataEditForm, self).save(commit)
 
-
     class Meta:
         model = Data
         fields = ['name', 'summary', 'text', 'sticky', "type"]
-
 
     def clean_file(self):
         cleaned_data = super(DataEditForm, self).clean()
@@ -295,16 +294,16 @@ class RecipeCodeEdit(forms.ModelForm):
 
     def clean(self):
 
-        # Check if the user is a manager or has write access before making changes.
-        entry = auth.check_obj_access(user=self.user, instance=self.recipe, access=Access.WRITE_ACCESS,
-                                      login_required=True, role=Profile.MANAGER)
-        if not entry:
+        # Check if the user has write access before making changes.
+        entry = Access.objects.filter(user=self.user, project=self.recipe.project, access=Access.WRITE_ACCESS).first()
+        if entry is None or entry.access != Access.WRITE_ACCESS:
             raise forms.ValidationError("You need write access to change the code.")
 
     # Turn all input into Unix line ending.
     def clean_template(self):
         cleaned_data = super(RecipeCodeEdit, self).clean()
         template = cleaned_data.get('template')
+
         template = "\n".join(template.splitlines())
         return template
 
@@ -344,9 +343,8 @@ class JobEditForm(forms.ModelForm):
 class ChangeUserAccess(forms.Form):
     user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
     project_uid = forms.CharField(required=True, widget=forms.HiddenInput())
-    choices = filter(lambda x: x[0] != Access.OWNER_ACCESS, Access.ACCESS_CHOICES)
     access = forms.IntegerField(initial=Access.NO_ACCESS,
-                                widget=forms.Select(choices=choices))
+                                widget=forms.Select(choices=Access.ACCESS_CHOICES))
 
     def save(self):
         "Changes users access to a project"
@@ -441,6 +439,28 @@ class RecipeInterface(forms.Form):
             msg = "Exceeded maximum amount of running jobs allowed. Please wait until some finish."
             raise forms.ValidationError(msg)
 
+        self.validate_char_fields()
+
+    def validate_char_fields(self):
+        """Validate Character fields """
+
+        # Default pattern matches any ascii string with a given length
+        default_pattern = r"\w{10}"
+
+        for field in self.json_data:
+            val = self.cleaned_data.get(field)
+
+            # Validate text fields
+            if (val is None) or (self.json_data[field].get("display") != TEXTBOX):
+                continue
+
+            # Acceptable regex pattern
+            regex_pattern = self.json_data[field].get("regex", default_pattern)
+
+            if re.fullmatch(regex_pattern, val) is None:
+                msg = f"{field} : contains invalid patterns. Valid pattern:{regex_pattern}."
+                raise forms.ValidationError(msg)
+
     def fill_json_data(self):
         """
         Produces a filled in JSON data based on user input.
@@ -471,7 +491,6 @@ class RecipeInterface(forms.Form):
                 item["value"] = value if item['display'] != TEXTBOX else clean_text(value)
 
         return json_data
-
 
 
 class EditCode(forms.Form):

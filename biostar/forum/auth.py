@@ -16,7 +16,7 @@ from django.db import transaction
 from biostar.message import tasks
 from biostar.accounts.models import Profile
 from biostar.utils.shortcuts import reverse
-from .models import Post, Vote, Subscription
+from .models import Post, Vote, Subscription, PostView
 from . import util
 from .const import *
 
@@ -37,16 +37,6 @@ def get_votes(user, thread):
             store.setdefault(vote_type, set()).add(post_id)
 
     return store
-
-
-def is_editable(source, target):
-
-    is_editable = False
-
-    if source.is_authenticated and (source == target or source.profile.is_moderator):
-        is_editable = True
-
-    return is_editable
 
 
 def build_obj_tree(request, obj):
@@ -73,7 +63,7 @@ def build_obj_tree(request, obj):
 
             post.has_bookmark = post.id in bookmarks
             post.has_upvote = post.id in upvotes
-            post.is_editable = is_editable(source=user, target=post.author)
+            post.is_editable = user.is_authenticated and (user == post.author or user.profile.is_moderator)
 
     answers = thread.filter(type=Post.ANSWER)
 
@@ -119,6 +109,27 @@ def query_topic(user, topic, tag_search=False):
         query = Post.objects.tag_search(topic)
 
     return query
+
+
+def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
+    "Views are updated per user session"
+
+    # Extract the IP number from the request.
+    ip1 = request.META.get('REMOTE_ADDR', '')
+    ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
+    # 'localhost' is not a valid ip address.
+    ip1 = '' if ip1.lower() == 'localhost' else ip1
+    ip2 = '' if ip2.lower() == 'localhost' else ip2
+    ip = ip1 or ip2 or '0.0.0.0'
+
+    now = util.now()
+    since = now - datetime.timedelta(minutes=minutes)
+
+    # One view per time interval from each IP address.
+    if not PostView.objects.filter(ip=ip, post=post, date__gt=since).exists():
+        PostView.objects.create(ip=ip, post=post, date=now)
+        Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
+    return post
 
 
 def list_posts_by_topic(request, topic):

@@ -217,7 +217,7 @@ def access_color(user, project):
     else:
         access = None
 
-    if access and access.access in (Access.WRITE_ACCESS, Access.OWNER_ACCESS):
+    if access and access.access == Access.WRITE_ACCESS:
         return "green"
     else:
         return ""
@@ -262,10 +262,6 @@ def show_messages(messages):
     return dict(messages=messages)
 
 
-def join(*args):
-    return os.path.abspath(os.path.join(*args))
-
-
 @register.inclusion_tag('widgets/project_title.html', takes_context=True)
 def project_title(context, project):
     """
@@ -289,11 +285,6 @@ def access_form(project, user, form):
     """
 
     return dict(project=project, user=user, form=form)
-
-
-@register.inclusion_tag('widgets/project_action_bar.html')
-def project_action_bar(user, project):
-    return dict(use=user, project=project)
 
 
 @register.inclusion_tag('widgets/job_elapsed.html')
@@ -392,5 +383,6 @@ def markdown(text):
 @register.inclusion_tag('widgets/menubar.html', takes_context=True)
 def menubar(context, request=None, with_search=True):
     user = context.request.user
+    context.update(dict(user=user, request=request, with_search=with_search))
 
-    return dict(user=user, request=request, enable_forum=settings.ENABLE_FORUM, with_search=with_search)
+    return context
