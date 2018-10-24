@@ -145,7 +145,7 @@ class ProjectForm(forms.ModelForm):
         project.save()
 
         return project
-    
+
 
 class DataUploadForm(forms.ModelForm):
 
