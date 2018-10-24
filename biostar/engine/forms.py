@@ -207,7 +207,6 @@ class DataUploadForm(forms.ModelForm):
             raise forms.ValidationError(f"Exceeded maximum amount of data:{settings.MAX_DATA}.")
         return cleaned_data
 
-
     def clean_type(self):
         cleaned_data = super(DataUploadForm, self).clean()
         fobj = cleaned_data.get('file')
