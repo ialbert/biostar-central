@@ -10,7 +10,7 @@ commonmark
 bleach
 django-mailer
 mistune
-django-pagedown
+django-pagedown ==1.0.6
 django-webtest
 django-sendfile
 django-allauth
