@@ -4,7 +4,8 @@ from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login
-from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView,
+                                       PasswordResetConfirmView, PasswordResetCompleteView)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.core import signing
@@ -281,29 +282,31 @@ def external_login(request):
 def password_reset(request):
     context = dict()
 
-    return auth_views.password_reset(request, extra_context=context,
+    return PasswordResetView.as_view(extra_context=context,
                                      template_name="accounts/password_reset_form.html",
                                      subject_template_name="accounts/password_reset_subject.txt",
                                      email_template_name="accounts/password_reset_email.html"
-                                     )
+                                     )(request=request)
 
 
 def password_reset_done(request):
     context = dict()
-    return auth_views.password_reset_done(request, extra_context=context,
-                                          template_name="accounts/password_reset_done.html")
+
+    return PasswordResetDoneView.as_view(extra_context=context,
+                                         template_name="accounts/password_reset_done.html")(request=request)
 
 
 def pass_reset_confirm(request, uidb64, token):
     context = dict()
 
-    return auth_views.password_reset_confirm(request, extra_context=context,
-                                             template_name="accounts/password_reset_confirm.html",
-                                             uidb64=uidb64, token=token)
+    return PasswordResetConfirmView.as_view(extra_context=context,
+                                            template_name="accounts/password_reset_confirm.html",
+                                            uidb64=uidb64,
+                                            token=token)(request=request)
 
 
 def password_reset_complete(request):
     context = dict()
 
-    return auth_views.password_reset_complete(request, extra_context=context,
-                                              template_name="accounts/password_reset_complete.html", )
+    return PasswordResetCompleteView.as_view(extra_context=context,
+                                             template_name="accounts/password_reset_complete.html")(request=request)

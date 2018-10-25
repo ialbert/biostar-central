@@ -439,13 +439,13 @@ class RecipeInterface(forms.Form):
             msg = "Exceeded maximum amount of running jobs allowed. Please wait until some finish."
             raise forms.ValidationError(msg)
 
-        self.validate_char_fields()
+        self.validate_text_fields()
 
-    def validate_char_fields(self):
+    def validate_text_fields(self):
         """Validate Character fields """
 
-        # Default pattern matches any ascii string with a given length
-        default_pattern = r"\w{10}"
+        # Default pattern matches any alphanumeric string with a given length
+        default_pattern = r"^\w{1,10}$"
 
         for field in self.json_data:
             val = self.cleaned_data.get(field)
