@@ -214,8 +214,3 @@ class UserModerate(forms.Form):
         cleaned_data = super(UserModerate, self).clean()
         if not self.source.profile.is_moderator:
             forms.ValidationError("You need to be a moderator to perform that action")
-
-
-
-
-

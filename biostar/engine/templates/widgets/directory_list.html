@@ -3,10 +3,10 @@
         {% for  rel_path, dir_names, last_name, tstamp, size, is_image in paths %}
             <div class="item">
 
-                <a href="{% url 'job_serve' uid=obj.uid path=rel_path %}">
+                <a href="{% url serve_url uid=obj.uid path=rel_path %}">
 
                     {% if is_image %}
-                        <img class="ui small middle aligned image" src="{% url 'job_serve'  uid=obj.uid path=rel_path %}">
+                        <img class="ui small middle aligned image" src="{% url serve_url  uid=obj.uid path=rel_path %}">
                     {% endif %}
                     {% for dname in dir_names %}
                         <span class="dirname">{{ dname }}</span> /
