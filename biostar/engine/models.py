@@ -451,8 +451,7 @@ class Job(models.Model):
         """
         Return the url to the job directory
         """
-
-        return f"jobs/job-{self.uid}/" + path
+        return f"jobs/{self.uid}/" + path
 
     def url(self):
         return reverse("job_view", kwargs=dict(uid=self.uid))
@@ -461,7 +460,9 @@ class Job(models.Model):
         return self.project.get_project_dir()
 
     def get_data_dir(self):
-        return self.path
+        # TODO: MIGRATION FIX - needs refactoring
+        path = join(settings.MEDIA_ROOT, "jobs", self.uid)
+        return path
 
     @property
     def json_data(self):

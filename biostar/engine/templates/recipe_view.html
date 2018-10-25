@@ -45,18 +45,19 @@
                 <i class="chevron left icon"></i> <span class="fitme">Back</span>
             </a>
 
-            <a class="ui button" href="{% url 'recipe_run' recipe.uid %}">
-                <i class="spinner icon"></i> <span class="fitme">Run</span>
+             <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                <i class="bar chart icon"></i> <span class="fitme">Results</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_code_view' recipe.uid %}">
                 <i class="keyboard icon"></i> <span class="fitme">Code</span>
             </a>
 
-
-            <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                <i class="bar chart icon"></i> <span class="fitme">Results</span>
+                <a class="ui button" href="{% url 'recipe_run' recipe.uid %}">
+                <i class="spinner icon"></i> <span class="fitme">Run</span>
             </a>
+
+
 
             <div class="ui button">
                 <div class="ui simple dropdown item">
