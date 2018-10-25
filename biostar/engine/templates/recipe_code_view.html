@@ -50,40 +50,54 @@
     </div>
 
     <div class="ui vertical segment">
-        <div class="ui seven small  buttons">
 
-            <button class="ui button" onclick="window.history.back()">
-                <i class="chevron left icon"></i>Back
-            </button>
+     <div class="ui five small buttons">
 
-            <a class="ui green button" href="{% url 'recipe_run' recipe.uid %}">
+            <a class="ui button" onclick="window.history.back()">
+                <i class="chevron left icon"></i> <span class="fitme">Back</span>
+            </a>
+
+            <a class="ui button" href="{% url 'recipe_run' recipe.uid %}">
                 <i class="spinner icon"></i> <span class="fitme">Run</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_view' recipe.uid %}">
-                <i class="setting icon"></i> Recipe View
+                <i class="setting icon"></i> <span class="fitme">Recipe</span>
             </a>
+
 
             <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                <i class="bar chart icon"></i>Recipe Results
+                <i class="bar chart icon"></i> <span class="fitme">Results</span>
             </a>
 
+            <div class="ui button">
+                <div class="ui simple dropdown item">
+                    <i class="angle double right icon"></i> <span class="fitme">More</span>
+                    <div class="menu">
+                        <a class="ui item"
+                           href="{% url "recipe_copy" recipe.uid %}?next={% url "recipe_view" recipe.uid %}">
+                            <i class="copy icon"></i> Copy
+                        </a>
+                        <div class="divider"></div>
+                        <a class="ui item" href="{% url "recipe_edit" recipe.uid %}">
+                            <i class="edit icon"></i>Edit
+                        </a>
+                        <div class="divider"></div>
+                        <a class="ui item" href="{% url 'recipe_code_edit' recipe.uid %}">
+                            <i class="keyboard icon"></i>Interface
+                        </a>
+                        <div class="divider"></div>
+                        <a class="ui item" href="{% url 'recipe_delete' recipe.uid %}">
+                            {% if recipe.deleted %}
+                                <i class="undo icon"></i> Restore
+                            {% else %}
+                                <i class="trash icon"></i>Delete
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-            <a class="ui button" href="{% url 'recipe_code_edit' recipe.uid %}">
-                <i class="keyboard icon"></i>Edit Interface
-            </a>
-
-            <a class="ui button" href="{% url "recipe_copy" recipe.uid %}?next={% url "recipe_code_view" recipe.uid %}">
-                <i class="copy icon"></i> <span class="fitme">Copy Recipe</span>
-            </a>
-
-            <a class="ui button tablet" href="{% url 'recipe_delete' recipe.uid %}">
-                {% if recipe.deleted %}
-                    <i class="undo icon"></i> <span class="fitme">Restore</span>
-                {% else %}
-                    <i class="trash icon"></i> <span class="fitme">Delete</span>
-                {% endif %}
-            </a>
 
         </div>
 

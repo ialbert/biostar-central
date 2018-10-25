@@ -31,43 +31,51 @@
 
     <div class="ui vertical segment">
 
-        <div class="seven ui small buttons">
+        <div class="ui five small buttons">
 
-            <button class="ui button" onclick="window.history.back()">
-                <i class="chevron left icon"></i>Back
-            </button>
+            <a class="ui button" onclick="window.history.back()">
+                <i class="chevron left icon"></i> <span class="fitme">Back</span>
+            </a>
 
-            <a class="ui  button" href="{% url 'recipe_view' job.analysis.uid %}">
-                <i class="setting icon"></i>View Recipe
+            <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}">
+                <i class="setting icon"></i> <span class="fitme">Recipe</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_code_view' job.analysis.uid %}">
-                <i class="keyboard icon"></i>View Code
+                <i class="keyboard icon"></i> <span class="fitme">Code</span>
             </a>
 
-            <a class="ui button" href="{% url "job_copy" job.uid %}?next={% url "job_view" job.uid %}">
-                <i class="copy icon"></i>Copy Results
-            </a>
+         <a class="ui button" href="{% url "job_edit" job.uid %}">
+                            <i class="edit icon"></i> <span class="fitme">Edit</span>
+                        </a>
 
-            <a class="ui button tablet" href="{% url "job_edit" job.uid %}">
-                <i class="edit icon"></i> <span class="fitme">Edit Results</span>
-            </a>
-
-            <a class="ui button tablet" href="{% url "job_delete" job.uid %}">
-                {% if job.deleted %}
-                    <i class="undo icon"></i> <span class="fitme">Restore</span>
-                {% else %}
-                    <i class="trash icon"></i> <span class="fitme">Delete</span>
-                {% endif %}
-            </a>
-
+            <div class="ui button">
+                <div class="ui simple dropdown item">
+                    <i class="angle double right icon"></i> <span class="fitme">More</span>
+                    <div class="menu">
+                        <a class="ui item" href="{% url "job_copy" job.uid %}?next={% url "job_view" job.uid %}">
+                            <i class="copy icon"></i>Copy
+                        </a>
+                        <div class="divider"></div>
+                        <a class="ui item" href="{% url "job_delete" job.uid %}">
+                            {% if job.deleted %}
+                                <i class="undo icon"></i> <span class="fitme">Restore</span>
+                            {% else %}
+                                <i class="trash icon"></i> <span class="fitme">Delete</span>
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
 
         </div>
+
+
         <div id="copy-message-{{ job.uid }}"></div>
 
     </div>
 
-     <div class="ui vertical segment">
+    <div class="ui vertical segment">
         <div class="ui aligned header">Run Parameters</div>
         <div>Parameters used during the run:</div>
         {{ job.summary|safe }}
