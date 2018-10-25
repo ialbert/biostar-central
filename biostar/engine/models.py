@@ -448,7 +448,9 @@ class Job(models.Model):
         return self.name
 
     def get_url(self, path=''):
-        "Return the url to the job directory"
+        """
+        Return the url to the job directory
+        """
 
         return f"jobs/job-{self.uid}/" + path
 
