@@ -46,7 +46,7 @@
             </a>
 
              <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                <i class="bar chart icon"></i> <span class="fitme">Results</span>
+                <i class="bar chart icon"></i> <span class="fitme">Results ({{ rcount }})</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_code_view' recipe.uid %}">

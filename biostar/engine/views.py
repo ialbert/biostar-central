@@ -9,14 +9,14 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from sendfile import sendfile
 from ratelimit.decorators import ratelimit
+from sendfile import sendfile
 
-from biostar.accounts.models import Profile, User
+from biostar.accounts.models import User
 from biostar.forum import views as forum_views
 from biostar.forum.models import Post
 from biostar.utils.shortcuts import reverse
-from . import tasks, auth, forms, util, const
+from . import tasks, auth, forms, const
 from .decorators import read_access, write_access
 from .models import (Project, Data, Analysis, Job, Access)
 
@@ -235,7 +235,6 @@ def get_counts(project):
 @read_access(type=Project)
 def project_view(request, uid, template_name="recipe_list.html", active='recipes', show_summary=None,
                  extra_context={}):
-
     project = Project.objects.filter(uid=uid).first()
 
     # Show counts for the project.
@@ -301,7 +300,6 @@ def project_create(request):
 
 @read_access(type=Data)
 def data_copy(request, uid):
-
     data = Data.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
@@ -312,7 +310,6 @@ def data_copy(request, uid):
 
 @read_access(type=Analysis)
 def recipe_copy(request, uid):
-
     recipe = Analysis.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
@@ -323,7 +320,6 @@ def recipe_copy(request, uid):
 
 @read_access(type=Job)
 def job_copy(request, uid):
-
     job = Job.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
@@ -460,7 +456,8 @@ def data_upload(request, uid):
     # Maximum data that may be uploaded.
     maximum_size = owner.profile.max_upload_size * 1024 * 1024
 
-    context = dict(project=project, form=form, activate="Add Data", maximum_size=maximum_size, current_size=current_size)
+    context = dict(project=project, form=form, activate="Add Data", maximum_size=maximum_size,
+                   current_size=current_size)
 
     counts = get_counts(project)
 
@@ -478,8 +475,10 @@ def recipe_view(request, uid):
     project = recipe.project
     context = dict(recipe=recipe, project=project, activate='Recipe View')
 
+    # How many results for this recipe
+    rcount = Job.objects.filter(analysis=recipe).count()
     counts = get_counts(project)
-    context.update(counts)
+    context.update(counts, rcount=rcount)
 
     return render(request, "recipe_view.html", context)
 
@@ -723,7 +722,7 @@ def job_view(request, uid):
     # The path is a GET parameter
     path = request.GET.get('path', "")
 
-    context = dict(job=job, project=project, activate='View Result',  path=path)
+    context = dict(job=job, project=project, activate='View Result', path=path)
 
     counts = get_counts(project)
     context.update(counts)

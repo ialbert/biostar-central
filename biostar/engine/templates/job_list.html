@@ -10,8 +10,8 @@
 
     {% if recipe_filter %}
         <div class="ui center aligned vertical segment ">
-            <div class="ui message">
-                Results produced by the recipe: <a href="{% url 'recipe_view' recipe_filter.uid %}"><i
+            <div class="ui success message">
+                Showing results from recipe: <a href="{% url 'recipe_view' recipe_filter.uid %}"><i
             class="settings icon"></i> {{ recipe_filter.name }}</a>
                 &bull; <a href="{% url 'job_list' project.uid %}"><i class="undo icon"></i>Show all results</a>
             </div>
