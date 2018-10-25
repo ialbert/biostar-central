@@ -90,6 +90,7 @@ class LogoutForm(forms.Form):
 
 class EditProfile(forms.Form):
 
+
     def __init__(self, user,  *args, **kwargs):
 
         self.user = user
@@ -100,32 +101,33 @@ class EditProfile(forms.Form):
         self.fields["name"] = forms.CharField(label='Name', max_length=100, initial=self.user.profile.name)
         self.fields["username"] = forms.CharField(label="Handler", max_length=100, initial=self.user.username)
         self.fields["location"] = forms.CharField(label="Location", max_length=100, initial=self.user.profile.location,
-                                                  required=False)
+                                                   required=False)
         self.fields["website"] = forms.URLField(label="Website", max_length=225, initial=self.user.profile.website,
-                                                required=False)
+                                                 required=False)
         self.fields["twitter"] = forms.CharField(label="Twitter Id", max_length=100, initial=self.user.profile.twitter,
-                                                 required=False)
+                                                  required=False)
         self.fields["scholar"] = forms.CharField(label="Scholar", max_length=100, initial=self.user.profile.scholar,
-                                                 required=False)
+                                                  required=False)
         self.fields["text"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
-                               min_length=2, max_length=5000, initial=self.user.profile.text, required=False)
+                                min_length=2, max_length=5000, initial=self.user.profile.text, required=False)
         self.fields["my_tags"] = forms.CharField(max_length=100, required=False, initial=self.user.profile.my_tags,
-                                  help_text="""Post with tags listed here will show up in the My Tags tab. 
-                                  Use a comma to separate tags. 
+                                  help_text="""Post with tags listed here will show up in the My Tags tab.
+                                  Use a comma to separate tags.
                                   Add a <code>!</code> to remove a tag. Example: <code>galaxy, bed, solid!</code> (optional)
                                   """
                                   )
         self.fields["digest_prefs"] = forms.ChoiceField(required=True, choices=Profile.DIGEST_CHOICES, label="Email Digest",
-                                         help_text="""(This feature is not working yet!). 
-                                         Sets the frequence of digest emails. 
+                                         help_text="""(This feature is not working yet!).
+                                         Sets the frequence of digest emails.
                                          A digest email is a summary of events on the site.""",
                                          initial=self.user.profile.digest_prefs
                                          )
 
         self.fields["message_prefs"] = forms.ChoiceField(required=True, choices=Profile.MESSAGING_TYPE_CHOICES, label="Notifications",
-                                          help_text="""Default mode  sends you an email 
+                                          help_text="""Default mode  sends you an email
                                           if you receive anwers to questions that you've posted.""",
                                           initial=self.user.profile.message_prefs)
+
 
     def save(self, request):
 
@@ -137,8 +139,6 @@ class EditProfile(forms.Form):
             email_verified = False
 
         self.user.email = self.cleaned_data['email']
-
-
         self.user.username = self.cleaned_data["username"]
         self.user.save()
 

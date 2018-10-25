@@ -43,7 +43,7 @@ def edit_profile(request):
             return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 
     context = dict(user=user, form=form)
-    return render(request, 'accounts/edit_profile.html', context)
+    return render(request, 'accounts/edit_profile.html', context=context)
 
 
 @login_required
