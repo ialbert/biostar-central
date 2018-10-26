@@ -1,6 +1,6 @@
 {% load forum_tags %}
 
-Created on {{ date|timesince }} ago by
+Created {{ date|timesince }} ago by
 <a href="{% url "user_profile" user.profile.uid %}">
     {{ user.profile.name }}
     <div class="ui mini avatar image">{% gravatar user=user size=80 %}</div>
