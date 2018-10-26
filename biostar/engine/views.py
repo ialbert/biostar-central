@@ -223,8 +223,8 @@ def get_counts(project):
     data_count = project.data_set.count()
     recipe_count = project.analysis_set.count()
     result_count = project.job_set.count()
-    discussion_count = Post.objects.get_discussions(project=project,
-                                                    type__in=Post.TOP_LEVEL).count()
+    #discussion_count = Post.objects.get_discussions(project=project, type__in=Post.TOP_LEVEL).count()
+    discussion_count = 0
 
     return dict(
         data_count=data_count, recipe_count=recipe_count, result_count=result_count,
@@ -252,6 +252,9 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     # The recipe filter exists
     if recipe_filter:
         job_list = job_list.filter(analysis=recipe_filter)
+
+    # Add related content.
+    job_list = job_list.select_related("owner__profile", "analysis")
 
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
                    active=active, recipe_filter=recipe_filter, show_summary=show_summary)

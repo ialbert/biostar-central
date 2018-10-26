@@ -2,6 +2,7 @@
 {% load engine_tags %}
 <div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
 {% if job.elapsed %}
-    &bull; Finished in {{ job.elapsed }}
+    &bull; Runtime {{ job.elapsed }}
 {%  endif %}
-    &bull; Submitted {{ job.date | naturaltime }}
+
+&bull; Generated {{ job.date | naturaltime }} by {{ job.owner.profile.name }}
