@@ -21,6 +21,11 @@
                             <i class="setting icon"></i> {{ recipe.name }}
                         </a>
                         <div class="description">{{ recipe.summary|markdown|safe }}</div>
+
+                        <div class="extra">
+                        {%  created_by date=recipe.date user=recipe.owner %}
+                        </div>
+
                         <div id="copy-message-{{ recipe.uid }}"></div>
                     </div>
                 </div>
