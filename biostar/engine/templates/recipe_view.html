@@ -19,9 +19,9 @@
         <div class="ui divided link items">
             <div class="item">
                 <div>
-                    <img class="ui tiny image imgpad" src="{% img recipe %}">
+                    <img class="ui tiny rounded image" src="{% img recipe %}">
                 </div>
-                <div class="content">
+                <div class="content imgpad">
                     <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
                         <i class="setting icon"></i>{{ activate }}: {{ recipe.name }}
                     </a>
