@@ -131,6 +131,19 @@ def project_users(request, uid):
     return render(request, "project_users.html", context=context)
 
 
+@read_access(type=Project)
+def project_info(request, uid):
+    project = Project.objects.filter(uid=uid).first()
+
+    # Show counts for the project.
+    counts = get_counts(project)
+
+    context = dict(project=project, active="info")
+    context.update(counts)
+
+    return render(request, "project_info.html", context)
+
+
 def project_list(request):
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")

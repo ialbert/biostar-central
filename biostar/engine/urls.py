@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^project/list/$', views.project_list, name='project_list'),
     url(r'^project/view/(?P<uid>[-\w]+)/$', views.project_view, name='project_view'),
     url(r'^project/edit/(?P<uid>[-\w]+)/$', views.project_edit, name='project_edit'),
+    url(r'^project/info/(?P<uid>[-\w]+)/$', views.project_info, name='project_info'),
 
     # Data
     url(r'^data/list/(?P<uid>[-\w]+)/$', views.data_list, name='data_list'),
