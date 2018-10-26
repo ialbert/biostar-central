@@ -1,8 +1,9 @@
 {% load humanize %}
 {% load engine_tags %}
-<div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
-{% if job.elapsed %}
-    &bull; Runtime {{ job.elapsed }}
-{%  endif %}
 
-&bull; Generated {{ job.date | naturaltime }} by {{ job.owner.profile.name }}
+
+
+    <div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
+    {% if job.elapsed %}
+        Runtime {{ job.elapsed }}
+    {% endif %}

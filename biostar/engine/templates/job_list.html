@@ -35,7 +35,12 @@
                             <i class="bar chart icon"></i>{{ job.name }}
                         </a>
 
-                        <div class="meta">{% job_minutes job %}</div>
+
+                        <div class="extra">{% job_minutes job %}
+                            &bull; {%  created_by date=job.date user=job.owner %}
+                        </div>
+
+
                         <div id="copy-message-{{ job.uid }}"></div>
                     </div>
 
