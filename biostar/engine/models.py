@@ -504,7 +504,7 @@ class Job(models.Model):
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
         self.path = self.make_path()
-        
+
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
 
