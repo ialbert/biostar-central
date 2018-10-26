@@ -14,9 +14,9 @@
             {% for recipe in recipe_list %}
                 <div class="item">
                     <div class="">
-                        <img class="ui tiny image imgpad" src="{% img recipe %}">
+                        <img class="ui tiny rounded image" src="{% img recipe %}">
                     </div>
-                    <div class="content">
+                    <div class="content imgpad">
                         <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
                             <i class="setting icon"></i> {{ recipe.name }}
                         </a>

@@ -30,7 +30,7 @@ body {
 }
 
 .imgpad {
-    padding-right: 1em;
+    padding-left: 0.5em !important;
 }
 
 .deleted {
