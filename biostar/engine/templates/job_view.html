@@ -13,7 +13,7 @@
 
             <div class="item ">
                 <div>
-                    <img class="ui tiny rounded image" src="{% img job.analysis %}">
+                    <img class="ui tiny rounded fancy image" src="{% img job.analysis %}">
                 </div>
 
                 <div class="content imgpad">
@@ -89,13 +89,13 @@
 
     <div class="ui vertical segment">
         <div class="ui aligned header">Output Messages</div>
-        <div>Messages printed to the standard output stream during the run:</div>
+        <div>Messages printed to the standard output stream:</div>
         <pre>{{ job.stdout_log }}</pre>
     </div>
 
     <div class="ui vertical segment">
-        <div class="ui aligned header">Error Messages</div>
-        <div>Messages printed to the standard error stream during the run:</div>
+        <div class="ui aligned header">Other Messages</div>
+        <div>Messages printed to the standard error stream:</div>
         <pre>{{ job.stderr_log }}</pre>
     </div>
 

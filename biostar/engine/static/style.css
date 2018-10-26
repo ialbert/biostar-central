@@ -19,6 +19,17 @@ body {
     color: #4183c4;
 }
 
+figure { display: block; margin: 0; }
+
+.fancy {
+  position: relative;
+  float: left;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  box-shadow: rgba(0,0,0,.2) 2px 3px 3px;
+}
+
 .dirname {
     background-color:#EFEFEF;
     padding: 0px 5px 0px 5px;
@@ -30,7 +41,7 @@ body {
 }
 
 .imgpad {
-    padding-left: 0.5em !important;
+    margin-left: -0.5em !important;
 }
 
 .deleted {
