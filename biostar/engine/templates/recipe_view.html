@@ -21,11 +21,21 @@
                 <div>
                     <img class="ui tiny rounded fancy image" src="{% img recipe %}">
                 </div>
-                <div class="content imgpad">
+                <div class="content ">
                     <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
                         <i class="setting icon"></i>{{ activate }}: {{ recipe.name }}
                     </a>
-                    <div class="description">{{ recipe.summary|markdown|safe }}</div>
+                    <div class="description">
+
+                            {{ recipe.summary| markdown|safe }}
+
+                            {{ recipe.html|safe }}
+
+                    </div>
+
+                    <div class="extra">
+                        {%  created_by date=recipe.date user=recipe.owner %}
+                        </div>
                 </div>
             </div>
         </div>
@@ -91,12 +101,6 @@
         <div id="copy-message-{{ recipe.uid }}"></div>
 
     </div>
-
-    <div class="ui vertical segment">
-        {{ recipe.html|safe }}
-    </div>
-
-
 
 {% endblock %}
 

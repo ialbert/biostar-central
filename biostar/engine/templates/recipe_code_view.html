@@ -43,7 +43,10 @@
                     <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
                         <i class="setting icon"></i> {{ activate }}: {{ recipe.name }}
                     </a>
-                    <div class="description">{{ recipe.summary|markdown|safe }}</div>
+                    <div class="description">{{ recipe.summary }}</div>
+                    <div class="extra">
+                        {%  created_by date=recipe.date user=recipe.owner %}
+                        </div>
                 </div>
             </div>
         </div>
@@ -58,7 +61,7 @@
             </a>
 
              <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                <i class="bar chart icon"></i> <span class="fitme">Results</span>
+                <i class="bar chart icon"></i> <span class="fitme">Results ({{ rcount }})</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_view' recipe.uid %}">

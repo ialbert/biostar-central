@@ -531,8 +531,9 @@ def recipe_code_view(request, uid):
     project = recipe.project
     context = dict(recipe=recipe, project=project, activate='Recipe Code', form=form)
 
+    rcount = Job.objects.filter(analysis=recipe).count()
     counts = get_counts(project)
-    context.update(counts)
+    context.update(counts, rcount=rcount)
 
     return render(request, "recipe_code_view.html", context)
 
