@@ -488,6 +488,10 @@ class Job(models.Model):
     def done(self):
         return self.state == Job.COMPLETED
 
+    def make_path(self):
+        path = join(settings.MEDIA_ROOT, "jobs", f"{self.uid}")
+        return path
+
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.name = self.name or f"Results for: {self.analysis.name}"
@@ -499,10 +503,9 @@ class Job(models.Model):
         self.stderr_log = self.stderr_log[:MAX_LOG_LEN]
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
-        # write an index.html to the file
+        self.path = self.make_path()
+        
         if not os.path.isdir(self.path):
-            path = join(settings.MEDIA_ROOT, "jobs", f"{self.uid}")
-            os.makedirs(path)
-            self.path = path
+            os.makedirs(self.path)
 
         super(Job, self).save(*args, **kwargs)

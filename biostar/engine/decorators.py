@@ -1,17 +1,14 @@
 from functools import wraps
-from django.contrib import messages
 
+from django.contrib import messages
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
 
 from biostar.utils.shortcuts import reverse
-from . import auth
-
 from . import models
 
 # Share the logger with models
 logger = models.logger
-
 
 
 class read_access:
@@ -102,7 +99,15 @@ class write_access:
                 return redirect(reverse("project_list"))
 
             project = instance.project
-            access = models.Access.objects.filter(user=user, project=project, access=models.Access.WRITE_ACCESS).first()
+
+            # Explicit access rights
+            access1 = models.Access.objects.filter(user=user, project=project,
+                                                   access=models.Access.WRITE_ACCESS).first()
+
+            # Implicit write access rights
+            access2 = (user == project.owner) or (user == instance.owner) or user.is_staff
+            # Who can write to an object
+            access = access1 or access2
 
             # Project owners may write their project.
             if access or instance.project.owner == user:
