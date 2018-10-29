@@ -131,11 +131,7 @@ class Access(models.Model):
     """
     Allows access of users to Projects.
     """
-
-    # The numerical values for permissions matter!
-    # A higher number implies all lesser permissions.
-    # READ_ACCESS < WRITE_ACCESS < OWNER_ACCESS
-    NO_ACCESS, READ_ACCESS, WRITE_ACCESS, OWNER_ACCESS = range(1, 5)
+    NO_ACCESS, READ_ACCESS, WRITE_ACCESS, = 1, 2, 3
     ACCESS_CHOICES = [
         (NO_ACCESS, "No Access"),
         (READ_ACCESS, "Read Access"),
@@ -147,7 +143,7 @@ class Access(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
-    access = models.IntegerField(default=READ_ACCESS, choices=ACCESS_CHOICES, db_index=True)
+    access = models.IntegerField(default=NO_ACCESS, choices=ACCESS_CHOICES, db_index=True)
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -324,7 +320,6 @@ class Analysis(models.Model):
     uid = models.CharField(max_length=32, unique=True)
     sticky = models.BooleanField(default=False)
     name = models.CharField(max_length=MAX_NAME_LEN, default="My Recipe")
-    summary = models.TextField(default='This is the recipe summary.')
     text = models.TextField(default='This is the recipe description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -358,7 +353,6 @@ class Analysis(models.Model):
         self.date = self.date or now
         self.diff_date = self.diff_date or now
         self.text = self.text or "Recipe description"
-        self.summary = self.summary or "Recipe summary"
         self.name = self.name[:MAX_NAME_LEN] or "New Recipe"
         self.html = make_html(self.text)
         self.diff_author = self.diff_author or self.owner
@@ -385,6 +379,13 @@ class Analysis(models.Model):
     def running_css(self):
         "css display for running and not running jobs"
         return "runnable" if self.security == self.AUTHORIZED else "not_runnable"
+
+    @property
+    def summary(self):
+        """Returns first line of text"""
+        first_line = self.text.splitlines()[0]
+
+        return first_line
 
 
 class Job(models.Model):
