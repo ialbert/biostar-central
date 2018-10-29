@@ -8,10 +8,11 @@ def format_summary(apps, schema_editor):
 
     recipes = apps.get_model('engine', 'Analysis')
     for recipe in recipes.objects.all():
-        text = recipe.text.splitlines()
+        first_line = recipe.text.splitlines()[0]
 
-        print(text, "TEXT", recipe.summary)
-        1/0
+        # Set recipe.summary as the first line of the recipe.text
+        recipe.summary = first_line
+        recipe.save()
 
     return
 
