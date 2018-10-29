@@ -180,7 +180,7 @@ class DataUploadForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['data_name', 'file', 'input_text', 'text', "sticky", "type"]
+        fields = ['data_name', 'file', 'input_text', 'text', "type"]
 
     def clean(self):
 
@@ -257,7 +257,7 @@ class DataEditForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['name', 'text', 'sticky', "type"]
+        fields = ['name', 'text', "type"]
 
     def clean_file(self):
         cleaned_data = super(DataEditForm, self).clean()
@@ -311,7 +311,7 @@ class RecipeForm(forms.ModelForm):
 
     class Meta:
         model = Analysis
-        fields = ["name", "sticky", "image", "text", "uid"]
+        fields = ["name", "image", "text", "uid"]
 
     def clean_image(self):
         cleaned_data = super(RecipeForm, self).clean()
@@ -333,7 +333,7 @@ class RecipeForm(forms.ModelForm):
 class JobEditForm(forms.ModelForm):
     class Meta:
         model = Job
-        fields = ['name', "image", 'text', 'sticky']
+        fields = ['name', "image", 'text']
 
 
 class ChangeUserAccess(forms.Form):
