@@ -15,6 +15,9 @@ DEBUG = True
 # Change this in production!
 SECRET_KEY = 'secret-key'
 
+# Used internally by django to test browser cookies
+TEST_COOKIE_NAME = "test-cookie"
+
 # Private key used to validate external logins
 LOGIN_PRIVATE_KEY = "private-key"
 

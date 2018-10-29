@@ -3,6 +3,7 @@ import logging
 import os
 from textwrap import dedent
 
+from django.contrib import messages
 from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static

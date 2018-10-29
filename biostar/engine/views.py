@@ -17,7 +17,7 @@ from biostar.forum import views as forum_views
 from biostar.forum.models import Post
 from biostar.utils.shortcuts import reverse
 from . import tasks, auth, forms, const
-from .decorators import read_access, write_access
+from .decorators import read_access, write_access, check_sessions
 from .models import (Project, Data, Analysis, Job, Access)
 
 # The current directory
@@ -329,6 +329,9 @@ def recipe_copy(request, uid):
     recipe = Analysis.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
+    # Set test cookies
+    request.session.set_test_cookie()
+
     auth.copy(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD)
 
     return redirect(next_url)
@@ -345,6 +348,7 @@ def job_copy(request, uid):
 
 
 @write_access(type=Project, fallback_view="recipe_list")
+@check_sessions
 def recipe_paste(request, uid):
     """
     Pastes recipes from clipboard as a new recipes.
