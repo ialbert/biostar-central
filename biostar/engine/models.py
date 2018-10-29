@@ -325,7 +325,7 @@ class Analysis(models.Model):
     uid = models.CharField(max_length=32, unique=True)
     sticky = models.BooleanField(default=False)
     name = models.CharField(max_length=MAX_NAME_LEN, default="My Recipe")
-    summary = models.TextField(default='This is the recipe summary.')
+    #summary = models.TextField(default='This is the recipe summary.')
     text = models.TextField(default='This is the recipe description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -359,7 +359,7 @@ class Analysis(models.Model):
         self.date = self.date or now
         self.diff_date = self.diff_date or now
         self.text = self.text or "Recipe description"
-        self.summary = self.summary or "Recipe summary"
+        #self.summary = self.summary or "Recipe summary"
         self.name = self.name[:MAX_NAME_LEN] or "New Recipe"
         self.html = make_html(self.text)
         self.diff_author = self.diff_author or self.owner
@@ -387,7 +387,8 @@ class Analysis(models.Model):
         "css display for running and not running jobs"
         return "runnable" if self.security == self.AUTHORIZED else "not_runnable"
 
-    def get_summary(self):
+    @property
+    def summary(self):
         """Returns first line of text"""
         first_line = self.text.splitlines()[0]
 
