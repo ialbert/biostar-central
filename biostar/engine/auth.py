@@ -223,6 +223,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     else:
         # Create a new analysis
         uid = None if analysis else uid
+        text = summary + "\n" + text
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)
@@ -366,8 +367,9 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Create the data.
     type = type or "DATA"
     uid = uid or util.get_uuid(8)
+    text = summary + "\n" + text
     data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
-                               type=type, summary=summary, text=text, uid=uid)
+                               type=type, text=text, uid=uid)
 
     # The source of the data is a stream is written into the destination.
     if stream:
@@ -401,7 +403,6 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Set updated attributes
     data.state = state
     data.name = name or os.path.basename(path) or 'Data'
-    data.summary = summary
 
     # Trigger another save.
     data.save()

@@ -172,7 +172,6 @@ class Data(models.Model):
     method = models.IntegerField(default=LINK, choices=METHOD_CHOICE)
 
     name = models.CharField(max_length=MAX_NAME_LEN, default="My Data")
-    summary = models.TextField(default='Data summary.', blank=True, max_length=MAX_TEXT_LEN)
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
     sticky = models.BooleanField(default=False)
     deleted = models.BooleanField(default=False)
@@ -252,7 +251,6 @@ class Data(models.Model):
         path = join(settings.TOC_ROOT, f"toc-{self.uid}.txt")
         return path
 
-
     def make_toc(self):
         tocname = self.get_path()
         collect = util.findfiles(self.get_data_dir(), collect=[])
@@ -307,6 +305,12 @@ class Data(models.Model):
         obj['data_dir'] = self.get_data_dir()
         obj['project_dir'] = self.get_project_dir()
         obj['data_url'] = self.url()
+
+    @property
+    def summary(self):
+        """Returns first line of text"""
+        first_line = self.text.splitlines()[0]
+        return first_line
 
 
 class Analysis(models.Model):

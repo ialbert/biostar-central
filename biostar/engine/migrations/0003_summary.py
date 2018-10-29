@@ -6,14 +6,14 @@ from django.db import migrations, models
 def format_summary(apps, schema_editor):
     """Add the summary as first line of text.  """
 
-    recipes = apps.get_model('engine', 'Analysis')
-    for recipe in recipes.objects.all():
+    def formatter(model_name):
+        queryset = apps.get_model('engine', model_name=model_name)
+        for obj in queryset.objects.all():
+            obj.text = obj.summary + "\n" + obj.text
+            obj.save()
 
-        # Add summary as first line of text
-        recipe.text = recipe.summary + "\n" + recipe.text
-        recipe.save()
-
-    return
+    for name in ["Analysis", "Data"]:
+        formatter(model_name=name)
 
 
 class Migration(migrations.Migration):
@@ -27,6 +27,11 @@ class Migration(migrations.Migration):
 
         migrations.RemoveField(
             model_name='analysis',
+            name='summary',
+        ),
+
+        migrations.RemoveField(
+            model_name='data',
             name='summary',
         ),
 

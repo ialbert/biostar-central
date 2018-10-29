@@ -164,7 +164,6 @@ class DataUploadForm(forms.ModelForm):
         text = self.cleaned_data["text"]
         stream = self.cleaned_data["file"]
         input_text = self.cleaned_data['input_text']
-        summary = self.cleaned_data["summary"]
         type = self.cleaned_data["type"]
         name = self.cleaned_data['data_name']
 
@@ -183,7 +182,7 @@ class DataUploadForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['data_name', 'file', 'input_text', 'summary', 'text', "sticky", "type"]
+        fields = ['data_name', 'file', 'input_text', 'text', "sticky", "type"]
 
     def clean(self):
 
@@ -260,7 +259,7 @@ class DataEditForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['name', 'summary', 'text', 'sticky', "type"]
+        fields = ['name', 'text', 'sticky', "type"]
 
     def clean_file(self):
         cleaned_data = super(DataEditForm, self).clean()
