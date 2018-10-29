@@ -24,4 +24,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(format_summary),
+
+        migrations.RemoveField(
+            model_name='analysis',
+            name='summary',
+        ),
+
     ]
