@@ -110,7 +110,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text', 'image']
+        fields = ['name', 'text', 'image']
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -138,10 +138,8 @@ class ProjectForm(forms.ModelForm):
 
         name = self.cleaned_data["name"]
         text = self.cleaned_data["text"]
-        summary = self.cleaned_data["summary"]
         stream = self.cleaned_data["image"]
-        project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                      stream=stream)
+        project = auth.create_project(user=owner, name=name, text=text, stream=stream)
         project.save()
 
         return project
@@ -173,7 +171,7 @@ class DataUploadForm(forms.ModelForm):
             stream = io.StringIO(initial_value=input_text)
 
         data = auth.create_data(stream=stream, name=name, text=text, user=self.user,
-                                project=self.project, summary=summary, type=type)
+                                project=self.project, type=type)
         if input_text and not self.cleaned_data["file"]:
             Data.objects.filter(pk=data.pk).update(method=Data.TEXTAREA)
             stream.close()

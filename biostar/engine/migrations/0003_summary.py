@@ -12,7 +12,7 @@ def format_summary(apps, schema_editor):
             obj.text = obj.summary + "\n" + obj.text
             obj.save()
 
-    for name in ["Analysis", "Data"]:
+    for name in ["Analysis", "Data", "Job", "Project"]:
         formatter(model_name=name)
 
 
@@ -35,6 +35,15 @@ class Migration(migrations.Migration):
             name='summary',
         ),
 
+        migrations.RemoveField(
+            model_name='job',
+            name='summary',
+        ),
+
+        migrations.RemoveField(
+            model_name='project',
+            name='summary',
+        ),
         migrations.AlterField(
             model_name='access',
             name='access',

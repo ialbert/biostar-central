@@ -186,15 +186,15 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
     if project:
         # Update project
         current = project.first()
-        summary = summary or current.summary
         text = text or current.text
         name = name or current.name
-        project.update(summary=summary, text=text, name=name)
+        project.update(text=text, name=name)
         project = project.first()
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
+        text = summary + "\n" + text
         project = Project.objects.create(
-            name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
+            name=name, uid=uid, text=text, owner=user, privacy=privacy, sticky=sticky)
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     if stream:
@@ -233,18 +233,6 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         analysis.image.save(stream.name, stream, save=True)
 
     return analysis
-
-
-def make_job_summary(data, summary='', title='', name="widgets/job_summary.html"):
-    """
-    Creates informative job summary that shows job parameters.
-    """
-
-    context = dict(data=data, summary=summary, title=title)
-    template = loader.get_template(name)
-    result = template.render(context)
-
-    return result
 
 
 def make_job_title(recipe, data):
@@ -288,14 +276,11 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     # Needs the json_data to set the summary.
     json_data = hjson.loads(json_text)
 
-    # Generate the summary from the data.
-    summary = make_job_summary(json_data, summary=analysis.summary)
-
     # Generate a meaningful job title.
     name = make_job_title(recipe=analysis, data=json_data)
 
     # Create the job instance.
-    job = Job(name=name, summary=summary, state=state, json_text=json_text,
+    job = Job(name=name, state=state, json_text=json_text,
               security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
               template=analysis.template, uid=uid)
 

@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
+from django.template import loader
 
 from biostar import settings
 from biostar.accounts.models import User
@@ -68,10 +69,8 @@ class Project(models.Model):
 
     # Limits who can access the project.
     privacy = models.IntegerField(default=PRIVATE, choices=PRIVACY_CHOICES)
-
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
     name = models.CharField(default="New Project", max_length=MAX_NAME_LEN)
-    summary = models.TextField(default='Project summary.', max_length=MAX_TEXT_LEN)
     deleted = models.BooleanField(default=False)
 
     # We need to keep the owner.
@@ -80,7 +79,6 @@ class Project(models.Model):
 
     html = models.TextField(default='html', max_length=MAX_LOG_LEN)
     date = models.DateTimeField(auto_now_add=True)
-
     uid = models.CharField(max_length=32, unique=True)
 
     objects = Manager()
@@ -125,6 +123,13 @@ class Project(models.Model):
     @property
     def project(self):
         return self
+
+    @property
+    def summary(self):
+        """Returns first line of text"""
+        first_line = self.text.splitlines()[0]
+        return first_line
+
 
 
 class Access(models.Model):
@@ -405,7 +410,6 @@ class Job(models.Model):
 
     deleted = models.BooleanField(default=False)
     name = models.CharField(max_length=MAX_NAME_LEN, default="New results")
-    summary = models.TextField(default='Result summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -514,3 +518,15 @@ class Job(models.Model):
             os.makedirs(self.path)
 
         super(Job, self).save(*args, **kwargs)
+
+    @property
+    def summary(self):
+        """
+        Creates informative job summary that shows job parameters.
+        """
+        summary_template = "widgets/job_summary.html"
+        context = dict(data=self.json_data)
+        template = loader.get_template(summary_template)
+        result = template.render(context)
+
+        return result
