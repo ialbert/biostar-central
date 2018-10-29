@@ -131,10 +131,6 @@ class Access(models.Model):
     """
     Allows access of users to Projects.
     """
-
-    # The numerical values for permissions matter!
-    # A higher number implies all lesser permissions.
-    # READ_ACCESS < WRITE_ACCESS
     NO_ACCESS, READ_ACCESS, WRITE_ACCESS, = 1, 2, 3
     ACCESS_CHOICES = [
         (NO_ACCESS, "No Access"),
@@ -147,7 +143,7 @@ class Access(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
-    access = models.IntegerField(default=READ_ACCESS, choices=ACCESS_CHOICES, db_index=True)
+    access = models.IntegerField(default=NO_ACCESS, choices=ACCESS_CHOICES, db_index=True)
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

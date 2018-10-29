@@ -33,8 +33,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='access',
             name='access',
-            field=models.IntegerField(choices=[(1, 'No Access'), (2, 'Read Access'), (3, 'Write Access')],
-                                      db_index=True, default=2),
+            field=models.IntegerField(choices=[(1, 'No Access'), (2, 'Read Access'), (3, 'Write Access')], db_index=True, default=1),
         ),
 
     ]
