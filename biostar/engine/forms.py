@@ -23,6 +23,7 @@ logger = models.logger
 
 TEXT_UPLOAD_MAX = 10000
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
@@ -321,7 +322,7 @@ class RecipeForm(forms.ModelForm):
         return image
 
     def clean_uid(self):
-        cleaned_data  =  super(RecipeForm, self).clean()
+        cleaned_data = super(RecipeForm, self).clean()
         uid = cleaned_data.get('uid')
         if uid and not uid.isalnum():
             msg = "Only alphanumeric characters allowed, no spaces."

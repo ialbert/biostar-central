@@ -55,20 +55,22 @@ def site_admin(request):
 @login_required
 def recycle_bin(request):
     "Recycle bin view for a user"
+    user = request.user
 
-    # Only searches projects you have access.
-    all_projects = auth.get_project_list(user=request.user)
+    if user.is_superuser:
+        # Super users get access to all deleted objects.
+        projects = Project.objects.get_all()
+        query_dict = dict(project__in=projects)
+    else:
+        # Only searches projects user have access.
+        projects = auth.get_project_list(user=user)
+        query_dict = dict(project__in=projects, owner=user)
 
-    del_data = Data.objects.get_deleted(project__in=all_projects,
-                                        owner=request.user).order_by("date")
+    data = Data.objects.get_deleted(**query_dict).order_by("date")
+    recipes = Analysis.objects.get_deleted(**query_dict).order_by("date")
+    jobs = Job.objects.get_deleted(**query_dict).order_by("date")
 
-    del_recipes = Analysis.objects.get_deleted(project__in=all_projects,
-                                               owner=request.user).order_by("date")
-
-    del_jobs = Job.objects.get_deleted(project__in=all_projects,
-                                       owner=request.user).order_by("date")
-
-    context = dict(jobs=del_jobs, data=del_data, recipes=del_recipes)
+    context = dict(jobs=jobs, data=data, recipes=recipes)
 
     return render(request, 'recycle_bin.html', context=context)
 
