@@ -134,13 +134,12 @@ class Access(models.Model):
 
     # The numerical values for permissions matter!
     # A higher number implies all lesser permissions.
-    # READ_ACCESS < WRITE_ACCESS < OWNER_ACCESS
-    NO_ACCESS, READ_ACCESS, WRITE_ACCESS, OWNER_ACCESS = range(1, 5)
+    # READ_ACCESS < WRITE_ACCESS
+    NO_ACCESS, READ_ACCESS, WRITE_ACCESS, = 1, 2, 3
     ACCESS_CHOICES = [
         (NO_ACCESS, "No Access"),
         (READ_ACCESS, "Read Access"),
         (WRITE_ACCESS, "Write Access"),
-        (OWNER_ACCESS, "Owner Access")
     ]
 
     ACCESS_MAP = dict(ACCESS_CHOICES)
