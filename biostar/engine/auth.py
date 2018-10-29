@@ -47,12 +47,22 @@ def fake_request(url="/", data={}, user="", method="POST"):
     return request
 
 
-def access_denied_message(user, access):
+def access_denied_message(user, needed_access, project):
     """
     Generates the access denied message
     """
     tmpl = loader.get_template('widgets/access_denied_message.html')
-    context = dict(user=user, access=access)
+    if project.is_public:
+        current_access = Access.READ_ACCESS
+    else:
+        current_access = Access.objects.filter(user=user, project=project).first()
+        current_access = Access.NO_ACCESS if current_access is None else current_access.access
+
+    # Get the string format of the access.
+    needed_access = dict(Access.ACCESS_CHOICES).get(needed_access)
+    current_access = dict(Access.ACCESS_CHOICES).get(current_access)
+
+    context = dict(user=user, needed_access=needed_access, current_access=current_access)
     return tmpl.render(context=context)
 
 
@@ -265,7 +275,6 @@ def make_job_title(recipe, data):
 def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=Job.QUEUED, uid=None, save=True):
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
-
     project = analysis.project
 
     if json_data:

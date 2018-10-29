@@ -27,8 +27,6 @@
                     </a>
                     <div class="description">
 
-                            {{ recipe.summary| markdown|safe }}
-
                             {{ recipe.html|safe }}
 
                     </div>
@@ -87,11 +85,7 @@
                         </a>
                         <div class="divider"></div>
                         <a class="ui item" href="{% url 'recipe_delete' recipe.uid %}">
-                            {% if recipe.deleted %}
-                                <i class="undo icon"></i> Restore
-                            {% else %}
                                 <i class="trash icon"></i>Delete
-                            {% endif %}
                         </a>
                     </div>
                 </div>
