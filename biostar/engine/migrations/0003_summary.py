@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 def format_summary(apps, schema_editor):
-    """Format summary so it is the first line of the  """
+    """Add the summary as first line of text.  """
 
     recipes = apps.get_model('engine', 'Analysis')
     for recipe in recipes.objects.all():
-        first_line = recipe.text.splitlines()[0]
 
-        # Set recipe.summary as the first line of the recipe.text
-        recipe.summary = first_line
+        # Add summary as first line of text
+        recipe.text = recipe.summary + "\n" + recipe.text
         recipe.save()
 
     return

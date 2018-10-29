@@ -387,6 +387,12 @@ class Analysis(models.Model):
         "css display for running and not running jobs"
         return "runnable" if self.security == self.AUTHORIZED else "not_runnable"
 
+    def get_summary(self):
+        """Returns first line of text"""
+        first_line = self.text.splitlines()[0]
+
+        return first_line
+
 
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2

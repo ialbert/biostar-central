@@ -20,7 +20,7 @@
                         <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
                             <i class="setting icon"></i> {{ recipe.name }}
                         </a>
-                        <div class="description">{{ recipe.summary }}</div>
+                        <div class="description">{{ recipe.get_summary }}</div>
 
                         <div class="extra">
                         {%  created_by date=recipe.date user=recipe.owner %}
