@@ -13,13 +13,14 @@
 
     <div class="ui raised segment inputcolor">
 
-
         <div class="ui center aligned header">
             Executing Recipe: <a href="{% url 'recipe_view' analysis.uid %}"><i class="setting icon"></i>{{ analysis.name }}</a>
         </div>
-        {{ analysis.summary|markdown|safe }}
+
 
         <div class="ui vertical segment">
+
+            {{ analysis.summary|markdown|safe }}
 
             <form method="post" class="ui form" action="{% url 'recipe_run' analysis.uid %}">
                 <div class="ui form">
@@ -33,8 +34,8 @@
                             <i class="check icon"></i>Run
                         </button>
 
-                        <a class="ui right floated button" href="{% url 'recipe_view' analysis.uid %}">
-                            <i class="chevron left icon"></i>Back
+                        <a class="ui  button" href="{% url 'recipe_view' analysis.uid %}">
+                            <i class="redo icon"></i>Cancel
                         </a>
                     </div>
 
@@ -47,8 +48,5 @@
 
     </div>
 
-        <div class="ui basic segment">
-            {{ analysis.html|safe }}
-        </div>
 
 {% endblock %}
