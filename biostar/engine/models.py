@@ -396,7 +396,6 @@ class Analysis(models.Model):
 
         return first_line
 
-
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]

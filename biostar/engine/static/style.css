@@ -19,6 +19,10 @@ body {
     color: #4183c4;
 }
 
+ol {
+    line-height: 3ex;
+}
+
 figure { display: block; margin: 0; }
 
 .fancy {
@@ -289,9 +293,9 @@ a:hover{
 }
 
 code {
-    color: black;
+    color: #c7254e;;
     background-color: #EEEEEE;
-    padding: 2px;
+    padding: 2px 5px 2px 5px;
     border-radius: 3px;
     line-height: 1.7;
 }
