@@ -78,9 +78,8 @@
                     </div>
                     <div class="content">
                         {% if request.user.is_authenticated %}
-
-                            <a class="ui right floated label" " href="{% url "recipe_copy" recipe.uid %}"?next={% url "recipe_list" recipe.project.uid %}>
-                                <i class="copy icon"></i>Copy
+                             <a class="ui right floated label" href="{% url 'recipe_delete' recipe.uid %}">
+                              <i class="undo icon"></i> <span class="tablet">Restore</span>
                             </a>
                         {% endif %}
                         <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">

@@ -5,8 +5,8 @@
    <i class="warning circle icon"></i> You must be logged in to perform that action.
 
 {% else %}
+  <i class="warning circle icon"></i> You have <span class="ui red label"><i class="lock icon"></i>{{ current_access }}</span> to the project.
+  You need <span class="ui green label"><i class="unlock icon"></i> {{needed_access}}</span> to preform that action.
 
-   <i class="warning circle icon"></i> You need to have <span class="ui green label"><i class="unlock icon"></i> {{access}}</span> on the project.
-    See the <a href="#"><i class="lock icon"></i>Access Information</a> page.
 {%  endif %}
 

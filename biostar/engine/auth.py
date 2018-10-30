@@ -47,12 +47,22 @@ def fake_request(url="/", data={}, user="", method="POST"):
     return request
 
 
-def access_denied_message(user, access):
+def access_denied_message(user, needed_access, project):
     """
     Generates the access denied message
     """
     tmpl = loader.get_template('widgets/access_denied_message.html')
-    context = dict(user=user, access=access)
+    if project.is_public:
+        current_access = Access.READ_ACCESS
+    else:
+        current_access = Access.objects.filter(user=user, project=project).first()
+        current_access = Access.NO_ACCESS if current_access is None else current_access.access
+
+    # Get the string format of the access.
+    needed_access = dict(Access.ACCESS_CHOICES).get(needed_access)
+    current_access = dict(Access.ACCESS_CHOICES).get(current_access)
+
+    context = dict(user=user, needed_access=needed_access, current_access=current_access)
     return tmpl.render(context=context)
 
 
@@ -186,15 +196,15 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
     if project:
         # Update project
         current = project.first()
-        summary = summary or current.summary
         text = text or current.text
         name = name or current.name
-        project.update(summary=summary, text=text, name=name)
+        project.update(text=text, name=name)
         project = project.first()
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
+        text = summary + "\n" + text
         project = Project.objects.create(
-            name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
+            name=name, uid=uid, text=text, owner=user, privacy=privacy, sticky=sticky)
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     if stream:
@@ -223,6 +233,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     else:
         # Create a new analysis
         uid = None if analysis else uid
+        text = summary + "\n" + text
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)
@@ -232,18 +243,6 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         analysis.image.save(stream.name, stream, save=True)
 
     return analysis
-
-
-def make_job_summary(data, summary='', title='', name="widgets/job_summary.html"):
-    """
-    Creates informative job summary that shows job parameters.
-    """
-
-    context = dict(data=data, summary=summary, title=title)
-    template = loader.get_template(name)
-    result = template.render(context)
-
-    return result
 
 
 def make_job_title(recipe, data):
@@ -276,7 +275,6 @@ def make_job_title(recipe, data):
 def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=Job.QUEUED, uid=None, save=True):
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
-
     project = analysis.project
 
     if json_data:
@@ -287,14 +285,11 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     # Needs the json_data to set the summary.
     json_data = hjson.loads(json_text)
 
-    # Generate the summary from the data.
-    summary = make_job_summary(json_data, summary=analysis.summary)
-
     # Generate a meaningful job title.
     name = make_job_title(recipe=analysis, data=json_data)
 
     # Create the job instance.
-    job = Job(name=name, summary=summary, state=state, json_text=json_text,
+    job = Job(name=name, state=state, json_text=json_text,
               security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
               template=analysis.template, uid=uid)
 
@@ -366,8 +361,9 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Create the data.
     type = type or "DATA"
     uid = uid or util.get_uuid(8)
+    text = summary + "\n" + text
     data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
-                               type=type, summary=summary, text=text, uid=uid)
+                               type=type, text=text, uid=uid)
 
     # The source of the data is a stream is written into the destination.
     if stream:
@@ -401,7 +397,6 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Set updated attributes
     data.state = state
     data.name = name or os.path.basename(path) or 'Data'
-    data.summary = summary
 
     # Trigger another save.
     data.save()

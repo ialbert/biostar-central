@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
 
 from biostar.utils.shortcuts import reverse
-from . import models
+from . import models, auth
 
 # Share the logger with models
 logger = models.logger
@@ -60,7 +60,9 @@ class read_access:
                 return function(request, *args, **kwargs)
 
             # Deny access by default.
-            messages.error(request, f"Read access denied to object id: {uid}")
+            msg = auth.access_denied_message(user=user, needed_access=models.Access.READ_ACCESS,
+                                             project=project)
+            messages.error(request, msg)
             return redirect(self.fallback_url)
 
         return wrapper
@@ -85,12 +87,7 @@ class write_access:
         def _wrapped_view(request, *args, **kwargs):
             # Each wrapped view must take an alphanumeric uid as parameter.
             uid = kwargs.get('uid')
-
-            # The user is set in the request.
             user = request.user
-            if user.is_anonymous:
-                messages.error(request, "You need to be logged in to preform actions.")
-                return redirect(reverse("project_list"))
 
             # Fetches the object that will be checked for permissions.
             instance = self.type.objects.get_all(uid=uid).first()
@@ -98,8 +95,17 @@ class write_access:
                 messages.error(request, f"Object id {uid} does not exist.")
                 return redirect(reverse("project_list"))
 
-            project = instance.project
+            # Build redirect url
+            if self.fallback_view:
+                target = reverse(self.fallback_view, kwargs=dict(uid=uid))
+            else:
+                target = request.GET.get("next") or instance.url()
 
+            if user.is_anonymous:
+                messages.error(request, "You need to be logged in to preform actions.")
+                return redirect(target)
+
+            project = instance.project
             # Explicit access rights
             access1 = models.Access.objects.filter(user=user, project=project,
                                                    access=models.Access.WRITE_ACCESS).first()
@@ -113,13 +119,25 @@ class write_access:
             if access or instance.project.owner == user:
                 return function(request, *args, **kwargs)
 
-            # Build redirect url
-            if self.fallback_view:
-                target = reverse(self.fallback_view, kwargs=dict(uid=uid))
-            else:
-                target = request.GET.get("next") or instance.url()
-
-            messages.error(request, f"Write access denied to object id: {uid}")
+            msg = auth.access_denied_message(user=user, needed_access=models.Access.WRITE_ACCESS,
+                                             project=project)
+            messages.error(request, msg)
             return redirect(target)
 
         return _wrapped_view
+
+
+def check_sessions(func):
+
+    @wraps(func, assigned=available_attrs(func))
+    def __wrapper(request,  *args, **kwargs):
+        # Sessions storage and retrieval works
+
+        if request.session.test_cookie_worked():
+            request.session.delete_test_cookie()
+            return func(request, *args, **kwargs)
+
+        messages.error(request, "Sessions storage and retrieval is not working.")
+        return func(request, *args, **kwargs)
+
+    return __wrapper

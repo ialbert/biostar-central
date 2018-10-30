@@ -23,6 +23,7 @@ logger = models.logger
 
 TEXT_UPLOAD_MAX = 10000
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
@@ -110,7 +111,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text', 'image']
+        fields = ['name', 'text', 'image']
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -138,10 +139,8 @@ class ProjectForm(forms.ModelForm):
 
         name = self.cleaned_data["name"]
         text = self.cleaned_data["text"]
-        summary = self.cleaned_data["summary"]
         stream = self.cleaned_data["image"]
-        project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                      stream=stream)
+        project = auth.create_project(user=owner, name=name, text=text, stream=stream)
         project.save()
 
         return project
@@ -164,7 +163,6 @@ class DataUploadForm(forms.ModelForm):
         text = self.cleaned_data["text"]
         stream = self.cleaned_data["file"]
         input_text = self.cleaned_data['input_text']
-        summary = self.cleaned_data["summary"]
         type = self.cleaned_data["type"]
         name = self.cleaned_data['data_name']
 
@@ -174,7 +172,7 @@ class DataUploadForm(forms.ModelForm):
             stream = io.StringIO(initial_value=input_text)
 
         data = auth.create_data(stream=stream, name=name, text=text, user=self.user,
-                                project=self.project, summary=summary, type=type)
+                                project=self.project, type=type)
         if input_text and not self.cleaned_data["file"]:
             Data.objects.filter(pk=data.pk).update(method=Data.TEXTAREA)
             stream.close()
@@ -183,7 +181,7 @@ class DataUploadForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['data_name', 'file', 'input_text', 'summary', 'text', "sticky", "type"]
+        fields = ['data_name', 'file', 'input_text', 'text', "type"]
 
     def clean(self):
 
@@ -260,7 +258,7 @@ class DataEditForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['name', 'summary', 'text', 'sticky', "type"]
+        fields = ['name', 'text', "type"]
 
     def clean_file(self):
         cleaned_data = super(DataEditForm, self).clean()
@@ -314,7 +312,7 @@ class RecipeForm(forms.ModelForm):
 
     class Meta:
         model = Analysis
-        fields = ["name", "sticky", "image", "text", "uid"]
+        fields = ["name", "image", "text", "uid"]
 
     def clean_image(self):
         cleaned_data = super(RecipeForm, self).clean()
@@ -324,7 +322,7 @@ class RecipeForm(forms.ModelForm):
         return image
 
     def clean_uid(self):
-        cleaned_data  =  super(RecipeForm, self).clean()
+        cleaned_data = super(RecipeForm, self).clean()
         uid = cleaned_data.get('uid')
         if uid and not uid.isalnum():
             msg = "Only alphanumeric characters allowed, no spaces."
@@ -336,7 +334,7 @@ class RecipeForm(forms.ModelForm):
 class JobEditForm(forms.ModelForm):
     class Meta:
         model = Job
-        fields = ['name', "image", 'text', 'sticky']
+        fields = ['name', "image", 'text']
 
 
 class ChangeUserAccess(forms.Form):
