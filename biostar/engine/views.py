@@ -82,7 +82,7 @@ def clear_clipboard(request, uid):
     board = request.GET.get("board")
 
     if board:
-        request.session[board] = []
+        request.session.update({board: []})
 
     return redirect(next_url)
 
@@ -334,6 +334,9 @@ def recipe_copy(request, uid):
     # Set test cookies
     request.session.set_test_cookie()
 
+    # Use the update ?
+    request.session.update(dict(test="TEST"))
+
     auth.copy(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD)
 
     return redirect(next_url)
@@ -350,7 +353,7 @@ def job_copy(request, uid):
 
 
 @write_access(type=Project, fallback_view="recipe_list")
-#@check_sessions
+@check_sessions
 def recipe_paste(request, uid):
     """
     Pastes recipes from clipboard as a new recipes.
@@ -383,7 +386,7 @@ def recipe_paste(request, uid):
     new_recipes = list(map(copy, recipes))
 
     # Reset the session.
-    request.session[const.RECIPE_CLIPBOARD] = []
+    request.session.update({const.RECIPE_CLIPBOARD: []})
 
     # Notification after paste.
     messages.success(request, mark_safe(f"Pasted <b>{len(new_recipes)} recipes</b>  in clipboard"))

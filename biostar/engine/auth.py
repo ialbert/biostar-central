@@ -86,7 +86,8 @@ def copy(request, instance, board):
         messages.warning(request, f"Exceeded maximum items allowed in a clipboard, Please paste or clear.")
         return board_items
 
-    request.session[board] = board_items
+    # django has internal update that sets the database change as well.
+    request.session.update({board: board_items})
     messages.success(request, f"Copied items, there are {len(board_items)} in clipboard.")
 
     return board_items
