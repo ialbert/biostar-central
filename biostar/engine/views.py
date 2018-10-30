@@ -1,6 +1,5 @@
 import logging
 import os
-import hjson
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,6 +11,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 from sendfile import sendfile
+from django.http import HttpResponse
 from django.conf import settings
 
 from biostar.accounts.models import User
@@ -513,6 +513,24 @@ def recipe_view(request, uid):
     context.update(counts, rcount=rcount)
 
     return render(request, "recipe_view.html", context)
+
+
+def recipe_code_download(request, uid):
+    """
+    Download the raw recipe template as a file
+    """
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+
+    # Trigger file download with name of the recipe
+    filename = "_".join(recipe.name.split()) + ".txt"
+
+    response = HttpResponse(recipe.template, content_type='text/plain')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    # sendfile(request, file_path, attachment=True, attachment_filename=fname, mimetype=mimetype)
+    #print(recipe.template, filename)
+    return response
 
 
 @read_access(type=Analysis)
