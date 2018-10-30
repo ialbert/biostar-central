@@ -121,13 +121,17 @@ def has_data(request):
 def paste(context, project, current=""):
 
     request = context["request"]
-    board = request.session.get(current) or ""
+    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
+    board = clipboard.get(current, [])
+
     clipboard_count = len(board) if request.user.is_authenticated else 0
+
+    print(clipboard, current)
 
     print(request.session.get("test"), "HAS test in tags")
     print(request.session._session_cache, "SESSION CACHE in tags")
 
-    extra_context = dict(clipboard_count=clipboard_count, project=project, current=current, context=context)
+    extra_context = dict(clipboard_count=clipboard_count, project=project, current=current, board=board, context=context)
     context.update(extra_context)
     return context
 
