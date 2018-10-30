@@ -1,5 +1,6 @@
 import logging
 import os
+import hjson
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -83,6 +84,7 @@ def clear_clipboard(request, uid):
 
     if board:
         request.session.update({board: []})
+        request.session.save()
 
     return redirect(next_url)
 
@@ -387,6 +389,7 @@ def recipe_paste(request, uid):
 
     # Reset the session.
     request.session.update({const.RECIPE_CLIPBOARD: []})
+    request.session.save()
 
     # Notification after paste.
     messages.success(request, mark_safe(f"Pasted <b>{len(new_recipes)} recipes</b>  in clipboard"))
@@ -418,7 +421,8 @@ def data_paste(request, uid):
             auth.create_data(project=project, paths=paths, user=owner,
                              name=obj.name, type=dtype, summary=obj.summary)
 
-    request.session[board] = []
+    request.session.update({board: []})
+    request.session.save()
     messages.success(request, "Pasted data in clipboard")
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 

@@ -1,5 +1,6 @@
 import json
 import logging
+import hjson
 import os
 from textwrap import dedent
 
@@ -120,7 +121,7 @@ def has_data(request):
 def paste(context, project, current=""):
 
     request = context["request"]
-    board = request.session.get(current) or []
+    board = request.session.get(current) or ""
     clipboard_count = len(board) if request.user.is_authenticated else 0
 
     print(request.session.get("test"), "HAS test in tags")
