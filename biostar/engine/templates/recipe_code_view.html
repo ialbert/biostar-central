@@ -34,10 +34,11 @@
 {% block content %}
 
     <div class="ui vertical segment">
+
         <div class="ui divided link items">
             <div class="item">
                 <div>
-                    <img class="ui tiny image imgpad" src="{% img recipe %}">
+                    <img class="ui tiny rounded fancy image" src="{% img recipe %}">
                 </div>
                 <div class="content">
                     <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
@@ -45,8 +46,8 @@
                     </a>
                     <div class="description">{{ recipe.summary }}</div>
                     <div class="extra">
-                        {%  created_by date=recipe.date user=recipe.owner %}
-                        </div>
+                        {% created_by date=recipe.date user=recipe.owner %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -54,21 +55,21 @@
 
     <div class="ui vertical segment">
 
-     <div class="ui five small buttons">
+        <div class="ui five small buttons">
 
             <a class="ui button" onclick="window.history.back()">
-                <i class="chevron left icon"></i> <span class="fitme">Back</span>
-            </a>
-
-             <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                <i class="bar chart icon"></i> <span class="fitme">Results ({{ rcount }})</span>
+                <i class="angle double left icon"></i> <span class="fitme">Back</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_view' recipe.uid %}">
-                <i class="setting icon"></i> <span class="fitme">Recipe</span>
+                <i class="setting icon"></i> <span class="fitme">Recipe View</span>
             </a>
 
-             <a class="ui button" href="{% url 'recipe_run' recipe.uid %}">
+            <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                <i class="bar chart icon"></i> <span class="fitme">Results ({{ rcount }})</span>
+            </a>
+
+            <a class="ui button" href="{% url 'recipe_run' recipe.uid %}">
                 <i class="spinner icon"></i> <span class="fitme">Run</span>
             </a>
 
@@ -102,6 +103,7 @@
     </div>
 
     <div class="ui segment inputcolor">
+        <div class="ui subheader">Recipe Code</div>
         {% form_errors form %}
         <div class="ui basic segment">
 
@@ -127,15 +129,7 @@
                     </a>
                 </div>
 
-                <div class="ui info message">
-                    <b>Note</b>
 
-                    <p>If previously authorized code is modified by a non-moderator
-                        it will be to be approved by the site managers before it can be executed.</p>
-
-                    <p>This is necessary to protect the service against use that may impact the service.</p>
-
-                </div>
             </form>
 
         </div>

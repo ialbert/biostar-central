@@ -17,13 +17,15 @@
                         <img class="ui tiny rounded fancy image" src="{% img recipe %}">
                     </div>
                     <div class="content imgpad">
+
                         <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
                             <i class="setting icon"></i> {{ recipe.name }}
                         </a>
+
                         <div class="description">{{ recipe.summary }}</div>
 
                         <div class="extra">
-                        {%  created_by date=recipe.date user=recipe.owner %}
+                            {%  created_by date=recipe.date user=recipe.owner %}
                         </div>
 
                         <div id="copy-message-{{ recipe.uid }}"></div>
