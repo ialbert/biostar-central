@@ -103,7 +103,11 @@
     </div>
 
     <div class="ui segment inputcolor">
-        <div class="ui subheader">Recipe Code</div>
+        <div class="ui subheader">Recipe Code
+         <a href="{% url 'recipe_download' recipe.uid %}" class="ui label">
+                        <i class="download icon"></i>Download script
+                    </a>
+        </div>
         {% form_errors form %}
         <div class="ui basic segment">
 
@@ -124,9 +128,7 @@
                         <i class="save icon"></i>Change Code
                     </button>
 
-                    <a href="{% url 'recipe_download' recipe.uid %}" class="ui right floated button">
-                        <i class="download icon"></i>Download
-                    </a>
+
                 </div>
 
 
