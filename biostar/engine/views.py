@@ -355,7 +355,7 @@ def job_copy(request, uid):
 
 
 @write_access(type=Project, fallback_view="recipe_list")
-@check_sessions
+#@check_sessions
 def recipe_paste(request, uid):
     """
     Pastes recipes from clipboard as a new recipes.
