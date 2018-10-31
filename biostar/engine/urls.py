@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^recipe/code/edit/(?P<uid>[-\w]+)/$', views.recipe_code_edit, name='recipe_code_edit'),
     url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
     url(r'^recipe/delete/(?P<uid>[-\w]+)/$', views.recipe_delete, name='recipe_delete'),
+    url(r'^recipe/code/download/(?P<uid>[-\w]+)/$', views.recipe_code_download, name='recipe_download'),
 
     # Actions
     url(r'^action/clear/(?P<uid>[-\w]+)/$', views.clear_clipboard, name='clear_clipboard'),

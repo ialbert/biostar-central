@@ -11,6 +11,8 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 from sendfile import sendfile
+from django.http import HttpResponse
+from django.conf import settings
 
 from biostar.accounts.models import User
 from biostar.forum import views as forum_views
@@ -80,9 +82,12 @@ def clear_clipboard(request, uid):
 
     next_url = request.GET.get("next", reverse("project_view", kwargs=dict(uid=uid)))
     board = request.GET.get("board")
+    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
 
-    if board:
-        request.session[board] = []
+    if clipboard.get(board):
+        clipboard[board] = []
+        request.session.update({settings.CLIPBOARD_NAME: clipboard})
+        request.session.save()
 
     return redirect(next_url)
 
@@ -363,7 +368,8 @@ def recipe_paste(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
     # Contains the uids for the recipes that are to be copied.
-    recipe_uids = request.session.get(const.RECIPE_CLIPBOARD, [])
+    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
+    recipe_uids = clipboard.get(const.RECIPE_CLIPBOARD, [])
 
     # Select valid recipe uids.
     recipes = [Analysis.objects.get_all(uid=uid).first() for uid in recipe_uids]
@@ -375,7 +381,7 @@ def recipe_paste(request, uid):
     def copy(instance):
         recipe = auth.create_analysis(project=project, user=user,
                                       json_text=instance.json_text,
-                                      template=instance.template, summary=instance.summary,
+                                      template=instance.template,
                                       name=instance.name, text=instance.text, stream=instance.image)
         return recipe
 
@@ -383,7 +389,9 @@ def recipe_paste(request, uid):
     new_recipes = list(map(copy, recipes))
 
     # Reset the session.
-    request.session[const.RECIPE_CLIPBOARD] = []
+    clipboard[const.RECIPE_CLIPBOARD] = []
+    request.session.update({settings.CLIPBOARD_NAME: clipboard})
+    request.session.save()
 
     # Notification after paste.
     messages.success(request, mark_safe(f"Pasted <b>{len(new_recipes)} recipes</b>  in clipboard"))
@@ -398,24 +406,26 @@ def data_paste(request, uid):
     project = Project.objects.filter(uid=uid).first()
     owner = request.user
     board = request.GET.get("board")
-    clipboard = request.session.get(board, [])
+    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
+    data_clipboard = clipboard.get(board, [])
 
-    for datauid in clipboard:
+    for datauid in data_clipboard:
 
         if board == const.DATA_CLIPBOARD:
             obj = Data.objects.get_all(uid=datauid).first()
             dtype = obj.type
-
         else:
             obj = Job.objects.get_all(uid=datauid).first()
             dtype = "DATA"
 
         if obj:
             paths = [n.path for n in os.scandir(obj.get_data_dir())]
-            auth.create_data(project=project, paths=paths, user=owner,
-                             name=obj.name, type=dtype, summary=obj.summary)
+            auth.create_data(project=project, paths=paths, user=owner, name=obj.name,
+                             type=dtype, text=obj.text)
 
-    request.session[board] = []
+    clipboard[board] = []
+    request.session.update({settings.CLIPBOARD_NAME: clipboard})
+    request.session.save()
     messages.success(request, "Pasted data in clipboard")
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
@@ -503,6 +513,24 @@ def recipe_view(request, uid):
     context.update(counts, rcount=rcount)
 
     return render(request, "recipe_view.html", context)
+
+
+def recipe_code_download(request, uid):
+    """
+    Download the raw recipe template as a file
+    """
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+
+    # Trigger file download with name of the recipe
+    filename = "_".join(recipe.name.split()) + ".txt"
+
+    response = HttpResponse(recipe.template, content_type='text/plain')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    # sendfile(request, file_path, attachment=True, attachment_filename=fname, mimetype=mimetype)
+    #print(recipe.template, filename)
+    return response
 
 
 @read_access(type=Analysis)

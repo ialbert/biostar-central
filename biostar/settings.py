@@ -52,6 +52,9 @@ MAX_DATA = 100
 # Maximum amount of items per clipboard
 MAX_CLIPBOARD = 5
 
+# Name of the clipboard inside of sessions
+CLIPBOARD_NAME = "clipboard"
+
 # Maximum amount of total running jobs allowed for non-staff user.
 MAX_RUNNING_JOBS = 5
 

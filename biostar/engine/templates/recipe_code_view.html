@@ -91,11 +91,7 @@
                         </a>
                         <div class="divider"></div>
                         <a class="ui item" href="{% url 'recipe_delete' recipe.uid %}">
-                            {% if recipe.deleted %}
-                                <i class="undo icon"></i> Restore
-                            {% else %}
-                                <i class="trash icon"></i>Delete
-                            {% endif %}
+                            <i class="trash icon"></i>Delete
                         </a>
                     </div>
                 </div>
@@ -127,6 +123,10 @@
                     <button type="submit" class="ui green button">
                         <i class="save icon"></i>Change Code
                     </button>
+
+                    <a href="{% url 'recipe_download' recipe.uid %}" class="ui right floated button">
+                        <i class="download icon"></i>Download
+                    </a>
                 </div>
 
 

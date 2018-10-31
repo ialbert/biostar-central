@@ -77,16 +77,18 @@ def copy(request, instance, board):
         messages.error(request, "You need to be logged in.")
         return []
 
-    board_items = request.session.get(board, [])
+    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
+
+    board_items = clipboard.get(board, [])
     board_items.append(instance.uid)
     # No duplicates in clipboard
-    board_items = list(set(board_items))
 
-    if len(board_items) >= settings.MAX_CLIPBOARD:
-        messages.warning(request, f"Exceeded maximum items allowed in a clipboard, Please paste or clear.")
-        return board_items
+    clipboard[board] = list(set(board_items))
 
-    request.session[board] = board_items
+    request.session.update({settings.CLIPBOARD_NAME: clipboard})
+
+    request.session.save()
+
     messages.success(request, f"Copied items, there are {len(board_items)} in clipboard.")
 
     return board_items

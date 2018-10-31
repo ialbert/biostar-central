@@ -132,12 +132,15 @@ def check_sessions(func):
     @wraps(func, assigned=available_attrs(func))
     def __wrapper(request,  *args, **kwargs):
         # Sessions storage and retrieval works
+        print(request.session.get("test"), "HAS test in decorator")
+
+        print(request.session._session_cache, "SESSION CACHE in decoratrs")
 
         if request.session.test_cookie_worked():
             request.session.delete_test_cookie()
             return func(request, *args, **kwargs)
 
-        messages.error(request, "Sessions storage and retrieval is not working.")
+        messages.error(request, "Sessions storage and retrieval is not working correctly.")
         return func(request, *args, **kwargs)
 
     return __wrapper
