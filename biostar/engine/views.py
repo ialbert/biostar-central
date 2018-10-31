@@ -523,13 +523,11 @@ def recipe_code_download(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
 
     # Trigger file download with name of the recipe
-    filename = "_".join(recipe.name.split()) + ".txt"
+    filename = "_".join(recipe.name.split()) + ".sh"
 
     response = HttpResponse(recipe.template, content_type='text/plain')
     response['Content-Disposition'] = f'attachment; filename={filename}'
 
-    # sendfile(request, file_path, attachment=True, attachment_filename=fname, mimetype=mimetype)
-    #print(recipe.template, filename)
     return response
 
 
