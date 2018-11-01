@@ -251,7 +251,7 @@ SESSION_KEY = "session"
 
 COUNT_INTERVAL_WEEKS = 10000
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_SAVE_EVERY_REQUEST = True
 #SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
