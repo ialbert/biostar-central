@@ -87,7 +87,6 @@ def clear_clipboard(request, uid):
     if clipboard.get(board):
         clipboard[board] = []
         request.session.update({settings.CLIPBOARD_NAME: clipboard})
-        request.session.save()
 
     return redirect(next_url)
 
@@ -387,7 +386,6 @@ def recipe_paste(request, uid):
     # Reset the session.
     clipboard[const.RECIPE_CLIPBOARD] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-    request.session.save()
 
     # Notification after paste.
     messages.success(request, mark_safe(f"Pasted <b>{len(new_recipes)} recipes</b>  in clipboard"))
