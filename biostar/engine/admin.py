@@ -43,7 +43,7 @@ class JobAdmin(admin.ModelAdmin):
                   ),
 
                  ("Optional Text Inputs",
-                    {'fields':(("text", "html"),"summary"),
+                    {'fields':(("text", "html")),
                      "classes": ("collapse",'extrapretty')}
                   ),
 
@@ -74,7 +74,7 @@ class AnalysisAdmin(admin.ModelAdmin):
                   ),
 
                  ("Optional Text Inputs",
-                    {'fields':(("text", "html"),"summary"),
+                    {'fields':(("text", "html")),
                      "classes": ("collapse",'extrapretty')}
                   ),
 
@@ -103,7 +103,7 @@ class ProjectAdmin(admin.ModelAdmin):
                   ),
 
                  ("Optional Text Inputs",
-                    {'fields':("text","summary"),
+                    {'fields':("text",),
                      "classes": ("collapse",'extrapretty')}
                   ),
                  )
