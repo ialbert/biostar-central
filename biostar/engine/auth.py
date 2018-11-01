@@ -87,7 +87,7 @@ def copy(request, instance, board):
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
-    messages.success(request, f"Copied items, there are {len(board_items)} in clipboard.")
+    messages.success(request, f"Copied items, there are {len(set(board_items))} in clipboard.")
 
     return board_items
 

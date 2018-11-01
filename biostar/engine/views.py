@@ -1,5 +1,6 @@
 import logging
 import os
+import hjson
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -7,6 +8,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 from django.db.models import Sum
 from django.shortcuts import render, redirect
+from django.template import Template, Context
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
@@ -515,10 +517,15 @@ def recipe_code_download(request, uid):
 
     recipe = Analysis.objects.filter(uid=uid).first()
 
+    # Fill in the script with json data.
+    context = Context(recipe.json_data)
+    script_template = Template(recipe.template)
+    script = script_template.render(context)
+
     # Trigger file download with name of the recipe
     filename = "_".join(recipe.name.split()) + ".sh"
 
-    response = HttpResponse(recipe.template, content_type='text/plain')
+    response = HttpResponse(script, content_type='text/plain')
     response['Content-Disposition'] = f'attachment; filename={filename}'
 
     return response
