@@ -419,7 +419,6 @@ def data_paste(request, uid):
 
     clipboard[board] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-    request.session.save()
     messages.success(request, "Pasted data in clipboard")
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
