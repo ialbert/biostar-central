@@ -19,7 +19,7 @@ from biostar.forum import views as forum_views
 from biostar.forum.models import Post
 from biostar.utils.shortcuts import reverse
 from . import tasks, auth, forms, const
-from .decorators import read_access, write_access, check_sessions
+from .decorators import read_access, write_access
 from .models import (Project, Data, Analysis, Job, Access)
 
 # The current directory
