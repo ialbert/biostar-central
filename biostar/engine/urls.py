@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.urls import path
 
 from biostar.forum import views as forum_views
-from . import views
+from . import views, api
 
 urlpatterns = [
     url(r'^$', views.index, name="index"),
@@ -49,6 +49,10 @@ urlpatterns = [
     url(r'^job/edit/(?P<uid>[-\w]+)/$', views.job_edit, name='job_edit'),
     url(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_serve, name='job_serve'),
     url(r'^job/delete/(?P<uid>[-\w]+)/$', views.job_delete, name='job_delete'),
+
+    # Api calls
+    url(r'^api/recipe/(?P<uid>[-\w]+)/json/$', api.api_recipe_json, name='api_json'),
+    url(r'^api/recipe/(?P<uid>[-\w]+)/template/$', api.api_recipe_template, name='api_template'),
 
     # Discussions
     url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),
