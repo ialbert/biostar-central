@@ -1,6 +1,5 @@
 import logging
 import os
-import hjson
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
