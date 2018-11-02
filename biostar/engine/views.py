@@ -509,6 +509,7 @@ def recipe_view(request, uid):
     return render(request, "recipe_view.html", context)
 
 
+@read_access(type=Analysis)
 def recipe_code_download(request, uid):
     """
     Download the raw recipe template as a file
