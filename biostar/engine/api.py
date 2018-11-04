@@ -1,27 +1,43 @@
 
-from .models import Analysis
+from .models import Analysis, Project
+from django.conf import settings
 from django.http import HttpResponse
+from django.shortcuts import render
 
 
-def api_text(recipe, text_type):
+def recipe_list(request):
 
-    action_mapper = {"json": recipe.json_text, "template": recipe.template}
-    # Only show public recipes for now.
-    text = action_mapper.get(text_type, "") if recipe and recipe.project.is_public else ""
-    return HttpResponse(text, content_type="text/plain")
+    recipes = Analysis.objects.get_all()
+    api_key = request.GET.get("k", "")
 
+    if settings.API_KEY == api_key:
+        recipes = recipes.filter(project__privacy=Project.PUBLIC)
 
-def api_recipe_json(request, uid):
-    """Returns plain text version of json"""
-
-    recipe = Analysis.objects.filter(uid=uid).first()
-    return api_text(recipe=recipe, text_type="json")
+    context = dict(recipes=recipes)
+    return render(request, "api_list.html", context=context)
 
 
-def api_recipe_template(request, uid):
-    """Returns plain text version of template"""
+def recipe_json(request, uid):
+    """Returns json"""
 
     recipe = Analysis.objects.filter(uid=uid).first()
-    return api_text(recipe=recipe, text_type="template")
+    api_key = request.GET.get("k", "")
+
+    if settings.API_KEY == api_key:
+        recipe = recipe.filter(project__privacy=Project.PUBLIC)
+
+    return HttpResponse(recipe.json_text, content_type="application/json")
+
+
+def recipe_template(request, uid):
+    """Returns template"""
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+    api_key = request.GET.get("k", "")
+
+    if settings.API_KEY == api_key:
+        recipe = recipe.filter(project__privacy=Project.PUBLIC)
+
+    return HttpResponse(recipe.template, content_type="text/plain")
 
 

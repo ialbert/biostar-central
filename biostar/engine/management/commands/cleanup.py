@@ -48,7 +48,8 @@ class Command(BaseCommand):
         jobs.delete()
 
         # Delete files associated with jobs
-        list(map(shutil.rmtree, job_paths))
+        for job_path in job_paths:
+            shutil.rmtree(job_path)
 
         # Delete the data next
         delete(data)

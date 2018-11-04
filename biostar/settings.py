@@ -15,6 +15,8 @@ DEBUG = True
 # Change this in production!
 SECRET_KEY = 'secret-key'
 
+API_KEY = "api-key"
+
 # Used internally by django to test browser cookies
 TEST_COOKIE_NAME = "test-cookie"
 

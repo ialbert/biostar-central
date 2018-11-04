@@ -1,0 +1,24 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+
+
+{% block headtitle %}
+    API List
+{% endblock %}
+
+{% block body %}
+
+
+<div class="ui divided link items">
+    {% for rec in recipes %}
+
+        <div class="item ">
+            <a href="{% url 'api_json' rec.uid %}">Json</a> |
+            <a href="{% url 'api_template' rec.uid %}">Template</a> |
+        <a href="{% url 'recipe_list' rec.uid %}">{{ rec.name }}</a>
+        </div>
+
+    {% endfor %}
+</div>
+
+{% endblock %}
