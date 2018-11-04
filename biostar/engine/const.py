@@ -16,7 +16,6 @@ DATA_CLIPBOARD = "data"
 RESULTS_CLIPBOARD = "results"
 RECIPE_CLIPBOARD = "recipes"
 
-
 KNOWN_TEXT_EXTENSIONS = set(KNOWN_TEXT_EXTENSIONS)
 
 # The maximum length in characters for a typical name and text field.
