@@ -10,7 +10,8 @@ def recipe_list(request):
     recipes = Analysis.objects.get_all()
     api_key = request.GET.get("k", "")
 
-    if settings.API_KEY == api_key:
+    # Only show public recipes when api key is not correct or provided.
+    if settings.API_KEY != api_key:
         recipes = recipes.filter(project__privacy=Project.PUBLIC)
 
     context = dict(recipes=recipes)
@@ -20,24 +21,30 @@ def recipe_list(request):
 def recipe_json(request, uid):
     """Returns json"""
 
-    recipe = Analysis.objects.filter(uid=uid).first()
+    recipe = Analysis.objects.filter(uid=uid)
     api_key = request.GET.get("k", "")
 
-    if settings.API_KEY == api_key:
+    # Only show public recipes when api key is not correct or provided.
+    if settings.API_KEY != api_key:
         recipe = recipe.filter(project__privacy=Project.PUBLIC)
 
-    return HttpResponse(recipe.json_text, content_type="application/json")
+    data = recipe.first().json_text if recipe else "Recipe does not exist."
+
+    return HttpResponse(data, content_type="application/json")
 
 
 def recipe_template(request, uid):
     """Returns template"""
 
-    recipe = Analysis.objects.filter(uid=uid).first()
+    recipe = Analysis.objects.filter(uid=uid)
     api_key = request.GET.get("k", "")
 
-    if settings.API_KEY == api_key:
+    # Only show public recipes when api key is not correct or provided.
+    if settings.API_KEY != api_key:
         recipe = recipe.filter(project__privacy=Project.PUBLIC)
 
-    return HttpResponse(recipe.template, content_type="text/plain")
+    data = recipe.first().template if recipe else "Recipe does not exist."
+
+    return HttpResponse(data, content_type="text/plain")
 
 
