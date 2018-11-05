@@ -10,6 +10,7 @@ from django.urls import reverse
 
 logger = logging.getLogger('engine')
 
+
 class SiteNavigation(TestCase):
 
     def setUp(self):
@@ -34,7 +35,7 @@ class SiteNavigation(TestCase):
         c = Client()
         c.login(username="test", email='test@test.com', password='testing')
         for url in urls:
-            resp = c.get(url, data={"q": "test", 'k': settings.API_KEY})
+            resp = c.get(url, data={"q": "test"})
             code = resp.status_code
             if code not in codes:
                 # We already know it is an error.
