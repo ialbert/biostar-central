@@ -517,10 +517,13 @@ def recipe_code_download(request, uid):
 
     recipe = Analysis.objects.filter(uid=uid).first()
 
-    # Fill in the script with json data.
-    context = Context(recipe.json_data)
-    script_template = Template(recipe.template)
-    script = script_template.render(context)
+    try:
+        # Fill in the script with json data.
+        context = Context(recipe.json_data)
+        script_template = Template(recipe.template)
+        script = script_template.render(context)
+    except Exception as exc:
+        logger.error(exc)
 
     # Trigger file download with name of the recipe
     filename = "_".join(recipe.name.split()) + ".sh"
