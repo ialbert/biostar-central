@@ -47,27 +47,6 @@ class JobViewTest(TestCase):
         response = views.job_edit(request=request, uid=self.job.uid)
         self.process_response(response=response, data=data, save=True)
 
-
-    def Xtest_job_files_copy(self):
-        "Test files copy with POST request"
-
-        management.call_command('job', id=self.job.id)
-        url = reverse('job_view', kwargs=dict(uid=self.job.uid))
-
-        data = {"paths":"runlog/input.json"}
-
-        request = util.fake_request(url=url, data=data, user=self.owner)
-
-        response = views.job_view(request=request, uid=self.job.uid)
-
-        self.process_response(response=response, data=data)
-
-        # Test clear clipboard view
-        views.clear_clipboard(request=request, uid=self.project.uid, board="files_clipboard")
-
-        self.assertTrue(not request.session.get("files_clipboard"), "Clear clipboard not working")
-
-
     def test_job_runner(self):
         "Testing Job runner using management command"
 
@@ -90,36 +69,6 @@ class JobViewTest(TestCase):
         response = views.job_serve(request=request, uid=self.job.uid, path=data["paths"])
 
         self.assertTrue(isinstance(response, FileResponse), "Response is not a file.")
-
-
-    def Xtest_job_copy(self):
-        "Test job copy interface"
-
-        url = reverse('job_view', kwargs=dict(uid=self.job.uid))
-
-        data = {'paths':"runlog/input.json"}
-
-        request = util.fake_request(url=url, data=data, user=self.owner)
-
-        response = views.job_view(request=request, uid=self.job.uid)
-
-        self.process_response(response=response, data=data)
-
-
-    def Xtest_job_paste(self):
-        "Test job paste interface"
-        url = reverse('job_list', kwargs=dict(uid=self.job.project.uid))
-
-        data = {'action': 'PASTE'}
-        request = util.fake_request(url=url, data=data, user=self.owner)
-
-        clipboard = [f.name for f in os.scandir(self.job.get_data_dir())]
-        clipboard.append(self.job.uid)
-
-        request.session["files_clipboard"] = clipboard
-
-        response = views.data_list(request=request, uid=self.job.project.uid)
-        self.process_response(response=response, data=data)
 
 
     def process_response(self, response, data, save=False):

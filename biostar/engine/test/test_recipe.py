@@ -4,9 +4,10 @@ import hjson
 from django.test import TestCase, RequestFactory
 from unittest.mock import patch, MagicMock
 from django.urls import reverse
+from django.conf import settings
 
 from biostar.engine import auth, const
-from biostar.engine import models, views
+from biostar.engine import models, views, api
 
 from . import util
 
@@ -103,6 +104,21 @@ class RecipeViewTest(TestCase):
         response = views.recipe_list(request=request, uid=self.recipe.project.uid)
         self.process_response(response=response, data=data)
 
+    def test_api(self):
+        "Test the recipe api"
+
+        api_list = reverse('api_list'), api.recipe_list, {}
+        api_json = reverse('api_json', kwargs=dict(uid=self.recipe.uid)), api.recipe_json, dict(uid=self.recipe.uid)
+        api_template = reverse('api_template', kwargs=dict(uid=self.recipe.uid)), api.recipe_template, dict(uid=self.recipe.uid)
+
+        for data in [api_list, api_json, api_template]:
+            url, view_func, params = data
+
+            request = util.fake_request(url=url, data={'k': settings.API_KEY}, user=self.owner)
+
+            response = view_func(request=request, **params)
+
+            self.assertEqual(response.status_code, 200, f"Could not redirect :\nresponse:{response}")
 
     def test_recipe_update(self):
         "Test updating recipe through auth"
