@@ -51,7 +51,7 @@ urlpatterns = [
     url(r'^job/delete/(?P<uid>[-\w]+)/$', views.job_delete, name='job_delete'),
 
     # Api calls
-    url(r'^api/list/$', api.recipe_list, name='api_recipe'),
+    url(r'^api/list/$', api.recipe_list, name='api_list'),
     url(r'^api/recipe/(?P<uid>[-\w]+)/json/$', api.recipe_json, name='api_json'),
     url(r'^api/recipe/(?P<uid>[-\w]+)/template/$', api.recipe_template, name='api_template'),
 
