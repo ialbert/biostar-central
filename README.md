@@ -1,11 +1,12 @@
 # The Biostar Engine
 
-## Software for Better Science
+Software for Better Science.
+
+The **Biostar Engine** is a [Python][python] and [Django][django] web application for supporting scientific data analysis.
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-The **Biostar Engine** is a [Python][python] and [Django][django] web application for supporting scientific data analysis.
 
 See the site in operation:
 
@@ -15,9 +16,7 @@ See the site in operation:
 
 The **Biostar Engine** can execute scripts, it can capture and show you the results of running the script.
 
-The scripts may be written in `bash`, may be a `Makefile`, may be `R` commands, just about any code that could be executed from command line. We call the scripts that the engine can execute *recipes*.
-
-In summary the Biostar Engine is able to:
+The scripts may be written in `bash`, may be a `Makefile`, may be `R` commands, just about any code that could be executed from command line. We call the scripts that the engine can execute *recipes*. In summary the Biostar Engine is able to:
 
 1. Generate a graphical user interface for a script.
 1. Manage the input data needed for the script.
