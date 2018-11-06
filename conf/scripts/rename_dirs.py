@@ -1,4 +1,3 @@
-
 def main():
     import argparse
     import os
@@ -10,9 +9,7 @@ def main():
 
         new_name = entry.name.replace(replacing, "")
         new_path = os.path.join(os.path.dirname(entry.path), new_name)
-
         print(entry.name, new_name, new_path)
-
         os.rename(entry.path, new_path)
 
         return new_path
