@@ -44,7 +44,6 @@ def recipe_template(request, uid):
         recipe = recipe.filter(project__privacy=Project.PUBLIC)
 
     data = recipe.first().template if recipe else "Recipe does not exist."
-
     return HttpResponse(data, content_type="text/plain")
 
 

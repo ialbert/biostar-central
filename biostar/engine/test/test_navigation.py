@@ -3,11 +3,13 @@ from django.test import TestCase
 from django.test import Client
 from biostar.engine import auth
 from biostar.engine import models
+from django.conf import settings
 
 from django.urls import reverse
 
 
 logger = logging.getLogger('engine')
+
 
 class SiteNavigation(TestCase):
 
@@ -33,7 +35,7 @@ class SiteNavigation(TestCase):
         c = Client()
         c.login(username="test", email='test@test.com', password='testing')
         for url in urls:
-            resp = c.get(url, data={"q":"test"})
+            resp = c.get(url, data={"q": "test"})
             code = resp.status_code
             if code not in codes:
                 # We already know it is an error.
@@ -44,6 +46,13 @@ class SiteNavigation(TestCase):
 
     def test_public_pages(self):
         "Checking public pages"
+
+        api_urls = [
+
+            reverse('api_list'),
+            reverse('api_json', kwargs=self.analysis_params),
+            reverse('api_template', kwargs=self.analysis_params)
+        ]
 
         urls = [
             reverse('index'),
@@ -58,7 +67,7 @@ class SiteNavigation(TestCase):
             reverse('project_users', kwargs=self.proj_params),
             reverse('project_create'),
             reverse('project_edit', kwargs=self.proj_params),
-            reverse('recipe_list', kwargs= self.proj_params),
+            reverse('recipe_list', kwargs=self.proj_params),
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse("recipe_code_view", kwargs=self.analysis_params),
             reverse("recipe_code_edit", kwargs=self.analysis_params),
@@ -71,6 +80,7 @@ class SiteNavigation(TestCase):
         ]
 
         self.visit_urls(urls, [200])
+        self.visit_urls(api_urls, [200])
 
     def test_page_redirect(self):
         "Testing that a redirect occurs for some pages"
