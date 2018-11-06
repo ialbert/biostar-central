@@ -15,7 +15,6 @@ from . import util
 logger = logging.getLogger('engine')
 
 
-
 class RecipeViewTest(TestCase):
 
     def setUp(self):
@@ -78,31 +77,29 @@ class RecipeViewTest(TestCase):
         response = views.recipe_edit(request=request, uid=self.recipe.uid)
         self.process_response(response=response, data=data, save=True)
 
-
-    def Xtest_recipe_copy(self):
+    def test_recipe_copy(self):
         "Test recipe copy interface"
 
-        url = reverse('recipe_view', kwargs=dict(uid=self.recipe.uid))
+        url = reverse('recipe_copy', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data={}, user=self.owner)
 
-        response = views.recipe_view(request=request, uid=self.recipe.uid)
+        response = views.recipe_copy(request=request, uid=self.recipe.uid)
 
         self.process_response(response=response, data={})
 
-
-    def Xtest_recipe_paste(self):
+    def test_recipe_paste(self):
         "Test recipe paste interface"
 
-        url = reverse('recipe_list', kwargs=dict(uid=self.recipe.project.uid))
+        url = reverse('recipe_paste', kwargs=dict(uid=self.recipe.project.uid))
 
-        data = {'action': 'PASTE'}
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = util.fake_request(url=url, data={}, user=self.owner)
 
-        request.session["recipe_clipboard"] = self.recipe.uid
+        request.session[settings.CLIPBOARD_NAME] = {const.RECIPE_CLIPBOARD: self.recipe.uid}
 
-        response = views.recipe_list(request=request, uid=self.recipe.project.uid)
-        self.process_response(response=response, data=data)
+        response = views.recipe_paste(request=request, uid=self.recipe.project.uid)
+
+        self.process_response(response=response, data={})
 
     def test_api(self):
         "Test the recipe api"
@@ -129,7 +126,6 @@ class RecipeViewTest(TestCase):
                                        uid=self.recipe.uid, update=True)
 
         self.assertEqual(changed.uid, self.recipe.uid)
-
 
     def process_response(self, response, data, model=models.Analysis,save=False):
         "Check the response on POST request is redirected"
