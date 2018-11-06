@@ -19,7 +19,9 @@ def recipe_list(request):
 
 
 def recipe_json(request, uid):
-    """Returns json"""
+    """
+    Returns json
+    """
 
     recipe = Analysis.objects.filter(uid=uid)
     api_key = request.GET.get("k", "")
@@ -34,7 +36,9 @@ def recipe_json(request, uid):
 
 
 def recipe_template(request, uid):
-    """Returns template"""
+    """
+    Returns template
+    """
 
     recipe = Analysis.objects.filter(uid=uid)
     api_key = request.GET.get("k", "")
