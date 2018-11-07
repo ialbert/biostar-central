@@ -18,15 +18,6 @@ def format_summary(apps, schema_editor):
         formatter(model_name=name)
 
 
-def format_path(apps, schema_editor):
-    """
-    Format the image path in database to match directories.
-    Also calls make_toc() for Data objects.
-    """
-
-    pass
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
