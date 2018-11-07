@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from biostar.engine import models, views, auth
+from biostar.engine import models, views, auth, const
 from . import util
 from django.conf import settings
 
@@ -88,18 +88,20 @@ class DataViewTest(TestCase):
 
         self.assertTrue(os.path.exists(data.get_data_dir()), "Directory not being linked")
 
-
     def test_data_copy(self):
         "Test data copy interface"
 
         url = reverse('data_copy', kwargs=dict(uid=self.data.uid))
+        clear_url = reverse('clear_clipboard', kwargs=dict(uid=self.project.uid))
 
-        request = util.fake_request(url=url, data={}, user=self.owner)
+        request = util.fake_request(url=url, data={}, method="GET", user=self.owner)
+        clear_request = util.fake_request(url=clear_url, data={"board": const.DATA_CLIPBOARD}, method="GET", user=self.owner)
 
         response = views.data_copy(request=request, uid=self.data.uid)
+        clear_response = views.clear_clipboard(request=clear_request, uid=self.project.uid)
 
         self.process_response(response=response, data={})
-
+        self.process_response(response=clear_response, data={})
 
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"

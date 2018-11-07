@@ -65,6 +65,7 @@ class SiteNavigation(TestCase):
             reverse('data_edit', kwargs=self.data_params),
             reverse('project_view', kwargs=self.proj_params),
             reverse('project_users', kwargs=self.proj_params),
+            reverse('project_info', kwargs=self.proj_params),
             reverse('project_create'),
             reverse('project_edit', kwargs=self.proj_params),
             reverse('recipe_list', kwargs=self.proj_params),
@@ -77,6 +78,7 @@ class SiteNavigation(TestCase):
             reverse('job_list', kwargs=self.proj_params),
             reverse('job_view', kwargs=self.job_params),
             reverse('job_edit', kwargs=self.job_params),
+
         ]
 
         self.visit_urls(urls, [200])
