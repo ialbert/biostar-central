@@ -106,7 +106,7 @@ class Project(models.Model):
 
     def get_project_dir(self):
         self.uid_is_set()
-        return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
+        return join(settings.MEDIA_ROOT, "projects", f"{self.uid}")
 
     def get_data_dir(self):
         "Match consistency of data dir calls"
@@ -247,7 +247,7 @@ class Data(models.Model):
     def get_data_dir(self):
         "The data directory"
         assert self.uid, "Sanity check. UID should always be set."
-        return join(self.get_project_dir(), f"store-{self.uid}")
+        return join(self.get_project_dir(), f"{self.uid}")
 
     def get_project_dir(self):
         return self.project.get_project_dir()
@@ -287,7 +287,7 @@ class Data(models.Model):
 
     def get_url(self, path=""):
         "Returns url to the data directory"
-        return f"projects/proj-{self.project.uid}/store-{self.uid}/" + path
+        return f"projects/{self.project.uid}/{self.uid}/" + path
 
     def url(self):
         return reverse('data_view', kwargs=dict(uid=self.uid))
