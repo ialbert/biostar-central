@@ -1,8 +1,8 @@
-
+import hjson
 from .models import Analysis, Project
 from django.conf import settings
 from django.http import HttpResponse
-from django.shortcuts import render
+from biostar.utils.shortcuts import reverse
 
 
 def recipe_list(request):
@@ -14,8 +14,20 @@ def recipe_list(request):
     if settings.API_KEY != api_key:
         recipes = recipes.filter(project__privacy=Project.PUBLIC)
 
-    context = dict(recipes=recipes)
-    return render(request, "api_list.html", context=context)
+    payload = dict()
+    for recipe in recipes:
+
+        data = dict(uid=recipe.uid,
+                    json=reverse("api_json", kwargs=dict(uid=recipe.uid)),
+                    template=reverse("api_template", kwargs=dict(uid=recipe.uid))
+                    )
+
+        payload.setdefault(recipe.name, dict()).update(data)
+
+    payload = hjson.dumps(payload)
+    response = HttpResponse(payload, content_type="application/json")
+
+    return response
 
 
 def recipe_json(request, uid):
