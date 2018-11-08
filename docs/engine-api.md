@@ -6,6 +6,14 @@
 
 List of recipes with api links corresponding to the JSON and template.
 
+##### Feilds in response 
+* _uid_ : Unique ID for the recipe
+* _json_: API link for the recipe JSON
+* _template_: API link for the recipe template
+
+##### Example
+[/api/list/](https://www.bioinformatics.recipes/api/list)
+
     {
       "R Script":
       {
