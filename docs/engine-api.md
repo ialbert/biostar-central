@@ -1,12 +1,12 @@
 # API
 
-### Methods
-#### Api list
+## Methods
+### Api list
     GET /api/list
 
 List of recipes with api links corresponding to the JSON and template.
 
-##### Fields in response 
+#### Fields in response 
 JSON dictionary with each recipe keyed by it's `id`.
 
 **key**: Unique recipe ID
@@ -14,7 +14,7 @@ JSON dictionary with each recipe keyed by it's `id`.
 * _json_: API link for the recipe JSON
 * _template_: API link for the recipe template
 
-##### Example
+#### Example
 [/api/list/](https://www.bioinformatics.recipes/api/list)
 
     {
@@ -44,19 +44,19 @@ JSON dictionary with each recipe keyed by it's `id`.
       }
     }
 
-#### Json
+### Json
 
     GET /api/recipe/{id}/json
 
 Recipe JSON used to fill the template
 
-##### Parameters
+#### Parameters
 * _id_: Unique recipe ID
 
-##### Fields in response 
-Fields associated with the recipe 
+#### Fields in response 
+Fields associated with the recipe JSON
 
-##### Example
+#### Example
 [/api/recipe/93412cee/json](https://www.bioinformatics.recipes/api/recipe/93412cee/json/)
 
     {
@@ -92,11 +92,19 @@ Fields associated with the recipe
 
 ### Template
 
-Pick a recipe and click `Template` to view raw template of the recipe. 
+    GET /api/recipe/{id}/template
 
-Api links for the template look like this: https://www.bioinformatics.recipes/api/recipe/93412cee/template/
+Recipe template executed.
 
-Once clicked, the payload will be formatted like such:
+#### Parameters
+* _id_: Unique recipe ID
+
+#### Fields in response 
+Plain text response of the recipe template.
+
+
+#### Example
+[/api/recipe/93412cee/template](https://www.bioinformatics.recipes/api/recipe/93412cee/template/)
 
     # Set graphics device to PNG.
     fname = 'plot.png'
