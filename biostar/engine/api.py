@@ -17,12 +17,11 @@ def recipe_list(request):
     payload = dict()
     for recipe in recipes:
 
-        data = dict(uid=recipe.uid,
+        data = dict(name=recipe.name,
                     json=reverse("api_json", kwargs=dict(uid=recipe.uid)),
                     template=reverse("api_template", kwargs=dict(uid=recipe.uid))
                     )
-
-        payload.setdefault(recipe.name, dict()).update(data)
+        payload.setdefault(recipe.uid, dict()).update(data)
 
     payload = hjson.dumps(payload)
     response = HttpResponse(payload, content_type="application/json")
