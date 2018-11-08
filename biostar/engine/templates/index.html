@@ -33,25 +33,28 @@
 
         <p>
             This web application allows scientists to document, execute
-            and share data analysis scripts. We call these analysis scripts
+            and share data analysis scripts and the results of running these scripts. We call these analysis scripts
             <em>recipes</em>.
 
         </p>
-        <p>
 
-            Visit the <a href="{% url 'project_list' %}"> <i class="database icon"></i>Project List</a> to see recipes
-            accessible to you.
-            
-        </p>
         <p>
             Users may adapt, modify and remix recipes to match
-            their needs, then share these on the same site. By supporting these interactions, we foster a collaborative
+            their needs, then share these on the same site. By supporting these interactions, we aim to foster a collaborative
             environment that facilitates creativity, efficiency and reproducibility.
         </p>
 
         <p>
-            Note that the recipes are <em>generic</em> and their use <i>is not limited</i> to the this website.
-            A recipe from this site can be executed on any system that has the required bioinformatics tools installed.
+            Recipes are <em>generic</em> and their use <i>is not restricted</i> to this website.
+            A recipe downloaded from this site may be run with no changes on any system that has the required
+            bioinformatics tools installed.
+        </p>
+
+
+        <p>
+
+            Visit the <a href="{% url 'project_list' %}"> <i class="database icon"></i>Project List</a> to see recipes
+            that we have deployed and shared.
         </p>
 
     </div>
@@ -59,38 +62,30 @@
     <div class="ui vertical segment">
 
         <div class="ui header">
-
             <i class="info circle icon"></i>About the site
-
-
         </div>
 
-        <img class="ui small right floated circular image" src="{% static 'images/biomedical.jpg' %}">
-
-
         <p>
+
+            <img class="ui small right floated circular image" src="{% static 'images/biomedical.jpg' %}">
+
             The software that runs this site is called the<a href="https://github.com/biostars/biostar-engine">Biostar
             Engine</a> and it was designed
-            to generate <em>an easy-to-use graphical interface</em> to command line tools
-            and thus make these accesible to wider audiences.
+            to generate <em>an easy-to-use interface</em> to command line scripts. These scripts may be
+            executed through <code>bash</code>, <code>python</code>, <code>R</code>, <code>makefiles</code> and trough other tools. In
+            addition the site collects the files that are generated
+            during the run of a script and shows them to the user in an visual manner.
         </p>
 
 
         <p>
             Besides storing, sharing and executing data analysis scripts, our software supports public and private
             <em>project-based</em> workflows and can provide a data storage and management solution as a laboratory
-            information management system (LIMS).
-        <p>Each project is a collection of:</p>
-        <ul>
-            <li><i class="file text icon"></i> Data</li>
-            <li><i class="setting icon"></i> Recipes</li>
-            <li><i class="bar chart icon"></i> Results</li>
-        </ul>
-        </p>
+            information management system (LIMS) for individual labs, research groups, organizations.
 
         <p>
-            The application is designed to serve sequencing facilities and has been
-            deployed and tested within the <em>Penn State Bioinformatics Consulting Center</em>.
+            The application was also designed to serve the training requirements for researchers that need learn how
+            to perform sequencing data analysis and is being used in graduate level education.
         </p>
     </div>
 

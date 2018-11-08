@@ -541,30 +541,19 @@ def recipe_code_view(request, uid):
     """
     user = request.user
     recipe = Analysis.objects.get_all(uid=uid).first()
-    form = forms.RecipeCodeEdit(user=user, recipe=recipe)
-
-    if request.method == "POST":
-
-        form = forms.RecipeCodeEdit(data=request.POST, user=user, recipe=recipe)
-
-        if form.is_valid():
-
-            template = form.cleaned_data.get('template').strip()
-
-            if template != recipe.template:
-                recipe.template = template
-                recipe.security = Analysis.UNDER_REVIEW
-                recipe.diff_author = user
-                recipe.diff_date = timezone.now()
-                recipe.save()
-                messages.success(request, f"The recipe has been updated.")
-            else:
-                messages.info(request, f"The recipe has not been modified.")
-
-            return redirect(reverse("recipe_code_view", request=request, kwargs={'uid': recipe.uid}))
 
     project = recipe.project
-    context = dict(recipe=recipe, project=project, activate='Recipe Code', form=form)
+
+    try:
+        # Fill in the script with json data.
+        ctx = Context(recipe.json_data)
+        script_template = Template(recipe.template)
+        script = script_template.render(ctx)
+    except Exception as exc:
+        messages.error(f"Error rendering code: {exc}")
+        script = recipe.template
+
+    context = dict(recipe=recipe, project=project, activate='Recipe Code', script=script)
 
     rcount = Job.objects.filter(analysis=recipe).count()
     counts = get_counts(project)
