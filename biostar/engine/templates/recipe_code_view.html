@@ -103,37 +103,15 @@
     </div>
 
     <div class="ui segment inputcolor">
+
         <div class="ui subheader">Recipe Code
-         <a href="{% url 'recipe_download' recipe.uid %}" class="ui label">
-                        <i class="download icon"></i>Download script
-                    </a>
+            <a href="{% url 'recipe_download' recipe.uid %}" class="ui label">
+                <i class="download icon"></i>Download script
+            </a>
         </div>
-        {% form_errors form %}
+
         <div class="ui basic segment">
-
-            <form method="post" class="ui form" action="{% url "recipe_code_view" uid=recipe.uid %}">
-                {% csrf_token %}
-
-                <div class="field">
-                    <textarea class="code" name="template" id="template">{{ recipe.template }}</textarea>
-                </div>
-
-                <div class="inline field">
-                    <label>Security level: </label>
-                    {{ recipe.get_security_display }}
-                </div>
-
-                <div class="field">
-                    <button type="submit" class="ui green button">
-                        <i class="save icon"></i>Change Code
-                    </button>
-
-
-                </div>
-
-
-            </form>
-
+            <textarea class="code" name="template" id="template">{{ script }}</textarea>
         </div>
     </div>
 
