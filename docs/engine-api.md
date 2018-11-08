@@ -6,8 +6,11 @@
 
 List of recipes with api links corresponding to the JSON and template.
 
-##### Feilds in response 
-* _uid_ : Unique ID for the recipe
+##### Fields in response 
+JSON dictionary with each recipe keyed by it's `id`.
+
+**key**: Unique recipe ID
+* _name_ : Recipe Name
 * _json_: API link for the recipe JSON
 * _template_: API link for the recipe template
 
@@ -15,42 +18,46 @@ List of recipes with api links corresponding to the JSON and template.
 [/api/list/](https://www.bioinformatics.recipes/api/list)
 
     {
-      "R Script":
+      93412cee:
       {
-        uid: 93412cee
+        name: R Script
         json: /api/recipe/93412cee/json/
         template: /api/recipe/93412cee/template/
       }
-      "Makefile Example":
+      16c4f58f:
       {
-        uid: 16c4f58f
+        name: Makefile Example
         json: /api/recipe/16c4f58f/json/
         template: /api/recipe/16c4f58f/template/
       }
-      "Interface Elements":
+      74391e69:
       {
-        uid: "74391e69"
+        name: Interface Elements
         json: /api/recipe/74391e69/json/
         template: /api/recipe/74391e69/template/
       }
-      "Starter Recipe":
+      4d1846f1:
       {
-        uid: 4d1846f1
+        name: Starter Recipe
         json: /api/recipe/4d1846f1/json/
         template: /api/recipe/4d1846f1/template/
       }
     }
-Only public recipes are shown by default, however provided and api key all recipes are shown.
 
-The Api key is passed as a GET parameter `?k=` in the url, an example: https://www.bioinformatics.recipes/api/list/?k=api-key
+#### Json
 
-### Json
+    GET /api/recipe/{id}/json
 
-Pick a recipe and click `Json` to view raw JSON of the recipe.
+Recipe JSON used to fill the template
 
-Api links for the JSON look like this: https://www.bioinformatics.recipes/api/recipe/93412cee/json/
+##### Parameters
+* _id_: Unique recipe ID
 
-Once clicked, the payload will be formatted like such:
+##### Fields in response 
+Fields associated with the recipe 
+
+##### Example
+[/api/recipe/93412cee/json](https://www.bioinformatics.recipes/api/recipe/93412cee/json/)
 
     {
 
