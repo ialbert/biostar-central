@@ -572,9 +572,6 @@ def recipe_code_view(request, uid):
     try:
         # Fill in the script with json data.
         json_data = auth.fill_data_by_name(project=project, json_data=recipe.json_data)
-
-        print(util.pp(json_data))
-
         ctx = Context(json_data)
         script_template = Template(recipe.template)
         script = script_template.render(ctx)
