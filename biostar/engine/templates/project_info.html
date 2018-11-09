@@ -10,15 +10,7 @@
 
     <div class="ui vertical segment">
 
-        <div class="ui header">Project Summary</div>
-
-        {{ project.summary|markdown|safe }}
-
-    </div>
-
-    <div class="ui vertical segment">
-
-        <div class="ui header">Project Details</div>
+        <div class="ui header">Project Information</div>
 
         {{ project.html|safe }}
     </div>
@@ -37,7 +29,7 @@
 
     {% if write_access %}
         <div class="ui vertical segment">
-        
+
             <div class="ui three small buttons">
                 <a class="ui button" href="{% url 'data_upload' project.uid %}">
                     <i class="plus icon"></i>Add Data
