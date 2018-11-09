@@ -21,17 +21,23 @@
         <div class="ui header">Project Details</div>
 
         {{ project.html|safe }}
+    </div>
 
-        <p>
-             Project owner: {{ project.owner }}
-        </p>
+    <div class="ui vertical segment">
+
+        <div class="item">
+
+            <div class="extra">
+                {% privacy_label project %}
+                {% created_by date=project.date.date user=project.owner %}
+            </div>
+
+        </div>
     </div>
 
     {% if write_access %}
         <div class="ui vertical segment">
-
-            <div class="ui header">Project Actions</div>
-
+        
             <div class="ui three small buttons">
                 <a class="ui button" href="{% url 'data_upload' project.uid %}">
                     <i class="plus icon"></i>Add Data
