@@ -59,9 +59,14 @@ def check_upload_limit(file, user):
     # Maximal cumulative sizes.
     max_size = user.profile.max_upload_size * 1024 * 1024
 
+    # Allow much higher limits for staff.
+    if user.is_staff:
+        max_size = max_size * 10
+
     # Current file size in MB
     file_mb = file.size / 1024 / 1024
 
+    # Verify projected data sizes.
     if projected_size > max_size:
         msg = f"You don't have enough storage space for data of size <b>{file_mb:.2f} MB</b>"
         raise forms.ValidationError(mark_safe(msg))

@@ -20,9 +20,9 @@ CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def run(job, options={}):
-    '''
+    """
     Runs a job
-    '''
+    """
     # Options that cause early termination.
     show_json = options.get('show_json')
     show_template = options.get('show_template')

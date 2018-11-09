@@ -15,7 +15,7 @@ urlpatterns = [
     url(r'^project/users/(?P<uid>[-\w]+)/$', views.project_users, name='project_users'),
     url(r'^project/create/$', views.project_create, name='project_create'),
     url(r'^project/list/$', views.project_list, name='project_list'),
-    url(r'^project/view/(?P<uid>[-\w]+)/$', views.project_view, name='project_view'),
+    url(r'^project/view/(?P<uid>[-\w]+)/$', views.project_info, name='project_view'),
     url(r'^project/edit/(?P<uid>[-\w]+)/$', views.project_edit, name='project_edit'),
     url(r'^project/info/(?P<uid>[-\w]+)/$', views.project_info, name='project_info'),
 

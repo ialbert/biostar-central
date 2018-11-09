@@ -1,8 +1,8 @@
 import difflib
 import logging
-import uuid
+import uuid, copy
 from mimetypes import guess_type
-from functools import partial
+
 import hjson
 from django.conf import settings
 from django.contrib import messages
@@ -13,10 +13,10 @@ from django.template import loader
 from django.test import RequestFactory
 from django.utils.safestring import mark_safe
 
+from . import models
 from . import util
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
-from . import models
 
 logger = logging.getLogger("engine")
 
@@ -67,8 +67,10 @@ def access_denied_message(user, needed_access, project):
     return tmpl.render(context=context)
 
 
-def copy(request, instance, board):
-    """Used to append instance.uid into request.session[board]"""
+def copy_uid(request, instance, board):
+    """
+    Used to append instance.uid into request.session[board]
+    """
 
     if instance is None:
         messages.error(request, "Object does not exist.")
@@ -331,6 +333,7 @@ def has_write_access(user, project):
 
     return access
 
+
 def guess_mimetype(fname):
     "Return mimetype for a known text filename"
 
@@ -375,38 +378,78 @@ def link_file(path, data):
     return dest
 
 
+def fill_data_by_name(project, json_data):
+    """
+    Fills json information by name. Used when filling in
+    demonstration data and not user selection.
+    """
+
+    json_data = copy.deepcopy(json_data)
+    # A mapping of data by name
+    store = dict((data.name, data) for data in project.data_set.all())
+
+    for field, item in json_data.items():
+        # If the field is a data field then fill in more information.
+        if item.get("source") == "PROJECT":
+            name = item.get("value")
+            data = store.get(name)
+            if data:
+                # This mutates the `item` dictionary!
+                data.fill_dict(item)
+
+    return json_data
+
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', type="", uid=None, paths=[]):
+                text='', type='', uid=None, summary=''):
     # We need absolute paths with no trailing slashes.
-    path = os.path.abspath(path).rstrip("/") if path else ""
+    path = os.path.abspath(path).rstrip("/")
 
     # Create the data.
     type = type or "DATA"
+
+    # Set the object unique id.
     uid = uid or util.get_uuid(8)
-    text = summary + "\n" + text
-    data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
+
+    # The owner of the data will be the first admin user if not set otherwise.
+    owner = user or models.User.objects.filter(is_staff=True).first()
+
+    # Create the data object.
+    data = Data.objects.create(name=name, owner=owner, state=Data.PENDING, project=project,
                                type=type, text=text, uid=uid)
 
-    # The source of the data is a stream is written into the destination.
+    # The source of the data is a stream and will become the path
+    # that should be added.
     if stream:
         name = name or stream.name
         fname = '_'.join(name.split())
-        dest = create_path(data=data, fname=fname)
-        util.write_stream(stream=stream, dest=dest)
+        path = create_path(data=data, fname=fname)
+        util.write_stream(stream=stream, dest=path)
         # Mark incoming file as uploaded
         data.method = Data.UPLOAD
 
-    if path:
+    # The path is a file.
+    isfile = os.path.isfile(path)
+
+    # The path is a directory.
+    isdir = os.path.isdir(path)
+
+    # The data is a single file on a path.
+    if isfile:
         link_file(path=path, data=data)
         logger.info(f"Linked file: {path}")
 
-    # Link list of files
-    for p in paths:
-        link_file(path=p, data=data)
-        logger.info(f"Linked file: {p}")
+    # The data is a directory.
+    # Link each file of the directory into the storage directory.
+    if isdir:
+        for p in os.scandir(path):
+            link_file(path=p.path, data=data)
+            logger.info(f"Linked file: {p}")
 
-    # Invalid paths and empty streams still create the data but set the data state to error.
-    missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
+    # Invalid paths and empty streams still create the data
+    # but set the data state will be set to error.
+    missing = not(path or stream)
+
+    # An invalid entry here.
     if path and missing:
         state = Data.ERROR
         logger.error(f"Invalid data path: {path}")

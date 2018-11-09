@@ -19,7 +19,7 @@ from biostar.accounts.models import User
 from biostar.forum import views as forum_views
 from biostar.forum.models import Post
 from biostar.utils.shortcuts import reverse
-from . import tasks, auth, forms, const
+from . import tasks, auth, forms, const, util
 from .decorators import read_access, write_access
 from .models import (Project, Data, Analysis, Job, Access)
 
@@ -140,12 +140,19 @@ def project_users(request, uid):
 
 @read_access(type=Project)
 def project_info(request, uid):
+
+    user = request.user
+
     project = Project.objects.filter(uid=uid).first()
 
     # Show counts for the project.
     counts = get_counts(project)
 
-    context = dict(project=project, active="info")
+    # Who has write access
+    write_access = auth.has_write_access(user=user, project=project)
+
+
+    context = dict(project=project, active="info", write_access=write_access)
     context.update(counts)
 
     return render(request, "project_info.html", context)
@@ -343,7 +350,7 @@ def data_copy(request, uid):
     data = Data.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
-    auth.copy(request=request, instance=data, board=const.DATA_CLIPBOARD)
+    auth.copy_uid(request=request, instance=data, board=const.DATA_CLIPBOARD)
 
     return redirect(next_url)
 
@@ -353,7 +360,7 @@ def recipe_copy(request, uid):
     recipe = Analysis.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
-    auth.copy(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD)
+    auth.copy_uid(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD)
 
     return redirect(next_url)
 
@@ -363,7 +370,7 @@ def job_copy(request, uid):
     job = Job.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
-    auth.copy(request=request, instance=job, board=const.RESULTS_CLIPBOARD)
+    auth.copy_uid(request=request, instance=job, board=const.RESULTS_CLIPBOARD)
 
     return redirect(next_url)
 
@@ -551,6 +558,7 @@ def recipe_code_download(request, uid):
     return response
 
 
+
 @read_access(type=Analysis)
 def recipe_code_view(request, uid):
     """
@@ -563,11 +571,15 @@ def recipe_code_view(request, uid):
 
     try:
         # Fill in the script with json data.
-        ctx = Context(recipe.json_data)
+        json_data = auth.fill_data_by_name(project=project, json_data=recipe.json_data)
+
+        print(util.pp(json_data))
+
+        ctx = Context(json_data)
         script_template = Template(recipe.template)
         script = script_template.render(ctx)
     except Exception as exc:
-        messages.error(f"Error rendering code: {exc}")
+        messages.error(request, f"Error rendering code: {exc}")
         script = recipe.template
 
     context = dict(recipe=recipe, project=project, activate='Recipe Code', script=script)
