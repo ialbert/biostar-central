@@ -190,14 +190,19 @@ def get_project_list(user, include_public=True):
 
 def create_project(user, name, uid=None, summary='', text='', stream=None,
                    privacy=Project.PRIVATE, sticky=False, update=False):
+
+    # Set or create the project uid.
     uid = uid or util.get_uuid(8)
+
+    # Attempts to select the project.
     project = Project.objects.filter(uid=uid)
 
+    # If it is not an update request return the project unchanged.
     if project and not update:
         return project.first()
 
     if project:
-        # Update project
+        # Update existing project.
         current = project.first()
         text = text or current.text
         name = name or current.name
@@ -205,12 +210,13 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
         project = project.first()
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
-        text = summary + "\n" + text
+        # Create a new project.
         project = Project.objects.create(
             name=name, uid=uid, text=text, owner=user, privacy=privacy, sticky=sticky)
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     if stream:
+        # Update the image for the project.
         project.image.save(stream.name, stream, save=True)
 
     return project

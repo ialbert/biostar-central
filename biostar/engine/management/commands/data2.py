@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
-from biostar.engine.models import Project
+from biostar.engine.models import Project, User
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 
@@ -72,15 +72,15 @@ class Command(BaseCommand):
         # Generate alternate names based on input directory type.
         print (f"*** Project: {project.name} ({project.uid})")
         if isdir:
-            print(f"*** Linking directory file: {path}")
+            print(f"*** Linking directory: {path}")
             altname = os.path.split(path)[0].split(os.sep)[-1]
         else:
-            print(f"*** Linking single file: {path}")
+            print(f"*** Linking file: {path}")
             altname = os.path.split(path)[-1]
 
         # Select the name.
         name = name or altname
-        print(f"*** Creating data name: {name}")
+        print(f"*** Creating data: {name}")
 
         # Create the data.
-        auth.create_data(project=project, path=path, type=type, name=name, text=text)
+        auth.create_data( project=project, path=path, type=type, name=name, text=text)

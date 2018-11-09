@@ -116,7 +116,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'text', 'image']
+        fields = ['name', 'text', 'image', 'privacy']
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
