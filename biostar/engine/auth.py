@@ -16,6 +16,7 @@ from django.utils.safestring import mark_safe
 from . import util
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
+from . import models
 
 logger = logging.getLogger("engine")
 
@@ -308,6 +309,27 @@ def delete_object(obj, request):
 
     return obj.deleted
 
+
+def has_write_access(user, project):
+    """
+    Returns True if a user has write access to an instance
+    """
+
+    # Anonymous user may not have write access.
+    if user.is_anonymous:
+        return False
+
+    # Users that may access a project.
+    cond1 = (user == project.owner) or user.is_staff
+
+    # User has been given write access to the project
+    cond2 = models.Access.objects.filter(user=user, project=project,
+                                         access=models.Access.WRITE_ACCESS).first()
+
+    # One of the conditions has to be true.
+    access = cond1 or cond2
+
+    return access
 
 def guess_mimetype(fname):
     "Return mimetype for a known text filename"

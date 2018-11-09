@@ -253,12 +253,18 @@ def get_counts(project):
 
 
 @read_access(type=Project)
-def project_view(request, uid, template_name="recipe_list.html", active='recipes', show_summary=None,
+def project_view(request, uid, template_name="project_info.html", active='info', show_summary=None,
                  extra_context={}):
+    """
+    This view handles the project info, data list, recipe list, result list views.
+    """
+
+    # The user making the request
+    user = request.user
+
+    # The project that is viewed.
     project = Project.objects.filter(uid=uid).first()
 
-    # Show counts for the project.
-    counts = get_counts(project)
 
     # Select all the data in the project.
     data_list = project.data_set.order_by("-sticky", "-date").all()
@@ -276,9 +282,20 @@ def project_view(request, uid, template_name="recipe_list.html", active='recipes
     # Add related content.
     job_list = job_list.select_related("owner__profile", "analysis")
 
+    # Who has write access
+    write_access = auth.has_write_access(user=user, project=project)
+
+    # Build the context for the project.
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
-                   active=active, recipe_filter=recipe_filter, show_summary=show_summary)
+                   active=active, recipe_filter=recipe_filter, write_access=write_access)
+
+    # Compute counts for the project.
+    counts = get_counts(project)
+
+    # Update conext with the counts.
     context.update(counts)
+
+    # Add any extra context that may come from parameters.
     context.update(extra_context)
 
     return render(request, template_name, context)

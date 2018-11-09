@@ -101,22 +101,15 @@ class write_access:
             else:
                 target = request.GET.get("next") or instance.url()
 
-            if user.is_anonymous:
-                messages.error(request, "You need to be logged in to preform actions.")
-                return redirect(target)
 
+            # The project that corresponds to the instance.
             project = instance.project
-            # Explicit access rights
-            access1 = models.Access.objects.filter(user=user, project=project,
-                                                   access=models.Access.WRITE_ACCESS).first()
 
-            # Implicit write access rights
-            access2 = (user == project.owner) or (user == instance.owner) or user.is_staff
-            # Who can write to an object
-            access = access1 or access2
+            # Check write to an object.
+            access = auth.has_write_access(user=user, project=project)
 
             # Project owners may write their project.
-            if access or instance.project.owner == user:
+            if access:
                 return function(request, *args, **kwargs)
 
             msg = auth.access_denied_message(user=user, needed_access=models.Access.WRITE_ACCESS,
