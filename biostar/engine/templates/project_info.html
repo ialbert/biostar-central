@@ -9,40 +9,40 @@
 {% block content %}
 
     <div class="ui vertical segment">
-
-        <div class="ui header">Project Summary</div>
-
-        {{ project.summary|markdown|safe }}
-
-    </div>
-
-    <div class="ui vertical segment">
-    
-        <div class="ui header">Project Details</div>
-
+        <div class="ui header">Project Information</div>
         {{ project.html|safe }}
-
     </div>
 
     <div class="ui vertical segment">
 
-        <div class="ui header">Project Actions</div>
+        <div class="item">
 
-        <div class="ui three small buttons">
-            <a class="ui button" href="{% url 'data_upload' project.uid %}">
-                <i class="plus icon"></i>Add Data
-            </a>
-
-            <a class="ui  button" href="{% url 'project_edit' project.uid %}">
-                <i class="edit icon"></i>Edit Project
-            </a>
-
-            <a class="ui  button" href="{% url 'project_users' project.uid %}">
-                <i class="users icon"></i>Manage Access
-            </a>
+            <div class="extra">
+                {% privacy_label project %}
+                {% created_by date=project.date.date user=project.owner %}
+            </div>
 
         </div>
     </div>
 
+    {% if write_access %}
+        <div class="ui vertical segment">
+
+            <div class="ui three small buttons">
+                <a class="ui button" href="{% url 'data_upload' project.uid %}">
+                    <i class="plus icon"></i>Add Data
+                </a>
+
+                <a class="ui  button" href="{% url 'project_edit' project.uid %}">
+                    <i class="edit icon"></i>Edit Project
+                </a>
+
+                <a class="ui  button" href="{% url 'project_users' project.uid %}">
+                    <i class="users icon"></i>Manage Access
+                </a>
+
+            </div>
+        </div>
+    {% endif %}
 
 {% endblock %}

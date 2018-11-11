@@ -1,12 +1,13 @@
 import logging
+
 import hjson
 import mistune
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
-from django.template import loader
 
 from biostar import settings
 from biostar.accounts.models import User
@@ -126,10 +127,12 @@ class Project(models.Model):
 
     @property
     def summary(self):
-        """Returns first line of text"""
-        first_line = self.text.splitlines()[0]
-        return first_line
-
+        """
+        Returns first line of text
+        """
+        lines = self.text.splitlines() or ['']
+        first = lines[0]
+        return first
 
 
 class Access(models.Model):
@@ -160,7 +163,6 @@ class Access(models.Model):
 
 @receiver(post_save, sender=Project)
 def update_access(sender, instance, created, raw, update_fields, **kwargs):
-
     # Give the owner WRITE ACCESS if they do not have it.
     entry = Access.objects.filter(user=instance.owner, project=instance, access=Access.WRITE_ACCESS)
     if entry.first() is None:
@@ -257,7 +259,10 @@ class Data(models.Model):
         return path
 
     def make_toc(self):
+
         tocname = self.get_path()
+
+
         collect = util.findfiles(self.get_data_dir(), collect=[])
 
         # Create a sorted file path collection.
@@ -292,9 +297,11 @@ class Data(models.Model):
     def url(self):
         return reverse('data_view', kwargs=dict(uid=self.uid))
 
+
     def fill_dict(self, obj):
         """
-        Mutates a dictionary to add more information.
+        Mutates a dictionary object to fill in more fields based
+        on the current object.
         """
         fnames = self.get_files()
         if fnames:
@@ -313,10 +320,12 @@ class Data(models.Model):
 
     @property
     def summary(self):
-        """Returns first line of text"""
-        first_line = self.text.splitlines()[0]
-        return first_line
-
+        """
+        Returns first line of text
+        """
+        lines = self.text.splitlines() or ['']
+        first = lines[0]
+        return first
 
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
@@ -391,10 +400,13 @@ class Analysis(models.Model):
 
     @property
     def summary(self):
-        """Returns first line of text"""
-        first_line = self.text.splitlines()[0]
+        """
+        Returns first line of text
+        """
+        lines = self.text.splitlines() or ['']
+        first = lines[0]
+        return first
 
-        return first_line
 
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
@@ -471,6 +483,7 @@ class Job(models.Model):
         # TODO: MIGRATION FIX - needs refactoring
         path = join(settings.MEDIA_ROOT, "jobs", self.uid)
         return path
+
 
     @property
     def json_data(self):

@@ -7,6 +7,7 @@ import tarfile
 import uuid
 from itertools import islice
 from urllib.parse import quote
+import hjson
 
 CHUNK = 1024 * 1024
 
@@ -25,6 +26,14 @@ def fix_endings(text):
 
 class File(object):
     pass
+
+
+def pp(json):
+    """
+    Pretty prints json
+    """
+    text = hjson.dumps(json, indent=4)
+    return text
 
 
 def smart_preview(fname):
@@ -62,16 +71,13 @@ def smart_preview(fname):
 
 
 def write_stream(stream, dest):
-    mode = 'w' if isinstance(stream, io.StringIO) else 'wb'
 
-    with open(dest, mode) as fp:
+    with open(dest, "wb") as fp:
         chunk = stream.read(CHUNK)
         while chunk:
             fp.write(chunk)
             chunk = stream.read(CHUNK)
-
     return dest
-
 
 def qiime2view_link(file_url):
     template = "https://view.qiime2.org/visualization/?type=html&src="
