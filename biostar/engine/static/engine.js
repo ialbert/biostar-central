@@ -225,10 +225,12 @@ $(document).ready(function () {
         $.ajax("/search/", {
             type: 'GET',
             dataType: 'html',
+
             data: {'q': $('#search').val()},
 
             success: function (data) {
-            $('#search-results').html(data).highlight($('#search').val());
+            $('#search-results').html(data);
+
             },
             error: function () {
             }
