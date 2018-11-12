@@ -1,5 +1,6 @@
 import logging
 import os
+import hjson
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -90,6 +91,26 @@ def clear_clipboard(request, uid):
         request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
     return redirect(next_url)
+
+
+def ajax_search(request):
+
+    text_query = request.GET.get("q", "")
+    query = Q(text__contains=text_query) | Q(name__contains=text_query)
+
+    if text_query:
+        # Get the appropriate list of projects for the user
+        user_projects = auth.get_project_list(user=request.user)
+        projects = user_projects.filter(query)
+        data = Data.objects.filter(project__in=user_projects).filter(query)
+        recipes = Analysis.objects.filter(project__in=user_projects).filter(query)
+        jobs = Job.objects.filter(project__in=user_projects).filter(query)
+    else:
+        projects = data = recipes = jobs = []
+
+    context = dict(projects=projects, data=data, recipes=recipes, jobs=jobs)
+
+    return render(request, "ajax_search.html", context)
 
 
 def get_access(request, project):

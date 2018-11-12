@@ -22,7 +22,12 @@
 
     {% if with_search %}
         <div class="right menu tablet">
-            {% search request=request %}
+
+         {% csrf_token %}
+          <div class="ui icon large input customsearch">
+            <input type="text" id="search" name="search">
+            <i class="search icon"></i>
+          </div>
         </div>
     {% endif %}
 

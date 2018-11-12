@@ -219,4 +219,21 @@ $(document).ready(function () {
         });
     });
 
+
+    $('#search').keyup(function(){
+
+        $.ajax("/search/", {
+            type: 'GET',
+            dataType: 'html',
+            data: {'q': $('#search').val()},
+
+            success: function (data) {
+            $('#search-results').html(data).highlight($('#search').val());
+            },
+            error: function () {
+            }
+            });
+
+    });
+
 });

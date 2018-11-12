@@ -48,6 +48,12 @@ figure { display: block; margin: 0; }
     margin-left: -0.5em !important;
 }
 
+
+.customsearch {
+    width:400 !important;
+}
+
+
 .deleted {
     background-color:#f7e4de !important;;
 }

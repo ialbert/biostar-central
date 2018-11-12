@@ -151,34 +151,6 @@ def is_qiime_archive(file=None):
     return filename.endswith(".qza") or filename.endswith(".qzv")
 
 
-def update_dict(iter):
-    results = [dict(
-        title=d.name,
-        description=d.summary,
-        url=d.url()) for d in iter
-    ]
-
-    return results
-
-
-@register.inclusion_tag('widgets/search.html')
-def search(request):
-    projects = auth.get_project_list(user=request.user)
-
-    data = Data.objects.filter(deleted=False, project__in=projects)
-    recipe = Analysis.objects.filter(deleted=False, project__in=projects)
-    jobs = Job.objects.filter(deleted=False, project__in=projects)
-    projects = projects.filter(deleted=False)
-
-    content = [dict(name="Projects", results=update_dict(iter=projects)),
-               dict(name="Data", results=update_dict(iter=data)),
-               dict(name="Recipes", results=update_dict(iter=recipe)),
-               dict(name="Jobs", results=update_dict(iter=jobs)),
-               ]
-
-    return dict(content=json.dumps(content))
-
-
 @register.simple_tag
 def privacy_label(project):
     label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>')
