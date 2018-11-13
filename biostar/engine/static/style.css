@@ -48,17 +48,6 @@ figure { display: block; margin: 0; }
     margin-left: -0.5em !important;
 }
 
-
-.customsearch {
-    width:400 !important;
-}
-
-
-.highlighter {
-    background-color:yellow !important;
-    color: darkgreen;
-}
-
 .deleted {
     background-color:#f7e4de !important;;
 }
