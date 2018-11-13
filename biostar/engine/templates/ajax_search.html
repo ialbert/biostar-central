@@ -1,3 +1,4 @@
+{% load engine_tags %}
 
 <div class="ui relaxed divided list">
 
@@ -6,8 +7,8 @@
             <div class="ui header">Projects</div>
             <div class="list">
                 {% for project in projects %}
-                    <a class="item ui small header"  href="{% url 'project_view' project.uid %}">{{project.name}}</a>
-                    <div class="muted" >{{project.text|truncatechars:180 }}</div>
+                    <a class="item ui small header"  href="{% url 'project_view' project.uid %}" >{{project.name|highlight:highlight_char|safe}}</a>
+                    <div class="muted" >{{project.text|highlight:highlight_char|safe}}</div>
                 {% endfor %}
             </div>
         </div>
@@ -18,8 +19,8 @@
             <div class="ui header">Data</div>
             <div class="list">
                 {% for datum in data %}
-                    <a class="item ui small header" href="{% url 'data_view' datum.uid %}">{{datum.name}}</a>
-                <div class="muted">{{datum.text|truncatechars:180}}</div>
+                    <a class="item ui small header" href="{% url 'data_view' datum.uid %}">{{datum.name|highlight:highlight_char|safe}}</a>
+                <div class="muted">{{datum.text|highlight:highlight_char|safe}}</div>
                 {% endfor %}
             </div>
         </div>
@@ -31,8 +32,8 @@
             <div class="ui header">Recipes</div>
             <div class="list">
                 {% for recipe in recipes %}
-                    <a class="item ui small header" href="{% url 'recipe_view' recipe.uid %}">{{recipe.name}}</a>
-                <div class="muted">{{recipe.text|truncatechars:180}}</div>
+                    <a class="item ui small header" href="{% url 'recipe_view' recipe.uid %}">{{recipe.name|highlight:highlight_char|safe}}</a>
+                <div class="muted">{{recipe.html|highlight:highlight_char|safe}}</div>
                 {% endfor %}
             </div>
         </div>
@@ -43,8 +44,8 @@
             <div class="ui header">Jobs</div>
             <div class="list">
                 {% for job in jobs %}
-                    <a class="item ui small header" href="{% url 'job_view' job.uid %}">{{job.name}}</a>
-                <div class="muted">{{job.summary}}</div>
+                    <a class="item ui small header" href="{% url 'job_view' job.uid %}">{{job.name|highlight:highlight_char|safe}}</a>
+                <div class="muted">{{job.summary|highlight:highlight_char|safe}}</div>
                 {% endfor %}
             </div>
         </div>

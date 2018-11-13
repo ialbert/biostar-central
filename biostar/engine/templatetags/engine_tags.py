@@ -2,6 +2,8 @@ import json
 import logging
 import hjson
 import os
+import mistune
+import re
 from textwrap import dedent
 
 from django.contrib import messages
@@ -115,6 +117,16 @@ def has_data(request):
     data_clipboard = request.session.get("data_clipboard", [])
 
     return len(data_clipboard)
+
+
+@register.filter
+def highlight(text, chars):
+
+    emb_patt = f"<span class='highlighter'>{chars}</span>"
+    pattern = fr"(?i){chars}"
+    text = re.sub(pattern, emb_patt, text)
+
+    return text
 
 
 @register.inclusion_tag('widgets/paste.html', takes_context=True)

@@ -108,7 +108,7 @@ def ajax_search(request):
     else:
         projects = data = recipes = jobs = []
 
-    context = dict(projects=projects, data=data, recipes=recipes, jobs=jobs)
+    context = dict(projects=projects, data=data, recipes=recipes, jobs=jobs, highlight_char=text_query)
 
     return render(request, "ajax_search.html", context)
 

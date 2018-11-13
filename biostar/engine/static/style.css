@@ -54,6 +54,11 @@ figure { display: block; margin: 0; }
 }
 
 
+.highlighter {
+    background-color:yellow !important;
+    color: darkgreen;
+}
+
 .deleted {
     background-color:#f7e4de !important;;
 }

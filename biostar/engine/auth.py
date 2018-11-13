@@ -405,6 +405,7 @@ def fill_data_by_name(project, json_data):
 
     return json_data
 
+
 def create_data(project, user=None, stream=None, path='', name='',
                 text='', type='', uid=None, summary=''):
     # We need absolute paths with no trailing slashes.

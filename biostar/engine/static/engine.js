@@ -230,12 +230,13 @@ $(document).ready(function () {
 
             success: function (data) {
             $('#search-results').html(data);
-
             },
             error: function () {
             }
             });
 
     });
+
+
 
 });
