@@ -4,7 +4,9 @@ from django.db import migrations, models
 
 
 def format_summary(apps, schema_editor):
-    """Add the summary as first line of text.  """
+    """
+    Add the summary as first line of text.
+    """
 
     def formatter(model_name):
         queryset = apps.get_model('engine', model_name=model_name)
