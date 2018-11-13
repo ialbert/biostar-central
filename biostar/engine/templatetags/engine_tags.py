@@ -126,7 +126,6 @@ def highlight(text, chars):
     pattern = fr"(?i){chars}"
     text = re.sub(pattern, emb_patt, text)
 
-
     return text
 
 
