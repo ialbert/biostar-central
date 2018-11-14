@@ -72,7 +72,11 @@ def smart_preview(fname):
 
 def write_stream(stream, dest):
 
-    with open(dest, "wb") as fp:
+    # Output needs to be opened in "w" if the incoming stream is a string
+    # and "wb" if the incoming stream is a file.
+    mode = "w" if isinstance(stream, io.StringIO) else "wb"
+
+    with open(dest, mode) as fp:
         chunk = stream.read(CHUNK)
         while chunk:
             fp.write(chunk)
