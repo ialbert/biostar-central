@@ -231,6 +231,10 @@ LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 # The location for the table of contents.
 TOC_ROOT = join(MEDIA_ROOT, 'tocs')
 
+# Location where search index is stored
+INDEX_ROOT = join(MEDIA_ROOT, 'index')
+os.makedirs(INDEX_ROOT, exist_ok=True)
+
 # Time between two accesses from the same IP to qualify as a different view.
 POST_VIEW_MINUTES = 7
 

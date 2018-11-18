@@ -48,22 +48,16 @@ def fake_request(url="/", data={}, user="", method="POST"):
     return request
 
 
-def access_denied_message(user, needed_access, project):
+def access_denied_message(user, needed_access):
     """
     Generates the access denied message
     """
     tmpl = loader.get_template('widgets/access_denied_message.html')
-    if project.is_public:
-        current_access = Access.READ_ACCESS
-    else:
-        current_access = Access.objects.filter(user=user, project=project).first()
-        current_access = Access.NO_ACCESS if current_access is None else current_access.access
 
     # Get the string format of the access.
     needed_access = dict(Access.ACCESS_CHOICES).get(needed_access)
-    current_access = dict(Access.ACCESS_CHOICES).get(current_access)
 
-    context = dict(user=user, needed_access=needed_access, current_access=current_access)
+    context = dict(user=user, needed_access=needed_access)
     return tmpl.render(context=context)
 
 

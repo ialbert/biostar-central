@@ -20,7 +20,7 @@ from biostar.accounts.models import User
 from biostar.forum import views as forum_views
 from biostar.forum.models import Post
 from biostar.utils.shortcuts import reverse
-from . import tasks, auth, forms, const, util
+from . import tasks, auth, forms, const, util, search
 from .decorators import read_access, write_access
 from .models import (Project, Data, Analysis, Job, Access)
 
@@ -96,6 +96,9 @@ def clear_clipboard(request, uid):
 def ajax_search(request):
 
     text_query = request.GET.get("q", "")
+
+    search.search_index(text_query=text_query)
+
     query = Q(text__contains=text_query) | Q(name__contains=text_query)
 
     if text_query:
