@@ -71,21 +71,17 @@ def smart_preview(fname):
 
 
 def write_stream(stream, dest):
-    """Write contents of stream into a file destination."""
 
-    # StingIO chucks are strings while files are byte-like objects.
+    # Output needs to be opened in "w" if the incoming stream is a string
+    # and "wb" if the incoming stream is a file.
     mode = "w" if isinstance(stream, io.StringIO) else "wb"
 
     with open(dest, mode) as fp:
         chunk = stream.read(CHUNK)
-
         while chunk:
-
             fp.write(chunk)
             chunk = stream.read(CHUNK)
-
     return dest
-
 
 def qiime2view_link(file_url):
     template = "https://view.qiime2.org/visualization/?type=html&src="
