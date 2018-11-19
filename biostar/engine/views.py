@@ -428,6 +428,10 @@ def data_paste(request, uid):
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
     data_clipboard = clipboard.get(board, [])
 
+    def creator(path, obj, data_type):
+        return auth.create_data(project=project, path=path, user=owner, name=obj.name, type=data_type,
+                                text=obj.text)
+
     for datauid in data_clipboard:
 
         if board == const.DATA_CLIPBOARD:
@@ -439,8 +443,8 @@ def data_paste(request, uid):
 
         if obj:
             paths = [n.path for n in os.scandir(obj.get_data_dir())]
-            auth.create_data(project=project, paths=paths, user=owner, name=obj.name,
-                             type=dtype, text=obj.text)
+            for p in paths:
+                creator(path=p, obj=obj, data_type=dtype)
 
     clipboard[board] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
