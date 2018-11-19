@@ -99,21 +99,19 @@ def ajax_search(request):
 
     search.search_index(text_query=text_query)
 
-    query = Q(text__contains=text_query) | Q(name__contains=text_query)
+    #query = Q(text__contains=text_query) | Q(name__contains=text_query)
 
     if text_query:
         # Get the appropriate list of projects for the user
-        user_projects = auth.get_project_list(user=request.user)
-        projects = user_projects.filter(query)
-        data = Data.objects.filter(project__in=user_projects).filter(query)
-        recipes = Analysis.objects.filter(project__in=user_projects).filter(query)
-        jobs = Job.objects.filter(project__in=user_projects).filter(query)
+
+        #TODO: one slight issue
+        results = search.search_index(text_query=text_query)
     else:
-        projects = data = recipes = jobs = []
+        results = []
 
     context = dict(projects=projects, data=data, recipes=recipes, jobs=jobs, highlight_char=text_query)
 
-    return render(request, "ajax_search.html", context)
+    return render(request, "search.html", context)
 
 
 def get_access(request, project):

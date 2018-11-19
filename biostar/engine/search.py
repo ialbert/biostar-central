@@ -1,6 +1,6 @@
 
 from django.conf import settings
-from whoosh.fields import Schema, ID, TEXT, STORED
+from whoosh.fields import Schema, ID, TEXT, STORED, NGRAM
 from whoosh import index
 from whoosh.qparser import MultifieldParser
 from biostar.engine.models import Project, Job, Analysis, Data
@@ -25,8 +25,8 @@ def get_obj_type(obj):
 def get_schema():
     """Return universally used search index schema """
 
-    return Schema(uid=ID(unique=True, stored=True), content=TEXT(stored=True),
-                  name=TEXT(stored=True), type=STORED)
+    return Schema(uid=ID(unique=True, stored=True), content=NGRAM(stored=True),
+                  name=NGRAM(stored=True), type=STORED)
 
 
 def write_to_index(queryset=[]):
@@ -51,19 +51,19 @@ def write_to_index(queryset=[]):
 
 
 def search_index(text_query):
+    """Search index for a given text."""
 
     ix = index.open_dir(dirname=settings.INDEX_ROOT)
 
-    # Parse the user query
+    # Parse the user query, looking to match the "name" or "content"
+    # fields of all indexed objects.
     parser = MultifieldParser(["name", "content"], schema=ix.schema)
-
-    print(text_query, "TEXT")
-    query = parser.parse(u"{}".format(text_query))
+    query = parser.parse(text_query)
 
     with ix.searcher() as searcher:
         results = searcher.search(query, limit=None)
 
-    print([x for x in ix.searcher().documents()])
+    #print([x for x in ix.searcher().documents()])
     print(results, ix, len(results))
 
     return results
