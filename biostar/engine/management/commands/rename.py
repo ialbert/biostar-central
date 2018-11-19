@@ -39,25 +39,23 @@ class Command(BaseCommand):
         root = options['root']
 
         for entry in os.scandir(root):
-            if entry.name.startswith("job-"):
-                rename(entry=entry, replacing="job-")
 
-            elif entry.name.startswith("proj-"):
+            rename(entry=entry, replacing="job-")
 
-                proj_path = rename(entry=entry, replacing="proj-")
-                proj_uid = os.path.basename(proj_path)
-                project = Project.objects.filter(uid=proj_uid).first()
+            proj_path = rename(entry=entry, replacing="proj-")
+            proj_uid = os.path.basename(proj_path)
+            project = Project.objects.filter(uid=proj_uid).first()
 
-                correct_image_path(single_obj=project)
+            correct_image_path(single_obj=project)
 
-                # Go one level deeper in project directories to rename the data folders.
-                for data in os.scandir(proj_path):
-                    data_path = rename(entry=data, replacing="store-")
-                    data_uid = os.path.basename(data_path)
-                    data = Data.objects.filter(uid=data_uid).first()
-                    if data:
-                        # Data objects need their table of contents remade.
-                        data.make_toc()
+            # Go one level deeper in project directories to rename the data folders.
+            for data in os.scandir(proj_path):
+                data_path = rename(entry=data, replacing="store-")
+                data_uid = os.path.basename(data_path)
+                data = Data.objects.filter(uid=data_uid).first()
+                if data:
+                    # Data objects need their table of contents remade.
+                    data.make_toc()
 
         recipes = Analysis.objects.get_all()
 
