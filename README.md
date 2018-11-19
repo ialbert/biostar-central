@@ -7,7 +7,6 @@ The **Biostar Engine** is a [Python][python] and [Django][django] web applicatio
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 
-
 See the site in operation:
 
 * <https://www.bioinformatics.recipes>
@@ -50,7 +49,4 @@ The **Biostar Engine** software requires [Python 3.7][python]
 * [Installation instructions][engine-install]
 
 [engine-install]: docs/engine-install.md
-## Note
-
-This software should be considered a beta-test, work-in-progress.
 

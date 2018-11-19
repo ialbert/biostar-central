@@ -187,7 +187,6 @@ def get_project_list(user, include_public=True):
 
     return query
 
-
 def create_project(user, name, uid=None, summary='', text='', stream=None,
                    privacy=Project.PRIVATE, sticky=False, update=False):
 
@@ -215,8 +214,8 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
             name=name, uid=uid, text=text, owner=user, privacy=privacy, sticky=sticky)
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
+    # Update the image for the project.
     if stream:
-        # Update the image for the project.
         project.image.save(stream.name, stream, save=True)
 
     return project
