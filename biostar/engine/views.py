@@ -93,23 +93,16 @@ def clear_clipboard(request, uid):
     return redirect(next_url)
 
 
-def ajax_search(request):
+def search_bar(request):
 
     text_query = request.GET.get("q", "")
 
-    search.search_index(text_query=text_query)
-
-    #query = Q(text__contains=text_query) | Q(name__contains=text_query)
-
     if text_query:
-        # Get the appropriate list of projects for the user
-
-        #TODO: one slight issue
         results = search.search_index(text_query=text_query)
     else:
         results = []
 
-    context = dict(projects=projects, data=data, recipes=recipes, jobs=jobs, highlight_char=text_query)
+    context = dict(results=results, highlight_char=text_query)
 
     return render(request, "search.html", context)
 

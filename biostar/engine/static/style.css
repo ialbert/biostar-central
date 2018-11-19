@@ -54,7 +54,7 @@ figure { display: block; margin: 0; }
 }
 
 
-.highlighter {
+.match {
     background-color:yellow !important;
     color: darkgreen;
 }

@@ -119,16 +119,6 @@ def has_data(request):
     return len(data_clipboard)
 
 
-@register.filter
-def highlight(text, chars):
-
-    emb_patt = f"<span class='highlighter'>{chars}</span>"
-    pattern = fr"(?i){chars}"
-    text = re.sub(pattern, emb_patt, text)
-
-    return text
-
-
 @register.inclusion_tag('widgets/paste.html', takes_context=True)
 def paste(context, project, current=""):
 
