@@ -23,5 +23,4 @@ coverage
 pyftpdlib
 pandas
 requests
-whoosh
 pyopenssl
