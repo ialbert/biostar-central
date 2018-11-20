@@ -97,12 +97,9 @@ def search_bar(request):
 
     text_query = request.GET.get("q", "")
 
-    if text_query:
-        results = search.search_index(text_query=text_query)
-    else:
-        results = []
+    results = search.search_index(text_query=text_query)
 
-    context = dict(results=results, highlight_char=text_query)
+    context = dict(results=results)
 
     return render(request, "search.html", context)
 
