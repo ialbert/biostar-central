@@ -71,6 +71,7 @@ def search_index(text_query):
     with ix.searcher() as searcher:
         all_results = searcher.search(query, limit=None)
         all_results.fragmenter.surround = MAX_NAME_LEN
+        all_results.fragmenter.maxchars = MAX_TEXT_LEN
 
         for res in all_results:
             res_copy = copy.deepcopy(dict(res.items()))

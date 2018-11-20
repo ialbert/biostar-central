@@ -2,14 +2,12 @@
 
 
 
-
 <div class="ui relaxed divided list">
 
     {% for res in results %}
         <div class="item">
 
             <b>{{res.type}}:</b> <a href="{{res.url}}">{{res.name|safe}}</a>
-            
             <div class="muted">
                 {{res.content|safe}}
             </div>
