@@ -187,6 +187,7 @@ def get_project_list(user, include_public=True):
 
     return query
 
+
 def create_project(user, name, uid=None, summary='', text='', stream=None,
                    privacy=Project.PRIVATE, sticky=False, update=False):
 
@@ -241,7 +242,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     else:
         # Create a new analysis
         uid = None if analysis else uid
-        text = summary + "\n" + text
+        #text = summary + "\n" + text
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)
