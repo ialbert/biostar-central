@@ -29,7 +29,10 @@ class Command(BaseCommand):
         parser.add_argument('--template', help="Path to the template to be added")
         parser.add_argument('--text', default='', help="A file containing the description of the data")
         parser.add_argument('--name', default='', help="Sets the name of the data")
-        parser.add_argument('--type', default='data', help="Sets the type of the data")
+
+        parser.add_argument('--from_url', default='', help="Update local data from remote site.")
+        parser.add_argument('--to_url', default='', help="Update remote site with local data.")
+        parser.add_argument("--images",  default='', help="Update remote site with local data.")
         parser.add_argument('--update', default=False, action="store_true",
                             help="Updates the project selected by uid")
 
