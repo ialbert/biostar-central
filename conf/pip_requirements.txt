@@ -16,6 +16,8 @@ django-sendfile
 django-allauth
 django-debug-toolbar
 django-recaptcha2
+djangorestframework
+django-filter
 sparkpost
 pillow
 Pillow

@@ -29,10 +29,12 @@ class Command(BaseCommand):
         parser.add_argument('--template', help="Path to the template to be added")
         parser.add_argument('--text', default='', help="A file containing the description of the data")
         parser.add_argument('--name', default='', help="Sets the name of the data")
+        parser.add_argument("--image", default='', help="Image path for the recipe.")
 
         parser.add_argument('--from_url', default='', help="Update local data from remote site.")
         parser.add_argument('--to_url', default='', help="Update remote site with local data.")
-        parser.add_argument("--images",  default='', help="Update remote site with local data.")
+        parser.add_argument('--api_key', default='', help="Api key passed to remote site.")
+
         parser.add_argument('--update', default=False, action="store_true",
                             help="Updates the project selected by uid")
 
@@ -47,6 +49,10 @@ class Command(BaseCommand):
         text = options['text']
         name = options['name']
         update = options["update"]
+        image = options["image"]
+        from_url = options["from_url"]
+        to_url = options["to_url"]
+        api_key = options["api_key"]
 
         # Select project by id or uid.
         if id:

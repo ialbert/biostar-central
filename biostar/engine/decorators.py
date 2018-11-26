@@ -3,6 +3,8 @@ from functools import wraps
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
+from django.conf import settings
+from rest_framework.response import Response
 
 from biostar.utils.shortcuts import reverse
 from . import models, auth
@@ -60,8 +62,7 @@ class read_access:
                 return function(request, *args, **kwargs)
 
             # Deny access by default.
-            msg = auth.access_denied_message(user=user, needed_access=models.Access.READ_ACCESS,
-                                             project=project)
+            msg = auth.access_denied_message(user=user, needed_access=models.Access.READ_ACCESS)
             messages.error(request, msg)
             return redirect(self.fallback_url)
 
@@ -101,7 +102,6 @@ class write_access:
             else:
                 target = request.GET.get("next") or instance.url()
 
-
             # The project that corresponds to the instance.
             project = instance.project
 
@@ -112,9 +112,27 @@ class write_access:
             if access:
                 return function(request, *args, **kwargs)
 
-            msg = auth.access_denied_message(user=user, needed_access=models.Access.WRITE_ACCESS,
-                                             project=project)
+            msg = auth.access_denied_message(user=user, needed_access=models.Access.WRITE_ACCESS)
             messages.error(request, msg)
             return redirect(target)
 
         return _wrapped_view
+
+
+def require_api_key(func):
+    """
+    Requires an API key for PUT requests.
+    """
+
+    @wraps(func, assigned=available_attrs(func))
+    def _api_view(request, *args, **kwargs):
+        try:
+            api_key = request.data.get("k", "")
+            if request.method == "PUT" and settings.API_KEY != api_key:
+                return Response(data="API key param required for PUT requests.")
+        except Exception as exc:
+            logger.error(exc)
+
+        return func(request, *args, **kwargs)
+
+    return _api_view
