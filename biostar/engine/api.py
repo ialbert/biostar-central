@@ -21,7 +21,6 @@ def recipe_api_list(request):
 
     payload = dict()
     for recipe in recipes:
-
         payload.setdefault(recipe.uid, dict()).update(
                             name=recipe.name,
                             json=reverse("api_json", kwargs=dict(uid=recipe.uid)),
@@ -36,27 +35,20 @@ def recipe_api_list(request):
 def recipe_json(request, uid):
     """
     GET request: Returns recipe json
-    PUT request: Updates recipe template with given file.
+    PUT request: Updates recipe json with given file.
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
-    if not recipe:
-        return Response(data=dict(msg="Recipe does not exist."))
 
-    # API is always required for put requests, checked by
-    # @require_api_key decorator.
+    # API key is always checked by @require_api_key decorator.
+
     if request.method == "PUT":
         # Get the new json that will replace the current one
         file_object = request.data.get("file", "")
         recipe.json_text = hjson.dumps(hjson.load(file_object)) if file_object else recipe.json_text
         recipe.save()
-        payload = recipe.json_data
 
-    else:
-        # Only show public recipes when api key is not correct or provided.
-        cond = recipe.project.is_private and settings.API_KEY == request.GET.get("k", "")
-        msg = dict(msg="Private recipes can not be accessed without an API key param (?k=).")
-        payload = recipe.json_data if (recipe.project.is_public or cond) else msg
+    payload = recipe.json_data
 
     return Response(data=payload, status=status.HTTP_200_OK)
 
@@ -70,25 +62,17 @@ def recipe_template(request, uid):
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
-    if not recipe:
-        return Response(data=dict(msg="Recipe does not exist."))
 
-    # API is always required for put requests, checked by
-    # @require_api_key decorator.
+    # API key is always checked by @require_api_key decorator.
+
     if request.method == "PUT":
-
         # Get the new template that will replace the current one
         file_object = request.data.get("file", "")
         stream = file_object.read().decode("utf-8")
         recipe.template = stream if file_object else recipe.template
         recipe.save()
-        payload = dict(template=recipe.template)
 
-    else:
-        # Only show public recipes when api key is not correct or provided.
-        cond = recipe.project.is_private and settings.API_KEY == request.GET.get("k", "")
-        msg = dict(msg="Private recipes can not be accessed without an API key param (?k=).")
-        payload = dict(template=recipe.template) if (recipe.project.is_public or cond) else msg
+    payload = dict(template=recipe.template)
 
     return Response(data=payload, status=status.HTTP_200_OK)
 

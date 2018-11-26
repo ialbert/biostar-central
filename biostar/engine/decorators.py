@@ -119,19 +119,45 @@ class write_access:
         return _wrapped_view
 
 
+def parse_api_key(request):
+
+    empty = ""
+    if request.method == "PUT":
+        return request.data.get("k", empty)
+    elif request.method == "GET":
+        return request.GET.get("k", empty)
+
+    return empty
+
+
 def require_api_key(func):
     """
     Requires an API key for PUT requests.
+    Currently specific to recipes.
     """
 
     @wraps(func, assigned=available_attrs(func))
     def _api_view(request, *args, **kwargs):
-        try:
-            api_key = request.data.get("k", "")
-            if request.method == "PUT" and settings.API_KEY != api_key:
-                return Response(data="API key param required for PUT requests.")
-        except Exception as exc:
-            logger.error(exc)
+
+        api_key = parse_api_key(request=request)
+
+        # Get the Recipe uid
+        uid = kwargs.get("uid")
+        recipe = models.Analysis.objects.get_all(uid=uid).first()
+
+        if not recipe:
+            msg = dict(error="Recipe does not exist.")
+            return Response(data=msg)
+
+        # All PUT requests will require an API key.
+        if request.method == "PUT" and settings.API_KEY != api_key:
+            msg = dict(error="API key is required for all PUT requests.")
+            return Response(data=msg)
+
+        # API key required when asking for GET requests of private recipes.
+        elif request.method == "GET" and settings.API_KEY != api_key and recipe.project.is_private:
+            msg = dict(error="Private recipes can not be accessed without an API key param (?k=).")
+            return Response(data=msg)
 
         return func(request, *args, **kwargs)
 
