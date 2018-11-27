@@ -75,7 +75,7 @@ def recipe_template(request, uid):
         recipe.template = stream if file_object else recipe.template
         recipe.save()
 
-    payload = dict(template=recipe.template)
+    payload = recipe.template
 
     return Response(data=payload, status=status.HTTP_200_OK)
 

@@ -1,8 +1,9 @@
 import logging
-from urllib.parse import urljoin
 import requests
 import io
+from urllib.parse import urljoin
 
+import hjson
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(settings.LOGGER_NAME)
 
 def update_from_url(root_url, uid, api_key):
     """
-    Update the local recipe from remote url.
+    Update the local recipe from remote site.
     """
 
     params = {"k": api_key}
@@ -28,6 +29,14 @@ def update_from_url(root_url, uid, api_key):
     # Get the local recipe
     recipe = Analysis.objects.get_all(uid=uid).first()
 
+    # Get the remote site info
+    remote_json = requests.Session().get(json_api_url, data=params)
+    remote_template = requests.Session().get(template_api_url, data=params)
+
+    # Update local recipe with remote site info.
+    recipe.json_text = remote_json.text
+    recipe.template = remote_template.text
+    recipe.save()
 
     #print(local_json, local_template)
 
@@ -36,7 +45,7 @@ def update_from_url(root_url, uid, api_key):
 
 def update_to_url(root_url, uid, api_key):
     """
-    Update the remote url with local recipe info.
+    Update the remote site with local recipe info.
     """
 
     params = {"k": api_key}
@@ -48,10 +57,11 @@ def update_to_url(root_url, uid, api_key):
     # Get the local recipe
     recipe = Analysis.objects.get_all(uid=uid).first()
 
+    # Load the json and template strings as files
     local_json = {'file': io.StringIO(initial_value=recipe.json_text)}
     local_template = {'file': io.StringIO(initial_value=recipe.template)}
 
-    # Use a PUT request to update remote site with local data.
+    # Use a PUT request to update remote site
     json_request = requests.Session().put(json_api_url, files=local_json, data=params)
     template_request = requests.Session().put(template_api_url, files=local_template, data=params)
 
