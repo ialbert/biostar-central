@@ -28,10 +28,8 @@ def update_from_url(root_url, uid, api_key):
     # Get the local recipe
     recipe = Analysis.objects.get_all(uid=uid).first()
 
-    local_json = {'file': io.StringIO(initial_value=recipe.json_text)}
-    local_template = {'file': io.StringIO(initial_value=recipe.template)}
 
-    print(local_json, local_template)
+    #print(local_json, local_template)
 
     return
 
