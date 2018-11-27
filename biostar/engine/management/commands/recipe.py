@@ -40,7 +40,7 @@ def update_from_url(root_url, uid, api_key):
 
     #print(local_json, local_template)
 
-    return
+    return recipe
 
 
 def update_to_url(root_url, uid, api_key):
