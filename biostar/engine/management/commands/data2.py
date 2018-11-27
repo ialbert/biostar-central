@@ -48,9 +48,9 @@ class Command(BaseCommand):
 
         # Select project by id or uid.
         if id:
-            query = Project.objects.filter(id=id)
+            query = Project.objects.get_all(id=id)
         else:
-            query = Project.objects.filter(uid=uid)
+            query = Project.objects.get_all(uid=uid)
 
         # Get the project.
         project = query.first()
@@ -83,4 +83,4 @@ class Command(BaseCommand):
         print(f"*** Creating data: {name}")
 
         # Create the data.
-        auth.create_data( project=project, path=path, type=type, name=name, text=text)
+        auth.create_data(project=project, path=path, type=type, name=name, text=text)

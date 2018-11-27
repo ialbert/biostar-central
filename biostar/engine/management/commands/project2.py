@@ -22,15 +22,17 @@ class Bunch():
         self.user = self.stream = None
         self.__dict__.update(kwargs)
 
+
 def error(msg):
     logger.error(msg)
     sys.exit()
+
 
 class Command(BaseCommand):
     help = 'Creates a project.'
 
     def add_arguments(self, parser):
-        parser.add_argument('--uid',  help="The unique id of the project")
+        parser.add_argument('--uid',  required=True, help="The unique id of the project")
 
         parser.add_argument('--name', help="The name of the project")
 
@@ -45,13 +47,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         uid = options['uid']
-        name = options['name']
+        name = options['name'] or "Project Name"
         privacy = Project.PUBLIC if options["public"] else Project.PRIVATE
         update = options["update"]
         info = options["info"]
 
         # Find project at uid.
-        project = Project.objects.filter(uid=uid).first()
+        project = Project.objects.get_all(uid=uid).first()
 
         # You can only update existing projects.
         if project and not update:
