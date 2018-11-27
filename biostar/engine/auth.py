@@ -236,7 +236,6 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     else:
         # Create a new analysis
         uid = None if analysis else uid
-        #text = summary + "\n" + text
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)

@@ -1,13 +1,63 @@
 import logging
+from urllib.parse import urljoin
+import requests
+import io
 
-import hjson
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
+from biostar.utils.shortcuts import reverse
 from biostar.engine.models import Project, Analysis
 
 logger = logging.getLogger(settings.LOGGER_NAME)
+
+
+def update_from_url(root_url, uid, api_key):
+    """
+    Update the local recipe from remote url.
+    """
+
+    params = {"k": api_key}
+
+    # Construct the API urls and join them with the root.
+
+    json_api_url = urljoin(root_url, reverse("api_json", kwargs=dict(uid=uid)))
+    template_api_url = urljoin(root_url, reverse("api_template", kwargs=dict(uid=uid)))
+
+    # Get the local recipe
+    recipe = Analysis.objects.get_all(uid=uid).first()
+
+    local_json = {'file': io.StringIO(initial_value=recipe.json_text)}
+    local_template = {'file': io.StringIO(initial_value=recipe.template)}
+
+    print(local_json, local_template)
+
+    return
+
+
+def update_to_url(root_url, uid, api_key):
+    """
+    Update the remote url with local recipe info.
+    """
+
+    params = {"k": api_key}
+
+    # Construct the API urls and join them with the root.
+    json_api_url = urljoin(root_url, reverse("api_json", kwargs=dict(uid=uid)))
+    template_api_url = urljoin(root_url, reverse("api_template", kwargs=dict(uid=uid)))
+
+    # Get the local recipe
+    recipe = Analysis.objects.get_all(uid=uid).first()
+
+    local_json = {'file': io.StringIO(initial_value=recipe.json_text)}
+    local_template = {'file': io.StringIO(initial_value=recipe.template)}
+
+    # Use a PUT request to update remote site with local data.
+    json_request = requests.Session().put(json_api_url, files=local_json, data=params)
+    template_request = requests.Session().put(template_api_url, files=local_template, data=params)
+
+    return
 
 
 class Bunch():
@@ -77,9 +127,19 @@ class Command(BaseCommand):
         json = open(json, "r").read() if json else ""
         template = open(template, "r").read() if template else ""
         project = recipe.project if recipe else project
+        # Get the image stream
+        stream = open(image, "rb") if image else None
 
         rec = auth.create_analysis(project=project, json_text=json, template=template, name=name,
-                                   text=text, uid=recipe_uid, update=update)
+                                   text=text, uid=recipe_uid, update=update, stream=stream)
+
+        # Update the local recipe Json and Template from a remote site.
+        if from_url:
+            update_from_url(root_url=from_url, uid=recipe_uid, api_key=api_key)
+
+        # Update the remote site with local recipe Json and Template.
+        elif to_url:
+            update_to_url(root_url=to_url, uid=recipe_uid, api_key=api_key)
 
         if update:
             print(f"*** Updated recipe uid={rec.uid} name={rec.name}")

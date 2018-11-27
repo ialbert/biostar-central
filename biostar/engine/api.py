@@ -1,12 +1,15 @@
 
-from .models import Analysis, Project
-from django.conf import settings
-from biostar.utils.shortcuts import reverse
-from biostar.engine.decorators import require_api_key
 import hjson
+
+from django.conf import settings
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+from biostar.engine.models import Analysis, Project
+from biostar.utils.shortcuts import reverse
+from biostar.engine.decorators import require_api_key
 
 
 @api_view(['GET'])
