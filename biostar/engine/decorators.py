@@ -3,6 +3,8 @@ from functools import wraps
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
+from django.conf import settings
+from rest_framework.response import Response
 
 from biostar.utils.shortcuts import reverse
 from . import models, auth
@@ -60,8 +62,7 @@ class read_access:
                 return function(request, *args, **kwargs)
 
             # Deny access by default.
-            msg = auth.access_denied_message(user=user, needed_access=models.Access.READ_ACCESS,
-                                             project=project)
+            msg = auth.access_denied_message(user=user, needed_access=models.Access.READ_ACCESS)
             messages.error(request, msg)
             return redirect(self.fallback_url)
 
@@ -101,7 +102,6 @@ class write_access:
             else:
                 target = request.GET.get("next") or instance.url()
 
-
             # The project that corresponds to the instance.
             project = instance.project
 
@@ -112,9 +112,53 @@ class write_access:
             if access:
                 return function(request, *args, **kwargs)
 
-            msg = auth.access_denied_message(user=user, needed_access=models.Access.WRITE_ACCESS,
-                                             project=project)
+            msg = auth.access_denied_message(user=user, needed_access=models.Access.WRITE_ACCESS)
             messages.error(request, msg)
             return redirect(target)
 
         return _wrapped_view
+
+
+def parse_api_key(request):
+
+    empty = ""
+    if request.method == "PUT":
+        return request.data.get("k", empty)
+    elif request.method == "GET":
+        return request.GET.get("k", empty)
+
+    return empty
+
+
+def require_api_key(func):
+    """
+    Requires an API key for PUT requests.
+    Currently specific to recipes.
+    """
+
+    @wraps(func, assigned=available_attrs(func))
+    def _api_view(request, *args, **kwargs):
+
+        api_key = parse_api_key(request=request)
+
+        # Get the Recipe uid
+        uid = kwargs.get("uid")
+        recipe = models.Analysis.objects.get_all(uid=uid).first()
+
+        if not recipe:
+            msg = dict(error="Recipe does not exist.")
+            return Response(data=msg)
+
+        # All PUT requests will require an API key.
+        if request.method == "PUT" and settings.API_KEY != api_key:
+            msg = dict(error="API key is required for all PUT requests.")
+            return Response(data=msg)
+
+        # API key required when asking for GET requests of private recipes.
+        elif request.method == "GET" and settings.API_KEY != api_key and recipe.project.is_private:
+            msg = dict(error="Private recipes can not be accessed without an API key param (?k=).")
+            return Response(data=msg)
+
+        return func(request, *args, **kwargs)
+
+    return _api_view

@@ -48,22 +48,16 @@ def fake_request(url="/", data={}, user="", method="POST"):
     return request
 
 
-def access_denied_message(user, needed_access, project):
+def access_denied_message(user, needed_access):
     """
     Generates the access denied message
     """
     tmpl = loader.get_template('widgets/access_denied_message.html')
-    if project.is_public:
-        current_access = Access.READ_ACCESS
-    else:
-        current_access = Access.objects.filter(user=user, project=project).first()
-        current_access = Access.NO_ACCESS if current_access is None else current_access.access
 
     # Get the string format of the access.
     needed_access = dict(Access.ACCESS_CHOICES).get(needed_access)
-    current_access = dict(Access.ACCESS_CHOICES).get(current_access)
 
-    context = dict(user=user, needed_access=needed_access, current_access=current_access)
+    context = dict(user=user, needed_access=needed_access)
     return tmpl.render(context=context)
 
 
@@ -187,6 +181,7 @@ def get_project_list(user, include_public=True):
 
     return query
 
+
 def create_project(user, name, uid=None, summary='', text='', stream=None,
                    privacy=Project.PRIVATE, sticky=False, update=False):
 
@@ -241,7 +236,6 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     else:
         # Create a new analysis
         uid = None if analysis else uid
-        text = summary + "\n" + text
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)
