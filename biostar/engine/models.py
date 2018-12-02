@@ -27,7 +27,8 @@ class Bunch(object):
 
 
 def make_html(text):
-    return mistune.markdown(text)
+    html = mistune.markdown(text, escape=False)
+    return html
 
 
 def image_path(instance, filename):
