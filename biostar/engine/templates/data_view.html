@@ -26,7 +26,7 @@
                             {% type_label data %}
                             &bull; created by {{ data.owner.first_name }}
                             {% if data.lastedit_date != data.date %}
-                            &bull; updated {{data.lastedit_date|timesince }} by {{ data.lastedit_user.first_name }}
+                            &bull; updated {{data.lastedit_date|time_ago }} by {{ data.lastedit_user.first_name }}
                             {% endif %}
                         </div>
                     </div>

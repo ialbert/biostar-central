@@ -25,7 +25,7 @@
             {% for job in job_list %}
 
                 <div class="item ">
-                    <div class="">
+                    <div class="jobpad">
                         <img class="ui tiny rounded fancy image" src="{% img job.analysis %}">
                     </div>
 
@@ -38,7 +38,7 @@
                         <div class="description">{{ job.analysis.summary }}</div>
 
                         <div class="extra">{% job_minutes job %}
-                            &bull; {%  created_by date=job.date user=job.owner %}
+                            &bull; {%  created_by date=job.date user=job.owner obj=job %}
                         </div>
 
 

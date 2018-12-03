@@ -8,14 +8,16 @@
             {{ user.profile.name }}
             <div class="ui mini avatar image">{% gravatar user=user size=80 %}</div>
         </a>
-        <span>
-            &bull; updated
-            {{ obj.lastedit_date|time_ago }} by
-            <a href="{% url 'user_profile'  obj.lastedit_user.profile.uid %}" >
-                {{ obj.lastedit_user.profile.name }}
-               <div class="ui mini avatar image">{% gravatar user=obj.lastedit_user size=80 %}</div>
-            </a>
-        </span>
+        {% if obj.lastedit_user %}
+            <span>
+                &bull; updated
+                {{ obj.lastedit_date|time_ago }} by
+                <a href="{% url 'user_profile'  obj.lastedit_user.profile.uid %}" >
+                    {{ obj.lastedit_user.profile.name }}
+                   <div class="ui mini avatar image">{% gravatar user=obj.lastedit_user size=80 %}</div>
+                </a>
+            </span>
+        {% endif %}
     {% else %}
         Updated {{ obj.lastedit_date|time_ago  }} by
         <a href="{% url 'user_profile' user.profile.uid %}" style="margin-right:-10px;">
