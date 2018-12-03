@@ -24,9 +24,9 @@
                         <div class="ui small labels">
                             {% size_label data %}
                             {% type_label data %}
-                            &bull; created by {{ data.owner.first_name }}
-                            {% if data.lastedit_date != data.date %}
-                            &bull; updated {{data.lastedit_date|time_ago }} by {{ data.lastedit_user.first_name }}
+                            &bull; Updated {{data.lastedit_date|time_ago }} by
+                            {% if data.lastedit_user %}{{ data.lastedit_user.profile.name }}
+                            {% else %}{{ data.owner.profile.name }}
                             {% endif %}
                         </div>
                     </div>

@@ -282,12 +282,11 @@ def recipe_form(form):
     return dict(form=form)
 
 @register.inclusion_tag('widgets/created_by.html')
-def created_by(date, user, obj=None):
+def created_by(date, user, obj=None, detail=False):
     """
     Renders a created by link
     """
-
-    return dict(date=date, user=user, obj=obj)
+    return dict(date=date, user=user, obj=obj, detail=detail)
 
 @register.inclusion_tag('widgets/access_form.html')
 def access_form(project, user, form):
