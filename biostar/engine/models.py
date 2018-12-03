@@ -98,7 +98,6 @@ class Project(models.Model):
         self.lastedit_user = self.lastedit_user or self.owner
         self.lastedit_date = now
 
-        print(self.owner, self.lastedit_user)
         if not os.path.isdir(self.get_project_dir()):
             os.makedirs(self.get_project_dir())
 

@@ -151,7 +151,6 @@ def project_info(request, uid):
     # Who has write access
     write_access = auth.has_write_access(user=user, project=project)
 
-
     context = dict(project=project, active="info", write_access=write_access)
     context.update(counts)
 
@@ -160,7 +159,7 @@ def project_info(request, uid):
 
 def project_list(request):
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
-    projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
+    projects = projects.order_by("-privacy", "-sticky", "-lastedit_date", "-id")
 
     context = dict(projects=projects)
     return render(request, "project_list.html", context)
