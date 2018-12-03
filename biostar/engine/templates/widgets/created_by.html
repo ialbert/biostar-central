@@ -1,7 +1,25 @@
 {% load forum_tags %}
 
-Created {{ date|timesince }} ago by
-<a href="{% url "user_profile" user.profile.uid %}">
-    {{ user.profile.name }}
-    <div class="ui mini avatar image">{% gravatar user=user size=80 %}</div>
-</a>
+
+
+    {% if obj.lastedit_user != obj.owner %}
+        Created {{ obj.date|timesince  }} ago by
+        <a href="{% url 'user_profile' user.profile.uid %}" style="margin-right:-10px;">
+            {{ user.profile.name }}
+            <div class="ui mini avatar image">{% gravatar user=user size=80 %}</div>
+        </a>
+        <span>
+            &bull; updated
+            {{ obj.lastedit_date|time_ago }} by
+            <a href="{% url 'user_profile'  obj.lastedit_user.profile.uid %}" >
+                {{ obj.lastedit_user.profile.name }}
+               <div class="ui mini avatar image">{% gravatar user=obj.lastedit_user size=80 %}</div>
+            </a>
+        </span>
+    {% else %}
+        Updated {{ obj.lastedit_date|time_ago  }} by
+        <a href="{% url 'user_profile' user.profile.uid %}" style="margin-right:-10px;">
+            {{ user.profile.name }}
+            <div class="ui mini avatar image">{% gravatar user=user size=80 %}</div>
+        </a>
+    {% endif %}

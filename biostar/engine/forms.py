@@ -8,6 +8,7 @@ from django import forms
 from django.template import Template, Context
 from django.db.models import Sum
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 from django.contrib import messages
 from django.urls import reverse
 from django.conf import settings
@@ -258,6 +259,12 @@ class DataEditForm(forms.ModelForm):
 
         if fobj:
             util.write_stream(stream=fobj, dest=current_file)
+
+        self.instance.lastedit_user = self.user
+        self.instance.lasedit_date = now()
+        Project.objects.get_all(uid=self.instance.project.uid).update(lastedit_user=self.user,
+                                                                      lastedit_date=now()
+                                                                      )
 
         return super(DataEditForm, self).save(commit)
 

@@ -317,7 +317,8 @@ def project_edit(request, uid):
     if request.method == "POST":
         form = forms.ProjectForm(data=request.POST, files=request.FILES, instance=project, request=request)
         if form.is_valid():
-            form.save()
+            project = form.save()
+            Project.objects.get_all(uid=uid).update(lastedit_user=request.user)
             return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
 
     context = dict(project=project, form=form)
@@ -480,7 +481,6 @@ def data_edit(request, uid):
         if form.is_valid():
             form.save()
             return redirect(reverse("data_view", request=request, kwargs=dict(uid=data.uid)))
-        print(form.errors)
     context = dict(data=data, form=form)
     return render(request, 'data_edit.html', context)
 

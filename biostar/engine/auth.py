@@ -12,6 +12,7 @@ from django.template import Template, Context
 from django.template import loader
 from django.test import RequestFactory
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 
 from . import models
 from . import util
@@ -464,6 +465,10 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # Trigger another save.
     data.save()
+
+    # Update the projects lastedit user when a data is uploaded
+    Project.objects.get_all(uid=data.project.uid).update(lastedit_user=user,
+                                                         lastedit_date=now())
 
     # Set log for data creation.
     logger.info(f"Added data type={data.type} name={data.name} pk={data.pk}")

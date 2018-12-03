@@ -1,5 +1,6 @@
 {% extends "base_content.html" %}
 {% load engine_tags %}
+{% load forum_tags %}
 
 {% block headtitle %}
     {{ data.name }}
@@ -24,6 +25,9 @@
                             {% size_label data %}
                             {% type_label data %}
                             &bull; created by {{ data.owner.first_name }}
+                            {% if data.lastedit_date != data.date %}
+                            &bull; updated {{data.lastedit_date|timesince }} by {{ data.lastedit_user.first_name }}
+                            {% endif %}
                         </div>
                     </div>
                 </div>
