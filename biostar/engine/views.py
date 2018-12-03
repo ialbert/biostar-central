@@ -159,7 +159,7 @@ def project_info(request, uid):
 
 def project_list(request):
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
-    projects = projects.order_by("-privacy", "-sticky", "-lastedit_date", "-id")
+    projects = projects.order_by("-privacy", "-sticky", "-lastedit_date", "-date", "-id")
 
     context = dict(projects=projects)
     return render(request, "project_list.html", context)
