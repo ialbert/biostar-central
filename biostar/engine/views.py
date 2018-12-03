@@ -151,7 +151,6 @@ def project_info(request, uid):
     # Who has write access
     write_access = auth.has_write_access(user=user, project=project)
 
-
     context = dict(project=project, active="info", write_access=write_access)
     context.update(counts)
 
@@ -160,7 +159,7 @@ def project_info(request, uid):
 
 def project_list(request):
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
-    projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
+    projects = projects.order_by("-privacy", "-sticky", "-lastedit_date", "-date", "-id")
 
     context = dict(projects=projects)
     return render(request, "project_list.html", context)
@@ -317,7 +316,8 @@ def project_edit(request, uid):
     if request.method == "POST":
         form = forms.ProjectForm(data=request.POST, files=request.FILES, instance=project, request=request)
         if form.is_valid():
-            form.save()
+            project = form.save()
+            Project.objects.get_all(uid=uid).update(lastedit_user=request.user)
             return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
 
     context = dict(project=project, form=form)
@@ -421,16 +421,11 @@ def recipe_paste(request, uid):
 @write_access(type=Project, fallback_view="data_list")
 def data_paste(request, uid):
     """Used to paste objects in results and data clipboards as a Data object."""
-
     project = Project.objects.filter(uid=uid).first()
     owner = request.user
     board = request.GET.get("board")
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
     data_clipboard = clipboard.get(board, [])
-
-    def creator(path, obj, data_type):
-        return auth.create_data(project=project, path=path, user=owner, name=obj.name, type=data_type,
-                                text=obj.text)
 
     for datauid in data_clipboard:
 
@@ -442,9 +437,8 @@ def data_paste(request, uid):
             dtype = "DATA"
 
         if obj:
-            paths = [n.path for n in os.scandir(obj.get_data_dir())]
-            for p in paths:
-                creator(path=p, obj=obj, data_type=dtype)
+            auth.create_data(project=project, path=obj.get_data_dir(), user=owner, name=obj.name,
+                             type=dtype, text=obj.text)
 
     clipboard[board] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
@@ -480,7 +474,6 @@ def data_edit(request, uid):
         if form.is_valid():
             form.save()
             return redirect(reverse("data_view", request=request, kwargs=dict(uid=data.uid)))
-        print(form.errors)
     context = dict(data=data, form=form)
     return render(request, 'data_edit.html', context)
 
@@ -658,39 +651,19 @@ def recipe_code_edit(request, uid):
     name = analysis.name
 
     if request.method == "POST":
-        form = forms.EditCode(user=user, project=project, data=request.POST)
+        form = forms.EditCode(user=user, project=project, data=request.POST, recipe=analysis)
 
         if form.is_valid():
-
-            # Templates.
-            template = form.cleaned_data['template']
-
             # Preview action will let the form cascade through.
-            save = form.cleaned_data['action'] == 'SAVE'
-
-            analysis.json_text = form.cleaned_data['json']
-
-            # Changes to template will require a review ( only when saving ).
-            if auth.template_changed(analysis=analysis, template=template) and save:
-                analysis.diff_author = user
-                analysis.diff_date = timezone.now()
-
-            # Recipes edited by non staff members need to be authorized.
-            if not user.is_staff:
-                analysis.security = Analysis.UNDER_REVIEW
-
-            # Set the new template.
-            analysis.template = template
-
-            # Only the SAVE action commits the changes on the analysis.
-            if save:
-                analysis.save()
+            commit = form.cleaned_data['action'] == 'SAVE'
+            analysis = form.save(commit=commit)
+            if commit:
                 messages.info(request, "The recipe has been updated.")
                 return redirect(reverse("recipe_view", request=request, kwargs=dict(uid=analysis.uid)))
     else:
         # This gets triggered on a GET request.
         initial = dict(template=analysis.template, json=analysis.json_text)
-        form = forms.EditCode(user=user, project=project, initial=initial)
+        form = forms.EditCode(user=user, project=project, initial=initial, recipe=analysis)
 
     # Bind the JSON to the form.
     recipe = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
@@ -717,11 +690,12 @@ def recipe_edit(request, uid):
 
     recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
+
     action_url = reverse('recipe_edit', request=request, kwargs=dict(uid=recipe.uid))
-    form = forms.RecipeForm(instance=recipe)
+    form = forms.RecipeForm(instance=recipe, user=request.user)
 
     if request.method == "POST":
-        form = forms.RecipeForm(data=request.POST, files=request.FILES, instance=recipe)
+        form = forms.RecipeForm(data=request.POST, files=request.FILES, instance=recipe, user=request.user)
         if form.is_valid():
             recipe = form.save()
             return redirect(reverse("recipe_view", request=request, kwargs=dict(uid=recipe.uid)))
@@ -738,10 +712,10 @@ def job_edit(request, uid):
 
     job = Job.objects.get_all(uid=uid).first()
     project = job.project
-    form = forms.JobEditForm(instance=job)
+    form = forms.JobEditForm(instance=job, user=request.user)
 
     if request.method == "POST":
-        form = forms.JobEditForm(data=request.POST, files=request.FILES, instance=job)
+        form = forms.JobEditForm(data=request.POST, files=request.FILES, instance=job, user=request.user)
         if form.is_valid():
             form.save()
             return redirect(reverse("job_view", request=request, kwargs=dict(uid=job.uid)))

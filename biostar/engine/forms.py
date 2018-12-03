@@ -8,6 +8,7 @@ from django import forms
 from django.template import Template, Context
 from django.db.models import Sum
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 from django.contrib import messages
 from django.urls import reverse
 from django.conf import settings
@@ -259,6 +260,12 @@ class DataEditForm(forms.ModelForm):
         if fobj:
             util.write_stream(stream=fobj, dest=current_file)
 
+        self.instance.lastedit_user = self.user
+        self.instance.lasedit_date = now()
+        Project.objects.get_all(uid=self.instance.project.uid).update(lastedit_user=self.user,
+                                                                      lastedit_date=now()
+                                                                      )
+
         return super(DataEditForm, self).save(commit)
 
     class Meta:
@@ -315,9 +322,21 @@ class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)
     uid = forms.CharField(max_length=32, required=False)
 
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = Analysis
         fields = ["name", "image", "text", "uid"]
+
+    def save(self, commit=True):
+
+        self.instance.lastedit_date = now()
+        self.instance.lastedit_user = self.user
+        Project.objects.get_all(uid=self.instance.project.uid).update(lastedit_date=now(),
+                                                                      lastedit_user=self.user)
+        return super(RecipeForm, self).save(commit)
 
     def clean_image(self):
         cleaned_data = super(RecipeForm, self).clean()
@@ -337,9 +356,22 @@ class RecipeForm(forms.ModelForm):
 
 
 class JobEditForm(forms.ModelForm):
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = Job
         fields = ['name', "image", 'text']
+
+    def save(self, commit=True):
+
+        self.instance.lastedit_date = now()
+        self.instance.lastedit_user = self.user
+        Project.objects.get_all(uid=self.instance.project.uid).update(lastedit_date=now(),
+                                                                      lastedit_user=self.user)
+        return super().save(commit)
 
 
 class ChangeUserAccess(forms.Form):
@@ -507,8 +539,9 @@ class EditCode(forms.Form):
     # The json specification.
     json = forms.CharField(required=False)
 
-    def __init__(self, user, project, *args, **kwargs):
+    def __init__(self, user, project, recipe, *args, **kwargs):
         self.user = user
+        self.recipe = recipe
         self.project = project
         super().__init__(*args, **kwargs)
 
@@ -541,3 +574,32 @@ class EditCode(forms.Form):
             if not allow:
                 msg = "Anonymous users may not save the form."
                 raise forms.ValidationError(msg)
+
+    def save(self, commit=False):
+
+        # Templates.
+        template = self.cleaned_data['template']
+
+        self.recipe.json_text = self.cleaned_data['json']
+
+        # Changes to template will require a review ( only when saving ).
+        if auth.template_changed(analysis=self.recipe, template=template) and commit:
+            self.recipe.diff_author = self.user
+            self.recipe.diff_date = now()
+
+        # Recipes edited by non staff members need to be authorized.
+        if not self.user.is_staff:
+            self.recipe.security = Analysis.UNDER_REVIEW
+
+        # Set the new template.
+        self.recipe.template = template
+
+        # Only the SAVE action commits the changes on the analysis.
+        if commit:
+            self.recipe.lastedit_date = now
+            self.recipe.lastedit_user = self.user
+            Project.objects.get_all(uid=self.project.uid).update(lastedit_date=now(),
+                                                                 lastedit_user=self.user)
+            self.recipe.save()
+
+        return self.recipe

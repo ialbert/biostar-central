@@ -12,6 +12,7 @@ from django.template import Template, Context
 from django.template import loader
 from django.test import RequestFactory
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 
 from . import models
 from . import util
@@ -189,7 +190,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
     uid = uid or util.get_uuid(8)
 
     # Attempts to select the project.
-    project = Project.objects.filter(uid=uid)
+    project = Project.objects.get_all(uid=uid)
 
     # If it is not an update request return the project unchanged.
     if project and not update:
@@ -207,6 +208,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
         # Create a new project.
         project = Project.objects.create(
             name=name, uid=uid, text=text, owner=user, privacy=privacy, sticky=sticky)
+
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     # Update the image for the project.
@@ -239,6 +241,10 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)
+        # Update the projects lastedit user when a recipe is created
+        Project.objects.get_all(uid=analysis.project.uid).update(lastedit_user=user,
+                                                                 lastedit_date=now())
+
         logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
     if stream:
@@ -297,6 +303,10 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     if save:
         job.save()
+
+        # Update the projects lastedit user when a job is created
+        Project.objects.get_all(uid=project.uid).update(lastedit_user=owner,
+                                                        lastedit_date=now())
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
@@ -398,6 +408,7 @@ def fill_data_by_name(project, json_data):
 
     return json_data
 
+
 def create_data(project, user=None, stream=None, path='', name='',
                 text='', type='', uid=None, summary=''):
     # We need absolute paths with no trailing slashes.
@@ -464,6 +475,10 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # Trigger another save.
     data.save()
+
+    # Update the projects lastedit user when a data is uploaded
+    Project.objects.get_all(uid=data.project.uid).update(lastedit_user=user,
+                                                         lastedit_date=now())
 
     # Set log for data creation.
     logger.info(f"Added data type={data.type} name={data.name} pk={data.pk}")
