@@ -157,7 +157,6 @@ def template_changed(analysis, template):
 
     change = list(difflib.unified_diff(text1, text2))
 
-    # print(f"Change: {bool(change)} {change}")
     return change
 
 
