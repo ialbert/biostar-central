@@ -1,6 +1,7 @@
 import difflib
 import logging
 import uuid, copy
+import os
 from mimetypes import guess_type
 
 import hjson
@@ -62,6 +63,31 @@ def access_denied_message(user, needed_access):
     return tmpl.render(context=context)
 
 
+def copy_file(request, fullpath):
+
+    if not os.path.exists(fullpath):
+        messages.error(request, "Path does not exist.")
+        return []
+
+    if request.user.is_anonymous:
+        messages.error(request, "You need to be logged in.")
+        return []
+
+    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
+
+    board_items = clipboard.get(FILES_CLIPBOARD, [])
+    board_items.append(fullpath)
+    # No duplicates in clipboard
+
+    clipboard[FILES_CLIPBOARD] = list(set(board_items))
+
+    request.session.update({settings.CLIPBOARD_NAME: clipboard})
+
+    messages.success(request, f"Copied file(s), clipboard contains {len(set(board_items))}.")
+
+    return
+
+
 def copy_uid(request, instance, board):
     """
     Used to append instance.uid into request.session[board]
@@ -85,7 +111,7 @@ def copy_uid(request, instance, board):
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
-    messages.success(request, f"Copied items, there are {len(set(board_items))} in clipboard.")
+    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
 
     return board_items
 

@@ -375,6 +375,29 @@ def job_copy(request, uid):
     return redirect(next_url)
 
 
+@read_access(type=Data)
+def data_file_copy(request, uid, path):
+
+    # Get the root data where the file exists
+    data = Data.objects.get_all(uid=uid).first()
+    fullpath = os.path.join(data.get_data_dir(), path)
+    auth.copy_file(request=request, fullpath=fullpath)
+
+    return redirect(reverse("data_view", kwargs=dict(uid=uid)))
+
+
+@read_access(type=Job)
+def job_file_copy(request, uid, path):
+
+    # Get the root data where the file exists
+    job = Job.objects.get_all(uid=uid).first()
+    fullpath = os.path.join(job.get_data_dir(), path)
+
+    auth.copy_file(request=request, fullpath=fullpath)
+
+    return redirect(reverse("job_view", kwargs=dict(uid=uid)))
+
+
 @write_access(type=Project, fallback_view="recipe_list")
 def recipe_paste(request, uid):
     """
@@ -443,6 +466,22 @@ def data_paste(request, uid):
     clipboard[board] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
     messages.success(request, "Pasted data in clipboard")
+    return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
+
+
+@write_access(type=Project, fallback_view="data_list")
+def file_paste(request, uid):
+
+    project = Project.objects.get_all(uid=uid).first()
+    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
+    file_clipboard = clipboard.get(const.FILES_CLIPBOARD, [])
+
+    for single_file in file_clipboard:
+        if os.path.exists(single_file):
+            auth.create_data(project=project, path=single_file, user=request.user)
+
+    clipboard[const.FILES_CLIPBOARD] = []
+    request.session.update({settings.CLIPBOARD_NAME: clipboard})
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 

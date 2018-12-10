@@ -2,6 +2,7 @@
     <div class="ui relaxed divided large list">
         {% for  rel_path, dir_names, last_name, tstamp, size, is_image in paths %}
             <div class="item">
+             <a href="{% url copy_url uid=obj.uid path=rel_path %}" class="ui tiny label"> COPY</a>
 
                 <a href="{% url serve_url uid=obj.uid path=rel_path %}">
 

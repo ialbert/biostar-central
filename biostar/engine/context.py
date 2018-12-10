@@ -12,7 +12,7 @@ def engine(request):
     enable_forum = settings.ENABLE_FORUM or settings.ONLY_FORUM_URLS
 
     params = dict(user=request.user, VERSION=VERSION, request=request,
-                data_board=DATA_CLIPBOARD, recipe_board=RECIPE_CLIPBOARD,
+                data_board=DATA_CLIPBOARD, recipe_board=RECIPE_CLIPBOARD, file_board=FILES_CLIPBOARD,
                 results_board=RESULTS_CLIPBOARD, enable_forum=enable_forum,
                 only_enable_forum=settings.ONLY_FORUM_URLS
     )
