@@ -129,7 +129,11 @@ def authorize_run(user, recipe):
 
     # Only users with write access can run recipes
     entry = Access.objects.filter(project=recipe.project, user=user, access=Access.WRITE_ACCESS).first()
-    if entry:
+
+    # Managers with access to the project can run their recipes
+    if entry and user.profile.is_manager:
+        return True
+    elif entry:
         return recipe.runnable()
 
     return False
