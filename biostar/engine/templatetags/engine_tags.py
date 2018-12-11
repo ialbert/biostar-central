@@ -146,7 +146,7 @@ def is_checkbox(field):
 
 @register.filter
 def is_qiime_archive(file=None):
-    filename = file.path
+    filename = file if isinstance(file, str) else file.path
 
     return filename.endswith(".qza") or filename.endswith(".qzv")
 
