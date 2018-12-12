@@ -69,6 +69,9 @@ urlpatterns = [
     url(r'^data/copy/(?P<uid>[-\w]+)/$', views.data_copy, name='data_copy'),
     url(r'^result/copy/(?P<uid>[-\w]+)/$', views.job_copy, name='job_copy'),
     url(r'^recipe/copy/(?P<uid>[-\w]+)/$', views.recipe_copy, name='recipe_copy'),
+    url(r'^data/file/copy/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.data_file_copy, name='data_file_copy'),
+    url(r'^job/file/copy/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_file_copy, name='job_file_copy'),
+    url(r'^file/paste/(?P<uid>[-\w]+)/$', views.file_paste, name='file_paste'),
 
 ]
 

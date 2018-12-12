@@ -146,7 +146,7 @@ def is_checkbox(field):
 
 @register.filter
 def is_qiime_archive(file=None):
-    filename = file.path
+    filename = file if isinstance(file, str) else file.path
 
     return filename.endswith(".qza") or filename.endswith(".qzv")
 
@@ -323,6 +323,7 @@ def directory_list(obj):
 
     # The serve url depends on data type..
     serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
+    copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"
 
     # This will collet the valid filepaths.
     paths = []
@@ -356,7 +357,7 @@ def directory_list(obj):
         logging.error(exc)
         paths = []
 
-    return dict(paths=paths, obj=obj, serve_url=serve_url)
+    return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url)
 
 
 @register.inclusion_tag('widgets/form_errors.html')
