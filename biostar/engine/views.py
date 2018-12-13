@@ -271,7 +271,6 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     # The project that is viewed.
     project = Project.objects.filter(uid=uid).first()
 
-
     # Select all the data in the project.
     data_list = project.data_set.order_by("-sticky", "-date").all()
     recipe_list = project.analysis_set.order_by("-sticky", "-date").all()
@@ -286,7 +285,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
         job_list = job_list.filter(analysis=recipe_filter)
 
     # Add related content.
-    job_list = job_list.select_related("owner__profile", "analysis")
+    job_list = job_list.select_related("analysis")
 
     # Who has write access
     write_access = auth.has_write_access(user=user, project=project)
