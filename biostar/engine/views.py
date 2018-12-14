@@ -593,7 +593,6 @@ def recipe_code_download(request, uid):
     return response
 
 
-
 @read_access(type=Analysis)
 def recipe_code_view(request, uid):
     """
