@@ -566,13 +566,13 @@ class EditCode(forms.Form):
                 raise forms.ValidationError(msg)
 
             # Write access to the object.
-            allow = Access.objects.filter(user=self.user, project=self.project, access=Access.WRITE_ACCESS).exists()
+            #allow = Access.objects.filter(user=self.user, project=self.project, access=Access.WRITE_ACCESS).exists()
 
             # Conditions of when we allow the save.
-            allow = allow or self.user.is_staff
+            allow = self.user.is_superuser or self.user.is_staff
 
             if not allow:
-                msg = "Anonymous users may not save the form."
+                msg = "Only staff or admin users can save recipes."
                 raise forms.ValidationError(msg)
 
     def save(self, commit=False):

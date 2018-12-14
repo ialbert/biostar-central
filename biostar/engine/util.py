@@ -83,6 +83,7 @@ def write_stream(stream, dest):
             chunk = stream.read(CHUNK)
     return dest
 
+
 def qiime2view_link(file_url):
     template = "https://view.qiime2.org/visualization/?type=html&src="
 

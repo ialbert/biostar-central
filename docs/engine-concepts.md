@@ -52,4 +52,10 @@ Data that exists on a filesystem may be linked into the Biostar Engine from the 
 
 Users may have read and write access to projects. A write access means that users may modify information, upload data and execute recipes.
 
+###### Execute recipes
 
+Trusted users, staff, and admin can execute any recipe they have access to. Other users can execute after the recipe has been previously authorized by a staff.
+
+###### Editing code
+
+Only staff and admin users can edit the recipe code.

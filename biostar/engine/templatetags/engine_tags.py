@@ -185,9 +185,10 @@ def privacy_label(project):
     return label
 
 
-@register.inclusion_tag('widgets/authorization_required.html')
-def security_label(analysis):
-    context = dict(analysis=analysis)
+@register.inclusion_tag('widgets/authorization_required.html', takes_context=True)
+def security_label(context, analysis):
+    context.update(dict(analysis=analysis))
+
     return context
 
 
@@ -312,8 +313,8 @@ def size_label(data):
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
 
 
-@register.inclusion_tag('widgets/directory_list.html')
-def directory_list(obj):
+@register.inclusion_tag('widgets/directory_list.html', takes_context=True)
+def directory_list(context, obj):
     """
     Generates an HTML listing for files in a directory.
     """
@@ -357,7 +358,7 @@ def directory_list(obj):
         logging.error(exc)
         paths = []
 
-    return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url)
+    return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url, user=context["request"].user)
 
 
 @register.inclusion_tag('widgets/form_errors.html')
