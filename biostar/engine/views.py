@@ -158,8 +158,14 @@ def project_info(request, uid):
 
 
 def project_list(request):
-    projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
-    projects = projects.order_by("-privacy", "-sticky", "-lastedit_date", "-date", "-id")
+    projects = auth.get_project_list(user=request.user)
+    projects = projects.order_by("-privacy", "-date", "-lastedit_date", "-id")
+
+    if request.user.is_authenticated:
+        user_projects = projects.filter(owner=request.user)
+        remaining_projects = projects.exclude(owner=request.user)
+        projects = user_projects | remaining_projects
+        projects = projects.distinct()
 
     context = dict(projects=projects)
     return render(request, "project_list.html", context)
