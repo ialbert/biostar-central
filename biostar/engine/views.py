@@ -157,11 +157,22 @@ def project_info(request, uid):
     return render(request, "project_info.html", context)
 
 
+def project_list_private(request):
+    """Only list private projects belonging to a user."""
+
+    projects = auth.get_project_list(user=request.user)
+    projects = projects.exclude(privacy=Project.PUBLIC)
+    projects = projects.order_by("-privacy", "-date", "-lastedit_date", "-id")
+    context = dict(projects=projects, private="active")
+    return render(request, "project_list.html", context)
+
+
 def project_list(request):
     projects = auth.get_project_list(user=request.user)
+    projects = projects.exclude(privacy=Project.PRIVATE)
     projects = projects.order_by("-privacy", "-date", "-lastedit_date", "-id")
+    context = dict(projects=projects, public="active")
 
-    context = dict(projects=projects)
     return render(request, "project_list.html", context)
 
 
