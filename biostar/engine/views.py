@@ -161,17 +161,29 @@ def project_list_private(request):
     """Only list private projects belonging to a user."""
 
     projects = auth.get_project_list(user=request.user)
+    # Get public counts before excluding them from the list
+    public_counts = projects.filter(privacy=Project.PUBLIC).count()
+
+    # Exclude public projects from list
     projects = projects.exclude(privacy=Project.PUBLIC)
     projects = projects.order_by("-privacy", "-date", "-lastedit_date", "-id")
-    context = dict(projects=projects, private="active")
+
+    context = dict(projects=projects, private="active", private_counts=projects.count(),
+                   public_counts=public_counts)
+
     return render(request, "project_list.html", context)
 
 
 def project_list(request):
     projects = auth.get_project_list(user=request.user)
+    # Get private counts before excluding them from the list
+    private_counts = projects.filter(privacy=Project.PRIVATE).count()
+
+    # Exclude private projects from list
     projects = projects.exclude(privacy=Project.PRIVATE)
     projects = projects.order_by("-privacy", "-date", "-lastedit_date", "-id")
-    context = dict(projects=projects, public="active")
+    context = dict(projects=projects, public="active", private_counts=private_counts,
+                   public_counts=projects.count())
 
     return render(request, "project_list.html", context)
 
@@ -260,7 +272,6 @@ def get_counts(project):
     data_count = project.data_set.count()
     recipe_count = project.analysis_set.count()
     result_count = project.job_set.count()
-    #discussion_count = Post.objects.get_discussions(project=project, type__in=Post.TOP_LEVEL).count()
     discussion_count = 0
 
     return dict(
