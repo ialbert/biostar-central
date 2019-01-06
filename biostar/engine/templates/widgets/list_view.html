@@ -18,7 +18,7 @@
                             <div class="meta">{{ project.summary|markdown|safe }}</div>
                             <div class="extra">
                                 {% privacy_label project %}
-                                {% created_by date=project.date.date user=project.owner %}
+                                {% created_by date=project.date.date user=project.owner obj=project %}
                             </div>
 
                         </div>
@@ -59,10 +59,6 @@
                         <div id="copy-message-{{ data.uid }}"></div>
                     </div>
                 </div>
-            {% empty %}
-                <div class="item ">
-                    <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>
-                </div>
 
             {% endfor %}
 </div>
@@ -90,10 +86,7 @@
 
                     </div>
                 </div>
-            {% empty %}
-            <div class="item">
-                <div class="ui warning message"><i class="ui warning circle icon"></i>No recipes found.</div>
-            </div>
+
             {% endfor %}
         </div>
 {% elif job_list %}
@@ -124,10 +117,7 @@
                         <div id="copy-message-{{ job.uid }}"></div>
                     </div>
                 </div>
-            {% empty %}
-                <div class="item ">
-                    <div class="ui warning message"><i class="ui warning circle icon"></i> No results found.</div>
-                </div>
+
             {% endfor %}
 
         </div>

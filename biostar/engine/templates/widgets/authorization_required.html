@@ -1,5 +1,7 @@
-{% if not analysis.runnable %}
+
+
+{% if not user.profile.trusted and not recipe.runnable %}
     <div class="ui message">
-        <i class="warning circle icon"></i>This recipe may be run only by members of the admin group.
+        <i class="warning circle icon"></i>This recipe may only be run by <b>trusted</b> users.
     </div>
 {% endif %}

@@ -15,6 +15,10 @@ body {
 
 }
 
+.jobpad{
+    padding-right:15!important;
+}
+
 .ui.items>.item>.content>a.header {
     color: #4183c4;
 }

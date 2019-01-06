@@ -10,7 +10,6 @@ def protect_private_topics(func):
 
     @wraps(func, assigned=available_attrs(func))
     def _wrapped_view(request, *args, **kwargs):
-
         topic = kwargs.get("topic", request.GET.get("active", const.LATEST))
 
         is_private_topic = topic in const.PRIVATE_TOPICS

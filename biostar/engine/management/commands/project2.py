@@ -22,19 +22,21 @@ class Bunch():
         self.user = self.stream = None
         self.__dict__.update(kwargs)
 
+
 def error(msg):
     logger.error(msg)
     sys.exit()
+
 
 class Command(BaseCommand):
     help = 'Creates a project.'
 
     def add_arguments(self, parser):
-        parser.add_argument('--uid',  help="The unique id of the project")
+        parser.add_argument('--uid',  required=True, help="The unique id of the project")
 
         parser.add_argument('--name', help="The name of the project")
 
-        parser.add_argument('--path', default='', help="Path to the file that contains the description of the project")
+        parser.add_argument('--info', default='', help="File path or text that contains the description")
 
         parser.add_argument('--public', default=False, action="store_true",
                             help="Makes project public")
@@ -45,31 +47,30 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         uid = options['uid']
-        name = options['name']
+        name = options['name'] or "Project Name"
         privacy = Project.PUBLIC if options["public"] else Project.PRIVATE
         update = options["update"]
-        path = options["path"]
+        info = options["info"]
 
         # Find project at uid.
-        project = Project.objects.filter(uid=uid).first()
-
-        if path and not os.path.isfile(path):
-            error(f"File not found at path={path}")
-
-        # Read in the description.
-        text = open(path).read() if path else ""
+        project = Project.objects.get_all(uid=uid).first()
 
         # You can only update existing projects.
         if project and not update:
             error(f"Project with uid={uid} exists! Set --update to overwrite.")
 
+        # Project description may be a text of a file path.
+        if info and os.path.isfile(info):
+            # Read the project info from a file.
+            info = open(info).read()
+
         # Select project owner.
         user = User.objects.filter(is_staff=True).first()
 
         # Create the project.
-        pr = auth.create_project(user=user, name=name, uid=uid, text=text, update=update, privacy=privacy)
+        pr = auth.create_project(user=user, name=name, uid=uid, text=info, update=update, privacy=privacy)
 
         if update:
-            print(f"*** Updated project: {pr.name} ({pr.uid})")
+            print(f"*** Updated project uid={pr.uid} name={pr.name}")
         else:
-            print (f"*** Created project: {pr.name} ({pr.uid})")
+            print (f"*** Created project uid={pr.uid} name={pr.name}")

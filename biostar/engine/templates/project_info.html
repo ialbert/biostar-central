@@ -19,7 +19,7 @@
 
             <div class="extra">
                 {% privacy_label project %}
-                {% created_by date=project.date.date user=project.owner %}
+                {% created_by date=project.date.date user=project.owner obj=project detail=True %}
             </div>
 
         </div>

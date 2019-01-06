@@ -1,5 +1,6 @@
 {% extends "base_content.html" %}
 {% load engine_tags %}
+{% load forum_tags %}
 
 {% block headtitle %}
     {{ data.name }}
@@ -23,7 +24,10 @@
                         <div class="ui small labels">
                             {% size_label data %}
                             {% type_label data %}
-                            &bull; created by {{ data.owner.first_name }}
+                            &bull; Updated {{data.lastedit_date|time_ago }} by
+                            {% if data.lastedit_user %}{{ data.lastedit_user.profile.name }}
+                            {% else %}{{ data.owner.profile.name }}
+                            {% endif %}
                         </div>
                     </div>
                 </div>

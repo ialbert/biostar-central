@@ -27,7 +27,8 @@ class Bunch(object):
 
 
 def make_html(text):
-    return mistune.markdown(text)
+    html = mistune.markdown(text, escape=False)
+    return html
 
 
 def image_path(instance, filename):
@@ -50,15 +51,18 @@ class Manager(models.Manager):
 
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
-        return super().get_queryset().filter(deleted=False).select_related("owner", "owner__profile")
+        return super().get_queryset().filter(deleted=False).select_related("owner", "owner__profile", "lastedit_user",
+                                                                           "lastedit_user__profile")
 
     def get_deleted(self, **kwargs):
         "Only show deleted things"
-        return super().get_queryset().filter(deleted=True, **kwargs).select_related("owner", "owner__profile")
+        return super().get_queryset().filter(deleted=True, **kwargs).select_related("owner", "owner__profile", "lastedit_user",
+                                                                                    "lastedit_user__profile")
 
     def get_all(self, **kwargs):
         "Return everything"
-        return super().get_queryset().filter(**kwargs).select_related("owner", "owner__profile")
+        return super().get_queryset().filter(**kwargs).select_related("owner", "owner__profile",  "lastedit_user",
+                                                                      "lastedit_user__profile")
 
 
 class Project(models.Model):
@@ -67,6 +71,10 @@ class Project(models.Model):
 
     # Affects the sort order.
     sticky = models.BooleanField(default=False)
+
+    # The user that edited the object most recently.
+    lastedit_user = models.ForeignKey(User, related_name='proj_editor', null=True, on_delete=models.CASCADE)
+    lastedit_date = models.DateTimeField(default=timezone.now)
 
     # Limits who can access the project.
     privacy = models.IntegerField(default=PRIVATE, choices=PRIVACY_CHOICES)
@@ -90,6 +98,9 @@ class Project(models.Model):
         self.html = make_html(self.text)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
+        self.lastedit_user = self.lastedit_user or self.owner
+        self.lastedit_date = now
+
         if not os.path.isdir(self.get_project_dir()):
             os.makedirs(self.get_project_dir())
 
@@ -183,6 +194,10 @@ class Data(models.Model):
     sticky = models.BooleanField(default=False)
     deleted = models.BooleanField(default=False)
 
+    # The user that edited the object most recently.
+    lastedit_user = models.ForeignKey(User, related_name='data_editor', null=True, on_delete=models.CASCADE)
+    lastedit_date = models.DateTimeField(default=timezone.now)
+
     owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     text = models.TextField(default='Data description.', max_length=MAX_TEXT_LEN, blank=True)
     html = models.TextField(default='html')
@@ -210,6 +225,8 @@ class Data(models.Model):
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
         self.type = self.type.replace(" ", '')
+        self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
+        self.lastedit_date = now
 
         # Build the data directory.
         data_dir = self.get_data_dir()
@@ -262,7 +279,6 @@ class Data(models.Model):
 
         tocname = self.get_path()
 
-
         collect = util.findfiles(self.get_data_dir(), collect=[])
 
         # Create a sorted file path collection.
@@ -297,7 +313,6 @@ class Data(models.Model):
     def url(self):
         return reverse('data_view', kwargs=dict(uid=self.uid))
 
-
     def fill_dict(self, obj):
         """
         Mutates a dictionary object to fill in more fields based
@@ -327,6 +342,7 @@ class Data(models.Model):
         first = lines[0]
         return first
 
+
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
 
@@ -341,6 +357,10 @@ class Analysis(models.Model):
     text = models.TextField(default='This is the recipe description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # The user that edited the object most recently.
+    lastedit_user = models.ForeignKey(User, related_name='analysis_editor', null=True, on_delete=models.CASCADE)
+    lastedit_date = models.DateTimeField(default=timezone.now)
 
     diff_author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="diff_author", null=True)
     diff_date = models.DateField(blank=True, auto_now_add=True)
@@ -374,6 +394,8 @@ class Analysis(models.Model):
         self.name = self.name[:MAX_NAME_LEN] or "New Recipe"
         self.html = make_html(self.text)
         self.diff_author = self.diff_author or self.owner
+        self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
+        self.lastedit_date = now
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
@@ -422,6 +444,10 @@ class Job(models.Model):
     deleted = models.BooleanField(default=False)
     name = models.CharField(max_length=MAX_NAME_LEN, default="New results")
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
+
+    # The user that edited the object most recently.
+    lastedit_user = models.ForeignKey(User, related_name='job_editor', null=True, on_delete=models.CASCADE)
+    lastedit_date = models.DateTimeField(default=timezone.now)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField(default='Result description.', max_length=MAX_TEXT_LEN)
@@ -525,6 +551,8 @@ class Job(models.Model):
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
         self.path = self.make_path()
+        self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
+        self.lastedit_date = now
 
         if not os.path.isdir(self.path):
             os.makedirs(self.path)

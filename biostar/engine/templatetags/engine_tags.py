@@ -2,8 +2,6 @@ import json
 import logging
 import hjson
 import os
-import mistune
-import re
 from textwrap import dedent
 
 from django.contrib import messages
@@ -148,7 +146,7 @@ def is_checkbox(field):
 
 @register.filter
 def is_qiime_archive(file=None):
-    filename = file.path
+    filename = file if isinstance(file, str) else file.path
 
     return filename.endswith(".qza") or filename.endswith(".qzv")
 
@@ -159,9 +157,10 @@ def privacy_label(project):
     return label
 
 
-@register.inclusion_tag('widgets/authorization_required.html')
-def security_label(analysis):
-    context = dict(analysis=analysis)
+@register.inclusion_tag('widgets/authorization_required.html', takes_context=True)
+def security_label(context, analysis):
+    context.update(dict(analysis=analysis))
+
     return context
 
 
@@ -256,11 +255,11 @@ def recipe_form(form):
     return dict(form=form)
 
 @register.inclusion_tag('widgets/created_by.html')
-def created_by(date, user):
+def created_by(date, user, obj=None, detail=False):
     """
     Renders a created by link
     """
-    return dict(date=date, user=user)
+    return dict(date=date, user=user, obj=obj, detail=detail)
 
 @register.inclusion_tag('widgets/access_form.html')
 def access_form(project, user, form):
@@ -286,8 +285,8 @@ def size_label(data):
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
 
 
-@register.inclusion_tag('widgets/directory_list.html')
-def directory_list(obj):
+@register.inclusion_tag('widgets/directory_list.html', takes_context=True)
+def directory_list(context, obj):
     """
     Generates an HTML listing for files in a directory.
     """
@@ -297,6 +296,7 @@ def directory_list(obj):
 
     # The serve url depends on data type..
     serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
+    copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"
 
     # This will collet the valid filepaths.
     paths = []
@@ -330,7 +330,7 @@ def directory_list(obj):
         logging.error(exc)
         paths = []
 
-    return dict(paths=paths, obj=obj, serve_url=serve_url)
+    return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url, user=context["request"].user)
 
 
 @register.inclusion_tag('widgets/form_errors.html')

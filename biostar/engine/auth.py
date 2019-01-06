@@ -1,6 +1,7 @@
 import difflib
 import logging
 import uuid, copy
+import os
 from mimetypes import guess_type
 
 import hjson
@@ -12,6 +13,7 @@ from django.template import Template, Context
 from django.template import loader
 from django.test import RequestFactory
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 
 from . import models
 from . import util
@@ -61,6 +63,31 @@ def access_denied_message(user, needed_access):
     return tmpl.render(context=context)
 
 
+def copy_file(request, fullpath):
+
+    if not os.path.exists(fullpath):
+        messages.error(request, "Path does not exist.")
+        return []
+
+    if request.user.is_anonymous:
+        messages.error(request, "You need to be logged in.")
+        return []
+
+    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
+
+    board_items = clipboard.get(FILES_CLIPBOARD, [])
+    board_items.append(fullpath)
+    # No duplicates in clipboard
+
+    clipboard[FILES_CLIPBOARD] = list(set(board_items))
+
+    request.session.update({settings.CLIPBOARD_NAME: clipboard})
+
+    messages.success(request, f"Copied file(s), clipboard contains {len(set(board_items))}.")
+
+    return
+
+
 def copy_uid(request, instance, board):
     """
     Used to append instance.uid into request.session[board]
@@ -84,7 +111,7 @@ def copy_uid(request, instance, board):
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
-    messages.success(request, f"Copied items, there are {len(set(board_items))} in clipboard.")
+    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
 
     return board_items
 
@@ -97,11 +124,12 @@ def authorize_run(user, recipe):
     if user.is_anonymous:
         return False
 
-    if user.is_staff:
+    if user.profile.trusted:
         return True
 
     # Only users with write access can run recipes
     entry = Access.objects.filter(project=recipe.project, user=user, access=Access.WRITE_ACCESS).first()
+
     if entry:
         return recipe.runnable()
 
@@ -156,7 +184,6 @@ def template_changed(analysis, template):
 
     change = list(difflib.unified_diff(text1, text2))
 
-    # print(f"Change: {bool(change)} {change}")
     return change
 
 
@@ -189,7 +216,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
     uid = uid or util.get_uuid(8)
 
     # Attempts to select the project.
-    project = Project.objects.filter(uid=uid)
+    project = Project.objects.get_all(uid=uid)
 
     # If it is not an update request return the project unchanged.
     if project and not update:
@@ -207,10 +234,11 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
         # Create a new project.
         project = Project.objects.create(
             name=name, uid=uid, text=text, owner=user, privacy=privacy, sticky=sticky)
+
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
+    # Update the image for the project.
     if stream:
-        # Update the image for the project.
         project.image.save(stream.name, stream, save=True)
 
     return project
@@ -236,10 +264,13 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     else:
         # Create a new analysis
         uid = None if analysis else uid
-        text = summary + "\n" + text
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)
+        # Update the projects lastedit user when a recipe is created
+        Project.objects.get_all(uid=analysis.project.uid).update(lastedit_user=user,
+                                                                 lastedit_date=now())
+
         logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
     if stream:
@@ -298,6 +329,10 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     if save:
         job.save()
+
+        # Update the projects lastedit user when a job is created
+        Project.objects.get_all(uid=project.uid).update(lastedit_user=owner,
+                                                        lastedit_date=now())
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
@@ -466,6 +501,10 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # Trigger another save.
     data.save()
+
+    # Update the projects lastedit user when a data is uploaded
+    Project.objects.get_all(uid=data.project.uid).update(lastedit_user=user,
+                                                         lastedit_date=now())
 
     # Set log for data creation.
     logger.info(f"Added data type={data.type} name={data.name} pk={data.pk}")

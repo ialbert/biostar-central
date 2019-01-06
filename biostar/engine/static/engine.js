@@ -219,7 +219,6 @@ $(document).ready(function () {
         });
     });
 
-
     $('#search').keyup(function(){
 
         $.ajax("/search/", {
@@ -236,7 +235,5 @@ $(document).ready(function () {
             });
 
     });
-
-
 
 });

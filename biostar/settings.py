@@ -123,7 +123,7 @@ INSTALLED_APPS = [
     'taggit',
     'debug_toolbar',
     'snowpenguin.django.recaptcha2',
-
+    'rest_framework',
     # The order of apps matters in the template loading
     'biostar.engine.apps.EngineConfig',
     'biostar.emailer.apps.EmailerConfig',
@@ -173,6 +173,13 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.MultiPartParser',
+    ),
+
+}
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",

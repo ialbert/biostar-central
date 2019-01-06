@@ -12,7 +12,7 @@
         <div class="ui divided link items">
 
             <div class="item ">
-                <div>
+                <div class="jobpad">
                     <img class="ui tiny rounded fancy image" src="{% img job.analysis %}">
                 </div>
 
@@ -24,7 +24,7 @@
                     <div class="description">{{ job.analysis.summary }}</div>
 
                     <div class="extra">{% job_minutes job %} &bull;
-                    {%  created_by date=job.date user=job.owner %}
+                    {%  created_by date=job.date user=job.owner obj=job %}
                     </div>
                 </div>
             </div>
