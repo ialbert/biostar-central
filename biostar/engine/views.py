@@ -162,14 +162,18 @@ def project_list_private(request):
 
     projects = auth.get_project_list(user=request.user)
     # Get public counts before excluding them from the list
-    public_counts = projects.filter(privacy=Project.PUBLIC).count()
+    public_counts = projects.count()
 
     # Exclude public projects from list
     projects = projects.exclude(privacy=Project.PUBLIC)
-    projects = projects.order_by("-privacy", "-date", "-lastedit_date", "-id")
+    projects = projects.order_by("-date", "-lastedit_date", "-id")
+
+    msg = "No projects found."
+    if request.user.is_anonymous:
+        msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
 
     context = dict(projects=projects, private="active", private_counts=projects.count(),
-                   public_counts=public_counts)
+                   public_counts=public_counts, msg=msg)
 
     return render(request, "project_list.html", context)
 
@@ -178,10 +182,9 @@ def project_list(request):
     projects = auth.get_project_list(user=request.user)
     # Get private counts before excluding them from the list
     private_counts = projects.filter(privacy=Project.PRIVATE).count()
+    #public_counts = projects.filter(privacy=Project.PUBLIC).count()
 
-    # Exclude private projects from list
-    projects = projects.exclude(privacy=Project.PRIVATE)
-    projects = projects.order_by("-privacy", "-date", "-lastedit_date", "-id")
+    projects = projects.order_by("-date", "-lastedit_date", "-id")
     context = dict(projects=projects, public="active", private_counts=private_counts,
                    public_counts=projects.count())
 
