@@ -64,7 +64,6 @@ class Manager(models.Manager):
         return super().get_queryset().filter(**kwargs).select_related("owner", "owner__profile",  "lastedit_user",
                                                                       "lastedit_user__profile")
 
-
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]

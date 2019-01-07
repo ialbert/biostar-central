@@ -94,13 +94,14 @@ def clear_clipboard(request, uid):
 
 def search_bar(request):
 
-    text_query = request.GET.get("q", "")
+    results = search.search(request=request)
 
-    results = search.search_index(text_query=text_query)
+    print(results)
 
     context = dict(results=results)
 
     return render(request, "search.html", context)
+
 
 def get_access(request, project):
     user = request.user if request.user.is_authenticated else None
