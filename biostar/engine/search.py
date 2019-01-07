@@ -13,9 +13,9 @@ logger = logging.getLogger('engine')
 def search(request):
 
     # Search each model type by title, text, owner email/name,
-    results = dict(Analysis=[], Project=[], Data=[], Job=[])
+    results = dict(analysis=[], project=[], data=[], job=[])
     search_fields = ['name', 'text', 'owner__email', 'owner__profile__name']
-    model_map = {"Job": Job, "Analysis": Analysis, "Data": Data, "Project": Project}
+    model_map = {"job": Job, "analysis": Analysis, "data": Data, "project": Project}
 
     # Create a search form for each model type.
     for mtype in results:
@@ -36,10 +36,8 @@ class SearchForm(forms.Form):
     #TODO: will be moved to engine.forms
 
     def __init__(self, queryset=None, search_fields=None, *args, **kwargs):
-
         self.queryset = queryset
         self.search_fields = search_fields
-
         super(SearchForm, self).__init__(*args, **kwargs)
 
     q = forms.CharField(label='Search', required=False)
