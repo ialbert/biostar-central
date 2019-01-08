@@ -26,10 +26,10 @@ def project_api_list(request):
     for project in projects:
         payload.setdefault(project.uid, dict()).update(
                             name=project.name,
-                            recipes={recipe.uid: dict(name=recipe.name,
-                                                      json=reverse("recipe_api_json", kwargs=dict(uid=recipe.uid)),
-                                                      template=reverse("recipe_api_template", kwargs=dict(uid=recipe.uid))
-                                                      )
+                            recipes={recipe.uid:
+                                     dict(name=recipe.name,
+                                          json=reverse("recipe_api_json", kwargs=dict(uid=recipe.uid)),
+                                          template=reverse("recipe_api_template", kwargs=dict(uid=recipe.uid)))
                                      for recipe in project.analysis_set.all()
                                      },
                             privacy=dict(Project.PRIVACY_CHOICES)[project.privacy],
