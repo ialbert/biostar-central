@@ -18,10 +18,10 @@
     {% show_messages messages %}
     <div class="ui top attached tabular colored menu">
         <a class="ui {{public}} blue item" href="{% url 'project_list' %}">
-            <i class="lock open icon"></i> {{public_counts}} Public
+            <i class="lock open icon"></i>Public Projects
         </a>
         <a class="ui {{private}} blue item" href="{% url 'project_list_private' %}">
-            <i class="lock icon"></i>{{private_counts}} Private
+            <i class="lock icon"></i> Your Projects
         </a>
     </div>
     <div class="ui bottom attached colored segment">
@@ -29,7 +29,7 @@
 
         {% if not projects %}
             <div class="item ">
-                <div class="ui warning message"><i class="ui warning circle icon"></i> No projects found.</div>
+                <div class="ui warning message"><i class="ui warning circle icon"></i> {{msg}}</div>
             </div>
         {% endif %}
     </div>

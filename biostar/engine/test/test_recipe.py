@@ -104,9 +104,9 @@ class RecipeViewTest(TestCase):
     def Xtest_api(self):
         "Test the recipe api"
 
-        api_list = reverse('api_list'), api.recipe_api_list, {}
-        api_json = reverse('api_json', kwargs=dict(uid=self.recipe.uid)), api.recipe_json, dict(uid=self.recipe.uid)
-        api_template = reverse('api_template', kwargs=dict(uid=self.recipe.uid)), api.recipe_template, dict(uid=self.recipe.uid)
+        api_list = reverse('recipe_api_list'), api.recipe_api_list, {}
+        api_json = reverse('recipe_api_json', kwargs=dict(uid=self.recipe.uid)), api.recipe_json, dict(uid=self.recipe.uid)
+        api_template = reverse('recipe_api_template', kwargs=dict(uid=self.recipe.uid)), api.recipe_template, dict(uid=self.recipe.uid)
 
         for data in [api_list, api_json, api_template]:
             url, view_func, params = data

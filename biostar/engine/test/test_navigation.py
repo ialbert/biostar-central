@@ -49,9 +49,9 @@ class SiteNavigation(TestCase):
 
         api_urls = [
 
-            reverse('api_list'),
-            reverse('api_json', kwargs=self.analysis_params),
-            reverse('api_template', kwargs=self.analysis_params)
+            reverse('recipe_api_list'),
+            reverse('recipe_api_json', kwargs=self.analysis_params),
+            reverse('recipe_api_template', kwargs=self.analysis_params)
         ]
 
         urls = [
