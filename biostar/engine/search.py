@@ -26,7 +26,7 @@ def search(request):
         search_form = SearchForm(queryset=model.objects.get_all(), search_fields=search_fields,
                                  data=request.GET or {})
 
-        # Add search results in the
+        # Add search results to dict
         if search_form.is_valid():
             results[mtype] = search_form.get_queryset()
 

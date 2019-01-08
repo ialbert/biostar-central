@@ -6,18 +6,19 @@
 
     {% for project in results.project %}
         <div class="item">
-            <b>Project:</b> <a href="{{project.url}}">{{project.name|safe}}</a>
+
+            <b>Project:</b> <a href="{{project.url}}">{{project.name |highlight:query |safe }}</a>
             <div class="muted">
-                {{project.text}}
+                {{project.text|highlight:query |safe}}
             </div>
         </div>
     {% endfor %}
 
     {% for data in results.data %}
         <div class="item">
-            <b>Data:</b> <a href="{{data.url}}">{{data.name|safe}}</a>
+            <b>Data:</b> <a href="{{data.url}}">{{data.name|highlight:query |safe}}</a>
             <div class="muted">
-                {{data.text}}
+                {{data.text|highlight:query |safe}}
             </div>
         </div>
     {% endfor %}
@@ -25,18 +26,18 @@
 
     {% for recipe in results.analysis %}
         <div class="item">
-            <b>Recipe:</b> <a href="{{recipe.url}}">{{recipe.name|safe}}</a>
+            <b>Recipe:</b> <a href="{{recipe.url}}">{{recipe.name|highlight:query |safe}}</a>
             <div class="muted">
-                {{recipe.text}}
+                {{recipe.text|highlight:query |safe}}
             </div>
         </div>
     {% endfor %}
 
     {% for job in results.job %}
         <div class="item">
-            <b>Job:</b> <a href="{{job.url}}">{{job.name|safe}}</a>
+            <b>Job:</b> <a href="{{job.url}}">{{job.name|highlight:query |safe}}</a>
             <div class="muted">
-                {{job.text}}
+                {{job.text|highlight:query |safe}}
             </div>
         </div>
     {% endfor %}

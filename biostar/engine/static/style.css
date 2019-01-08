@@ -61,6 +61,7 @@ figure { display: block; margin: 0; }
 .match {
     background-color:yellow !important;
     color: darkgreen;
+    display: inline-block !important;
 }
 
 .deleted {

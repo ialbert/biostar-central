@@ -1,7 +1,7 @@
-import json
+
 import logging
-import hjson
 import os
+import re
 from textwrap import dedent
 
 from django.contrib import messages
@@ -80,6 +80,20 @@ def file_list(context, path, files, obj, form=None):
         view_url, serve_url = 'job_view', 'job_serve'
 
     return dict(path=path, files=files, obj=obj, form=form, back=back, view_url=view_url, serve_url=serve_url)
+
+
+@register.filter
+def highlight(source, target):
+
+    # Look for case insensitive matches in the source
+    highlighting = re.search(f"(?i){target}", source)
+
+    target = highlighting.group() if highlighting else target
+
+    # Highlight the target
+    highlighted = mark_safe(f"<div class='match'>{target}</div>")
+
+    return source.replace(target, highlighted)
 
 
 @register.simple_tag
