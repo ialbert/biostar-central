@@ -13,6 +13,14 @@ from biostar.engine.decorators import require_api_key
 
 
 @api_view(['GET'])
+def project_api_list(request):
+
+
+
+    return
+
+
+@api_view(['GET'])
 def recipe_api_list(request):
 
     recipes = Analysis.objects.get_all()
@@ -27,7 +35,8 @@ def recipe_api_list(request):
         payload.setdefault(recipe.uid, dict()).update(
                             name=recipe.name,
                             json=reverse("api_json", kwargs=dict(uid=recipe.uid)),
-                            template=reverse("api_template", kwargs=dict(uid=recipe.uid))
+                            template=reverse("api_template", kwargs=dict(uid=recipe.uid)),
+                            privacy=dict(Project.PRIVACY_CHOICES)[recipe.project.privacy],
                             )
 
     return Response(data=payload, status=status.HTTP_200_OK)
