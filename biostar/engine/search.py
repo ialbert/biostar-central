@@ -3,6 +3,7 @@ import logging
 from functools import reduce
 from django.db.models import Q
 from django.utils.text import smart_split
+from django.conf import settings
 from django import forms
 from biostar.engine.models import Project, Job, Analysis, Data
 from biostar.engine.const import *
@@ -43,7 +44,12 @@ class SearchForm(forms.Form):
     q = forms.CharField(label='Search', required=False)
 
     def clean_q(self):
-        return self.cleaned_data['q'].strip()
+        query = self.cleaned_data['q'].strip()
+
+        if len(query) <= settings.SEARCH_CHAR_MIN:
+            raise forms.ValidationError("Enter more than 3 characters.")
+
+        return query
 
     def get_queryset(self):
         qs = self.queryset

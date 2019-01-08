@@ -95,9 +95,6 @@ def clear_clipboard(request, uid):
 def search_bar(request):
 
     results = search.search(request=request)
-
-    print(results)
-
     context = dict(results=results)
 
     return render(request, "search.html", context)

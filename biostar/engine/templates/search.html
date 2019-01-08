@@ -4,16 +4,42 @@
 
 <div class="ui relaxed divided list">
 
-    {{results.analysis}}
-
-    {% for res in results %}
+    {% for project in results.project %}
         <div class="item">
-
-            <b>{{res.type}}:</b> <a href="{{res.url}}">{{res.name|safe}}</a>
+            <b>Project:</b> <a href="{{project.url}}">{{project.name|safe}}</a>
             <div class="muted">
-                {{res.content|safe}}
+                {{project.text}}
+            </div>
+        </div>
+    {% endfor %}
+
+    {% for data in results.data %}
+        <div class="item">
+            <b>Data:</b> <a href="{{data.url}}">{{data.name|safe}}</a>
+            <div class="muted">
+                {{data.text}}
+            </div>
+        </div>
+    {% endfor %}
+
+
+    {% for recipe in results.analysis %}
+        <div class="item">
+            <b>Recipe:</b> <a href="{{recipe.url}}">{{recipe.name|safe}}</a>
+            <div class="muted">
+                {{recipe.text}}
+            </div>
+        </div>
+    {% endfor %}
+
+    {% for job in results.job %}
+        <div class="item">
+            <b>Job:</b> <a href="{{job.url}}">{{job.name|safe}}</a>
+            <div class="muted">
+                {{job.text}}
             </div>
         </div>
     {% endfor %}
 
 </div>
+
