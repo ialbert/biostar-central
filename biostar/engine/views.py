@@ -157,11 +157,31 @@ def project_info(request, uid):
     return render(request, "project_info.html", context)
 
 
+def project_list_private(request):
+    """Only list private projects belonging to a user."""
+
+    projects = auth.get_project_list(user=request.user, include_public=False)
+
+    empty_msg = "No projects found."
+    if request.user.is_anonymous:
+        projects = []
+        empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
+    else:
+        projects = projects.order_by("-date", "-lastedit_date", "-id")
+
+    context = dict(projects=projects, private="active", msg=empty_msg)
+
+    return render(request, "project_list.html", context)
+
+
 def project_list(request):
     projects = auth.get_project_list(user=request.user)
-    projects = projects.order_by("-privacy", "-date", "-lastedit_date", "-id")
 
-    context = dict(projects=projects)
+    # Exclude private projects
+    projects = projects.exclude(privacy=Project.PRIVATE)
+    projects = projects.order_by("-date", "-lastedit_date", "-id")
+    context = dict(projects=projects, public="active")
+
     return render(request, "project_list.html", context)
 
 
@@ -249,7 +269,6 @@ def get_counts(project):
     data_count = project.data_set.count()
     recipe_count = project.analysis_set.count()
     result_count = project.job_set.count()
-    #discussion_count = Post.objects.get_discussions(project=project, type__in=Post.TOP_LEVEL).count()
     discussion_count = 0
 
     return dict(

@@ -13,6 +13,32 @@ from biostar.engine.decorators import require_api_key
 
 
 @api_view(['GET'])
+def project_api_list(request):
+
+    projects = Project.objects.get_all()
+    api_key = request.GET.get("k", "")
+
+    # Only show public projects when api key is not correct or provided.
+    if settings.API_KEY != api_key:
+        projects = projects.filter(privacy=Project.PUBLIC)
+
+    payload = dict()
+    for project in projects:
+        payload.setdefault(project.uid, dict()).update(
+                            name=project.name,
+                            recipes={recipe.uid:
+                                     dict(name=recipe.name,
+                                          json=reverse("recipe_api_json", kwargs=dict(uid=recipe.uid)),
+                                          template=reverse("recipe_api_template", kwargs=dict(uid=recipe.uid)))
+                                     for recipe in project.analysis_set.all()
+                                     },
+                            privacy=dict(Project.PRIVACY_CHOICES)[project.privacy],
+                            )
+
+    return Response(data=payload, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
 def recipe_api_list(request):
 
     recipes = Analysis.objects.get_all()
@@ -26,8 +52,9 @@ def recipe_api_list(request):
     for recipe in recipes:
         payload.setdefault(recipe.uid, dict()).update(
                             name=recipe.name,
-                            json=reverse("api_json", kwargs=dict(uid=recipe.uid)),
-                            template=reverse("api_template", kwargs=dict(uid=recipe.uid))
+                            json=reverse("recipe_api_json", kwargs=dict(uid=recipe.uid)),
+                            template=reverse("recipe_api_template", kwargs=dict(uid=recipe.uid)),
+                            privacy=dict(Project.PRIVACY_CHOICES)[recipe.project.privacy],
                             )
 
     return Response(data=payload, status=status.HTTP_200_OK)

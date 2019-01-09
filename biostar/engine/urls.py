@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^project/view/(?P<uid>[-\w]+)/$', views.project_info, name='project_view'),
     url(r'^project/edit/(?P<uid>[-\w]+)/$', views.project_edit, name='project_edit'),
     url(r'^project/info/(?P<uid>[-\w]+)/$', views.project_info, name='project_info'),
+    url(r'^project/list/private/$', views.project_list_private, name='project_list_private'),
+    url(r'^project/list/public/$', views.project_list, name='project_list_public'),
 
     # Data
     url(r'^data/list/(?P<uid>[-\w]+)/$', views.data_list, name='data_list'),
@@ -51,9 +53,10 @@ urlpatterns = [
     url(r'^job/delete/(?P<uid>[-\w]+)/$', views.job_delete, name='job_delete'),
 
     # Api calls
-    url(r'^api/list/$', api.recipe_api_list, name='api_list'),
-    url(r'^api/recipe/(?P<uid>[-\w]+)/json/$', api.recipe_json, name='api_json'),
-    url(r'^api/recipe/(?P<uid>[-\w]+)/template/$', api.recipe_template, name='api_template'),
+    url(r'^recipe/api/list/$', api.recipe_api_list, name='recipe_api_list'),
+    url(r'^project/api/list/$', api.project_api_list, name='project_api_list'),
+    url(r'^api/recipe/(?P<uid>[-\w]+)/json/$', api.recipe_json, name='recipe_api_json'),
+    url(r'^api/recipe/(?P<uid>[-\w]+)/template/$', api.recipe_template, name='recipe_api_template'),
 
     # Discussions
     url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),

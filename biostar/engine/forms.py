@@ -115,9 +115,14 @@ class ProjectForm(forms.ModelForm):
         self.request = request
         self.create = create
 
+        choices = filter(lambda pri: pri[0] != Project.SHAREABLE, Project.PRIVACY_CHOICES)
+
+        self.fields["privacy"] = forms.CharField(widget=forms.Select(choices=choices), initial=self.instance.privacy,
+                                                 required=False)
+
     class Meta:
         model = Project
-        fields = ['name', 'text', 'image']
+        fields = ['name', 'text', 'privacy', 'image']
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
