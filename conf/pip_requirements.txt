@@ -26,4 +26,3 @@ pyftpdlib
 pandas
 requests
 pyopenssl
-whoosh

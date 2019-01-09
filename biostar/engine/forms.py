@@ -15,7 +15,7 @@ from django.conf import settings
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from biostar.accounts.models import User, Profile
-from . import models, auth, factory, util, search
+from . import models, auth, factory, util
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
 
