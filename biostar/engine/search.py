@@ -5,7 +5,9 @@ from django.db.models import Q
 from django.utils.text import smart_split
 from django.conf import settings
 from django import forms
-from biostar.engine.models import Project, Job, Analysis, Data
+
+from biostar.engine.auth import get_project_list
+from biostar.engine.models import Job, Analysis, Data
 from biostar.engine.const import *
 
 logger = logging.getLogger('engine')
@@ -13,17 +15,25 @@ logger = logging.getLogger('engine')
 
 def search(request):
 
-    # Search each model type by title, text, owner email/name,
     results = dict(analysis=[], project=[], data=[], job=[])
+
+    # Search each model type by title, text, owner email/name.
     search_fields = ['name', 'text', 'owner__email', 'owner__profile__name']
-    model_map = {"job": Job, "analysis": Analysis, "data": Data, "project": Project}
+
+    # Get the objects the user can access
+    projects = get_project_list(user=request.user)
+
+    model_map = {"job": Job.objects.filter(project__in=projects),
+                 "analysis": Analysis.objects.filter(project__in=projects),
+                 "data": Data.objects.filter(project__in=projects),
+                 "project": projects}
 
     # Create a search form for each model type.
     for mtype in results:
 
-        model = model_map[mtype]
+        queryset = model_map[mtype]
         # Load query from GET request.
-        search_form = SearchForm(queryset=model.objects.get_all(), search_fields=search_fields,
+        search_form = SearchForm(queryset=queryset, search_fields=search_fields,
                                  data=request.GET or {})
 
         # Add search results to dict

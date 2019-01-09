@@ -1,6 +1,21 @@
 {% load engine_tags %}
 
+{% if not min_length %}
 
+    <div class="ui blue basic message">
+        <i class="info icon"></i>Enter more characters to perform search.
+    </div>
+
+{% elif no_results %}
+
+    <div class="ui warning message">
+        <i class="info icon"></i> No results found.
+    </div>
+
+{% elif query %}
+
+<div class="ui green segment" style="background:#f4fced;padding:7px">
+<div class="ui large center aligned header">Search Results</div>
 
 <div class="ui relaxed divided list">
 
@@ -43,4 +58,6 @@
     {% endfor %}
 
 </div>
+</div>
+{% endif %}
 
