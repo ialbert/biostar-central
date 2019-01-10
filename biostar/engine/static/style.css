@@ -52,6 +52,22 @@ figure { display: block; margin: 0; }
     margin-left: -0.5em !important;
 }
 
+
+.customsearch {
+    width:400 !important;
+}
+
+.searchblock {
+    background:#f4fced !important ;
+    padding:7px !important;
+}
+
+.match {
+    background-color:yellow !important;
+    color: darkgreen;
+    display: inline-block !important;
+}
+
 .deleted {
     background-color:#f7e4de !important;;
 }
