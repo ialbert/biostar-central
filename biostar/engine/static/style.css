@@ -57,6 +57,10 @@ figure { display: block; margin: 0; }
     width:400 !important;
 }
 
+.searchblock {
+    background:#f4fced !important ;
+    padding:7px !important;
+}
 
 .match {
     background-color:yellow !important;

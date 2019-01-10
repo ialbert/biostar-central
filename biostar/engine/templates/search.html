@@ -9,13 +9,15 @@
 {% elif no_results %}
 
     <div class="ui warning message">
-        <i class="info icon"></i> No results found.
+        <i class="search minus icon"></i> No results found.
     </div>
 
 {% elif query %}
 
-<div class="ui green segment" style="background:#f4fced;padding:7px">
-<div class="ui large center aligned header">Search Results</div>
+<div class="ui green searchblock segment" >
+<div class="ui center aligned vertical segment">
+     <h3> <i class="search icon"></i>Search Results</h3>
+</div>
 
 <div class="ui relaxed divided list">
 
