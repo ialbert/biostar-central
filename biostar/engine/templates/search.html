@@ -1,0 +1,65 @@
+{% load engine_tags %}
+
+{% if not min_length %}
+
+    <div class="ui blue basic message">
+        <i class="info icon"></i>Enter more characters to perform search.
+    </div>
+
+{% elif no_results %}
+
+    <div class="ui warning message">
+        <i class="search minus icon"></i> No results found.
+    </div>
+
+{% elif query %}
+
+<div class="ui green searchblock segment" >
+<div class="ui center aligned vertical segment">
+     <h3> <i class="search icon"></i>Search Results</h3>
+</div>
+
+<div class="ui relaxed divided list">
+
+    {% for project in results.project %}
+        <div class="item">
+
+            <b>Project:</b> <a href="{{project.url}}">{{project.name |highlight:query |safe }}</a>
+            <div class="muted">
+                {{project.text|highlight:query |safe}}
+            </div>
+        </div>
+    {% endfor %}
+
+    {% for data in results.data %}
+        <div class="item">
+            <b>Data:</b> <a href="{{data.url}}">{{data.name|highlight:query |safe}}</a>
+            <div class="muted">
+                {{data.text|highlight:query |safe}}
+            </div>
+        </div>
+    {% endfor %}
+
+
+    {% for recipe in results.analysis %}
+        <div class="item">
+            <b>Recipe:</b> <a href="{{recipe.url}}">{{recipe.name|highlight:query |safe}}</a>
+            <div class="muted">
+                {{recipe.text|highlight:query |safe}}
+            </div>
+        </div>
+    {% endfor %}
+
+    {% for job in results.job %}
+        <div class="item">
+            <b>Job:</b> <a href="{{job.url}}">{{job.name|highlight:query |safe}}</a>
+            <div class="muted">
+                {{job.text|highlight:query |safe}}
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
+</div>
+{% endif %}
+

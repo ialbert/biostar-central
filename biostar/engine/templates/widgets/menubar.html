@@ -21,9 +21,18 @@
     {%  endif %}
 
     {% if with_search %}
+
         <div class="right menu tablet">
-            {% search request=request %}
+
+         {% csrf_token %}
+          <div class="ui fluid icon transparent input customsearch">
+            <input type="text" id="search" name="search" placeholder="Enter search here ...">
+            <i class="search icon"></i>
+
+          </div>
+
         </div>
+
     {% endif %}
 
 

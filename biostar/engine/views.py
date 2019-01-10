@@ -19,7 +19,7 @@ from biostar.accounts.models import User
 from biostar.forum import views as forum_views
 from biostar.forum.models import Post
 from biostar.utils.shortcuts import reverse
-from . import tasks, auth, forms, const, util
+from . import tasks, auth, forms, const, util, search
 from .decorators import read_access, write_access
 from .models import (Project, Data, Analysis, Job, Access)
 
@@ -90,6 +90,23 @@ def clear_clipboard(request, uid):
         request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
     return redirect(next_url)
+
+
+def search_bar(request):
+
+    results = search.search(request=request)
+
+    # Indicate to users that minimum character needs to be met.
+    min_length = len(request.GET.get("q", "").strip()) > settings.SEARCH_CHAR_MIN
+
+    # Indicate to users that there are no results for search.
+    current_results = len([inner for outer in results.values() for inner in outer])
+    no_results = min_length and current_results == 0
+
+    context = dict(results=results, query=request.GET.get("q", "").strip(),
+                   min_length=min_length, no_results=no_results)
+
+    return render(request, "search.html", context)
 
 
 def get_access(request, project):
