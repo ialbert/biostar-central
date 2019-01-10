@@ -59,6 +59,7 @@ class SiteNavigation(TestCase):
             reverse('logout'),
             reverse('login'),
             reverse('project_list'),
+            reverse('project_list_private'),
             reverse('data_list', kwargs=self.proj_params),
             reverse('data_view', kwargs=self.data_params),
             reverse('data_upload', kwargs=self.proj_params),
