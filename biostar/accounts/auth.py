@@ -59,7 +59,6 @@ def send_verification_email(user):
     return True
 
 
-
 def create_user_from_json(json_dict):
 
     email = json_dict.get("email")

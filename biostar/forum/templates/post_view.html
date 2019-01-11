@@ -7,8 +7,6 @@
 {% endblock %}
 
 {% block body %}
-<div class="ui doubling stackable grid container">
-<div class="twelve wide column">
 
 <div class="ui vertical segment">
     {# This is the toplevel post #}
@@ -59,14 +57,8 @@
 
     {% endif %}
     </div>
-</div>
-
-    <div class="four wide column">
-        {% feed user=request.user post=post %}
-    </div>
 
 
-</div>
 
 
 
