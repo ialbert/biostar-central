@@ -28,7 +28,7 @@
     {% if write_access %}
         <div class="ui vertical segment">
 
-            <div class="ui five small buttons">
+            <div class="ui four small buttons">
                 <a class="ui button" href="{% url 'data_upload' project.uid %}">
                     <i class="plus icon"></i>Add Data
                 </a>
@@ -40,12 +40,6 @@
                 <a class="ui  button" href="{% url 'project_users' project.uid %}">
                     <i class="users icon"></i>Manage Access
                 </a>
-
-
-                <a class="ui  button" href="{% url 'project_users' project.uid %}">
-                    <i class="users icon"></i>Manage Access
-                </a>
-
 
                 <a class="ui button tablet" href="{% url 'project_delete' project.uid %}">
                     {% if project.deleted %}

@@ -66,7 +66,7 @@ def recycle_bin(request):
         query_dict = dict(project__in=projects)
     else:
         # Only searches projects user have access.
-        projects = auth.get_project_list(user=user)
+        projects = auth.get_project_list(user=user, include_deleted=True)
         query_dict = dict(project__in=projects, owner=user)
 
     projects = projects.filter(deleted=True).order_by("date")

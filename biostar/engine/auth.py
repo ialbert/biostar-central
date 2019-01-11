@@ -187,7 +187,7 @@ def template_changed(analysis, template):
     return change
 
 
-def get_project_list(user, include_public=True):
+def get_project_list(user, include_public=True, include_deleted=False):
     """
     Return projects visible to a user.
     """
@@ -204,7 +204,10 @@ def get_project_list(user, include_public=True):
                                                                                access__access__in=[Access.READ_ACCESS,
                                                                                                    Access.WRITE_ACCESS])
     # Generate the query.
-    query = Project.objects.get_all().filter(cond).distinct()
+    if include_deleted:
+        query = Project.objects.get_all().filter(cond).distinct()
+    else:
+        query = Project.objects.filter(cond).distinct()
 
     return query
 
