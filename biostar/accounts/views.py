@@ -115,7 +115,6 @@ def user_profile(request, uid):
     return render(request, 'accounts/user_profile.html', context)
 
 
-
 def toggle_notify(request):
     if request.user.is_anonymous:
         messages.error(request, "Must be logged in to edit profile")
