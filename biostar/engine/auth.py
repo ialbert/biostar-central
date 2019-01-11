@@ -204,7 +204,7 @@ def get_project_list(user, include_public=True):
                                                                                access__access__in=[Access.READ_ACCESS,
                                                                                                    Access.WRITE_ACCESS])
     # Generate the query.
-    query = Project.objects.filter(cond).distinct()
+    query = Project.objects.get_all().filter(cond).distinct()
 
     return query
 
