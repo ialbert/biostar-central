@@ -1,6 +1,6 @@
 {% load engine_tags %}
 
-{% if not min_length %}
+{% if not min_length and query %}
 
     <div class="ui blue basic message">
         <i class="info icon"></i>Enter more characters to perform search.
