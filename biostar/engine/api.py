@@ -2,7 +2,7 @@
 import hjson
 
 from django.conf import settings
-
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -71,7 +71,6 @@ def recipe_json(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
 
     # API key is always checked by @require_api_key decorator.
-
     if request.method == "PUT":
         # Get the new json that will replace the current one
         file_object = request.data.get("file", "")
@@ -94,7 +93,6 @@ def recipe_template(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
 
     # API key is always checked by @require_api_key decorator.
-
     if request.method == "PUT":
         # Get the new template that will replace the current one
         file_object = request.data.get("file", "")
@@ -104,6 +102,6 @@ def recipe_template(request, uid):
 
     payload = recipe.template
 
-    return Response(data=payload, status=status.HTTP_200_OK)
+    return HttpResponse(content=payload, content_type="text/plain")
 
 

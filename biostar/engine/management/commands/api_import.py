@@ -16,11 +16,10 @@ def get_base_url():
 
 def import_recipes(project_uid, recipe_dict, base_url, base_dir):
     """
-    Downloads json and template from API and puts them in project
-    folder.
+    Downloads json and template from API and puts them in project folder.
     """
 
-    def download(url, uid, outfile="recipe"):
+    def download(url, uid, outfile="recipe", is_json=False):
 
         # Make the recipe directory
         dir = os.path.join(base_dir, project_uid, uid)
@@ -28,13 +27,13 @@ def import_recipes(project_uid, recipe_dict, base_url, base_dir):
         # Get full url and read content
         data = urlopen(url=urljoin(base_url, url)).read().decode()
         # Format data and dump content into file
-        data = hjson.dumps(hjson.loads(data))
+        data = hjson.dumps(hjson.loads(data)) if is_json else data
         outfile = os.path.join(dir, outfile)
-        open(outfile, "w").write(data)
+        open(outfile, "w").write(str(data.strip()))
 
     for recipe_uid in recipe_dict:
         create_file = partial(download, uid=recipe_uid)
-        create_file(outfile="json.hjson", url=recipe_dict[recipe_uid]["json"])
+        create_file(outfile="json.hjson", url=recipe_dict[recipe_uid]["json"], is_json=True)
         create_file(outfile="template.sh", url=recipe_dict[recipe_uid]["template"])
 
     return
