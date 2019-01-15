@@ -64,7 +64,7 @@ class Command(BaseCommand):
         parser.add_argument('--data', default="", help="""
                                       Base data directory to export project data from.
                                       Its subdirectories are expected to be: /project/recipe.
-                                      (default: %(default)s) .""")
+                                      (default: empty) .""")
         parser.add_argument('--project', default="", help=""" 
                                         Full path to single project directory to crawl and export recipes from.
                                         (default: empty) .""")
