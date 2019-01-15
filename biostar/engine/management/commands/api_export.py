@@ -61,14 +61,16 @@ class Command(BaseCommand):
         parser.add_argument('--base', default=get_base_url(),
                             help="Base url to do a reverse look up of api urls. Default: (default: %(default)s)")
         parser.add_argument('--key', default='', required=True, help="API key. (default: empty)")
-        parser.add_argument('--data', default=settings.API_DUMP, help="""
+        parser.add_argument('--data', default="", help="""
                                       Base data directory to export project data from.
                                       Its subdirectories are expected to be: /project/recipe.
                                       (default: %(default)s) .""")
         parser.add_argument('--project', default="", help=""" 
                                         Full path to single project directory to crawl and export recipes from.
                                         (default: empty) .""")
-
+        parser.add_argument('--recipe', default="", help=""" 
+                                        Full path to single recipe dir to export from.
+                                        (default: empty) .""")
 
         pass
 
@@ -78,17 +80,24 @@ class Command(BaseCommand):
         base_dir = options["data"]
         api_key = options["key"]
         project_dir = options["project"]
+        recipe_dir = options["recipe"]
 
         upload_recipes = partial(export_recipes, base_url=base_url, api_key=api_key)
 
-        # Upload recipes found in a single project and exit out
+        # Upload recipes found in multiple projects
+        if base_dir:
+            recipe_dirs = get_recipe_dirs(base_dir=base_dir)
+            upload_recipes(recipe_dirs=recipe_dirs)
+
+        # Upload recipes found in a single project
         if project_dir:
             recipe_dirs = [r.path for r in os.scandir(project_dir)]
             upload_recipes(recipe_dirs=recipe_dirs)
-            return
 
-        # Upload recipes found in multiple projects in a base_dir
-        recipe_dirs = get_recipe_dirs(base_dir=base_dir)
-        upload_recipes(recipe_dirs=recipe_dirs)
+        # Upload a single recipe
+        if recipe_dir:
+            upload_recipes(recipe_dirs=[os.path.abspath(recipe_dir)])
+
+
 
 
