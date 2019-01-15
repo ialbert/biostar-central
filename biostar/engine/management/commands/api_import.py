@@ -14,7 +14,7 @@ def get_base_url():
     return f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 
 
-def import_recipes(project_uid, recipe_dict, base_url, base_dir):
+def import_recipes(project_uid, recipe_dict, base_url, base_dir, api_key=""):
     """
     Downloads json and template from API and puts them in project folder.
     """
@@ -25,11 +25,12 @@ def import_recipes(project_uid, recipe_dict, base_url, base_dir):
         dir = os.path.join(base_dir, project_uid, uid)
         os.makedirs(dir, exist_ok=True)
         # Get full url and read content
-        data = urlopen(url=urljoin(base_url, url)).read().decode()
+        fullurl = urljoin(base_url, url) + f"?k={api_key}"
+        data = urlopen(url=fullurl).read().decode()
         # Format data and dump content into file
         data = hjson.dumps(hjson.loads(data)) if is_json else data
         outfile = os.path.join(dir, outfile)
-        open(outfile, "w").write(str(data.strip()))
+        open(outfile, "w").write(data)
 
     for recipe_uid in recipe_dict:
         create_file = partial(download, uid=recipe_uid)
@@ -45,7 +46,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
 
         parser.add_argument('--base', default='', help="Base url to do a reverse look up of api urls.")
-        parser.add_argument('--api_key', default='', help="API key used to return all projects.")
+        parser.add_argument('--key', default='', help="API key.")
         parser.add_argument('--output', default='', help="Directory to download data to.")
 
         pass
@@ -54,18 +55,18 @@ class Command(BaseCommand):
 
         base_url = options["base"] or get_base_url()
         base_dir = options["output"] or settings.API_DUMP
-        api_key = ""
+        api_key = options["key"]
         # Get the project api list
         api_view = reverse("project_api_list")
 
-        # Join the base url with a given api_view.
-        api_url = urljoin(base_url, api_view)
+        # Join the base url with a given api_view and key.
+        api_url = urljoin(base_url, api_view) + f"?k={api_key}"
 
         # Get the json data
         project_json = urlopen(url=api_url).read().decode()
         json_data = hjson.loads(project_json)
 
-        create_files = partial(import_recipes, base_url=base_url, base_dir=base_dir)
+        create_files = partial(import_recipes, base_url=base_url, base_dir=base_dir, api_key=api_key)
 
         # Each key('pid') in json data is a project uid.
         for pid in json_data:
