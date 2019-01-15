@@ -17,9 +17,11 @@ from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
 from biostar.utils.decorators import object_exists
+from biostar.engine.auth import get_project_list
+from biostar.engine.models import Project
 from biostar.utils.shortcuts import reverse
 from . import forms
-from .auth import check_user, send_verification_email, query_topic
+from .auth import check_user, send_verification_email
 from .const import *
 from .models import User, Profile
 from .tokens import account_verification_token
@@ -92,8 +94,11 @@ def user_profile(request, uid):
 
     can_moderate = profile.can_moderate(source=request.user)
 
-    objs = query_topic(user=profile.user, request=request, active=active_tab)
+    objs = get_project_list(user=profile.user, include_public=False)
+    if request.user != profile.user:
+        objs = objs.exclude(privacy=Project.PRIVATE)
 
+    objs = objs.order_by("-date")
     page = request.GET.get("page", 1)
 
     paginator = Paginator(objs, per_page=20)
@@ -108,7 +113,6 @@ def user_profile(request, uid):
     context.update({active_tab: ACTIVE_TAB})
 
     return render(request, 'accounts/user_profile.html', context)
-
 
 
 def toggle_notify(request):
@@ -211,7 +215,7 @@ def user_login(request):
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
                 Profile.objects.filter(user=user).update(last_login=now())
                 messages.success(request, "Login successful!")
-                return redirect("/")
+                return redirect(reverse("project_list_private"))
             else:
                 messages.error(request, mark_safe(message))
 
@@ -252,6 +256,7 @@ def email_verify_account(request, uidb64, token):
 
 
 def external_login(request):
+    """Login or signup a user."""
     payload = request.GET.get("payload", "")
 
     try:

@@ -18,13 +18,14 @@ def update_from_url(root_url, uid, api_key):
     """
     Update the local recipe from remote site.
     """
+    #TODO: will refractor soon
 
     params = {"k": api_key}
 
     # Construct the API urls and join them with the root.
 
-    json_api_url = urljoin(root_url, reverse("api_json", kwargs=dict(uid=uid)))
-    template_api_url = urljoin(root_url, reverse("api_template", kwargs=dict(uid=uid)))
+    json_api_url = urljoin(root_url, reverse("recipe_api_json", kwargs=dict(uid=uid)))
+    template_api_url = urljoin(root_url, reverse("recipe_api_template", kwargs=dict(uid=uid)))
 
     # Get the local recipe
     recipe = Analysis.objects.get_all(uid=uid).first()
@@ -51,8 +52,8 @@ def update_to_url(root_url, uid, api_key):
     params = {"k": api_key}
 
     # Construct the API urls and join them with the root.
-    json_api_url = urljoin(root_url, reverse("api_json", kwargs=dict(uid=uid)))
-    template_api_url = urljoin(root_url, reverse("api_template", kwargs=dict(uid=uid)))
+    json_api_url = urljoin(root_url, reverse("recipe_api_json", kwargs=dict(uid=uid)))
+    template_api_url = urljoin(root_url, reverse("recipe_api_template", kwargs=dict(uid=uid)))
 
     # Get the local recipe
     recipe = Analysis.objects.get_all(uid=uid).first()

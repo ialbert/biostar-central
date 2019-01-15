@@ -9,22 +9,10 @@
 {% block body %}
 
 
+    {% pages objs=objs request=request %}
 
-<div class="ui stackable grid">
+    {% listing posts=objs side_image=True %}
+    {% pages objs=objs request=request %}
 
-<div class="twelve wide column">
 
-        {% pages objs=objs request=request %}
-
-        {% listing posts=objs side_image=True %}
-        {% pages objs=objs request=request %}
-
-</div>
-<div class="four wide column">
-
-        {% feed user=request.user %}
-
-</div>
-
-</div>
 {% endblock %}

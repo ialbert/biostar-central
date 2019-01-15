@@ -90,7 +90,7 @@ class LoginTest(TestCase):
         resp = c.post(url, data=data)
 
         self.assertEqual(resp.status_code, 302)
-        self.assertTrue(resp.url == "/",
+        self.assertTrue(resp.url == reverse("project_list_private"),
                          f"Invlaid redirection when logging in.\nexpected: /\ngot:{resp.url}")
 
         return

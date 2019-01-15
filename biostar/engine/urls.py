@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^project/info/(?P<uid>[-\w]+)/$', views.project_info, name='project_info'),
     url(r'^project/list/private/$', views.project_list_private, name='project_list_private'),
     url(r'^project/list/public/$', views.project_list, name='project_list_public'),
+    url(r'^project/delete/(?P<uid>[-\w]+)/$', views.project_delete, name='project_delete'),
 
     # Data
     url(r'^data/list/(?P<uid>[-\w]+)/$', views.data_list, name='data_list'),

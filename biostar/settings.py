@@ -242,6 +242,10 @@ LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 # The location for the table of contents.
 TOC_ROOT = join(MEDIA_ROOT, 'tocs')
 
+# Directory to store API data.
+API_DUMP = join(MEDIA_ROOT, "api")
+os.makedirs(API_DUMP, exist_ok=True)
+
 # Time between two accesses from the same IP to qualify as a different view.
 POST_VIEW_MINUTES = 7
 

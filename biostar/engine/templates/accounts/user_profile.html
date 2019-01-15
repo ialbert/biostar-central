@@ -130,14 +130,7 @@
              <div class="ui vertical segment">
         <div class="ui top attached tabular large menu">
 
-            <div class="{{ posts }} item">
-                <a href="{% url "user_profile" user.profile.uid %}?{{ const_name }}={{ const_post }}">
-                    Posts
-                </a>
-
-            </div>
-
-            <div class="{{ projects }} item">
+            <div class="active item">
 
                 <a href="{% url "user_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
                    Projects
@@ -149,11 +142,7 @@
 
         <div class="ui bottom attached segment">
             {% pages objs=objs request=request  %}
-                {% if posts %}
-                    {% listing posts=objs side_image=True %}
-                {% elif projects %}
-                    {% list_view projects=objs %}
-                {% endif %}
+                {% list_view projects=objs %}
             {% pages objs=objs request=request %}
         </div>
 

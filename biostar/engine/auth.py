@@ -187,7 +187,7 @@ def template_changed(analysis, template):
     return change
 
 
-def get_project_list(user, include_public=True):
+def get_project_list(user, include_public=True, include_deleted=False):
     """
     Return projects visible to a user.
     """
@@ -204,7 +204,10 @@ def get_project_list(user, include_public=True):
                                                                                access__access__in=[Access.READ_ACCESS,
                                                                                                    Access.WRITE_ACCESS])
     # Generate the query.
-    query = Project.objects.filter(cond).distinct()
+    if include_deleted:
+        query = Project.objects.get_all().filter(cond).distinct()
+    else:
+        query = Project.objects.filter(cond).distinct()
 
     return query
 
@@ -267,6 +270,10 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)
+
+        analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(3)}" if not uid else uid
+        analysis.save()
+
         # Update the projects lastedit user when a recipe is created
         Project.objects.get_all(uid=analysis.project.uid).update(lastedit_user=user,
                                                                  lastedit_date=now())

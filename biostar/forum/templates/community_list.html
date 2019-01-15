@@ -11,10 +11,6 @@
 
 {% block body %}
 
-<div class="ui doubling stackable grid">
-
-    <div class="twelve wide column">
-
         {% pages objs=objs request=request %}
 
         <div class="ui center aligned basic segment">
@@ -33,15 +29,6 @@
 
 
         {% pages objs=objs request=request %}
-    </div>
-
-
-    <div class="four wide column" style="padding-left:0px;">
-        {% feed user=request.user %}
-    </div>
-
-
-</div>
 
 
 

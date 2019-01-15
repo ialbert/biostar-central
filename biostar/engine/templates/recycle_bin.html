@@ -14,6 +14,18 @@
     </div>
 
     <div class="ui small horizontal divider header">
+        <i class="database icon"></i>Deleted Projects</div>
+
+    {% list_view projects=projects %}
+
+    {% if not projects %}
+
+        <div class="ui warning message"><i class="ui warning circle icon"></i> No projects found.</div>
+
+    {% endif %}
+
+
+    <div class="ui small horizontal divider header">
         <i class="file icon"></i>Deleted Data</div>
 
     {% list_view data_list=data %}

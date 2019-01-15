@@ -66,16 +66,32 @@ def recycle_bin(request):
         query_dict = dict(project__in=projects)
     else:
         # Only searches projects user have access.
-        projects = auth.get_project_list(user=user)
+        projects = auth.get_project_list(user=user, include_deleted=True)
         query_dict = dict(project__in=projects, owner=user)
 
+    projects = projects.filter(deleted=True).order_by("date")
     data = Data.objects.get_deleted(**query_dict).order_by("date")
     recipes = Analysis.objects.get_deleted(**query_dict).order_by("date")
     jobs = Job.objects.get_deleted(**query_dict).order_by("date")
 
-    context = dict(jobs=jobs, data=data, recipes=recipes)
+    context = dict(jobs=jobs, data=data, recipes=recipes, projects=projects)
 
     return render(request, 'recycle_bin.html', context=context)
+
+
+@write_access(type=Project, fallback_view="project_view")
+def project_delete(request, uid):
+
+    project = Project.objects.get_all(uid=uid).first()
+    project.deleted = not project.deleted
+    project.save()
+
+    msg = f"Project:{project.name} successfully "
+    msg += "deleted!" if project.deleted else "restored!"
+
+    messages.success(request, msg)
+
+    return redirect(reverse("project_view", kwargs=dict(uid=uid)))
 
 
 def clear_clipboard(request, uid):
@@ -126,7 +142,7 @@ def project_users(request, uid):
     """
     Manage project users
     """
-    project = Project.objects.filter(uid=uid).first()
+    project = Project.objects.get_all(uid=uid).first()
     user_access, user_list = get_access(request, project)
     label = lambda x: f"<span class='ui green tiny label'>{x}</span>"
 
@@ -160,7 +176,7 @@ def project_info(request, uid):
 
     user = request.user
 
-    project = Project.objects.filter(uid=uid).first()
+    project = Project.objects.get_all(uid=uid).first()
 
     # Show counts for the project.
     counts = get_counts(project)
@@ -230,7 +246,7 @@ def discussion_subs(request, uid):
 
 @write_access(type=Project, fallback_view="discussion_list")
 def discussion_create(request, uid):
-    project = Project.objects.filter(uid=uid).first()
+    project = Project.objects.get_all(uid=uid).first()
 
     template = "discussion_create.html"
 
@@ -305,7 +321,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     user = request.user
 
     # The project that is viewed.
-    project = Project.objects.filter(uid=uid).first()
+    project = Project.objects.get_all(uid=uid).first()
 
     # Select all the data in the project.
     data_list = project.data_set.order_by("-sticky", "-date").all()
@@ -346,7 +362,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
 def project_edit(request, uid):
     "Edit meta-data associated with a project."
 
-    project = Project.objects.filter(uid=uid).first()
+    project = Project.objects.get_all(uid=uid).first()
     form = forms.ProjectForm(instance=project, request=request)
     if request.method == "POST":
         form = forms.ProjectForm(data=request.POST, files=request.FILES, instance=project, request=request)
@@ -443,7 +459,7 @@ def recipe_paste(request, uid):
     user = request.user
 
     # The project the paste will use.
-    project = Project.objects.filter(uid=uid).first()
+    project = Project.objects.get_all(uid=uid).first()
 
     # Contains the uids for the recipes that are to be copied.
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
@@ -479,7 +495,7 @@ def recipe_paste(request, uid):
 @write_access(type=Project, fallback_view="data_list")
 def data_paste(request, uid):
     """Used to paste objects in results and data clipboards as a Data object."""
-    project = Project.objects.filter(uid=uid).first()
+    project = Project.objects.get_all(uid=uid).first()
     owner = request.user
     board = request.GET.get("board")
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
@@ -557,7 +573,7 @@ def data_upload(request, uid):
     "Data upload view routed through auth.create_data."
 
     owner = request.user
-    project = Project.objects.filter(uid=uid).first()
+    project = Project.objects.get_all(uid=uid).first()
     form = forms.DataUploadForm(user=owner, project=project)
 
     if request.method == "POST":
