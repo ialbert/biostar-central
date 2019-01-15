@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
         parser.add_argument('--base', default=get_base_url(),
                             help="Base url to do a reverse look up of api urls. Default: (default: %(default)s)")
-        parser.add_argument('--key', default='', help="API key. (default: empty)")
+        parser.add_argument('--key', default='', required=True, help="API key. (default: empty)")
         parser.add_argument('--data', default=settings.API_DUMP, help="""
                                       Base data directory to export project data from.
                                       Its subdirectories are expected to be: /project/recipe.
@@ -83,11 +83,11 @@ class Command(BaseCommand):
 
         # Upload recipes found in a single project and exit out
         if project_dir:
-            recipe_dirs = [r.path for r in os.scandir(project_dir) ]
+            recipe_dirs = [r.path for r in os.scandir(project_dir)]
             upload_recipes(recipe_dirs=recipe_dirs)
             return
 
-        # Upload recipes found in multiple projects under the same base_dir
+        # Upload recipes found in multiple projects in a base_dir
         recipe_dirs = get_recipe_dirs(base_dir=base_dir)
         upload_recipes(recipe_dirs=recipe_dirs)
 
