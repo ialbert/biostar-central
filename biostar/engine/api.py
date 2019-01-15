@@ -67,7 +67,6 @@ def recipe_json(request, uid):
     GET request: Returns recipe json
     PUT request: Updates recipe json with given file.
     """
-
     recipe = Analysis.objects.filter(uid=uid).first()
 
     # API key is always checked by @require_api_key decorator.
