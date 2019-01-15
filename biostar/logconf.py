@@ -26,7 +26,7 @@ LOGGING = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'verbose'
         },
     },
 
@@ -35,7 +35,7 @@ LOGGING = {
 
         'django': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'INFO',
         },
 
         'engine': {
