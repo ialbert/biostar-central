@@ -1,6 +1,7 @@
 import os
 import requests
 from urllib.parse import urljoin
+from functools import partial
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -42,7 +43,6 @@ def export_recipes(recipe_dirs, base_url, api_key=""):
         payload = dict(k=api_key)
         # Send a PUT request.
         response = requests.put(url=full_url, files=upload_file, data=payload)
-
         return response
 
     for recipe in recipe_dirs:
@@ -58,11 +58,17 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
 
-        parser.add_argument('--base', default=get_base_url(), help="Base url to do a reverse look up of api urls.")
-        parser.add_argument('--key', default='', help="API key.")
+        parser.add_argument('--base', default=get_base_url(),
+                            help="Base url to do a reverse look up of api urls. Default: (default: %(default)s)")
+        parser.add_argument('--key', default='', help="API key. (default: empty)")
         parser.add_argument('--data', default=settings.API_DUMP, help="""
-                                      Base data directory to export data from formatted like: 
-                                      base/project/recipe.""")
+                                      Base data directory to export project data from.
+                                      Its subdirectories are expected to be: /project/recipe.
+                                      (default: %(default)s) .""")
+        parser.add_argument('--project', default="", help=""" 
+                                        Full path to single project directory to crawl and export recipes from.
+                                        (default: empty) .""")
+
 
         pass
 
@@ -71,7 +77,18 @@ class Command(BaseCommand):
         base_url = options["base"]
         base_dir = options["data"]
         api_key = options["key"]
+        project_dir = options["project"]
 
+        upload_recipes = partial(export_recipes, base_url=base_url, api_key=api_key)
+
+        # Upload recipes found in a single project and exit out
+        if project_dir:
+            recipe_dirs = [r.path for r in os.scandir(project_dir) ]
+            upload_recipes(recipe_dirs=recipe_dirs)
+            return
+
+        # Upload recipes found in multiple projects under the same base_dir
         recipe_dirs = get_recipe_dirs(base_dir=base_dir)
-        export_recipes(recipe_dirs=recipe_dirs, base_url=base_url, api_key=api_key)
+        upload_recipes(recipe_dirs=recipe_dirs)
+
 
