@@ -42,8 +42,7 @@ class Command(BaseCommand):
                             help="Makes project public")
 
         parser.add_argument('--update', default=False, action="store_true",
-                        help="Updates the project selected by uid")
-
+                                        help="Updates the project selected by uid")
 
     def handle(self, *args, **options):
         uid = options['uid']
