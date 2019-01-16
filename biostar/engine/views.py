@@ -91,7 +91,7 @@ def project_delete(request, uid):
 
     messages.success(request, msg)
 
-    return redirect(reverse("project_view", kwargs=dict(uid=uid)))
+    return redirect(reverse("project_list_private"))
 
 
 def clear_clipboard(request, uid):
@@ -113,7 +113,8 @@ def search_bar(request):
     results = search.search(request=request)
 
     # Indicate to users that minimum character needs to be met.
-    min_length = len(request.GET.get("q", "").strip()) > settings.SEARCH_CHAR_MIN
+    query_lenth = len(request.GET.get("q", "").strip())
+    min_length = query_lenth > settings.SEARCH_CHAR_MIN
 
     # Indicate to users that there are no results for search.
     current_results = len([inner for outer in results.values() for inner in outer])
