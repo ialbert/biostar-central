@@ -30,14 +30,10 @@ def recipe_loader(**options):
     return
 
 
-def recipe_dumper(**options):
+def recipe_dumper(direc, root_url=None, api_key="", recipe=None, project=None):
+    """Dump recipes from the api/database into a directory.
+    """
     # Get the url
-
-    root_url = options["url"]
-    api_key = options["key"]
-    direc = options["dir"]
-    recipe = options["rec"]
-    project = options["project"]
 
     def download(uid, url=None, outfile="recipe", is_json=False):
         # Make the recipe directory
@@ -87,18 +83,19 @@ class Command(BaseCommand):
 
         load = options.get("load")
         dump = options.get("dump")
+        root_url = options["url"]
+        api_key = options["key"]
+        direc = options["dir"]
+        recipe = options["rec"]
+        project = options["pro"]
+
         if load and dump:
             print("Both load (-l) and dump (-d) flags can not be set.")
             return
-
-        print(load)
-        print(dump)
-        1/0
-        if load:
-            recipe_loader(options=options)
-        elif dump:
-            recipe_dumper(options=options)
-        else:
+        elif not load and not dump:
             print("The load (-l) or dump (-d) flags needs to be set.")
-
+            return
+        
+        func = recipe_dumper if dump else recipe_loader
+        func(root_url=root_url, api_key=api_key, direc=direc, recipe=recipe, project=project)
 
