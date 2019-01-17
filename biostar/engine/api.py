@@ -55,7 +55,8 @@ def recipe_api_list(request):
                             json=reverse("recipe_api_json", kwargs=dict(uid=recipe.uid)),
                             template=reverse("recipe_api_template", kwargs=dict(uid=recipe.uid)),
                             privacy=dict(Project.PRIVACY_CHOICES)[recipe.project.privacy],
-                            )
+                            project_uid=recipe.project.uid,
+                            project_name=recipe.project.name)
 
     return Response(data=payload, status=status.HTTP_200_OK)
 

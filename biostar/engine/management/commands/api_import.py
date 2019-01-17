@@ -14,7 +14,7 @@ def get_base_url():
     return f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 
 
-def import_recipes(project_uid, recipe_dict, base_url, base_dir, api_key=""):
+def import_recipes(recipe_dict, base_url, base_dir, api_key=""):
     """
     Downloads json and template from API and puts them in project folder.
     """
@@ -22,7 +22,7 @@ def import_recipes(project_uid, recipe_dict, base_url, base_dir, api_key=""):
     def download(url, uid, outfile="recipe", is_json=False):
 
         # Make the recipe directory
-        dir = os.path.join(base_dir, project_uid, uid)
+        dir = os.path.join(base_dir, uid)
         os.makedirs(dir, exist_ok=True)
         # Get full url and read content
         fullurl = urljoin(base_url, url) + f"?k={api_key}"
@@ -70,7 +70,7 @@ class Command(BaseCommand):
 
         # Each key('pid') in json data is a project uid.
         for pid in json_data:
-            create_files(project_uid=pid, recipe_dict=json_data[pid]["recipes"])
+            create_files(recipe_dict=json_data[pid]["recipes"])
 
 
 
