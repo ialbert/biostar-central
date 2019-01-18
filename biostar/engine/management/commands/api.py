@@ -5,9 +5,9 @@ from functools import partial
 from urllib.parse import urljoin
 from urllib.request import urlopen
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from django.shortcuts import reverse
 from biostar.engine.models import Analysis
 
 logger = logging.getLogger('engine')
@@ -16,31 +16,30 @@ logger = logging.getLogger('engine')
 logger.setLevel(logging.INFO)
 
 
-def get_base_url():
-    return f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
+def get_recipe_api(uid, view="list"):
+    view_map = {"list": reverse("recipe_api_list"),
+                "json": reverse("recipe_api_json", kwargs=dict(uid=uid)),
+                "template": reverse("recipe_api_template", kwargs=dict(uid=uid))}
+
+    return view_map.get("view")
 
 
-def get_api_recipe():
-
+def recipe_loader(root_dir, pid, api_key, root_url=None, rid=""):
+    """Load recipes into api/databse from a root_directory."""
     return
 
 
-def recipe_loader(**options):
-
-    return
-
-
-def recipe_dumper(direc, root_url=None, api_key="", recipe=None, project=None):
-    """Dump recipes from the api/database into a directory.
+def recipe_dumper(target_dir, root_url=None, api_key="", rid=""):
     """
-    # Get the url
-
-    def download(uid, url=None, outfile="recipe", is_json=False):
-        # Make the recipe directory
-        recipe_dir = os.path.join(direc, uid)
+    Dump recipes from the api/database into a target directory.
+    """
+    def download(uid, outfile="recipe", is_json=False):
+        # Get the relative api url.
+        url = get_recipe_api(uid=rid, view="json" if is_json else "template")
+        # Make the recipe directory.
+        recipe_dir = os.path.join(target_dir, uid)
         os.makedirs(recipe_dir, exist_ok=True)
         if root_url:
-            # Get full url and read content
             fullurl = urljoin(root_url, url) + f"?k={api_key}"
             data = urlopen(url=fullurl).read().decode()
         else:
@@ -51,11 +50,16 @@ def recipe_dumper(direc, root_url=None, api_key="", recipe=None, project=None):
         outfile = os.path.join(recipe_dir, outfile)
         open(outfile, "w").write(data)
 
-    for recipe_uid in dirs:
-        create_file = partial(download, uid=recipe_uid)
-        create_file(outfile="json.hjson", url=recipe_dict[recipe_uid]["json"], is_json=True)
-        create_file(outfile="template.sh", url=recipe_dict[recipe_uid]["template"])
-
+    download_json = partial(download, outfile="json.hjson", is_json=True)
+    download_template = partial(download, outfile="template.sh")
+    dump_recipe = lambda uid: (download_template(uid=uid), download_json(uid=uid))
+    # Dump into specific recipe dir if set.
+    if rid:
+        dump_recipe(uid=rid)
+        return
+    # Scan through the target dir and dump in recipe dirs found within.
+    for recipe in os.scandir(target_dir):
+        dump_recipe(uid=recipe.name)
     return
 
 
@@ -66,18 +70,19 @@ class Command(BaseCommand):
 
         # Load or dump flags
         parser.add_argument('-l', "--load", action="store_true",
-                            help="Load data to url from a directory.")
+                            help="""Load data to url from a directory.
+                                    Load recipes to database if --url is not set.""")
 
         parser.add_argument('-d', "--dump", action="store_true",
-                            help="Dump data from a url to directory.")
+                            help="""Dump recipes from a url to directory. 
+                                    Dump recipes from database if --url is not set.""")
 
-        parser.add_argument('--url', default="",
-                            help="Site url. Dumps to and loads from local database if not provided.")
-        parser.add_argument('--key', default='', help="API key.")
+        parser.add_argument('--url', default="", help="Site url.")
+        parser.add_argument('--key', default='', help="API key required to get private projects.")
         parser.add_argument('--dir', default='', help="Directory to store/load data from.")
 
-        parser.add_argument('--pro', type=str, default="", help="Project uid to load or dump.")
-        parser.add_argument('--rec', type=str, default="", help="Recipe uid to load or dump.")
+        parser.add_argument('--pid', type=str, default="all", required=True, help="Project uid to load or dump.")
+        parser.add_argument('--rid', type=str, default="", help="Recipe uid to load or dump.")
 
     def handle(self, *args, **options):
 
@@ -85,17 +90,22 @@ class Command(BaseCommand):
         dump = options.get("dump")
         root_url = options["url"]
         api_key = options["key"]
-        direc = options["dir"]
-        recipe = options["rec"]
-        project = options["pro"]
+        root_dir = options["dir"]
+        rid = options["rid"]
+        pid = options["pid"]
+
+        if not (load or dump):
+            print("*** Set load (-l) or dump (-d) flag.")
+            return
 
         if load and dump:
-            print("Both load (-l) and dump (-d) flags can not be set.")
+            print("*** Only one flag can be set.")
             return
-        elif not load and not dump:
-            print("The load (-l) or dump (-d) flags needs to be set.")
-            return
-        
-        func = recipe_dumper if dump else recipe_loader
-        func(root_url=root_url, api_key=api_key, direc=direc, recipe=recipe, project=project)
+
+        if load:
+            recipe_loader(root_dir=root_dir, pid=pid, root_url=None, api_key="", rid="")
+        elif dump:
+            target_dir = os.path.join(root_dir, pid)
+            recipe_dumper(root_url=root_url, api_key=api_key, target_dir=target_dir, rid=rid)
+
 
