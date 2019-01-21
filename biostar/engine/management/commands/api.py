@@ -37,13 +37,14 @@ def get_recipes(pid, root_url=None, api_key="", rid=""):
     # Filter by 'pid'
     filter_func = lambda key: recipes[key]["project_uid"] == pid
     # Filter by 'rid' if that is given
-    filter_func = lambda key: key == rid if rid else filter_func
+    if rid:
+        filter_func = lambda key: key == rid
 
     if root_url:
         # Get the recipes from remote url.
         recipe_api = build_api_url(root_url=root_url, api_key=api_key)
         recipes = hjson.loads(urlopen(url=recipe_api).read().decode())
-        # Only get recipes belonging to project "pid".
+        # Filter recipes from remote host.
         recipes = list(filter(filter_func, recipes))
     else:
         query = Q(uid=rid, project__uid=pid) if rid else Q(project__uid=pid)
@@ -110,8 +111,8 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
     # Get the recipes to dump into project_dir
     recipes = get_recipes(pid=pid, root_url=root_url, api_key=api_key, rid=rid)
     if not recipes:
-        msg = f"*** No recipes found for project id={pid} "
-        print(msg + (f"and recipe id={rid}." if rid else ""))
+        msg = f"*** No recipes found for project id={pid}"
+        print(msg + (f"and recipe id={rid}." if rid else "."))
         sys.exit()
 
     def download(uid, is_json=False, view="recipe_api_template", fname=""):
