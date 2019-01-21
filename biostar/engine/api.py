@@ -1,5 +1,6 @@
 
 import hjson
+import logging
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -11,6 +12,8 @@ from biostar.engine.models import Analysis, Project
 from biostar.utils.shortcuts import reverse
 from biostar.engine.decorators import require_api_key
 
+
+logger = logging.getLogger("engine")
 
 @api_view(['GET'])
 def project_api_list(request):
@@ -99,7 +102,6 @@ def recipe_template(request, uid):
         stream = file_object.read().decode("utf-8")
         recipe.template = stream if file_object else recipe.template
         recipe.save()
-
     payload = recipe.template
 
     return HttpResponse(content=payload, content_type="text/plain")

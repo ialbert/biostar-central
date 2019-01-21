@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
 from django.conf import settings
 from rest_framework.response import Response
-
+from rest_framework import status
 from biostar.utils.shortcuts import reverse
 from . import models, auth
 
@@ -147,17 +147,17 @@ def require_api_key(func):
 
         if not recipe:
             msg = dict(error="Recipe does not exist.")
-            return Response(data=msg)
+            return Response(data=msg, status=status.HTTP_404_NOT_FOUND)
 
         # All PUT requests will require an API key.
         if request.method == "PUT" and settings.API_KEY != api_key:
             msg = dict(error="API key is required for all PUT requests.")
-            return Response(data=msg)
+            return Response(data=msg, status=status.HTTP_401_UNAUTHORIZED)
 
         # API key required when asking for GET requests of private recipes.
         elif request.method == "GET" and settings.API_KEY != api_key and recipe.project.is_private:
             msg = dict(error="Private recipes can not be accessed without an API key param (?k=).")
-            return Response(data=msg)
+            return Response(data=msg, status=status.HTTP_401_UNAUTHORIZED)
 
         return func(request, *args, **kwargs)
 
