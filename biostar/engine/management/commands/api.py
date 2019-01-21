@@ -1,7 +1,6 @@
 import logging
 import hjson
 import os
-from functools import partial
 from urllib.parse import urljoin
 from urllib.request import urlopen
 import requests
@@ -64,7 +63,7 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
         payload = dict(k=api_key)
         if root_url:
             # Build api url then send PUT request.
-            full_url = build_api_url(root_url=root_url, api_key=api_key, view=view)
+            full_url = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
             response = requests.put(url=full_url, files=upload_file, data=payload)
             return response
 
@@ -77,7 +76,6 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
     recipe_loader = lambda uid: (upload(uid=uid, target_file="json.hjson", view="recipe_api_json"),
                                  upload(uid=uid, target_file="template.sh"))
     loaded = list(map(recipe_loader, recipe_dirs))
-
     return loaded
 
 
@@ -161,7 +159,9 @@ class Command(BaseCommand):
         if load:
             os.makedirs(project_dir, exist_ok=True)
             loaded = recipe_loader(project_dir=project_dir, root_url=root_url, api_key=api_key, rid=rid)
-            print(f"{len(loaded)} recipes loaded into {root_url if root_url else 'database'}")
+            view = reverse("project_view", kwargs=dict(uid=pid))
+            view = view if not rid else reverse("recipe_view", kwargs=dict(uid=rid))
+            print(f"{len(loaded)} recipes loaded into {urljoin(root_url, view) if root_url else 'database'}")
         elif dump:
             dumped = recipe_dumper(root_url=root_url, api_key=api_key, project_dir=project_dir, pid=pid, rid=rid)
             print(f"{len(dumped)} recipes dumped into {project_dir}")
