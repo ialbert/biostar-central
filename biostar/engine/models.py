@@ -105,7 +105,7 @@ class Project(models.Model):
         super(Project, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.uid
 
     def uid_is_set(self):
         assert bool(self.uid.strip()), "Sanity check. UID should always be set."
@@ -259,7 +259,7 @@ class Data(models.Model):
             return f"Error :{exc}"
 
     def __str__(self):
-        return self.name
+        return self.uid
 
     def get_data_dir(self):
         "The data directory"
@@ -376,7 +376,7 @@ class Analysis(models.Model):
     objects = Manager()
 
     def __str__(self):
-        return self.name
+        return self.uid
 
     @property
     def json_data(self):
@@ -489,7 +489,7 @@ class Job(models.Model):
         return self.state == Job.RUNNING
 
     def __str__(self):
-        return self.name
+        return self.uid
 
     def get_url(self, path=''):
         """
