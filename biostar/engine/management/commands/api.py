@@ -123,7 +123,6 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
 
-        #load_parser =
         # Load or dump flags
         parser.add_argument('-l', "--load", action="store_true",
                             help="""Load data to url from a directory.
@@ -161,9 +160,9 @@ class Command(BaseCommand):
         project_dir = os.path.join(root_dir, pid)
         if load:
             os.makedirs(project_dir, exist_ok=True)
-            recipe_loader(project_dir=root_dir, root_url=None, api_key="", rid="")
+            loaded = recipe_loader(project_dir=project_dir, root_url=root_url, api_key=api_key, rid=rid)
+            print(f"{len(loaded)} recipes loaded into {root_url if root_url else 'database'}")
         elif dump:
             dumped = recipe_dumper(root_url=root_url, api_key=api_key, project_dir=project_dir, pid=pid, rid=rid)
-            for d in dumped:
-                print(d)
+            print(f"{len(dumped)} recipes dumped into {project_dir}")
 
