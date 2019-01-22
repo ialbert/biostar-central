@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand
 
 from django.db.models import Q
 from django.shortcuts import reverse
-from biostar.engine.models import Analysis, Project
+from biostar.engine.models import Analysis
 
 logger = logging.getLogger('engine')
 
@@ -34,9 +34,9 @@ def get_recipes(pid, root_url=None, api_key="", rid=""):
     Return recipes belonging to project 'pid' from api if 'root_url' is given
     else return from database.
     """
-    # Filter by 'pid'
+    # Filter remote site results by 'pid'
     filter_func = lambda key: recipes[key]["project_uid"] == pid
-    # Filter by 'rid' if that is given
+    # Filter by 'rid' instead if that is given.
     if rid:
         filter_func = lambda key: key == rid
 

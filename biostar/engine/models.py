@@ -30,6 +30,7 @@ def make_html(text):
     html = mistune.markdown(text, escape=False)
     return html
 
+
 def image_path(instance, filename):
     # Name the data by the filename.
     name, ext = os.path.splitext(filename)
@@ -105,7 +106,7 @@ class Project(models.Model):
         super(Project, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.uid
+        return self.name
 
     def uid_is_set(self):
         assert bool(self.uid.strip()), "Sanity check. UID should always be set."
@@ -259,7 +260,7 @@ class Data(models.Model):
             return f"Error :{exc}"
 
     def __str__(self):
-        return self.uid
+        return self.name
 
     def get_data_dir(self):
         "The data directory"
@@ -376,7 +377,7 @@ class Analysis(models.Model):
     objects = Manager()
 
     def __str__(self):
-        return self.uid
+        return self.name
 
     @property
     def json_data(self):
@@ -489,7 +490,7 @@ class Job(models.Model):
         return self.state == Job.RUNNING
 
     def __str__(self):
-        return self.uid
+        return self.name
 
     def get_url(self, path=''):
         """
