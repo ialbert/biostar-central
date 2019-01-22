@@ -153,7 +153,7 @@ class Command(BaseCommand):
                                     Dump recipes from database if --url is not set.""")
 
         parser.add_argument('--url', default="", help="Site url.")
-        parser.add_argument('--key', default='', help="API key required to get private projects.")
+        parser.add_argument('--key', default='', help="API key. Required to access private projects.")
         parser.add_argument('--dir', default='', help="Directory to store/load data from.")
 
         parser.add_argument('--pid', type=str, required=True, help="Project uid to load or dump.")
