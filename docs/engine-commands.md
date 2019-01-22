@@ -29,7 +29,7 @@ Back up the data
 
 Dump and load recipes from/to remote site:
     
-    python manage.py api 
+    python manage.py api --help
     
       -l, --load            Load data to url from a directory. Load recipes to
                             database if --url is not set.
@@ -41,13 +41,16 @@ Dump and load recipes from/to remote site:
       --pid PID             Project uid to load or dump.
       --rid RID             Recipe uid to load or dump.
       
-**Example Usage**
+**Example usage of loading and dumping**
     
-    # Dump recipe from remote site 
+    # Dump recipes from remote site with (-d) flag.
+    
     python manage.py api -d --pid=cookbook --url="https://www.bioinformatics.recipes/" 
     
-    # Load recipe into 
-    python manage.py api_import --base="https://www.bioinformatics.recipes/" --key=API_KEY
+    
+    # Load recipe into remote site with (-l) flag. --key is required when loading to remote site.
+    
+    python manage.py api -l --pid=cookbook --url="https://www.bioinformatics.recipes/" --key=API_KEY
     
     
     
