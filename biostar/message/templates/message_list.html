@@ -1,4 +1,4 @@
-{% extends "forum_base.html" %}
+{% extends "message_base.html" %}
 {% load message_tags %}
 {% load forum_tags %}
 
@@ -51,7 +51,6 @@
            <div class="item">
                 <div class="content">
                     <div class="ui small header">Subject:
-
                         {% if is_inbox %}
                         <a href="{{message.inbox_url}}?{{field_name}}={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
                         {% else %}

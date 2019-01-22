@@ -19,6 +19,11 @@ body {
     padding-right:15!important;
 }
 
+.forumtabs{
+    padding:15px !important;;
+    font-size:12px !important;;
+}
+
 .ui.items>.item>.content>a.header {
     color: #4183c4;
 }

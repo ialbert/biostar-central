@@ -7,7 +7,14 @@
 
 
 {% block body %}
+    {% if topic  %}
+<div class="ui large blue message" style="text-align: center; padding:0px;">
 
+    Showing : <code>{{topic}}</code>  &bull; <a href="{% url 'post_list' %}">reset <i class="undo small icon"></i></a>
+
+
+</div>
+    {% endif %}
 
     {% pages objs=objs request=request %}
 

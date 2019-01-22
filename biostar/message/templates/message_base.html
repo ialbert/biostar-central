@@ -2,7 +2,7 @@
 {% load compress %}
 {% load engine_tags %}
 {% load forum_tags %}
-
+{% load message_tags %}
 <html>
 <head>
 
@@ -42,40 +42,76 @@
 
 <div class="ui container">
 
-    <div class="ui center aligned header">
-        {% block title %}
-            {% include "site_header.html" %}
+
+
+
+        {% block menu %}
+
+            {% menubar request=request with_search=False %}
+
         {% endblock %}
-    </div>
-
-    {% block menu %}
-
-
-        {% moderate request=request %}
-        {% menubar request=request %}
 
 
 
-    {% endblock %}
-
-    <div class="ui bottom attached segment">
 
 
+<div class="ui bottom attached  segment">
 {% show_messages messages %}
+        <div class="ui top attached tiny tabular colored menu">
 
+         <div class="item" style="padding-top:0px;padding-left:0px; padding-right:0px; padding-bottom:15px;">
+            <img style="margin-right:0px; width: 220px!important; " class="ui image" src="/static/images/biostar-logo.png">
+        </div>
+
+            <a class="ui {{community}} item blue tablet" href="{% url 'community_list' %}">
+                <i class="world icon"></i>Community
+            </a>
+            <a class="ui {{latest}} blue item" href="{% url 'post_list' %}?active=latest">
+                <i class="comment alternate icon"></i><span class="tablet">Latest</span>
+            </a>
+            <a class="ui {{message}} item blue tablet" href="{% url 'inbox' %}">
+                <i class="mail icon"></i>Messages
+                {% message_count request=request otype="message" as num_msgs %}
+                {% if num_msgs %}<div class="ui green mini circular label">{{num_msgs}}</div>{%endif%}
+
+            </a>
+            <a class="ui {{votes}} blue item" href="{% url 'post_list' %}?active=votes">
+                <i class="heart icon"></i> <span class="tablet">Votes</span>
+            </a>
+            <a class="ui {{myposts}} blue item" href="{% url 'post_list' %}?active=myposts">
+                <i class="comments icon"></i> <span class="tablet">My Posts</span>
+            </a>
+            <a class="ui {{mytags}} blue item" href="{% url 'post_list' %}?active=mytags" >
+                <i class="tags icon"></i><span class="tablet">My Tags</span>
+            </a>
+            <a class="ui {{following}} blue item" href="{% url 'post_list' %}?active=following">
+                <i class="eye icon"></i><span class="tablet">Following</span>
+            </a>
+            <a class="ui {{bookmarks}} blue item" href="{% url 'post_list' %}?active=bookmarks">
+                <i class="book icon"></i><span class="tablet">Bookmarks</span>
+            </a>
+            {% if extra_tab %}<a class="ui {{extra_tab}} blue item" href="#">
+            <i class="info circle icon"></i><span class="tablet">{% if extra_tab_name %}{{ extra_tab_name|truncatechars:10 }}{%else%} Active{% endif %}</span>
+        </a>
+            {% endif %}
+
+        </div>
+
+<div class="ui bottom attached colored segment">
 
         {% block body %}
             {# Main body #}
             BODY
 
+
             {% block content %}
 
             {% endblock %}
 
+
         {% endblock %}
+</div>
 
-
-    </div>
 
 
 
@@ -91,8 +127,9 @@
             <p class="muted smaller">Software version: {{ VERSION }}</p>
         </div>
     {% endblock %}
-
 </div>
+
+
 
 
 </body>

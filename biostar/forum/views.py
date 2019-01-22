@@ -50,7 +50,8 @@ def list_view(request, template="post_list.html", extra_context={}, topic=None,
     if active in TOPICS_WITH_TABS:
         active_tab = {active: "active"}
     else:
-        active_tab = dict(extra_tab="active", extra_tab_name=active.capitalize() or topic.capitalize())
+        active_tab = dict(extra_tab="active", extra_tab_name=active.capitalize() or topic.capitalize(),
+                          topic=topic)
 
     context.update(extra_context)
     context.update(active_tab)
