@@ -83,16 +83,14 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
     def upload(uid, view="recipe_api_template", target_file="", is_json=False):
 
         target = os.path.join(project_dir, uid, target_file)
-        # Get the intended file to upload.
-        file_stream = dict(file=open(target, "r"))
         payload = dict(k=api_key)
-        read_file = file_stream["file"].read()
         if root_url:
             # Build api url then send PUT request.
             full_url = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
-            response = put_recipe(url=full_url, files=file_stream, data=payload, uid=uid)
+            response = put_recipe(url=full_url, files=dict(file=open(target, "r")), data=payload, uid=uid)
             return response
         # Update the recipe.json_text or recipe.template
+        read_file = open(target, "r").read()
         update_query = dict(json_text=read_file) if is_json else dict(template=read_file)
         Analysis.objects.get_all(uid=uid).update(**update_query)
         return uid
@@ -177,6 +175,10 @@ class Command(BaseCommand):
 
         if load and dump:
             print("*** Only one flag can be set.")
+            return
+
+        if (root_url and load) and not api_key:
+            print("*** --key is required when loading data to remote site.")
             return
 
         project_dir = os.path.join(root_dir, pid)
