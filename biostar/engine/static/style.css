@@ -16,19 +16,19 @@ body {
 }
 
 .ui.tabular.forumcolored.menu {
-    border-bottom: 1px solid #8f2c47!important;
+    border-bottom: 1px solid #000000!important;
 
 }
 
 .ui.menu .forumtabs.active.item {
-    border-color: #8f2c47!important;
-    color: #8f2c47!important;
+    border-color: #000000!important;
+    color: #000000!important;
 }
 
 .ui.attached.forumcolored.segment {
-    border-bottom: 1px solid #8f2c47!important;
-    border-left: 1px solid #8f2c47!important;
-    border-right: 1px solid #8f2c47!important;
+    border-bottom: 1px solid #000000!important;
+    border-left: 1px solid #000000!important;
+    border-right: 1px solid #000000!important;
 
 }
 
@@ -40,7 +40,6 @@ body {
 .forumtabs{
     padding:10px !important;
     font-size:13px !important;
-    margin-bottom: -30px;
 }
 
 .ui.items>.item>.content>a.header {
