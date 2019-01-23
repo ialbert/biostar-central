@@ -17,95 +17,131 @@
 
     <div class="ui vertical segment">
 
+        <div class="ui grid">
+            <div class="ten wide column">
+                <div class="ui relaxed divided list questions">
+                    <div class="item">
+                        <div class="header">What is a recipe?</div>
+                        <div class="description">
+                            A "bioinformatics recipe" is a collection of computer code that performs a bioinformatics
+                            data
+                            analysis
+                            task.
+                        </div>
+                    </div>
 
-        <div class="ui relaxed divided list questions">
-            <div class="item">
-                <div class="header">What is a recipe?</div>
-                <div class="description">
-                    A "bioinformatics recipe" is a collection of computer code that performs a bioinformatics data
-                    analysis
-                    task.
+                    <div class="item">
+                        <div class="header">What types of recipe will I find here?</div>
+                        <div class="description">
+                            We cover a wide variety of subjects, from RNA-Seq analysis,
+                            variant calling, classifications and many others. Some recipes reproduce published results
+                            , others demonstrate typicall use cases. A large number of recipes have educational purpose.
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="header">Where can I find recipes?</div>
+                        <div class="description">
+                            Visit the <a href="{% url 'project_list' %}">
+                            <i class="database icon"></i>Project List</a> page. Each project is a collection of recipes
+                            and results.You may also want to use the search box on top.
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="header">Where can I see the results of a recipe?</div>
+                        <div class="description">
+                            Yes, go the the "results" tab and see all the files the recipe has created.
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="header">Can I run a recipe on my own computer?</div>
+                        <div class="description">
+                            Yes! Recipes are <b>generic</b> and <b>universal</b>.
+                            The use of recipes is not restricted to this site. In the "Code View" select download script.
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="header">Is there a beginner friendly guide to recipes?</div>
+                        <div class="description">
+                            The <a href="https://www.biostarhandbook.com"><i class="book icon"></i>Biostar Handbook</a>
+                            has detailed explanation for many recipes. It is also the a resource that can train you
+                            in the use of bioinformatics tools.
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="header">What is the main purpose for recipes?</div>
+                        <div class="description">
+                            Recipes were designed address the <em>challenges of reproducibility</em>.
+                            It allows scientists to document, execute
+                            and share data analysis scripts and the results of running these scripts.
+                        </div>
+                    </div>
+
+
+                    <div class="item">
+                        <div class="header">Can I make my own recipe?</div>
+                        <div class="description">
+                            You may adapt, modify and remix recipes to match
+                            your needs. Then, if want to you may share these on the same site and show others how you
+                            solved a
+                            problem. By supporting these interactions, we aim to foster a
+                            collaborative environment that facilitates creativity, efficiency and reproducibility.
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="header">What kind of code may a recipe contain?</div>
+                        <div class="description">
+                            A recipe may use any code that can be executed at command line, for example
+                            <code>bash</code>, <code>python</code>, <code>R</code>, <code>makefiles</code> and many
+                            others.
+
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="header">What software runs this site?</div>
+                        <div class="description">
+                            The software that runs this site is called the<a
+                        href="https://github.com/biostars/biostar-engine">Biostar
+                            Engine</a> and it was designed
+                            to generate <em>an easy-to-use interface</em> to command line scripts. In
+                            addition the site collects the files that are generated
+                            during the run of a script and shows them to the user in an visual manner.
+                        </div>
+                    </div>
+
                 </div>
             </div>
+            <div class="six wide column">
 
-            <div class="item">
-                <div class="header">Where can I find recipes?</div>
-                <div class="description">
-                    Visit the <a href="{% url 'project_list' %}">
-                    <i class="database icon"></i>Project List</a> page. Each project is a collection of recipes and
-                    results.
-                    You may also want to use the search box on top.
-                </div>
+                <div class="header">Recipe View</div>
+                <a href="https://www.bioinformatics.recipes/recipe/view/bacterialsnp/" class="ui medium image">
+                    <img src="{% static 'images/recipe-view1.png' %}">
+
+                </a>
+
+                <div class="header">Recipe Code</div>
+                <a href="https://www.bioinformatics.recipes/recipe/code/view/bacterialsnp/" class="ui medium image">
+                    <img src="{% static 'images/recipe-code1.png' %}">
+
+                </a>
+
+                <div class="header">Recipe Results</div>
+                <a href="https://www.bioinformatics.recipes/job/view/403186ff/" class="ui medium image">
+                    <img src="{% static 'images/recipe-results1.png' %}">
+                </a>
+
+
             </div>
-
-            <div class="item">
-                <div class="header">Can I see the results of a recipe?</div>
-                <div class="description">
-                    Yes, go the the "results" tab and see all the files the recipe has created.
-                </div>
-            </div>
-
-            <div class="item">
-                <div class="header">Can I run a recipe on my own computer?</div>
-                <div class="description">
-                    Yes! Recipes are <b>generic</b> and <b>universal</b>.
-                    The use of recipes is not restricted to this site.
-                </div>
-            </div>
-
-            <div class="item">
-                <div class="header">Is there a beginner friendly guide to recipes?</div>
-                <div class="description">
-                    The <a href="https://www.biostarhandbook.com"><i class="book icon"></i>Biostar Handbook</a> has
-                    detailed
-                    explanation for many recipes.
-                </div>
-            </div>
-
-            <div class="item">
-                <div class="header">What problems do recipes solve?</div>
-                <div class="description">
-                    Recipes were designed address the <em>challenges of reproducibility</em>.
-                    It allows scientists to document, execute
-                    and share data analysis scripts and the results of running these scripts.
-                </div>
-            </div>
-
-
-            <div class="item">
-                <div class="header">Can I make my own recipe?</div>
-                <div class="description">
-                    You may adapt, modify and remix recipes to match
-                    your needs. Then, if want to you may share these on the same site and show others how you solved a
-                    problem. By supporting these interactions, we aim to foster a
-                    collaborative environment that facilitates creativity, efficiency and reproducibility.
-                </div>
-            </div>
-
-            <div class="item">
-                <div class="header">What kind of code may a recipe contain?</div>
-                <div class="description">
-                    A recipe may use any code that can be executed at command line, for example
-                    <code>bash</code>, <code>python</code>, <code>R</code>, <code>makefiles</code> and many others.
-
-                </div>
-            </div>
-
-            <div class="item">
-                <div class="header">What software runs this site?</div>
-                <div class="description">
-                    The software that runs this site is called the<a href="https://github.com/biostars/biostar-engine">Biostar
-                    Engine</a> and it was designed
-                    to generate <em>an easy-to-use interface</em> to command line scripts. In
-                    addition the site collects the files that are generated
-                    during the run of a script and shows them to the user in an visual manner.
-                </div>
-            </div>
-
         </div>
 
-    </div>
 
+    </div>
     </div>
 
 
