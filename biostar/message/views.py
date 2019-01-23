@@ -39,7 +39,7 @@ def message_list(request, template="message_list.html", active_tab=None, listing
     objs = paginator.get_page(page)
 
     context = dict(is_inbox=listing == INBOX, field_name=ACTIVE_MESSAGE_TAB,
-                 objs=objs)
+                   objs=objs, extra_tab_name=listing)
 
     context.update({active_tab: ACTIVE_MESSAGE_TAB})
 
@@ -55,7 +55,7 @@ def message_list(request, template="message_list.html", active_tab=None, listing
 def inbox_message_view(request, uid):
     "Checks to see you are the recipient to a message."
 
-    return message_view(request)
+    return message_view(request, uid)
 
 
 @message_access(access_to=OUTBOX)
@@ -68,9 +68,6 @@ def outbox_message_view(request, uid):
 
 @login_required
 def inbox_list(request):
-
-    active_tab = request.GET.get(ACTIVE_MESSAGE_TAB, INBOX)
-    active_tab = active_tab if (active_tab in MESSAGE_TABS) else INBOX
 
     return message_list(request, template="message_list.html", active_tab="message",
                         listing=INBOX)

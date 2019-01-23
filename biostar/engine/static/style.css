@@ -15,12 +15,38 @@ body {
 
 }
 
+
+.forumtabs.active.label {
+    background-color: #dff0d8;!important;
+    color: #000000!important;
+}
+
+
 .jobpad{
     padding-right:15!important;
 }
 
+.forumtabs{
+    font-size:12.5px !important;
+    margin:-0.5px !important;
+}
+
 .ui.items>.item>.content>a.header {
     color: #4183c4;
+}
+
+.biostarlogo {
+    padding-top:0px !important;
+    padding-left:0px !important;
+    padding-right:0px !important;
+    padding-bottom:15px !important;
+    border:0px;
+}
+
+.biostarimage{
+    margin-right:0px;
+    max-width: 100%!important;
+
 }
 
 ol {

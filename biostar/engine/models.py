@@ -30,6 +30,7 @@ def make_html(text):
     html = mistune.markdown(text, escape=False)
     return html
 
+
 def image_path(instance, filename):
     # Name the data by the filename.
     name, ext = os.path.splitext(filename)
