@@ -55,49 +55,44 @@
 
 
 
+
+
 <div class="ui bottom attached  segment">
-{% show_messages messages %}
-        <div class="ui top attached tiny tabular forumcolored menu">
+    {% show_messages messages %}
+            <img class="ui image right spaced tablet" src="/static/images/biostar-logo.png" style="margin:0px;">
 
-         <a class="item biostarlogo" href="{% url 'post_list' %}">
-            <img class="ui image biostarimage" src="/static/images/biostar-logo.png">
-        </a>
 
-            <a class="ui {{community}} item tablet forumtabs" href="{% url 'community_list' %}">
+            <a class="ui {{community}} label tablet forumtabs" href="{% url 'community_list' %}">
                 <i class="world icon"></i>Community
             </a>
-            <a class="ui {{latest}} item forumtabs" href="{% url 'post_list' %}?active=latest">
+            <a class="ui {{latest}} label forumtabs" href="{% url 'post_list' %}?active=latest">
                 <i class="comment alternate icon"></i><span class="tablet">Latest</span>
             </a>
-            <a class="ui {{message}} item tablet forumtabs" href="{% url 'inbox' %}">
+            <a class="ui {{message}} label tablet forumtabs" href="{% url 'inbox' %}">
                 <i class="mail icon"></i>Messages
                 {% message_count request=request otype="message" as num_msgs %}
                 {% if num_msgs %}<div class="ui green mini circular label">{{num_msgs}}</div>{%endif%}
 
             </a>
-            <a class="ui {{votes}} item forumtabs" href="{% url 'post_list' %}?active=votes">
+            <a class="ui {{votes}} label forumtabs" href="{% url 'post_list' %}?active=votes">
                 <i class="heart icon"></i> <span class="tablet">Votes</span>
             </a>
-            <a class="ui {{myposts}} item forumtabs" href="{% url 'post_list' %}?active=myposts">
+            <a class="ui {{myposts}} label forumtabs" href="{% url 'post_list' %}?active=myposts">
                 <i class="comments icon"></i> <span class="tablet">My Posts</span>
             </a>
-            <a class="ui {{mytags}} item forumtabs" href="{% url 'post_list' %}?active=mytags">
+            <a class="ui {{mytags}} label forumtabs" href="{% url 'post_list' %}?active=mytags">
                 <i class="tags icon"></i><span class="tablet">My Tags</span>
             </a>
-            <a class="ui {{following}} item forumtabs" href="{% url 'post_list' %}?active=following">
+            <a class="ui {{following}} label forumtabs" href="{% url 'post_list' %}?active=following">
                 <i class="eye icon"></i><span class="tablet">Following</span>
             </a>
-            <a class="ui {{bookmarks}} item forumtabs" href="{% url 'post_list' %}?active=bookmarks">
+            <a class="ui {{bookmarks}} label forumtabs" href="{% url 'post_list' %}?active=bookmarks">
                 <i class="book icon"></i><span class="tablet">Bookmarks</span>
             </a>
-            {% if extra_tab %}<a class="ui {{extra_tab}} item forumtabs" href="#">
-            <i class="info circle icon" style="font-size:15px"></i>
-        </a>
-            {% endif %}
 
-        </div>
 
-<div class="ui bottom attached forumcolored segment">
+
+
 <div class="ui stackable grid">
 
 <div class="twelve wide column">
@@ -118,8 +113,6 @@
     <div class="four wide column">
 
             {% feed user=request.user %}
-
-</div>
 
 </div>
 
