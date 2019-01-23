@@ -17,89 +17,102 @@
 
     <div class="ui vertical segment">
 
-        <div class="ui header">
-            {% if user.is_authenticated %}<a href="{% url 'project_list_private' %}">
-            <i class="database icon"></i>Project List
-            </a>
-            {% else %}<a href="{% url 'project_list' %}">
-            <i class="database icon"></i>Project List
-            </a>
-            {% endif %}
-        </div>
+        <h4 class="ui header">
+            What is a recipe?
+        </h4>
 
         <p>
             <img class="ui small right floated circular image" src="{% static 'images/dna.jpg' %}">
-            Bioinformatics is experiencing a <em>reproducibility impasse</em>. It has become
-            difficult to understand how analyses are performed and even more challenging to adapt and reuse the
-            same work-flows on different data.
+            A "bioinformatics recipe" is a collection of computer code that performs a bioinformatics data analysis task.
+        </p>
+
+
+        <h4 class="ui header">
+            Where can I find these recipes?
+        </h4>
+
+        <p>
+            Visit the <a href="{% url 'project_list' %}">
+            <i class="database icon"></i>Project List</a> page. Each project is a collection of recipes and results.
+            You may also want to use the search box on top.
+        </p>
+
+        <h4 class="ui header">
+            Can I see the results of a recipe?
+        </h4>
+
+        <p>
+            Yes, go the the "results" tab and see all the files the recipe has created.
+        </p>
+
+        <h4 class="ui header">
+            Can I run a recipe on my own computer?
+        </h4>
+
+        <p>
+            Yes! Recipes are <b>generic</b> and <b>universal</b>.
+            The use of recipes is not restricted to this site.
         </p>
 
         <p>
-            This web application was designed address the <em>challenges of reproducibility</em>.
-            It allows scientists to document, execute
-            and share data analysis scripts and the results of running these scripts. We call these analysis scripts
-            <em>recipes</em>.
-        </p>
-
-        <p>
-            Users may adapt, modify and remix recipes to match
-            their needs, then share these on the same site. By supporting these interactions, we aim to foster a collaborative
-            environment that facilitates creativity, efficiency and reproducibility.
-        </p>
-
-        <p>
-            Recipes are <b>generic</b> and <b>universal</b>. The use of recipes is not restricted to this site. All our recipes are designed so that they run
+            All our recipes are designed so that they run
             on any computer be that Linux, MacOS or Windows.
         </p>
 
         <p>
-            We support what we call the <b>Freedom of Discovery</b> - where scientists are not
-            limited and constrained to a platform, an interface, or a predetermined way of action.
-            Science will progress only when scientists can make their own discoveries their own ways
-            on their own system.
+            You would, of course, first need to properly set up your system. For a detailed guide see <a href="https://www.biostarhandbook.com"><i class="book icon"></i>Biostar Handbook</a>
         </p>
 
-        <p>
+        <h4 class="ui header">
+            Is there a beginner friendly guide to recipes?
+        </h4>
 
-            Visit the <a href="{% url 'project_list' %}"> <i class="database icon"></i>Project List</a> to see recipes
-            that we have deployed and shared.
+        <p>
+             The <a href="https://www.biostarhandbook.com"><i class="book icon"></i>Biostar Handbook</a> has detailed explanation for many recipes.
         </p>
 
-    </div>
-
-    <div class="ui vertical segment">
-
-        <div class="ui header">
-            <i class="info circle icon"></i>About the site
-        </div>
+        <h4 class="ui header">
+            What is a purpose of a recipe?
+        </h4>
 
         <p>
+            Recipes were designed address the <em>challenges of reproducibility</em>.
+            It allows scientists to document, execute
+            and share data analysis scripts and the results of running these scripts.
+        </p>
 
-            <img class="ui small right floated circular image" src="{% static 'images/biomedical.jpg' %}">
+        <h4 class="ui header">
+            Can I make my own recipe?
+        </h4>
 
+        <p>
+            You may adapt, modify and remix recipes to match
+            your needs. Then, if want to you may share these on the same site and show others how you solved a problem.
+            By supporting these interactions, we aim to foster a
+            collaborative  environment that facilitates creativity, efficiency and reproducibility.
+        </p>
+
+        <h4 class="ui header">
+            What kind of code may a recipe contain?
+        </h4>
+
+        <p>
+            A recipe may use any code that can be executed at command line, for example
+            <code>bash</code>, <code>python</code>, <code>R</code>, <code>makefiles</code> and many others.
+        </p>
+
+        <h4 class="ui header">
+            What software runs this site?
+        </h4>
+
+        <p>
             The software that runs this site is called the<a href="https://github.com/biostars/biostar-engine">Biostar
             Engine</a> and it was designed
-            to generate <em>an easy-to-use interface</em> to command line scripts. These scripts may be
-            executed through <code>bash</code>, <code>python</code>, <code>R</code>, <code>makefiles</code> and trough other tools. In
+            to generate <em>an easy-to-use interface</em> to command line scripts. In
             addition the site collects the files that are generated
             during the run of a script and shows them to the user in an visual manner.
         </p>
 
-
-        <p>
-            Besides storing, sharing and executing data analysis scripts, our software supports public and private
-            <em>project-based</em> workflows and can provide a data storage and management solution as a laboratory
-            information management system (LIMS) for individual labs, research groups, organizations.
-
-        <p>
-            The application was also designed to serve the training requirements for researchers that need learn how
-            to perform sequencing data analysis and is being used in graduate level education.
-        </p>
     </div>
-
-
-
-
-
 
 {% endblock %}
