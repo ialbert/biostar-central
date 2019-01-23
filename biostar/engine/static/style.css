@@ -28,6 +28,7 @@ body {
 
 .forumtabs{
     font-size:12.5px !important;
+    margin:-0.5px !important;
 }
 
 .ui.items>.item>.content>a.header {
