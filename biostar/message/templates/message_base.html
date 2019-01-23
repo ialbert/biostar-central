@@ -59,38 +59,38 @@
 {% show_messages messages %}
         <div class="ui top attached tiny tabular forumcolored menu">
 
-         <div class="item" style="padding-top:0px;padding-left:0px; padding-right:0px; padding-bottom:15px;">
-            <img style="margin-right:0px; width: 220px!important; " class="ui image" src="/static/images/biostar-logo.png">
+         <div class="item biostarlogo">
+            <img class="ui image biostarimage" src="/static/images/biostar-logo.png">
         </div>
 
-            <a class="ui {{community}} item green forumtabs tablet" href="{% url 'community_list' %}">
+            <a class="ui {{community}} item forumtabs tablet" href="{% url 'community_list' %}">
                 <i class="world icon"></i>Community
             </a>
-            <a class="ui {{latest}} green forumtabs item" href="{% url 'post_list' %}?active=latest">
+            <a class="ui {{latest}} forumtabs item" href="{% url 'post_list' %}?active=latest">
                 <i class="comment alternate icon"></i><span class="tablet">Latest</span>
             </a>
-            <a class="ui {{message}} item green forumtabs tablet" href="{% url 'inbox' %}">
+            <a class="ui {{message}} item forumtabs tablet" href="{% url 'inbox' %}">
                 <i class="mail icon"></i>Messages
                 {% message_count request=request otype="message" as num_msgs %}
                 {% if num_msgs %}<div class="ui green mini circular label">{{num_msgs}}</div>{%endif%}
 
             </a>
-            <a class="ui {{votes}} green forumtabs item" href="{% url 'post_list' %}?active=votes">
+            <a class="ui {{votes}} forumtabs item" href="{% url 'post_list' %}?active=votes">
                 <i class="heart icon"></i> <span class="tablet">Votes</span>
             </a>
-            <a class="ui {{myposts}} green forumtabs item" href="{% url 'post_list' %}?active=myposts">
+            <a class="ui {{myposts}} forumtabs item" href="{% url 'post_list' %}?active=myposts">
                 <i class="comments icon"></i> <span class="tablet">My Posts</span>
             </a>
-            <a class="ui {{mytags}} green forumtabs item" href="{% url 'post_list' %}?active=mytags" >
+            <a class="ui {{mytags}} forumtabs item" href="{% url 'post_list' %}?active=mytags" >
                 <i class="tags icon"></i><span class="tablet">My Tags</span>
             </a>
-            <a class="ui {{following}} green forumtabs item" href="{% url 'post_list' %}?active=following">
+            <a class="ui {{following}} forumtabs item" href="{% url 'post_list' %}?active=following">
                 <i class="eye icon"></i><span class="tablet">Following</span>
             </a>
-            <a class="ui {{bookmarks}} green forumtabs item" href="{% url 'post_list' %}?active=bookmarks">
+            <a class="ui {{bookmarks}} forumtabs item" href="{% url 'post_list' %}?active=bookmarks">
                 <i class="book icon"></i><span class="tablet">Bookmarks</span>
             </a>
-            {% if extra_tab %}<a class="ui {{extra_tab}} green forumtabs item" href="#">
+            {% if extra_tab %}<a class="ui {{extra_tab}} forumtabs item" href="#">
             <i class="info circle icon"></i><span class="tablet">{% if extra_tab_name %}{{ extra_tab_name|truncatechars:10 }}{%else%} Active{% endif %}</span>
         </a>
             {% endif %}
