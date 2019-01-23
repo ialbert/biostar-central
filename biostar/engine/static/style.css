@@ -22,6 +22,10 @@ body {
     color: #000000!important;
 }
 
+.ui.list.questions > .item > .header {
+    margin: 1ex 0em 1ex 0em;
+}
+
 
 .jobpad{
     padding-right:15!important;
