@@ -15,6 +15,7 @@ from biostar.engine.decorators import require_api_key
 
 logger = logging.getLogger("engine")
 
+
 @api_view(['GET'])
 def project_api_list(request):
 
@@ -78,6 +79,7 @@ def recipe_json(request, uid):
         # Get the new json that will replace the current one
         file_object = request.data.get("file", "")
         recipe.json_text = hjson.dumps(hjson.load(file_object)) if file_object else recipe.json_text
+        # TODO: Change the recipe name and text as well from the json file.
         recipe.save()
 
     payload = recipe.json_data
@@ -106,4 +108,25 @@ def recipe_template(request, uid):
 
     return HttpResponse(content=payload, content_type="text/plain")
 
+
+@api_view(['GET', 'PUT'])
+@require_api_key
+def recipe_image(request, uid):
+    """
+    GET request: Return recipe image.
+    PUT request: Updates recipe image with given file.
+    """
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+    img = recipe.image.path
+    if request.method == "PUT":
+        # Get the new image that will replace current one
+        file_object = request.data.get("file", "")
+        #TODO: check the file size
+        if file_object:
+            stream = file_object.read()
+            open(img, "wb").write(stream)
+
+    img_stream = open(img, "rb").read()
+    return HttpResponse(content=img_stream, content_type="image/jpeg")
 

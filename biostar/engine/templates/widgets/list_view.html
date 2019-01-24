@@ -12,7 +12,7 @@
                     <div class="item">
                         <img class="ui avatar image" src="{% img project %}"/>
                         <div class="content">
-                            <a class="subheader" href="{{ project.url }}">
+                            <a class="subheader" href="{% url 'recipe_list' project.uid %}">
                                 <i class="database icon"></i>{{ project.name }}
                             </a>
                             <div class="meta">{{ project.summary|markdown|safe }}</div>

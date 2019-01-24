@@ -61,6 +61,7 @@ urlpatterns = [
     url(r'^project/api/list/$', api.project_api_list, name='project_api_list'),
     url(r'^api/recipe/(?P<uid>[-\w]+)/json/$', api.recipe_json, name='recipe_api_json'),
     url(r'^api/recipe/(?P<uid>[-\w]+)/template/$', api.recipe_template, name='recipe_api_template'),
+    url(r'^api/recipe/(?P<uid>[-\w]+)/image/$', api.recipe_image, name='recipe_api_image'),
 
     # Discussions
     url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),

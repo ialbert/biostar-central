@@ -429,6 +429,17 @@ class Analysis(models.Model):
         return first
 
 
+@receiver(post_save, sender=Analysis)
+def sync_json(sender, instance, created, raw, update_fields, **kwargs):
+    # Sync the recipe.text with the json["settings"] of the recipe.
+
+    settings_dict = {"name": instance.name, "image": instance.image.name,
+                     "help": instance.text}
+    json_settings = instance.json_data.get("settings")
+
+    return
+
+
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
