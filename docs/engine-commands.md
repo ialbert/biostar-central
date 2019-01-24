@@ -33,11 +33,11 @@ Dump and load recipes from/to remote site:
     
       -l, --load            Load data to url from a directory. Load recipes to
                             database if --url is not set.
-      -d, --dump            Dump recipes from a url to directory. Dump recipes
+      -d, --dump            Dump recipes from a url to directory ( --dir ). Dump recipes
                             from database if --url is not set.
       --url URL             Site url.
       --key KEY             API key required to get private projects.
-      --dir DIR             Directory to store/load data from.
+      --dir DIR             Directory to store/load data from. Looks into current directory if not set.
       --pid PID             Project uid to load or dump.
       --rid RID             Recipe uid to load or dump.
       
