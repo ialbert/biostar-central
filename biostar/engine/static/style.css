@@ -22,11 +22,17 @@ body {
     color: #000000!important;
 }
 
+.ui.list.questions > .item > {
+
+}
+
 .ui.list.questions > .item > .header {
+    font-size: 1.2em;
     margin: 2ex 0em 2ex 0em;
 }
 
 .ui.list.questions > .item > .description {
+    font-size: 1.1em;
     margin: 0ex 0em 1ex 0em;
 }
 
