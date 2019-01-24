@@ -28,12 +28,13 @@ body {
 
 .ui.list.questions > .item > .header {
     font-size: 1.2em;
-    margin: 2ex 0em 2ex 0em;
+    margin: 1ex 0em 1ex 0em;
 }
 
 .ui.list.questions > .item > .description {
     font-size: 1.1em;
-    margin: 0ex 0em 1ex 0em;
+    margin: 0ex 0em 0ex 0em;
+    line-height: 1.5;
 }
 
 .jobpad{
