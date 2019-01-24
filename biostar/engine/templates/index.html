@@ -18,13 +18,9 @@
     <div class="ui vertical segment">
 
         <div class="ui header">
-            {% if user.is_authenticated %}<a href="{% url 'project_list_private' %}">
-            <i class="database icon"></i>Project List
+            <a href="{% url 'project_list' %}">
+                <i class="database icon"></i>Project List
             </a>
-            {% else %}<a href="{% url 'project_list' %}">
-            <i class="database icon"></i>Project List
-            </a>
-            {% endif %}
         </div>
 
         <p>

@@ -15,7 +15,7 @@
             {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
 <div>
         {% if user.profile.last_login %}
-        visted {{ user.profile.last_login|time_ago }}
+        visited {{ user.profile.last_login|time_ago }}
         {% else %}
             Joined {{ user.profile.date_joined|time_ago }}
         {% endif %}

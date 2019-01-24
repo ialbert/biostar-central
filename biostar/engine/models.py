@@ -431,11 +431,15 @@ class Analysis(models.Model):
 
 @receiver(post_save, sender=Analysis)
 def sync_json(sender, instance, created, raw, update_fields, **kwargs):
-    # Sync the recipe.text with the json["settings"] of the recipe.
+    # Sync the json["settings"] with the recipe.text and image.
 
     settings_dict = {"name": instance.name, "image": instance.image.name,
                      "help": instance.text}
     json_settings = instance.json_data.get("settings")
+
+    # Update the json text with recent info.
+    print(json_settings)
+    1/0
 
     return
 

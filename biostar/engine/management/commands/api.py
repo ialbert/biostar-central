@@ -78,24 +78,25 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
         print(f"*** Project directory :{project_dir} does not contain any recipes.")
         sys.exit()
 
-    def upload(uid, view="recipe_api_template", target_file="", is_json=False, is_image=True):
+    def upload(uid, view="recipe_api_template", target_file="", is_json=False, is_image=False):
 
         target = os.path.join(project_dir, uid, target_file)
         payload = dict(k=api_key)
         mode = "rb" if is_image else "r"
+        stream = open(target, mode)
         if root_url:
             # Build api url then send PUT request.
             full_url = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
-            response = put_recipe(url=full_url, files=dict(file=open(target, mode)), data=payload, uid=uid)
+            response = put_recipe(url=full_url, files=dict(file=stream), data=payload, uid=uid)
             return response
-        # Update the recipe.json_text or recipe.template
-        read_file = open(target, mode).read()
+        # Load data in to the database
+        read_file = stream.read()
         if is_image:
             recipe = Analysis.objects.get_all(uid=uid).first()
-            dir(recipe.image)
-            1/0
-        update_query = dict(json_text=read_file) if is_json else dict(template=read_file)
-        Analysis.objects.get_all(uid=uid).update(**update_query)
+            open(recipe.image.path, "wb").write(read_file)
+        else:
+            update_query = dict(json_text=read_file) if is_json else dict(template=read_file)
+            Analysis.objects.get_all(uid=uid).update(**update_query)
         return uid
 
     load_recipe = lambda uid: (upload(uid=uid, target_file="json.hjson", view="recipe_api_json", is_json=True),
