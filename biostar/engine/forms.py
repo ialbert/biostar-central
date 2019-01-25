@@ -353,7 +353,8 @@ class RecipeForm(forms.ModelForm):
     def clean_uid(self):
         cleaned_data = super(RecipeForm, self).clean()
         uid = cleaned_data.get('uid')
-        if uid and not uid.isalnum():
+        # TODO: change second cond with a regex pattern
+        if uid and not (uid.isalnum() or "-" in uid):
             msg = "Only alphanumeric characters allowed, no spaces."
             raise forms.ValidationError(msg)
 

@@ -7,18 +7,16 @@ import requests
 import sys
 
 from django.core.management.base import BaseCommand
-
+from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import reverse
 from biostar.engine.models import Analysis
 
 logger = logging.getLogger('engine')
 
+DUMP_DIR = os.path.join(settings.BASE_DIR, "..")
 # Override the logger.
 logger.setLevel(logging.INFO)
-
-DUMP_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dump")
-os.makedirs(DUMP_DIR, exist_ok=True)
 
 
 def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
@@ -73,32 +71,50 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
 
     # Every subdir in 'project_dir' is a recipe_dir.
     recipe_dirs = [r.name for r in os.scandir(project_dir)]
-    # Get a specific recipe to load if given.
+    # Get the specific recipe to load if given.
     recipe_dirs = list(filter(lambda recipe_uid: recipe_uid == rid, recipe_dirs)) if rid else recipe_dirs
 
     if not recipe_dirs:
         print(f"*** Project directory :{project_dir} does not contain any recipes.")
         sys.exit()
 
-    def upload(uid, view="recipe_api_template", target_file="", is_json=False):
+    def upload(uid, view="recipe_api_template", target_file="", is_json=False, is_image=False):
 
         target = os.path.join(project_dir, uid, target_file)
         payload = dict(k=api_key)
+        mode = "rb" if is_image else "r"
+        stream = open(target, mode)
         if root_url:
             # Build api url then send PUT request.
             full_url = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
-            response = put_recipe(url=full_url, files=dict(file=open(target, "r")), data=payload, uid=uid)
+            response = put_recipe(url=full_url, files=dict(file=stream), data=payload, uid=uid)
             return response
-        # Update the recipe.json_text or recipe.template
-        read_file = open(target, "r").read()
-        update_query = dict(json_text=read_file) if is_json else dict(template=read_file)
+
+        # Load in to the database
+        data = stream.read()
+        update_query = dict(json_text=data) if is_json else dict(template=data)
+        recipe = Analysis.objects.get_all(uid=uid).first()
+        if is_image:
+            # Update the image with given data and exit.
+            open(recipe.image.path, "wb").write(data)
+            return
+        # Update recipe name and text when updating json
+        if is_json:
+            updated_json = hjson.loads(data)
+            update_query["name"] = updated_json["settings"].get("name", recipe.name)
+            update_query["text"] = updated_json["settings"].get("help", recipe.text)
+
         Analysis.objects.get_all(uid=uid).update(**update_query)
         return uid
 
-    load_recipes = lambda uid: (upload(uid=uid, target_file="json.hjson", view="recipe_api_json", is_json=True),
-                                upload(uid=uid, target_file="template.sh"))
-    loaded = list(map(load_recipes, recipe_dirs))
-    return loaded
+    load_recipe = lambda uid: (upload(uid=uid, target_file="json.hjson", view="recipe_api_json", is_json=True),
+                               upload(uid=uid, target_file=f"{uid}.png", view="recipe_api_image", is_image=True),
+                               upload(uid=uid, target_file="template.sh"))
+    for recipe_uid in recipe_dirs:
+        load_recipe(uid=recipe_uid)
+        print(f"Loaded recipe id: {recipe_uid}")
+
+    return recipe_dirs
 
 
 def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
@@ -113,29 +129,34 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
         print(msg + (f"and recipe id={rid}." if rid else "."))
         sys.exit()
 
-    def download(uid, is_json=False, view="recipe_api_template", fname=""):
+    def download(uid, is_json=False, view="recipe_api_template", fname="", is_image=False):
         if root_url:
             # Get data from the api url
             fullurl = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
-            data = urlopen(url=fullurl).read().decode()
+            data = urlopen(url=fullurl).read()
         else:
             # Get data from database
             recipe = Analysis.objects.get_all(uid=uid).first()
             data = recipe.json_text if is_json else recipe.template
+            data = open(recipe.image.path, "rb").read() if is_image else data
         # Make the recipe directory.
         recipe_dir = os.path.join(project_dir, uid)
         os.makedirs(recipe_dir, exist_ok=True)
         # Format data and write to outfile.
         data = hjson.dumps(hjson.loads(data)) if is_json else data
         outfile = os.path.join(recipe_dir, fname)
-        open(outfile, "w").write(data)
+        mode = "wb" if is_image else "w"
+        open(outfile, mode).write(data)
         return outfile
 
-    # Dump json and template for a given recipe
-    dump_recipes = lambda uid: (download(is_json=True, uid=uid, view="recipe_api_json", fname="json.hjson"),
-                                download(uid=uid, fname="template.sh"))
-    dumped = list(map(dump_recipes, recipes))
-    return dumped
+    # Dump json, template, and image for a given recipe
+    dump_recipe = lambda uid: (download(uid=uid, fname="json.hjson",  is_json=True, view="recipe_api_json"),
+                               download(uid=uid, fname=f"{uid}.png", is_image=True, view="recipe_api_image"),
+                               download(uid=uid, fname="template.sh"))
+    for recipe_uid in recipes:
+        dump_recipe(uid=recipe_uid)
+        print(f"Dumped recipe id: {recipe_uid}")
+    return recipes
 
 
 class Command(BaseCommand):
@@ -182,12 +203,13 @@ class Command(BaseCommand):
             return
 
         project_dir = os.path.join(root_dir, pid)
+
         if load:
             loaded = recipe_loader(project_dir=project_dir, root_url=root_url, api_key=api_key, rid=rid)
             view = reverse("project_view", kwargs=dict(uid=pid))
             view = reverse("recipe_view", kwargs=dict(uid=rid)) if rid else view
-            print(f"{len(loaded)} recipe(s) loaded into {urljoin(root_url, view) if root_url else 'database'}")
+            print(f"{len(loaded)} recipes loaded into {urljoin(root_url, view) if root_url else 'database'}")
         elif dump:
             dumped = recipe_dumper(root_url=root_url, api_key=api_key, project_dir=project_dir, pid=pid, rid=rid)
-            print(f"{len(dumped)} recipe(s) dumped into {project_dir}")
+            print(f"{len(dumped)} recipes dumped into {project_dir}")
 

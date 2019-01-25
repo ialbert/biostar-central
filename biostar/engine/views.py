@@ -203,20 +203,31 @@ def project_list_private(request):
     else:
         projects = projects.order_by("-date", "-lastedit_date", "-id")
 
-    context = dict(projects=projects, private="active", msg=empty_msg)
+    context = dict(projects=projects, msg=empty_msg)
 
-    return render(request, "project_list.html", context)
+    return render(request, "project_list_private.html", context)
 
 
-def project_list(request):
+def project_list_public(request):
+    """Only list public projects."""
+
     projects = auth.get_project_list(user=request.user)
-
     # Exclude private projects
     projects = projects.exclude(privacy=Project.PRIVATE)
     projects = projects.order_by("-date", "-lastedit_date", "-id")
-    context = dict(projects=projects, public="active")
 
-    return render(request, "project_list.html", context)
+    context = dict(projects=projects)
+
+    return render(request, "project_list_public.html", context)
+
+
+def project_list(request):
+
+    if request.user.is_authenticated:
+        # Return private projects when user is logged in.
+        return project_list_private(request)
+    else:
+        return project_list_public(request)
 
 
 @read_access(type=Project)

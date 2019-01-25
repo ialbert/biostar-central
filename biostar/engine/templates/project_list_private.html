@@ -1,0 +1,42 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Project List
+{% endblock %}
+
+
+{% block body %}
+    <div class="ui center aligned basic vertical segment">
+        <div class="ui large header">
+            <i class="database icon"></i> Project List
+        </div>
+
+    </div>
+
+    {% show_messages messages %}
+    <div class="ui top attached tabular colored menu">
+        <a class="ui blue item" href="{% url 'project_list_public' %}">
+            <i class="file powerpoint icon"></i>Public Projects
+        </a>
+        <a class="ui active blue item" href="{% url 'project_list_private' %}">
+            <i class="user icon"></i> Your Projects
+        </a>
+    </div>
+    <div class="ui bottom attached colored segment">
+        {% list_view projects=projects %}
+
+        {% if not projects %}
+            <div class="item ">
+                <div class="ui warning message"><i class="ui warning circle icon"></i> {{msg}}</div>
+            </div>
+        {% endif %}
+    </div>
+        {% if user.is_authenticated %}
+            <div class="ui center aligned vertical segment">
+                <a class="ui button" href="{% url 'project_create' %}">
+                    <i class="add circle icon"></i>Create Project
+                </a>
+            </div>
+        {% endif %}
+{% endblock %}

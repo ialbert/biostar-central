@@ -19,7 +19,8 @@ urlpatterns = [
     url(r'^project/edit/(?P<uid>[-\w]+)/$', views.project_edit, name='project_edit'),
     url(r'^project/info/(?P<uid>[-\w]+)/$', views.project_info, name='project_info'),
     url(r'^project/list/private/$', views.project_list_private, name='project_list_private'),
-    url(r'^project/list/public/$', views.project_list, name='project_list_public'),
+    url(r'^project/list/public/$', views.project_list_public, name='project_list_public'),
+    url(r'^project/list/$', views.project_list, name='project_list'),
     url(r'^project/delete/(?P<uid>[-\w]+)/$', views.project_delete, name='project_delete'),
 
     # Data
@@ -61,6 +62,7 @@ urlpatterns = [
     url(r'^project/api/list/$', api.project_api_list, name='project_api_list'),
     url(r'^api/recipe/(?P<uid>[-\w]+)/json/$', api.recipe_json, name='recipe_api_json'),
     url(r'^api/recipe/(?P<uid>[-\w]+)/template/$', api.recipe_template, name='recipe_api_template'),
+    url(r'^api/recipe/(?P<uid>[-\w]+)/image/$', api.recipe_image, name='recipe_api_image'),
 
     # Discussions
     url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),

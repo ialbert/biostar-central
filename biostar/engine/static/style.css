@@ -95,7 +95,11 @@ figure { display: block; margin: 0; }
 
 
 .customsearch {
-    width:400 !important;
+    width:500 !important;
+}
+
+.customsearch input:hover {
+  background-color: #e0e0e0 !important;
 }
 
 .searchblock {
