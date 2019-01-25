@@ -90,12 +90,12 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
             response = put_recipe(url=full_url, files=dict(file=stream), data=payload, uid=uid)
             return response
 
-        # Load data in to the database
+        # Load in to the database
         data = stream.read()
         update_query = dict(json_text=data) if is_json else dict(template=data)
         recipe = Analysis.objects.get_all(uid=uid).first()
         if is_image:
-            # Update the image and exit.
+            # Update the image with given data and exit.
             open(recipe.image.path, "wb").write(data)
             return
         # Update recipe name and text when updating json
@@ -108,7 +108,7 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
         return uid
 
     load_recipe = lambda uid: (upload(uid=uid, target_file="json.hjson", view="recipe_api_json", is_json=True),
-                               upload(uid=uid, target_file="image.png", view="recipe_api_image", is_image=True),
+                               upload(uid=uid, target_file=f"{uid}.png", view="recipe_api_image", is_image=True),
                                upload(uid=uid, target_file="template.sh"))
     for recipe_uid in recipe_dirs:
         load_recipe(uid=recipe_uid)
@@ -151,7 +151,7 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
 
     # Dump json, template, and image for a given recipe
     dump_recipe = lambda uid: (download(uid=uid, fname="json.hjson",  is_json=True, view="recipe_api_json"),
-                               download(uid=uid, fname="image.png", is_image=True, view="recipe_api_image"),
+                               download(uid=uid, fname=f"{uid}.png", is_image=True, view="recipe_api_image"),
                                download(uid=uid, fname="template.sh"))
     for recipe_uid in recipes:
         dump_recipe(uid=recipe_uid)
