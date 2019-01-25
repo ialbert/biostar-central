@@ -134,6 +134,7 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
             # Get data from the api url
             fullurl = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
             data = urlopen(url=fullurl).read()
+            data = data if is_image else data.decode()
         else:
             # Get data from database
             recipe = Analysis.objects.get_all(uid=uid).first()
@@ -146,6 +147,7 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
         data = hjson.dumps(hjson.loads(data)) if is_json else data
         outfile = os.path.join(recipe_dir, fname)
         mode = "wb" if is_image else "w"
+
         open(outfile, mode).write(data)
         return outfile
 
