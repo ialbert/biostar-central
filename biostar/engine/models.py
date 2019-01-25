@@ -435,13 +435,13 @@ def sync_json(sender, instance, created, raw, update_fields, **kwargs):
 
     settings_dict = {"name": instance.name, "image": instance.image.name,
                      "help": instance.text}
-    json_settings = instance.json_data.get("settings")
 
-    # Update the json text with recent info.
-    print(json_settings)
-    1/0
+    current_json = instance.json_data
 
-    return
+    current_json["settings"] = settings_dict
+
+    Analysis.objects.get_all(uid=instance.uid).update(json_text=hjson.dumps(current_json))
+
 
 
 class Job(models.Model):

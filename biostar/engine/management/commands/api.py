@@ -89,14 +89,22 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
             full_url = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
             response = put_recipe(url=full_url, files=dict(file=stream), data=payload, uid=uid)
             return response
+
         # Load data in to the database
-        read_file = stream.read()
+        data = stream.read()
+        update_query = dict(json_text=data) if is_json else dict(template=data)
+        recipe = Analysis.objects.get_all(uid=uid).first()
         if is_image:
-            recipe = Analysis.objects.get_all(uid=uid).first()
-            open(recipe.image.path, "wb").write(read_file)
-        else:
-            update_query = dict(json_text=read_file) if is_json else dict(template=read_file)
-            Analysis.objects.get_all(uid=uid).update(**update_query)
+            # Update the image and exit.
+            open(recipe.image.path, "wb").write(data)
+            return
+        # Update recipe name and text when updating json
+        if is_json:
+            updated_json = hjson.loads(data)
+            update_query["name"] = updated_json["settings"].get("name", recipe.name)
+            update_query["text"] = updated_json["settings"].get("help", recipe.text)
+
+        Analysis.objects.get_all(uid=uid).update(**update_query)
         return uid
 
     load_recipe = lambda uid: (upload(uid=uid, target_file="json.hjson", view="recipe_api_json", is_json=True),

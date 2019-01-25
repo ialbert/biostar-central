@@ -74,12 +74,17 @@ def recipe_json(request, uid):
     """
     recipe = Analysis.objects.filter(uid=uid).first()
 
-    # API key is always checked by @require_api_key decorator.
     if request.method == "PUT":
         # Get the new json that will replace the current one
         file_object = request.data.get("file", "")
-        recipe.json_text = hjson.dumps(hjson.load(file_object)) if file_object else recipe.json_text
-        # TODO: Change the recipe name and text as well from the json file.
+        updated_json = hjson.load(file_object)
+        recipe.json_text = hjson.dumps(updated_json) if file_object else recipe.json_text
+
+        # Update help and name in recipe from json.
+        if updated_json.get("settings"):
+            recipe.name = updated_json["settings"].get("name", recipe.name)
+            recipe.text = updated_json["settings"].get("help", recipe.text)
+
         recipe.save()
 
     payload = recipe.json_data
@@ -122,7 +127,7 @@ def recipe_image(request, uid):
     if request.method == "PUT":
         # Get the new image that will replace current one
         file_object = request.data.get("file", "")
-        #TODO: check the file size
+        #TODO: check the file size?
         if file_object:
             stream = file_object.read()
             open(img, "wb").write(stream)
