@@ -88,11 +88,12 @@ figure { display: block; margin: 0; }
 
 
 .customsearch {
-    width:500 !important;
+    width:100% !important;
 }
 
 .customsearch input:hover {
-  background-color: #e0e0e0 !important;
+  background-color: #eff0f2!important;
+  border:none !important;
 }
 
 .searchblock {
@@ -113,8 +114,35 @@ figure { display: block; margin: 0; }
 .count {
     padding-right:10px !important;;
 }
+
+.accept{
+  background-color: #5b8c3e !important;
+  color: #ffff00 !important;
+
+}
+
+.tutorial{
+  background-color: #2C7990 !important;
+  color: #fff !important;
+
+}
+
+.job{
+  background-color: #e9530f !important;
+  color: #fff !important;
+
+}
+
+.news{
+  background-color: #762C90 !important;
+  color: #fff !important;
+
+}
+
+
 .accepted {
-    background-color: #f9fcf9 !important;;
+    background-color: #f9fcf9 !important;
+    border-radius: 1rem !important;
 }
 
 .ui.userinfo.segment {
@@ -136,16 +164,12 @@ figure { display: block; margin: 0; }
   color: #8f2c47;
 }
 
-.ui.maroon.segment {
-  border-top: 2px solid #8f2c47!important;
-}
-
 .ui.darkgreen.label {
   background-color: #326b2b;
   color: #fff;
 }
 .ui.lightgreen.label {
-  background-color: #6ebf65;
+  background-color: #5b8c3e;
   color: #fff;
 }
 

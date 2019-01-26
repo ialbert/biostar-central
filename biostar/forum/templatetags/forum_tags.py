@@ -283,17 +283,17 @@ def boxclass(post):
     # Create the css class for each row
 
     if post.type == Post.JOB:
-        style = "orange"
+        style = "job"
     elif post.type == Post.TUTORIAL:
-        style = "blue"
+        style = "tutorial"
     elif post.type == Post.TOOL:
         style = "darkgreen"
     elif post.type == Post.FORUM:
         style = "gold"
     elif post.type == Post.NEWS:
-        style = "purple"
+        style = "news"
     elif post.has_accepted:
-        style = "olive"
+        style = "accept"
     elif post.reply_count > 0:
         style = "lightgreen"
     elif post.comment_count > 0:
