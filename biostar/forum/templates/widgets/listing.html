@@ -26,7 +26,7 @@
                 {% endif %}
 
             </div>
-            <div class="ui {% boxclass post %} label stat mini">
+            <div class="ui {% boxclass post %} label stat mini" style="margin:-1px;">
                 {% if post.is_toplevel %}
                     <div class="number-stat">
                     {{ post.thread_score }}
@@ -40,7 +40,6 @@
                     <div class="detail-stat">Remark{{ post.root.reply_count|pluralize }}</div>
                 {% endif %}
             </div>
-
             <div class="ui label basic transparent stat mini">
 
                 <div class="number-stat">
