@@ -431,14 +431,14 @@ class Analysis(models.Model):
 
 @receiver(post_save, sender=Analysis)
 def sync_json(sender, instance, created, raw, update_fields, **kwargs):
-    # Sync the json["settings"] with the recipe.text and image.
-
-    settings_dict = {"name": instance.name, "image": instance.image.name,
-                     "help": instance.text}
+    # Sync the json["settings"] with the recipe.text and name.
 
     current_json = instance.json_data
-
-    current_json["settings"] = settings_dict
+    if current_json.get("settings"):
+        current_json["settings"]["name"] = instance.name
+        current_json["settings"]["help"] = instance.text
+    else:
+        current_json["settings"] = {"name" : instance.name, "help": instance.text}
 
     Analysis.objects.get_all(uid=instance.uid).update(json_text=hjson.dumps(current_json))
 
