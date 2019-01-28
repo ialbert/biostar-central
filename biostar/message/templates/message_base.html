@@ -72,7 +72,7 @@
             <a class="ui {{message}} basic label tablet forumtabs" href="{% url 'inbox' %}">
                 <i class="mail icon"></i>Messages
                 {% message_count request=request otype="message" as num_msgs %}
-                {% if num_msgs %}<div class="ui green mini circular label" style="padding:2.5px; margin:0px; font-size:10px">{{num_msgs}}</div>{%endif%}
+                {% if num_msgs %}<div class="ui green mini label" style="padding:2.5px; margin:0px; font-size:10px">{{num_msgs}}</div>{%endif%}
 
             </a>
             <a class="ui {{votes}} basic label forumtabs" href="{% url 'post_list' %}?active=votes">
@@ -90,7 +90,6 @@
             <a class="ui {{bookmarks}} basic label forumtabs" href="{% url 'post_list' %}?active=bookmarks">
                 <i class="book icon"></i><span class="tablet">Bookmarks</span>
             </a>
-
 
 
         {% block body %}
