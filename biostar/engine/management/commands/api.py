@@ -60,13 +60,14 @@ def put_recipe(url, files, data, uid=""):
     return response
 
 
-def get_image_name(uid, root_url=None, api_key=""):
+def get_image_name(uid, root_url=None, root_dir=None, api_key=""):
 
-    # Get json settings to find name of image
-
+    # Get json
     if root_url:
         fullurl = build_api_url(root_url=root_url, api_key=api_key, view="recipe_api_json", uid=uid)
         json_text = urlopen(url=fullurl).read().decode()
+    elif root_dir:
+        json_text = open(os.path.join(root_dir, uid, "json.hjson")).read()
     else:
         json_text = Analysis.objects.get_all(uid=uid).first().json_text
 
@@ -125,7 +126,7 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
         Analysis.objects.get_all(uid=uid).update(**update_query)
         return uid
 
-    img = lambda uid: get_image_name(uid=uid, root_url=root_url, api_key=api_key)
+    img = lambda uid: get_image_name(uid=uid, root_dir=project_dir)
     load_recipe = lambda uid: (upload(uid=uid, target_file="json.hjson", view="recipe_api_json", is_json=True),
                                upload(uid=uid, target_file=img(uid=uid), view="recipe_api_image", is_image=True),
                                upload(uid=uid, target_file="template.sh"))
