@@ -60,6 +60,25 @@ def put_recipe(url, files, data, uid=""):
     return response
 
 
+def get_image_name(uid, root_url=None, root_dir=None, api_key=""):
+
+    # Get json
+    if root_url:
+        fullurl = build_api_url(root_url=root_url, api_key=api_key, view="recipe_api_json", uid=uid)
+        json_text = urlopen(url=fullurl).read().decode()
+    elif root_dir:
+        json_text = open(os.path.join(root_dir, uid, "json.hjson")).read()
+    else:
+        json_text = Analysis.objects.get_all(uid=uid).first().json_text
+
+    json_settings = hjson.loads(json_text).get("settings", {})
+
+    # Get the local image name from settings.
+    name = json_settings.get("image", f"{uid}.png")
+
+    return name
+
+
 def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
     """
         Load recipes into api/database from a project found in project_dir.
@@ -98,7 +117,7 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
             # Update the image with given data and exit.
             open(recipe.image.path, "wb").write(data)
             return
-        # Update recipe name and text when updating json
+        # Update recipe name and text with json data
         if is_json:
             updated_json = hjson.loads(data)
             update_query["name"] = updated_json["settings"].get("name", recipe.name)
@@ -107,8 +126,9 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
         Analysis.objects.get_all(uid=uid).update(**update_query)
         return uid
 
+    img = lambda uid: get_image_name(uid=uid, root_dir=project_dir)
     load_recipe = lambda uid: (upload(uid=uid, target_file="json.hjson", view="recipe_api_json", is_json=True),
-                               upload(uid=uid, target_file=f"{uid}.png", view="recipe_api_image", is_image=True),
+                               upload(uid=uid, target_file=img(uid=uid), view="recipe_api_image", is_image=True),
                                upload(uid=uid, target_file="template.sh"))
     for recipe_uid in recipe_dirs:
         load_recipe(uid=recipe_uid)
@@ -126,7 +146,7 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
     recipes = get_recipes(pid=pid, root_url=root_url, api_key=api_key, rid=rid)
     if not recipes:
         msg = f"*** No recipes found for project id={pid}"
-        print(msg + (f"and recipe id={rid}." if rid else "."))
+        print(msg + (f" and recipe id={rid}." if rid else "."))
         sys.exit()
 
     def download(uid, is_json=False, view="recipe_api_template", fname="", is_image=False):
@@ -134,6 +154,7 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
             # Get data from the api url
             fullurl = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
             data = urlopen(url=fullurl).read()
+            data = data if is_image else data.decode()
         else:
             # Get data from database
             recipe = Analysis.objects.get_all(uid=uid).first()
@@ -146,12 +167,14 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
         data = hjson.dumps(hjson.loads(data)) if is_json else data
         outfile = os.path.join(recipe_dir, fname)
         mode = "wb" if is_image else "w"
+
         open(outfile, mode).write(data)
         return outfile
 
     # Dump json, template, and image for a given recipe
+    img = lambda uid: get_image_name(uid=uid, root_url=root_url, api_key=api_key)
     dump_recipe = lambda uid: (download(uid=uid, fname="json.hjson",  is_json=True, view="recipe_api_json"),
-                               download(uid=uid, fname=f"{uid}.png", is_image=True, view="recipe_api_image"),
+                               download(uid=uid, fname=img(uid=uid), is_image=True, view="recipe_api_image"),
                                download(uid=uid, fname="template.sh"))
     for recipe_uid in recipes:
         dump_recipe(uid=recipe_uid)

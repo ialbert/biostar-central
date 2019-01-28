@@ -1,6 +1,7 @@
 
 import hjson
 import logging
+import os
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -8,7 +9,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from biostar.engine.models import Analysis, Project
+from biostar.engine.models import Analysis, Project, image_path
 from biostar.utils.shortcuts import reverse
 from biostar.engine.decorators import require_api_key
 
@@ -123,15 +124,25 @@ def recipe_image(request, uid):
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
-    img = recipe.image.path
+
+    if recipe.image:
+        img_path = recipe.image.path
+    else:
+        img_path = os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+
     if request.method == "PUT":
         # Get the new image that will replace current one
         file_object = request.data.get("file", "")
         #TODO: check the file size?
-        if file_object:
-            stream = file_object.read()
-            open(img, "wb").write(stream)
 
-    img_stream = open(img, "rb").read()
+        if file_object:
+            if not recipe.image:
+                img_path = os.path.join(settings.MEDIA_ROOT,
+                                        image_path(instance=recipe, filename=img_path))
+                recipe.image.save(name=img_path, content=file_object)
+            else:
+                open(img_path, "wb").write(file_object.read())
+
+    img_stream = open(img_path, "rb").read()
     return HttpResponse(content=img_stream, content_type="image/jpeg")
 

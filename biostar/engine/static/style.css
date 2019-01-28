@@ -20,6 +20,7 @@ body {
 .forumtabs.active.label {
     background-color: #dff0d8;!important;
     color: #000000!important;
+    border:none !important;
 }
 
 .ui.list.questions > .item > {
@@ -42,8 +43,9 @@ body {
 }
 
 .forumtabs{
-    font-size:12.5px !important;
-    margin:-0.5px !important;
+    font-size:13.0px !important;
+    margin:-1.5px !important;
+    border:none !important;
 }
 
 .ui.items>.item>.content>a.header {
@@ -95,11 +97,12 @@ figure { display: block; margin: 0; }
 
 
 .customsearch {
-    width:500 !important;
+    width:100% !important;
 }
 
 .customsearch input:hover {
-  background-color: #e0e0e0 !important;
+  background-color: #eff0f2!important;
+  border:none !important;
 }
 
 .searchblock {
@@ -120,8 +123,41 @@ figure { display: block; margin: 0; }
 .count {
     padding-right:10px !important;;
 }
+
+.accept{
+  background-color: #436c27 !important;
+  color: #ffff00 !important;
+
+}
+
+.tutorial{
+  background-color: #2C7990 !important;
+  color: #fff !important;
+
+}
+
+.job{
+  background-color: #e9530f !important;
+  color: #fff !important;
+
+}
+
+.tool{
+  background-color: #265040 !important;
+  color: #fff !important;
+
+}
+
+.news{
+  background-color: #762C90 !important;
+  color: #fff !important;
+
+}
+
+
 .accepted {
-    background-color: #f9fcf9 !important;;
+    background-color: #f9fcf9 !important;
+    border-radius: 1rem !important;
 }
 
 .ui.userinfo.segment {
@@ -143,16 +179,12 @@ figure { display: block; margin: 0; }
   color: #8f2c47;
 }
 
-.ui.maroon.segment {
-  border-top: 2px solid #8f2c47!important;
-}
-
 .ui.darkgreen.label {
   background-color: #326b2b;
   color: #fff;
 }
 .ui.lightgreen.label {
-  background-color: #6ebf65;
+  background-color: #5b8c3e;
   color: #fff;
 }
 
@@ -190,10 +222,10 @@ figure { display: block; margin: 0; }
 }
 
 .number-stat{
-    font-size: 1.8em;
+    font-size: 2.0em;
     padding-bottom: .2em;
     text-align: center;
-    font-weight: 800;
+    font-weight: 900;
 }
 .ui.forum.container {
     width: 1230px;
@@ -202,9 +234,9 @@ figure { display: block; margin: 0; }
 
 
 .detail-stat{
-    font-size: 1.1em;
+    font-size: 1.15em;
     text-align: center;
-    font-weight: 200;
+    font-weight: 500;
 }
 
 
