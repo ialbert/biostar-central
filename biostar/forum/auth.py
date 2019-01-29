@@ -161,12 +161,8 @@ def create_sub(post,  user, sub_type=None):
     sub = Subscription.objects.filter(post=root, user=user).first()
     date = datetime.datetime.utcnow().replace(tzinfo=utc)
 
-    # Subscription already exists with that type
-    if sub and (sub.type == sub_type):
-        return sub
     # Update an existing sub with new type.
-    elif sub:
-        #TODO: just delete the object
+    if sub:
         Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
         # The sub is being changed to "No message"
         if sub_type == Subscription.NO_MESSAGES:

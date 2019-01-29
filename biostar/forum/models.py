@@ -31,7 +31,7 @@ logger = logging.getLogger("engine")
 class SubscriptionManager(models.Manager):
     def get_subs(self, post):
         "Returns all subscriptions for a post, exclude the "
-        return self.filter(post=post.root).select_related("user")
+        return self.filter(post=post.root).select_related("user", "user__profile")
 
 
 class PostManager(models.Manager):

@@ -191,10 +191,12 @@ class Command(BaseCommand):
         parser.add_argument('-l', "--load", action="store_true",
                             help="""Load data to url from a directory.
                                     Load recipes to database if --url is not set.""")
-
         parser.add_argument('-d', "--dump", action="store_true",
                             help="""Dump recipes from a url to directory. 
                                     Dump recipes from database if --url is not set.""")
+        parser.add_argument('-c', "--create", action="store_true",
+                            help="""Create a new recipe inside --pid. 
+                                    Gives a default id if --rid is not set.""")
 
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")
