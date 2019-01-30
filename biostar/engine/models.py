@@ -136,6 +136,23 @@ class Project(models.Model):
         return self
 
     @property
+    def json_text(self):
+
+        payload = dict(settings=dict(
+            uid=self.uid,
+            name=self.name,
+            privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
+            text=self.text,
+            recipes={recipe.uid:
+                         dict(name=recipe.name,
+                              json=reverse("recipe_api_json", kwargs=dict(uid=recipe.uid)),
+                              template=reverse("recipe_api_template", kwargs=dict(uid=recipe.uid)))
+                     for recipe in self.analysis_set.all()
+                     },
+        ))
+        return hjson.dumps(payload)
+
+    @property
     def summary(self):
         """
         Returns first line of text

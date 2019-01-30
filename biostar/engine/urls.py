@@ -49,7 +49,6 @@ urlpatterns = [
 
     url(r"^search/$", views.search_bar, name='search'),
 
-
     # Jobs
     url(r'^job/list/(?P<uid>[-\w]+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<uid>[-\w]+)/$', views.job_view, name='job_view'),
@@ -63,6 +62,8 @@ urlpatterns = [
     url(r'^api/recipe/(?P<uid>[-\w]+)/json/$', api.recipe_json, name='recipe_api_json'),
     url(r'^api/recipe/(?P<uid>[-\w]+)/template/$', api.recipe_template, name='recipe_api_template'),
     url(r'^api/recipe/(?P<uid>[-\w]+)/image/$', api.recipe_image, name='recipe_api_image'),
+    url(r'^api/project/(?P<uid>[-\w]+)/info/$', api.project_info, name='project_api_info'),
+    url(r'^api/project/(?P<uid>[-\w]+)/image/$', api.project_image, name='project_api_image'),
 
     # Discussions
     url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),
