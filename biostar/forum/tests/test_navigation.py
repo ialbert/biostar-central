@@ -16,7 +16,7 @@ class ForumNavigation(TestCase):
         logger.setLevel(logging.WARNING)
 
         self.owner = User.objects.create(username="test", email="test@test.com")
-        self.owner.set_password("testing")
+        self.owner.set_password("test")
 
         # Create a test post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",
@@ -26,7 +26,7 @@ class ForumNavigation(TestCase):
 
     def visit_urls(self, urls, codes):
         c = Client()
-        c.login(username="test", email='test@test.com', password='testing')
+        c.login(username="test", email='test@test.com', password='test')
         for url in urls:
             resp = c.get(url, data={"q":"test"})
             code = resp.status_code

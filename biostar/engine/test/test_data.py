@@ -26,7 +26,7 @@ class DataViewTest(TestCase):
         self.owner.set_password("test")
 
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
-                                           uid="testing")
+                                           uid="test")
         self.project.save()
 
         # Set up generic data for editing
@@ -36,7 +36,7 @@ class DataViewTest(TestCase):
     def test_data_edit(self):
         "Test Data edit view with POST request"
 
-        data = {'name': "new_data", 'summary': "summary", 'text': "testing",
+        data = {'name': "new_data", 'summary': "summary", 'text': "test",
                 'sticky': True}
 
         url = reverse('data_edit', kwargs=dict(uid=self.data.uid))
@@ -59,7 +59,7 @@ class DataViewTest(TestCase):
         data = {
             'file': open(__file__, 'r'),
             'summary': 'summary',
-            "text": "testing",
+            "text": "test",
             "sticky": True
         }
 
@@ -107,7 +107,7 @@ class DataViewTest(TestCase):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to project view after testing :\nresponse:{response}")
+                         f"Could not redirect to project view after test :\nresponse:{response}")
 
         if save:
             self.assertTrue( models.Data.save.called, "save() method not called")

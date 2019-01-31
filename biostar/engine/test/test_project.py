@@ -29,7 +29,7 @@ class ProjectViewTest(TestCase):
         # Set up project to edit
 
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
-                                           uid="testing")
+                                           uid="test")
 
     @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
     def test_create_view(self):
@@ -40,7 +40,7 @@ class ProjectViewTest(TestCase):
 
         # Create fake request
         data = {'name': 'My project', 'uid': 'example', "summary":"summary",
-                'text': 'testing', "privacy": models.Project.PRIVATE, "image":image_stream}
+                'text': 'test', "privacy": models.Project.PRIVATE, "image":image_stream}
 
         request = util.fake_request(url=reverse('project_create'), data=data, user=self.owner)
         response = views.project_create(request)
@@ -55,8 +55,8 @@ class ProjectViewTest(TestCase):
         "Test project edit view with POST request"
 
         # Create fake request
-        data = {'name': 'New Name', 'uid': 'testing', "summary":"summary",
-                'text': 'testing', "privacy": models.Project.SHAREABLE}
+        data = {'name': 'New Name', 'uid': 'test', "summary":"summary",
+                'text': 'test', "privacy": models.Project.SHAREABLE}
 
         url = reverse('project_edit', kwargs=dict(uid=self.project.uid))
 
@@ -111,7 +111,7 @@ class ProjectViewTest(TestCase):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to project view after testing :\nresponse:{response}")
+                         f"Could not redirect to project view after test :\nresponse:{response}")
 
         if save:
             self.assertTrue( models.Project.save.called, "save() method not called when editing.")

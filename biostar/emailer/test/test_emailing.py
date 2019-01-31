@@ -30,7 +30,7 @@ class SendMailTest(TestCase):
 
         group = models.EmailGroup()
         group.save()
-        auth.add_subscription(email="Test@test.com", group=group, name='testing')
+        auth.add_subscription(email="Test@test.com", group=group, name='test')
 
 
     def test_mailing(self):

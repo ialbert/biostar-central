@@ -30,10 +30,10 @@ def init_messages(sender, **kwargs):
     body = "Hello from the biostar-engine developers, we hope you enjoy the website."
     subject = "Welcome to the biostar-engine!"
 
-    test_2 = User.objects.filter(username="testing").first()
+    test_2 = User.objects.filter(username="test").first()
     if not test_2:
         # Create user and send message once.
-        test_2 = User.objects.create(username="testing", email="testing@test")
+        test_2 = User.objects.create(username="test", email="test@test")
         recipient_list = [sender, test_2]
         msg = auth.create_messages(body=body, subject=subject, recipient_list=recipient_list,
                             sender=sender)

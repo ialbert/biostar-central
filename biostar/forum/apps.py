@@ -33,7 +33,7 @@ def init_post(sender,  **kwargs):
     blog_content = "A small description on the biostar-engine and its use"
 
     tutorial_title = "Get started with your first project"
-    tutorial_content = "This is a tutorial on the in's and out's of the engine."
+    tutorial_content = "This is a test on the in's and out's of the engine."
 
     test_posts = {
                 blog_title: dict(post_type=models.Post.BLOG, content=blog_content),

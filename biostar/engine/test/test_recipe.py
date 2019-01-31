@@ -26,7 +26,7 @@ class RecipeViewTest(TestCase):
         self.factory = RequestFactory()
 
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
-                                           uid="testing")
+                                           uid="test")
         #Test data
         self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="")
         self.recipe.save()
@@ -69,7 +69,7 @@ class RecipeViewTest(TestCase):
         "Test recipe edit with POST request"
 
         data = { "name": "test", "sticky":True, "summary":"summary", "text":"text" ,
-                 "uid":"testing"}
+                 "uid":"test"}
         url = reverse('recipe_edit', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)

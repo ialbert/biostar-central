@@ -17,11 +17,11 @@ class SiteNavigation(TestCase):
         logger.setLevel(logging.WARNING)
 
         self.owner = models.User.objects.create(username="test", email="test@test.com")
-        self.owner.set_password("testing")
+        self.owner.set_password("test")
         self.owner.save()
 
         self.project = auth.create_project(user=self.owner, name="Test project",
-                                           privacy=models.Project.PUBLIC, uid="testing")
+                                           privacy=models.Project.PUBLIC, uid="test")
         data = auth.create_data(project=self.project, path=__file__)
         analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
         self.job = auth.create_job(analysis=analysis)
@@ -33,7 +33,7 @@ class SiteNavigation(TestCase):
 
     def visit_urls(self, urls, codes):
         c = Client()
-        c.login(username="test", email='test@test.com', password='testing')
+        c.login(username="test", email='test@test.com', password='test')
         for url in urls:
             resp = c.get(url, data={"q": "test"})
             code = resp.status_code

@@ -285,7 +285,7 @@ def boxclass(post):
     if post.type == Post.JOB:
         style = "job"
     elif post.type == Post.TUTORIAL:
-        style = "tutorial"
+        style = "test"
     elif post.type == Post.TOOL:
         style = "tool"
     elif post.type == Post.FORUM:

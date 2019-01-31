@@ -59,7 +59,7 @@ class FactoryTest(TestCase):
         logger.setLevel(logging.WARNING)
         owner = models.User.objects.filter(is_superuser=True).first()
         self.project = auth.create_project(user=owner, name="test",
-                                           text="Text", summary="summary", uid="testing")
+                                           text="Text", summary="summary", uid="test")
 
     def test_factory_fields(self):
         "Testing factory module that generates fields"

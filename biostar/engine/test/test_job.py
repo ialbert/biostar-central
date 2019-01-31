@@ -25,7 +25,7 @@ class JobViewTest(TestCase):
         self.owner.set_password("test")
 
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
-                                           uid="testing")
+                                           uid="test")
 
         self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="",
                                            security=models.Analysis.AUTHORIZED)
@@ -39,7 +39,7 @@ class JobViewTest(TestCase):
     def test_job_edit(self):
         "Test job edit with POST request"
 
-        data = {'name':'test', 'text':"testing", 'sticky':True}
+        data = {'name':'test', 'text':"test", 'sticky':True}
         url  = reverse('job_edit', kwargs=dict(uid=self.job.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
@@ -75,7 +75,7 @@ class JobViewTest(TestCase):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to project view after testing :\nresponse:{response}")
+                         f"Could not redirect to project view after test :\nresponse:{response}")
 
         if save:
             self.assertTrue( models.Job.save.called, "save() method not called")

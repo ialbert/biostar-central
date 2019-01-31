@@ -15,7 +15,7 @@ class PostTest(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
-        self.owner = User.objects.create(username="test", email="test@test.com", password="testing")
+        self.owner = User.objects.create(username="test", email="test@test.com", password="test")
 
         # Create an existing test post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",
@@ -29,7 +29,7 @@ class PostTest(TestCase):
 
         # Create fake request
         data = {'post_type': models.Post.QUESTION,
-                'title': 'title testing post',
+                'title': 'title test post',
                 "tag_val": "test",
                 "content": "test content for a question"
                 }
@@ -91,7 +91,7 @@ class PostTest(TestCase):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect after testing :\nresponse:{response}")
+                         f"Could not redirect after test :\nresponse:{response}")
 
 
 

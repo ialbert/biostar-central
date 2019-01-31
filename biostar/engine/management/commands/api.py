@@ -14,6 +14,7 @@ from django.shortcuts import reverse
 from biostar.engine.models import Analysis, Project
 from biostar.engine.api import change_image, PLACEHOLDER
 from biostar.engine import auth
+from biostar.accounts.models import User
 
 logger = logging.getLogger('engine')
 
@@ -31,6 +32,10 @@ def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
 
 
 def remote_upload(stream, root_url, uid, api_key, view):
+    """
+    Upload data found in stream to root_url.
+    Currently uses PUT requests
+    """
 
     payload = dict(k=api_key)
 
@@ -44,52 +49,70 @@ def remote_upload(stream, root_url, uid, api_key, view):
     return response
 
 
-def load_project(uid, conf_dict={}):
+def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json):
     """
-    Load project into local database.
-    Creates project if not found.
+    Download data found in root_url using GET request.
     """
+    mode = "wb" if is_image else "w"
+    # Get data from the api url
+    fullurl = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
+    data = urlopen(url=fullurl).read()
+    # Leave data encoded if its an image
+    data = data if is_image else data.decode()
+    # Format data and write to outfile.
+    data = hjson.dumps(hjson.loads(data)) if is_json else data
+    open(outfile, mode).write(data)
 
-    project = Project.objects.get_all(uid=uid).first()
-
-    if not project:
-        project = auth.create_project(user=None, name="", uid=uid)
-
-    # Create object if not present.
-    name = conf_dict["settings"].get("name", project.name)
-    text = conf_dict["settings"].get("text", project.text)
-    Project.objects.get_all(uid=uid).update(name=name, text=text)
-
-    return project
+    return
 
 
-def load_recipe(stream, uid, pid=None, is_json=False):
+def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
     """
-    Load recipe json or template into local database.
-    Creates a recipe if not found.
+    Load "stream" into database object "uid".
+    Loads object as a project by default.
     """
+    def project():
+        project = Project.objects.get_all(uid=uid).first()
 
-    recipe = Analysis.objects.get_all(uid=uid).first()
-    if not recipe:
-        project = Project.objects.get_all(uid=pid).first()
-        recipe = auth.create_analysis(project=project, json_text="", template="", uid=uid)
+        if not project:
+            # Create empty object if not present and populate.
+            # Select project owner.
+            user = User.objects.filter(is_staff=True).first()
+            project = auth.create_project(user=user, name="Project Name", uid=uid)
 
-    if is_json:
-        data = hjson.loads(stream.read())
-        name = data["settings"].get("name", recipe.name)
-        text = data["settings"].get("help", recipe.text)
-        Analysis.objects.get_all(uid=uid).update(json_text=data, name=name, text=text)
-    else:
-        Analysis.objects.get_all(uid=uid).update(template=stream.read())
+        conf = hjson.loads(stream.read())
+        name = conf["settings"].get("name", project.name)
+        text = conf["settings"].get("text", project.text)
+        Project.objects.get_all(uid=uid).update(name=name, text=text)
 
-    return recipe
+        return project
+
+    def recipe():
+
+        recipe = Analysis.objects.get_all(uid=uid).first()
+        if not recipe:
+            # Create empty object if not present then populate.
+            project = Project.objects.get_all(uid=pid).first()
+            recipe = auth.create_analysis(project=project, json_text="", template="", uid=uid, name="Recipe Name")
+
+        if is_json:
+            data = hjson.loads(stream.read())
+            name = data["settings"].get("name", recipe.name)
+            text = data["settings"].get("help", recipe.text)
+            Analysis.objects.get_all(uid=uid).update(json_text=data, name=name, text=text)
+        else:
+            Analysis.objects.get_all(uid=uid).update(template=stream.read())
+
+        return recipe
+
+    return recipe() if load_recipe else project()
 
 
-def upload(uid, root_dir, root_url=None, api_key="", view="recipe_api_template", fname="", is_image=False, mtype=Analysis,
-           is_json=False):
+def upload(uid, root_dir, pid=None, root_url=None, api_key="", view="recipe_api_template", fname="",
+           is_image=False, load_recipe=False, is_json=False):
 
     """
-    Upload data into a remote host API.
+    Upload data into a remote host using API.
     Defaults to local database if root_url is None.
     """
 
@@ -101,22 +124,15 @@ def upload(uid, root_dir, root_url=None, api_key="", view="recipe_api_template",
     if root_url:
         return remote_upload(stream=stream, root_url=root_url, uid=uid, api_key=api_key, view=view)
 
-    # Load to local database after this point.
+    # Update database info
 
     if is_image:
-        # Update the image saved and exit.
+        # Update image file.
+        mtype = Analysis if load_recipe else Project
         obj = mtype.objects.get_all(uid=uid).first()
         return change_image(obj=obj, file_object=stream)
-    if mtype == Analysis:
-        # Get the project uid from base directory recipe is in.
-        pid = os.path.basename(os.path.dirname(root_dir))
-        # Load/create recipe
-        load_recipe(uid=uid, stream=stream, is_json=is_json, pid=pid)
-    elif mtype == Project:
-        conf = hjson.loads(stream.read())
-        load_project(uid=uid, conf_dict=conf)
 
-    return
+    return load_db(uid=uid, pid=pid, stream=stream, is_json=is_json, load_recipe=load_recipe)
 
 
 def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="recipe_api_template",
@@ -125,25 +141,25 @@ def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="reci
     # Get placeholder in case object has no image.
     img_path = lambda o: o.image.path if o.image else PLACEHOLDER
     mode = "wb" if is_image else "w"
-
-    if root_url:
-        # Get data from the api url
-        fullurl = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
-        data = urlopen(url=fullurl).read()
-        # Leave data encoded if its an image
-        data = data if is_image else data.decode()
-    else:
-        # Get data from database
-        obj = mtype.objects.get_all(uid=uid).first()
-        data = obj.json_text if is_json else obj.template
-        data = open(img_path(obj), "rb").read() if is_image else data
-
     # Make output directory.
     outdir = os.path.join(root_dir, uid)
     os.makedirs(outdir, exist_ok=True)
-    # Format data and write to outfile.
-    data = hjson.dumps(hjson.loads(data)) if is_json else data
     outfile = os.path.join(outdir, fname)
+
+    if root_url:
+        remote_download(root_url=root_url, api_key=api_key, view=view, uid=uid,
+                        is_image=is_image, outfile=outfile, is_json=is_json)
+        return
+
+    # Get data from database
+    obj = mtype.objects.get_all(uid=uid).first()
+
+    if is_image:
+        data = open(img_path(obj), "rb").read()
+    elif is_json:
+        data = hjson.dumps(hjson.loads(obj.json_text))
+    else:
+        data = obj.template
 
     open(outfile, mode).write(data)
     return outfile
@@ -211,7 +227,7 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
     recipe_dirs = list(filter(lambda recipe_uid: recipe_uid == rid, recipe_dirs)) if rid else recipe_dirs
 
     # Prepare the main function used to load.
-    load = partial(upload, root_dir=project_dir, root_url=root_url, api_key=api_key)
+    load = partial(upload, root_dir=project_dir, root_url=root_url, api_key=api_key, load_recipe=True)
 
     # Get image name from conf file in directory
     img = lambda uid: get_image_name(uid=uid, root_dir=project_dir)
@@ -253,10 +269,10 @@ def project_loader(pid, root_dir, root_url=None, api_key=""):
     """
 
     # Prepare function used to upload
-    load = partial(upload, uid=pid, mtype=Project, root_dir=root_dir, root_url=root_url, api_key=api_key)
+    load = partial(upload, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
 
     # Get image name from conf file in directory
-    img_name = get_image_name(uid=pid, root_dir=root_dir, json="conf.hjson")
+    img_name = get_image_name(uid=pid, mtype=Project, root_dir=root_dir, json="conf.hjson")
 
     load(view="project_api_info", fname="conf.hjson")
     load(is_image=True, view="project_api_image", fname=img_name)
@@ -271,10 +287,10 @@ def project_dumper(pid, root_dir, root_url=None, api_key=""):
     """
 
     # Prepare function used to download info and images
-    dump = partial(download, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
+    dump = partial(download, mtype=Project, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
 
     # Get image name from json on remote host or database
-    img_name = get_image_name(uid=pid, root_url=root_url, view="project_api_info")
+    img_name = get_image_name(uid=pid, mtype=Project, root_url=root_url, view="project_api_info")
 
     # Dump the project json and image
     dump(fname="conf.hjson", view="project_api_info", is_json=True)
@@ -297,6 +313,8 @@ class Command(BaseCommand):
                             help="""Dump project from a url to directory. 
                                     Dump from database if --url is not set.""")
         parser.add_argument('--recipes', action="store_true", help="Load/dump recipes from --pid.")
+        parser.add_argument('--data', action="store_true", help="""Load/dump data from --pid.
+                                                                    Only works in local database.""")
 
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")

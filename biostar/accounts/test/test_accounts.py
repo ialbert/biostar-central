@@ -19,7 +19,7 @@ logger = logging.getLogger('engine')
 class UserAccountTests(TestCase):
 
     def setUp(self):
-        self.password = "testing"
+        self.password = "test"
         self.user = models.User.objects.create_user(username="test", email="test@l.com")
         self.user.set_password(self.password)
         self.user.save()
@@ -76,7 +76,7 @@ class LoginTest(TestCase):
 
 
     def setUp(self):
-        self.password = "testing"
+        self.password = "test"
         self.user = models.User.objects.create_user(username="test", email="test@l.com")
         self.user.set_password(self.password)
         self.user.save()
@@ -131,7 +131,7 @@ class SignUpTest(TestCase):
 
 
     def setUp(self):
-        self.password = "testing"
+        self.password = "test"
         self.email = "test@email.com"
 
 
@@ -156,7 +156,7 @@ class ProfileTest(TestCase):
 
 
     def setUp(self):
-        self.password = "testing"
+        self.password = "test"
         self.user = models.User.objects.create_user(username="test", email="test@l.com")
 
         self.user.set_password(self.password)
@@ -209,7 +209,7 @@ class ProfileTest(TestCase):
 
         # Set up projects/posts to key user to
         project = create_project(user=self.user, name="test project", text="Text", summary="summary",
-                                uid="testing")
+                                uid="test")
 
         posts = create_post(title="Title of post", author=self.user, content="Post content",
                             post_type=Post.QUESTION)
