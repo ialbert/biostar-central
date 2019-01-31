@@ -16,23 +16,21 @@ from biostar.engine.decorators import require_api_key
 
 logger = logging.getLogger("engine")
 
+THUMBNAIL = os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
 
-def change_image(request, obj):
 
-    placeholder = os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
-    img_path = placeholder if not obj.image else obj.image.path
-    file_object = request.data.get("file", "")
+def change_image(obj, file_object=None):
 
-    if request.method == "PUT" and file_object:
+    if file_object and not obj.image:
+        img_path = os.path.join(settings.MEDIA_ROOT, image_path(instance=obj, filename=THUMBNAIL))
+        obj.image.save(name=img_path, content=file_object)
+    elif file_object and obj.image:
+        img_path = obj.image.path
+        open(obj.image.path, "wb").write(file_object.read())
+    else:
+        img_path = THUMBNAIL
 
-        if not obj.image:
-            img_path = os.path.join(settings.MEDIA_ROOT,image_path(instance=obj, filename=img_path))
-            obj.image.save(name=img_path, content=file_object)
-        else:
-            open(img_path, "wb").write(file_object.read())
-
-    img_stream = open(img_path, "rb").read()
-    return HttpResponse(content=img_stream, content_type="image/jpeg")
+    return open(img_path, "rb") .read()
 
 
 @api_view(['GET'])
@@ -91,8 +89,14 @@ def project_image(request, uid):
     PUT request : change project image
     """
     project = Project.objects.filter(uid=uid).first()
+    imgpath = project.image.path if project.image else THUMBNAIL
+    data = open(imgpath, "rb").read()
 
-    return change_image(request, obj=project)
+    if request.method == "PUT":
+        file_object = request.data.get("file")
+        data = change_image(obj=project, file_object=file_object)
+
+    return HttpResponse(content=data, content_type="image/jpeg")
 
 
 @api_view(['GET', 'PUT'])
@@ -104,8 +108,14 @@ def recipe_image(request, uid):
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
+    imgpath = recipe.image.path if recipe.image else THUMBNAIL
+    data = open(imgpath, "rb").read()
 
-    return change_image(request, obj=recipe)
+    if request.method == "PUT":
+        file_object = request.data.get("file")
+        data = change_image(obj=recipe, file_object=file_object)
+
+    return HttpResponse(content=data, content_type="image/jpeg")
 
 
 @api_view(['GET'])
