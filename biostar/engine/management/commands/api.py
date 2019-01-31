@@ -12,7 +12,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.shortcuts import reverse
 from biostar.engine.models import Analysis, Project
-from biostar.engine.api import change_image
+from biostar.engine.api import change_image, PLACEHOLDER
 from biostar.engine import auth
 
 logger = logging.getLogger('engine')
@@ -36,27 +36,42 @@ def remote_upload(stream, root_url, uid, api_key, view):
 
     # Build api url then send PUT request.
     full_url = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
-    response = put_request(url=full_url, files=dict(file=stream), data=payload, uid=uid)
+    response = requests.put(url=full_url, files=dict(file=stream), data=payload)
+    if response.status_code == 404:
+        print(f"*** Object id : {uid} does not exist on remote host.")
+        sys.exit()
+
     return response
 
 
-def upload_recipe(uid, root_dir, root_url=None, api_key="", view="recipe_api_template", fname="", is_json=False,
-                  is_image=False):
+def load_project(uid, conf_dict={}):
+    """
+    Load project into local database.
+    Creates project if not found.
+    """
 
-    target = os.path.join(root_dir, uid, fname)
-    mode = "rb" if is_image else "r"
-    stream = open(target, mode)
-    recipe = Analysis.objects.get_all(uid=uid).first()
-    if root_url:
-        return remote_upload(stream=stream, root_url=root_url, uid=uid, api_key=api_key, view=view)
+    project = Project.objects.get_all(uid=uid).first()
 
-    if is_image:
-        # Update the image with given data and exit.
-        return change_image(obj=recipe, file_object=stream)
+    if not project:
+        project = auth.create_project(user=None, name="", uid=uid)
 
     # Create object if not present.
+    name = conf_dict["settings"].get("name", project.name)
+    text = conf_dict["settings"].get("text", project.text)
+    Project.objects.get_all(uid=uid).update(name=name, text=text)
+
+    return project
+
+
+def load_recipe(stream, uid, pid=None, is_json=False):
+    """
+    Load recipe json or template into local database.
+    Creates a recipe if not found.
+    """
+
+    recipe = Analysis.objects.get_all(uid=uid).first()
     if not recipe:
-        project = Project.objects.get_all(uid=os.path.basename(root_dir)).first()
+        project = Project.objects.get_all(uid=pid).first()
         recipe = auth.create_analysis(project=project, json_text="", template="", uid=uid)
 
     if is_json:
@@ -70,42 +85,45 @@ def upload_recipe(uid, root_dir, root_url=None, api_key="", view="recipe_api_tem
     return recipe
 
 
-def upload(uid, root_dir, root_url=None, api_key="", view="recipe_api_template", fname="", is_image=False):
+def upload(uid, root_dir, root_url=None, api_key="", view="recipe_api_template", fname="", is_image=False, mtype=Analysis,
+           is_json=False):
 
     """
-    Upload data into a remote host API, uploads to local database if root_url is None.
+    Upload data into a remote host API.
+    Defaults to local database if root_url is None.
     """
 
     target = os.path.join(root_dir, uid, fname)
     mode = "rb" if is_image else "r"
     stream = open(target, mode)
-    project = Project.objects.get_all(uid=uid).first()
 
+    # Upload to remote host when url is set.
     if root_url:
         return remote_upload(stream=stream, root_url=root_url, uid=uid, api_key=api_key, view=view)
 
+    # Load to local database after this point.
+
     if is_image:
-        # Update the image with given data and exit.
-        return change_image(obj=project, file_object=stream)
+        # Update the image saved and exit.
+        obj = mtype.objects.get_all(uid=uid).first()
+        return change_image(obj=obj, file_object=stream)
+    if mtype == Analysis:
+        # Get the project uid from base directory recipe is in.
+        pid = os.path.basename(os.path.dirname(root_dir))
+        # Load/create recipe
+        load_recipe(uid=uid, stream=stream, is_json=is_json, pid=pid)
+    elif mtype == Project:
+        conf = hjson.loads(stream.read())
+        load_project(uid=uid, conf_dict=conf)
 
-    if not project:
-        project = auth.create_project(user=None, name="", uid=uid)
-
-    # Create object if not present.
-    data = hjson.loads(stream.read())
-    name = data["settings"].get("name", project.name)
-    text = data["settings"].get("text", project.text)
-    Project.objects.get_all(uid=uid).update(name=name, text=text)
-
-    return uid
+    return
 
 
 def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="recipe_api_template",
              fname="", is_image=False, mtype=Analysis):
 
     # Get placeholder in case object has no image.
-    placeholder = os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
-    img_path = lambda o: o.image.path if o.image else placeholder
+    img_path = lambda o: o.image.path if o.image else PLACEHOLDER
     mode = "wb" if is_image else "w"
 
     if root_url:
@@ -155,17 +173,6 @@ def get_recipes(pid, root_url=None, api_key="", rid=""):
     return recipes
 
 
-def put_request(url, files, data, uid=""):
-    """
-    """
-
-    response = requests.put(url=url, files=files, data=data)
-    if response.status_code == 404:
-        print(f"*** Object id : {uid} does not exist on remote host.")
-        sys.exit()
-    return response
-
-
 def get_image_name(uid, root_url=None, json="json.hjson", root_dir=None, api_key="", view="recipe_api_json",
                    mtype=Analysis):
 
@@ -204,7 +211,7 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
     recipe_dirs = list(filter(lambda recipe_uid: recipe_uid == rid, recipe_dirs)) if rid else recipe_dirs
 
     # Prepare the main function used to load.
-    load = partial(upload_recipe, root_dir=project_dir, root_url=root_url, api_key=api_key)
+    load = partial(upload, root_dir=project_dir, root_url=root_url, api_key=api_key)
 
     # Get image name from conf file in directory
     img = lambda uid: get_image_name(uid=uid, root_dir=project_dir)
@@ -240,6 +247,24 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
     return recipes
 
 
+def project_loader(pid, root_dir, root_url=None, api_key=""):
+    """
+    Load project from root_dir into remote host or local database
+    """
+
+    # Prepare function used to upload
+    load = partial(upload, uid=pid, mtype=Project, root_dir=root_dir, root_url=root_url, api_key=api_key)
+
+    # Get image name from conf file in directory
+    img_name = get_image_name(uid=pid, root_dir=root_dir, json="conf.hjson")
+
+    load(view="project_api_info", fname="conf.hjson")
+    load(is_image=True, view="project_api_image", fname=img_name)
+
+    print(f"Loaded project ({pid}).")
+    return
+
+
 def project_dumper(pid, root_dir, root_url=None, api_key=""):
     """
     Dump project from remote host or local database into root_dir
@@ -256,24 +281,6 @@ def project_dumper(pid, root_dir, root_url=None, api_key=""):
     dump(fname=img_name, view="project_api_image", is_image=True)
 
     print(f"Dumped project {pid}: {root_dir}.")
-    return
-
-
-def project_loader(pid, root_dir, root_url=None, api_key=""):
-    """
-    Load project from root_dir into remote host or local database
-    """
-
-    # Prepare function used to upload
-    load = partial(upload, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key,)
-
-    # Get image name from conf file in directory
-    img_name = get_image_name(uid=pid, root_dir=root_dir, json="conf.hjson")
-
-    load(view="project_api_info", fname="conf.hjson")
-    load(is_image=True, view="project_api_image", fname=img_name)
-
-    print(f"Loaded project ({pid}).")
     return
 
 
