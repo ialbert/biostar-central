@@ -25,7 +25,7 @@ conda_home: "~/miniconda3"
 
 conda_environments:
   - { name: engine, python_version: 3}
-  - { name: test, python_version: 3}
+  - { name: tested, python_version: 3}
   - { name: py2, python_version: 2}
 
 conda_modify_path: yes

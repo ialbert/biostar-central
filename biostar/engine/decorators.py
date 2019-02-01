@@ -80,7 +80,7 @@ class write_access:
 
     def __call__(self, function, *args, **kwargs):
         """
-        Decorator used to test if a user has rights to access an instance
+        Decorator used to tested if a user has rights to access an instance
         """
 
         # Pass function attributes to the wrapper
@@ -140,7 +140,7 @@ class require_api_key:
 
     def __call__(self, func, *args, **kwargs):
         """
-        Decorator used to test if a user has rights to access an instance
+        Decorator used to tested if a user has rights to access an instance
         """
 
         # Pass function attributes to the wrapper

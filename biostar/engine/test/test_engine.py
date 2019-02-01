@@ -11,7 +11,7 @@ from django.conf import settings
 
 
 from . import util
-TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'test'))
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
 
 logger = logging.getLogger('engine')
 
@@ -29,8 +29,8 @@ class SiteAdminTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
 
-        self.user = models.User.objects.create_superuser(username=f"test{util.get_uuid(10)}", email="test@test.com",
-                                                         password="test")
+        self.user = models.User.objects.create_superuser(username=f"tested{util.get_uuid(10)}", email="tested@tested.com",
+                                                         password="tested")
         self.user.save()
 
     def test_site_admin(self):
@@ -58,8 +58,8 @@ class FactoryTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
         owner = models.User.objects.filter(is_superuser=True).first()
-        self.project = auth.create_project(user=owner, name="test",
-                                           text="Text", summary="summary", uid="test")
+        self.project = auth.create_project(user=owner, name="tested",
+                                           text="Text", summary="summary", uid="tested")
 
     def test_factory_fields(self):
         "Testing factory module that generates fields"

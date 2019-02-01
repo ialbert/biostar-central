@@ -30,7 +30,7 @@ class SendMailTest(TestCase):
 
         group = models.EmailGroup()
         group.save()
-        auth.add_subscription(email="Test@test.com", group=group, name='test')
+        auth.add_subscription(email="Test@tested.com", group=group, name='tested')
 
 
     def test_mailing(self):
@@ -49,7 +49,7 @@ class ModelTests(TestCase):
     def test_email_group(self):
         from biostar.emailer.models import EmailGroup
 
-        test = EmailGroup(name="test", uid="test")
+        test = EmailGroup(name="tested", uid="tested")
         test.save()
 
         print(test)
@@ -57,7 +57,7 @@ class ModelTests(TestCase):
     def test_email_address(self):
         from biostar.emailer.models import EmailAddress
 
-        test = EmailAddress(name="test", uid="test")
+        test = EmailAddress(name="tested", uid="tested")
         test.save()
 
         print(test)

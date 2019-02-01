@@ -20,10 +20,10 @@ class ForumNavigation(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
 
-        self.owner = User.objects.create(username=f"test{get_uuid(10)}", email="test@test.com")
-        self.owner.set_password("test")
+        self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com")
+        self.owner.set_password("tested")
 
-        # Create a test post
+        # Create a tested post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",
                                      post_type=models.Post.QUESTION)
 
@@ -31,9 +31,9 @@ class ForumNavigation(TestCase):
 
     def visit_urls(self, urls, codes):
         c = Client()
-        c.login(username=self.owner.username, email='test@test.com', password='test')
+        c.login(username=self.owner.username, email='tested@tested.com', password='tested')
         for url in urls:
-            resp = c.get(url, data={"q":"test"})
+            resp = c.get(url, data={"q":"tested"})
             code = resp.status_code
             if code not in codes:
                 # We already know it is an error.

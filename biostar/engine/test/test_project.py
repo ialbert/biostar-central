@@ -23,13 +23,13 @@ class ProjectViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username=f"test{util.get_uuid(10)}", email="test@l.com", is_staff=True)
-        self.owner.set_password("test")
+        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com", is_staff=True)
+        self.owner.set_password("tested")
 
         # Set up project to edit
 
-        self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
-                                           uid="test")
+        self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
+                                           uid="tested")
 
     @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
     def test_create_view(self):
@@ -40,7 +40,7 @@ class ProjectViewTest(TestCase):
 
         # Create fake request
         data = {'name': 'My project', 'uid': 'example', "summary":"summary",
-                'text': 'test', "privacy": models.Project.PRIVATE, "image":image_stream}
+                'text': 'tested', "privacy": models.Project.PRIVATE, "image":image_stream}
 
         request = util.fake_request(url=reverse('project_create'), data=data, user=self.owner)
         response = views.project_create(request)
@@ -55,8 +55,8 @@ class ProjectViewTest(TestCase):
         "Test project edit view with POST request"
 
         # Create fake request
-        data = {'name': 'New Name', 'uid': 'test', "summary":"summary",
-                'text': 'test', "privacy": models.Project.SHAREABLE}
+        data = {'name': 'New Name', 'uid': 'tested', "summary":"summary",
+                'text': 'tested', "privacy": models.Project.SHAREABLE}
 
         url = reverse('project_edit', kwargs=dict(uid=self.project.uid))
 
@@ -111,7 +111,7 @@ class ProjectViewTest(TestCase):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to project view after test :\nresponse:{response}")
+                         f"Could not redirect to project view after tested :\nresponse:{response}")
 
         if save:
             self.assertTrue( models.Project.save.called, "save() method not called when editing.")

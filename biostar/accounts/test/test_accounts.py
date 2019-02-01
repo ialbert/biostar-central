@@ -20,7 +20,7 @@ class UserAccountTests(TestCase):
 
     def setUp(self):
         self.password = "testing"
-        self.user = models.User.objects.create_user(username=f"test{util.get_uuid(10)}", email="test@l.com")
+        self.user = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
         self.user.set_password(self.password)
         self.user.save()
 
@@ -77,7 +77,7 @@ class LoginTest(TestCase):
 
     def setUp(self):
         self.password = "testing"
-        self.user = models.User.objects.create_user(username=f"test{util.get_uuid(10)}", email="test@l.com")
+        self.user = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
         self.user.set_password(self.password)
         self.user.save()
 
@@ -111,7 +111,7 @@ class LoginTest(TestCase):
         """Test login with external login"""
 
         signer = signing.Signer(settings.LOGIN_PRIVATE_KEY)
-        payload = signer.sign("test@test.com")
+        payload = signer.sign("tested@tested.com")
 
         data = {"payload": payload}
         url = reverse("external")
@@ -121,7 +121,7 @@ class LoginTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-        user = models.User.objects.filter(email="test@test.com")
+        user = models.User.objects.filter(email="tested@tested.com")
         self.assertTrue(user.exists())
 
         return
@@ -132,7 +132,7 @@ class SignUpTest(TestCase):
 
     def setUp(self):
         self.password = "testing"
-        self.email = "test@email.com"
+        self.email = "tested@email.com"
 
     @override_settings(ALLOW_SIGNUP=True)
     def test_signup(self):
@@ -156,7 +156,7 @@ class ProfileTest(TestCase):
 
     def setUp(self):
         self.password = "testing"
-        self.user = models.User.objects.create_user(username=f"test{util.get_uuid(10)}", email="test@l.com")
+        self.user = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
 
         self.user.set_password(self.password)
         self.user.save()
@@ -207,7 +207,7 @@ class ProfileTest(TestCase):
         "Test deleting a user."
 
         # Set up projects/posts to key user to
-        project = create_project(user=self.user, name="test project", text="Text", summary="summary",
+        project = create_project(user=self.user, name="tested project", text="Text", summary="summary",
                                 uid="testing")
 
         posts = create_post(title="Title of post", author=self.user, content="Post content",

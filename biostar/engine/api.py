@@ -22,8 +22,9 @@ PLACEHOLDER = os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
 def change_image(obj, file_object=None):
 
     if file_object and not obj.image:
-        img_path = os.path.join(settings.MEDIA_ROOT, image_path(instance=obj, filename=PLACEHOLDER))
-        obj.image.save(name=img_path, content=file_object)
+        img = os.path.join(settings.MEDIA_ROOT, image_path(instance=obj, filename=PLACEHOLDER))
+        obj.image.save(name=img, content=file_object)
+        img_path = obj.image.path
     elif file_object and obj.image:
         img_path = obj.image.path
         open(obj.image.path, "wb").write(file_object.read())

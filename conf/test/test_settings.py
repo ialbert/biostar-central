@@ -1,8 +1,8 @@
 from biostar.settings import *
 
-WSGI_APPLICATION = 'conf.test.test_wsgi.application'
+WSGI_APPLICATION = 'conf.tested.test_wsgi.application'
 
-ALLOWED_HOSTS += ['test.metabarcode.com']
+ALLOWED_HOSTS += ['tested.metabarcode.com']
 
 HTTP_PORT = ''
 PROTOCOL = 'https'

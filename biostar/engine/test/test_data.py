@@ -9,7 +9,7 @@ from biostar.engine import models, views, auth, const
 from . import util
 from django.conf import settings
 
-TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'test'))
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
 
 
 logger = logging.getLogger('engine')
@@ -22,21 +22,21 @@ class DataViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username=f"test{util.get_uuid(10)}", email="test@l.com")
-        self.owner.set_password("test")
+        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
+        self.owner.set_password("tested")
 
-        self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
-                                           uid="test")
+        self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
+                                           uid="tested")
         self.project.save()
 
         # Set up generic data for editing
-        self.data = auth.create_data(project=self.project, path=__file__, name="test")
+        self.data = auth.create_data(project=self.project, path=__file__, name="tested")
 
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
     def test_data_edit(self):
         "Test Data edit view with POST request"
 
-        data = {'name': "new_data", 'summary': "summary", 'text': "test",
+        data = {'name': "new_data", 'summary': "summary", 'text': "tested",
                 'sticky': True}
 
         url = reverse('data_edit', kwargs=dict(uid=self.data.uid))
@@ -59,7 +59,7 @@ class DataViewTest(TestCase):
         data = {
             'file': open(__file__, 'r'),
             'summary': 'summary',
-            "text": "test",
+            "text": "tested",
             "sticky": True
         }
 
@@ -67,7 +67,7 @@ class DataViewTest(TestCase):
 
         # Create a new user and give them upload access
         user = models.User.objects.create_user(username="test2", email="test2@l.com")
-        user.set_password("test")
+        user.set_password("tested")
         user.save()
         access = models.Access(access=models.Access.WRITE_ACCESS,
                                user=user,
@@ -107,7 +107,7 @@ class DataViewTest(TestCase):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to project view after test :\nresponse:{response}")
+                         f"Could not redirect to project view after tested :\nresponse:{response}")
 
         if save:
             self.assertTrue( models.Data.save.called, "save() method not called")
