@@ -451,6 +451,7 @@ def sync_json(sender, instance, created, raw, update_fields, **kwargs):
     # Sync the json["settings"] with the recipe.text and name.
 
     current_json = instance.json_data
+
     if current_json.get("settings"):
         current_json["settings"]["name"] = instance.name
         current_json["settings"]["help"] = instance.text

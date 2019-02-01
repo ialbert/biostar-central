@@ -99,7 +99,7 @@ def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
             data = hjson.loads(stream.read())
             name = data["settings"].get("name", recipe.name)
             text = data["settings"].get("help", recipe.text)
-            Analysis.objects.get_all(uid=uid).update(json_text=data, name=name, text=text)
+            Analysis.objects.get_all(uid=uid).update(json_text=hjson.dumps(data), name=name, text=text)
         else:
             Analysis.objects.get_all(uid=uid).update(template=stream.read())
 
@@ -212,7 +212,7 @@ def get_image_name(uid, root_url=None, json="json.hjson", root_dir=None, api_key
     return name
 
 
-def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
+def recipe_loader(project_dir, pid, api_key="", root_url=None, rid=""):
     """
         Load recipes into api/database from a project found in project_dir.
         Uses PUT request so 'api_key' is required with 'root_url'.
@@ -227,7 +227,7 @@ def recipe_loader(project_dir, api_key="", root_url=None, rid=""):
     recipe_dirs = list(filter(lambda recipe_uid: recipe_uid == rid, recipe_dirs)) if rid else recipe_dirs
 
     # Prepare the main function used to load.
-    load = partial(upload, root_dir=project_dir, root_url=root_url, api_key=api_key, load_recipe=True)
+    load = partial(upload, root_dir=project_dir, root_url=root_url, api_key=api_key, pid=pid, load_recipe=True)
 
     # Get image name from conf file in directory
     img = lambda uid: get_image_name(uid=uid, root_dir=project_dir)
@@ -360,7 +360,7 @@ class Command(BaseCommand):
             project_loader(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
             # Load recipes if requested.
             if rec or rid:
-                loaded = recipe_loader(project_dir=project_dir, root_url=root_url, api_key=api_key, rid=rid)
+                loaded = recipe_loader(project_dir=project_dir, root_url=root_url, api_key=api_key, rid=rid, pid=pid)
                 view = reverse("project_view", kwargs=dict(uid=pid))
                 view = reverse("recipe_view", kwargs=dict(uid=rid)) if rid else view
                 print(f"{len(loaded)} recipes loaded into {urljoin(root_url, view) if root_url else 'database'}")
