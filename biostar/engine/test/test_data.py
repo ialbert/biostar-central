@@ -22,7 +22,7 @@ class DataViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username="test", email="test@l.com")
+        self.owner = models.User.objects.create_user(username=f"test{util.get_uuid(10)}", email="test@l.com")
         self.owner.set_password("test")
 
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",

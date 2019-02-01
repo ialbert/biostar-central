@@ -19,8 +19,8 @@ logger = logging.getLogger('engine')
 class UserAccountTests(TestCase):
 
     def setUp(self):
-        self.password = "test"
-        self.user = models.User.objects.create_user(username="test", email="test@l.com")
+        self.password = "testing"
+        self.user = models.User.objects.create_user(username=f"test{util.get_uuid(10)}", email="test@l.com")
         self.user.set_password(self.password)
         self.user.save()
 
@@ -76,8 +76,8 @@ class LoginTest(TestCase):
 
 
     def setUp(self):
-        self.password = "test"
-        self.user = models.User.objects.create_user(username="test", email="test@l.com")
+        self.password = "testing"
+        self.user = models.User.objects.create_user(username=f"test{util.get_uuid(10)}", email="test@l.com")
         self.user.set_password(self.password)
         self.user.save()
 
@@ -131,9 +131,8 @@ class SignUpTest(TestCase):
 
 
     def setUp(self):
-        self.password = "test"
+        self.password = "testing"
         self.email = "test@email.com"
-
 
     @override_settings(ALLOW_SIGNUP=True)
     def test_signup(self):
@@ -156,8 +155,8 @@ class ProfileTest(TestCase):
 
 
     def setUp(self):
-        self.password = "test"
-        self.user = models.User.objects.create_user(username="test", email="test@l.com")
+        self.password = "testing"
+        self.user = models.User.objects.create_user(username=f"test{util.get_uuid(10)}", email="test@l.com")
 
         self.user.set_password(self.password)
         self.user.save()
@@ -209,7 +208,7 @@ class ProfileTest(TestCase):
 
         # Set up projects/posts to key user to
         project = create_project(user=self.user, name="test project", text="Text", summary="summary",
-                                uid="test")
+                                uid="testing")
 
         posts = create_post(title="Title of post", author=self.user, content="Post content",
                             post_type=Post.QUESTION)
@@ -230,11 +229,3 @@ class ProfileTest(TestCase):
         print(message, valid)
 
         self.assertTrue(not valid)
-
-
-
-
-
-
-
-

@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from biostar.forum import models, views, auth, forms
-from biostar.engine.test.util import fake_request
+from biostar.engine.test.util import fake_request, get_uuid
 from biostar.accounts.models import User
 
 
@@ -15,7 +15,7 @@ class PostTest(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
-        self.owner = User.objects.create(username="test", email="test@test.com", password="test")
+        self.owner = User.objects.create(username=f"test{get_uuid(10)}", email="test@test.com", password="test")
 
         # Create an existing test post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",

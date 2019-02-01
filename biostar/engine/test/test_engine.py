@@ -29,7 +29,7 @@ class SiteAdminTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
 
-        self.user = models.User.objects.create_superuser(username="test", email="test@test.com",
+        self.user = models.User.objects.create_superuser(username=f"test{util.get_uuid(10)}", email="test@test.com",
                                                          password="test")
         self.user.save()
 

@@ -1,5 +1,10 @@
 from django.test import  RequestFactory
 from django.contrib.messages.storage import fallback
+import uuid
+
+
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
 
 
 def fake_request(url, data, user, method="POST"):

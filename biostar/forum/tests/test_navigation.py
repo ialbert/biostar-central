@@ -5,6 +5,11 @@ from biostar.forum import auth, models
 from biostar.accounts.models import User
 
 from django.urls import reverse
+import uuid
+
+
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
 
 
 logger = logging.getLogger('engine')
@@ -15,7 +20,7 @@ class ForumNavigation(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
 
-        self.owner = User.objects.create(username="test", email="test@test.com")
+        self.owner = User.objects.create(username=f"test{get_uuid(10)}", email="test@test.com")
         self.owner.set_password("test")
 
         # Create a test post
@@ -26,7 +31,7 @@ class ForumNavigation(TestCase):
 
     def visit_urls(self, urls, codes):
         c = Client()
-        c.login(username="test", email='test@test.com', password='test')
+        c.login(username=self.owner.username, email='test@test.com', password='test')
         for url in urls:
             resp = c.get(url, data={"q":"test"})
             code = resp.status_code

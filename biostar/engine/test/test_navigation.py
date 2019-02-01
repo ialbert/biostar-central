@@ -5,6 +5,7 @@ from biostar.engine import auth
 from biostar.engine import models
 from django.conf import settings
 
+from . import util
 from django.urls import reverse
 
 
@@ -15,8 +16,10 @@ class SiteNavigation(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
+        self.username = f"test{util.get_uuid(10)}"
 
-        self.owner = models.User.objects.create(username="test", email="test@test.com")
+        self.owner = models.User.objects.create(username=self.username, is_staff=True,
+                                                email="test@test.com")
         self.owner.set_password("test")
         self.owner.save()
 
@@ -33,7 +36,7 @@ class SiteNavigation(TestCase):
 
     def visit_urls(self, urls, codes):
         c = Client()
-        c.login(username="test", email='test@test.com', password='test')
+        c.login(username=self.username, email='test@test.com', password='test')
         for url in urls:
             resp = c.get(url, data={"q": "test"})
             code = resp.status_code
