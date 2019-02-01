@@ -12,7 +12,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.shortcuts import reverse
 from biostar.engine.models import Analysis, Project
-from biostar.engine.api import change_image, PLACEHOLDER
+from biostar.engine.api import change_image, get_thumbnail
 from biostar.engine import auth
 from biostar.accounts.models import User
 
@@ -73,28 +73,23 @@ def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
     """
     def project():
         project = Project.objects.get_all(uid=uid).first()
-
         if not project:
             # Create empty object if not present and populate.
             # Select project owner.
             user = User.objects.filter(is_staff=True).first()
             project = auth.create_project(user=user, name="Project Name", uid=uid)
-
         conf = hjson.loads(stream.read())
         name = conf["settings"].get("name", project.name)
         text = conf["settings"].get("text", project.text)
         Project.objects.get_all(uid=uid).update(name=name, text=text)
-
         return project
 
     def recipe():
-
         recipe = Analysis.objects.get_all(uid=uid).first()
         if not recipe:
             # Create empty object if not present then populate.
             project = Project.objects.get_all(uid=pid).first()
             recipe = auth.create_analysis(project=project, json_text="", template="", uid=uid, name="Recipe Name")
-
         if is_json:
             data = hjson.loads(stream.read())
             name = data["settings"].get("name", recipe.name)
@@ -102,7 +97,6 @@ def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
             Analysis.objects.get_all(uid=uid).update(json_text=hjson.dumps(data), name=name, text=text)
         else:
             Analysis.objects.get_all(uid=uid).update(template=stream.read())
-
         return recipe
 
     return recipe() if load_recipe else project()
@@ -118,6 +112,7 @@ def upload(uid, root_dir, pid=None, root_url=None, api_key="", view="recipe_api_
 
     target = os.path.join(root_dir, uid, fname)
     mode = "rb" if is_image else "r"
+
     stream = open(target, mode)
 
     # Upload to remote host when url is set.
@@ -139,7 +134,7 @@ def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="reci
              fname="", is_image=False, mtype=Analysis):
 
     # Get placeholder in case object has no image.
-    img_path = lambda o: o.image.path if o.image else PLACEHOLDER
+    img_path = lambda o: o.image.path if o.image else get_thumbnail()
     mode = "wb" if is_image else "w"
     # Make output directory.
     outdir = os.path.join(root_dir, uid)
@@ -198,7 +193,8 @@ def get_image_name(uid, root_url=None, json="json.hjson", root_dir=None, api_key
         json_text = urlopen(url=fullurl).read().decode()
     # Get json from a file
     elif root_dir:
-        json_text = open(os.path.join(root_dir, uid, json)).read()
+        path = os.path.join(root_dir, uid, json)
+        json_text = open(path).read() if os.path.exists(path) else ""
     # Get json from database
     else:
         json_text = mtype.objects.get_all(uid=uid).first().json_text

@@ -16,20 +16,22 @@ from biostar.engine.decorators import require_api_key
 
 logger = logging.getLogger("engine")
 
-PLACEHOLDER = os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+
+def get_thumbnail():
+    return os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
 
 
 def change_image(obj, file_object=None):
 
     if file_object and not obj.image:
-        img = os.path.join(settings.MEDIA_ROOT, image_path(instance=obj, filename=PLACEHOLDER))
+        img = os.path.join(settings.MEDIA_ROOT, image_path(instance=obj, filename=get_thumbnail()))
         obj.image.save(name=img, content=file_object)
         img_path = obj.image.path
     elif file_object and obj.image:
         img_path = obj.image.path
         open(obj.image.path, "wb").write(file_object.read())
     else:
-        img_path = PLACEHOLDER
+        img_path = get_thumbnail()
 
     return open(img_path, "rb") .read()
 
@@ -90,7 +92,7 @@ def project_image(request, uid):
     PUT request : change project image
     """
     project = Project.objects.filter(uid=uid).first()
-    imgpath = project.image.path if project.image else PLACEHOLDER
+    imgpath = project.image.path if project.image else get_thumbnail()
     data = open(imgpath, "rb").read()
 
     if request.method == "PUT":
@@ -109,7 +111,7 @@ def recipe_image(request, uid):
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
-    imgpath = recipe.image.path if recipe.image else PLACEHOLDER
+    imgpath = recipe.image.path if recipe.image else get_thumbnail()
     data = open(imgpath, "rb").read()
 
     if request.method == "PUT":

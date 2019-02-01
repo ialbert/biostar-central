@@ -132,16 +132,13 @@ def parse_api_key(request):
 
 class require_api_key:
     """
-    Controls WRITE level access to urls.
+    Require the api key when private project or PUT request for an api view
     """
 
     def __init__(self, type):
         self.type = type
 
     def __call__(self, func, *args, **kwargs):
-        """
-        Decorator used to tested if a user has rights to access an instance
-        """
 
         # Pass function attributes to the wrapper
         @wraps(func, assigned=available_attrs(func))
