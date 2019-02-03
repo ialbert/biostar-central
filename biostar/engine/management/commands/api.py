@@ -362,7 +362,7 @@ class Command(BaseCommand):
         api_key = options["key"]
         root_dir = options["dir"] or os.getcwd()
         rid = options["rid"]
-        pid = options["pid"]
+        pid = os.path.basename(os.path.dirname(options["pid"]))
         rec = options["recipes"]
 
         if len(sys.argv) == 2 or not pid:
