@@ -141,8 +141,9 @@ class Project(models.Model):
         payload = dict(settings=dict(
                             uid=self.uid,
                             name=self.name,
+                            image=f"{self.uid}.png",
                             privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
-                            text=self.text,
+                            help=self.text,
                             ),
                        recipes={recipe.uid:
                                 dict(name=recipe.name,

@@ -1,6 +1,7 @@
 import logging
 import hjson
 import os
+import io
 from urllib.parse import urljoin
 from urllib.request import urlopen
 import requests
@@ -66,6 +67,11 @@ def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json):
     return
 
 
+def data_placehoder(is_image,pid, is_json, data={}):
+    data = open(get_thumbnail(), "rb").read() if is_image else ""
+
+    return
+
 def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
     """
     Load "stream" into database object "uid".
@@ -79,8 +85,8 @@ def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
             user = User.objects.filter(is_staff=True).first()
             project = auth.create_project(user=user, name="Project Name", uid=uid)
         conf = hjson.loads(stream.read())
-        name = conf["settings"].get("name", project.name)
-        text = conf["settings"].get("text", project.text)
+        name = conf.get("settings", {}).get("name", project.name)
+        text = conf.get("settings", {}).get("help", project.text)
         Project.objects.get_all(uid=uid).update(name=name, text=text)
         return project
 
@@ -92,8 +98,8 @@ def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
             recipe = auth.create_analysis(project=project, json_text="", template="", uid=uid, name="Recipe Name")
         if is_json:
             data = hjson.loads(stream.read())
-            name = data["settings"].get("name", recipe.name)
-            text = data["settings"].get("help", recipe.text)
+            name = data.get("settings", {}).get("name", recipe.name)
+            text = data.get("settings", {}).get("help", recipe.text)
             Analysis.objects.get_all(uid=uid).update(json_text=hjson.dumps(data), name=name, text=text)
         else:
             Analysis.objects.get_all(uid=uid).update(template=stream.read())
@@ -112,8 +118,10 @@ def upload(uid, root_dir, pid=None, root_url=None, api_key="", view="recipe_api_
 
     target = os.path.join(root_dir, uid, fname)
     mode = "rb" if is_image else "r"
-
-    stream = open(target, mode)
+    if not os.path.exists(target):
+        stream = open(get_thumbnail(), mode) if is_image else io.StringIO("")
+    else:
+        stream = open(target, mode)
 
     # Upload to remote host when url is set.
     if root_url:
@@ -128,6 +136,23 @@ def upload(uid, root_dir, pid=None, root_url=None, api_key="", view="recipe_api_
         return change_image(obj=obj, file_object=stream)
 
     return load_db(uid=uid, pid=pid, stream=stream, is_json=is_json, load_recipe=load_recipe)
+
+
+def get_data_placeholder(is_json, is_image, uid):
+
+    if is_image:
+        placeholder = open(get_thumbnail(), "rb").read()
+    elif is_json:
+        data = dict(settings=dict(uid=uid,
+                                  name="Object Name",
+                                  image=f"{uid}.png",
+                                  help="Help Text"))
+        placeholder = hjson.dumps(data)
+
+    else:
+        placeholder = ""
+
+    return placeholder
 
 
 def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="recipe_api_template",
@@ -148,6 +173,10 @@ def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="reci
 
     # Get data from database
     obj = mtype.objects.get_all(uid=uid).first()
+    if not obj:
+        data = get_data_placeholder(is_json=is_json, is_image=is_image, uid=uid)
+        open(outfile, mode).write(data)
+        return
 
     if is_image:
         data = open(img_path(obj), "rb").read()
@@ -176,15 +205,20 @@ def get_recipes(pid, root_url=None, api_key="", rid=""):
         recipe_api = build_api_url(root_url=root_url, api_key=api_key)
         recipes = hjson.loads(urlopen(url=recipe_api).read().decode())
         # Filter recipes from remote host.
-        recipes = list(filter(filter_func, recipes))
+        return list(filter(filter_func, recipes))
+
+    query = Q(uid=rid) if rid else Q(project__uid=pid)
+    recipes = Analysis.objects.get_all().filter(query)
+    if recipes:
+        recipes = recipes.values_list("uid", flat=True)
     else:
-        query = Q(uid=rid, project__uid=pid) if rid else Q(project__uid=pid)
-        recipes = Analysis.objects.get_all().filter(query).values_list("uid", flat=True)
+        # Allows for the creation of 'rid' if it doesn't exist.
+        recipes = [rid] if rid else []
 
     return recipes
 
 
-def get_image_name(uid, root_url=None, json="json.hjson", root_dir=None, api_key="", view="recipe_api_json",
+def get_image_name(uid, root_url=None, json="conf.hjson", root_dir=None, api_key="", view="recipe_api_json",
                    mtype=Analysis):
 
     # Get json from url
@@ -197,7 +231,8 @@ def get_image_name(uid, root_url=None, json="json.hjson", root_dir=None, api_key
         json_text = open(path).read() if os.path.exists(path) else ""
     # Get json from database
     else:
-        json_text = mtype.objects.get_all(uid=uid).first().json_text
+        obj = mtype.objects.get_all(uid=uid).first()
+        json_text = obj.json_text if obj else ""
 
     json_settings = hjson.loads(json_text).get("settings", {})
 
@@ -228,7 +263,7 @@ def recipe_loader(project_dir, pid, api_key="", root_url=None, rid=""):
     # Get image name from conf file in directory
     img = lambda uid: get_image_name(uid=uid, root_dir=project_dir)
     for recipe_uid in recipe_dirs:
-        load(uid=recipe_uid, fname="json.hjson", view="recipe_api_json", is_json=True)
+        load(uid=recipe_uid, fname="conf.hjson", view="recipe_api_json", is_json=True)
         load(uid=recipe_uid, fname=img(uid=recipe_uid), view="recipe_api_image", is_image=True)
         load(uid=recipe_uid, fname="template.sh")
 
@@ -251,7 +286,7 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
     img = lambda uid: get_image_name(uid=uid, root_url=root_url, api_key=api_key)
     for recipe_uid in recipes:
         # Dump json, template, and image for a given recipe
-        dump(uid=recipe_uid, fname="json.hjson", is_json=True, view="recipe_api_json")
+        dump(uid=recipe_uid, fname="conf.hjson", is_json=True, view="recipe_api_json")
         dump(uid=recipe_uid, fname=img(uid=recipe_uid), is_image=True, view="recipe_api_image")
         dump(uid=recipe_uid, fname="template.sh")
 

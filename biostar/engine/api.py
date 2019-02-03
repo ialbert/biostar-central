@@ -77,7 +77,7 @@ def project_info(request, uid):
         conf = hjson.load(file_object)
         if file_object:
             project.name = conf.get("settings", {}).get("name") or project.name
-            project.text = conf.get("settings", {}).get("text") or project.text
+            project.text = conf.get("settings", {}).get("help") or project.text
             project.save()
 
     payload = hjson.loads(project.json_text)
