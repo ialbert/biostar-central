@@ -8,7 +8,6 @@ import requests
 import sys
 from functools import partial
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.shortcuts import reverse
@@ -394,7 +393,7 @@ class Command(BaseCommand):
                 loaded = recipe_loader(project_dir=project_dir, root_url=root_url, api_key=api_key, rid=rid, pid=pid)
                 view = reverse("project_view", kwargs=dict(uid=pid))
                 view = reverse("recipe_view", kwargs=dict(uid=rid)) if rid else view
-                print(f"{len(loaded)} recipes loaded into {urljoin(root_url, view) if root_url else 'database'}")
+                print(f"{len(loaded)} recipes loaded into {urljoin(root_url, view) if root_url else 'database'}\n")
 
         elif dump:
             # Dump the project info and image
@@ -402,4 +401,4 @@ class Command(BaseCommand):
             # Dump recipes if requested.
             if rec or rid:
                 dumped = recipe_dumper(root_url=root_url, api_key=api_key, project_dir=project_dir, pid=pid, rid=rid)
-                print(f"{len(dumped)} recipes dumped into {project_dir}")
+                print(f"{len(dumped)} recipes dumped into {project_dir}\n")
