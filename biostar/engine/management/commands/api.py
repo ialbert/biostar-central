@@ -66,11 +66,6 @@ def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json):
     return
 
 
-def data_placehoder(is_image,pid, is_json, data={}):
-    data = open(get_thumbnail(), "rb").read() if is_image else ""
-
-    return
-
 def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
     """
     Load "stream" into database object "uid".
