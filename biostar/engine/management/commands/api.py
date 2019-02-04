@@ -25,8 +25,7 @@ logger.setLevel(logging.INFO)
 def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
 
     url = reverse(view, kwargs=dict(uid=uid)) if uid else reverse(view)
-    #TODO: use urllib to correctly add params to url
-    full_url = urljoin(root_url, url) + f"?k={api_key}"
+    full_url = urljoin(root_url, url)
 
     return full_url
 
@@ -40,7 +39,7 @@ def remote_upload(stream, root_url, uid, api_key, view):
     payload = dict(k=api_key)
 
     # Build api url then send PUT request.
-    full_url = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
+    full_url = build_api_url(root_url=root_url, view=view, uid=uid)
     response = requests.put(url=full_url, files=dict(file=stream), data=payload)
     if response.status_code == 404:
         print(f"*** Object id : {uid} does not exist on remote host.")
@@ -55,8 +54,10 @@ def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json):
     """
     mode = "wb" if is_image else "w"
     # Get data from the api url
-    fullurl = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
-    data = urlopen(url=fullurl).read()
+    fullurl = build_api_url(root_url=root_url, view=view, uid=uid)
+    response = requests.get(url=fullurl, params=dict(k=api_key))
+    data = response.content if response.status_code == 200 else b""
+
     # Leave data encoded if its an image
     data = data if is_image else data.decode()
     # Format data and write to outfile.
@@ -217,8 +218,9 @@ def get_image_name(uid, root_url=None, json="conf.hjson", root_dir=None, api_key
 
     # Get json from url
     if root_url:
-        fullurl = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
-        json_text = urlopen(url=fullurl).read().decode()
+        fullurl = build_api_url(root_url=root_url, view=view, uid=uid)
+        response = requests.get(url=fullurl, params=dict(k=api_key))
+        json_text = response.text if response.status_code == 200 else ""
     # Get json from a file
     elif root_dir:
         path = os.path.join(root_dir, uid, json)
