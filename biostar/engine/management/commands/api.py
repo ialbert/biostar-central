@@ -342,7 +342,7 @@ def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", ty
     if data:
         if update_toc:
             data.make_toc()
-            print(f"*** Table of contents updated for data : {uid}.")
+            print(f"*** Data id : {uid} table of contents updated.")
         return
 
     project = Project.objects.get_all(uid=pid).first()
