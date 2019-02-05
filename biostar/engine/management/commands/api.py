@@ -25,7 +25,8 @@ logger.setLevel(logging.INFO)
 def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
 
     url = reverse(view, kwargs=dict(uid=uid)) if uid else reverse(view)
-    full_url = urljoin(root_url, url)
+    #TODO Put together params in diffrent way
+    full_url = urljoin(root_url, url) + f"?k={api_key}"
 
     return full_url
 
@@ -39,7 +40,7 @@ def remote_upload(stream, root_url, uid, api_key, view):
     payload = dict(k=api_key)
 
     # Build api url then send PUT request.
-    full_url = build_api_url(root_url=root_url, view=view, uid=uid)
+    full_url = build_api_url(root_url=root_url, view=view, uid=uid, api_key=api_key)
     response = requests.put(url=full_url, files=dict(file=stream), data=payload)
     if response.status_code == 404:
         logger.error(f"*** Object id : {uid} does not exist on remote host.")
@@ -54,7 +55,7 @@ def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json):
     """
     mode = "wb" if is_image else "w"
     # Get data from the api url
-    fullurl = build_api_url(root_url=root_url, view=view, uid=uid)
+    fullurl = build_api_url(root_url=root_url, view=view, uid=uid, api_key=api_key)
     response = requests.get(url=fullurl, params=dict(k=api_key))
     data = response.content if response.status_code == 200 else b""
 
@@ -202,7 +203,7 @@ def get_recipes(pid, root_url=None, api_key="", rid=""):
     if root_url:
         # Get the recipes from remote url.
         recipe_api = build_api_url(root_url=root_url, api_key=api_key)
-        recipes = hjson.loads(urlopen(url=recipe_api).read().decode())
+        recipes = hjson.loads(requests.get(url=recipe_api, params=dict(k=api_key)).content)
         # Filter recipes from remote host.
         return list(filter(filter_func, recipes))
 
@@ -222,7 +223,7 @@ def get_image_name(uid, root_url=None, json="conf.hjson", root_dir=None, api_key
 
     # Get json from url
     if root_url:
-        fullurl = build_api_url(root_url=root_url, view=view, uid=uid)
+        fullurl = build_api_url(root_url=root_url, view=view, uid=uid, api_key=api_key)
         response = requests.get(url=fullurl, params=dict(k=api_key))
         json_text = response.text if response.status_code == 200 else ""
     # Get json from a file
@@ -279,6 +280,7 @@ def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
     """
     # Get the recipes from API or database.
     recipes = get_recipes(pid=pid, root_url=root_url, api_key=api_key, rid=rid)
+    print(recipes)
 
     dump = partial(download, root_url=root_url, root_dir=root_dir, api_key=api_key)
 
@@ -348,15 +350,11 @@ def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", ty
     if not project:
         logger.error(f"Project id: {pid} does not exist.")
         return
-
-    # Slightly different course of action on file and directories.
-    isfile = os.path.isfile(path)
-    isdir = os.path.isdir(path)
-
-    # The data field is empty.
-    if not (isfile or isdir):
-        logger.error(f"Path is not a file a directory: {path}")
+    if not path or not os.path.exists(path):
+        logger.error(f"--path ({path}) does not exist.")
         return
+    # Slightly different course of action on file and directories.
+    isdir = os.path.isdir(path)
 
     # Generate alternate names based on input directory type.
     print(f"*** Project: {project.name} ({project.uid})")
@@ -372,10 +370,10 @@ def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", ty
 
     # Select the name.
     name = name or altname
-    print(f"*** Creating data: {name}")
 
     # Create the data.
-    auth.create_data(project=project, path=path, type=type, name=name, text=text)
+    data = auth.create_data(project=project, path=path, type=type, name=name, text=text)
+    print(f"*** Created data: name={name}, id={data.uid}")
 
     return
 
@@ -444,7 +442,7 @@ class Command(BaseCommand):
             msg = "[error] --key is required when loading data to remote site."
 
         if msg:
-            logger.error(msg)
+            self.stdout.write(self.style.NOTICE(msg))
             self.run_from_argv(sys.argv)
             sys.exit()
 
@@ -464,7 +462,7 @@ class Command(BaseCommand):
         update_toc = options.get("update_toc")
 
         if len(sys.argv) == 2:
-            logger.error("Pick a sub-command")
+            self.stdout.write(self.style.NOTICE("Pick a sub-command"))
             self.run_from_argv(sys.argv + ["--help"])
             sys.exit()
 
