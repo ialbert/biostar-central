@@ -331,8 +331,7 @@ def project_dumper(pid, root_dir, root_url=None, api_key=""):
     return
 
 
-def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", type="",
-                text=""):
+def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", type="", text=""):
     """
     Load data found in path to database.
     """
@@ -480,7 +479,8 @@ class Command(BaseCommand):
             params = dict(root_dir=project_dir, root_url=root_url, api_key=api_key, rid=uid, pid=pid)
 
             recipes = recipe_loader(**params) if load else recipe_dumper(**params)
-            self.stdout.write(self.style.SUCCESS(f"{len(recipes)} recipes {'loaded' if load else 'dumped'}."))
+            msg = f"{len(recipes)} recipes {'loaded' if load else 'dumped'} into project id:{pid}."
+            self.stdout.write(self.style.SUCCESS(msg))
 
         elif subcommand == "data":
             if not (pid or uid):
