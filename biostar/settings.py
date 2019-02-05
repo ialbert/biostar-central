@@ -17,7 +17,7 @@ SECRET_KEY = 'secret-key'
 
 API_KEY = "api-key"
 
-# Used internally by django to test browser cookies
+# Used internally by django to tested browser cookies
 TEST_COOKIE_NAME = "test-cookie"
 
 # Private key used to validate external logins

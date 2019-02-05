@@ -5,6 +5,7 @@ from biostar.engine import auth
 from biostar.engine import models
 from django.conf import settings
 
+from . import util
 from django.urls import reverse
 
 
@@ -15,13 +16,15 @@ class SiteNavigation(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
+        self.username = f"tested{util.get_uuid(10)}"
 
-        self.owner = models.User.objects.create(username="test", email="test@test.com")
-        self.owner.set_password("testing")
+        self.owner = models.User.objects.create(username=self.username, is_staff=True,
+                                                email="tested@tested.com")
+        self.owner.set_password("tested")
         self.owner.save()
 
         self.project = auth.create_project(user=self.owner, name="Test project",
-                                           privacy=models.Project.PUBLIC, uid="testing")
+                                           privacy=models.Project.PUBLIC, uid="tested")
         data = auth.create_data(project=self.project, path=__file__)
         analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
         self.job = auth.create_job(analysis=analysis)
@@ -33,9 +36,9 @@ class SiteNavigation(TestCase):
 
     def visit_urls(self, urls, codes):
         c = Client()
-        c.login(username="test", email='test@test.com', password='testing')
+        c.login(username=self.username, email='tested@tested.com', password='tested')
         for url in urls:
-            resp = c.get(url, data={"q": "test"})
+            resp = c.get(url, data={"q": "tested"})
             code = resp.status_code
             if code not in codes:
                 # We already know it is an error.

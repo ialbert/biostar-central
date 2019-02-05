@@ -17,6 +17,25 @@ from biostar.engine.decorators import require_api_key
 logger = logging.getLogger("engine")
 
 
+def get_thumbnail():
+    return os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+
+
+def change_image(obj, file_object=None):
+
+    if file_object and not obj.image:
+        img = os.path.join(settings.MEDIA_ROOT, image_path(instance=obj, filename=get_thumbnail()))
+        obj.image.save(name=img, content=file_object)
+        img_path = obj.image.path
+    elif file_object and obj.image:
+        img_path = obj.image.path
+        open(obj.image.path, "wb").write(file_object.read())
+    else:
+        img_path = get_thumbnail()
+
+    return open(img_path, "rb") .read()
+
+
 @api_view(['GET'])
 def project_api_list(request):
 
@@ -43,6 +62,65 @@ def project_api_list(request):
     return Response(data=payload, status=status.HTTP_200_OK)
 
 
+@api_view(['GET', 'PUT'])
+@require_api_key(type=Project)
+def project_info(request, uid):
+    """
+    GET request : return project info as json data
+    PUT request : change project info using json data
+    """
+
+    project = Project.objects.get_all(uid=uid).first()
+
+    if request.method == "PUT":
+        file_object = request.data.get("file", "")
+        conf = hjson.load(file_object)
+        if file_object:
+            project.name = conf.get("settings", {}).get("name") or project.name
+            project.text = conf.get("settings", {}).get("help") or project.text
+            project.save()
+
+    payload = hjson.loads(project.json_text)
+    return Response(data=payload, status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'PUT'])
+@require_api_key(type=Project)
+def project_image(request, uid):
+    """
+    GET request : return project image
+    PUT request : change project image
+    """
+    project = Project.objects.filter(uid=uid).first()
+    imgpath = project.image.path if project.image else get_thumbnail()
+    data = open(imgpath, "rb").read()
+
+    if request.method == "PUT":
+        file_object = request.data.get("file")
+        data = change_image(obj=project, file_object=file_object)
+
+    return HttpResponse(content=data, content_type="image/jpeg")
+
+
+@api_view(['GET', 'PUT'])
+@require_api_key(type=Analysis)
+def recipe_image(request, uid):
+    """
+    GET request: Return recipe image.
+    PUT request: Updates recipe image with given file.
+    """
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+    imgpath = recipe.image.path if recipe.image else get_thumbnail()
+    data = open(imgpath, "rb").read()
+
+    if request.method == "PUT":
+        file_object = request.data.get("file")
+        data = change_image(obj=recipe, file_object=file_object)
+
+    return HttpResponse(content=data, content_type="image/jpeg")
+
+
 @api_view(['GET'])
 def recipe_api_list(request):
 
@@ -67,7 +145,7 @@ def recipe_api_list(request):
 
 
 @api_view(['GET', 'PUT'])
-@require_api_key
+@require_api_key(type=Analysis)
 def recipe_json(request, uid):
     """
     GET request: Returns recipe json
@@ -94,7 +172,7 @@ def recipe_json(request, uid):
 
 
 @api_view(['GET', 'PUT'])
-@require_api_key
+@require_api_key(type=Analysis)
 def recipe_template(request, uid):
     """
     GET request: Returns recipe template
@@ -113,36 +191,4 @@ def recipe_template(request, uid):
     payload = recipe.template
 
     return HttpResponse(content=payload, content_type="text/plain")
-
-
-@api_view(['GET', 'PUT'])
-@require_api_key
-def recipe_image(request, uid):
-    """
-    GET request: Return recipe image.
-    PUT request: Updates recipe image with given file.
-    """
-
-    recipe = Analysis.objects.filter(uid=uid).first()
-
-    if recipe.image:
-        img_path = recipe.image.path
-    else:
-        img_path = os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
-
-    if request.method == "PUT":
-        # Get the new image that will replace current one
-        file_object = request.data.get("file", "")
-        #TODO: check the file size?
-
-        if file_object:
-            if not recipe.image:
-                img_path = os.path.join(settings.MEDIA_ROOT,
-                                        image_path(instance=recipe, filename=img_path))
-                recipe.image.save(name=img_path, content=file_object)
-            else:
-                open(img_path, "wb").write(file_object.read())
-
-    img_stream = open(img_path, "rb").read()
-    return HttpResponse(content=img_stream, content_type="image/jpeg")
 

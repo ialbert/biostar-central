@@ -11,7 +11,7 @@ from . import util
 
 logger = logging.getLogger('engine')
 
-TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'test'))
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
 
 
 @override_settings(MEDIA_ROOT=TEST_ROOT)
@@ -21,11 +21,11 @@ class JobViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username="test", email="test@l.com")
-        self.owner.set_password("test")
+        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
+        self.owner.set_password("tested")
 
-        self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
-                                           uid="testing")
+        self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
+                                           uid="tested")
 
         self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="",
                                            security=models.Analysis.AUTHORIZED)
@@ -39,7 +39,7 @@ class JobViewTest(TestCase):
     def test_job_edit(self):
         "Test job edit with POST request"
 
-        data = {'name':'test', 'text':"testing", 'sticky':True}
+        data = {'name':'tested', 'text':"tested", 'sticky':True}
         url  = reverse('job_edit', kwargs=dict(uid=self.job.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
@@ -75,7 +75,7 @@ class JobViewTest(TestCase):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to project view after testing :\nresponse:{response}")
+                         f"Could not redirect to project view after tested :\nresponse:{response}")
 
         if save:
             self.assertTrue( models.Job.save.called, "save() method not called")

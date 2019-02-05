@@ -9,7 +9,7 @@ CURRENT_FILE = os.path.abspath(__file__)
 
 
 class Command(BaseCommand):
-    help = "A Test FTP client used to test the server."
+    help = "A Test FTP client used to tested the server."
 
 
     def handle(self, *args, **options):
@@ -48,7 +48,7 @@ class Command(BaseCommand):
         fname  = os.path.basename(CURRENT_FILE)
         cmd = f"STOR {fname}"
 
-        # Add directory as a Data object to test project
+        # Add directory as a Data object to tested project
         ftp.storlines(cmd=cmd, fp=file)
 
         # Check to see Data object has been created
