@@ -432,16 +432,16 @@ class Command(BaseCommand):
         sys.argv.append("--help")
         msg = None
 
-        if len(sys.argv) == 2 or not pid:
+        if not pid:
             msg = "[error] --pid needs to be set."
 
-        if not (load or dump):
+        elif not (load or dump):
             msg = "[error] Set load (-l) or dump (-d) flag."
 
-        if load and dump:
+        elif load and dump:
             msg = "[error] Only one flag can be set."
 
-        if (root_url and load) and not api_key:
+        elif (root_url and load) and not api_key:
             msg = "[error] --key is required when loading data to remote site."
 
         if msg:
@@ -463,7 +463,11 @@ class Command(BaseCommand):
         name = options.get("name")
         type = options.get("type")
         update_toc = options.get("update_toc")
-        project_dir = os.path.join(root_dir, pid)
+
+        if len(sys.argv) == 2:
+            logger.error("Pick a sub-command")
+            self.run_from_argv(sys.argv + ["--help"])
+            sys.exit()
 
         if subcommand == "project":
             self.check_error(**options)
@@ -472,6 +476,7 @@ class Command(BaseCommand):
 
         elif subcommand == "recipe":
             self.check_error(**options)
+            project_dir = os.path.join(root_dir, pid)
             params = dict(root_dir=project_dir, root_url=root_url, api_key=api_key, rid=uid, pid=pid)
 
             recipes = recipe_loader(**params) if load else recipe_dumper(**params)
