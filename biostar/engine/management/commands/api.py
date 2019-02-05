@@ -11,7 +11,7 @@ from functools import partial
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.shortcuts import reverse
-from biostar.engine.models import Analysis, Project
+from biostar.engine.models import Analysis, Project, Data
 from biostar.engine.api import change_image, get_thumbnail
 from biostar.engine import auth
 from biostar.accounts.models import User
@@ -43,7 +43,7 @@ def remote_upload(stream, root_url, uid, api_key, view):
     full_url = build_api_url(root_url=root_url, api_key=api_key, view=view, uid=uid)
     response = requests.put(url=full_url, files=dict(file=stream), data=payload)
     if response.status_code == 404:
-        print(f"*** Object id : {uid} does not exist on remote host.")
+        logger.error(f"*** Object id : {uid} does not exist on remote host.")
         sys.exit()
 
     return response
@@ -89,6 +89,10 @@ def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
         if not recipe:
             # Create empty object if not present then populate.
             project = Project.objects.get_all(uid=pid).first()
+            if not project:
+                logger.error(f"*** Project id:{pid} does not exist.")
+                logger.error(f"\n*** Run `manage.py api project -load --pid={pid}` to create it.")
+                sys.exit()
             recipe = auth.create_analysis(project=project, json_text="", template="", uid=uid, name="Recipe Name")
         if is_json:
             data = hjson.loads(stream.read())
@@ -237,36 +241,36 @@ def get_image_name(uid, root_url=None, json="conf.hjson", root_dir=None, api_key
     return name
 
 
-def recipe_loader(project_dir, pid, api_key="", root_url=None, rid=""):
+def recipe_loader(root_dir, pid, api_key="", root_url=None, rid=""):
     """
         Load recipes into api/database from a project found in project_dir.
         Uses PUT request so 'api_key' is required with 'root_url'.
     """
-    if not os.path.exists(project_dir):
-        print(f"*** Project directory: {project_dir} does not exist.")
+    if not os.path.exists(root_dir):
+        logger.error(f"*** Project directory: {root_dir} does not exist.")
         sys.exit()
 
     # Every subdir in 'project_dir' is a recipe_dir.
-    recipe_dirs = [r.name for r in os.scandir(project_dir) if r.is_dir()]
+    recipe_dirs = [r.name for r in os.scandir(root_dir) if r.is_dir()]
     # Get the specific recipe to load if given.
     recipe_dirs = list(filter(lambda recipe_uid: recipe_uid == rid, recipe_dirs)) if rid else recipe_dirs
 
     # Prepare the main function used to load.
-    load = partial(upload, root_dir=project_dir, root_url=root_url, api_key=api_key, pid=pid, load_recipe=True)
+    load = partial(upload, root_dir=root_dir, root_url=root_url, api_key=api_key, pid=pid, load_recipe=True)
 
     # Get image name from conf file in directory
-    img = lambda uid: get_image_name(uid=uid, root_dir=project_dir)
+    img = lambda uid: get_image_name(uid=uid, root_dir=root_dir)
     for recipe_uid in recipe_dirs:
         load(uid=recipe_uid, fname="conf.hjson", view="recipe_api_json", is_json=True)
         load(uid=recipe_uid, fname=img(uid=recipe_uid), view="recipe_api_image", is_image=True)
         load(uid=recipe_uid, fname="template.sh")
 
-        print(f"Loaded recipe id: {recipe_uid}")
+        print(f"*** Loaded recipe id: {recipe_uid}")
 
     return recipe_dirs
 
 
-def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
+def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
     """
     Dump recipes from the api/database into a target directory
     belonging to single project.
@@ -274,7 +278,7 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
     # Get the recipes from API or database.
     recipes = get_recipes(pid=pid, root_url=root_url, api_key=api_key, rid=rid)
 
-    dump = partial(download, root_url=root_url, root_dir=project_dir, api_key=api_key)
+    dump = partial(download, root_url=root_url, root_dir=root_dir, api_key=api_key)
 
     # Get image name from json on remote host or local database
     img = lambda uid: get_image_name(uid=uid, root_url=root_url, api_key=api_key)
@@ -284,7 +288,7 @@ def recipe_dumper(project_dir, pid, root_url=None, api_key="", rid=""):
         dump(uid=recipe_uid, fname=img(uid=recipe_uid), is_image=True, view="recipe_api_image")
         dump(uid=recipe_uid, fname="template.sh")
 
-        print(f"Dumped recipe id: {recipe_uid}")
+        print(f"*** Dumped recipe id: {recipe_uid}")
     return recipes
 
 
@@ -302,7 +306,7 @@ def project_loader(pid, root_dir, root_url=None, api_key=""):
     load(view="project_api_info", fname="conf.hjson")
     load(is_image=True, view="project_api_image", fname=img_name)
 
-    print(f"Loaded project ({pid}).")
+    print(f"*** Loaded project ({pid}).")
     return
 
 
@@ -321,79 +325,160 @@ def project_dumper(pid, root_dir, root_url=None, api_key=""):
     dump(fname="conf.hjson", view="project_api_info", is_json=True)
     dump(fname=img_name, view="project_api_image", is_image=True)
 
-    print(f"Dumped project {pid}: {root_dir}.")
+    print(f"*** Dumped project {pid}: {root_dir}.")
+    return
+
+
+def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", type="",
+                text=""):
+    """
+    Load data found in path to database.
+    """
+
+    data = Data.objects.get_all(uid=uid).first()
+    # Work with existing data.
+    if data:
+        if update_toc:
+            data.make_toc()
+            print(f"*** Table of contents updated for data : {uid}.")
+        return
+
+    project = Project.objects.get_all(uid=pid).first()
+    if not project:
+        logger.error(f"Project id: {pid} does not exist.")
+        return
+
+    # Slightly different course of action on file and directories.
+    isfile = os.path.isfile(path)
+    isdir = os.path.isdir(path)
+
+    # The data field is empty.
+    if not (isfile or isdir):
+        logger.error(f"Path is not a file a directory: {path}")
+        return
+
+    # Generate alternate names based on input directory type.
+    print(f"*** Project: {project.name} ({project.uid})")
+    if isdir:
+        print(f"*** Linking directory: {path}")
+        altname = os.path.split(path)[0].split(os.sep)[-1]
+    else:
+        print(f"*** Linking file: {path}")
+        altname = os.path.split(path)[-1]
+
+    # Get the text from file
+    text = open(text, "r").read() if os.path.exists(text) else ""
+
+    # Select the name.
+    name = name or altname
+    print(f"*** Creating data: {name}")
+
+    # Create the data.
+    auth.create_data(project=project, path=path, type=type, name=name, text=text)
+
     return
 
 
 class Command(BaseCommand):
     help = 'Dump and load data using api.'
 
-    def add_arguments(self, parser):
-
-        # Load or dump flags
+    def add_api_commands(self, parser):
+        """Add default commands to sub commands"""
         parser.add_argument('-l', "--load", action="store_true",
-                            help="""Load project to url from a directory.
-                                    Load to database if --url is not set.""")
+                                                   help="""Load to url from a directory.
+                                                        Load to database if --url is not set.""")
         parser.add_argument('-d', "--dump", action="store_true",
-                            help="""Dump project from a url to directory. 
-                                    Dump from database if --url is not set.""")
-        parser.add_argument('--recipes', action="store_true", help="Load/dump recipes from --pid.")
-        parser.add_argument('--data', action="store_true", help="""Load/dump data from --pid.
-                                                                    Only works in local database.""")
-
+                                            help="""Dump from a url to directory. 
+                                                    Dump from database if --url is not set.""")
+        parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")
         parser.add_argument('--dir', default='', help="Directory to store/load data from.")
 
-        parser.add_argument('--pid', type=str, help="Project uid to load or dump.")
-        parser.add_argument('--rid', type=str, default="", help="Recipe uid to load or dump.")
+        return
 
-    def handle(self, *args, **options):
+    def add_arguments(self, parser):
+        # Load or dump flags
+
+        subparsers = parser.add_subparsers(help='API sub-commands to choose from.')
+
+        data_parser = subparsers.add_parser("data", help="Load data to local database.")
+        data_parser.add_argument("--path", type=str, help="Path to data.")
+        data_parser.add_argument("--name", type=str, help="Name of data.")
+        data_parser.add_argument("--pid", type=str, default="", help="Project uid to create data in.")
+        data_parser.add_argument("--uid", type=str, help="Data uid to load or update.")
+        parser.add_argument('--text', default='', help="A file containing the description of the data")
+        parser.add_argument('--name', default='', help="Sets the name of the data")
+        parser.add_argument('--type', default='data', help="Sets the type of the data")
+        data_parser.add_argument("--update_toc", action="store_true", help="Update table of contents for data --uid.")
+
+        recipe_parser = subparsers.add_parser("recipe", help="Load/Dump recipes from/to remote host or local database.")
+        recipe_parser.add_argument('--uid', type=str, default="", help="Recipe uid to load or dump.")
+        self.add_api_commands(parser=recipe_parser)
+
+        project_parser = subparsers.add_parser("project",
+                                               help="Load/Dump projects from/to remote host or local database.")
+        self.add_api_commands(parser=project_parser)
+
+    def check_error(self, **options):
 
         load = options.get("load")
         dump = options.get("dump")
-        root_url = options["url"]
-        api_key = options["key"]
-        root_dir = options["dir"] or os.getcwd()
-        rid = options["rid"]
-        pid = options["pid"]
-        rec = options["recipes"]
+        root_url = options.get("url")
+        api_key = options.get("key")
+        pid = options.get("pid")
+        sys.argv.append("--help")
+        msg = None
 
         if len(sys.argv) == 2 or not pid:
-            self.print_help(sys.argv[0], sys.argv)
-            print("\n*** --pid needs to be set.")
-            return
+            msg = "[error] --pid needs to be set."
 
         if not (load or dump):
-            self.print_help(sys.argv[0], sys.argv)
-            print("\n*** Set load (-l) or dump (-d) flag.")
-            return
+            msg = "[error] Set load (-l) or dump (-d) flag."
 
         if load and dump:
-            print("\n*** Only one flag can be set.")
-            return
+            msg = "[error] Only one flag can be set."
 
         if (root_url and load) and not api_key:
-            self.print_help(sys.argv[0], sys.argv)
-            print("\n*** --key is required when loading data to remote site.")
-            return
+            msg = "[error] --key is required when loading data to remote site."
 
+        if msg:
+            logger.error(msg)
+            self.run_from_argv(sys.argv)
+            sys.exit()
+
+    def handle(self, *args, **options):
+
+        subcommand = sys.argv[2] if len(sys.argv) > 2 else None
+
+        load = options.get("load")
+        root_url = options.get("url")
+        api_key = options.get("key")
+        root_dir = options.get("dir") or os.getcwd()
+        uid = options.get("uid")
+        pid = options.get("pid")
+        path = options.get("path")
+        name = options.get("name")
+        type = options.get("type")
+        update_toc = options.get("update_toc")
         project_dir = os.path.join(root_dir, pid)
 
-        if load:
-            # Load the project info and image
-            project_loader(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
-            # Load recipes if requested.
-            if rec or rid:
-                loaded = recipe_loader(project_dir=project_dir, root_url=root_url, api_key=api_key, rid=rid, pid=pid)
-                view = reverse("project_view", kwargs=dict(uid=pid))
-                view = reverse("recipe_view", kwargs=dict(uid=rid)) if rid else view
-                print(f"{len(loaded)} recipes loaded into {urljoin(root_url, view) if root_url else 'database'}\n")
+        if subcommand == "project":
+            self.check_error(**options)
+            params = dict(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
+            project_loader(**params) if load else project_dumper(**params)
 
-        elif dump:
-            # Dump the project info and image
-            project_dumper(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
-            # Dump recipes if requested.
-            if rec or rid:
-                dumped = recipe_dumper(root_url=root_url, api_key=api_key, project_dir=project_dir, pid=pid, rid=rid)
-                print(f"{len(dumped)} recipes dumped into {project_dir}\n")
+        elif subcommand == "recipe":
+            self.check_error(**options)
+            params = dict(root_dir=project_dir, root_url=root_url, api_key=api_key, rid=uid, pid=pid)
+
+            recipes = recipe_loader(**params) if load else recipe_dumper(**params)
+            self.stdout.write(self.style.SUCCESS(f"{len(recipes)} recipes {'loaded' if load else 'dumped'}."))
+
+        elif subcommand == "data":
+            if not (pid or uid):
+                logger.error("[error] --pid or --uid need to be set.")
+                self.run_from_argv(sys.argv + ["--help"])
+                sys.exit()
+
+            data_loader(pid=pid, path=path, uid=uid, update_toc=update_toc, name=name, type=type)
