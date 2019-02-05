@@ -3,7 +3,7 @@ from biostar.settings import *
 DEBUG = False
 
 SITE_ID = 1
-SITE_DOMAIN = "tested.biostars.org"
+SITE_DOMAIN = "test.biostars.org"
 SITE_NAME = "Test Biostar"
 
 HTTP_PORT = ''
