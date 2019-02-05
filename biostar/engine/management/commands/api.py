@@ -280,8 +280,6 @@ def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
     """
     # Get the recipes from API or database.
     recipes = get_recipes(pid=pid, root_url=root_url, api_key=api_key, rid=rid)
-    print(recipes)
-
     dump = partial(download, root_url=root_url, root_dir=root_dir, api_key=api_key)
 
     # Get image name from json on remote host or local database
@@ -379,7 +377,7 @@ def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", ty
 
 
 class Command(BaseCommand):
-    help = 'Dump and load data using api.'
+    help = 'Dump and load items using api.'
 
     def add_api_commands(self, parser):
         """Add default commands to sub commands"""
@@ -399,7 +397,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         # Load or dump flags
 
-        subparsers = parser.add_subparsers(help='API sub-commands to choose from.')
+        subparsers = parser.add_subparsers()
 
         data_parser = subparsers.add_parser("data", help="Load data to local database.")
         data_parser.add_argument("--path", type=str, help="Path to data.")
