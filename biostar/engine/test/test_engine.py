@@ -11,7 +11,7 @@ from django.conf import settings
 
 
 from . import util
-TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'test'))
 
 logger = logging.getLogger('engine')
 
