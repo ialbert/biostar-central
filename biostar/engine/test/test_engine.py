@@ -29,8 +29,8 @@ class SiteAdminTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
 
-        self.user = models.User.objects.create_superuser(username="test", email="test@test.com",
-                                                         password="test")
+        self.user = models.User.objects.create_superuser(username=f"tested{util.get_uuid(10)}", email="tested@tested.com",
+                                                         password="tested")
         self.user.save()
 
     def test_site_admin(self):
@@ -58,8 +58,8 @@ class FactoryTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
         owner = models.User.objects.filter(is_superuser=True).first()
-        self.project = auth.create_project(user=owner, name="test",
-                                           text="Text", summary="summary", uid="testing")
+        self.project = auth.create_project(user=owner, name="tested",
+                                           text="Text", summary="summary", uid="tested")
 
     def test_factory_fields(self):
         "Testing factory module that generates fields"

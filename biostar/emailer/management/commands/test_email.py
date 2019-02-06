@@ -15,9 +15,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--emails', type=str,
-                            help="Comma separated emails to send test emails to.")
+                            help="Comma separated emails to send tested emails to.")
         parser.add_argument('--send', action="store_true",
-                            help="Comma separated emails to send test emails to.")
+                            help="Comma separated emails to send tested emails to.")
 
     def handle(self, *args, **options):
 
@@ -27,7 +27,7 @@ class Command(BaseCommand):
             to_emails = to_emails.split(",")
 
         from_email = settings.ADMINS[0][1]
-        subject = "test email"
+        subject = "tested email"
 
         recipient_list = to_emails or [settings.ADMINS[0][1]]
 

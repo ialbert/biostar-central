@@ -80,7 +80,7 @@ class write_access:
 
     def __call__(self, function, *args, **kwargs):
         """
-        Decorator used to test if a user has rights to access an instance
+        Decorator used to tested if a user has rights to access an instance
         """
 
         # Pass function attributes to the wrapper
@@ -130,35 +130,41 @@ def parse_api_key(request):
     return empty
 
 
-def require_api_key(func):
+class require_api_key:
     """
-    Requires an API key for PUT requests.
-    Currently specific to recipes.
+    Require the api key when private project or PUT request for an api view
     """
 
-    @wraps(func, assigned=available_attrs(func))
-    def _api_view(request, *args, **kwargs):
+    def __init__(self, type):
+        self.type = type
 
-        api_key = parse_api_key(request=request)
+    def __call__(self, func, *args, **kwargs):
 
-        # Get the Recipe uid
-        uid = kwargs.get("uid")
-        recipe = models.Analysis.objects.get_all(uid=uid).first()
+        # Pass function attributes to the wrapper
+        @wraps(func, assigned=available_attrs(func))
+        def _api_view(request, *args, **kwargs):
+            # Each wrapped view must take an alphanumeric uid as parameter.
+            api_key = parse_api_key(request=request)
 
-        if not recipe:
-            msg = dict(error="Recipe does not exist.")
-            return Response(data=msg, status=status.HTTP_404_NOT_FOUND)
+            # Get the Recipe uid
+            uid = kwargs.get("uid")
+            obj = self.type.objects.get_all(uid=uid).first()
 
-        # All PUT requests will require an API key.
-        if request.method == "PUT" and settings.API_KEY != api_key:
-            msg = dict(error="API key is required for all PUT requests.")
-            return Response(data=msg, status=status.HTTP_401_UNAUTHORIZED)
+            if not obj:
+                msg = dict(error="Recipe does not exist.")
+                return Response(data=msg, status=status.HTTP_404_NOT_FOUND)
 
-        # API key required when asking for GET requests of private recipes.
-        elif request.method == "GET" and settings.API_KEY != api_key and recipe.project.is_private:
-            msg = dict(error="Private recipes can not be accessed without an API key param (?k=).")
-            return Response(data=msg, status=status.HTTP_401_UNAUTHORIZED)
+            # All PUT requests will require an API key.
+            if request.method == "PUT" and settings.API_KEY != api_key:
+                msg = dict(error="API key is required for all PUT requests.")
+                return Response(data=msg, status=status.HTTP_401_UNAUTHORIZED)
 
-        return func(request, *args, **kwargs)
+            # API key required when asking for GET requests of private recipes.
+            elif request.method == "GET" and settings.API_KEY != api_key and obj.project.is_private:
+                msg = dict(error="Private recipes can not be accessed without an API key param (?k=).")
+                return Response(data=msg, status=status.HTTP_401_UNAUTHORIZED)
 
-    return _api_view
+            return func(request, *args, **kwargs)
+
+        return _api_view
+

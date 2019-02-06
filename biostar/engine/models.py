@@ -136,6 +136,25 @@ class Project(models.Model):
         return self
 
     @property
+    def json_text(self):
+
+        payload = dict(settings=dict(
+                            uid=self.uid,
+                            name=self.name,
+                            image=f"{self.uid}.png",
+                            privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
+                            help=self.text,
+                            ),
+                       recipes={recipe.uid:
+                                dict(name=recipe.name,
+                                     json=reverse("recipe_api_json", kwargs=dict(uid=recipe.uid)),
+                                     template=reverse("recipe_api_template", kwargs=dict(uid=recipe.uid)))
+                                for recipe in self.analysis_set.all()
+                                })
+
+        return hjson.dumps(payload)
+
+    @property
     def summary(self):
         """
         Returns first line of text
@@ -434,6 +453,7 @@ def sync_json(sender, instance, created, raw, update_fields, **kwargs):
     # Sync the json["settings"] with the recipe.text and name.
 
     current_json = instance.json_data
+
     if current_json.get("settings"):
         current_json["settings"]["name"] = instance.name
         current_json["settings"]["help"] = instance.text

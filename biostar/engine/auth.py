@@ -271,7 +271,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, sticky=sticky)
 
-        analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(4)}" if not uid else uid
+        analysis.uid = f"recipe-{analysis.id}{util.get_uuid(3)}" if not uid else uid
         analysis.save()
 
         # Update the projects lastedit user when a recipe is created

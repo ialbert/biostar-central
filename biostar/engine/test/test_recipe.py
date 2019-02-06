@@ -21,12 +21,12 @@ class RecipeViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username="test", email="test@l.com", is_staff=True)
-        self.owner.set_password("test")
+        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com", is_staff=True)
+        self.owner.set_password("tested")
         self.factory = RequestFactory()
 
-        self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary",
-                                           uid="testing")
+        self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
+                                           uid="tested")
         #Test data
         self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="")
         self.recipe.save()
@@ -54,7 +54,7 @@ class RecipeViewTest(TestCase):
     def test_recipe_code_edit(self):
         "Test the recipe preview/save code view with POST request"
 
-        data = {'action': "SAVE", 'template':'#test change', 'json':"{}"}
+        data = {'action': "SAVE", 'template':'#tested change', 'json':"{}"}
         url = reverse('recipe_code_edit', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
@@ -68,8 +68,8 @@ class RecipeViewTest(TestCase):
     def test_recipe_edit(self):
         "Test recipe edit with POST request"
 
-        data = { "name": "test", "sticky":True, "summary":"summary", "text":"text" ,
-                 "uid":"testing"}
+        data = { "name": "tested", "sticky":True, "summary":"summary", "text":"text" ,
+                 "uid":"tested"}
         url = reverse('recipe_edit', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)

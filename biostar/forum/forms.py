@@ -129,6 +129,11 @@ class SubsForm(forms.Form):
 
         sub_type = self.cleaned_data["subtype"]
 
+        sub = models.Subscription.objects.filter(post=self.post, user=self.user).first()
+
+        if sub and (sub.type == sub_type):
+            return sub
+
         sub = auth.create_sub(post=self.post, user=self.user, sub_type=sub_type)
 
         return sub
