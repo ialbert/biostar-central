@@ -677,7 +677,7 @@ class Command(BaseCommand):
 
         subparsers = parser.add_subparsers()
 
-        data_parser = subparsers.add_parser("data", help="Load data to local database.")
+        data_parser = subparsers.add_parser("data", help="Data manager.")
         data_parser.add_argument("--path", type=str, help="Path to data.")
         data_parser.add_argument("--name", type=str, help="Name of data.")
         data_parser.add_argument("--pid", type=str, default="", help="Project uid to create data in.")
@@ -687,12 +687,12 @@ class Command(BaseCommand):
         parser.add_argument('--type', default='data', help="Sets the type of the data")
         data_parser.add_argument("--update_toc", action="store_true", help="Update table of contents for data --uid.")
 
-        recipe_parser = subparsers.add_parser("recipe", help="Load/Dump recipes from/to remote host or local database.")
+        recipe_parser = subparsers.add_parser("recipe", help="Recipe manager")
         recipe_parser.add_argument('--uid', type=str, default="", help="Recipe uid to load or dump.")
         self.add_api_commands(parser=recipe_parser)
 
         project_parser = subparsers.add_parser("project",
-                                               help="Load/Dump projects from/to remote host or local database.")
+                                               help="Project manager.")
         self.add_api_commands(parser=project_parser)
 
         job_parser = subparsers.add_parser("job", help="Job manager.")
