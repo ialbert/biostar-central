@@ -42,10 +42,10 @@ Project API:
       --dir DIR   Directory to store/load data from.
       
     # Dump project from remote url using --dump (-d) flag.
-    $ python manage.py api project -d --pid cookbook --url https://www.bioinformatics.recipes
+    $ python manage.py api project -d --pid tutorial --url https://www.bioinformatics.recipes
 
     # Load project to remote url using --load (-l) flag.
-    $ python manage.py api project -l --pid cookbook --url https://www.bioinformatics.recipes --key=API_KEY
+    $ python manage.py api project -l --pid tutorial --url https://www.bioinformatics.recipes --key=API_KEY
 
 Data API:
 
@@ -59,7 +59,7 @@ Data API:
       --update_toc  Update table of contents for data --uid.
 
     # Create new data object pointing to --path in project.
-    $ python manage.py api data --pid cookbook --path DATA
+    $ python manage.py api data --pid tutorial --path DATA
     
     # Update the table of content for data --uid
     $ python manage.py api data --uid 32dd2w --update_toc
@@ -80,10 +80,32 @@ Recipe API:
       --dir DIR   Directory to store/load data from.
 
     # Dump all recipes in project --pid from remote host.
-    $ python manage.py api recipe -d --pid cookbook --url https://www.bioinformatics.recipes --key API_KEY
+    $ python manage.py api recipe -d --pid tutorial --url https://www.bioinformatics.recipes --key API_KEY
     
     # Load all recipes in project --pid to remote host.
-    $ python manage.py api recipe -l --pid cookbook --url https://www.bioinformatics.recipes --key API_KEY
+    $ python manage.py api recipe -l --pid tutorial --url https://www.bioinformatics.recipes --key API_KEY
     
     
+    
+Job API:
+
+    $ python manage.py api job --help
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      --next                Runs the oldest queued job
+      --id ID               Runs job specified by id.
+      --uid UID             Runs job specified by uid.
+      --show_script         Shows the script.
+      --show_json           Shows the JSON for the job.
+      --show_template       Shows the template for the job.
+      --show_command        Shows the command executed for the job.
+      --use_json USE_JSON   Override the JSON with this file.
+      --use_template USE_TEMPLATE
+                            Override the TEMPLATE with this file.
+      --list                Show a job list
+      
+      
+    # Run a job overriding json
+    $ python manage.py api job --uid 332eqwd --use_json JSON_FILE
     

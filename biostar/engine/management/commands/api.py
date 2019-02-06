@@ -5,13 +5,18 @@ import io
 from urllib.parse import urljoin
 from urllib.request import urlopen
 import requests
+import subprocess
 import sys
 from functools import partial
-
+from django.utils.encoding import force_text
+from django.template import Template, Context
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.shortcuts import reverse
-from biostar.engine.models import Analysis, Project, Data
+from django.utils import timezone
+from biostar.emailer.auth import notify
+from biostar.engine.models import Analysis, Project, Data, Job
 from biostar.engine.api import change_image, get_thumbnail
 from biostar.engine import auth
 from biostar.accounts.models import User
@@ -376,6 +381,237 @@ def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", ty
     return
 
 
+def run(job, options={}):
+    """
+    Runs a job
+    """
+    # Options that cause early termination.
+    show_json = options.get('show_json')
+    show_template = options.get('show_template')
+    show_script = options.get('show_script')
+    show_command = options.get('show_command')
+    use_template = options.get('use_template')
+    use_json = options.get('use_json')
+    verbosity = options.get('verbosity', 0)
+
+    # Defined in case we bail on errors before setting it.
+    script = command = proc = None
+
+    stdout_log = []
+    stderr_log = []
+    try:
+        # Find the json and the template.
+        json_data = hjson.loads(job.json_text)
+        template = job.template
+
+        # This is the work directory.
+        work_dir = job.path
+
+        # The bade URL of the site.
+        url_base = f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}'
+
+        # Populate extra context
+        def extra_context(job):
+            extras = dict(
+                media_root=settings.MEDIA_ROOT,
+                media_url=settings.MEDIA_URL,
+                work_dir=work_dir, local_root=settings.LOCAL_ROOT,
+                user_id=job.owner.id, user_email=job.owner.email,
+                job_id=job.id, job_name=job.name,
+                job_url=f'{url_base}{settings.MEDIA_URL}{job.get_url()}'.rstrip("/"),
+                project_id=job.project.id, project_name=job.project.name,
+                analyis_name=job.analysis.name,
+                analysis_id=job.analysis.id,
+                domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
+            )
+            return extras
+
+        # Add the runtime context.
+        json_data['runtime'] = extra_context(job)
+
+        # Override template.
+        if use_template:
+            template = open(use_template).read()
+
+        # Override json.
+        if use_json:
+            json_data = hjson.loads(open(use_json).read())
+
+        # Print the json.
+        if show_json:
+            print(hjson.dumps(json_data, indent=4))
+            return
+
+        # Print the template.
+        if show_template:
+            print(template)
+            return
+
+        # Extract the execute commands from the spec.
+        settings_dict = json_data.get("settings", {})
+
+        # Specifies the command that gets executed.
+        execute = settings_dict.get('execute', {})
+
+        # The name of the file that contain the commands.
+        script_name = execute.get("filename", "recipe.sh")
+
+        # Make the log directory that stores sdout, stderr.
+        LOG_DIR = 'runlog'
+        log_dir = os.path.join(work_dir, f"{LOG_DIR}")
+        if not os.path.isdir(log_dir):
+            os.mkdir(log_dir)
+
+        # Runtime information will be saved in the log files.
+        json_fname = f"{log_dir}/input.json"
+        stdout_fname = f"{log_dir}/stdout.txt"
+        stderr_fname = f"{log_dir}/stderr.txt"
+
+        # Build the command line
+        command = execute.get("command", "bash recipe.sh")
+
+        # The commands can be substituted as well.
+        context = Context(json_data)
+        command_template = Template(command)
+        command = command_template.render(context)
+
+        # This is the full command that will be executed.
+        full_command = f'(cd {work_dir} && {command})'
+        if show_command:
+            print(full_command)
+            return
+
+        # Script template.
+        context = Context(json_data)
+        script_template = Template(template)
+        script = script_template.render(context)
+
+        # Show the script.
+        if show_script:
+            print(f'{script}')
+            return
+
+        # Logging should start after the early returns.
+        logger.info(f'Job id={job.id} name={job.name}')
+
+        # Make the output directory
+        logger.info(f'Job id={job.id} work_dir: {work_dir}')
+        if not os.path.isdir(work_dir):
+            os.mkdir(work_dir)
+
+        # Create the script in the output directory.
+        with open(os.path.join(work_dir, script_name), 'wt') as fp:
+            fp.write(script)
+
+        # Create a file that stores the json data for reference.
+        with open(json_fname, 'wt') as fp:
+            fp.write(hjson.dumps(json_data, indent=4))
+
+        # Initial create each of the stdout, stderr file placeholders.
+        for path in [stdout_fname, stderr_fname]:
+            with open(path, 'wt') as fp:
+                pass
+
+        # Show the command that is executed.
+        logger.info(f'Job id={job.id} executing: {full_command}')
+
+        # Job must be authorized to run.
+        if job.security != Job.AUTHORIZED:
+            raise Exception(f"Job security error: {job.get_security_display()}")
+
+        # Switch the job state to RUNNING and save the script field.
+        Job.objects.filter(pk=job.pk).update(state=Job.RUNNING,
+                                             start_date=timezone.now(),
+                                             script=script)
+        # Run the command.
+        proc = subprocess.run(command, cwd=work_dir, shell=True,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # Raise an error if returncode is anything but 0.
+        proc.check_returncode()
+
+        # If we made it this far the job has finished.
+        logger.info(f"uid={job.uid}, name={job.name}")
+        Job.objects.filter(pk=job.pk).update(state=Job.COMPLETED)
+
+    except Exception as exc:
+        # Handle all errors here.
+        Job.objects.filter(pk=job.pk).update(state=Job.ERROR)
+        stderr_log.append(f'{exc}')
+        logger.error(f'job id={job.pk} error {exc}')
+
+    # Collect the output.
+    if proc:
+        stdout_log.extend(force_text(proc.stdout).splitlines())
+        stderr_log.extend(force_text(proc.stderr).splitlines())
+
+    # Save the logs and end time
+    Job.objects.filter(pk=job.pk).update(end_date=timezone.now(),
+                                         stdout_log="\n".join(stdout_log),
+                                         stderr_log="\n".join(stderr_log))
+
+    # Reselect the job to get refresh fields.
+    job = Job.objects.filter(pk=job.pk).first()
+
+    # Create a log script in the output directory as well.
+    with open(stdout_fname, 'wt') as fp:
+        fp.write(job.stdout_log)
+
+    # Create a log script in the output directory as well.
+    with open(stderr_fname, 'wt') as fp:
+        fp.write(job.stderr_log)
+
+    # Log job status.
+    logger.info(f'Job id={job.id} finished, status={job.get_state_display()}')
+
+    # Use -v 2 to see the output of the command.
+    if verbosity > 1:
+        print("-" * 40)
+        print(job.stdout_log)
+        print("-" * 40)
+        print(job.stderr_log)
+
+    if job.owner.profile.notify:
+
+        context = dict(subject=job.project.name, job=job)
+
+        # Send notification emails
+        notify(template_name="emailer/job_finished.html", email_list=[job.owner.email], send=True,
+               extra_context=context)
+
+
+def manage_job(options):
+    jobid = options['id']
+    jobuid = options['uid']
+    next = options['next']
+    queued = options['list']
+
+    # This code is also run insider tasks.
+    if next:
+        job = Job.objects.filter(state=Job.QUEUED).order_by('id').first()
+        if not job:
+            logger.info(f'there are no queued jobs')
+        else:
+            run(job, options=options)
+        return
+
+    if jobid or jobuid:
+
+        job = Job.objects.filter(uid=jobuid) or Job.objects.filter(id=jobid)
+        if not job:
+            logger.info(f'job for id={jobid}/uid={jobuid} missing')
+        else:
+            run(job.first(), options=options)
+        return
+
+    if queued:
+        jobs = Job.objects.all().order_by('id')[:100]
+        for job in jobs:
+            print(f'{job.id}\t{job.get_state_display()}\t{job.name}')
+        return
+    return
+
+
 class Command(BaseCommand):
     help = 'Dump and load items using api.'
 
@@ -393,6 +629,48 @@ class Command(BaseCommand):
         parser.add_argument('--dir', default='', help="Directory to store/load data from.")
 
         return
+
+    def add_job_commands(self, parser):
+
+        parser.add_argument('--next',
+                            action='store_true',
+                            default=False,
+                            help="Runs the oldest queued job")
+
+        parser.add_argument('--id',
+                            type=int,
+                            default=0,
+                            help="Runs job specified by id.")
+        parser.add_argument('--uid',
+                            type=str,
+                            default='',
+                            help="Runs job specified by uid.")
+
+        parser.add_argument('--show_script',
+                            action='store_true',
+                            help="Shows the script.")
+
+        parser.add_argument('--show_json',
+                            action='store_true',
+                            help="Shows the JSON for the job.")
+
+        parser.add_argument('--show_template',
+                            action='store_true',
+                            help="Shows the template for the job.")
+
+        parser.add_argument('--show_command',
+                            action='store_true',
+                            help="Shows the command executed for the job.")
+
+        parser.add_argument('--use_json',
+                            help="Override the JSON with this file.")
+
+        parser.add_argument('--use_template',
+                            help="Override the TEMPLATE with this file.")
+
+        parser.add_argument('--list',
+                            action='store_true',
+                            help="Show a job list")
 
     def add_arguments(self, parser):
         # Load or dump flags
@@ -416,6 +694,9 @@ class Command(BaseCommand):
         project_parser = subparsers.add_parser("project",
                                                help="Load/Dump projects from/to remote host or local database.")
         self.add_api_commands(parser=project_parser)
+
+        job_parser = subparsers.add_parser("job", help="Job manager.")
+        self.add_job_commands(parser=job_parser)
 
     def check_error(self, **options):
 
@@ -469,6 +750,14 @@ class Command(BaseCommand):
             params = dict(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
             project_loader(**params) if load else project_dumper(**params)
 
+        elif subcommand == "data":
+            if not (pid or uid):
+                logger.error("[error] --pid or --uid need to be set.")
+                self.run_from_argv(sys.argv + ["--help"])
+                sys.exit()
+
+            data_loader(pid=pid, path=path, uid=uid, update_toc=update_toc, name=name, type=type)
+
         elif subcommand == "recipe":
             self.check_error(**options)
             project_dir = os.path.join(root_dir, pid)
@@ -478,10 +767,5 @@ class Command(BaseCommand):
             msg = f"{len(recipes)} recipes {'loaded' if load else 'dumped'} into project id:{pid}."
             self.stdout.write(self.style.SUCCESS(msg))
 
-        elif subcommand == "data":
-            if not (pid or uid):
-                logger.error("[error] --pid or --uid need to be set.")
-                self.run_from_argv(sys.argv + ["--help"])
-                sys.exit()
-
-            data_loader(pid=pid, path=path, uid=uid, update_toc=update_toc, name=name, type=type)
+        elif subcommand == "job":
+            manage_job(options=options)
