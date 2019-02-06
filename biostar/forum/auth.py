@@ -158,25 +158,26 @@ def create_sub(post,  user, sub_type=None):
     "Creates a subscription of a user to a post"
 
     root = post.root
-    sub = Subscription.objects.filter(post=root, user=user)
+    sub = Subscription.objects.filter(post=root, user=user).first()
     date = datetime.datetime.utcnow().replace(tzinfo=utc)
-    exists = sub.exists()
 
-    # Subscription already exists
-    if exists and sub_type is None:
+    # Subscription already exists with that type
+    if sub and (sub.type == sub_type):
         return sub
-    # Update an existing object
-    elif exists:
-        Subscription.objects.update(type=sub_type)
+    # Update an existing sub with new type.
+    elif sub:
+        #TODO: just delete the object
+        Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
         # The sub is being changed to "No message"
         if sub_type == Subscription.NO_MESSAGES:
             Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') - 1)
 
-    # Create a new object
+    # Create a new sub object
     else:
         sub = Subscription.objects.create(post=root, user=user, type=sub_type, date=date)
         # Increase the subscription count of the root.
-        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+        if sub_type != Subscription.NO_MESSAGES:
+            Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
 
     return sub
 
