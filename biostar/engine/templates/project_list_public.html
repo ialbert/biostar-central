@@ -17,6 +17,11 @@
 
     {% show_messages messages %}
     <div class="ui top attached tabular colored menu">
+
+        <a class="ui blue item"  href="{% url 'index' %}">
+            <i class="home icon"></i>Home Page
+        </a>
+
         <a class="ui active blue item" href="{% url 'project_list_public' %}">
             <i class="file powerpoint icon"></i>Public Projects
         </a>

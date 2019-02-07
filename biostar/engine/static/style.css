@@ -127,6 +127,9 @@ figure { display: block; margin: 0; }
     padding-right:10px !important;;
 }
 
+.padme > .subheader {
+    padding: 1ex 0ex 1ex 0ex !important;
+}
 .accept{
   background-color: #436c27 !important;
   color: #ffff00 !important;
