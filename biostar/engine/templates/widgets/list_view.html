@@ -15,6 +15,7 @@
                             <a class="subheader" href="{% url 'recipe_list' project.uid %}">
                                 <i class="database icon"></i>{{ project.name }}
                             </a>
+
                             <div class="meta">{{ project.summary|markdown|safe }}</div>
                             <div class="extra">
                                 {% privacy_label project %}

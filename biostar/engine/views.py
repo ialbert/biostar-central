@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.template import Template, Context
+from django.db.models import Count
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
@@ -191,6 +192,13 @@ def project_info(request, uid):
     return render(request, "project_info.html", context)
 
 
+def annotate_projects(projects):
+    projects = projects.annotate(num_data=Count('data'),
+                                 num_recipes=Count("recipe"),
+                                 num_jobs=Count("job"))
+    return
+
+
 def project_list_private(request):
     """Only list private projects belonging to a user."""
 
@@ -202,6 +210,7 @@ def project_list_private(request):
         empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
     else:
         projects = projects.order_by("-date", "-lastedit_date", "-id")
+        #projects = annotate_projects(projects=projects)
 
     context = dict(projects=projects, msg=empty_msg)
 

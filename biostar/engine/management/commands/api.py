@@ -693,6 +693,7 @@ class Command(BaseCommand):
 
         project_parser = subparsers.add_parser("project",
                                                help="Project manager.")
+        
         self.add_api_commands(parser=project_parser)
 
         job_parser = subparsers.add_parser("job", help="Job manager.")
