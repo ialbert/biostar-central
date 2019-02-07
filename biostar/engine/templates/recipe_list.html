@@ -22,12 +22,13 @@
 
                         <div class="description">
                             {{ recipe.summary }}
-                            <p>Recipe runs: <a
-                            href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">{{ recipe.job__count }}
-                                entr{{ recipe.job__count|pluralize:"y,ies" }}</a></p>
                         </div>
 
                         <div class="extra">
+                            <i class="bar chart icon"></i>Recipe results: <a
+                            href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                            {{ recipe.job__count }}
+                                run{{ recipe.job__count|pluralize }}</a>
 
                             {% created_by date=recipe.date user=recipe.owner obj=recipe %}
                         </div>
