@@ -123,6 +123,12 @@ figure { display: block; margin: 0; }
     background-color:#f7e4de !important;;
 }
 
+.ui.mytiny.image, .ui.mytiny.images .image, .ui.mytiny.images img, .ui.mytiny.images svg {
+    width: 80px;
+    height: 80px;
+    font-size: .85714286rem;
+}
+
 .count {
     padding-right:10px !important;;
 }

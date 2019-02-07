@@ -9,7 +9,7 @@
 {% block content %}
 
     {% if recipe_filter %}
-        <div class="ui center aligned vertical segment ">
+        <div class="ui center aligned large vertical segment ">
             <div class="ui success message">
 
 
@@ -24,17 +24,17 @@
     {% endif %}
 
 
-    <div class="ui vertical segment">
+    <div class="ui large vertical segment">
         <div class="ui divided link items">
 
             {% for job in job_list %}
 
                 <div class="item ">
-                    <div class="jobpad">
-                        <img class="ui tiny rounded fancy image" src="{% img job.analysis %}">
-                    </div>
 
-                    <div class="content imgpad">
+                        <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
+
+
+                    <div class="content">
 
                         <a class="subheader" href="{% url 'job_view' job.uid %}">
                             <i class="bar chart icon"></i>{{ job.name }}
