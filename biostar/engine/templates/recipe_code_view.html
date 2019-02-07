@@ -12,22 +12,15 @@
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'style.css' %}" rel="stylesheet">
-        <link rel="stylesheet" href="{% static 'lib/codemirror.css' %}">
+        <link href="{% static 'prism.css' %}" rel="stylesheet">
     {% endcompress %}
 
     {% compress js %}
         <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'engine.js' %}"></script>
-        <script src="{% static 'lib/codemirror.js' %}"></script>
-        <script src="{% static 'lib/mode/simple.js' %}"></script>
-        <script src="{% static 'lib/mode/engine.js' %}"></script>
+        <script src="{% static 'prism.js' %}"></script>
     {% endcompress %}
 
-    <style>
-        .CodeMirror {
-            height: auto !important;
-        }
-    </style>
 
 {% endblock %}
 
@@ -104,14 +97,17 @@
 
     <div class="ui segment inputcolor">
 
-        <div class="ui subheader">Recipe Code
-            <a href="{% url 'recipe_download' recipe.uid %}" class="ui label">
-                <i class="download icon"></i>Download script
+        <div class="ui center aligned header">
+            <p>Recipe Code</p>
+            <p>
+            <a href="{% url 'recipe_download' recipe.uid %}" class="ui large green label">
+                <i class="download icon"></i>Download Recipe
             </a>
+            </p>
         </div>
 
         <div class="ui basic segment">
-            <textarea class="code" name="template" id="template">{{ script }}</textarea>
+            <pre><code class="language-bash line-numbers">{{ script }}</code></pre>
         </div>
     </div>
 
@@ -120,13 +116,6 @@
 
 {% block script %}
     <script type="text/javascript">
-        $(document).ready(function () {
-            var json_edit = CodeMirror.fromTextArea(
-                document.getElementById("template"), {
-                    lineNumbers: true,
-                    mode: "engine"
-                }
-            );
-        });
+
     </script>
 {% endblock %}

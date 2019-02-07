@@ -14,6 +14,7 @@ from ratelimit.decorators import ratelimit
 from sendfile import sendfile
 from django.http import HttpResponse
 from django.conf import settings
+from django.db.models import Count
 
 from biostar.accounts.models import User
 from biostar.forum import views as forum_views
@@ -338,6 +339,10 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     # Select all the data in the project.
     data_list = project.data_set.order_by("-sticky", "-date").all()
     recipe_list = project.analysis_set.order_by("-sticky", "-date").all()
+
+    # Annotate each recipe with the number of jobs it has.
+    recipe_list = recipe_list.annotate(Count("job"))
+
     job_list = project.job_set.order_by("-sticky", "-date").all()
 
     # Filter job results by analysis
@@ -618,7 +623,7 @@ def data_upload(request, uid):
 @read_access(type=Analysis)
 def recipe_view(request, uid):
     """
-    Returns an analysis view based on its id.
+    Returns a recipe view based on its id.
     """
     recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
@@ -627,7 +632,18 @@ def recipe_view(request, uid):
     # How many results for this recipe
     rcount = Job.objects.filter(analysis=recipe).count()
     counts = get_counts(project)
-    context.update(counts, rcount=rcount)
+
+    try:
+        # Fill in the script with json data.
+        json_data = auth.fill_data_by_name(project=project, json_data=recipe.json_data)
+        ctx = Context(json_data)
+        script_template = Template(recipe.template)
+        script = script_template.render(ctx)
+    except Exception as exc:
+        messages.error(request, f"Error rendering code: {exc}")
+        script = recipe.template
+
+    context.update(counts, rcount=rcount, script=script)
 
     return render(request, "recipe_view.html", context)
 

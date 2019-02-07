@@ -22,9 +22,13 @@
                             <i class="setting icon"></i> {{ recipe.name }}
                         </a>
 
-                        <div class="description">{{ recipe.summary }}</div>
+                        <div class="description">
+                            {{ recipe.summary }}
+                            <p>Results: <a href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">{{ recipe.job__count }} run{{ recipe.job__count|pluralize }}</a></p>
+                        </div>
 
                         <div class="extra">
+
                             {%  created_by date=recipe.date user=recipe.owner obj=recipe %}
                         </div>
 
