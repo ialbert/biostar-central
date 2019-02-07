@@ -24,7 +24,7 @@
 
                         <div class="description">
                             {{ recipe.summary }}
-                            <p>Results: <a href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">{{ recipe.job__count }} run{{ recipe.job__count|pluralize }}</a></p>
+                            <p>Recipe runs: <a href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">{{ recipe.job__count }} entr{{ recipe.job__count|pluralize:"y,ies" }}</a></p>
                         </div>
 
                         <div class="extra">
