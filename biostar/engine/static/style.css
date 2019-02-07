@@ -9,6 +9,10 @@ body {
 
 }
 
+.ui.menu {
+    font-size: 1.1rem;
+}
+
 .ui.attached.colored.segment {
     border-bottom: 1px solid #2185d0!important;
     border-left: 1px solid #2185d0!important;

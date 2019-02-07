@@ -20,112 +20,30 @@
         <div class="ui grid">
             <div class="ten wide column">
                 <div class="ui relaxed divided list questions">
+
                     <div class="item">
                         <div class="header">What is a recipe?</div>
                         <div class="description">
-                            A <i>bioinformatics recipe</i> is a collection of commands used to perform a bioinformatics
-                            data analysis task.
+                            A <i>bioinformatics recipe</i> is a collection of commands used to perform a
+                                bioinformatics
+                                data analysis task.
                         </div>
                     </div>
 
                     <div class="item">
-                        <div class="header">What types of recipes are distributed here?</div>
+                        <div class="header">How are recipes used?</div>
                         <div class="description">
-                            We cover a wide variety of subjects, from RNA-Seq analysis,
-                            variant calling, classifications and many others. For example:
-                            <div class="ui list">
-
-                                    <a class="item" href="https://www.bioinformatics.recipes/recipe/view/bacterialsnp/"><i
-                                    class="setting icon"></i>Bacterial Variant Calling pipeline</a>
-
-                                    <a class="item" href="https://www.bioinformatics.recipes/recipe/view/alignrnaseq/"><i
-                                    class="setting icon"></i>Alignment based RNA-Seq analysis</a>
-
-
-                                    <a class="item" href="https://www.bioinformatics.recipes/recipe/view/antisense/"><i
-                                    class="setting icon"></i>Antisense transcript detection</a>
-
-                            </div>
                             Some recipes reproduce published results, others demonstrate typical use cases.
-                            A large number of recipes have been developed
-                            to support bioinformatics education.
+                            Several recipes have been developed to support bioinformatics education.
                         </div>
                     </div>
 
                     <div class="item">
-                        <div class="header">Where are the recipes?</div>
+                        <div class="header">How are recipes organized?</div>
                         <div class="description">
                             Visit the <a href="{% url 'project_list' %}">
-                            <i class="database icon"></i>Project List</a> page. Each project is a collection of recipes
+                            <i class="database icon"></i>Projects</a> page. Each project is a collection of recipes
                             and results. You may also use the search box on top.
-                        </div>
-                    </div>
-
-                    <div class="item">
-                        <div class="header">Where can I see the results of a recipe?</div>
-                        <div class="description">
-                            Go the the "Recipe Results" tab to see an example run for the recipe.
-                            All the outputs and results that a recipe creates will be visible there.
-                        </div>
-                    </div>
-
-                    <div class="item">
-                        <div class="header">Can I run a recipe on my own computer?</div>
-                        <div class="description">
-                            Yes! Recipes are <b>generic</b> and <b>universal</b>.
-                            The use of recipes is not restricted to this site.
-                            In the "Code View" select download
-                            script.
-                        </div>
-                    </div>
-
-                    <div class="item">
-                        <div class="header">Is there a beginner friendly guide to recipes?</div>
-                        <div class="description">
-                            The <a href="https://www.biostarhandbook.com"><i class="book icon"></i>Biostar Handbook</a>
-                            has detailed explanation for many recipes.
-                            The book is also the a resource that can train you
-                            in the use of bioinformatics tools.
-                        </div>
-                    </div>
-
-                    <div class="item">
-                        <div class="header">What is the main purpose for recipes?</div>
-                        <div class="description">
-                            Recipes were designed address the <em>challenges of reproducibility</em>.
-                            Receipes allow scientists to document, execute
-                            and share data analysis scripts and the results of running these scripts.
-                        </div>
-                    </div>
-
-
-                    <div class="item">
-                        <div class="header">Can I make my own recipe?</div>
-                        <div class="description">
-                            You may adapt, modify and remix recipes to match
-                            your needs. Then, if want to, you may share your approach
-                            on this same site and show others how you
-                            solved a problem.
-                        </div>
-                    </div>
-
-                    <div class="item">
-                        <div class="header">What kind of code may a recipe contain?</div>
-                        <div class="description">
-                            A recipe may use <b>any type of code</b> that can be executed at command line. For example
-                            <code>bash</code>, <code>python</code>, <code>R</code>, <code>Makefile</code> and many
-                            others are all supported.
-
-                        </div>
-                    </div>
-
-                    <div class="item">
-                        <div class="header">What software runs this site?</div>
-                        <div class="description">
-                            The software that runs this site is called the<a
-                        href="https://github.com/biostars/biostar-engine">Biostar
-                            Engine</a> and it was designed
-                            to generate <em>an easy-to-use interface</em> to command line scripts.
                         </div>
                     </div>
 
@@ -133,22 +51,11 @@
             </div>
             <div class="six wide column">
 
-                <h4 class="header">Recipe View</h4>
-                <a href="https://www.bioinformatics.recipes/recipe/view/bacterialsnp/" class="ui medium image">
-                    <img src="{% static 'images/recipe-view1.png' %}">
-
+                <h4 class="header">Bioinformatics CookBook</h4>
+                <a href="https://www.bioinformatics.recipes/recipe/list/cookbook/" class="ui medium image">
+                    <img src="{% static 'images/recipe-screenshot.png' %}">
                 </a>
 
-                <h4 class="header">Recipe Code</h4>
-                <a href="https://www.bioinformatics.recipes/recipe/code/view/bacterialsnp/" class="ui medium image">
-                    <img src="{% static 'images/recipe-code1.png' %}">
-
-                </a>
-
-                <h4 class="header">Recipe Results</h4>
-                <a href="https://www.bioinformatics.recipes/job/view/403186ff/" class="ui medium image">
-                    <img src="{% static 'images/recipe-results1.png' %}">
-                </a>
 
 
             </div>
