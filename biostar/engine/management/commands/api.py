@@ -691,8 +691,8 @@ class Command(BaseCommand):
         recipe_parser.add_argument('--uid', type=str, default="", help="Recipe uid to load or dump.")
         self.add_api_commands(parser=recipe_parser)
 
-        project_parser = subparsers.add_parser("project",
-                                               help="Project manager.")
+        project_parser = subparsers.add_parser("project", help="Project manager.")
+        parser.add_argument('--privacy', default="private", help="""Privacy of project, used when creating.""")
         self.add_api_commands(parser=project_parser)
 
         job_parser = subparsers.add_parser("job", help="Job manager.")
