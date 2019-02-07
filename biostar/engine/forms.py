@@ -141,7 +141,7 @@ class ProjectForm(forms.ModelForm):
         if user.is_authenticated and (user.is_staff or user.profile.trusted):
             return
         if self.create and projects.count() > settings.MAX_PROJECTS:
-            raise forms.ValidationError(f"You have exceeded the maximum of project allowed:{settings.MAX_PROJECTS}.")
+            raise forms.ValidationError(f"You have exceeded the maximum number of projects allowed:{settings.MAX_PROJECTS}.")
 
         return cleaned_data
 

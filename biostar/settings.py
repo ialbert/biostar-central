@@ -91,7 +91,7 @@ FTP_HOST = "localhost"
 FTP_PORT = 8021
 
 # Should the site allow signup.
-ALLOW_SIGNUP = True
+ALLOW_SIGNUP = False
 
 # Allow users to toggle their status moderator
 ALLOW_SELF_MODERATE = False

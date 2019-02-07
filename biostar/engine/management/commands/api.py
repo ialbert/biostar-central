@@ -623,10 +623,10 @@ class Command(BaseCommand):
         parser.add_argument('-d', "--dump", action="store_true",
                                             help="""Dump from a url to directory. 
                                                     Dump from database if --url is not set.""")
-        parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")
         parser.add_argument('--dir', default='', help="Directory to store/load data from.")
+        parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
 
         return
 
@@ -688,13 +688,14 @@ class Command(BaseCommand):
         data_parser.add_argument("--update_toc", action="store_true", help="Update table of contents for data --uid.")
 
         recipe_parser = subparsers.add_parser("recipe", help="Recipe manager")
-        recipe_parser.add_argument('--uid', type=str, default="", help="Recipe uid to load or dump.")
         self.add_api_commands(parser=recipe_parser)
+        recipe_parser.add_argument('--uid', type=str, default="", help="Recipe uid to load or dump.")
+        recipe_parser.add_argument("--list", action='store_true', help="Show a recipe list.")
 
-        project_parser = subparsers.add_parser("project",
-                                               help="Project manager.")
-        
+        project_parser = subparsers.add_parser("project", help="Project manager.")
         self.add_api_commands(parser=project_parser)
+        project_parser.add_argument('--privacy', default="private", help="""Privacy of project, used when creating.""")
+        project_parser.add_argument("--list", action='store_true', help="Show a project list.")
 
         job_parser = subparsers.add_parser("job", help="Job manager.")
         self.add_job_commands(parser=job_parser)
