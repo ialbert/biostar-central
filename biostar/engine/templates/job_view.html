@@ -7,7 +7,7 @@
 
 {% block content %}
 
-    <div class="ui vertical segment">
+    <div class="ui large vertical segment">
 
         <div class="ui divided link items">
 
@@ -33,9 +33,9 @@
         </div>
     </div>
 
-    <div class="ui vertical segment">
+    <div class="ui large vertical segment">
 
-        <div class="ui five small buttons">
+        <div class="ui five buttons">
 
             <a class="ui button" onclick="window.history.back()">
                 <i class="angle double left icon"></i> <span class="fitme">Back</span>
@@ -45,7 +45,7 @@
                 <i class="setting icon"></i> <span class="fitme">Recipe View</span>
             </a>
 
-            <a class="ui button" href="{% url 'recipe_code_view' job.analysis.uid %}">
+            <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}#code">
                 <i class="keyboard icon"></i> <span class="fitme">Recipe Code</span>
             </a>
 

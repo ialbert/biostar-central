@@ -1,20 +1,31 @@
 {% extends "base_content.html" %}
 {% load engine_tags %}
 {% load staticfiles %}
+{% load compress %}
 
 {% block headtitle %}
     {{ recipe.name }}
 {% endblock %}
 
 {% block js %}
-    <script src="{% static 'lib/codemirror.js' %}"></script>
-    <script src="{% static 'lib/mode/simple.js' %}"></script>
-    <script src="{% static 'lib/mode/engine.js' %}"></script>
+
+    {% compress css %}
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'style.css' %}" rel="stylesheet">
+        <link href="{% static 'prism.css' %}" rel="stylesheet">
+    {% endcompress %}
+
+    {% compress js %}
+        <script src="{% static 'semantic.min.js' %}"></script>
+        <script src="{% static 'engine.js' %}"></script>
+        <script src="{% static 'prism.js' %}"></script>
+    {% endcompress %}
+
 {% endblock %}
 
 {% block content %}
 
-    <div class="ui vertical segment">
+    <div class="ui large vertical segment" id="view">
 
         <div class="ui divided link items">
             <div class="item">
@@ -40,20 +51,20 @@
 
     </div>
 
-    <div class="ui vertical segment">
+    <div class="ui laege vertical segment">
 
         {% form_errors form %}
 
         {% csrf_token %}
 
 
-        <div class="ui five small buttons">
+        <div class="ui five buttons">
 
             <a class="ui button" onclick="window.history.back()">
                 <i class="angle double left icon icon"></i> <span class="fitme">Back</span>
             </a>
 
-             <a class="ui button" href="{% url 'recipe_code_view' recipe.uid %}">
+             <a class="ui button" href="#code">
                 <i class="keyboard icon"></i> <span class="fitme">Recipe Code</span>
             </a>
 
@@ -100,8 +111,25 @@
         <p> {{ recipe.html |safe }} </p>
     </div>
 
-    <div id="copy-message-{{ recipe.uid }}"></div>
+    <div class="ui segment inputcolor" id="code">
 
+        <h4 class="ui center aligned header">
+            <p>
+                <i class="keyboard icon"></i>Recipe Code |
+                <a href="#view"><i class="setting icon"></i>Recipe View</a></p>
+            <p>
+            <a href="{% url 'recipe_download' recipe.uid %}" class="ui large green label">
+                <i class="download icon"></i>Download Recipe
+            </a>
+            </p>
+        </h4>
+
+        <div class="ui basic segment">
+            <pre><code class="language-bash line-numbers">{{ script }}</code></pre>
+        </div>
+    </div>
+
+    <div id="copy-message-{{ recipe.uid }}"></div>
 
 
 {% endblock %}

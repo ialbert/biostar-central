@@ -24,6 +24,15 @@ class Manager(models.Manager):
         return super().get_queryset().filter(**kwargs)
 
 
+class WhiteList(models.Model):
+    """Whitelist of users allowed to signup."""
+    email = models.EmailField(unique=True)
+    uid = models.CharField(unique=True, max_length=32)
+
+    def save(self,  *args, **kwargs):
+        self.uid = self.uid or generate_uuid(8)
+
+
 class Profile(models.Model):
 
     NEW, TRUSTED, SUSPENDED, BANNED = range(4)

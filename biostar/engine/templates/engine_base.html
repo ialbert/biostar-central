@@ -23,8 +23,10 @@
     {% recaptcha_init %}
 
     {% compress css %}
+
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'style.css' %}" rel="stylesheet">
+
     {% endcompress %}
 
     {% compress js %}
@@ -40,7 +42,7 @@
 </head>
 <body>
 
-<div class="ui container">
+<div class="ui container" id="top">
 
     <div class="ui center aligned header">
         {% block title %}
@@ -68,24 +70,20 @@
 
     {% block footer %}
         <div class="ui vertical center aligned segment">
-                <p class="muted smaller">
-                    Powered by the <a href="https://github.com/biostars/biostar-engine" class="ui image">
-                    <img src="{% static 'images/badge-engine.svg' %}"> </a> version {{ VERSION }}
-                </p>
+            <p class="muted smaller">
+                Powered by the <a href="https://github.com/biostars/biostar-engine" class="ui image">
+                <img src="{% static 'images/badge-engine.svg' %}"> </a> version {{ VERSION }}
+            </p>
 
         </div>
-
-    
     {% endblock %}
 
 </div>
 
 
-
-
 </body>
 
 {% block script %}
-{%  endblock %}
+{% endblock %}
 
 </html>

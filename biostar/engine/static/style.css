@@ -1,7 +1,6 @@
 body {
     background-color: #f8f8f9 !important;
     padding-top: 1rem;
-    font-size: large;
 }
 
 .ui.tabular.colored.menu {
@@ -32,8 +31,8 @@ body {
 }
 
 .ui.list.questions > .item > .header {
-    font-size: 1.2em;
-    margin: 1ex 0em 1ex 0em;
+    #font-size: 1.2em;
+    #margin: 1ex 0em 1ex 0em;
 }
 
 .ui.list.questions > .item > .description {
@@ -124,10 +123,19 @@ figure { display: block; margin: 0; }
     background-color:#f7e4de !important;;
 }
 
+.ui.mytiny.image, .ui.mytiny.images .image, .ui.mytiny.images img, .ui.mytiny.images svg {
+    width: 80px;
+    height: 80px;
+    font-size: .85714286rem;
+}
+
 .count {
     padding-right:10px !important;;
 }
 
+.padme > .subheader {
+    padding: 1ex 0ex 1ex 0ex !important;
+}
 .accept{
   background-color: #436c27 !important;
   color: #ffff00 !important;

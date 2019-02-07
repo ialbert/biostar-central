@@ -9,27 +9,32 @@
 {% block content %}
 
     {% if recipe_filter %}
-        <div class="ui center aligned vertical segment ">
+        <div class="ui center aligned large vertical segment ">
             <div class="ui success message">
+
+
                 Showing results from recipe: <a href="{% url 'recipe_view' recipe_filter.uid %}"><i
-            class="settings icon"></i> {{ recipe_filter.name }}</a>
+            class="settings icon"></i> {{ recipe_filter.name }}</a> &bull;
+                <a href="#" onclick="window.history.back()">
+                    <i class="angle double left icon icon"></i> <span class="fitme">Go Back</span>
+                </a>
                 &bull; <a href="{% url 'job_list' project.uid %}"><i class="undo icon"></i>Show all results</a>
             </div>
         </div>
     {% endif %}
 
 
-    <div class="ui vertical segment">
+    <div class="ui large vertical segment">
         <div class="ui divided link items">
 
             {% for job in job_list %}
 
                 <div class="item ">
-                    <div class="jobpad">
-                        <img class="ui tiny rounded fancy image" src="{% img job.analysis %}">
-                    </div>
 
-                    <div class="content imgpad">
+                        <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
+
+
+                    <div class="content">
 
                         <a class="subheader" href="{% url 'job_view' job.uid %}">
                             <i class="bar chart icon"></i>{{ job.name }}
@@ -38,7 +43,7 @@
                         <div class="description">{{ job.analysis.summary }}</div>
 
                         <div class="extra">{% job_minutes job %}
-                            &bull; {%  created_by date=job.date user=job.owner obj=job %}
+                            &bull; {% created_by date=job.date user=job.owner obj=job %}
                         </div>
 
 

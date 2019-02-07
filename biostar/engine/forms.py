@@ -136,12 +136,16 @@ class ProjectForm(forms.ModelForm):
 
         user = self.request.user
         projects = Project.objects.get_all(owner=user)
+        privacy = cleaned_data.get("privacy") or 0
 
         # Trusted users can create as many projects
         if user.is_authenticated and (user.is_staff or user.profile.trusted):
-            return
-        if self.create and projects.count() > settings.MAX_PROJECTS:
+            return cleaned_data
+        elif self.create and projects.count() > settings.MAX_PROJECTS:
             raise forms.ValidationError(f"You have exceeded the maximum number of projects allowed:{settings.MAX_PROJECTS}.")
+
+        if user.is_authenticated and not user.is_staff and int(privacy) == Project.PUBLIC:
+            raise forms.ValidationError(f"Only staff members can make public projects for now.")
 
         return cleaned_data
 
