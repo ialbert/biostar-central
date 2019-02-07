@@ -25,10 +25,11 @@
                         </div>
 
                         <div class="extra">
-                            <i class="bar chart icon"></i>Recipe results: <a
+                            <i class="bar chart icon"></i>Runs:<a
                             href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                            {{ recipe.job__count }}
-                                run{{ recipe.job__count|pluralize }}</a>
+
+                                {{ recipe.job__count }}
+                                result{{ recipe.job__count|pluralize }}</a>
 
                             {% created_by date=recipe.date user=recipe.owner obj=recipe %}
                         </div>
@@ -38,7 +39,9 @@
                 </div>
             {% empty %}
                 <div class="item">
-                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet contain recipes.</div>
+                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet contain
+                        recipes.
+                    </div>
                 </div>
             {% endfor %}
         </div>
