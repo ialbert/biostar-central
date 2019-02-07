@@ -8,12 +8,12 @@
 
 {% block content %}
 
-    <div class="ui vertical segment">
+    <div class="ui large vertical segment">
         <div class="ui header">Project Information</div>
         {{ project.html|safe }}
     </div>
 
-    <div class="ui vertical segment">
+    <div class="ui large vertical segment">
 
         <div class="item">
 
@@ -26,7 +26,7 @@
     </div>
 
     {% if write_access %}
-        <div class="ui vertical segment">
+        <div class="ui large vertical segment">
 
             <div class="ui four small buttons">
                 <a class="ui button" href="{% url 'data_upload' project.uid %}">
