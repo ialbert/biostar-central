@@ -605,10 +605,21 @@ def manage_job(options):
         return
 
     if queued:
-        jobs = Job.objects.all().order_by('id')[:100]
+        jobs = Job.objects.get_all().order_by('id')[:100]
         for job in jobs:
             print(f'{job.id}\t{job.get_state_display()}\t{job.name}')
         return
+    return
+
+
+def list_obj(mtype="project"):
+
+    mtype_map = dict(project=Project, recipe=Analysis, data=Data, job=Job)
+
+    objs = mtype_map.get(mtype).objects.get_all().order_by("id")[:100]
+    for instance in objs:
+        print(f'{instance.id}\t{instance.uid}\t{instance.project.uid}\t{instance.name}')
+
     return
 
 
@@ -679,16 +690,17 @@ class Command(BaseCommand):
 
         data_parser = subparsers.add_parser("data", help="Data manager.")
         data_parser.add_argument("--path", type=str, help="Path to data.")
-        data_parser.add_argument("--name", type=str, help="Name of data.")
         data_parser.add_argument("--pid", type=str, default="", help="Project uid to create data in.")
         data_parser.add_argument("--uid", type=str, help="Data uid to load or update.")
-        parser.add_argument('--text', default='', help="A file containing the description of the data")
-        parser.add_argument('--name', default='', help="Sets the name of the data")
-        parser.add_argument('--type', default='data', help="Sets the type of the data")
+        data_parser.add_argument('--text', default='', help="A file containing the description of the data")
+        data_parser.add_argument('--name', default='', help="Sets the name of the data")
+        data_parser.add_argument('--type', default='data', help="Sets the type of the data")
+        data_parser.add_argument("--list", action='store_true', help="Show a data list.")
         data_parser.add_argument("--update_toc", action="store_true", help="Update table of contents for data --uid.")
 
         recipe_parser = subparsers.add_parser("recipe", help="Recipe manager")
         self.add_api_commands(parser=recipe_parser)
+        recipe_parser.add_argument("--jobs", action='store_true', help="Also creates a queued job for the recipe")
         recipe_parser.add_argument('--uid', type=str, default="", help="Recipe uid to load or dump.")
         recipe_parser.add_argument("--list", action='store_true', help="Show a recipe list.")
 
@@ -696,6 +708,7 @@ class Command(BaseCommand):
         self.add_api_commands(parser=project_parser)
         project_parser.add_argument('--privacy', default="private", help="""Privacy of project, used when creating.""")
         project_parser.add_argument("--list", action='store_true', help="Show a project list.")
+        project_parser.add_argument("--data", action='store_true', help="Load data found in conf file.")
 
         job_parser = subparsers.add_parser("job", help="Job manager.")
         self.add_job_commands(parser=job_parser)
@@ -740,12 +753,17 @@ class Command(BaseCommand):
         path = options.get("path")
         name = options.get("name")
         type = options.get("type")
+        listing = options.get("list")
         update_toc = options.get("update_toc")
 
         if len(sys.argv) == 2:
             self.stdout.write(self.style.NOTICE("Pick a sub-command"))
             self.run_from_argv(sys.argv + ["--help"])
             sys.exit()
+
+        if listing:
+            list_obj(mtype=subcommand)
+            return
 
         if subcommand == "project":
             self.check_error(**options)
