@@ -4,7 +4,6 @@ import os
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
-from django.db.models import Q
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.template import Template, Context
@@ -14,7 +13,7 @@ from ratelimit.decorators import ratelimit
 from sendfile import sendfile
 from django.http import HttpResponse
 from django.conf import settings
-from django.db.models import Count
+from django.db.models import Q, Count
 
 from biostar.accounts.models import User
 from biostar.forum import views as forum_views
@@ -341,7 +340,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     recipe_list = project.analysis_set.order_by("-sticky", "-date").all()
 
     # Annotate each recipe with the number of jobs it has.
-    recipe_list = recipe_list.annotate(Count("job"))
+    recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 
     job_list = project.job_set.order_by("-sticky", "-date").all()
 

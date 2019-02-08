@@ -28,8 +28,8 @@
                             <i class="bar chart icon"></i>Runs:<a
                             href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
 
-                                {{ recipe.job__count }}
-                                result{{ recipe.job__count|pluralize }}</a>
+                                {{ recipe.job_count }}
+                                result{{ recipe.job_count|pluralize }}</a>
 
                             {% created_by date=recipe.date user=recipe.owner obj=recipe %}
                         </div>
