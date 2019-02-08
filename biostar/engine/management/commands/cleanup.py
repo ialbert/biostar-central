@@ -1,6 +1,7 @@
 import logging, os, csv
 import shutil
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from biostar.engine.models import Data, Job
 
@@ -41,6 +42,7 @@ class Command(BaseCommand):
 
         data = Data.objects.get_deleted()
         jobs = Job.objects.get_deleted()
+        #TODO: clean recipes, projects
 
         job_paths = list(jobs.values_list('path', flat=True))
 
@@ -48,7 +50,9 @@ class Command(BaseCommand):
         jobs.delete()
 
         # Delete files associated with jobs
-        for job_path in job_paths:
+        for job in jobs:
+            # TODO:make absoulute, iterate over jobs directly
+            #if settings.job.path
             shutil.rmtree(job_path)
 
         # Delete the data next

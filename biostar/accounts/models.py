@@ -25,7 +25,7 @@ class Manager(models.Manager):
 
 
 class WhiteList(models.Model):
-    """Whitelist of users allowed to signup."""
+    """Whitelisted users allowed to signup."""
     email = models.EmailField(unique=True)
     uid = models.CharField(unique=True, max_length=32)
 

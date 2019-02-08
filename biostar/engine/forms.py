@@ -138,13 +138,16 @@ class ProjectForm(forms.ModelForm):
         projects = Project.objects.get_all(owner=user)
         privacy = cleaned_data.get("privacy") or 0
 
-        # Trusted users can create as many projects
+        # Trusted users are allowed everything.
         if user.is_authenticated and (user.is_staff or user.profile.trusted):
             return cleaned_data
-        elif self.create and projects.count() > settings.MAX_PROJECTS:
+
+        # Check project limit.
+        if self.create and projects.count() > settings.MAX_PROJECTS:
             raise forms.ValidationError(f"You have exceeded the maximum number of projects allowed:{settings.MAX_PROJECTS}.")
 
-        if user.is_authenticated and not user.is_staff and int(privacy) == Project.PUBLIC:
+        # Check privacy.
+        if int(privacy) == Project.PUBLIC:
             raise forms.ValidationError(f"Only staff members can make public projects for now.")
 
         return cleaned_data
@@ -296,35 +299,6 @@ class DataEditForm(forms.ModelForm):
         datatype = datatype.upper()
 
         return datatype
-
-
-class RecipeCodeEdit(forms.ModelForm):
-
-    uid = forms.CharField(max_length=32, required=False)
-
-    def __init__(self, user, recipe, *args, **kwargs):
-        self.user = user
-        self.recipe = recipe
-        super().__init__(*args, **kwargs)
-
-    class Meta:
-        model = Analysis
-        fields = ["template"]
-
-    def clean(self):
-
-        # Check if the user has write access before making changes.
-        entry = Access.objects.filter(user=self.user, project=self.recipe.project, access=Access.WRITE_ACCESS).first()
-        if entry is None or entry.access != Access.WRITE_ACCESS:
-            raise forms.ValidationError("You need write access to change the code.")
-
-    # Turn all input into Unix line ending.
-    def clean_template(self):
-        cleaned_data = super(RecipeCodeEdit, self).clean()
-        template = cleaned_data.get('template')
-
-        template = "\n".join(template.splitlines())
-        return template
 
 
 class RecipeForm(forms.ModelForm):
