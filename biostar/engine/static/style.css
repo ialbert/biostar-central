@@ -79,6 +79,11 @@ figure { display: block; margin: 0; }
     box-shadow: rgba(0, 0, 0, .2) 2px 3px 3px;
 }
 
+.ui.large.header {
+    color:#333333;
+    //text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+}
+
 .fancy {
   position: relative;
   float: left;
