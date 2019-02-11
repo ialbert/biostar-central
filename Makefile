@@ -58,8 +58,33 @@ install:
 	conda config --add channels bioconda
 	conda install --file conf/conda_requirements.txt -y
 
+
 tutorial:
-	python manage.py project --root ../biostar-recipes --json projects/tutorial-project.hjson --privacy public --jobs
+	# Load tutorial project and recipes.
+	python manage.py api project -l --data --pid tutorial --dir ../biostar-recipes/api --data_root ../biostar-recipes
+	python manage.py api recipe -l --pid tutorial --dir ../biostar-recipes/api --jobs
+
+projects:
+	# Load projects and associated data
+	python manage.py api project -l --data --dir ../biostar-recipes/api --pid cookbook --data_root ../biostar-recipes --privacy public
+	python manage.py api project -l --data --dir ../biostar-recipes/api --pid fish --data_root ../biostar-recipes --privacy public
+	python manage.py api project -l --data --dir ../biostar-recipes/api --pid giraffe --data_root ../biostar-recipes --privacy public
+	python manage.py api project -l --data --dir ../biostar-recipes/api --pid handbook --data_root ../biostar-recipes --privacy public
+	python manage.py api project -l --data --dir ../biostar-recipes/api --pid mothur --data_root ../biostar-recipes --privacy public
+	python manage.py api project -l --data --dir ../biostar-recipes/api --pid trout --data_root ../biostar-recipes
+
+# Load all recipes
+recipes2: projects tutorial
+	python manage.py api recipe -l --pid cookbook  --dir ../biostar-recipes/api --jobs
+	python manage.py api recipe -l --pid fish  --dir ../biostar-recipes/api
+	python manage.py api recipe -l --pid giraffe  --dir ../biostar-recipes/api
+	python manage.py api recipe -l --pid handbook  --dir ../biostar-recipes/api
+	python manage.py api recipe -l --pid mothur  --dir ../biostar-recipes/api
+	python manage.py api recipe -l --pid trout  --dir ../biostar-recipes/api
+
+    # Create initial users
+	python manage.py add_user initial/initial-users.csv
+	python manage.py add_access initial/initial-access.csv
 
 # Load all recipes
 recipes: tutorial
