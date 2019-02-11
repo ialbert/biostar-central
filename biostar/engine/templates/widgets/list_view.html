@@ -10,7 +10,7 @@
                 {% for project in projects %}
 
                     <div class="item">
-                        <img class="ui avatar image" src="{% img project %}"/>
+                        <img class="ui mytiny circular fancy image" src="{% img project %}"/>
                         <div class="content">
                             <a class="subheader" href="{% url 'recipe_list' project.uid %}">
                                 <i class="database icon"></i>{{ project.name }}
@@ -20,23 +20,22 @@
                             <div class="extra">
                             {% privacy_label project %}
 
-                            <i class="file text icon"></i>Data:<a
+                            <a
                             href="{% url 'data_list' project.uid %}">
-                            {{project.data__count}}
-                            data</a>
+                                <i class="file text icon"></i>{{project.data__count}} data</a>&bull;
 
-                            <i class="setting icon"></i>Recipes:<a
+                            <a
                             href="{% url 'recipe_list' project.uid %}">
-                            {{project.analysis__count}}
-                            recipe{{ project.analysis__count|pluralize }}</a>
+                            <i class="setting icon"></i>{{project.analysis__count}} recipe{{ project.analysis__count|pluralize }}</a>&bull;
 
-                            <i class="bar chart icon"></i>Runs:<a
+                            <a
                             href="{% url 'job_list' project.uid %}">
-                            {{project.job__count}}
-                            result{{ project.job__count|pluralize }}</a>
+                            <i class="bar chart icon"></i>{{project.job__count}} result{{ project.job__count|pluralize }}</a>
+
+                            <i class="clock outline icon"></i>updated {{ project.lastedit_date|time_ago  }} ago
 
 
-                            {% created_by date=project.date.date user=project.owner obj=project %}
+
                             </div>
 
                         </div>

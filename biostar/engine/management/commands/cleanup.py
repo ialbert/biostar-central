@@ -19,27 +19,25 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         data = Data.objects.get_deleted()
-        abspath = lambda p: os.path.abspath(p)
         jobs = Job.objects.get_deleted()
         recipes = Analysis.objects.get_deleted()
         projects = Project.objects.get_deleted()
 
-        root_dir = abspath(settings.MEDIA_ROOT)
+        root_dir = os.path.abspath(settings.MEDIA_ROOT)
 
         def rmdirs(objs):
             for obj in objs:
-                obj_path = abspath(obj.get_data_dir())
+                obj_path = os.path.abspath(obj.get_data_dir())
                 # Only delete job files in the media root
                 if obj_path.startswith(root_dir):
                     shutil.rmtree(obj_path)
-                    print(obj_path, "deleted")
+                    logger.info(obj_path, "deleted")
             objs.delete()
 
         # Delete files associated with objects
         rmdirs(objs=jobs)
         rmdirs(objs=data)
 
-        # Delete files associated with jobs
         recipes.delete()
         projects.delete()
 

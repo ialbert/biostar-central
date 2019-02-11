@@ -71,6 +71,7 @@ def recycle_bin(request):
         query_dict = dict(project__in=projects, owner=user)
 
     projects = projects.filter(deleted=True).order_by("date")
+    projects = annotate_projects(projects)
     data = Data.objects.get_deleted(**query_dict).order_by("date")
     recipes = Analysis.objects.get_deleted(**query_dict).order_by("date")
     jobs = Job.objects.get_deleted(**query_dict).order_by("date")
