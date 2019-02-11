@@ -44,6 +44,31 @@ def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
     return full_url
 
 
+def get_json_data(json_text, override_json=False, outfile=""):
+
+    # Completely override json in outfile with json_text
+    if override_json:
+        data = hjson.dumps(hjson.loads(json_text))
+        return data
+
+    # Only replace name and help in outfile with items in json_text
+    if os.path.exists(outfile):
+        current_json = hjson.loads(open(outfile, "r").read())
+    else:
+        current_json = {}
+
+    name = hjson.loads(json_text).get("settings", {}).get("name", "Name")
+    text = hjson.loads(json_text).get("settings", {}).get("help", "Text")
+
+    if current_json.get("settings"):
+        current_json["settings"]["name"] = name
+        current_json["settings"]["help"] = text
+    else:
+        current_json["settings"] = {'name': name, 'help': text}
+
+    return hjson.dumps(current_json)
+
+
 def remote_upload(stream, root_url, uid, api_key, view):
     """
     Upload data found in stream to root_url.
@@ -61,7 +86,7 @@ def remote_upload(stream, root_url, uid, api_key, view):
     return response
 
 
-def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json):
+def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json, override_json=False):
     """
     Download data found in root_url using GET request.
     """
@@ -73,7 +98,8 @@ def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json):
     # Leave data encoded if its an image
     data = data if is_image else data.decode()
     # Format data and write to outfile.
-    data = hjson.dumps(hjson.loads(data)) if is_json else data
+    if is_json:
+        data = get_json_data(json_text=data, override_json=override_json, outfile=outfile)
     open(outfile, mode).write(data)
 
     return
@@ -208,31 +234,6 @@ def get_data_placeholder(is_json, is_image, uid):
     return placeholder
 
 
-def get_json_data(obj, override_json=False, outfile=""):
-
-    if override_json:
-        # Completely overrides json file with obj.json_Ext
-        data = hjson.dumps(hjson.loads(obj.json_text))
-        return data
-
-    # Only replace name and help.
-    if os.path.exists(outfile):
-        current_json = hjson.loads(open(outfile, "r").read())
-    else:
-        current_json = {}
-
-    name = hjson.loads(obj.json_text).get("settings", {}).get("name", "Name")
-    text = hjson.loads(obj.json_text).get("settings", {}).get("help", "Text")
-
-    if current_json.get("settings"):
-        current_json["settings"]["name"] = name
-        current_json["settings"]["help"] = text
-    else:
-        current_json["settings"] = {'name': name, 'help': text}
-
-    return hjson.dumps(current_json)
-
-
 def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="recipe_api_template",
              fname="", is_image=False, mtype=Analysis, override_json=False):
 
@@ -245,7 +246,7 @@ def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="reci
     outfile = os.path.join(outdir, fname)
     if root_url:
         remote_download(root_url=root_url, api_key=api_key, view=view, uid=uid,
-                        is_image=is_image, outfile=outfile, is_json=is_json)
+                        is_image=is_image, outfile=outfile, is_json=is_json, override_json=override_json)
         return
     # Get data from database
     obj = mtype.objects.get_all(uid=uid).first()
@@ -256,7 +257,7 @@ def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="reci
     if is_image:
         data = open(img_path(obj), "rb").read()
     elif is_json:
-        data = get_json_data(obj=obj, override_json=override_json, outfile=outfile)
+        data = get_json_data(json_text=obj.json_text, override_json=override_json, outfile=outfile)
     else:
         data = obj.template
 

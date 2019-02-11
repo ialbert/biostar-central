@@ -61,7 +61,7 @@ install:
 
 tutorial:
 	# Load tutorial project and recipes.
-	python manage.py api project -l --data --pid tutorial --dir ../biostar-recipes/api --data_root ../biostar-recipes
+	python manage.py api project -l --data --pid tutorial --dir ../biostar-recipes/api --data_root ../biostar-recipes --privacy public
 	python manage.py api recipe -l --pid tutorial --dir ../biostar-recipes/api --jobs
 
 projects:
