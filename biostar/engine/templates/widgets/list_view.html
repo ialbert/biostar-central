@@ -15,14 +15,28 @@
                             <a class="subheader" href="{% url 'recipe_list' project.uid %}">
                                 <i class="database icon"></i>{{ project.name }}
                             </a>
-                            {{project.data__count}}
-                            {{project.analysis__count}}
-                            {{project.job__count}}
 
                             <div class="meta">{{ project.summary|markdown|safe }}</div>
                             <div class="extra">
-                                {% privacy_label project %}
-                                {% created_by date=project.date.date user=project.owner obj=project %}
+                            {% privacy_label project %}
+
+                            <i class="file text icon"></i>Data:<a
+                            href="{% url 'data_list' project.uid %}">
+                            {{project.data__count}}
+                            data</a>
+
+                            <i class="setting icon"></i>Recipes:<a
+                            href="{% url 'recipe_list' project.uid %}">
+                            {{project.analysis__count}}
+                            recipe{{ project.analysis__count|pluralize }}</a>
+
+                            <i class="bar chart icon"></i>Runs:<a
+                            href="{% url 'job_list' project.uid %}">
+                            {{project.job__count}}
+                            result{{ project.job__count|pluralize }}</a>
+
+
+                            {% created_by date=project.date.date user=project.owner obj=project %}
                             </div>
 
                         </div>

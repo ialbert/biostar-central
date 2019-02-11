@@ -224,6 +224,7 @@ def project_list_public(request):
     # Exclude private projects
     projects = projects.exclude(privacy=Project.PRIVATE)
     projects = projects.order_by("-date", "-lastedit_date", "-id")
+    projects = annotate_projects(projects)
 
     context = dict(projects=projects)
 
