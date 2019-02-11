@@ -22,12 +22,14 @@
 
                         <div class="description">
                             {{ recipe.summary }}
-                            <p>Recipe runs: <a
-                            href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">{{ recipe.job__count }}
-                                entr{{ recipe.job__count|pluralize:"y,ies" }}</a></p>
                         </div>
 
                         <div class="extra">
+                            <i class="bar chart icon"></i>Runs:<a
+                            href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+
+                                {{ recipe.job_count }}
+                                result{{ recipe.job_count|pluralize }}</a>
 
                             {% created_by date=recipe.date user=recipe.owner obj=recipe %}
                         </div>
@@ -37,7 +39,9 @@
                 </div>
             {% empty %}
                 <div class="item">
-                    <div class="ui warning message"><i class="ui warning circle icon"></i>No recipes found.</div>
+                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet contain
+                        recipes.
+                    </div>
                 </div>
             {% endfor %}
         </div>

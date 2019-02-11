@@ -1,9 +1,8 @@
 {% load forum_tags %}
 
 
-
     {% if obj.lastedit_user != obj.owner and detail %}
-        Created {{ obj.date|time_ago  }} ago by
+        <i class="clock icon"></i>Created {{ obj.date|time_ago  }} ago by
         <a href="{% url 'user_profile' user.profile.uid %}" style="margin-right:-10px;">
             {{ user.profile.name }}
             <div class="ui mini avatar image">{% gravatar user=user size=80 %}</div>
@@ -11,7 +10,7 @@
         &bull; updated {{ obj.lastedit_date|time_ago }} by
 
     {% else %}
-        Updated {{ obj.lastedit_date|time_ago  }} ago by
+        <i class="clock outline icon"></i>Updated {{ obj.lastedit_date|time_ago  }} ago by
 
     {% endif %}
 
@@ -26,3 +25,4 @@
             <div class="ui mini avatar image">{% gravatar user=user size=80 %}</div>
         </a>
     {% endif %}
+
