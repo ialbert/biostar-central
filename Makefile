@@ -74,7 +74,7 @@ projects:
 	python manage.py api project -l --data --dir ../biostar-recipes/api --pid trout --data_root ../biostar-recipes
 
 # Load all recipes
-recipes2: projects tutorial
+recipes2: tutorial projects
 	python manage.py api recipe -l --pid cookbook  --dir ../biostar-recipes/api --jobs
 	python manage.py api recipe -l --pid fish  --dir ../biostar-recipes/api
 	python manage.py api recipe -l --pid giraffe  --dir ../biostar-recipes/api
