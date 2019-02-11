@@ -194,10 +194,10 @@ def project_info(request, uid):
 
 
 def annotate_projects(projects):
-    projects = projects.annotate(num_data=Count('data'),
-                                 num_recipes=Count("recipe"),
-                                 num_jobs=Count("job"))
-    return
+    projects = projects.annotate(Count('data', distinct=True),
+                                 Count('job', distinct=True),
+                                 Count('analysis', distinct=True))
+    return projects
 
 
 def project_list_private(request):
@@ -211,6 +211,7 @@ def project_list_private(request):
         empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
     else:
         projects = projects.order_by("-date", "-lastedit_date", "-id")
+        projects = annotate_projects(projects)
 
     context = dict(projects=projects, msg=empty_msg)
 
