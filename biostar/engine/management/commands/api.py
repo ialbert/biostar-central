@@ -3,11 +3,11 @@ import hjson
 import os
 import io
 from urllib.parse import urljoin
-from urllib.request import urlopen
 import requests
 import subprocess
 import sys
 from functools import partial
+
 from django.utils.encoding import force_text
 from django.template import Template, Context
 from django.conf import settings
@@ -15,6 +15,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.shortcuts import reverse
 from django.utils import timezone
+
 from biostar.emailer.auth import notify
 from biostar.engine.models import Analysis, Project, Data, Job
 from biostar.engine.api import change_image, get_thumbnail
@@ -27,13 +28,45 @@ logger = logging.getLogger('engine')
 logger.setLevel(logging.INFO)
 
 
+class Bunch():
+    def __init__(self, **kwargs):
+        self.value = ''
+        self.name = self.summary = ''
+        self.help = self.type = self.link = ''
+        self.__dict__.update(kwargs)
+
+
 def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
 
     url = reverse(view, kwargs=dict(uid=uid)) if uid else reverse(view)
     #TODO Put together params in diffrent way
     full_url = urljoin(root_url, url) + f"?k={api_key}"
-
     return full_url
+
+
+def get_json_data(json_text, override_json=False, outfile=""):
+
+    # Completely override json in outfile with json_text
+    if override_json:
+        data = hjson.dumps(hjson.loads(json_text))
+        return data
+
+    # Only replace name and help in outfile with items in json_text
+    if os.path.exists(outfile):
+        current_json = hjson.loads(open(outfile, "r").read())
+    else:
+        current_json = {}
+
+    name = hjson.loads(json_text).get("settings", {}).get("name", "Name")
+    text = hjson.loads(json_text).get("settings", {}).get("help", "Text")
+
+    if current_json.get("settings"):
+        current_json["settings"]["name"] = name
+        current_json["settings"]["help"] = text
+    else:
+        current_json["settings"] = {'name': name, 'help': text}
+
+    return hjson.dumps(current_json)
 
 
 def remote_upload(stream, root_url, uid, api_key, view):
@@ -43,7 +76,6 @@ def remote_upload(stream, root_url, uid, api_key, view):
     """
 
     payload = dict(k=api_key)
-
     # Build api url then send PUT request.
     full_url = build_api_url(root_url=root_url, view=view, uid=uid, api_key=api_key)
     response = requests.put(url=full_url, files=dict(file=stream), data=payload)
@@ -54,7 +86,7 @@ def remote_upload(stream, root_url, uid, api_key, view):
     return response
 
 
-def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json):
+def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json, override_json=False):
     """
     Download data found in root_url using GET request.
     """
@@ -63,17 +95,41 @@ def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json):
     fullurl = build_api_url(root_url=root_url, view=view, uid=uid, api_key=api_key)
     response = requests.get(url=fullurl, params=dict(k=api_key))
     data = response.content if response.status_code == 200 else b""
-
     # Leave data encoded if its an image
     data = data if is_image else data.decode()
     # Format data and write to outfile.
-    data = hjson.dumps(hjson.loads(data)) if is_json else data
+    if is_json:
+        data = get_json_data(json_text=data, override_json=override_json, outfile=outfile)
     open(outfile, mode).write(data)
 
     return
 
 
-def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
+def data_from_json(root, json_data, pid):
+    project = Project.objects.get_all(uid=pid).first()
+
+    # The data field is empty.
+    if not json_data:
+        logger.error(f"JSON file does not have a valid data field")
+        return
+
+    # The datalist is built from the json.
+    data_list = [Bunch(**row) for row in json_data]
+
+    # Add each collected datatype.
+    for bunch in reversed(data_list):
+        # This the path to the data.
+        path = bunch.value
+
+        # Makes the path relative if necessary.
+        path = path if path.startswith("/") else os.path.join(root, path)
+
+        # Create the data.
+        auth.create_data(project=project, path=path, type=bunch.type,
+                         name=bunch.name, text=bunch.help)
+
+
+def load_db(uid, stream, pid=None, is_json=False, load_recipe=False, jobs=False, privacy=Project.PRIVATE):
     """
     Load "stream" into database object "uid".
     Loads object as a project by default.
@@ -84,23 +140,25 @@ def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
             # Create empty object if not present and populate.
             # Select project owner.
             user = User.objects.filter(is_staff=True).first()
-            project = auth.create_project(user=user, name="Project Name", uid=uid)
+            project = auth.create_project(user=user, name="Project Name", uid=uid, privacy=privacy)
         conf = hjson.loads(stream.read())
         name = conf.get("settings", {}).get("name", project.name)
         text = conf.get("settings", {}).get("help", project.text)
         Project.objects.get_all(uid=uid).update(name=name, text=text)
+
         return project
 
     def recipe():
         recipe = Analysis.objects.get_all(uid=uid).first()
+        project = Project.objects.get_all(uid=pid).first()
         if not recipe:
             # Create empty object if not present then populate.
-            project = Project.objects.get_all(uid=pid).first()
             if not project:
                 logger.error(f"*** Project id:{pid} does not exist.")
                 logger.error(f"\n*** Run `manage.py api project -load --pid={pid}` to create it.")
                 sys.exit()
             recipe = auth.create_analysis(project=project, json_text="", template="", uid=uid, name="Recipe Name")
+
         if is_json:
             data = hjson.loads(stream.read())
             name = data.get("settings", {}).get("name", recipe.name)
@@ -108,13 +166,32 @@ def load_db(uid, stream, pid=None, is_json=False, load_recipe=False):
             Analysis.objects.get_all(uid=uid).update(json_text=hjson.dumps(data), name=name, text=text)
         else:
             Analysis.objects.get_all(uid=uid).update(template=stream.read())
+
+        if jobs:
+            # When creating a job automatically for data in projects
+            # it will try to match the value of the parameter to the data name.
+            missing_name = ''
+            for key, obj in recipe.json_data.items():
+                if obj.get("source") != "PROJECT":
+                    continue
+                name = obj.get('value', '')
+                data = Data.objects.filter(project=project, name=name).first()
+                if not data:
+                    missing_name = name
+                    break
+                data.fill_dict(obj)
+
+            if missing_name:
+                logger.error(f"Job not created! Missing data:{missing_name} in analysis:{recipe.name}")
+            else:
+                auth.create_job(analysis=recipe, json_data=recipe.json_data)
         return recipe
 
     return recipe() if load_recipe else project()
 
 
 def upload(uid, root_dir, pid=None, root_url=None, api_key="", view="recipe_api_template", fname="",
-           is_image=False, load_recipe=False, is_json=False):
+           is_image=False, load_recipe=False, is_json=False, privacy=Project.PRIVATE, jobs=False):
 
     """
     Upload data into a remote host using API.
@@ -127,20 +204,18 @@ def upload(uid, root_dir, pid=None, root_url=None, api_key="", view="recipe_api_
         stream = open(get_thumbnail(), mode) if is_image else io.StringIO("")
     else:
         stream = open(target, mode)
-
     # Upload to remote host when url is set.
     if root_url:
         return remote_upload(stream=stream, root_url=root_url, uid=uid, api_key=api_key, view=view)
-
     # Update database info
-
     if is_image:
         # Update image file.
         mtype = Analysis if load_recipe else Project
         obj = mtype.objects.get_all(uid=uid).first()
         return change_image(obj=obj, file_object=stream)
 
-    return load_db(uid=uid, pid=pid, stream=stream, is_json=is_json, load_recipe=load_recipe)
+    return load_db(uid=uid, pid=pid, stream=stream, is_json=is_json, load_recipe=load_recipe, privacy=privacy,
+                   jobs=jobs)
 
 
 def get_data_placeholder(is_json, is_image, uid):
@@ -153,7 +228,6 @@ def get_data_placeholder(is_json, is_image, uid):
                                   image=f"{uid}.png",
                                   help="Help Text"))
         placeholder = hjson.dumps(data)
-
     else:
         placeholder = ""
 
@@ -161,7 +235,7 @@ def get_data_placeholder(is_json, is_image, uid):
 
 
 def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="recipe_api_template",
-             fname="", is_image=False, mtype=Analysis):
+             fname="", is_image=False, mtype=Analysis, override_json=False):
 
     # Get placeholder in case object has no image.
     img_path = lambda o: o.image.path if o.image else get_thumbnail()
@@ -170,23 +244,20 @@ def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="reci
     outdir = os.path.join(root_dir, uid)
     os.makedirs(outdir, exist_ok=True)
     outfile = os.path.join(outdir, fname)
-
     if root_url:
         remote_download(root_url=root_url, api_key=api_key, view=view, uid=uid,
-                        is_image=is_image, outfile=outfile, is_json=is_json)
+                        is_image=is_image, outfile=outfile, is_json=is_json, override_json=override_json)
         return
-
     # Get data from database
     obj = mtype.objects.get_all(uid=uid).first()
     if not obj:
         data = get_data_placeholder(is_json=is_json, is_image=is_image, uid=uid)
         open(outfile, mode).write(data)
         return
-
     if is_image:
         data = open(img_path(obj), "rb").read()
     elif is_json:
-        data = hjson.dumps(hjson.loads(obj.json_text))
+        data = get_json_data(json_text=obj.json_text, override_json=override_json, outfile=outfile)
     else:
         data = obj.template
 
@@ -204,14 +275,12 @@ def get_recipes(pid, root_url=None, api_key="", rid=""):
     # Filter by 'rid' instead if that is given.
     if rid:
         filter_func = lambda key: key == rid
-
     if root_url:
         # Get the recipes from remote url.
         recipe_api = build_api_url(root_url=root_url, api_key=api_key)
         recipes = hjson.loads(requests.get(url=recipe_api, params=dict(k=api_key)).content)
         # Filter recipes from remote host.
         return list(filter(filter_func, recipes))
-
     query = Q(uid=rid) if rid else Q(project__uid=pid)
     recipes = Analysis.objects.get_all().filter(query)
     if recipes:
@@ -219,7 +288,6 @@ def get_recipes(pid, root_url=None, api_key="", rid=""):
     else:
         # Allows for the creation of 'rid' if it doesn't exist.
         recipes = [rid] if rid else []
-
     return recipes
 
 
@@ -241,7 +309,6 @@ def get_image_name(uid, root_url=None, json="conf.hjson", root_dir=None, api_key
         json_text = obj.json_text if obj else ""
 
     json_settings = hjson.loads(json_text).get("settings", {})
-
     # Get the local image name from "settings" in json.
     # Defaults to uid.png
     name = json_settings.get("image", f"{uid}.png")
@@ -249,7 +316,7 @@ def get_image_name(uid, root_url=None, json="conf.hjson", root_dir=None, api_key
     return name
 
 
-def recipe_loader(root_dir, pid, api_key="", root_url=None, rid=""):
+def recipe_loader(root_dir, pid, api_key="", root_url=None, rid="", jobs=False):
     """
         Load recipes into api/database from a project found in project_dir.
         Uses PUT request so 'api_key' is required with 'root_url'.
@@ -262,16 +329,14 @@ def recipe_loader(root_dir, pid, api_key="", root_url=None, rid=""):
     recipe_dirs = [r.name for r in os.scandir(root_dir) if r.is_dir()]
     # Get the specific recipe to load if given.
     recipe_dirs = list(filter(lambda recipe_uid: recipe_uid == rid, recipe_dirs)) if rid else recipe_dirs
-
     # Prepare the main function used to load.
     load = partial(upload, root_dir=root_dir, root_url=root_url, api_key=api_key, pid=pid, load_recipe=True)
-
     # Get image name from conf file in directory
     img = lambda uid: get_image_name(uid=uid, root_dir=root_dir)
     for recipe_uid in recipe_dirs:
         load(uid=recipe_uid, fname="conf.hjson", view="recipe_api_json", is_json=True)
         load(uid=recipe_uid, fname=img(uid=recipe_uid), view="recipe_api_image", is_image=True)
-        load(uid=recipe_uid, fname="template.sh")
+        load(uid=recipe_uid, fname="template.sh", jobs=jobs)
 
         print(f"*** Loaded recipe id: {recipe_uid}")
 
@@ -285,8 +350,7 @@ def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
     """
     # Get the recipes from API or database.
     recipes = get_recipes(pid=pid, root_url=root_url, api_key=api_key, rid=rid)
-    dump = partial(download, root_url=root_url, root_dir=root_dir, api_key=api_key)
-
+    dump = partial(download, root_url=root_url, root_dir=root_dir, api_key=api_key, override_json=True)
     # Get image name from json on remote host or local database
     img = lambda uid: get_image_name(uid=uid, root_url=root_url, api_key=api_key)
     for recipe_uid in recipes:
@@ -299,19 +363,25 @@ def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
     return recipes
 
 
-def project_loader(pid, root_dir, root_url=None, api_key=""):
+def project_loader(pid, root_dir, root_url=None, api_key="", data=False, data_root="", privacy=""):
     """
     Load project from root_dir into remote host or local database
     """
+    pmap = {"private": Project.PRIVATE, "public": Project.PUBLIC}
+    privacy = pmap.get(privacy, Project.PRIVATE)
 
     # Prepare function used to upload
-    load = partial(upload, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
-
+    load = partial(upload, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key, privacy=privacy)
     # Get image name from conf file in directory
     img_name = get_image_name(uid=pid, mtype=Project, root_dir=root_dir, json="conf.hjson")
 
     load(view="project_api_info", fname="conf.hjson")
     load(is_image=True, view="project_api_image", fname=img_name)
+
+    if data:
+        json_file = open(os.path.join(root_dir, pid, "conf.hjson"), "r")
+        json_data = hjson.load(json_file).get("data", [])
+        data_from_json(root=data_root, pid=pid, json_data=json_data)
 
     print(f"*** Loaded project ({pid}).")
     return
@@ -324,7 +394,6 @@ def project_dumper(pid, root_dir, root_url=None, api_key=""):
 
     # Prepare function used to download info and images
     dump = partial(download, mtype=Project, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
-
     # Get image name from json on remote host or database
     img_name = get_image_name(uid=pid, mtype=Project, root_url=root_url, view="project_api_info")
 
@@ -348,7 +417,6 @@ def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", ty
             data.make_toc()
             print(f"*** Data id : {uid} table of contents updated.")
         return
-
     project = Project.objects.get_all(uid=pid).first()
     if not project:
         logger.error(f"Project id: {pid} does not exist.")
@@ -580,53 +648,147 @@ def run(job, options={}):
                extra_context=context)
 
 
-def manage_job(options):
-    jobid = options['id']
-    jobuid = options['uid']
-    next = options['next']
-    queued = options['list']
+def list_obj(mtype="project"):
 
-    # This code is also run insider tasks.
-    if next:
-        job = Job.objects.filter(state=Job.QUEUED).order_by('id').first()
-        if not job:
-            logger.info(f'there are no queued jobs')
-        else:
-            run(job, options=options)
-        return
+    mtype_map = dict(project=Project, recipe=Analysis, data=Data, job=Job)
 
-    if jobid or jobuid:
+    objs = mtype_map.get(mtype).objects.get_all().order_by("id")[:100]
+    for instance in objs:
+        print(f'{instance.id}\t{instance.uid}\t{instance.project.uid}\t{instance.name}')
 
-        job = Job.objects.filter(uid=jobuid) or Job.objects.filter(id=jobid)
-        if not job:
-            logger.info(f'job for id={jobid}/uid={jobuid} missing')
-        else:
-            run(job.first(), options=options)
-        return
-
-    if queued:
-        jobs = Job.objects.all().order_by('id')[:100]
-        for job in jobs:
-            print(f'{job.id}\t{job.get_state_display()}\t{job.name}')
-        return
     return
 
 
 class Command(BaseCommand):
     help = 'Dump and load items using api.'
 
+    def manage_job(self, **options):
+        jobid = options.get('id')
+        jobuid = options.get('uid')
+        next = options.get('next')
+        queued = options.get('list')
+
+        # This code is also run insider tasks.
+        if next:
+            job = Job.objects.filter(state=Job.QUEUED).order_by('id').first()
+            if not job:
+                logger.info(f'there are no queued jobs')
+            else:
+                run(job, options=options)
+            return
+
+        if jobid or jobuid:
+
+            job = Job.objects.filter(uid=jobuid) or Job.objects.filter(id=jobid)
+            if not job:
+                logger.info(f'job for id={jobid}/uid={jobuid} missing')
+            else:
+                run(job.first(), options=options)
+            return
+
+        if queued:
+            jobs = Job.objects.get_all().order_by('id')[:100]
+            for job in jobs:
+                print(f'{job.id}\t{job.get_state_display()}\t{job.name}')
+            return
+        return
+
+    def manage_project(self, **options):
+
+        self.check_error(**options)
+        load = options.get("load")
+        root_url = options.get("url")
+        api_key = options.get("key")
+        root_dir = options.get("dir") or os.getcwd()
+        pid = options.get("pid")
+        data = options.get("data")
+        privacy = options.get("privacy")
+        data_root = options.get("data_root")
+
+        if load:
+            project_loader(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key, data=data,
+                           data_root=data_root, privacy=privacy)
+        else:
+            project_dumper(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
+        return
+
+    def manage_recipe(self, **options):
+
+        self.check_error(**options)
+        load = options.get("load")
+        root_url = options.get("url")
+        api_key = options.get("key")
+        root_dir = options.get("dir") or os.getcwd()
+        uid = options.get("uid")
+        pid = options.get("pid")
+        create_job = options.get("jobs")
+
+        project_dir = os.path.join(root_dir, pid)
+        if load:
+            recipes = recipe_loader(root_dir=project_dir, root_url=root_url, api_key=api_key,
+                                    rid=uid, pid=pid, jobs=create_job)
+        else:
+            recipes = recipe_dumper(root_dir=project_dir, root_url=root_url, api_key=api_key, rid=uid, pid=pid)
+
+        msg = f"{len(recipes)} recipes {'loaded' if load else 'dumped'} into project id:{pid}."
+        self.stdout.write(self.style.SUCCESS(msg))
+        return
+
+    def manage_data(self, **options):
+
+        uid = options.get("uid")
+        pid = options.get("pid")
+        path = options.get("path")
+        name = options.get("name")
+        type = options.get("type")
+        update_toc = options.get("update_toc")
+
+        if not (pid or uid):
+            logger.error("[error] --pid or --uid need to be set.")
+            self.run_from_argv(sys.argv + ["--help"])
+            sys.exit()
+
+        data_loader(pid=pid, path=path, uid=uid, update_toc=update_toc, name=name, type=type)
+
+        return
+
+    def add_data_commands(self, parser):
+
+        parser.add_argument("--path", type=str, help="Path to data.")
+        parser.add_argument("--pid", type=str, default="", help="Project uid to create data in.")
+        parser.add_argument("--uid", type=str, help="Data uid to load or update.")
+        parser.add_argument('--text', default='', help="A file containing the description of the data")
+        parser.add_argument('--name', default='', help="Sets the name of the data")
+        parser.add_argument('--type', default='data', help="Sets the type of the data")
+        parser.add_argument("--list", action='store_true', help="Show a data list.")
+        parser.add_argument("--update_toc", action="store_true", help="Update table of contents for data --uid.")
+
+    def add_recipe_commands(self, parser):
+        self.add_api_commands(parser=parser)
+        parser.add_argument("--jobs", action='store_true', help="Also creates a queued job for the recipe")
+        parser.add_argument('--uid', type=str, default="", help="Recipe uid to load or dump.")
+        parser.add_argument('--dir', default='', help="Directory to store/load recipe from.")
+        parser.add_argument("--list", action='store_true', help="Show a recipe list.")
+
+    def add_project_commands(self, parser):
+        self.add_api_commands(parser=parser)
+        parser.add_argument('--privacy', default="private", help="""Privacy of project, only used when creating.""")
+        parser.add_argument('--dir', default='', help="Directory to store/load project from.")
+        parser.add_argument("--list", action='store_true', help="Show a project list.")
+        parser.add_argument("--data", action='store_true', help="Load data found in conf file to local database.")
+        parser.add_argument("--data_root", default="", help="Root directory to data found in conf file.")
+
     def add_api_commands(self, parser):
-        """Add default commands to sub commands"""
+        """Add default api commands to parser"""
         parser.add_argument('-l', "--load", action="store_true",
                                                    help="""Load to url from a directory.
                                                         Load to database if --url is not set.""")
         parser.add_argument('-d', "--dump", action="store_true",
                                             help="""Dump from a url to directory. 
                                                     Dump from database if --url is not set.""")
-        parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")
-        parser.add_argument('--dir', default='', help="Directory to store/load data from.")
+        parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
 
         return
 
@@ -678,94 +840,72 @@ class Command(BaseCommand):
         subparsers = parser.add_subparsers()
 
         data_parser = subparsers.add_parser("data", help="Data manager.")
-        data_parser.add_argument("--path", type=str, help="Path to data.")
-        data_parser.add_argument("--name", type=str, help="Name of data.")
-        data_parser.add_argument("--pid", type=str, default="", help="Project uid to create data in.")
-        data_parser.add_argument("--uid", type=str, help="Data uid to load or update.")
-        parser.add_argument('--text', default='', help="A file containing the description of the data")
-        parser.add_argument('--name', default='', help="Sets the name of the data")
-        parser.add_argument('--type', default='data', help="Sets the type of the data")
-        data_parser.add_argument("--update_toc", action="store_true", help="Update table of contents for data --uid.")
+        self.add_data_commands(parser=data_parser)
 
         recipe_parser = subparsers.add_parser("recipe", help="Recipe manager")
-        recipe_parser.add_argument('--uid', type=str, default="", help="Recipe uid to load or dump.")
-        self.add_api_commands(parser=recipe_parser)
+        self.add_recipe_commands(parser=recipe_parser)
 
-        project_parser = subparsers.add_parser("project",
-                                               help="Project manager.")
-        self.add_api_commands(parser=project_parser)
+        project_parser = subparsers.add_parser("project", help="Project manager.")
+        self.add_project_commands(parser=project_parser)
 
         job_parser = subparsers.add_parser("job", help="Job manager.")
         self.add_job_commands(parser=job_parser)
 
     def check_error(self, **options):
+        """
+        Check routine errors for parser
+        """
+
+        def exit(msg):
+            if msg:
+                sys.argv.append("--help")
+                self.stdout.write(self.style.NOTICE(msg))
+                self.run_from_argv(sys.argv)
+                sys.exit()
+            return
 
         load = options.get("load")
         dump = options.get("dump")
         root_url = options.get("url")
         api_key = options.get("key")
         pid = options.get("pid")
-        sys.argv.append("--help")
-        msg = None
 
         if not pid:
-            msg = "[error] --pid needs to be set."
-
-        elif not (load or dump):
-            msg = "[error] Set load (-l) or dump (-d) flag."
-
-        elif load and dump:
-            msg = "[error] Only one flag can be set."
-
-        elif (root_url and load) and not api_key:
-            msg = "[error] --key is required when loading data to remote site."
-
-        if msg:
-            self.stdout.write(self.style.NOTICE(msg))
-            self.run_from_argv(sys.argv)
-            sys.exit()
+            exit(msg="[error] --pid needs to be set.")
+        if not (load or dump):
+            exit(msg="[error] Set load (-l) or dump (-d) flag.")
+        if load and dump:
+            exit(msg="[error] Only one flag can be set.")
+        if (root_url and load) and not api_key:
+            exit(msg="[error] --key is required when loading data to remote site.")
 
     def handle(self, *args, **options):
 
         subcommand = sys.argv[2] if len(sys.argv) > 2 else None
 
-        load = options.get("load")
-        root_url = options.get("url")
-        api_key = options.get("key")
-        root_dir = options.get("dir") or os.getcwd()
-        uid = options.get("uid")
-        pid = options.get("pid")
-        path = options.get("path")
-        name = options.get("name")
-        type = options.get("type")
-        update_toc = options.get("update_toc")
+        listing = options.get("list")
 
         if len(sys.argv) == 2:
             self.stdout.write(self.style.NOTICE("Pick a sub-command"))
             self.run_from_argv(sys.argv + ["--help"])
             sys.exit()
 
+        if listing:
+            list_obj(mtype=subcommand)
+            return
+
         if subcommand == "project":
-            self.check_error(**options)
-            params = dict(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
-            project_loader(**params) if load else project_dumper(**params)
+            self.manage_project(**options)
+            return
 
-        elif subcommand == "data":
-            if not (pid or uid):
-                logger.error("[error] --pid or --uid need to be set.")
-                self.run_from_argv(sys.argv + ["--help"])
-                sys.exit()
+        if subcommand == "data":
+            self.manage_data(**options)
+            return
 
-            data_loader(pid=pid, path=path, uid=uid, update_toc=update_toc, name=name, type=type)
+        if subcommand == "recipe":
+            self.manage_recipe(**options)
+            return
 
-        elif subcommand == "recipe":
-            self.check_error(**options)
-            project_dir = os.path.join(root_dir, pid)
-            params = dict(root_dir=project_dir, root_url=root_url, api_key=api_key, rid=uid, pid=pid)
-
-            recipes = recipe_loader(**params) if load else recipe_dumper(**params)
-            msg = f"{len(recipes)} recipes {'loaded' if load else 'dumped'} into project id:{pid}."
-            self.stdout.write(self.style.SUCCESS(msg))
-
-        elif subcommand == "job":
-            manage_job(options=options)
+        if subcommand == "job":
+            self.manage_job(**options)
+            return

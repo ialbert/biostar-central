@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.template import Template, Context
+from django.db.models import Count
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
@@ -70,6 +71,7 @@ def recycle_bin(request):
         query_dict = dict(project__in=projects, owner=user)
 
     projects = projects.filter(deleted=True).order_by("date")
+    projects = annotate_projects(projects)
     data = Data.objects.get_deleted(**query_dict).order_by("date")
     recipes = Analysis.objects.get_deleted(**query_dict).order_by("date")
     jobs = Job.objects.get_deleted(**query_dict).order_by("date")
@@ -191,6 +193,13 @@ def project_info(request, uid):
     return render(request, "project_info.html", context)
 
 
+def annotate_projects(projects):
+    projects = projects.annotate(Count('data', distinct=True),
+                                 Count('job', distinct=True),
+                                 Count('analysis', distinct=True))
+    return projects
+
+
 def project_list_private(request):
     """Only list private projects belonging to a user."""
 
@@ -202,6 +211,7 @@ def project_list_private(request):
         empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
     else:
         projects = projects.order_by("-date", "-lastedit_date", "-id")
+        projects = annotate_projects(projects)
 
     context = dict(projects=projects, msg=empty_msg)
 
@@ -215,6 +225,7 @@ def project_list_public(request):
     # Exclude private projects
     projects = projects.exclude(privacy=Project.PRIVATE)
     projects = projects.order_by("-date", "-lastedit_date", "-id")
+    projects = annotate_projects(projects)
 
     context = dict(projects=projects)
 
