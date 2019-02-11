@@ -22,15 +22,15 @@
 
                             <a
                             href="{% url 'data_list' project.uid %}">
-                                <i class="file text icon"></i>{{project.data__count}} data</a>&bull;
+                                <i class="file text icon"></i>{{project.data_count}} data</a>&bull;
 
                             <a
                             href="{% url 'recipe_list' project.uid %}">
-                            <i class="setting icon"></i>{{project.analysis__count}} recipe{{ project.analysis__count|pluralize }}</a>&bull;
+                            <i class="setting icon"></i>{{project.recipe_count}} recipe{{ project.recipe_count|pluralize }}</a>&bull;
 
                             <a
                             href="{% url 'job_list' project.uid %}">
-                            <i class="bar chart icon"></i>{{project.job__count}} result{{ project.job__count|pluralize }}</a>
+                            <i class="bar chart icon"></i>{{project.job_count}} result{{ project.job_count|pluralize }}</a>
 
                             <i class="clock outline icon"></i>updated {{ project.lastedit_date|time_ago  }} ago
 
