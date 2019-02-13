@@ -316,6 +316,19 @@ def get_image_name(uid, root_url=None, root_dir=None, api_key="", view="recipe_a
     return name
 
 
+def recipe_from_dir(root_dir, uid=""):
+    """Get recipe uids in root dir"""
+
+    # All files in directory assumed to be recipes
+    #TODO : need better criteria to get recipes from dir.
+    get_base = lambda p: os.path.splitext(os.path.basename(p))[0]
+    recipes = set(get_base(p=recipe.name) for recipe in os.scandir(root_dir) if recipe.is_file())
+    # Get the specific recipe to load if given.
+    recipes = list(filter(lambda recipe_uid: recipe_uid == uid, recipes)) if uid else recipes
+
+    return recipes
+
+
 def recipe_loader(root_dir, pid, api_key="", root_url=None, rid="", jobs=False):
     """
         Load recipes into api/database from a project found in project_dir.
@@ -326,7 +339,7 @@ def recipe_loader(root_dir, pid, api_key="", root_url=None, rid="", jobs=False):
         sys.exit()
 
     # Get recipes to load
-    recipes = get_recipes(pid=pid, root_url=root_url, api_key=api_key, rid=rid)
+    recipes = recipe_from_dir(root_dir=root_dir, uid=rid)
     # Prepare the main function used to load.
     load = partial(upload, root_dir=root_dir, root_url=root_url, api_key=api_key, pid=pid, load_recipe=True)
     # Get image name from conf file in directory
@@ -378,7 +391,7 @@ def project_loader(pid, root_dir, root_url=None, api_key="", data=False, data_ro
     load(is_image=True, view="project_api_image", fname=img_name)
 
     if data:
-        json_file = open(os.path.join(root_dir, pid, "conf.hjson"), "r")
+        json_file = open(os.path.join(root_dir, json_file), "r")
         json_data = hjson.load(json_file).get("data", [])
         data_from_json(root=data_root, pid=pid, json_data=json_data)
 
@@ -778,6 +791,8 @@ class Command(BaseCommand):
         parser.add_argument('--uid', type=str, default="", help="Recipe uid to load or dump.")
         parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
         parser.add_argument('--dir', default='', help="Directory to store/load recipe from.")
+        parser.add_argument('--json', default='', help="JSON file to replace recipe --uid.")
+        parser.add_argument('--template', default='', help="Template script to replace recipe --uid.")
         parser.add_argument("--list", action='store_true', help="Show a recipe list.")
 
     def add_project_commands(self, parser):
