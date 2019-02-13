@@ -31,7 +31,7 @@ class Command(BaseCommand):
                 # Only delete job files in the media root
                 if obj_path.startswith(root_dir):
                     shutil.rmtree(obj_path)
-                    logger.info(obj_path, "deleted")
+                    logger.info(f"{obj_path} deleted")
             objs.delete()
 
         # Delete files associated with objects
