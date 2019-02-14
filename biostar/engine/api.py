@@ -46,20 +46,13 @@ def project_api_list(request):
     if settings.API_KEY != api_key:
         projects = projects.filter(privacy=Project.PUBLIC)
 
-    payload = dict()
+    payload = []
     for project in projects:
-        payload.setdefault(project.uid, dict()).update(
-                            name=project.name,
-                            recipes={recipe.uid:
-                                     dict(name=recipe.name,
-                                          json=reverse("recipe_api_json", kwargs=dict(uid=recipe.uid)),
-                                          template=reverse("recipe_api_template", kwargs=dict(uid=recipe.uid)))
-                                     for recipe in project.analysis_set.all()
-                                     },
-                            privacy=dict(Project.PRIVACY_CHOICES)[project.privacy],
-                            )
+        info = f"{project.uid}\t{project.name}\t{project.get_privacy_display()}\n"
+        payload.append(info)
 
-    return Response(data=payload, status=status.HTTP_200_OK)
+    payload = "".join(payload)
+    return HttpResponse(content=payload, content_type="text/plain")
 
 
 @api_view(['GET', 'PUT'])
@@ -122,26 +115,23 @@ def recipe_image(request, uid):
 
 
 @api_view(['GET'])
-def recipe_api_list(request):
+def recipe_api_list(request, uid):
 
-    recipes = Analysis.objects.get_all()
     api_key = request.GET.get("k", "")
 
+    recipes = Analysis.objects.filter(project__uid=uid)
     # Only show public recipes when api key is not correct or provided.
     if settings.API_KEY != api_key:
         recipes = recipes.filter(project__privacy=Project.PUBLIC)
 
-    payload = dict()
+    payload = []
     for recipe in recipes:
-        payload.setdefault(recipe.uid, dict()).update(
-                            name=recipe.name,
-                            json=reverse("recipe_api_json", kwargs=dict(uid=recipe.uid)),
-                            template=reverse("recipe_api_template", kwargs=dict(uid=recipe.uid)),
-                            privacy=dict(Project.PRIVACY_CHOICES)[recipe.project.privacy],
-                            project_uid=recipe.project.uid,
-                            project_name=recipe.project.name)
+        info = f"{recipe.uid}\t{recipe.name}\n"
+        payload.append(info)
 
-    return Response(data=payload, status=status.HTTP_200_OK)
+    payload = "".join(payload) if payload else "No recipes found."
+
+    return HttpResponse(content=payload, content_type="text/plain")
 
 
 @api_view(['GET', 'PUT'])

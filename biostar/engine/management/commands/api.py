@@ -270,17 +270,17 @@ def get_recipes(pid, root_url=None, api_key="", rid=""):
     Return recipes belonging to project 'pid' from api if 'root_url' is given
     else return from database.
     """
-    # Filter remote site results by 'pid'
-    filter_func = lambda key: recipes[key]["project_uid"] == pid
-    # Filter by 'rid' instead if that is given.
-    if rid:
-        filter_func = lambda key: key == rid
+
     if root_url:
         # Get the recipes from remote url.
-        recipe_api = build_api_url(root_url=root_url, api_key=api_key)
-        recipes = hjson.loads(requests.get(url=recipe_api, params=dict(k=api_key)).content)
+        recipe_api = build_api_url(root_url=root_url, api_key=api_key, uid=pid)
+        data = requests.get(url=recipe_api, params=dict(k=api_key)).content
+        data = data.decode("utf-8").split("\n")
+        recipes = [r.split("\t")[0] for r in data if r]
         # Filter recipes from remote host.
-        return list(filter(filter_func, recipes))
+        recipes = list(filter(lambda r: r == rid, recipes)) if rid else recipes
+
+        return recipes
     query = Q(uid=rid) if rid else Q(project__uid=pid)
     recipes = Analysis.objects.get_all().filter(query)
     if recipes:
@@ -314,6 +314,11 @@ def get_image_name(uid, root_url=None, root_dir=None, api_key="", view="recipe_a
     name = json_settings.get("image", f"{uid}.png")
 
     return name
+
+
+def get_file_name():
+
+    return
 
 
 def recipe_from_dir(root_dir, uid=""):

@@ -1,54 +1,40 @@
 # API
 
 ## Methods
-### Api list
-    GET /api/list
 
-List of recipes with api links corresponding to the JSON and template.
+### Project list 
+    GET /api/project/list/
 
-#### Fields in response 
-JSON dictionary with each recipe keyed by it's `id`.
+List of projects in a tab delimited fashion with three columns: **ID** , **Name**, and **Privacy**
 
-**key**: Unique recipe ID
-* _name_ : Recipe Name
-* _json_: API link for the recipe JSON
-* _template_: API link for the recipe template
+##### Example
+[/api/project/list/](https://www.bioinformatics.recipes/api/project/list/)
 
-#### Example
-[/api/list/](https://www.bioinformatics.recipes/api/list)
+    tutorial	Recipe Tutorials	Public
+    cookbook	Bioinformatics Cookbook	Public
 
-    {
-      93412cee:
-      {
-        name: R Script
-        json: /api/recipe/93412cee/json/
-        template: /api/recipe/93412cee/template/
-      }
-      16c4f58f:
-      {
-        name: Makefile Example
-        json: /api/recipe/16c4f58f/json/
-        template: /api/recipe/16c4f58f/template/
-      }
-      74391e69:
-      {
-        name: Interface Elements
-        json: /api/recipe/74391e69/json/
-        template: /api/recipe/74391e69/template/
-      }
-      4d1846f1:
-      {
-        name: Starter Recipe
-        json: /api/recipe/4d1846f1/json/
-        template: /api/recipe/4d1846f1/template/
-      }
-    }
 
-### Json
+### Recipe list
+    GET /api/recipe/list/{id}/
+    
+List of recipes for project in a tab delimited fashion with two columns: **ID** and **Name**
 
-    GET /api/recipe/{id}/json
+##### Parameters
+* _id_: unique project ID
 
-Recipe JSON used to fill the template
+##### Example
+[/api/recipe/list/tutorial/](https://www.bioinformatics.recipes/api/recipe/list/tutorial/)
+
+    interface	Interface Elements
+    makefile	Makefile Example
+    environment	Environment Check
+
+### Recipe Json
+
+    GET /api/recipe/json/{id}/
+    PUT /api/recipe/json/{id}/
+
+Recipe JSON used to generate interface
 
 #### Parameters
 * _id_: Unique recipe ID
@@ -57,7 +43,7 @@ Recipe JSON used to fill the template
 Fields associated with the recipe JSON
 
 #### Example
-[/api/recipe/93412cee/json](https://www.bioinformatics.recipes/api/recipe/93412cee/json/)
+[/api/recipe/json/93412cee/](https://www.bioinformatics.recipes/api/recipe/93412cee/json/)
 
     {
 
@@ -92,19 +78,16 @@ Fields associated with the recipe JSON
 
 ### Template
 
-    GET /api/recipe/{id}/template
+    GET /api/recipe/{id}/template/
+    PUT /api/recipe/{id}/template/
 
-Recipe template executed.
+Recipe template executed during analysis.
 
 #### Parameters
 * _id_: Unique recipe ID
 
-#### Fields in response 
-Plain text response of the recipe template.
-
-
 #### Example
-[/api/recipe/93412cee/template](https://www.bioinformatics.recipes/api/recipe/93412cee/template/)
+[/api/recipe/template/93412cee/](https://www.bioinformatics.recipes/api/recipe/93412cee/template/)
 
     # Set graphics device to PNG.
     fname = 'plot.png'
