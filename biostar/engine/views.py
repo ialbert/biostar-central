@@ -194,9 +194,9 @@ def project_info(request, uid):
 
 
 def annotate_projects(projects):
-    projects = projects.annotate(Count('data', distinct=True),
-                                 Count('job', distinct=True),
-                                 Count('analysis', distinct=True))
+    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(deleted=False)),
+                                 job_count=Count('job', distinct=True, filter=Q(deleted=False)),
+                                 recipe_count=Count('analysis', distinct=True, filter=Q(deleted=False)))
     return projects
 
 

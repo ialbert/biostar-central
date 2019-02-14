@@ -100,6 +100,7 @@ def remote_download(root_url, api_key, view, uid, is_image, outfile, is_json, ov
     # Format data and write to outfile.
     if is_json:
         data = get_json_data(json_text=data, override_json=override_json, outfile=outfile)
+
     open(outfile, mode).write(data)
 
     return
@@ -155,7 +156,6 @@ def load_db(uid, stream, pid=None, is_json=False, load_recipe=False, jobs=False,
             # Create empty object if not present then populate.
             if not project:
                 logger.error(f"*** Project id:{pid} does not exist.")
-                logger.error(f"\n*** Run `manage.py api project -load --pid={pid}` to create it.")
                 sys.exit()
             recipe = auth.create_analysis(project=project, json_text="", template="", uid=uid, name="Recipe Name")
 
@@ -198,7 +198,7 @@ def upload(uid, root_dir, pid=None, root_url=None, api_key="", view="recipe_api_
     Defaults to local database if root_url is None.
     """
 
-    target = os.path.join(root_dir, uid, fname)
+    target = os.path.join(root_dir, fname)
     mode = "rb" if is_image else "r"
     if not os.path.exists(target):
         stream = open(get_thumbnail(), mode) if is_image else io.StringIO("")
@@ -241,9 +241,9 @@ def download(uid, root_dir, root_url=None, api_key="", is_json=False, view="reci
     img_path = lambda o: o.image.path if o.image else get_thumbnail()
     mode = "wb" if is_image else "w"
     # Make output directory.
-    outdir = os.path.join(root_dir, uid)
-    os.makedirs(outdir, exist_ok=True)
-    outfile = os.path.join(outdir, fname)
+    os.makedirs(root_dir, exist_ok=True)
+    outfile = os.path.join(root_dir, fname)
+
     if root_url:
         remote_download(root_url=root_url, api_key=api_key, view=view, uid=uid,
                         is_image=is_image, outfile=outfile, is_json=is_json, override_json=override_json)
@@ -291,7 +291,7 @@ def get_recipes(pid, root_url=None, api_key="", rid=""):
     return recipes
 
 
-def get_image_name(uid, root_url=None, json="conf.hjson", root_dir=None, api_key="", view="recipe_api_json",
+def get_image_name(uid, root_url=None, root_dir=None, api_key="", view="recipe_api_json",
                    mtype=Analysis):
 
     # Get json from url
@@ -301,7 +301,7 @@ def get_image_name(uid, root_url=None, json="conf.hjson", root_dir=None, api_key
         json_text = response.text if response.status_code == 200 else ""
     # Get json from a file
     elif root_dir:
-        path = os.path.join(root_dir, uid, json)
+        path = os.path.join(root_dir, f"{uid}.hjson")
         json_text = open(path).read() if os.path.exists(path) else ""
     # Get json from database
     else:
@@ -316,31 +316,42 @@ def get_image_name(uid, root_url=None, json="conf.hjson", root_dir=None, api_key
     return name
 
 
+def recipe_from_dir(root_dir, uid=""):
+    """Get recipe uids in root dir"""
+
+    # All files in directory assumed to be recipes
+    #TODO : need better criteria to get recipes from dir.
+    get_base = lambda p: os.path.splitext(os.path.basename(p))[0]
+    recipes = set(get_base(p=recipe.name) for recipe in os.scandir(root_dir) if recipe.is_file())
+    # Get the specific recipe to load if given.
+    recipes = list(filter(lambda recipe_uid: recipe_uid == uid, recipes)) if uid else recipes
+
+    return recipes
+
+
 def recipe_loader(root_dir, pid, api_key="", root_url=None, rid="", jobs=False):
     """
         Load recipes into api/database from a project found in project_dir.
         Uses PUT request so 'api_key' is required with 'root_url'.
     """
     if not os.path.exists(root_dir):
-        logger.error(f"*** Project directory: {root_dir} does not exist.")
+        logger.error(f"*** Directory: {root_dir} does not exist.")
         sys.exit()
 
-    # Every subdir in 'project_dir' is a recipe_dir.
-    recipe_dirs = [r.name for r in os.scandir(root_dir) if r.is_dir()]
-    # Get the specific recipe to load if given.
-    recipe_dirs = list(filter(lambda recipe_uid: recipe_uid == rid, recipe_dirs)) if rid else recipe_dirs
+    # Get recipes to load
+    recipes = recipe_from_dir(root_dir=root_dir, uid=rid)
     # Prepare the main function used to load.
     load = partial(upload, root_dir=root_dir, root_url=root_url, api_key=api_key, pid=pid, load_recipe=True)
     # Get image name from conf file in directory
     img = lambda uid: get_image_name(uid=uid, root_dir=root_dir)
-    for recipe_uid in recipe_dirs:
-        load(uid=recipe_uid, fname="conf.hjson", view="recipe_api_json", is_json=True)
-        load(uid=recipe_uid, fname=img(uid=recipe_uid), view="recipe_api_image", is_image=True)
-        load(uid=recipe_uid, fname="template.sh", jobs=jobs)
+    for uid in recipes:
+        load(uid=uid, fname=f"{uid}.hjson", view="recipe_api_json", is_json=True)
+        load(uid=uid, fname=img(uid=uid), view="recipe_api_image", is_image=True)
+        load(uid=uid, fname=f"{uid}.sh", jobs=jobs)
 
-        print(f"*** Loaded recipe id: {recipe_uid}")
+        print(f"*** Loaded recipe id: {uid}")
 
-    return recipe_dirs
+    return recipes
 
 
 def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
@@ -355,9 +366,9 @@ def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
     img = lambda uid: get_image_name(uid=uid, root_url=root_url, api_key=api_key)
     for recipe_uid in recipes:
         # Dump json, template, and image for a given recipe
-        dump(uid=recipe_uid, fname="conf.hjson", is_json=True, view="recipe_api_json")
+        dump(uid=recipe_uid, fname=f"{recipe_uid}.hjson", is_json=True, view="recipe_api_json")
         dump(uid=recipe_uid, fname=img(uid=recipe_uid), is_image=True, view="recipe_api_image")
-        dump(uid=recipe_uid, fname="template.sh")
+        dump(uid=recipe_uid, fname=f"{recipe_uid}.sh")
 
         print(f"*** Dumped recipe id: {recipe_uid}")
     return recipes
@@ -369,17 +380,18 @@ def project_loader(pid, root_dir, root_url=None, api_key="", data=False, data_ro
     """
     pmap = {"private": Project.PRIVATE, "public": Project.PUBLIC}
     privacy = pmap.get(privacy, Project.PRIVATE)
+    json_file = f"{pid}.hjson"
 
     # Prepare function used to upload
     load = partial(upload, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key, privacy=privacy)
     # Get image name from conf file in directory
-    img_name = get_image_name(uid=pid, mtype=Project, root_dir=root_dir, json="conf.hjson")
+    img_name = get_image_name(uid=pid, mtype=Project, root_dir=root_dir)
 
-    load(view="project_api_info", fname="conf.hjson")
+    load(view="project_api_info", fname=json_file)
     load(is_image=True, view="project_api_image", fname=img_name)
 
     if data:
-        json_file = open(os.path.join(root_dir, pid, "conf.hjson"), "r")
+        json_file = open(os.path.join(root_dir, json_file), "r")
         json_data = hjson.load(json_file).get("data", [])
         data_from_json(root=data_root, pid=pid, json_data=json_data)
 
@@ -396,9 +408,10 @@ def project_dumper(pid, root_dir, root_url=None, api_key=""):
     dump = partial(download, mtype=Project, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
     # Get image name from json on remote host or database
     img_name = get_image_name(uid=pid, mtype=Project, root_url=root_url, view="project_api_info")
+    json_file = f"{pid}.hjson"
 
     # Dump the project json and image
-    dump(fname="conf.hjson", view="project_api_info", is_json=True)
+    dump(fname=json_file, view="project_api_info", is_json=True)
     dump(fname=img_name, view="project_api_image", is_image=True)
 
     print(f"*** Dumped project {pid}: {root_dir}.")
@@ -700,16 +713,21 @@ class Command(BaseCommand):
         root_url = options.get("url")
         api_key = options.get("key")
         root_dir = options.get("dir") or os.getcwd()
-        pid = options.get("pid")
+        uid = options.get("uid")
         data = options.get("data")
         privacy = options.get("privacy")
         data_root = options.get("data_root")
 
+        if not uid:
+            self.stdout.write(self.style.NOTICE("[error] --uid needs to be set."))
+            self.run_from_argv(sys.argv + ["--help"])
+            sys.exit()
+
         if load:
-            project_loader(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key, data=data,
+            project_loader(pid=uid, root_dir=root_dir, root_url=root_url, api_key=api_key, data=data,
                            data_root=data_root, privacy=privacy)
         else:
-            project_dumper(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
+            project_dumper(pid=uid, root_dir=root_dir, root_url=root_url, api_key=api_key)
         return
 
     def manage_recipe(self, **options):
@@ -723,14 +741,18 @@ class Command(BaseCommand):
         pid = options.get("pid")
         create_job = options.get("jobs")
 
-        project_dir = os.path.join(root_dir, pid)
+        if not (pid or uid):
+            self.stdout.write(self.style.NOTICE("[error] --pid or --uid need to be set."))
+            self.run_from_argv(sys.argv + ["--help"])
+            sys.exit()
+
         if load:
-            recipes = recipe_loader(root_dir=project_dir, root_url=root_url, api_key=api_key,
+            recipes = recipe_loader(root_dir=root_dir, root_url=root_url, api_key=api_key,
                                     rid=uid, pid=pid, jobs=create_job)
         else:
-            recipes = recipe_dumper(root_dir=project_dir, root_url=root_url, api_key=api_key, rid=uid, pid=pid)
+            recipes = recipe_dumper(root_dir=root_dir, root_url=root_url, api_key=api_key, rid=uid, pid=pid)
 
-        msg = f"{len(recipes)} recipes {'loaded' if load else 'dumped'} into project id:{pid}."
+        msg = f"{len(recipes)} recipes {'loaded' if load else 'dumped'}."
         self.stdout.write(self.style.SUCCESS(msg))
         return
 
@@ -744,7 +766,7 @@ class Command(BaseCommand):
         update_toc = options.get("update_toc")
 
         if not (pid or uid):
-            logger.error("[error] --pid or --uid need to be set.")
+            self.stdout.write(self.style.NOTICE("[error] --pid or --uid need to be set."))
             self.run_from_argv(sys.argv + ["--help"])
             sys.exit()
 
@@ -767,12 +789,16 @@ class Command(BaseCommand):
         self.add_api_commands(parser=parser)
         parser.add_argument("--jobs", action='store_true', help="Also creates a queued job for the recipe")
         parser.add_argument('--uid', type=str, default="", help="Recipe uid to load or dump.")
+        parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
         parser.add_argument('--dir', default='', help="Directory to store/load recipe from.")
+        parser.add_argument('--json', default='', help="JSON file to replace recipe --uid.")
+        parser.add_argument('--template', default='', help="Template script to replace recipe --uid.")
         parser.add_argument("--list", action='store_true', help="Show a recipe list.")
 
     def add_project_commands(self, parser):
         self.add_api_commands(parser=parser)
         parser.add_argument('--privacy', default="private", help="""Privacy of project, only used when creating.""")
+        parser.add_argument("--uid", type=str, default="", help="Project uid to load from or dump to.")
         parser.add_argument('--dir', default='', help="Directory to store/load project from.")
         parser.add_argument("--list", action='store_true', help="Show a project list.")
         parser.add_argument("--data", action='store_true', help="Load data found in conf file to local database.")
@@ -788,54 +814,23 @@ class Command(BaseCommand):
                                                     Dump from database if --url is not set.""")
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")
-        parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
 
         return
 
     def add_job_commands(self, parser):
 
-        parser.add_argument('--next',
-                            action='store_true',
-                            default=False,
-                            help="Runs the oldest queued job")
-
-        parser.add_argument('--id',
-                            type=int,
-                            default=0,
-                            help="Runs job specified by id.")
-        parser.add_argument('--uid',
-                            type=str,
-                            default='',
-                            help="Runs job specified by uid.")
-
-        parser.add_argument('--show_script',
-                            action='store_true',
-                            help="Shows the script.")
-
-        parser.add_argument('--show_json',
-                            action='store_true',
-                            help="Shows the JSON for the job.")
-
-        parser.add_argument('--show_template',
-                            action='store_true',
-                            help="Shows the template for the job.")
-
-        parser.add_argument('--show_command',
-                            action='store_true',
-                            help="Shows the command executed for the job.")
-
-        parser.add_argument('--use_json',
-                            help="Override the JSON with this file.")
-
-        parser.add_argument('--use_template',
-                            help="Override the TEMPLATE with this file.")
-
-        parser.add_argument('--list',
-                            action='store_true',
-                            help="Show a job list")
+        parser.add_argument('--next', action='store_true', default=False, help="Runs the oldest queued job")
+        parser.add_argument('--id', type=int, default=0, help="Runs job specified by id.")
+        parser.add_argument('--uid', type=str, default='', help="Runs job specified by uid.")
+        parser.add_argument('--show_script', action='store_true', help="Shows the script.")
+        parser.add_argument('--show_json', action='store_true', help="Shows the JSON for the job.")
+        parser.add_argument('--show_template', action='store_true', help="Shows the template for the job.")
+        parser.add_argument('--show_command', action='store_true', help="Shows the command executed for the job.")
+        parser.add_argument('--use_json', help="Override the JSON with this file.")
+        parser.add_argument('--use_template', help="Override the TEMPLATE with this file.")
+        parser.add_argument('--list', action='store_true', help="Show a job list")
 
     def add_arguments(self, parser):
-        # Load or dump flags
 
         subparsers = parser.add_subparsers()
 
@@ -868,10 +863,7 @@ class Command(BaseCommand):
         dump = options.get("dump")
         root_url = options.get("url")
         api_key = options.get("key")
-        pid = options.get("pid")
 
-        if not pid:
-            exit(msg="[error] --pid needs to be set.")
         if not (load or dump):
             exit(msg="[error] Set load (-l) or dump (-d) flag.")
         if load and dump:
