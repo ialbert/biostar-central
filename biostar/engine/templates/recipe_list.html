@@ -20,7 +20,7 @@
                             <i class="setting icon"></i> {{ recipe.name }}
                         </a>
 
-                        <div class="meta">
+                        <div class="description">
                             {{ recipe.summary }}
                         </div>
 
@@ -31,7 +31,7 @@
                                 {{ recipe.job_count }}
                                 result{{ recipe.job_count|pluralize }}</a>
 
-                            {% created_by date=recipe.date user=recipe.owner obj=recipe %}
+                            {% created_by date=recipe.date %}
                         </div>
 
                         <div id="copy-message-{{ recipe.uid }}"></div>
