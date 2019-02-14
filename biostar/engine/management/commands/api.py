@@ -819,45 +819,16 @@ class Command(BaseCommand):
 
     def add_job_commands(self, parser):
 
-        parser.add_argument('--next',
-                            action='store_true',
-                            default=False,
-                            help="Runs the oldest queued job")
-
-        parser.add_argument('--id',
-                            type=int,
-                            default=0,
-                            help="Runs job specified by id.")
-        parser.add_argument('--uid',
-                            type=str,
-                            default='',
-                            help="Runs job specified by uid.")
-
-        parser.add_argument('--show_script',
-                            action='store_true',
-                            help="Shows the script.")
-
-        parser.add_argument('--show_json',
-                            action='store_true',
-                            help="Shows the JSON for the job.")
-
-        parser.add_argument('--show_template',
-                            action='store_true',
-                            help="Shows the template for the job.")
-
-        parser.add_argument('--show_command',
-                            action='store_true',
-                            help="Shows the command executed for the job.")
-
-        parser.add_argument('--use_json',
-                            help="Override the JSON with this file.")
-
-        parser.add_argument('--use_template',
-                            help="Override the TEMPLATE with this file.")
-
-        parser.add_argument('--list',
-                            action='store_true',
-                            help="Show a job list")
+        parser.add_argument('--next', action='store_true', default=False, help="Runs the oldest queued job")
+        parser.add_argument('--id', type=int, default=0, help="Runs job specified by id.")
+        parser.add_argument('--uid', type=str, default='', help="Runs job specified by uid.")
+        parser.add_argument('--show_script', action='store_true', help="Shows the script.")
+        parser.add_argument('--show_json', action='store_true', help="Shows the JSON for the job.")
+        parser.add_argument('--show_template', action='store_true', help="Shows the template for the job.")
+        parser.add_argument('--show_command', action='store_true', help="Shows the command executed for the job.")
+        parser.add_argument('--use_json', help="Override the JSON with this file.")
+        parser.add_argument('--use_template', help="Override the TEMPLATE with this file.")
+        parser.add_argument('--list', action='store_true', help="Show a job list")
 
     def add_arguments(self, parser):
 
