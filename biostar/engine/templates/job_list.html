@@ -40,7 +40,7 @@
                             <i class="bar chart icon"></i>{{ job.name }}
                         </a>
 
-                        <div class="description">{{ job.analysis.summary }}</div>
+                        <div class="meta">{{ job.analysis.summary }}</div>
 
                         <div class="extra">{% job_minutes job %}
                             {% created_by date=job.date %}
