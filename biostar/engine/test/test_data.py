@@ -2,15 +2,14 @@ import logging
 import os
 from unittest.mock import patch, MagicMock
 
+from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from biostar.engine import models, views, auth, const
 from . import util
-from django.conf import settings
 
 TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
-
 
 logger = logging.getLogger('engine')
 
@@ -36,8 +35,7 @@ class DataViewTest(TestCase):
     def test_data_edit(self):
         "Test Data edit view with POST request"
 
-        data = {'name': "new_data", 'summary': "summary", 'text': "tested",
-                'sticky': True}
+        data = {'name': "new_data", 'summary': "summary", 'text': "tested", }
 
         url = reverse('data_edit', kwargs=dict(uid=self.data.uid))
 
@@ -60,7 +58,6 @@ class DataViewTest(TestCase):
             'file': open(__file__, 'r'),
             'summary': 'summary',
             "text": "tested",
-            "sticky": True
         }
 
         url = reverse('data_upload', kwargs=dict(uid=self.project.uid))
@@ -95,7 +92,8 @@ class DataViewTest(TestCase):
         clear_url = reverse('clear_clipboard', kwargs=dict(uid=self.project.uid))
 
         request = util.fake_request(url=url, data={}, method="GET", user=self.owner)
-        clear_request = util.fake_request(url=clear_url, data={"board": const.DATA_CLIPBOARD}, method="GET", user=self.owner)
+        clear_request = util.fake_request(url=clear_url, data={"board": const.DATA_CLIPBOARD}, method="GET",
+                                          user=self.owner)
 
         response = views.data_copy(request=request, uid=self.data.uid)
         clear_response = views.clear_clipboard(request=clear_request, uid=self.project.uid)
@@ -110,4 +108,4 @@ class DataViewTest(TestCase):
                          f"Could not redirect to project view after tested :\nresponse:{response}")
 
         if save:
-            self.assertTrue( models.Data.save.called, "save() method not called")
+            self.assertTrue(models.Data.save.called, "save() method not called")

@@ -13,17 +13,6 @@
         {{ project.html|safe }}
     </div>
 
-    <div class="ui large vertical segment">
-
-        <div class="item">
-
-            <div class="extra">
-                {% privacy_label project %}
-                {% created_by date=project.date user=project.owner %}
-            </div>
-
-        </div>
-    </div>
 
     {% if write_access %}
         <div class="ui large vertical segment">
@@ -53,4 +42,15 @@
         </div>
     {% endif %}
 
+     <div class="ui large vertical segment">
+
+        <div class="item">
+
+            <div class="extra">
+                {% privacy_label project %}
+                {% created_by date=project.date user=project.owner %}
+            </div>
+
+        </div>
+    </div>
 {% endblock %}

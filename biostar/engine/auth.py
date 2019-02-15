@@ -213,7 +213,7 @@ def get_project_list(user, include_public=True, include_deleted=False):
 
 
 def create_project(user, name, uid=None, summary='', text='', stream=None,
-                   privacy=Project.PRIVATE, sticky=False, update=False):
+                   privacy=Project.PRIVATE, update=False):
 
     # Set or create the project uid.
     uid = uid or util.get_uuid(8)
@@ -236,7 +236,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
     else:
         # Create a new project.
         project = Project.objects.create(
-            name=name, uid=uid, text=text, owner=user, privacy=privacy, sticky=sticky)
+            name=name, uid=uid, text=text, owner=user, privacy=privacy)
 
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
@@ -248,7 +248,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
-                    name='', text='', stream=None, sticky=False, security=Analysis.UNDER_REVIEW, update=False):
+                    name='', text='', stream=None, security=Analysis.UNDER_REVIEW, update=False):
     owner = user or project.owner
 
     analysis = Analysis.objects.get_all(uid=uid)
@@ -269,7 +269,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         uid = None if analysis else uid
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
-                                           template=template, sticky=sticky)
+                                           template=template)
 
         analysis.uid = f"recipe-{analysis.id}{util.get_uuid(3)}" if not uid else uid
         analysis.save()

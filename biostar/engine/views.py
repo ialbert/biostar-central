@@ -210,7 +210,7 @@ def project_list_private(request):
         projects = []
         empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
     else:
-        projects = projects.order_by("-date", "-lastedit_date", "-id")
+        projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
         projects = annotate_projects(projects)
 
     context = dict(projects=projects, msg=empty_msg)
@@ -224,7 +224,7 @@ def project_list_public(request):
     projects = auth.get_project_list(user=request.user)
     # Exclude private projects
     projects = projects.exclude(privacy=Project.PRIVATE)
-    projects = projects.order_by("-date", "-lastedit_date", "-id")
+    projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
     projects = annotate_projects(projects)
 
     context = dict(projects=projects)
@@ -347,13 +347,13 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     project = Project.objects.get_all(uid=uid).first()
 
     # Select all the data in the project.
-    data_list = project.data_set.order_by("-sticky", "-date").all()
-    recipe_list = project.analysis_set.order_by("-sticky", "-date").all()
+    data_list = project.data_set.order_by("rank", "-date").all()
+    recipe_list = project.analysis_set.order_by("rank", "-date").all()
 
     # Annotate each recipe with the number of jobs it has.
     recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 
-    job_list = project.job_set.order_by("-sticky", "-date").all()
+    job_list = project.job_set.order_by("-date").all()
 
     # Filter job results by analysis
     filter_uid = request.GET.get('filter', '')

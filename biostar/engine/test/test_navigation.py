@@ -38,6 +38,7 @@ class SiteNavigation(TestCase):
         c = Client()
         c.login(username=self.username, email='tested@tested.com', password='tested')
         for url in urls:
+            print(url)
             resp = c.get(url, data={"q": "tested"})
             code = resp.status_code
             if code not in codes:
@@ -74,7 +75,6 @@ class SiteNavigation(TestCase):
             reverse('project_edit', kwargs=self.proj_params),
             reverse('recipe_list', kwargs=self.proj_params),
             reverse('recipe_view', kwargs=self.analysis_params),
-            reverse("recipe_code_view", kwargs=self.analysis_params),
             reverse("recipe_code_edit", kwargs=self.analysis_params),
             reverse('recipe_run', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),
