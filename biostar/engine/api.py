@@ -158,6 +158,9 @@ def recipe_json(request, uid):
 
     payload = recipe.json_data
 
+    # Insert file name and uid
+    payload["settings"]["fname"] = f"{recipe.name}-{recipe.id}"
+    payload["settings"]["uid"] = recipe.uid
     return Response(data=payload, status=status.HTTP_200_OK)
 
 
