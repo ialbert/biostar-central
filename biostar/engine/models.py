@@ -145,14 +145,18 @@ class Project(models.Model):
                             privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
                             help=self.text,
                             ),
-                       recipes={recipe.uid:
-                                dict(name=recipe.name,
-                                     json=reverse("recipe_api_json", kwargs=dict(uid=recipe.uid)),
-                                     template=reverse("recipe_api_template", kwargs=dict(uid=recipe.uid)))
-                                for recipe in self.analysis_set.all()
-                                })
+                       recipes=[recipe.uid for recipe in self.analysis_set.all()])
 
         return hjson.dumps(payload)
+
+    @property
+    def json_data(self):
+        json_data = hjson.loads(self.json_text)
+        json_data.get("settings", {})["id"] = self.pk
+        json_data.get("settings", {})["uid"] = self.uid
+        json_data.get("settings", {})["project_uid"] = self.uid
+        json_data.get("settings", {})["url"] = settings.BASE_URL
+        return json_data
 
     @property
     def summary(self):
@@ -401,7 +405,13 @@ class Analysis(models.Model):
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"
-        return hjson.loads(self.json_text)
+        json_data = hjson.loads(self.json_text)
+        json_data.get("settings", {})["id"] = self.pk
+        json_data.get("settings", {})["uid"] = self.uid
+        json_data.get("settings", {})["project_uid"] = self.project.uid
+        json_data.get("settings", {})["url"] = settings.BASE_URL
+        #json_data.get("settigns", {})["fname"] = f"{'_'.join(self.name)}-{self.pk}"
+        return json_data
 
     def save(self, *args, **kwargs):
         now = timezone.now()

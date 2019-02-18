@@ -10,7 +10,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from biostar.engine.models import Analysis, Project, image_path
-from biostar.utils.shortcuts import reverse
 from biostar.engine.decorators import require_api_key
 
 
@@ -73,8 +72,9 @@ def project_info(request, uid):
             project.text = conf.get("settings", {}).get("help") or project.text
             project.save()
 
-    payload = hjson.loads(project.json_text)
-    return Response(data=payload, status=status.HTTP_200_OK)
+    payload = hjson.dumps(project.json_data, indent=4)
+
+    return HttpResponse(content=payload, content_type="text/plain")
 
 
 @api_view(['GET', 'PUT'])
@@ -156,12 +156,9 @@ def recipe_json(request, uid):
 
         recipe.save()
 
-    payload = recipe.json_data
+    payload = hjson.dumps(recipe.json_data, indent=4)
 
-    # Insert file name and uid
-    payload["settings"]["fname"] = f"{recipe.name}-{recipe.id}"
-    payload["settings"]["uid"] = recipe.uid
-    return Response(data=payload, status=status.HTTP_200_OK)
+    return HttpResponse(content=payload, content_type="text/plain")
 
 
 @api_view(['GET', 'PUT'])
