@@ -739,8 +739,7 @@ def recipe_run(request, uid):
             json_data = form.fill_json_data()
 
             # Create the job from the recipe and incoming json data.
-            job = auth.create_job(analysis=analysis, user=request.user,
-                                  json_data=json_data, name=name)
+            job = auth.create_job(analysis=analysis, user=request.user, json_data=json_data, name=name)
 
             # Spool the job right away if UWSGI exists.
             if tasks.HAS_UWSGI:
