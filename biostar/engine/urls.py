@@ -56,12 +56,12 @@ urlpatterns = [
     url(r'^job/delete/(?P<uid>[-\w]+)/$', views.job_delete, name='job_delete'),
 
     # Api calls
-    url(r'^api/recipe/list/(?P<uid>[-\w]+)/$', api.recipe_api_list, name='recipe_api_list'),
     url(r'^api/project/list/$', api.project_api_list, name='project_api_list'),
+    url(r'^api/recipe/list/(?P<uid>[-\w]+)/$', api.recipe_api_list, name='recipe_api_list'),
     url(r'^api/recipe/json/(?P<uid>[-\w]+)/$', api.recipe_json, name='recipe_api_json'),
     url(r'^api/recipe/template/(?P<uid>[-\w]+)/$', api.recipe_template, name='recipe_api_template'),
     url(r'^api/recipe/image/(?P<uid>[-\w]+)/$', api.recipe_image, name='recipe_api_image'),
-    url(r'^api/project/info/(?P<uid>[-\w]+)/$', api.project_info, name='project_api_info'),
+    url(r'^api/project/(?P<uid>[-\w]+)/$', api.project_info, name='project_api_info'),
     url(r'^api/project/image/(?P<uid>[-\w]+)/$', api.project_image, name='project_api_image'),
 
     # Discussions
