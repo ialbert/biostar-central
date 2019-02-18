@@ -39,7 +39,7 @@ class JobViewTest(TestCase):
     def test_job_edit(self):
         "Test job edit with POST request"
 
-        data = {'name':'tested', 'text':"tested", 'sticky':True}
+        data = {'name':'tested', 'text':"tested" }
         url  = reverse('job_edit', kwargs=dict(uid=self.job.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)

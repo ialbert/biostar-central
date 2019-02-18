@@ -68,8 +68,9 @@ class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
 
-    # Affects the sort order.
-    sticky = models.BooleanField(default=False)
+
+    # Rank in a project list.
+    rank = models.FloatField(default=100)
 
     # The user that edited the object most recently.
     lastedit_user = models.ForeignKey(User, related_name='proj_editor', null=True, on_delete=models.CASCADE)
@@ -213,8 +214,11 @@ class Data(models.Model):
 
     name = models.CharField(max_length=MAX_NAME_LEN, default="My Data")
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
-    sticky = models.BooleanField(default=False)
+
     deleted = models.BooleanField(default=False)
+
+    # Rank on a data list.
+    rank = models.FloatField(default=100)
 
     # The user that edited the object most recently.
     lastedit_user = models.ForeignKey(User, related_name='data_editor', null=True, on_delete=models.CASCADE)
@@ -374,11 +378,14 @@ class Analysis(models.Model):
 
     deleted = models.BooleanField(default=False)
     uid = models.CharField(max_length=32, unique=True)
-    sticky = models.BooleanField(default=False)
+
     name = models.CharField(max_length=MAX_NAME_LEN, default="My Recipe")
     text = models.TextField(default='This is the recipe description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # The rank in a recipe list.
+    rank = models.FloatField(default=100)
 
     # The user that edited the object most recently.
     lastedit_user = models.ForeignKey(User, related_name='analysis_editor', null=True, on_delete=models.CASCADE)
@@ -504,7 +511,6 @@ class Job(models.Model):
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
 
-    sticky = models.BooleanField(default=False)
     analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     json_text = models.TextField(default="commands")

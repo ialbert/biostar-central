@@ -100,7 +100,7 @@ def data_field_generator(field, project, type="", extras=[]):
         type = type.replace(" ", '')
         query = query.filter(type__iregex=type)
 
-    query = query.order_by("sticky", "-date")
+    query = query.order_by("rank", "-date")
 
     # Create a mapping of data to id.
     datamap = dict((obj.id, obj) for obj in query)

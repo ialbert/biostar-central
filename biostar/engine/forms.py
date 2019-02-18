@@ -122,7 +122,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'text', 'privacy', 'image']
+        fields = ['name', 'text', 'privacy', 'rank', 'image']
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -311,7 +311,7 @@ class RecipeForm(forms.ModelForm):
 
     class Meta:
         model = Analysis
-        fields = ["name", "image", "text", "uid"]
+        fields = ["name", "image", "rank", "text", "uid"]
 
     def save(self, commit=True):
 

@@ -4,10 +4,10 @@ from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login
-from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView,
-                                       PasswordResetConfirmView, PasswordResetCompleteView)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView,
+                                       PasswordResetConfirmView, PasswordResetCompleteView)
 from django.core import signing
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
@@ -16,7 +16,6 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
-from biostar.utils.decorators import object_exists
 from biostar.engine.auth import get_project_list
 from biostar.engine.models import Project
 from biostar.utils.shortcuts import reverse
@@ -26,6 +25,8 @@ from .const import *
 from .models import User, Profile
 from .tokens import account_verification_token
 from .util import now, get_uuid
+
+from django.db.models import Q, Count
 
 logger = logging.getLogger('engine')
 
@@ -80,9 +81,13 @@ def user_moderate(request, uid):
     context = dict(form=form, target=target)
     return render(request, "accounts/user_moderate.html", context)
 
+def annotate_projects(projects):
+    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(deleted=False)),
+                                 job_count=Count('job', distinct=True, filter=Q(deleted=False)),
+                                 recipe_count=Count('analysis', distinct=True, filter=Q(deleted=False)))
+    return projects
 
 def user_profile(request, uid):
-
     profile = Profile.objects.filter(uid=uid).first()
 
     if not profile:
@@ -94,23 +99,25 @@ def user_profile(request, uid):
 
     can_moderate = profile.can_moderate(source=request.user)
 
-    objs = get_project_list(user=profile.user, include_public=False)
-    if request.user != profile.user:
-        objs = objs.exclude(privacy=Project.PRIVATE)
+    projects = get_project_list(user=profile.user, include_public=False)
+    projects = annotate_projects(projects)
 
-    objs = objs.order_by("-date")
+    if request.user != profile.user:
+        projects = projects.exclude(privacy=Project.PRIVATE)
+
+    projects = projects.order_by("rank", "-date")
     page = request.GET.get("page", 1)
 
-    paginator = Paginator(objs, per_page=20)
+    paginator = Paginator(projects, per_page=20)
     page = page if page is not None else 1
 
-    objs = paginator.get_page(page)
+    projects = paginator.get_page(page)
 
-    context = dict(user=profile.user, objs=objs,
+    context = dict(user=profile.user, objs=projects,
                    const_name=ACTIVE_TAB, const_post=POSTS, const_project=PROJECT,
                    const_recipes=RECIPES, can_moderate=can_moderate)
 
-    context.update({active_tab: ACTIVE_TAB})
+    context.update({active_tab: ACTIVE_TAB} )
 
     return render(request, 'accounts/user_profile.html', context)
 
@@ -134,9 +141,10 @@ def toggle_notify(request):
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_signup(request):
-    if not settings.ALLOW_SIGNUP:
-        messages.info(request, "Signups are not enabled on this site.")
-        return redirect("/")
+
+    #if not settings.ALLOW_SIGNUP:
+    #    messages.error(request, "Signups are not yet enabled on this site.")
+    #    return redirect(reverse("login"))
 
     if request.method == 'POST':
 

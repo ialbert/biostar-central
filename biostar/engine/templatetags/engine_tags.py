@@ -54,12 +54,6 @@ def moderate(request):
 
 
 @register.simple_tag
-def sticky_label(obj):
-    label = mark_safe('<span class ="ui label">Sticky</span>')
-    return label if obj.sticky else ''
-
-
-@register.simple_tag
 def build_path(path, name):
     return f'{path}/{name}'
 

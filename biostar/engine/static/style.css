@@ -36,7 +36,7 @@ body {
 }
 
 .ui.list.questions > .item > .description {
-    font-size: 1.1em;
+    //font-size: 1.1em;
     margin: 0ex 0em 0ex 0em;
     line-height: 1.5;
 }
@@ -63,11 +63,15 @@ body {
     border:0px;
 }
 
+
 .biostarimage{
     margin-right:0px;
     max-width: 100%!important;
 
 }
+
+
+
 
 ol {
     line-height: 3ex;

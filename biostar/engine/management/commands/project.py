@@ -60,7 +60,7 @@ def parse_params(fpath, base_dict):
     return bunch
 
 
-def parse_json(json, root, privacy=Project.PRIVATE, sticky=False, jobs=False, update=False):
+def parse_json(json, root, privacy=Project.PRIVATE, jobs=False, update=False):
     """
     Create a project from a JSON data
     """
@@ -74,7 +74,7 @@ def parse_json(json, root, privacy=Project.PRIVATE, sticky=False, jobs=False, up
     store = parse_params(fpath=fpath, base_dict=base)
     exists = Project.objects.filter(uid=store.uid).exists()
     project = auth.create_project(user=store.user, uid=store.uid, summary=store.summary, name=store.name,
-                                text=store.text, stream=store.stream, privacy=privacy, sticky=sticky, update=update)
+                                text=store.text, stream=store.stream, privacy=privacy, update=update)
 
     # Avoid duplicating data and recipe when updating a project.
     if update or exists:
@@ -102,8 +102,6 @@ class Command(BaseCommand):
         parser.add_argument('--json', required=True, help="The json file that defines the project relative to the root")
         parser.add_argument('--jobs', action='store_true', default=False, help="Create jobs for the analyses")
         parser.add_argument('--privacy', default="private", help="Privacy of project, defaults to sharable")
-        parser.add_argument('--sticky', action='store_true', default=False,
-                            help="Make project sticky (high in the order).")
         parser.add_argument('--update', action='store_true', default=False,
                             help="Update an existing project.")
 
@@ -111,7 +109,7 @@ class Command(BaseCommand):
         root = options['root']
         json = options['json']
         privacy = options["privacy"].lower()
-        sticky = options["sticky"]
+
         jobs = options["jobs"]
         update = options["update"]
 
@@ -125,4 +123,4 @@ class Command(BaseCommand):
             logger.error(f"Invalid privacy choice: {privacy}")
             return
 
-        parse_json(json=json, root=root, jobs=jobs, privacy=privacy_value, sticky=sticky, update=update)
+        parse_json(json=json, root=root, jobs=jobs, privacy=privacy_value, update=update)

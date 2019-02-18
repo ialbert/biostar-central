@@ -1,16 +1,13 @@
 import logging
-import hjson
-
-from django.test import TestCase, RequestFactory
 from unittest.mock import patch, MagicMock
-from django.urls import reverse
+
 from django.conf import settings
+from django.test import TestCase, RequestFactory
+from django.urls import reverse
 
 from biostar.engine import auth, const
 from biostar.engine import models, views, api
-
 from . import util
-
 
 logger = logging.getLogger('engine')
 
@@ -21,16 +18,16 @@ class RecipeViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com", is_staff=True)
+        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com",
+                                                     is_staff=True)
         self.owner.set_password("tested")
         self.factory = RequestFactory()
 
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
-        #Test data
+        # Test data
         self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="")
         self.recipe.save()
-
 
     @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
     def test_recipe_run(self):
@@ -49,12 +46,11 @@ class RecipeViewTest(TestCase):
 
         self.process_response(response=response, data=data, save=True, model=models.Job)
 
-
     @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
     def test_recipe_code_edit(self):
         "Test the recipe preview/save code view with POST request"
 
-        data = {'action': "SAVE", 'template':'#tested change', 'json':"{}"}
+        data = {'action': "SAVE", 'template': '#tested change', 'json': "{}"}
         url = reverse('recipe_code_edit', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
@@ -63,13 +59,12 @@ class RecipeViewTest(TestCase):
 
         self.process_response(response=response, data=data, save=True)
 
-
     @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
     def test_recipe_edit(self):
         "Test recipe edit with POST request"
 
-        data = { "name": "tested", "sticky":True, "summary":"summary", "text":"text" ,
-                 "uid":"tested"}
+        data = {"name": "tested", "summary": "summary", "text": "text", "rank": 100,
+                "uid": "tested"}
         url = reverse('recipe_edit', kwargs=dict(uid=self.recipe.uid))
 
         request = util.fake_request(url=url, data=data, user=self.owner)
@@ -105,8 +100,10 @@ class RecipeViewTest(TestCase):
         "Test the recipe api"
 
         api_list = reverse('recipe_api_list'), api.recipe_api_list, {}
-        api_json = reverse('recipe_api_json', kwargs=dict(uid=self.recipe.uid)), api.recipe_json, dict(uid=self.recipe.uid)
-        api_template = reverse('recipe_api_template', kwargs=dict(uid=self.recipe.uid)), api.recipe_template, dict(uid=self.recipe.uid)
+        api_json = reverse('recipe_api_json', kwargs=dict(uid=self.recipe.uid)), api.recipe_json, dict(
+            uid=self.recipe.uid)
+        api_template = reverse('recipe_api_template', kwargs=dict(uid=self.recipe.uid)), api.recipe_template, dict(
+            uid=self.recipe.uid)
 
         for data in [api_list, api_json, api_template]:
             url, view_func, params = data
@@ -127,11 +124,11 @@ class RecipeViewTest(TestCase):
 
         self.assertEqual(changed.uid, self.recipe.uid)
 
-    def process_response(self, response, data, model=models.Analysis,save=False):
+    def process_response(self, response, data, model=models.Analysis, save=False):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect :\nresponse:{response}")
 
         if save:
-            self.assertTrue( model.save.called, "save() method not called when editing.")
+            self.assertTrue(model.save.called, "save() method not called when editing.")
