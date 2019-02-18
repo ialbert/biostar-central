@@ -386,7 +386,6 @@ figure { display: block; margin: 0; }
 }
 
 
-
 .code {
     font-family: monospace;
 }
@@ -396,9 +395,6 @@ h1 {
     font-size: 1.4rem;
 }
 
-ul {
-    list-style-type: none !important ;
-}
 
 .subheader {
     font-size: 1.1em;
