@@ -64,8 +64,11 @@ List of projects in a tab delimited fashion with three columns: **ID** , **Name*
   
 
 ##### Example
+    GET /api/project/image/tutorials/
+    
+Image in response:
 
-[/api/project/image/tutorials/](tutorial.png)
+![20% center](tutorial.png)
 
 
 
