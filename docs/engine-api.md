@@ -1,4 +1,4 @@
-# API
+# API Methods and Commands
 
 ## Methods
 
@@ -94,13 +94,13 @@ List of recipes for project in a tab delimited fashion with two columns: **ID** 
 
 Recipe JSON used to generate interface
 
-#### Parameters
+##### Parameters
 * _id_: Unique recipe ID
 
-#### Fields in response 
+##### Fields in response 
 Fields associated with the recipe JSON
 
-#### Example
+##### Example
 [/api/recipe/json/93412cee/](https://www.bioinformatics.recipes/api/recipe/93412cee/json/)
 
     {
