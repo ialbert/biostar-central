@@ -81,7 +81,7 @@ List of recipes for project in a tab delimited fashion with two columns: **ID** 
 * _id_: unique project ID
 
 ##### Example
-[/api/recipe/list/tutorial/](https://www.bioinformatics.recipes/api/recipe/list/tutorial/)
+[/api/recipe/list/tutorials/](https://www.bioinformatics.recipes/api/recipe/list/tutorials/)
 
     interface	Interface Elements
     makefile	Makefile Example
@@ -162,6 +162,19 @@ Recipe template executed during analysis.
 
     # Tell the user what happened.
     sprintf("Saved plot into file: %s", fname)
+
+
+
+### Recipe Image
+
+    GET /api/recipe/image/{id}/
+    PUT /api/recipe/image/{id}/
+    
+    
+#### Parameters
+* _id_: Unique recipe ID
+
+####Example
 
 
 ##Commands 
