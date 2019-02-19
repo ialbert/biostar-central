@@ -176,11 +176,11 @@ Recipe template executed during analysis.
 #### Parameters
 * _id_: Unique recipe ID
 
-####Example
+#### Example
 
-![20%](starter.jpeg)
+![20% center](starter.jpeg)
 
-##Commands 
+## Commands 
 
 Recipe API:
 
