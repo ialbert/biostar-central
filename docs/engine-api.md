@@ -13,7 +13,7 @@ List of projects in a tab delimited fashion with three columns: **ID** , **Name*
     tutorial	Recipe Tutorials	Public
     cookbook	Bioinformatics Cookbook	Public
 
-###Project Information
+### Project Information
 
     GET /api/project/info/{id}/
     PUT /api/project/info/{id}/
@@ -63,14 +63,16 @@ List of projects in a tab delimited fashion with three columns: **ID** , **Name*
     PUT /api/project/image/{id}/
   
 
-##### Example
-
-[/api/project/image/tutorials/](tutorial.png)
-
-
-
 ##### Parameters
 * _id_: unique project ID
+
+##### Example
+    GET /api/project/image/tutorials/
+    
+Image in response:
+
+![20% center](tutorial.png)
+
 
 ### Recipe list
     GET /api/recipe/list/{id}/
