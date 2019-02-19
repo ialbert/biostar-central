@@ -177,13 +177,17 @@ Recipe template executed during analysis.
 #### Parameters
 * _id_: Unique recipe ID
 
-####Example
+#### Example
 
+<<<<<<< HEAD
 [api/recipe/image/starter/](https://www.bioinformatics.recipes/api/recipe/template/starter/)
 
 ![20%](starter.jpeg)
+=======
+![20% center](starter.jpeg)
+>>>>>>> 4b718d84694af8c6d052844d3b8a4ae6a9c86844
 
-##Commands 
+## Commands 
 
 Recipe API:
 
