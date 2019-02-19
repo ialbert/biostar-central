@@ -7,7 +7,7 @@
 
 List of projects in a tab delimited fashion with three columns: **ID** , **Name**, and **Privacy**
 
-##### Example
+#### Example
 [/api/project/list/](https://www.bioinformatics.recipes/api/project/list/)
 
     tutorial	Recipe Tutorials	Public
@@ -18,10 +18,10 @@ List of projects in a tab delimited fashion with three columns: **ID** , **Name*
     GET /api/project/info/{id}/
     PUT /api/project/info/{id}/
    
-##### Parameters
+#### Parameters
 * _id_: unique project ID
 
-##### Example
+#### Example
 [/api/project/tutorials/](https://www.bioinformatics.recipes/api/project/tutorials/)
 
     {
@@ -63,10 +63,10 @@ List of projects in a tab delimited fashion with three columns: **ID** , **Name*
     PUT /api/project/image/{id}/
   
 
-##### Parameters
+#### Parameters
 * _id_: unique project ID
 
-##### Example
+#### Example
 
 [/api/project/image/tutorials/](https://www.bioinformatics.recipes/api/project/image/tutorials/)
     
@@ -80,10 +80,10 @@ Image in response:
     
 List of recipes for project in a tab delimited fashion with two columns: **ID** and **Name**
 
-##### Parameters
+#### Parameters
 * _id_: unique project ID
 
-##### Example
+#### Example
 [/api/recipe/list/tutorials/](https://www.bioinformatics.recipes/api/recipe/list/tutorials/)
 
     interface	Interface Elements
@@ -97,13 +97,13 @@ List of recipes for project in a tab delimited fashion with two columns: **ID** 
 
 Recipe JSON used to generate interface
 
-##### Parameters
+#### Parameters
 * _id_: Unique recipe ID
 
-##### Fields in response 
+#### Fields in response 
 Fields associated with the recipe JSON
 
-##### Example
+#### Example
 [/api/recipe/json/starter/](https://www.bioinformatics.recipes/api/recipe/json/starter/)
 
     {
@@ -149,23 +149,43 @@ Recipe template executed during analysis.
 
 #### Example
 [/api/recipe/template/starter/](https://www.bioinformatics.recipes/api/recipe/template/starter/)
-
-    # Set graphics device to PNG.
-    fname = 'plot.png'
-    png(fname)
-
-    # Generate the sample.
-    data = sample(1:3, size={{size.value}}, replace=TRUE, prob=c(.30,.60,.10))
-
-    # Turn it into a table.
-    data = table(data)
-
-    # Generate the barplot.
-    barplot(data)
-
-    # Tell the user what happened.
-    sprintf("Saved plot into file: %s", fname)
-
+    
+    #
+    # A starter recipe with examples.
+    #
+    
+    #
+    # You can fill in shell variables
+    #
+    READLEN=250
+    
+    echo "Read length: $READLEN"
+    
+    #
+    # Substitute into content
+    #
+    echo "Referene genome: Genome.fa"
+    
+    #
+    # But you may also use Django Template constructs.
+    #
+    
+    
+    echo "Yes, it is Pacific Biosciences!"
+    
+    #
+    # Generate a table of content with all files in the job directory.
+    #
+    find . -name '*' > files.txt
+    
+    #
+    # Print the contents to the screen
+    #
+    echo "****** File List: files.txt ****"
+    cat files.txt
+    # Make a nested directory
+    mkdir -p foo/bar
+    find . -name '*' > foo/bar/all.txt
 
 
 ### Recipe Image
@@ -184,6 +204,7 @@ Recipe template executed during analysis.
 Image in response:
 
 ![20%](starter.jpeg)
+
 
 ## Commands 
 
