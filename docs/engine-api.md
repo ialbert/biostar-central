@@ -178,6 +178,7 @@ Recipe template executed during analysis.
 
 ####Example
 
+![20%](starter.jpeg)
 
 ##Commands 
 
