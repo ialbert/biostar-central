@@ -67,7 +67,8 @@ List of projects in a tab delimited fashion with three columns: **ID** , **Name*
 * _id_: unique project ID
 
 ##### Example
-    GET /api/project/image/tutorials/
+
+[/api/project/image/tutorials/](https://www.bioinformatics.recipes/api/project/image/tutorials/)
     
 Image in response:
 
@@ -103,7 +104,7 @@ Recipe JSON used to generate interface
 Fields associated with the recipe JSON
 
 ##### Example
-[/api/recipe/json/93412cee/](https://www.bioinformatics.recipes/api/recipe/93412cee/json/)
+[/api/recipe/json/starter/](https://www.bioinformatics.recipes/api/recipe/json/starter/)
 
     {
 
@@ -147,7 +148,7 @@ Recipe template executed during analysis.
 * _id_: Unique recipe ID
 
 #### Example
-[/api/recipe/template/93412cee/](https://www.bioinformatics.recipes/api/recipe/93412cee/template/)
+[/api/recipe/template/starter/](https://www.bioinformatics.recipes/api/recipe/template/starter/)
 
     # Set graphics device to PNG.
     fname = 'plot.png'
@@ -177,6 +178,8 @@ Recipe template executed during analysis.
 * _id_: Unique recipe ID
 
 ####Example
+
+[api/recipe/image/starter/](https://www.bioinformatics.recipes/api/recipe/template/starter/)
 
 ![20%](starter.jpeg)
 
