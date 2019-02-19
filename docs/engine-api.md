@@ -83,8 +83,8 @@ List of projects in a tab delimited fashion with three columns: **ID** , **Name*
 
 ### Project Information
 
-    GET /api/project/info/{id}/
-    PUT /api/project/info/{id}/
+    GET /api/project/{id}/
+    PUT /api/project/{id}/
    
 #### Parameters
 * _id_: unique project ID
