@@ -774,8 +774,11 @@ class Command(BaseCommand):
         else:
             recipes = recipe_dumper(root_dir=root_dir, root_url=root_url, api_key=api_key, rid=uid, pid=pid)
 
-        msg = f"{len(recipes)} recipes {'loaded' if load else 'dumped'}."
-        self.stdout.write(self.style.SUCCESS(msg))
+        if recipes:
+            self.stdout.write(self.style.SUCCESS(f"{len(recipes)} recipes {'loaded' if load else 'dumped'}."))
+        else:
+            self.stdout.write(self.style.NOTICE(f"No recipes found for --pid={pid}, --json={json_file}"))
+
         return
 
     def manage_data(self, **options):
@@ -875,7 +878,7 @@ class Command(BaseCommand):
 
     def check_error(self, **options):
         """
-        Check routine errors for parser
+        Check api routine errors for parser
         """
 
         def exit(msg):
