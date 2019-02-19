@@ -398,12 +398,14 @@ def project_loader(root_dir, json_file=None, pid=None, root_url=None, api_key=""
     for project_json in project_jsons:
         source = os.path.abspath(os.path.join(root_dir, project_json))
         json_data = hjson.load(open(source, "r"))
-        conf = json_data.get("settings", [])
+        conf = json_data.get("settings", {})
         url = conf.get("url") if url_from_json else root_url
         uid = conf.get("uid") or pid
         privacy = conf.get("privacy", "").lower() or "private"
         privacy = pmap.get(privacy, Project.PRIVATE)
-        img_name = get_fname(uid=uid, settings_key="image", mtype=Project, json_file=source)
+        placeholder = f"{'_'.join(conf.get('name', 'name').split())}-{conf.get('id')}"
+        img_name = conf.get("image") or placeholder+".png"
+
         load(uid=uid, privacy=privacy, root_url=url, view="project_api_info", fname=source)
         load(uid=uid, root_url=url, is_image=True, view="project_api_image", fname=img_name)
 
