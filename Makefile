@@ -59,28 +59,18 @@ install:
 	conda install --file conf/conda_requirements.txt -y
 
 
-tutorial:
-	# Load tutorial project and recipes.
-	python manage.py api project -l --data --uid tutorial --dir ../biostar-recipes/projects --data_root ../biostar-recipes --privacy public
-	python manage.py api recipe -l --pid tutorial --dir ../biostar-recipes/api/tutorial --jobs
-
-projects:
+recipes2:
 	# Load projects and associated data
-	python manage.py api project -l --data --dir ../biostar-recipes/projects --uid cookbook --data_root ../biostar-recipes --privacy public
-	python manage.py api project -l --data --dir ../biostar-recipes/projects --uid fish --data_root ../biostar-recipes --privacy public
-	python manage.py api project -l --data --dir ../biostar-recipes/projects --uid giraffe --data_root ../biostar-recipes --privacy public
-	python manage.py api project -l --data --dir ../biostar-recipes/projects --uid handbook --data_root ../biostar-recipes --privacy public
-	python manage.py api project -l --data --dir ../biostar-recipes/projects --uid mothur --data_root ../biostar-recipes --privacy public
-	python manage.py api project -l --data --dir ../biostar-recipes/projects --uid trout --data_root ../biostar-recipes
+	python manage.py api project -l -a --dir ../biostar-recipes/projects --data_root ../biostar-recipes
 
-# Load all recipes
-recipes2: tutorial projects
-	python manage.py api recipe -l --pid cookbook  --dir ../biostar-recipes/api/cookbook/ --jobs
-	python manage.py api recipe -l --pid fish  --dir ../biostar-recipes/api/fish/
-	python manage.py api recipe -l --pid giraffe  --dir ../biostar-recipes/api/giraffe/
-	python manage.py api recipe -l --pid handbook  --dir ../biostar-recipes/api/handbook/
-	python manage.py api recipe -l --pid mothur  --dir ../biostar-recipes/api/mothur/
-	python manage.py api recipe -l --pid trout  --dir ../biostar-recipes/api/trout/
+	# Load all recipes and start jobs
+	python manage.py api recipe -l --dir ../biostar-recipes/recipes/cookbook/ --jobs
+	python manage.py api recipe -l --dir ../biostar-recipes/recipes/tutorial --jobs
+	python manage.py api recipe -l --dir ../biostar-recipes/recipes/fish/
+	python manage.py api recipe -l --dir ../biostar-recipes/recipes/giraffe/
+	python manage.py api recipe -l --dir ../biostar-recipes/recipes/handbook/
+	python manage.py api recipe -l --dir ../biostar-recipes/recipes/mothur/
+	python manage.py api recipe -l --dir ../biostar-recipes/recipes/trout/
 
     # Create initial users
 	python manage.py add_user initial/initial-users.csv
