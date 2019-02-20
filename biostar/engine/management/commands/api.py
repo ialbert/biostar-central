@@ -303,13 +303,14 @@ def get_fname(uid=None, root_url=None, api_key="", view="recipe_api_json",
     json_settings = hjson.loads(json_text).get("settings", {})
     # Get the local image name from "settings" in json.
     # Defaults to uid.png
+
     placeholder = f"{'_'.join(json_settings.get('name', 'name').split())}-{json_settings.get('id')}{ext}"
 
     return placeholder
 
 
 def recipe_loader(root_dir,  pid=None, json_fname=None, api_key="", root_url=None, rid="", url_from_json=False,
-                  jobs=False):
+                  jobs=False, loaded=0):
     """
         Load recipes into api/database from a project found in project_dir.
         Uses PUT request so 'api_key' is required with 'root_url'.
@@ -337,6 +338,7 @@ def recipe_loader(root_dir,  pid=None, json_fname=None, api_key="", root_url=Non
         uid = conf.get("uid")
         proj_uid = conf.get("project_uid")
         url = conf.get("url") if url_from_json else root_url
+
         # Skip loading when rid/pid provided does not equal target uid/pid
         if (rid and uid != rid) or (pid and proj_uid != pid):
             continue
@@ -349,9 +351,10 @@ def recipe_loader(root_dir,  pid=None, json_fname=None, api_key="", root_url=Non
         # Start a job once the template has been loaded from remote host
         load(uid=uid, pid=proj_uid, root_url=url, fname=conf.get("template") or placeholder+".sh",
              jobs=jobs)
+        loaded += 1
         print(f"*** Loaded recipe id: {uid}")
 
-    return recipe_jsons
+    return loaded
 
 
 def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
@@ -378,7 +381,7 @@ def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
 
 
 def project_loader(root_dir, json_file=None, pid=None, root_url=None, api_key="", data=False, data_root="",
-                   url_from_json=False):
+                   url_from_json=False, loaded=0):
     """
     Load projects from root_dir into remote host or local database
     """
@@ -402,20 +405,19 @@ def project_loader(root_dir, json_file=None, pid=None, root_url=None, api_key=""
         privacy = conf.get("privacy", "").lower() or "private"
         privacy = pmap.get(privacy, Project.PRIVATE)
         placeholder = f"{'_'.join(conf.get('name', 'name').split())}-{conf.get('id')}"
-
         # Skip anything that doesn't equal given pid.
         if pid and pid != uid:
             continue
 
         load(uid=uid, privacy=privacy, root_url=url, view="project_api_info", fname=source)
-        load(uid=uid, root_url=url, is_image=True, view="project_api_image", fname=placeholder+".png")
+        load(uid=uid, root_url=url, is_image=True, view="project_api_image", fname= conf.get("image") or placeholder+".png")
 
         if data:
             add_data = json_data.get("data", [])
             data_from_json(root=data_root, pid=uid, json_data=add_data)
-
+        loaded += 1
         print(f"*** Loaded project ({uid}).")
-    return project_jsons
+    return loaded
 
 
 def project_dumper(pid, root_dir, root_url=None, api_key=""):
@@ -753,15 +755,16 @@ class Command(BaseCommand):
             sys.exit()
 
         print(f"Loading json files from --dir {root_dir}")
+
         if load_recipes or rid:
             recipes = recipe_loader(root_dir=root_dir, root_url=root_url, api_key=api_key, json_fname=json_file,
                       rid=rid, pid=pid, jobs=create_job, url_from_json=url_from_json)
-            msg = f"{len(recipes)} recipes "
+            msg = f"{recipes} recipes "
 
         else:
             projects = project_loader(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key, data=add_data,
                        data_root=data_root, url_from_json=url_from_json, json_file=json_file)
-            msg = f"{len(projects)} projects "
+            msg = f"{projects} projects "
 
         msg = msg + f"{'loaded into url' if url_from_json or root_url else 'loaded into database'}."
         self.stdout.write(msg=self.style.SUCCESS(msg))

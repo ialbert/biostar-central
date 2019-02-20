@@ -60,17 +60,17 @@ install:
 
 
 recipes2:
-	# Load projects and associated data
-	python manage.py api project -l -a --dir ../biostar-recipes/projects --data_root ../biostar-recipes
+	# Load projects from hjson files in --dir, include associated data
+	python manage.py api load --add_data --dir ../biostar-recipes/projects --data_root ../biostar-recipes
 
-	# Load all recipes and start jobs
-	python manage.py api recipe -l --dir ../biostar-recipes/recipes/cookbook/ --jobs
-	python manage.py api recipe -l --dir ../biostar-recipes/recipes/tutorial --jobs
-	python manage.py api recipe -l --dir ../biostar-recipes/recipes/fish/
-	python manage.py api recipe -l --dir ../biostar-recipes/recipes/giraffe/
-	python manage.py api recipe -l --dir ../biostar-recipes/recipes/handbook/
-	python manage.py api recipe -l --dir ../biostar-recipes/recipes/mothur/
-	python manage.py api recipe -l --dir ../biostar-recipes/recipes/trout/
+	# Load all recipes in --dir and start jobs on some
+	python manage.py api load --recipes --dir ../biostar-recipes/recipes/cookbook/ --jobs
+	python manage.py api load --recipes --dir ../biostar-recipes/recipes/tutorial --jobs
+	python manage.py api load --recipes --dir ../biostar-recipes/recipes/fish/
+	python manage.py api load --recipes --dir ../biostar-recipes/recipes/giraffe/
+	python manage.py api load --recipes --dir ../biostar-recipes/recipes/handbook/
+	python manage.py api load --recipes --dir ../biostar-recipes/recipes/mothur/
+	python manage.py api load --recipes --dir ../biostar-recipes/recipes/trout/
 
     # Create initial users
 	python manage.py add_user initial/initial-users.csv

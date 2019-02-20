@@ -415,6 +415,7 @@ class Analysis(models.Model):
         json_data = hjson.loads(self.json_text)
         json_data.get("settings", {})["id"] = self.pk
         json_data.get("settings", {})["uid"] = self.uid
+        json_data.get("settings", {})["image"] = f"{'_'.join(self.name.split())}-{self.pk}.png"
         json_data.get("settings", {})["project_uid"] = self.project.uid
         json_data.get("settings", {})["url"] = settings.BASE_URL
         #json_data.get("settigns", {})["fname"] = f"{'_'.join(self.name)}-{self.pk}"
