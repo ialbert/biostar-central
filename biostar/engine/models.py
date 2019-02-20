@@ -142,7 +142,7 @@ class Project(models.Model):
         payload = dict(settings=dict(
                             uid=self.uid,
                             name=self.name,
-                            image=f"{self.uid}.png",
+                            image=f"{'_'.join(self.name.split())}-{self.pk}.png",
                             privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
                             help=self.text,
                             ),
