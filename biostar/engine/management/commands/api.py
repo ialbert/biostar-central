@@ -817,13 +817,14 @@ class Command(BaseCommand):
         return
 
     def add_load_commands(self, parser):
-        self.add_api_commands(parser=parser)
+
         parser.add_argument('-u', "--url_from_json", action="store_true",
                             help="""Extract url from conf file instead of --url.""")
         parser.add_argument('-r', "--recipes", action="store_true",
                             help="""Load recipes of --pid""")
         parser.add_argument('-d', "--data", action="store_true",
                             help="""Load data of --pid to local database.""")
+        self.add_api_commands(parser=parser)
 
         parser.add_argument("--add_data", action='store_true', help="Add data found in --json to --pid.")
         parser.add_argument("--jobs", action='store_true', help="Also creates a queued job for the recipe")
@@ -845,9 +846,10 @@ class Command(BaseCommand):
         return
 
     def add_dump_commands(self, parser):
-        self.add_api_commands(parser=parser)
         parser.add_argument('-r', "--recipes", action="store_true",
                             help="""Load recipes of --pid""")
+        self.add_api_commands(parser=parser)
+
         parser.add_argument('--rid', type=str, default="", help="Recipe uid to dump.")
         parser.add_argument("--pid", type=str, default="", help="Project uid to load dump.")
         parser.add_argument('--dir', default='', help="Directory to store from.")

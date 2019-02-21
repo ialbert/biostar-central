@@ -4,69 +4,58 @@
 
 ## Commands 
 
-Recipe API:
-
-    $ python manage.py api recipe --help
-    optional arguments:
-      -h, --help           show this help message and exit
-      -l, --load           Load to url from a directory. Load to database if --url
-                           is not set.
-      -d, --dump           Dump from a url to directory. Dump from database if
-                           --url is not set.
-      -u, --url_from_json  Extract url from conf file instead of --url. Only works
-                           when --load(-l) flag is set.
-      --url URL            Site url.
-      --key KEY            API key. Required to access private projects.
-      --jobs               Also creates a queued job for the recipe
-      --uid UID            Recipe uid to load or dump.
-      --pid PID            Project uid to load from or dump to.
-      --dir DIR            Directory to store/load recipe from.
-      --list               Show a recipe list.
-      --json JSON          JSON file path relative to --dir to get conf from ONLY
-                           when --load flag is set.
-
-    # Dump all recipes in project --pid from remote host.
-    $ python manage.py api recipe -d --pid tutorial --dir tutorial --url https://www.bioinformatics.recipes 
+Load API:
     
-    # Load all recipes in project directory --dir to remote host.
-    $ python manage.py api recipe -l -u --dir tutorial --key API_KEY
-    
-    
-    
-Project API:
-
-    $ python manage.py api project --help
-    
+    $ python manage.py api load --help
     optional arguments:
       -h, --help            show this help message and exit
-      -l, --load            Load to url from a directory. Load to database if
-                            --url is not set.
-      -d, --dump            Dump from a url to directory. Dump from database if
-                            --url is not set.
-      -u, --url_from_json   Extract url from conf file instead of --url. Only
-                            works when --load(-l) flag is set.
+      -u, --url_from_json   Extract url from conf file instead of --url.
+      -r, --recipes         Load recipes of --pid
+      -d, --data            Load data of --pid to local database.
       --url URL             Site url.
       --key KEY             API key. Required to access private projects.
-      -a, --add_data        Add data found in conf file to local database.
-      --privacy PRIVACY     Privacy of project, only used when creating.
-      --uid UID             Project uid to load from or dump to.
-      --dir DIR             Directory to store/load project from.
-      --list                Show a project list.
+      --add_data            Add data found in --json to --pid.
+      --jobs                Also creates a queued job for the recipe
+      --rid RID             Recipe uid to load.
+      --pid PID             Project uid to load from or dump to.
+      --did DID             Data uid to load or update.
+      --dir DIR             Base directory to store/load from.
+      --path PATH           Path to data.
+      --text TEXT           A file containing the description of the data
+      --name NAME           Sets the name of the data
+      --type TYPE           Sets the type of the data
+      --update_toc          Update table of contents for data --uid.
       --data_root DATA_ROOT
-                            Root directory to data found in conf file.
-      --json JSON           JSON file path relative to --dir to get conf from ONLY
-                            when --load flag is set.
-
-
-    # Dump project from remote url using --dump (-d) flag.
-    $ python manage.py api project -d --uid tutorial --url https://www.bioinformatics.recipes
-
-    # Load project to remote url in json file using --load (-l)  
-    # and --url_from_json (-u) flag.
+                            Root directory to data found in conf file when loading
+                            project.
+      --json JSON           JSON file path relative to --dir.
+                      
+           
+     # Load project tutorial from json file. 
+     $ python manage.py api load --json ../biostar-recipes/projects/tutorial.hjson 
+     
+     # Load recipe jsons in --dir to project --pid. Upload to remote host with -u flag.
+     $ python manage.py api load --pid tutorial --dir ../biostar-recipes/recipes/ --recipes
     
-    $ python manage.py api project -l -u --json tutorial.hjson --key API_KEY
-    
+Dump API:
 
+    $ python manage.py api dump --help
+    
+    optional arguments:
+      -h, --help     show this help message and exit
+      -r, --recipes  Load recipes of --pid
+      --url URL      Site url.
+      --key KEY      API key. Required to access private projects.
+      --rid RID      Recipe uid to dump.
+      --pid PID      Project uid to load dump.
+      --dir DIR      Directory to store from.
+
+    # Dump project from remote url (--url).
+    $ $ python manage.py api dump --pid tutorial --dir tmp/remote/projects/ --url URL
+
+    # Dump recipes from remote url ( --url) 
+    $ python manage.py api dump --pid tutorial --dir tmp/remote/recipes/ --url URL --recipes
+    
 
 ## Methods
 
