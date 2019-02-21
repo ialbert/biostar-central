@@ -1,8 +1,8 @@
-# API Methods and Commands
+#API Methods and Commands
 
 
 
-## Commands 
+# Commands 
 
 Dump API:
 
@@ -58,9 +58,9 @@ Load API:
      $ python manage.py api load --pid tutorial --dir ../biostar-recipes/recipes/ --recipes
     
 
-## Methods
+# Methods
 
-### Project list 
+## Project list 
     GET /api/project/list/
 
 List of projects in a tab delimited fashion with three columns: **ID** , **Name**, and **Privacy**
@@ -71,7 +71,7 @@ List of projects in a tab delimited fashion with three columns: **ID** , **Name*
     tutorial	Recipe Tutorials	Public
     cookbook	Bioinformatics Cookbook	Public
 
-### Project Information
+## Project Information
 
     GET /api/project/{id}/
     PUT /api/project/{id}/
@@ -115,7 +115,7 @@ List of projects in a tab delimited fashion with three columns: **ID** , **Name*
         ]
     }
 
-### Project Image
+## Project Image
 
     GET /api/project/image/{id}/
     PUT /api/project/image/{id}/
@@ -133,7 +133,7 @@ Image in response:
 ![20% center](tutorial.png)
 
 
-### Recipe list
+## Recipe list
     GET /api/recipe/list/{id}/
     
 List of recipes for project in a tab delimited fashion with two columns: **ID** and **Name**
@@ -148,7 +148,7 @@ List of recipes for project in a tab delimited fashion with two columns: **ID** 
     makefile	Makefile Example
     environment	Environment Check
 
-### Recipe Json
+## Recipe Json
 
     GET /api/recipe/json/{id}/
     PUT /api/recipe/json/{id}/
@@ -223,7 +223,7 @@ Fields associated with the recipe JSON
       }
     }
 
-### Recipe Template
+## Recipe Template
 
     GET /api/recipe/template/{id}/
     PUT /api/recipe/template/{id}/
@@ -274,7 +274,7 @@ Recipe template executed during analysis.
     find . -name '*' > foo/bar/all.txt
 
 
-### Recipe Image
+## Recipe Image
 
     GET /api/recipe/image/{id}/
     PUT /api/recipe/image/{id}/
