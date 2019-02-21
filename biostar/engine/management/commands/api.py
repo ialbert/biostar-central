@@ -271,7 +271,7 @@ def get_recipes_list(pid, root_url=None, api_key="", rid=""):
         data = data.decode("utf-8").split("\n")
         recipes = [r.split("\t")[0] for r in data if r]
         # Filter recipes from remote host.
-
+        print(recipes)
         recipes = list(filter(lambda r: r == rid, recipes)) if rid else recipes
         return recipes
     query = Q(uid=rid) if rid else Q(project__uid=pid)
@@ -280,7 +280,7 @@ def get_recipes_list(pid, root_url=None, api_key="", rid=""):
         recipes = recipes.values_list("uid", flat=True)
     else:
         # Allows for the creation of 'rid' if it doesn't exist.
-        recipes = [rid] if rid else []
+        recipes = []
     return recipes
 
 
