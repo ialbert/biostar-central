@@ -303,6 +303,7 @@ def get_conf(uid=None, root_url=None, api_key="", view="recipe_api_json",
     conf = hjson.loads(json_text).get("settings", {})
     return conf
 
+
 def fname(conf, k=None, ext=".txt"):
     item = conf.get(k) if k else None
     placeholder = f"{'_'.join(conf.get('name', 'name').split())}-{conf.get('id')}"
@@ -357,10 +358,10 @@ def recipe_loader(root_dir,  pid=None, json_fname=None, api_key="", root_url=Non
 
         load(uid=uid, pid=proj_uid, root_url=url, fname=os.path.basename(json_file), view="recipe_api_json",
              is_json=True)
-        load(uid=uid, pid=proj_uid, root_url=url, fname=fname(conf=conf, ext=".png"), view="recipe_api_image",
+        load(uid=uid, pid=proj_uid, root_url=url, fname=fname(conf=conf, k="image", ext=".png"), view="recipe_api_image",
              is_image=True)
         # Start a job once the template has been loaded from remote host
-        load(uid=uid, pid=proj_uid, root_url=url, fname=fname(conf=conf, ext=".sh"), jobs=jobs)
+        load(uid=uid, pid=proj_uid, root_url=url, fname=fname(conf=conf, k="template", ext=".sh"), jobs=jobs)
         loaded += 1
         print(f"*** Loaded recipe id: {uid}")
 
@@ -411,7 +412,7 @@ def project_loader(root_dir, json_file=None, pid=None, root_url=None, api_key=""
             continue
 
         load(uid=uid, privacy=privacy, root_url=url, view="project_api_info", fname=source)
-        load(uid=uid, root_url=url, is_image=True, view="project_api_image", fname=fname(conf=conf, ext=".png"))
+        load(uid=uid, root_url=url, is_image=True, view="project_api_image", fname=fname(conf=conf, k="image", ext=".png"))
 
         if data:
             add_data = json_data.get("data", [])
@@ -482,7 +483,7 @@ def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", ty
     data = auth.create_data(project=project, path=path, type=type, name=name, text=text)
     print(f"*** Created data: name={name}, id={data.uid}")
 
-    return
+    return data
 
 
 def run(job, options={}):
@@ -738,6 +739,13 @@ class Command(BaseCommand):
         root_dir = options.get("dir") or os.getcwd()
         rid = options.get("rid")
         pid = options.get("pid")
+
+        data = options.get("data")
+        did = options.get("did")
+        name = options.get("name")
+        type = options.get("type")
+        update_toc = options.get("update_toc")
+
         create_job = options.get("jobs")
         json_file = options.get("json")
         data_root = options.get("data_root")
@@ -755,21 +763,29 @@ class Command(BaseCommand):
             self.run_from_argv(sys.argv)
             sys.exit()
 
-        print(f"Loading json files from --dir {root_dir}")
+        if data or did:
+            if not (pid or did):
+                self.stdout.write(self.style.NOTICE("[error] --pid or --did need to be set."))
+                self.run_from_argv(sys.argv + ["--help"])
+                sys.exit()
+            data = data_loader(pid=pid, path=root_dir, uid=did, update_toc=update_toc, name=name, type=type)
+            msg = f"{data.name} loaded into database."
+            self.stdout.write(msg=self.style.SUCCESS(msg))
+            return
 
+        print(f"Loading json files from --dir {root_dir}")
+        msg = f"{'loaded into url' if url_from_json or root_url else 'loaded into database'}."
         if load_recipes or rid:
             recipes = recipe_loader(root_dir=root_dir, root_url=root_url, api_key=api_key, json_fname=json_file,
-                      rid=rid, pid=pid, jobs=create_job, url_from_json=url_from_json)
-            msg = f"{recipes} recipes "
+                                    rid=rid, pid=pid, jobs=create_job, url_from_json=url_from_json)
+            msg = f" {recipes} recipes {msg}"
+            self.stdout.write(msg=self.style.SUCCESS(msg))
+            return
 
-        else:
-            projects = project_loader(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key, data=add_data,
-                       data_root=data_root, url_from_json=url_from_json, json_file=json_file)
-            msg = f"{projects} projects "
-
-        msg = msg + f"{'loaded into url' if url_from_json or root_url else 'loaded into database'}."
+        projects = project_loader(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key, data=add_data,
+                                  data_root=data_root, url_from_json=url_from_json, json_file=json_file)
+        msg = f"{projects} projects {msg}."
         self.stdout.write(msg=self.style.SUCCESS(msg))
-
         return
 
     def manage_dump(self, **options):
@@ -800,47 +816,28 @@ class Command(BaseCommand):
 
         return
 
-    def manage_data(self, **options):
-
-        uid = options.get("uid")
-        pid = options.get("pid")
-        path = options.get("path")
-        name = options.get("name")
-        type = options.get("type")
-        update_toc = options.get("update_toc")
-
-        if not (pid or uid):
-            self.stdout.write(self.style.NOTICE("[error] --pid or --uid need to be set."))
-            self.run_from_argv(sys.argv + ["--help"])
-            sys.exit()
-
-        data_loader(pid=pid, path=path, uid=uid, update_toc=update_toc, name=name, type=type)
-
-        return
-
-    def add_data_commands(self, parser):
-
-        parser.add_argument("--path", type=str, help="Path to data.")
-        parser.add_argument("--pid", type=str, default="", help="Project uid to create data in.")
-        parser.add_argument("--did", type=str, help="Data uid to load or update.")
-        parser.add_argument('--text', default='', help="A file containing the description of the data")
-        parser.add_argument('--name', default='', help="Sets the name of the data")
-        parser.add_argument('--type', default='data', help="Sets the type of the data")
-        parser.add_argument("--list", action='store_true', help="Show a data list.")
-        parser.add_argument("--update_toc", action="store_true", help="Update table of contents for data --uid.")
-
     def add_load_commands(self, parser):
         self.add_api_commands(parser=parser)
         parser.add_argument('-u', "--url_from_json", action="store_true",
                             help="""Extract url from conf file instead of --url.""")
         parser.add_argument('-r', "--recipes", action="store_true",
                             help="""Load recipes of --pid""")
+        parser.add_argument('-d', "--data", action="store_true",
+                            help="""Load data of --pid to local database.""")
 
         parser.add_argument("--add_data", action='store_true', help="Add data found in --json to --pid.")
         parser.add_argument("--jobs", action='store_true', help="Also creates a queued job for the recipe")
         parser.add_argument('--rid', type=str, default="", help="Recipe uid to load.")
         parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
-        parser.add_argument('--dir', default='', help="Directory to store/load recipe from.")
+        parser.add_argument("--did", type=str, help="Data uid to load or update.")
+
+        parser.add_argument('--dir', default='', help="Base directory to store/load  from.")
+        parser.add_argument("--path", type=str, help="Path to data.")
+        parser.add_argument('--text', default='', help="A file containing the description of the data")
+        parser.add_argument('--name', default='', help="Sets the name of the data")
+        parser.add_argument('--type', default='data', help="Sets the type of the data")
+        parser.add_argument("--update_toc", action="store_true", help="Update table of contents for data --uid.")
+
         parser.add_argument("--data_root", default="",
                             help="Root directory to data found in conf file when loading project.")
         parser.add_argument('--json', default='', help="""JSON file path relative to --dir to get conf from
@@ -880,13 +877,20 @@ class Command(BaseCommand):
 
         subparsers = parser.add_subparsers()
 
-        data_parser = subparsers.add_parser("data", help="Data manager.")
-        self.add_data_commands(parser=data_parser)
-
-        load_parser = subparsers.add_parser("load", help="Project, Data and Recipe load manager.")
+        load_parser = subparsers.add_parser("load", help="""
+                                                    Project, Data and Recipe load manager.
+                                                    Project:  Create or update project in remote host or database.
+                                                    Data:     Create or update data to project --pid in database. 
+                                                    Recipe:   Create or update recipe in remote host or database. 
+                                                    ."""
+                                            )
         self.add_load_commands(parser=load_parser)
 
-        dump_parser = subparsers.add_parser("dump", help="Project and recipe dump manager.")
+        dump_parser = subparsers.add_parser("dump", help="""
+                                                    Project and Recipe Job dumper manager.
+                                                    Project  : Dump project from remote host or database
+                                                    Recipe:  : Dump Recipe from remote host or database.
+                                                    """)
         self.add_dump_commands(parser=dump_parser)
 
         job_parser = subparsers.add_parser("job", help="Job manager.")
@@ -913,10 +917,6 @@ class Command(BaseCommand):
 
         if subcommand == "dump":
             self.manage_dump(**options)
-            return
-
-        if subcommand == "data":
-            self.manage_data(**options)
             return
 
         if subcommand == "job":
