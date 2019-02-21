@@ -4,6 +4,26 @@
 
 ## Commands 
 
+Dump API:
+
+    $ python manage.py api dump --help
+    
+    optional arguments:
+      -h, --help     show this help message and exit
+      -r, --recipes  Load recipes of --pid
+      --url URL      Site url.
+      --key KEY      API key. Required to access private projects.
+      --rid RID      Recipe uid to dump.
+      --pid PID      Project uid to load dump.
+      --dir DIR      Directory to store from.
+
+    # Dump project from remote url (--url).
+    $ python manage.py api dump --pid tutorial --dir tmp/remote/projects/ --url URL
+
+    # Dump recipes from remote url ( --url) 
+    $ python manage.py api dump --pid tutorial --dir tmp/remote/recipes/ --url URL --recipes
+    
+    
 Load API:
     
     $ python manage.py api load --help
@@ -36,25 +56,6 @@ Load API:
      
      # Load recipe jsons in --dir to project --pid. Upload to remote host with -u flag.
      $ python manage.py api load --pid tutorial --dir ../biostar-recipes/recipes/ --recipes
-    
-Dump API:
-
-    $ python manage.py api dump --help
-    
-    optional arguments:
-      -h, --help     show this help message and exit
-      -r, --recipes  Load recipes of --pid
-      --url URL      Site url.
-      --key KEY      API key. Required to access private projects.
-      --rid RID      Recipe uid to dump.
-      --pid PID      Project uid to load dump.
-      --dir DIR      Directory to store from.
-
-    # Dump project from remote url (--url).
-    $ $ python manage.py api dump --pid tutorial --dir tmp/remote/projects/ --url URL
-
-    # Dump recipes from remote url ( --url) 
-    $ python manage.py api dump --pid tutorial --dir tmp/remote/recipes/ --url URL --recipes
     
 
 ## Methods
