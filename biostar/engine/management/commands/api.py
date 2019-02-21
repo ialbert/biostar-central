@@ -430,6 +430,10 @@ def project_dumper(pid, root_dir, root_url=None, api_key=""):
     # Prepare function used to download info and images
     dump = partial(download, mtype=Project, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
     conf = get_conf(uid=pid, mtype=Project, root_url=root_url, view="project_api_info")
+
+    if not conf:
+        print(f"*** Project {pid} does not exist.")
+        return False
     # Get image name from json on remote host or database
     img_name = fname(conf=conf, ext=".png")
     json_file = fname(conf=conf, ext=".hjson")
@@ -439,7 +443,7 @@ def project_dumper(pid, root_dir, root_url=None, api_key=""):
     dump(fname=img_name, view="project_api_image", is_image=True)
 
     print(f"*** Dumped project {pid}: {root_dir}.")
-    return
+    return True
 
 
 def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", type="", text=""):
@@ -806,13 +810,18 @@ class Command(BaseCommand):
         print(f"Dumping from {root_url if root_url else 'database'}.")
         if load_recipes or rid:
             recipes = recipe_dumper(root_dir=root_dir, root_url=root_url, api_key=api_key, rid=rid, pid=pid)
-            msg = f"{len(recipes)} recipes "
+            if recipes:
+                msg = self.style.SUCCESS(f"{len(recipes)} recipes dumped into {root_dir}.")
+            else:
+                msg = self.style.NOTICE(f"No recipes found for rid={rid} and pid={pid}.")
         else:
-            project_dumper(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
-            msg = f"project id :{pid} "
+            dumped = project_dumper(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
+            if dumped:
+                msg = self.style.SUCCESS(f"project id :{pid} dumped into {root_dir}.")
+            else:
+                msg = self.style.NOTICE(f"No projects found for pid={pid}.")
 
-        msg = msg + f"dumped into {root_dir}."
-        self.stdout.write(msg=self.style.SUCCESS(msg))
+        self.stdout.write(msg=msg)
 
         return
 
