@@ -870,7 +870,7 @@ class Command(BaseCommand):
 
     def add_dump_commands(self, parser):
         parser.add_argument('-r', "--recipes", action="store_true",
-                            help="""Load recipes of --pid""")
+                            help="""Pull recipes of --pid""")
         self.add_api_commands(parser=parser)
 
         parser.add_argument('--rid', type=str, default="", help="Recipe uid to dump.")
