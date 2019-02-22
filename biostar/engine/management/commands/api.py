@@ -310,8 +310,8 @@ def get_conf(uid=None, root_url=None, api_key="", view="recipe_api_json",
 
 def fname(conf, k=None, ext=".txt"):
     item = conf.get(k) if k else None
-    placeholder = f"{'_'.join(conf.get('name', 'name').split())}-{conf.get('id')}"
-    filename = item or placeholder + ext
+    placeholder = f"{'_'.join(conf.get('name', 'name').split())}-{conf.get('id')}" + ext
+    filename = item or placeholder
     return filename
 
 
