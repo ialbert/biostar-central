@@ -46,14 +46,12 @@ def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
 
 def get_json_text(source, target_file=""):
 
-    # All of source will be written to ( override ) target
-
     if os.path.exists(target_file):
         target = hjson.loads(open(target_file, "r").read())
     else:
         target = {}
 
-    # Copy source data into target without completely erasing target
+    # Copy source data into target without overwriting target
     for key in source:
         target[key] = source[key]
 
@@ -817,7 +815,7 @@ class Command(BaseCommand):
             else:
                 project_jsons.append(fname)
 
-        print(f"Pushing json files from --dir {root_dir}")
+        print(f"Pushing files from --dir {root_dir}")
         msg = f"{'loaded into url' if url_from_json or root_url else 'loaded into database'}."
 
         recipes = recipe_loader(root_dir=root_dir, root_url=root_url, api_key=api_key, json_files=recipe_jsons,
