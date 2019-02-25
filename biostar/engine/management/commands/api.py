@@ -316,8 +316,8 @@ def get_conf(uid=None, root_url=None, api_key="", view="recipe_api_json",
 
 def fname(conf, k=None, ext=".txt"):
     item = conf.get(k) if k else None
-    placeholder = f"{'_'.join(conf.get('name', 'name').split())}-{conf.get('id')}"
-    filename = item or placeholder + ext
+    placeholder = f"{'_'.join(conf.get('name', 'name').split())}-{conf.get('id')}" + ext
+    filename = item or placeholder
     return filename
 
 
@@ -895,7 +895,7 @@ class Command(BaseCommand):
 
     def add_dump_commands(self, parser):
         parser.add_argument('-r', "--recipes", action="store_true",
-                            help="""Load recipes of --pid""")
+                            help="""Pull recipes of --pid""")
         self.add_api_commands(parser=parser)
 
         parser.add_argument('--rid', type=str, default="", help="Recipe uid to dump.")
