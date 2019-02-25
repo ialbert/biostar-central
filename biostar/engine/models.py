@@ -419,7 +419,8 @@ class Analysis(models.Model):
         json_data.get("settings", {})["image"] = f"{'_'.join(self.name.split())}-{self.pk}.png"
         json_data.get("settings", {})["project_uid"] = self.project.uid
         json_data.get("settings", {})["url"] = settings.BASE_URL
-        #json_data.get("settigns", {})["fname"] = f"{'_'.join(self.name)}-{self.pk}"
+
+        json_data.get("settings", {})["template"] = f"{'_'.join(self.name.split())}-{self.pk}.sh"
         return json_data
 
     def save(self, *args, **kwargs):

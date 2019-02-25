@@ -1,5 +1,6 @@
 
 import hjson
+import json
 import logging
 import os
 
@@ -22,17 +23,12 @@ def get_thumbnail():
 
 def change_image(obj, file_object=None):
 
-    if file_object and not obj.image:
-        img = os.path.join(settings.MEDIA_ROOT, image_path(instance=obj, filename=get_thumbnail()))
-        obj.image.save(name=img, content=file_object)
-        img_path = obj.image.path
-    elif file_object and obj.image:
-        img_path = obj.image.path
-        open(obj.image.path, "wb").write(file_object.read())
-    else:
-        img_path = get_thumbnail()
+    if not obj:
+        return get_thumbnail()
 
-    return open(img_path, "rb") .read()
+    obj.image.save(name=get_thumbnail(), content=file_object)
+
+    return obj.image.path
 
 
 @api_view(['GET'])
@@ -72,7 +68,7 @@ def project_info(request, uid):
             project.text = conf.get("settings", {}).get("help") or project.text
             project.save()
 
-    payload = hjson.dumps(project.json_data, indent=4)
+    payload = json.dumps(project.json_data, indent=4)
 
     return HttpResponse(content=payload, content_type="text/plain")
 
@@ -86,11 +82,12 @@ def project_image(request, uid):
     """
     project = Project.objects.filter(uid=uid).first()
     imgpath = project.image.path if project.image else get_thumbnail()
-    data = open(imgpath, "rb").read()
 
     if request.method == "PUT":
         file_object = request.data.get("file")
-        data = change_image(obj=project, file_object=file_object)
+        imgpath = change_image(obj=project, file_object=file_object)
+
+    data = open(imgpath, "rb") .read()
 
     return HttpResponse(content=data, content_type="image/jpeg")
 
@@ -105,11 +102,12 @@ def recipe_image(request, uid):
 
     recipe = Analysis.objects.filter(uid=uid).first()
     imgpath = recipe.image.path if recipe.image else get_thumbnail()
-    data = open(imgpath, "rb").read()
 
     if request.method == "PUT":
         file_object = request.data.get("file")
-        data = change_image(obj=recipe, file_object=file_object)
+        imgpath = change_image(obj=recipe, file_object=file_object)
+
+    data = open(imgpath, "rb").read()
 
     return HttpResponse(content=data, content_type="image/jpeg")
 
@@ -156,7 +154,7 @@ def recipe_json(request, uid):
 
         recipe.save()
 
-    payload = hjson.dumps(recipe.json_data, indent=4)
+    payload = json.dumps(recipe.json_data, indent=4)
 
     return HttpResponse(content=payload, content_type="text/plain")
 

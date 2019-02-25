@@ -61,7 +61,7 @@ install:
 
 recipes2:
 	# Load projects from hjson files in --dir, include associated data
-	python manage.py api push --add_data --dir ../biostar-recipes/projects --data_root ../biostar-recipes
+	python manage.py api push --data_from_json --dir ../biostar-recipes/projects --data_root ../biostar-recipes
 
 	# Load all recipes in --dir and start jobs on some
 	python manage.py api push --dir ../biostar-recipes/recipes/cookbook/ --jobs
