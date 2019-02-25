@@ -349,7 +349,7 @@ def recipe_loader(root_dir,  json_files=[], pid=None, api_key="", root_url=None,
     for json_file in json_files:
         # Get conf from json file
         source = os.path.abspath(os.path.join(root_dir, json_file))
-        conf = get_conf(json_file=source)
+        conf = hjson.loads(open(source, "r").read())
 
         # Get appropriate parameters from conf
         uid = conf.get("recipe_uid")
@@ -359,7 +359,7 @@ def recipe_loader(root_dir,  json_files=[], pid=None, api_key="", root_url=None,
         url = conf.get("url") if url_from_json else root_url
 
         # Prepare the main function used to load.
-        load = partial(upload, uid=uid,pid=proj_uid, root_url=url, root_dir=root_dir, api_key=api_key,
+        load = partial(upload, uid=uid, pid=proj_uid, root_url=url, root_dir=root_dir, api_key=api_key,
                        load_recipe=True)
 
         # Skip loading when current uid/pid provided does not equal target uid/pid
@@ -377,21 +377,90 @@ def recipe_loader(root_dir,  json_files=[], pid=None, api_key="", root_url=None,
     return loaded
 
 
-def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
+def pull_recipe_json(rid, root_url, api_key):
+
+    if root_url:
+        # Get the recipes from remote url.
+        recipe_api = build_api_url(root_url=root_url, api_key=api_key, view="recipe_api_json", uid=rid)
+        data = requests.get(url=recipe_api, params=dict(k=api_key)).content
+        return hjson.dumps(hjson.loads(data))
+
+    recipe = Analysis.objects.get_all(uid=rid).first()
+    if not recipe:
+        logger.error(f"*** Recipe id {rid}: does not exist.")
+        sys.exit()
+
+    data = hjson.dumps(recipe.json_data)
+
+    return data
+
+
+def pull_recipe_image(rid, root_url, api_key):
+
+    if root_url:
+        # Get the recipes from remote url.
+        recipe_api = build_api_url(root_url=root_url, api_key=api_key, view="recipe_api_image", uid=rid)
+        data = requests.get(url=recipe_api, params=dict(k=api_key)).content
+        return data
+
+    recipe = Analysis.objects.get_all(uid=rid).first()
+    if not recipe:
+        logger.error(f"*** Recipe id {rid}: does not exist.")
+        sys.exit()
+
+    imgpath = recipe.image.path if recipe.image else get_thumbnail()
+    data = open(imgpath, "rb").read()
+    return data
+
+
+def pull_recipe_template(rid, root_url, api_key):
+
+    if root_url:
+        # Get the recipes from remote url.
+        recipe_api = build_api_url(root_url=root_url, api_key=api_key, view="recipe_api_template", uid=rid)
+        data = requests.get(url=recipe_api, params=dict(k=api_key)).content
+        return data
+
+    recipe = Analysis.objects.get_all(uid=rid).first()
+    if not recipe:
+        logger.error(f"*** Recipe id {rid}: does not exist.")
+        sys.exit()
+
+    return recipe.template
+
+
+def pull_project_json():
+    return
+
+
+def pull_project_image():
+    return
+
+
+def pull_recipe(root_dir, pid, root_url=None, api_key="", rid=""):
     """
     Dump recipes from the api/database into a target directory
     belonging to single project.
     """
     # Get the recipes uid list from API or database.
     recipes = get_recipes_list(pid=pid, root_url=root_url, api_key=api_key, rid=rid)
-    dump = partial(download, root_url=root_url, root_dir=root_dir, api_key=api_key)
 
     for recipe_uid in recipes:
-        conf = get_conf(uid=recipe_uid, root_url=root_url)
+        recipe_json = pull_recipe_json(rid=recipe_uid, root_url=root_url, api_key=api_key)
+        recipe_image = pull_recipe_image(rid=recipe_uid, root_url=root_url, api_key=api_key)
+        recipe_template = pull_recipe_template(rid=recipe_uid, root_url=root_url, api_key=api_key)
+
+        conf = hjson.loads(recipe_json).get("settings")
         # Dump json, template, and image with a request to each.
-        dump(uid=recipe_uid, fname=fname(conf=conf, ext=".hjson"), is_json=True, view="recipe_api_json")
-        dump(uid=recipe_uid, fname=fname(conf=conf, ext=".png"), is_image=True, view="recipe_api_image")
-        dump(uid=recipe_uid, fname=fname(conf=conf, ext=".sh"))
+        filename = f"{'_'.join(conf.get('name', 'name').split())}-{conf.get('id')}"
+
+        json_file = os.path.join(root_dir, filename + ".hjson")
+        template_file = os.path.join(root_dir, filename + ".sh")
+        image_file = os.path.join(root_dir, filename + ".png")
+
+        open(os.path.abspath(json_file), "w").write(recipe_json)
+        open(os.path.abspath(image_file), "wb").write(recipe_image)
+        open(os.path.abspath(template_file), "w").write(recipe_template)
 
         print(f"*** Dumped recipe id: {recipe_uid}")
 
@@ -764,7 +833,7 @@ class Command(BaseCommand):
             return
         return
 
-    def manage_load(self, **options):
+    def manage_push(self, **options):
         subcommand = sys.argv[2] if len(sys.argv) > 2 else None
         push = subcommand == "push"
         root_url = options.get("url")
@@ -834,7 +903,7 @@ class Command(BaseCommand):
 
         return
 
-    def manage_dump(self, **options):
+    def manage_pull(self, **options):
 
         dump_recipes = options.get("recipes")
         root_url = options.get("url")
@@ -851,7 +920,7 @@ class Command(BaseCommand):
 
         print(f"Dumping from {root_url if root_url else 'database'}.")
         if dump_recipes or rid:
-            recipes = recipe_dumper(root_dir=root_dir, root_url=root_url, api_key=api_key, rid=rid, pid=pid)
+            recipes = pull_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, rid=rid, pid=pid)
             if recipes:
                 msg = self.style.SUCCESS(f"{len(recipes)} recipes dumped into {root_dir}.")
             else:
@@ -867,7 +936,7 @@ class Command(BaseCommand):
 
         return
 
-    def add_load_commands(self, parser):
+    def add_push_commands(self, parser):
 
         parser.add_argument('-u', "--url_from_json", action="store_true",
                             help="""Extract url from conf file instead of --url.""")
@@ -893,7 +962,7 @@ class Command(BaseCommand):
         parser.add_argument('--json', default='', help="""JSON file path relative to --dir to get conf from.""")
         return
 
-    def add_dump_commands(self, parser):
+    def add_pull_commands(self, parser):
         parser.add_argument('-r', "--recipes", action="store_true",
                             help="""Pull recipes of --pid""")
         self.add_api_commands(parser=parser)
@@ -934,14 +1003,14 @@ class Command(BaseCommand):
                                                     Recipe:   Create or update recipe in remote host or database. 
                                                     ."""
                                             )
-        self.add_load_commands(parser=load_parser)
+        self.add_push_commands(parser=load_parser)
 
         dump_parser = subparsers.add_parser("pull", help="""
                                                     Project and Recipe Job dumper manager.
                                                     Project  : Dump project from remote host or database
                                                     Recipe:  : Dump Recipe from remote host or database.
                                                     """)
-        self.add_dump_commands(parser=dump_parser)
+        self.add_pull_commands(parser=dump_parser)
 
         job_parser = subparsers.add_parser("job", help="Job manager.")
         self.add_job_commands(parser=job_parser)
@@ -962,11 +1031,11 @@ class Command(BaseCommand):
             return
 
         if subcommand == "push":
-            self.manage_load(**options)
+            self.manage_push(**options)
             return
 
         if subcommand == "pull":
-            self.manage_dump(**options)
+            self.manage_pull(**options)
             return
 
         if subcommand == "job":
