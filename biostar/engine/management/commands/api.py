@@ -46,14 +46,12 @@ def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
 
 def get_json_text(source, target_file=""):
 
-    # All of source will be written to ( override ) target
-
-    # Only replace name and help in target with items in source.
     if os.path.exists(target_file):
         target = hjson.loads(open(target_file, "r").read())
     else:
         target = {}
 
+    # Copy source data into target without overwriting target
     for key in source:
         target[key] = source[key]
 
@@ -274,6 +272,7 @@ def get_recipes_list(pid, root_url=None, api_key="", rid=""):
 
     if root_url:
         # Get the recipes from remote url.
+        print(pid)
         recipe_api = build_api_url(root_url=root_url, api_key=api_key, uid=pid)
         data = requests.get(url=recipe_api, params=dict(k=api_key)).content
         data = data.decode("utf-8").split("\n")
@@ -372,7 +371,7 @@ def recipe_loader(root_dir,  json_files=[], pid=None, api_key="", root_url=None,
         # Start a job once updated template has been pushed
         load(fname=template_name, jobs=jobs)
         loaded += 1
-        print(f"*** Pushed recipe id: {uid} from \t{source}")
+        print(f"*** Pushed recipe id: {uid} from:{source}")
 
     return loaded
 
@@ -840,7 +839,7 @@ class Command(BaseCommand):
         api_key = options.get("key")
         root_dir = options.get("dir")
         rid = options.get("rid")
-        pid = options.get("pid")
+        pid = options.get("pid") or ""
 
         data = options.get("data")
         did = options.get("did")
@@ -886,7 +885,7 @@ class Command(BaseCommand):
             else:
                 project_jsons.append(fname)
 
-        print(f"Pushing json files from --dir {root_dir}")
+        print(f"Pushing files from --dir {root_dir}")
         msg = f"{'loaded into url' if url_from_json or root_url else 'loaded into database'}."
 
         recipes = recipe_loader(root_dir=root_dir, root_url=root_url, api_key=api_key, json_files=recipe_jsons,

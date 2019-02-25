@@ -4,9 +4,9 @@
 
 # Commands 
 
-Dump API:
+Pull API:
 
-    $ python manage.py api dump --help
+    $ python manage.py api pull --help
     
     optional arguments:
       -h, --help     show this help message and exit
@@ -18,15 +18,15 @@ Dump API:
       --dir DIR      Directory to store from.
 
     # Dump project from remote url (--url).
-    $ python manage.py api dump --pid tutorial --dir tmp/remote/projects/ --url URL
+    $ python manage.py api pull --pid tutorial --dir tmp/remote/projects/ --url URL
 
     # Dump recipes from remote url ( --url) 
-    $ python manage.py api dump --pid tutorial --dir tmp/remote/recipes/ --url URL --recipes
+    $ python manage.py api pull --pid tutorial --dir tmp/remote/recipes/ --url URL --recipes
     
     
-Load API:
+Push API:
     
-    $ python manage.py api load --help
+    $ python manage.py api push --help
     optional arguments:
       -h, --help            show this help message and exit
       -u, --url_from_json   Extract url from conf file instead of --url.
@@ -52,10 +52,10 @@ Load API:
                       
            
      # Load project tutorial from json file. 
-     $ python manage.py api load --json ../biostar-recipes/projects/tutorial.hjson 
+     $ python manage.py api push --json ../biostar-recipes/projects/tutorial.hjson 
      
      # Load recipe jsons in --dir to project --pid. Upload to remote host with -u flag.
-     $ python manage.py api load --pid tutorial --dir ../biostar-recipes/recipes/ --recipes
+     $ python manage.py api push --pid tutorial --dir ../biostar-recipes/recipes/ -u
     
 
 # Methods
