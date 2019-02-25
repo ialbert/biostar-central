@@ -417,7 +417,7 @@ def project_loader(root_dir, json_files=[], pid=None, root_url=None, api_key="",
         privacy = pmap.get(privacy, Project.PRIVATE)
         imgname = fname(conf=conf, k="image", ext=".png")
         # Skip anything that doesn't equal given pid.
-        if pid is not None and pid != uid:
+        if pid and pid != uid:
             continue
 
         load(uid=uid, privacy=privacy, root_url=url, view="project_api_info", fname=source)
