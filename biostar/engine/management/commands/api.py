@@ -826,10 +826,10 @@ class Command(BaseCommand):
                                   data_root=data_root, url_from_json=url_from_json, json_files=project_jsons)
         
         if recipes:
-            recipe_msg = f"{recipes} recipes " + msg
+            recipe_msg = f"{recipes} {'recipe' if recipes == 1 else 'recipes'} " + msg
             self.stdout.write(msg=self.style.SUCCESS(recipe_msg))
         if projects:
-            project_msg = f"{projects} projects " + msg
+            project_msg = f"{projects} {'project' if projects == 1 else 'projects'} " + msg
             self.stdout.write(msg=self.style.SUCCESS(project_msg))
 
         return
