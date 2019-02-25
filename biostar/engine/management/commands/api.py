@@ -48,12 +48,12 @@ def get_json_text(source, target_file=""):
 
     # All of source will be written to ( override ) target
 
-    # Only replace name and help in target with items in source.
     if os.path.exists(target_file):
         target = hjson.loads(open(target_file, "r").read())
     else:
         target = {}
 
+    # Copy source data into target without completely erasing target
     for key in source:
         target[key] = source[key]
 
@@ -372,7 +372,7 @@ def recipe_loader(root_dir,  json_files=[], pid=None, api_key="", root_url=None,
         # Start a job once updated template has been pushed
         load(fname=template_name, jobs=jobs)
         loaded += 1
-        print(f"*** Pushed recipe id: {uid} from \t{source}")
+        print(f"*** Pushed recipe id: {uid} from:{source}")
 
     return loaded
 
