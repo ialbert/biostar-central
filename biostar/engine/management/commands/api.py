@@ -437,6 +437,8 @@ def project_dumper(pid, root_dir, root_url=None, api_key=""):
     Dump project from remote host or local database into root_dir
     """
 
+
+    print(pid)
     # Prepare function used to download info and images
     dump = partial(download, mtype=Project, uid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
     conf = get_conf(uid=pid, mtype=Project, root_url=root_url, view="project_api_info")
