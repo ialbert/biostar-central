@@ -272,6 +272,7 @@ def get_recipes_list(pid, root_url=None, api_key="", rid=""):
 
     if root_url:
         # Get the recipes from remote url.
+        print(pid)
         recipe_api = build_api_url(root_url=root_url, api_key=api_key, uid=pid)
         data = requests.get(url=recipe_api, params=dict(k=api_key)).content
         data = data.decode("utf-8").split("\n")
@@ -380,8 +381,8 @@ def recipe_dumper(root_dir, pid, root_url=None, api_key="", rid=""):
     Dump recipes from the api/database into a target directory
     belonging to single project.
     """
-    # Get the recipes uid list from API or database.
-    recipes = get_recipes_list(pid=pid, root_url=root_url, api_key=api_key, rid=rid)
+    # Get the recipes uid list from API, database, or given rid.
+    recipes = [rid] if rid else get_recipes_list(pid=pid, root_url=root_url, api_key=api_key, rid=rid)
     dump = partial(download, root_url=root_url, root_dir=root_dir, api_key=api_key)
 
     for recipe_uid in recipes:
@@ -416,7 +417,7 @@ def project_loader(root_dir, json_files=[], pid=None, root_url=None, api_key="",
         privacy = pmap.get(privacy, Project.PRIVATE)
         imgname = fname(conf=conf, k="image", ext=".png")
         # Skip anything that doesn't equal given pid.
-        if pid and pid != uid:
+        if pid is not None and pid != uid:
             continue
 
         load(uid=uid, privacy=privacy, root_url=url, view="project_api_info", fname=source)
@@ -769,7 +770,7 @@ class Command(BaseCommand):
         api_key = options.get("key")
         root_dir = options.get("dir")
         rid = options.get("rid")
-        pid = options.get("pid")
+        pid = options.get("pid") or ""
 
         data = options.get("data")
         did = options.get("did")

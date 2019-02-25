@@ -1,5 +1,6 @@
 
 import hjson
+import json
 import logging
 import os
 
@@ -67,7 +68,7 @@ def project_info(request, uid):
             project.text = conf.get("settings", {}).get("help") or project.text
             project.save()
 
-    payload = hjson.dumps(project.json_data, indent=4)
+    payload = json.dumps(project.json_data, indent=4)
 
     return HttpResponse(content=payload, content_type="text/plain")
 
@@ -153,7 +154,7 @@ def recipe_json(request, uid):
 
         recipe.save()
 
-    payload = hjson.dumps(recipe.json_data, indent=4)
+    payload = json.dumps(recipe.json_data, indent=4)
 
     return HttpResponse(content=payload, content_type="text/plain")
 
