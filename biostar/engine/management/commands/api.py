@@ -258,27 +258,62 @@ def get_response(root_url, view, uid, api_key=""):
     return response
 
 
-def get_json_files(root_dir, json_fname=None):
-    """
-    Return all existing .hjson or .json files in a directory
-    """
-
-    json_files = [fname.name for fname in os.scandir(root_dir) if fname.is_file()
-                    and fname.name.endswith(".hjson") or fname.name.endswith(".json")]
-    if json_fname:
-        # Return one json file if provided.
-        json_files = [json_fname]
-
-    # Filter for json files that exist.
-    abspath = lambda p: os.path.abspath(os.path.join(root_dir, p))
-    recipe_jsons = list(filter(lambda p: os.path.exists(abspath(p)) , json_files))
-    return recipe_jsons
+def put_response(root_url, view, uid, stream, api_key=""):
+    # Send PUT request to view with data in stream send as a file.
+    full_url = build_api_url(root_url=root_url, view=view, uid=uid, api_key=api_key)
+    response = requests.put(url=full_url, files=dict(file=stream), data=dict(k=api_key))
+    if response.status_code != 200:
+        logger.error(f"*** Error on remote host: {response.text}")
+        sys.exit()
+    return response
 
 
-def recipe_loader(root_dir,  json_files=[], pid=None, api_key="", root_url=None, rid="", url_from_json=False,
+def push_recipe_image(uid, root_url, filename, api_key=""):
+
+    stream = open(filename, "rb")
+    if root_url:
+        return put_response(root_url=root_url, view="recipe_api_image", uid=uid, stream=stream, api_key=api_key)
+
+    recipe = get_recipe(rid=uid)
+    image = recipe.image.path if recipe.image else get_thumbnail()
+    # Creates new file on server side
+    recipe.image.save(name=image, content=stream)
+
+    return recipe.image
+
+
+def push_recipe_json(uid, root_url, filename, api_key=""):
+    stream = open(filename, "r")
+    if root_url:
+        return put_response(root_url=root_url, view="recipe_api_json", uid=uid, stream=stream, api_key=api_key)
+
+    recipe = get_recipe(rid=uid)
+    json_data = hjson.load(stream)
+    name = json_data.get("settings", {}).get("name", recipe.name)
+    text = json_data.get("settings", {}).get("help", recipe.text)
+
+    recipe.name = name
+    recipe.text = text
+    recipe.json_text = hjson.loads(json_data)
+    recipe.save()
+    return recipe
+
+
+def push_recipe_template(uid, root_url, filename, api_key):
+    stream = open(filename, "r")
+    if root_url:
+        return put_response(root_url=root_url, view="recipe_api_json", uid=uid, stream=stream, api_key=api_key)
+
+    recipe = get_recipe(rid=uid)
+    recipe.template = stream.read()
+    recipe.save()
+    return recipe
+
+
+def push_recipe(root_dir,  json_files=[], pid=None, api_key="", root_url=None, rid="", url_from_json=False,
                   jobs=False, loaded=0):
     """
-        Load recipes into api/database from a project found in project_dir.
+        Push recipes into api/database from a project found in project_dir.
         Uses PUT request so 'api_key' is required with 'root_url'.
     """
 
@@ -292,23 +327,18 @@ def recipe_loader(root_dir,  json_files=[], pid=None, api_key="", root_url=None,
         uid = conf.get("recipe_uid")
         proj_uid = conf.get("project_uid")
         filename = get_fname(conf=conf)
-        imgname = conf.get("image", filename + ".png")
-        template_name = conf.get("image", filename + ".sh")
+        imgname = conf.get("image") or filename + ".png"
+        template_name = conf.get("template") or filename + ".sh"
         url = conf.get("url") if url_from_json else root_url
-
-        # Prepare the main function used to load.
-        load = partial(upload, uid=uid, pid=proj_uid, root_url=url, root_dir=root_dir, api_key=api_key,
-                       load_recipe=True)
 
         # Skip loading when current uid/pid provided does not equal target uid/pid
         if not uid or (rid and uid != rid) or (pid and proj_uid != pid):
             continue
 
-        # Send PUT requests to json, template, and image urls
-        load(fname=source, view="recipe_api_json", is_json=True)
-        load(fname=imgname, view="recipe_api_image", is_image=True)
-        # Start a job once updated template has been pushed
-        load(fname=template_name, jobs=jobs)
+        push_recipe_image(uid=uid, root_url=url, filename=imgname, api_key=api_key)
+        push_recipe_template(uid=uid, root_url=root_url, filename=template_name, api_key=api_key)
+        push_recipe_json(uid=uid, root_url=root_url, filename=filename, api_key=api_key)
+
         loaded += 1
         print(f"*** Pushed recipe id: {uid} from:{source}")
 
@@ -335,18 +365,20 @@ def pull_recipe(root_dir, pid, root_url=None, api_key="", rid=""):
             recipe_json = recipe.json_data
             recipe_template = recipe.template
             recipe_image = open(recipe.image.path if recipe.image else get_thumbnail(), "rb").read()
-
         conf = recipe_json.get("settings", {})
         filename = get_fname(conf=conf)
 
         # Make output directory.
         os.makedirs(root_dir, exist_ok=True)
         # Write json to file
-        write(fname=filename + ".hjson", data=hjson.dumps(recipe_json), root_dir=root_dir)
+        json_file = filename + ".hjson"
+        write(fname=json_file, data=hjson.dumps(recipe_json), root_dir=root_dir)
         # Write template to file
-        write(fname=filename + ".sh", data=recipe_template, root_dir=root_dir)
+        template_file = filename + ".sh"
+        write(fname=template_file, data=recipe_template, root_dir=root_dir)
         # Write image to file
-        write(fname=filename + ".png", mode="wb", data=recipe_image, root_dir=root_dir)
+        image_file = filename + ".png"
+        write(fname=image_file, mode="wb", data=recipe_image, root_dir=root_dir)
 
         print(f"*** Dumped recipe id: {recipe_uid}")
 
@@ -460,6 +492,23 @@ def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", ty
     print(f"*** Created data: name={name}, id={data.uid}")
 
     return data
+
+
+def get_json_files(root_dir, json_fname=None):
+    """
+    Return all existing .hjson or .json files in a directory
+    """
+
+    json_files = [fname.name for fname in os.scandir(root_dir) if fname.is_file()
+                    and fname.name.endswith(".hjson") or fname.name.endswith(".json")]
+    if json_fname:
+        # Return one json file if provided.
+        json_files = [json_fname]
+
+    # Filter for json files that exist.
+    abspath = lambda p: os.path.abspath(os.path.join(root_dir, p))
+    recipe_jsons = list(filter(lambda p: os.path.exists(abspath(p)) , json_files))
+    return recipe_jsons
 
 
 def run(job, options={}):
