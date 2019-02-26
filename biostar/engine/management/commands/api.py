@@ -45,6 +45,8 @@ def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
 
 
 def get_fname(conf):
+    # Generate name
+    # Take full hjson, return just name
     return f"{'_'.join(conf.get('name', 'name').split())}-{conf.get('id')}"
 
 
