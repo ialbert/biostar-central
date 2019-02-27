@@ -272,7 +272,7 @@ def push_project(root_dir, json_file, root_url=None, api_key="", add_data=False,
     print(f"*** Loaded project id=({uid}) from:{source}.")
 
 
-def pull_recipe(root_dir, rid, root_url=None, api_key="", save=True):
+def pull_recipe(root_dir, rid, root_url=None, api_key="", save=False):
     """
     Dump recipes from the api/database into a target directory
     belonging to single project.
@@ -306,7 +306,7 @@ def pull_recipe(root_dir, rid, root_url=None, api_key="", save=True):
         return json_data, template, image
 
 
-def pull_project(pid, root_dir, root_url=None, api_key="", save=True):
+def pull_project(pid, root_dir, root_url=None, api_key="", save=False):
     """
     Dump project from remote host or local database into root_dir
     """
@@ -711,7 +711,7 @@ class Command(BaseCommand):
             recipe_uid = hjson.loads(json_text).get("settings", {}).get("recipe_uid")
             project_uid = hjson.loads(json_text).get("settings", {}).get("project_uid")
 
-            # Skip pushing when rid in json != rid given
+            # Skip pushing when rid/pid in json != --rid/--pid given
             if (rid and recipe_uid != rid) or (pid and project_uid != pid):
                 continue
             if recipe_uid:
@@ -742,7 +742,7 @@ class Command(BaseCommand):
 
         print(f"Writing into directory: {root_dir}.")
         if rid:
-            pull_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, rid=rid)
+            pull_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, rid=rid, save=True)
             logger.info(f"Recipe id {rid} dumped into {root_dir}.")
             return
 
@@ -751,11 +751,11 @@ class Command(BaseCommand):
             recipes = get_recipes(pid=pid, root_url=root_url, api_key=api_key)
             # Get multiple recipes belonging to project --pid
             for uid in recipes:
-                pull_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, rid=uid)
+                pull_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, rid=uid, save=True)
                 logger.info(f"Recipe id {uid} dumped into {root_dir}.")
             return
 
-        pull_project(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key)
+        pull_project(pid=pid, root_dir=root_dir, root_url=root_url, api_key=api_key, save=True)
         logger.info(f"Project id: {pid} dumped into {root_dir}.")
         return
 
