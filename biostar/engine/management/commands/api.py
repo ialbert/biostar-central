@@ -115,7 +115,7 @@ def generate_fnames(json):
     return image, hjson, template
 
 
-def get_stream(absfname, mode="r"):
+def open_file(absfname, mode="r"):
 
     if not os.path.exists(absfname):
         logger.error(f"{absfname} does not exist.")
@@ -210,8 +210,8 @@ def push_recipe(root_dir,  json_file, api_key="", root_url=None, url_from_json=F
     image = conf.get("image") or image_name
     template = conf.get("template") or template_name
     url = conf.get("url") if url_from_json else root_url
-    image_stream = get_stream(abspath(image), mode="rb")
-    template_stream = get_stream(abspath(template), mode="r")
+    image_stream = open_file(abspath(image), "rb")
+    template_stream = open_file(abspath(template), "r")
 
     if url:
         # Send PUT request to image, json, and template API urls.
@@ -230,7 +230,7 @@ def push_recipe(root_dir,  json_file, api_key="", root_url=None, url_from_json=F
         if jobs:
             start_jobs(recipe=recipe, pid=proj_uid)
 
-    print(f"*** Pushed recipe id: {rid} from:{source}")
+    print(f"*** Pushed recipe id={rid} from:{source}")
 
     return
 
@@ -251,8 +251,8 @@ def push_project(root_dir, json_file, root_url=None, api_key="", add_data=False,
     uid = conf.get("uid")
     privacy = conf.get("privacy", "").lower() or "private"
     privacy = pmap.get(privacy, Project.PRIVATE)
-    json_stream = get_stream(absfname=source)
-    image_stream = get_stream(absfname=image, mode="rb")
+    json_stream = open_file(source)
+    image_stream = open_file(image, "rb")
 
     if url:
         # Send PUT request to image, json, and template API urls.
@@ -269,7 +269,7 @@ def push_project(root_dir, json_file, root_url=None, api_key="", add_data=False,
             data = json_data.get("data", [])
             data_from_json(root=data_root, pid=uid, json_data=data)
 
-    print(f"*** Loaded project ({uid}) from {source}.")
+    print(f"*** Loaded project id=({uid}) from:{source}.")
 
 
 def pull_recipe(root_dir, rid, root_url=None, api_key="", save=True):
@@ -297,10 +297,11 @@ def pull_recipe(root_dir, rid, root_url=None, api_key="", save=True):
         os.makedirs(root_dir, exist_ok=True)
         # Write image, template, and json
         img_fname, json_fname, template_fname = generate_fnames(json_data)
-        open(abspath(img_fname), "wb").write(image)
-        open(abspath(template_fname), "w").write(template)
-        open(abspath(json_fname), "w").write(hjson.dumps(json_data))
-        print(f"{abspath(json_fname)}\n{abspath(img_fname)}\n{abspath(template_fname)}")
+        img_fname, json_fname, template_fname = abspath(img_fname), abspath(json_fname), abspath(template_fname)
+        open(img_fname, "wb").write(image)
+        open(template_fname, "w").write(template)
+        open(json_fname, "w").write(hjson.dumps(json_data))
+        print(f"{json_fname}\n{img_fname}\n{template_fname}")
     else:
         return json_data, template, image
 
@@ -325,11 +326,12 @@ def pull_project(pid, root_dir, root_url=None, api_key="", save=True):
     if save:
         os.makedirs(root_dir, exist_ok=True)
         img_fname, json_fname, _ = generate_fnames(json)
+        img_fname, json_fname = abspath(img_fname), abspath(json_fname)
         # Write image to file
-        open(abspath(img_fname), "wb").write(image)
+        open(img_fname, "wb").write(image)
         # Write hjson to file.
-        open(abspath(json_fname), "w").write(hjson.dumps(json))
-        print(f"{abspath(json_fname)}\n{abspath(img_fname)}")
+        open(json_fname, "w").write(hjson.dumps(json))
+        print(f"{json_fname}\n{abspath(img_fname)}")
     else:
         return json, image
 
