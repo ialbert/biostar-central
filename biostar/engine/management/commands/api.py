@@ -235,6 +235,7 @@ def pull_recipe(root_dir, rid, url=None, api_key="", save=False):
     else:
         return recipe
 
+
 def pull_project(pid, root_dir, url=None, api_key="", save=True):
 
     """
@@ -470,7 +471,6 @@ class Command(BaseCommand):
         parser.add_argument('--json', default='', help="""JSON file path relative to --dir to get conf from.""")
         return
 
-
     def add_pull_commands(self, parser):
         parser.add_argument('-r', "--recipes", action="store_true",
                             help="""Pull recipes of --pid""")
@@ -481,7 +481,6 @@ class Command(BaseCommand):
         parser.add_argument("--pid", type=str, default="", help="Project uid to dump.")
         parser.add_argument('--dir', default='', help="Directory to store in.")
         return
-
 
     def add_arguments(self, parser):
 
