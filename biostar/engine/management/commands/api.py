@@ -34,6 +34,7 @@ class Bunch():
         self.json_data = {}
         self.__dict__.update(kwargs)
 
+
 def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
 
     url = reverse(view, kwargs=dict(uid=uid)) if uid else reverse(view)
@@ -42,7 +43,7 @@ def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
     return full_url
 
 
-def get_recipes(pid, root_url, api_key):
+def get_recipes(pid, root_url=None, api_key=""):
     """
     Return list of recipe uids belonging to project --pid
     """
@@ -208,7 +209,7 @@ def write_project(project, root_dir, image):
     return
 
 
-def pull_recipe(root_dir, rid, url=None, api_key="", save=False):
+def pull_recipe(rid, url=None, api_key=""):
 
     """
     Dump recipes from the api/database into a target directory
@@ -217,7 +218,8 @@ def pull_recipe(root_dir, rid, url=None, api_key="", save=False):
     # Get the recipes uid list from API or database.
     get = lambda view: get_response(root_url=url, uid=rid, api_key=api_key, view=view)
     recipe = Analysis.objects.get_all(uid=rid).first()
-    image = open(recipe.image.path if recipe.image else get_thumbnail(), "rb").read()
+    imgpath = recipe.image.path if recipe and recipe.image else get_thumbnail()
+    image = open(imgpath, "rb").read()
 
     if url:
         recipe = Bunch(uid=rid)
@@ -229,20 +231,17 @@ def pull_recipe(root_dir, rid, url=None, api_key="", save=False):
 
     if not recipe:
         raise Exception(f"*** Recipe id={rid}does not exist")
-    if save:
-        print(f"*** Dumping recipe id: {rid}")
-        write_recipe(recipe=recipe, root_dir=root_dir, image=image)
-    else:
-        return recipe
+    return recipe, image
 
 
-def pull_project(pid, root_dir, url=None, api_key="", save=True):
+def pull_project(pid, url=None, api_key=""):
 
     """
     Dump project from remote host or local database into root_dir
     """
     project = Project.objects.get_all(uid=pid).first()
-    image = open(project.image.path if project.image else get_thumbnail(), "rb").read()
+    imgpath = project.image.path if project and project.image else get_thumbnail()
+    image = open(imgpath, "rb").read()
 
     if url:
         # Get data from remote url.
@@ -251,11 +250,7 @@ def pull_project(pid, root_dir, url=None, api_key="", save=True):
         project.json_text = get_response(root_url=url, api_key=api_key, uid=pid, view="project_api_info").content.decode()
         project.json_data = hjson.loads(project.json_text)
 
-    print(f"*** Dumped project {pid}: {root_dir}.")
-    if save:
-        write_project(project=project, root_dir=root_dir, image=image)
-    else:
-        return project
+    return project, image
 
 
 def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", type="", text=""):
@@ -425,8 +420,8 @@ class Command(BaseCommand):
 
         if rid:
 
-            pull_recipe(root_dir=root_dir, url=root_url, api_key=api_key, rid=rid, save=True)
-
+            recipe, image = pull_recipe(url=root_url, api_key=api_key, rid=rid)
+            write_recipe(recipe=recipe, root_dir=root_dir, image=image)
             logger.info(f"Recipe id {rid} dumped into {root_dir}.")
             return
 
@@ -435,12 +430,13 @@ class Command(BaseCommand):
             recipes = get_recipes(pid=pid, root_url=root_url, api_key=api_key)
             # Get multiple recipes belonging to project --pid
             for uid in recipes:
-                pull_recipe(root_dir=root_dir, url=root_url, api_key=api_key, rid=uid, save=True)
+                recipe, image = pull_recipe(url=root_url, api_key=api_key, rid=uid)
+                write_recipe(recipe=recipe, root_dir=root_dir, image=image)
                 logger.info(f"Recipe id {uid} dumped into {root_dir}.")
             return
 
-        pull_project(pid=pid, root_dir=root_dir, url=root_url, api_key=api_key, save=True)
-
+        project, image = pull_project(pid=pid, url=root_url, api_key=api_key)
+        write_project(project=project, root_dir=root_dir, image=image)
         logger.info(f"Project id: {pid} dumped into {root_dir}.")
         return
 
