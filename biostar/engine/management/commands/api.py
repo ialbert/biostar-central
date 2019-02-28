@@ -114,7 +114,6 @@ def push_recipe(root_dir,  json_file, api_key="", root_url=None, url_from_json=F
     # Get appropriate parameters from conf
     conf = json_data.get("settings", {})
     rid = conf.get("recipe_uid")
-    proj_uid = conf.get("project_uid")
     image = conf.get("image") or image_name
     template = conf.get("template") or template_name
     url = conf.get("url") if url_from_json else root_url
@@ -128,8 +127,7 @@ def push_recipe(root_dir,  json_file, api_key="", root_url=None, url_from_json=F
         push(stream=template_stream, view="recipe_api_template")
         push(stream=open(source, "r"), view="recipe_api_json")
     else:
-        project = Project.objects.filter(uid=proj_uid).first()
-        recipe = Analysis.objects.filter(uid=rid).first() or Analysis(uid=rid, project=project, owner=project.owner)
+        recipe = Analysis.objects.filter(uid=rid).first()
         recipe.template = template_stream.read()
         recipe.json_text = hjson.dumps(json_data)
         recipe.name = json_data.get("settings", {}).get("name", recipe.name)
@@ -164,8 +162,7 @@ def push_project(root_dir, json_file, root_url=None, api_key="", url_from_json=F
         push(stream=json_stream, view="project_api_info")
         push(stream=image_stream, view="project_api_image")
     else:
-        owner = User.objects.filter(is_superuser=True).first()
-        project = Project.objects.filter(uid=uid).first() or Project(uid=uid, owner=owner)
+        project = Project.objects.filter(uid=uid).first()
         project.name = conf.get("settings", {}).get("name", project.name)
         project.text = conf.get("settings", {}).get("help", project.text)
         project.image.save(name=image, content=image_stream)
@@ -394,10 +391,12 @@ class Command(BaseCommand):
             if (rid and recipe_uid != rid) or (pid and project_uid != pid):
                 continue
             if recipe_uid:
-                push_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, json_file=fname, url_from_json=url_from_json)
+                push_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, json_file=fname,
+                            url_from_json=url_from_json)
                 msg = f"Recipe id:{recipe_uid} pushed into {'url' if (url_from_json or root_url) else 'database'}."
             else:
-                push_project(root_dir=root_dir, root_url=root_url, api_key=api_key, url_from_json=url_from_json, json_file=fname)
+                push_project(root_dir=root_dir, root_url=root_url, api_key=api_key, url_from_json=url_from_json,
+                             json_file=fname)
                 msg = f"Project id:{recipe_uid} pushed into {'url' if (url_from_json or root_url) else 'database'}."
             logger.info(msg)
 
@@ -482,11 +481,19 @@ class Command(BaseCommand):
 
         subparsers = parser.add_subparsers()
 
+        create_parser = subparsers.add_parser("create", help="""
+                                                    Project, Data and Recipe creation manager.
+                                                    Project:  Create project in database.
+                                                    Data:     Create data in project --pid in database. 
+                                                    Recipe:   Create recipe in database. 
+                                                    ."""
+                                            )
+
         push_parser = subparsers.add_parser("push", help="""
                                                     Project, Data and Recipe push manager.
-                                                    Project:  Create or update project in remote host or database.
-                                                    Data:     Create or update data to project --pid in database. 
-                                                    Recipe:   Create or update recipe in remote host or database. 
+                                                    Project:  Update existing project in remote host or database.
+                                                    Data:     Update existing data in project --pid in database. 
+                                                    Recipe:   Update existing recipe in remote host or database. 
                                                     ."""
                                             )
         self.add_push_commands(parser=push_parser)
