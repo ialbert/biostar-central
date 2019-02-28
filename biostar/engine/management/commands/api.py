@@ -394,18 +394,16 @@ class Command(BaseCommand):
             json_text = open(os.path.abspath(os.path.join(root_dir, fname)), "r").read()
             recipe_uid = hjson.loads(json_text).get("settings", {}).get("recipe_uid")
             project_uid = hjson.loads(json_text).get("settings", {}).get("project_uid")
-
             # Skip pushing when rid/pid in json != --rid/--pid given
             if (rid and recipe_uid != rid) or (pid and project_uid != pid):
                 continue
             if recipe_uid:
-                push_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, json_file=fname,
-                            url_from_json=url_from_json)
+                push_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, json_file=fname, url_from_json=url_from_json)
+                msg = f"Recipe id:{recipe_uid} pushed into {'url' if (url_from_json or root_url) else 'database'}."
             else:
-                push_project(root_dir=root_dir, root_url=root_url, api_key=api_key,
-                             url_from_json=url_from_json, json_file=fname)
-
-        logger.info(f"{len(json_files)} pushed into {'url' if (url_from_json or root_url) else 'database'}.")
+                push_project(root_dir=root_dir, root_url=root_url, api_key=api_key, url_from_json=url_from_json, json_file=fname)
+                msg = f"Project id:{recipe_uid} pushed into {'url' if (url_from_json or root_url) else 'database'}."
+            logger.info(msg)
 
         return
 
