@@ -209,6 +209,7 @@ def write_project(project, root_dir, image):
 
 
 def pull_recipe(root_dir, rid, url=None, api_key="", save=False):
+
     """
     Dump recipes from the api/database into a target directory
     belonging to single project.
@@ -234,8 +235,8 @@ def pull_recipe(root_dir, rid, url=None, api_key="", save=False):
     else:
         return recipe
 
-
 def pull_project(pid, root_dir, url=None, api_key="", save=True):
+
     """
     Dump project from remote host or local database into root_dir
     """
@@ -394,7 +395,7 @@ class Command(BaseCommand):
             recipe_uid = hjson.loads(json_text).get("settings", {}).get("recipe_uid")
             project_uid = hjson.loads(json_text).get("settings", {}).get("project_uid")
 
-            # Skip pushing when rid in json != rid given
+            # Skip pushing when rid/pid in json != --rid/--pid given
             if (rid and recipe_uid != rid) or (pid and project_uid != pid):
                 continue
             if recipe_uid:
@@ -424,7 +425,9 @@ class Command(BaseCommand):
             sys.exit()
 
         if rid:
+
             pull_recipe(root_dir=root_dir, url=root_url, api_key=api_key, rid=rid, save=True)
+
             logger.info(f"Recipe id {rid} dumped into {root_dir}.")
             return
 
@@ -438,6 +441,7 @@ class Command(BaseCommand):
             return
 
         pull_project(pid=pid, root_dir=root_dir, url=root_url, api_key=api_key, save=True)
+
         logger.info(f"Project id: {pid} dumped into {root_dir}.")
         return
 
