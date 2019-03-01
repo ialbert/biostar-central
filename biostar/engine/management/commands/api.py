@@ -501,10 +501,8 @@ class Command(BaseCommand):
 
         if rid:
             recipe, image = pull_recipe(url=root_url, api_key=api_key, rid=rid)
-            if not recipe:
-                logger.error(f"Recipe id={rid} does not exist.")
-                return
-            write_recipe(recipe=recipe, root_dir=root_dir, image=image)
+            if recipe:
+                write_recipe(recipe=recipe, root_dir=root_dir, image=image)
             return
 
         if pull_recipes:
