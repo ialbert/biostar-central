@@ -65,7 +65,7 @@ def get_recipes(pid, root_url=None, api_key=""):
 def generate_fnames(json):
 
     setting_dict = json.get("settings", {})
-    name = setting_dict.get('name')
+    name = setting_dict.get('name', 'No name set')
 
     name = '_'.join(name.split())
     uid = setting_dict.get("id")

@@ -56,18 +56,19 @@ class Manager(models.Manager):
 
     def get_deleted(self, **kwargs):
         "Only show deleted things"
-        return super().get_queryset().filter(deleted=True, **kwargs).select_related("owner", "owner__profile", "lastedit_user",
+        return super().get_queryset().filter(deleted=True, **kwargs).select_related("owner", "owner__profile",
+                                                                                    "lastedit_user",
                                                                                     "lastedit_user__profile")
 
     def get_all(self, **kwargs):
         "Return everything"
-        return super().get_queryset().filter(**kwargs).select_related("owner", "owner__profile",  "lastedit_user",
+        return super().get_queryset().filter(**kwargs).select_related("owner", "owner__profile", "lastedit_user",
                                                                       "lastedit_user__profile")
+
 
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
-
 
     # Rank in a project list.
     rank = models.FloatField(default=100)
@@ -138,15 +139,14 @@ class Project(models.Model):
 
     @property
     def json_text(self):
-
         payload = dict(settings=dict(
-                            uid=self.uid,
-                            name=self.name,
-                            image=f"{'_'.join(self.name.split())}-{self.pk}.png",
-                            privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
-                            help=self.text,
-                            ),
-                       recipes=[recipe.uid for recipe in self.analysis_set.all()])
+            uid=self.uid,
+            name=self.name,
+            image=f"{'_'.join(self.name.split())}-{self.pk}.png",
+            privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
+            help=self.text,
+        ),
+            recipes=[recipe.uid for recipe in self.analysis_set.all()])
 
         return hjson.dumps(payload)
 
@@ -411,15 +411,34 @@ class Analysis(models.Model):
 
     @property
     def json_data(self):
-        "Returns the json_text as parsed json_data"
+        """
+        Returns the json_text as parsed json_data
+        """
         json_data = hjson.loads(self.json_text)
-        json_data.get("settings", {})["id"] = self.pk
-        json_data.get("settings", {})["recipe_uid"] = self.uid
-        json_data.get("settings", {})["uid"] = self.uid
-        json_data.get("settings", {})["template"] = f"{'_'.join(self.name.split())}-{self.pk}.sh"
-        json_data.get("settings", {})["image"] = f"{'_'.join(self.name.split())}-{self.pk}.png"
-        json_data.get("settings", {})["project_uid"] = self.project.uid
-        json_data.get("settings", {})["url"] = settings.BASE_URL
+
+        # Previously set values.
+        current_settings = json_data.get("settings") or {}
+
+        # Generates file names
+        base = f"{'_'.join(self.name.split())} - {self.pk}"
+        template_name = f"{base}.sh"
+        image_name = f"{base}.png"
+
+        # These keys must always be set.
+        defaults = dict(id=self.pk, recipe_uid=self.uid,
+                        uid=self.uid,
+                        name="Default name",
+                        template=template_name,
+                        image=image_name,
+                        project_uid=self.project.uid,
+                        url=settings.BASE_URL
+                        )
+
+        # Overwrite defaults with settings that exist.
+        defaults.update(current_settings)
+
+        # Put them back into settings.
+        json_data["settings"] = defaults
 
         return json_data
 
@@ -478,10 +497,9 @@ def sync_json(sender, instance, created, raw, update_fields, **kwargs):
         current_json["settings"]["name"] = instance.name
         current_json["settings"]["help"] = instance.text
     else:
-        current_json["settings"] = {"name" : instance.name, "help": instance.text}
+        current_json["settings"] = {"name": instance.name, "help": instance.text}
 
     Analysis.objects.get_all(uid=instance.uid).update(json_text=hjson.dumps(current_json))
-
 
 
 class Job(models.Model):
@@ -562,7 +580,6 @@ class Job(models.Model):
         # TODO: MIGRATION FIX - needs refactoring
         path = join(settings.MEDIA_ROOT, "jobs", self.uid)
         return path
-
 
     @property
     def json_data(self):
