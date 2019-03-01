@@ -10,9 +10,7 @@ import sys
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.shortcuts import reverse
-from django.utils import timezone
 
-from django.core.files.base import ContentFile
 from biostar.engine.models import Analysis, Project, Data, Job
 from biostar.engine.api import change_image, get_thumbnail
 from biostar.engine import auth, util
@@ -26,7 +24,7 @@ logger.setLevel(logging.INFO)
 
 class Bunch():
     def __init__(self, **kwargs):
-        self.value = ''
+        self.value = self.uid = ''
         self.name = self.summary = ''
         self.help = self.type = self.link = ''
         self.template = self.json_text = ''
@@ -99,6 +97,89 @@ def put_response(root_url, view, uid, stream, api_key=""):
     return response
 
 
+def parse_recipe(json_data):
+    """
+    Parse recipe information from dict
+    """
+
+    image_name, template_name, _ = generate_fnames(json=json_data)
+
+    # Get appropriate parameters
+    settings_dict = json_data.get("settings", {})
+    rid = settings_dict.get("recipe_uid")
+    image = settings_dict.get("image") or image_name
+    template = settings_dict.get("template") or template_name
+    url = settings_dict.get("url")
+
+    return rid, url, image, template
+
+
+def parse_project(json_data):
+    """
+    Parse project information from dict
+    """
+    image_name, _, _ = generate_fnames(json=json_data)
+    pmap = {"private": Project.PRIVATE, "public": Project.PUBLIC}
+    settings_dict = json_data.get("settings", {})
+    image = settings_dict.get('image') or image_name
+    url = settings_dict.get("url")
+    pid = settings_dict.get("uid")
+    privacy = settings_dict.get("privacy", "").lower() or "private"
+    privacy = pmap.get(privacy, Project.PRIVATE)
+
+    return pid, url, privacy, image
+
+
+def create_recipe(json_file, root_dir):
+    """Create a recipe from a json file."""
+
+    source = os.path.abspath(os.path.join(root_dir, json_file))
+    json_data = hjson.loads(open(source, "r").read())
+    rid, url, image, template = parse_recipe(json_data)
+    recipe = Analysis.objects.get_all(uid=rid).first()
+
+    if not recipe:
+        # Get an existing project uid
+        pid = json_data.get("settings", {}).get("project_uid", )
+        name = json_data.get("settings", {}).get("name", "New Recipe")
+        text = json_data.get("settings", {}).get("help", "New Text")
+        project = Project.objects.filter(uid=pid).first()
+        image_stream = open(os.path.abspath(os.path.join(root_dir, image)), "rb")
+        template = open(os.path.abspath(os.path.join(root_dir, template)), "r").read()
+        recipe = auth.create_analysis(name=name, project=project, text=text, uid=rid,
+                                      json_text=hjson.dumps(json_data),  template=template, stream=image_stream)
+    return recipe
+
+
+def create_project(json_file, root_dir):
+    """
+    Create project from json file.
+    """
+
+    source = os.path.abspath(os.path.join(root_dir, json_file))
+    json_data = hjson.loads(open(source, "r").read())
+    pid, _, privacy, image = parse_project(json_data)
+
+    project = Project.objects.get_all(uid=pid).first()
+
+    if not project:
+        image_stream = open(os.path.abspath(os.path.join(root_dir, image)), "rb")
+        user = User.objects.filter(is_superuser=True).first()
+        name = json_data.get("settings", {}).get("name", "New Project")
+        text = json_data.get("settings", {}).get("help", "New Text")
+        project = auth.create_project(user, name=name, uid=pid, text=text, privacy=privacy)
+        project.image.save(name=image, content=image_stream)
+        project.save()
+
+    return project
+
+
+def create_data(project, data_list):
+    """Create data found in list """
+
+    return
+
+
 def push_recipe(root_dir,  json_file, api_key="", root_url=None, url_from_json=False):
     """
         Push recipe into api/database from a json file.
@@ -109,25 +190,19 @@ def push_recipe(root_dir,  json_file, api_key="", root_url=None, url_from_json=F
     abspath = lambda p: os.path.abspath(os.path.join(root_dir, p))
     source = abspath(json_file)
     json_data = hjson.loads(open(source, "r").read())
-    image_name, template_name, _ = generate_fnames(json=json_data)
 
-    # Get appropriate parameters from conf
-    conf = json_data.get("settings", {})
-    rid = conf.get("recipe_uid")
-    image = conf.get("image") or image_name
-    template = conf.get("template") or template_name
-    url = conf.get("url") if url_from_json else root_url
+    rid, url, image, template = parse_recipe(json_data=json_data)
     image_stream = open(abspath(image), "rb")
     template_stream = open(abspath(template), "r")
+    url = url if url_from_json else root_url
 
     if url:
         # Send PUT request to image, json, and template API urls.
-        push = lambda view, stream: put_response(root_url=url, view=view, uid=rid, stream=stream, api_key=api_key)
-        push(stream=image_stream, view="recipe_api_image")
-        push(stream=template_stream, view="recipe_api_template")
-        push(stream=open(source, "r"), view="recipe_api_json")
+        put_response(stream=image_stream, view="recipe_api_image", root_url=url, uid=rid, api_key=api_key)
+        put_response(stream=template_stream, view="recipe_api_template", root_url=url, uid=rid, api_key=api_key)
+        put_response(stream=open(source, "r"), view="recipe_api_json", root_url=url, uid=rid, api_key=api_key)
     else:
-        recipe = Analysis.objects.filter(uid=rid).first()
+        recipe = Analysis.objects.get(uid=rid)
         recipe.template = template_stream.read()
         recipe.json_text = hjson.dumps(json_data)
         recipe.name = json_data.get("settings", {}).get("name", recipe.name)
@@ -135,7 +210,7 @@ def push_recipe(root_dir,  json_file, api_key="", root_url=None, url_from_json=F
         recipe.image.save(name=image, content=image_stream)
         recipe.save()
 
-    print(f"*** Pushed recipe id={rid} from:{source}")
+    logger.info(f"*** Pushed recipe id={rid} from:{source} into {url if url else 'database'}.")
 
     return
 
@@ -146,29 +221,24 @@ def push_project(root_dir, json_file, root_url=None, api_key="", url_from_json=F
     """
     source = os.path.abspath(os.path.join(root_dir, json_file))
     json_data = hjson.loads(open(source, "r").read())
-    image_name, _, _ = generate_fnames(json=json_data)
+    pid, url, _, image = parse_project(json_data)
 
-    conf = json_data.get("settings", {})
-    image = conf.get('image') or image_name
-    image = os.path.abspath(os.path.join(root_dir, image))
-    url = conf.get("url") if url_from_json else root_url
-    uid = conf.get("uid")
+    url = url if url_from_json else root_url
     json_stream = open(source, "r")
-    image_stream = open(image, "rb")
+    image_stream = open(os.path.abspath(os.path.join(root_dir, image)), "rb")
 
     if url:
         # Send PUT request to image, json, and template API urls.
-        push = lambda view, stream: put_response(root_url=url, view=view, uid=uid, stream=stream, api_key=api_key)
-        push(stream=json_stream, view="project_api_info")
-        push(stream=image_stream, view="project_api_image")
+        put_response(stream=json_stream, view="project_api_info", root_url=url, uid=pid, api_key=api_key)
+        put_response(stream=image_stream, view="project_api_image", root_url=url, uid=pid, api_key=api_key)
     else:
-        project = Project.objects.filter(uid=uid).first()
-        project.name = conf.get("settings", {}).get("name", project.name)
-        project.text = conf.get("settings", {}).get("help", project.text)
+        project = Project.objects.get(uid=pid)
+        project.name = json_data.get("settings", {}).get("name", project.name)
+        project.text = json_data.get("settings", {}).get("help", project.text)
         project.image.save(name=image, content=image_stream)
         project.save()
 
-    print(f"*** Pushed project id=({uid}) from:{source}.")
+    logger.info(f"*** Pushed project id=({pid}) from:{source} into {url if url else 'database'}.")
 
 
 def write_recipe(recipe, root_dir, image):
@@ -187,6 +257,8 @@ def write_recipe(recipe, root_dir, image):
     open(json_fname, "w").write(hjson.dumps(recipe.json_data))
     print(f"{json_fname}\n{img_fname}\n{template_fname}")
 
+    logger.info(f"Recipe id {recipe.uid} dumped into {root_dir}.")
+
     return
 
 
@@ -203,6 +275,9 @@ def write_project(project, root_dir, image):
     # Write hjson to file.
     open(json_fname, "w").write(hjson.dumps(project.json_data))
     print(f"{json_fname}\n{abspath(img_fname)}")
+
+    logger.info(f"Project id {project.uid} dumped into {root_dir}.")
+
     return
 
 
@@ -226,8 +301,6 @@ def pull_recipe(rid, url=None, api_key=""):
         recipe.json_text = json_text
         recipe.json_data = hjson.loads(json_text)
 
-    if not recipe:
-        raise Exception(f"*** Recipe id={rid}does not exist")
     return recipe, image
 
 
@@ -263,6 +336,7 @@ def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", ty
             print(f"*** Data id : {uid} table of contents updated.")
         return
     project = Project.objects.get_all(uid=pid).first()
+
     if not project:
         logger.error(f"Project id: {pid} does not exist.")
         return
@@ -311,14 +385,27 @@ def get_json_files(root_dir, json_fname=None):
     return recipe_jsons
 
 
-def list_obj(mtype="project"):
+def list_projects(url=None, api_key=""):
+    """
+    Return project list
+    """
+    if url:
+        response = requests.get(url=build_api_url(root_url=url, api_key=api_key, view="project_api_list"))
+        print(response.text.strip())
+    else:
+        projects = Project.objects.get_all()
+        for project in projects:
+            print(f"{project.uid}\t{project.name}\t{project.get_privacy_display()}")
 
-    mtype_map = dict(project=Project, recipe=Analysis, data=Data, job=Job)
 
-    objs = mtype_map.get(mtype).objects.get_all().order_by("id")[:100]
-    for instance in objs:
-        print(f'{instance.id}\t{instance.uid}\t{instance.project.uid}\t{instance.name}')
+def list_recipes(pid, url=None, api_key=""):
+    """
+    Return list of recipe uid belonging to project
+    """
 
+    recipe_uids = get_recipes(pid=pid, api_key=api_key, root_url=url)
+    for recipe_uid in recipe_uids:
+        print(recipe_uid)
     return
 
 
@@ -382,7 +469,6 @@ class Command(BaseCommand):
 
         # Get json files from the root dir.
         json_files = get_json_files(root_dir=root_dir, json_fname=json_file)
-        print(f"Pushing files from --dir {root_dir}")
         for fname in json_files:
             json_text = open(os.path.abspath(os.path.join(root_dir, fname)), "r").read()
             recipe_uid = hjson.loads(json_text).get("settings", {}).get("recipe_uid")
@@ -393,13 +479,9 @@ class Command(BaseCommand):
             if recipe_uid:
                 push_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, json_file=fname,
                             url_from_json=url_from_json)
-                msg = f"Recipe id:{recipe_uid} pushed into {'url' if (url_from_json or root_url) else 'database'}."
             else:
                 push_project(root_dir=root_dir, root_url=root_url, api_key=api_key, url_from_json=url_from_json,
                              json_file=fname)
-                msg = f"Project id:{recipe_uid} pushed into {'url' if (url_from_json or root_url) else 'database'}."
-            logger.info(msg)
-
         return
 
     def manage_pull(self, **options):
@@ -418,10 +500,11 @@ class Command(BaseCommand):
             sys.exit()
 
         if rid:
-
             recipe, image = pull_recipe(url=root_url, api_key=api_key, rid=rid)
+            if not recipe:
+                logger.error(f"Recipe id={rid} does not exist.")
+                return
             write_recipe(recipe=recipe, root_dir=root_dir, image=image)
-            logger.info(f"Recipe id {rid} dumped into {root_dir}.")
             return
 
         if pull_recipes:
@@ -431,13 +514,45 @@ class Command(BaseCommand):
             for uid in recipes:
                 recipe, image = pull_recipe(url=root_url, api_key=api_key, rid=uid)
                 write_recipe(recipe=recipe, root_dir=root_dir, image=image)
-                logger.info(f"Recipe id {uid} dumped into {root_dir}.")
             return
 
         project, image = pull_project(pid=pid, url=root_url, api_key=api_key)
-        write_project(project=project, root_dir=root_dir, image=image)
-        logger.info(f"Project id: {pid} dumped into {root_dir}.")
+        if project:
+            write_project(project=project, root_dir=root_dir, image=image)
         return
+
+    def manage_create(self, **options):
+
+        root_dir = options.get("dir")
+        json_file = options.get("json")
+        full_path = os.path.abspath(json_file)
+
+        root_dir = root_dir or os.path.dirname(full_path)
+        json_file = os.path.basename(full_path)
+        json_files = get_json_files(root_dir=root_dir, json_fname=json_file)
+
+        for fname in json_files:
+            json_text = open(os.path.abspath(os.path.join(root_dir, fname)), "r").read()
+            recipe_uid = hjson.loads(json_text).get("settings", {}).get("recipe_uid")
+            if recipe_uid:
+                create_recipe(json_file=json_file, root_dir=root_dir)
+            else:
+                create_project(json_file=json_file, root_dir=root_dir)
+        return
+
+    def manage_list(self, **options):
+
+        url = options.get("url")
+        api_key = options.get("key")
+        pid = options.get("pid")
+
+        if pid:
+            list_recipes(pid=pid, url=url, api_key=api_key)
+            return
+        list_projects(url=url, api_key=api_key)
+
+        return
+
 
     def add_push_commands(self, parser):
 
@@ -477,9 +592,29 @@ class Command(BaseCommand):
         parser.add_argument('--dir', default='', help="Directory to store in.")
         return
 
+    def add_list_commands(self, parser):
+
+        parser.add_argument("--pid", type=str, default="", help="List recipes belonging to Project uid.")
+        parser.add_argument('--url', default="", help="Site url.")
+        parser.add_argument('--key', default='', help="API key. Required to access private projects.")
+
+        return
+
+    def add_create_commands(self, parser):
+        parser.add_argument('--pid', default='', help="""Load data to --pid.""")
+        parser.add_argument('--json', default='', help="""JSON file path relative to --dir to get conf from.""")
+        pass
+
     def add_arguments(self, parser):
 
         subparsers = parser.add_subparsers()
+
+        list_parser = subparsers.add_parser("list", help="""
+                                                    List objects from url or database.
+                                                    ."""
+                                            )
+
+        self.add_list_commands(parser=list_parser)
 
         create_parser = subparsers.add_parser("create", help="""
                                                     Project, Data and Recipe creation manager.
@@ -488,11 +623,12 @@ class Command(BaseCommand):
                                                     Recipe:   Create recipe in database. 
                                                     ."""
                                             )
+        self.add_create_commands(parser=create_parser)
 
         push_parser = subparsers.add_parser("push", help="""
                                                     Project, Data and Recipe push manager.
                                                     Project:  Update existing project in remote host or database.
-                                                    Data:     Update existing data in project --pid in database. 
+                                                    Data:     Update existing data for project --pid in database. 
                                                     Recipe:   Update existing recipe in remote host or database. 
                                                     ."""
                                             )
@@ -509,21 +645,22 @@ class Command(BaseCommand):
 
         subcommand = sys.argv[2] if len(sys.argv) > 2 else None
 
-        listing = options.get("list")
+        if subcommand == "list":
+            self.manage_list(**options)
+            return
 
         if len(sys.argv) <= 3:
             sys.argv.append("--help")
             self.run_from_argv(sys.argv)
             sys.exit()
 
-        if listing:
-            list_obj(mtype=subcommand)
-            return
-
         if subcommand == "push":
             self.manage_push(**options)
             return
 
+        if subcommand == "create":
+            self.manage_create(**options)
+            return
         if subcommand == "pull":
             self.manage_pull(**options)
             return
