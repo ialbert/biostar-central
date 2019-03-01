@@ -60,8 +60,9 @@ def generate_fnames(json):
     name = setting_dict.get('name', 'No name set')
 
     name = '_'.join(name.split())
-    uid = setting_dict.get("id")
-    base = f"{name}-{uid}"
+    idd = setting_dict.get("id")
+    uid = setting_dict.get("uid")
+    base = f"{name}_{uid}_{idd}"
 
     image = base + '.png'
     template = base + '.sh'
@@ -234,19 +235,18 @@ def push_project(root_dir, json_file, root_url=None, api_key="", url_from_json=F
 
 
 def write_recipe(recipe, root_dir, image):
-    abspath = lambda p: os.path.abspath(os.path.join(root_dir, p))
 
     # Make output directory.
     os.makedirs(root_dir, exist_ok=True)
     # Write image, template, and json
     fnames = generate_fnames(recipe.json_data)
-    img_fname = abspath(fnames[0])
-    json_fname = abspath(fnames[1])
-    template_fname = abspath(fnames[2])
+    img_fname = os.path.join(root_dir, fnames[0])
+    json_fname = os.path.join(root_dir, fnames[1])
+    template_fname = os.path.join(root_dir, fnames[2])
 
-    open(img_fname, "wb").write(image)
-    open(template_fname, "w").write(recipe.template)
-    open(json_fname, "w").write(hjson.dumps(recipe.json_data))
+    open(os.path.abspath(img_fname), "wb").write(image)
+    open(os.path.abspath(template_fname), "w").write(recipe.template)
+    open(os.path.abspath(json_fname), "w").write(hjson.dumps(recipe.json_data))
     print(f"{json_fname}\n{img_fname}\n{template_fname}")
 
     logger.info(f"Recipe id {recipe.uid} dumped into {root_dir}.")
@@ -255,18 +255,17 @@ def write_recipe(recipe, root_dir, image):
 
 
 def write_project(project, root_dir, image):
-    abspath = lambda p: os.path.abspath(os.path.join(root_dir, p))
 
     os.makedirs(root_dir, exist_ok=True)
     fnames = generate_fnames(project.json_data)
-    img_fname = abspath(fnames[0])
-    json_fname = abspath(fnames[1])
+    img_fname = os.path.join(root_dir, fnames[0])
+    json_fname = os.path.join(root_dir,fnames[1])
 
     # Write image to file
-    open(img_fname, "wb").write(image)
+    open(os.path.abspath(img_fname), "wb").write(image)
     # Write hjson to file.
-    open(json_fname, "w").write(hjson.dumps(project.json_data))
-    print(f"{json_fname}\n{abspath(img_fname)}")
+    open(os.path.abspath(json_fname), "w").write(hjson.dumps(project.json_data))
+    print(f"{json_fname}\n{img_fname}")
 
     logger.info(f"Project id {project.uid} dumped into {root_dir}.")
 
@@ -523,7 +522,6 @@ class Command(BaseCommand):
 
         url = options.get("url")
         api_key = options.get("key")
-        pid = options.get("pid")
 
         list_ids(url=url, api_key=api_key)
 
@@ -569,7 +567,6 @@ class Command(BaseCommand):
 
     def add_list_commands(self, parser):
 
-        parser.add_argument("--pid", type=str, default="", help="List recipes belonging to Project uid.")
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")
 

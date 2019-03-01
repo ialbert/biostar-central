@@ -139,25 +139,24 @@ class Project(models.Model):
 
     @property
     def json_text(self):
-        payload = dict(settings=dict(
-            uid=self.uid,
-            name=self.name,
-            image=f"{'_'.join(self.name.split())}-{self.pk}.png",
-            privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
-            help=self.text,
-        ),
-            recipes=[recipe.uid for recipe in self.analysis_set.all()])
-
-        return hjson.dumps(payload)
+        return hjson.dumps(self.json_data)
 
     @property
     def json_data(self):
-        json_data = hjson.loads(self.json_text)
-        json_data.get("settings", {})["id"] = self.pk
-        json_data.get("settings", {})["uid"] = self.uid
-        json_data.get("settings", {})["project_uid"] = self.uid
-        json_data.get("settings", {})["url"] = settings.BASE_URL
-        return json_data
+        payload = dict(
+            settings=dict(
+                uid=self.uid,
+                name=self.name,
+                image=f"{'_'.join(self.name.split())}-{self.pk}.png",
+                privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
+                help=self.text,
+                url=settings.BASE_URL,
+                project_uid=self.uid,
+                id=self.pk
+                ),
+            recipes=[recipe.uid for recipe in self.analysis_set.all()])
+
+        return payload
 
     @property
     def summary(self):
@@ -420,14 +419,16 @@ class Analysis(models.Model):
         current_settings = json_data.get("settings") or {}
 
         # Generates file names
-        base = f"{'_'.join(self.name.split())} - {self.pk}"
+        base = f"{'_'.join(self.name.split())}_{self.uid}_{self.pk}"
+
         template_name = f"{base}.sh"
         image_name = f"{base}.png"
 
         # These keys must always be set.
         defaults = dict(id=self.pk, recipe_uid=self.uid,
                         uid=self.uid,
-                        name="Default name",
+                        name=self.name or "Default name",
+                        help=self.text or "Default help",
                         template=template_name,
                         image=image_name,
                         project_uid=self.project.uid,
