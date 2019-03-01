@@ -31,22 +31,19 @@ def change_image(obj, file_object=None):
     return obj.image.path
 
 
-@api_view(['GET'])
-def project_api_list(request):
-
+def tabular_list():
+    output = []
     projects = Project.objects.get_all()
-    api_key = request.GET.get("k", "")
-
-    # Only show public projects when api key is not correct or provided.
-    if settings.API_KEY != api_key:
-        projects = projects.filter(privacy=Project.PUBLIC)
-
-    payload = []
     for project in projects:
-        info = f"{project.uid}\t{project.name}\t{project.get_privacy_display()}\n"
-        payload.append(info)
+        for recipe in project.analysis_set.all():
+            line = f"{project.uid}\t{project.name}\t{recipe.uid}\t{recipe.name}\t{project.get_privacy_display()}"
+            output.append(line)
 
-    payload = "".join(payload)
+    return "\n".join(output)
+
+@api_view(['GET'])
+def api_list(request):
+    payload = tabular_list()
     return HttpResponse(content=payload, content_type="text/plain")
 
 

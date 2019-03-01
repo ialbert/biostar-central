@@ -1,20 +1,14 @@
-import logging
-import hjson
-import os
-import io
-from urllib.parse import urljoin
-import requests
-import subprocess
 import sys
+from urllib.parse import urljoin
 
+import requests
 from django.core.management.base import BaseCommand
-from django.db.models import Q
 from django.shortcuts import reverse
 
-from biostar.engine.models import Analysis, Project, Data, Job
-from biostar.engine.api import change_image, get_thumbnail
-from biostar.engine import auth, util
 from biostar.accounts.models import User
+from biostar.engine import auth
+from biostar.engine.api import *
+from biostar.engine.models import Data
 
 logger = logging.getLogger('engine')
 
@@ -34,9 +28,8 @@ class Bunch():
 
 
 def build_api_url(root_url, uid=None, view="recipe_api_list", api_key=None):
-
     url = reverse(view, kwargs=dict(uid=uid)) if uid else reverse(view)
-    #TODO Put together params in diffrent way
+    # TODO Put together params in diffrent way
     full_url = urljoin(root_url, url) + f"?k={api_key}"
     return full_url
 
@@ -63,9 +56,8 @@ def get_recipes(pid, root_url=None, api_key=""):
 
 
 def generate_fnames(json):
-
     setting_dict = json.get("settings", {})
-    name = setting_dict.get('name')
+    name = setting_dict.get('name', 'No name set')
 
     name = '_'.join(name.split())
     uid = setting_dict.get("id")
@@ -147,7 +139,7 @@ def create_recipe(json_file, root_dir):
         image_stream = open(os.path.abspath(os.path.join(root_dir, image)), "rb")
         template = open(os.path.abspath(os.path.join(root_dir, template)), "r").read()
         recipe = auth.create_analysis(name=name, project=project, text=text, uid=rid,
-                                      json_text=hjson.dumps(json_data),  template=template, stream=image_stream)
+                                      json_text=hjson.dumps(json_data), template=template, stream=image_stream)
     return recipe
 
 
@@ -180,7 +172,7 @@ def create_data(project, data_list):
     return
 
 
-def push_recipe(root_dir,  json_file, api_key="", root_url=None, url_from_json=False):
+def push_recipe(root_dir, json_file, api_key="", root_url=None, url_from_json=False):
     """
         Push recipe into api/database from a json file.
         Uses PUT request so 'api_key' is required with 'root_url'.
@@ -282,7 +274,6 @@ def write_project(project, root_dir, image):
 
 
 def pull_recipe(rid, url=None, api_key=""):
-
     """
     Dump recipes from the api/database into a target directory
     belonging to single project.
@@ -305,7 +296,6 @@ def pull_recipe(rid, url=None, api_key=""):
 
 
 def pull_project(pid, url=None, api_key=""):
-
     """
     Dump project from remote host or local database into root_dir
     """
@@ -317,7 +307,8 @@ def pull_project(pid, url=None, api_key=""):
         # Get data from remote url.
         project = Bunch(uid=pid)
         image = get_response(root_url=url, api_key=api_key, uid=pid, view="project_api_image").content
-        project.json_text = get_response(root_url=url, api_key=api_key, uid=pid, view="project_api_info").content.decode()
+        project.json_text = get_response(root_url=url, api_key=api_key, uid=pid,
+                                         view="project_api_info").content.decode()
         project.json_data = hjson.loads(project.json_text)
 
     return project, image
@@ -381,32 +372,22 @@ def get_json_files(root_dir, json_fname=None):
 
     # Filter for files that exist.
     abspath = lambda p: os.path.abspath(os.path.join(root_dir, p))
-    recipe_jsons = list(filter(lambda p: os.path.exists(abspath(p)) , json_files))
+    recipe_jsons = list(filter(lambda p: os.path.exists(abspath(p)), json_files))
     return recipe_jsons
 
 
-def list_projects(url=None, api_key=""):
+def list_ids(url=None, api_key=""):
     """
-    Return project list
+    Returns a listing of all project and recipe ids.
     """
     if url:
-        response = requests.get(url=build_api_url(root_url=url, api_key=api_key, view="project_api_list"))
-        print(response.text.strip())
+        url = build_api_url(root_url=url, api_key=api_key, view="api_list")
+        response = requests.get(url=url)
+        text = response.text
     else:
-        projects = Project.objects.get_all()
-        for project in projects:
-            print(f"{project.uid}\t{project.name}\t{project.get_privacy_display()}")
+        text = tabular_list()
 
-
-def list_recipes(pid, url=None, api_key=""):
-    """
-    Return list of recipe uid belonging to project
-    """
-
-    recipe_uids = get_recipes(pid=pid, api_key=api_key, root_url=url)
-    for recipe_uid in recipe_uids:
-        print(recipe_uid)
-    return
+    print(text)
 
 
 class Command(BaseCommand):
@@ -544,13 +525,9 @@ class Command(BaseCommand):
         api_key = options.get("key")
         pid = options.get("pid")
 
-        if pid:
-            list_recipes(pid=pid, url=url, api_key=api_key)
-            return
-        list_projects(url=url, api_key=api_key)
+        list_ids(url=url, api_key=api_key)
 
         return
-
 
     def add_push_commands(self, parser):
 
@@ -620,7 +597,7 @@ class Command(BaseCommand):
                                                     Data:     Create data in project --pid in database. 
                                                     Recipe:   Create recipe in database. 
                                                     ."""
-                                            )
+                                              )
         self.add_create_commands(parser=create_parser)
 
         push_parser = subparsers.add_parser("push", help="""
