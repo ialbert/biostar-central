@@ -9,7 +9,7 @@ from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
 
-from biostar import settings
+from django.conf import settings
 from biostar.accounts.models import User
 from . import util
 from .const import *
@@ -415,31 +415,26 @@ class Analysis(models.Model):
         """
         json_data = hjson.loads(self.json_text)
 
-        # Previously set values.
-        current_settings = json_data.get("settings") or {}
-
         # Generates file names
         base = f"{'_'.join(self.name.split())}_{self.project.uid}_{self.pk}"
-
         template_name = f"{base}.sh"
         image_name = f"{base}.png"
 
-        # These keys must always be set.
-        defaults = dict(id=self.pk, recipe_uid=self.uid,
-                        uid=self.uid,
-                        name=self.name or "Default name",
-                        help=self.text or "Default help",
-                        template=template_name,
-                        image=image_name,
-                        project_uid=self.project.uid,
-                        url=settings.BASE_URL
-                        )
+        # Previously set values.
+        current_settings = json_data.get("settings") or {}
 
-        # Overwrite defaults with settings that exist.
-        defaults.update(current_settings)
+        # Overwrite any previously set values with current information.
+        current_settings["name"] = self.name
+        current_settings["template"] = template_name
+        current_settings["image"] = image_name
+        current_settings["id"] = self.pk
+        current_settings["recipe_uid"] = self.uid
+        current_settings["uid"] = self.uid
+        current_settings["help"] = self.text
+        current_settings["url"] = settings.BASE_URL
 
         # Put them back into settings.
-        json_data["settings"] = defaults
+        json_data["settings"] = current_settings
 
         return json_data
 
@@ -494,11 +489,12 @@ def sync_json(sender, instance, created, raw, update_fields, **kwargs):
 
     current_json = instance.json_data
 
-    if current_json.get("settings"):
-        current_json["settings"]["name"] = instance.name
-        current_json["settings"]["help"] = instance.text
-    else:
-        current_json["settings"] = {"name": instance.name, "help": instance.text}
+    data = current_json.get("settings") or {}
+
+    data["name"] = instance.name
+    data["help"] = instance.text
+
+    current_json["settings"] = data
 
     Analysis.objects.get_all(uid=instance.uid).update(json_text=hjson.dumps(current_json))
 
