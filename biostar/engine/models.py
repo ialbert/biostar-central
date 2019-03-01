@@ -419,7 +419,7 @@ class Analysis(models.Model):
         current_settings = json_data.get("settings") or {}
 
         # Generates file names
-        base = f"{'_'.join(self.name.split())}_{self.uid}_{self.pk}"
+        base = f"{'_'.join(self.name.split())}_{self.project.uid}_{self.pk}"
 
         template_name = f"{base}.sh"
         image_name = f"{base}.png"

@@ -61,8 +61,8 @@ def generate_fnames(json):
 
     name = '_'.join(name.split())
     idd = setting_dict.get("id")
-    uid = setting_dict.get("uid")
-    base = f"{name}_{uid}_{idd}"
+    pid = setting_dict.get("project_uid")
+    base = f"{name}_{pid}_{idd}"
 
     image = base + '.png'
     template = base + '.sh'
