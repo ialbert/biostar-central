@@ -655,7 +655,6 @@ class Command(BaseCommand):
         if subcommand == "push":
             self.manage_push(**options)
             return
-
         if subcommand == "create":
             self.manage_create(**options)
             return
