@@ -151,7 +151,7 @@ class require_api_key:
             obj = self.type.objects.get_all(uid=uid).first()
 
             if not obj:
-                msg = dict(error="Recipe does not exist.")
+                msg = dict(error="Object does not exist.")
                 return Response(data=msg, status=status.HTTP_404_NOT_FOUND)
 
             # All PUT requests will require an API key.

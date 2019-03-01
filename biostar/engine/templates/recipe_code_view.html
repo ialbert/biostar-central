@@ -39,7 +39,7 @@
                     </a>
                     <div class="description">{{ recipe.summary }}</div>
                     <div class="extra">
-                        {% created_by date=recipe.date user=recipe.owner %}
+                        {% created_by date=recipe.lastedit_date user=recipe.owner %}
                     </div>
                 </div>
             </div>

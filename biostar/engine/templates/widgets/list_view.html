@@ -32,7 +32,7 @@
                             href="{% url 'job_list' project.uid %}">
                             <i class="bar chart icon"></i>{{project.job_count}} result{{ project.job_count|pluralize }}</a>
 
-                            <i class="clock outline icon"></i>updated {{ project.lastedit_date|time_ago  }} ago
+                            {% created_by date=project.lastedit_date %}
 
 
 
