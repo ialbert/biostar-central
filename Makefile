@@ -60,7 +60,7 @@ install:
 
 
 projects:
-	# Load projects from files in --dir
+	# Load projects from json files in --dir
 	python manage.py api create --dir ../biostar-recipes/projects
 
 	# Load data associated with projects
@@ -69,7 +69,7 @@ projects:
 
 recipes2: projects
 
-	# Load all recipes in --dir and start jobs on some
+	# Load recipes from json files in --dir, start jobs on some
 	python manage.py api create --dir ../biostar-recipes/recipes/cookbook/ --create_jobs
 	python manage.py api create --dir ../biostar-recipes/recipes/tutorial --create_jobs
 	python manage.py api create --dir ../biostar-recipes/recipes/fish/
