@@ -60,14 +60,14 @@ install:
 
 
 projects:
-    # Load projects from hjson files in --dir, include associated data
+	# Load projects from files in --dir
 	python manage.py api create --dir ../biostar-recipes/projects
 
-data: projects
 	# Load data associated with projects
-	python manage.py api create --json ../biostar-recipes/data.hjson
+	python manage.py api create --json ../biostar-recipes/data.hjson --is_data
 
-recipes2: projects data
+
+recipes2: projects
 
 	# Load all recipes in --dir and start jobs on some
 	python manage.py api create --dir ../biostar-recipes/recipes/cookbook/ --create_jobs

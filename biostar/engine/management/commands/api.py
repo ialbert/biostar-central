@@ -96,7 +96,7 @@ def parse_recipe(json_data):
     Parse recipe information from dict
     """
 
-    image_name, template_name, _ = generate_fnames(json=json_data)
+    image_name,  _, template_name = generate_fnames(json=json_data)
 
     # Get appropriate parameters
     settings_dict = json_data.get("settings", {})
@@ -358,8 +358,8 @@ def get_json_files(root_dir, json_fname=None):
     Return all existing .hjson or .json files in a directory
     """
 
-    is_json = lambda fname: fname.is_file() and fname.endswith(".hjson") or fname.endswith(".json")
-    json_files = [fname.name for fname in os.scandir(root_dir) if is_json(fname.name)]
+    is_json = lambda fname: fname.is_file() and fname.name.endswith(".hjson") or fname.name.endswith(".json")
+    json_files = [fname.name for fname in os.scandir(root_dir) if is_json(fname)]
     if json_fname:
         # Return one json file if provided.
         json_files = [json_fname]
@@ -397,7 +397,7 @@ class Command(BaseCommand):
         json_file = options.get("json")
         url_from_json = options.get("url_from_json")
 
-        # Get root dir from dir name of json file.
+        # Get root dir from directory name with json file.
         if json_file:
             full_path = os.path.abspath(json_file)
             root_dir = root_dir or os.path.dirname(full_path)
@@ -471,23 +471,27 @@ class Command(BaseCommand):
 
         root_dir = options.get("dir")
         json_file = options.get("json")
-        full_path = os.path.abspath(json_file)
+        job = options.get("create_jobs")
+        is_data = options.get("is_data")
 
-        root_dir = root_dir or os.path.dirname(full_path)
-        json_file = os.path.basename(full_path)
+        # Get the root from json file.
+        if json_file:
+            full_path = os.path.abspath(json_file)
+            root_dir = root_dir or os.path.dirname(full_path)
+
         json_files = get_json_files(root_dir=root_dir, json_fname=json_file)
 
         for fname in json_files:
             json_text = open(os.path.abspath(os.path.join(root_dir, fname)), "r").read()
             recipe_uid = hjson.loads(json_text).get("settings", {}).get("recipe_uid")
-            data_list = hjson.loads(json_text).get("data", [])
 
             if recipe_uid:
-                create_recipe(json_file=json_file, root_dir=root_dir)
-            elif data_list:
+                create_recipe(json_file=fname, root_dir=root_dir, job=job)
+            elif is_data:
+                data_list = hjson.loads(json_text).get("data", [])
                 create_data(root_dir=root_dir, data_list=data_list)
             else:
-                create_project(json_file=json_file, root_dir=root_dir)
+                create_project(json_file=fname, root_dir=root_dir)
 
         return
 
@@ -546,8 +550,10 @@ class Command(BaseCommand):
         return
 
     def add_create_commands(self, parser):
-        parser.add_argument('--pid', default='', help="""Load data to --pid.""")
-        parser.add_argument('--json', default='', help="""JSON file path relative to --dir to get conf from.""")
+        parser.add_argument('--dir', default='', help="Base directory with json files.")
+        parser.add_argument('--create_jobs', action="store_true", help="Create job when creating recipe found in --json.")
+        parser.add_argument('--is_data', action="store_true", help="Create data object from --json.")
+        parser.add_argument('--json', default='', help="""JSON file path relative to create object from.""")
         pass
 
     def add_arguments(self, parser):
@@ -556,8 +562,7 @@ class Command(BaseCommand):
 
         list_parser = subparsers.add_parser("list", help="""
                                                     List objects from url or database.
-                                                    ."""
-                                            )
+                                                    .""")
 
         self.add_list_commands(parser=list_parser)
 
