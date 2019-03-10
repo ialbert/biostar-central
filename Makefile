@@ -59,18 +59,24 @@ install:
 	conda install --file conf/conda_requirements.txt -y
 
 
-recipes2:
-	# Load projects from hjson files in --dir, include associated data
-	python manage.py api push --data_from_json --dir ../biostar-recipes/projects --data_root ../biostar-recipes
+projects:
+    # Load projects from hjson files in --dir, include associated data
+	python manage.py api create --dir ../biostar-recipes/projects
+
+data: projects
+	# Load data associated with projects
+	python manage.py api create --json ../biostar-recipes/data.hjson
+
+recipes2: projects data
 
 	# Load all recipes in --dir and start jobs on some
-	python manage.py api push --dir ../biostar-recipes/recipes/cookbook/ --jobs
-	python manage.py api push --dir ../biostar-recipes/recipes/tutorial --jobs
-	python manage.py api push --dir ../biostar-recipes/recipes/fish/
-	python manage.py api push --dir ../biostar-recipes/recipes/giraffe/
-	python manage.py api push --dir ../biostar-recipes/recipes/handbook/
-	python manage.py api push --dir ../biostar-recipes/recipes/mothur/
-	python manage.py api push --dir ../biostar-recipes/recipes/trout/
+	python manage.py api create --dir ../biostar-recipes/recipes/cookbook/ --create_jobs
+	python manage.py api create --dir ../biostar-recipes/recipes/tutorial --create_jobs
+	python manage.py api create --dir ../biostar-recipes/recipes/fish/
+	python manage.py api create --dir ../biostar-recipes/recipes/giraffe/
+	python manage.py api create --dir ../biostar-recipes/recipes/handbook/
+	python manage.py api create --dir ../biostar-recipes/recipes/mothur/
+	python manage.py api create --dir ../biostar-recipes/recipes/trout/
 
     # Create initial users
 	python manage.py add_user initial/initial-users.csv

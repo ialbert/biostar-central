@@ -20,6 +20,12 @@ body {
 }
 
 
+.forumtabs.active.label {
+    background-color: #dff0d8;!important;
+    color: #000000!important;
+    border:none !important;
+}
+
 .ui.list.questions > .item > {
 
 }
@@ -35,13 +41,32 @@ body {
     line-height: 1.5;
 }
 
-.jobpad{
-    padding-right:15!important;
+.forumtabs{
+    font-size:13.0px !important;
+    margin:-1.5px !important;
+    border:none !important;
 }
 
 .ui.items>.item>.content>a.header {
     color: #4183c4;
 }
+
+.biostarlogo {
+    padding-top:0px !important;
+    padding-left:0px !important;
+    padding-right:0px !important;
+    padding-bottom:15px !important;
+    border:0px;
+}
+
+
+.biostarimage{
+    margin-right:0px;
+    max-width: 100%!important;
+
+}
+
+
 
 
 ol {
@@ -102,6 +127,9 @@ figure { display: block; margin: 0; }
     display: inline-block !important;
 }
 
+.deleted {
+    background-color:#f7e4de !important;;
+}
 
 .ui.mytiny.image, .ui.mytiny.images .image, .ui.mytiny.images img, .ui.mytiny.images svg {
     width: 80px;
@@ -116,10 +144,75 @@ figure { display: block; margin: 0; }
 .padme > .subheader {
     padding: 1ex 0ex 1ex 0ex !important;
 }
+.accept{
+  background-color: #436c27 !important;
+  color: #ffff00 !important;
+
+}
+
+.tutorial{
+  background-color: #2C7990 !important;
+  color: #fff !important;
+
+}
+
+.job{
+  background-color: #e9530f !important;
+  color: #fff !important;
+
+}
+
+.tool{
+  background-color: #265040 !important;
+  color: #fff !important;
+
+}
+
+.news{
+  background-color: #762C90 !important;
+  color: #fff !important;
+
+}
+
+
+.accepted {
+    background-color: #f9fcf9 !important;
+    border-radius: 1rem !important;
+}
 
 .ui.userinfo.segment {
   margin: 0;
   padding: 0;
+}
+
+.ui.tags.segment {
+  padding: 0;
+  margin: 5;
+}
+
+
+.ui.maroon.label {
+  background-color: #8f2c47;
+  color: #fff;
+}
+.ui.maroon.header {
+  color: #8f2c47;
+}
+
+.ui.darkgreen.label {
+  background-color: #326b2b;
+  color: #fff;
+}
+.ui.lightgreen.label {
+  background-color: #5b8c3e;
+  color: #fff;
+}
+
+.ui.stats.segment {
+    margin-left: -1em;
+    margin-bottom: -1em;
+    margin-right: 0em;
+    padding-top: 0px;
 }
 
 .ui.title.segment {
@@ -142,7 +235,55 @@ figure { display: block; margin: 0; }
     background: none #fff;
     border-color: white;
 }
+.ui.stat.label{
+    width: 53;
+    margin: 0;
+    border-radius: 0;
+}
 
+.number-stat{
+    font-size: 2.0em;
+    padding-bottom: .2em;
+    text-align: center;
+    font-weight: 900;
+}
+.ui.forum.container {
+    width: 1230px;
+    }
+
+
+
+.detail-stat{
+    font-size: 1.15em;
+    text-align: center;
+    font-weight: 500;
+}
+
+
+.ui.tagging.label {
+    margin:0!important;
+    font-size: 14px;
+    padding: 3px;
+    color:#8f2c47;
+    font-weight: 20;
+}
+.ui.tagging.label:hover {
+    background-color: #8f2c47;
+    color:white;
+
+}
+.ui.darkgreen.header {
+  color: #326b2b
+}
+
+.ui.darkgreen.segment {
+  border-top: 2px solid #326b2b!important;
+}
+
+.ui.comment.segments{
+    box-shadow: 0 0px 0px 0px rgba(34,36,38,.15);
+    border: none transparent;
+}
 
 .socialbox{
     width:450 !important;
@@ -157,28 +298,45 @@ figure { display: block; margin: 0; }
     margin-bottom:0 !important;
 }
 
+.commentcolor {
+    background-color:#f2f2f2!important;;
+    padding:2!important;;
+}
+
 
 .not_runnable{
     background-color:#f7e4de !important;
 
 }
 
+.deleted.commentcolor {
+    background-color:#f7e4de !important;
+    padding:2!important;
+}
+.ui.comment.segment {
+  border-top: none !important;
+  padding-right:0;
+  padding-top: 8;
+  padding-left: 30;
+  padding-bottom:0;
+}
+
+.ui.gold.label {
+  background-color: #b5a805;
+  color: #fff;
+}
+.ui.gold.header {
+  color: #b5a805
+}
+
+.ui.gold.segment {
+  border-top: 2px solid #b5a805!important;
+}
 
 .actionbar {
     margin-top:-20px !important;
 }
 
-.project.help h1 {
-    font-size: 1.28em;
-}
-
-.project.help h2 {
-    font-size: 1.18em;
-}
-
-.project.help h3,h4,h5 {
-    font-size: 1.08em;
-}
 
 .runcolor {
     background: rgba(33, 186, 69, 0.13) !important;
@@ -188,9 +346,6 @@ figure { display: block; margin: 0; }
     background: #fff8db !important;
 }
 
-.CodeMirror {
-    height: 30em !important;
-}
 
 .page > h1 {
     font-size: 1.28em !important;

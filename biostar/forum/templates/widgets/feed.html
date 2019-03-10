@@ -40,25 +40,32 @@
 
 {% else %}
 
-
-        <div class="event">
-        <div class="ui container">
-            <div class="ui large vertical segment">
-<b> Recent Votes </b>
-
-            <div class="ui relaxed tiny list" >
-
-                {% for vote in recent_votes %}
-
-                   <div class="item"  style="">
-                        <a href="{% url 'post_view' vote.post.uid %}">{{ vote.post.title }}</a>
-                   </div>
-
-                {% endfor %}
-
-            </div>
+                <div class="event">
+            <div class="ui container">
+                <div class="ui large vertical segment">
+            <b> Recent Projects </b>
+                </div>
             </div>
         </div>
+
+        <div class="event">
+            <div class="ui container">
+                <div class="ui large vertical segment">
+            <b> Recent Votes </b>
+
+                <div class="ui relaxed tiny list" >
+
+                    {% for vote in recent_votes %}
+
+                       <div class="item"  style="">
+                            <a href="{% url 'post_view' vote.post.uid %}">{{ vote.post.title }}</a>
+                       </div>
+
+                    {% endfor %}
+
+                </div>
+                </div>
+            </div>
         </div>
 
 
