@@ -1,7 +1,6 @@
 # API Methods and Commands
 
 
-
 # Commands 
 
 Pull API:
@@ -10,12 +9,12 @@ Pull API:
     
     optional arguments:
       -h, --help     show this help message and exit
-      -r, --recipes  Load recipes of --pid
+      -r, --recipes  Pull recipes of --pid
       --url URL      Site url.
       --key KEY      API key. Required to access private projects.
       --rid RID      Recipe uid to dump.
-      --pid PID      Project uid to load dump.
-      --dir DIR      Directory to store from.
+      --pid PID      Project uid to dump.
+      --dir DIR      Directory to store in.
 
     # Dump project from remote url (--url).
     $ python manage.py api pull --pid tutorial --dir tmp/remote/projects/ --url URL
@@ -28,48 +27,42 @@ Push API:
     
     $ python manage.py api push --help
     optional arguments:
-      -h, --help            show this help message and exit
-      -u, --url_from_json   Extract url from conf file instead of --url.
-      -r, --recipes         Load recipes of --pid
-      -d, --data            Load data of --pid to local database.
-      --url URL             Site url.
-      --key KEY             API key. Required to access private projects.
-      --add_data            Add data found in --json to --pid.
-      --jobs                Also creates a queued job for the recipe
-      --rid RID             Recipe uid to load.
-      --pid PID             Project uid to load from or dump to.
-      --did DID             Data uid to load or update.
-      --dir DIR             Base directory to store/load from.
-      --path PATH           Path to data.
-      --text TEXT           A file containing the description of the data
-      --name NAME           Sets the name of the data
-      --type TYPE           Sets the type of the data
-      --update_toc          Update table of contents for data --uid.
-      --data_root DATA_ROOT
-                            Root directory to data found in conf file when loading
-                            project.
-      --json JSON           JSON file path relative to --dir.
+      -h, --help           show this help message and exit
+      -u, --url_from_json  Extract url from conf file instead of --url.
+      --url URL            Site url.
+      --key KEY            API key. Required to access private projects.
+      --rid RID            Recipe uid to load.
+      --pid PID            Project uid to load.
+      --dir DIR            Directory with json files to load in bulk.
+      --json JSON          Project or recipe JSON file to load.
                       
            
      # Load project tutorial from json file. 
      $ python manage.py api push --json ../biostar-recipes/projects/tutorial.hjson 
      
      # Load recipe jsons in --dir to project --pid. Upload to remote host with -u flag.
-     $ python manage.py api push --pid tutorial --dir ../biostar-recipes/recipes/ -u
+     $ python manage.py api push --pid tutorial --dir ../biostar-recipes/recipes/ -u --key API_KEY
     
 
 # Methods
 
-## Project list 
-    GET /api/project/list/
+## Listing 
+    GET /api/list/
 
-List of projects in a tab delimited fashion with three columns: **ID** , **Name**, and **Privacy**
+List projects and recipes in a tab delimited fashion with columns: **Project ID** , **Project Name**, **Recipe ID**, **Recipe Name**, **Privacy**
 
 #### Example
-[/api/project/list/](https://www.bioinformatics.recipes/api/project/list/)
+[/api/list/](https://www.bioinformatics.recipes/api/list/)
 
-    tutorial	Recipe Tutorials	Public
-    cookbook	Bioinformatics Cookbook	Public
+    tutorial	Recipe Tutorials	environment	Environment Check	Public
+    tutorial	Recipe Tutorials	interface	Interface Elements	Public
+    tutorial	Recipe Tutorials	makefile	Makefile Example	Public
+    tutorial	Recipe Tutorials	rscript	R Script	Public
+    cookbook	Bioinformatics Cookbook	quality-check	Improve the quality of sequencing reads	Public
+    cookbook	Bioinformatics Cookbook	fastqc	Visualize FASTQ data quality	Public
+    cookbook	Bioinformatics Cookbook	pseudo-alignment	RNA-Seq Transcript Abundance Estimation	Public
+    cookbook	Bioinformatics Cookbook	augustus	Gene Prediction	Public
+
 
 ## Project Information
 
@@ -132,21 +125,6 @@ Image in response:
 
 ![20% center](tutorial.png)
 
-
-## Recipe list
-    GET /api/recipe/list/{id}/
-    
-List of recipes for project in a tab delimited fashion with two columns: **ID** and **Name**
-
-#### Parameters
-* _id_: unique project ID
-
-#### Example
-[/api/recipe/list/tutorials/](https://www.bioinformatics.recipes/api/recipe/list/tutorials/)
-
-    interface	Interface Elements
-    makefile	Makefile Example
-    environment	Environment Check
 
 ## Recipe Json
 

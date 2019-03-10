@@ -499,44 +499,24 @@ class Command(BaseCommand):
 
         url = options.get("url")
         api_key = options.get("key")
-
         list_ids(url=url, api_key=api_key)
-
         return
 
     def add_push_commands(self, parser):
 
-        parser.add_argument('-u', "--url_from_json", action="store_true",
-                            help="""Extract url from conf file instead of --url.""")
-        parser.add_argument('-d', "--data", action="store_true",
-                            help="""Load --dir or --path as a data object of --pid to local database.""")
+        parser.add_argument('-u', "--url_from_json", action="store_true", help="""Extract url from conf file instead of --url.""")
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")
-
-        parser.add_argument("--data_from_json", action='store_true', help="Add data found in --json to --pid.")
-        parser.add_argument("--jobs", action='store_true', help="Also creates a queued job for the recipe")
         parser.add_argument('--rid', type=str, default="", help="Recipe uid to load.")
-        parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
-        parser.add_argument("--did", type=str, help="Data uid to load or update.")
-
-        parser.add_argument('--dir', default='', help="Base directory to store/load from.")
-        parser.add_argument("--path", type=str, help="Path to data.")
-        parser.add_argument('--text', default='', help="A file containing the description of the data")
-        parser.add_argument('--name', default='', help="Sets the name of the data")
-        parser.add_argument('--type', default='data', help="Sets the type of the data")
-        parser.add_argument("--update_toc", action="store_true", help="Update table of contents for data --uid.")
-
-        parser.add_argument("--data_root", default="",
-                            help="Root directory to data found in conf file when loading project.")
-        parser.add_argument('--json', default='', help="""JSON file path relative to --dir to get conf from.""")
+        parser.add_argument("--pid", type=str, default="", help="Project uid to load.")
+        parser.add_argument('--dir', default='', help="Directory with json files to load in bulk.")
+        parser.add_argument('--json', default='', help="""Project or recipe JSON file to load.""")
         return
 
     def add_pull_commands(self, parser):
-        parser.add_argument('-r', "--recipes", action="store_true",
-                            help="""Pull recipes of --pid""")
+        parser.add_argument('-r', "--recipes", action="store_true", help="""Pull recipes of --pid""")
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")
-
         parser.add_argument('--rid', type=str, default="", help="Recipe uid to dump.")
         parser.add_argument("--pid", type=str, default="", help="Project uid to dump.")
         parser.add_argument('--dir', default='', help="Directory to store in.")
@@ -560,32 +540,20 @@ class Command(BaseCommand):
 
         subparsers = parser.add_subparsers()
 
-        list_parser = subparsers.add_parser("list", help="""
-                                                    List objects from url or database.
-                                                    .""")
-
+        list_parser = subparsers.add_parser("list", help=""" List objects from url or database.""")
         self.add_list_commands(parser=list_parser)
 
         create_parser = subparsers.add_parser("create", help="""
-                                                    Create a project, data or  recipe.
-                                                    """
-                                              )
+                                                    Create a project, data or recipe in database from a json file.
+                                                    """)
         self.add_create_commands(parser=create_parser)
 
-        push_parser = subparsers.add_parser("push", help="""
-                                                    Project, Data and Recipe push manager.
-                                                    Project:  Update existing project in remote host or database.
-                                                    Data:     Update existing data for project --pid in database. 
-                                                    Recipe:   Update existing recipe in remote host or database. 
-                                                    ."""
-                                            )
+        push_parser = subparsers.add_parser("push", help="""Update existing project/recipe in remote host or database 
+                                                    from a json file.""")
         self.add_push_commands(parser=push_parser)
 
-        pull_parser = subparsers.add_parser("pull", help="""
-                                                    Project and Recipe Job dumper manager.
-                                                    Project  : Dump project from remote host or database
-                                                    Recipe:  : Dump Recipe from remote host or database.
-                                                    """)
+        pull_parser = subparsers.add_parser("pull", help="""Dump project/recipe into json file from remote 
+                                                    host or database.""")
         self.add_pull_commands(parser=pull_parser)
 
     def handle(self, *args, **options):
