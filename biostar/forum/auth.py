@@ -57,6 +57,7 @@ def build_obj_tree(request, obj):
 
     def decorate(query):
         # Can the current user accept answers
+        # TODO: use annotate.
         for post in query:
             if post.is_comment:
                 comment_tree.setdefault(post.parent_id, []).append(post)

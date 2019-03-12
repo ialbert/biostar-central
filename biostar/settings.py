@@ -278,6 +278,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
 STATICFILES_DIRS = [
     join(BASE_DIR, "engine", "static"),
+    join(BASE_DIR, "forum", "static"),
 ]
 
 STATICFILES_FINDERS = (

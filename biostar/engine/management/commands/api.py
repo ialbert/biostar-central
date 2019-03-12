@@ -73,7 +73,8 @@ def generate_fnames(json):
 
 def get_response(root_url, view, uid, api_key=""):
     # Send GET request to view and return a response.
-    response = requests.get(url=build_api_url(root_url=root_url, api_key=api_key, uid=uid, view=view))
+    url = build_api_url(root_url=root_url, api_key=api_key, uid=uid, view=view)
+    response = requests.get(url=url)
     if response.status_code != 200:
         logger.error(f"*** Error with remote host with id={uid}: {response.text}")
         sys.exit()
@@ -81,11 +82,11 @@ def get_response(root_url, view, uid, api_key=""):
 
 
 def put_response(root_url, view, uid, stream, api_key=""):
-    # Send PUT request to view with data in stream send as a file.
-    full_url = build_api_url(root_url=root_url, view=view, uid=uid, api_key=api_key)
-    response = requests.put(url=full_url, files=dict(file=stream), data=dict(k=api_key))
+    # Send PUT request to view with file in stream sent as a file.
+    url = build_api_url(root_url=root_url, view=view, uid=uid, api_key=api_key)
+    response = requests.put(url=url, files=dict(file=stream))
     if response.status_code != 200:
-        logger.error(f"*** Error on remote host: {response.text}")
+        logger.error(f"*** Error on remote host with uid={uid}: {response.text}")
         sys.exit()
     return response
 
@@ -95,7 +96,7 @@ def parse_recipe(json_data):
     Parse recipe information from dict
     """
 
-    image_name, template_name, _ = generate_fnames(json=json_data)
+    image_name,  _, template_name = generate_fnames(json=json_data)
 
     # Get appropriate parameters
     settings_dict = json_data.get("settings", {})
@@ -123,7 +124,7 @@ def parse_project(json_data):
     return pid, url, privacy, image
 
 
-def create_recipe(json_file, root_dir):
+def create_recipe(json_file, root_dir, job=False):
     """Create a recipe from a json file."""
 
     source = os.path.abspath(os.path.join(root_dir, json_file))
@@ -141,6 +142,9 @@ def create_recipe(json_file, root_dir):
         template = open(os.path.abspath(os.path.join(root_dir, template)), "r").read()
         recipe = auth.create_analysis(name=name, project=project, text=text, uid=rid,
                                       json_text=hjson.dumps(json_data), template=template, stream=image_stream)
+    if job:
+        create_job(recipe=recipe)
+
     return recipe
 
 
@@ -167,8 +171,44 @@ def create_project(json_file, root_dir):
     return project
 
 
-def create_data(project, data_list):
-    """Create data found in list """
+def create_data(root_dir, data_list):
+    """Create data from data list, paths are relative to root """
+
+    for data in data_list:
+        pid = data.get("project_uid", None)
+        # Get data path relative to root_dir
+        path = data.get("value", "")
+        project = Project.objects.get_all(uid=pid).first()
+        dtype = data.get("type")
+        text = data.get("help")
+        name = data.get("name")
+        path = path if path.startswith("/") else os.path.join(root_dir, path)
+
+        print(f"*** Creating data in project={pid}, path={path}")
+        # Create the data.
+        auth.create_data(project=project, path=path, type=dtype, name=name, text=text)
+
+    return
+
+
+def create_job(recipe):
+    """Create a queued job for a recipe"""
+
+    json_data = recipe.json_data
+
+    # Get the data if it exists
+    for key, obj in json_data.items():
+        if obj.get("source") != "PROJECT":
+            continue
+        name = obj.get('value', '')
+        data = Data.objects.filter(project=recipe.project, name=name).first()
+        if not data:
+            logger.error(f"Job not created! Missing data:{name} in analysis:{recipe.name}")
+            return
+
+        data.fill_dict(obj)
+
+    auth.create_job(analysis=recipe, json_data=json_data)
 
     return
 
@@ -313,58 +353,13 @@ def pull_project(pid, url=None, api_key=""):
     return project, image
 
 
-def data_loader(path, pid=None, uid=None, update_toc=False, name="Data Name", type="", text=""):
-    """
-    Load data found in path to database.
-    """
-
-    data = Data.objects.get_all(uid=uid).first()
-    # Work with existing data.
-    if data:
-        if update_toc:
-            data.make_toc()
-            print(f"*** Data id : {uid} table of contents updated.")
-        return
-    project = Project.objects.get_all(uid=pid).first()
-
-    if not project:
-        logger.error(f"Project id: {pid} does not exist.")
-        return
-    if not path or not os.path.exists(path):
-        logger.error(f"--path ({path}) does not exist.")
-        return
-    # Slightly different course of action on file and directories.
-    isdir = os.path.isdir(path)
-
-    # Generate alternate names based on input directory type.
-    print(f"*** Project: {project.name} ({project.uid})")
-    if isdir:
-        print(f"*** Linking directory: {path}")
-        altname = os.path.split(path)[0].split(os.sep)[-1]
-    else:
-        print(f"*** Linking file: {path}")
-        altname = os.path.split(path)[-1]
-
-    # Get the text from file
-    text = open(text, "r").read() if os.path.exists(text) else ""
-
-    # Select the name.
-    name = name or altname
-
-    # Create the data.
-    data = auth.create_data(project=project, path=path, type=type, name=name, text=text)
-    print(f"*** Created data: name={name}, id={data.uid}")
-
-    return data
-
-
 def get_json_files(root_dir, json_fname=None):
     """
     Return all existing .hjson or .json files in a directory
     """
 
-    is_json = lambda fname: fname.endswith(".hjson") or fname.endswith(".json")
-    json_files = [fname.name for fname in os.scandir(root_dir) if fname.is_file() and is_json(fname.name)]
+    is_json = lambda fname: fname.is_file() and fname.name.endswith(".hjson") or fname.name.endswith(".json")
+    json_files = [fname.name for fname in os.scandir(root_dir) if is_json(fname)]
     if json_fname:
         # Return one json file if provided.
         json_files = [json_fname]
@@ -392,25 +387,6 @@ def list_ids(url=None, api_key=""):
 class Command(BaseCommand):
     help = 'Dump and load items using api.'
 
-    def load_data(self, options):
-        root_dir = options.get("dir")
-        pid = options.get("pid")
-        did = options.get("did")
-        path = options.get("path") or ""
-        name = options.get("name")
-        type = options.get("type")
-        update_toc = options.get("update_toc")
-
-        if not (pid or did):
-            self.stdout.write(self.style.NOTICE("[error] --pid or --did need to be set."))
-            self.run_from_argv(sys.argv + ["--help"])
-            sys.exit()
-        path = path or os.path.abspath(root_dir)
-        data = data_loader(pid=pid, path=path, uid=did, update_toc=update_toc, name=name, type=type)
-        msg = f"{data.name} loaded into database."
-        self.stdout.write(msg=self.style.SUCCESS(msg))
-        return
-
     def manage_push(self, **options):
         root_url = options.get("url")
         api_key = options.get("key")
@@ -418,18 +394,10 @@ class Command(BaseCommand):
         rid = options.get("rid")
         pid = options.get("pid") or ""
 
-        data = options.get("data")
-        did = options.get("did")
-
         json_file = options.get("json")
         url_from_json = options.get("url_from_json")
 
-        # Handle loading data
-        if data or did:
-            self.load_data(options=options)
-            return
-
-        # Get root dir from dir name of json file.
+        # Get root dir from directory name with json file.
         if json_file:
             full_path = os.path.abspath(json_file)
             root_dir = root_dir or os.path.dirname(full_path)
@@ -503,63 +471,52 @@ class Command(BaseCommand):
 
         root_dir = options.get("dir")
         json_file = options.get("json")
-        full_path = os.path.abspath(json_file)
+        job = options.get("create_jobs")
+        is_data = options.get("is_data")
 
-        root_dir = root_dir or os.path.dirname(full_path)
-        json_file = os.path.basename(full_path)
+        # Get the root from json file.
+        if json_file:
+            full_path = os.path.abspath(json_file)
+            root_dir = root_dir or os.path.dirname(full_path)
+
         json_files = get_json_files(root_dir=root_dir, json_fname=json_file)
 
         for fname in json_files:
             json_text = open(os.path.abspath(os.path.join(root_dir, fname)), "r").read()
             recipe_uid = hjson.loads(json_text).get("settings", {}).get("recipe_uid")
+
             if recipe_uid:
-                create_recipe(json_file=json_file, root_dir=root_dir)
+                create_recipe(json_file=fname, root_dir=root_dir, job=job)
+            elif is_data:
+                data_list = hjson.loads(json_text).get("data", [])
+                create_data(root_dir=root_dir, data_list=data_list)
             else:
-                create_project(json_file=json_file, root_dir=root_dir)
+                create_project(json_file=fname, root_dir=root_dir)
+
         return
 
     def manage_list(self, **options):
 
         url = options.get("url")
         api_key = options.get("key")
-
         list_ids(url=url, api_key=api_key)
-
         return
 
     def add_push_commands(self, parser):
 
-        parser.add_argument('-u', "--url_from_json", action="store_true",
-                            help="""Extract url from conf file instead of --url.""")
-        parser.add_argument('-d', "--data", action="store_true",
-                            help="""Load --dir or --path as a data object of --pid to local database.""")
+        parser.add_argument('-u', "--url_from_json", action="store_true", help="""Extract url from conf file instead of --url.""")
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")
-
-        parser.add_argument("--data_from_json", action='store_true', help="Add data found in --json to --pid.")
-        parser.add_argument("--jobs", action='store_true', help="Also creates a queued job for the recipe")
         parser.add_argument('--rid', type=str, default="", help="Recipe uid to load.")
-        parser.add_argument("--pid", type=str, default="", help="Project uid to load from or dump to.")
-        parser.add_argument("--did", type=str, help="Data uid to load or update.")
-
-        parser.add_argument('--dir', default='', help="Base directory to store/load from.")
-        parser.add_argument("--path", type=str, help="Path to data.")
-        parser.add_argument('--text', default='', help="A file containing the description of the data")
-        parser.add_argument('--name', default='', help="Sets the name of the data")
-        parser.add_argument('--type', default='data', help="Sets the type of the data")
-        parser.add_argument("--update_toc", action="store_true", help="Update table of contents for data --uid.")
-
-        parser.add_argument("--data_root", default="",
-                            help="Root directory to data found in conf file when loading project.")
-        parser.add_argument('--json', default='', help="""JSON file path relative to --dir to get conf from.""")
+        parser.add_argument("--pid", type=str, default="", help="Project uid to load.")
+        parser.add_argument('--dir', default='', help="Directory with json files to load in bulk.")
+        parser.add_argument('--json', default='', help="""Project or recipe JSON file to load.""")
         return
 
     def add_pull_commands(self, parser):
-        parser.add_argument('-r', "--recipes", action="store_true",
-                            help="""Pull recipes of --pid""")
+        parser.add_argument('-r', "--recipes", action="store_true", help="""Pull recipes of --pid""")
         parser.add_argument('--url', default="", help="Site url.")
         parser.add_argument('--key', default='', help="API key. Required to access private projects.")
-
         parser.add_argument('--rid', type=str, default="", help="Recipe uid to dump.")
         parser.add_argument("--pid", type=str, default="", help="Project uid to dump.")
         parser.add_argument('--dir', default='', help="Directory to store in.")
@@ -573,44 +530,30 @@ class Command(BaseCommand):
         return
 
     def add_create_commands(self, parser):
-        parser.add_argument('--pid', default='', help="""Load data to --pid.""")
-        parser.add_argument('--json', default='', help="""JSON file path relative to --dir to get conf from.""")
+        parser.add_argument('--dir', default='', help="Base directory with json files.")
+        parser.add_argument('--create_jobs', action="store_true", help="Create job when creating recipe found in --json.")
+        parser.add_argument('--is_data', action="store_true", help="Create data object from --json.")
+        parser.add_argument('--json', default='', help="""JSON file path relative to create object from.""")
         pass
 
     def add_arguments(self, parser):
 
         subparsers = parser.add_subparsers()
 
-        list_parser = subparsers.add_parser("list", help="""
-                                                    List objects from url or database.
-                                                    ."""
-                                            )
-
+        list_parser = subparsers.add_parser("list", help=""" List objects from url or database.""")
         self.add_list_commands(parser=list_parser)
 
         create_parser = subparsers.add_parser("create", help="""
-                                                    Project, Data and Recipe creation manager.
-                                                    Project:  Create project in database.
-                                                    Data:     Create data in project --pid in database. 
-                                                    Recipe:   Create recipe in database. 
-                                                    ."""
-                                              )
+                                                    Create a project, data or recipe in database from a json file.
+                                                    """)
         self.add_create_commands(parser=create_parser)
 
-        push_parser = subparsers.add_parser("push", help="""
-                                                    Project, Data and Recipe push manager.
-                                                    Project:  Update existing project in remote host or database.
-                                                    Data:     Update existing data for project --pid in database. 
-                                                    Recipe:   Update existing recipe in remote host or database. 
-                                                    ."""
-                                            )
+        push_parser = subparsers.add_parser("push", help="""Update existing project/recipe in remote host or database 
+                                                    from a json file.""")
         self.add_push_commands(parser=push_parser)
 
-        pull_parser = subparsers.add_parser("pull", help="""
-                                                    Project and Recipe Job dumper manager.
-                                                    Project  : Dump project from remote host or database
-                                                    Recipe:  : Dump Recipe from remote host or database.
-                                                    """)
+        pull_parser = subparsers.add_parser("pull", help="""Dump project/recipe into json file from remote 
+                                                    host or database.""")
         self.add_pull_commands(parser=pull_parser)
 
     def handle(self, *args, **options):
