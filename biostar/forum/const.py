@@ -10,6 +10,7 @@ MYPOSTS, MYTAGS, OPEN, FOLLOWING = ["myposts", "mytags", "open", "following"]
 BOOKMARKS, VOTES, MESSAGE = ["bookmarks", "votes", "message"]
 MENTIONED, COMMUNITY, LATEST = ["mentioned", "community", "latest"]
 
+JOBS, TOOLS, TUTORIALS, FORUM, PLANET = ["jobs", "tools", "tutorials", "forum", "planet"]
 # Topics that have a default tabs
 TOPICS_WITH_TABS = [
                 MYPOSTS, MYTAGS, FOLLOWING,

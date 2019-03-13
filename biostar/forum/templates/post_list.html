@@ -16,10 +16,10 @@
 </div>
     {% endif %}
 
-    {% pages objs=objs request=request %}
+    {% pages objs=posts request=request %}
 
-    {% listing posts=objs side_image=True %}
-    {% pages objs=objs request=request %}
+    {% listing posts=posts %}
+    {% pages objs=posts request=request %}
 
 
 {% endblock %}

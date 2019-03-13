@@ -75,6 +75,7 @@ class PostManager(models.Manager):
         "Posts that received votes from other people "
         query = self.filter(votes__post__author=user).exclude(votes__author=user)
         query = self.select_prefetch(query)
+        query = query.distinct()
         return query
 
     def my_posts(self, target, user):

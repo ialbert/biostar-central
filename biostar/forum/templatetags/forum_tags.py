@@ -204,9 +204,9 @@ def get_thread_users(post, limit=3):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(posts=None, discussion_view=False, side_image=False):
+def listing(posts=None):
 
-    return dict(objs=posts, discussion_view=discussion_view, side_image=side_image)
+    return dict(posts=posts)
 
 
 @register.filter
@@ -232,9 +232,6 @@ def object_count(request, otype):
 
         if otype == "message":
             count = user.profile.new_messages
-        else:
-            query = auth.query_topic(user=user, topic=otype)
-            count = count if query is None else query.count()
 
     return count
 

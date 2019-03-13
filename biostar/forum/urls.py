@@ -4,7 +4,7 @@ from django.conf.urls import url
 urlpatterns = [
 
     # Post urls
-    url(r'^$', views.list_view, name='post_list'),
+    url(r'^$', views.post_list, name='post_list'),
     url(r'^view/(?P<uid>[-\w]+)/$', views.post_view, name='post_view'),
 
     url(r'^create/$', views.post_create, name='post_create'),

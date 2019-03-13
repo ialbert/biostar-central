@@ -33,6 +33,7 @@ class ForumNavigation(TestCase):
         c = Client()
         c.login(username=self.owner.username, email='tested@tested.com', password='tested')
         for url in urls:
+            print(url)
             resp = c.get(url, data={"q":"tested"})
             code = resp.status_code
             if code not in codes:

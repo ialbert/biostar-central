@@ -2,7 +2,7 @@
 
 
 <div class="ui divided items">
-    {% for post in objs %}
+    {% for post in posts.object_list %}
 
         <div class="post item {{post.deleted_class}}">
 
@@ -60,23 +60,20 @@
                     {% endif %}
                 </span>
 
-                {% if discussion_view %}
-                <a href="{% url 'discussion_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
-                   class="ui mini blue title header " >{{ post.title}}</a>
-                {% else %}
-                 <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
-                    class="ui mini blue title header ">{{ post.title|truncatechars:150 }}</a>
-                {% endif %}
-            {% if side_image %}
-                {% get_thread_users post=post limit=5 as extra_users %}
 
-                {% for user in extra_users %}
-                 <a class="ui mini avatar image" href="{% url "user_profile" user.profile.uid %}" style="width:25px">
-                     {% gravatar user=user size=50 %}</a>
+             <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
+                class="ui mini blue title header ">{{ post.title|truncatechars:150 }}</a>
 
-                {% endfor %}
 
-            {% endif %}
+            {% get_thread_users post=post limit=5 as extra_users %}
+
+            {% for user in extra_users %}
+             <a class="ui mini avatar image" href="{% url "user_profile" user.profile.uid %}" style="width:25px">
+                 {% gravatar user=user size=50 %}</a>
+
+            {% endfor %}
+
+
 
         </div>
 

@@ -74,44 +74,6 @@ def build_obj_tree(request, obj):
     return comment_tree, answers, thread
 
 
-def query_topic(user, topic, tag_search=False):
-    "Maps known topics to their appropriate querying functions and args."
-
-    if user.is_anonymous:
-        tags = ""
-    else:
-        tags = user.profile.my_tags
-
-    # Acts as a lazy evaluator by only calling a function when its topic is picked
-    mapper = {
-
-        MYPOSTS: dict(func=Post.objects.my_posts, params=dict(target=user, user=user)),
-        MYTAGS: dict(func=Post.objects.tag_search, params=dict(text=tags)),
-        BOOKMARKS: dict(func=Post.objects.my_bookmarks, params=dict(user=user)),
-        FOLLOWING: dict(func=Post.objects.following, params=dict(user=user)),
-        LATEST: dict(func=Post.objects.top_level, params=dict(user=user)),
-
-        # "apply" is an added function that can do extra work to the resulting queryset.
-        VOTES: dict(func=Post.objects.my_post_votes, params=dict(user=user),
-                          apply=lambda q: q.distinct()),
-        OPEN: dict(func=Post.objects.top_level, params=dict(user=user),
-                               apply=lambda q: q.filter(type=Post.QUESTION, reply_count=0)),
-    }
-
-    if mapper.get(topic):
-        func, params = mapper[topic]["func"], mapper[topic].get("params")
-        apply_extra = mapper[topic].get("apply", lambda q: q)
-        query = apply_extra(func(**params))
-    else:
-        query = None
-
-    # Query any topic as a tag
-    if tag_search and query is None:
-        query = Post.objects.tag_search(topic)
-
-    return query
-
-
 def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
     "Views are updated per user session"
 
@@ -131,28 +93,6 @@ def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
         PostView.objects.create(ip=ip, post=post, date=now)
         Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
     return post
-
-
-def list_posts_by_topic(request, topic):
-    "Returns a post query that matches a topic"
-    user = request.user
-
-    post_types = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
-                      forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
-
-    # One letter tags are always uppercase.
-    topic = util.fixcase(topic)
-    query = query_topic(user=user, topic=topic, tag_search=True)
-
-    # A post type.
-    if topic in post_types:
-        query = Post.objects.top_level(user).filter(type=post_types[topic])
-
-    # Return latest by default.
-    if query is None:
-        query = Post.objects.top_level(user)
-
-    return query
 
 
 def create_sub(post,  user, sub_type=None):

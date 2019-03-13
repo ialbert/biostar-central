@@ -5,14 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from django.http import JsonResponse
-from django.utils.safestring import mark_safe
 from django.db import transaction
 
 from biostar.utils.shortcuts import reverse
 from . import forms, auth
 from .models import Post, Vote
-from .decorators import protect_private_topics
 from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from .const import *
 
@@ -20,43 +17,62 @@ from .const import *
 User = get_user_model()
 
 
-@protect_private_topics
-def list_view(request, template="post_list.html", extra_context={}, topic=None,
-              extra_proc=lambda x:x, per_page=settings.POSTS_PER_PAGE):
-    "List view for posts and messages"
+def get_topics(user):
+    """Return dict of all topics viewable by user."""
 
-    active = topic or request.GET.get("active", "")
-    topic = topic or request.GET.get("topic", "")
-    if not (topic or active):
-        active = LATEST
+    all_topics = {
+        JOBS: Post.objects.top_level(user).filter(type=Post.JOB),
+        TOOLS: Post.objects.top_level(user).filter(type=Post.TOOL),
+        TUTORIALS: Post.objects.top_level(user).filter(type=Post.TUTORIAL),
+        FORUM: Post.objects.top_level(user).filter(type=Post.FORUM),
+        PLANET: Post.objects.top_level(user).filter(type=Post.BLOG),
+        MYPOSTS: Post.objects.my_posts(target=user, user=user),
+        OPEN: Post.objects.top_level(user=user),
+        LATEST: Post.objects.top_level(user=user),
+        BOOKMARKS: Post.objects.my_bookmarks(user=user) if user.is_authenticated else Post.objects.none(),
+        FOLLOWING: Post.objects.following(user=user) if user.is_authenticated else Post.objects.none(),
+        VOTES: Post.objects.my_post_votes(user=user) if user.is_authenticated else Post.objects.none(),
+    }
 
-    page = request.GET.get('page')
-    topic, active = topic.lower(), active.lower()
+    return all_topics
 
-    objs = auth.list_posts_by_topic(request=request, topic=active or topic).order_by("-pk")
+
+def post_list(request):
+
+    # Get current topic
+    topic = request.GET.get("active", "latest")
     user = request.user
 
-    if user.is_authenticated and not user.profile.is_moderator:
-        objs = objs.exclude(status=Post.DELETED)
+    if user.is_anonymous and topic in PRIVATE_TOPICS:
+        messages.error(request, f"You must be logged in to view that topic.")
+        return redirect(reverse("post_list"))
 
-    # Apply extra protocols to queryset (updates, filters, etc)
-    objs = extra_proc(objs)
+    all_topics = get_topics(user=user)
+
+    topic = topic.lower()
+    posts = all_topics.get(topic, Post.objects.top_level(user))
+
+    if topic == OPEN:
+        posts = posts.filter(type=Post.QUESTION, reply_count=0)
+
+    # Exclude deleted posts
+    if user.is_authenticated and not user.profile.is_moderator:
+        posts = posts.exclude(status=Post.DELETED)
+
+    # Return latest posts by default.
+    if posts is None:
+        posts = Post.objects.top_level(user)
 
     # Get the page info
-    paginator = Paginator(objs, per_page)
-    objs = paginator.get_page(page)
+    posts = posts.order_by("-pk")
+    page = request.GET.get('page')
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    posts = paginator.get_page(page)
 
-    context = dict(objs=objs)
-    if active in TOPICS_WITH_TABS:
-        active_tab = {active: "active"}
-    else:
-        active_tab = dict(extra_tab="active", extra_tab_name=active.capitalize() or topic.capitalize(),
-                          topic=topic)
+    context = dict(posts=posts, active=topic)
 
-    context.update(extra_context)
-    context.update(active_tab)
-
-    return render(request, template_name=template, context=context)
+    context.update({topic: "active"})
+    return render(request, template_name="post_list.html", context=context)
 
 
 def community_list(request):
