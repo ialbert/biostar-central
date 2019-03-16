@@ -2,6 +2,7 @@
 
 
 <div class="ui divided items">
+
     {% for post in posts.object_list %}
 
         <div class="post item {{post.deleted_class}}">
@@ -83,7 +84,7 @@
                     {% get_tags_list post.tag_val as tags_list %}
 
                     {% for tag in tags_list %}
-                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?topic={{tag}}">
+                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?tag={{tag}}">
                         {{ tag }}
                         </a>
                     {% endfor %}

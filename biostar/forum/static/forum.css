@@ -68,7 +68,6 @@ body {
 
 
 
-
 ol {
     line-height: 3ex;
 }
@@ -174,6 +173,12 @@ figure { display: block; margin: 0; }
 
 }
 
+.userbox{
+    width:170px !important;
+    height: 160px !important;
+    background: #f9fbff !important;
+    overflow-y: auto !important;
+}
 
 .accepted {
     background-color: #f9fcf9 !important;

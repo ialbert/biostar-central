@@ -39,7 +39,7 @@ class PostManager(models.Manager):
     def select_prefetch(self, query):
 
         # Prefetch tags and thread user info
-        query = query.prefetch_related("tags", "thread_users__profile", "thread_users")
+        query = query.prefetch_related("thread_users__profile", "thread_users")
         query = query.select_related("root", "author", "author__profile", "lastedit_user", "lastedit_user__profile")
         return query
 
@@ -58,7 +58,7 @@ class PostManager(models.Manager):
 
     def get_all(self, **kwargs):
         "Return everything"
-        query = self.select_prefetch(super().get_queryset().filter(**kwargs))
+        query = self.get_queryset().filter(**kwargs)
         return query
 
     def following(self, user):
@@ -94,6 +94,7 @@ class PostManager(models.Manager):
 
     def tag_search(self, text, defer_content=True):
         "Performs a query by one or more , separated tags"
+
         include, exclude = [], []
         # Split the given tags on ',' and '+'.
         terms = text.split(',') if ',' in text else text.split('+')
@@ -106,10 +107,10 @@ class PostManager(models.Manager):
                 include.append(fixcase(term))
 
         if include:
-            query = self.filter(type__in=Post.TOP_LEVEL, tags__name__in=include).exclude(
+            query = self.filter(type__in=Post.TOP_LEVEL, tag_val__iregex=include).exclude(
                 tags__name__in=exclude)
         else:
-            query = self.filter(type__in=Post.TOP_LEVEL).exclude(tags__name__in=exclude)
+            query = self.filter(type__in=Post.TOP_LEVEL).exclude(tag_val__iregex=exclude)
 
         query = query.filter(status=Post.OPEN)
         if defer_content:
@@ -124,7 +125,9 @@ class PostManager(models.Manager):
         # Populate the object to build a tree that contains all posts in the thread.
         is_moderator = user.is_authenticated and user.profile.is_moderator
 
-        query = self.get_all(root=root)
+        query = super().get_queryset().filter(root=root)
+        query = query.select_related("root", "root__author", "root__author__profile", "author", "author__profile",
+                                     "lastedit_user", "lastedit_user__profile")
         query = query if is_moderator else query.exclude(status=Post.DELETED)
 
         query = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
@@ -235,7 +238,7 @@ class Post(models.Model):
     tag_val = models.CharField(max_length=100, default="", blank=True)
 
     # The tag set is built from the tag string and used only for fast filtering
-    tags = TaggableManager()
+    #tags = models.CharField(max_length=200, null=False)
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
@@ -254,8 +257,8 @@ class Post(models.Model):
         self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
        # Clear old tags
         tag_list = [x.lower() for x in self.parse_tags()]
-        self.tags.clear()
-        self.tags.add(*tag_list)
+        #self.tags.clear()
+        #self.tags.add(*tag_list)
         self.save()
 
     @property

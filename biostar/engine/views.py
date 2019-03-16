@@ -253,60 +253,6 @@ def data_list(request, uid):
 
 
 @read_access(type=Project)
-def discussion_list(request, uid):
-    posts = Post.objects.get_discussions(project__uid=uid, type__in=Post.TOP_LEVEL).order_by("-pk").all()
-
-    context = dict(posts=posts)
-    return project_view(request=request, uid=uid, template_name="discussion_list.html",
-                        active='discussion', extra_context=context)
-
-
-@read_access(type=Post)
-def discussion_subs(request, uid):
-    next_url = reverse("discussion_view", request=request, kwargs=dict(uid=uid))
-
-    return forum_views.subs_action(request=request, uid=uid, next=next_url)
-
-
-@write_access(type=Project, fallback_view="discussion_list")
-def discussion_create(request, uid):
-    project = Project.objects.get_all(uid=uid).first()
-
-    template = "discussion_create.html"
-
-    context = dict(project=project, activate='Start a Discussion')
-    counts = get_counts(project)
-    context.update(counts)
-
-    allowed_posts = [
-        Post.QUESTION, Post.COMMENT, Post.ANSWER, Post.TOOL,
-        Post.TUTORIAL, Post.DATA, Post.NEWS
-    ]
-    filter_function = lambda x: x[0] in allowed_posts
-
-    return forum_views.post_create(request=request, template=template, extra_context=context,
-                                   url="discussion_view", project=project, filter_func=filter_function)
-
-
-@read_access(type=Post)
-def discussion_view(request, uid):
-    template = "discussion_view.html"
-    # Get the parents info
-    obj = Post.objects.get_discussions(uid=uid).first()
-
-    project = obj.root.project
-    sub_url = reverse("discussion_subs", kwargs=dict(uid=obj.uid))
-    next_url = reverse("discussion_view", kwargs=dict(uid=obj.uid))
-
-    context = dict(project=project, activate="Discussion", sub_url=sub_url, next_url=next_url)
-    counts = get_counts(project)
-    context.update(counts)
-
-    return forum_views.post_view(request=request, template=template, extra_context=context,
-                                 url="discussion_view", uid=uid)
-
-
-@read_access(type=Project)
 def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.

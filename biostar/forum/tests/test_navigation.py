@@ -50,7 +50,7 @@ class ForumNavigation(TestCase):
             reverse('post_list'),
             reverse('post_create'),
             reverse("community_list"),
-            reverse("tags_list"),
+            #reverse("tags_list"),
 
             reverse('post_view', kwargs=dict(uid=self.post.uid)),
             reverse('post_edit', kwargs=dict(uid=self.post.uid)),

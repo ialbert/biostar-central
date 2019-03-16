@@ -72,7 +72,7 @@
                     {% get_tags_list post.tag_val as tags_list %}
 
                     {% for tag in tags_list %}
-                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?topic={{tag}}">
+                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?tag={{tag}}">
                         {{ tag }}
                         </a>
                     {% endfor %}
@@ -85,14 +85,6 @@
 
                          {% user_info post=post by_diff=False %}
                      </div>
-
-                 {% else %}
-
-
-                     <div class="extra"></div>
-                        <div class="ui right floated basic segment userinfo">
-                             {% user_info post=post by_diff=False %}
-                         </div>
 
                  {% endif %}
                  <div class="extrainfo">

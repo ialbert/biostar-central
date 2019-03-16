@@ -41,6 +41,7 @@ def post_list(request):
 
     # Get current topic
     topic = request.GET.get("active", "latest")
+    tag = request.GET.get("tag", "")
     user = request.user
 
     if user.is_anonymous and topic in PRIVATE_TOPICS:
@@ -51,9 +52,11 @@ def post_list(request):
 
     topic = topic.lower()
     posts = all_topics.get(topic, Post.objects.top_level(user))
-
     if topic == OPEN:
         posts = posts.filter(type=Post.QUESTION, reply_count=0)
+
+    if tag:
+        posts = posts.filter(tag_val__iregex=tag)
 
     # Exclude deleted posts
     if user.is_authenticated and not user.profile.is_moderator:
@@ -69,7 +72,7 @@ def post_list(request):
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     posts = paginator.get_page(page)
 
-    context = dict(posts=posts, active=topic)
+    context = dict(posts=posts, active=topic, tag=tag)
 
     context.update({topic: "active"})
     return render(request, template_name="post_list.html", context=context)
@@ -86,10 +89,10 @@ def community_list(request):
     return render(request, "community_list.html", context=context)
 
 
-def tags_list(request):
+#def tags_list(request):
 
-    context = dict(extra_tab="active", extra_tab_name="All Tags")
-    return render(request, "tags_list.html", context=context)
+#    context = dict(extra_tab="active", extra_tab_name="All Tags")
+#    return render(request, "tags_list.html", context=context)
 
 
 @ajax_error_wrapper(method="POST")
@@ -121,7 +124,7 @@ def ajax_vote(request):
 
 
 @object_exists(klass=Post)
-def post_view(request, uid, template="post_view.html", url="post_view", extra_context={}):
+def post_view(request, uid):
     "Return a detailed view for specific post"
 
     # Form used for answers
@@ -138,37 +141,33 @@ def post_view(request, uid, template="post_view.html", url="post_view", extra_co
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             post = form.save(author=request.user)
-            location = reverse(url, request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
+            location = reverse("post_view", request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
             return redirect(location)
 
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
     comment_tree, answers, thread = auth.build_obj_tree(request=request, obj=obj)
-    tab_name = obj.get_type_display().capitalize()
 
-    context = dict(post=obj, tree=comment_tree, form=form, extra_tab="active", extra_tab_name=tab_name,
-                   answers=answers)
-    context.update(extra_context)
+    context = dict(post=obj, tree=comment_tree, form=form, answers=answers)
 
-    return render(request, template, context=context)
+    return render(request, "post_view.html", context=context)
 
 
 @login_required
 def comment(request):
 
     location = reverse("post_list")
-    get_view = lambda p:"discussion_view" if (p.project is not None) else "post_view"
-
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             post = form.save(author=request.user, post_type=Post.COMMENT)
             messages.success(request, "Added comment")
-            location = reverse(get_view(post), kwargs=dict(uid=post.uid)) + "#" + post.uid
+
+            location = reverse("post_view", kwargs=dict(uid=post.uid)) + "#" + post.uid
         else:
             messages.error(request, f"Error adding comment:{form.errors}")
             parent = Post.objects.get_all(uid=request.POST.get("parent_uid")).first()
-            location = location if parent is None else reverse(get_view(parent), kwargs=dict(uid=parent.root.uid))
+            location = location if parent is None else reverse("post_view", kwargs=dict(uid=parent.root.uid))
 
     return redirect(location)
 
