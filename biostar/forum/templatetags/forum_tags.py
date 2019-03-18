@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models import Q
 
+from biostar.engine.models import Project
 from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Vote
 from biostar.forum import auth, forms, models, const, util
@@ -142,30 +143,23 @@ def show_email(user):
 
 
 @register.inclusion_tag('widgets/feed.html')
-def feed(user, post=None):
+def feed(user):
 
-    similar_posts = recent_votes = recent_awards = recent_locations = None
-    recent_replies = None
-    on_post_view = post is not None
+    recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
+    # Needs to be put in context of posts
+    recent_votes = recent_votes.select_related("post")
 
-    # Show similar posts when inside of a view
-    if on_post_view:
-        similar_posts = Post.objects.tag_search(text=post.tag_val, defer_content=False)[:settings.REPLIES_FEED_COUNT]
-    else:
-        recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
-        # Needs to be put in context of posts
-        recent_votes = recent_votes.select_related("post")
+    recent_locations = User.objects.filter(~Q(profile__location=""))
+    recent_locations = recent_locations.select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
 
-        recent_locations = User.objects.filter(
-            ~Q(profile__location="")).select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
-
-        recent_awards = ''
-        recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER]
-                                             ).select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
+    recent_awards = ''
+    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER])
+    recent_replies = recent_replies.select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
+    recent_projects = Project.objects.filter(privacy=Project.PUBLIC).order_by("-pk")[:settings.PROJECT_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
-                   on_post_view=on_post_view, user=user, similar_posts=similar_posts)
+                   user=user, recent_projects=recent_projects)
 
     return context
 

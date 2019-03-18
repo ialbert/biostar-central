@@ -73,9 +73,12 @@
                 <i class="comment alternate icon"></i><span class="tablet">Latest</span>
             </a>
             <a class="ui {{message}} basic label tablet forumtabs" href="{% url 'inbox' %}">
-                <i class="mail icon"></i>Messages
                 {% message_count request=request otype="message" as num_msgs %}
-                {% if num_msgs %}<div class="ui green mini label"  style="padding:2.5px; margin:0px; font-size:10px">{{num_msgs}}</div>{%endif%}
+                {% if num_msgs %}
+                <i class="mail icon"  style="color:#5fc64f;"></i>Messages
+                {% else%}
+                <i class="mail icon" ></i>Messages
+                {%endif%}
 
             </a>
             <a class="ui {{votes}} basic label forumtabs" href="{% url 'post_list' %}?active=votes">

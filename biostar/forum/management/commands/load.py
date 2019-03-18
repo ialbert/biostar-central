@@ -65,6 +65,19 @@ def load_objects_from_file(root, source_file, limit, loader, is_json=False):
     return
 
 
+def cache_api():
+    return
+
+
+def load_from_cache():
+
+    # Create a cache in file for api stuff
+
+    return
+
+
+
+
 class Command(BaseCommand):
     help = 'Add existing posts/users/votes to the forum'
 
