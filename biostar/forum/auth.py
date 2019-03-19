@@ -216,7 +216,7 @@ def create_post_from_json(json_dict):
                                type=type, status=status, content=content, html=html, tag_val=tag_val,
                                view_count=view_count)
     # Trigger another save
-    post.add_tags(post.tag_val)
+    #post.add_tags(post.tag_val)
 
     logger.info(f"Created post.uid={post.uid}")
 

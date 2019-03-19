@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand
 from biostar.forum.auth import create_post_from_json, preform_vote
 from biostar.forum.models import Post, Vote
 from biostar.accounts.auth import create_user_from_json
-from biostar.accounts.models import Profile
+from biostar.accounts.models import Profile, User
 
 
 logger = logging.getLogger(settings.LOGGER_NAME)
@@ -33,13 +33,23 @@ def vote_loader(single_vote):
     return vote
 
 
-def load_objects_from_file(root, source_file, limit, loader, is_json=False):
-    """
+def load_votes(source_file, limit=100):
+    stream = open(source_file, 'r')
+    loaded = 0
 
-    Parse files and pass onto the "loader"
-    which is the main function used to create objects.
+    for spec in stream:
+        if loaded == limit:
+            break
+        # Current line corresponds to a single object: vote
+        # next(stream) is called to skip the header ( first line ).
+        info = spec.strip() if loaded > 0 else next(stream).strip()
 
-    """
+        vote_loader(single_vote=info)
+
+    return
+
+
+def load_posts(root, source_file, limit=100):
 
     stream = open(source_file, 'r')
     loaded = 0
@@ -47,35 +57,40 @@ def load_objects_from_file(root, source_file, limit, loader, is_json=False):
     for spec in stream:
         if loaded == limit:
             break
+        json_path = os.path.join(root, spec.strip())
+        json_stream = open(json_path, "r")
+        info = hjson.load(json_stream)
 
-        if is_json:
-            # Open separate json file corresponding to a single object: post/user
-            json_path = os.path.join(root, spec.strip())
-            json_stream = open(json_path, "r")
-            info = hjson.load(json_stream)
-        else:
-            # Current line corresponds to a single object: vote
-            # next(stream) is called to skip the header ( first line ).
-            info = spec.strip() if loaded > 0 else next(stream).strip()
-
-        obj = loader(info)
-        logger.info(f"Created {obj} from {spec}")
-        loaded += 1
+        create_post_from_json(json_dict=info)
 
     return
 
 
-def cache_api():
+def load_users(root, source_file, limit):
+
+    stream = open(source_file, 'r')
+    loaded = 0
+
+    for spec in stream:
+        if loaded == limit:
+            break
+        json_path = os.path.join(root, spec.strip())
+        json_stream = open(json_path, "r")
+        info = hjson.load(json_stream)
+
+        create_user_from_json(json_dict=info)
     return
 
 
-def load_from_cache():
+def cache_users(cache_file):
+    """Add users from remote API to a local cache"""
 
-    # Create a cache in file for api stuff
+    api_url = "https://www.biostars.org/api/user/"
+
+    start_id = ""
+    stop_id = ""
 
     return
-
-
 
 
 class Command(BaseCommand):
@@ -107,18 +122,15 @@ class Command(BaseCommand):
 
         if users:
             users_file = os.path.join(root, users)
-            load_objects_from_file(root=root, source_file=users_file, is_json=True,
-                                   limit=nobjs, loader=create_user_from_json)
+            load_users(root=root, source_file=users_file, limit=nobjs)
 
         if posts:
             post_file = os.path.join(root, posts)
-            load_objects_from_file(root=root, source_file=post_file,is_json=True,
-                                   limit=nobjs, loader=create_post_from_json)
+            load_posts(root=root, source_file=post_file, limit=nobjs)
 
         if votes:
             votes_file = os.path.join(root, votes)
-            load_objects_from_file(root=root, source_file=votes_file,
-                                   limit=nobjs, loader=vote_loader)
+            load_votes(source_file=votes_file, limit=nobjs,)
 
 
 
