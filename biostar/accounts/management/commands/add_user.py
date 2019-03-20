@@ -59,14 +59,13 @@ def user_from_api():
 
         # Get user from uid
         uid = data.get("id", "")
-        profile = Profile.objects.filter(uid=uid).first()
-        user = profile.user if profile else None
+        user = User.objects.filter(profile__uid=uid).first()
 
         # Update existing user information.
         if user:
             continue
 
-        # Create a new user with the same name
+        # Create a new user with the using name and id
         name = data.get("name", "")
         email, username, password = generate_info(name=name)
         user = User.objects.create(username=username, email=email, password=password)
