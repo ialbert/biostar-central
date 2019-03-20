@@ -3,6 +3,9 @@
 import logging
 import hjson
 import os
+import time
+import requests
+from urllib.parse import urljoin
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -82,15 +85,59 @@ def load_users(root, source_file, limit):
     return
 
 
-def cache_users(cache_file):
-    """Add users from remote API to a local cache"""
+def create_post(postid):
+    """
+    Create post from
+    """
 
-    api_url = "https://www.biostars.org/api/user/"
+    # Get parent post and check if it exists,
+    # recursively create parent post before proceeding to current post.
+    api_url = "https://www.biostars.org/api/post/"
 
-    start_id = ""
-    stop_id = ""
+    full_url = urljoin(api_url, f"{postid}")
+    return
+
+
+def posts_from_api():
+
+    api_url = "https://www.biostars.org/api/post/"
+
+    nposts = 400000
+    #TODO: need to change listing
+    for postids in range(nposts, 1, -1):
+
+        # Get api url for user
+        full_url = urljoin(api_url, f"{postids}")
+
+        # 5 second time delay every 10 users to avoid overloading remote site.
+        if postids % 10 == 0:
+            time.sleep(5)
+
+        response = requests.get(full_url)
+        data = response.text
+
+        if not data or response.status_code == 404:
+            continue
+
+        uid = data.get("id", "")
+        author_uid = data.get("author_id", "")
+        has_accepted = data.get("has_accepted", "")
+
+        post = Post.objects.filter(uid=uid)
+        # Check if parent exists and create that first.
+
+        # Update an existing post
+        if post:
+            continue
+        # Create a new post
+
+
+
+
 
     return
+
+
 
 
 class Command(BaseCommand):
@@ -101,7 +148,7 @@ class Command(BaseCommand):
                             type=int,
                             default=10, help="How many objects ( users,posts, votes) to load")
         parser.add_argument("--root",
-                            help="Root directory with posts, votes, and users.",
+                            help="Root directory with files.",
                             required=True)
         parser.add_argument("--posts",
                             help="Text file with each line being a relative path to one json file ( a post )."
@@ -111,6 +158,12 @@ class Command(BaseCommand):
         parser.add_argument("--users",
                             help="Text file with each line being a relative path to one json file ( a user)."
                             )
+        parser.add_argument("--from_api", action="store_true",
+                            help="Load posts and votes from remote site."
+                            )
+        parser.add_argument("--create_cache", action="store_true",
+                            help="Create user,posts, and votes cache files from API"
+                            )
 
     def handle(self, *args, **options):
 
@@ -119,6 +172,11 @@ class Command(BaseCommand):
         posts = options["posts"]
         votes = options["votes"]
         users = options["users"]
+
+        from_api = options["from_cache"]
+
+        if from_api:
+            posts_from_api()
 
         if users:
             users_file = os.path.join(root, users)

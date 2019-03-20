@@ -7,14 +7,78 @@ Email, Name, Handler
 import csv
 import logging
 import os
+import hjson
+import time
+import requests
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from biostar.accounts import util
-from biostar.accounts.models import User
+from biostar.accounts.models import User, Profile
 
 logger = logging.getLogger("engine")
+
+
+def generate_info(name):
+    """
+    Generate a unique email, username, and password from a name
+    """
+    uid = util.get_uuid(5)
+
+    username = f"{uid}" + "_".join(name)
+    email = username + "@testmail.com"
+    password = f"{util.get_uuid(16)}"
+
+    return email, username, password
+
+
+def user_from_api():
+    """Update or create user from remote API"""
+
+    api_url = "https://www.biostars.org/api/user/"
+    # TODO: need to change listing
+    nusers = 100000
+
+    for userids in range(nusers, 1, -1):
+
+        # Get api url for user
+        full_url = urljoin(api_url, f"{userids}")
+
+        # 5 second time delay every 10 users to avoid overloading remote site.
+        if userids % 10 == 0:
+            time.sleep(5)
+
+        response = requests.get(full_url)
+        data = hjson.loads(response.text)
+
+        # No data found for the given user id
+        if not data or response.status_code == 404:
+            continue
+
+        # Get user from uid
+        uid = data.get("id", "")
+        profile = Profile.objects.filter(uid=uid).first()
+        user = profile.user if profile else None
+
+        # Update existing user information.
+        if user:
+            continue
+
+        # Create a new user with the same name
+        name = data.get("name", "")
+        email, username, password = generate_info(name=name)
+        user = User.objects.create(username=username, email=email, password=password)
+
+        # Update the profile with correct user id.
+        Profile.objects.filter(user=user).update(uid=uid)
+
+        print(userids, full_url)
+        print(data)
+        1 / 0
+
+    return
 
 
 class Command(BaseCommand):
