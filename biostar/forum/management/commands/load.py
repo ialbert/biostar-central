@@ -199,6 +199,7 @@ class Command(BaseCommand):
 
         if from_api:
             posts_from_api()
+            return
 
         if users:
             users_file = os.path.join(root, users)

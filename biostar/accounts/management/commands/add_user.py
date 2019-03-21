@@ -47,14 +47,18 @@ def user_from_api():
         full_url = urljoin(api_url, f"{userids}")
 
         # 5 second time delay every 10 users to avoid overloading remote site.
+        print(f"{userids}")
         if userids % 10 == 0:
+            print("Entering 5s time delay....")
             time.sleep(5)
 
         response = requests.get(full_url)
         data = hjson.loads(response.text)
+        print("hit remote site")
 
         # No data found for the given user id
         if not data or response.status_code == 404:
+            print(f"No user with {userids}")
             continue
 
         # Get user from uid
@@ -63,6 +67,7 @@ def user_from_api():
 
         # Update existing user information.
         if user:
+            print(f"{userids} already exists.")
             continue
 
         # Create a new user with the using name and id
@@ -73,9 +78,7 @@ def user_from_api():
         # Update the profile with correct user id.
         Profile.objects.filter(user=user).update(uid=uid)
 
-        print(userids, full_url)
-        print(data)
-        1 / 0
+        print(f"{userids} created.")
 
     return
 
@@ -86,11 +89,16 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
 
         parser.add_argument('fname', help="The CSV file with the users to be added. Must have headers: Name, Email")
+        parser.add_argument('--from_api', action="store_true", help="Create a users from remote API.")
 
     def handle(self, *args, **options):
 
         # Get the filename.
         fname = options['fname']
+        from_api = options["from_api"]
+
+        if from_api:
+            user_from_api()
 
         if not os.path.isfile(fname):
             logger.error(f'Not a valid filename: {fname}')
