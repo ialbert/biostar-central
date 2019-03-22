@@ -23,15 +23,67 @@ logger = logging.getLogger("engine")
 
 def generate_info(name):
     """
-    Generate a unique email, username, and password from a name
+    Generate a unique email, and password from a name
     """
     uid = util.get_uuid(5)
 
-    username = f"{uid}" + "_".join(name)
+    username = f"{uid}" + "_".join(name.split())
     email = username + "@testmail.com"
     password = f"{util.get_uuid(16)}"
 
-    return email, username, password
+    return email, password
+
+
+def make_user(userid):
+    # Get api url for user
+    api_url = "https://www.biostars.org/api/user/"
+    full_url = urljoin(api_url, f"{userid}")
+
+    # 2 second time delay every 40 users to avoid overloading remote site.
+    print(f"{userid}")
+    if userid % 40 == 0:
+        print("Entering 2s time delay....")
+        time.sleep(2)
+
+    try:
+        response = requests.get(full_url, timeout=5)
+        data = hjson.loads(response.text)
+        print("hit remote site")
+    except Exception as exc:
+        print(f"ERROR {exc}...sleeping for 15 seconds.")
+        time.sleep(5)
+        # 5 minute timeout
+        response = requests.get(full_url, timeout=300)
+        data = hjson.loads(response.text)
+        print("hit remote site AGAIN")
+
+    # No data found for the given user id
+    if not data or response.status_code == 404:
+        print(f"No user with {userid}")
+        return
+
+    # Get user from uid
+    uid = data.get("id", "")
+    user = User.objects.filter(profile__uid=uid).first()
+
+    # Update existing user information.
+    if user:
+        print(f"{userid} already exists.")
+        return
+
+    # Create a new user with the using name and id
+    name = data.get("name", "")
+    last_login = data.get("last_login")
+    date_joined = data.get("date_joined")
+
+    email, password = generate_info(name=name)
+    user = User.objects.create(username=name, email=email, password=password)
+
+    # Update the profile with correct user id.
+    Profile.objects.filter(user=user).update(uid=uid, date_joined=date_joined, last_login=last_login)
+
+    print(f"{userid} created.")
+    return
 
 
 def user_from_api():
@@ -39,46 +91,19 @@ def user_from_api():
 
     api_url = "https://www.biostars.org/api/user/"
     # TODO: need to change listing
-    nusers = 100000
+    nusers = 3298
 
     for userids in range(nusers, 1, -1):
 
         # Get api url for user
         full_url = urljoin(api_url, f"{userids}")
 
-        # 5 second time delay every 10 users to avoid overloading remote site.
+        # 2 second time delay every 40 users to avoid overloading remote site.
         print(f"{userids}")
-        if userids % 10 == 0:
-            print("Entering 5s time delay....")
-            time.sleep(5)
-
-        response = requests.get(full_url)
-        data = hjson.loads(response.text)
-        print("hit remote site")
-
-        # No data found for the given user id
-        if not data or response.status_code == 404:
-            print(f"No user with {userids}")
-            continue
-
-        # Get user from uid
-        uid = data.get("id", "")
-        user = User.objects.filter(profile__uid=uid).first()
-
-        # Update existing user information.
-        if user:
-            print(f"{userids} already exists.")
-            continue
-
-        # Create a new user with the using name and id
-        name = data.get("name", "")
-        email, username, password = generate_info(name=name)
-        user = User.objects.create(username=username, email=email, password=password)
-
-        # Update the profile with correct user id.
-        Profile.objects.filter(user=user).update(uid=uid)
-
-        print(f"{userids} created.")
+        if userids % 40 == 0:
+            print("Entering 2s time delay....")
+            time.sleep(2)
+        make_user(userid=userids)
 
     return
 
@@ -88,7 +113,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
 
-        parser.add_argument('fname', help="The CSV file with the users to be added. Must have headers: Name, Email")
+        parser.add_argument('--fname', help="The CSV file with the users to be added. Must have headers: Name, Email")
         parser.add_argument('--from_api', action="store_true", help="Create a users from remote API.")
 
     def handle(self, *args, **options):

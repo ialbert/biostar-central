@@ -11,6 +11,7 @@ from django.core.management.base import BaseCommand
 
 from biostar.forum.auth import create_post_from_json, preform_vote
 from biostar.forum import util
+from biostar.accounts.management.commands.add_user import make_user
 from biostar.forum.models import Post, Vote
 from biostar.accounts.auth import create_user_from_json
 from biostar.accounts.models import Profile, User
@@ -91,14 +92,21 @@ def make_post(postid):
     Create post from
     """
 
-    # Get parent post and check if it exists,
-    # recursively create parent post before proceeding to current post.
     api_url = "https://www.biostars.org/api/post/"
     full_url = urljoin(api_url, f"{postid}")
-    response = requests.get(full_url)
-    data = hjson.loads(response.text)
+    print(postid)
+    try:
+        response = requests.get(full_url, timeout=5)
+        data = hjson.loads(response.text)
+        print("hit remote site")
+    except Exception as exc:
+        print(f"ERROR {exc}...sleeping for 15 seconds.")
+        time.sleep(5)
+        response = requests.get(full_url, timeout=300)
+        data = hjson.loads(response.text)
 
     if not data or response.status_code == 404:
+        print(f"postid {postid} does not exist.")
         return
 
     status = data.get("status_id", None)
@@ -114,50 +122,69 @@ def make_post(postid):
     parent_id = data.get("parent_id")
     root_id = data.get("root_id")
     uid = data.get("id")
-    parent = Post.objects.filter(uid=parent_id)
-    root = Post.objects.filter(uid=root_id)
-    post = Post.objects.filter(uid=uid)
+    parent = Post.objects.filter(uid=parent_id).first()
+    root = Post.objects.filter(uid=root_id).first()
+    post = Post.objects.filter(uid=uid).first()
 
     author_id = data.get("author_id", "")
     user = User.objects.filter(profile__uid=author_id).first()
 
     # Skip posts without authors.
     if not user:
+        print(f"user with {author_id} does not exist.")
+        make_user(userid=author_id)
         return
 
-    # Recursively create parent/root if it does not already exist.
-    if not root and root_id != uid:
-        time.sleep(5)
+    # Get parent post/root and check if it exists,
+    # recursively create parent post before proceeding to current post.
+    if not root and (root_id != uid):
+        print(f"ROOT for {postid} does not exist. CREATING THE ROOT {root_id}")
+        time.sleep(.5)
         make_post(postid=root_id)
 
     if not parent and parent_id != uid:
-        time.sleep(5)
+        print(f"PARNET for {postid} does not exist. CREATING THE PARENT {parent_id}")
+        time.sleep(.5)
         make_post(postid=parent_id)
 
     # Update an existing post
     if post:
-        Post.objects.filter(uid=uid).update(tag_val=tag_val, title=title, text=text, type=post_type,
-                                            view_count=view_count, creation_date=creation_date,
-                                            lastedit_date=lastedit_date, status=status, parent=parent,
+        print(f"Updating existing post {postid}")
+        Post.objects.filter(uid=uid).update(tag_val=tag_val, title=title, content=text, type=post_type, html=html,
+                                            view_count=view_count, creation_date=creation_date, author=user,
+                                            lastedit_date=lastedit_date, status=status, parent=parent or root,
                                             root=root)
     else:
         # Create a new post
-        Post.objects.create(tag_val=tag_val, uid=uid, title=title, text=text, type=post_type,
-                            view_count=view_count, creation_date=creation_date,
-                            lastedit_date=lastedit_date, status=status, parent=parent,
-                            root=root)
+        print(f"Creating new post {postid}")
+        print(parent, root)
+        if post_type in (Post.COMMENT, Post.ANSWER) and not (parent or root):
+
+            pass
+        else:
+            Post.objects.create(tag_val=tag_val, uid=uid, title=title, content=text, type=post_type, html=html,
+                                view_count=view_count, creation_date=creation_date, author=user,
+                                lastedit_date=lastedit_date, status=status, parent=parent or root,
+                                )
 
     return
 
 
 def posts_from_api():
 
-    nposts = 400000
+    nposts = 370431
+
+    p = Post.objects.filter(uid=370411).first()
+
+    print(p, p.parent, p.root)
+    1/0
+
     #TODO: need to change listing
     for postid in range(nposts, 1, -1):
 
-        # 5 second time delay every 10 users to avoid overloading remote site.
-        if postid % 10 == 0:
+        # 5 second time delay every 30 posts to avoid overloading remote site.
+        if postid % 30 == 0:
+            print("Entering 5s timedelay")
             time.sleep(5)
 
         make_post(postid=postid)
@@ -173,8 +200,7 @@ class Command(BaseCommand):
                             type=int,
                             default=10, help="How many objects ( users,posts, votes) to load")
         parser.add_argument("--root",
-                            help="Root directory with files.",
-                            required=True)
+                            help="Root directory with files.")
         parser.add_argument("--posts",
                             help="Text file with each line being a relative path to one json file ( a post )."
                             )
@@ -195,7 +221,7 @@ class Command(BaseCommand):
         votes = options["votes"]
         users = options["users"]
 
-        from_api = options["from_cache"]
+        from_api = options["from_api"]
 
         if from_api:
             posts_from_api()
