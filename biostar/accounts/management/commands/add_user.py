@@ -39,18 +39,12 @@ def make_user(userid):
     api_url = "https://www.biostars.org/api/user/"
     full_url = urljoin(api_url, f"{userid}")
 
-    # 2 second time delay every 40 users to avoid overloading remote site.
-    print(f"{userid}")
-    if userid % 40 == 0:
-        print("Entering 2s time delay....")
-        time.sleep(2)
-
     try:
         response = requests.get(full_url, timeout=5)
         data = hjson.loads(response.text)
         print("hit remote site")
     except Exception as exc:
-        print(f"ERROR {exc}...sleeping for 15 seconds.")
+        print(f"ERROR {exc}...sleeping for 5 seconds.")
         time.sleep(5)
         # 5 minute timeout
         response = requests.get(full_url, timeout=300)
@@ -77,10 +71,14 @@ def make_user(userid):
     date_joined = data.get("date_joined")
 
     email, password = generate_info(name=name)
-    user = User.objects.create(username=name, email=email, password=password)
+    # Add uid to username since it already exists.
+    username = User.objects.filter(username=name).first()
+    username = name + str(uid) if username else name
 
+    user = User.objects.create(username=username, email=email, password=password)
     # Update the profile with correct user id.
-    Profile.objects.filter(user=user).update(uid=uid, date_joined=date_joined, last_login=last_login)
+    Profile.objects.filter(user=user).update(uid=uid, date_joined=date_joined, last_login=last_login,
+                                             name=name)
 
     print(f"{userid} created.")
     return
@@ -91,16 +89,13 @@ def user_from_api():
 
     api_url = "https://www.biostars.org/api/user/"
     # TODO: need to change listing
-    nusers = 3298
+    nusers = 53699
 
-    for userids in range(nusers, 1, -1):
+    for userids in range(nusers, 0, -1):
 
-        # Get api url for user
-        full_url = urljoin(api_url, f"{userids}")
-
-        # 2 second time delay every 40 users to avoid overloading remote site.
+        # 2 second time delay every 50 users to avoid overloading remote site.
         print(f"{userids}")
-        if userids % 40 == 0:
+        if userids % 50 == 0:
             print("Entering 2s time delay....")
             time.sleep(2)
         make_user(userid=userids)
@@ -124,6 +119,7 @@ class Command(BaseCommand):
 
         if from_api:
             user_from_api()
+            return
 
         if not os.path.isfile(fname):
             logger.error(f'Not a valid filename: {fname}')

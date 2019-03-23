@@ -78,8 +78,8 @@ recipes2: projects
 	python manage.py api create --dir ../biostar-recipes/recipes/mothur/
 	python manage.py api create --dir ../biostar-recipes/recipes/trout/
 
-    # Create initial users
-	python manage.py add_user initial/initial-users.csv
+	# Create initial users
+	python manage.py add_user --fname initial/initial-users.csv
 	python manage.py add_access initial/initial-access.csv
 
 # Load all recipes
@@ -92,7 +92,7 @@ recipes: tutorial
 	python manage.py project --root ../biostar-recipes --json projects/trout-project.hjson
 
 	# Create initial users
-	python manage.py add_user initial/initial-users.csv
+	python manage.py add_user --fname initial/initial-users.csv
 	python manage.py add_access initial/initial-access.csv
 
 verbose:
