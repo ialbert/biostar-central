@@ -34,10 +34,7 @@ def generate_info(name):
     return email, password
 
 
-def make_user(userid):
-    # Get api url for user
-    api_url = "https://www.biostars.org/api/user/"
-    full_url = urljoin(api_url, f"{userid}")
+def get_data(full_url):
 
     try:
         response = requests.get(full_url, timeout=5)
@@ -50,6 +47,15 @@ def make_user(userid):
         response = requests.get(full_url, timeout=300)
         data = hjson.loads(response.text)
         print("hit remote site AGAIN")
+
+    return data, response
+
+
+def make_user(userid):
+    # Get api url for user
+    api_url = "https://www.biostars.org/api/user/"
+    full_url = urljoin(api_url, f"{userid}")
+    data, response = get_data(full_url=full_url)
 
     # No data found for the given user id
     if not data or response.status_code == 404:

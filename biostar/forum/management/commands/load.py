@@ -20,6 +20,17 @@ from biostar.accounts.models import Profile, User
 logger = logging.getLogger(settings.LOGGER_NAME)
 
 
+class Bunch():
+    def __init__(self, **kwargs):
+        self.template = self.uid = self.text = ''
+        self.status = self.tag_val = self.html = ""
+        self.text = self.title = self.type = ""
+        self.view_count = self.creation_date = ""
+        self.lastedit_date = self.parent_id = self.root_id = ""
+        self.author_id = ""
+        self.__dict__.update(kwargs)
+
+
 def vote_loader(single_vote):
 
     user_uid, post_uid, vote_type = single_vote.split("\t")
@@ -87,52 +98,61 @@ def load_users(root, source_file, limit):
     return
 
 
+def get_data(full_url):
+    try:
+        response = requests.get(full_url, timeout=5)
+        data = hjson.loads(response.text)
+        print("hit remote site")
+    except Exception as exc:
+        print(f"ERROR {exc}...sleeping for 5 seconds.")
+        time.sleep(5)
+        # 5 minute timeout
+        response = requests.get(full_url, timeout=300)
+        data = hjson.loads(response.text)
+        print("hit remote site AGAIN")
+
+    return data, response
+
+
+def bunch_data(data):
+
+    bunched = Bunch(status=data.get("status_id", None), tag_val=data.get("tag_val", ""),
+                    html=data.get("xhtml", ""), text=util.strip_tags(data.get("xhtml", "")),
+                    title=data.get("title", ""), type=data.get("type_id", None), view_count=data.get("view_count", 0),
+                    creation_date=data.get("creation_date"), lastedit_date=data.get("lastedit_date"),
+                    parent_id=data.get("parent_id"), root_id=data.get("root_id"), uid=data.get("id"),
+                    author_id=data.get("author_id", ""))
+
+    return  bunched
+
+
 def create_parent(parent_id):
 
     print("CREATING PARENT SEPERATLY")
     api_url = "https://www.biostars.org/api/post/"
     full_url = urljoin(api_url, f"{parent_id}")
     print(parent_id)
-    try:
-        response = requests.get(full_url, timeout=5)
-        data = hjson.loads(response.text)
-        print("hit remote site")
-    except Exception as exc:
-        print(f"ERROR {exc}...sleeping for 15 seconds.")
-        time.sleep(5)
-        response = requests.get(full_url, timeout=300)
-        data = hjson.loads(response.text)
+    data, response = get_data(full_url=full_url)
 
-    status = data.get("status_id", None)
-    tag_val = data.get("tag_val", "")
-    html = data.get("xhtml", "")
-    text = util.strip_tags(html)
-    title = data.get("title", "")
-    post_type = data.get("type_id", None)
-    view_count = data.get("view_count", 0)
-    creation_date = data.get("creation_date")
-    lastedit_date = data.get("lastedit_date")
+    if not data or response.status_code == 404:
+        print(f"postid {parent_id} does not exist.")
+        return
 
-    parent_id = data.get("parent_id")
-    root_id = data.get("root_id")
-    uid = data.get("id")
+    data = bunch_data(data=data)
     parent = Post.objects.filter(uid=parent_id).first()
-    root = Post.objects.filter(uid=root_id).first()
-    post = Post.objects.filter(uid=uid).first()
-
-    author_id = data.get("author_id", "")
-    user = User.objects.filter(profile__uid=author_id).first()
+    post = Post.objects.filter(uid=data.uid).first()
+    user = User.objects.filter(profile__uid=data.author_id).first()
 
     # Skip posts without authors.
     if not user:
-        print(f"user with {author_id} does not exist.")
-        make_user(userid=author_id)
+        print(f"user with {data.author_id} does not exist.")
+        make_user(userid=data.author_id)
         return
     if not post:
-        post = Post.objects.create(tag_val=tag_val, uid=uid, title=title, content=text, type=post_type, html=html,
-                            view_count=view_count, creation_date=creation_date, author=user,
-                            lastedit_date=lastedit_date, status=status, parent=parent or root,
-                            )
+        post = Post.objects.create(tag_val=data.tag_val, uid=data.uid, title=data.title, content=data.text,
+                                   type=data.type, html=data.html, view_count=data.view_count,
+                                   creation_date=data.creation_date, author=user, lastedit_date=data.lastedit_date,
+                                   status=data.status, parent=parent)
     return post
 
 
@@ -144,87 +164,63 @@ def make_post(postid):
     api_url = "https://www.biostars.org/api/post/"
     full_url = urljoin(api_url, f"{postid}")
     print(postid)
-    try:
-        response = requests.get(full_url, timeout=5)
-        data = hjson.loads(response.text)
-        print("hit remote site")
-    except Exception as exc:
-        print(f"ERROR {exc}...sleeping for 15 seconds.")
-        time.sleep(5)
-        response = requests.get(full_url, timeout=300)
-        data = hjson.loads(response.text)
+    data, response = get_data(full_url=full_url)
 
     if not data or response.status_code == 404:
         print(f"postid {postid} does not exist.")
         return
 
-    status = data.get("status_id", None)
-    tag_val = data.get("tag_val", "")
-    html = data.get("xhtml", "")
-    text = util.strip_tags(html)
-    title = data.get("title", "")
-    post_type = data.get("type_id", None)
-    view_count = data.get("view_count", 0)
-    creation_date = data.get("creation_date")
-    lastedit_date = data.get("lastedit_date")
+    data = bunch_data(data=data)
+    parent = Post.objects.filter(uid=data.parent_id).first()
+    root = Post.objects.filter(uid=data.root_id).first()
+    post = Post.objects.filter(uid=data.uid).first()
 
-    parent_id = data.get("parent_id")
-    root_id = data.get("root_id")
-    uid = data.get("id")
-    parent = Post.objects.filter(uid=parent_id).first()
-    root = Post.objects.filter(uid=root_id).first()
-    post = Post.objects.filter(uid=uid).first()
-
-    author_id = data.get("author_id", "")
-    user = User.objects.filter(profile__uid=author_id).first()
+    user = User.objects.filter(profile__uid=data.author_id).first()
 
     # Skip posts without authors.
     if not user:
-        print(f"user with {author_id} does not exist.")
-        make_user(userid=author_id)
+        print(f"user with {data.author_id} does not exist.")
+        make_user(userid=data.author_id)
         return
 
     # Get parent post/root and check if it exists,
     # recursively create parent post before proceeding to current post.
-    if not root and (root_id != uid):
-        print(f"ROOT for {postid} does not exist. CREATING THE ROOT {root_id}")
+    if not root and (data.root_id != data.uid):
+        print(f"ROOT for {postid} does not exist. CREATING THE ROOT {data.root_id}")
         time.sleep(.5)
-        make_post(postid=root_id)
+        make_post(postid=data.root_id)
 
-    if not parent and parent_id != uid:
-        print(f"PARNET for {postid} does not exist. CREATING THE PARENT {parent_id}")
+    if not parent and data.parent_id != data.uid:
+        print(f"PARENT for {postid} does not exist. CREATING THE PARENT {data.parent_id}")
         time.sleep(.5)
-        make_post(postid=parent_id)
+        make_post(postid=data.parent_id)
 
     # Update an existing post
     if post:
         print(f"Updating existing post {postid}")
-        Post.objects.filter(uid=uid).update(tag_val=tag_val, title=title, content=text, type=post_type, html=html,
-                                            view_count=view_count, creation_date=creation_date, author=user,
-                                            lastedit_date=lastedit_date, status=status, parent=parent,
-                                            root=root)
+        Post.objects.filter(uid=data.uid).update(tag_val=data.tag_val, title=data.title, content=data.text, type=data.type,
+                                                 html=data.html, view_count=data.view_count, creation_date=data.creation_date,
+                                                 author=user, lastedit_date=data.lastedit_date, status=data.status,
+                                                 parent=parent, root=root)
     else:
         # Create a new post
         print(f"Creating new post {postid}")
-        if post_type in (Post.COMMENT, Post.ANSWER) and not (parent or root):
-            print("CREATINGGGGGGG PARENT")
-            create_parent(parent_id=parent_id)
+        if data.type in (Post.COMMENT, Post.ANSWER) and not (parent or root):
+            create_parent(parent_id=data.parent_id)
         else:
-            Post.objects.create(tag_val=tag_val, uid=uid, title=title, content=text, type=post_type, html=html,
-                                view_count=view_count, creation_date=creation_date, author=user,
-                                lastedit_date=lastedit_date, status=status, parent=parent,
-                                )
+            Post.objects.create(tag_val=data.tag_val, uid=data.uid, title=data.title, content=data.text, type=data.type,
+                                html=data.html, view_count=data.view_count, creation_date=data.creation_date, author=user,
+                                lastedit_date=data.lastedit_date, status=data.status, parent=parent)
 
     return
 
 
 def posts_from_api():
 
-    nposts = 370431
+    nposts = 371080
 
-    p = Post.objects.filter(uid=370411).first()
-
-    print(p, p.parent, p.root)
+    #p = Post.objects.filter(uid=370411).first()
+    #print(p, p.parent, p.root)
     #1/0
 
     #TODO: need to change listing
