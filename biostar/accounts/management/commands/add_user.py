@@ -36,17 +36,16 @@ def generate_info(name):
 
 def get_data(full_url):
 
-    try:
-        response = requests.get(full_url, timeout=5)
-        data = hjson.loads(response.text)
-        print("hit remote site")
-    except Exception as exc:
-        print(f"ERROR {exc}...sleeping for 5 seconds.")
-        time.sleep(5)
-        # 5 minute timeout
-        response = requests.get(full_url, timeout=300)
-        data = hjson.loads(response.text)
-        print("hit remote site AGAIN")
+    while True:
+        try:
+            # 5 min timeout
+            response = requests.get(full_url, timeout=300)
+            data = hjson.loads(response.text)
+            logger.info(f"Hit remote site:{full_url}")
+            break
+        except Exception as exc:
+            logger.error(f"{exc}...sleeping for 5 seconds then retrying.")
+            time.sleep(5)
 
     return data, response
 
@@ -59,7 +58,7 @@ def make_user(userid):
 
     # No data found for the given user id
     if not data or response.status_code == 404:
-        print(f"No user with {userid}")
+        logger.error(f"No user with id {userid}")
         return
 
     # Get user from uid
@@ -68,7 +67,7 @@ def make_user(userid):
 
     # Update existing user information.
     if user:
-        print(f"{userid} already exists.")
+        logger.info(f"user={userid} already exists.")
         return
 
     # Create a new user with the using name and id
@@ -86,7 +85,7 @@ def make_user(userid):
     Profile.objects.filter(user=user).update(uid=uid, date_joined=date_joined, last_login=last_login,
                                              name=name)
 
-    print(f"{userid} created.")
+    logger.info(f"user={userid} created.")
     return
 
 
@@ -94,15 +93,14 @@ def user_from_api():
     """Update or create user from remote API"""
 
     api_url = "https://www.biostars.org/api/user/"
-    # TODO: need to change listing
+    # TODO: iteration is hardcoded
     nusers = 53699
 
     for userids in range(nusers, 0, -1):
-
+        logger.info(f"Fetching user={userids}")
         # 2 second time delay every 50 users to avoid overloading remote site.
-        print(f"{userids}")
         if userids % 50 == 0:
-            print("Entering 2s time delay....")
+            logger.info("Entering 2s time delay.")
             time.sleep(2)
         make_user(userid=userids)
 

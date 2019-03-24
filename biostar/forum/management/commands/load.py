@@ -105,10 +105,10 @@ def get_data(full_url):
             # 5 min timeout
             response = requests.get(full_url, timeout=300)
             data = hjson.loads(response.text)
-            print("hit remote site")
+            logger.info(f"Hit remote site:{full_url}")
             break
         except Exception as exc:
-            print(f"ERROR {exc}...sleeping for 5 seconds then retrying.")
+            logger.error(f"{exc}...sleeping for 5 seconds then retrying.")
             time.sleep(5)
 
     return data, response
@@ -128,14 +128,14 @@ def bunch_data(data):
 
 def create_parent(parent_id):
 
-    print(f"CREATING PARENT SEPERATLY: {parent_id}")
+    logger.info(f"Creating parent: {parent_id}")
     api_url = "https://www.biostars.org/api/post/"
     full_url = urljoin(api_url, f"{parent_id}")
-    print(parent_id)
     data, response = get_data(full_url=full_url)
 
+    # No data found for given post id
     if not data or response.status_code == 404:
-        print(f"postid {parent_id} does not exist.")
+        logger.warning(f"Post id {parent_id} does not exist.")
         return
 
     data = bunch_data(data=data)
@@ -143,9 +143,9 @@ def create_parent(parent_id):
     post = Post.objects.filter(uid=data.uid).first()
     user = User.objects.filter(profile__uid=data.author_id).first()
 
-    # Skip posts without authors.
+    # Create author if they do not exist.
     if not user:
-        print(f"user with {data.author_id} does not exist.")
+        logger.info(f"Creating user {data.author_id}.")
         make_user(userid=data.author_id)
         return
     if not post:
@@ -163,11 +163,11 @@ def make_post(postid):
 
     api_url = "https://www.biostars.org/api/post/"
     full_url = urljoin(api_url, f"{postid}")
-    print(postid)
     data, response = get_data(full_url=full_url)
 
+    # No data found for given post id
     if not data or response.status_code == 404:
-        print(f"postid {postid} does not exist.")
+        logger.warning(f"Post Id {postid} does not exist.")
         return
 
     data = bunch_data(data=data)
@@ -177,33 +177,35 @@ def make_post(postid):
 
     user = User.objects.filter(profile__uid=data.author_id).first()
 
-    # Skip posts without authors.
+    # Create author if they do not exist.
     if not user:
-        print(f"user with {data.author_id} does not exist.")
+        logger.info(f"Creating user {data.author_id}.")
         make_user(userid=data.author_id)
         return
 
-    # Recursively create parent post before proceeding to current post.
+    # Recursively create root before proceeding to current post.
     if not root and (data.root_id != data.uid):
-        print(f"ROOT for {postid} does not exist. CREATING THE ROOT {data.root_id}")
+        logger.info(f"Recursively creating root={data.root_id} for post={postid}.")
         time.sleep(.5)
         make_post(postid=data.root_id)
 
+    # Recursively create parent before proceeding to current post.
     if not parent and data.parent_id != data.uid:
-        print(f"PARENT for {postid} does not exist. CREATING THE PARENT {data.parent_id}")
+        logger.info(f"Recursively creating parent={data.parent_id} for post={postid}.")
         time.sleep(.5)
         make_post(postid=data.parent_id)
 
     # Update an existing post
     if post:
-        print(f"Updating existing post {postid}")
+        logger.info(f"Updating existing post={postid}")
         Post.objects.filter(uid=data.uid).update(tag_val=data.tag_val, title=data.title, content=data.text, type=data.type,
                                                  html=data.html, view_count=data.view_count, creation_date=data.creation_date,
                                                  author=user, lastedit_date=data.lastedit_date, status=data.status,
                                                  parent=parent, root=root)
     else:
         # Create a new post
-        print(f"Creating new post {postid}")
+        logger.info(f"Creating new post {postid}")
+        # Ensure the parent is created
         if data.type in (Post.COMMENT, Post.ANSWER) and not (parent or root):
             create_parent(parent_id=data.parent_id)
         else:
@@ -216,15 +218,15 @@ def make_post(postid):
 
 def posts_from_api():
 
+    #TODO: iteration is hardcoded
     #nposts = 364053
-    nposts = 339359
+    nposts = 306064
 
-    #TODO: need to change listing
     for postid in range(nposts, 0, -1):
-
-        # 5 second time delay every 30 posts to avoid overloading remote site.
-        if postid % 30 == 0:
-            print("Entering 5s timedelay")
+        logger.info(f"Fetching post={postid}")
+        # 5 second time delay every 50 posts to avoid overloading remote site.
+        if postid % 50 == 0:
+            logger.info("Entering 5s time delay")
             time.sleep(5)
 
         make_post(postid=postid)
