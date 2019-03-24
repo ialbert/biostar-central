@@ -37,10 +37,10 @@ def user_box(user):
 @register.inclusion_tag('widgets/pages.html')
 def pages(objs, request):
 
-    topic = request.GET.get('topic')
+    topic = request.GET.get('tag')
     active = request.GET.get("active")
 
-    feild_name = "active" if active else "topic"
+    feild_name = "active" if active else "tag"
 
     url = request.path
     topic = active or topic

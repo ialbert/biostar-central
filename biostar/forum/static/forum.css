@@ -167,6 +167,10 @@ figure { display: block; margin: 0; }
 
 }
 
+img {
+    max-width: 100%;
+}
+
 .news{
   background-color: #762C90 !important;
   color: #fff !important;

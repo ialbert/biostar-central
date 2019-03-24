@@ -99,17 +99,17 @@ def load_users(root, source_file, limit):
 
 
 def get_data(full_url):
-    try:
-        response = requests.get(full_url, timeout=5)
-        data = hjson.loads(response.text)
-        print("hit remote site")
-    except Exception as exc:
-        print(f"ERROR {exc}...sleeping for 5 seconds.")
-        time.sleep(5)
-        # 5 minute timeout
-        response = requests.get(full_url, timeout=300)
-        data = hjson.loads(response.text)
-        print("hit remote site AGAIN")
+    while True:
+
+        try:
+            # 5 min timeout
+            response = requests.get(full_url, timeout=300)
+            data = hjson.loads(response.text)
+            print("hit remote site")
+            break
+        except Exception as exc:
+            print(f"ERROR {exc}...sleeping for 5 seconds then retrying.")
+            time.sleep(5)
 
     return data, response
 
@@ -123,12 +123,12 @@ def bunch_data(data):
                     parent_id=data.get("parent_id"), root_id=data.get("root_id"), uid=data.get("id"),
                     author_id=data.get("author_id", ""))
 
-    return  bunched
+    return bunched
 
 
 def create_parent(parent_id):
 
-    print("CREATING PARENT SEPERATLY")
+    print(f"CREATING PARENT SEPERATLY: {parent_id}")
     api_url = "https://www.biostars.org/api/post/"
     full_url = urljoin(api_url, f"{parent_id}")
     print(parent_id)
@@ -183,8 +183,7 @@ def make_post(postid):
         make_user(userid=data.author_id)
         return
 
-    # Get parent post/root and check if it exists,
-    # recursively create parent post before proceeding to current post.
+    # Recursively create parent post before proceeding to current post.
     if not root and (data.root_id != data.uid):
         print(f"ROOT for {postid} does not exist. CREATING THE ROOT {data.root_id}")
         time.sleep(.5)
@@ -217,11 +216,8 @@ def make_post(postid):
 
 def posts_from_api():
 
-    nposts = 371080
-
-    #p = Post.objects.filter(uid=370411).first()
-    #print(p, p.parent, p.root)
-    #1/0
+    #nposts = 364053
+    nposts = 339359
 
     #TODO: need to change listing
     for postid in range(nposts, 0, -1):
