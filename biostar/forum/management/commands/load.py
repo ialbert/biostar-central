@@ -105,6 +105,7 @@ def get_data(full_url):
             # 5 min timeout
             response = requests.get(full_url, timeout=300)
             data = hjson.loads(response.text)
+
             logger.info(f"Hit remote site:{full_url}")
             break
         except Exception as exc:
@@ -220,7 +221,7 @@ def posts_from_api():
 
     #TODO: iteration is hardcoded
     #nposts = 364053
-    nposts = 306064
+    nposts = 296013
 
     for postid in range(nposts, 0, -1):
         logger.info(f"Fetching post={postid}")
