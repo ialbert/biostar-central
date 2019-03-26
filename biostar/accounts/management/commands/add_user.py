@@ -7,10 +7,6 @@ Email, Name, Handler
 import csv
 import logging
 import os
-import hjson
-import time
-import requests
-from urllib.parse import urljoin
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -21,109 +17,17 @@ from biostar.accounts.models import User, Profile
 logger = logging.getLogger("engine")
 
 
-def generate_info(name):
-    """
-    Generate a unique email, and password from a name
-    """
-    uid = util.get_uuid(5)
-
-    username = f"{uid}" + "_".join(name.split())
-    email = username + "@testmail.com"
-    password = f"{util.get_uuid(16)}"
-
-    return email, password
-
-
-def get_data(full_url):
-
-    while True:
-        try:
-            # 5 min timeout
-            response = requests.get(full_url, timeout=300)
-            data = hjson.loads(response.text)
-            logger.info(f"Hit remote site:{full_url}")
-            break
-        except Exception as exc:
-            logger.error(f"{exc}...sleeping for 5 seconds then retrying.")
-            time.sleep(5)
-
-    return data, response
-
-
-def make_user(userid):
-    # Get api url for user
-    api_url = "https://www.biostars.org/api/user/"
-    full_url = urljoin(api_url, f"{userid}")
-    data, response = get_data(full_url=full_url)
-
-    # No data found for the given user id
-    if not data or response.status_code == 404:
-        logger.error(f"No user with id {userid}")
-        return
-
-    # Get user from uid
-    uid = data.get("id", "")
-    user = User.objects.filter(profile__uid=uid).first()
-
-    # Update existing user information.
-    if user:
-        logger.info(f"user={userid} already exists.")
-        return
-
-    # Create a new user with the using name and id
-    name = data.get("name", "")
-    last_login = data.get("last_login")
-    date_joined = data.get("date_joined")
-
-    email, password = generate_info(name=name)
-    # Add uid to username since it already exists.
-    username = User.objects.filter(username=name).first()
-    username = name + str(uid) if username else name
-
-    user = User.objects.create(username=username, email=email, password=password)
-    # Update the profile with correct user id.
-    Profile.objects.filter(user=user).update(uid=uid, date_joined=date_joined, last_login=last_login,
-                                             name=name)
-
-    logger.info(f"user={userid} created.")
-    return
-
-
-def user_from_api():
-    """Update or create user from remote API"""
-
-    api_url = "https://www.biostars.org/api/user/"
-    # TODO: iteration is hardcoded
-    nusers = 53699
-
-    for userids in range(nusers, 0, -1):
-        logger.info(f"Fetching user={userids}")
-        # 2 second time delay every 50 users to avoid overloading remote site.
-        if userids % 50 == 0:
-            logger.info("Entering 2s time delay.")
-            time.sleep(2)
-        make_user(userid=userids)
-
-    return
-
-
 class Command(BaseCommand):
     help = "Add users"
 
     def add_arguments(self, parser):
 
         parser.add_argument('--fname', help="The CSV file with the users to be added. Must have headers: Name, Email")
-        parser.add_argument('--from_api', action="store_true", help="Create a users from remote API.")
 
     def handle(self, *args, **options):
 
         # Get the filename.
         fname = options['fname']
-        from_api = options["from_api"]
-
-        if from_api:
-            user_from_api()
-            return
 
         if not os.path.isfile(fname):
             logger.error(f'Not a valid filename: {fname}')
