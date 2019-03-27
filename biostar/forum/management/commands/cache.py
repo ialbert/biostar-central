@@ -9,8 +9,9 @@ from urllib.parse import urljoin
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
-
-from biostar.accounts.models import User
+from biostar.forum import util
+from biostar.forum.models import Vote, Post
+from biostar.accounts.models import User, Profile
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 
@@ -34,9 +35,12 @@ def get_data(full_url):
     return data, response
 
 
-def cache_post(root_dir, post_list):
+def cache_post(root_dir, post_list, prefix):
 
     api_url = "https://www.biostars.org/api/post/"
+    fname = f"{prefix}_posts.hjson"
+    fullpath = os.path.join(root_dir, fname)
+    cached_posts = hjson.loads(open(fullpath, 'r')) if os.path.exists(fullpath) else []
 
     for post_id in post_list:
         # Build url and fetch data for post
@@ -47,21 +51,25 @@ def cache_post(root_dir, post_list):
         if not data:
             logger.warning(f"Post Id {post_id} does not exist.")
             continue
-        # Get cache file name
-        uid = data.get("id")
-        fname = f"post_{uid}.hjson"
+        # Cache posts.
+        cached_posts.append(hjson.dumps(data))
 
-        # Write data to file
-        fullpath = os.path.join(root_dir, fname)
-        open(fullpath, "w").write(hjson.dumps(data))
-        logger.info(f"Cached post={post_id} into {fullpath}")
+    # Write to file.
+    with open(fullpath, "w") as cache:
+        hjson.dump(cached_posts, cache)
+        logger.info(f"Cached {len(cached_posts)} posts into {fullpath}")
 
     return
 
 
-def cache_users(root_dir, user_list):
+def cache_users(root_dir, user_list, prefix):
 
     api_url = "https://www.biostars.org/api/user/"
+    # Append to existing file.
+    fname = f"{prefix}_users.hjson"
+    fullpath = os.path.join(root_dir, fname)
+    cached_users = hjson.load(open(fullpath, 'r')) if os.path.exists(fullpath) else []
+
     for user_id in user_list:
         # Build url and fetch data for post
         full_url = urljoin(api_url, f"{user_id}")
@@ -71,21 +79,24 @@ def cache_users(root_dir, user_list):
         if not data:
             logger.warning(f"User Id {user_id} does not exist.")
             continue
-        # Get cache file name
-        uid = data.get("id")
-        fname = f"user_{uid}.hjson"
+        # Add to cache
+        cached_users.append(hjson.dumps(data))
 
-        # Write data to file
-        fullpath = os.path.join(root_dir, fname)
-        open(fullpath, "w").write(hjson.dumps(data))
-        logger.info(f"Cached user={user_id} into {fullpath}")
+    # Write to file.
+    with open(fullpath, "w") as cache:
+        hjson.dump(cached_users, cache)
+        logger.info(f"Cached {len(cached_users)} users into {fullpath}")
 
     return
 
 
-def cache_votes(root_dir, votes_list):
+def cache_votes(root_dir, votes_list, prefix):
 
     api_url = "https://www.biostars.org/api/vote/"
+    fname = f"{prefix}_votes.hjson"
+    fullpath = os.path.join(root_dir, fname)
+    cached_votes = hjson.loads(open(fullpath, 'r')) if os.path.exists(fullpath) else []
+
     for vote_id in votes_list:
         # Build url and fetch data for post
         full_url = urljoin(api_url, f"{vote_id}")
@@ -95,19 +106,18 @@ def cache_votes(root_dir, votes_list):
         if not data:
             logger.warning(f"Vote Id {vote_id} does not exist.")
             continue
-        # Get cache file name
-        uid = data.get("id")
-        fname = f"vote_{uid}.hjson"
+        # Cache votes
+        cached_votes.append(hjson.dumps(data))
 
-        # Write data to file
-        fullpath = os.path.join(root_dir, fname)
-        open(fullpath, "w").write(hjson.dumps(data))
-        logger.info(f"Cached vote={vote_id} into {fullpath}")
+    # Write to file.
+    with open(fullpath, "w") as cache:
+        hjson.dump(cached_votes, cache)
+        logger.info(f"Cached {len(cached_votes)} votes into {fullpath}")
 
     return
 
 
-def cache_forum(root_dir, today=False, end_year=2009, start_year=2019):
+def create_cache(root_dir, today=False, end_year=2009, start_year=2019):
     """
     Create user cache in root_dir from the start_date
     """
@@ -122,7 +132,7 @@ def cache_forum(root_dir, today=False, end_year=2009, start_year=2019):
     dates = [list(Calendar().itermonthdates(year=year, month=month)) for year, month in months]
     dates = list(chain(*dates))
 
-    # Format the date to add extra '0' in the front.
+    # Format the date to ensure its double digit.
     format_date = lambda digit: f"0{digit}" if len(f"{digit}") == 1 else f"{digit}"
     count = 0
     for date in dates:
@@ -139,22 +149,174 @@ def cache_forum(root_dir, today=False, end_year=2009, start_year=2019):
             continue
 
         # Create directory to store cache in
-        dirname = os.path.join(root_dir, f"{date.year}", month, day)
-        os.makedirs(dirname, exist_ok=True)
+        prefix = f"{date.year}_{month}"
+        os.makedirs(root_dir, exist_ok=True)
 
         # Get posts of the day
-        cache_post(root_dir=dirname, post_list=data.get("new_posts"))
+        cache_post(root_dir=root_dir, post_list=data.get("new_posts"), prefix=prefix)
 
         # Get users of the day
-        cache_users(root_dir=dirname, user_list=data.get("new_users"))
+        cache_users(root_dir=root_dir, user_list=data.get("new_users"), prefix=prefix)
 
         # Get votes of the day
-        cache_votes(root_dir=dirname, votes_list=data.get("new_votes"))
+        cache_votes(root_dir=root_dir, votes_list=data.get("new_votes"), prefix=prefix)
 
         # TODO: take out after testing
         count += 1
-        if count == 15:
+        if count == 2:
             break
+    return
+
+
+def get_all_posts(post_files):
+    """
+    Return all posts in root dir as a dict keyed by post id.
+    """
+    all_posts = dict()
+
+    for fname in post_files:
+        posts = hjson.load(open(fname.path, "r"))
+        for data in posts:
+            post = hjson.loads(data)
+            all_posts[str(post.get("id"))] = post
+
+    return all_posts
+
+
+def gen_post(post_id, all_posts):
+    # Recursively create parent if it does not exist.
+    post = all_posts[post_id]
+    author_id = post.get("author_id")
+    author = User.objects.filter(profile__uid=author_id).first()
+    creation_date = post.get("creation_date")
+    lastedit_date = post.get("lastedit_date")
+    #has_accepted = post.get("has_accepted")
+    lastedit_user_id = post.get("lastedit_user_id")
+    lastedit_user = User.objects.filter(profile__uid=lastedit_user_id).first()
+
+    parent_id = post.get("parent_id")
+    root_id = post.get("root_id")
+    parent = Post.objects.filter(uid=parent_id).first()
+    root = Post.objects.filter(uid=root_id).first()
+    title = post.get("title")
+    post_type = post.get("type_id")
+    view_count = post.get("view_count")
+    tag_val = post.get("tag_val")
+    html = post.get("xhtml")
+    content = util.strip_tags(post.get("xhtml"))
+    status = post.get("status_id")
+
+    # Create root and parent if they do not exist.
+    if not root_id and root_id != post_id:
+        gen_post(post_id=parent_id, all_posts=all_posts)
+    if not parent_id and parent_id != post_id:
+        gen_post(post_id=parent_id, all_posts=all_posts)
+
+    yield Post(content=content, uid=post_id, type=post_type, title=title, view_count=view_count,
+               tag_val=tag_val, html=html, status=status, root=root, parent=parent, author=author,
+               creation_date=creation_date, lastedit_date=lastedit_date, lastedit_user=lastedit_user)
+
+
+def load_posts(post_files):
+
+    all_posts = get_all_posts(post_files=post_files)
+
+    def generate():
+        # Iterate through all posts and create
+
+        for post in all_posts:
+            # Use function to recursively create parent and root posts that don't exists.
+            gen_post(post_id=post, all_posts=all_posts)
+
+    Post.objects.bulkcreate(objs=generate(), batch_size=50)
+    return
+
+
+def bulkload_votes(votes_file):
+
+    def generate():
+
+        votes = open(votes_file, "r").readlines()
+        for data in votes:
+            votes = hjson.loads(data)
+            author_id = votes.get("author_id")
+            post_id = votes.get("post_id")
+            vote_type = votes.get("type_id")
+            date = votes.get("date")
+            uid = votes.get("uid")
+
+            user = User.objects.filter(profile__uid=author_id)
+            post = Post.objects.filter(uid=post_id)
+            yield Vote(uid=uid, type=vote_type, date=date, author=user, post=post)
+
+    # Bulk create votes
+    Vote.objects.bulk_create(objs=generate(), batch_size=50)
+    return
+
+
+def bulkload_users(user_files):
+    # TODO: ISSUE with bulk create, does not update profile.
+
+    def generate():
+        for fname in user_files:
+            users = hjson.load(open(fname.path, "r"))
+            for data in users:
+                user = hjson.loads(data)
+                #date_joined = user.get("date_joined")
+                #last_login = user.get("last_login")
+                name = user.get("name")
+                uid = user.get("id")
+                username = f"{name}{uid}"
+                email = f"{name}{uid}@testmail.com"
+                password = util.get_uuid()
+
+                yield User(username=username, email=email, password=password)
+
+    # Bulk create users.
+    User.objects.bulk_create(objs=generate(), batch_size=50)
+    return
+
+
+def load_users(user_files):
+
+    for fname in user_files:
+        users = hjson.load(open(fname.path, "r"))
+        for data in users:
+            user = hjson.loads(data)
+            date_joined = user.get("date_joined")
+            last_login = user.get("last_login")
+            name = user.get("name")
+            uid = user.get("id")
+            username = f"{name}{uid}"
+            email = f"{name}{uid}@testmail.com"
+            password = util.get_uuid()
+
+            user = User.objects.filter(profile__uid=uid).first()
+            if not user:
+                user = User.objects.create(username=username, email=email, password=password)
+
+            # Update the uid, last login and status
+            Profile.objects.filter(user=user).update(uid=uid, date_joined=date_joined, last_login=last_login,
+                                                      name=name)
+            logger.info(f"Updated user={user.profile.uid}")
+
+    return
+
+
+def load_cache(root_dir):
+
+    # Get the user, votes, and post files
+    user_files = list(filter(lambda p: 'users' in p.name and p.is_file(), os.scandir(root_dir)))
+    post_files = list(filter(lambda p: 'posts' in p.name and p.is_file(), os.scandir(root_dir)))
+    votes_files = list(filter(lambda p: 'votes' in p.name and p.is_file(), os.scandir(root_dir)))
+
+    # Load users first
+    load_users(user_files=user_files)
+    # Load posts next
+    load_posts(post_files=post_files)
+    # Bulk load votes last.
+    bulkload_votes(votes_file=votes_files)
+
     return
 
 
@@ -162,14 +324,19 @@ class Command(BaseCommand):
     help = 'Cache posts and users from remote site.'
 
     def add_arguments(self, parser):
-        parser.add_argument("--root", help="Root directory to store into.")
+        parser.add_argument("--root", help="Root directory to store into or load from.")
+        parser.add_argument("--load", action='store_true', help="Root directory to store into.")
         pass
 
     def handle(self, *args, **options):
 
         root = options["root"]
+        load = options["load"]
         root = os.path.abspath(root)
         os.makedirs(root, exist_ok=True)
 
-        cache_forum(root_dir=root)
+        if load:
+            load_cache(root_dir=root)
+        else:
+            create_cache(root_dir=root)
         pass
