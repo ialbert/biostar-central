@@ -133,15 +133,15 @@ class Profile(models.Model):
     def is_suspended(self):
         return self.state == self.SUSPENDED
 
-#
-# @receiver(post_save, sender=User)
-# def create_profile(sender, instance, created, raw, using, **kwargs):
-#     # Do not do anything when using default database
-#     # Since app is made for migrating out of default server.
-#
-#     if created:
-#         # Make sure staff users are also moderators.
-#         role = Profile.MANAGER if instance.is_staff else Profile.NORMAL
-#         Profile.objects.using(using).create(user=instance, name=instance.first_name, role=role)
-#
-#     instance.username = instance.username or f"user-{instance.pk}"
+
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, raw, using, **kwargs):
+    # Do not do anything when using default database
+    # Since app is made for migrating out of default server.
+
+    if created:
+        # Make sure staff users are also moderators.
+        role = Profile.MANAGER if instance.is_staff else Profile.NORMAL
+        Profile.objects.using(using).create(user=instance, name=instance.first_name, role=role)
+
+    instance.username = instance.username or f"user-{instance.pk}"
