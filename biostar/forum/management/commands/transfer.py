@@ -85,11 +85,11 @@ class Command(BaseCommand):
         # Get the relevant user table
         users_table = "users_user"
 
-        # Get the user rows to iterate over.
+        # Get the users to iterate over.
         cursor.execute(f"SELECT * FROM {users_table}")
 
         for row in cursor:
-            # Get the user info from row
+            # Parse user information into dictionary
             user = parse_user(row=row, dbfile=dbfile)
 
             new_user = User.objects.filter(email=user["email"]).first()
