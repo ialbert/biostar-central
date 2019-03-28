@@ -139,6 +139,7 @@ INSTALLED_APPS = [
     'biostar.forum.apps.ForumConfig',
     'biostar.message.apps.MessageConfig',
     'biostar.ftpserver',
+    'biostar.migration',
 
     # Allauth templates come last.
     'allauth',
@@ -199,12 +200,19 @@ WSGI_APPLICATION = 'biostar.wsgi.application'
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 ENGINE_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
+#USERS_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'users.db')
+
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ENGINE_DATABASE_NAME,
     },
+    #'users':
+    #    {
+    #    'ENGINE': 'django.db.backends.sqlite3',
+    #    'NAME': USERS_DATABASE_NAME,
+    #    }
 
 }
 

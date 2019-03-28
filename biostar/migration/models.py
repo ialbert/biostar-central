@@ -45,7 +45,7 @@ class Profile(models.Model):
                             (DIGEST_MESSAGES, "Digest email messages")
                             ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="migrated_user")
     uid = models.CharField(max_length=MAX_UID_LEN, unique=True)
     name = models.CharField(max_length=MAX_NAME_LEN, default='', db_index=True)
 
@@ -133,13 +133,15 @@ class Profile(models.Model):
     def is_suspended(self):
         return self.state == self.SUSPENDED
 
-
-@receiver(post_save, sender=User)
-def create_profile(sender, instance, created, raw, using, **kwargs):
-
-    if created:
-        # Make sure staff users are also moderators.
-        role = Profile.MANAGER if instance.is_staff else Profile.NORMAL
-        Profile.objects.using(using).create(user=instance, name=instance.first_name, role=role)
-
-    instance.username = instance.username or f"user-{instance.pk}"
+#
+# @receiver(post_save, sender=User)
+# def create_profile(sender, instance, created, raw, using, **kwargs):
+#     # Do not do anything when using default database
+#     # Since app is made for migrating out of default server.
+#
+#     if created:
+#         # Make sure staff users are also moderators.
+#         role = Profile.MANAGER if instance.is_staff else Profile.NORMAL
+#         Profile.objects.using(using).create(user=instance, name=instance.first_name, role=role)
+#
+#     instance.username = instance.username or f"user-{instance.pk}"

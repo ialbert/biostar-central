@@ -87,6 +87,7 @@ def annotate_projects(projects):
                                  recipe_count=Count('analysis', distinct=True, filter=Q(deleted=False)))
     return projects
 
+
 def user_profile(request, uid):
     profile = Profile.objects.filter(uid=uid).first()
 
