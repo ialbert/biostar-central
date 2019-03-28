@@ -47,7 +47,6 @@ class Command(BaseCommand):
                               digest_prefs=user1.profile.digest_prefs, opt_in=user1.profile.opt_in)
             print(user1.pk)
 
-        # Iterate over users and bulk insert into 'users' database.
         all_users1 = User.objects.using("default").all()
         all_users2 = User.objects.using("users").all()
 

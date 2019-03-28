@@ -136,8 +136,6 @@ class Profile(models.Model):
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, raw, using, **kwargs):
-    # Do not do anything when using default database
-    # Since app is made for migrating out of default server.
 
     if created:
         # Make sure staff users are also moderators.
