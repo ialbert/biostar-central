@@ -21,11 +21,10 @@ class Bunch():
 
 def map_row(row, colnames):
     """
-    Pair items in rows with column names
+    Pair items in row with corresponding column name.
+    Return dictionary keyed by column names.
     """
-    mapped = dict()
-    for row, col in zip(row, colnames):
-        mapped[col] = row
+    mapped = {col_name: row for row, col_name in zip(row, colnames)}
 
     return mapped
 
@@ -34,7 +33,7 @@ def parse_user(row, dbfile):
     """
     Parse user info from row, return a dict keyed by colum name.
     """
-    # Connect the database and get relevant tables
+    # Connect the database and get relevant user tables
     conn = sqlite3.connect(dbfile)
     cursor = conn.cursor()
     users_table = "users_user"
@@ -49,9 +48,10 @@ def parse_user(row, dbfile):
 
     # Get profile for specific user from profile table
     cursor.execute(f"SELECT * FROM {profile_table} WHERE user_id={user['id']}")
-    # Pick the first profile for the user.id
+    # Pick the first profile returned for the user.id
     profile = cursor.fetchall()[0]
 
+    # Get column names for profile table
     profile_colnames = [col[0] for col in cursor.description]
     # Get profile info as dictionary
     user_profile = map_row(row=profile, colnames=profile_colnames)
@@ -93,6 +93,7 @@ class Command(BaseCommand):
             user = parse_user(row=row, dbfile=dbfile)
 
             new_user = User.objects.filter(email=user["email"]).first()
+            # Skip when users that already exists.
             if new_user:
                 continue
 
@@ -102,11 +103,11 @@ class Command(BaseCommand):
                                            password=user["password"], is_active=user["is_active"],
                                            is_superuser=user["is_admin"], is_staff=user["is_staff"])
 
+            # Update user profile
             Profile.objects.filter(user=new_user).update(uid=user["id"], name=user["name"],
                               role=user["type"], last_login=user["last_login"],
                               date_joined=user["date_joined"], location=user["location"],
                               website=user["website"], scholar=user["scholar"], text=user["info"],
                               score=user["score"], twitter=user["twitter_id"], my_tags=user["my_tags"],
                               digest_prefs=user["digest_prefs"], new_messages=user["new_messages"],)
-
         return
