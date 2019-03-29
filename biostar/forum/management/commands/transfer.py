@@ -109,5 +109,6 @@ class Command(BaseCommand):
                               date_joined=user["date_joined"], location=user["location"],
                               website=user["website"], scholar=user["scholar"], text=user["info"],
                               score=user["score"], twitter=user["twitter_id"], my_tags=user["my_tags"],
-                              digest_prefs=user["digest_prefs"], new_messages=user["new_messages"],)
+                              digest_prefs=user["digest_prefs"], new_messages=user["new_messages"])
+            print(new_user.profile.name, new_user.profile.uid)
         return
