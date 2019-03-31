@@ -1,11 +1,9 @@
 
 import logging
-import  sqlite3
-import os
 from django.core.management.base import BaseCommand
 from biostar.accounts.models import User, Profile
-from biostar.transfer.models import UsersUser, PostsPost
-from biostar.forum.models import Post
+from biostar.transfer.models import UsersUser, PostsPost, PostsVote
+from biostar.forum.models import Post, Vote
 from biostar.forum import util
 logger = logging.getLogger("engine")
 
@@ -15,7 +13,6 @@ def copy_users():
     source = UsersUser.objects.all()
 
     for user in source:
-        # See if user already exists.
         new_user = User.objects.filter(email=user.email).first()
         if new_user:
             continue
@@ -28,42 +25,51 @@ def copy_users():
 
         # Update profile
         Profile.objects.filter(user=new_user).update(uid=user.id, name=user.name,
-                          role=user.type, last_login=user.last_login,
-                          date_joined=user.profile.date_joined, location=user.profile.location,
-                          website=user.profile.website, scholar=user.profile.scholar, text=user.profile.info,
-                          score=user.score, twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
-                          digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
+                              role=user.type, last_login=user.last_login,
+                              date_joined=user.profile.date_joined, location=user.profile.location,
+                              website=user.profile.website, scholar=user.profile.scholar, text=user.profile.info,
+                              score=user.score, twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
+                              digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
         logger.info(f"Created user email={new_user.email}")
 
 
-def copy_posts():
+def generate_posts():
+    source = PostsPost.objects.all()
+    for post in source:
+        new_post = Post.objects.get_all(uid=post.id).first()
+        # Skip if the posts exists.
+        if new_post:
+            continue
+        content = util.strip_tags(post.content)
+
+        yield Post(uid=post.id, html=post.html, type=post.type,
+                   subs_count=post.subs_count, lastedit_user__profile_uid=post.lastedit_user_id,
+                   author__profile_uid=post.author_id, root_id=post.root_id, status=post.status,
+                   parent_id=post.parent_id, lastedit_date=post.lastedit_date,
+                   content=content, comment_count=post.comment_count,
+                   has_accepted=post.has_accepted, title=post.title,
+                   thread_score=post.thread_score, vote_count=post.vote_count,
+                   creation_date=post.creation_date, tag_val=post.tag_val,
+                   reply_count=post.reply_count, book_count=post.book_count,
+                   view_count=post.view_count)
+
+
+def generate_votes():
+    source = PostsVote.objects.all()
+    for vote in source:
+        vote
+
+
+def copy_forum():
     """
     Bulk create posts from source database
     """
+    # Copy users first
+    copy_users()
 
-    source = PostsPost.objects.all()
-
-    def generate():
-
-        for post in source:
-
-            new_post = Post.objects.get_all(uid=post.id).first()
-            # Skip if posts exists.
-            if new_post:
-                continue
-            content = util.strip_tags(post.content)
-            yield Post(uid=post.id, html=post.html, type=post.type,
-                       subs_count=post.subs_count, lastedit_user_id=post.lastedit_user_id,
-                       author_id=post.author_id, root_id=post.root_id, status=post.status,
-                       parent_id=post.parent_id, lastedit_date=post.lastedit_date,
-                       content=content, comment_count=post.comment_count,
-                       has_accepted=post.has_accepted, title=post.title,
-                       thread_score=post.thread_score, vote_count=post.vote_count,
-                       creation_date=post.creation_date, tag_val=post.tag_val,
-                       reply_count=post.reply_count, book_count=post.book_count,
-                       view_count=post.view_count)
-
-    Post.objects.bulk_create(objs=generate(), batch_size=20)
+    # Bulk create posts, votes, then subs in order.
+    Post.objects.bulk_create(objs=generate_posts(), batch_size=20)
+    Vote.objects.bulk_create(objs=generate_votes(), batch_size=20)
     return
 
 
@@ -77,11 +83,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Get users from default database
-
         # Copy users, posts, votes, then subscriptions in order.
-        #copy_users()
-        copy_posts()
-        #copy_votes()
+        copy_forum()
 
 
         return

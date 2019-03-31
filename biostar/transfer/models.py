@@ -71,7 +71,7 @@ class PostsPost(models.Model):
     creation_date = models.DateTimeField()
     reply_count = models.IntegerField()
     tag_val = models.CharField(max_length=100)
-    id = models.IntegerField(primary_key=True)  # AutoField?
+    id = models.IntegerField(primary_key=True)
     view_count = models.IntegerField()
     thread_score = models.IntegerField()
     title = models.CharField(max_length=200)
@@ -139,7 +139,7 @@ class PostsSubscription(models.Model):
 
 
 class PostsVote(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
+    id = models.IntegerField(primary_key=True)
     author_id = models.IntegerField()
     post_id = models.IntegerField()
     type = models.IntegerField()
