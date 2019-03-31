@@ -1,0 +1,52 @@
+
+import logging
+import  sqlite3
+import os
+from django.core.management.base import BaseCommand
+from biostar.transfer.models import UsersUser, UsersProfile
+from biostar.forum import util
+logger = logging.getLogger("engine")
+
+
+class Bunch():
+    def __init__(self, **kwargs):
+        self.value = ''
+        self.name = self.summary = ''
+        self.uid = self.text = ''
+        self.user = self.stream = None
+        self.__dict__.update(kwargs)
+
+
+def copy_users():
+
+    to_copy = UsersUser.objects.using("biostar2").all()
+
+    for user in to_copy:
+
+        print(user)
+
+
+    return
+
+
+class Command(BaseCommand):
+    help = "Migrate users from one database to another."
+
+    def add_arguments(self, parser):
+        # Give the database file
+        pass
+
+    def handle(self, *args, **options):
+
+        # Get users from default database
+
+        #dbfile = options["database"]
+        #dbfile = os.path.abspath(dbfile)
+
+        # Copy users, posts, votes, then subscriptions in order.
+        copy_users()
+
+
+
+
+        return

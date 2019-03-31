@@ -138,7 +138,7 @@ INSTALLED_APPS = [
     'biostar.accounts.apps.AccountsConfig',
     'biostar.forum.apps.ForumConfig',
     'biostar.message.apps.MessageConfig',
-
+    'biostar.transfer',
     # Allauth templates come last.
     'allauth',
     'allauth.account',
@@ -205,7 +205,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ENGINE_DATABASE_NAME,
     },
-
+    'biostar2': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': join(BASE_DIR, '..', 'export', 'database', 'biostar.db'),
+    },
 }
 
 # Password validation
