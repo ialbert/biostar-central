@@ -2,6 +2,15 @@
 from django.db import models
 
 
+class Manager(models.Manager):
+
+    def get_queryset(self):
+        """
+        Route all querysets to the biostar2 database
+        """
+        return super().get_queryset().using("biostar2")
+
+
 class UsersProfile(models.Model):
     website = models.CharField(max_length=255)
     info = models.TextField(blank=True, null=True)
@@ -19,6 +28,8 @@ class UsersProfile(models.Model):
     scholar = models.CharField(max_length=255)
     id = models.IntegerField(primary_key=True)  # AutoField?
     date_joined = models.DateTimeField()
+
+    objects = Manager()
 
     class Meta:
         managed = False
@@ -43,10 +54,12 @@ class UsersUser(models.Model):
     badges = models.IntegerField()
     flair = models.CharField(max_length=15)
 
+    objects = Manager()
+
     class Meta:
         managed = False
         db_table = 'users_user'
 
     @property
     def profile(self):
-        return UsersProfile.objects.using("biostar2").filter(user_id=self.id).first()
+        return UsersProfile.objects.filter(user_id=self.id).first()

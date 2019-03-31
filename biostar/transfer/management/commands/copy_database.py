@@ -3,40 +3,39 @@ import logging
 import  sqlite3
 import os
 from django.core.management.base import BaseCommand
-from biostar.accounts.models import User
+from biostar.accounts.models import User, Profile
 from biostar.transfer.models import UsersUser, UsersProfile
 from biostar.forum import util
 logger = logging.getLogger("engine")
 
 
-class Bunch():
-    def __init__(self, **kwargs):
-        self.value = ''
-        self.name = self.summary = ''
-        self.uid = self.text = ''
-        self.user = self.stream = None
-        self.__dict__.update(kwargs)
-
-
 def copy_users():
 
-    to_copy = UsersUser.objects.using("biostar2").all()
+    to_copy = UsersUser.objects.all()
 
     for user in to_copy:
         # See if user already exists.
         new_user = User.objects.filter(email=user.email).first()
-
-        print(user, new_user, user.profile)
-
         if new_user:
             continue
 
-        new_user = User.objects.create(email=user.email, password=user.password).first()
+        username = f"{user.name}{user.id}" if User.objects.filter(username=user.name).exists() else user.name
+        # Create user
+        new_user = User.objects.create(username=username, email=user.email,
+                                       password=user.password, is_active=user.is_active,
+                                       is_superuser=user.is_admin, is_staff=user.is_staff)
 
-        # Update user profile
+        # Update profile
+        Profile.objects.filter(user=new_user).update(uid=user.id, name=user.name,
+                          role=user.type, last_login=user.last_login,
+                          date_joined=user.profile.date_joined, location=user.profile.location,
+                          website=user.profile.website, scholar=user.profile.scholar, text=user.profile.info,
+                          score=user.score, twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
+                          digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
+        logger.info(f"Created user email={new_user.email}")
 
 
-
+def copy_posts():
     return
 
 
