@@ -4,16 +4,16 @@ import  sqlite3
 import os
 from django.core.management.base import BaseCommand
 from biostar.accounts.models import User, Profile
-from biostar.transfer.models import UsersUser, UsersProfile
+from biostar.transfer.models import UsersUser, PostsPost
 from biostar.forum import util
 logger = logging.getLogger("engine")
 
 
 def copy_users():
 
-    to_copy = UsersUser.objects.all()
+    source = UsersUser.objects.all()
 
-    for user in to_copy:
+    for user in source:
         # See if user already exists.
         new_user = User.objects.filter(email=user.email).first()
         if new_user:
@@ -36,6 +36,17 @@ def copy_users():
 
 
 def copy_posts():
+    """
+    Bulk create posts
+    """
+
+    source = PostsPost.objects.all()
+
+    def generate():
+        return
+
+
+    print(generate())
     return
 
 

@@ -63,3 +63,98 @@ class UsersUser(models.Model):
     @property
     def profile(self):
         return UsersProfile.objects.filter(user_id=self.id).first()
+
+
+class PostsPost(models.Model):
+    site_id = models.IntegerField(blank=True, null=True)
+    rank = models.FloatField()
+    creation_date = models.DateTimeField()
+    reply_count = models.IntegerField()
+    tag_val = models.CharField(max_length=100)
+    id = models.IntegerField(primary_key=True)  # AutoField?
+    view_count = models.IntegerField()
+    thread_score = models.IntegerField()
+    title = models.CharField(max_length=200)
+    has_accepted = models.BooleanField()
+    vote_count = models.IntegerField()
+    content = models.TextField()
+    parent_id = models.IntegerField(blank=True, null=True)
+    comment_count = models.IntegerField()
+    html = models.TextField()
+    type = models.IntegerField()
+    status = models.IntegerField()
+    book_count = models.IntegerField()
+    root_id = models.IntegerField(blank=True, null=True)
+    lastedit_user_id = models.IntegerField()
+    sticky = models.BooleanField()
+    lastedit_date = models.DateTimeField()
+    changed = models.BooleanField()
+    subs_count = models.IntegerField()
+    author_id = models.IntegerField()
+
+    objects = Manager()
+
+    class Meta:
+        managed = False
+        db_table = 'posts_post'
+
+    @property
+    def parent(self):
+        return self.objects.filter(id=self.parent_id).first()
+
+    @property
+    def root(self):
+        return self.objects.filter(id=self.root_id).first()
+
+    @property
+    def author(self):
+        return UsersUser.objects.filter(id=self.author_id).first()
+
+    @property
+    def lastedit_user(self):
+        return UsersUser.objects.filter(id=self.lastedit_user_id).first()
+
+
+class PostsSubscription(models.Model):
+    id = models.IntegerField(primary_key=True)  # AutoField?
+    user_id = models.IntegerField()
+    post_id = models.IntegerField()
+    type = models.IntegerField()
+    date = models.DateTimeField()
+
+    objects = Manager()
+
+    class Meta:
+        managed = False
+        db_table = 'posts_subscription'
+        unique_together = (('user_id', 'post_id'),)
+
+    @property
+    def user(self):
+        return UsersUser.objects.filter(id=self.user_id).first()
+
+    @property
+    def post(self):
+        return PostsPost.objects.filter(id=self.post_id).first()
+
+
+class PostsVote(models.Model):
+    id = models.IntegerField(primary_key=True)  # AutoField?
+    author_id = models.IntegerField()
+    post_id = models.IntegerField()
+    type = models.IntegerField()
+    date = models.DateTimeField()
+
+    objects = Manager()
+
+    class Meta:
+        managed = False
+        db_table = 'posts_vote'
+
+    @property
+    def author(self):
+        return UsersUser.objects.filter(id=self.user_id).first()
+
+    @property
+    def post(self):
+        return PostsPost.objects.filter(id=self.post_id).first()
