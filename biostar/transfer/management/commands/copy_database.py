@@ -30,6 +30,7 @@ def copy_users():
 
         if new_user:
             continue
+
         new_user = User.objects.create(email=user.email, password=user.password).first()
 
         # Update user profile
