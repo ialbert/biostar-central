@@ -23,10 +23,17 @@ def copy_users():
     to_copy = UsersUser.objects.using("biostar2").all()
 
     for user in to_copy:
-
         # See if user already exists.
         new_user = User.objects.filter(email=user.email).first()
-        print(user, new_user)
+
+        print(user, new_user, user.profile)
+
+        if new_user:
+            continue
+        new_user = User.objects.create(email=user.email, password=user.password).first()
+
+        # Update user profile
+
 
 
     return
@@ -43,13 +50,10 @@ class Command(BaseCommand):
 
         # Get users from default database
 
-        #dbfile = options["database"]
-        #dbfile = os.path.abspath(dbfile)
-
         # Copy users, posts, votes, then subscriptions in order.
         copy_users()
-
-
+        #copy_posts()
+        #copy_votes()
 
 
         return

@@ -46,3 +46,7 @@ class UsersUser(models.Model):
     class Meta:
         managed = False
         db_table = 'users_user'
+
+    @property
+    def profile(self):
+        return UsersProfile.objects.using("biostar2").filter(user_id=self.id).first()
