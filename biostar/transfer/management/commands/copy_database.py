@@ -3,6 +3,7 @@ import logging
 import  sqlite3
 import os
 from django.core.management.base import BaseCommand
+from biostar.accounts.models import User
 from biostar.transfer.models import UsersUser, UsersProfile
 from biostar.forum import util
 logger = logging.getLogger("engine")
@@ -23,7 +24,9 @@ def copy_users():
 
     for user in to_copy:
 
-        print(user)
+        # See if user already exists.
+        new_user = User.objects.filter(email=user.email).first()
+        print(user, new_user)
 
 
     return
