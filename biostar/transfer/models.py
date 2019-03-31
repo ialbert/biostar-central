@@ -116,7 +116,7 @@ class PostsPost(models.Model):
 
 
 class PostsSubscription(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
+    id = models.IntegerField(primary_key=True)
     user_id = models.IntegerField()
     post_id = models.IntegerField()
     type = models.IntegerField()

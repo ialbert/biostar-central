@@ -5,6 +5,7 @@ import os
 from django.core.management.base import BaseCommand
 from biostar.accounts.models import User, Profile
 from biostar.transfer.models import UsersUser, PostsPost
+from biostar.forum.models import Post
 from biostar.forum import util
 logger = logging.getLogger("engine")
 
@@ -37,16 +38,32 @@ def copy_users():
 
 def copy_posts():
     """
-    Bulk create posts
+    Bulk create posts from source database
     """
 
     source = PostsPost.objects.all()
 
     def generate():
-        return
 
+        for post in source:
 
-    print(generate())
+            new_post = Post.objects.get_all(uid=post.id).first()
+            # Skip if posts exists.
+            if new_post:
+                continue
+            content = util.strip_tags(post.content)
+            yield Post(uid=post.id, html=post.html, type=post.type,
+                       subs_count=post.subs_count, lastedit_user_id=post.lastedit_user_id,
+                       author_id=post.author_id, root_id=post.root_id, status=post.status,
+                       parent_id=post.parent_id, lastedit_date=post.lastedit_date,
+                       content=content, comment_count=post.comment_count,
+                       has_accepted=post.has_accepted, title=post.title,
+                       thread_score=post.thread_score, vote_count=post.vote_count,
+                       creation_date=post.creation_date, tag_val=post.tag_val,
+                       reply_count=post.reply_count, book_count=post.book_count,
+                       view_count=post.view_count)
+
+    Post.objects.bulk_create(objs=generate(), batch_size=20)
     return
 
 
@@ -62,8 +79,8 @@ class Command(BaseCommand):
         # Get users from default database
 
         # Copy users, posts, votes, then subscriptions in order.
-        copy_users()
-        #copy_posts()
+        #copy_users()
+        copy_posts()
         #copy_votes()
 
 
