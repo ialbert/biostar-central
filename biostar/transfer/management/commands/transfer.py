@@ -38,6 +38,7 @@ def copy_posts(post_uids={}):
 
     #roots = PostsPost.objects.filter(type__in=Post.TOP_LEVEL)
     source = PostsPost.objects.all()
+
     for post in source:
         new_post = Post.objects.get_all(uid=post.id).first()
         # Skip if the posts exists.
@@ -122,7 +123,7 @@ class Command(BaseCommand):
                 parent = Post.objects.filter(uid=parent_uid).first()
                 for single in thread[parent_uid]:
                     Post.objects.filter(uid=single).update(parent=parent, root=root)
-                    print(Post.objects.get_all(uid=single).first().has_accepeted)
+                    print(Post.objects.get_all(uid=single).first().has_accepted, "SINGLE")
                 thread_query = Post.objects.filter(status=Post.OPEN, root=root)
                 reply_count = thread_query.exclude(uid=parent.uid).filter(type=Post.ANSWER).count()
                 thread_score = thread_query.exclude(uid=root.uid).count()

@@ -314,7 +314,6 @@ class Post(models.Model):
 
         self.creation_date = self.creation_date or util.now()
         self.lastedit_date = self.lastedit_date or self.creation_date
-        print("HAS ACCEPTED in save", self.has_accepted)
 
         # Set the timestamps on the parent
         if self.type == Post.ANSWER:
