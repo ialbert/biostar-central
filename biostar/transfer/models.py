@@ -6,7 +6,7 @@ class Manager(models.Manager):
 
     def get_queryset(self):
         """
-        Route all querysets to the biostar2 database
+        Route all queries to biostar2 database
         """
         return super().get_queryset().using("biostar2")
 

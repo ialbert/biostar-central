@@ -216,8 +216,8 @@ class Post(models.Model):
     thread_score = models.IntegerField(default=0, blank=True, db_index=True)
 
     # Date related fields.
-    creation_date = models.DateTimeField(auto_now_add=True, db_index=True)
-    lastedit_date = models.DateTimeField(auto_now_add=True, db_index=True)
+    creation_date = models.DateTimeField(db_index=True)
+    lastedit_date = models.DateTimeField(db_index=True)
 
     # Stickiness of the post.
     sticky = models.BooleanField(default=False)
@@ -293,7 +293,9 @@ class Post(models.Model):
 
         self.uid = self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.author
-
+        self.creation_date = self.creation_date
+        self.lastedit_date = self.lastedit_date or self.creation_date
+        print("SAVING", self.creation_date, self.lastedit_date, self.uid)
         # Sanitize the post body.
         self.html = self.html or mistune.markdown(self.content)
 
@@ -308,6 +310,15 @@ class Post(models.Model):
                 self.tag_val += "," + required_tag
             else:
                 self.tag_val = required_tag
+
+        self.creation_date = self.creation_date or util.now()
+        self.lastedit_date = self.lastedit_date or self.creation_date
+
+        # Set the timestamps on the parent
+        if self.type == Post.ANSWER:
+            self.parent.lastedit_date = self.lastedit_date
+            self.parent.lastedit_user = self.lastedit_user
+            self.parent.save()
 
         super(Post, self).save(*args, **kwargs)
 
@@ -355,6 +366,7 @@ class Vote(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(limit=16)
+
         super(Vote, self).save(*args, **kwargs)
 
 
@@ -408,6 +420,7 @@ class Subscription(models.Model):
 def set_post(sender, instance, created, *args, **kwargs ):
 
     if created:
+        print("SIGNLA", instance.creation_date, instance.lastedit_date)
         # Set the titles
         if instance.parent and not instance.title:
             instance.title = instance.parent.title
@@ -424,14 +437,6 @@ def set_post(sender, instance, created, *args, **kwargs ):
         instance.title = instance.parent.title if instance.parent else instance.title
         instance.lastedit_user = instance.author
         instance.status = instance.status or Post.PENDING
-        instance.creation_date = instance.creation_date or timezone.now()
-        instance.lastedit_date = instance.creation_date
-
-        # Set the timestamps on the parent
-        if instance.type == Post.ANSWER:
-            instance.parent.lastedit_date = instance.lastedit_date
-            instance.parent.lastedit_user = instance.lastedit_user
-            instance.parent.save()
 
 
 @receiver(post_save, sender=Post)

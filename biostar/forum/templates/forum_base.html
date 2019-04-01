@@ -54,17 +54,11 @@
 
         {% endblock %}
 
-
-
-
-
-
-
 <div class="ui bottom attached  segment">
     {% show_messages messages %}
-
+            <a href="{% url 'post_list' %}">
             <img class="ui image right spaced tablet" src="/static/images/biostar-logo.png" style="margin:0px;max-width: 100%;">
-
+            </a>
 
             <a class="ui {{community}} basic label tablet forumtabs" href="{% url 'community_list' %}">
                 <i class="world icon"></i>Community

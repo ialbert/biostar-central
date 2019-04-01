@@ -67,7 +67,7 @@ def post_list(request):
         posts = Post.objects.top_level(user)
 
     # Get the page info
-    posts = posts.order_by("-lastedit_date")
+    posts = posts.order_by("rank", "-lastedit_date")
     page = request.GET.get('page')
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     posts = paginator.get_page(page)

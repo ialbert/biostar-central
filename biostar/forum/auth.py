@@ -149,7 +149,7 @@ def trigger_vote(vote_type, post, change):
 
 
 @transaction.atomic
-def preform_vote(post, user, vote_type):
+def preform_vote(post, user, vote_type, uid=None):
 
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
 
@@ -159,7 +159,7 @@ def preform_vote(post, user, vote_type):
         vote.delete()
     else:
         change = +1
-        vote = Vote.objects.create(author=user, post=post, type=vote_type)
+        vote = Vote.objects.create(author=user, post=post, type=vote_type, uid=uid)
         msg = "%s added" % vote.get_type_display()
 
     if post.author != user:
@@ -350,8 +350,7 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
         author=author, type=post_type, parent=parent, root=root,
-        project=project, html=parse_html(content),
-    )
+        project=project, html=parse_html(content))
 
     root = root or post.root
     mentioned_users = parse_mentioned_users(content=content)
