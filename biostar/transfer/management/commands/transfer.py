@@ -1,10 +1,10 @@
 
 import logging
 from django.core.management.base import BaseCommand
+from django.db.models import F
 from biostar.accounts.models import User, Profile
 from biostar.transfer.models import UsersUser, PostsPost, PostsVote
 from biostar.forum.models import Post, Vote, trigger_vote
-from django.db.models import F
 from biostar.forum import util, auth
 logger = logging.getLogger("engine")
 
@@ -87,6 +87,8 @@ def copy_votes():
 
         yield new_vote
 
+    logger.info("Copied all votes from biostar2")
+
 
 class Command(BaseCommand):
     help = "Migrate users from one database to another."
@@ -101,6 +103,5 @@ class Command(BaseCommand):
         copy_users()
         copy_posts()
         Vote.objects.bulk_create(objs=copy_votes(), batch_size=20)
-        logger.info("Copied all votes from biostar2")
 
         return

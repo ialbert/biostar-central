@@ -395,9 +395,6 @@ class Vote(models.Model):
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(limit=16)
 
-    def preform_vote(self):
-
-
         super(Vote, self).save(*args, **kwargs)
 
 
