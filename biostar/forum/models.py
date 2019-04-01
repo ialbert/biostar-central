@@ -295,7 +295,7 @@ class Post(models.Model):
         self.lastedit_user = self.lastedit_user or self.author
         self.creation_date = self.creation_date
         self.lastedit_date = self.lastedit_date or self.creation_date
-        print("SAVING", self.creation_date, self.lastedit_date, self.uid)
+
         # Sanitize the post body.
         self.html = self.html or mistune.markdown(self.content)
 
@@ -420,7 +420,6 @@ class Subscription(models.Model):
 def set_post(sender, instance, created, *args, **kwargs ):
 
     if created:
-        print("SIGNLA", instance.creation_date, instance.lastedit_date)
         # Set the titles
         if instance.parent and not instance.title:
             instance.title = instance.parent.title
