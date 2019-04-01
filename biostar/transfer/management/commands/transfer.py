@@ -3,7 +3,8 @@ import logging
 from django.core.management.base import BaseCommand
 from biostar.accounts.models import User, Profile
 from biostar.transfer.models import UsersUser, PostsPost, PostsVote
-from biostar.forum.models import Post, Vote
+from biostar.forum.models import Post, Vote, trigger_vote
+from django.db.models import F
 from biostar.forum import util, auth
 logger = logging.getLogger("engine")
 
@@ -47,11 +48,8 @@ def copy_posts():
         content = util.strip_tags(post.content)
         author = User.objects.filter(profile__uid=post.author_id).first()
         lastedit_user = User.objects.filter(profile__uid=post.lastedit_user_id).first()
-
-        parent_id = None if post.parent_id == post.id else post.parent_id
-        root_id = None if post.root_id == post.id else post.root_id
-        parent = Post.objects.get_all(uid=parent_id).first()
-        root = Post.objects.get_all(uid=root_id).first()
+        parent = Post.objects.get_all(uid=post.parent_id).first()
+        root = Post.objects.get_all(uid=post.root_id).first()
 
         Post.objects.create(uid=post.id, html=post.html, type=post.type,
                             subs_count=post.subs_count, lastedit_user=lastedit_user,
@@ -67,16 +65,27 @@ def copy_posts():
 
 
 def copy_votes():
+
     source = PostsVote.objects.all()
     for vote in source:
-        new_vote = Vote.objects.filter(uid=vote.id).first()
-        if new_vote:
-            continue
         author = User.objects.filter(profile__uid=vote.author_id).first()
         post = Post.objects.get_all(uid=vote.post_id).first()
+        new_vote = Vote.objects.filter(author=author, post=post, type=vote.type).first()
 
-        auth.preform_vote(post=post, user=author, vote_type=vote.type, uid=vote.id )
-    logger.info("Copied all votes from biostar2")
+        # Skip if vote already exists.
+        if new_vote:
+            continue
+
+        new_vote = Vote(post=post, author=author, type=vote.type, uid=util.get_uuid(5))
+        if post.author != author:
+            # Update the user reputation only if the author is different.
+            Profile.objects.filter(user=post.author).update(score=F('score') + 1)
+
+        # The thread vote count represents all votes in a thread
+        Post.objects.get_all(pk=post.root_id).update(thread_votecount=F('thread_votecount') + 1)
+        trigger_vote(vote_type=vote.type, post=post, change=1)
+
+        yield new_vote
 
 
 class Command(BaseCommand):
@@ -91,6 +100,7 @@ class Command(BaseCommand):
         # Copy users first
         copy_users()
         copy_posts()
-        copy_votes()
+        Vote.objects.bulk_create(objs=copy_votes(), batch_size=20)
+        logger.info("Copied all votes from biostar2")
 
         return

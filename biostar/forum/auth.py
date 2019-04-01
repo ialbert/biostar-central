@@ -16,7 +16,7 @@ from django.db import transaction
 from biostar.message import tasks
 from biostar.accounts.models import Profile
 from biostar.utils.shortcuts import reverse
-from .models import Post, Vote, Subscription, PostView
+from .models import Post, Vote, Subscription, PostView, trigger_vote
 from . import util
 from .const import *
 
@@ -119,36 +119,6 @@ def create_sub(post,  user, sub_type=None):
     return sub
 
 
-def trigger_vote(vote_type, post, change):
-
-    query_func = Post.objects.get_all
-
-    if vote_type == Vote.BOOKMARK:
-
-        # Apply the vote
-        query_func(uid=post.uid).update(book_count=F('book_count') + change,
-                                        vote_count=F('vote_count') + change)
-        if post != post.root:
-            query_func(pk=post.root_id).update(book_count=F('book_count') + change)
-
-    elif vote_type == Vote.ACCEPT:
-
-        if change > 0:
-            # There does not seem to be a negation operator for F objects.
-            query_func(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=True)
-            query_func(pk=post.root_id).update(has_accepted=True)
-        else:
-            query_func(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=False)
-            accepted_siblings = query_func(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
-
-            # Only set root as not accepted if there are no accepted siblings
-            if accepted_siblings == 0:
-                query_func(pk=post.root_id).update(has_accepted=False)
-    else:
-        query_func(uid=post.uid).update(vote_count=F('vote_count') + change)
-
-
-@transaction.atomic
 def preform_vote(post, user, vote_type, uid=None):
 
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
@@ -341,6 +311,10 @@ def moderate_post(request, action, post, comment=None, dupes=[]):
 
     messages.error(request, "Invalid moderation action given")
     return url
+
+
+
+
 
 
 def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None,

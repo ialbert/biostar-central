@@ -14,6 +14,7 @@ from django.db.models import F, Q
 from biostar.utils.shortcuts import reverse
 from taggit.managers import TaggableManager
 from biostar.engine.models import Project
+from biostar.accounts.models import Profile
 from . import util
 
 User = get_user_model()
@@ -347,6 +348,33 @@ class Post(models.Model):
         return "accepted" if (self.has_accepted and not self.is_toplevel) else ""
 
 
+def trigger_vote(vote_type, post, change):
+
+    if vote_type == Vote.BOOKMARK:
+        # Apply the vote
+        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change,
+                                                  vote_count=F('vote_count') + change)
+        if post != post.root:
+            Post.objects.get_all(pk=post.root_id).update(book_count=F('book_count') + change)
+
+    elif vote_type == Vote.ACCEPT:
+
+        if change > 0:
+            # There does not seem to be a negation operator for F objects.
+            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=True)
+            Post.objects.get_all(pk=post.root_id).update(has_accepted=True)
+        else:
+            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=False)
+            accepted_siblings = Post.objects.get_all(root=post.root, has_accepted=True).exclude(
+                pk=post.root_id).count()
+
+            # Only set root as not accepted if there are no accepted siblings
+            if accepted_siblings == 0:
+                Post.objects.get_all(pk=post.root_id).update(has_accepted=False)
+    else:
+        Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
+
+
 class Vote(models.Model):
     # Post statuses.
 
@@ -366,6 +394,9 @@ class Vote(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(limit=16)
+
+    def preform_vote(self):
+
 
         super(Vote, self).save(*args, **kwargs)
 
@@ -448,7 +479,6 @@ def check_root(sender, instance, created, *args, **kwargs):
     obj.thread_users.add(instance.author)
 
     if created:
-
         if not (instance.root or instance.parent):
             # Neither root or parent are set.
             instance.root = instance.parent = instance
