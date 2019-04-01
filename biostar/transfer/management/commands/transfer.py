@@ -30,9 +30,10 @@ def copy_users():
                               website=user.profile.website, scholar=user.profile.scholar, text=user.profile.info,
                               score=user.score, twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
                               digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
+    logger.info("Copied all users from biostar2")
 
 
-def create_posts():
+def copy_posts():
 
     source = PostsPost.objects.all().order_by("pk")
 
@@ -62,9 +63,10 @@ def create_posts():
                             creation_date=post.creation_date, tag_val=post.tag_val,
                             reply_count=post.reply_count, book_count=post.book_count,
                             view_count=post.view_count)
+    logger.info("Copied all posts from biostar2")
 
 
-def create_votes():
+def copy_votes():
     source = PostsVote.objects.all()
     for vote in source:
         new_vote = Vote.objects.filter(uid=vote.id).first()
@@ -74,6 +76,7 @@ def create_votes():
         post = Post.objects.get_all(uid=vote.post_id).first()
 
         auth.preform_vote(post=post, user=author, vote_type=vote.type, uid=vote.id )
+    logger.info("Copied all votes from biostar2")
 
 
 class Command(BaseCommand):
@@ -87,10 +90,7 @@ class Command(BaseCommand):
 
         # Copy users first
         copy_users()
-        logger.info("Copied all users from biostar2")
-        create_posts()
-        logger.info("Copied all posts from biostar2")
-        create_votes()
-        logger.info("Copied all votes from biostar2")
+        copy_posts()
+        copy_votes()
 
         return
