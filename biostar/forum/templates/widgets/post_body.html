@@ -82,13 +82,12 @@
 
                      </div>
 
+                 {% endif %}
+
                      <div class="ui right floated basic segment userinfo">
 
                          {% user_info post=post by_diff=False %}
                      </div>
-
-                 {% endif %}
-
                  <div class="extrainfo">
 
              {% if user.is_authenticated %}

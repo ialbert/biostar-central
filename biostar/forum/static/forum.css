@@ -128,6 +128,7 @@ figure { display: block; margin: 0; }
 
 .deleted {
     background-color:#f7e4de !important;;
+    opacity: .0% !important;
 }
 
 .ui.mytiny.image, .ui.mytiny.images .image, .ui.mytiny.images img, .ui.mytiny.images svg {
