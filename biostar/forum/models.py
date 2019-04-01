@@ -314,6 +314,7 @@ class Post(models.Model):
 
         self.creation_date = self.creation_date or util.now()
         self.lastedit_date = self.lastedit_date or self.creation_date
+        print("HAS ACCEPTED in save", self.has_accepted)
 
         # Set the timestamps on the parent
         if self.type == Post.ANSWER:
@@ -326,7 +327,6 @@ class Post(models.Model):
         thread = Post.objects.filter(status=self.OPEN, root=self.root)
         reply_count = thread.exclude(pk=self.parent.pk).filter(type=self.ANSWER).count()
         thread_score = thread.exclude(pk=self.root.pk).count()
-
         Post.objects.filter(pk=self.parent.pk).update(reply_count=reply_count)
         Post.objects.filter(pk=self.root.pk).update(thread_score=thread_score)
 
@@ -345,35 +345,9 @@ class Post(models.Model):
     def accepted_class(self):
         if self.status == Post.DELETED:
             return "deleted"
-        return "accepted" if (self.has_accepted and not self.is_toplevel) else ""
-
-
-def trigger_vote(vote_type, post, change):
-
-    if vote_type == Vote.BOOKMARK:
-        # Apply the vote
-        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change,
-                                                  vote_count=F('vote_count') + change)
-        if post != post.root:
-            Post.objects.get_all(pk=post.root_id).update(book_count=F('book_count') + change)
-
-    elif vote_type == Vote.ACCEPT:
-
-        if change > 0:
-            # There does not seem to be a negation operator for F objects.
-            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=True)
-            Post.objects.get_all(pk=post.root_id).update(has_accepted=True)
-        else:
-            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=False)
-            accepted_siblings = Post.objects.get_all(root=post.root, has_accepted=True).exclude(
-                pk=post.root_id).count()
-
-            # Only set root as not accepted if there are no accepted siblings
-            if accepted_siblings == 0:
-                Post.objects.get_all(pk=post.root_id).update(has_accepted=False)
-    else:
-        Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
-
+        if self.has_accepted and not self.is_toplevel:
+            return "accepted"
+        return ""
 
 class Vote(models.Model):
     # Post statuses.

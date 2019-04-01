@@ -16,7 +16,7 @@ from django.db import transaction
 from biostar.message import tasks
 from biostar.accounts.models import Profile
 from biostar.utils.shortcuts import reverse
-from .models import Post, Vote, Subscription, PostView, trigger_vote
+from .models import Post, Vote, Subscription, PostView
 from . import util
 from .const import *
 
@@ -119,6 +119,34 @@ def create_sub(post,  user, sub_type=None):
     return sub
 
 
+def trigger_vote(vote_type, post, change):
+
+    if vote_type == Vote.BOOKMARK:
+
+        # Apply the vote
+        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change,
+                                        vote_count=F('vote_count') + change)
+        if post != post.root:
+            Post.objects.get_all(pk=post.root_id).update(book_count=F('book_count') + change)
+
+    elif vote_type == Vote.ACCEPT:
+
+        if change > 0:
+            # There does not seem to be a negation operator for F objects.
+            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=True)
+            Post.objects.get_all(pk=post.root_id).update(has_accepted=True)
+        else:
+            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=False)
+            accepted_siblings = Post.objects.get_all(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
+
+            # Only set root as not accepted if there are no accepted siblings
+            if accepted_siblings == 0:
+                Post.objects.get_all(pk=post.root_id).update(has_accepted=False)
+    else:
+        Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
+
+
+@transaction.atomic
 def preform_vote(post, user, vote_type, uid=None):
 
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
