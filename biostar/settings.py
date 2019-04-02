@@ -202,21 +202,17 @@ BIOSTAR2_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'biostar.db'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ENGINE_DATABASE_NAME,
-        'USER': 'postgres',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '8000',
-    }
+    },
+    'biostar2': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BIOSTAR2_DATABASE_NAME,
+        'TEST': {
+            'MIRROR': 'default',
+        },
+    },
 }
-    # 'biostar2': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': BIOSTAR2_DATABASE_NAME,
-    #     'TEST': {
-    #         'MIRROR': 'default',
-    #     },
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
