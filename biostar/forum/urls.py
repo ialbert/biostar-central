@@ -5,7 +5,7 @@ urlpatterns = [
 
     # Post urls
     url(r'^$', views.post_list, name='post_list'),
-    url(r'^view/(?P<uid>[-\w]+)/$', views.post_view, name='post_view'),
+    url(r'^p/(?P<uid>[-\w]+)/$', views.post_view, name='post_view'),
 
     url(r'^create/$', views.post_create, name='post_create'),
     url(r'^sub/(?P<uid>[-\w]+)/$', views.subs_action, name='subs_action'),

@@ -120,23 +120,19 @@ def create_sub(post,  user, sub_type=None):
 
 
 def trigger_vote(vote_type, post, change):
-
+    Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
     if vote_type == Vote.BOOKMARK:
-
         # Apply the vote
-        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change,
-                                        vote_count=F('vote_count') + change)
-        if post != post.root:
-            Post.objects.get_all(pk=post.root_id).update(book_count=F('book_count') + change)
+        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change)
 
     elif vote_type == Vote.ACCEPT:
 
         if change > 0:
             # There does not seem to be a negation operator for F objects.
-            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=True)
-            Post.objects.get_all(pk=post.root_id).update(has_accepted=True)
+            Post.objects.get_all(uid=post.uid).update(has_accepted=True)
+            Post.objects.get_all(uid=post.root.uid).update(has_accepted=True)
         else:
-            Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=False)
+            Post.objects.get_all(uid=post.uid).update(has_accepted=False)
             accepted_siblings = Post.objects.get_all(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
 
             # Only set root as not accepted if there are no accepted siblings
@@ -144,6 +140,13 @@ def trigger_vote(vote_type, post, change):
                 Post.objects.get_all(pk=post.root_id).update(has_accepted=False)
     else:
         Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
+        thread_query = Post.objects.filter(status=Post.OPEN, root=post.root)
+
+        reply_count = thread_query.exclude(uid=post.parent.uid).filter(type=Post.ANSWER).count()
+        thread_score = thread_query.exclude(uid=post.root.uid).count()
+        Post.objects.get_all(root=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
+        Post.objects.filter(parent=post.parent).update(reply_count=reply_count)
+        Post.objects.filter(root=post.root).update(thread_score=thread_score)
 
 
 @transaction.atomic

@@ -324,10 +324,10 @@ class Post(models.Model):
         super(Post, self).save(*args, **kwargs)
 
         thread = Post.objects.filter(status=self.OPEN, root=self.root)
-        reply_count = thread.exclude(pk=self.parent.pk).filter(type=self.ANSWER).count()
-        thread_score = thread.exclude(pk=self.root.pk).count()
-        Post.objects.filter(pk=self.parent.pk).update(reply_count=reply_count)
-        Post.objects.filter(pk=self.root.pk).update(thread_score=thread_score)
+        reply_count = thread.exclude(uid=self.parent.uid).filter(type=self.ANSWER).count()
+        thread_score = thread.exclude(uid=self.root.uid).count()
+        Post.objects.filter(uid=self.parent.uid).update(reply_count=reply_count)
+        Post.objects.filter(uid=self.root.uid).update(thread_score=thread_score)
 
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
@@ -344,6 +344,8 @@ class Post(models.Model):
     def accepted_class(self):
         if self.status == Post.DELETED:
             return "deleted"
+        print(self.has_accepted, self.uid)
+
         if self.has_accepted and not self.is_toplevel:
             return "accepted"
         return ""
