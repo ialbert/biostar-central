@@ -198,7 +198,7 @@ WSGI_APPLICATION = 'biostar.wsgi.application'
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 ENGINE_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
-BIOSTAR2_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'biostar.db')
+
 
 DATABASES = {
     'default': {
@@ -207,10 +207,10 @@ DATABASES = {
     },
     'biostar2': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BIOSTAR2_DATABASE_NAME,
+        'NAME': join(BASE_DIR, '..', 'export', 'database', 'biostar.db'),
         'TEST': {
             'MIRROR': 'default',
-        },
+        }
     },
 }
 

@@ -137,14 +137,14 @@ def trigger_vote(vote_type, post, change):
 
             # Only set root as not accepted if there are no accepted siblings
             if accepted_siblings == 0:
-                Post.objects.get_all(pk=post.root_id).update(has_accepted=False)
+                Post.objects.get_all(uid=post.root.uid).update(has_accepted=False)
     else:
         Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
         thread_query = Post.objects.filter(status=Post.OPEN, root=post.root)
 
         reply_count = thread_query.exclude(uid=post.parent.uid).filter(type=Post.ANSWER).count()
         thread_score = thread_query.exclude(uid=post.root.uid).count()
-        Post.objects.get_all(root=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
+        Post.objects.get_all(root=post.root).update(thread_votecount=F('thread_votecount') + change)
         Post.objects.filter(parent=post.parent).update(reply_count=reply_count)
         Post.objects.filter(root=post.root).update(thread_score=thread_score)
 
@@ -168,7 +168,7 @@ def preform_vote(post, user, vote_type, uid=None):
         Profile.objects.filter(user=post.author).update(score=F('score') + change)
 
     # The thread vote count represents all votes in a thread
-    Post.objects.get_all(pk=post.root_id).update(thread_votecount=F('thread_votecount') + change)
+    Post.objects.get_all(uid=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
 
     trigger_vote(vote_type=vote_type, post=post, change=change)
 
