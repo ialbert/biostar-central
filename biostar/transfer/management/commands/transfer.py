@@ -14,16 +14,17 @@ def copy_users():
     source = UsersUser.objects.all()
 
     for user in source:
+
         new_user = User.objects.filter(email=user.email).first()
         if new_user:
             continue
 
         username = f"{user.name}{user.id}" if User.objects.filter(username=user.name).exists() else user.name
+
         # Create user
         new_user = User.objects.create(username=username, email=user.email,
                                        password=user.password, is_active=user.is_active,
                                        is_superuser=user.is_admin, is_staff=user.is_staff)
-
         # Update profile
         Profile.objects.filter(user=new_user).update(uid=user.id, name=user.name,
                               role=user.type, last_login=user.last_login,
@@ -31,12 +32,12 @@ def copy_users():
                               website=user.profile.website, scholar=user.profile.scholar, text=user.profile.info,
                               score=user.score, twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
                               digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
+
     logger.info("Copied all users from biostar2")
 
 
-def copy_posts(tree={}):
-
-    source = PostsPost.objects.all()
+def copy_posts(relations={}):
+    source = PostsPost.objects.all().order_by("-pk")
 
     for post in source:
         new_post = Post.objects.get_all(uid=post.id).first()
@@ -54,32 +55,31 @@ def copy_posts(tree={}):
                         content=content, title=post.title,
                         creation_date=post.creation_date, tag_val=post.tag_val,
                         view_count=post.view_count)
-        # Store tree for later processing
-        branch = tree.setdefault(post.root_id, {})
-        branch = branch.setdefault(post.parent_id, []).append(post.id)
-        tree.setdefault(post.root_id, branch)
 
+        # Store parent and root for every post.
+        relations[new_post.uid] = [post.root_id, post.parent_id]
         yield new_post
 
     logger.info("Copied all posts from biostar2")
 
 
-def update_posts(tree):
+def update_posts(relations):
 
     # Walk through forum tree and set the root, parent relations.
 
-    for root_uid in tree:
+    for post_uid in relations:
+        root_uid, parent_uid = relations[post_uid][0], relations[post_uid][1]
         root = Post.objects.filter(uid=root_uid).first()
-        branch = tree[root_uid]
-        for parent_uid in branch:
-            parent = Post.objects.filter(uid=parent_uid).first()
-            Post.objects.filter(uid__in=branch[parent_uid]).update(parent=parent, root=root)
+        parent = Post.objects.filter(uid=parent_uid).first()
+        Post.objects.filter(uid=post_uid).update(parent=parent, root=root)
 
-            thread_query = Post.objects.filter(status=Post.OPEN, root=root)
-            reply_count = thread_query.exclude(uid=parent.uid).filter(type=Post.ANSWER).count()
-            thread_score = thread_query.exclude(uid=root.uid).count()
-            Post.objects.filter(parent=parent).update(reply_count=reply_count)
-            Post.objects.filter(root=root).update(thread_score=thread_score)
+        # Parent and root do not exist yet
+
+        thread_query = Post.objects.filter(status=Post.OPEN, root=root)
+        reply_count = thread_query.exclude(uid=parent.uid).filter(type=Post.ANSWER).count()
+        thread_score = thread_query.exclude(uid=root.uid).count()
+        Post.objects.filter(parent=parent).update(reply_count=reply_count)
+        Post.objects.filter(root=root).update(thread_score=thread_score)
 
 
 def copy_votes():
@@ -119,12 +119,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Copy users first
-        copy_users()
-        tree = {}
-        Post.objects.bulk_create(objs=copy_posts(tree=tree), batch_size=20)
+        # copy_users()
+        relations = {}
+        Post.objects.bulk_create(objs=copy_posts(relations=relations), batch_size=1000)
         # Walk through tree and update parent, root, post, relationships
-        update_posts(tree=tree)
+        update_posts(relations=relations)
 
-        Vote.objects.bulk_create(objs=copy_votes(), batch_size=20)
+        # Vote.objects.bulk_create(objs=copy_votes(), batch_size=20)
 
         return

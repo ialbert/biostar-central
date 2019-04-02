@@ -344,11 +344,10 @@ class Post(models.Model):
     def accepted_class(self):
         if self.status == Post.DELETED:
             return "deleted"
-        print(self.has_accepted, self.uid)
-
         if self.has_accepted and not self.is_toplevel:
             return "accepted"
         return ""
+
 
 class Vote(models.Model):
     # Post statuses.

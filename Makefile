@@ -99,11 +99,19 @@ verbose:
 	# Makes logging more verbose.
 	export DJANGO_LOG_LEVEL=DEBUG
 
-postgres:
-	#dropdb --if-exists testbuddy_engine
-	#createdb testbuddy_engine
-	#python manage.py migrate
+pg_drop:
+	dropdb --if-exists engine.db
+
+pg_create:
+	#dropdb --if-exists engine.db
+	createdb engine.db
+	python manage.py migrate --settings conf.postgres.postgres_settings
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
+
+postgress:
+	python manage.py migrate --settings conf.postgres.postgres_settings
+	python manage.py test --settings conf.postgres.postgres_settings --failfast
+
 
 next:
 	python manage.py job --next

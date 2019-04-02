@@ -9,8 +9,8 @@ from django.db import models
 from biostar import settings
 
 
-MAX_UID_LEN = 32
-MAX_NAME_LEN = 80
+MAX_UID_LEN = 25500
+MAX_NAME_LEN = 25500
 
 
 def generate_uuid(limit=32):
@@ -53,13 +53,13 @@ class Profile(models.Model):
     max_upload_size = models.IntegerField(default=0)
 
     role = models.IntegerField(default=NORMAL, choices=ROLE_CHOICES)
-    last_login = models.DateTimeField(null=True, db_index=True)
+    last_login = models.DateTimeField(null=True, max_length=255, db_index=True)
 
     # The number of new messages for the user.
     new_messages = models.IntegerField(default=0, db_index=True)
 
     # The last visit by the user.
-    date_joined = models.DateTimeField(auto_now_add=True)
+    date_joined = models.DateTimeField(auto_now_add=True, max_length=255)
 
     # User provided location.
     location = models.CharField(default="", max_length=255, blank=True, db_index=True)
@@ -76,12 +76,12 @@ class Profile(models.Model):
     twitter = models.CharField(default="", max_length=255, blank=True)
 
     # This field is used to select content for the user.
-    my_tags = models.CharField(default="", max_length=100, blank=True)
+    my_tags = models.CharField(default="", max_length=255, blank=True)
 
     # Description provided by the user html.
-    text = models.TextField(default="", null=True, blank=True)
+    text = models.TextField(default="", null=True, max_length=10000, blank=True)
 
-    html = models.TextField(null=True, blank=True)
+    html = models.TextField(null=True, max_length=10000, blank=True)
 
     email_verified = models.BooleanField(default=False)
 
