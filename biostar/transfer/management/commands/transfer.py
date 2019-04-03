@@ -64,26 +64,26 @@ def copy_posts(relations={}):
     logger.info("Copied all posts from biostar2")
 
 
-# def update_posts(relations):
-#
-#     # Walk through forum tree and set the root, parent relations.
-#     #
-#     # def generate():
-#     #
-#     #     for post_uid in relations:
-#     #         root_uid, parent_uid = relations[post_uid][0], relations[post_uid][1]
-#     #         post = Post.objects.filter(uid=post_uid).first()
-#     #         root = Post.objects.filter(uid=root_uid).first()
-#     #         parent = Post.objects.filter(uid=parent_uid).first()
-#     #
-#     #         if not (root and parent):
-#     #             continue
-#     #         post.root = root
-#     #         post.parent = parent
-#     #         yield post
-#     #
-#     # Post.objects.bulk_update(objs=generate(), fields=["root", "parent"], batch_size=100)
-#     return
+def update_posts(relations):
+
+    #Walk through forum tree and set the root, parent relations.
+
+    def generate():
+
+        for post_uid in relations:
+            root_uid, parent_uid = relations[post_uid][0], relations[post_uid][1]
+            post = Post.objects.filter(uid=post_uid).first()
+            root = Post.objects.filter(uid=root_uid).first()
+            parent = Post.objects.filter(uid=parent_uid).first()
+
+            if not (root and parent):
+                continue
+            post.root = root
+            post.parent = parent
+            yield post
+
+    Post.objects.bulk_update(objs=generate(), fields=["root", "parent"], batch_size=100)
+    return
 
 
 def copy_votes():

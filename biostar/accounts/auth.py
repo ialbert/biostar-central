@@ -45,7 +45,7 @@ def check_user(email, password):
 def send_verification_email(user):
 
     from_email = settings.DEFAULT_FROM_EMAIL
-    userid = urlsafe_base64_encode(force_bytes(user.pk)).decode()
+    userid = urlsafe_base64_encode(force_bytes(user.pk))
     token = account_verification_token.make_token(user)
     template = "accounts/email_verify.html"
     email_list = [user.email]
