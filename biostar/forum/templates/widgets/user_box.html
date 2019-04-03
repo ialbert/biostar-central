@@ -1,8 +1,10 @@
 {% load forum_tags %}
 
+{%  if user.profile.uid %}
 <div class="ui center aligned segment userbox">
 
     <div class="center aligned author">
+
         <a href="{% url "user_profile" user.profile.uid %}">
       <div class="ui circular image">
         {% gravatar user=user size=80 %}
@@ -27,7 +29,7 @@
 
 
  </div>
-
+{%  endif %}
 
 
 
