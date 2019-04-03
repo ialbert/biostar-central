@@ -9,8 +9,9 @@ from django.db import models
 from biostar import settings
 
 
-MAX_UID_LEN = 25500
-MAX_NAME_LEN = 25500
+MAX_UID_LEN = 255
+MAX_NAME_LEN = 255
+MAX_TEXT_LEN = 10000
 
 
 def generate_uuid(limit=32):
@@ -79,9 +80,9 @@ class Profile(models.Model):
     my_tags = models.CharField(default="", max_length=255, blank=True)
 
     # Description provided by the user html.
-    text = models.TextField(default="", null=True, max_length=10000, blank=True)
+    text = models.TextField(default="", null=True, max_length=MAX_TEXT_LEN, blank=True)
 
-    html = models.TextField(null=True, max_length=10000, blank=True)
+    html = models.TextField(null=True, max_length=MAX_TEXT_LEN, blank=True)
 
     email_verified = models.BooleanField(default=False)
 

@@ -164,7 +164,7 @@ class ProjectForm(forms.ModelForm):
         return project
 
 
-class DataUploadForm(forms.ModelForm):
+class DataUploadForm(forms.Form):
 
     file = forms.FileField(required=False)
     input_text = forms.CharField(max_length=TEXT_UPLOAD_MAX, required=False)

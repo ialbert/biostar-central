@@ -37,7 +37,7 @@ def copy_users():
 
 
 def copy_posts(relations={}):
-    source = PostsPost.objects.all().order_by("-pk")
+    source = PostsPost.objects.all().order_by("pk")[:1000]
 
     for post in source:
         new_post = Post.objects.get_all(uid=post.id).first()
@@ -66,6 +66,23 @@ def copy_posts(relations={}):
 def update_posts(relations):
 
     # Walk through forum tree and set the root, parent relations.
+    #
+    # def generate():
+    #
+    #     for post_uid in relations:
+    #         root_uid, parent_uid = relations[post_uid][0], relations[post_uid][1]
+    #         post = Post.objects.filter(uid=post_uid).first()
+    #         root = Post.objects.filter(uid=root_uid).first()
+    #         parent = Post.objects.filter(uid=parent_uid).first()
+    #
+    #         if not (root and parent):
+    #             continue
+    #         post.root = root
+    #         post.parent = parent
+    #         yield post
+    #
+    # Post.objects.bulk_update(objs=generate(), fields=["root", "parent"], batch_size=100)
+
 
     for post_uid in relations:
         root_uid, parent_uid = relations[post_uid][0], relations[post_uid][1]
@@ -73,9 +90,16 @@ def update_posts(relations):
         parent = Post.objects.filter(uid=parent_uid).first()
         Post.objects.filter(uid=post_uid).update(parent=parent, root=root)
 
-        # Parent and root do not exist yet
+        # Parent and root do not exist
+        if not (root and parent):
+            continue
 
+        post = Post.objects.filter(uid=post_uid).first()
+        thread = root if root is not None else post
+        thread.thread_users.remove(post.author)
+        thread.thread_users.add(post.author)
         thread_query = Post.objects.filter(status=Post.OPEN, root=root)
+
         reply_count = thread_query.exclude(uid=parent.uid).filter(type=Post.ANSWER).count()
         thread_score = thread_query.exclude(uid=root.uid).count()
         Post.objects.filter(parent=parent).update(reply_count=reply_count)
