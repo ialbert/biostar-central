@@ -120,7 +120,7 @@ def copy_votes():
         if not (post and author):
             continue
 
-        new_vote = Vote(post=post, author=author, type=vote.type, uid=util.get_uuid(5))
+        new_vote = Vote(post=post, author=author, type=vote.type, uid=vote.id)
         if post.author != author:
             # Update the user reputation only if the author is different.
             Profile.objects.filter(user=post.author).update(score=F('score') + 1)
@@ -143,12 +143,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Copy users first
-        # copy_users()
+        copy_users()
         relations = {}
         Post.objects.bulk_create(objs=copy_posts(relations=relations), batch_size=1000)
         # Walk through tree and update parent, root, post, relationships
         update_posts(relations=relations)
 
-        # Vote.objects.bulk_create(objs=copy_votes(), batch_size=20)
+        #print(Vote.objects.all().count())
+        #1/0
+        Vote.objects.bulk_create(objs=copy_votes(), batch_size=20)
 
         return
