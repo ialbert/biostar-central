@@ -9,61 +9,35 @@ from biostar.forum import util
 logger = logging.getLogger("engine")
 
 
-def copy_users():
+def bulk_copy_users():
     logger.info(f"Copying users")
-    source = UsersUser.objects.all()
 
-    for user in source:
-        new_user = User.objects.filter(email=user.email).first()
-        if new_user:
-            continue
+    def gen_users():
+        exists = list(User.objects.values_list("email", flat=True))
+        source = UsersUser.objects.exclude(email__in=exists)
+        # Only iterate over users that do not exist already
+        for user in source:
+            username = f"{user.name}{user.id}"
+            # Create user
+            user = User(username=username, email=user.email, password=user.password,
+                        is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
+            yield user
 
-        username = f"{user.name}{user.id}" if User.objects.filter(username=user.name).exists() else user.name
-        # Create user
-        new_user = User.objects.create(username=username, email=user.email,
-                                       password=user.password, is_active=user.is_active,
-                                       is_superuser=user.is_admin, is_staff=user.is_staff)
+    def gen_profile():
 
-        # Update profile
-        Profile.objects.filter(user=new_user).update(uid=user.id, name=user.name,
+        exists = list(User.objects.exclude(profile=None).values_list("email", flat=True))
+        new_users = {user.email: user for user in User.objects.filter(profile=None)}
+        source = UsersUser.objects.exclude(email__in=exists)
+
+        for user in source:
+            profile = Profile(uid=user.id, name=user.name, user=new_users.get(user.email),
                               role=user.type, last_login=user.last_login,
                               date_joined=user.profile.date_joined, location=user.profile.location,
                               website=user.profile.website, scholar=user.profile.scholar, text=user.profile.info,
                               score=user.score, twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
                               digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
-    logger.info("Copied all users from biostar2")
 
-
-def bulk_copy_users():
-    source = UsersUser.objects.all()
-    logger.info(f"Copying users")
-
-    def gen_users():
-        # Bulk create, then bulk update.
-        for user in source:
-            new_user = User.objects.filter(email=user.email).first()
-            if new_user:
-                continue
-            username = f"{user.name}{user.id}"
-            # Create user
-            yield User(username=username, email=user.email, password=user.password,
-                       is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
-
-    def gen_profile():
-
-        for user in source:
-            # Update profile
-            profile = Profile.objects.filter(uid=user.id).first()
-            if profile:
-                continue
-            new_user = User.objects.filter(email=user.email).first()
-            yield Profile(uid=user.id, name=user.name, user=new_user,
-                          role=user.type, last_login=user.last_login,
-                          date_joined=user.profile.date_joined, location=user.profile.location,
-                          website=user.profile.website, scholar=user.profile.scholar, text=user.profile.info,
-                          score=user.score, twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
-                          digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
-
+            yield profile
     # Bulk create the users, then profile.
     User.objects.bulk_create(objs=gen_users(), batch_size=10000)
     Profile.objects.bulk_create(objs=gen_profile(), batch_size=10000)
@@ -99,32 +73,6 @@ def copy_posts(relations={}):
     logger.info("Copied all posts from biostar2")
 
 
-def update_votes():
-
-    votes = Vote.objects.all()
-
-    def generate():
-
-        for vote in votes:
-            post = vote.post
-            post.vote_count += 1
-
-            if vote.type == Vote.BOOKMARK:
-                post.book_count += 1
-
-            elif vote.type == Vote.ACCEPT:
-                # There does not seem to be a negation operator for F objects.
-                post.has_accepted = not post.has_accepted
-                Post.objects.get_all(uid=post.root.uid).update(has_accepted=not post.root.has_accepted)
-
-            Post.objects.get_all(root=post.root).update(thread_votecount=F('thread_votecount') + 1)
-            Profile.objects.filter(user=post.author).update(score=F('score') + 1)
-
-            yield post
-
-    Post.objects.bulk_update(objs=generate(), fields=["vote_count", "book_count", "has_accepted"], batch_size=50)
-
-
 def copy_votes():
 
     source = PostsVote.objects.all()[:5000]
@@ -140,10 +88,23 @@ def copy_votes():
             # Skip if post or author do not exist
             if not (post and author):
                 continue
+
+            Post.objects.filter(uid=post.uid).update(vote_count=F('vote_count') + 1)
+
+            if vote.type == Vote.BOOKMARK:
+                Post.objects.filter(uid=post.uid).update(book_count=F('book_count') + 1)
+
+            elif vote.type == Vote.ACCEPT:
+                # There does not seem to be a negation operator for F objects.
+                post.has_accepted = not post.has_accepted
+                Post.objects.get_all(uid=post.root.uid).update(has_accepted=not post.root.has_accepted)
+
+            Post.objects.get_all(root=post.root).update(thread_votecount=F('thread_votecount') + 1)
+            Profile.objects.filter(user=post.author).update(score=F('score') + 1)
+
             yield Vote(post=post, author=author, type=vote.type, uid=vote.id)
 
     Vote.objects.bulk_create(objs=gen_votes(), batch_size=1000)
-    update_votes()
 
     logger.info("Copied all votes from biostar2")
 
@@ -191,10 +152,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        #bulk_copy_users()
+        bulk_copy_users()
         #
         # copy_users()
         #bulk_copy_and_update()
-        copy_votes()
+        #copy_votes()
 
         return

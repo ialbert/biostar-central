@@ -291,7 +291,7 @@ def boxclass(post):
         style = "grey"
     else:
         style = "maroon"
-        
+
     return style
 
 
