@@ -121,6 +121,7 @@ def create_sub(post,  user, sub_type=None):
 
 def trigger_vote(vote_type, post, change):
     Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
+
     if vote_type == Vote.BOOKMARK:
         # Apply the vote
         Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change)
@@ -139,7 +140,6 @@ def trigger_vote(vote_type, post, change):
             if accepted_siblings == 0:
                 Post.objects.get_all(uid=post.root.uid).update(has_accepted=False)
     else:
-        Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
         thread_query = Post.objects.filter(status=Post.OPEN, root=post.root)
 
         reply_count = thread_query.exclude(uid=post.parent.uid).filter(type=Post.ANSWER).count()
