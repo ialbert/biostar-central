@@ -139,7 +139,7 @@ class Command(BaseCommand):
         #bulk_copy_users()
         #
         # copy_users()
-        bulk_copy_posts()
-        #bulk_copy_votes()
+        #bulk_copy_posts()
+        bulk_copy_votes()
 
         return
