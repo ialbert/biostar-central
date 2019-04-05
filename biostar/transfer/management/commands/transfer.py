@@ -10,9 +10,9 @@ logger = logging.getLogger("engine")
 
 
 def bulk_copy_users():
-    logger.info(f"Copying users")
 
     def gen_users():
+        logger.info(f"Copying users")
         exists = list(User.objects.values_list("email", flat=True))
         source = UsersUser.objects.exclude(email__in=exists)
         # Only iterate over users that do not exist already
@@ -24,7 +24,7 @@ def bulk_copy_users():
             yield user
 
     def gen_profile():
-
+        logger.info(f"Copying profiles")
         exists = list(User.objects.exclude(profile=None).values_list("email", flat=True))
         new_users = {user.email: user for user in User.objects.filter(profile=None)}
         source = UsersUser.objects.exclude(email__in=exists)
@@ -42,105 +42,89 @@ def bulk_copy_users():
     User.objects.bulk_create(objs=gen_users(), batch_size=10000)
     Profile.objects.bulk_create(objs=gen_profile(), batch_size=10000)
 
-    logger.info("Copied all users from biostar2")
+    logger.info("Copied all users/profiles from biostar2")
 
 
-def copy_posts(relations={}):
-    logger.info("Copying posts.")
-    source = PostsPost.objects.all().order_by("pk")[:10000]
+def bulk_copy_votes():
 
-    for post in source:
-        new_post = Post.objects.get_all(uid=post.id).first()
-        # Skip if the posts exists.
-        if new_post:
-            continue
-        content = util.strip_tags(post.content)
-        author = User.objects.filter(profile__uid=post.author_id).first()
-        lastedit_user = User.objects.filter(profile__uid=post.lastedit_user_id).first()
-
-        new_post = Post(uid=post.id, html=post.html, type=post.type,
-                        lastedit_user=lastedit_user,
-                        author=author, status=post.status, rank=post.rank,
-                        lastedit_date=post.lastedit_date,
-                        content=content, title=post.title,
-                        creation_date=post.creation_date, tag_val=post.tag_val,
-                        view_count=post.view_count)
-
-        # Store parent and root for every post.
-        relations[new_post.uid] = [post.root_id, post.parent_id]
-        yield new_post
-
-    logger.info("Copied all posts from biostar2")
-
-
-def copy_votes():
-
-    source = PostsVote.objects.all()[:5000]
+    exists = list(Vote.objects.values_list("uid", flat=True))
+    source = PostsVote.objects.exclude(id__in=exists)
 
     def gen_votes():
+        posts = {post.uid: post for post in Post.objects.all()}
+        users = {user.profile.uid: user for user in User.objects.all()}
+
         for vote in source:
-            author = User.objects.filter(profile__uid=vote.author_id).first()
-            post = Post.objects.get_all(uid=vote.post_id).first()
-            new_vote = Vote.objects.filter(uid=vote.id).first()
-            # Skip if vote already exists.
-            if new_vote:
-                continue
+            post = posts.get(vote.post_id)
+            author = users.get(vote.author_id)
             # Skip if post or author do not exist
             if not (post and author):
                 continue
-
-            Post.objects.filter(uid=post.uid).update(vote_count=F('vote_count') + 1)
-
-            if vote.type == Vote.BOOKMARK:
-                Post.objects.filter(uid=post.uid).update(book_count=F('book_count') + 1)
-
-            elif vote.type == Vote.ACCEPT:
-                # There does not seem to be a negation operator for F objects.
-                post.has_accepted = not post.has_accepted
-                Post.objects.get_all(uid=post.root.uid).update(has_accepted=not post.root.has_accepted)
-
-            Post.objects.get_all(root=post.root).update(thread_votecount=F('thread_votecount') + 1)
-            Profile.objects.filter(user=post.author).update(score=F('score') + 1)
-
-            yield Vote(post=post, author=author, type=vote.type, uid=vote.id)
+            vote = Vote(post=post, author=author, type=vote.type, uid=vote.id)
+            yield vote
 
     Vote.objects.bulk_create(objs=gen_votes(), batch_size=1000)
 
     logger.info("Copied all votes from biostar2")
 
 
-def bulk_copy_and_update():
+def bulk_copy_posts():
     relations = {}
-    Post.objects.bulk_create(objs=copy_posts(relations=relations), batch_size=1000)
+
     # Walk through tree and update parent, root, post, relationships
-    logger.info("Updating posts")
+    def gen_posts():
+        logger.info("Copying posts.")
+        exists = list(Post.objects.values_list("uid", flat=True))
+        exists = [int(post_uid) for post_uid in exists if post_uid.isdigit()]
 
-    def update_relationship():
+        source = PostsPost.objects.exclude(id__in=exists)
+        users = {user.profile.uid: user for user in User.objects.all()}
+        logger.info("Starting create loop.")
+        for post in source:
 
+            author = users[str(post.author_id)]
+            lastedit_user = users[str(post.lastedit_user_id)]
+            content = util.strip_tags(post.content)
+            new_post = Post(uid=post.id, html=post.html, type=post.type,
+                            lastedit_user=lastedit_user, thread_votecount=post.thread_score,
+                            author=author, status=post.status, rank=post.rank, has_accepted=post.has_accepted,
+                            lastedit_date=post.lastedit_date, book_count=post.book_count, reply_count=post.reply_count,
+                            content=content, title=post.title,vote_count=post.vote_count, thread_score=post.reply_count,
+                            creation_date=post.creation_date, tag_val=post.tag_val,
+                            view_count=post.view_count)
+
+            # Store parent and root for every post.
+            relations[new_post.uid] = [post.root_id, post.parent_id]
+            yield new_post
+
+        logger.info("Copied all posts from biostar2")
+
+    def gen_updates():
+        logger.info("Updating post relations")
+        posts = {post.uid: post for post in Post.objects.all()}
         for post_uid in relations:
             root_uid, parent_uid = relations[post_uid][0], relations[post_uid][1]
-            post = Post.objects.filter(uid=post_uid).first()
-            root = Post.objects.filter(uid=root_uid).first()
-            parent = Post.objects.filter(uid=parent_uid).first()
-
-            if not root:
+            post = posts[str(post_uid)]
+            root = posts.get(str(root_uid))
+            parent = posts.get(str(parent_uid))
+            if not (root and parent):
                 continue
-            root_thread = PostsPost.objects.filter(status=Post.OPEN, root_id=root_uid).values_list("id", flat=True).distinct()
-            thread_query = Post.objects.filter(status=Post.OPEN, uid__in=list(root_thread))
-
-            reply_count = thread_query.exclude(uid=post.uid).filter(type=Post.ANSWER).count()
-            post.reply_count = reply_count
-
-            post.thread_score = thread_query.exclude(uid=post.uid).count()
-
             post.root = root
             post.parent = parent
-            post.root.thread_users.remove(post.author)
-            post.root.thread_users.add(post.author)
             yield post
 
-    Post.objects.bulk_update(objs=update_relationship(), fields=["root", "parent",  "thread_score", "reply_count"],
-                             batch_size=1000)
+        logger.info("Updated all posts from biostar2")
+
+    def update_threadusers():
+        logger.info("Updating thread users.")
+        for post in Post.objects.exclude(root=None):
+            if post.root.thread_users.filter(pk=post.author.pk):
+                continue
+            post.root.thread_users.add(post.author)
+
+    Post.objects.bulk_create(objs=gen_posts(), batch_size=1000)
+    Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)
+    update_threadusers()
 
 
 class Command(BaseCommand):
@@ -152,10 +136,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        bulk_copy_users()
+        #bulk_copy_users()
         #
         # copy_users()
-        #bulk_copy_and_update()
-        #copy_votes()
+        bulk_copy_posts()
+        #bulk_copy_votes()
 
         return

@@ -31,13 +31,13 @@
                     <div class="number-stat">
                     {{ post.thread_score }}
                     </div>
-                    <div class="detail-stat">Remark{{ post.thread_score|pluralize }}</div>
+                    <div class="detail-stat">Answer{{ post.thread_score|pluralize }}</div>
 
                 {% else %}
                     <div class="number-stat">
                         {{ post.reply_count }}
                     </div>
-                    <div class="detail-stat">Remark{{ post.root.reply_count|pluralize }}</div>
+                    <div class="detail-stat">Answer{{ post.root.reply_count|pluralize }}</div>
                 {% endif %}
             </div>
             <div class="ui label basic transparent stat mini">
