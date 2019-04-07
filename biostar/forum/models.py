@@ -41,13 +41,13 @@ class PostManager(models.Manager):
 
         # Prefetch tags and thread user info
         query = query.prefetch_related("thread_users__profile", "thread_users")
-        query = query.select_related("root", "author", "author__profile", "lastedit_user", "lastedit_user__profile")
+        query = query.select_related("root",  "lastedit_user", "lastedit_user__profile")
         return query
 
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
 
-        query = self.select_prefetch(super().get_queryset().filter(project=None))
+        query = self.select_prefetch(super().get_queryset())
         return query
 
     def get_discussions(self, **kwargs):
@@ -138,9 +138,14 @@ class PostManager(models.Manager):
         "Returns posts based on a user type"
         is_moderator = user.is_authenticated and (user.profile.is_moderator or user.profile.is_manager)
         query = self.filter(type__in=Post.TOP_LEVEL)
-        query = query if is_moderator else query.exclude(status=Post.DELETED)
 
-        query = self.select_prefetch(query=query)
+        query = query if is_moderator else query.exclude(status=Post.DELETED)
+        query = query.prefetch_related("thread_users__profile")
+        query = query.select_related("root", "lastedit_user", "lastedit_user__profile")
+        #query = query.prefetch_related("thread_users__profile", "thread_users")
+        #query = query.select_related("root", "lastedit_user__profile")
+
+        #query = self.select_prefetch(query=query)
         return query
 
 
@@ -165,7 +170,7 @@ class Post(models.Model):
 
     TOP_LEVEL = {QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, TOOL, NEWS, BOARD}
 
-    title = models.CharField(max_length=200, null=False)
+    title = models.CharField(max_length=200, null=False, db_index=True)
 
     # The user that originally created the post.
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -181,13 +186,13 @@ class Post(models.Model):
     thread_users = models.ManyToManyField(User, related_name="thread_users")
 
     # Indicates the information value of the post.
-    rank = models.FloatField(default=0, blank=True)
+    rank = models.FloatField(default=0, blank=True, db_index=True)
 
     # Indicates whether the post has accepted answer.
     has_accepted = models.BooleanField(default=False, blank=True)
 
     # Post status: open, closed, deleted.
-    status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN, db_index=True)
 
     # The type of the post: question, answer, comment.
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
@@ -211,7 +216,7 @@ class Post(models.Model):
     subs_count = models.IntegerField(default=0)
 
     # The total numbers of votes for a top-level post.
-    thread_votecount = models.IntegerField(default=0)
+    thread_votecount = models.IntegerField(default=0, db_index=True)
 
     # The total number of comments + answers for a thread
     thread_score = models.IntegerField(default=0, blank=True, db_index=True)
@@ -244,7 +249,7 @@ class Post(models.Model):
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
 
-    uid = models.CharField(max_length=32, unique=True)
+    uid = models.CharField(max_length=32, unique=True, db_index=True)
 
     def parse_tags(self):
         return util.split_tags(self.tag_val)

@@ -147,15 +147,15 @@ def feed(user):
 
     recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
     # Needs to be put in context of posts
-    recent_votes = recent_votes.select_related("post")
+    recent_votes = [] #recent_votes.select_related("post")
 
-    recent_locations = User.objects.filter(~Q(profile__location=""))
-    recent_locations = recent_locations.select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
+    #recent_locations = User.objects.filter(~Q(profile__location=""))
+    recent_locations = [] #recent_locations.select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = ''
-    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER])
-    recent_replies = recent_replies.select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
-    recent_projects = Project.objects.filter(privacy=Project.PUBLIC).order_by("-pk")[:settings.PROJECT_FEED_COUNT]
+    recent_replies = [] #Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER])
+    recent_replies = [] #recent_replies.select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
+    recent_projects = [] #Project.objects.filter(privacy=Project.PUBLIC).order_by("-pk")[:settings.PROJECT_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,

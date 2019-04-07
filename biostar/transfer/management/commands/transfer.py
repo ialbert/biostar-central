@@ -1,7 +1,6 @@
 
 import logging
 from django.core.management.base import BaseCommand
-from django.db.models import F
 from biostar.accounts.models import User, Profile
 from biostar.transfer.models import UsersUser, PostsPost, PostsVote
 from biostar.forum.models import Post, Vote
@@ -25,9 +24,12 @@ def bulk_copy_users():
 
     def gen_profile():
         logger.info(f"Copying profiles")
-        exists = list(User.objects.exclude(profile=None).values_list("email", flat=True))
+        # Build user query
         new_users = {user.email: user for user in User.objects.filter(profile=None)}
-        source = UsersUser.objects.exclude(email__in=exists)
+        # Get users without profiles in target database.
+        target = list(User.objects.exclude(profile=None).values_list("email", flat=True))
+        # Exclude existing users from source database.
+        source = UsersUser.objects.exclude(email__in=target)
 
         for user in source:
             profile = Profile(uid=user.id, name=user.name, user=new_users.get(user.email),
@@ -47,8 +49,8 @@ def bulk_copy_users():
 
 def bulk_copy_votes():
 
-    exists = list(Vote.objects.values_list("uid", flat=True))
-    source = PostsVote.objects.exclude(id__in=exists)
+    target = list(Vote.objects.values_list("uid", flat=True))
+    source = PostsVote.objects.exclude(id__in=target)
 
     def gen_votes():
         posts = {post.uid: post for post in Post.objects.all()}
@@ -94,7 +96,7 @@ def bulk_copy_posts():
                             view_count=post.view_count)
 
             # Store parent and root for every post.
-            relations[new_post.uid] = [post.root_id, post.parent_id]
+            relations[str(new_post.uid)] = [str(post.root_id), str(post.parent_id)]
             yield new_post
 
         logger.info("Copied all posts from biostar2")
@@ -104,9 +106,9 @@ def bulk_copy_posts():
         posts = {post.uid: post for post in Post.objects.all()}
         for post_uid in relations:
             root_uid, parent_uid = relations[post_uid][0], relations[post_uid][1]
-            post = posts[str(post_uid)]
-            root = posts.get(str(root_uid))
-            parent = posts.get(str(parent_uid))
+            post = posts[post_uid]
+            root = posts.get(root_uid)
+            parent = posts.get(parent_uid)
             if not (root and parent):
                 continue
             post.root = root
@@ -139,7 +141,7 @@ class Command(BaseCommand):
         #bulk_copy_users()
         #
         # copy_users()
-        #bulk_copy_posts()
-        bulk_copy_votes()
+        bulk_copy_posts()
+        #bulk_copy_votes()
 
         return

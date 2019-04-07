@@ -182,7 +182,7 @@ img {
     width:170px !important;
     height: 160px !important;
     background: #f9fbff !important;
-    overflow-y: auto !important;
+    // overflow-y: auto !important;
 }
 
 .accepted {
