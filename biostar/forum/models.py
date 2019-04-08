@@ -5,6 +5,7 @@ import mistune
 
 from django.utils import timezone
 from django.db import models
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
@@ -45,7 +46,6 @@ class PostManager(models.Manager):
 
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
-
         query = self.select_prefetch(super().get_queryset())
         return query
 
@@ -128,7 +128,7 @@ class PostManager(models.Manager):
         query = super().get_queryset().filter(root=root)
         query = query.select_related("root", "root__author", "root__author__profile", "author", "author__profile",
                                      "lastedit_user", "lastedit_user__profile")
-        query = query if is_moderator else query.exclude(status=Post.DELETED)
+        query = query if is_moderator else query.filter(~Q(status=Post.DELETED))
 
         query = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
         return query
@@ -136,14 +136,17 @@ class PostManager(models.Manager):
     def top_level(self, user):
         "Returns posts based on a user type"
         is_moderator = user.is_authenticated and (user.profile.is_moderator or user.profile.is_manager)
-        query = self.filter(type__in=Post.TOP_LEVEL)
 
-        query = query if is_moderator else query.exclude(status=Post.DELETED)
-        query = query.prefetch_related("thread_users__profile", "thread_users")
-        query = query.select_related("root", "lastedit_user", "lastedit_user__profile")
+        #query = query.prefetch_related("thread_users__profile", "thread_users")
+        #query = query.select_related("root", "lastedit_user", "lastedit_user__profile")
 
         #print(query.explain())
         #1/0
+        query = super().get_queryset().filter(type__in=Post.TOP_LEVEL)
+        query = query.prefetch_related("root",  "lastedit_user", "lastedit_user__profile",
+                                       "thread_users__profile", "thread_users")
+        query = query if is_moderator else query.exclude(status=Post.DELETED)
+
         return query
 
 
