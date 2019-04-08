@@ -271,11 +271,11 @@ img {
 
 
 .ui.tagging.label {
-    margin:0!important;
-    font-size: 14px;
+    margin:1px!important;
+    font-size: 12.5px;
     padding: 3px;
     color:#8f2c47;
-    font-weight: 20;
+    font-weight: 100;
 }
 .ui.tagging.label:hover {
     background-color: #8f2c47;

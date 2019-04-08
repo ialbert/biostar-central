@@ -119,10 +119,17 @@ def bulk_copy_posts():
 
     def update_threadusers():
         logger.info("Updating thread users.")
-        for post in Post.objects.exclude(root=None):
-            if post.root.thread_users.filter(pk=post.author.pk):
+        roots = Post.objects.filter(type__in=Post.TOP_LEVEL)
+        roots = {root: Post.objects.filter(root=root) for root in roots}
+
+        roots = {post: User.objects.filter(pk__in=roots[post].values_list("author")) for post in roots }
+
+        for post in roots:
+            users = roots[post]
+            if post.root.thread_users.filter(pk__in=users):
                 continue
-            post.root.thread_users.add(post.author)
+
+            post.thread_users.add(*users)
 
     Post.objects.bulk_create(objs=gen_posts(), batch_size=1000)
     Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)

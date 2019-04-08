@@ -2,8 +2,9 @@
 
 
 <div class="ui divided items">
+{% with all_posts=posts%}
 
-    {% for post in posts %}
+    {% for post in all_posts %}
 
         <div class="post item {{post.deleted_class}}">
 
@@ -101,5 +102,5 @@
     <div class="ui warning message">There are no results for this page.</div>
 
     {% endfor %}
-
+{% endwith %}
 </div>

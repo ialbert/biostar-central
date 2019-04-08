@@ -12,7 +12,6 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.models import F, Q
 from biostar.utils.shortcuts import reverse
-from taggit.managers import TaggableManager
 from biostar.engine.models import Project
 from biostar.accounts.models import Profile
 from . import util
@@ -140,10 +139,10 @@ class PostManager(models.Manager):
         query = self.filter(type__in=Post.TOP_LEVEL)
 
         query = query if is_moderator else query.exclude(status=Post.DELETED)
-        query = query.prefetch_related("thread_users__profile")
+        query = query.prefetch_related("thread_users__profile", "thread_users")
         query = query.select_related("root", "lastedit_user", "lastedit_user__profile")
-        #query = query.prefetch_related("thread_users__profile", "thread_users")
-        #query = query.select_related("root", "lastedit_user__profile")
+        #query = query.defer("content", "html", "author__profile", "author", "project",
+        #                    "parent", "sticky")
 
         #query = self.select_prefetch(query=query)
         return query

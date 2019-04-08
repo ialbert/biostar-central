@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from django.db import transaction
 
 from biostar.utils.shortcuts import reverse
 from . import forms, auth
@@ -57,10 +56,6 @@ def post_list(request):
 
     if tag:
         posts = posts.filter(tag_val__iregex=tag)
-
-    # Exclude deleted posts
-    if user.is_authenticated and not user.profile.is_moderator:
-        posts = posts.exclude(status=Post.DELETED)
 
     # Return latest posts by default.
     if posts is None:
