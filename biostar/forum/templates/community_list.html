@@ -13,20 +13,37 @@
 
         {% pages objs=objs request=request %}
 
-        <div class="ui center aligned basic segment">
-            <div class="ui horizontal list">
-                <div class="item"></div>
-                {% for user in objs %}
+<div class="ui basic segment">
+    <div class="ui grid">
 
-                    <div class="item">
-                        {% user_box user=user %}
-                    </div>
-
-                {% endfor %}
+          {%  for user in objs %}
+            <div class="four wide column">
+                <div class="center aligned author">
+                    <a href="{% url "user_profile" user.profile.uid %}">
+                      <div class="ui circular image">
+                        {% gravatar user=user size=80 %}
+                      </div>
+                    </a>
+                </div>
+                <a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
+                {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+            <div>
+                {% if user.profile.last_login %}
+                visited {{ user.profile.last_login|time_ago }}
+                {% else %}
+                    Joined {{ user.profile.date_joined|time_ago }}
+                {% endif %}
 
             </div>
-        </div>
+            <div class="muted">
+                    {{ user.profile.location |truncatechars:40}}
+            </div>
+            </div>
 
+          {%  endfor %}
+
+    </div>
+</div>
 
         {% pages objs=objs request=request %}
 

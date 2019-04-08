@@ -4,7 +4,6 @@
 <div class="ui divided items">
 
     {% for post in posts %}
-        {% if not post.is_deleted %}
 
         <div class="post item {{post.deleted_class}}">
 
@@ -27,6 +26,7 @@
                 {% endif %}
 
             </div>
+
             <div class="ui {% boxclass post %} label stat mini" style="margin:-1px;">
                 {% if post.is_toplevel %}
                     <div class="number-stat">
@@ -40,7 +40,10 @@
                     </div>
                     <div class="detail-stat">Answer{{ post.root.reply_count|pluralize }}</div>
                 {% endif %}
+
             </div>
+
+{{ post.subs_count }}
             <div class="ui label basic transparent stat mini">
 
                 <div class="number-stat">
@@ -50,6 +53,7 @@
 
             </div>
 </div>
+
 
 <div class="content" style="padding-left:2;">
 
@@ -96,7 +100,6 @@
 </div>
         </div>
 
-    {% endif %}
     {% empty %}
 
     <div class="ui warning message">There are no results for this page.</div>

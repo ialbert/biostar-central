@@ -92,7 +92,7 @@ def bulk_copy_posts():
                             author=author, status=post.status, rank=post.rank, has_accepted=post.has_accepted,
                             lastedit_date=post.lastedit_date, book_count=post.book_count, reply_count=post.reply_count,
                             content=content, title=post.title,vote_count=post.vote_count, thread_score=post.reply_count,
-                            creation_date=post.creation_date, tag_val=post.tag_val,
+                            creation_date=post.creation_date, tag_val=post.tag_val, subs_count=post.subs_count,
                             view_count=post.view_count)
 
             # Store parent and root for every post.
@@ -141,14 +141,34 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         # Give the database file
+        parser.add_argument('--posts', action="store_true", help="Transfer posts from source database to target.")
+        parser.add_argument('--users', action="store_true", help="Transfer users from source database to target.")
+        parser.add_argument('--votes', action="store_true", help="Transfer votes from source database to target.")
+        parser.add_argument('--subs', action="store_true", help="Transfer subs from source database to target.")
         pass
 
     def handle(self, *args, **options):
 
-        #bulk_copy_users()
-        #
-        # copy_users()
+        load_posts = options["posts"]
+        load_users = options["users"]
+        load_votes = options["votes"]
+        load_subs = options["subs"]
+
+        if load_posts:
+            bulk_copy_posts()
+            return
+        if load_votes:
+            bulk_copy_votes()
+            return
+        if load_users:
+            bulk_copy_users()
+            return
+        if load_subs:
+            return
+
+        # Copy everything
+        bulk_copy_users()
         bulk_copy_posts()
-        #bulk_copy_votes()
+        bulk_copy_votes()
 
         return
