@@ -298,7 +298,6 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
 
-        self.uid = self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.author
         self.creation_date = self.creation_date
         self.lastedit_date = self.lastedit_date or self.creation_date
@@ -428,6 +427,8 @@ class Subscription(models.Model):
 def set_post(sender, instance, created, *args, **kwargs ):
 
     if created:
+        # Make the Uid user friendly
+        instance.uid = instance.uid or f"p{instance.pk}"
         # Set the titles
         if instance.parent and not instance.title:
             instance.title = instance.parent.title
