@@ -142,7 +142,6 @@ class PostManager(models.Manager):
         query = query.prefetch_related("thread_users__profile", "thread_users")
         query = query.select_related("root", "lastedit_user", "lastedit_user__profile")
 
-        #query = self.select_prefetch(query=query)
         return query
 
 
