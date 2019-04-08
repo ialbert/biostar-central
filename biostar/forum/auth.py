@@ -44,7 +44,11 @@ def build_obj_tree(request, obj):
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers sorted before comments.
     user = request.user
-    thread = Post.objects.get_thread(obj, user)
+    query = Post.objects.filter(root=obj)
+    query = query.select_related("root", "root__author", "root__author__profile", "author", "author__profile",
+                                 "lastedit_user", "lastedit_user__profile")
+    query = query.exclude(status=Post.DELETED) if user.is_authenticated and user.profile.is_moderator else query
+    thread = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
     # Gather votes
     votes = get_votes(user=user, thread=thread)
@@ -275,7 +279,12 @@ def delete_post(post, request):
         messages.success(request, "Removed post: %s" % post.title)
 
     # Recompute post reply count
-    post.update_reply_count()
+    if post.type == Post.ANSWER:
+        reply_count = Post.objects.filter(parent=post.parent, type=Post.ANSWER, status=Post.OPEN).count()
+        Post.objects.filter(pk=post.parent_id).update(reply_count=reply_count)
+
+    thread_score = Post.objects.filter(type=Post.ANSWER, root=post.root, status=Post.OPEN).count()
+    Post.objects.filter(pk=post.root_id).update(thread_score=thread_score)
 
     return url
 

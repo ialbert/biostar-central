@@ -120,7 +120,7 @@ class Profile(models.Model):
     @property
     def is_moderator(self):
         # Managers can moderate as well.
-        return self.role == self.MODERATOR or self.role == self.MANAGER
+        return self.role == self.MODERATOR or self.role == self.MANAGER or self.user.is_staff
 
     @property
     def trusted(self):

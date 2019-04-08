@@ -8,7 +8,7 @@ from django.conf import settings
 
 from biostar.utils.shortcuts import reverse
 from . import forms, auth
-from .models import Post, Vote
+from .models import Post, Vote, Subscription
 from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from .const import *
 
@@ -16,24 +16,37 @@ from .const import *
 User = get_user_model()
 
 
-def get_topics(user):
-    """Return dict of all topics viewable by user."""
+def get_posts(user, topic=""):
 
-    all_topics = {
-        JOBS: Post.objects.top_level(user).filter(type=Post.JOB),
-        TOOLS: Post.objects.top_level(user).filter(type=Post.TOOL),
-        TUTORIALS: Post.objects.top_level(user).filter(type=Post.TUTORIAL),
-        FORUM: Post.objects.top_level(user).filter(type=Post.FORUM),
-        PLANET: Post.objects.top_level(user).filter(type=Post.BLOG),
-        MYPOSTS: Post.objects.my_posts(target=user, user=user),
-        OPEN: Post.objects.top_level(user=user),
-        LATEST: Post.objects.top_level(user=user),
-        BOOKMARKS: Post.objects.my_bookmarks(user=user) if user.is_authenticated else Post.objects.none(),
-        FOLLOWING: Post.objects.following(user=user) if user.is_authenticated else Post.objects.none(),
-        VOTES: Post.objects.my_post_votes(user=user) if user.is_authenticated else Post.objects.none(),
-    }
+    topic = topic.lower()
+    if topic == JOBS:
+        query = Post.objects.filter(type=Post.JOB)
+    elif topic == TOOLS:
+        query = Post.objects.filter(type=Post.TOOL)
+    elif topic == TUTORIALS:
+        query = Post.objects.filter(type=Post.TUTORIAL)
+    elif topic == FORUM:
+        query = Post.objects.filter(type=Post.FORUM)
+    elif topic == PLANET:
+        query = Post.objects.filter(type=Post.BLOG)
+    elif topic == OPEN:
+        query = Post.objects.filter(type=Post.QUESTION, reply_count=0)
+    elif topic == BOOKMARKS:
+        query = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
+    elif topic == FOLLOWING:
+        query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
+    elif topic == VOTES:
+        query = Post.objects.objects.filter(votes__post__author=user).exclude(votes__author=user).distinct()
+    else:
+        query = Post.objects.filter(type__in=Post.TOP_LEVEL)
 
-    return all_topics
+    query = query.prefetch_related("root", "lastedit_user", "lastedit_user__profile", "thread_users__profile",
+                                   "thread_users")
+
+    #if user.is_anonymous or not user.profile.is_moderator:
+    #    query = query.exclude(status=Post.DELETED)
+
+    return query
 
 
 def post_list(request):
@@ -47,19 +60,11 @@ def post_list(request):
         messages.error(request, f"You must be logged in to view that topic.")
         return redirect(reverse("post_list"))
 
-    all_topics = get_topics(user=user)
-
-    topic = topic.lower()
-    posts = all_topics.get(topic, Post.objects.top_level(user))
-    if topic == OPEN:
-        posts = posts.filter(type=Post.QUESTION, reply_count=0)
+    # Get posts available to users.
+    posts = get_posts(user=user, topic=topic)
 
     if tag:
         posts = posts.filter(tag_val__iregex=tag)
-
-    # Return latest posts by default.
-    if posts is None:
-        posts = Post.objects.top_level(user)
 
     # Get the page info
     posts = posts.order_by("rank", "-lastedit_date")

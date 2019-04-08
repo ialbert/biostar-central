@@ -142,6 +142,14 @@ def show_email(user):
     return email
 
 
+@register.simple_tag
+def is_moderator(user):
+
+    if user.is_authenticated and user.profile.is_moderator:
+        return True
+    return False
+
+
 @register.inclusion_tag('widgets/feed.html')
 def feed(user):
 
@@ -198,9 +206,9 @@ def get_thread_users(post, limit=3):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(posts=None):
+def listing(post=None):
 
-    return dict(posts=posts)
+    return dict(post=post)
 
 
 @register.filter

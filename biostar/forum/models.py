@@ -37,14 +37,6 @@ class SubscriptionManager(models.Manager):
 
 class PostManager(models.Manager):
 
-    def select_prefetch(self, query):
-
-        # Prefetch tags and thread user info
-        query = query.prefetch_related("thread_users__profile", "thread_users")
-        query = query.select_related("root",  "author", "author__profile",
-                                     "lastedit_user", "lastedit_user__profile")
-        return query
-
     #def get_queryset(self):
     #    "Regular queries exclude deleted stuff"
     #    query = self.select_prefetch(super().get_queryset())
@@ -53,23 +45,6 @@ class PostManager(models.Manager):
     def get_all(self, **kwargs):
         "Return everything"
         query = self.get_queryset().filter(**kwargs)
-        return query
-
-    def following(self, user):
-        query = self.filter(~Q(subs__type=Subscription.NO_MESSAGES), subs__user=user).exclude(status=Post.DELETED)
-        query = self.select_prefetch(query)
-        return query
-
-    def my_bookmarks(self, user):
-        query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)
-        query = self.select_prefetch(query)
-        return query
-
-    def my_post_votes(self, user):
-        "Posts that received votes from other people "
-        query = self.filter(votes__post__author=user).exclude(votes__author=user)
-        query = self.select_prefetch(query)
-        query = query.distinct()
         return query
 
     def my_posts(self, target, user):
@@ -84,29 +59,6 @@ class PostManager(models.Manager):
             query = self.filter(author=target).exclude(status=Post.DELETED)
 
         query = self.select_prefetch(query).order_by("-creation_date")
-        return query
-
-    def get_thread(self, root, user):
-        # Populate the object to build a tree that contains all posts in the thread.
-        is_moderator = user.is_authenticated and user.profile.is_moderator
-
-        query = super().get_queryset().filter(root=root)
-        query = query.select_related("root", "root__author", "root__author__profile", "author", "author__profile",
-                                     "lastedit_user", "lastedit_user__profile")
-        query = query if is_moderator else query.exclude(status=Post.DELETED)
-
-        query = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
-        return query
-
-    def top_level(self, user):
-        "Returns posts based on a user type"
-        is_moderator = user.is_authenticated and (user.profile.is_moderator or user.profile.is_manager)
-
-        query = super().get_queryset().filter(type__in=Post.TOP_LEVEL)
-        query = query.prefetch_related("root",  "lastedit_user", "lastedit_user__profile",
-                                       "thread_users__profile", "thread_users")
-        query = query if is_moderator else query.exclude(status=Post.DELETED)
-
         return query
 
 
@@ -316,6 +268,11 @@ class Post(models.Model):
         if self.has_accepted and not self.is_toplevel:
             return "accepted"
         return ""
+
+    @property
+    def age_in_days(self):
+        delta = util.now() - self.creation_date
+        return delta.days
 
 
 class Vote(models.Model):
