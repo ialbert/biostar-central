@@ -103,6 +103,7 @@ class PostManager(models.Manager):
         is_moderator = user.is_authenticated and (user.profile.is_moderator or user.profile.is_manager)
 
         query = super().get_queryset().filter(type__in=Post.TOP_LEVEL)
+
         query = query.prefetch_related("root",  "lastedit_user", "lastedit_user__profile",
                                        "thread_users__profile", "thread_users")
         query = query if is_moderator else query.exclude(status=Post.DELETED)
@@ -237,6 +238,10 @@ class Post(models.Model):
     @property
     def is_open(self):
         return self.status == Post.OPEN
+
+    @property
+    def is_deleted(self):
+        return self.status == Post.DELETED
 
     @property
     def is_comment(self):
