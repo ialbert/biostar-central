@@ -9,6 +9,7 @@
 
 
 <div class="ui image">
+
             <div class="ui left stat label mini" >
 
                 {% if post.is_toplevel %}
@@ -27,6 +28,7 @@
 
             </div>
 
+
             <div class="ui {% boxclass post %} label stat mini" style="margin:-1px;">
                 {% if post.is_toplevel %}
                     <div class="number-stat">
@@ -43,7 +45,6 @@
 
             </div>
 
-{{ post.subs_count }}
             <div class="ui label basic transparent stat mini">
 
                 <div class="number-stat">
@@ -52,6 +53,10 @@
                 <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
 
             </div>
+<div style="text-align: center; font-size: smaller;color: #762C90;">
+    {{ post.subs_count }} follow
+</div>
+
 </div>
 
 
@@ -99,6 +104,7 @@
 
 </div>
         </div>
+
 
     {% empty %}
 
