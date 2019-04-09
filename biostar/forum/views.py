@@ -40,11 +40,8 @@ def get_posts(user, topic=""):
     else:
         query = Post.objects.filter(type__in=Post.TOP_LEVEL)
 
-    query = query.prefetch_related("root", "lastedit_user", "lastedit_user__profile", "thread_users__profile",
-                                   "thread_users")
-
-    #if user.is_anonymous or not user.profile.is_moderator:
-    #    query = query.exclude(status=Post.DELETED)
+    query = query.prefetch_related("root", "lastedit_user__profile", "thread_users__profile")
+    #query = query.select_related("root", "lastedit_user__profile", "thread_users__profile")
 
     return query
 

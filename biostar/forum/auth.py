@@ -45,9 +45,10 @@ def build_obj_tree(request, obj):
     # Answers sorted before comments.
     user = request.user
     query = Post.objects.filter(root=obj)
-    query = query.select_related("root", "root__author", "root__author__profile", "author", "author__profile",
-                                 "lastedit_user", "lastedit_user__profile")
-    query = query.exclude(status=Post.DELETED) if user.is_authenticated and user.profile.is_moderator else query
+    query = query.select_related("root__author", "root__author__profile", "author",
+                                 "author__profile", "lastedit_user", "lastedit_user__profile")
+
+    query = query if user.is_authenticated and user.profile.is_moderator else query.exclude(status=Post.DELETED)
     thread = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
     # Gather votes
@@ -73,7 +74,7 @@ def build_obj_tree(request, obj):
     answers = thread.filter(type=Post.ANSWER)
 
     # Decorate the objects for easier access
-    decorate(chain([obj], thread, answers))
+    decorate(chain(thread, answers))
 
     return comment_tree, answers, thread
 
@@ -351,10 +352,6 @@ def moderate_post(request, action, post, comment=None, dupes=[]):
 
     messages.error(request, "Invalid moderation action given")
     return url
-
-
-
-
 
 
 def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None,
