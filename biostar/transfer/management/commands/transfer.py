@@ -2,8 +2,8 @@
 import logging
 from django.core.management.base import BaseCommand
 from biostar.accounts.models import User, Profile
-from biostar.transfer.models import UsersUser, PostsPost, PostsVote
-from biostar.forum.models import Post, Vote
+from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription
+from biostar.forum.models import Post, Vote, Subscription
 from biostar.forum import util
 logger = logging.getLogger("engine")
 
@@ -136,6 +136,28 @@ def bulk_copy_posts():
     update_threadusers()
 
 
+def bulk_copy_subs():
+    users = {user.profile.uid: user for user in User.objects.all()}
+    posts = {post.uid: post for post in Post.objects.all()}
+    exists = list(Subscription.objects.values_list("uid", flat=True))
+    exists = filter(lambda uid: uid.isdigit(), exists)
+    source = PostsSubscription.objects.exclude(id__in=exists)
+
+    def generate():
+        logger.info("Copying subscriptions")
+        for subs in source:
+
+            user = users[str(subs.user_id)]
+            post = posts[str(subs.post_id)]
+            sub = Subscription(uid=subs.id, type=subs.type, user=user, post=post, date=subs.date)
+
+            yield sub
+
+    Subscription.objects.bulk_create(objs=generate(), batch_size=1000)
+    logger.info("Load all subscriptions")
+    return
+
+
 class Command(BaseCommand):
     help = "Migrate users from one database to another."
 
@@ -164,11 +186,13 @@ class Command(BaseCommand):
             bulk_copy_users()
             return
         if load_subs:
+            bulk_copy_subs()
             return
 
         # Copy everything
         bulk_copy_users()
         bulk_copy_posts()
         bulk_copy_votes()
+        bulk_copy_subs()
 
         return

@@ -39,6 +39,18 @@ def get_votes(user, thread):
     return store
 
 
+def my_posts(target, request):
+
+    user = request.user
+    if user.is_anonymous or target.is_anonymous:
+        return Post.objects.filter(author=target).exclude(status=Post.DELETED)
+
+    query = Post.objects.filter(author=target)
+    query = query if user.profile.is_moderator or user == target else query.exclude(status=Post.DELETED)
+
+    return query
+
+
 def build_obj_tree(request, obj):
 
     # Populate the object to build a tree that contains all posts in the thread.
