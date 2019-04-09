@@ -45,7 +45,7 @@ urlpatterns = [
 
     # Actions
     url(r'^action/clear/(?P<uid>[-\w]+)/$', views.clear_clipboard, name='clear_clipboard'),
-    url(r'^action/subscribe/(?P<uid>[-\w]+)/$', views.discussion_subs, name='discussion_subs'),
+    #url(r'^action/subscribe/(?P<uid>[-\w]+)/$', views.discussion_subs, name='discussion_subs'),
     url(r"^search/$", views.search_bar, name='search'),
 
     # Jobs
@@ -65,10 +65,10 @@ urlpatterns = [
     url(r'^api/project/image/(?P<uid>[-\w]+)/$', api.project_image, name='project_api_image'),
 
     # Discussions
-    url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),
-    url(r'^discussion/create/(?P<uid>[-\w]+)/$', views.discussion_create, name='discussion_create'),
-    url(r'^discussion/view/(?P<uid>[-\w]+)/$', views.discussion_view, name='discussion_view'),
-    url(r'^comment/$', forum_views.comment, name='discussion_comment'),
+    #url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),
+    #url(r'^discussion/create/(?P<uid>[-\w]+)/$', views.discussion_create, name='discussion_create'),
+    #url(r'^discussion/view/(?P<uid>[-\w]+)/$', views.discussion_view, name='discussion_view'),
+    #url(r'^comment/$', forum_views.comment, name='discussion_comment'),
 
     # Ajax calls
     #url(r'^data/copy/$', views.ajax_data_copy, name='data_copy'),

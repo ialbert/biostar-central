@@ -41,6 +41,7 @@ def tabular_list():
 
     return "\n".join(output)
 
+
 @api_view(['GET'])
 def api_list(request):
     payload = tabular_list()

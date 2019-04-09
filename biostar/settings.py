@@ -29,7 +29,7 @@ DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_PRIVATE_KEY = ""
 
-POSTS_PER_PAGE = 35
+POSTS_PER_PAGE = 20
 USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
@@ -38,6 +38,7 @@ VOTE_FEED_COUNT = 10
 LOCATION_FEED_COUNT = 5
 AWARDS_FEED_COUNT = 10
 REPLIES_FEED_COUNT = 15
+PROJECT_FEED_COUNT = 8
 
 
 SEARCH_CHAR_MIN = 2
@@ -137,8 +138,7 @@ INSTALLED_APPS = [
     'biostar.accounts.apps.AccountsConfig',
     'biostar.forum.apps.ForumConfig',
     'biostar.message.apps.MessageConfig',
-    'biostar.ftpserver',
-
+    'biostar.transfer',
     # Allauth templates come last.
     'allauth',
     'allauth.account',
@@ -177,6 +177,13 @@ TEMPLATES = [
                 'biostar.engine.context.engine',
 
             ],
+            # 'loaders': [
+            #     ('django.template.loaders.cached.Loader',
+            #         'django.template.loaders.filesystem.Loader',
+            #         'django.template.loaders.app_directories.Loader',
+            #     )
+            # ]
+
         },
     },
 ]
@@ -198,13 +205,20 @@ WSGI_APPLICATION = 'biostar.wsgi.application'
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 ENGINE_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
+BIOSTAR2_DATABASE = join(BASE_DIR, '..', 'export', 'database', 'biostar.db')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ENGINE_DATABASE_NAME,
     },
-
+    'biostar2': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BIOSTAR2_DATABASE,
+        'TEST': {
+            'MIRROR': 'default',
+        }
+    },
 }
 
 # Password validation

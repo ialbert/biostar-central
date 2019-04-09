@@ -5,6 +5,7 @@ import mistune
 
 from django.utils import timezone
 from django.db import models
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
@@ -12,8 +13,8 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.models import F, Q
 from biostar.utils.shortcuts import reverse
-from taggit.managers import TaggableManager
 from biostar.engine.models import Project
+from biostar.accounts.models import Profile
 from . import util
 
 User = get_user_model()
@@ -36,45 +37,14 @@ class SubscriptionManager(models.Manager):
 
 class PostManager(models.Manager):
 
-    def select_prefetch(self, query):
-
-        # Prefetch tags and thread user info
-        query = query.prefetch_related("tags", "thread_users__profile", "thread_users")
-        query = query.select_related("root", "author", "author__profile", "lastedit_user", "lastedit_user__profile")
-        return query
-
-    def get_queryset(self):
-        "Regular queries exclude deleted stuff"
-
-        query = self.select_prefetch(super().get_queryset().filter(project=None))
-        return query
-
-    def get_discussions(self, **kwargs):
-        "Get posts exclusively tied to projects"
-
-        query = super().get_queryset().exclude(project=None, status=Post.DELETED).filter(**kwargs)
-        query = self.select_prefetch(query.select_related("project"))
-        return query
+    #def get_queryset(self):
+    #    "Regular queries exclude deleted stuff"
+    #    query = self.select_prefetch(super().get_queryset())
+    #    return query
 
     def get_all(self, **kwargs):
         "Return everything"
-        query = self.select_prefetch(super().get_queryset().filter(**kwargs))
-        return query
-
-    def following(self, user):
-        query = self.filter(~Q(subs__type=Subscription.NO_MESSAGES), subs__user=user).exclude(status=Post.DELETED)
-        query = self.select_prefetch(query)
-        return query
-
-    def my_bookmarks(self, user):
-        query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)
-        query = self.select_prefetch(query)
-        return query
-
-    def my_post_votes(self, user):
-        "Posts that received votes from other people "
-        query = self.filter(votes__post__author=user).exclude(votes__author=user)
-        query = self.select_prefetch(query)
+        query = self.get_queryset().filter(**kwargs)
         return query
 
     def my_posts(self, target, user):
@@ -89,53 +59,6 @@ class PostManager(models.Manager):
             query = self.filter(author=target).exclude(status=Post.DELETED)
 
         query = self.select_prefetch(query).order_by("-creation_date")
-        return query
-
-    def tag_search(self, text, defer_content=True):
-        "Performs a query by one or more , separated tags"
-        include, exclude = [], []
-        # Split the given tags on ',' and '+'.
-        terms = text.split(',') if ',' in text else text.split('+')
-        fixcase = lambda text:text.upper() if len(text) == 1 else text.lower()
-        for term in terms:
-            term = term.strip()
-            if term.endswith("!"):
-                exclude.append(fixcase(term[:-1]))
-            else:
-                include.append(fixcase(term))
-
-        if include:
-            query = self.filter(type__in=Post.TOP_LEVEL, tags__name__in=include).exclude(
-                tags__name__in=exclude)
-        else:
-            query = self.filter(type__in=Post.TOP_LEVEL).exclude(tags__name__in=exclude)
-
-        query = query.filter(status=Post.OPEN)
-        if defer_content:
-            # Remove fields that are not used.
-            query = query.defer('content', 'html')
-
-        # Get the tags.
-        query = self.select_prefetch(query=query).distinct()
-        return query
-
-    def get_thread(self, root, user):
-        # Populate the object to build a tree that contains all posts in the thread.
-        is_moderator = user.is_authenticated and user.profile.is_moderator
-
-        query = self.get_all(root=root)
-        query = query if is_moderator else query.exclude(status=Post.DELETED)
-
-        query = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
-        return query
-
-    def top_level(self, user):
-        "Returns posts based on a user type"
-        is_moderator = user.is_authenticated and (user.profile.is_moderator or user.profile.is_manager)
-        query = self.filter(type__in=Post.TOP_LEVEL)
-        query = query if is_moderator else query.exclude(status=Post.DELETED)
-
-        query = self.select_prefetch(query=query)
         return query
 
 
@@ -160,7 +83,7 @@ class Post(models.Model):
 
     TOP_LEVEL = {QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, TOOL, NEWS, BOARD}
 
-    title = models.CharField(max_length=200, null=False)
+    title = models.CharField(max_length=200, null=False, db_index=True)
 
     # The user that originally created the post.
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -176,13 +99,13 @@ class Post(models.Model):
     thread_users = models.ManyToManyField(User, related_name="thread_users")
 
     # Indicates the information value of the post.
-    rank = models.FloatField(default=0, blank=True)
+    rank = models.FloatField(default=0, blank=True, db_index=True)
 
     # Indicates whether the post has accepted answer.
     has_accepted = models.BooleanField(default=False, blank=True)
 
     # Post status: open, closed, deleted.
-    status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN, db_index=True)
 
     # The type of the post: question, answer, comment.
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
@@ -206,14 +129,14 @@ class Post(models.Model):
     subs_count = models.IntegerField(default=0)
 
     # The total numbers of votes for a top-level post.
-    thread_votecount = models.IntegerField(default=0)
+    thread_votecount = models.IntegerField(default=0, db_index=True)
 
     # The total number of comments + answers for a thread
     thread_score = models.IntegerField(default=0, blank=True, db_index=True)
 
     # Date related fields.
-    creation_date = models.DateTimeField(auto_now_add=True, db_index=True)
-    lastedit_date = models.DateTimeField(auto_now_add=True, db_index=True)
+    creation_date = models.DateTimeField(db_index=True)
+    lastedit_date = models.DateTimeField(db_index=True)
 
     # Stickiness of the post.
     sticky = models.BooleanField(default=False)
@@ -234,12 +157,12 @@ class Post(models.Model):
     tag_val = models.CharField(max_length=100, default="", blank=True)
 
     # The tag set is built from the tag string and used only for fast filtering
-    tags = TaggableManager()
+    #tags = models.CharField(max_length=200, null=False)
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
 
-    uid = models.CharField(max_length=32, unique=True)
+    uid = models.CharField(max_length=32, unique=True, db_index=True)
 
     def parse_tags(self):
         return util.split_tags(self.tag_val)
@@ -253,8 +176,8 @@ class Post(models.Model):
         self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
        # Clear old tags
         tag_list = [x.lower() for x in self.parse_tags()]
-        self.tags.clear()
-        self.tags.add(*tag_list)
+        #self.tags.clear()
+        #self.tags.add(*tag_list)
         self.save()
 
     @property
@@ -266,6 +189,10 @@ class Post(models.Model):
     @property
     def is_open(self):
         return self.status == Post.OPEN
+
+    @property
+    def is_deleted(self):
+        return self.status == Post.DELETED
 
     @property
     def is_comment(self):
@@ -287,8 +214,9 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
 
-        self.uid = self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.author
+        self.creation_date = self.creation_date
+        self.lastedit_date = self.lastedit_date or self.creation_date
 
         # Sanitize the post body.
         self.html = self.html or mistune.markdown(self.content)
@@ -305,14 +233,22 @@ class Post(models.Model):
             else:
                 self.tag_val = required_tag
 
+        self.creation_date = self.creation_date or util.now()
+        self.lastedit_date = self.lastedit_date or self.creation_date
+
+        # Set the timestamps on the parent
+        if self.type == Post.ANSWER:
+            self.parent.lastedit_date = self.lastedit_date
+            self.parent.lastedit_user = self.lastedit_user
+            self.parent.save()
+
         super(Post, self).save(*args, **kwargs)
 
         thread = Post.objects.filter(status=self.OPEN, root=self.root)
-        reply_count = thread.exclude(pk=self.parent.pk).filter(type=self.ANSWER).count()
-        thread_score = thread.exclude(pk=self.root.pk).count()
-
-        Post.objects.filter(pk=self.parent.pk).update(reply_count=reply_count)
-        Post.objects.filter(pk=self.root.pk).update(thread_score=thread_score)
+        reply_count = thread.exclude(uid=self.parent.uid).filter(type=self.ANSWER).count()
+        thread_score = thread.exclude(uid=self.root.uid).count()
+        Post.objects.filter(uid=self.parent.uid).update(reply_count=reply_count)
+        Post.objects.filter(uid=self.root.uid).update(thread_score=thread_score)
 
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
@@ -329,7 +265,14 @@ class Post(models.Model):
     def accepted_class(self):
         if self.status == Post.DELETED:
             return "deleted"
-        return "accepted" if (self.has_accepted and not self.is_toplevel) else ""
+        if self.has_accepted and not self.is_toplevel:
+            return "accepted"
+        return ""
+
+    @property
+    def age_in_days(self):
+        delta = util.now() - self.creation_date
+        return delta.days
 
 
 class Vote(models.Model):
@@ -351,6 +294,7 @@ class Vote(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(limit=16)
+
         super(Vote, self).save(*args, **kwargs)
 
 
@@ -404,6 +348,8 @@ class Subscription(models.Model):
 def set_post(sender, instance, created, *args, **kwargs ):
 
     if created:
+        # Make the Uid user friendly
+        instance.uid = instance.uid or f"p{instance.pk}"
         # Set the titles
         if instance.parent and not instance.title:
             instance.title = instance.parent.title
@@ -420,14 +366,6 @@ def set_post(sender, instance, created, *args, **kwargs ):
         instance.title = instance.parent.title if instance.parent else instance.title
         instance.lastedit_user = instance.author
         instance.status = instance.status or Post.PENDING
-        instance.creation_date = instance.creation_date or timezone.now()
-        instance.lastedit_date = instance.creation_date
-
-        # Set the timestamps on the parent
-        if instance.type == Post.ANSWER:
-            instance.parent.lastedit_date = instance.lastedit_date
-            instance.parent.lastedit_user = instance.lastedit_user
-            instance.parent.save()
 
 
 @receiver(post_save, sender=Post)
@@ -440,7 +378,6 @@ def check_root(sender, instance, created, *args, **kwargs):
     obj.thread_users.add(instance.author)
 
     if created:
-
         if not (instance.root or instance.parent):
             # Neither root or parent are set.
             instance.root = instance.parent = instance

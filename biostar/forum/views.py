@@ -5,14 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from django.http import JsonResponse
-from django.utils.safestring import mark_safe
-from django.db import transaction
 
 from biostar.utils.shortcuts import reverse
 from . import forms, auth
-from .models import Post, Vote
-from .decorators import protect_private_topics
+from .models import Post, Vote, Subscription
 from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from .const import *
 
@@ -20,43 +16,63 @@ from .const import *
 User = get_user_model()
 
 
-@protect_private_topics
-def list_view(request, template="post_list.html", extra_context={}, topic=None,
-              extra_proc=lambda x:x, per_page=settings.POSTS_PER_PAGE):
-    "List view for posts and messages"
+def get_posts(user, topic=""):
 
-    active = topic or request.GET.get("active", "")
-    topic = topic or request.GET.get("topic", "")
-    if not (topic or active):
-        active = LATEST
+    topic = topic.lower()
+    if topic == JOBS:
+        query = Post.objects.filter(type=Post.JOB)
+    elif topic == TOOLS:
+        query = Post.objects.filter(type=Post.TOOL)
+    elif topic == TUTORIALS:
+        query = Post.objects.filter(type=Post.TUTORIAL)
+    elif topic == FORUM:
+        query = Post.objects.filter(type=Post.FORUM)
+    elif topic == PLANET:
+        query = Post.objects.filter(type=Post.BLOG)
+    elif topic == OPEN:
+        query = Post.objects.filter(type=Post.QUESTION, reply_count=0)
+    elif topic == BOOKMARKS:
+        query = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
+    elif topic == FOLLOWING:
+        query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
+    elif topic == VOTES:
+        query = Post.objects.objects.filter(votes__post__author=user).exclude(votes__author=user).distinct()
+    else:
+        query = Post.objects.filter(type__in=Post.TOP_LEVEL)
 
-    page = request.GET.get('page')
-    topic, active = topic.lower(), active.lower()
+    query = query.prefetch_related("root", "lastedit_user__profile", "thread_users__profile")
+    #query = query.select_related("root", "lastedit_user__profile", "thread_users__profile")
 
-    objs = auth.list_posts_by_topic(request=request, topic=active or topic).order_by("-pk")
+    return query
+
+
+def post_list(request):
+
+    # Get current topic
+    topic = request.GET.get("active", "latest")
+    tag = request.GET.get("tag", "")
     user = request.user
 
-    if user.is_authenticated and not user.profile.is_moderator:
-        objs = objs.exclude(status=Post.DELETED)
+    if user.is_anonymous and topic in PRIVATE_TOPICS:
+        messages.error(request, f"You must be logged in to view that topic.")
+        return redirect(reverse("post_list"))
 
-    # Apply extra protocols to queryset (updates, filters, etc)
-    objs = extra_proc(objs)
+    # Get posts available to users.
+    posts = get_posts(user=user, topic=topic)
+
+    if tag:
+        posts = posts.filter(tag_val__iregex=tag)
 
     # Get the page info
-    paginator = Paginator(objs, per_page)
-    objs = paginator.get_page(page)
+    posts = posts.order_by("rank", "-lastedit_date")
+    page = request.GET.get('page')
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    posts = paginator.get_page(page)
 
-    context = dict(objs=objs)
-    if active in TOPICS_WITH_TABS:
-        active_tab = {active: "active"}
-    else:
-        active_tab = dict(extra_tab="active", extra_tab_name=active.capitalize() or topic.capitalize(),
-                          topic=topic)
+    context = dict(posts=posts, active=topic, tag=tag)
 
-    context.update(extra_context)
-    context.update(active_tab)
-
-    return render(request, template_name=template, context=context)
+    context.update({topic: "active"})
+    return render(request, template_name="post_list.html", context=context)
 
 
 def community_list(request):
@@ -70,10 +86,10 @@ def community_list(request):
     return render(request, "community_list.html", context=context)
 
 
-def tags_list(request):
+#def tags_list(request):
 
-    context = dict(extra_tab="active", extra_tab_name="All Tags")
-    return render(request, "tags_list.html", context=context)
+#    context = dict(extra_tab="active", extra_tab_name="All Tags")
+#    return render(request, "tags_list.html", context=context)
 
 
 @ajax_error_wrapper(method="POST")
@@ -98,14 +114,13 @@ def ajax_vote(request):
     if post.root.author != user and vote_type == Vote.ACCEPT:
         return ajax_error("Only the person asking the question may accept this answer.")
 
-    with transaction.atomic():
-        msg = auth.preform_vote(post=post, user=user, vote_type=vote_type)
+    msg = auth.preform_vote(post=post, user=user, vote_type=vote_type)
 
     return ajax_success(msg)
 
 
 @object_exists(klass=Post)
-def post_view(request, uid, template="post_view.html", url="post_view", extra_context={}):
+def post_view(request, uid):
     "Return a detailed view for specific post"
 
     # Form used for answers
@@ -122,37 +137,33 @@ def post_view(request, uid, template="post_view.html", url="post_view", extra_co
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             post = form.save(author=request.user)
-            location = reverse(url, request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
+            location = reverse("post_view", request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
             return redirect(location)
 
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
     comment_tree, answers, thread = auth.build_obj_tree(request=request, obj=obj)
-    tab_name = obj.get_type_display().capitalize()
 
-    context = dict(post=obj, tree=comment_tree, form=form, extra_tab="active", extra_tab_name=tab_name,
-                   answers=answers)
-    context.update(extra_context)
+    context = dict(post=obj, tree=comment_tree, form=form, answers=answers)
 
-    return render(request, template, context=context)
+    return render(request, "post_view.html", context=context)
 
 
 @login_required
 def comment(request):
 
     location = reverse("post_list")
-    get_view = lambda p:"discussion_view" if (p.project is not None) else "post_view"
-
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             post = form.save(author=request.user, post_type=Post.COMMENT)
             messages.success(request, "Added comment")
-            location = reverse(get_view(post), kwargs=dict(uid=post.uid)) + "#" + post.uid
+
+            location = reverse("post_view", kwargs=dict(uid=post.uid)) + "#" + post.uid
         else:
             messages.error(request, f"Error adding comment:{form.errors}")
             parent = Post.objects.get_all(uid=request.POST.get("parent_uid")).first()
-            location = location if parent is None else reverse(get_view(parent), kwargs=dict(uid=parent.root.uid))
+            location = location if parent is None else reverse("post_view", kwargs=dict(uid=parent.root.uid))
 
     return redirect(location)
 

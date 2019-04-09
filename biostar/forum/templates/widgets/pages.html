@@ -1,4 +1,5 @@
 {% load forum_tags %}
+{% load humanize %}
 
 <div class="ui container center aligned">
     {% if objs.has_previous %}
@@ -12,8 +13,14 @@
         </a>
         {% endif %}
     &bull;
+    {% else %}
+
+             <span >
+        <i class="ui angle small double left icon"> </i>previous
+        </span>
+    &bull;
     {% endif %}
-    {{objs.paginator.count}}
+    {{objs.paginator.count|intcomma}}
     result{{objs.paginator.count|pluralize}} &bull;
 
     <span class="current">

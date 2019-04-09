@@ -1,10 +1,7 @@
 {% load forum_tags %}
 
 
-<div class="ui divided items">
-    {% for post in objs %}
-
-        <div class="post item {{post.deleted_class}}">
+<div class="post item {{post.deleted_class}}">
 
 
 <div class="ui image">
@@ -26,20 +23,24 @@
                 {% endif %}
 
             </div>
+
+
             <div class="ui {% boxclass post %} label stat mini" style="margin:-1px;">
                 {% if post.is_toplevel %}
                     <div class="number-stat">
                     {{ post.thread_score }}
                     </div>
-                    <div class="detail-stat">Remark{{ post.thread_score|pluralize }}</div>
+                    <div class="detail-stat">Answer{{ post.thread_score|pluralize }}</div>
 
                 {% else %}
                     <div class="number-stat">
                         {{ post.reply_count }}
                     </div>
-                    <div class="detail-stat">Remark{{ post.root.reply_count|pluralize }}</div>
+                    <div class="detail-stat">Answer{{ post.root.reply_count|pluralize }}</div>
                 {% endif %}
+
             </div>
+
             <div class="ui label basic transparent stat mini">
 
                 <div class="number-stat">
@@ -48,7 +49,12 @@
                 <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
 
             </div>
+<div style="text-align: center; font-size: smaller;color: #762C90;">
+    {{ post.subs_count }} follow
 </div>
+
+</div>
+
 
 <div class="content" style="padding-left:2;">
 
@@ -60,23 +66,20 @@
                     {% endif %}
                 </span>
 
-                {% if discussion_view %}
-                <a href="{% url 'discussion_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
-                   class="ui mini blue title header " >{{ post.title}}</a>
-                {% else %}
-                 <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
-                    class="ui mini blue title header ">{{ post.title|truncatechars:150 }}</a>
-                {% endif %}
-            {% if side_image %}
-                {% get_thread_users post=post limit=5 as extra_users %}
 
-                {% for user in extra_users %}
-                 <a class="ui mini avatar image" href="{% url "user_profile" user.profile.uid %}" style="width:25px">
-                     {% gravatar user=user size=50 %}</a>
+             <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
+                class="ui mini blue title header ">{{ post.title|truncatechars:150 }}</a>
 
-                {% endfor %}
 
-            {% endif %}
+            {% get_thread_users post=post limit=5 as extra_users %}
+
+            {% for user in extra_users %}
+             <a class="ui mini avatar image" href="{% url "user_profile" user.profile.uid %}" style="width:25px">
+                 {% gravatar user=user size=50 %}</a>
+
+            {% endfor %}
+
+
 
         </div>
 
@@ -86,7 +89,7 @@
                     {% get_tags_list post.tag_val as tags_list %}
 
                     {% for tag in tags_list %}
-                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?topic={{tag}}">
+                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?tag={{tag}}">
                         {{ tag }}
                         </a>
                     {% endfor %}
@@ -97,12 +100,3 @@
 
 </div>
         </div>
-
-
-    {% empty %}
-
-    <div class="ui warning message">There are no results for this page.</div>
-
-    {% endfor %}
-
-</div>

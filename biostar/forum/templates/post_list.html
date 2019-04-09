@@ -7,19 +7,33 @@
 
 
 {% block body %}
-    {% if topic  %}
-<div class="ui large blue message" style="text-align: center; padding:0px; margin-top:8px;">
-
-    Showing : <code>{{topic}}</code>  &bull; <a href="{% url 'post_list' %}">reset <i class="undo small icon"></i></a>
-
-
-</div>
+    {% if tag  %}
+        <div class="ui large blue message" style="text-align: center; padding:0px; margin-top:8px;">
+            Showing : <code>{{tag}}</code>  &bull; <a href="{% url 'post_list' %}">reset <i class="undo small icon"></i></a>
+        </div>
     {% endif %}
 
-    {% pages objs=objs request=request %}
+    {% pages objs=posts request=request %}
 
-    {% listing posts=objs side_image=True %}
-    {% pages objs=objs request=request %}
+    {% is_moderator user as can_moderate %}
+
+    <div class="ui divided items">
+
+        {% for post in posts %}
+
+            {% if post.is_deleted and can_moderate %}
+                {% listing post=post %}
+            {%  elif post.is_deleted and not can_moderate %}
+            {% else %}
+                {% listing post=post %}
+            {%  endif %}
+
+        {% empty %}
+        <div class="ui warning message">There are no results for this page.</div>
+        {% endfor %}
+    </div>
+
+    {% pages objs=posts request=request %}
 
 
 {% endblock %}

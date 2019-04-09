@@ -1,7 +1,6 @@
 {% load forum_tags %}
 
     {% if post.is_toplevel %}
-
         <div class="ui vertical segment">
             <a name="{{post.uid}}" style="padding:0;"></a>
             {% subs_actions post=post user=request.user next=next_url sub_url=sub_url %}
@@ -53,10 +52,11 @@
              <div class="content">
 
              {% if include_userbox %}
-                 <div class="ui right floated image" >
+                 <div class="ui right floated image" style="position: relative;">
                         {% user_box user=post.author %}
                  </div>
              {% endif %}
+
 
                  <div class="ui container">
 
@@ -72,7 +72,7 @@
                     {% get_tags_list post.tag_val as tags_list %}
 
                     {% for tag in tags_list %}
-                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?topic={{tag}}">
+                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?tag={{tag}}">
                         {{ tag }}
                         </a>
                     {% endfor %}
@@ -81,20 +81,12 @@
 
                      </div>
 
+                 {% endif %}
+
                      <div class="ui right floated basic segment userinfo">
 
                          {% user_info post=post by_diff=False %}
                      </div>
-
-                 {% else %}
-
-
-                     <div class="extra"></div>
-                        <div class="ui right floated basic segment userinfo">
-                             {% user_info post=post by_diff=False %}
-                         </div>
-
-                 {% endif %}
                  <div class="extrainfo">
 
              {% if user.is_authenticated %}
@@ -108,6 +100,7 @@
             </a>
 
              {% endif %}
+
                      |
                  <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
 

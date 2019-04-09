@@ -44,7 +44,12 @@ def build_obj_tree(request, obj):
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers sorted before comments.
     user = request.user
-    thread = Post.objects.get_thread(obj, user)
+    query = Post.objects.filter(root=obj)
+    query = query.select_related("root__author", "root__author__profile", "author",
+                                 "author__profile", "lastedit_user", "lastedit_user__profile")
+
+    query = query if user.is_authenticated and user.profile.is_moderator else query.exclude(status=Post.DELETED)
+    thread = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
     # Gather votes
     votes = get_votes(user=user, thread=thread)
@@ -69,47 +74,9 @@ def build_obj_tree(request, obj):
     answers = thread.filter(type=Post.ANSWER)
 
     # Decorate the objects for easier access
-    decorate(chain([obj], thread, answers))
+    decorate(chain(thread, answers))
 
     return comment_tree, answers, thread
-
-
-def query_topic(user, topic, tag_search=False):
-    "Maps known topics to their appropriate querying functions and args."
-
-    if user.is_anonymous:
-        tags = ""
-    else:
-        tags = user.profile.my_tags
-
-    # Acts as a lazy evaluator by only calling a function when its topic is picked
-    mapper = {
-
-        MYPOSTS: dict(func=Post.objects.my_posts, params=dict(target=user, user=user)),
-        MYTAGS: dict(func=Post.objects.tag_search, params=dict(text=tags)),
-        BOOKMARKS: dict(func=Post.objects.my_bookmarks, params=dict(user=user)),
-        FOLLOWING: dict(func=Post.objects.following, params=dict(user=user)),
-        LATEST: dict(func=Post.objects.top_level, params=dict(user=user)),
-
-        # "apply" is an added function that can do extra work to the resulting queryset.
-        VOTES: dict(func=Post.objects.my_post_votes, params=dict(user=user),
-                          apply=lambda q: q.distinct()),
-        OPEN: dict(func=Post.objects.top_level, params=dict(user=user),
-                               apply=lambda q: q.filter(type=Post.QUESTION, reply_count=0)),
-    }
-
-    if mapper.get(topic):
-        func, params = mapper[topic]["func"], mapper[topic].get("params")
-        apply_extra = mapper[topic].get("apply", lambda q: q)
-        query = apply_extra(func(**params))
-    else:
-        query = None
-
-    # Query any topic as a tag
-    if tag_search and query is None:
-        query = Post.objects.tag_search(topic)
-
-    return query
 
 
 def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
@@ -131,28 +98,6 @@ def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
         PostView.objects.create(ip=ip, post=post, date=now)
         Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
     return post
-
-
-def list_posts_by_topic(request, topic):
-    "Returns a post query that matches a topic"
-    user = request.user
-
-    post_types = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
-                      forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
-
-    # One letter tags are always uppercase.
-    topic = util.fixcase(topic)
-    query = query_topic(user=user, topic=topic, tag_search=True)
-
-    # A post type.
-    if topic in post_types:
-        query = Post.objects.top_level(user).filter(type=post_types[topic])
-
-    # Return latest by default.
-    if query is None:
-        query = Post.objects.top_level(user)
-
-    return query
 
 
 def create_sub(post,  user, sub_type=None):
@@ -180,36 +125,37 @@ def create_sub(post,  user, sub_type=None):
 
 
 def trigger_vote(vote_type, post, change):
-
-    query_func = Post.objects.get_all
+    Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
 
     if vote_type == Vote.BOOKMARK:
-
         # Apply the vote
-        query_func(uid=post.uid).update(book_count=F('book_count') + change,
-                                        vote_count=F('vote_count') + change)
-        if post != post.root:
-            query_func(pk=post.root_id).update(book_count=F('book_count') + change)
+        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change)
 
     elif vote_type == Vote.ACCEPT:
 
         if change > 0:
             # There does not seem to be a negation operator for F objects.
-            query_func(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=True)
-            query_func(pk=post.root_id).update(has_accepted=True)
+            Post.objects.get_all(uid=post.uid).update(has_accepted=True)
+            Post.objects.get_all(uid=post.root.uid).update(has_accepted=True)
         else:
-            query_func(uid=post.uid).update(vote_count=F('vote_count') + change, has_accepted=False)
-            accepted_siblings = query_func(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
+            Post.objects.get_all(uid=post.uid).update(has_accepted=False)
+            accepted_siblings = Post.objects.get_all(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
 
             # Only set root as not accepted if there are no accepted siblings
             if accepted_siblings == 0:
-                query_func(pk=post.root_id).update(has_accepted=False)
+                Post.objects.get_all(uid=post.root.uid).update(has_accepted=False)
     else:
-        query_func(uid=post.uid).update(vote_count=F('vote_count') + change)
+        thread_query = Post.objects.filter(status=Post.OPEN, root=post.root)
+
+        reply_count = thread_query.exclude(uid=post.parent.uid).filter(type=Post.ANSWER).count()
+        thread_score = thread_query.exclude(uid=post.root.uid).count()
+        Post.objects.get_all(root=post.root).update(thread_votecount=F('thread_votecount') + change)
+        Post.objects.filter(parent=post.parent).update(reply_count=reply_count)
+        Post.objects.filter(root=post.root).update(thread_score=thread_score)
 
 
 @transaction.atomic
-def preform_vote(post, user, vote_type):
+def preform_vote(post, user, vote_type, uid=None):
 
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
 
@@ -219,7 +165,7 @@ def preform_vote(post, user, vote_type):
         vote.delete()
     else:
         change = +1
-        vote = Vote.objects.create(author=user, post=post, type=vote_type)
+        vote = Vote.objects.create(author=user, post=post, type=vote_type, uid=uid)
         msg = "%s added" % vote.get_type_display()
 
     if post.author != user:
@@ -227,7 +173,7 @@ def preform_vote(post, user, vote_type):
         Profile.objects.filter(user=post.author).update(score=F('score') + change)
 
     # The thread vote count represents all votes in a thread
-    Post.objects.get_all(pk=post.root_id).update(thread_votecount=F('thread_votecount') + change)
+    Post.objects.get_all(uid=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
 
     trigger_vote(vote_type=vote_type, post=post, change=change)
 
@@ -276,7 +222,7 @@ def create_post_from_json(json_dict):
                                type=type, status=status, content=content, html=html, tag_val=tag_val,
                                view_count=view_count)
     # Trigger another save
-    post.add_tags(post.tag_val)
+    #post.add_tags(post.tag_val)
 
     logger.info(f"Created post.uid={post.uid}")
 
@@ -334,89 +280,77 @@ def delete_post(post, request):
         messages.success(request, "Removed post: %s" % post.title)
 
     # Recompute post reply count
-    post.update_reply_count()
+    if post.type == Post.ANSWER:
+        reply_count = Post.objects.filter(parent=post.parent, type=Post.ANSWER, status=Post.OPEN).count()
+        Post.objects.filter(pk=post.parent_id).update(reply_count=reply_count)
+
+    thread_score = Post.objects.filter(type=Post.ANSWER, root=post.root, status=Post.OPEN).count()
+    Post.objects.filter(pk=post.root_id).update(thread_score=thread_score)
 
     return url
 
 
 def moderate_post(request, action, post, comment=None, dupes=[]):
-    """Used to moderate a post given a specific action"""
 
     root = post.root
     user = request.user
     now = datetime.datetime.utcnow().replace(tzinfo=utc)
     url = post.root.get_absolute_url()
-    query_func = Post.objects.get_all
 
-    root_has_accepted = lambda: query_func(root=root, type=Post.ANSWER, has_accepted=True).count()
+    if action == BUMP_POST:
+        Post.objects.get_all(uid=post.uid).update(lastedit_date=now, lastedit_user=request.user)
+        messages.success(request, "Post bumped")
+        return url
 
-    # Acts as a lazy evaluator by only calling a function when its action is picked
-    action_map = {
+    if action == MOD_OPEN:
+        Post.objects.get_all(uid=post.uid).update(status=Post.OPEN)
+        messages.success(request, f"Opened post: {post.title}")
+        return url
 
-        BUMP_POST: dict(func=query_func(uid=post.uid).update,
-                        params=dict(lastedit_date=now, lastedit_user=request.user),
-                        msg="Post bumped"),
+    if action == DELETE:
+        return delete_post(post=post, request=request)
 
-        MOD_OPEN: dict(func=query_func(uid=post.uid).update,
-                   params=dict(status=Post.OPEN),
-                   msg=f"Opened post: {post.title}"),
+    if action == CROSSPOST:
+        content = util.render(name="messages/crossposted.html", user=post.author, comment=comment, posts=post)
+        # Create a comment to the post
+        Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
+        return url
 
-        DELETE: dict(func=delete_post, params=dict(post=post, request=request)),
+    if action == TOGGLE_ACCEPT:
+        root_has_accepted = Post.objects.get_all(root=root, type=Post.ANSWER, has_accepted=True).count()
+        Post.objects.get_all(uid=post.uid).update(has_accepted=not post.has_accepted)
+        Post.objects.get_all(uid=root.uid).update(has_accepted=root_has_accepted)
+        return url
 
-        CROSSPOST: dict(content="messages/crossposted.html"),
+    if action == MOVE_TO_ANSWER:
+        Post.objects.get_all(uid=post.uid).update(type=Post.ANSWER, parent=post.root, reply_count=F("reply_count") + 1)
+        Post.objects.get_all(uid=root.uid).update(reply_count=F("reply_count") + 1)
+        messages.success(request, "Moved comment to answer")
+        return url
 
-        TOGGLE_ACCEPT: dict(func=query_func(uid=post.uid).update,
-                            params=dict(has_accepted=not post.has_accepted),
-                            apply=lambda q: query_func(uid=root.uid).update(has_accepted=root_has_accepted())),
+    if action == MOVE_TO_COMMENT:
+        Post.objects.get_all(uid=post.uid).update(type=Post.COMMENT, parent=post.root, reply_count=F("reply_count") - 1)
+        Post.objects.get_all(uid=root.uid).update(reply_count=F("reply_count") - 1)
+        messages.success(request, "Moved answer to comment")
+        return url
 
-        MOVE_TO_ANSWER: dict(func=query_func(uid=post.uid).update,
-                             params=dict(type=Post.ANSWER, parent=post.root),
-                             msg="Moved comment to answer",
-                             apply=lambda q: query_func(uid=root.uid).update(reply_count=F("reply_count") + 1)),
+    if action == CLOSE_OFFTOPIC:
+        Post.objects.get_all(uid=post.uid).update(status=Post.CLOSED)
+        Post.objects.get_all(uid=root.uid).update(reply_count=F("reply_count") - 1)
+        content = util.render(name="messages/offtopic_posts.html", user=post.author, comment=comment, posts=post)
+        # Create a comment to the post
+        Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
+        return url
 
-        MOVE_TO_COMMENT: dict(func=query_func(uid=post.uid).update,
-                              params=dict(type=Post.COMMENT, parent=post.root),
-                              msg="Moved answer to comment",
-                              apply=lambda q: query_func(uid=root.uid).update(reply_count=F("reply_count") - 1)),
+    if action == DUPLICATE:
+        Post.objects.get_all(uid=post.uid).update(status=Post.CLOSED)
+        Post.objects.get_all(uid__in=dupes).update(status=Post.CLOSED)
+        content = util.render(name="messages/duplicate_posts.html", user=post.author, comment=comment, posts=post)
+        # Create a comment to the post
+        Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
+        return url
 
-        CLOSE_OFFTOPIC: dict(func=query_func(uid=post.uid).update,
-                             params=dict(status=Post.CLOSED),
-                             msg=f"Closed post: {post.title}",
-                             content = "messages/offtopic_posts.html",
-                             apply=lambda q: query_func(uid=root.uid).update(reply_count=F("reply_count") - 1)),
-
-        DUPLICATE: dict(func=query_func(uid=post.uid).update,
-                        params=dict(status=Post.CLOSED),
-                        apply=lambda q: query_func(uid__in=dupes),
-                        content="messages/duplicate_posts.html"),
-    }
-
-    # Valid moderation action is being taken
-
-    if action_map.get(action):
-        # Specific action to moderate
-        action = action_map[action].get
-
-        # Function and params associated with it
-        func = action("func", lambda x: x)
-        params = action("params", dict(x=None))
-        msg, extra_content = action("msg"), action("content")
-        extra_protocol = action("apply", lambda x: x)
-        # Apply the moderation action
-        output = extra_protocol(func(**params))
-
-        # Get the correct url to redirect to ( matters most when a root post is deleted).
-        url = output if action == DELETE else url
-
-        if msg:
-            messages.success(request, msg)
-        if extra_content:
-            content = util.render(name=extra_content, user=post.author, comment=comment, posts=output or post)
-            # Create a comment to the post
-            Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
-    else:
-        messages.error(request, "Invalid moderation action given")
-
+    messages.error(request, "Invalid moderation action given")
     return url
 
 
@@ -427,24 +361,20 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
         author=author, type=post_type, parent=parent, root=root,
-        project=project, html=parse_html(content),
-    )
+        project=project, html=parse_html(content))
 
     root = root or post.root
+    mentioned_users = parse_mentioned_users(content=content)
+    subs = Subscription.objects.filter(post=root)
+
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously
-
-    mentioned_users = parse_mentioned_users(content=content)
-    mention_params = dict(users=mentioned_users, root=root, author=author, content=content)
-    subs = Subscription.objects.filter(post=root)
-    subs_params = dict(subs=subs, author=author, root=root, content=content)
-
     if tasks.HAS_UWSGI:
-        tasks.async_create_sub_messages(**subs_params)
-        tasks.async_notify_mentions(**mention_params)
+        tasks.async_create_sub_messages(subs=subs, author=author, root=root, content=content)
+        tasks.async_notify_mentions(users=mentioned_users, root=root, author=author, content=content)
     else:
-        tasks.create_sub_messages(**subs_params)
-        tasks.notify_mentions(**mention_params)
+        tasks.create_sub_messages(subs=subs, author=author, root=root, content=content)
+        tasks.notify_mentions(users=mentioned_users, root=root, author=author, content=content)
 
     # Subscribe the author to the root, if not already
     if sub_to_root:

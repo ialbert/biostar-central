@@ -12,7 +12,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from biostar.accounts import util
-from biostar.accounts.models import User
+from biostar.accounts.models import User, Profile
 
 logger = logging.getLogger("engine")
 
@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
 
-        parser.add_argument('fname', help="The CSV file with the users to be added. Must have headers: Name, Email")
+        parser.add_argument('--fname', help="The CSV file with the users to be added. Must have headers: Name, Email")
 
     def handle(self, *args, **options):
 

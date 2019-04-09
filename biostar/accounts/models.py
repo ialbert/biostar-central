@@ -9,8 +9,9 @@ from django.db import models
 from biostar import settings
 
 
-MAX_UID_LEN = 32
-MAX_NAME_LEN = 80
+MAX_UID_LEN = 255
+MAX_NAME_LEN = 255
+MAX_TEXT_LEN = 10000
 
 
 def generate_uuid(limit=32):
@@ -53,13 +54,13 @@ class Profile(models.Model):
     max_upload_size = models.IntegerField(default=0)
 
     role = models.IntegerField(default=NORMAL, choices=ROLE_CHOICES)
-    last_login = models.DateTimeField(null=True, db_index=True)
+    last_login = models.DateTimeField(null=True, max_length=255, db_index=True)
 
     # The number of new messages for the user.
     new_messages = models.IntegerField(default=0, db_index=True)
 
     # The last visit by the user.
-    date_joined = models.DateTimeField(auto_now_add=True)
+    date_joined = models.DateTimeField(auto_now_add=True, max_length=255)
 
     # User provided location.
     location = models.CharField(default="", max_length=255, blank=True, db_index=True)
@@ -76,12 +77,12 @@ class Profile(models.Model):
     twitter = models.CharField(default="", max_length=255, blank=True)
 
     # This field is used to select content for the user.
-    my_tags = models.CharField(default="", max_length=100, blank=True)
+    my_tags = models.CharField(default="", max_length=255, blank=True)
 
     # Description provided by the user html.
-    text = models.TextField(default="", null=True, blank=True)
+    text = models.TextField(default="", null=True, max_length=MAX_TEXT_LEN, blank=True)
 
-    html = models.TextField(null=True, blank=True)
+    html = models.TextField(null=True, max_length=MAX_TEXT_LEN, blank=True)
 
     email_verified = models.BooleanField(default=False)
 
@@ -119,7 +120,7 @@ class Profile(models.Model):
     @property
     def is_moderator(self):
         # Managers can moderate as well.
-        return self.role == self.MODERATOR or self.role == self.MANAGER
+        return self.role == self.MODERATOR or self.role == self.MANAGER or self.user.is_staff
 
     @property
     def trusted(self):
@@ -135,11 +136,11 @@ class Profile(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
+def create_profile(sender, instance, created, raw, using, **kwargs):
 
     if created:
         # Make sure staff users are also moderators.
         role = Profile.MANAGER if instance.is_staff else Profile.NORMAL
-        Profile.objects.create(user=instance, name=instance.first_name, role=role)
+        Profile.objects.using(using).create(user=instance, name=instance.first_name, role=role)
 
     instance.username = instance.username or f"user-{instance.pk}"
