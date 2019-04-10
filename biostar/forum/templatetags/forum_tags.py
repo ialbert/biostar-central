@@ -153,21 +153,20 @@ def is_moderator(user):
 @register.inclusion_tag('widgets/feed.html')
 def feed(user):
 
-    recent_votes = Vote.objects.filter(type=Vote.UP)[:settings.VOTE_FEED_COUNT]
+    recent_votes = Vote.objects.filter(type=Vote.UP).distinct()[:settings.VOTE_FEED_COUNT]
     # Needs to be put in context of posts
-    recent_votes = [] #recent_votes.select_related("post")
+    recent_votes = recent_votes.prefetch_related("post")
 
-    #recent_locations = User.objects.filter(~Q(profile__location=""))
-    recent_locations = [] #recent_locations.select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
+    recent_locations = User.objects.exclude(profile__location="")
+    recent_locations = recent_locations.select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = ''
-    recent_replies = [] #Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER])
-    recent_replies = [] #recent_replies.select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
-    recent_projects = [] #Project.objects.filter(privacy=Project.PUBLIC).order_by("-pk")[:settings.PROJECT_FEED_COUNT]
+    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER])
+    recent_replies = recent_replies.select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
-                   user=user, recent_projects=recent_projects)
+                   user=user)
 
     return context
 
@@ -329,7 +328,7 @@ def traverse_comments(request, post, tree, comment_template, next_url,
 
         data = ['<div class="ui comment segments">']
         cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url,
-                "vote_url":vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME,
+                "vote_url": vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME,
                 "project_uid": project_uid}
         html = body.render(cont)
         data.append(html)

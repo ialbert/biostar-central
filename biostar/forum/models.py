@@ -270,6 +270,7 @@ class Vote(models.Model):
     # Post statuses.
 
     UP, DOWN, BOOKMARK, ACCEPT, EMPTY = range(5)
+
     TYPE_CHOICES = [(UP, "Upvote"), (EMPTY, "Empty"),
                     (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
 
@@ -337,6 +338,43 @@ class Subscription(models.Model):
 
         sub = Subscription.objects.filter(post=post, user=user)
         return None if user.is_anonymous else sub
+
+
+class Badge(models.Model):
+    BRONZE, SILVER, GOLD = range(3)
+    CHOICES = ((BRONZE, 'Bronze'), (SILVER, 'Silver'), (GOLD, 'Gold'))
+
+    # The name of the badge.
+    name = models.CharField(max_length=50)
+
+    # The description of the badge.
+    desc = models.CharField(max_length=200, default='')
+
+    # The rarity of the badge.
+    type = models.IntegerField(choices=CHOICES, default=BRONZE)
+
+    # Unique badges may be earned only once
+    unique = models.BooleanField(default=False)
+
+    # Total number of times awarded
+    count = models.IntegerField(default=0)
+
+    # The icon to display for the badge.
+    icon = models.CharField(default='fa fa-asterisk', max_length=250)
+
+    def __str__(self):
+        return self.name
+
+
+class Award(models.Model):
+    '''
+    A badge being awarded to a user.Cannot be ManyToManyField
+    because some may be earned multiple times
+    '''
+    badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField()
+    context = models.CharField(max_length=1000, default='')
 
 
 @receiver(post_save, sender=Post)

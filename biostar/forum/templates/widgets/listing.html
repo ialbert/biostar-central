@@ -49,9 +49,12 @@
                 <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
 
             </div>
-<div class="subs">
-    {{ post.subs_count }} follow
-</div>
+
+    {% if post.subs_count %}
+        <div class="subs">
+            {{ post.subs_count }} follow
+        </div>
+    {% endif %}
 
 </div>
 

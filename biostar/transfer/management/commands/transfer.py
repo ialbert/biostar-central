@@ -40,6 +40,14 @@ def bulk_copy_users():
                               digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
 
             yield profile
+
+    def gen_badges():
+        return
+
+    def gen_awards():
+        return
+
+
     # Bulk create the users, then profile.
     User.objects.bulk_create(objs=gen_users(), batch_size=10000)
     Profile.objects.bulk_create(objs=gen_profile(), batch_size=10000)
@@ -49,20 +57,24 @@ def bulk_copy_users():
 
 def bulk_copy_votes():
 
-    target = list(Vote.objects.values_list("uid", flat=True))
-    source = PostsVote.objects.exclude(id__in=target)
+    exists = list(Vote.objects.values_list("uid", flat=True))
+    exists = filter(lambda uid: uid.isdigit(), exists)
+    source = PostsVote.objects.exclude(id__in=exists)
 
     def gen_votes():
         posts = {post.uid: post for post in Post.objects.all()}
         users = {user.profile.uid: user for user in User.objects.all()}
 
         for vote in source:
-            post = posts.get(vote.post_id)
-            author = users.get(vote.author_id)
+
+            post = posts.get(str(vote.post_id))
+            author = users.get(str(vote.author_id))
             # Skip if post or author do not exist
             if not (post and author):
                 continue
-            vote = Vote(post=post, author=author, type=vote.type, uid=vote.id)
+
+            vote = Vote(post=post, author=author, type=vote.type, uid=vote.id,
+                        date=vote.date)
             yield vote
 
     Vote.objects.bulk_create(objs=gen_votes(), batch_size=1000)
@@ -92,7 +104,7 @@ def bulk_copy_posts():
                             author=author, status=post.status, rank=post.rank, has_accepted=post.has_accepted,
                             lastedit_date=post.lastedit_date, book_count=post.book_count, reply_count=post.reply_count,
                             content=content, title=post.title,vote_count=post.vote_count, thread_score=post.reply_count,
-                            creation_date=post.creation_date, tag_val=post.tag_val, subs_count=post.subs_count,
+                            creation_date=post.creation_date, tag_val=post.tag_val,
                             view_count=post.view_count)
 
             # Store parent and root for every post.
@@ -137,13 +149,13 @@ def bulk_copy_posts():
 
 
 def bulk_copy_subs():
-    users = {user.profile.uid: user for user in User.objects.all()}
-    posts = {post.uid: post for post in Post.objects.all()}
-    exists = list(Subscription.objects.values_list("uid", flat=True))
-    exists = filter(lambda uid: uid.isdigit(), exists)
-    source = PostsSubscription.objects.exclude(id__in=exists)
 
     def generate():
+        users = {user.profile.uid: user for user in User.objects.all()}
+        posts = {post.uid: post for post in Post.objects.all()}
+        exists = list(Subscription.objects.values_list("uid", flat=True))
+        exists = filter(lambda uid: uid.isdigit(), exists)
+        source = PostsSubscription.objects.exclude(id__in=exists)
         logger.info("Copying subscriptions")
         for subs in source:
 
@@ -153,11 +165,15 @@ def bulk_copy_subs():
 
             yield sub
 
-    #def update_counts():
-        # Update subs_counts for posts
-     #   for post in posts:
+    def update_counts():
+        # Recompute subs_count for
+        posts = {post: post.subs.exclude(user=post.author).count() for post in Post.objects.all()}
+        for post in posts:
+            post.subs_count = posts[posts]
 
     Subscription.objects.bulk_create(objs=generate(), batch_size=1000)
+    Post.objects.bulk_update(objs=update_counts(), fields=["subs_count"], batch_size=1000)
+
     logger.info("Load all subscriptions")
     return
 
