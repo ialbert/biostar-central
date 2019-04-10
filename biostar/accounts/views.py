@@ -17,6 +17,8 @@ from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
 from biostar.engine.auth import get_project_list
+from biostar.engine.views import annotate_projects
+from biostar.forum.auth import my_posts
 from biostar.engine.models import Project
 from biostar.utils.shortcuts import reverse
 from . import forms
@@ -81,12 +83,6 @@ def user_moderate(request, uid):
     context = dict(form=form, target=target)
     return render(request, "accounts/user_moderate.html", context)
 
-def annotate_projects(projects):
-    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(deleted=False)),
-                                 job_count=Count('job', distinct=True, filter=Q(deleted=False)),
-                                 recipe_count=Count('analysis', distinct=True, filter=Q(deleted=False)))
-    return projects
-
 
 def user_profile(request, uid):
     profile = Profile.objects.filter(uid=uid).first()
@@ -97,28 +93,25 @@ def user_profile(request, uid):
 
     # Get the active tab, defaults to project
     active_tab = request.GET.get(ACTIVE_TAB, POSTS)
-
+    # User viewing profile is a moderator
     can_moderate = profile.can_moderate(source=request.user)
 
-    projects = get_project_list(user=profile.user, include_public=False)
-    projects = annotate_projects(projects)
+    if active_tab == PROJECT:
+        objs = get_project_list(user=profile.user, include_public=False)
+        objs = annotate_projects(objs)
+        objs = objs.exclude(privacy=Project.PRIVATE) if request.user != profile.user else objs
+        objs = objs.order_by("rank", "-date")
+    else:
+        objs = my_posts(target=profile.user, request=request)
+        objs = objs.prefetch_related("root", "lastedit_user__profile", "thread_users__profile")
 
-    if request.user != profile.user:
-        projects = projects.exclude(privacy=Project.PRIVATE)
-
-    projects = projects.order_by("rank", "-date")
     page = request.GET.get("page", 1)
-
-    paginator = Paginator(projects, per_page=20)
+    paginator = Paginator(objs, per_page=20)
     page = page if page is not None else 1
 
-    projects = paginator.get_page(page)
-
-    context = dict(user=profile.user, objs=projects,
-                   const_name=ACTIVE_TAB, const_post=POSTS, const_project=PROJECT,
-                   const_recipes=RECIPES, can_moderate=can_moderate)
-
-    context.update({active_tab: ACTIVE_TAB} )
+    objs = paginator.get_page(page)
+    context = dict(user=profile.user, objs=objs, active=active_tab,
+                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate)
 
     return render(request, 'accounts/user_profile.html', context)
 

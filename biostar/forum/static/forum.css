@@ -295,6 +295,12 @@ img {
     border: none transparent;
 }
 
+.subs{
+    text-align: center;
+    font-size: smaller;
+    color: #762C90;
+}
+
 .socialbox{
     width:450 !important;
     margin-left:auto !important;
