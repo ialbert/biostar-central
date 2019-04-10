@@ -69,10 +69,10 @@ class Post(models.Model):
     ]
     TOP_LEVEL = {QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, TOOL, NEWS, BOARD}
 
-    SPAM, ON_TOPIC, USEFUL = range(3)
-    SPAM_CHOICES = [(SPAM, "Spam"), (ON_TOPIC, "On topic"), (USEFUL, "Useful") ]
+    SPAM, VALID, NEW = range(3)
+    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Non spam"), (NEW, "New post")]
 
-    spam = models.IntegerField(choices=SPAM_CHOICES, default=ON_TOPIC)
+    spam = models.IntegerField(choices=SPAM_CHOICES, default=NEW)
 
     title = models.CharField(max_length=200, null=False, db_index=True)
 

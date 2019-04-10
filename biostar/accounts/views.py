@@ -104,6 +104,7 @@ def user_profile(request, uid):
     else:
         objs = my_posts(target=profile.user, request=request)
         objs = objs.prefetch_related("root", "lastedit_user__profile", "thread_users__profile")
+        objs = objs.order_by("rank", '-lastedit_date')
 
     page = request.GET.get("page", 1)
     paginator = Paginator(objs, per_page=20)
