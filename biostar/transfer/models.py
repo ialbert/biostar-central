@@ -160,6 +160,20 @@ class PostsVote(models.Model):
         return PostsPost.objects.filter(id=self.post_id).first()
 
 
+class BadgesBadge(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=50)
+    type = models.IntegerField()
+    unique = models.BooleanField()
+    count = models.IntegerField()
+    desc = models.CharField(max_length=200)
+    icon = models.CharField(max_length=250)
+
+    class Meta:
+        managed = False
+        db_table = 'badges_badge'
+
+
 class BadgesAward(models.Model):
     badge_id = models.IntegerField()
     user_id = models.IntegerField()
@@ -170,15 +184,6 @@ class BadgesAward(models.Model):
         managed = False
         db_table = 'badges_award'
 
-
-class BadgesBadge(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=50)
-    type = models.IntegerField()
-    count = models.IntegerField()
-    desc = models.CharField(max_length=200)
-    icon = models.CharField(max_length=250)
-
-    class Meta:
-        managed = False
-        db_table = 'badges_badge'
+    @property
+    def badge(self):
+        return BadgesBadge.objects.filter(id=self.badge_id).first()

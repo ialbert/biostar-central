@@ -42,11 +42,12 @@ def bulk_copy_users():
             yield profile
 
     def gen_badges():
+        # Copy badges for a user
+
         return
 
     def gen_awards():
         return
-
 
     # Bulk create the users, then profile.
     User.objects.bulk_create(objs=gen_users(), batch_size=10000)
