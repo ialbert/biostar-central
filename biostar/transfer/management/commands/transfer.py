@@ -177,7 +177,7 @@ def bulk_copy_subs():
             post.subs_count = posts[post]
             yield post
 
-    #Subscription.objects.bulk_create(objs=generate(), batch_size=1000)
+    Subscription.objects.bulk_create(objs=generate(), batch_size=1000)
     Post.objects.bulk_update(objs=update_counts(), fields=["subs_count"], batch_size=1000)
 
     logger.info("Load all subscriptions")
