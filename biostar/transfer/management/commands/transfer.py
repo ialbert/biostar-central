@@ -175,6 +175,7 @@ def bulk_copy_subs():
         posts = {post: post.subs.exclude(user=post.author).count() for post in Post.objects.all()}
         for post in posts:
             post.subs_count = posts[post]
+            yield post
 
     #Subscription.objects.bulk_create(objs=generate(), batch_size=1000)
     Post.objects.bulk_update(objs=update_counts(), fields=["subs_count"], batch_size=1000)
