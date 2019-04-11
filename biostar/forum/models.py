@@ -353,14 +353,11 @@ class Badge(models.Model):
     # The rarity of the badge.
     type = models.IntegerField(choices=CHOICES, default=BRONZE)
 
-    # Unique badges may be earned only once
-    unique = models.BooleanField(default=False)
-
     # Total number of times awarded
     count = models.IntegerField(default=0)
 
     # The icon to display for the badge.
-    icon = models.CharField(default='fa fa-asterisk', max_length=250)
+    icon = models.CharField(default='', max_length=250)
 
     def __str__(self):
         return self.name
@@ -373,6 +370,7 @@ class Award(models.Model):
     '''
     badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField()
     context = models.CharField(max_length=1000, default='')
 
