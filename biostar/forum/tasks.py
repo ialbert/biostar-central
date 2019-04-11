@@ -18,24 +18,15 @@ try:
     HAS_UWSGI = True
 
 
-    def post_created(user):
-        "Executed on a post creation"
-        logger.info("post created")
+    def send_mail():
+        return
+
+    def create_user_awards(user):
+        return
 
 
-    @app.task
-    def call_command(name, *args, **kwargs):
-        "Calls a django command in a delayed fashion"
-        logger.info("calling django command %s with %s and %s" % (name, args, kwargs))
-        from django.core.management import call_command
-        call_command(name, *args, **kwargs)
-
-
-    @app.task
-    def test(*args, **kwds):
-        logger.info("*** executing task %s %s, %s" % (__name__, args, kwds))
-
-
+    def check_user_profile(ip, user):
+        return
 
 except ModuleNotFoundError as exc:
     pass

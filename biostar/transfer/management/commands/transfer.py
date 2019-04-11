@@ -32,10 +32,11 @@ def bulk_copy_users():
         source = UsersUser.objects.exclude(email__in=target)
 
         for user in source:
+            text = util.strip_tags(user.profile.info)
             profile = Profile(uid=user.id, name=user.name, user=new_users.get(user.email),
-                              role=user.type, last_login=user.last_login,
+                              role=user.type, last_login=user.last_login, html=user.profile.info,
                               date_joined=user.profile.date_joined, location=user.profile.location,
-                              website=user.profile.website, scholar=user.profile.scholar, text=user.profile.info,
+                              website=user.profile.website, scholar=user.profile.scholar, text=text,
                               score=user.score, twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
                               digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
 
@@ -47,6 +48,7 @@ def bulk_copy_users():
         return
 
     def gen_awards():
+
         return
 
     # Bulk create the users, then profile.
@@ -85,6 +87,7 @@ def bulk_copy_votes():
 
 def bulk_copy_posts():
     relations = {}
+    all_users = User.objects.all()
 
     # Walk through tree and update parent, root, post, relationships
     def gen_posts():
@@ -93,7 +96,7 @@ def bulk_copy_posts():
         exists = [int(post_uid) for post_uid in exists if post_uid.isdigit()]
 
         source = PostsPost.objects.exclude(id__in=exists)
-        users = {user.profile.uid: user for user in User.objects.all()}
+        users = {user.profile.uid: user for user in all_users}
         logger.info("Starting create loop.")
         for post in source:
 
@@ -167,12 +170,13 @@ def bulk_copy_subs():
             yield sub
 
     def update_counts():
+        logger.info("Updating post subs_count")
         # Recompute subs_count for
         posts = {post: post.subs.exclude(user=post.author).count() for post in Post.objects.all()}
         for post in posts:
-            post.subs_count = posts[posts]
+            post.subs_count = posts[post]
 
-    Subscription.objects.bulk_create(objs=generate(), batch_size=1000)
+    #Subscription.objects.bulk_create(objs=generate(), batch_size=1000)
     Post.objects.bulk_update(objs=update_counts(), fields=["subs_count"], batch_size=1000)
 
     logger.info("Load all subscriptions")
