@@ -169,6 +169,8 @@ class BadgesBadge(models.Model):
     desc = models.CharField(max_length=200)
     icon = models.CharField(max_length=250)
 
+    objects = Manager()
+
     class Meta:
         managed = False
         db_table = 'badges_badge'
@@ -179,6 +181,8 @@ class BadgesAward(models.Model):
     user_id = models.IntegerField()
     date = models.DateTimeField()
     context = models.CharField(max_length=1000)
+
+    objects = Manager()
 
     class Meta:
         managed = False

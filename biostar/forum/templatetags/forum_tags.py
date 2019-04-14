@@ -11,10 +11,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models import Q
+from datetime import datetime
 
 from biostar.engine.models import Project
 from biostar.utils.shortcuts import reverse
-from biostar.forum.models import Post, Vote
+from biostar.forum.models import Post, Vote, Award
 from biostar.forum import auth, forms, models, const, util
 
 
@@ -160,7 +161,8 @@ def feed(user):
     recent_locations = User.objects.exclude(profile__location="")
     recent_locations = recent_locations.select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
 
-    recent_awards = ''
+    recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
+    recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
     recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER])
     recent_replies = recent_replies.select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
 

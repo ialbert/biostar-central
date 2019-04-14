@@ -13,18 +13,22 @@ class ForumConfig(AppConfig):
     def ready(self):
         # Triggered upon app initialization.
         post_migrate.connect(init_post, sender=self)
-        #post_migrate.connect(init_awards, sender=self)
+        post_migrate.connect(init_awards, sender=self)
 
         pass
 
 
-def init_awards():
+def init_awards(sender,  **kwargs):
     "Initializes the badges"
     from biostar.forum.models import Badge
     from biostar.forum.awards import ALL_AWARDS
 
     for obj in ALL_AWARDS:
-        badge, created = Badge.objects.get_or_create(name=obj.name)
+        badge = Badge.objects.filter(name=obj.name)
+
+        if badge:
+            continue
+        badge = Badge.objects.create(name=obj.name)
 
         # Badge descriptions may change.
         if badge.desc != obj.desc:
@@ -33,8 +37,7 @@ def init_awards():
             badge.type = obj.type
             badge.save()
 
-        if created:
-            logger.info("initializing badge %s" % badge)
+        logger.info("initializing badge %s" % badge)
 
 
 def init_post(sender,  **kwargs):

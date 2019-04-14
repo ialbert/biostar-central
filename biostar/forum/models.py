@@ -359,8 +359,15 @@ class Badge(models.Model):
     # The icon to display for the badge.
     icon = models.CharField(default='', max_length=250)
 
+    uid = models.CharField(max_length=32, unique=True)
+
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        # Set the date to current time if missing.
+        self.uid = self.uid or util.get_uuid(limit=16)
+        super(Badge, self).save(*args, **kwargs)
 
 
 class Award(models.Model):
@@ -373,6 +380,12 @@ class Award(models.Model):
     post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField()
     context = models.CharField(max_length=1000, default='')
+    uid = models.CharField(max_length=32, unique=True)
+
+    def save(self, *args, **kwargs):
+        # Set the date to current time if missing.
+        self.uid = self.uid or util.get_uuid(limit=16)
+        super(Award, self).save(*args, **kwargs)
 
 
 @receiver(post_save, sender=Post)

@@ -2,8 +2,8 @@
 import logging
 from django.core.management.base import BaseCommand
 from biostar.accounts.models import User, Profile
-from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription
-from biostar.forum.models import Post, Vote, Subscription
+from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesBadge, BadgesAward
+from biostar.forum.models import Post, Vote, Subscription, Badge, Award
 from biostar.forum import util
 logger = logging.getLogger("engine")
 
@@ -42,20 +42,32 @@ def bulk_copy_users():
 
             yield profile
 
-    def gen_badges():
-        # Copy badges for a user
-
-        return
-
     def gen_awards():
+
+        # Query the badges
+        badges = {badge.name: badge for badge in Badge.objects.all()}
+        # Query users
+        users = {profile.uid: profile.user for profile in Profile.objects.all()}
+        exists = list(Award.objects.values_list("uid", flat=True))
+        source = BadgesAward.objects.exclude(id__in=exists)
+
+        for award in source:
+            badge = badges[award.badge.name]
+            user = users[str(award.user_id)]
+            award = Award(date=award.date, context=award.context, badge=badge,
+                          user=user, uid=award.id)
+
+            yield award
 
         return
 
     # Bulk create the users, then profile.
     User.objects.bulk_create(objs=gen_users(), batch_size=10000)
+    logger.info("Copied users")
     Profile.objects.bulk_create(objs=gen_profile(), batch_size=10000)
-
-    logger.info("Copied all users/profiles from biostar2")
+    logger.info("Copied proiles")
+    Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
+    logger.info("Copied awards")
 
 
 def bulk_copy_votes():

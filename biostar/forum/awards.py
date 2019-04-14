@@ -21,7 +21,7 @@ class AwardDef(object):
         self.desc = desc
         self.fun = func
         self.icon = icon
-        self.template = "badge/default.html"
+        self.template = ""
         self.type = type
 
     def validate(self, *args, **kwargs):
