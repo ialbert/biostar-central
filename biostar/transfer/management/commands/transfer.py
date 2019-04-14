@@ -59,8 +59,6 @@ def bulk_copy_users():
 
             yield award
 
-        return
-
     # Bulk create the users, then profile.
     User.objects.bulk_create(objs=gen_users(), batch_size=10000)
     logger.info("Copied users")
