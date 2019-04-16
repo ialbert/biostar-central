@@ -40,49 +40,6 @@ def get_votes(user, thread):
     return store
 
 
-def give_award(user):
-    """
-    Give award to user.
-    """
-    awards = dict()
-    for award in Award.objects.filter(user=user).select_related('badge'):
-        awards.setdefault(award.badge.name, []).append(award)
-
-    get_award_count = lambda name: len(awards[name]) if name in awards else 0
-
-    for obj in ALL_AWARDS:
-
-        # How many times has been awarded to this user.
-        seen_count = get_award_count(obj.name)
-
-        # How many times should it been awarded
-        valid_targets = obj.validate(user)
-
-        # Keep that targets that have not been awarded
-        valid_targets = valid_targets[seen_count:]
-
-        # Some limit on awards
-        valid_targets = valid_targets[:100]
-
-        # Award the targets
-        for target in valid_targets:
-            # Update the badge counts.
-            badge = Badge.objects.filter(name=obj.name)
-            badge.count += 1
-            badge.save()
-
-            if isinstance(target, Post):
-                context = '<a href="%s">%s</a>' % (target.get_absolute_url(), target.title)
-            else:
-                context = ""
-
-            date = user.profile.last_login
-            award = Award.objects.create(user=user, badge=badge, date=date, context=context)
-            logger.info("award %s created for %s" % (award.badge.name, user.email))
-
-    return
-
-
 def my_posts(target, request):
 
     user = request.user

@@ -295,6 +295,10 @@ img {
     border: none transparent;
 }
 
+.modcolor{
+    color:#8f2c47 !important;
+}
+
 .subs{
     text-align: center;
     font-size: smaller;

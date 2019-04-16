@@ -1,6 +1,6 @@
 import os, logging
 
-logger= logging.getLogger("engine")
+logger = logging.getLogger("engine")
 
 from django.core.wsgi import get_wsgi_application
 

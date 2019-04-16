@@ -21,7 +21,7 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(20)
+    @timer(250)
     def send_emails(*args ,**kwargs):
         """
         Sends  queued emails

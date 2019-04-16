@@ -12,8 +12,7 @@
         {{post.lastedit_user.profile.name }}
 
     </a>
-
-        &bull;
+        {{ post.lastedit_user |show_score_icon }}
         {{ post.lastedit_user.profile.score | show_score | bignum }}
 
 

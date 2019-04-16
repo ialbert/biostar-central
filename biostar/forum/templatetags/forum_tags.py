@@ -174,15 +174,16 @@ def feed(user):
 
 
 @register.filter
-def show_score_icon(score):
+def show_score_icon(user):
 
-    icon = "small circle"
-    if score > 500:
-        icon = "small star"
+    color = "modcolor" if user.profile.is_moderator else ""
 
-    score_icon = f'<i class="ui {icon} icon"></i>'
+    if user.profile.score > 500:
+        icon = f'<i class="ui small star icon {color}"></i>'
+    else:
+        icon = f'<span class="{color}"> &bull;</span>'
 
-    return mark_safe(score_icon)
+    return mark_safe(icon)
 
 
 @register.filter

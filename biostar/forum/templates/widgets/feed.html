@@ -62,7 +62,8 @@
                             <span>
                             {{ award.badge.name }} <i class="{{ award.badge.icon }}"></i>
                                 <a href="{% url "user_profile" award.user.profile.uid %}">
-                                    {{award.user.profile.name}}</a>
+                                    {{award.user.profile.name}} {{ award.user|show_score_icon }}
+                                    {{ award.user.profile.score | show_score | bignum }}</a>
                             </span>
                         </div>
 
@@ -88,7 +89,7 @@
                             <a href="{% url "user_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}
                             </a>
 
-                        <span>  {{ replies.author.profile.score |show_score_icon }}
+                        <span>  {{ replies.author |show_score_icon }}
                         {{ replies.author.profile.score | show_score | bignum }}</span>
 
                         <div class="muted" style="padding-top:5px;">

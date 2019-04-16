@@ -22,7 +22,7 @@
             </div>
 
             <div><a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
-                {{ user.profile.score |show_score_icon}}{{ user.profile.score | show_score |bignum }}</div>
+                {{ user |show_score_icon}}{{ user.profile.score | show_score |bignum }}</div>
 
         {% if can_moderate %}
 

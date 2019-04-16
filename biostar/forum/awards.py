@@ -43,7 +43,7 @@ class AwardDef(object):
 AUTOBIO = AwardDef(
     name="Autobiographer",
     desc="has more than 80 characters in the information field of the user's profile",
-    func=lambda user: wrap_list(user, len(user.profile.info) > 80),
+    func=lambda user: wrap_list(user, len(user.profile.text) > 80),
     icon="bullhorn icon"
 )
 
