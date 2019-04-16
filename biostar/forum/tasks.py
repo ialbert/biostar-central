@@ -2,6 +2,10 @@ import logging
 from biostar.accounts.models import User
 from biostar.forum.models import Award, Badge, Post
 from biostar.forum.awards import ALL_AWARDS
+from biostar.forum import util
+from biostar.message.models import Message
+#from biostar.emailer.auth import notify
+from django.core.mail import send_mass_mail
 
 logger = logging.getLogger("engine")
 
@@ -10,14 +14,46 @@ HAS_UWSGI = False
 
 COUNTER = 1
 
+
+def send_award_messages(award):
+    """ Send local message to user when award is won"""
+
+    user = award.user
+
+    award_template = "message/award_creation.html"
+    # Generate the message from the template.
+    content = util.render(name=award_template, award=award, user=user)
+
+    subject = "Congratulations: you won %s" % award.badge.name
+
+    # Create the message body.
+    Message.objects.create(user=user, subject=subject, body=content,)
+
+    return
+
+
 try:
     from uwsgidecorators import *
 
     HAS_UWSGI = True
 
 
-    def send_mail():
+    def send_post_mail(pid):
+
+        """Send post mail belonging to """
+
         return
+
+    def send_weekly_digest():
+        """Send weekly digest to subscribed users """
+        return
+
+    def send_daily_digest():
+        return
+
+    def send_monthly_digest():
+        return
+
 
     @spool(pass_arguments=True)
     def create_user_awards(user_id):
@@ -49,37 +85,43 @@ try:
                 badge = Badge.objects.filter(name=obj.name)
                 badge.count += 1
                 badge.save()
+                date = user.profile.last_login
 
                 if isinstance(target, Post):
                     context = '<a href="%s">%s</a>' % (target.get_absolute_url(), target.title)
+                    award = Award.objects.create(user=user, badge=badge, date=date, post=target,
+                                                 context=context)
                 else:
                     context = ""
-
-                date = user.profile.last_login
-                award = Award.objects.create(user=user, badge=badge, date=date, context=context)
+                    award = Award.objects.create(user=user, badge=badge, date=date, context=context)
+                send_award_messages(award=award)
                 logger.info("award %s created for %s" % (award.badge.name, user.email))
-                print(target, award)
-        return
 
+        return
 
     def check_user_profile(ip, user):
         return
 
     @spool(pass_arguments=True)
-    def post_create(pid):
+    def created_post(pid):
         logger.info(f"Created post={pid}")
 
     @spool(pass_arguments=True)
-    def post_edit(pid):
+    def edited_post(pid):
         logger.info(f"Edited post={pid}")
 
     @spool(pass_arguments=True)
-    def added_sub():
-        logger.info(f"Created sub")
+    def added_sub(sid):
+        logger.info(f"Created sub with pk={sid}")
 
-    def trigger_vote():
-        logger.info(f"Created Vote")
-        
+    @spool(pass_arguments=True)
+    def moderated_post(pid):
+        logger.info(f"Post has been moderated pid={pid}")
+
+    @spool(pass_arguments=True)
+    def triggered_vote(pid, vtype):
+        logger.info(f"Created Vote for post={pid} with type={vtype}")
+
 
 except ModuleNotFoundError as exc:
     pass

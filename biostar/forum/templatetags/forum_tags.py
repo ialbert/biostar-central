@@ -154,7 +154,7 @@ def is_moderator(user):
 @register.inclusion_tag('widgets/feed.html')
 def feed(user):
 
-    recent_votes = Vote.objects.filter(type=Vote.UP).distinct()[:settings.VOTE_FEED_COUNT]
+    recent_votes = Vote.objects.order_by("-pk")[:settings.VOTE_FEED_COUNT]
     # Needs to be put in context of posts
     recent_votes = recent_votes.prefetch_related("post")
 

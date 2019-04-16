@@ -41,9 +41,9 @@ class Profile(models.Model):
 
     LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(3)
     MESSAGING_TYPE_CHOICES = [
-                            (LOCAL_MESSAGE, "Local messages"),
-                            (EMAIL_MESSAGE, "Email messages"),
-                            (DIGEST_MESSAGES, "Digest email messages")
+        (LOCAL_MESSAGE, "Local messages"),
+        (EMAIL_MESSAGE, "Email for every new post added to current one."),
+        (DIGEST_MESSAGES, "Email for every new thread (mailing list mode)")
                             ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)

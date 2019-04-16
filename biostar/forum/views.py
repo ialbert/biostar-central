@@ -7,10 +7,10 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 
 from biostar.utils.shortcuts import reverse
-from . import forms, auth
+from biostar.forum import forms, auth, tasks
 from .models import Post, Vote, Subscription, Badge, Award
 from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
-from .const import *
+from biostar.forum.const import *
 
 
 User = get_user_model()
@@ -64,7 +64,7 @@ def post_list(request):
         posts = posts.filter(tag_val__iregex=tag)
 
     # Get the page info
-    posts = posts.order_by("rank", "-lastedit_date")
+    posts = posts.order_by("rank")
     page = request.GET.get('page')
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     posts = paginator.get_page(page)
@@ -136,8 +136,10 @@ def ajax_vote(request):
     if post.root.author != user and vote_type == Vote.ACCEPT:
         return ajax_error("Only the person asking the question may accept this answer.")
 
-    msg = auth.preform_vote(post=post, user=user, vote_type=vote_type)
+    msg, vote = auth.preform_vote(post=post, user=user, vote_type=vote_type)
 
+    if tasks.HAS_UWSGI:
+        tasks.triggered_vote(pid=post.id, vtype=vote_type)
     return ajax_success(msg)
 
 
@@ -160,6 +162,9 @@ def post_view(request, uid):
         if form.is_valid():
             post = form.save(author=request.user)
             location = reverse("post_view", request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
+            if tasks.HAS_UWSGI:
+                tasks.created_post(pid=post.id)
+
             return redirect(location)
 
     # Populate the object to build a tree that contains all posts in the thread.
@@ -180,8 +185,9 @@ def comment(request):
         if form.is_valid():
             post = form.save(author=request.user, post_type=Post.COMMENT)
             messages.success(request, "Added comment")
-
             location = reverse("post_view", kwargs=dict(uid=post.uid)) + "#" + post.uid
+            if tasks.HAS_UWSGI:
+                tasks.created_post(pid=post.id)
         else:
             messages.error(request, f"Error adding comment:{form.errors}")
             parent = Post.objects.get_all(uid=request.POST.get("parent_uid")).first()
@@ -209,6 +215,9 @@ def subs_action(request, uid, next=None):
             msg = f"Updated Subscription to : {sub.get_type_display()}"
             messages.success(request, msg)
 
+            if tasks.HAS_UWSGI:
+                tasks.added_sub(sid=sub.id)
+
     return redirect(next_url)
 
 
@@ -226,6 +235,8 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
         if form.is_valid():
             # Create a new post by user
             post = form.save(author=request.user)
+            if tasks.HAS_UWSGI:
+                tasks.created_post(pid=post.id)
             return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
 
     context = dict(form=form, extra_tab="active", extra_tab_name="New Post", action_url=reverse("post_create"))
@@ -247,6 +258,8 @@ def post_moderate(request, uid):
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
         if form.is_valid():
             url = form.save()
+            if tasks.HAS_UWSGI:
+                tasks.moderated_post(pid=post.id)
             return redirect(url)
         else:
             msg = ','.join([y for x in form.errors.values() for y in x])

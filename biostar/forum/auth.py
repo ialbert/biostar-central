@@ -190,7 +190,7 @@ def preform_vote(post, user, vote_type, uid=None):
 
     trigger_vote(vote_type=vote_type, post=post, change=change)
 
-    return msg
+    return msg, vote
 
 
 def create_post_from_json(json_dict):
