@@ -8,7 +8,7 @@ from django.conf import settings
 
 from biostar.utils.shortcuts import reverse
 from . import forms, auth
-from .models import Post, Vote, Subscription
+from .models import Post, Vote, Subscription, Badge, Award
 from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from .const import *
 
@@ -84,6 +84,28 @@ def community_list(request):
     context = dict(community="active", objs=objs)
 
     return render(request, "community_list.html", context=context)
+
+
+def badge_list(request):
+
+    badges = Badge.objects.all()
+    context = dict(badges=badges)
+    return render(request, "badge_list.html", context=context)
+
+
+def badge_view(request, uid):
+
+    badge = Badge.objects.filter(uid=uid).first()
+
+    if not badge:
+        messages.error(request, f"Badge with id={uid} does not exist.")
+        return redirect(reverse("badge_list"))
+
+    awards = badge.award_set.select_related("user").order_by("-pk")[:100]
+
+    context = dict(awards=awards, badge=badge)
+
+    return render(request, "badge_view.html", context=context)
 
 
 #def tags_list(request):

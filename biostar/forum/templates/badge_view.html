@@ -1,0 +1,53 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+
+{% block headtitle %}
+    Badge View
+{% endblock %}
+
+
+
+{% block body %}
+
+<div class="ui basic segment">
+    <div class="ui basic segment">
+        Badge: {{ badge.name }} <i class="{{ badge.icon }}"></i> <a href="{% url 'badge_list' %}"> &bull;  All
+            <i class="ui angle small double right icon"></i></a>
+        <div>Awarded {{ badge.count }} times for : {{ badge.desc }}</div>
+        <div>Recently awarded to </div>
+    </div>
+    <div class="ui grid">
+
+          {%  for award in awards %}
+            <div class="four wide column">
+                <div class="center aligned author">
+                    <a href="{% url "user_profile" award.user.profile.uid %}">
+                      <div class="ui circular image">
+                        {% gravatar user=award.user size=80 %}
+                      </div>
+                    </a>
+                </div>
+                <a href="{% url "user_profile" award.user.profile.uid %}">{{award.user.profile.name}}</a>
+                {{ award.user |show_score_icon}}  {{ award.user.profile.score | show_score |bignum }}
+            <div>
+                {% if award.user.profile.last_login %}
+                visited {{ award.user.profile.last_login|time_ago }}
+                {% else %}
+                    Joined {{ award.user.profile.date_joined|time_ago }}
+                {% endif %}
+
+            </div>
+            <div class="muted">
+                    {{ award.user.profile.location |truncatechars:40}}
+            </div>
+            </div>
+
+          {%  endfor %}
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block feed %}
+{% endblock %}

@@ -366,7 +366,7 @@ class Badge(models.Model):
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
-        self.uid = self.uid or util.get_uuid(limit=16)
+        self.uid = self.uid or util.get_uuid(limit=4)
         super(Badge, self).save(*args, **kwargs)
 
 

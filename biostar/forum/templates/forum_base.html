@@ -111,11 +111,15 @@
         {% endblock %}
 </div>
 
-    <div class="four wide column">
+{% block feed %}
+
+<div class="four wide column">
 
             {% feed user=request.user %}
 
 </div>
+
+{% endblock %}
 
 </div>
 

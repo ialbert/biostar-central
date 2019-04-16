@@ -53,14 +53,14 @@
         <div class="ui container">
             <div class="ui large vertical segment">
             <b>Recent Awards</b>
-            <a href="#"> &bull;  All <i class="ui angle small double right icon"></i></a>
+            <a href="{% url 'badge_list' %}"> &bull;  All <i class="ui angle small double right icon"></i></a>
 
                 <div class="ui tiny relaxed list" >
                    {% for award in recent_awards %}
 
                         <div class="item"  style="">
                             <span>
-                            {{ award.badge.name }} <i class="{{ award.badge.icon }}"></i>
+                                <a href="{% url 'badge_view' award.badge.uid %}">{{ award.badge.name }} <i class="{{ award.badge.icon }}"></i></a> to
                                 <a href="{% url "user_profile" award.user.profile.uid %}">
                                     {{award.user.profile.name}} {{ award.user|show_score_icon }}
                                     {{ award.user.profile.score | show_score | bignum }}</a>
