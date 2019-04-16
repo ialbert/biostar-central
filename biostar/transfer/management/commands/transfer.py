@@ -2,8 +2,8 @@
 import logging
 from django.core.management.base import BaseCommand
 from biostar.accounts.models import User, Profile
-from biostar.transfer.models import UsersUser, PostsPost, PostsVote
-from biostar.forum.models import Post, Vote
+from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesBadge, BadgesAward
+from biostar.forum.models import Post, Vote, Subscription, Badge, Award
 from biostar.forum import util
 logger = logging.getLogger("engine")
 
@@ -32,37 +32,62 @@ def bulk_copy_users():
         source = UsersUser.objects.exclude(email__in=target)
 
         for user in source:
+            text = util.strip_tags(user.profile.info)
             profile = Profile(uid=user.id, name=user.name, user=new_users.get(user.email),
-                              role=user.type, last_login=user.last_login,
+                              role=user.type, last_login=user.last_login, html=user.profile.info,
                               date_joined=user.profile.date_joined, location=user.profile.location,
-                              website=user.profile.website, scholar=user.profile.scholar, text=user.profile.info,
+                              website=user.profile.website, scholar=user.profile.scholar, text=text,
                               score=user.score, twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
                               digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
 
             yield profile
+
+    def gen_awards():
+
+        # Query the badges
+        badges = {badge.name: badge for badge in Badge.objects.all()}
+        # Query users
+        users = {profile.uid: profile.user for profile in Profile.objects.all()}
+        exists = list(Award.objects.values_list("uid", flat=True))
+        source = BadgesAward.objects.exclude(id__in=exists)
+
+        for award in source:
+            badge = badges[award.badge.name]
+            user = users[str(award.user_id)]
+            award = Award(date=award.date, context=award.context, badge=badge,
+                          user=user, uid=award.id)
+
+            yield award
+
     # Bulk create the users, then profile.
     User.objects.bulk_create(objs=gen_users(), batch_size=10000)
+    logger.info("Copied users")
     Profile.objects.bulk_create(objs=gen_profile(), batch_size=10000)
-
-    logger.info("Copied all users/profiles from biostar2")
+    logger.info("Copied proiles")
+    Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
+    logger.info("Copied awards")
 
 
 def bulk_copy_votes():
 
-    target = list(Vote.objects.values_list("uid", flat=True))
-    source = PostsVote.objects.exclude(id__in=target)
+    exists = list(Vote.objects.values_list("uid", flat=True))
+    exists = filter(lambda uid: uid.isdigit(), exists)
+    source = PostsVote.objects.exclude(id__in=exists)
 
     def gen_votes():
         posts = {post.uid: post for post in Post.objects.all()}
         users = {user.profile.uid: user for user in User.objects.all()}
 
         for vote in source:
-            post = posts.get(vote.post_id)
-            author = users.get(vote.author_id)
+
+            post = posts.get(str(vote.post_id))
+            author = users.get(str(vote.author_id))
             # Skip if post or author do not exist
             if not (post and author):
                 continue
-            vote = Vote(post=post, author=author, type=vote.type, uid=vote.id)
+
+            vote = Vote(post=post, author=author, type=vote.type, uid=vote.id,
+                        date=vote.date)
             yield vote
 
     Vote.objects.bulk_create(objs=gen_votes(), batch_size=1000)
@@ -72,6 +97,7 @@ def bulk_copy_votes():
 
 def bulk_copy_posts():
     relations = {}
+    all_users = User.objects.all()
 
     # Walk through tree and update parent, root, post, relationships
     def gen_posts():
@@ -80,7 +106,7 @@ def bulk_copy_posts():
         exists = [int(post_uid) for post_uid in exists if post_uid.isdigit()]
 
         source = PostsPost.objects.exclude(id__in=exists)
-        users = {user.profile.uid: user for user in User.objects.all()}
+        users = {user.profile.uid: user for user in all_users}
         logger.info("Starting create loop.")
         for post in source:
 
@@ -92,7 +118,7 @@ def bulk_copy_posts():
                             author=author, status=post.status, rank=post.rank, has_accepted=post.has_accepted,
                             lastedit_date=post.lastedit_date, book_count=post.book_count, reply_count=post.reply_count,
                             content=content, title=post.title,vote_count=post.vote_count, thread_score=post.reply_count,
-                            creation_date=post.creation_date, tag_val=post.tag_val, subs_count=post.subs_count,
+                            creation_date=post.creation_date, tag_val=post.tag_val,
                             view_count=post.view_count)
 
             # Store parent and root for every post.
@@ -136,6 +162,38 @@ def bulk_copy_posts():
     update_threadusers()
 
 
+def bulk_copy_subs():
+
+    def generate():
+        users = {user.profile.uid: user for user in User.objects.all()}
+        posts = {post.uid: post for post in Post.objects.all()}
+        exists = list(Subscription.objects.values_list("uid", flat=True))
+        exists = filter(lambda uid: uid.isdigit(), exists)
+        source = PostsSubscription.objects.exclude(id__in=exists)
+        logger.info("Copying subscriptions")
+        for subs in source:
+
+            user = users[str(subs.user_id)]
+            post = posts[str(subs.post_id)]
+            sub = Subscription(uid=subs.id, type=subs.type, user=user, post=post, date=subs.date)
+
+            yield sub
+
+    def update_counts():
+        logger.info("Updating post subs_count")
+        # Recompute subs_count for
+        posts = {post: post.subs.exclude(user=post.author).count() for post in Post.objects.all()}
+        for post in posts:
+            post.subs_count = posts[post]
+            yield post
+
+    Subscription.objects.bulk_create(objs=generate(), batch_size=1000)
+    Post.objects.bulk_update(objs=update_counts(), fields=["subs_count"], batch_size=1000)
+
+    logger.info("Load all subscriptions")
+    return
+
+
 class Command(BaseCommand):
     help = "Migrate users from one database to another."
 
@@ -164,11 +222,13 @@ class Command(BaseCommand):
             bulk_copy_users()
             return
         if load_subs:
+            bulk_copy_subs()
             return
 
         # Copy everything
         bulk_copy_users()
         bulk_copy_posts()
         bulk_copy_votes()
+        bulk_copy_subs()
 
         return

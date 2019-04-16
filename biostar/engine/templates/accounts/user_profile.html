@@ -22,7 +22,7 @@
             </div>
 
             <div><a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
-                {{ user.profile.score |show_score_icon}}{{ user.profile.score | show_score |bignum }}</div>
+                {{ user |show_score_icon}}{{ user.profile.score | show_score |bignum }}</div>
 
         {% if can_moderate %}
 
@@ -123,28 +123,41 @@
 
 
 </div>
-
         {{ user.profile.html |safe }}
+        {% activate 'projects' active as active_projects %}
+        {% activate 'posts' active  as active_posts %}
 
-
-             <div class="ui vertical segment">
-        <div class="ui top attached tabular large menu">
-
-            <div class="active item">
-
-                <a href="{% url "user_profile" user.profile.uid %}?{{ const_name }}={{ const_project }}">
-                   Projects
-                </a>
+         <div class="ui vertical segment">
+            <div class="ui top attached tabular large menu">
+                <div class="{{ active_projects }} item">
+                    <a href="{% url "user_profile" user.profile.uid %}?active={{ const_project }}">
+                        Projects
+                    </a>
+                </div>
+                <div class="{{ active_posts }} item">
+                    <a href="{% url "user_profile" user.profile.uid %}?active={{ const_post }}">
+                       Posts
+                    </a>
+                </div>
 
             </div>
 
-        </div>
-
-        <div class="ui bottom attached segment">
+            <div class="ui bottom attached segment">
             {% pages objs=objs request=request  %}
-                {% list_view projects=objs %}
+
+                {% if  active_projects %}
+                    {% list_view projects=objs %}
+                {% else %}
+                    <div class="ui divided items">
+                        {%  for post in objs %}
+                            {% listing post=post %}
+                        {%  endfor %}
+                    </div>
+                {% endif %}
+
             {% pages objs=objs request=request %}
-        </div>
+
+            </div>
 
         </div>
 

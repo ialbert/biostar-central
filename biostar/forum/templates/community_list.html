@@ -26,7 +26,7 @@
                     </a>
                 </div>
                 <a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
-                {{ user.profile.score |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+                {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
             <div>
                 {% if user.profile.last_login %}
                 visited {{ user.profile.last_login|time_ago }}

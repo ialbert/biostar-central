@@ -14,9 +14,10 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 
 from biostar.message import tasks
+from biostar.forum.awards import ALL_AWARDS
 from biostar.accounts.models import Profile
 from biostar.utils.shortcuts import reverse
-from .models import Post, Vote, Subscription, PostView
+from .models import Post, Vote, Subscription, PostView, Award, Badge
 from . import util
 from .const import *
 
@@ -39,18 +40,29 @@ def get_votes(user, thread):
     return store
 
 
+def my_posts(target, request):
+
+    user = request.user
+    if user.is_anonymous or target.is_anonymous:
+        return Post.objects.filter(author=target).exclude(status=Post.DELETED)
+
+    query = Post.objects.filter(author=target)
+    query = query if (user.profile.is_moderator or user == target) else query.exclude(status=Post.DELETED)
+
+    return query
+
+
 def build_obj_tree(request, obj):
 
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers sorted before comments.
     user = request.user
     query = Post.objects.filter(root=obj)
-    query = query.select_related("root__author", "root__author__profile", "author",
-                                 "author__profile", "lastedit_user", "lastedit_user__profile")
-
     query = query if user.is_authenticated and user.profile.is_moderator else query.exclude(status=Post.DELETED)
     thread = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
+    thread = thread.select_related("lastedit_user__profile", "root__author__profile",
+                                   "author__profile")
     # Gather votes
     votes = get_votes(user=user, thread=thread)
 
@@ -60,10 +72,11 @@ def build_obj_tree(request, obj):
     # Build comments tree.
     comment_tree = dict()
 
-    def decorate(query):
+    def decorate(posts):
         # Can the current user accept answers
         # TODO: use annotate.
-        for post in query:
+
+        for post in posts:
             if post.is_comment:
                 comment_tree.setdefault(post.parent_id, []).append(post)
 

@@ -7,6 +7,8 @@ from django.db.models import F
 from django.conf import settings
 from biostar.engine.models import Project
 
+from biostar.forum.awards import *
+
 from . import  models, auth, util
 
 from .const import *
@@ -100,6 +102,8 @@ class PostLongForm(forms.Form):
         else:
             self.post = auth.create_post(title=title, content=content, post_type=post_type,
                                          tag_val=tag_val, author=author, project=self.project)
+
+        # Update the user awards.
 
         return self.post
 

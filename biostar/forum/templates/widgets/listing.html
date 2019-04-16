@@ -49,9 +49,12 @@
                 <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
 
             </div>
-<div style="text-align: center; font-size: smaller;color: #762C90;">
-    {{ post.subs_count }} follow
-</div>
+
+    {% if post.subs_count %}
+        <div class="subs">
+            {{ post.subs_count }} follow
+        </div>
+    {% endif %}
 
 </div>
 
@@ -66,10 +69,9 @@
                     {% endif %}
                 </span>
 
-
              <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
-                class="ui mini blue title header ">{{ post.title|truncatechars:150 }}</a>
-
+                class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
+             </a>
 
             {% get_thread_users post=post limit=5 as extra_users %}
 
@@ -78,8 +80,6 @@
                  {% gravatar user=user size=50 %}</a>
 
             {% endfor %}
-
-
 
         </div>
 

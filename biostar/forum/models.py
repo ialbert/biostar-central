@@ -12,6 +12,8 @@ from django.contrib.sites.models import Site
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.models import F, Q
+
+from taggit.managers import TaggableManager
 from biostar.utils.shortcuts import reverse
 from biostar.engine.models import Project
 from biostar.accounts.models import Profile
@@ -47,20 +49,6 @@ class PostManager(models.Manager):
         query = self.get_queryset().filter(**kwargs)
         return query
 
-    def my_posts(self, target, user):
-
-        if user.is_anonymous or target.is_anonymous:
-            return self.filter().exclude(status=Post.DELETED)
-
-        # Show all posts for moderators or targets
-        if user.profile.is_moderator or user == target:
-            query = self.filter(author=target)
-        else:
-            query = self.filter(author=target).exclude(status=Post.DELETED)
-
-        query = self.select_prefetch(query).order_by("-creation_date")
-        return query
-
 
 class Post(models.Model):
     "Represents a post in a forum"
@@ -73,15 +61,18 @@ class Post(models.Model):
 
     # Question types. Answers should be listed before comments.
     QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
-
     TYPE_CHOICES = [
         (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
         (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"),
         (DATA, "Data"), (PAGE, "Page"), (TOOL, "Tool"), (NEWS, "News"),
         (BLOG, "Blog"), (BOARD, "Bulletin Board")
     ]
-
     TOP_LEVEL = {QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, TOOL, NEWS, BOARD}
+
+    SPAM, VALID, NEW = range(3)
+    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Non spam"), (NEW, "New post")]
+
+    spam = models.IntegerField(choices=SPAM_CHOICES, default=NEW)
 
     title = models.CharField(max_length=200, null=False, db_index=True)
 
@@ -157,7 +148,7 @@ class Post(models.Model):
     tag_val = models.CharField(max_length=100, default="", blank=True)
 
     # The tag set is built from the tag string and used only for fast filtering
-    #tags = models.CharField(max_length=200, null=False)
+    tags = TaggableManager()
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
@@ -279,6 +270,7 @@ class Vote(models.Model):
     # Post statuses.
 
     UP, DOWN, BOOKMARK, ACCEPT, EMPTY = range(5)
+
     TYPE_CHOICES = [(UP, "Upvote"), (EMPTY, "Empty"),
                     (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
 
@@ -310,11 +302,15 @@ class PostView(models.Model):
 class Subscription(models.Model):
     "Connects a post to a user"
 
-    NO_MESSAGES, LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(4)
+    #NO_MESSAGES, LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(4)
+    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
+
     MESSAGING_CHOICES = [
-        (NO_MESSAGES, "Not following"),
-        (LOCAL_MESSAGE, "Follow using Local Messages"),
-        (EMAIL_MESSAGE, "Follow using Emails"),
+        (DEFAULT_MESSAGES, "default",),
+        (LOCAL_MESSAGE, "local messages",),
+        (EMAIL_MESSAGE, "email",),
+        (ALL_MESSAGES, "email for every new thread (mailing list mode)",)
+
         ]
 
     class Meta:
@@ -342,6 +338,54 @@ class Subscription(models.Model):
 
         sub = Subscription.objects.filter(post=post, user=user)
         return None if user.is_anonymous else sub
+
+
+class Badge(models.Model):
+    BRONZE, SILVER, GOLD = range(3)
+    CHOICES = ((BRONZE, 'Bronze'), (SILVER, 'Silver'), (GOLD, 'Gold'))
+
+    # The name of the badge.
+    name = models.CharField(max_length=50)
+
+    # The description of the badge.
+    desc = models.CharField(max_length=200, default='')
+
+    # The rarity of the badge.
+    type = models.IntegerField(choices=CHOICES, default=BRONZE)
+
+    # Total number of times awarded
+    count = models.IntegerField(default=0)
+
+    # The icon to display for the badge.
+    icon = models.CharField(default='', max_length=250)
+
+    uid = models.CharField(max_length=32, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        # Set the date to current time if missing.
+        self.uid = self.uid or util.get_uuid(limit=4)
+        super(Badge, self).save(*args, **kwargs)
+
+
+class Award(models.Model):
+    '''
+    A badge being awarded to a user.Cannot be ManyToManyField
+    because some may be earned multiple times
+    '''
+    badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
+    date = models.DateTimeField()
+    context = models.CharField(max_length=1000, default='')
+    uid = models.CharField(max_length=32, unique=True)
+
+    def save(self, *args, **kwargs):
+        # Set the date to current time if missing.
+        self.uid = self.uid or util.get_uuid(limit=16)
+        super(Award, self).save(*args, **kwargs)
 
 
 @receiver(post_save, sender=Post)

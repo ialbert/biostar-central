@@ -24,6 +24,7 @@
             {% if post.is_deleted and can_moderate %}
                 {% listing post=post %}
             {%  elif post.is_deleted and not can_moderate %}
+
             {% else %}
                 {% listing post=post %}
             {%  endif %}

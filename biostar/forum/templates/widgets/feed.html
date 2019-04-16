@@ -1,36 +1,16 @@
 {% load forum_tags %}
-    <div class="ui large feed">
-        <a class="ui positive center aligned basic fluid large button" href="{% url 'post_create' %}">
-            <i class="add circle icon"></i>New Post
-        </a>
+<div class="ui large feed">
 
-                <div class="event">
-            <div class="ui container">
-                <div class="ui large vertical segment">
-            <b> Recent Projects </b>
-                                 <div class="ui relaxed tiny list" >
+    <a class="ui positive center aligned basic fluid large button" href="{% url 'post_create' %}">
+        <i class="add circle icon"></i>New Post
+    </a>
 
-                    {% for project in recent_projects %}
-
-                       <div class="item"  style="">
-                            <a href="{% url 'project_view' project.uid %}">{{ project.name }}</a>
-                       </div>
-
-                    {% endfor %}
-
-                </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="event">
-            <div class="ui container">
-                <div class="ui large vertical segment">
-            <b> Recent Votes </b>
+    <div class="event">
+        <div class="ui container">
+            <div class="ui large vertical segment">
+                <b> Recent Votes </b>
 
                 <div class="ui relaxed tiny list" >
-
                     {% for vote in recent_votes %}
 
                        <div class="item"  style="">
@@ -38,84 +18,90 @@
                        </div>
 
                     {% endfor %}
-
-                </div>
                 </div>
             </div>
         </div>
-
-
-        <div class="event">
-        <div class="ui container">
-                 <div class="ui large vertical segment">
-        <b>Recent Locations</b>
-                  <a href="{% url "community_list" %}">
-                &bull;  All <i class="ui angle small double right icon"></i>
-            </a>
-            <div class="ui relaxed tiny list" >
-
-                {% for user in recent_locations %}
-
-                    <div class="item"  style="">
-
-
-                        <a href="{% url "user_profile" user.profile.uid %}">
-                            <div class="ui avatar image">{% gravatar user=user size=100 %}</div>
-                            {{user.profile.name}}</a> from
-                        {{user.profile.location }}
-                    </div>
-
-                {% endfor %}
-
-
-            </div>
-                 </div>
-        </div>
-</div>
-
-
-        <div class="event">
-        <div class="ui container">
-            <div class="ui large vertical segment">
-                <b>Recent Awards</b>
-                <a href="#"> &bull;  All <i class="ui angle small double right icon"></i>
-                </a>
-            </div>
-        </div>
-</div>
-
-
-        <div class="event">
-        <div class="ui container">
-            <div class="ui large vertical segment">
-<b>Recent Replies </b>
-            <div class="ui tiny relaxed list" >
-
-
-                {% for replies in recent_replies %}
-
-                    <div class="item">
-                        <a href="{% url "post_view" replies.uid %}"> {{ replies.title }}</a>
-                        by
-                        <a href="{% url "user_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}
-
-                        </a>
-<span>              {{  replies.author.profile.score |show_score_icon }}
-        {{  replies.author.profile.score | show_score | bignum }}</span>
-
-                    <div class="muted" style="padding-top:5px;">
-                        {{ replies.content |truncatechars:140 }}
-                        </div>
-                    </div>
-
-                {% endfor %}
-
-
-
-            </div>
-            </div>
-
-        </div>
-        </div>
-
     </div>
+
+
+    <div class="event">
+        <div class="ui container">
+             <div class="ui large vertical segment">
+                <b>Recent Locations</b>
+                 <a href="{% url "community_list" %}">&bull;  All <i class="ui angle small double right icon"></i></a>
+
+                 <div class="ui relaxed tiny list" >
+
+                    {% for user in recent_locations %}
+
+                        <div class="item"  style="">
+                            <a href="{% url "user_profile" user.profile.uid %}">
+                                <div class="ui avatar image">{% gravatar user=user size=100 %}</div>
+                                {{user.profile.name}}</a> from
+                            {{user.profile.location }}
+                        </div>
+
+                    {% endfor %}
+                </div>
+
+             </div>
+        </div>
+    </div>
+
+
+    <div class="event">
+        <div class="ui container">
+            <div class="ui large vertical segment">
+            <b>Recent Awards</b>
+            <a href="{% url 'badge_list' %}"> &bull;  All <i class="ui angle small double right icon"></i></a>
+
+                <div class="ui tiny relaxed list" >
+                   {% for award in recent_awards %}
+
+                        <div class="item"  style="">
+                            <span>
+                                <a href="{% url 'badge_view' award.badge.uid %}">{{ award.badge.name }} <i class="{{ award.badge.icon }}"></i></a> to
+                                <a href="{% url "user_profile" award.user.profile.uid %}">
+                                    {{award.user.profile.name}} {{ award.user|show_score_icon }}
+                                    {{ award.user.profile.score | show_score | bignum }}</a>
+                            </span>
+                        </div>
+
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="event">
+        <div class="ui container">
+            <div class="ui large vertical segment">
+                <b>Recent Replies </b>
+                <div class="ui tiny relaxed list" >
+
+                    {% for replies in recent_replies %}
+
+                        <div class="item">
+                            <a href="{% url "post_view" replies.uid %}"> {{ replies.title }}</a>
+                            by
+                            <a href="{% url "user_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}
+                            </a>
+
+                        <span>  {{ replies.author |show_score_icon }}
+                        {{ replies.author.profile.score | show_score | bignum }}</span>
+
+                        <div class="muted" style="padding-top:5px;">
+                            {{ replies.content |truncatechars:140 }}
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

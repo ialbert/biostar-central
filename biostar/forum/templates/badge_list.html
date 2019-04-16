@@ -1,0 +1,45 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+
+{% block headtitle %}
+    Badge List
+{% endblock %}
+
+
+
+{% block body %}
+
+    <div class="ui basic segment">
+
+        <div class="ui grid" style="margin-left: 100;">
+        <div class="row"><h3> Badge List</h3></div>
+
+                {% for badge in badges %}
+                    <div class="ui divider" style="padding: 0; margin: 1;"></div>
+                    <div class="row">
+
+                            <div class="five wide column" >
+                                <div class="ui large tagging label" style="padding: 5px;">
+                                    <a href="{% url 'badge_view' badge.uid %}" style="opacity: unset;">{{ badge.name }}
+                                        <i class="{{ badge.icon }}"></i></a>
+
+                                </div> x {{ badge.count }}
+                            </div>
+
+                            <div class="seven wide column">
+                             {{ badge.desc }}
+                            </div>
+
+
+                    </div>
+
+                {% endfor %}
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block feed %}
+
+{% endblock %}
