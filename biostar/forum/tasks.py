@@ -65,5 +65,21 @@ try:
     def check_user_profile(ip, user):
         return
 
+    @spool(pass_arguments=True)
+    def post_create(pid):
+        logger.info(f"Created post={pid}")
+
+    @spool(pass_arguments=True)
+    def post_edit(pid):
+        logger.info(f"Edited post={pid}")
+
+    @spool(pass_arguments=True)
+    def added_sub():
+        logger.info(f"Created sub")
+
+    def trigger_vote():
+        logger.info(f"Created Vote")
+        
+
 except ModuleNotFoundError as exc:
     pass
