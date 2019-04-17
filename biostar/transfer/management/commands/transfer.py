@@ -1,21 +1,55 @@
-
 import logging
+import time
+
 from django.core.management.base import BaseCommand
+
 from biostar.accounts.models import User, Profile
-from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesBadge, BadgesAward
-from biostar.forum.models import Post, Vote, Subscription, Badge, Award
 from biostar.forum import util
+from biostar.forum.models import Post, Vote, Subscription, Badge, Award
+from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesAward
+
 logger = logging.getLogger("engine")
+from itertools import count, islice
+
+LIMIT = None
+
+
+def timer_func():
+    """
+    Prints progress on inserting elements.
+    """
+
+    last = time.time()
+
+    def elapsed(msg):
+        nonlocal last
+        now = time.time()
+        sec = round(now - last, 1)
+        last = now
+        print(f"{msg} in {sec} seconds")
+
+    def progress(index, step=5000, msg=""):
+        nonlocal last
+        if index % step == 0:
+            elapsed(f"... {index} {msg}")
+
+    return elapsed, progress
 
 
 def bulk_copy_users():
-
     def gen_users():
-        logger.info(f"Copying users")
-        exists = list(User.objects.values_list("email", flat=True))
-        source = UsersUser.objects.exclude(email__in=exists)
+        logger.info(f"Transferring users")
+
+        users = UsersUser.objects.order_by("id")
         # Only iterate over users that do not exist already
-        for user in source:
+
+        elapsed, progress = timer_func()
+
+        # Allow limiting the input
+        stream = islice(zip(count(1), users), LIMIT)
+
+        for index, user in stream:
+            progress(index, msg="users")
             username = f"{user.name}{user.id}"
             # Create user
             user = User(username=username, email=user.email, password=user.password,
@@ -23,17 +57,22 @@ def bulk_copy_users():
             yield user
 
     def gen_profile():
-        logger.info(f"Copying profiles")
-        # Build user query
-        new_users = {user.email: user for user in User.objects.filter(profile=None)}
-        # Get users without profiles in target database.
-        target = list(User.objects.exclude(profile=None).values_list("email", flat=True))
-        # Exclude existing users from source database.
-        source = UsersUser.objects.exclude(email__in=target)
+        logger.info(f"Transferring profiles")
 
-        for user in source:
+        current = {user.email: user for user in User.objects.filter(profile=None)}
+
+        # Exclude existing users from source database.
+        users = UsersUser.objects.all().order_by("id")
+
+        elapsed, progress = timer_func()
+
+        # Allow limiting the input
+        stream = islice(zip(count(1), users), LIMIT)
+
+        for index, user in stream:
+            progress(index, msg="profiles")
             text = util.strip_tags(user.profile.info)
-            profile = Profile(uid=user.id, name=user.name, user=new_users.get(user.email),
+            profile = Profile(uid=user.id, user=current.get(user.email), name=user.name,
                               role=user.type, last_login=user.last_login, html=user.profile.info,
                               date_joined=user.profile.date_joined, location=user.profile.location,
                               website=user.profile.website, scholar=user.profile.scholar, text=text,
@@ -48,28 +87,41 @@ def bulk_copy_users():
         badges = {badge.name: badge for badge in Badge.objects.all()}
         # Query users
         users = {profile.uid: profile.user for profile in Profile.objects.all()}
-        exists = list(Award.objects.values_list("uid", flat=True))
-        source = BadgesAward.objects.exclude(id__in=exists)
+        # exists = list( Award.objects.values_list("uid", flat=True) )
+        source = BadgesAward.objects.all()
 
-        for award in source:
+        stream = zip(count(1), source)
+        stream = islice(stream, LIMIT)
+
+        elapsed, progress = timer_func()
+        for index, award in stream:
+            progress(index, msg="awards")
             badge = badges[award.badge.name]
-            user = users[str(award.user_id)]
+            user = users.get(str(award.user_id))
+            if not user:
+                continue
             award = Award(date=award.date, context=award.context, badge=badge,
                           user=user, uid=award.id)
 
             yield award
 
     # Bulk create the users, then profile.
+    elapsed, progress = timer_func()
+
     User.objects.bulk_create(objs=gen_users(), batch_size=10000)
-    logger.info("Copied users")
+    ucount = User.objects.all().count()
+    elapsed(f"transferred {ucount} users")
+
     Profile.objects.bulk_create(objs=gen_profile(), batch_size=10000)
-    logger.info("Copied proiles")
+    pcount = Profile.objects.all().count()
+    elapsed(f"transferred {pcount} profiles")
+
     Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
-    logger.info("Copied awards")
+    acount = Award.objects.all().count()
+    elapsed(f"transferred {acount} awards")
 
 
 def bulk_copy_votes():
-
     exists = list(Vote.objects.values_list("uid", flat=True))
     exists = filter(lambda uid: uid.isdigit(), exists)
     source = PostsVote.objects.exclude(id__in=exists)
@@ -101,23 +153,35 @@ def bulk_copy_posts():
 
     # Walk through tree and update parent, root, post, relationships
     def gen_posts():
-        logger.info("Copying posts.")
+        logger.info("transferring posts")
+
         exists = list(Post.objects.values_list("uid", flat=True))
         exists = [int(post_uid) for post_uid in exists if post_uid.isdigit()]
 
-        source = PostsPost.objects.exclude(id__in=exists)
+        posts = PostsPost.objects.exclude(id__in=exists)
         users = {user.profile.uid: user for user in all_users}
-        logger.info("Starting create loop.")
-        for post in source:
 
-            author = users[str(post.author_id)]
-            lastedit_user = users[str(post.lastedit_user_id)]
+        elapsed, progress = timer_func()
+
+        stream = islice(zip(count(1), posts), LIMIT)
+
+        for index, post in stream:
+            progress(index, msg="posts")
+
+            author = users.get(str(post.author_id))
+            lastedit_user = users.get(str(post.lastedit_user_id))
+
+            # Incomplete author information loaded.
+            if not author or lastedit_user:
+                continue
+
             content = util.strip_tags(post.content)
             new_post = Post(uid=post.id, html=post.html, type=post.type,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
                             author=author, status=post.status, rank=post.rank, has_accepted=post.has_accepted,
                             lastedit_date=post.lastedit_date, book_count=post.book_count, reply_count=post.reply_count,
-                            content=content, title=post.title,vote_count=post.vote_count, thread_score=post.reply_count,
+                            content=content, title=post.title, vote_count=post.vote_count,
+                            thread_score=post.reply_count,
                             creation_date=post.creation_date, tag_val=post.tag_val,
                             view_count=post.view_count)
 
@@ -148,7 +212,7 @@ def bulk_copy_posts():
         roots = Post.objects.filter(type__in=Post.TOP_LEVEL)
         roots = {root: Post.objects.filter(root=root) for root in roots}
 
-        roots = {post: User.objects.filter(pk__in=roots[post].values_list("author")) for post in roots }
+        roots = {post: User.objects.filter(pk__in=roots[post].values_list("author")) for post in roots}
 
         for post in roots:
             users = roots[post]
@@ -157,13 +221,16 @@ def bulk_copy_posts():
 
             post.thread_users.add(*users)
 
+    elapsed, progress = timer_func()
     Post.objects.bulk_create(objs=gen_posts(), batch_size=1000)
+    pcount = User.objects.all().count()
+    elapsed(f"transferred {pcount} posts")
+
     Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)
     update_threadusers()
-
+    elapsed(f"updated {pcount} post threads")
 
 def bulk_copy_subs():
-
     def generate():
         users = {user.profile.uid: user for user in User.objects.all()}
         posts = {post.uid: post for post in Post.objects.all()}
@@ -172,7 +239,6 @@ def bulk_copy_subs():
         source = PostsSubscription.objects.exclude(id__in=exists)
         logger.info("Copying subscriptions")
         for subs in source:
-
             user = users[str(subs.user_id)]
             post = posts[str(subs.post_id)]
             sub = Subscription(uid=subs.id, type=subs.type, user=user, post=post, date=subs.date)
@@ -227,8 +293,11 @@ class Command(BaseCommand):
 
         # Copy everything
         bulk_copy_users()
+
         bulk_copy_posts()
+
         bulk_copy_votes()
+
         bulk_copy_subs()
 
         return
