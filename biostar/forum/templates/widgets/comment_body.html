@@ -20,7 +20,7 @@
         <div class="ui avatar image">{% gravatar user=post.author size=100 %}</div>
         {{post.author.profile.name }}
         </a>
-        {{post.author.profile.score |show_score_icon}}
+        {{post.author |show_score_icon}}
         {{post.author.profile.score | show_score |bignum }}
 
     </div>
