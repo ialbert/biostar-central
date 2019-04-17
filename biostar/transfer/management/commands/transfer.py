@@ -11,7 +11,7 @@ from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscr
 logger = logging.getLogger("engine")
 from itertools import count, islice
 
-LIMIT = 1500
+LIMIT = None
 
 
 def timer_func():
