@@ -32,6 +32,14 @@ def send_award_messages(award):
     return
 
 
+def days_to_secs(days=1):
+
+    # 3600 secs in an hour X 24 hours in a day.
+    secs = days * 3600 * 24
+
+    return secs
+
+
 try:
     from uwsgidecorators import *
 
@@ -39,19 +47,33 @@ try:
 
 
     def send_post_mail(pid):
-
-        """Send post mail belonging to """
+        """Send mail for users subscribed to specific post """
 
         return
 
+    @timer(secs=days_to_secs(7))
     def send_weekly_digest():
-        """Send weekly digest to subscribed users """
+        """Send weekly digest to users """
+
+        # Get top level posts a week old
+
         return
 
+    @timer(secs=days_to_secs())
     def send_daily_digest():
+        """Send daily digest to users """
+
+        # Get top level post created today
+
+
         return
 
+    @timer(secs=days_to_secs(30))
     def send_monthly_digest():
+        """Send monthly (30 days) digest to users """
+
+        # Get top level posts one month old.
+
         return
 
 
