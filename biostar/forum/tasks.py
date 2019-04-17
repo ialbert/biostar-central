@@ -1,10 +1,13 @@
 import logging
-from biostar.accounts.models import User
+from datetime import datetime
+from django.utils.timezone import utc
+from biostar.accounts.models import User, Profile
 from biostar.forum.models import Award, Badge, Post
 from biostar.forum.awards import ALL_AWARDS
 from biostar.forum import util
 from biostar.message.models import Message
-#from biostar.emailer.auth import notify
+
+from biostar.emailer.sender import EmailTemplate
 from django.core.mail import send_mass_mail
 
 logger = logging.getLogger("engine")
@@ -36,7 +39,6 @@ def days_to_secs(days=1):
 
     # 3600 secs in an hour X 24 hours in a day.
     secs = days * 3600 * 24
-
     return secs
 
 
@@ -64,6 +66,11 @@ try:
         """Send daily digest to users """
 
         # Get top level post created today
+        today = datetime.utcnow().replace(tzinfo=utc)
+        posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date=today)
+
+        # Get users that opted for daily digest.
+        users = User.objects.filter(profile__digest_pref=Profile.DAILY_DIGEST)
 
 
         return

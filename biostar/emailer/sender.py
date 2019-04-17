@@ -14,6 +14,7 @@ block_regx = re.compile(block_patt)
 def strip(text):
     return text.strip()
 
+
 def get_block(text, name):
     for match in re.finditer(block_patt, text, re.DOTALL | re.MULTILINE | re.IGNORECASE):
         found = match.group("name")
