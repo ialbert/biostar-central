@@ -40,6 +40,8 @@
             <div class="muted">
                     {{ award.user.profile.location |truncatechars:40}}
             </div>
+
+            For : {{ award.context|safe }}
             </div>
 
           {%  endfor %}

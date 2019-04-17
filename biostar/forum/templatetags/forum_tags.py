@@ -154,12 +154,12 @@ def is_moderator(user):
 @register.inclusion_tag('widgets/feed.html')
 def feed(user):
 
-    recent_votes = Vote.objects.filter(type=Vote.UP).distinct()[:settings.VOTE_FEED_COUNT]
+    recent_votes = Vote.objects.prefetch_related("post")[:settings.VOTE_FEED_COUNT]
     # Needs to be put in context of posts
-    recent_votes = recent_votes.prefetch_related("post")
+    #recent_votes = recent_votes.prefetch_related("post")
 
     recent_locations = User.objects.exclude(profile__location="")
-    recent_locations = recent_locations.select_related("profile").distinct()[:settings.LOCATION_FEED_COUNT]
+    recent_locations = recent_locations.prefetch_related("profile")[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
     recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
