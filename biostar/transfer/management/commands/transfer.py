@@ -88,9 +88,9 @@ def bulk_copy_users():
         # Query users
         users = {profile.uid: profile.user for profile in Profile.objects.all()}
         # exists = list( Award.objects.values_list("uid", flat=True) )
-        source = BadgesAward.objects.all()
+        awards = BadgesAward.objects.all()
 
-        stream = zip(count(1), source)
+        stream = zip(count(1), awards)
         stream = islice(stream, LIMIT)
 
         elapsed, progress = timer_func()
@@ -205,9 +205,12 @@ def bulk_copy_posts():
     def update_threadusers():
         logger.info("Updating thread users.")
         roots = Post.objects.filter(type__in=Post.TOP_LEVEL)
-        roots = {root: Post.objects.filter(root=root) for root in roots}
-        roots = {post: User.objects.filter(pk__in=roots[post].values_list("author")) for post in roots}
-        print(roots.values()[0])
+        # Get all authors belonging to descendants of root
+        get_authors = lambda root: Post.objects.filter(root=root).values_list("author")
+        # Create dict key by root and its contributors
+        roots_set = {root: User.objects.filter(pk__in=get_authors(root=root)) for root in roots}
+
+        print(list(roots.values())[0])
         1/0
         for post in roots:
             users = roots[post]
