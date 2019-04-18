@@ -209,11 +209,8 @@ def bulk_copy_posts():
         get_authors = lambda root: Post.objects.filter(root=root).values_list("author")
         # Create dict key by root and its contributors
         roots_set = {root: User.objects.filter(pk__in=get_authors(root=root)) for root in roots}
-
-        print(list(roots.values())[0])
-        1/0
-        for post in roots:
-            users = roots[post]
+        for post in roots_set:
+            users = roots_set[post]
             if post.root.thread_users.filter(pk__in=users):
                 continue
 
