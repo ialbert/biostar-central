@@ -72,7 +72,6 @@ try:
         # Get users that opted for daily digest.
         users = User.objects.filter(profile__digest_pref=Profile.DAILY_DIGEST)
 
-
         return
 
     @timer(secs=days_to_secs(30))
