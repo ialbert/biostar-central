@@ -43,7 +43,7 @@ loaddata:
 	python manage.py loaddata --ignorenonexistent $(DUMP_FILE)
 
 dumpdata:
-	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > $(DUMP_FILE)
+	python manage.py dumpdata --exclude auth.permission --exclude contenttypes --exclude transfer > $(DUMP_FILE)
 	cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
 	# Produce a datadump count as a reminder.
 	@ls -1 export/database/*.json | wc -l
