@@ -11,7 +11,7 @@ from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscr
 logger = logging.getLogger("engine")
 from itertools import count, islice
 
-LIMIT = None
+LIMIT = 1000
 
 
 def timer_func():
@@ -88,9 +88,9 @@ def bulk_copy_users():
         # Query users
         users = {profile.uid: profile.user for profile in Profile.objects.all()}
         # exists = list( Award.objects.values_list("uid", flat=True) )
-        source = BadgesAward.objects.all()
+        awards = BadgesAward.objects.all()
 
-        stream = zip(count(1), source)
+        stream = zip(count(1), awards)
         stream = islice(stream, LIMIT)
 
         elapsed, progress = timer_func()
@@ -122,25 +122,23 @@ def bulk_copy_users():
 
 
 def bulk_copy_votes():
-    exists = Vote.objects.values_list("uid", flat=True)
-    source = PostsVote.objects.all()
+    posts = PostsVote.objects.all()
 
     def gen_votes():
         logger.info("Transferring Votes")
-        posts = {post.uid: post for post in Post.objects.all()}
-        users = {user.profile.uid: user for user in User.objects.all()}
-        stream = zip(count(1), source)
+        posts_set = {post.uid: post for post in Post.objects.all()}
+        users_set = {user.profile.uid: user for user in User.objects.all()}
+        stream = zip(count(1), posts)
         stream = islice(stream, LIMIT)
 
         elapsed, progress = timer_func()
 
         for index, vote in stream:
             progress(index, msg="awards")
-            post = posts.get(str(vote.post_id))
-            author = users.get(str(vote.author_id))
-
+            post = posts_set.get(str(vote.post_id))
+            author = users_set.get(str(vote.author_id))
             # Skip existing votes and incomplete post/author information.
-            if (not (post and author)) or vote.id in exists:
+            if not (post and author):
                 continue
 
             vote = Vote(post=post, author=author, type=vote.type, uid=vote.id,
@@ -161,10 +159,8 @@ def bulk_copy_posts():
     def gen_posts():
         logger.info("transferring posts")
 
-        exists = Post.objects.values_list("uid", flat=True)
         posts = PostsPost.objects.order_by("-lastedit_date")
-        users = {user.profile.uid: user for user in all_users}
-
+        users_set = {user.profile.uid: user for user in all_users}
         elapsed, progress = timer_func()
         stream = zip(count(1), posts)
         stream = islice(stream, LIMIT)
@@ -172,15 +168,14 @@ def bulk_copy_posts():
         for index, post in stream:
             progress(index, msg="posts")
 
-            author = users.get(str(post.author_id))
-            lastedit_user = users.get(str(post.lastedit_user_id))
-            uid = str(post.id)
+            author = users_set.get(str(post.author_id))
+            lastedit_user = users_set.get(str(post.lastedit_user_id))
             # Incomplete author information loaded or existing posts.
-            if (not (author or lastedit_user)) or uid in exists:
+            if not (author and lastedit_user):
                 continue
 
             content = util.strip_tags(post.content)
-            new_post = Post(uid=uid, html=post.html, type=post.type,
+            new_post = Post(uid=post.id, html=post.html, type=post.type,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
                             author=author, status=post.status, rank=post.rank, has_accepted=post.has_accepted,
                             lastedit_date=post.lastedit_date, book_count=post.book_count, reply_count=post.reply_count,
@@ -210,11 +205,12 @@ def bulk_copy_posts():
     def update_threadusers():
         logger.info("Updating thread users.")
         roots = Post.objects.filter(type__in=Post.TOP_LEVEL)
-        roots = {root: Post.objects.filter(root=root) for root in roots}
-        roots = {post: User.objects.filter(pk__in=roots[post].values_list("author")) for post in roots}
-
-        for post in roots:
-            users = roots[post]
+        # Get all authors belonging to descendants of root
+        get_authors = lambda root: Post.objects.filter(root=root).values_list("author")
+        # Create dict key by root and its contributors
+        roots_set = {root: User.objects.filter(pk__in=get_authors(root=root)) for root in roots}
+        for post in roots_set:
+            users = roots_set[post]
             if post.root.thread_users.filter(pk__in=users):
                 continue
 
@@ -234,32 +230,31 @@ def bulk_copy_subs():
     def generate():
         users = {user.profile.uid: user for user in User.objects.all()}
         posts = {post.uid: post for post in Post.objects.all()}
-        exists = Subscription.objects.values_list("uid", flat=True)
-        source = PostsSubscription.objects.all()
+        subs = PostsSubscription.objects.all()
 
         logger.info("Copying subscriptions")
         elapsed, progress = timer_func()
-        stream = zip(count(1), source)
+        stream = zip(count(1), subs)
         stream = islice(stream, LIMIT)
 
-        for index, subs in stream:
+        for index, sub in stream:
             progress(index, msg="subscriptions")
-            user = users[str(subs.user_id)]
-            post = posts[str(subs.post_id)]
-            uid = str(subs.id)
+            user = users.get(str(sub.user_id))
+            post = posts.get(str(sub.post_id))
 
-            if uid in exists:
+            # Skip incomplete data
+            if not (user and post):
                 continue
-            sub = Subscription(uid=subs.id, type=subs.type, user=user, post=post, date=subs.date)
+            sub = Subscription(uid=sub.id, type=sub.type, user=user, post=post, date=sub.date)
 
             yield sub
 
     def update_counts():
         logger.info("Updating post subs_count")
         # Recompute subs_count for
-        posts = {post: post.subs.exclude(user=post.author).count() for post in Post.objects.all()}
-        for post in posts:
-            post.subs_count = posts[post]
+        posts_set = {post: post.subs.exclude(user=post.author).count() for post in Post.objects.all()}
+        for post in posts_set:
+            post.subs_count = posts_set[post]
             yield post
 
     elapsed, progress = timer_func()

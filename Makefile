@@ -31,16 +31,19 @@ full_delete: delete
 	rm -rf export/media/*
 
 # Resets the site without removing jobs.
-reset: delete init loaddata
+reset: delete init
+
+# Resets site and loads existing fixture
+reset_load: delete init loaddata
 
 # Removes all content from the site.
 hard_reset: full_delete init
 
 loaddata:
-	python manage.py loaddata $(DUMP_FILE)
+	python manage.py loaddata --ignorenonexistent $(DUMP_FILE)
 
 dumpdata:
-	python manage.py dumpdata --exclude auth.permission --exclude contenttypes > $(DUMP_FILE)
+	python manage.py dumpdata --exclude auth.permission --exclude contenttypes --exclude transfer > $(DUMP_FILE)
 	cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
 	# Produce a datadump count as a reminder.
 	@ls -1 export/database/*.json | wc -l
