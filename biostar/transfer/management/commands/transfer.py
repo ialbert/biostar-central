@@ -11,7 +11,7 @@ from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscr
 logger = logging.getLogger("engine")
 from itertools import count, islice
 
-LIMIT = 1000
+LIMIT = 500
 
 
 def timer_func():
@@ -153,14 +153,16 @@ def bulk_copy_votes():
 
 def bulk_copy_posts():
     relations = {}
-    all_users = User.objects.all()
+    all_users = User.objects.all().order_by("id")[:LIMIT]
 
     # Walk through tree and update parent, root, post, relationships
     def gen_posts():
         logger.info("transferring posts")
 
-        posts = PostsPost.objects.order_by("-lastedit_date")
+        posts = PostsPost.objects.order_by("id")[:LIMIT]
+
         users_set = {user.profile.uid: user for user in all_users}
+
         elapsed, progress = timer_func()
         stream = zip(count(1), posts)
         stream = islice(stream, LIMIT)

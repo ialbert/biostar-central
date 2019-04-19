@@ -12,6 +12,9 @@ all: serve
 serve:
 	python manage.py runserver
 
+serve_pg:
+	python manage.py runserver --settings conf.postgres.postgres_settings
+
 init:
 	python manage.py collectstatic --noinput -v 0
 	python manage.py migrate -v 0

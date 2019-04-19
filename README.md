@@ -23,7 +23,7 @@ Specifically, the engine contains applications that support:
 
 The **Biostar Engine**  requires [Python 3.6][python] or above.
 
-Our installation instructions rely on [conda][conda] though other alternatives are equally viable.  Users may use `virtualenv`, `pipenv`, `homebrew`, `apt-get` etc, or they may opt to not use environment management tools at all. 
+Our installation instructions rely on [conda][conda] though other alternatives are equally viable.  Users may use `virtualenv`, `pipenv`, `homebrew`, `apt-get` etc, or they may opt to not use environment management tools at all.
 
     # Create a virtual environment.
     conda create -y --name engine python=3.6

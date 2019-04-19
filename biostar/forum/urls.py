@@ -3,8 +3,9 @@ from django.conf.urls import url
 
 urlpatterns = [
 
-    # Post urls
+    # Main entry. Post listing.
     url(r'^$', views.post_list, name='post_list'),
+
     url(r'^p/(?P<uid>[-\w]+)/$', views.post_view, name='post_view'),
 
     url(r'^b/list/$', views.badge_list, name='badge_list'),
