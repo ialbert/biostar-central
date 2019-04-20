@@ -7,7 +7,7 @@
 
 
 
-{% block body %}
+{% block grid %}
 
 <div class="ui basic segment">
     <div class="ui basic segment">
@@ -41,7 +41,7 @@
                     {{ award.user.profile.location |truncatechars:40}}
             </div>
 
-            For : {{ award.context|safe }}
+            {{ award.post_context|safe }}
             </div>
 
           {%  endfor %}
@@ -49,7 +49,4 @@
     </div>
 </div>
 
-{% endblock %}
-
-{% block feed %}
 {% endblock %}

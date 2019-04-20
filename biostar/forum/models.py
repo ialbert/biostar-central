@@ -386,6 +386,11 @@ class Award(models.Model):
         self.uid = self.uid or util.get_uuid(limit=16)
         super(Award, self).save(*args, **kwargs)
 
+    @property
+    def post_context(self):
+        link = f"For : <a href={self.post.get_absolute_url()}>{self.post.title}</a>" if self.post else ""
+        return link
+
 
 @receiver(post_save, sender=Post)
 def set_post(sender, instance, created, *args, **kwargs ):

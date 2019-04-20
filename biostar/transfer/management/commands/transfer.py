@@ -1,5 +1,6 @@
 import logging
 import time
+import re
 
 from django.core.management.base import BaseCommand
 
@@ -11,7 +12,7 @@ from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscr
 logger = logging.getLogger("engine")
 from itertools import count, islice
 
-LIMIT = 1000
+LIMIT = None
 
 
 def timer_func():
@@ -34,6 +35,17 @@ def timer_func():
             elapsed(f"... {index} {msg}")
 
     return elapsed, progress
+
+
+def uid_from_context(context):
+    """
+    Parse post.uid from a link
+    """
+    # id pattern found in link
+    pattern = r"[0-9]+"
+    uid = re.search(pattern, context)
+    uid = uid.group(0) if uid else ""
+    return uid
 
 
 def bulk_copy_users():
@@ -98,10 +110,12 @@ def bulk_copy_users():
             progress(index, msg="awards")
             badge = badges[award.badge.name]
             user = users.get(str(award.user_id))
+            # Get post uid from context
+            post_uid = uid_from_context(award.context)
+            post = Post.objects.filter(uid=post_uid).first()
             if not user:
                 continue
-            award = Award(date=award.date, context=award.context, badge=badge,
-                          user=user, uid=award.id)
+            award = Award(date=award.date, post=post, badge=badge, user=user, uid=award.id)
 
             yield award
 
@@ -134,11 +148,11 @@ def bulk_copy_votes():
         elapsed, progress = timer_func()
 
         for index, vote in stream:
-            progress(index, msg="awards")
+            progress(index, msg="votes")
             post = posts_set.get(str(vote.post_id))
             author = users_set.get(str(vote.author_id))
             # Skip existing votes and incomplete post/author information.
-            if not (post and author):
+            if not (post and author) or not post.root:
                 continue
 
             vote = Vote(post=post, author=author, type=vote.type, uid=vote.id,
@@ -148,7 +162,7 @@ def bulk_copy_votes():
     elapsed, progress = timer_func()
     Vote.objects.bulk_create(objs=gen_votes(), batch_size=1000)
     vcount = Vote.objects.all().count()
-    elapsed(f"transferred {vcount} users")
+    elapsed(f"transferred {vcount} votes")
 
 
 def bulk_copy_posts():
