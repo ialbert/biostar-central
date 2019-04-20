@@ -378,7 +378,7 @@ class Award(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField()
-    context = models.CharField(max_length=1000, default='')
+    #context = models.CharField(max_length=1000, default='')
     uid = models.CharField(max_length=32, unique=True)
 
     def save(self, *args, **kwargs):
@@ -387,7 +387,7 @@ class Award(models.Model):
         super(Award, self).save(*args, **kwargs)
 
     @property
-    def post_context(self):
+    def context(self):
         link = f"For : <a href={self.post.get_absolute_url()}>{self.post.title}</a>" if self.post else ""
         return link
 

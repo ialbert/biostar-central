@@ -116,12 +116,9 @@ try:
                 date = user.profile.last_login
 
                 if isinstance(target, Post):
-                    context = '<a href="%s">%s</a>' % (target.get_absolute_url(), target.title)
-                    award = Award.objects.create(user=user, badge=badge, date=date, post=target,
-                                                 context=context)
+                    award = Award.objects.create(user=user, badge=badge, date=date, post=target)
                 else:
-                    context = ""
-                    award = Award.objects.create(user=user, badge=badge, date=date, context=context)
+                    award = Award.objects.create(user=user, badge=badge, date=date)
                 send_award_messages(award=award)
                 logger.info("award %s created for %s" % (award.badge.name, user.email))
 

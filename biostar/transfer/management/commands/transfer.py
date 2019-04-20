@@ -201,7 +201,7 @@ def bulk_copy_posts():
             post.thread_users.add(*users)
 
     def gen_awards():
-
+        logger.info("Transferring awards.")
         # Query the badges
         badges = {badge.name: badge for badge in Badge.objects.all()}
         # Query users
@@ -234,7 +234,7 @@ def bulk_copy_posts():
     Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)
     update_threadusers()
     elapsed(f"updated {pcount} post threads")
-    
+
     Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
     acount = Award.objects.all().count()
     elapsed(f"transferred {acount} awards")

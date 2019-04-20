@@ -101,7 +101,7 @@ def badge_view(request, uid):
         messages.error(request, f"Badge with id={uid} does not exist.")
         return redirect(reverse("badge_list"))
 
-    awards = badge.award_set.select_related("user").order_by("-pk")[:100]
+    awards = badge.award_set.prefetch_related("user", "user__profile", "post").order_by("-pk")[:100]
 
     context = dict(awards=awards, badge=badge)
 
