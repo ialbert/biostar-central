@@ -11,10 +11,17 @@
 
 <div class="ui basic segment">
     <div class="ui basic segment">
-        Badge: {{ badge.name }} <i class="{{ badge.icon }}"></i> <a href="{% url 'badge_list' %}"> &bull;  All
-            <i class="ui angle small double right icon"></i></a>
-        <div>Awarded {{ badge.count }} times for : {{ badge.desc }}</div>
-        <div>Recently awarded to </div>
+        <h3 class="ui header">
+            <div>
+            Badge: {{ badge.name }} <i class="{{ badge.icon }}"></i> <a href="{% url 'badge_list' %}"> &bull;  All
+                <i class="ui angle small double right icon"></i></a>
+            </div>
+        </h3>
+        <h4 class="ui header">
+            <div class="">Awarded {{ badge.count }} times for : {{ badge.desc }}</div>
+            <div>Recently awarded to </div>
+        </h4>
+
     </div>
     <div class="ui grid">
 
