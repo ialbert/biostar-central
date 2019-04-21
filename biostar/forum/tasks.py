@@ -8,7 +8,7 @@ from biostar.forum import util
 from biostar.message.models import Message
 
 from biostar.emailer.sender import EmailTemplate
-from django.core.mail import send_mass_mail
+from django.core.mail import send_mail
 
 logger = logging.getLogger("engine")
 
@@ -36,7 +36,9 @@ def send_award_messages(award):
 
 
 def days_to_secs(days=1):
-
+    """
+    Convert days to seconds
+    """
     # 3600 secs in an hour X 24 hours in a day.
     secs = days * 3600 * 24
     return secs
@@ -53,7 +55,7 @@ try:
 
         return
 
-    @timer(secs=days_to_secs(7))
+    @timer(secs=days_to_secs(days=7))
     def send_weekly_digest():
         """Send weekly digest to users """
 
@@ -72,9 +74,23 @@ try:
         # Get users that opted for daily digest.
         users = User.objects.filter(profile__digest_pref=Profile.DAILY_DIGEST)
 
+        # Load template with message
+        template = "digest.html"
+
+        context = dict(posts=posts, msg=today.day)
+        subject = f"Biostar Daily Digest for :{today.day}"
+
+        # Get the from email
+        from_email = ""
+        # Render the template
+
+        # Get the user emails
+        emails = users.values_list("email", flat=True)
+
+
         return
 
-    @timer(secs=days_to_secs(30))
+    @timer(secs=days_to_secs(days=30))
     def send_monthly_digest():
         """Send monthly (30 days) digest to users """
 
@@ -119,6 +135,7 @@ try:
                     award = Award.objects.create(user=user, badge=badge, date=date, post=target)
                 else:
                     award = Award.objects.create(user=user, badge=badge, date=date)
+
                 send_award_messages(award=award)
                 logger.info("award %s created for %s" % (award.badge.name, user.email))
 
