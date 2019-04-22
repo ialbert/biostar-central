@@ -308,7 +308,6 @@ class Subscription(models.Model):
     LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
 
     MESSAGING_CHOICES = [
-        (DEFAULT_MESSAGES, "Default to Local Messages"),
         (LOCAL_MESSAGE, "Local messages"),
         (EMAIL_MESSAGE, "Email for every new post added to current one."),
         (ALL_MESSAGES, "Email for every new thread (mailing list mode)")
@@ -319,7 +318,7 @@ class Subscription(models.Model):
 
     uid = models.CharField(max_length=32, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, related_name="subs",on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name="subs", on_delete=models.CASCADE)
     type = models.IntegerField(choices=MESSAGING_CHOICES, default=LOCAL_MESSAGE)
     date = models.DateTimeField()
 
@@ -354,9 +353,6 @@ class Badge(models.Model):
     # The rarity of the badge.
     type = models.IntegerField(choices=CHOICES, default=BRONZE)
 
-    # Total number of times awarded
-    #count = models.IntegerField(default=0)
-
     # The icon to display for the badge.
     icon = models.CharField(default='', max_length=250)
 
@@ -390,7 +386,6 @@ class Award(models.Model):
 
     @property
     def context(self):
-        print(self.post)
         link = f"For : <a href={self.post.get_absolute_url()}>{self.post.title}</a>" if self.post else ""
         return link
 

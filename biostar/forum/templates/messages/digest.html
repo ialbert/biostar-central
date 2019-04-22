@@ -1,0 +1,43 @@
+{% extends "base_email.html" %}
+
+
+
+{% block subject %}
+    [biostar] {{ subject }}
+{% endblock %}
+
+{% block html %}
+    <p>
+
+    {{ msg }}
+    </p>
+    {% for post in posts %}
+
+        <a href="{% url "post_view" post.uid %}">
+        {{ post.title }}
+        </a>
+
+    {% endfor %}
+
+    <p>
+    {{ site.name }} Team<br>
+    {{ protocol }}://{{ site.domain }}
+    </p>
+{% endblock %}
+
+
+{% block text %}
+
+    {{ msg }}
+    {% for post in posts %}
+
+        <a href="{% url "post_view" post.uid %}">
+        {{ post.title }}
+        </a>
+
+    {% endfor %}
+
+    {{ site.name }} Team
+    {{ protocol }}://{{ site.domain }}
+
+{% endblock %}
