@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+from django.db.models import Count
 
 from biostar.forum import forms, auth, tasks
 from biostar.forum.const import *
@@ -113,13 +114,13 @@ def community_list(request):
 
 
 def badge_list(request):
-    badges = Badge.objects.all()
+    badges = Badge.objects.annotate(count=Count("award"))
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
 
 def badge_view(request, uid):
-    badge = Badge.objects.filter(uid=uid).first()
+    badge = Badge.objects.filter(uid=uid).annotate(count=Count("award")).first()
 
     if not badge:
         messages.error(request, f"Badge with id={uid} does not exist.")

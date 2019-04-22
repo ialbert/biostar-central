@@ -15,7 +15,7 @@ from datetime import datetime
 
 from biostar.engine.models import Project
 from biostar.utils.shortcuts import reverse
-from biostar.forum.models import Post, Vote, Award, Badge
+from biostar.forum.models import Post, Vote, Award
 from biostar.forum import auth, forms, models, const, util
 
 
@@ -150,18 +150,11 @@ def is_moderator(user):
         return True
     return False
 
-@register.filter
-def get_badge_count(name):
-
-    count = Badge.objects.filter(name=name).award_set.count()
-    return count
 
 @register.inclusion_tag('widgets/feed.html')
 def feed(user):
 
     recent_votes = Vote.objects.prefetch_related("post")[:settings.VOTE_FEED_COUNT]
-    # Needs to be put in context of posts
-    #recent_votes = recent_votes.prefetch_related("post")
 
     recent_locations = User.objects.exclude(profile__location="")
     recent_locations = recent_locations.prefetch_related("profile")[:settings.LOCATION_FEED_COUNT]

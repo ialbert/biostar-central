@@ -355,7 +355,7 @@ class Badge(models.Model):
     type = models.IntegerField(choices=CHOICES, default=BRONZE)
 
     # Total number of times awarded
-    count = models.IntegerField(default=0)
+    #count = models.IntegerField(default=0)
 
     # The icon to display for the badge.
     icon = models.CharField(default='', max_length=250)
@@ -390,6 +390,7 @@ class Award(models.Model):
 
     @property
     def context(self):
+        print(self.post)
         link = f"For : <a href={self.post.get_absolute_url()}>{self.post.title}</a>" if self.post else ""
         return link
 
