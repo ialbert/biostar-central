@@ -61,13 +61,15 @@ class Post(models.Model):
 
     # Question types. Answers should be listed before comments.
     QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
+
+    # Valid post types.
     TYPE_CHOICES = [
         (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
         (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"),
         (DATA, "Data"), (PAGE, "Page"), (TOOL, "Tool"), (NEWS, "News"),
         (BLOG, "Blog"), (BOARD, "Bulletin Board")
     ]
-    TOP_LEVEL = {QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, TOOL, NEWS, BOARD}
+    TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
     SPAM, VALID, NEW = range(3)
     SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Non spam"), (NEW, "New post")]

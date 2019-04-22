@@ -1,82 +1,108 @@
-
-from django.shortcuts import render, redirect
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.contrib.auth import get_user_model
-from django.conf import settings
+from django.shortcuts import render, redirect
 
-from biostar.utils.shortcuts import reverse
 from biostar.forum import forms, auth, tasks
-from .models import Post, Vote, Subscription, Badge, Award
-from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from biostar.forum.const import *
-
+from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
+from biostar.utils.shortcuts import reverse
+from .models import Post, Vote, Subscription, Badge
 
 User = get_user_model()
 
+# Valid post values as they correspond to database post types.
+POST_TYPE_MAPPER = dict(
+    question=Post.QUESTION,
+    job=Post.JOB,
+    tutorial=Post.TUTORIAL,
+    forum=Post.FORUM,
+    blog=Post.BLOG,
+    tool=Post.TOOL
+)
 
-def get_posts(user, topic=""):
+# Valid order values value as they correspond to database ordering fields.
+ORDER_MAPPER = dict(
+    rank="-rank",
+    views="-view_count",
+    replies="-reply_count",
+    votes="-vote_count"
+)
 
+
+def get_posts(user, topic="", tag="", order="rank"):
+    """
+    Generates a post list on a topic.
+    """
+    # Topics are case insensitive.
     topic = topic.lower()
-    if topic == JOBS:
-        query = Post.objects.filter(type=Post.JOB)
-    elif topic == TOOLS:
-        query = Post.objects.filter(type=Post.TOOL)
-    elif topic == TUTORIALS:
-        query = Post.objects.filter(type=Post.TUTORIAL)
-    elif topic == FORUM:
-        query = Post.objects.filter(type=Post.FORUM)
-    elif topic == PLANET:
-        query = Post.objects.filter(type=Post.BLOG)
+
+    # Detect known post types.
+    post_type = POST_TYPE_MAPPER.get(topic)
+
+    # Determines how to start the query.
+    if post_type:
+        query = Post.objects.filter(type=post_type)
     elif topic == OPEN:
         query = Post.objects.filter(type=Post.QUESTION, reply_count=0)
     elif topic == BOOKMARKS:
         query = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
     elif topic == FOLLOWING:
         query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
-    elif topic == VOTES:
+    elif topic == MYVOTES:
         query = Post.objects.objects.filter(votes__post__author=user).exclude(votes__author=user).distinct()
     else:
         query = Post.objects.filter(type__in=Post.TOP_LEVEL)
 
+    # Filter by tags if specified.
+    if tag:
+        query = query.filter(tag_val__iregex=tag)
+
+    # Apply post ordering.
+    if order:
+        query = query.order_by(order)
+    else:
+        query = query.order_by("rank")
+
+    # Select related information used during rendering.
     query = query.prefetch_related("root", "lastedit_user__profile", "thread_users__profile")
-    #query = query.select_related("root", "lastedit_user__profile", "thread_users__profile")
 
     return query
 
 
 def post_list(request):
+    """
+    Post listing. Filters, orders and paginates posts based on GET parameters.
+    """
 
-    # Get current topic
-    topic = request.GET.get("active", "latest")
-    tag = request.GET.get("tag", "")
+    # The user performing the request.
     user = request.user
 
-    if user.is_anonymous and topic in PRIVATE_TOPICS:
-        messages.error(request, f"You must be logged in to view that topic.")
-        return redirect(reverse("post_list"))
+    # Parse the GET parameters for filtering information
+    page = request.GET.get('page', 1)
+    tag = request.GET.get("tag", "")
+    topic = request.GET.get("topic", "")
+    order = request.GET.get("order", "")
 
     # Get posts available to users.
-    posts = get_posts(user=user, topic=topic)
+    posts = get_posts(user=user, topic=topic, tag=tag, order=order)
 
-    if tag:
-        posts = posts.filter(tag_val__iregex=tag)
-
-    # Get the page info
-    posts = posts.order_by("rank")
-    page = request.GET.get('page')
+    # Create the paginator
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+
+    # Apply the post paging.
     posts = paginator.get_page(page)
 
-    context = dict(posts=posts, active=topic, tag=tag)
+    # Fill in context.
+    context = dict(posts=posts, active=topic, tag=tag, topic="active")
 
-    context.update({topic: "active"})
+    # Render the page.
     return render(request, template_name="post_list.html", context=context)
 
 
 def community_list(request):
-
     objs = User.objects.select_related("profile").order_by("-last_login")
     paginator = Paginator(objs, settings.USERS_PER_PAGE)
     page = request.GET.get("page", 1)
@@ -87,14 +113,12 @@ def community_list(request):
 
 
 def badge_list(request):
-
     badges = Badge.objects.all()
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
 
 def badge_view(request, uid):
-
     badge = Badge.objects.filter(uid=uid).first()
 
     if not badge:
@@ -108,7 +132,7 @@ def badge_view(request, uid):
     return render(request, "badge_view.html", context=context)
 
 
-#def tags_list(request):
+# def tags_list(request):
 
 #    context = dict(extra_tab="active", extra_tab_name="All Tags")
 #    return render(request, "tags_list.html", context=context)
@@ -116,7 +140,6 @@ def badge_view(request, uid):
 
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
-
     user = request.user
     type_map = dict(upvote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
 
@@ -178,7 +201,6 @@ def post_view(request, uid):
 
 @login_required
 def comment(request):
-
     location = reverse("post_list")
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
@@ -199,7 +221,6 @@ def comment(request):
 @object_exists(klass=Post)
 @login_required
 def subs_action(request, uid, next=None):
-
     # Post actions are being taken on
     post = Post.objects.get_all(uid=uid).first()
     user = request.user
@@ -248,7 +269,6 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
 @object_exists(klass=Post)
 @login_required
 def post_moderate(request, uid):
-
     user = request.user
     post = Post.objects.get_all(uid=uid).first()
     form = forms.PostModForm(post=post, user=user, request=request)
@@ -294,8 +314,3 @@ def edit_post(request, uid):
                    extra_tab="active", extra_tab_name="Edit Post")
 
     return render(request, template, context)
-
-
-
-
-
