@@ -6,6 +6,7 @@ from biostar.forum.models import Award, Badge, Post
 from biostar.forum.awards import ALL_AWARDS
 from biostar.forum import util
 from biostar.message.models import Message
+from django.template import loader
 
 from biostar.emailer.sender import EmailTemplate
 from django.core.mail import send_mail
@@ -44,6 +45,33 @@ def days_to_secs(days=1):
     return secs
 
 
+def send_digest(posts, extra_context, subject, rec_list):
+    today = datetime.utcnow().replace(tzinfo=utc)
+    posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date=today)
+
+    # Get users that opted for daily digest.
+    users = User.objects.filter(profile__digest_pref=Profile.DAILY_DIGEST)
+
+    # Load template with message
+    template = loader.get_template("messages/digest.html")
+    context = dict(posts=posts, msg=today.day)
+    html = template.render(context=context)
+
+    subject = f"Biostar Daily Digest for :{today.day}"
+
+    # Get the from email
+    from_email = ""
+    # Render the template
+
+    # Get the user emails
+    emails = users.values_list("email", flat=True)
+
+    send_mail(subject=subject, from_email=from_email, recipient_list=emails)
+
+
+    return
+
+
 try:
     from uwsgidecorators import *
 
@@ -66,8 +94,6 @@ try:
     @timer(secs=days_to_secs())
     def send_daily_digest():
         """Send daily digest to users """
-
-        # Get top level post created today
         today = datetime.utcnow().replace(tzinfo=utc)
         posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date=today)
 
@@ -75,18 +101,20 @@ try:
         users = User.objects.filter(profile__digest_pref=Profile.DAILY_DIGEST)
 
         # Load template with message
-        template = "digest.html"
-
+        template = loader.get_template("messages/digest.html")
         context = dict(posts=posts, msg=today.day)
+        html = template.render(context=context)
+
         subject = f"Biostar Daily Digest for :{today.day}"
 
         # Get the from email
-        from_email = ""
+        from_email = User.objects.filter(is_superuser=True).first()
         # Render the template
 
-        # Get the user emails
+        # Get the recipients list emails
         emails = users.values_list("email", flat=True)
 
+        send_mail(subject=subject, from_email=from_email, recipient_list=emails, html_message=html, message=html)
 
         return
 

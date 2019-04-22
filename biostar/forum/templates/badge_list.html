@@ -23,7 +23,7 @@
                                     <a href="{% url 'badge_view' badge.uid %}" style="opacity: unset;">{{ badge.name }}
                                         <i class="{{ badge.icon }}"></i></a>
 
-                                </div> x {{ badge.count }}
+                                </div> x {{ badge.name |get_badge_count }}
                             </div>
 
                             <div class="seven wide column">
