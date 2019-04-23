@@ -178,6 +178,11 @@ img {
 
 }
 
+.ordering{
+    float: right !important;
+    margin-bottom: 10px !important;
+}
+
 .userbox{
     width:170px !important;
     //height: 160px !important;
