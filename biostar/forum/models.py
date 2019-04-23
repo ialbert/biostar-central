@@ -308,6 +308,7 @@ class Subscription(models.Model):
     LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
 
     MESSAGING_CHOICES = [
+        (DEFAULT_MESSAGES, "Default to Local Messages"),
         (LOCAL_MESSAGE, "Local messages"),
         (EMAIL_MESSAGE, "Email for every new post added to current one."),
         (ALL_MESSAGES, "Email for every new thread (mailing list mode)")
