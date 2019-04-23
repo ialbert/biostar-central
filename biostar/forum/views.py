@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from biostar.forum import forms, auth, tasks
 from biostar.forum.const import *
@@ -26,10 +26,10 @@ POST_TYPE_MAPPER = dict(
 
 # Valid order values value as they correspond to database ordering fields.
 ORDER_MAPPER = dict(
-    rank="-rank",
-    views="-view_count",
-    replies="-reply_count",
-    votes="-vote_count"
+    rank=["-rank", "Sort by: rank"],
+    views=["-view_count", "Sort by: views"],
+    replies=["-reply_count", "Sort by: replies"],
+    votes=["-thread_votecount", "Sort by: votes"]
 )
 
 
@@ -62,8 +62,9 @@ def get_posts(user, topic="", tag="", order="rank"):
         query = query.filter(tag_val__iregex=tag)
 
     # Apply post ordering.
-    if order:
-        query = query.order_by(order)
+    ordering = ORDER_MAPPER.get(order)
+    if ordering:
+        query = query.order_by(ordering[0])
     else:
         query = query.order_by("rank")
 
@@ -96,8 +97,11 @@ def post_list(request):
     # Apply the post paging.
     posts = paginator.get_page(page)
 
+    ordering = ORDER_MAPPER.get(order)
+    ordering = ordering[1] if ordering else "Sort by: update"
+
     # Fill in context.
-    context = dict(posts=posts, active=topic, tag=tag, topic="active")
+    context = dict(posts=posts, active=topic, tag=tag, topic="active", order=ordering)
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)

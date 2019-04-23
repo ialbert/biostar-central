@@ -61,8 +61,8 @@ def build_obj_tree(request, obj):
     query = query if user.is_authenticated and user.profile.is_moderator else query.exclude(status=Post.DELETED)
     thread = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
-    thread = thread.select_related("lastedit_user__profile", "root__author__profile",
-                                   "author__profile")
+    thread = thread.select_related("lastedit_user__profile", "root__lastedit_user__profile",
+                                   "root__author__profile", "author__profile")
     # Gather votes
     votes = get_votes(user=user, thread=thread)
 

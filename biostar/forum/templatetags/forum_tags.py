@@ -206,7 +206,13 @@ def get_thread_users(post, limit=3):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(post=None):
+def listing(post=None, user=None):
+
+    if user is None:
+        return dict(post=post)
+
+    if post.is_deleted and (user.is_anonymous or not user.profile.is_moderator):
+        return None
 
     return dict(post=post)
 
