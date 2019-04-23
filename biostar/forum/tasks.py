@@ -46,6 +46,21 @@ def days_to_secs(days=1):
     return secs
 
 
+def send_digest_emails(template, context, rec_list):
+
+    email = template.render(context=context)
+    subject = context.get("subject", "Digest")
+    print(rec_list, email)
+    1 / 0
+    # Get the from email
+    from_email = User.objects.filter(is_superuser=True).first()
+    # Render the template
+
+    # Send email.
+    send_mail(subject=subject, from_email=from_email, recipient_list=rec_list, html_message=email, message=email)
+    return
+
+
 try:
     from uwsgidecorators import *
 
@@ -61,7 +76,6 @@ try:
     @timer(secs=1)
     def send_daily_digest(args):
         """Send daily digest to users """
-
         today = datetime.utcnow().replace(tzinfo=utc)
         posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date=today)
 
@@ -72,6 +86,9 @@ try:
         to_email = users.filter(profile__message_prefs=Profile.DIGEST_MESSAGES)
         # debug only
         to_email = to_email.filter(email="natay.aberra@gmail.com").first()
+
+        # Get the recipients list emails
+        to_email = to_email.values_list("email", flat=True)
         subject = f"Daily Digest for :{today.date()}"
 
         # Load template with message
@@ -80,18 +97,7 @@ try:
         context = dict(posts=posts, msg=msg, subject=subject, domain=settings.SITE_DOMAIN,
                        protocol=settings.PROTOCOL, port=settings.HTTP_PORT, name=settings.SITE_NAME)
 
-        html = template.render(context=context)
-        print(to_email, html)
-        1/0
-        # Get the from email
-        from_email = User.objects.filter(is_superuser=True).first()
-        # Render the template
-
-        # Get the recipients list emails
-        emails = users.values_list("email", flat=True)
-
-        # Send email.
-        send_mail(subject=subject, from_email=from_email, recipient_list=emails, html_message=html, message=html)
+        send_digest_emails(template=template, rec_list=to_email, context=context)
 
         return
 
