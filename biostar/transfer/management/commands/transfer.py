@@ -85,6 +85,7 @@ def bulk_copy_users():
         for index, user in stream:
             progress(index, msg="profiles")
             text = util.strip_tags(user.profile.info)
+
             profile = Profile(uid=user.id, user=current.get(user.email), name=user.name,
                               role=user.type, last_login=user.last_login, html=user.profile.info,
                               date_joined=user.profile.date_joined, location=user.profile.location,
@@ -160,11 +161,11 @@ def bulk_copy_posts():
             # Incomplete author information loaded or existing posts.
             if not (author and lastedit_user):
                 continue
-
+            rank = post.lastedit_date.timestamp()
             content = util.strip_tags(post.content)
             new_post = Post(uid=post.id, html=post.html, type=post.type,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
-                            author=author, status=post.status, rank=post.rank, has_accepted=post.has_accepted,
+                            author=author, status=post.status, rank=rank, has_accepted=post.has_accepted,
                             lastedit_date=post.lastedit_date, book_count=post.book_count, reply_count=post.reply_count,
                             content=content, title=post.title, vote_count=post.vote_count,
                             thread_score=post.reply_count,

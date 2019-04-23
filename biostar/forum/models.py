@@ -208,11 +208,14 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
 
         self.lastedit_user = self.lastedit_user or self.author
-        self.creation_date = self.creation_date
+        self.creation_date = self.creation_date or util.now()
         self.lastedit_date = self.lastedit_date or self.creation_date
 
         # Sanitize the post body.
         self.html = self.html or mistune.markdown(self.content)
+
+        # Set the rank
+        self.rank = self.lastedit_date.timestamp()
 
         # Must add tags with instance method. This is just for safety.
         self.tag_val = util.strip_tags(self.tag_val)

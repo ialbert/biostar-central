@@ -66,7 +66,7 @@ def get_posts(user, topic="", tag="", order="rank"):
     if ordering:
         query = query.order_by(ordering[0])
     else:
-        query = query.order_by("rank")
+        query = query.order_by("-rank")
 
     # Select related information used during rendering.
     query = query.prefetch_related("root", "lastedit_user__profile", "thread_users__profile")
@@ -93,13 +93,12 @@ def post_list(request):
 
     # Create the paginator
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
-    print(posts.filter(uid="p1"))
+
     # Apply the post paging.
     posts = paginator.get_page(page)
 
     ordering = ORDER_MAPPER.get(order)
     ordering = ordering[1] if ordering else "Sort by: rank"
-
 
     # Fill in context.
     context = dict(posts=posts, active=topic, tag=tag, topic="active", order=ordering)
