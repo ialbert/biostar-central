@@ -20,8 +20,8 @@
     {% endfor %}
 
     <p>
-    {{ site.name }} Team<br>
-    {{ protocol }}://{{ site.domain }}
+    {{ name }} Team<br>
+    {{ protocol }}://{{ domain }}{% if port %}{{ port }}{% endif %}
     </p>
 {% endblock %}
 
@@ -37,7 +37,7 @@
 
     {% endfor %}
 
-    {{ site.name }} Team
-    {{ protocol }}://{{ site.domain }}
+    {{ name }} Team
+    {{ protocol }}://{{ domain }}{% if port %}{{ port }}{% endif %}
 
 {% endblock %}

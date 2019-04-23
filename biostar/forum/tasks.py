@@ -8,6 +8,7 @@ from biostar.forum import util
 from biostar.message.models import Message
 from django.template import loader
 
+from django.conf import settings
 from biostar.emailer.sender import EmailTemplate
 from django.core.mail import send_mail
 
@@ -76,12 +77,12 @@ try:
         # Load template with message
         template = loader.get_template("messages/digest.html")
         msg = f"Hello, here are a list of posts from today, {today.date()}. "
-        context = dict(posts=posts, msg=msg, subject=subject)
+        context = dict(posts=posts, msg=msg, subject=subject, domain=settings.SITE_DOMAIN,
+                       protocol=settings.PROTOCOL, port=settings.HTTP_PORT, name=settings.SITE_NAME)
+
         html = template.render(context=context)
         print(to_email, html)
         1/0
-        subject = f"Daily Digest for: {today.date()}"
-
         # Get the from email
         from_email = User.objects.filter(is_superuser=True).first()
         # Render the template
@@ -99,8 +100,11 @@ try:
     def send_weekly_digest(args):
         """Send weekly digest to users """
 
-        # Get top level posts a week old
+        # Get all subscriptions a user has
 
+        # Filter for what has been edited within the last week
+
+        # Send with local messages or email
         return
 
 
