@@ -73,7 +73,8 @@ try:
         return
 
 
-    @timer(secs=1)
+    #@timer(secs=1)
+    @timer(secs=days_to_secs(days=1))
     def send_daily_digest(args):
         """Send daily digest to users """
         today = datetime.utcnow().replace(tzinfo=utc)
@@ -97,7 +98,7 @@ try:
         context = dict(posts=posts, msg=msg, subject=subject, domain=settings.SITE_DOMAIN,
                        protocol=settings.PROTOCOL, port=settings.HTTP_PORT, name=settings.SITE_NAME)
 
-        send_digest_emails(template=template, rec_list=to_email, context=context)
+        #send_digest_emails(template=template, rec_list=to_email, context=context)
 
         return
 
