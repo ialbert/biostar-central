@@ -98,7 +98,7 @@ def post_list(request):
     posts = paginator.get_page(page)
 
     ordering = ORDER_MAPPER.get(order)
-    ordering = ordering[1] if ordering else "Sort by: update"
+    ordering = ordering[1] if ordering else "Sort by: rank"
 
     # Fill in context.
     context = dict(posts=posts, active=topic, tag=tag, topic="active", order=ordering)

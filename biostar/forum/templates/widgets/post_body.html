@@ -124,10 +124,11 @@
 
                         <div id="comment-container-{{post.uid}}"></div>
                          {# Comments for each post rendered here #}
+                      {% render_comments tree=tree project_uid=project_uid request=request post=post next_url=next_url %}
 
                  </div>
 
-                    {% render_comments tree=tree project_uid=project_uid request=request post=post next_url=next_url %}
+
 
              </div>
 
