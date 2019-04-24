@@ -170,7 +170,7 @@ def ajax_vote(request):
     post_uid = request.POST['post_uid']
 
     # Check the post that is voted on.
-    post = Post.objects.get_all(uid=post_uid).first()
+    post = Post.objects.filter(uid=post_uid).first()
 
     if post.author == user and vote_type == Vote.UP:
         return ajax_error("You can not upvote your own post.")
@@ -196,7 +196,7 @@ def post_view(request, uid):
     form = forms.PostShortForm()
 
     # Get the parents info
-    obj = Post.objects.get_all(uid=uid).first()
+    obj = Post.objects.filter(uid=uid).first()
     # Return root view if not at top level.
     obj = obj if obj.is_toplevel else obj.root
 
@@ -234,7 +234,7 @@ def comment(request):
                 tasks.created_post(pid=post.id)
         else:
             messages.error(request, f"Error adding comment:{form.errors}")
-            parent = Post.objects.get_all(uid=request.POST.get("parent_uid")).first()
+            parent = Post.objects.filter(uid=request.POST.get("parent_uid")).first()
             location = location if parent is None else reverse("post_view", kwargs=dict(uid=parent.root.uid))
 
     return redirect(location)
@@ -244,7 +244,7 @@ def comment(request):
 @login_required
 def subs_action(request, uid, next=None):
     # Post actions are being taken on
-    post = Post.objects.get_all(uid=uid).first()
+    post = Post.objects.filter(uid=uid).first()
     user = request.user
     next_url = request.GET.get(REDIRECT_FIELD_NAME,
                                request.POST.get(REDIRECT_FIELD_NAME))
@@ -292,7 +292,7 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
 @login_required
 def post_moderate(request, uid):
     user = request.user
-    post = Post.objects.get_all(uid=uid).first()
+    post = Post.objects.filter(uid=uid).first()
     form = forms.PostModForm(post=post, user=user, request=request)
 
     if request.method == "POST":
@@ -317,7 +317,7 @@ def post_moderate(request, uid):
 def edit_post(request, uid):
     "Edit an existing post"
 
-    post = Post.objects.get_all(uid=uid).first()
+    post = Post.objects.filter(uid=uid).first()
     if post.is_toplevel:
         template, edit_form = "post_create.html", forms.PostLongForm
     else:

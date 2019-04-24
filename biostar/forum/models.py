@@ -37,23 +37,8 @@ class SubscriptionManager(models.Manager):
         return self.filter(post=post.root).select_related("user", "user__profile")
 
 
-class PostManager(models.Manager):
-
-    #def get_queryset(self):
-    #    "Regular queries exclude deleted stuff"
-    #    query = self.select_prefetch(super().get_queryset())
-    #    return query
-
-    def get_all(self, **kwargs):
-        "Return everything"
-        query = self.get_queryset().filter(**kwargs)
-        return query
-
-
 class Post(models.Model):
     "Represents a post in a forum"
-
-    objects = PostManager()
 
     # Post statuses.
     PENDING, OPEN, CLOSED, DELETED = range(4)
