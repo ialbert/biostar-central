@@ -26,19 +26,25 @@
     <span class="current">
         Page {{ objs.number }} of {{ objs.paginator.num_pages }}
     </span>
-
+ &bull;
     {% if objs.has_next %}
 
-            &bull;
-    {% if topic %}
-            <a href="{{ url }}?page={{ objs.next_page_number }}&{{feild_name}}={{topic}}">next
-            <i class="ui angle small double right icon"></i>
+
+        {% if topic %}
+                <a href="{{ url }}?page={{ objs.next_page_number }}&{{feild_name}}={{topic}}">next
+                <i class="ui angle small double right icon"></i>
+                </a>
+        {% else %}
+            <a href="{{ url }}?page={{ objs.next_page_number }}">next
+                <i class="ui angle small double right icon"></i>
             </a>
+       {% endif %}
     {% else %}
-        <a href="{{ url }}?page={{ objs.next_page_number }}">next
-            <i class="ui angle small double right icon"></i>
-        </a>
-   {% endif %}
+     <span >
+        next
+     <i class="ui angle small double right icon"></i>
+        </span>
+
 
     {% endif %}
 

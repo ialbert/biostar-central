@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -6,7 +8,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.db.models import Count, Q
 
-from biostar.forum import forms, auth, tasks
+from biostar.forum import forms, auth, tasks, util
 from biostar.forum.const import *
 from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from biostar.utils.shortcuts import reverse
@@ -32,8 +34,17 @@ ORDER_MAPPER = dict(
     votes=["-thread_votecount", "Sort by: votes"]
 )
 
+POST_LIMIT_MAP = dict([
+    ("all time", 0),
+    ("today", 1),
+    ("this week", 7),
+    ("this month", 30),
+    ("this year", 365),
 
-def get_posts(user, topic="", tag="", order="rank"):
+])
+
+
+def get_posts(user, topic="", tag="", order="rank", limit=None):
     """
     Generates a post list on a topic.
     """
@@ -62,11 +73,16 @@ def get_posts(user, topic="", tag="", order="rank"):
         query = query.filter(tag_val__iregex=tag)
 
     # Apply post ordering.
-    ordering = ORDER_MAPPER.get(order)
-    if ordering:
+    if ORDER_MAPPER.get(order):
+        ordering = ORDER_MAPPER.get(order)
         query = query.order_by(ordering[0])
     else:
         query = query.order_by("-rank")
+
+    days = POST_LIMIT_MAP.get(limit, 0)
+    if days:
+        delta = util.now() - timedelta(days=days)
+        query = query.filter(lastedit_date__gt=delta)
 
     # Select related information used during rendering.
     query = query.prefetch_related("root", "lastedit_user__profile", "thread_users__profile")
@@ -87,9 +103,10 @@ def post_list(request):
     tag = request.GET.get("tag", "")
     topic = request.GET.get("topic", "")
     order = request.GET.get("order", "")
+    limit = request.GET.get("limit")
 
     # Get posts available to users.
-    posts = get_posts(user=user, topic=topic, tag=tag, order=order)
+    posts = get_posts(user=user, topic=topic, tag=tag, order=order, limit=limit)
 
     # Create the paginator
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
@@ -97,11 +114,11 @@ def post_list(request):
     # Apply the post paging.
     posts = paginator.get_page(page)
 
-    ordering = ORDER_MAPPER.get(order)
-    ordering = ordering[1] if ordering else "Sort by: rank"
+    ordering = f"Sort by: {order}" if ORDER_MAPPER.get(order) else "Sort by: rank"
+    limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
 
     # Fill in context.
-    context = dict(posts=posts, active=topic, tag=tag, topic="active", order=ordering)
+    context = dict(posts=posts, active=topic, tag=tag, topic="active", order=ordering, limit=limit_to)
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
