@@ -7,37 +7,18 @@
 <div class="ui image">
 
             <div class="ui left stat label mini" >
-
-                {% if post.is_toplevel %}
-                            <div class="number-stat">
-                            {{ post.thread_votecount }}
-                            </div>
-                            <div class="detail-stat">Vote{{ post.thread_votecount|pluralize }}</div>
-
-                {% else %}
-                            <div class="number-stat">
-                            {{ post.vote_count }}
-                            </div>
-                            <div class="detail-stat">Vote{{ post.vote_count|pluralize }}</div>
-
-                {% endif %}
+                <div class="number-stat">
+                {{ post.get_votecount }}
+                </div>
+                <div class="detail-stat">Vote{{ post.get_votecount|pluralize }}</div>
 
             </div>
 
-
             <div class="ui {% boxclass post %} label stat mini" style="margin:-1px;">
-                {% if post.is_toplevel %}
-                    <div class="number-stat">
-                    {{ post.thread_score }}
-                    </div>
-                    <div class="detail-stat">Answer{{ post.thread_score|pluralize }}</div>
-
-                {% else %}
-                    <div class="number-stat">
-                        {{ post.reply_count }}
-                    </div>
-                    <div class="detail-stat">Answer{{ post.root.reply_count|pluralize }}</div>
-                {% endif %}
+                <div class="number-stat">
+                {{ post.get_reply_count }}
+                </div>
+                <div class="detail-stat">Answer{{ post.get_reply_count|pluralize }}</div>
 
             </div>
 
@@ -49,13 +30,9 @@
                 <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
 
             </div>
-
-    {% if post.subs_count %}
-        <div class="subs">
-            {{ post.subs_count }} follow
-        </div>
-    {% endif %}
-
+<div class="subs">
+    {{ post.get_subscount }}
+</div>
 </div>
 
 

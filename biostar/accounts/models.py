@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.db import models
 from biostar import settings
 
+from biostar.forum.util import time_ago
 
 MAX_UID_LEN = 255
 MAX_NAME_LEN = 255
@@ -125,6 +126,13 @@ class Profile(models.Model):
     @property
     def trusted(self):
         return self.user.is_staff or self.state == self.TRUSTED
+
+    @property
+    def get_last_login(self):
+
+        if self.last_login:
+            return f"visited {time_ago(self.last_login)}"
+        return f"visited {time_ago(self.date_joined)}"
 
     @property
     def is_manager(self):

@@ -165,6 +165,29 @@ class Post(models.Model):
         return text
 
     @property
+    def get_votecount(self):
+
+        if self.is_toplevel:
+            return self.thread_votecount
+        return self.vote_count
+
+    @property
+    def get_reply_count(self):
+
+        if self.is_toplevel:
+            return self.thread_score
+
+        return self.reply_count
+
+    @property
+    def get_subscount(self):
+
+        if self.subs_count:
+            return f"{self.subs_count} follow"
+
+        return ""
+
+    @property
     def is_open(self):
         return self.status == Post.OPEN
 

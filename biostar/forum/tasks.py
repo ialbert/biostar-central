@@ -112,7 +112,7 @@ try:
         posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date=today)
 
         # Load template with message
-        subject = f"weekly Digest for :{today.date()}"
+        subject = f"Weekly Digest for :{today.date()}"
         msg = f"Hello, here are a digest of posts from today, {today.date()}. "
         context = dict(posts=posts, msg=msg, subject=subject)
 
@@ -127,6 +127,16 @@ try:
         """Send monthly (30 days) digest to users """
 
         # Get top level posts one month old.
+        today = datetime.utcnow().replace(tzinfo=utc)
+        posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date=today)
+
+        # Load template with message
+        subject = f"Monthly Digest for :{today.month}"
+        msg = f"Hello, here are posts from your monthly digest for the month {today.month}. "
+        context = dict(posts=posts, msg=msg, subject=subject)
+
+        send_digest_emails(digest_prefs=Profile.MONTHLY_DIGEST,
+                          extra_context=context, template_name="messages/digest.html")
 
         return
 

@@ -176,7 +176,7 @@ def show_score_icon(user):
 
     color = "modcolor" if user.profile.is_moderator else ""
 
-    if user.profile.score > 500:
+    if user.profile.score > 150:
         icon = f'<i class="ui small star icon {color}"></i>'
     else:
         icon = f'<span class="{color}"> &bull;</span>'
@@ -223,13 +223,6 @@ def show_nonzero(value):
     return value if value else ''
 
 
-def pluralize(value, word):
-    if value > 1:
-        return "%d %ss" % (value, word)
-    else:
-        return "%d %s" % (value, word)
-
-
 @register.simple_tag
 def object_count(request, otype):
 
@@ -246,27 +239,7 @@ def object_count(request, otype):
 
 @register.filter
 def time_ago(date):
-
-    # Rare bug. TODO: Need to investigate why this can happen.
-    if not date:
-        return ''
-    delta = now() - date
-    if delta < timedelta(minutes=1):
-        return 'just now'
-    elif delta < timedelta(hours=1):
-        unit = pluralize(delta.seconds // 60, "minute")
-    elif delta < timedelta(days=1):
-        unit = pluralize(delta.seconds // 3600, "hour")
-    elif delta < timedelta(days=30):
-        unit = pluralize(delta.days, "day")
-    elif delta < timedelta(days=90):
-        unit = pluralize(int(delta.days / 7), "week")
-    elif delta < timedelta(days=730):
-        unit = pluralize(int(delta.days / 30), "month")
-    else:
-        diff = delta.days / 365.0
-        unit = '%0.1f years' % diff
-    return "%s ago" % unit
+    return util.time_ago(date=date)
 
 
 @register.filter

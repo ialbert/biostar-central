@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.db.models import Count, Q
+import urllib.parse as urlparse
 
 from biostar.forum import forms, auth, tasks, util
 from biostar.forum.const import *
@@ -28,11 +29,23 @@ POST_TYPE_MAPPER = dict(
 
 # Valid order values value as they correspond to database ordering fields.
 ORDER_MAPPER = dict(
-    rank=["-rank", "Sort by: rank"],
-    views=["-view_count", "Sort by: views"],
-    replies=["-reply_count", "Sort by: replies"],
-    votes=["-thread_votecount", "Sort by: votes"]
+    rank="-rank",
+    views="-view_count",
+    replies="-reply_count",
+    votes="-thread_votecount"
 )
+
+ICON_MAP = {
+    'rank': "list ol icon",
+    'views': "eye icon",
+    'replies': "comment icon",
+    'votes': "thumbs up icon",
+    'all time': 'calendar plus icon',
+    "today": 'clock icon',
+    "this week": 'calendar minus outline icon',
+    "this month": 'calendar alternate icon',
+    "this year": 'calendar outline icon'
+}
 
 POST_LIMIT_MAP = dict([
     ("all time", 0),
@@ -65,6 +78,8 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
         query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
     elif topic == MYVOTES:
         #TODO: switching to votes
+        votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
+        query = votes_query.values("post")
         query = Post.objects.objects.filter(votes__post__author=user).exclude(votes__author=user)
     else:
         query = Post.objects.filter(type__in=Post.TOP_LEVEL)
@@ -76,7 +91,7 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
     # Apply post ordering.
     if ORDER_MAPPER.get(order):
         ordering = ORDER_MAPPER.get(order)
-        query = query.order_by(ordering[0])
+        query = query.order_by(ordering)
     else:
         query = query.order_by("-rank")
 
@@ -116,10 +131,20 @@ def post_list(request):
     posts = paginator.get_page(page)
 
     ordering = f"Sort by: {order}" if ORDER_MAPPER.get(order) else "Sort by: rank"
+    order_icon = ICON_MAP.get(order) or ICON_MAP["rank"]
+    limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
     limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
 
+    # Pass the query string to maintain filtering options
+
+    query_string = [f"{key}={request.GET[key]}" for key in request.GET.keys()]
+    query_string = "&".join(query_string)
+
+    print(query_string)
+
     # Fill in context.
-    context = dict(posts=posts, active=topic, tag=tag, topic="active", order=ordering, limit=limit_to)
+    context = dict(posts=posts, active=topic, tag=tag, topic="active", order=ordering, limit=limit_to,
+                   order_icon=order_icon, limit_icon=limit_icon)
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)

@@ -37,11 +37,7 @@
                 <a href="{% url "user_profile" award.user.profile.uid %}">{{award.user.profile.name}}</a>
                 {{ award.user |show_score_icon}}  {{ award.user.profile.score | show_score |bignum }}
             <div>
-                {% if award.user.profile.last_login %}
-                visited {{ award.user.profile.last_login|time_ago }}
-                {% else %}
-                    Joined {{ award.user.profile.date_joined|time_ago }}
-                {% endif %}
+            {{ award.user.profile.get_last_login }}
 
             </div>
             <div class="muted">
