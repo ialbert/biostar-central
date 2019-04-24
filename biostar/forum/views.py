@@ -64,7 +64,8 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
     elif topic == FOLLOWING:
         query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
     elif topic == MYVOTES:
-        query = Post.objects.objects.filter(votes__post__author=user).exclude(votes__author=user).distinct()
+        #TODO: switching to votes
+        query = Post.objects.objects.filter(votes__post__author=user).exclude(votes__author=user)
     else:
         query = Post.objects.filter(type__in=Post.TOP_LEVEL)
 

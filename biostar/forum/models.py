@@ -53,6 +53,7 @@ class PostManager(models.Manager):
 class Post(models.Model):
     "Represents a post in a forum"
 
+    #TODO: manager being taken out
     objects = PostManager()
 
     # Post statuses.
