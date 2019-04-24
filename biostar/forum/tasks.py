@@ -87,8 +87,8 @@ try:
 
         return
 
-    @timer(secs=1)
-    #@timer(secs=days_to_secs(days=1))
+    #@timer(secs=1)
+    @timer(secs=days_to_secs(days=1))
     def send_daily_digest(args):
         """Send daily digest to users """
         today = datetime.utcnow().replace(tzinfo=utc)
@@ -99,8 +99,8 @@ try:
         msg = f"Hello, here are a digest of posts from today, {today.date()}. "
         context = dict(posts=posts, msg=msg, subject=subject)
 
-        send_digest_emails(digest_prefs=Profile.DAILY_DIGEST,
-                           extra_context=context, template_name="messages/digest.html")
+        #send_digest_emails(digest_prefs=Profile.DAILY_DIGEST,
+        #                   extra_context=context, template_name="messages/digest.html")
 
         return
 
@@ -116,8 +116,8 @@ try:
         msg = f"Hello, here are a digest of posts from today, {today.date()}. "
         context = dict(posts=posts, msg=msg, subject=subject)
 
-        send_digest_emails(template_name="messages/digest.html", digest_prefs=Profile.WEEKLY_DIGEST,
-                           extra_context=context)
+        #send_digest_emails(template_name="messages/digest.html", digest_prefs=Profile.WEEKLY_DIGEST,
+        #                   extra_context=context)
 
         return
 
