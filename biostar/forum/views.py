@@ -72,14 +72,14 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
         query = Post.objects.filter(type=post_type)
     elif topic == OPEN:
         query = Post.objects.filter(type=Post.QUESTION, reply_count=0)
-    elif topic == BOOKMARKS:
+    elif topic == BOOKMARKS and user.is_authenticated:
         query = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
-    elif topic == FOLLOWING:
+    elif topic == FOLLOWING and user.is_authenticated:
         query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
     elif topic == MYVOTES:
         #TODO: switching to votes
-        votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
-        query = votes_query.values("post")
+        #votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
+        #query = votes_query.values("post")
         query = Post.objects.objects.filter(votes__post__author=user).exclude(votes__author=user)
     else:
         query = Post.objects.filter(type__in=Post.TOP_LEVEL)
@@ -130,21 +130,16 @@ def post_list(request):
     # Apply the post paging.
     posts = paginator.get_page(page)
 
+    # Get the wording and icon for filtering options
     ordering = f"Sort by: {order}" if ORDER_MAPPER.get(order) else "Sort by: rank"
+    limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
     order_icon = ICON_MAP.get(order) or ICON_MAP["rank"]
     limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
-    limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
-
-    # Pass the query string to maintain filtering options
-
-    query_string = [f"{key}={request.GET[key]}" for key in request.GET.keys()]
-    query_string = "&".join(query_string)
-
-    print(query_string)
 
     # Fill in context.
-    context = dict(posts=posts, active=topic, tag=tag, topic="active", order=ordering, limit=limit_to,
+    context = dict(posts=posts, active=topic, tag=tag, order=ordering, limit=limit_to,
                    order_icon=order_icon, limit_icon=limit_icon)
+    context.update({topic: "active"})
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
