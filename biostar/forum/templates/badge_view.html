@@ -7,14 +7,21 @@
 
 
 
-{% block body %}
+{% block grid %}
 
 <div class="ui basic segment">
     <div class="ui basic segment">
-        Badge: {{ badge.name }} <i class="{{ badge.icon }}"></i> <a href="{% url 'badge_list' %}"> &bull;  All
-            <i class="ui angle small double right icon"></i></a>
-        <div>Awarded {{ badge.count }} times for : {{ badge.desc }}</div>
-        <div>Recently awarded to </div>
+        <h3 class="ui header">
+            <div>
+            Badge: {{ badge.name }} <i class="{{ badge.icon }}"></i> <a href="{% url 'badge_list' %}"> &bull;  All
+                <i class="ui angle small double right icon"></i></a>
+            </div>
+        </h3>
+        <h4 class="ui header">
+            <div class="">Awarded {{ badge.count }} times for : {{ badge.desc }}</div>
+            <div>Recently awarded to </div>
+        </h4>
+
     </div>
     <div class="ui grid">
 
@@ -30,18 +37,14 @@
                 <a href="{% url "user_profile" award.user.profile.uid %}">{{award.user.profile.name}}</a>
                 {{ award.user |show_score_icon}}  {{ award.user.profile.score | show_score |bignum }}
             <div>
-                {% if award.user.profile.last_login %}
-                visited {{ award.user.profile.last_login|time_ago }}
-                {% else %}
-                    Joined {{ award.user.profile.date_joined|time_ago }}
-                {% endif %}
+            {{ award.user.profile.get_last_login }}
 
             </div>
             <div class="muted">
                     {{ award.user.profile.location |truncatechars:40}}
             </div>
 
-            For : {{ award.context|safe }}
+            {{ award.context|safe }}
             </div>
 
           {%  endfor %}
@@ -49,7 +52,4 @@
     </div>
 </div>
 
-{% endblock %}
-
-{% block feed %}
 {% endblock %}

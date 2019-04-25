@@ -97,7 +97,7 @@ figure { display: block; margin: 0; }
 }
 
 .extrainfo {
-  margin-top:30;
+  //margin-top:30;
   padding: 0;
 }
 
@@ -178,11 +178,16 @@ img {
 
 }
 
+.ordering{
+    float: right !important;
+    margin-bottom: 10px !important;
+}
+
 .userbox{
     width:170px !important;
-    height: 160px !important;
+    //height: 160px !important;
     background: #f9fbff !important;
-    // overflow-y: auto !important;
+    //overflow-y: auto !important;
 }
 
 .accepted {

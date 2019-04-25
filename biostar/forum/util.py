@@ -1,11 +1,8 @@
 import re
 import bleach
 import logging
-import requests
-import mistune
 import uuid
-from datetime import datetime
-#from html5lib.tokenizer import HTMLTokenizer
+from datetime import datetime, timedelta
 
 
 from django.template import loader, Context
@@ -43,3 +40,33 @@ def strip_tags(text):
     "Strip html tags from text"
     text = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
     return text
+
+
+def pluralize(value, word):
+    if value > 1:
+        return "%d %ss" % (value, word)
+    else:
+        return "%d %s" % (value, word)
+
+
+def time_ago(date):
+
+    if not date:
+        return ''
+    delta = now() - date
+    if delta < timedelta(minutes=1):
+        return 'just now'
+    elif delta < timedelta(hours=1):
+        unit = pluralize(delta.seconds // 60, "minute")
+    elif delta < timedelta(days=1):
+        unit = pluralize(delta.seconds // 3600, "hour")
+    elif delta < timedelta(days=30):
+        unit = pluralize(delta.days, "day")
+    elif delta < timedelta(days=90):
+        unit = pluralize(int(delta.days / 7), "week")
+    elif delta < timedelta(days=730):
+        unit = pluralize(int(delta.days / 30), "month")
+    else:
+        diff = delta.days / 365.0
+        unit = '%0.1f years' % diff
+    return "%s ago" % unit

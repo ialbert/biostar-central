@@ -9,4 +9,3 @@ def get_uuid(limit=32):
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
-

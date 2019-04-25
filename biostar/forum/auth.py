@@ -61,8 +61,8 @@ def build_obj_tree(request, obj):
     query = query if user.is_authenticated and user.profile.is_moderator else query.exclude(status=Post.DELETED)
     thread = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
-    thread = thread.select_related("lastedit_user__profile", "root__author__profile",
-                                   "author__profile")
+    thread = thread.select_related("lastedit_user__profile", "root__lastedit_user__profile",
+                                   "root__author__profile", "author__profile")
     # Gather votes
     votes = get_votes(user=user, thread=thread)
 
@@ -138,31 +138,31 @@ def create_sub(post,  user, sub_type=None):
 
 
 def trigger_vote(vote_type, post, change):
-    Post.objects.get_all(uid=post.uid).update(vote_count=F('vote_count') + change)
+    Post.objects.filter(uid=post.uid).update(vote_count=F('vote_count') + change)
 
     if vote_type == Vote.BOOKMARK:
         # Apply the vote
-        Post.objects.get_all(uid=post.uid).update(book_count=F('book_count') + change)
+        Post.objects.filter(uid=post.uid).update(book_count=F('book_count') + change)
 
     elif vote_type == Vote.ACCEPT:
 
         if change > 0:
             # There does not seem to be a negation operator for F objects.
-            Post.objects.get_all(uid=post.uid).update(has_accepted=True)
-            Post.objects.get_all(uid=post.root.uid).update(has_accepted=True)
+            Post.objects.filter(uid=post.uid).update(has_accepted=True)
+            Post.objects.filter(uid=post.root.uid).update(has_accepted=True)
         else:
-            Post.objects.get_all(uid=post.uid).update(has_accepted=False)
-            accepted_siblings = Post.objects.get_all(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
+            Post.objects.filter(uid=post.uid).update(has_accepted=False)
+            accepted_siblings = Post.objects.filter(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
 
             # Only set root as not accepted if there are no accepted siblings
             if accepted_siblings == 0:
-                Post.objects.get_all(uid=post.root.uid).update(has_accepted=False)
+                Post.objects.filter(uid=post.root.uid).update(has_accepted=False)
     else:
         thread_query = Post.objects.filter(status=Post.OPEN, root=post.root)
 
         reply_count = thread_query.exclude(uid=post.parent.uid).filter(type=Post.ANSWER).count()
         thread_score = thread_query.exclude(uid=post.root.uid).count()
-        Post.objects.get_all(root=post.root).update(thread_votecount=F('thread_votecount') + change)
+        Post.objects.filter(root=post.root).update(thread_votecount=F('thread_votecount') + change)
         Post.objects.filter(parent=post.parent).update(reply_count=reply_count)
         Post.objects.filter(root=post.root).update(thread_score=thread_score)
 
@@ -186,7 +186,7 @@ def preform_vote(post, user, vote_type, uid=None):
         Profile.objects.filter(user=post.author).update(score=F('score') + change)
 
     # The thread vote count represents all votes in a thread
-    Post.objects.get_all(uid=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
+    Post.objects.filter(uid=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
 
     trigger_vote(vote_type=vote_type, post=post, change=change)
 
@@ -283,7 +283,7 @@ def delete_post(post, request):
 
     if delete_only:
         # Deleted posts can be undeleted by re-opening them.
-        Post.objects.get_all(uid=post.uid).update(status=Post.DELETED)
+        Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
         url = post.root.get_absolute_url()
         messages.success(request, "Deleted post: %s" % post.title)
     else:
@@ -311,12 +311,12 @@ def moderate_post(request, action, post, comment=None, dupes=[]):
     url = post.root.get_absolute_url()
 
     if action == BUMP_POST:
-        Post.objects.get_all(uid=post.uid).update(lastedit_date=now, lastedit_user=request.user)
+        Post.objects.filter(uid=post.uid).update(lastedit_date=now, lastedit_user=request.user)
         messages.success(request, "Post bumped")
         return url
 
     if action == MOD_OPEN:
-        Post.objects.get_all(uid=post.uid).update(status=Post.OPEN)
+        Post.objects.filter(uid=post.uid).update(status=Post.OPEN)
         messages.success(request, f"Opened post: {post.title}")
         return url
 
@@ -330,34 +330,34 @@ def moderate_post(request, action, post, comment=None, dupes=[]):
         return url
 
     if action == TOGGLE_ACCEPT:
-        root_has_accepted = Post.objects.get_all(root=root, type=Post.ANSWER, has_accepted=True).count()
-        Post.objects.get_all(uid=post.uid).update(has_accepted=not post.has_accepted)
-        Post.objects.get_all(uid=root.uid).update(has_accepted=root_has_accepted)
+        root_has_accepted = Post.objects.filter(root=root, type=Post.ANSWER, has_accepted=True).count()
+        Post.objects.filter(uid=post.uid).update(has_accepted=not post.has_accepted)
+        Post.objects.filter(uid=root.uid).update(has_accepted=root_has_accepted)
         return url
 
     if action == MOVE_TO_ANSWER:
-        Post.objects.get_all(uid=post.uid).update(type=Post.ANSWER, parent=post.root, reply_count=F("reply_count") + 1)
-        Post.objects.get_all(uid=root.uid).update(reply_count=F("reply_count") + 1)
+        Post.objects.filter(uid=post.uid).update(type=Post.ANSWER, parent=post.root, reply_count=F("reply_count") + 1)
+        Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") + 1)
         messages.success(request, "Moved comment to answer")
         return url
 
     if action == MOVE_TO_COMMENT:
-        Post.objects.get_all(uid=post.uid).update(type=Post.COMMENT, parent=post.root, reply_count=F("reply_count") - 1)
-        Post.objects.get_all(uid=root.uid).update(reply_count=F("reply_count") - 1)
+        Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=post.root, reply_count=F("reply_count") - 1)
+        Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") - 1)
         messages.success(request, "Moved answer to comment")
         return url
 
     if action == CLOSE_OFFTOPIC:
-        Post.objects.get_all(uid=post.uid).update(status=Post.CLOSED)
-        Post.objects.get_all(uid=root.uid).update(reply_count=F("reply_count") - 1)
+        Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
+        Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") - 1)
         content = util.render(name="messages/offtopic_posts.html", user=post.author, comment=comment, posts=post)
         # Create a comment to the post
         Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
         return url
 
     if action == DUPLICATE:
-        Post.objects.get_all(uid=post.uid).update(status=Post.CLOSED)
-        Post.objects.get_all(uid__in=dupes).update(status=Post.CLOSED)
+        Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
+        Post.objects.filter(uid__in=dupes).update(status=Post.CLOSED)
         content = util.render(name="messages/duplicate_posts.html", user=post.author, comment=comment, posts=post)
         # Create a comment to the post
         Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)

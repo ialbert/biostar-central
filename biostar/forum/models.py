@@ -37,23 +37,8 @@ class SubscriptionManager(models.Manager):
         return self.filter(post=post.root).select_related("user", "user__profile")
 
 
-class PostManager(models.Manager):
-
-    #def get_queryset(self):
-    #    "Regular queries exclude deleted stuff"
-    #    query = self.select_prefetch(super().get_queryset())
-    #    return query
-
-    def get_all(self, **kwargs):
-        "Return everything"
-        query = self.get_queryset().filter(**kwargs)
-        return query
-
-
 class Post(models.Model):
     "Represents a post in a forum"
-
-    objects = PostManager()
 
     # Post statuses.
     PENDING, OPEN, CLOSED, DELETED = range(4)
@@ -180,6 +165,29 @@ class Post(models.Model):
         return text
 
     @property
+    def get_votecount(self):
+
+        if self.is_toplevel:
+            return self.thread_votecount
+        return self.vote_count
+
+    @property
+    def get_reply_count(self):
+
+        if self.is_toplevel:
+            return self.thread_score
+
+        return self.reply_count
+
+    @property
+    def get_subscount(self):
+
+        if self.subs_count:
+            return f"{self.subs_count} follow"
+
+        return ""
+
+    @property
     def is_open(self):
         return self.status == Post.OPEN
 
@@ -208,11 +216,14 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
 
         self.lastedit_user = self.lastedit_user or self.author
-        self.creation_date = self.creation_date
+        self.creation_date = self.creation_date or util.now()
         self.lastedit_date = self.lastedit_date or self.creation_date
 
         # Sanitize the post body.
         self.html = self.html or mistune.markdown(self.content)
+
+        # Set the rank
+        self.rank = self.lastedit_date.timestamp()
 
         # Must add tags with instance method. This is just for safety.
         self.tag_val = util.strip_tags(self.tag_val)
@@ -319,7 +330,7 @@ class Subscription(models.Model):
 
     uid = models.CharField(max_length=32, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, related_name="subs",on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name="subs", on_delete=models.CASCADE)
     type = models.IntegerField(choices=MESSAGING_CHOICES, default=LOCAL_MESSAGE)
     date = models.DateTimeField()
 
@@ -354,9 +365,6 @@ class Badge(models.Model):
     # The rarity of the badge.
     type = models.IntegerField(choices=CHOICES, default=BRONZE)
 
-    # Total number of times awarded
-    count = models.IntegerField(default=0)
-
     # The icon to display for the badge.
     icon = models.CharField(default='', max_length=250)
 
@@ -380,13 +388,18 @@ class Award(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField()
-    context = models.CharField(max_length=1000, default='')
+    #context = models.CharField(max_length=1000, default='')
     uid = models.CharField(max_length=32, unique=True)
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
         self.uid = self.uid or util.get_uuid(limit=16)
         super(Award, self).save(*args, **kwargs)
+
+    @property
+    def context(self):
+        link = f"For : <a href={self.post.get_absolute_url()}>{self.post.title}</a>" if self.post else ""
+        return link
 
 
 @receiver(post_save, sender=Post)

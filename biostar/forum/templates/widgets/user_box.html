@@ -1,6 +1,6 @@
 {% load forum_tags %}
 
-<div class="ui center aligned segment userbox">
+<div class="ui center aligned segment userbox" >
 
     <div class="center aligned author">
 
@@ -11,15 +11,10 @@
         </a>
     </div>
 
-
             <a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
             {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
 <div>
-        {% if user.profile.last_login %}
-        visited {{ user.profile.last_login|time_ago }}
-        {% else %}
-            Joined {{ user.profile.date_joined|time_ago }}
-        {% endif %}
+    {{ user.profile.get_last_login }}
 
 </div>
     <div class="muted">

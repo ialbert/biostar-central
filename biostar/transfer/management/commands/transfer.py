@@ -1,5 +1,6 @@
 import logging
 import time
+import re
 
 from django.core.management.base import BaseCommand
 
@@ -10,6 +11,7 @@ from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscr
 
 logger = logging.getLogger("engine")
 from itertools import count, islice
+
 
 LIMIT = 500
 
@@ -34,6 +36,17 @@ def timer_func():
             elapsed(f"... {index} {msg}")
 
     return elapsed, progress
+
+
+def uid_from_context(context):
+    """
+    Parse post.uid from a link
+    """
+    # id pattern found in link
+    pattern = r"[0-9]+"
+    uid = re.search(pattern, context)
+    uid = uid.group(0) if uid else ""
+    return uid
 
 
 def bulk_copy_users():
@@ -72,6 +85,7 @@ def bulk_copy_users():
         for index, user in stream:
             progress(index, msg="profiles")
             text = util.strip_tags(user.profile.info)
+
             profile = Profile(uid=user.id, user=current.get(user.email), name=user.name,
                               role=user.type, last_login=user.last_login, html=user.profile.info,
                               date_joined=user.profile.date_joined, location=user.profile.location,
@@ -80,30 +94,6 @@ def bulk_copy_users():
                               digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
 
             yield profile
-
-    def gen_awards():
-
-        # Query the badges
-        badges = {badge.name: badge for badge in Badge.objects.all()}
-        # Query users
-        users = {profile.uid: profile.user for profile in Profile.objects.all()}
-        # exists = list( Award.objects.values_list("uid", flat=True) )
-        awards = BadgesAward.objects.all()
-
-        stream = zip(count(1), awards)
-        stream = islice(stream, LIMIT)
-
-        elapsed, progress = timer_func()
-        for index, award in stream:
-            progress(index, msg="awards")
-            badge = badges[award.badge.name]
-            user = users.get(str(award.user_id))
-            if not user:
-                continue
-            award = Award(date=award.date, context=award.context, badge=badge,
-                          user=user, uid=award.id)
-
-            yield award
 
     # Bulk create the users, then profile.
     elapsed, progress = timer_func()
@@ -115,10 +105,6 @@ def bulk_copy_users():
     Profile.objects.bulk_create(objs=gen_profile(), batch_size=10000)
     pcount = Profile.objects.all().count()
     elapsed(f"transferred {pcount} profiles")
-
-    Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
-    acount = Award.objects.all().count()
-    elapsed(f"transferred {acount} awards")
 
 
 def bulk_copy_votes():
@@ -134,11 +120,11 @@ def bulk_copy_votes():
         elapsed, progress = timer_func()
 
         for index, vote in stream:
-            progress(index, msg="awards")
+            progress(index, msg="votes")
             post = posts_set.get(str(vote.post_id))
             author = users_set.get(str(vote.author_id))
             # Skip existing votes and incomplete post/author information.
-            if not (post and author):
+            if not (post and author) or not post.root:
                 continue
 
             vote = Vote(post=post, author=author, type=vote.type, uid=vote.id,
@@ -148,7 +134,7 @@ def bulk_copy_votes():
     elapsed, progress = timer_func()
     Vote.objects.bulk_create(objs=gen_votes(), batch_size=1000)
     vcount = Vote.objects.all().count()
-    elapsed(f"transferred {vcount} users")
+    elapsed(f"transferred {vcount} votes")
 
 
 def bulk_copy_posts():
@@ -175,11 +161,11 @@ def bulk_copy_posts():
             # Incomplete author information loaded or existing posts.
             if not (author and lastedit_user):
                 continue
-
+            rank = post.lastedit_date.timestamp()
             content = util.strip_tags(post.content)
             new_post = Post(uid=post.id, html=post.html, type=post.type,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
-                            author=author, status=post.status, rank=post.rank, has_accepted=post.has_accepted,
+                            author=author, status=post.status, rank=rank, has_accepted=post.has_accepted,
                             lastedit_date=post.lastedit_date, book_count=post.book_count, reply_count=post.reply_count,
                             content=content, title=post.title, vote_count=post.vote_count,
                             thread_score=post.reply_count,
@@ -218,6 +204,32 @@ def bulk_copy_posts():
 
             post.thread_users.add(*users)
 
+    def gen_awards():
+        logger.info("Transferring awards.")
+        # Query the badges
+        badges = {badge.name: badge for badge in Badge.objects.all()}
+        # Query users
+        users = {profile.uid: profile.user for profile in Profile.objects.all()}
+        # exists = list( Award.objects.values_list("uid", flat=True) )
+        awards = BadgesAward.objects.all()
+
+        stream = zip(count(1), awards)
+        stream = islice(stream, LIMIT)
+
+        elapsed, progress = timer_func()
+        for index, award in stream:
+            progress(index, msg="awards")
+            badge = badges[award.badge.name]
+            user = users.get(str(award.user_id))
+            # Get post uid from context
+            post_uid = uid_from_context(award.context)
+            post = Post.objects.filter(uid=post_uid).first()
+            if not user:
+                continue
+            award = Award(date=award.date, post=post, badge=badge, user=user, uid=award.id)
+
+            yield award
+
     elapsed, progress = timer_func()
     Post.objects.bulk_create(objs=gen_posts(), batch_size=1000)
     pcount = Post.objects.all().count()
@@ -226,6 +238,10 @@ def bulk_copy_posts():
     Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)
     update_threadusers()
     elapsed(f"updated {pcount} post threads")
+
+    Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
+    acount = Award.objects.all().count()
+    elapsed(f"transferred {acount} awards")
 
 
 def bulk_copy_subs():

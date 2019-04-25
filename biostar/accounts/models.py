@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.db import models
 from biostar import settings
 
+from biostar.forum.util import time_ago
 
 MAX_UID_LEN = 255
 MAX_NAME_LEN = 255
@@ -42,7 +43,7 @@ class Profile(models.Model):
     LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(3)
     MESSAGING_TYPE_CHOICES = [
         (LOCAL_MESSAGE, "Local messages"),
-        (EMAIL_MESSAGE, "Email for every new post added to current one."),
+        (EMAIL_MESSAGE, "Email notification for subscribed posts."),
         (DIGEST_MESSAGES, "Email for every new thread (mailing list mode)")
                             ]
 
@@ -125,6 +126,13 @@ class Profile(models.Model):
     @property
     def trusted(self):
         return self.user.is_staff or self.state == self.TRUSTED
+
+    @property
+    def get_last_login(self):
+
+        if self.last_login:
+            return f"visited {time_ago(self.last_login)}"
+        return f"visited {time_ago(self.date_joined)}"
 
     @property
     def is_manager(self):

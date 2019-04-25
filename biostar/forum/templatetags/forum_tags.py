@@ -155,8 +155,6 @@ def is_moderator(user):
 def feed(user):
 
     recent_votes = Vote.objects.prefetch_related("post")[:settings.VOTE_FEED_COUNT]
-    # Needs to be put in context of posts
-    #recent_votes = recent_votes.prefetch_related("post")
 
     recent_locations = User.objects.exclude(profile__location="")
     recent_locations = recent_locations.prefetch_related("profile")[:settings.LOCATION_FEED_COUNT]
@@ -178,7 +176,7 @@ def show_score_icon(user):
 
     color = "modcolor" if user.profile.is_moderator else ""
 
-    if user.profile.score > 500:
+    if user.profile.score > 150:
         icon = f'<i class="ui small star icon {color}"></i>'
     else:
         icon = f'<span class="{color}"> &bull;</span>'
@@ -208,7 +206,13 @@ def get_thread_users(post, limit=3):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(post=None):
+def listing(post=None, user=None):
+
+    if user is None:
+        return dict(post=post)
+
+    if post.is_deleted and (user.is_anonymous or not user.profile.is_moderator):
+        return None
 
     return dict(post=post)
 
@@ -217,13 +221,6 @@ def listing(post=None):
 def show_nonzero(value):
     "The purpose of this is to return value or empty"
     return value if value else ''
-
-
-def pluralize(value, word):
-    if value > 1:
-        return "%d %ss" % (value, word)
-    else:
-        return "%d %s" % (value, word)
 
 
 @register.simple_tag
@@ -242,27 +239,7 @@ def object_count(request, otype):
 
 @register.filter
 def time_ago(date):
-
-    # Rare bug. TODO: Need to investigate why this can happen.
-    if not date:
-        return ''
-    delta = now() - date
-    if delta < timedelta(minutes=1):
-        return 'just now'
-    elif delta < timedelta(hours=1):
-        unit = pluralize(delta.seconds // 60, "minute")
-    elif delta < timedelta(days=1):
-        unit = pluralize(delta.seconds // 3600, "hour")
-    elif delta < timedelta(days=30):
-        unit = pluralize(delta.days, "day")
-    elif delta < timedelta(days=90):
-        unit = pluralize(int(delta.days / 7), "week")
-    elif delta < timedelta(days=730):
-        unit = pluralize(int(delta.days / 30), "month")
-    else:
-        diff = delta.days / 365.0
-        unit = '%0.1f years' % diff
-    return "%s ago" % unit
+    return util.time_ago(date=date)
 
 
 @register.filter

@@ -14,22 +14,43 @@
     {% endif %}
 
     {% pages objs=posts request=request %}
+    <div class="ui small compact menu">
+      <div class="ui simple dropdown item">
+          <i class="{{ limit_icon }}"></i><span class="tablet">{{ limit }}</span>
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <a class="item" href="{% url "post_list" %}?limit=all time"><i class="calendar plus icon"></i>all time</a>
+          <a class="item" href="{% url "post_list" %}?limit=today"><i class="clock icon"></i>today</a>
+          <a class="item" href="{% url "post_list" %}?limit=this week"><i class="calendar minus outline icon"></i>this week</a>
+          <a class="item" href="{% url "post_list" %}?limit=this month"><i class="calendar alternate icon"></i>this month</a>
+          <a class="item" href="{% url "post_list" %}?limit=this year"><i class="calendar outline icon"></i>this year</a>
+        </div>
+      </div>
+    </div>
 
-    {% is_moderator user as can_moderate %}
+    <div class="ui small compact menu ordering">
+      <div class="ui simple dropdown item">
+
+          <i class="{{ order_icon }}"></i><span class="tablet">{{ order }}</span>
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <a class="item" href="{% url "post_list" %}?order=rank"><i class="list ol icon"></i>Rank</a>
+          <a class="item" href="{% url "post_list" %}?order=views"><i class="eye icon"></i>View</a>
+          <a class="item" href="{% url "post_list" %}?order=votes"><i class="thumbs up icon"></i>Votes</a>
+          <a class="item" href="{% url "post_list" %}?order=replies"><i class="comment icon"></i>Replies</a>
+        </div>
+      </div>
+    </div>
+
+
 
     <div class="ui divided items">
-
         {% for post in posts %}
 
-            {% if post.is_deleted and can_moderate %}
-                {% listing post=post %}
-            {%  elif post.is_deleted and not can_moderate %}
-
-            {% else %}
-                {% listing post=post %}
-            {%  endif %}
+            {% listing post=post user=user %}
 
         {% empty %}
+
         <div class="ui warning message">There are no results for this page.</div>
         {% endfor %}
     </div>
