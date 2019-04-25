@@ -135,8 +135,8 @@ try:
         msg = f"Hello, here are posts from your monthly digest for the month {today.month}. "
         context = dict(posts=posts, msg=msg, subject=subject)
 
-        send_digest_emails(digest_prefs=Profile.MONTHLY_DIGEST,
-                          extra_context=context, template_name="messages/digest.html")
+        #send_digest_emails(digest_prefs=Profile.MONTHLY_DIGEST,
+        #                  extra_context=context, template_name="messages/digest.html")
 
         return
 
