@@ -44,7 +44,7 @@ ICON_MAP = {
     "today": 'clock icon',
     "this week": 'calendar minus outline icon',
     "this month": 'calendar alternate icon',
-    "this year": 'calendar outline icon'
+    "this year": 'calendar icon'
 }
 
 POST_LIMIT_MAP = dict([
@@ -76,11 +76,13 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
         query = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
     elif topic == FOLLOWING and user.is_authenticated:
         query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
+    elif topic == MYPOSTS and user.is_authenticated:
+        query = Post.objects.filter(author=user)
     elif topic == MYVOTES:
         #TODO: switching to votes
         #votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
         #query = votes_query.values("post")
-        query = Post.objects.objects.filter(votes__post__author=user).exclude(votes__author=user)
+        query = Post.objects.filter(votes__post__author=user).exclude(votes__author=user)
     else:
         query = Post.objects.filter(type__in=Post.TOP_LEVEL)
 

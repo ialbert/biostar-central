@@ -30,9 +30,11 @@
                 <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
 
             </div>
-<div class="subs">
-    {{ post.get_subscount }}
-</div>
+
+
+        {{ post.subs_count| get_subcount}}
+
+
 </div>
 
 

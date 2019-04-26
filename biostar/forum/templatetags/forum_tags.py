@@ -243,6 +243,15 @@ def time_ago(date):
 
 
 @register.filter
+def get_subcount(sub_count):
+
+    if sub_count > 5:
+        return mark_safe(f'<div class="subs">{sub_count} follow</div>')
+
+    return ""
+
+
+@register.filter
 def bignum(number):
     "Reformats numbers with qualifiers as K"
     try:

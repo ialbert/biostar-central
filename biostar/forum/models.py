@@ -176,16 +176,7 @@ class Post(models.Model):
 
         if self.is_toplevel:
             return self.thread_score
-
         return self.reply_count
-
-    @property
-    def get_subscount(self):
-
-        if self.subs_count:
-            return f"{self.subs_count} follow"
-
-        return ""
 
     @property
     def is_open(self):
