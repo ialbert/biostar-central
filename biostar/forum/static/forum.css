@@ -47,6 +47,20 @@ body {
     border:none !important;
 }
 
+.extratabs{
+    font-size:15px !important;
+    margin-left:80px !important;
+    border:none !important;
+}
+
+.extratabs.active.label {
+    background-color: #dff0d8 !important;
+    color: #000000!important;
+    border:none !important;
+
+}
+
+
 .ui.items>.item>.content>a.header {
     color: #4183c4;
 }
@@ -277,7 +291,7 @@ img {
 
 .ui.tagging.label {
     margin:1px!important;
-    font-size: 12.5px;
+    font-size: 14.5px;
     padding: 3px;
     color:#8f2c47;
     font-weight: 100;
