@@ -13,7 +13,7 @@ logger = logging.getLogger("engine")
 from itertools import count, islice
 
 
-LIMIT = 500
+LIMIT = 10000
 
 
 def timer_func():

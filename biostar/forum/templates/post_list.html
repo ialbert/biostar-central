@@ -13,17 +13,17 @@
         </div>
     {% endif %}
 
-    {% pages objs=posts request=request %}
+    {% pages objs=posts request=request query_str=query_str %}
     <div class="ui small compact menu">
       <div class="ui simple dropdown item">
           <i class="{{ limit_icon }}"></i><span class="tablet">{{ limit }}</span>
         <i class="dropdown icon"></i>
         <div class="menu">
-          <a class="item" href="{% url "post_list" %}?limit=all time"><i class="calendar plus icon"></i>all time</a>
-          <a class="item" href="{% url "post_list" %}?limit=today"><i class="clock icon"></i>today</a>
-          <a class="item" href="{% url "post_list" %}?limit=this week"><i class="calendar minus outline icon"></i>this week</a>
-          <a class="item" href="{% url "post_list" %}?limit=this month"><i class="calendar alternate icon"></i>this month</a>
-          <a class="item" href="{% url "post_list" %}?limit=this year"><i class="calendar icon"></i>this year</a>
+          <a class="item" href="{% url "post_list" %}{{ query_str }}&limit=all time"><i class="calendar plus icon"></i>all time</a>
+          <a class="item" href="{% url "post_list" %}{{ query_str }}&limit=today"><i class="clock icon"></i>today</a>
+          <a class="item" href="{% url "post_list" %}{{ query_str }}&limit=this week"><i class="calendar minus outline icon"></i>this week</a>
+          <a class="item" href="{% url "post_list" %}{{ query_str }}&limit=this month"><i class="calendar alternate icon"></i>this month</a>
+          <a class="item" href="{% url "post_list" %}{{ query_str }}&limit=this year"><i class="calendar icon"></i>this year</a>
         </div>
       </div>
     </div>
@@ -34,10 +34,10 @@
           <i class="{{ order_icon }}"></i><span class="tablet">{{ order }}</span>
         <i class="dropdown icon"></i>
         <div class="menu">
-          <a class="item" href="{% url "post_list" %}?order=rank"><i class="list ol icon"></i>Rank</a>
-          <a class="item" href="{% url "post_list" %}?order=views"><i class="eye icon"></i>Views</a>
-          <a class="item" href="{% url "post_list" %}?order=votes"><i class="thumbs up icon"></i>Votes</a>
-          <a class="item" href="{% url "post_list" %}?order=replies"><i class="comment icon"></i>Replies</a>
+          <a class="item" href="{% url "post_list" %}{{ query_str }}&order=rank"><i class="list ol icon"></i>Rank</a>
+          <a class="item" href="{% url "post_list" %}{{ query_str }}&order=views"><i class="eye icon"></i>Views</a>
+          <a class="item" href="{% url "post_list" %}{{ query_str }}&order=votes"><i class="thumbs up icon"></i>Votes</a>
+          <a class="item" href="{% url "post_list" %}{{ query_str }}&order=replies"><i class="comment icon"></i>Replies</a>
         </div>
       </div>
     </div>
@@ -55,7 +55,7 @@
         {% endfor %}
     </div>
 
-    {% pages objs=posts request=request %}
+    {% pages objs=posts request=request query_str=query_str %}
 
 
 {% endblock %}

@@ -36,17 +36,13 @@ def user_box(user):
 
 
 @register.inclusion_tag('widgets/pages.html')
-def pages(objs, request):
+def pages(objs, request, query_str=''):
 
-    topic = request.GET.get('tag')
-    active = request.GET.get("active")
-
-    feild_name = "active" if active else "tag"
-
+    query_str = f"{query_str}&" if query_str else "?"
     url = request.path
-    topic = active or topic
-
-    return dict(objs=objs, url=url, topic=topic, feild_name=feild_name)
+    print(query_str)
+    #1/0
+    return dict(objs=objs, url=url, query_str=query_str)
 
 
 @register.simple_tag
