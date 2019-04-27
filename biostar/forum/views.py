@@ -138,10 +138,10 @@ def post_list(request):
     order_icon = ICON_MAP.get(order) or ICON_MAP["rank"]
     limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
 
+    # Maintain filtering information to build up on it.
     query_list = [f"{key}={value}" for key,value in request.GET.items()]
     query_str = "?" + "&".join(query_list)
 
-    #print(query_str)
     # Fill in context.
     context = dict(posts=posts, active=topic, tag=tag, order=ordering, limit=limit_to,
                    order_icon=order_icon, limit_icon=limit_icon, query_str=query_str)

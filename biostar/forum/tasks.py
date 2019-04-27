@@ -72,7 +72,7 @@ def send_digest_emails(template_name, extra_context, digest_prefs=Profile.WEEKLY
     # Render the template
 
     # Send email.
-    send_mail(subject=subject, from_email=from_email, recipient_list=rec_list, html_message=email, message=email)
+    send_mail(subject=subject, from_email=from_email, recipient_list=to_email, html_message=email, message=email)
     return
 
 
