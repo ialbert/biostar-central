@@ -102,7 +102,7 @@ def post_body(context, post, user, tree, form):
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
-def subs_actions(post, user, next):
+def subs_actions(post, user):
 
     if user.is_anonymous:
         sub = None
@@ -118,8 +118,14 @@ def subs_actions(post, user, next):
 
     button = "Follow" if unsubbed else "Update"
 
-    return dict(post=post, form=form, button=button, next=next,
-                redir_field_name=const.REDIRECT_FIELD_NAME)
+    return dict(post=post, form=form, button=button)
+
+
+@register.filter
+def get_last_login(user):
+    if user.profile.last_login:
+        return f"visited {time_ago(user.profile.last_login)}"
+    return f"visited {time_ago(user.profile.date_joined)}"
 
 
 @register.filter

@@ -128,13 +128,6 @@ class Profile(models.Model):
         return self.user.is_staff or self.state == self.TRUSTED
 
     @property
-    def get_last_login(self):
-
-        if self.last_login:
-            return f"visited {time_ago(self.last_login)}"
-        return f"visited {time_ago(self.date_joined)}"
-
-    @property
     def is_manager(self):
         return self.role == self.MANAGER
 

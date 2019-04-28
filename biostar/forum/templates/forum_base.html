@@ -52,16 +52,19 @@
         {% endblock %}
 
 <div class="ui bottom attached  segment">
-    {% show_messages messages %}
-            <a href="{% url 'post_list' %}">
-            <img class="ui image right spaced tablet" src="/static/images/biostar-logo.png" style="margin:0px;max-width: 100%;">
-            </a>
+{% show_messages messages %}
 
-            {% if user.is_authenticated %}
-                {% include 'widgets/authenticated_tabs.html' %}
-            {% else %}
-                {% include 'widgets/anonymous_tabs.html' %}
-            {% endif %}
+{% include 'widgets/tags_banner.html' %}
+
+<a href="{% url 'post_list' %}">
+<img class="ui image right spaced tablet" src="/static/images/biostar-logo.png" style="margin:0px;max-width: 100%;">
+</a>
+
+{% if user.is_authenticated %}
+    {% include 'widgets/authenticated_tabs.html' %}
+{% else %}
+    {% include 'widgets/anonymous_tabs.html' %}
+{% endif %}
 
 {% block grid %}
     <div class="ui stackable grid">

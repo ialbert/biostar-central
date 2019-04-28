@@ -289,6 +289,16 @@ img {
 }
 
 
+.tags-banner{
+    padding: 0px;
+    color: #428bca !important;
+}
+
+.tags-banner.active{
+    background-color: #dff0d8 !important;
+
+}
+
 .ui.tagging.label {
     margin:1px!important;
     font-size: 14.3px;

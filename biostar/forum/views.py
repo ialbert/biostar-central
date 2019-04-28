@@ -1,4 +1,5 @@
 from datetime import timedelta
+from urllib.parse import urlparse, parse_qs
 
 from django.conf import settings
 from django.contrib import messages
@@ -6,8 +7,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-from django.db.models import Count, Q
-import urllib.parse as urlparse
+from django.db.models import Count
+
 
 from biostar.forum import forms, auth, tasks, util
 from biostar.forum.const import *
@@ -139,13 +140,14 @@ def post_list(request):
     limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
 
     # Maintain filtering information to build up on it.
-    query_list = [f"{key}={value}" for key,value in request.GET.items()]
-    query_str = "?" + "&".join(query_list)
+    url = urlparse(request.get_full_path())
+    query_str = "?" + url.query
 
     # Fill in context.
     context = dict(posts=posts, active=topic, tag=tag, order=ordering, limit=limit_to,
                    order_icon=order_icon, limit_icon=limit_icon, query_str=query_str)
-    context.update({topic: "active"})
+    tag_dispay = tag.replace("-", "_")
+    context.update({topic: "active", tag_dispay: "active"})
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
@@ -226,7 +228,7 @@ def post_view(request, uid):
     obj = Post.objects.filter(uid=uid).first()
     # Return root view if not at top level.
     obj = obj if obj.is_toplevel else obj.root
-    #obj = obj.sel
+
     auth.update_post_views(post=obj, request=request)
 
     if request.method == "POST":
@@ -242,7 +244,6 @@ def post_view(request, uid):
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
     comment_tree, answers, thread = auth.build_obj_tree(request=request, obj=obj)
-
     context = dict(post=obj, tree=comment_tree, form=form, answers=answers)
 
     return render(request, "post_view.html", context=context)
@@ -269,13 +270,10 @@ def comment(request):
 
 @object_exists(klass=Post)
 @login_required
-def subs_action(request, uid, next=None):
+def subs_action(request, uid):
     # Post actions are being taken on
     post = Post.objects.filter(uid=uid).first()
     user = request.user
-    next_url = request.GET.get(REDIRECT_FIELD_NAME,
-                               request.POST.get(REDIRECT_FIELD_NAME))
-    next_url = next or next_url or "/"
 
     if request.method == "POST" and user.is_authenticated:
         form = forms.SubsForm(data=request.POST, post=post, user=user)
@@ -288,7 +286,7 @@ def subs_action(request, uid, next=None):
             if tasks.HAS_UWSGI:
                 tasks.added_sub(sid=sub.id)
 
-    return redirect(next_url)
+    return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
 
 
 @login_required

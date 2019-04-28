@@ -3,7 +3,8 @@
     {% if post.is_toplevel %}
         <div class="ui vertical segment">
             <a name="{{post.uid}}" style="padding:0;"></a>
-            {% subs_actions post=post user=request.user next=next_url %}
+
+            {% subs_actions post=post user=request.user %}
             <div class="ui header" >{{ post.get_type_display }}: {{ post.title }}</div>
 
         </div>
