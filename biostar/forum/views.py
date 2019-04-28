@@ -226,7 +226,7 @@ def post_view(request, uid):
     obj = Post.objects.filter(uid=uid).first()
     # Return root view if not at top level.
     obj = obj if obj.is_toplevel else obj.root
-
+    #obj = obj.sel
     auth.update_post_views(post=obj, request=request)
 
     if request.method == "POST":
