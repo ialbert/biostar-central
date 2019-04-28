@@ -66,30 +66,30 @@
 {% block grid %}
     <div class="ui stackable grid">
 
-    <div class="twelve wide column">
+        <div class="twelve wide column">
 
-        {% block body %}
-            {# Main body #}
-            BODY
+            {% block body %}
+                {# Main body #}
+                BODY
 
 
-            {% block content %}
+                {% block content %}
+
+                {% endblock %}
+
 
             {% endblock %}
+        </div>
 
+        {% block feed %}
+
+            <div class="four wide column">
+
+                {% feed user=request.user %}
+
+            </div>
 
         {% endblock %}
-    </div>
-
-    {% block feed %}
-
-    <div class="four wide column">
-
-        {% feed user=request.user %}
-
-    </div>
-
-    {% endblock %}
 
     </div>
 {%  endblock %}

@@ -40,8 +40,6 @@ def pages(objs, request, query_str=''):
 
     query_str = f"{query_str}&" if query_str else "?"
     url = request.path
-    print(query_str)
-    #1/0
     return dict(objs=objs, url=url, query_str=query_str)
 
 
@@ -91,23 +89,20 @@ def tags_banner(context, limit=5, listing=False):
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, include_userbox=True, next_url=None,
-            project_uid=None, sub_url=None):
+def post_body(context, post, user, tree, form):
 
     "Renders the post body"
     request = context['request']
 
-    sub_url = sub_url or reverse("subs_action", request=request, kwargs=dict(uid=post.uid))
-    next_url = next_url or reverse("post_view", request=request, kwargs=dict(uid=post.uid))
+    next_url = reverse("post_view", request=request, kwargs=dict(uid=post.uid))
 
     return dict(post=post, user=user, tree=tree, request=request,
-                form=form, include_userbox=include_userbox,
-                sub_url=sub_url, next_url=next_url,
-                redir_field_name=const.REDIRECT_FIELD_NAME, project_uid=project_uid)
+                form=form, next_url=next_url,
+                redir_field_name=const.REDIRECT_FIELD_NAME)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
-def subs_actions(post, user, next, sub_url):
+def subs_actions(post, user, next):
 
     if user.is_anonymous:
         sub = None
@@ -123,7 +118,7 @@ def subs_actions(post, user, next, sub_url):
 
     button = "Follow" if unsubbed else "Update"
 
-    return dict(post=post, form=form, button=button, next=next, sub_url=sub_url,
+    return dict(post=post, form=form, button=button, next=next,
                 redir_field_name=const.REDIRECT_FIELD_NAME)
 
 
