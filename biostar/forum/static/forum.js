@@ -156,7 +156,7 @@ function add_comment(elem) {
 
 
 $(document).ready(function () {
-    
+
      $('select')
         .dropdown()
     ;

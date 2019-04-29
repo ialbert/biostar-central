@@ -58,14 +58,14 @@ def build_obj_tree(request, obj):
     # Answers sorted before comments.
     user = request.user
     query = Post.objects.filter(root=obj)
-    query = query if user.is_authenticated and user.profile.is_moderator else query.exclude(status=Post.DELETED)
+    query = query.select_related("lastedit_user__profile", "root__lastedit_user__profile",
+                                 "root__author__profile", "author__profile")
+    if user.is_anonymous or not user.profile.is_moderator:
+        query = query.exclude(status=Post.DELETED)
     thread = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
-    thread = thread.select_related("lastedit_user__profile", "root__lastedit_user__profile",
-                                   "root__author__profile", "author__profile")
     # Gather votes
     votes = get_votes(user=user, thread=thread)
-
     # Shortcuts to each storage.
     bookmarks = votes[Vote.BOOKMARK]
     upvotes = votes[Vote.UP]
@@ -75,7 +75,6 @@ def build_obj_tree(request, obj):
     def decorate(posts):
         # Can the current user accept answers
         # TODO: use annotate.
-
         for post in posts:
             if post.is_comment:
                 comment_tree.setdefault(post.parent_id, []).append(post)
@@ -85,7 +84,6 @@ def build_obj_tree(request, obj):
             post.is_editable = user.is_authenticated and (user == post.author or user.profile.is_moderator)
 
     answers = thread.filter(type=Post.ANSWER)
-
     # Decorate the objects for easier access
     decorate(chain(thread, answers))
 

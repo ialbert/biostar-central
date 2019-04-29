@@ -36,17 +36,11 @@ def user_box(user):
 
 
 @register.inclusion_tag('widgets/pages.html')
-def pages(objs, request):
+def pages(objs, request, query_str=''):
 
-    topic = request.GET.get('tag')
-    active = request.GET.get("active")
-
-    feild_name = "active" if active else "tag"
-
+    query_str = f"{query_str}&" if query_str else "?"
     url = request.path
-    topic = active or topic
-
-    return dict(objs=objs, url=url, topic=topic, feild_name=feild_name)
+    return dict(objs=objs, url=url, query_str=query_str)
 
 
 @register.simple_tag
@@ -95,23 +89,20 @@ def tags_banner(context, limit=5, listing=False):
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, include_userbox=True, next_url=None,
-            project_uid=None, sub_url=None):
+def post_body(context, post, user, tree, form):
 
     "Renders the post body"
     request = context['request']
 
-    sub_url = sub_url or reverse("subs_action", request=request, kwargs=dict(uid=post.uid))
-    next_url = next_url or reverse("post_view", request=request, kwargs=dict(uid=post.uid))
+    next_url = reverse("post_view", request=request, kwargs=dict(uid=post.uid))
 
     return dict(post=post, user=user, tree=tree, request=request,
-                form=form, include_userbox=include_userbox,
-                sub_url=sub_url, next_url=next_url,
-                redir_field_name=const.REDIRECT_FIELD_NAME, project_uid=project_uid)
+                form=form, next_url=next_url,
+                redir_field_name=const.REDIRECT_FIELD_NAME)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
-def subs_actions(post, user, next, sub_url):
+def subs_actions(post, user):
 
     if user.is_anonymous:
         sub = None
@@ -127,8 +118,14 @@ def subs_actions(post, user, next, sub_url):
 
     button = "Follow" if unsubbed else "Update"
 
-    return dict(post=post, form=form, button=button, next=next, sub_url=sub_url,
-                redir_field_name=const.REDIRECT_FIELD_NAME)
+    return dict(post=post, form=form, button=button)
+
+
+@register.filter
+def get_last_login(user):
+    if user.profile.last_login:
+        return f"visited {time_ago(user.profile.last_login)}"
+    return f"visited {time_ago(user.profile.date_joined)}"
 
 
 @register.filter
@@ -240,6 +237,15 @@ def object_count(request, otype):
 @register.filter
 def time_ago(date):
     return util.time_ago(date=date)
+
+
+@register.filter
+def get_subcount(sub_count):
+
+    if sub_count > 5:
+        return mark_safe(f'<div class="subs">{sub_count} follow</div>')
+
+    return ""
 
 
 @register.filter

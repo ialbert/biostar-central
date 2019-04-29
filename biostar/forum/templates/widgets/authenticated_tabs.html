@@ -1,0 +1,33 @@
+{% load forum_tags %}
+{% load message_tags %}
+
+<a class="ui {{community}} basic label forumtabs" href="{% url 'community_list' %}">
+    <i class="world icon"></i><span class="tablet">Community</span>
+</a>
+<a class="ui {{latest}} basic label forumtabs" href="{% url 'post_list' %}?topic=latest">
+    <i class="comment alternate icon"></i><span class="tablet">Latest</span>
+</a>
+<a class="ui {{message}} basic label tablet forumtabs" href="{% url 'inbox' %}">
+    {% message_count request=request otype="message" as num_msgs %}
+    {% if num_msgs %}
+    <i class="mail icon"  style="color:#5fc64f;"></i>Messages
+    {% else%}
+    <i class="mail icon" ></i>Messages
+    {%endif%}
+
+</a>
+<a class="ui {{myvotes}} basic label forumtabs" href="{% url 'post_list' %}?topic=myvotes">
+    <i class="heart icon"></i> <span class="tablet">Votes</span>
+</a>
+<a class="ui {{myposts}} basic label forumtabs" href="{% url 'post_list' %}?topic=myposts">
+    <i class="comments icon"></i> <span class="tablet">My Posts</span>
+</a>
+<a class="ui {{mytags}} basic label forumtabs" href="{% url 'post_list' %}?topic=mytags">
+    <i class="tags icon"></i><span class="tablet">My Tags</span>
+</a>
+<a class="ui {{following}} basic label forumtabs" href="{% url 'post_list' %}?topic=following">
+    <i class="eye icon"></i><span class="tablet">Following</span>
+</a>
+<a class="ui {{bookmarks}} basic label forumtabs" href="{% url 'post_list' %}?topic=bookmarks">
+    <i class="book icon"></i><span class="tablet">Bookmarks</span>
+</a>

@@ -10,7 +10,7 @@ REDIRECT_FIELD_NAME = 'next'
 
 MYVOTES, MYPOSTS, MYTAGS, OPEN, FOLLOWING = ["myvotes", "myposts", "mytags", "open", "following"]
 
-BOOKMARKS, VOTES, MESSAGE = ["bookmarks", "votes", "message"]
+BOOKMARKS, MESSAGE = ["bookmarks", "message"]
 
 MENTIONED, COMMUNITY, LATEST = ["mentioned", "community", "latest"]
 
@@ -20,9 +20,9 @@ JOBS, TOOLS, TUTORIALS, FORUM, PLANET = ["jobs", "tools", "tutorials", "forum", 
 # Topics that have a default tabs
 TOPICS_WITH_TABS = [
     MYPOSTS, MYTAGS, FOLLOWING,
-    BOOKMARKS, VOTES, MESSAGE, COMMUNITY, LATEST
+    BOOKMARKS, MYVOTES, MESSAGE, COMMUNITY, LATEST
 ]
 
 PRIVATE_TOPICS = [MYPOSTS, MYTAGS, MESSAGE, MENTIONED,
-                  BOOKMARKS, FOLLOWING, VOTES
+                  BOOKMARKS, FOLLOWING, MYVOTES
                   ]

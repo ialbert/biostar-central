@@ -3,7 +3,8 @@
     {% if post.is_toplevel %}
         <div class="ui vertical segment">
             <a name="{{post.uid}}" style="padding:0;"></a>
-            {% subs_actions post=post user=request.user next=next_url sub_url=sub_url %}
+
+            {% subs_actions post=post user=request.user %}
             <div class="ui header" >{{ post.get_type_display }}: {{ post.title }}</div>
 
         </div>
@@ -51,11 +52,10 @@
 
              <div class="content">
 
-                 {% if include_userbox %}
-                     <div class="ui right floated image" >
-                            {% user_box user=post.author %}
-                     </div>
-                 {% endif %}
+
+                 <div class="ui right floated image" >
+                        {% user_box user=post.author %}
+                 </div>
 
 
                  <div class="ui container">
@@ -67,7 +67,6 @@
                      <div class="extra">
 
                          <div class="" style="">
-
 
                     {% get_tags_list post.tag_val as tags_list %}
 
@@ -92,34 +91,34 @@
                  <div class="extrainfo">
 
                      {% if user.is_authenticated %}
-                    <a class="add-comment ui mini grey label" comment-url="{% url 'post_comment' %}"
-                       data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
-                        ADD COMMENT
-                    </a>
+                        <a class="add-comment ui mini grey label" comment-url="{% url 'post_comment' %}"
+                           data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
+                            ADD COMMENT
+                        </a>
                      {% else %}
-                     <a class="ui mini grey label" href="{% url 'login' %}">
-                        ADD COMMENT
-                    </a>
+                         <a class="ui mini grey label" href="{% url 'login' %}">
+                            ADD COMMENT
+                        </a>
 
                      {% endif %}
 
                              |
-                         <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
+                     <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
 
-                          {% if post.is_editable %}
+                      {% if post.is_editable %}
                          |
                          <a href="{% url 'post_edit' post.uid %}">
                         edit
                         </a>
-                         {% endif %}
+                     {% endif %}
 
-                         {% if user.is_authenticated and user.profile.is_moderator or user.profile.is_manager %}
+                     {% if user.is_authenticated and user.profile.is_moderator or user.profile.is_manager %}
                          |
                          <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}" data-value="{{post.uid}}">
                         moderate
                         </a>
                          <div id="mod-container-{{post.uid}}"></div>
-                         {% endif %}
+                     {% endif %}
 
 
                         <div id="comment-container-{{post.uid}}"></div>

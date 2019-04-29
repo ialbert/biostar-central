@@ -6,14 +6,13 @@
     updated
     <span>{{ post.lastedit_date|time_ago }}</span> by
     <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
-    {% if with_image %}
-       <div class="ui avatar image">{% gravatar user=post.lastedit_user size=100 %}</div>
-    {% endif %}
-        {{post.lastedit_user.profile.name }}
 
+   <div class="ui avatar image">{% gravatar user=post.lastedit_user size=100 %}</div>
+
+        {{post.lastedit_user.profile.name }}
+x
     </a>
         {{ post.lastedit_user |show_score_icon }}
         {{ post.lastedit_user.profile.score | show_score | bignum }}
-
 
 </div>

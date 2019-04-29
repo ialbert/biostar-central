@@ -38,10 +38,10 @@
     {% if user.is_authenticated %}
 
         {% if not only_enable_forum %}
-        <a class=" item" href="{% url 'recycle_bin' %}">
-            <i class="trash icon"></i>
-        </a>
-    {% endif %}
+            <a class=" item" href="{% url 'recycle_bin' %}">
+                <i class="trash icon"></i>
+            </a>
+        {% endif %}
 
     <a class="item" href="{% url "user_profile" user.profile.uid %}">
         <i class="user icon"></i>
@@ -49,7 +49,7 @@
     </a>
 
         <a class="item" href="{% url 'logout' %}">
-            <i class="sign in icon"></i><span class="tablet">Logout</span>
+            <i class="sign out icon"></i><span class="tablet">Logout</span>
         </a>
             {% else %}
 

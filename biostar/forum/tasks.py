@@ -9,7 +9,6 @@ from biostar.message.models import Message
 from django.template import loader
 
 from django.conf import settings
-from biostar.emailer.sender import EmailTemplate
 from django.core.mail import send_mail
 
 logger = logging.getLogger("engine")
@@ -46,11 +45,8 @@ def days_to_secs(days=1):
     return secs
 
 
-def send_digest_emails(template_name, extra_context, digest_prefs=Profile.WEEKLY_DIGEST):
+def send_digest_emails(users, template_name, extra_context):
 
-    # Get users that opted for digest
-    users = User.objects.filter(profile__digest_prefs=digest_prefs,
-                                profile__message_prefs=Profile.DIGEST_MESSAGES)
     # debug only
     to_email = users.filter(email="natay.aberra@gmail.com").first()
     to_email = to_email.values_list("email", flat=True)
@@ -72,7 +68,7 @@ def send_digest_emails(template_name, extra_context, digest_prefs=Profile.WEEKLY
     # Render the template
 
     # Send email.
-    send_mail(subject=subject, from_email=from_email, recipient_list=rec_list, html_message=email, message=email)
+    send_mail(subject=subject, from_email=from_email, recipient_list=to_email, html_message=email, message=email)
     return
 
 
@@ -81,10 +77,8 @@ try:
 
     HAS_UWSGI = True
 
-
     def send_post_mail(pid):
         """Send email for users subscribed to specific post """
-
         return
 
     #@timer(secs=1)
@@ -98,6 +92,9 @@ try:
         subject = f"Daily Digest for :{today.date()}"
         msg = f"Hello, here are a digest of posts from today, {today.date()}. "
         context = dict(posts=posts, msg=msg, subject=subject)
+        # Get users that opted for daily
+        users = User.objects.filter(profile__digest_prefs=Profile.DAILY_DIGEST,
+                                    profile__message_prefs=Profile.MAILING_LIST)
 
         #send_digest_emails(digest_prefs=Profile.DAILY_DIGEST,
         #                   extra_context=context, template_name="messages/digest.html")

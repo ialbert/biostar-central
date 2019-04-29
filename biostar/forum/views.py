@@ -1,4 +1,5 @@
 from datetime import timedelta
+from urllib.parse import urlparse, parse_qs
 
 from django.conf import settings
 from django.contrib import messages
@@ -6,8 +7,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-from django.db.models import Count, Q
-import urllib.parse as urlparse
+from django.db.models import Count
+
 
 from biostar.forum import forms, auth, tasks, util
 from biostar.forum.const import *
@@ -44,7 +45,7 @@ ICON_MAP = {
     "today": 'clock icon',
     "this week": 'calendar minus outline icon',
     "this month": 'calendar alternate icon',
-    "this year": 'calendar outline icon'
+    "this year": 'calendar icon'
 }
 
 POST_LIMIT_MAP = dict([
@@ -76,11 +77,13 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
         query = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
     elif topic == FOLLOWING and user.is_authenticated:
         query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
+    elif topic == MYPOSTS and user.is_authenticated:
+        query = Post.objects.filter(author=user)
     elif topic == MYVOTES:
         #TODO: switching to votes
         #votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
         #query = votes_query.values("post")
-        query = Post.objects.objects.filter(votes__post__author=user).exclude(votes__author=user)
+        query = Post.objects.filter(votes__post__author=user).exclude(votes__author=user)
     else:
         query = Post.objects.filter(type__in=Post.TOP_LEVEL)
 
@@ -136,10 +139,15 @@ def post_list(request):
     order_icon = ICON_MAP.get(order) or ICON_MAP["rank"]
     limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
 
+    # Maintain filtering information to build up on it.
+    url = urlparse(request.get_full_path())
+    query_str = "?" + url.query
+
     # Fill in context.
     context = dict(posts=posts, active=topic, tag=tag, order=ordering, limit=limit_to,
-                   order_icon=order_icon, limit_icon=limit_icon)
-    context.update({topic: "active"})
+                   order_icon=order_icon, limit_icon=limit_icon, query_str=query_str)
+    tag_dispay = tag.replace("-", "_")
+    context.update({topic: "active", tag_dispay: "active"})
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
@@ -236,7 +244,6 @@ def post_view(request, uid):
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
     comment_tree, answers, thread = auth.build_obj_tree(request=request, obj=obj)
-
     context = dict(post=obj, tree=comment_tree, form=form, answers=answers)
 
     return render(request, "post_view.html", context=context)
@@ -263,13 +270,10 @@ def comment(request):
 
 @object_exists(klass=Post)
 @login_required
-def subs_action(request, uid, next=None):
+def subs_action(request, uid):
     # Post actions are being taken on
     post = Post.objects.filter(uid=uid).first()
     user = request.user
-    next_url = request.GET.get(REDIRECT_FIELD_NAME,
-                               request.POST.get(REDIRECT_FIELD_NAME))
-    next_url = next or next_url or "/"
 
     if request.method == "POST" and user.is_authenticated:
         form = forms.SubsForm(data=request.POST, post=post, user=user)
@@ -282,7 +286,7 @@ def subs_action(request, uid, next=None):
             if tasks.HAS_UWSGI:
                 tasks.added_sub(sid=sub.id)
 
-    return redirect(next_url)
+    return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
 
 
 @login_required
