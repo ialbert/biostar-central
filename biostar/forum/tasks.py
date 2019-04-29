@@ -94,7 +94,7 @@ try:
         context = dict(posts=posts, msg=msg, subject=subject)
         # Get users that opted for daily
         users = User.objects.filter(profile__digest_prefs=Profile.DAILY_DIGEST,
-                                    profile__message_prefs=Profile.DIGEST_MESSAGES)
+                                    profile__message_prefs=Profile.MAILING_LIST)
 
         #send_digest_emails(digest_prefs=Profile.DAILY_DIGEST,
         #                   extra_context=context, template_name="messages/digest.html")
