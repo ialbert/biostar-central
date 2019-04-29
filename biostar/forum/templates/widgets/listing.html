@@ -52,18 +52,21 @@
                 class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
              </a>
 
-            {% get_thread_users post=post limit=5 as extra_users %}
 
-            {% for user in extra_users %}
-             <a class="ui mini avatar image" href="{% url "user_profile" user.profile.uid %}" style="width:25px">
-                 {% gravatar user=user size=50 %}</a>
-
-            {% endfor %}
 
         </div>
+            <div style="float: right !important; margin: -1">
+                        {% get_thread_users post=post limit=5 as extra_users %}
 
+                        {% for user in extra_users %}
+                         <a class="ui mini avatar image" href="{% url "user_profile" user.profile.uid %}" style="width:25px">
+                         {% gravatar user=user size=50 %}</a>
 
-            <div class="extra">
+                        {% endfor %}
+
+            </div>
+
+            <div class="extra" style="margin: 2px; float: right !important;">
 
                     {% get_tags_list post.tag_val as tags_list %}
 
@@ -72,8 +75,12 @@
                         {{ tag }}
                         </a>
                     {% endfor %}
-                    <div style="padding:0px; font-size:12;" class="ui right floated basic segment">
-                        {% user_info post=post by_diff=True with_image=False %}
+                    <div style="padding:0px; font-size:12;float: right !important;">
+                        <div class="ui muted">
+                        updated
+                        <span>{{ post.lastedit_date|time_ago }}</span>
+                        </div>
+
                     </div>
             </div>
 

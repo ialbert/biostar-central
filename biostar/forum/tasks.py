@@ -96,8 +96,7 @@ try:
         users = User.objects.filter(profile__digest_prefs=Profile.DAILY_DIGEST,
                                     profile__message_prefs=Profile.MAILING_LIST)
 
-        #send_digest_emails(digest_prefs=Profile.DAILY_DIGEST,
-        #                   extra_context=context, template_name="messages/digest.html")
+        send_digest_emails(users=users, extra_context=context, template_name="messages/digest.html")
 
         return
 
@@ -110,11 +109,13 @@ try:
 
         # Load template with message
         subject = f"Weekly Digest for :{today.date()}"
-        msg = f"Hello, here are a digest of posts from today, {today.date()}. "
+        msg = f"Hello, here are a digest of posts from this week, {today.date()}. "
         context = dict(posts=posts, msg=msg, subject=subject)
 
-        #send_digest_emails(template_name="messages/digest.html", digest_prefs=Profile.WEEKLY_DIGEST,
-        #                   extra_context=context)
+        users = User.objects.filter(profile__digest_prefs=Profile.WEEKLY_DIGEST,
+                                    profile__message_prefs=Profile.MAILING_LIST)
+
+        send_digest_emails(template_name="messages/digest.html", users=users, extra_context=context)
 
         return
 
@@ -131,9 +132,9 @@ try:
         subject = f"Monthly Digest for :{today.month}"
         msg = f"Hello, here are posts from your monthly digest for the month {today.month}. "
         context = dict(posts=posts, msg=msg, subject=subject)
-
-        #send_digest_emails(digest_prefs=Profile.MONTHLY_DIGEST,
-        #                  extra_context=context, template_name="messages/digest.html")
+        users = User.objects.filter(profile__digest_prefs=Profile.WEEKLY_DIGEST,
+                                    profile__message_prefs=Profile.MAILING_LIST)
+        send_digest_emails(users=users, extra_context=context, template_name="messages/digest.html")
 
         return
 
