@@ -27,6 +27,8 @@ Our installation instructions rely on [conda][conda] though other alternatives a
 
     # Create a virtual environment.
     conda create -y --name engine python=3.6
+    
+    # Activate the python environment.
     source activate engine
 
     # Clone the source server code and the recipe code.
