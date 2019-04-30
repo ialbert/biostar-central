@@ -31,9 +31,7 @@
 
             </div>
 
-
         {{ post.subs_count| get_subcount}}
-
 
 </div>
 
@@ -76,9 +74,16 @@
                         </a>
                     {% endfor %}
                     <div style="padding:0px; font-size:12;float: right !important;">
+
                         <div class="ui muted">
-                        updated
-                        <span>{{ post.lastedit_date|time_ago }}</span>
+
+                            updated
+                            <span>{{ post.lastedit_date|time_ago }}</span>
+                                                    by
+                            <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+                                {{post.lastedit_user.profile.name }}
+                            </a>
+
                         </div>
 
                     </div>

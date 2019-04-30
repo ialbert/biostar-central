@@ -14,8 +14,9 @@
             <a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
             {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
 <div>
+    <div class="muted">
     {{ user|get_last_login }}
-
+    </div>
 </div>
 
  </div>

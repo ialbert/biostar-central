@@ -1,5 +1,7 @@
 from datetime import timedelta
 from urllib.parse import urlparse, parse_qs
+from datetime import datetime
+from django.utils.timezone import utc
 
 from django.conf import settings
 from django.contrib import messages
@@ -150,6 +152,7 @@ def post_list(request):
                    order_icon=order_icon, limit_icon=limit_icon, query_str=query_str)
     tag_dispay = tag.replace("-", "_")
     context.update({topic: "active", tag_dispay: "active"})
+    today = datetime.utcnow().replace(tzinfo=utc)
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
