@@ -51,7 +51,6 @@ body {
 
 .extratabs{
     font-size:15px !important;
-    margin-left:80px !important;
     border:none !important;
     font-weight: lighter !important;
     color: #428bca !important;
@@ -59,7 +58,7 @@ body {
 
 .extratabs.active.label {
     background-color: #dff0d8 !important;
-    color: #000000!important;
+    color: #428bca !important;
     border:none !important;
     font-weight: lighter !important;
 
@@ -157,7 +156,9 @@ figure { display: block; margin: 0; }
 }
 
 .count {
-    padding-right:10px !important;;
+    padding-right:10px !important;
+    margin-top: 18px !important;
+    margin-bottom: 18px !important;
 }
 
 .padme > .subheader {
@@ -200,14 +201,25 @@ img {
 .ordering{
     float: right !important;
     margin-bottom: 10px !important;
+}
+
+.no-shadow{
     box-shadow: none !important;
 }
 
 .userbox{
-    width:170px !important;
+    width:130px !important;
     //height: 160px !important;
-    background: #f9fbff !important;
+    background: #f5f5f5 !important;
+    //background-color: #f5f5f5 !important;
+    color: #333;
+    padding: 2px !important;
     //overflow-y: auto !important;
+}
+
+.postbody{
+
+    font-size: 1.08em !important;
 }
 
 .accepted {
@@ -287,6 +299,11 @@ img {
     }
 
 
+.create-button{
+
+    min-height: 2.65714286em !important;
+    margin: 1px !important;
+}
 
 .detail-stat{
     font-size: 1.15em;
@@ -298,6 +315,8 @@ img {
 .tags-banner{
     padding: 0px;
     color: #428bca !important;
+    font-size:13px ;
+    float: left !important;
 }
 
 .tags-banner.active{

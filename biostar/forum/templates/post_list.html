@@ -7,14 +7,10 @@
 
 
 {% block body %}
-    {% if tag  %}
-        <div class="ui large blue message" style="text-align: center; padding:0px; margin-top:8px;">
-            Showing : <code>{{tag}}</code>  &bull; <a href="{% url 'post_list' %}">reset <i class="undo small icon"></i></a>
-        </div>
-    {% endif %}
+
 
     {% pages objs=posts request=request query_str=query_str %}
-    <div class="ui small compact menu">
+    <div class="ui small compact menu no-shadow">
       <div class="ui simple dropdown item">
           <i class="{{ limit_icon }}"></i><span class="tablet">{{ limit }}</span>
         <i class="dropdown icon"></i>
@@ -28,7 +24,8 @@
       </div>
     </div>
 
-    <div class="ui small compact menu ordering">
+
+    <div class="ui small compact menu ordering no-shadow">
       <div class="ui simple dropdown item">
 
           <i class="{{ order_icon }}"></i><span class="tablet">{{ order }}</span>
@@ -42,7 +39,11 @@
       </div>
     </div>
 
-
+    {% if tag  %}
+        <div class="ui large blue message" style="text-align: center; padding:0px; margin-top:8px;">
+            Showing : <code>{{tag}}</code>  &bull; <a href="{% url 'post_list' %}">reset <i class="undo small icon"></i></a>
+        </div>
+    {% endif %}
 
     <div class="ui divided items">
         {% for post in posts %}

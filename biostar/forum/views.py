@@ -142,8 +142,8 @@ def post_list(request):
     # Maintain filtering information.
     url = urlparse(request.get_full_path())
     query_str = "?" + url.query
-    query_str = parse_qs(url.query)
-    print(query_str)
+    #query_str = parse_qs(url.query)
+    #print(query_str)
     #1/0
     # Fill in context.
     context = dict(posts=posts, active=topic, tag=tag, order=ordering, limit=limit_to,

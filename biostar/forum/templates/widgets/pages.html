@@ -4,7 +4,7 @@
 <div class="ui container center aligned">
 
         {% if objs.has_previous %}
-            <div class="ui basic blue label">
+            <div class="ui basic label">
                 <a href="{{ url }}{{ query_str }}page={{ objs.previous_page_number }}">
                     <i class="ui angle  double left icon"> </i>
                 </a>
@@ -12,9 +12,9 @@
         {% else %}
 
         <div class="ui basic  label">
-             <span >
+             <a>
                 <i class="ui angle double left icon"> </i>
-            </span>
+            </a>
         </div>
         {% endif %}
 
@@ -31,7 +31,7 @@
 
     {% if objs.has_next %}
 
-        <div class="ui basic blue label">
+        <div class="ui basic label">
 
             <a href="{{ url }}{{ query_str }}page={{ objs.next_page_number }}">
                 <i class="ui angle  double right icon"></i>
