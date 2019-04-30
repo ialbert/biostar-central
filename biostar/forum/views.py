@@ -104,7 +104,7 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
         query = query.filter(lastedit_date__gt=delta)
 
     # Select related information used during rendering.
-    query = query.prefetch_related("root", "lastedit_user__profile", "thread_users__profile")
+    query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
 
     return query
 

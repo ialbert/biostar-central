@@ -2,6 +2,7 @@ import logging
 import hashlib
 import urllib.parse
 import itertools
+
 from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from django import template
@@ -195,9 +196,18 @@ def user_info(post, by_diff=False, with_image=True):
 
 
 @register.simple_tag
-def get_thread_users(post, limit=3):
+def get_thread_users(post, limit=4):
 
-    users = post.thread_users.all()[:limit]
+    thread_users = post.thread_users.all()
+    stream = itertools.islice(thread_users, limit)
+
+    # Author is shown first, then last edit user, then
+    users = [post.author, post.lastedit_user]
+    users = users if post.author != post.lastedit_user else [post.author]
+    for user in stream:
+        if user in users:
+            continue
+        users.append(user)
 
     return users
 
