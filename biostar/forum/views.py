@@ -134,25 +134,17 @@ def post_list(request):
 
     # Apply the post paging.
     posts = paginator.get_page(page)
-
     # Get the wording and icon for filtering options
     ordering = f"Sort by: {order}" if ORDER_MAPPER.get(order) else "Sort by: rank"
     limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
     order_icon = ICON_MAP.get(order) or ICON_MAP["rank"]
     limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
 
-    # Maintain filtering information.
-    url = urlparse(request.get_full_path())
-    query_str = "?" + url.query
-    #query_str = parse_qs(url.query)
-    #print(query_str)
-    #1/0
     # Fill in context.
     context = dict(posts=posts, active=topic, tag=tag, order=ordering, limit=limit_to,
-                   order_icon=order_icon, limit_icon=limit_icon, query_str=query_str)
+                   order_icon=order_icon, limit_icon=limit_icon)
     tag_dispay = tag.replace("-", "_")
     context.update({topic: "active", tag_dispay: "active"})
-    today = datetime.utcnow().replace(tzinfo=utc)
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)

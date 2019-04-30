@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from biostar.accounts.models import User, Profile
 from biostar.forum.models import Award, Badge, Post
@@ -48,9 +48,10 @@ def days_to_secs(days=1):
 def send_digest_emails(users, template_name, extra_context):
 
     # debug only
-    to_email = users.filter(email="natay.aberra@gmail.com")
-    to_email = to_email.values_list("email", flat=True).first()
-    #to_email = users.values_list("email", flat=True)
+    #to_email = users.filter(email="natay.aberra@gmail.com")
+    #to_email = to_email.values_list("email", flat=True).first()
+
+    to_email = users.values_list("email", flat=True)
 
     # Add site info to context
     context = dict(domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL, port=settings.HTTP_PORT, name=settings.SITE_NAME)
@@ -105,8 +106,9 @@ try:
         """Send weekly digest to users """
 
         today = datetime.utcnow().replace(tzinfo=utc)
-        posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date__day=today.day,
-                                    creation_date__month=today.month, creation_date__year=today.year)
+        last_week = today - timedelta(days=7)
+        posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date__gte=last_week,
+                                    creation_date__let=today)
 
         # Load template with message
         subject = f"Weekly Digest for :{today.date()}"
