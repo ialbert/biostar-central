@@ -138,28 +138,21 @@ def post_list(request):
 def community_list(request):
     users = User.objects.select_related("profile")
     page = request.GET.get("page", 1)
-    order = request.GET.get("order", "recent visit")
-    limit = request.GET.get("limit", "all time")
-    days = LIMIT_MAP.get(limit, 0)
+    ordering = request.GET.get("order", "visit")
+    limit_to = request.GET.get("limit", "time")
+    days = LIMIT_MAP.get(limit_to, 0)
 
     if days:
         delta = util.now() - timedelta(days=days)
         users = users.filter(profile__last_login__gt=delta)
 
     # Get the ordering and appropriate icons
-    order = ORDER_MAPPER.get(order, "visit")
+    order = ORDER_MAPPER.get(ordering, "visit")
     users = users.order_by(order)
-
-    # TODO: moving to a template filter
-    ordering = f"Sort by: {order}" if USER_ORDER_MAPPER.get(order) else "Sort by: recent visit"
-    limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
-    order_icon = ICON_MAP.get(order) or ICON_MAP["recent visit"]
-    limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
 
     paginator = Paginator(users, settings.USERS_PER_PAGE)
     users = paginator.get_page(page)
-    context = dict(community="active", objs=users, order_icon=order_icon, limit_icon=limit_icon,
-                   order=ordering, limit=limit_to)
+    context = dict(community="active", objs=users, order=ordering, limit=limit_to)
 
     return render(request, "community_list.html", context=context)
 

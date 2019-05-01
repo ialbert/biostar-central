@@ -38,7 +38,7 @@ ICON_MAP = dict(
     year='calendar icon',
     visit='sort numeric down icon',
     reputation='star icon',
-    joined='sign up icon',
+    joined='sign in icon',
     activity='comment icon',
 )
 
@@ -217,19 +217,19 @@ def get_icon(string, default=""):
     return icon
 
 
-@register.simple_tag(takes_context=True)
-def get_wording(context, filtered, prefix="Sort by:", default=""):
+@register.simple_tag
+def get_wording(filtered, prefix="Sort by:", default=""):
     """
     Get the naming and icons for limits and ordering.
     """
 
     display = dict(all="all time", week="this week", month="this month",
                    year="this year", rank="rank", views="views",
-                   replies="replies", votes="votes")
+                   replies="replies", votes="votes", visit="recent visit",
+                   reputation="reputation", joined="date joined", activity="activity level")
     if display.get(filtered):
         displayed = display[filtered]
     else:
-        messages.error(context.request, f"Can not filter for : {filtered}")
         displayed = display[default]
 
     wording = f"{prefix} {displayed}"

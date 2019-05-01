@@ -60,11 +60,11 @@
 <img class="ui image right spaced tablet" src="/static/images/biostar-logo.png" style="margin:0px;max-width: 100%;">
 </a>
 
-{% if user.is_authenticated %}
-    {% include 'widgets/authenticated_tabs.html' %}
-{% else %}
-    {% include 'widgets/anonymous_tabs.html' %}
-{% endif %}
+    {% if user.is_authenticated %}
+        {% include 'widgets/authenticated_tabs.html' %}
+    {% else %}
+        {% include 'widgets/anonymous_tabs.html' %}
+    {% endif %}
 
 {% block grid %}
     <div class="ui stackable grid">
