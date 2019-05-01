@@ -64,6 +64,8 @@ def get_posts(user, topic="", tag="", order="rank"):
     if order:
         query = query.order_by(order)
     else:
+
+        print("DEFAULT")
         query = query.order_by("rank")
 
     # Select related information used during rendering.
