@@ -114,7 +114,7 @@ def user_profile(request, uid):
     context = dict(user=profile.user, objs=objs, active=active_tab,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate)
 
-    return render(request, 'accounts/user_profile.html', context)
+    return render(request, settings.PROFILE_TEMPLTE, context)
 
 
 def toggle_notify(request):

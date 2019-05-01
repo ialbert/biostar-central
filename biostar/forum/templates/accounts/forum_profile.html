@@ -1,0 +1,123 @@
+{% extends "profile_base.html" %}
+
+{% load engine_tags %}
+{% load forum_tags %}
+
+
+{% block headtitle %}{{ user.profile.name }}{% endblock %}
+
+{% block body %}
+
+
+   <div class="ui center aligned basic segment">
+
+        <div class="ui aligned large header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
+   </div>
+<div class="ui horizontal segments">
+
+        <div class="ui center aligned large segment">
+
+            <div>
+                {% gravatar user=user size=200 %}
+            </div>
+
+            <div><a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
+                {{ user |show_score_icon}}{{ user.profile.score | show_score |bignum }}
+            </div>
+
+            {% if can_moderate %}
+                <a class="ui orange moderate-user profile label" data-value="{{user.profile.uid}}" mod-url="{% url 'user_moderate' user.profile.uid %}">
+                    Moderate</a>
+                     <div class="ui left aligned basic large segment" style="margin:0;padding:0;">
+                    <div id="mod-container-{{user.profile.uid}}"></div>
+                     </div>
+            {% endif %}
+
+
+            {% if user == request.user and user.is_superuser %}
+                <a class="ui blue profile label"  href="{% url 'site_admin' %}">
+                    <i class="dashboard icon"></i> Site Admin
+                </a>
+            {% endif %}
+
+            {% if request.user.is_superuser %}
+                <a class="ui profile label" href="{% url 'debug_user' %}?uid={{user.profile.uid}}">
+                    <i class="address card icon"></i> Log in as user
+                </a>
+            {% endif %}
+
+        </div>
+
+        <div class="ui large segment">
+            {% if can_moderate or request.user == user %}
+                {% if user.profile.email_verified %}<div class="ui top left attached basic green large label">
+                <i class="check icon"></i> Email Verified</div>{% endif %}
+            {% endif %}
+
+            <div class="ui relaxed list">
+                <div class="item">
+                    <b>Reputation</b>: {{ user.profile.score | show_score }}
+                </div>
+                <div class="item">
+                    <b>Status</b> : {{ user.profile.get_state_display }}
+                </div>
+                <div class="item">
+                    <b>Location</b> : {{ user.profile.location }}
+                </div>
+
+                {% if user.profile.last_login  %}
+                    <div class="item">
+                        <b>Last seen </b> : {{ user.profile.last_login |time_ago}}
+                    </div>
+                {%  endif %}
+                <div class="item">
+                    <b>Joined</b> : {{ user.profile.date_joined|time_ago }}
+                </div>
+                {%  if user == request.user %}
+                    <div class="item"> <b>Email</b> : {{ user.email }}</div>
+                {% else %}
+                    <div class="item"> <b>Email</b> : {{ user |show_email }}</div>
+                {% endif %}
+
+
+                <div class="item"> <b>Handle</b> :
+                    {{ user.username }}
+                </div>
+            </div>
+
+            {%  if user == request.user %}
+                 <a class="ui profile label" href="{% url 'edit_profile'%}">
+                        <i class="write icon"></i>Edit profile
+                 </a>
+            {% endif %}
+        </div>
+</div>
+
+        {{ user.profile.html |safe }}
+         <div class="ui vertical segment">
+            <div class="ui top attached tabular large menu">
+                <div class="active item">
+                    <a href="{% url "user_profile" user.profile.uid %}?active={{ const_post }}">
+                       Posts
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="ui bottom attached segment">
+
+                {% pages objs=objs request=request  %}
+
+                    <div class="ui divided items">
+                        {%  for post in objs %}
+                            {% listing post=post %}
+                        {%  endfor %}
+                    </div>
+
+                {% pages objs=objs request=request %}
+
+            </div>
+
+        </div>
+
+{%  endblock %}

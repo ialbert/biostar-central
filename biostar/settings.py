@@ -30,6 +30,7 @@ RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_PRIVATE_KEY = ""
 
 MENU_BAR = "widgets/menubar.html"
+PROFILE_TEMPLTE = "accounts/user_profile.html"
 
 POSTS_PER_PAGE = 40
 USERS_PER_PAGE = 100
