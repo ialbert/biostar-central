@@ -85,7 +85,7 @@ def build_obj_tree(request, obj):
 
     answers = thread.filter(type=Post.ANSWER)
     # Decorate the objects for easier access
-    decorate(chain(query, thread, answers))
+    decorate(chain(thread, answers))
 
     return comment_tree, answers, thread
 
