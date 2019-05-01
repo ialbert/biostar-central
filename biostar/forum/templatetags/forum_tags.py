@@ -2,6 +2,7 @@ import logging
 import hashlib
 import urllib.parse
 import itertools
+
 from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from django import template
@@ -36,11 +37,10 @@ def user_box(user):
 
 
 @register.inclusion_tag('widgets/pages.html')
-def pages(objs, request, query_str=''):
+def pages(objs, request):
 
-    query_str = f"{query_str}&" if query_str else "?"
     url = request.path
-    return dict(objs=objs, url=url, query_str=query_str)
+    return dict(objs=objs, url=url, request=request)
 
 
 @register.simple_tag
@@ -195,9 +195,39 @@ def user_info(post, by_diff=False, with_image=True):
 
 
 @register.simple_tag
-def get_thread_users(post, limit=3):
+def relative_url(value, field_name, urlencode=None):
+    """
+    Updates field_name parameters in url with value
+    """
+    # Create query string with updated field_name, value pair.
+    url = '?{}={}'.format(field_name, value)
+    if urlencode:
+        # Split query string
+        querystring = urlencode.split('&')
+        # Exclude old value 'field_name' from query string
+        filter_func = lambda p: p.split('=')[0] != field_name
+        filtered_querystring = filter(filter_func, querystring)
+        # Join the filtered string
+        encoded_querystring = '&'.join(filtered_querystring)
+        # Update query string
+        url = '{}&{}'.format(url, encoded_querystring)
 
-    users = post.thread_users.all()[:limit]
+    return url
+
+
+@register.simple_tag
+def get_thread_users(post, limit=4):
+
+    thread_users = post.thread_users.all()
+    stream = itertools.islice(thread_users, limit)
+
+    # Author is shown first, then last edit user, then
+    users = [post.author, post.lastedit_user]
+    users = users if post.author != post.lastedit_user else [post.author]
+    for user in stream:
+        if user in users:
+            continue
+        users.append(user)
 
     return users
 

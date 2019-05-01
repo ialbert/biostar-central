@@ -6,7 +6,7 @@
 
         <a href="{% url "user_profile" user.profile.uid %}">
       <div class="ui circular image">
-        {% gravatar user=user size=80 %}
+        {% gravatar user=user size=70 %}
       </div>
         </a>
     </div>
@@ -14,13 +14,10 @@
             <a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
             {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
 <div>
-    {{ user|get_last_login }}
-
-</div>
     <div class="muted">
-            {{ user.profile.location |truncatechars:40}}
+    {{ user|get_last_login }}
     </div>
-
+</div>
 
  </div>
 
