@@ -43,11 +43,12 @@ body {
 
 .forumtabs{
     font-size:14.5px !important;
-    margin:7.5px !important;
+    //margin:0.5px !important;
     border:none !important;
     font-weight: lighter !important;
     color: #428bca !important;
     text-align: center !important;
+    width: 90px !important;
 }
 
 
