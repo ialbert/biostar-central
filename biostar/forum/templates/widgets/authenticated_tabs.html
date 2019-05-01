@@ -1,7 +1,8 @@
 {% load forum_tags %}
 {% load message_tags %}
 
-<a class="ui {{community}} basic label forumtabs" href="{% url 'community_list' %}" style="display: inline-block">
+
+<a class="ui {{community}} basic label forumtabs" href="{% url 'community_list' %}">
     <i class="world icon"></i><div class="tablet">Community</div>
 </a>
 <a class="ui {{latest}} basic label forumtabs" href="{% url 'post_list' %}?topic=latest">

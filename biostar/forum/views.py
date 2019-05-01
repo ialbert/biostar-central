@@ -146,7 +146,6 @@ def community_list(request):
         delta = util.now() - timedelta(days=days)
         users = users.filter(profile__last_login__gt=delta)
 
-    # Get the ordering and appropriate icons
     order = ORDER_MAPPER.get(ordering, "visit")
     users = users.order_by(order)
 
