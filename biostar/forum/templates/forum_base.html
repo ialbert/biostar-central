@@ -45,9 +45,6 @@
 
 <div class="ui container">
 
-
-
-
         {% block menu %}
 
             {% menubar request=request %}
@@ -55,73 +52,50 @@
         {% endblock %}
 
 <div class="ui bottom attached  segment">
-    {% show_messages messages %}
-            <a href="{% url 'post_list' %}">
-            <img class="ui image right spaced tablet" src="/static/images/biostar-logo.png" style="margin:0px;max-width: 100%;">
-            </a>
+{% show_messages messages %}
 
-            <a class="ui {{community}} basic label tablet forumtabs" href="{% url 'community_list' %}">
-                <i class="world icon"></i>Community
-            </a>
-            <a class="ui {{latest}} basic label forumtabs" href="{% url 'post_list' %}?active=latest">
-                <i class="comment alternate icon"></i><span class="tablet">Latest</span>
-            </a>
-            <a class="ui {{message}} basic label tablet forumtabs" href="{% url 'inbox' %}">
-                {% message_count request=request otype="message" as num_msgs %}
-                {% if num_msgs %}
-                <i class="mail icon"  style="color:#5fc64f;"></i>Messages
-                {% else%}
-                <i class="mail icon" ></i>Messages
-                {%endif%}
+{% include 'widgets/tags_banner.html' %}
 
-            </a>
-            <a class="ui {{votes}} basic label forumtabs" href="{% url 'post_list' %}?active=votes">
-                <i class="heart icon"></i> <span class="tablet">Votes</span>
-            </a>
-            <a class="ui {{myposts}} basic label forumtabs" href="{% url 'post_list' %}?active=myposts">
-                <i class="comments icon"></i> <span class="tablet">My Posts</span>
-            </a>
-            <a class="ui {{mytags}} basic label forumtabs" href="{% url 'post_list' %}?active=mytags">
-                <i class="tags icon"></i><span class="tablet">My Tags</span>
-            </a>
-            <a class="ui {{following}} basic label forumtabs" href="{% url 'post_list' %}?active=following">
-                <i class="eye icon"></i><span class="tablet">Following</span>
-            </a>
-            <a class="ui {{bookmarks}} basic label forumtabs" href="{% url 'post_list' %}?active=bookmarks">
-                <i class="book icon"></i><span class="tablet">Bookmarks</span>
-            </a>
+<a href="{% url 'post_list' %}">
+<img class="ui image right spaced tablet" src="/static/images/biostar-logo.png" style="margin:0px;max-width: 100%;">
+</a>
+
+{% if user.is_authenticated %}
+    {% include 'widgets/authenticated_tabs.html' %}
+{% else %}
+    {% include 'widgets/anonymous_tabs.html' %}
+{% endif %}
+
+{% block grid %}
+    <div class="ui stackable grid">
+
+        <div class="twelve wide column">
+
+            {% block body %}
+                {# Main body #}
+                BODY
 
 
+                {% block content %}
 
+                {% endblock %}
 
-<div class="ui stackable grid">
-
-<div class="twelve wide column">
-
-        {% block body %}
-            {# Main body #}
-            BODY
-
-
-            {% block content %}
 
             {% endblock %}
+        </div>
 
+        {% block feed %}
+
+            <div class="four wide column">
+
+                {% feed user=request.user %}
+
+            </div>
 
         {% endblock %}
-</div>
 
-{% block feed %}
-
-<div class="four wide column">
-
-            {% feed user=request.user %}
-
-</div>
-
-{% endblock %}
-
-</div>
+    </div>
+{%  endblock %}
 
 
 </div>

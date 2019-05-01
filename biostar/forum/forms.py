@@ -170,7 +170,7 @@ class PostShortForm(forms.Form):
             self.post.content = content
             self.post.save()
         else:
-            parent = Post.objects.get_all(uid=parent).first()
+            parent = Post.objects.filter(uid=parent).first()
             project = Project.objects.filter(uid=project).first()
 
             self.post = auth.create_post(title=parent.root.title,

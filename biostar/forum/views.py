@@ -1,11 +1,18 @@
+from datetime import timedelta
+from urllib.parse import urlparse, parse_qs
+from datetime import datetime
+from django.utils.timezone import utc
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+from django.db.models import Count
 
-from biostar.forum import forms, auth, tasks
+
+from biostar.forum import forms, auth, tasks, util
 from biostar.forum.const import *
 from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from biostar.utils.shortcuts import reverse
@@ -28,11 +35,45 @@ ORDER_MAPPER = dict(
     rank="-rank",
     views="-view_count",
     replies="-reply_count",
-    votes="-vote_count"
+    votes="-thread_votecount",
+
 )
 
+USER_ORDER_MAPPER = {
+    'recent visit': '-profile__last_login',
+    'reputation': '-profile__score',
+    'date joined': '-profile__date_joined',
+    'activity level': '-profile__date_joined',
+}
 
-def get_posts(user, topic="", tag="", order="rank"):
+ICON_MAP = {
+    'rank': "list ol icon",
+    'views': "eye icon",
+    'replies': "comment icon",
+    'votes': "thumbs up icon",
+    'all time': 'calendar plus icon',
+    "today": 'clock icon',
+    "this week": 'calendar minus outline icon',
+    "this month": 'calendar alternate icon',
+    "this year": 'calendar icon',
+    'recent visit': 'sort numeric down icon',
+    'reputation': 'star icon',
+    'date joined' :'sign up icon',
+    'activity level':'comment icon',
+
+}
+
+POST_LIMIT_MAP = dict([
+    ("all time", 0),
+    ("today", 1),
+    ("this week", 7),
+    ("this month", 30),
+    ("this year", 365),
+
+])
+
+
+def get_posts(user, topic="", tag="", order="rank", limit=None):
     """
     Generates a post list on a topic.
     """
@@ -47,12 +88,17 @@ def get_posts(user, topic="", tag="", order="rank"):
         query = Post.objects.filter(type=post_type)
     elif topic == OPEN:
         query = Post.objects.filter(type=Post.QUESTION, reply_count=0)
-    elif topic == BOOKMARKS:
+    elif topic == BOOKMARKS and user.is_authenticated:
         query = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
-    elif topic == FOLLOWING:
+    elif topic == FOLLOWING and user.is_authenticated:
         query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
+    elif topic == MYPOSTS and user.is_authenticated:
+        query = Post.objects.filter(author=user)
     elif topic == MYVOTES:
-        query = Post.objects.objects.filter(votes__post__author=user).exclude(votes__author=user).distinct()
+        #TODO: switching to votes
+        #votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
+        #query = votes_query.values("post")
+        query = Post.objects.filter(votes__post__author=user).exclude(votes__author=user)
     else:
         query = Post.objects.filter(type__in=Post.TOP_LEVEL)
 
@@ -61,15 +107,20 @@ def get_posts(user, topic="", tag="", order="rank"):
         query = query.filter(tag_val__iregex=tag)
 
     # Apply post ordering.
-    if order:
-        query = query.order_by(order)
+    if ORDER_MAPPER.get(order):
+        ordering = ORDER_MAPPER.get(order)
+        query = query.order_by(ordering)
     else:
+        query = query.order_by("-rank")
 
-        print("DEFAULT")
-        query = query.order_by("rank")
+    # Apply time limit if required.
+    days = POST_LIMIT_MAP.get(limit, 0)
+    if days:
+        delta = util.now() - timedelta(days=days)
+        query = query.filter(lastedit_date__gt=delta)
 
     # Select related information used during rendering.
-    query = query.prefetch_related("root", "lastedit_user__profile", "thread_users__profile")
+    query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
 
     return query
 
@@ -87,48 +138,76 @@ def post_list(request):
     tag = request.GET.get("tag", "")
     topic = request.GET.get("topic", "")
     order = request.GET.get("order", "")
+    limit = request.GET.get("limit")
 
     # Get posts available to users.
-    posts = get_posts(user=user, topic=topic, tag=tag, order=order)
+    posts = get_posts(user=user, topic=topic, tag=tag, order=order, limit=limit)
 
     # Create the paginator
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
     posts = paginator.get_page(page)
+    # Get the wording and icon for filtering options
+    #TODO: moving to a template filter
+    ordering = f"Sort by: {order}" if ORDER_MAPPER.get(order) else "Sort by: rank"
+    limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
+    order_icon = ICON_MAP.get(order) or ICON_MAP["rank"]
+    limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
 
     # Fill in context.
-    context = dict(posts=posts, active=topic, tag=tag, topic="active")
+    context = dict(posts=posts, active=topic, tag=tag, order=ordering, limit=limit_to,
+                   order_icon=order_icon, limit_icon=limit_icon)
+    tag_dispay = tag.replace("-", "_")
+    context.update({topic: "active", tag_dispay: "active"})
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
 
 
 def community_list(request):
-    objs = User.objects.select_related("profile").order_by("-last_login")
-    paginator = Paginator(objs, settings.USERS_PER_PAGE)
+    users = User.objects.select_related("profile")
     page = request.GET.get("page", 1)
-    objs = paginator.get_page(page)
-    context = dict(community="active", objs=objs)
+    order = request.GET.get("order", "recent visit")
+    limit = request.GET.get("limit", "all time")
+    days = POST_LIMIT_MAP.get(limit, 0)
+
+    if days:
+        delta = util.now() - timedelta(days=days)
+        users = users.filter(profile__last_login__gt=delta)
+
+    # Get the ordering and appropriate icons
+    order = USER_ORDER_MAPPER.get(order, "recent visit")
+    users = users.order_by(order)
+    # TODO: moving to a template filter
+    ordering = f"Sort by: {order}" if USER_ORDER_MAPPER.get(order) else "Sort by: recent visit"
+    limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
+    order_icon = ICON_MAP.get(order) or ICON_MAP["recent visit"]
+    limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
+
+    paginator = Paginator(users, settings.USERS_PER_PAGE)
+    users = paginator.get_page(page)
+    context = dict(community="active", objs=users, order_icon=order_icon, limit_icon=limit_icon,
+                   order=ordering, limit=limit_to)
 
     return render(request, "community_list.html", context=context)
 
 
 def badge_list(request):
-    badges = Badge.objects.all()
+    badges = Badge.objects.annotate(count=Count("award"))
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
 
 def badge_view(request, uid):
-    badge = Badge.objects.filter(uid=uid).first()
+    badge = Badge.objects.filter(uid=uid).annotate(count=Count("award")).first()
 
     if not badge:
         messages.error(request, f"Badge with id={uid} does not exist.")
         return redirect(reverse("badge_list"))
 
-    awards = badge.award_set.select_related("user").order_by("-pk")[:100]
-
+    awards = badge.award_set.order_by("-pk")[:100]
+    awards = awards.prefetch_related("user", "user__profile", "post", "post__root")
     context = dict(awards=awards, badge=badge)
 
     return render(request, "badge_view.html", context=context)
@@ -150,7 +229,7 @@ def ajax_vote(request):
     post_uid = request.POST['post_uid']
 
     # Check the post that is voted on.
-    post = Post.objects.get_all(uid=post_uid).first()
+    post = Post.objects.filter(uid=post_uid).first()
 
     if post.author == user and vote_type == Vote.UP:
         return ajax_error("You can not upvote your own post.")
@@ -176,7 +255,7 @@ def post_view(request, uid):
     form = forms.PostShortForm()
 
     # Get the parents info
-    obj = Post.objects.get_all(uid=uid).first()
+    obj = Post.objects.filter(uid=uid).first()
     # Return root view if not at top level.
     obj = obj if obj.is_toplevel else obj.root
 
@@ -195,7 +274,6 @@ def post_view(request, uid):
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
     comment_tree, answers, thread = auth.build_obj_tree(request=request, obj=obj)
-
     context = dict(post=obj, tree=comment_tree, form=form, answers=answers)
 
     return render(request, "post_view.html", context=context)
@@ -214,7 +292,7 @@ def comment(request):
                 tasks.created_post(pid=post.id)
         else:
             messages.error(request, f"Error adding comment:{form.errors}")
-            parent = Post.objects.get_all(uid=request.POST.get("parent_uid")).first()
+            parent = Post.objects.filter(uid=request.POST.get("parent_uid")).first()
             location = location if parent is None else reverse("post_view", kwargs=dict(uid=parent.root.uid))
 
     return redirect(location)
@@ -222,13 +300,10 @@ def comment(request):
 
 @object_exists(klass=Post)
 @login_required
-def subs_action(request, uid, next=None):
+def subs_action(request, uid):
     # Post actions are being taken on
-    post = Post.objects.get_all(uid=uid).first()
+    post = Post.objects.filter(uid=uid).first()
     user = request.user
-    next_url = request.GET.get(REDIRECT_FIELD_NAME,
-                               request.POST.get(REDIRECT_FIELD_NAME))
-    next_url = next or next_url or "/"
 
     if request.method == "POST" and user.is_authenticated:
         form = forms.SubsForm(data=request.POST, post=post, user=user)
@@ -241,7 +316,7 @@ def subs_action(request, uid, next=None):
             if tasks.HAS_UWSGI:
                 tasks.added_sub(sid=sub.id)
 
-    return redirect(next_url)
+    return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
 
 
 @login_required
@@ -272,7 +347,7 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
 @login_required
 def post_moderate(request, uid):
     user = request.user
-    post = Post.objects.get_all(uid=uid).first()
+    post = Post.objects.filter(uid=uid).first()
     form = forms.PostModForm(post=post, user=user, request=request)
 
     if request.method == "POST":
@@ -297,7 +372,7 @@ def post_moderate(request, uid):
 def edit_post(request, uid):
     "Edit an existing post"
 
-    post = Post.objects.get_all(uid=uid).first()
+    post = Post.objects.filter(uid=uid).first()
     if post.is_toplevel:
         template, edit_form = "post_create.html", forms.PostLongForm
     else:

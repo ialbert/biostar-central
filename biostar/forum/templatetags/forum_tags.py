@@ -2,6 +2,7 @@ import logging
 import hashlib
 import urllib.parse
 import itertools
+
 from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from django import template
@@ -38,15 +39,8 @@ def user_box(user):
 @register.inclusion_tag('widgets/pages.html')
 def pages(objs, request):
 
-    topic = request.GET.get('tag')
-    active = request.GET.get("active")
-
-    feild_name = "active" if active else "tag"
-
     url = request.path
-    topic = active or topic
-
-    return dict(objs=objs, url=url, topic=topic, feild_name=feild_name)
+    return dict(objs=objs, url=url, request=request)
 
 
 @register.simple_tag
@@ -95,23 +89,20 @@ def tags_banner(context, limit=5, listing=False):
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form, include_userbox=True, next_url=None,
-            project_uid=None, sub_url=None):
+def post_body(context, post, user, tree, form):
 
     "Renders the post body"
     request = context['request']
 
-    sub_url = sub_url or reverse("subs_action", request=request, kwargs=dict(uid=post.uid))
-    next_url = next_url or reverse("post_view", request=request, kwargs=dict(uid=post.uid))
+    next_url = reverse("post_view", request=request, kwargs=dict(uid=post.uid))
 
     return dict(post=post, user=user, tree=tree, request=request,
-                form=form, include_userbox=include_userbox,
-                sub_url=sub_url, next_url=next_url,
-                redir_field_name=const.REDIRECT_FIELD_NAME, project_uid=project_uid)
+                form=form, next_url=next_url,
+                redir_field_name=const.REDIRECT_FIELD_NAME)
 
 
 @register.inclusion_tag('widgets/subs_actions.html')
-def subs_actions(post, user, next, sub_url):
+def subs_actions(post, user):
 
     if user.is_anonymous:
         sub = None
@@ -127,8 +118,14 @@ def subs_actions(post, user, next, sub_url):
 
     button = "Follow" if unsubbed else "Update"
 
-    return dict(post=post, form=form, button=button, next=next, sub_url=sub_url,
-                redir_field_name=const.REDIRECT_FIELD_NAME)
+    return dict(post=post, form=form, button=button)
+
+
+@register.filter
+def get_last_login(user):
+    if user.profile.last_login:
+        return f"visited {time_ago(user.profile.last_login)}"
+    return f"visited {time_ago(user.profile.date_joined)}"
 
 
 @register.filter
@@ -155,8 +152,6 @@ def is_moderator(user):
 def feed(user):
 
     recent_votes = Vote.objects.prefetch_related("post")[:settings.VOTE_FEED_COUNT]
-    # Needs to be put in context of posts
-    #recent_votes = recent_votes.prefetch_related("post")
 
     recent_locations = User.objects.exclude(profile__location="")
     recent_locations = recent_locations.prefetch_related("profile")[:settings.LOCATION_FEED_COUNT]
@@ -178,7 +173,7 @@ def show_score_icon(user):
 
     color = "modcolor" if user.profile.is_moderator else ""
 
-    if user.profile.score > 500:
+    if user.profile.score > 150:
         icon = f'<i class="ui small star icon {color}"></i>'
     else:
         icon = f'<span class="{color}"> &bull;</span>'
@@ -200,15 +195,51 @@ def user_info(post, by_diff=False, with_image=True):
 
 
 @register.simple_tag
-def get_thread_users(post, limit=3):
+def relative_url(value, field_name, urlencode=None):
+    """
+    Updates field_name parameters in url with value
+    """
+    # Create query string with updated field_name, value pair.
+    url = '?{}={}'.format(field_name, value)
+    if urlencode:
+        # Split query string
+        querystring = urlencode.split('&')
+        # Exclude old value 'field_name' from query string
+        filter_func = lambda p: p.split('=')[0] != field_name
+        filtered_querystring = filter(filter_func, querystring)
+        # Join the filtered string
+        encoded_querystring = '&'.join(filtered_querystring)
+        # Update query string
+        url = '{}&{}'.format(url, encoded_querystring)
 
-    users = post.thread_users.all()[:limit]
+    return url
+
+
+@register.simple_tag
+def get_thread_users(post, limit=4):
+
+    thread_users = post.thread_users.all()
+    stream = itertools.islice(thread_users, limit)
+
+    # Author is shown first, then last edit user, then
+    users = [post.author, post.lastedit_user]
+    users = users if post.author != post.lastedit_user else [post.author]
+    for user in stream:
+        if user in users:
+            continue
+        users.append(user)
 
     return users
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(post=None):
+def listing(post=None, user=None):
+
+    if user is None:
+        return dict(post=post)
+
+    if post.is_deleted and (user.is_anonymous or not user.profile.is_moderator):
+        return None
 
     return dict(post=post)
 
@@ -217,13 +248,6 @@ def listing(post=None):
 def show_nonzero(value):
     "The purpose of this is to return value or empty"
     return value if value else ''
-
-
-def pluralize(value, word):
-    if value > 1:
-        return "%d %ss" % (value, word)
-    else:
-        return "%d %s" % (value, word)
 
 
 @register.simple_tag
@@ -242,27 +266,16 @@ def object_count(request, otype):
 
 @register.filter
 def time_ago(date):
+    return util.time_ago(date=date)
 
-    # Rare bug. TODO: Need to investigate why this can happen.
-    if not date:
-        return ''
-    delta = now() - date
-    if delta < timedelta(minutes=1):
-        return 'just now'
-    elif delta < timedelta(hours=1):
-        unit = pluralize(delta.seconds // 60, "minute")
-    elif delta < timedelta(days=1):
-        unit = pluralize(delta.seconds // 3600, "hour")
-    elif delta < timedelta(days=30):
-        unit = pluralize(delta.days, "day")
-    elif delta < timedelta(days=90):
-        unit = pluralize(int(delta.days / 7), "week")
-    elif delta < timedelta(days=730):
-        unit = pluralize(int(delta.days / 30), "month")
-    else:
-        diff = delta.days / 365.0
-        unit = '%0.1f years' % diff
-    return "%s ago" % unit
+
+@register.filter
+def get_subcount(sub_count):
+
+    if sub_count > 5:
+        return mark_safe(f'<div class="subs">{sub_count} follow</div>')
+
+    return ""
 
 
 @register.filter

@@ -3,7 +3,8 @@
     {% if post.is_toplevel %}
         <div class="ui vertical segment">
             <a name="{{post.uid}}" style="padding:0;"></a>
-            {% subs_actions post=post user=request.user next=next_url sub_url=sub_url %}
+
+            {% subs_actions post=post user=request.user %}
             <div class="ui header" >{{ post.get_type_display }}: {{ post.title }}</div>
 
         </div>
@@ -13,7 +14,7 @@
     <div class="ui items {{post.deleted_class}} {{post.accepted_class}}">
         <div class="item">
             <a name="{{post.uid}}" style="padding:0;"></a>
-            <div class="ui image">
+            <div class="ui image" style="font-size: 12px">
 
                 <a class="vote" data-post_uid="{{post.uid}}" data-type="upvote" vote-url="{% url 'vote' %}">
                     {% if post.has_upvote %}
@@ -51,81 +52,97 @@
 
              <div class="content">
 
-             {% if include_userbox %}
-                 <div class="ui right floated image" style="position: relative;">
+
+                 <div class="ui right floated image" >
                         {% user_box user=post.author %}
                  </div>
-             {% endif %}
 
 
-                 <div class="ui container">
+                 <div class="ui container postbody">
 
                         {{ post.html|safe }}
-                     </div>
+                 </div>
 
-                 {% if post.is_toplevel %}
-                     <div class="extra">
-
-                         <div class="" style="">
+                <div class="extra">
+                         {% if post.is_toplevel %}
 
 
-                    {% get_tags_list post.tag_val as tags_list %}
+                                 <div class="" style="">
 
-                    {% for tag in tags_list %}
-                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?tag={{tag}}">
-                        {{ tag }}
-                        </a>
-                    {% endfor %}
-                            &bull; {{ post.root.view_count|bignum }} views
-                         </div>
+                            {% get_tags_list post.tag_val as tags_list %}
 
-                     </div>
+                            {% for tag in tags_list %}
+                                <a class="ui tiny tagging label" href="{% url 'post_list' %}?tag={{tag}}">
+                                {{ tag }}
+                                </a>
+                            {% endfor %}
+                                    &bull; {{ post.root.view_count|bignum }} views
+                                 </div>
 
-                 {% endif %}
 
-                     <div class="ui right floated basic segment userinfo">
 
-                         {% user_info post=post by_diff=False %}
-                     </div>
+                         {% endif %}
+                </div>
+
+
                  <div class="extrainfo">
 
-             {% if user.is_authenticated %}
-            <a class="add-comment ui mini grey label" comment-url="{% url 'post_comment' %}"
-               data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
-                ADD COMMENT
-            </a>
-             {% else %}
-             <a class="ui mini grey label" href="{% url 'login' %}">
-                ADD COMMENT
-            </a>
+                     {% if user.is_authenticated %}
+                        <a class="add-comment ui mini label" comment-url="{% url 'post_comment' %}"
+                           data-value="{{post.uid}}" project-uid="{{project_uid}}" redir-url="{{next_url}}">
+                            ADD COMMENT
+                        </a>
+                     {% else %}
+                         <a class="ui mini label" href="{% url 'login' %}">
+                            ADD COMMENT
+                        </a>
 
-             {% endif %}
+                     {% endif %}
 
-                     |
-                 <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
+                             |
+                     <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
 
-                  {% if post.is_editable %}
-                 |
-                 <a href="{% url 'post_edit' post.uid %}">
-                edit
-                </a>
-                 {% endif %}
+                      {% if post.is_editable %}
+                         |
+                         <a href="{% url 'post_edit' post.uid %}">
+                        edit
+                        </a>
+                     {% endif %}
 
-                 {% if user.is_authenticated and user.profile.is_moderator or user.profile.is_manager %}
-                 |
-                 <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}" data-value="{{post.uid}}">
-                moderate
-                </a>
-                 <div id="mod-container-{{post.uid}}"></div>
-                 {% endif %}
+                    {% if post.is_toplevel %}
+                         <div class="ui muted" style="float: right">
+                            updated
+                            <span>{{ post.lastedit_date|time_ago }}</span> by
+                            <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
 
+                            <div class="ui avatar image">{% gravatar user=post.lastedit_user size=100 %}</div>
 
-                <div id="comment-container-{{post.uid}}"></div>
-                 {# Comments for each post rendered here #}
+                            {{post.lastedit_user.profile.name }}
 
-                {% render_comments tree=tree project_uid=project_uid request=request post=post next_url=next_url %}
+                            </a>
+                            {{ post.lastedit_user |show_score_icon }}
+                            {{ post.lastedit_user.profile.score | show_score | bignum }}
+
+                        </div>
+                    {% endif %}
+
+                     {% if user.is_authenticated and user.profile.is_moderator or user.profile.is_manager %}
+                         |
+                         <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}" data-value="{{post.uid}}">
+                        moderate
+                        </a>
+                         <div id="mod-container-{{post.uid}}"></div>
+                     {% endif %}
+
+                        <div id="comment-container-{{post.uid}}"></div>
+                         {# Comments for each post rendered here #}
+                      {% render_comments tree=tree project_uid=project_uid request=request post=post next_url=next_url %}
+
 
                  </div>
+
+
+
              </div>
 
         </div>

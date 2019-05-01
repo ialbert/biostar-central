@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.db import models
 from biostar import settings
 
+from biostar.forum.util import time_ago
 
 MAX_UID_LEN = 255
 MAX_NAME_LEN = 255
@@ -36,14 +37,16 @@ class Profile(models.Model):
                     (BLOG, "Blog User")]
 
     NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST = range(4)
+
     DIGEST_CHOICES = [(NO_DIGEST, 'Never'), (DAILY_DIGEST, 'Daily'),
                       (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly')]
 
-    LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(3)
+    LOCAL_MESSAGE, EMAIL_MESSAGE, MAILING_LIST = range(3)
     MESSAGING_TYPE_CHOICES = [
-        (LOCAL_MESSAGE, "Local messages"),
-        (EMAIL_MESSAGE, "Email for every new post added to current one."),
-        (DIGEST_MESSAGES, "Email for every new thread (mailing list mode)")
+        (LOCAL_MESSAGE, "Local messages."),
+        (EMAIL_MESSAGE, "Email messages."),
+        # Email for every new thread (mailing list mode)
+        (MAILING_LIST, "Mailing list.")
                             ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -86,8 +89,10 @@ class Profile(models.Model):
 
     email_verified = models.BooleanField(default=False)
 
-    # Notify when the a recipe has been complete.
+    # Automatic notification
     notify = models.BooleanField(default=False)
+
+    # Default subscriptions inherit from this
     message_prefs = models.IntegerField(choices=MESSAGING_TYPE_CHOICES,
                                         default=LOCAL_MESSAGE)
 

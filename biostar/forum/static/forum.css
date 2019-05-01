@@ -22,7 +22,7 @@ body {
 
 .forumtabs.active.label {
     background-color: #dff0d8;!important;
-    color: #000000!important;
+    color: #428bca !important;
     border:none !important;
 }
 
@@ -45,7 +45,25 @@ body {
     font-size:13.0px !important;
     margin:-1.5px !important;
     border:none !important;
+    font-weight: lighter !important;
+    color: #428bca !important;
 }
+
+.extratabs{
+    font-size:15px !important;
+    border:none !important;
+    font-weight: lighter !important;
+    color: #428bca !important;
+}
+
+.extratabs.active.label {
+    background-color: #dff0d8 !important;
+    color: #428bca !important;
+    border:none !important;
+    font-weight: lighter !important;
+
+}
+
 
 .ui.items>.item>.content>a.header {
     color: #4183c4;
@@ -97,7 +115,7 @@ figure { display: block; margin: 0; }
 }
 
 .extrainfo {
-  margin-top:30;
+  //margin-top:30;
   padding: 0;
 }
 
@@ -138,7 +156,9 @@ figure { display: block; margin: 0; }
 }
 
 .count {
-    padding-right:10px !important;;
+    padding-right:10px !important;
+    margin-top: 18px !important;
+    margin-bottom: 18px !important;
 }
 
 .padme > .subheader {
@@ -178,11 +198,28 @@ img {
 
 }
 
+.ordering{
+    float: right !important;
+    margin-bottom: 10px !important;
+}
+
+.no-shadow{
+    box-shadow: none !important;
+}
+
 .userbox{
-    width:170px !important;
-    height: 160px !important;
-    background: #f9fbff !important;
-    // overflow-y: auto !important;
+    width:130px !important;
+    //height: 160px !important;
+    background: #f5f5f5 !important;
+    //background-color: #f5f5f5 !important;
+    color: #333;
+    padding: 2px !important;
+    //overflow-y: auto !important;
+}
+
+.postbody{
+
+    font-size: 1.08em !important;
 }
 
 .accepted {
@@ -262,6 +299,11 @@ img {
     }
 
 
+.create-button{
+
+    min-height: 2.65714286em !important;
+    margin: 1px !important;
+}
 
 .detail-stat{
     font-size: 1.15em;
@@ -270,9 +312,21 @@ img {
 }
 
 
+.tags-banner{
+    padding: 0px;
+    color: #428bca !important;
+    font-size:13px ;
+    float: left !important;
+}
+
+.tags-banner.active{
+    background-color: #dff0d8 !important;
+
+}
+
 .ui.tagging.label {
     margin:1px!important;
-    font-size: 12.5px;
+    font-size: 13.0px;
     padding: 3px;
     color:#8f2c47;
     font-weight: 100;

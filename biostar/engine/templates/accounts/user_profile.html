@@ -79,9 +79,9 @@
 
             </div>
             {%  if user == request.user %}
-            <div class="item"> <b>Email</b> : {{ user.email }}</div>
+                <div class="item"> <b>Email</b> : {{ user.email }}</div>
             {% else %}
-            <div class="item"> <b>Email</b> : {{ user |show_email }}</div>
+                <div class="item"> <b>Email</b> : {{ user |show_email }}</div>
             {% endif %}
 
 
@@ -89,40 +89,39 @@
             </div>
             </div>
 
-{%  if user == request.user %}
+    {%  if user == request.user %}
 
 
-                 <a class="ui profile label" href="{% url 'edit_profile'%}">
-                        <i class="write icon"></i>Edit profile
+                     <a class="ui profile label" href="{% url 'edit_profile'%}">
+                            <i class="write icon"></i>Edit profile
+                        </a>
+
+                    <a class="ui profile label" href="{% url 'recycle_bin' %}">
+                        <i class="trash icon"></i>Recycle Bin
                     </a>
 
-                <a class="ui profile label" href="{% url 'recycle_bin' %}">
-                    <i class="trash icon"></i>Recycle Bin
-                </a>
+                    {% if user.profile.notify %}
+                        <a class="ui profile label" href="{% url 'toggle_notify' %}">
+                            <i class="mail icon"></i>Disable Recipe Emails
+                        </a>
+                        {% else %}
+                        <a class="ui profile label" href="{% url 'toggle_notify' %}">
+                            <i class="mail icon"></i>Enable Recipe Emails
+                        </a>
+                    {% endif %}
 
-                {% if user.profile.notify %}
-                    <a class="ui profile label" href="{% url 'toggle_notify' %}">
-                        <i class="mail icon"></i>Disable Recipe Emails
-                    </a>
-                    {% else %}
-                    <a class="ui profile label" href="{% url 'toggle_notify' %}">
-                        <i class="mail icon"></i>Enable Recipe Emails
-                    </a>
-                {% endif %}
-
-                 {% if user.profile.notify %}
-                  <div class="ui vertical basic segment">
-                    Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
-                  </div>
-                 {% endif %}
+                     {% if user.profile.notify %}
+                      <div class="ui vertical basic segment">
+                        Email notifications are <b>enabled</b>. You will receive an email every time your recipe has finished running.
+                      </div>
+                     {% endif %}
 
 
 
-{% endif %}
+    {% endif %}
+        </div>
         </div>
 
-
-</div>
         {{ user.profile.html |safe }}
         {% activate 'projects' active as active_projects %}
         {% activate 'posts' active  as active_posts %}

@@ -13,10 +13,10 @@ HAS_UWSGI = False
 COUNTER = 1
 
 try:
+
     from uwsgidecorators import *
 
     HAS_UWSGI = True
-
 
     @spool(pass_arguments=True)
     def async_create_sub_messages(subs, root, author, content):
@@ -33,6 +33,7 @@ try:
         return notify_mentions(users, root, author, content)
 
 except ModuleNotFoundError as exc:
+
     pass
 
 
