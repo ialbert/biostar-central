@@ -446,6 +446,10 @@ img {
     text-align: center !important;
 }
 
+.centericon{
+    width: 0 !important;
+}
+
 .wide {
     width: 95% !important;
 }
