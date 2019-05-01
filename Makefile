@@ -57,6 +57,9 @@ uwsgi:
 serve_forum:
 	python manage.py runserver --settings=biostar.forum.settings
 
+pgserve_forum:
+	python manage.py runserver --settings=biostar.forum.postgres_settings
+
 install:
 	pip install -r conf/python_requirements.txt
 	conda config --add channels r

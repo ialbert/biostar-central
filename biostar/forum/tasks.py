@@ -64,9 +64,7 @@ def send_digest_emails(users, template_name, extra_context):
 
     # Get the from email
     from_email = User.objects.filter(is_superuser=True).first()
-    # Render the template
-    print(to_email, email)
-    1 / 0
+
     # Send email.
     send_mail(subject=subject, from_email=from_email, recipient_list=to_email, html_message=email, message=email)
     return
@@ -81,7 +79,7 @@ try:
         """Send email for users subscribed to specific post """
         return
 
-    @timer(secs=1)
+    #@timer(secs=1)
     #@timer(secs=days_to_secs(days=1))
     def send_daily_digest(args):
         """Send daily digest to users """
@@ -108,11 +106,11 @@ try:
         today = datetime.utcnow().replace(tzinfo=utc)
         last_week = today - timedelta(days=7)
         posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date__gte=last_week,
-                                    creation_date__let=today)
+                                    creation_date__lte=today)
 
         # Load template with message
         subject = f"Weekly Digest for :{today.date()}"
-        msg = f"Hello, here are a digest of posts from this week, {today.date()}. "
+        msg = f"Hello, here are a digest of posts from this past week, {last_week}-{today.date()}. "
         context = dict(posts=posts, msg=msg, subject=subject)
 
         users = User.objects.filter(profile__digest_prefs=Profile.WEEKLY_DIGEST,
@@ -128,7 +126,7 @@ try:
 
         # Get top level posts one month old.
         today = datetime.utcnow().replace(tzinfo=utc)
-        posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date=today)
+        posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date__month=today.month)
 
         # Load template with message
         subject = f"Monthly Digest for :{today.month}"

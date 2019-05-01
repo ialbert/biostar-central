@@ -35,8 +35,16 @@ ORDER_MAPPER = dict(
     rank="-rank",
     views="-view_count",
     replies="-reply_count",
-    votes="-thread_votecount"
+    votes="-thread_votecount",
+
 )
+
+USER_ORDER_MAPPER = {
+    'recent visit': '-profile__last_login',
+    'reputation': '-profile__score',
+    'date joined': '-profile__date_joined',
+    'activity level': '-profile__date_joined',
+}
 
 ICON_MAP = {
     'rank': "list ol icon",
@@ -47,7 +55,12 @@ ICON_MAP = {
     "today": 'clock icon',
     "this week": 'calendar minus outline icon',
     "this month": 'calendar alternate icon',
-    "this year": 'calendar icon'
+    "this year": 'calendar icon',
+    'recent visit': 'sort numeric down icon',
+    'reputation': 'star icon',
+    'date joined' :'sign up icon',
+    'activity level':'comment icon',
+
 }
 
 POST_LIMIT_MAP = dict([
@@ -135,6 +148,7 @@ def post_list(request):
     # Apply the post paging.
     posts = paginator.get_page(page)
     # Get the wording and icon for filtering options
+    #TODO: moving to a template filter
     ordering = f"Sort by: {order}" if ORDER_MAPPER.get(order) else "Sort by: rank"
     limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
     order_icon = ICON_MAP.get(order) or ICON_MAP["rank"]
@@ -151,11 +165,29 @@ def post_list(request):
 
 
 def community_list(request):
-    objs = User.objects.select_related("profile").order_by("-last_login")
-    paginator = Paginator(objs, settings.USERS_PER_PAGE)
+    users = User.objects.select_related("profile")
     page = request.GET.get("page", 1)
-    objs = paginator.get_page(page)
-    context = dict(community="active", objs=objs)
+    order = request.GET.get("order", "recent visit")
+    limit = request.GET.get("limit", "all time")
+    days = POST_LIMIT_MAP.get(limit, 0)
+
+    if days:
+        delta = util.now() - timedelta(days=days)
+        users = users.filter(profile__last_login__gt=delta)
+
+    # Get the ordering and appropriate icons
+    order = USER_ORDER_MAPPER.get(order, "recent visit")
+    users = users.order_by(order)
+    # TODO: moving to a template filter
+    ordering = f"Sort by: {order}" if USER_ORDER_MAPPER.get(order) else "Sort by: recent visit"
+    limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
+    order_icon = ICON_MAP.get(order) or ICON_MAP["recent visit"]
+    limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
+
+    paginator = Paginator(users, settings.USERS_PER_PAGE)
+    users = paginator.get_page(page)
+    context = dict(community="active", objs=users, order_icon=order_icon, limit_icon=limit_icon,
+                   order=ordering, limit=limit_to)
 
     return render(request, "community_list.html", context=context)
 
