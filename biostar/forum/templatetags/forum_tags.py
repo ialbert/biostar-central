@@ -13,8 +13,8 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models import Q
 from datetime import datetime
+from django.contrib import messages
 
-from biostar.engine.models import Project
 from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Vote, Award
 from biostar.forum import auth, forms, models, const, util
@@ -25,6 +25,22 @@ User = get_user_model()
 logger = logging.getLogger("engine")
 
 register = template.Library()
+
+ICON_MAP = dict(
+    rank="list ol icon",
+    views="eye icon",
+    replies="comment icon",
+    votes="thumbs up icon",
+    all='calendar plus icon',
+    today='clock icon',
+    week='calendar minus outline icon',
+    month='calendar alternate icon',
+    year='calendar icon',
+    visit='sort numeric down icon',
+    reputation='star icon',
+    joined='sign up icon',
+    activity='comment icon',
+)
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
@@ -192,6 +208,33 @@ def show_score(score):
 def user_info(post, by_diff=False, with_image=True):
 
     return dict(post=post, by_diff=by_diff, with_image=with_image)
+
+
+@register.simple_tag
+def get_icon(string, default=""):
+
+    icon = ICON_MAP.get(string) or ICON_MAP.get(default)
+    return icon
+
+
+@register.simple_tag(takes_context=True)
+def get_wording(context, filtered, prefix="Sort by:", default=""):
+    """
+    Get the naming and icons for limits and ordering.
+    """
+
+    display = dict(all="all time", week="this week", month="this month",
+                   year="this year", rank="rank", views="views",
+                   replies="replies", votes="votes")
+    if display.get(filtered):
+        displayed = display[filtered]
+    else:
+        messages.error(context.request, f"Can not filter for : {filtered}")
+        displayed = display[default]
+
+    wording = f"{prefix} {displayed}"
+
+    return wording
 
 
 @register.simple_tag

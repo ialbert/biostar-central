@@ -30,47 +30,25 @@ POST_TYPE_MAPPER = dict(
     tool=Post.TOOL
 )
 
+LIMIT_MAP = dict(
+    all=0,
+    today=1,
+    week=7,
+    month=30,
+    year=365
+)
 # Valid order values value as they correspond to database ordering fields.
 ORDER_MAPPER = dict(
     rank="-rank",
     views="-view_count",
     replies="-reply_count",
     votes="-thread_votecount",
+    visit='-profile__last_login',
+    reputation='-profile__score',
+    joined='-profile__date_joined',
+    activity='-profile__date_joined'
 
 )
-
-USER_ORDER_MAPPER = {
-    'recent visit': '-profile__last_login',
-    'reputation': '-profile__score',
-    'date joined': '-profile__date_joined',
-    'activity level': '-profile__date_joined',
-}
-
-ICON_MAP = {
-    'rank': "list ol icon",
-    'views': "eye icon",
-    'replies': "comment icon",
-    'votes': "thumbs up icon",
-    'all time': 'calendar plus icon',
-    "today": 'clock icon',
-    "this week": 'calendar minus outline icon',
-    "this month": 'calendar alternate icon',
-    "this year": 'calendar icon',
-    'recent visit': 'sort numeric down icon',
-    'reputation': 'star icon',
-    'date joined' :'sign up icon',
-    'activity level':'comment icon',
-
-}
-
-POST_LIMIT_MAP = dict([
-    ("all time", 0),
-    ("today", 1),
-    ("this week", 7),
-    ("this month", 30),
-    ("this year", 365),
-
-])
 
 
 def get_posts(user, topic="", tag="", order="rank", limit=None):
@@ -113,7 +91,7 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
     else:
         query = query.order_by("-rank")
 
-    days = POST_LIMIT_MAP.get(limit, 0)
+    days = LIMIT_MAP.get(limit, 0)
     if days:
         delta = util.now() - timedelta(days=days)
         query = query.filter(lastedit_date__gt=delta)
@@ -136,8 +114,8 @@ def post_list(request):
     page = request.GET.get('page', 1)
     tag = request.GET.get("tag", "")
     topic = request.GET.get("topic", "")
-    order = request.GET.get("order", "")
-    limit = request.GET.get("limit")
+    order = request.GET.get("order", "rank")
+    limit = request.GET.get("limit", "all")
 
     # Get posts available to users.
     posts = get_posts(user=user, topic=topic, tag=tag, order=order, limit=limit)
@@ -147,16 +125,9 @@ def post_list(request):
 
     # Apply the post paging.
     posts = paginator.get_page(page)
-    # Get the wording and icon for filtering options
-    #TODO: moving to a template filter
-    ordering = f"Sort by: {order}" if ORDER_MAPPER.get(order) else "Sort by: rank"
-    limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
-    order_icon = ICON_MAP.get(order) or ICON_MAP["rank"]
-    limit_icon = ICON_MAP.get(limit) or ICON_MAP["all time"]
 
     # Fill in context.
-    context = dict(posts=posts, active=topic, tag=tag, order=ordering, limit=limit_to,
-                   order_icon=order_icon, limit_icon=limit_icon)
+    context = dict(posts=posts, active=topic, tag=tag, order=order, limit=limit)
     tag_dispay = tag.replace("-", "_")
     context.update({topic: "active", tag_dispay: "active"})
 
@@ -169,15 +140,16 @@ def community_list(request):
     page = request.GET.get("page", 1)
     order = request.GET.get("order", "recent visit")
     limit = request.GET.get("limit", "all time")
-    days = POST_LIMIT_MAP.get(limit, 0)
+    days = LIMIT_MAP.get(limit, 0)
 
     if days:
         delta = util.now() - timedelta(days=days)
         users = users.filter(profile__last_login__gt=delta)
 
     # Get the ordering and appropriate icons
-    order = USER_ORDER_MAPPER.get(order, "recent visit")
+    order = ORDER_MAPPER.get(order, "visit")
     users = users.order_by(order)
+
     # TODO: moving to a template filter
     ordering = f"Sort by: {order}" if USER_ORDER_MAPPER.get(order) else "Sort by: recent visit"
     limit_to = f"Limit to: {limit}" if POST_LIMIT_MAP.get(limit) else "Limit to: all time"
