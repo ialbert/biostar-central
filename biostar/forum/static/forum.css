@@ -50,6 +50,14 @@ body {
     text-align: center !important;
 }
 
+
+.pages-banner{
+
+    text-align: center !important;
+    margin-top: 15px !important;
+    margin-bottom: 35px !important;
+}
+
 .extratabs{
     font-size:16px !important;
     border:none !important;

@@ -142,8 +142,9 @@
             </div>
 
             <div class="ui bottom attached segment">
-            {% pages objs=objs request=request  %}
-
+            <div class="centered">
+                {% pages objs=objs request=request  %}
+            </div>
                 {% if  active_projects %}
                     {% list_view projects=objs %}
                 {% else %}
@@ -153,9 +154,9 @@
                         {%  endfor %}
                     </div>
                 {% endif %}
-
-            {% pages objs=objs request=request %}
-
+            <div class="centered">
+                {% pages objs=objs request=request %}
+            </div>
             </div>
 
         </div>
