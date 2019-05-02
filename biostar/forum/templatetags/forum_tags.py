@@ -190,9 +190,10 @@ def show_score_icon(user):
     color = "modcolor" if user.profile.is_moderator else ""
 
     if user.profile.score > 150:
-        icon = f'<i class="ui small star icon {color}"></i>'
+        icon = f'<i class="ui bolt icon {color}"></i>'
     else:
-        icon = f'<span class="{color}"> &bull;</span>'
+        #icon = f'<span class="{color}"> &bull;</span>'
+        icon = f'<i class="ui genderless icon"></i>'
 
     return mark_safe(icon)
 
