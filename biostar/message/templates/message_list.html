@@ -1,4 +1,4 @@
-{% extends "message_base.html" %}
+{% extends "forum_base.html" %}
 {% load message_tags %}
 {% load forum_tags %}
 
@@ -9,7 +9,7 @@
 
 
 
-{% block body %}
+{% block grid %}
 
 <div class="ui doubling stackable grid">
     <div class="three wide column">
@@ -24,9 +24,9 @@
 
 <div class="thirteen wide column">
 <div class="ui basic segment" >
-
+<div class="centered">
     {% pages objs=objs request=request %}
-
+</div>
    <div class="ui relaxed divided list">
 
 {% for message in objs %}
@@ -76,7 +76,9 @@
 </div>
 
 </div>
+<div class="centered">
     {% pages objs=objs request=request %}
+</div>
 </div>
 </div>
 

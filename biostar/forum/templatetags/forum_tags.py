@@ -13,8 +13,8 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models import Q
 from datetime import datetime
+from django.contrib import messages
 
-from biostar.engine.models import Project
 from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Vote, Award
 from biostar.forum import auth, forms, models, const, util
@@ -25,6 +25,22 @@ User = get_user_model()
 logger = logging.getLogger("engine")
 
 register = template.Library()
+
+ICON_MAP = dict(
+    rank="list ol icon",
+    views="eye icon",
+    replies="comment icon",
+    votes="thumbs up icon",
+    all='calendar plus icon',
+    today='clock icon',
+    week='calendar minus outline icon',
+    month='calendar alternate icon',
+    year='calendar icon',
+    visit='sort numeric down icon',
+    reputation='star icon',
+    joined='sign in icon',
+    activity='comment icon',
+)
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
@@ -174,9 +190,10 @@ def show_score_icon(user):
     color = "modcolor" if user.profile.is_moderator else ""
 
     if user.profile.score > 150:
-        icon = f'<i class="ui small star icon {color}"></i>'
+        icon = f'<i class="ui bolt icon {color}"></i>'
     else:
-        icon = f'<span class="{color}"> &bull;</span>'
+        #icon = f'<span class="{color}"> &bull;</span>'
+        icon = f'<i class="ui genderless icon"></i>'
 
     return mark_safe(icon)
 
@@ -192,6 +209,33 @@ def show_score(score):
 def user_info(post, by_diff=False, with_image=True):
 
     return dict(post=post, by_diff=by_diff, with_image=with_image)
+
+
+@register.simple_tag
+def get_icon(string, default=""):
+
+    icon = ICON_MAP.get(string) or ICON_MAP.get(default)
+    return icon
+
+
+@register.simple_tag
+def get_wording(filtered, prefix="Sort by:", default=""):
+    """
+    Get the naming and icons for limits and ordering.
+    """
+
+    display = dict(all="all time", week="this week", month="this month",
+                   year="this year", rank="rank", views="views",
+                   replies="replies", votes="votes", visit="recent visit",
+                   reputation="reputation", joined="date joined", activity="activity level")
+    if display.get(filtered):
+        displayed = display[filtered]
+    else:
+        displayed = display[default]
+
+    wording = f"{prefix} {displayed}"
+
+    return wording
 
 
 @register.simple_tag

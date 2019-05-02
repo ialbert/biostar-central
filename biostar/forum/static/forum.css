@@ -41,19 +41,36 @@ body {
     line-height: 1.5;
 }
 
+.newpost{
+    text-align: center;
+    font-size: .92857143rem;
+    font-weight: 400;
+}
+
 .forumtabs{
-    font-size:13.0px !important;
-    margin:-1.5px !important;
+    font-size:14.5px !important;
+    //margin:0.5px !important;
     border:none !important;
     font-weight: lighter !important;
     color: #428bca !important;
+    text-align: center !important;
+    width: 90px !important;
+}
+
+
+.pages-banner{
+
+    text-align: center !important;
+    margin-top: 15px !important;
+    margin-bottom: 35px !important;
 }
 
 .extratabs{
-    font-size:15px !important;
+    font-size:16px !important;
     border:none !important;
     font-weight: lighter !important;
     color: #428bca !important;
+    text-align: center !important;
 }
 
 .extratabs.active.label {
@@ -434,6 +451,10 @@ img {
 .centerbox {
     display:inline-block !important;
     text-align: center !important;
+}
+
+.centericon{
+    width: 0 !important;
 }
 
 .wide {
