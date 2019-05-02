@@ -41,6 +41,12 @@ body {
     line-height: 1.5;
 }
 
+.newpost{
+    text-align: center;
+    font-size: .92857143rem;
+    font-weight: 400;
+}
+
 .forumtabs{
     font-size:14.5px !important;
     //margin:0.5px !important;
