@@ -205,5 +205,7 @@ try:
         logger.info(f"Created Vote for post={pid} with type={vtype}")
 
 
-except ModuleNotFoundError as exc:
+except (ModuleNotFoundError, NameError) as exc:
+    HAS_UWSGI = False
+    logger.error(exc)
     pass

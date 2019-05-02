@@ -11,68 +11,102 @@
 
 {% block body %}
 
-        {% pages objs=objs request=request %}
-   {% with params=request.GET.urlencode %}
-    <div class="ui small compact menu no-shadow">
-      <div class="ui simple dropdown item">
-          <i class="{{ limit_icon }}"></i><span class="tablet">{{ limit }}</span>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-          <a class="item" href="{% url "community_list" %}{% relative_url 'all time' 'limit' params %}"><i class="calendar plus icon"></i>all time</a>
-          <a class="item" href="{% url "community_list" %}{% relative_url 'today' 'limit' params %}"><i class="clock icon"></i>today</a>
-          <a class="item" href="{% url "community_list" %}{% relative_url 'this week' 'limit' params %}"><i class="calendar minus outline icon"></i>this week</a>
-          <a class="item" href="{% url "community_list" %}{% relative_url 'this month' 'limit' params %}"><i class="calendar alternate icon"></i>this month</a>
-          <a class="item" href="{% url "community_list" %}{% relative_url 'this year' 'limit' params %}"><i class="calendar icon"></i>this year</a>
+
+{% with params=request.GET.urlencode %}
+
+    <div class="pages-banner">
+
+        <div class="ui small compact menu no-shadow" style="float:left;">
+
+          <div class="ui simple dropdown item">
+              <i class="{% get_icon string=limit default='all' %}"></i>
+              <span class="tablet">
+                  {% get_wording prefix="Limit to:" filtered=limit default="all" %}
+              </span>
+
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <a class="item" href="{% url "community_list" %}{% relative_url 'all' 'limit' params %}">
+                  <i class="{% get_icon 'all' %}"></i>all time
+              </a>
+              <a class="item" href="{% url "community_list" %}{% relative_url 'today' 'limit' params %}">
+                  <i class="{% get_icon 'today' %}"></i>today
+              </a>
+              <a class="item" href="{% url "community_list" %}{% relative_url 'week' 'limit' params %}">
+                  <i class="{% get_icon 'week' %}"></i>this week
+              </a>
+              <a class="item" href="{% url "community_list" %}{% relative_url 'month' 'limit' params %}">
+                  <i class="{% get_icon 'month' %}"></i>this month
+              </a>
+              <a class="item" href="{% url "community_list" %}{% relative_url 'year' 'limit' params %}">
+                  <i class="{% get_icon 'year' %}"></i>this year
+              </a>
+            </div>
+          </div>
         </div>
-      </div>
+
+    {% pages objs=objs request=request %}
+        <div class="ui small compact menu ordering no-shadow">
+          <div class="ui simple dropdown item">
+
+            <i class="{% get_icon string=order default='visit' %}"></i>
+              <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="visit" %}</span>
+
+            <i class="dropdown icon"></i>
+
+            <div class="menu">
+              <a class="item" href="{% url "community_list" %}{% relative_url 'visit' 'order' params %}">
+                  <i class="{% get_icon 'visit' %}"></i>recent visit
+              </a>
+              <a class="item" href="{% url "community_list" %}{% relative_url 'reputation' 'order' params %}">
+                  <i class="{% get_icon 'reputation' %}"></i>reputation
+              </a>
+              <a class="item" href="{% url "community_list" %}{% relative_url 'joined' 'order' params %}">
+                  <i class="{% get_icon 'joined' %}"></i>date joined
+              </a>
+              <a class="item" href="{% url "community_list" %}{% relative_url 'activity' 'order' params %}">
+                  <i class="{% get_icon 'activity' %}"></i>activity level
+              </a>
+            </div>
+          </div>
+        </div>
     </div>
 
+{% endwith %}
 
-    <div class="ui small compact menu ordering no-shadow">
-      <div class="ui simple dropdown item">
-
-          <i class="{{ order_icon }}"></i><span class="tablet">{{ order }}</span>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-          <a class="item" href="{% url "community_list" %}{% relative_url 'recent visit' 'order' params %}"><i class="list ol icon"></i>recent visit</a>
-          <a class="item" href="{% url "community_list" %}{% relative_url 'reputation' 'order' params %}"><i class="eye icon"></i>reputation</a>
-          <a class="item" href="{% url "community_list" %}{% relative_url 'date joined' 'order' params %}"><i class="thumbs up icon"></i>date joined</a>
-          <a class="item" href="{% url "community_list" %}{% relative_url 'activity level' 'order' params %}"><i class="comment icon"></i>activity level</a>
-        </div>
-      </div>
-    </div>
-    {% endwith %}
 <div class="ui basic segment">
-    <div class="ui grid" style="text-align: center">
+    <div class="ui grid centered">
 
           {%  for user in objs %}
-            <div class="four wide column">
-                <div class="center aligned author">
-                    <a href="{% url "user_profile" user.profile.uid %}">
 
-                      <div class="ui circular image">
-                        {% gravatar user=user size=80 %}
-                      </div>
-                    </a>
+                <div class="four wide column">
+                    <div class="center aligned author">
+                        <a href="{% url "user_profile" user.profile.uid %}">
+                          <div class="ui circular image">
+                            {% gravatar user=user size=80 %}
+                          </div>
+                        </a>
+                    </div>
+
+                    <a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
+                    {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+
+                    <div>
+                        {{ user|get_last_login }}
+                    </div>
+                    <div class="muted">
+                            {{ user.profile.location |truncatechars:40}}
+                    </div>
+
                 </div>
-                <a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
-                {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
-            <div>
-            {{ user|get_last_login }}
-
-            </div>
-            <div class="muted">
-                    {{ user.profile.location |truncatechars:40}}
-            </div>
-            </div>
 
           {%  endfor %}
 
     </div>
 </div>
 
-        {% pages objs=objs request=request %}
-
-
+<div class="centered">
+    {% pages objs=objs request=request %}
+</div>
 
 {% endblock %}
