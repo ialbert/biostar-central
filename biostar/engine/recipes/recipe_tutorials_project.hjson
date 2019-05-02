@@ -1,0 +1,30 @@
+{
+  settings:
+  {
+    uid: tutorials
+    name: Recipe Tutorials
+    image: recipe_tutorials_project.png
+    privacy: Public
+    help:
+      '''
+      Tutorial recipes.
+
+      This project contains simple recipes that demonstrate the process of creating a recipe
+
+      Follow the **instructions,** investigate the **data** and **recipe code** to gain a deeper understanding of how recipes work.
+      '''
+    id: 1
+    project_uid: tutorials
+    url: http://localhost:8000
+  }
+  recipes:
+  [
+    57b9f763
+    b1ad220c
+    b06d9ad1
+    adf2d221
+    551a3282
+    314ef846
+    6c5b8782
+  ]
+}

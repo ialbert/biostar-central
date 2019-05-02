@@ -28,6 +28,12 @@ delete:
 	rm -rf *.egg
 	rm -rf *.egg-info
 
+tutorial:
+	# Perform a full delete of all content.
+	python manage.py data --pid test --path /export/data/usfish/runs/test/ --name "Test Sequences" --type FASTQ
+	python manage.py data --pid test --path /export/data/usfish/reference/fish-accession.fa --type FASTA
+
+
 full_delete: delete
 	# Perform a full delete of all content.
 	rm -rf export/spooler/*spool*
@@ -35,6 +41,10 @@ full_delete: delete
 
 # Resets the site without removing jobs.
 reset: delete init
+    # Initializes the test project.
+	python manage.py project --pid test --name "Test Project" --public
+	python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson
+	python manage.py recipe --pid test --rid kraken2 --json ~/book/biostar-handbook-2/recipes/work/classify/kraken2.hjson
 
 # Resets site and loads existing fixture
 reset_load: delete init loaddata
@@ -59,13 +69,6 @@ serve_forum:
 
 pgserve_forum:
 	python manage.py runserver --settings=biostar.forum.postgres_settings
-
-install:
-	pip install -r conf/python_requirements.txt
-	conda config --add channels r
-	conda config --add channels conda-forge
-	conda config --add channels bioconda
-	conda install --file conf/conda_requirements.txt -y
 
 
 projects:
