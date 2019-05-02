@@ -92,6 +92,7 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
         query = query.order_by("-rank")
 
     days = LIMIT_MAP.get(limit, 0)
+    # Apply time limit if required.
     if days:
         delta = util.now() - timedelta(days=days)
         query = query.filter(lastedit_date__gt=delta)
