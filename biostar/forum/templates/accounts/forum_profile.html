@@ -34,12 +34,6 @@
             {% endif %}
 
 
-            {% if user == request.user and user.is_superuser %}
-                <a class="ui blue profile label"  href="{% url 'site_admin' %}">
-                    <i class="dashboard icon"></i> Site Admin
-                </a>
-            {% endif %}
-
             {% if request.user.is_superuser %}
                 <a class="ui profile label" href="{% url 'debug_user' %}?uid={{user.profile.uid}}">
                     <i class="address card icon"></i> Log in as user
@@ -106,15 +100,19 @@
 
             <div class="ui bottom attached segment">
 
+            <div class="centered">
                 {% pages objs=objs request=request  %}
-
+            </div>
                     <div class="ui divided items">
                         {%  for post in objs %}
                             {% listing post=post %}
                         {%  endfor %}
                     </div>
 
-                {% pages objs=objs request=request %}
+            <div class="centered">
+
+                {% pages objs=objs request=request  %}
+            </div>
 
             </div>
 
