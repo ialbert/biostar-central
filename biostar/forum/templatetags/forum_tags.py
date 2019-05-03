@@ -192,8 +192,7 @@ def show_score_icon(user):
     if user.profile.score > 150:
         icon = f'<i class="ui bolt icon {color}"></i>'
     else:
-        #icon = f'<span class="{color}"> &bull;</span>'
-        icon = f'<i class="ui genderless icon"></i>'
+        icon = f'<i class="ui genderless icon {color}"></i>'
 
     return mark_safe(icon)
 
@@ -260,14 +259,13 @@ def relative_url(value, field_name, urlencode=None):
 
 
 @register.simple_tag
-def get_thread_users(post, limit=4):
+def get_thread_users(post, limit=5):
 
     thread_users = post.thread_users.all()
     stream = itertools.islice(thread_users, limit)
 
-    # Author is shown first, then last edit user, then
-    users = [post.author, post.lastedit_user]
-    users = users if post.author != post.lastedit_user else [post.author]
+    # Author is shown first
+    users = [post.author]
     for user in stream:
         if user in users:
             continue

@@ -3,32 +3,32 @@
 
 
 <a class="ui {{community}} basic label forumtabs" href="{% url 'community_list' %}" >
-    <i class="world icon centericon" ></i><div class="tablet">Community</div>
+    <i class="world icon centericon" ></i><div class="tablet lowertab">Community</div>
 </a>
 <a class="ui {{latest}} basic label forumtabs" href="{% url 'post_list' %}?topic=latest">
-    <i class="comment alternate icon centericon" ></i><div class="tablet">Latest</div>
+    <i class="comment alternate icon centericon" ></i><div class="tablet lowertab">Latest</div>
 </a>
 
 <a class="ui {{message}} basic label tablet forumtabs" href="{% url 'inbox' %}">
     {% message_count request=request otype="message" as num_msgs %}
         {% if num_msgs %}
-        <i class="mail icon centericon"  style="color:#5fc64f;"></i><div class="tablet">Messages</div>
+        <i class="mail icon centericon"  style="color:#5fc64f;"></i><div class="tablet lowertab">Messages</div>
         {% else%}
-        <i class="mail icon centericon" ></i><div class="tablet">Messages</div>
+        <i class="mail icon centericon" ></i><div class="tablet lowertab">Messages</div>
         {%endif%}
 </a>
 <a class="ui {{myvotes}} basic label forumtabs" href="{% url 'post_list' %}?topic=myvotes">
-    <i class="heart icon centericon"></i> <div class="tablet">Votes</div>
+    <i class="heart icon centericon"></i> <div class="tablet lowertab">Votes</div>
 </a>
 <a class="ui {{myposts}} basic label forumtabs" href="{% url 'post_list' %}?topic=myposts">
-    <i class="comments icon centericon"></i> <div class="tablet">My Posts</div>
+    <i class="comments icon centericon"></i> <div class="tablet lowertab">My Posts</div>
 </a>
 <a class="ui {{mytags}} basic label forumtabs" href="{% url 'post_list' %}?topic=mytags">
-    <i class="tags icon centericon"></i><div class="tablet">My Tags</div>
+    <i class="tags icon centericon"></i><div class="tablet lowertab">My Tags</div>
 </a>
 <a class="ui {{following}} basic label forumtabs" href="{% url 'post_list' %}?topic=following">
-    <i class="eye icon centericon"></i><div class="tablet">Following</div>
+    <i class="eye icon centericon"></i><div class="tablet lowertab">Following</div>
 </a>
 <a class="ui {{bookmarks}} basic label forumtabs" href="{% url 'post_list' %}?topic=bookmarks">
-    <i class="book icon centericon"></i><div class="tablet">Bookmarks</div>
+    <i class="book icon centericon"></i><div class="tablet lowertab">Bookmarks</div>
 </a>
