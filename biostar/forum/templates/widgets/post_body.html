@@ -99,11 +99,11 @@
 
                      {% endif %}
 
-                             |
+                             &bull;
                      <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
 
                       {% if post.is_editable %}
-                         |
+                         &bull;
                          <a href="{% url 'post_edit' post.uid %}">
                         edit
                         </a>
@@ -127,7 +127,7 @@
                     {% endif %}
 
                      {% if user.is_authenticated and user.profile.is_moderator or user.profile.is_manager %}
-                         |
+                         &bull;
                          <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}" data-value="{{post.uid}}">
                         moderate
                         </a>
