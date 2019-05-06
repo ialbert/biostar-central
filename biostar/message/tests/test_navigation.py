@@ -26,9 +26,9 @@ class ForumNavigation(TestCase):
         # Create a tested message
         body = "Test message"
         rec_list = [self.owner]
-        messages = auth.create_messages(body=body, sender=self.owner, recipient_list=rec_list, subject="",
-                                        parent=None, source=models.Message.REGULAR,
-                                        mtype=Profile.LOCAL_MESSAGE)
+        messages = auth.create_local_messages(body=body, sender=self.owner, rec_list=rec_list, subject="",
+                                              parent=None, source=models.Message.REGULAR,
+                                              mtype=Profile.LOCAL_MESSAGE)
         self.message = messages[0]
         self.owner.save()
 

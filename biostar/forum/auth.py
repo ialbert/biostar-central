@@ -27,6 +27,7 @@ User = get_user_model()
 logger = logging.getLogger("engine")
 
 
+
 def get_votes(user, thread):
 
     store = {Vote.BOOKMARK: set(), Vote.UP:set()}
@@ -375,17 +376,9 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
         project=project, html=parse_html(content))
 
     root = root or post.root
-    mentioned_users = parse_mentioned_users(content=content)
-    subs = Subscription.objects.filter(post=root)
-
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously
-    if tasks.HAS_UWSGI:
-        tasks.async_create_sub_messages(subs=subs, author=author, root=root, content=content)
-        tasks.async_notify_mentions(users=mentioned_users, root=root, author=author, content=content)
-    else:
-        tasks.create_sub_messages(subs=subs, author=author, root=root, content=content)
-        tasks.notify_mentions(users=mentioned_users, root=root, author=author, content=content)
+    tasks.create_message(post=post, author=author)
 
     # Subscribe the author to the root, if not already
     if sub_to_root:

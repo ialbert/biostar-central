@@ -1,7 +1,18 @@
+import uuid
+from datetime import datetime
+
+from django.utils.timezone import utc
+
 from .models import Message
 from biostar.forum.util import fixcase
 from biostar.accounts.models import Profile
 from . import const
+
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
+
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
 
 
 def build_msg_tree(msg, tree=[]):
@@ -20,19 +31,19 @@ def build_msg_tree(msg, tree=[]):
     return tree
 
 
-def create_messages(body, sender, recipient_list, subject="", parent=None,
-                    source=Message.REGULAR, mtype=Profile.LOCAL_MESSAGE):
+def create_local_messages(body, sender, rec_list, subject="", parent=None,
+                          source=Message.REGULAR, mtype=Profile.LOCAL_MESSAGE):
     "Create batch message from sender for a given recipient_list"
 
     subject = subject or f"Message from : {sender.profile.name}"
 
-    msg_list = []
+    def generate():
+        for rec in rec_list:
+            msg = Message(sender=sender, recipient=rec, subject=subject, sent_date=now(),
+                          uid=get_uuid(10), body=body, parent_msg=parent, type=mtype, source=source)
+            yield msg
 
-    #TODO: do a bulk create for the whole recipeint list.
-    for rec in recipient_list:
+    # Bulk create messages
+    Message.objects.bulk_create(objs=generate(), batch_size=20)
 
-        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject,
-                                     body=body, parent_msg=parent, type=mtype, source=source)
-        msg_list.append(msg)
-
-    return msg_list
+    return

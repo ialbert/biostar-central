@@ -108,6 +108,8 @@ def message_compose(request):
     if request.method == "POST":
         form = forms.Compose(data=request.POST)
         if form.is_valid():
+            form.save()
+            1/0
             pass
 
     context = dict(form=form)
