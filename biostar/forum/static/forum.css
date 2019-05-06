@@ -60,9 +60,11 @@ body {
 
     text-align: center ;
     margin-top: 15px;
-    margin-bottom: 35px ;
 }
 
+.ui.small.compact.menu {
+    font-size: .85rem;
+}
 
 .ui.items>.item>.content>a.header {
     color: #4183c4;
@@ -259,12 +261,18 @@ img {
 
     min-height: 2.65714286em ;
     margin: 1px ;
-    font-size: .92857143rem ;
+    font-size: .85rem ;
     line-height: 1 ;
     background: #e1ecf2 ;
-    padding: .92857143em 1.14285714em ;
+    padding: 10px;
     color: #5a5b5b ;
     font-weight: 400 ;
+
+}
+
+.centered{
+
+    text-align: center !important;
 }
 
 .detail-stat{
@@ -367,12 +375,12 @@ img {
 }
 
 .ui.basic.label.pages-size{
-    font-size: .92857143rem ;
+    font-size: .85rem;
     line-height: 1 ;
     background: 0 0 ;
-    padding: .92857143em 1.14285714em ;
     color: rgba(0,0,0,.87) ;
     font-weight: 400 ;
+    padding: 10px;
 }
 
 .lowertab{
@@ -400,8 +408,8 @@ h1 {
     font-weight: 700;
 }
 
-a {
-    padding: 2px 2px 2px 2px;
+a{
+    padding: 0;
 }
 
 a:hover{

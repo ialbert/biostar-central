@@ -230,10 +230,6 @@ h1 {
     font-weight: 700;
 }
 
-a {
-    padding: 2 2 2 2px;
-}
-
 a:hover{
     background-color: #EEEEEE;
     border-radius: 3px;

@@ -24,11 +24,6 @@
 
     {% if msg_counts.mentioned %}<div class="ui label">{{msg_counts.mentioned}}</div>{%endif%}
     </a>
-   <a class="{{projects}} blue item" href="{% url 'inbox' %}?{{ active_tab }}=projects">
-      Projects
-
-    {% if msg_counts.projects %}<div class="ui label">{{msg_counts.projects}}</div>{%endif%}
-    </a>
 
     <a class="{{outbox}} blue item" href="{% url 'outbox' %}">
       Outbox

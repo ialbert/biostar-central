@@ -7,7 +7,7 @@ from biostar.accounts.models import Profile
 from .models import Message
 from .decorators import message_access
 from .const import *
-from . import auth
+from . import auth, forms
 
 
 def get_messages(user, listing):
@@ -98,5 +98,19 @@ def outbox_list(request):
 @login_required
 def message_compose(request):
 
-    return
+    # Get the message author
+    author = request.user
+
+    # Load the compose
+
+    form = forms.Compose()
+
+    if request.method == "POST":
+        form = forms.Compose(data=request.POST)
+        if form.is_valid():
+            pass
+
+    context = dict(form=form)
+
+    return render(request, "message_compose.html", context)
 
