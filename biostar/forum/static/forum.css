@@ -29,6 +29,10 @@ body {
     top: 10px ;
 }
 
+.ui.list>.item.spaced {
+    line-height: 1.285rem;
+
+}
 
 .ui.basic.label.forumtabs:hover{
     background: #edefed;
