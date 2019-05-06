@@ -101,7 +101,7 @@ def message_compose(request):
     # Get the message author
     author = request.user
 
-    # Load the compose
+    # Load the form.
 
     form = forms.Compose()
 
