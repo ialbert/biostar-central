@@ -438,7 +438,8 @@ def fill_data_by_name(project, json_data):
             if data:
                 # This mutates the `item` dictionary!
                 data.fill_dict(item)
-
+            else:
+                item['toc'] = "FILE-LIST"
     return json_data
 
 
