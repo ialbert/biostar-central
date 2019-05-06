@@ -30,7 +30,7 @@ body {
 }
 
 .ui.list>.item.spaced {
-    line-height: 1.285rem;
+    line-height: 1.29rem;
 
 }
 
@@ -263,14 +263,14 @@ img {
 
 .ui.button.create-button{
 
-    min-height: 2.65714286em ;
-    margin: 1px ;
-    font-size: .85rem ;
+    min-height: 2.35714286em ;
+    margin: 16px ;
+    font-size: .93rem ;
     line-height: 1 ;
     background: #e1ecf2 ;
     padding: 10px;
     color: #5a5b5b ;
-    font-weight: 400 ;
+    font-weight: 200 ;
 
 }
 
