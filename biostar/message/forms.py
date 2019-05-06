@@ -1,6 +1,6 @@
 
 
-from biostar.message.tasks import create_sub_messages
+from biostar.message.tasks import create_message
 from django import forms
 
 MAX_RECIPENT_LIST = 5
