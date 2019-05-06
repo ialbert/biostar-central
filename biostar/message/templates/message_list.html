@@ -25,20 +25,13 @@
 <div class="thirteen wide column">
 <div class="ui basic segment" >
 <div class="centered">
-    {% pages objs=objs request=request %}
+    {% pages objs=all_messages request=request %}
 </div>
    <div class="ui relaxed divided list">
 
-{% for message in objs %}
+{% for message in all_messages %}
 
-    {% if message.unread and is_inbox %}
-        <div class="item" style="background: #d5f7cd;padding:5px">
-
-    {% else %}
-        <div class="item" >
-
-    {%endif%}
-
+    <div class="item {% is_inbox tab_name=extra_tab_name message=message%}">
 
        <div class="ui relaxed horizontal list">
 
@@ -77,7 +70,7 @@
 
 </div>
 <div class="centered">
-    {% pages objs=objs request=request %}
+    {% pages objs=all_messages request=request %}
 </div>
 </div>
 </div>

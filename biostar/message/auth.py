@@ -4,39 +4,6 @@ from biostar.accounts.models import Profile
 from . import const
 
 
-def query_topic(user, topic):
-
-    mapper = {
-        const.INBOX: dict(func=Message.objects.inbox_for, params=dict(user=user)),
-        const.UNREAD: dict(func=Message.objects.filter, params=dict(recipient=user, unread=True)),
-        const.OUTBOX: dict(func=Message.objects.outbox_for, params=dict(user=user)),
-        const.MENTIONED: dict(func=Message.objects.inbox_for, params=dict(user=user),
-                          apply=lambda q: q.filter(source=Message.MENTIONED)),
-        }
-
-    if mapper.get(topic):
-        func, params = mapper[topic]["func"], mapper[topic].get("params")
-        apply_extra = mapper[topic].get("apply", lambda q: q)
-        query = apply_extra(func(**params))
-    else:
-        query = None
-
-    return query
-
-
-def list_message_by_topic(request, topic):
-
-    user = request.user
-    topic = fixcase(topic)
-
-    query = query_topic(user=user, topic=topic)
-
-    if query is None:
-        query = Message.objects.inbox_for(user=user)
-
-    return query
-
-
 def build_msg_tree(msg, tree=[]):
     "Build a flat tree with the msg being at the base ( index=0)"
 

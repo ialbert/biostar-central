@@ -1,7 +1,6 @@
 import logging
 from django import template
-from biostar.message import const, auth, models
-
+from biostar.message import const, models
 
 logger = logging.getLogger("engine")
 
@@ -27,20 +26,14 @@ def get_all_message_count(request):
 
 
 @register.simple_tag
-def message_count(request, otype):
+def is_inbox(tab_name, message):
 
-    user = request.user
-    count = 0
+    inbox_tab = tab_name in [const.INBOX, const.MENTIONED, const.UNREAD]
 
-    if user.is_authenticated:
+    if inbox_tab and message.unread:
+        return "unread-message"
 
-        if otype == "message":
-            count = user.profile.new_messages
-        else:
-            query = auth.query_topic(user=user, topic=otype)
-            count = count if query is None else query.count()
-
-    return count
+    return ""
 
 
 @register.inclusion_tag("widgets/message_menu.html")
