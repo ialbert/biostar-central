@@ -31,7 +31,7 @@
 
 {% for message in all_messages %}
 
-    <div class="item {% is_inbox tab_name=extra_tab_name message=message%}">
+    <div class="item {% is_unread tab_name=extra_tab_name message=message%}">
 
        <div class="ui relaxed horizontal list">
 
@@ -44,10 +44,10 @@
            <div class="item">
                 <div class="content">
                     <div class="ui small header">Subject:
-                        {% if is_inbox %}
-                        <a href="{{message.inbox_url}}?{{field_name}}={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
+                        {% if extra_tab_name|is_inbox %}
+                        <a href="{{message.inbox_url}}?active={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
                         {% else %}
-                        <a href="{{message.outbox_url}}?{{field_name}}={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
+                        <a href="{{message.outbox_url}}?active={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
                         {% endif %}
                     </div>
                 </div>

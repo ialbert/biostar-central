@@ -32,8 +32,10 @@ try:
         """
         return notify_mentions(users, root, author, content)
 
-except ModuleNotFoundError as exc:
 
+except (ModuleNotFoundError, NameError) as exc:
+    HAS_UWSGI = False
+    logger.error(exc)
     pass
 
 

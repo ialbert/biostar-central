@@ -26,7 +26,7 @@ def get_all_message_count(request):
 
 
 @register.simple_tag
-def is_inbox(tab_name, message):
+def is_unread(tab_name, message):
 
     inbox_tab = tab_name in [const.INBOX, const.MENTIONED, const.UNREAD]
 
@@ -34,6 +34,13 @@ def is_inbox(tab_name, message):
         return "unread-message"
 
     return ""
+
+
+@register.filter
+def is_inbox(tab_name):
+
+    return tab_name == const.INBOX
+
 
 
 @register.inclusion_tag("widgets/message_menu.html")

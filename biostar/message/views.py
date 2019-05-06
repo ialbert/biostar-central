@@ -28,7 +28,7 @@ def get_messages(user, listing):
     return messages
 
 
-def message_list(request, template="message_list.html", active_tab=None, listing=INBOX):
+def message_list(request, template="message_list.html", listing=INBOX):
 
     page = request.GET.get("page", 1)
 
@@ -38,11 +38,7 @@ def message_list(request, template="message_list.html", active_tab=None, listing
     paginator = Paginator(messages, settings.MESSAGES_PER_PAGE)
     messages = paginator.get_page(page)
 
-    is_inbox = listing in [INBOX, MENTIONED, UNREAD]
-    context = dict(is_inbox=is_inbox, field_name=ACTIVE_MESSAGE_TAB,
-                   all_messages=messages, extra_tab_name=listing)
-
-    context.update({active_tab: ACTIVE_MESSAGE_TAB})
+    context = dict(message="active", all_messages=messages, extra_tab_name=listing)
 
     user = request.user
 
@@ -91,14 +87,12 @@ def inbox_list(request):
     # Get the unread messages from inbox
     listing = request.GET.get("active", INBOX)
 
-    return message_list(request, template="message_list.html", active_tab="message",
-                        listing=listing)
+    return message_list(request, template="message_list.html", listing=listing)
 
 
 @login_required
 def outbox_list(request):
-    return message_list(request, template="message_list.html", active_tab="message",
-                        listing=OUTBOX)
+    return message_list(request, template="message_list.html", listing=OUTBOX)
 
 
 @login_required
