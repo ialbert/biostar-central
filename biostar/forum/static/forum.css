@@ -422,6 +422,12 @@ a{
     padding: 0;
 }
 
+.ui.title.header {
+    font-size: .80em;
+    font-weight: bold;
+
+}
+
 a:hover{
     background-color: #EEEEEE;
     border-radius: 3px;
