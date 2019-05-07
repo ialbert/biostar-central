@@ -32,6 +32,9 @@ RECAPTCHA_PRIVATE_KEY = ""
 MENU_BAR = "widgets/menubar.html"
 PROFILE_TEMPLTE = "accounts/user_profile.html"
 
+SUBS_TEMPLATE = ""
+MENTIONED_TEMPLATE = ""
+
 POSTS_PER_PAGE = 40
 USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100

@@ -75,11 +75,11 @@
 {% endwith %}
 
 <div class="ui basic segment">
-    <div class="ui grid centered">
+    <div class="ui grid">
 
           {%  for user in objs %}
 
-                <div class="four wide column">
+                <div class="four wide column centered">
                     <div class="center aligned author">
                         <a href="{% url "user_profile" user.profile.uid %}">
                           <div class="ui circular image">

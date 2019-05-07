@@ -1,7 +1,9 @@
 import logging
+import re
 from django.conf import settings
 from biostar.message import models, auth
 from biostar.accounts.models import Profile
+from biostar.forum.models import Subscription
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -12,6 +14,17 @@ HAS_UWSGI = False
 
 COUNTER = 1
 
+
+def parse_mentioned_users(content):
+
+    # Any word preceded by a @ is considered a user handler.
+    handler_pattern = "\@[^\s]+"
+    # Drop leading @
+    users_list = set(x[1:] for x in re.findall(handler_pattern, content))
+
+    return User.objects.filter(username__in=users_list)
+
+
 try:
 
     from uwsgidecorators import *
@@ -19,69 +32,86 @@ try:
     HAS_UWSGI = True
 
     @spool(pass_arguments=True)
-    def async_create_sub_messages(subs, root, author, content):
+    def async_create_messages(subject, sender, body, rec_list, source=models.Message.MENTIONED):
         """
-        Create messages to users subscribed to a post.
+        Create messages to users in recipient list
         """
-        return create_sub_messages(subs, root, author, content)
+        # Assign a task to a a worker
+        auth.create_local_messages(body=body, subject=subject, rec_list=rec_list, sender=sender, source=source)
 
-    @spool(pass_arguments=True)
-    def async_notify_mentions(users, root, author, content):
-        """
-        Create local messages when users get mentioned in a post
-        """
-        return notify_mentions(users, root, author, content)
 
-except ModuleNotFoundError as exc:
-
+except (ModuleNotFoundError, NameError) as exc:
+    HAS_UWSGI = False
+    # Bail out and record error
+    logger.error(exc)
     pass
 
 
-def notify_mentions(users, root, author, content):
-    title = root.title
-    body = f"""
-            Hello,
-
-            You have been mentioned in a post by {author.profile.name}.
-
+def parse_mention_msg(post, author):
+    title = post.title
+    mentioned_users = parse_mentioned_users(content=post.content)
+    defalut_body = f"""
+            Hello, You have been mentioned in a post by {author.profile.name}.
             The root post is :{title}.
-
             Here is where you are mentioned :
-
-            {content}
+            {post.content}
             """
-    subject = f"Mentioned in a post: {title}"
+    body = settings.MENTIONED_TEMPLATE or defalut_body
+    subject = f"Mentioned in a post."
 
-    message = auth.create_messages(body=body, subject=subject, recipient_list=users,
-                                   mtype=Profile.LOCAL_MESSAGE, sender=author,
-                                   source=models.Message.MENTIONED)
-
-    return message
+    return body, subject, mentioned_users
 
 
-def create_sub_messages(subs, root, author, content):
-    "Create subscription messages"
-
+def parse_subs_msg(post, author):
+    title = post.title
+    # Load template if its available
+    default_body = f"""
+          Hello,\n
+          There is an addition by {author.profile.name} to a post you are subscribed to.\n
+          Post: {title}\n
+          Addition: {post.content}\n
+          """
+    root = post if post.is_toplevel else post.root
+    subs = Subscription.objects.filter(post=root)
     users_id_list = subs.values_list("user", flat=True).distinct()
-    title = root.title
 
     subbed_users = User.objects.filter(id__in=users_id_list)
 
-    body = f"""
+    body = settings.SUBS_TEMPLATE or default_body
+    subject = f"Subscription to a post."
 
-        Hello,\n
+    return body, subject, subbed_users
 
-        There is an addition by {author.profile.name} to a post you are subscribed to.\n
 
-        Post: {title}\n
+def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR):
+    # Create asynchronously when uwsgi is available
+    if HAS_UWSGI:
+        # Assign a worker to send mentioned users
+        async_create_messages(source=source, sender=sender, subject=subject, body=body, rec_list=rec_list)
+        return
+    # Can run synchrony only when debugging
+    if settings.DEBUG:
+        # Send subscription messages
+        auth.create_local_messages(body=body, sender=sender, subject=subject, rec_list=rec_list, source=source)
 
-        Addition: {content}\n
+    return
 
-        """
 
-    subject = f"Subscription to : {title}"
+def send_default_messages(post, sender):
+    """
+    Parse mentioned and subscribed users from post and send a local message.
+    """
 
-    message = auth.create_messages(body=body, subject=subject, recipient_list=subbed_users,
-                                   mtype=Profile.LOCAL_MESSAGE, sender=author)
+    # Parse the mentioned message
+    ment_body, ment_subject, ment_users = parse_mention_msg(post=post, author=sender)
+    # Parse the subscribed message 
+    sub_body, sub_subject, sub_users = parse_subs_msg(post=post,  author=sender)
 
-    return message
+    # Send the mentioned notifications
+    send_message(source=models.Message.MENTIONED, subject=ment_subject, body=ment_body, rec_list=ment_users,
+                 sender=sender)
+    # Send message to subscribed users.
+    send_message(subject=sub_subject, body=sub_body, rec_list=sub_users, sender=sender)
+
+
+

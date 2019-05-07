@@ -56,6 +56,7 @@ def user_box(user):
 def pages(objs, request):
 
     url = request.path
+
     return dict(objs=objs, url=url, request=request)
 
 

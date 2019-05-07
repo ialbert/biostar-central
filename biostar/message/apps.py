@@ -35,8 +35,8 @@ def init_messages(sender, **kwargs):
         # Create user and send message once.
         test_2 = User.objects.create(username="tested", email="tested@tested")
         recipient_list = [sender, test_2]
-        msg = auth.create_messages(body=body, subject=subject, recipient_list=recipient_list,
-                            sender=sender)
+        msg = auth.create_local_messages(body=body, subject=subject, rec_list=recipient_list,
+                                         sender=sender)
 
         # Test with a message tree whenever debugging
         if settings.DEBUG:

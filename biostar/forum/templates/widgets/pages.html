@@ -1,6 +1,7 @@
 {% load forum_tags %}
 {% load humanize %}
 
+{% if objs.paginator.count > 0 %}
 
         {% if objs.has_previous %}
             <div class="ui basic label pages-size">
@@ -48,3 +49,6 @@
     {% endif %}
 
 
+{% else %}
+
+{% endif %}

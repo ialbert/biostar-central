@@ -10,9 +10,10 @@
 </a>
 
 <a class="ui {{message}} basic label tablet forumtabs" href="{% url 'inbox' %}">
-    {% message_count request=request otype="message" as num_msgs %}
-        {% if num_msgs %}
-        <i class="mail icon centericon"  style="color:#5fc64f;"></i><div class="tablet lowertab">Messages</div>
+        {% if user.profile.new_messages %}
+            <span>{{ user.profile.new_messages}}</span>
+            <i class="mail icon centericon new-message" >  </i>
+        <div class="tablet lowertab">Messages</div>
         {% else%}
         <i class="mail icon centericon" ></i><div class="tablet lowertab">Messages</div>
         {%endif%}

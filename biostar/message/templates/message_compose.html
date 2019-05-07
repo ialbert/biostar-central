@@ -1,0 +1,27 @@
+{% extends "forum_base.html" %}
+{% load message_tags %}
+{% load forum_tags %}
+
+{% block headtitle %}
+    {{ base_message.subject }}
+{% endblock %}
+
+
+{% block grid %}
+
+<div class="ui doubling stackable grid">
+
+    <div class="three wide column">
+        <div class="ui basic segment" style="padding-left:5px">
+            {% message_menu extra_tab=extra_tab_name request=request %}
+        </div>
+    </div>
+
+    <div class="thirteen wide column">
+
+
+    </div>
+
+</div>
+
+{% endblock %}

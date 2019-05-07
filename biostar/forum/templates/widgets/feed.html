@@ -1,12 +1,11 @@
 {% load forum_tags %}
-<div class="ui large feed" style="margin-top: 13.5px">
+<div class="ui large biostar-feed">
 
 <div class="newpost">
     <a class="ui center aligned button create-button" href="{% url 'post_create' %}" >
         <i class="add circle icon"></i>Add New Post
     </a>
 </div>
-
 
     <div class="event">
         <div class="ui container">
@@ -16,7 +15,7 @@
                 <div class="ui relaxed tiny list" >
                     {% for vote in recent_votes %}
 
-                       <div class="item"  style="">
+                       <div class="item spaced"  style="">
                             <a href="{% url 'post_view' vote.post.uid %}">{{ vote.post.title }}</a>
                        </div>
 
@@ -37,7 +36,7 @@
 
                     {% for user in recent_locations %}
 
-                        <div class="item"  style="">
+                        <div class="item spaced"  style="">
                             <a href="{% url "user_profile" user.profile.uid %}">
                                 <div class="ui avatar image">{% gravatar user=user size=100 %}</div>
                                 {{user.profile.name}}</a> from
@@ -61,7 +60,7 @@
                 <div class="ui tiny relaxed list" >
                    {% for award in recent_awards %}
 
-                        <div class="item"  style="">
+                        <div class="item spaced"  style="">
                             <span>
                                 <a href="{% url 'badge_view' award.badge.uid %}">{{ award.badge.name }} <i class="{{ award.badge.icon }}"></i></a> to
                                 <a href="{% url "user_profile" award.user.profile.uid %}">
@@ -86,7 +85,7 @@
 
                     {% for replies in recent_replies %}
 
-                        <div class="item">
+                        <div class="item spaced">
                             <a href="{% url "post_view" replies.uid %}"> {{ replies.title }}</a>
                             by
                             <a href="{% url "user_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}

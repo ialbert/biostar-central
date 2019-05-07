@@ -149,7 +149,7 @@ class PostShortForm(forms.Form):
         self.post = post
 
         super().__init__(*args, **kwargs)
-        inital_content = "" if not self.post else self.post.html
+        inital_content = "" if not self.post else self.post.content
         self.fields["content"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                                                  min_length=2, max_length=5000,
                                                  initial=inital_content)

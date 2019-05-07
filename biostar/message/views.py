@@ -7,7 +7,44 @@ from biostar.accounts.models import Profile
 from .models import Message
 from .decorators import message_access
 from .const import *
-from . import auth
+from . import auth, forms
+
+
+def get_messages(user, listing):
+
+    message_map = dict(
+        inbox=Message.objects.filter(recipient=user),
+        unread=Message.objects.filter(recipient=user, unread=True),
+        outbox=Message.objects.filter(sender=user),
+        mentioned=Message.objects.filter(recipient=user, source=Message.MENTIONED)
+    )
+
+    # Get the messages based on queried topic
+    messages = message_map.get(listing, message_map["inbox"])
+
+    messages = messages.select_related("recipient", "sender", "sender__profile",
+                                       "recipient__profile")
+    messages = messages.order_by("-sent_date")
+    return messages
+
+
+def message_list(request, template="message_list.html", listing=INBOX):
+
+    page = request.GET.get("page", 1)
+
+    messages = get_messages(user=request.user, listing=listing)
+
+    # Get the pagination info
+    paginator = Paginator(messages, settings.MESSAGES_PER_PAGE)
+    messages = paginator.get_page(page)
+
+    context = dict(message="active", all_messages=messages, extra_tab_name=listing)
+
+    user = request.user
+
+    Profile.objects.filter(user=user).update(new_messages=0)
+
+    return render(request, template, context)
 
 
 def message_view(request, uid):
@@ -28,31 +65,9 @@ def message_view(request, uid):
     return render(request, "message_view.html", context=context)
 
 
-def message_list(request, template="message_list.html", active_tab=None, listing=INBOX):
-
-    page = request.GET.get("page", 1)
-
-    objs = auth.list_message_by_topic(request=request, topic=active_tab).order_by("-pk")
-
-    # Get the page info
-    paginator = Paginator(objs, settings.MESSAGES_PER_PAGE)
-    objs = paginator.get_page(page)
-
-    context = dict(is_inbox=listing == INBOX, field_name=ACTIVE_MESSAGE_TAB,
-                   objs=objs, extra_tab_name=listing)
-
-    context.update({active_tab: ACTIVE_MESSAGE_TAB})
-
-    user = request.user
-
-    Profile.objects.filter(user=user).update(new_messages=0)
-
-    return render(request, template, context)
-
-
 @message_access(access_to=INBOX)
 @login_required
-def inbox_message_view(request, uid):
+def inbox_view(request, uid):
     "Checks to see you are the recipient to a message."
 
     return message_view(request, uid)
@@ -60,7 +75,7 @@ def inbox_message_view(request, uid):
 
 @message_access(access_to=OUTBOX)
 @login_required
-def outbox_message_view(request, uid):
+def outbox_view(request, uid):
     "Checks to see if you are the sender of the message."
 
     return message_view(request, uid)
@@ -69,18 +84,35 @@ def outbox_message_view(request, uid):
 @login_required
 def inbox_list(request):
 
-    return message_list(request, template="message_list.html", active_tab="message",
-                        listing=INBOX)
+    # Get the unread messages from inbox
+    listing = request.GET.get("active", INBOX)
+
+    return message_list(request, template="message_list.html", listing=listing)
 
 
 @login_required
 def outbox_list(request):
-    return message_list(request, template="message_list.html", active_tab="message",
-                        listing=OUTBOX)
+    return message_list(request, template="message_list.html", listing=OUTBOX)
 
 
 @login_required
 def message_compose(request):
 
-    return
+    # Get the message author
+    author = request.user
+
+    # Load the form.
+
+    form = forms.Compose()
+
+    if request.method == "POST":
+        form = forms.Compose(data=request.POST)
+        if form.is_valid():
+            form.save()
+            1/0
+            pass
+
+    context = dict(form=form)
+
+    return render(request, "message_compose.html", context)
 

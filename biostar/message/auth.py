@@ -1,40 +1,18 @@
+import uuid
+from datetime import datetime
+
+from django.utils.timezone import utc
+
 from .models import Message
 from biostar.forum.util import fixcase
 from biostar.accounts.models import Profile
 from . import const
 
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
 
-def query_topic(user, topic):
-
-    mapper = {
-        const.INBOX: dict(func=Message.objects.inbox_for, params=dict(user=user)),
-        const.UNREAD: dict(func=Message.objects.filter, params=dict(recipient=user, unread=True)),
-        const.OUTBOX: dict(func=Message.objects.outbox_for, params=dict(user=user)),
-        const.MENTIONED: dict(func=Message.objects.inbox_for, params=dict(user=user),
-                          apply=lambda q: q.filter(source=Message.MENTIONED)),
-        }
-
-    if mapper.get(topic):
-        func, params = mapper[topic]["func"], mapper[topic].get("params")
-        apply_extra = mapper[topic].get("apply", lambda q: q)
-        query = apply_extra(func(**params))
-    else:
-        query = None
-
-    return query
-
-
-def list_message_by_topic(request, topic):
-
-    user = request.user
-    topic = fixcase(topic)
-
-    query = query_topic(user=user, topic=topic)
-
-    if query is None:
-        query = Message.objects.inbox_for(user=user)
-
-    return query
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
 
 
 def build_msg_tree(msg, tree=[]):
@@ -53,19 +31,16 @@ def build_msg_tree(msg, tree=[]):
     return tree
 
 
-def create_messages(body, sender, recipient_list, subject="", parent=None,
-                    source=Message.REGULAR, mtype=Profile.LOCAL_MESSAGE):
+def create_local_messages(body, sender, rec_list, subject="", parent=None,
+                          source=Message.REGULAR, mtype=Profile.LOCAL_MESSAGE):
     "Create batch message from sender for a given recipient_list"
 
     subject = subject or f"Message from : {sender.profile.name}"
+    msgs = []
+    for rec in rec_list:
+        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, source=source,
+                               sent_date=now(), uid=get_uuid(10), body=body, parent_msg=parent, type=mtype)
 
-    msg_list = []
+        msgs.append(msg)
 
-    #TODO: do a bulk create for the whole recipeint list.
-    for rec in recipient_list:
-
-        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject,
-                                     body=body, parent_msg=parent, type=mtype, source=source)
-        msg_list.append(msg)
-
-    return msg_list
+    return msgs

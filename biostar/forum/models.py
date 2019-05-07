@@ -161,7 +161,7 @@ class Post(models.Model):
     @property
     def as_text(self):
         "Returns the body of the post after stripping the HTML tags"
-        text = bleach.clean(self.content, tags=[], attributes=[], styles={}, strip=True)
+        text = bleach.clean(self.content, tags=[], attributes={}, styles=[], strip=True)
         return text
 
     @property
