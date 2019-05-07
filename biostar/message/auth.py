@@ -36,10 +36,11 @@ def create_local_messages(body, sender, rec_list, subject="", parent=None,
     "Create batch message from sender for a given recipient_list"
 
     subject = subject or f"Message from : {sender.profile.name}"
-
+    msgs = []
     for rec in rec_list:
-        Message.objects.create(sender=sender, recipient=rec, subject=subject, source=source,
+        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, source=source,
                                sent_date=now(), uid=get_uuid(10), body=body, parent_msg=parent, type=mtype)
 
+        msgs.append(msg)
 
-    return
+    return msgs
