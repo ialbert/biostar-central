@@ -39,8 +39,7 @@ def is_unread(tab_name, message):
 @register.filter
 def is_inbox(tab_name):
 
-    return tab_name == const.INBOX
-
+    return tab_name in [const.INBOX, const.MENTIONED, const.UNREAD]
 
 
 @register.inclusion_tag("widgets/message_menu.html")

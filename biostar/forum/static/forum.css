@@ -141,6 +141,12 @@ figure { display: block; margin: 0; }
 
 }
 
+.customsearch {
+    width:100% !important;
+}
+
+
+
 .ui.stat.label.job{
   background-color: #e9530f ;
   color: #fff ;
@@ -461,6 +467,12 @@ pre {
 
 }
 
+.socialbox{
+    width:450 !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+
+}
 
 .profile{
     margin-top:17px !important;

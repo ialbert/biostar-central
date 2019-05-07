@@ -37,13 +37,9 @@ def create_local_messages(body, sender, rec_list, subject="", parent=None,
 
     subject = subject or f"Message from : {sender.profile.name}"
 
-    def generate():
-        for rec in rec_list:
-            msg = Message(sender=sender, recipient=rec, subject=subject, sent_date=now(),
-                          uid=get_uuid(10), body=body, parent_msg=parent, type=mtype, source=source)
-            yield msg
+    for rec in rec_list:
+        Message.objects.create(sender=sender, recipient=rec, subject=subject, source=source,
+                               sent_date=now(), uid=get_uuid(10), body=body, parent_msg=parent, type=mtype)
 
-    # Bulk create messages
-    Message.objects.bulk_create(objs=generate(), batch_size=20)
 
     return

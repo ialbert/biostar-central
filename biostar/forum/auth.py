@@ -378,7 +378,7 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
     root = root or post.root
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously
-    tasks.create_message(post=post, author=author)
+    tasks.send_default_messages(post=post, sender=author)
 
     # Subscribe the author to the root, if not already
     if sub_to_root:

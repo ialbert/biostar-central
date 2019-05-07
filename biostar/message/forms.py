@@ -1,6 +1,6 @@
 
 
-from biostar.message.tasks import create_message
+from biostar.message.tasks import send_message
 from django import forms
 
 MAX_RECIPENT_LIST = 5
@@ -17,15 +17,20 @@ class Compose(forms.Form):
     recipient_str = forms.CharField(max_length=MAX_TEXT_LEN, required=True)
 
     def save(self):
-
-        # Create a message async or synchronously
-
+        subject = self.cleaned_data.get("subject", "subject")
+        body = self.cleaned_data.get("body", "Body")
+        rec_str = self.cleaned_data("recipient_str")
+        rec_list = rec_str.split(",")
+        # Use the IN query on a known lwngth
+        rec_users = User.objects.filter(usernae__in=rec_str.split(","))
+        # Create a message
+        send_message(subject, body, rec_list, sender)
         return
 
     def clean(self):
         return
 
-    def clean_recipient_list(self):
+    def clean_recipient_str(self):
         cleaned_data = super(Compose, self).clean()
         recipient_str = cleaned_data['recipient_str']
 
@@ -36,6 +41,7 @@ class Compose(forms.Form):
             forms.ValidationError("Need at least one user in recipients list.")
         if len(recipients) < MAX_RECIPENT_LIST:
             forms.ValidationError(f"Too many recipients, maximum allowed is:{MAX_RECIPENT_LIST}")
+        return recipient_str
 
     def clean_body(self):
 

@@ -32,12 +32,12 @@ try:
     HAS_UWSGI = True
 
     @spool(pass_arguments=True)
-    def async_create_messages(subject, author, body, rec_list, source=models.Message.MENTIONED):
+    def async_create_messages(subject, sender, body, rec_list, source=models.Message.MENTIONED):
         """
         Create messages to users in recipient list
         """
         # Assign a task to a a worker
-        auth.create_local_messages(body=body, subject=subject, rec_list=rec_list, sender=author, source=source)
+        auth.create_local_messages(body=body, subject=subject, rec_list=rec_list, sender=sender, source=source)
 
 
 except (ModuleNotFoundError, NameError) as exc:
@@ -49,7 +49,7 @@ except (ModuleNotFoundError, NameError) as exc:
 
 def parse_mention_msg(post, author):
     title = post.title
-    rec_list = parse_mentioned_users(content=post.content)
+    mentioned_users = parse_mentioned_users(content=post.content)
     defalut_body = f"""
             Hello, You have been mentioned in a post by {author.profile.name}.
             The root post is :{title}.
@@ -57,9 +57,9 @@ def parse_mention_msg(post, author):
             {post.content}
             """
     body = settings.MENTIONED_TEMPLATE or defalut_body
-    subject = f"Mentioned in a post: {title}"
+    subject = f"Mentioned in a post."
 
-    return body, subject, rec_list
+    return body, subject, mentioned_users
 
 
 def parse_subs_msg(post, author):
@@ -72,37 +72,44 @@ def parse_subs_msg(post, author):
           Addition: {post.content}\n
           """
     root = post if post.is_toplevel else post.root
-    rec_list = Subscription.objects.filter(post=root).user_set()
+    subs = Subscription.objects.filter(post=root)
+    users_id_list = subs.values_list("user", flat=True).distinct()
 
+    subbed_users = User.objects.filter(id__in=users_id_list)
     body = settings.SUBS_TEMPLATE or default_body
-    subject = f"Subscription to : {title}"
-    return body, subject, rec_list
+    subject = f"Subscription to a post."
+
+    return body, subject, subbed_users
 
 
-def create_message(post, author):
-
-    ment_subject, ment_body, ment_users = parse_mention_msg(post=post, author=author)
-    sub_subject, sub_body, sub_users = parse_subs_msg(post=post,  author=author)
-
+def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR):
     # Create asynchronously when uwsgi is available
     if HAS_UWSGI:
-        # Assign a worker to send subscription messages
-        async_create_messages(subject=sub_subject, body=sub_body, rec_list=sub_users)
-
         # Assign a worker to send mentioned users
-        async_create_messages(source=models.Message.MENTIONED,
-                              subject=ment_subject, body=ment_body, rec_list=ment_users)
+        async_create_messages(source=source, sender=sender, subject=subject, body=body, rec_list=rec_list)
 
         return
 
     # Can run synchrony only when debugging
     if settings.DEBUG:
-        # Send mentioned messages
-        auth.create_local_messages(body=ment_body, subject=ment_subject, rec_list=sub_users,
-                                   sender=author, source=models.Message.MENTIONED)
         # Send subscription messages
-        auth.create_local_messages(body=sub_body, subject=sub_subject, rec_list=ment_users,
-                                   sender=author)
+        auth.create_local_messages(body=body, sender=sender, subject=subject, rec_list=rec_list, source=source)
 
-        return
+    return
+
+
+def send_default_messages(post, sender):
+    """
+
+    """
+    ment_body, ment_subject, ment_users = parse_mention_msg(post=post, author=sender)
+    sub_body, sub_subject, sub_users = parse_subs_msg(post=post,  author=sender)
+
+    # Send the mentioned notifications
+    send_message(source=models.Message.MENTIONED, subject=ment_subject, body=ment_body, rec_list=ment_users,
+                 sender=sender)
+    # Send mess age to subscribed users.
+    send_message(subject=sub_subject, body=sub_body, rec_list=sub_users, sender=sender)
+
+
 
