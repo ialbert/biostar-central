@@ -266,6 +266,12 @@ img {
 
 }
 
+.ui.title.header {
+    font-size: smaller;
+    font-weight: bold;
+
+}
+
 .centered{
 
     text-align: center !important;
