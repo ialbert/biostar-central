@@ -76,6 +76,7 @@ def parse_subs_msg(post, author):
     users_id_list = subs.values_list("user", flat=True).distinct()
 
     subbed_users = User.objects.filter(id__in=users_id_list)
+
     body = settings.SUBS_TEMPLATE or default_body
     subject = f"Subscription to a post."
 

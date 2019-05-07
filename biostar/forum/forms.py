@@ -149,10 +149,10 @@ class PostShortForm(forms.Form):
         self.post = post
 
         super().__init__(*args, **kwargs)
-        inital_content = "" if not self.post else self.post.html
+        initial_content = "" if not self.post else self.post.content
         self.fields["content"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                                                  min_length=2, max_length=5000,
-                                                 initial=inital_content)
+                                                 initial=initial_content)
 
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
     project_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
@@ -171,7 +171,6 @@ class PostShortForm(forms.Form):
             self.post.save()
         else:
             parent = Post.objects.filter(uid=parent).first()
-            project = Project.objects.filter(uid=project).first()
 
             self.post = auth.create_post(title=parent.root.title,
                               parent=parent,
