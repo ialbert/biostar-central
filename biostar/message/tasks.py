@@ -88,9 +88,7 @@ def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR)
     if HAS_UWSGI:
         # Assign a worker to send mentioned users
         async_create_messages(source=source, sender=sender, subject=subject, body=body, rec_list=rec_list)
-
         return
-
     # Can run synchrony only when debugging
     if settings.DEBUG:
         # Send subscription messages
@@ -101,15 +99,18 @@ def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR)
 
 def send_default_messages(post, sender):
     """
-
+    Parse mentioned and subscribed users from post and send a local message.
     """
+
+    # Parse the mentioned message
     ment_body, ment_subject, ment_users = parse_mention_msg(post=post, author=sender)
+    # Parse the subscribed message 
     sub_body, sub_subject, sub_users = parse_subs_msg(post=post,  author=sender)
 
     # Send the mentioned notifications
     send_message(source=models.Message.MENTIONED, subject=ment_subject, body=ment_body, rec_list=ment_users,
                  sender=sender)
-    # Send mess age to subscribed users.
+    # Send message to subscribed users.
     send_message(subject=sub_subject, body=sub_body, rec_list=sub_users, sender=sender)
 
 
