@@ -131,8 +131,8 @@ figure { display: block; margin: 0; }
 }
 
 .ui.title.header {
-    font-size: .80em;
-    font-weight: 9000;
+    font-size: smaller;
+    font-weight: bold;
 
 }
 

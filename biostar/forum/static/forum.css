@@ -29,10 +29,6 @@ body {
     top: 10px ;
 }
 
-.ui.list>.item.spaced {
-    line-height: 1.29rem;
-
-}
 
 .ui.basic.label.forumtabs:hover{
     background: #edefed;
@@ -141,12 +137,6 @@ figure { display: block; margin: 0; }
 
 }
 
-.customsearch {
-    width:100% !important;
-}
-
-
-
 .ui.stat.label.job{
   background-color: #e9530f ;
   color: #fff ;
@@ -226,6 +216,7 @@ img {
 }
 
 
+
 .unread-message{
     background: #d5f7cd;
     padding:5px;
@@ -263,7 +254,6 @@ img {
 
 
 .ui.button.create-button{
-
     min-height: 2.35714286em ;
     margin: 16px ;
     font-size: .93rem ;
@@ -271,7 +261,8 @@ img {
     background: #e1ecf2 ;
     padding: 10px;
     color: #5a5b5b ;
-    font-weight: 200 ;
+    font-weight: 400 ;
+
 
 }
 
@@ -397,6 +388,10 @@ img {
     width: 95% !important;
 }
 
+.ui.list>.item.spaced {
+    line-height: 1.29rem;
+
+}
 
 .code {
     font-family: monospace;
@@ -416,7 +411,6 @@ h1 {
 a{
     padding: 0;
 }
-
 
 a:hover{
     background-color: #EEEEEE;
@@ -463,12 +457,6 @@ pre {
 
 }
 
-.socialbox{
-    width:450 !important;
-    margin-left:auto !important;
-    margin-right:auto !important;
-
-}
 
 .profile{
     margin-top:17px !important;
