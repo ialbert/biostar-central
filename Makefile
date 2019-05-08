@@ -120,7 +120,7 @@ pg_create:
 	python manage.py migrate --settings conf.postgres.postgres_settings
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
-postgress:
+postgres:
 	python manage.py migrate --settings conf.postgres.postgres_settings
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
