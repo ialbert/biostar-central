@@ -1,56 +1,46 @@
 
-
+from biostar.accounts.models import User
 from biostar.message.tasks import send_message
 from django import forms
 
-MAX_RECIPENT_LIST = 5
+MAX_RECIPIENT_LIST = 5
 
 
 class Compose(forms.Form):
 
     MAX_TEXT_LEN = 1000
     # Message body and subjects
-    body = forms.CharField(max_length=MAX_TEXT_LEN, required=True)
-    subject = forms.CharField(max_length=100, required=True)
+    body = forms.CharField(widget=forms.Textarea, help_text="Message body.",
+                           max_length=MAX_TEXT_LEN, required=True)
+    subject = forms.CharField(max_length=100, required=True, help_text="Message subject.")
 
     # Comma separated recipient string
-    recipient_str = forms.CharField(max_length=MAX_TEXT_LEN, required=True)
+    recipients = forms.CharField(max_length=MAX_TEXT_LEN, required=True,
+                                 help_text="Comma separated list of user handles: user1, user2, etc...")
 
-    def save(self):
+    def save(self, sender):
         subject = self.cleaned_data.get("subject", "subject")
         body = self.cleaned_data.get("body", "Body")
-        rec_str = self.cleaned_data("recipient_str")
+        rec_str = self.cleaned_data.get("recipients", "")
         rec_list = rec_str.split(",")
-        # Use the IN query on a known lwngth
-        rec_users = User.objects.filter(usernae__in=rec_str.split(","))
+        # Use the __in query on a known length list
+        rec_users = User.objects.filter(username__in=rec_list).exclude(username=sender)
         # Create a message
-        send_message(subject, body, rec_list, sender)
+        send_message(subject=subject, body=body, rec_list=rec_users, sender=sender)
         return
 
     def clean(self):
         return
 
-    def clean_recipient_str(self):
+    def clean_recipients(self):
         cleaned_data = super(Compose, self).clean()
-        recipient_str = cleaned_data['recipient_str']
+        recipients = cleaned_data['recipients']
 
         # Split the recipients
-        recipients = recipient_str.split(",")
+        rec_list = recipients.split(",")
 
-        if len(recipients) > 1:
+        if len(rec_list) < 1:
             forms.ValidationError("Need at least one user in recipients list.")
-        if len(recipients) < MAX_RECIPENT_LIST:
-            forms.ValidationError(f"Too many recipients, maximum allowed is:{MAX_RECIPENT_LIST}")
-        return recipient_str
-
-    def clean_body(self):
-
-        return
-
-    def clean_subject(self):
-
-        return
-
-
-
-    pass
+        if len(rec_list) < MAX_RECIPIENT_LIST:
+            forms.ValidationError(f"Too many recipients, maximum allowed is:{MAX_RECIPIENT_LIST}")
+        return recipients

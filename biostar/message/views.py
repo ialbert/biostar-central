@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.contrib import messages
 from django.core.paginator import Paginator
 from biostar.accounts.models import Profile
 
@@ -102,17 +103,16 @@ def message_compose(request):
     author = request.user
 
     # Load the form.
-
     form = forms.Compose()
 
     if request.method == "POST":
         form = forms.Compose(data=request.POST)
         if form.is_valid():
-            form.save()
-            1/0
-            pass
+            form.save(sender=author)
+            messages.success(request, "Sent message to recipients")
+            return redirect(reverse("outbox"))
 
-    context = dict(form=form)
+    context = dict(form=form, compose='active')
 
     return render(request, "message_compose.html", context)
 

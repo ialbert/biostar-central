@@ -52,7 +52,7 @@
         {% endblock %}
 
 <div class="ui bottom attached  segment">
-{% show_messages messages %}
+
 
 {% include 'widgets/tags_banner.html' %}
     <a href="{% url 'post_list' %}">
@@ -66,6 +66,7 @@
     {% endif %}
 
 {% block grid %}
+    {% show_messages messages %}
     <div class="ui stackable grid">
 
         <div class="twelve wide column">

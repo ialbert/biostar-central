@@ -3,25 +3,58 @@
 {% load forum_tags %}
 
 {% block headtitle %}
-    {{ base_message.subject }}
+    Compose
 {% endblock %}
 
 
 {% block grid %}
 
+
 <div class="ui doubling stackable grid">
+
 
     <div class="three wide column">
         <div class="ui basic segment" style="padding-left:5px">
-            {% message_menu extra_tab=extra_tab_name request=request %}
+            {% message_menu extra_tab='compose' request=request %}
         </div>
     </div>
 
     <div class="thirteen wide column">
+        <div class="ui basic segment" >
+            <div class="ui header"> Compose message</div>
+          <form method="post" class="ui form" action="{% url 'compose' %}">
 
+            {{ form.media }}
+            {% csrf_token %}
+            <div class="required inputcolor field">
+                <label>{{ form.recipients.label}}</label>
+                {{ form.recipients }}
+                <p class="muted">{{ form.recipients.help_text}}</p>
+            </div>
 
+            <div class="required inputcolor field">
+                <label>{{ form.subject.label}}</label>
+                {{ form.subject }}
+                <p class="muted">{{ form.subject.help_text}}</p>
+            </div>
+
+            <div class="required inputcolor field">
+                <label>{{ form.body.label}}</label>
+                {{ form.body }}
+                <p class="muted">{{ form.body.help_text}}</p>
+            </div>
+        <button type="submit" class="ui submit green button">
+            <i class="send mail icon"></i>Send
+        </button>
+
+        <a class="ui right floated button" href="{% url 'inbox' %}">
+             <i class="undo icon"></i>Cancel
+        </a>
+          </form>
     </div>
 
 </div>
+</div>
+
 
 {% endblock %}
