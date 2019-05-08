@@ -225,13 +225,16 @@ img {
     padding-top: 0px;
 }
 
-.ui.divided.items>.item.unread-message {
+.ui.divided.items>.item.unread-message.message {
     background: #d5f7cd;
     padding:5px;
 }
 .ui.title.header {
     font-size: smaller;
 
+}
+.ui.divided.items>.item.message {
+    padding:5px;
 }
 
 .unread-message{
