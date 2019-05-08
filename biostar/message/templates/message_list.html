@@ -11,6 +11,7 @@
 
 {% block grid %}
 
+
 <div class="ui doubling stackable grid">
     <div class="three wide column">
         <div class="ui basic segment" style="padding-left:5px">
@@ -20,23 +21,26 @@
     </div>
 
 <div class="thirteen wide column">
-<div class="ui basic segment" >
 <div class="centered">
     {% pages objs=all_messages request=request %}
 </div>
+<div class="ui basic segment" >
 
- <div class="ui divided items">
+<table class="ui table messages">
+
+
 {% for message in all_messages %}
-    <div class="item {% is_unread tab_name=extra_tab_name message=message%} message">
-    <div class="ui image">
+
+<tbody class="item {% is_unread tab_name=extra_tab_name message=message%} message">
+<tr>
+ <td>
         <a class="ui mini avatar image" href="{% url "user_profile" message.sender.profile.uid %}" style="width:25px">
             {% gravatar user=message.sender size=50 %}</a>
         {{message.sender.profile.name}}
-    </div>
-
+ </td>
+<td>
         <div class="middle aligned content">
-            <div class="ui small header">
-
+            <div class="ui small messages header">
 
                 Subject:
                 {% if extra_tab_name|is_inbox %}
@@ -48,20 +52,25 @@
             </div>
 
 
-           <div class="ui right floated item">
+
+           <div class="ui right floated item" style="float: right;">
            {{message.sent_date|time_ago}}
            </div>
 
             <div class="ui muted item" style="">
               {{message.body|truncatechars:140}}
           </div>
-                </div>
+        </div>
 
-      </div>
+    </td>
+
+        </tr>
+    </tbody>
 
 {% endfor %}
 
-</div>
+
+</table>
 <div class="centered">
     {% pages objs=all_messages request=request %}
 </div>

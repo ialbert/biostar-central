@@ -39,7 +39,7 @@ def create_local_messages(body, sender, rec_list, subject="", parent=None,
     msgs = []
     for rec in rec_list:
         msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, source=source,
-                               sent_date=now(), uid=get_uuid(10), body=body, parent_msg=parent, type=mtype)
+                                     sent_date=now(), uid=get_uuid(10), body=body, parent_msg=parent, type=mtype)
 
         msgs.append(msg)
 
