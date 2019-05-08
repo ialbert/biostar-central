@@ -1,4 +1,4 @@
-
+from pagedown.widgets import PagedownWidget
 from biostar.accounts.models import User
 from biostar.message.tasks import send_message
 from django import forms
@@ -8,14 +8,16 @@ MAX_RECIPIENT_LIST = 5
 
 class Compose(forms.Form):
 
-    MAX_TEXT_LEN = 1000
+    MAX_TEXT_LEN = 5000
     # Message body and subjects
-    body = forms.CharField(widget=forms.Textarea, help_text="Message body.",
-                           max_length=MAX_TEXT_LEN, required=True)
+    body = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
+                           min_length=2, max_length=MAX_TEXT_LEN,
+                           help_text="Message body.")
+
     subject = forms.CharField(max_length=100, required=True, help_text="Message subject.")
 
     # Comma separated recipient string
-    recipients = forms.CharField(max_length=MAX_TEXT_LEN, required=True,
+    recipients = forms.CharField(max_length=100, required=True,
                                  help_text="Comma separated list of user handles: user1, user2, etc...")
 
     def save(self, sender):

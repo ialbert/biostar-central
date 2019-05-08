@@ -19,12 +19,12 @@ body {
 
 .ui.basic.label.forumtabs{
     font-size:14.5px;
-    //margin:0.5px ;
+    margin:0.0px ;
     border:none ;
     font-weight: lighter ;
     color: #428bca ;
     text-align: center ;
-    width: 90px ;
+    width: 96px ;
     position: relative ;
     top: 10px ;
 }

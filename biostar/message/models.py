@@ -1,4 +1,5 @@
 import logging
+import mistune
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -70,12 +71,12 @@ class Message(models.Model):
     parent_msg = models.ForeignKey(to='self', related_name='next_messages', null=True, blank=True,
                                    on_delete=models.CASCADE)
     body = models.TextField(max_length=MAX_TEXT_LEN)
+    html = models.TextField(default='', max_length= MAX_TEXT_LEN * 10)
     unread = models.BooleanField(default=True)
     sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.sent_date = self.sent_date or util.now()
-        self.uid = self.uid or util.get_uuid(limit=16)
+        self.html = self.html or mistune.markdown(self.body)
         super(Message, self).save(**kwargs)
 
     def __str__(self):
