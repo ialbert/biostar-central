@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
@@ -11,9 +12,25 @@ from .const import *
 from . import auth, forms
 
 
-def get_messages(user, listing):
+LIMIT_MAP = dict(
+    all=0,
+    today=1,
+    week=7,
+    month=30,
+    year=365
+)
 
-    message_map = dict(
+ORDER_MAPPER = dict(
+    rsent="sent_date",
+    sent="-sent_date",
+    rep="sender__profile__score",
+
+)
+
+
+def get_messages(user, listing, limit=0, order="sent"):
+
+    msg_map = dict(
         inbox=Message.objects.filter(recipient=user),
         unread=Message.objects.filter(recipient=user, unread=True),
         outbox=Message.objects.filter(sender=user),
@@ -21,25 +38,39 @@ def get_messages(user, listing):
     )
 
     # Get the messages based on queried topic
-    messages = message_map.get(listing, message_map["inbox"])
+    msgs = msg_map.get(listing, msg_map["inbox"])
 
-    messages = messages.select_related("recipient", "sender", "sender__profile",
-                                       "recipient__profile")
-    messages = messages.order_by("-sent_date")
-    return messages
+    if ORDER_MAPPER.get(order):
+        ordering = ORDER_MAPPER.get(order)
+        msgs = msgs.order_by(ordering)
+    else:
+        msgs = msgs.order_by("-sent_date")
+
+    days = LIMIT_MAP.get(limit, 0)
+    # Apply time limit if required.
+    if days:
+        delta = auth.now() - timedelta(days=days)
+        msgs = msgs.filter(sent_date__gt=delta)
+
+    msgs = msgs.select_related("recipient", "sender", "sender__profile",
+                               "recipient__profile")
+    #msgs = msgs.order_by("-sent_date")
+    return msgs
 
 
 def message_list(request, template="message_list.html", listing=INBOX):
 
     page = request.GET.get("page", 1)
-
-    messages = get_messages(user=request.user, listing=listing)
+    limit = request.GET.get("limit", 0)
+    order = request.GET.get("order", "sent")
+    messages = get_messages(user=request.user, listing=listing, limit=limit, order=order)
 
     # Get the pagination info
     paginator = Paginator(messages, settings.MESSAGES_PER_PAGE)
     messages = paginator.get_page(page)
 
-    context = dict(message="active", all_messages=messages, extra_tab_name=listing)
+    context = dict(message="active", all_messages=messages, order=order, limit=limit,
+                   extra_tab_name=listing)
 
     user = request.user
 

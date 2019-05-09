@@ -40,6 +40,9 @@ ICON_MAP = dict(
     reputation='star icon',
     joined='sign in icon',
     activity='comment icon',
+    rsent="sort numeric down icon",
+    sent="sort numeric up icon",
+    rep="user outline icon"
 )
 
 def now():
@@ -227,7 +230,9 @@ def get_wording(filtered, prefix="Sort by:", default=""):
     display = dict(all="all time", week="this week", month="this month",
                    year="this year", rank="rank", views="views",
                    replies="replies", votes="votes", visit="recent visit",
-                   reputation="reputation", joined="date joined", activity="activity level")
+                   reputation="reputation", joined="date joined", activity="activity level",
+                   rsent="oldest to newest ", sent="newest to oldest",
+                   rep="sender reputation")
     if display.get(filtered):
         displayed = display[filtered]
     else:
