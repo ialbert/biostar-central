@@ -8,9 +8,9 @@
 {% endblock %}
 
 
-
 {% block grid %}
-{% with params=request.GET.urlencode %}
+
+    {% with params=request.GET.urlencode %}
      <div class="pages-banner">
 
             <div class="ui small compact menu no-shadow" style="float: left">
@@ -66,17 +66,15 @@
 {% endwith %}
 
     <div class="ui basic no-padding segment">
+
 <div class="ui doubling stackable grid">
+
     <div class="three wide column">
-        <div class="ui basic segment" style="padding-left:5px">
             {% message_menu extra_tab=extra_tab_name request=request %}
-        </div>
 
     </div>
 
 <div class="thirteen wide column">
-
-<div class="ui basic segment" >
 
 <table class="ui table messages">
 
@@ -124,7 +122,6 @@
 
 </table>
 
-</div>
 </div>
 
 </div>
