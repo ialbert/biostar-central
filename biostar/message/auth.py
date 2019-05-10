@@ -24,7 +24,6 @@ def build_msg_tree(msg, tree=[]):
     # Check if it has a parent
     # and recursively add that to the tree.
     if msg.parent_msg and msg.parent_msg != msg:
-        tree.append(msg.parent_msg)
         build_msg_tree(msg=msg.parent_msg, tree=tree)
 
     # End of tree, at the root message

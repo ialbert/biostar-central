@@ -62,11 +62,21 @@ body {
     text-align: center;
 }
 
+.side-pads{
+     padding-right: 10px;
+     padding-left: 10px;
+}
+
+.ui.compact.menu.float-left{
+    float:left;
+}
+
 
 .pages-banner{
 
     text-align: center ;
     margin-top: 15px;
+    width:100%;
 }
 
 .ui.small.compact.menu {
@@ -241,7 +251,12 @@ img {
     font-size: smaller;
 
 }
+.ui.grid>.row.messages{
+    padding-bottom: 0px;
+    margin-right: 20px;
+    margin-left: 10px;
 
+}
 .ui.small.header.messages {
     margin: 0;
 }
@@ -250,6 +265,7 @@ img {
     padding:5px;
     margin: 0px;
 }
+
 
 .unread-message{
     background: #d5f7cd;

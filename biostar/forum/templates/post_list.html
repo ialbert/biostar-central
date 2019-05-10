@@ -13,7 +13,7 @@
     {% with params=request.GET.urlencode %}
         <div class="pages-banner">
 
-            <div class="ui small compact menu no-shadow" style="float:left;">
+            <div class="ui small compact menu no-shadow float-left">
               <div class="ui simple dropdown item">
 
                 <i class="{% get_icon string=limit default='all' %}"></i>
@@ -42,7 +42,7 @@
 
             {% pages objs=posts request=request %}
 
-            <div class="ui small compact menu ordering no-shadow">
+            <div class="ui small compact menu ordering no-shadow ">
               <div class="ui simple dropdown item">
 
                 <i class="{% get_icon string=order default='rank' %}"></i>
