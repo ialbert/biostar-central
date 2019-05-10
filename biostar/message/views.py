@@ -79,19 +79,14 @@ def message_list(request, template="message_list.html", listing=INBOX):
     return render(request, template, context)
 
 
-def message_view(request, uid):
-
-    base_message = Message.objects.filter(uid=uid).first()
+def message_view(request, msg):
 
     # Build the message tree from bottom up
-    tree = auth.build_msg_tree(msg=base_message, tree=[])
-
-    # Update the unread flag
-    Message.objects.filter(pk=base_message.pk).update(unread=False)
+    tree = auth.build_msg_tree(msg=msg, tree=[])
 
     active_tab = request.GET.get(ACTIVE_MESSAGE_TAB, INBOX)
 
-    context = dict(base_message=base_message, tree=tree, extra_tab="active",
+    context = dict(base_message=msg, tree=tree, extra_tab="active",
                    extra_tab_name=active_tab)
 
     return render(request, "message_view.html", context=context)
@@ -102,15 +97,19 @@ def message_view(request, uid):
 def inbox_view(request, uid):
     "Checks to see you are the recipient to a message."
 
-    return message_view(request, uid)
+    msg = Message.objects.filter(uid=uid).first()
+    # Update the unread flag
+    Message.objects.filter(pk=msg.pk).update(unread=False)
+
+    return message_view(request, msg=msg)
 
 
 @message_access(access_to=OUTBOX)
 @login_required
 def outbox_view(request, uid):
     "Checks to see if you are the sender of the message."
-
-    return message_view(request, uid)
+    msg = Message.objects.filter(uid=uid).first()
+    return message_view(request, msg=msg)
 
 
 @login_required
@@ -127,14 +126,25 @@ def outbox_list(request):
     return message_list(request, template="message_list.html", listing=OUTBOX)
 
 
+def block_user(request):
+    return
+
+
+def report_spam(request):
+    return
+
+
 @login_required
 def message_compose(request):
 
     # Get the message author
     author = request.user
 
+    # Get an initial user to add to recipients list
+    inital_user = request.GET.get("initial", "")
+    initial = dict(recipients=inital_user)
     # Load the form.
-    form = forms.Compose()
+    form = forms.Compose(initial=initial)
 
     if request.method == "POST":
         form = forms.Compose(data=request.POST)

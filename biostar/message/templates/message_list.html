@@ -1,6 +1,7 @@
 {% extends "forum_base.html" %}
 {% load message_tags %}
 {% load forum_tags %}
+{% load engine_tags %}
 
 
 {% block headtitle %}
@@ -9,6 +10,7 @@
 
 
 {% block grid %}
+    {% show_messages messages %}
 
     {% with params=request.GET.urlencode %}
      <div class="pages-banner">
@@ -78,7 +80,7 @@
 
 {% for message in all_messages %}
 
-<tbody class="item {% is_unread tab_name=extra_tab_name message=message%} message">
+<tbody class="item {% is_unread user=request.user message=message%} message">
 <tr>
  <td>
         <a class="ui mini avatar image" href="{% url "user_profile" message.sender.profile.uid %}" style="width:25px">
@@ -88,9 +90,9 @@
 <td>
         <div class="middle aligned content">
             <div class="ui small messages header">
-
+                {% is_inbox message=message target=request.user as in_inbox %}
                 Subject:
-                {% if extra_tab_name|is_inbox %}
+                {% if in_inbox %}
                 <a href="{{message.inbox_url}}?active={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
                 {% else %}
                 <a href="{{message.outbox_url}}?active={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>

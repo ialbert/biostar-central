@@ -47,6 +47,14 @@ class MessageManager(models.Manager):
         return query
 
 
+class BlockList(models.Model):
+    """
+    Allow a user to block others from receiving/sending messages.
+    """
+    source_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="source", on_delete=models.CASCADE)
+    blocked_list = models.ManyToManyField(settings.AUTH_USER_MODEL)
+
+
 # Connects user to message bodies
 class Message(models.Model):
     "Connects recipients to sent messages"
@@ -62,6 +70,10 @@ class Message(models.Model):
                             ]
     source = models.IntegerField(choices=SOURCE_TYPE_CHOICES, default=REGULAR, db_index=True)
 
+    SPAM, VALID, UNKNOWN = range(3)
+    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Not spam"), (UNKNOWN, "Unknown")]
+    spam = models.IntegerField(choices=SPAM_CHOICES, default=UNKNOWN)
+
     objects = MessageManager()
     uid = models.CharField(max_length=32, unique=True)
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", on_delete=models.CASCADE)
@@ -70,6 +82,11 @@ class Message(models.Model):
     subject = models.CharField(max_length=120)
     parent_msg = models.ForeignKey(to='self', related_name='next_messages', null=True, blank=True,
                                    on_delete=models.CASCADE)
+    # Show in sender's 'trash' box
+    sender_deleted = models.BooleanField(default=False)
+    # Show in recipient's trash box
+    recipient_deleted = models.BooleanField(default=False)
+
     body = models.TextField(max_length=MAX_TEXT_LEN)
     html = models.TextField(default='', max_length= MAX_TEXT_LEN * 10)
     unread = models.BooleanField(default=True)

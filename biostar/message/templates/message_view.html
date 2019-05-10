@@ -1,6 +1,7 @@
 {% extends "forum_base.html" %}
 {% load message_tags %}
 {% load forum_tags %}
+{% load engine_tags %}
 
 {% block headtitle %}
     {{ base_message.subject }}
@@ -8,21 +9,71 @@
 
 
 {% block grid %}
-<div class="ui doubling stackable grid">
+    {% show_messages messages %}
 
-    <div class="three wide column">
-        <div class="ui basic segment" style="padding-left:5px">
-            {% message_menu extra_tab=extra_tab_name request=request %}
+<div class="ui doubling stackable grid">
+    <div class="messages row">
+        {% with params=request.GET.urlencode %}
+         <div class="pages-banner">
+
+                <div class="ui small compact menu no-shadow" style="float: left">
+                  <div class="ui simple dropdown item">
+
+                    <i class="{% get_icon string=limit default='all' %}"></i>
+                    <span class="tablet">{% get_wording prefix="Limit to:" filtered=limit default="all" %}</span>
+                    <i class="dropdown icon"></i>
+
+                    <div class="menu">
+                          <a class="item" href="{% url "inbox" %}{% relative_url 'all' 'limit' params %}">
+                              <i class="{% get_icon 'all' %}"></i>all time
+                          </a>
+                          <a class="item" href="{% url "inbox" %}{% relative_url 'today' 'limit' params %}">
+                              <i class="{% get_icon 'today' %}"></i>today
+                          </a>
+                          <a class="item" href="{% url "inbox" %}{% relative_url 'week' 'limit' params %}">
+                              <i class="{% get_icon 'week' %}"></i>this week
+                          </a>
+                          <a class="item" href="{% url "inbox" %}{% relative_url 'month' 'limit' params %}">
+                              <i class="{% get_icon 'month' %}"></i>this month
+                          </a>
+                          <a class="item" href="{% url "inbox" %}{% relative_url 'year' 'limit' params %}">
+                              <i class="{% get_icon 'year' %}"></i>this year
+                          </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="ui small compact menu ordering no-shadow">
+                  <div class="ui simple dropdown item">
+
+                    <i class="{% get_icon string=order default='sent' %}"></i>
+                    <span class="tablet">{% get_wording prefix="Sort :" filtered=order default="sent" %}</span>
+                    <i class="dropdown icon"></i>
+
+                    <div class="menu">
+                          <a class="item" href="{% url "inbox" %}{% relative_url 'sent' 'order' params %}">
+                              <i class="{% get_icon 'sent' %}"></i>newest to oldest
+                          </a>
+                          <a class="item" href="{% url "inbox" %}{% relative_url 'rsent' 'order' params %}">
+                              <i class="{% get_icon 'rsent' %}"></i>oldest to newst
+                          </a>
+
+                    </div>
+                  </div>
+                </div>
         </div>
+    {% endwith %}
     </div>
 
-    <div class="thirteen wide column">
 
-        <div class="ui basic segment" >
+    <div class="three wide messages column">
+        {% message_menu extra_tab=extra_tab_name request=request %}
+    </div>
+
+    <div class="thirteen wide messages column">
 
                 {% for msg in tree %}
 
-                        <div class="ui compact segment">
+
                             <div>
                                 <b>From : </b>{{ msg.sender.profile.name }}
                             </div>
@@ -41,15 +92,15 @@
                                 <div class="ui label"> Reply</div>
                                 <div class="ui label"> Block </div>
                                 <div class="ui label"> Report as spam </div>
-                                <div class="ui divider"></div>
 
-                                <div class="ui text container">
+
+                                <div class="ui basic segment">
                                     {{ msg.body }}
                                 </div>
-                        </div>
+
+                    <div class="ui divider"></div>
 
                 {% endfor %}
-        </div>
     </div>
 
 

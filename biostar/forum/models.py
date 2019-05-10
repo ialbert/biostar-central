@@ -56,10 +56,9 @@ class Post(models.Model):
     ]
     TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
-    SPAM, VALID, NEW = range(3)
-    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Non spam"), (NEW, "New post")]
-
-    spam = models.IntegerField(choices=SPAM_CHOICES, default=NEW)
+    SPAM, VALID, UNKNOWN = range(3)
+    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Not spam"), (UNKNOWN, "Unknown")]
+    spam = models.IntegerField(choices=SPAM_CHOICES, default=UNKNOWN)
 
     title = models.CharField(max_length=200, null=False, db_index=True)
 
@@ -233,9 +232,8 @@ class Post(models.Model):
 
         # Set the timestamps on the parent
         if self.type == Post.ANSWER:
-            self.parent.lastedit_date = self.lastedit_date
-            self.parent.lastedit_user = self.lastedit_user
-            self.parent.save()
+            Post.objects.filter(uid=self.parent.uid).update(lastedit_date=self.lastedit_date,
+                                                            lastedit_user=self.lastedit_user)
 
         super(Post, self).save(*args, **kwargs)
 

@@ -1,13 +1,14 @@
 {% extends "forum_base.html" %}
 {% load message_tags %}
 {% load forum_tags %}
+{% load engine_tags %}
 
 {% block headtitle %}
     Compose
 {% endblock %}
 
 {% block grid %}
-
+{% show_messages messages %}
 
   <div class="ui doubling stackable grid">
   <div class="messages row">

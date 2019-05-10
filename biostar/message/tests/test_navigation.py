@@ -51,8 +51,10 @@ class ForumNavigation(TestCase):
         urls = [
             reverse('inbox'),
             reverse('outbox'),
+            reverse('compose'),
             reverse("inbox_view", kwargs=dict(uid=self.message.uid)),
             reverse('outbox_view', kwargs=dict(uid=self.message.uid)),
+
 
         ]
 

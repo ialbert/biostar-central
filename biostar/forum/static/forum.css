@@ -257,6 +257,10 @@ img {
     margin-left: 10px;
 
 }
+.ui.grid>.column.messages:not(.row) {
+     padding-top: 0px;
+}
+
 .ui.small.header.messages {
     margin: 0;
 }

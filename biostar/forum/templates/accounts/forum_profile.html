@@ -74,7 +74,7 @@
                 {% endif %}
 
 
-                <div class="item"> <b>Handle</b> : <a href="{% url 'compose' %}">@{{ user.username }}</a>
+                <div class="item"> <b>Handle</b> : <a href="{% url 'compose' %}?initial={{user.username}}">@{{ user.username }}</a>
                 </div>
             </div>
 
@@ -99,7 +99,7 @@
 
             <div class="ui bottom attached segment">
 
-            <div class="centered">
+            <div class="centering">
                 {% pages objs=objs request=request  %}
             </div>
                     <div class="ui divided items">
@@ -108,7 +108,7 @@
                         {%  endfor %}
                     </div>
 
-            <div class="centered">
+            <div class="centering">
 
                 {% pages objs=objs request=request  %}
             </div>

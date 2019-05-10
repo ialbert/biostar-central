@@ -109,13 +109,11 @@
                         </a>
                      {% endif %}
 
-                    {% if post.is_toplevel %}
+
                          <div class="ui muted" style="float: right">
                             updated
                             <span>{{ post.lastedit_date|time_ago }}</span> by
                             <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
-
-                            <div class="ui avatar image">{% gravatar user=post.lastedit_user size=100 %}</div>
 
                             {{post.lastedit_user.profile.name }}
 
@@ -124,7 +122,7 @@
                             {{ post.lastedit_user.profile.score | show_score | bignum }}
 
                         </div>
-                    {% endif %}
+
 
                      {% if user.is_authenticated and user.profile.is_moderator or user.profile.is_manager %}
                          &bull;
