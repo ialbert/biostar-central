@@ -346,14 +346,6 @@ def moderate_post(request, action, post, comment=None, dupes=[]):
         messages.success(request, "Moved answer to comment")
         return url
 
-    if action == CLOSE_OFFTOPIC:
-        Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-        Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") - 1)
-        content = util.render(name="messages/offtopic_posts.html", user=post.author, comment=comment, posts=post)
-        # Create a comment to the post
-        Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
-        return url
-
     if action == DUPLICATE:
         Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
         Post.objects.filter(uid__in=dupes).update(status=Post.CLOSED)

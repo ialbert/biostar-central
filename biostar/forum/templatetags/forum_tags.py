@@ -358,7 +358,7 @@ def boxclass(post):
     elif post.type == Post.TOOL:
         style = "tool"
     elif post.type == Post.FORUM:
-        style = "gold"
+        style = "forum"
     elif post.type == Post.NEWS:
         style = "news"
     elif post.has_accepted:

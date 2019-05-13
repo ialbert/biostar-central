@@ -56,7 +56,7 @@ class PostLongForm(forms.Form):
                         (Post.JOB, "Job Ad"),
                         (Post.TUTORIAL, "Tutorial"), (Post.TOOL, "Tool"),
                         (Post.FORUM, "Forum"), (Post.NEWS, "News"),
-                        (Post.BLOG, "Blog"), (Post.PAGE, "Page")]
+                        (Post.BLOG, "Blog")]
 
         # Pass a filtering function to customize choices between sites.
         choices = list(filter(filter_func, POST_CHOICES))
@@ -65,7 +65,7 @@ class PostLongForm(forms.Form):
         if self.post:
             inital_title = self.post.title
             inital_tags = self.post.tag_val
-            inital_content = self.post.html
+            inital_content = util.strip_tags(self.post.content)
             inital_type = self.post.type
 
         self.fields["post_type"] = forms.ChoiceField(label="Post Type", choices=choices,
@@ -86,8 +86,8 @@ class PostLongForm(forms.Form):
         data = self.cleaned_data.get
 
         title = data('title')
-        html = data("content")
-        content = util.strip_tags(html)
+        content = data("content")
+        html = mistune.markdown(content)
         post_type = int(data('post_type'))
         tag_val = data('tag_val')
 
@@ -174,13 +174,12 @@ class PostShortForm(forms.Form):
             project = Project.objects.filter(uid=project).first()
 
             self.post = auth.create_post(title=parent.root.title,
-                              parent=parent,
-                              author=author,
-                              content=content,
-                              post_type=post_type,
-                              project=project,
-                              sub_to_root=True,
-                              )
+                                         parent=parent,
+                                         author=author,
+                                         content=content,
+                                         post_type=post_type,
+                                         project=project,
+                                         sub_to_root=True)
         return self.post
 
     #def clean(self):
@@ -197,18 +196,15 @@ class PostModForm(forms.Form):
         (MOVE_TO_ANSWER, "Move post to an answer"),
         (MOVE_TO_COMMENT, "Move post to a comment on the top level post"),
         (DUPLICATE, "Duplicated post (top level)"),
-        (CROSSPOST, "Cross posted at other site"),
-        (CLOSE_OFFTOPIC, "Close post (top level)"),
         (DELETE, "Delete post"),
     ]
 
     action = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), label="Select Action")
 
-    comment = forms.CharField(required=False, max_length=200,
-                              help_text="Enter a reason (required when closing, crosspost). This will be inserted into a template comment.")
-
     dupe = forms.CharField(required=False, max_length=200,
-                           help_text="One or more duplicated post numbers, space or comma separated (required for duplicate closing).",
+                           help_text="""One or more duplicated post numbers, 
+                                       comma separated (required for duplicate closing).
+                                       """,
                            label="Duplicate number(s)")
 
     def __init__(self, post, request, user, *args, **kwargs):
@@ -220,34 +216,27 @@ class PostModForm(forms.Form):
     def save(self):
 
         cleaned_data = self.cleaned_data
-        action = int(cleaned_data.get("action"))
-        comment = cleaned_data.get("comment")
+        action = cleaned_data.get("action")
         dupe = cleaned_data.get("dupe")
 
         url = auth.moderate_post(post=self.post, request=self.request,
-                                 action=action, comment=comment, dupes=dupe)
+                                 action=action, dupes=dupe)
         return url
 
     def clean(self):
         cleaned_data = super(PostModForm, self).clean()
-        action = int(cleaned_data.get("action"))
-        comment = cleaned_data.get("comment")
+        action =cleaned_data.get("action")
         dupe = cleaned_data.get("dupe")
 
         if not (self.user.profile.is_moderator or self.user.profile.is_manager):
-            raise forms.ValidationError( "Only a moderator/manager may perform these actions")
+            raise forms.ValidationError("Only a moderator/manager may perform these actions")
 
-        if action in (CLOSE_OFFTOPIC, DUPLICATE, BUMP_POST) and not self.post.is_toplevel:
+        if action in (DUPLICATE, BUMP_POST) and not self.post.is_toplevel:
             raise forms.ValidationError("You can only perform these actions to a top-level post")
-        elif action in (TOGGLE_ACCEPT, MOVE_TO_COMMENT) and self.post.type != Post.ANSWER:
+        if action in (TOGGLE_ACCEPT, MOVE_TO_COMMENT) and self.post.type != Post.ANSWER:
             raise forms.ValidationError("You can only perform these actions to an answer.")
-        elif action == MOVE_TO_ANSWER and self.post.type != Post.COMMENT:
+        if action == MOVE_TO_ANSWER and self.post.type != Post.COMMENT:
             raise forms.ValidationError("You can only perform these actions to a comment.")
-        if action == CLOSE_OFFTOPIC and not comment:
-            raise forms.ValidationError("Unable to close. Please add a comment!")
-
-        if action == CROSSPOST and not comment:
-            raise forms.ValidationError("Please add URL into the comment!")
 
         if action == DUPLICATE and not dupe:
             raise forms.ValidationError("Unable to close duplicate. Please fill in the post numbers")

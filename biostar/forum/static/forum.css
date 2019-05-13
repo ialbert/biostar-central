@@ -171,6 +171,11 @@ figure { display: block; margin: 0; }
   color: #fff;
 }
 
+.ui.stat.label.forum{
+    background-color: #b79538;
+    color: white;
+}
+
 img {
     max-width: 100%;
 }

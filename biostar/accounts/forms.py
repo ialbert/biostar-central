@@ -194,7 +194,7 @@ class UserModerate(forms.Form):
         (Profile.SUSPENDED, "Suspend user")
     ]
 
-    action = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), label="Select Action")
+    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action")
 
     def __init__(self, source, target, request, *args, **kwargs):
         self.source = source
@@ -205,9 +205,7 @@ class UserModerate(forms.Form):
     def save(self):
         cleaned_data = self.cleaned_data
         state = cleaned_data["action"]
-
-        Profile.objects.filter(user=self.target).update(state=state)
-
+        auth.moderate_user(target=self.target, state=state)
         return
 
     def clean(self):

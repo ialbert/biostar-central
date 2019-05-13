@@ -276,7 +276,7 @@ def comment(request):
         if form.is_valid():
             post = form.save(author=request.user, post_type=Post.COMMENT)
             messages.success(request, "Added comment")
-            location = reverse("post_view", kwargs=dict(uid=post.uid)) + "#" + post.uid
+            location = reverse("post_view", kwargs=dict(uid=post.root.uid)) + "#" + post.uid
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
         else:
@@ -374,7 +374,8 @@ def edit_post(request, uid):
         if form.is_valid():
             form.save(edit=True)
             messages.success(request, f"Edited :{post.title}")
-            return redirect(reverse("post_view", kwargs=dict(uid=uid)))
+            location = reverse("post_view", kwargs=dict(uid=post.root.uid)) + "#" + post.uid
+            return redirect(location)
 
     context = dict(form=form, post=post, action_url=reverse("post_edit", kwargs=dict(uid=uid)),
                    extra_tab="active", extra_tab_name="Edit Post")

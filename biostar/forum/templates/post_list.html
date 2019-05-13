@@ -18,7 +18,6 @@
 
 
         <div class="ui divided items" feed-url="{% url 'feed_post' %}">
-                <div id="feed-item" class=""></div>
                 {% for post in posts %}
 
                     {% listing post=post user=user %}

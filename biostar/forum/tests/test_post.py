@@ -81,15 +81,12 @@ class PostTest(TestCase):
 
     def test_moderate(self):
 
-        # Get the moderation view
-        view = reverse("post_moderate", kwargs=dict(uid=self.post.uid))
-
         # Test every moderation action
         for action in forms.PostModForm.CHOICES:
-
-
-
-
+            data = {"action": action, "content": "tested content for a question"}
+            request = fake_request(url=reverse('post_comment'), data=data, user=self.owner)
+            response = views.post_moderate(request=request, uid=self.post.uid)
+            print(response, "RESPONSE")
             pass
 
         return
