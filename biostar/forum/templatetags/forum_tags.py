@@ -144,6 +144,7 @@ def forum_top_actionbar(context, base_url="", objs=None):
     bar_objs = context.get("objs", objs)
     extra_context = dict(base_url=reverse(base_url), objs=bar_objs)
     context.update(extra_context)
+    
     return context
 
 

@@ -155,7 +155,8 @@ function feed_item(){
     //first.remove();
     //first.load(feed_url);
     var page = $('<div id="test"></div>').load(feed_url);
-    container.after(page.unwrap("#test"));
+    container.after(page.children());//.unwrap("test"));
+
 
 };
 
