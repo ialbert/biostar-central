@@ -86,8 +86,7 @@ class PostTest(TestCase):
             data = {"action": action, "content": "tested content for a question"}
             request = fake_request(url=reverse('post_comment'), data=data, user=self.owner)
             response = views.post_moderate(request=request, uid=self.post.uid)
-            print(response, "RESPONSE")
-            pass
+            self.process_response(response)
 
         return
 
