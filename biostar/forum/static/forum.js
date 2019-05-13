@@ -150,12 +150,13 @@ function block_form(){
 
 function feed_item(){
 
-    let container = $("#feed-item");
-    let feed_url = container.parent().attr('feed-url');
+    var container = $("#feed-item");
+    var feed_url = container.parent().attr('feed-url');
     //first.remove();
     //first.load(feed_url);
     var page = $('<div id="test"></div>').load(feed_url);
-    container.after(page.children());//.unwrap("test"));
+    alert(feed_url);
+    container.after(page);//.unwrap("test"));
 
 
 };

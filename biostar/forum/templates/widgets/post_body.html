@@ -102,11 +102,13 @@
                              &bull;
                      <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
 
-                      {% if post.is_editable %}
-                         &bull;
-                         <a href="{% url 'post_edit' post.uid %}">
-                        edit
-                        </a>
+                      {% if  user.is_authenticated %}
+                         {% if user == post.author or user.profile.is_moderator %}
+                                &bull;
+                                 <a href="{% url 'post_edit' post.uid %}">
+                                edit
+                            </a>
+                         {% endif %}
                      {% endif %}
 
 

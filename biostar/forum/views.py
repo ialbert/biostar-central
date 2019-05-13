@@ -254,7 +254,8 @@ def post_view(request, uid):
     # Populate the object to build a tree that contains all posts in the thread.
     # Answers are added here as well.
     comment_tree, answers, thread = auth.build_obj_tree(request=request, obj=obj)
-    context = dict(post=obj, tree=comment_tree, form=form, answers=answers)
+    post = thread.filter(uid=uid).first()
+    context = dict(post=post, tree=comment_tree, form=form, answers=answers)
 
     return render(request, "post_view.html", context=context)
 
