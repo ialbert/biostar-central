@@ -38,7 +38,7 @@ def get_uuid(limit=32):
 
 def strip_tags(text):
     "Strip html tags from text"
-    text = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
+    text = bleach.clean(text, tags=[], attributes={}, styles=[], strip=True)
     return text
 
 

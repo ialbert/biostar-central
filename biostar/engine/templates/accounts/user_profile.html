@@ -41,7 +41,7 @@
                 </a>
             {% endif %}
 
-        {% if request.user.is_superuser %}
+        {% if request.user.is_superuser and debugging %}
 
             <a class="ui profile label" href="{% url 'debug_user' %}?uid={{user.profile.uid}}">
                 <i class="address card icon"></i> Log in as user

@@ -111,7 +111,7 @@ def user_profile(request, uid):
     page = page if page is not None else 1
 
     objs = paginator.get_page(page)
-    context = dict(user=profile.user, objs=objs, active=active_tab,
+    context = dict(user=profile.user, objs=objs, active=active_tab, debugging=settings.DEBUG,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate)
 
     return render(request, settings.PROFILE_TEMPLTE, context)
@@ -166,6 +166,10 @@ def debug_user(request):
     """
     Allows superusers to log in as a regular user to troubleshoot problems.
     """
+
+    if not settings.DEBUG:
+        messages.error(request, "Can only use when in debug mode.")
+        redirect("/")
 
     target = request.GET.get("uid", "")
     profile = Profile.objects.filter(uid=target).first()

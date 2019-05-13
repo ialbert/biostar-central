@@ -222,7 +222,7 @@ class Post(models.Model):
         if self.is_toplevel and self.type != Post.QUESTION:
             required_tag = self.get_type_display().lower()
 
-            if self.tag_val and (required_tag not in self.tag_val.split()):
+            if self.tag_val and (required_tag not in self.tag_val.split(",")):
                 self.tag_val += "," + required_tag
             else:
                 self.tag_val = required_tag

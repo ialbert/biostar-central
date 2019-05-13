@@ -65,7 +65,7 @@ class PostLongForm(forms.Form):
         if self.post:
             inital_title = self.post.title
             inital_tags = self.post.tag_val
-            inital_content = util.strip_tags(self.post.content)
+            inital_content = self.post.content
             inital_type = self.post.type
 
         self.fields["post_type"] = forms.ChoiceField(label="Post Type", choices=choices,
@@ -83,13 +83,13 @@ class PostLongForm(forms.Form):
                                                  label="Enter your post below")
 
     def save(self, author=None, edit=False):
-        data = self.cleaned_data.get
+        data = self.cleaned_data
 
-        title = data('title')
-        content = data("content")
-        html = mistune.markdown(content)
-        post_type = int(data('post_type'))
-        tag_val = data('tag_val')
+        title = data.get('title')
+        content = data.get("content")
+        html = auth.parse_html(content)
+        post_type = int(data.get('post_type'))
+        tag_val = data.get('tag_val')
 
         if edit:
             self.post.title = title
@@ -160,10 +160,10 @@ class PostShortForm(forms.Form):
 
     def save(self, author=None, post_type=Post.ANSWER, edit=False):
         data = self.cleaned_data
-        html = data.get("content")
         project = data.get("project_uid")
         parent = data.get("parent_uid")
-        content = util.strip_tags(html)
+        content = data.get("content")
+        html = auth.parse_html(content)
 
         if edit:
             self.post.html = html
@@ -225,7 +225,7 @@ class PostModForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(PostModForm, self).clean()
-        action =cleaned_data.get("action")
+        action = cleaned_data.get("action")
         dupe = cleaned_data.get("dupe")
 
         if not (self.user.profile.is_moderator or self.user.profile.is_manager):
