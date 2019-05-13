@@ -1,0 +1,19 @@
+<div class="ui basic segment inputcolor">
+    <form id="comment-form" class="ui form" action="{% url 'post_comment' %}"  method="post">
+        <input type="hidden" name="parent_uid" id="parent_uid" value={{ parent_uid }} />
+        {% csrf_token %}
+        <div class="">
+            <div id="wmd-button-bar-2"></div>
+            <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="6"></textarea>
+        </div>
+        <div>
+
+            <button class="ui submit green button" type="submit">
+                <i class="check icon"></i>Add Comment
+            </button>
+            <a class="ui orange right floated button" onclick="javascript:obj=$('#comment-row').remove();">
+            <i class="undo icon"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>

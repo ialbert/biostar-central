@@ -367,6 +367,11 @@ img {
     color:#8f2c47 !important;
 }
 
+.feed-item> .ui.divided.items>.item:first-child{
+
+    background-color:red;
+}
+
 .subs{
     text-align: center;
     font-size: smaller;

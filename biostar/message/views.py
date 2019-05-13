@@ -5,9 +5,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
 from biostar.accounts.models import Profile
+from biostar.utils.decorators import object_exists
 
 from .models import Message
-from .decorators import message_access
 from .const import *
 from . import auth, forms
 
@@ -54,7 +54,6 @@ def get_messages(user, listing, limit=0, order="sent"):
 
     msgs = msgs.select_related("recipient", "sender", "sender__profile",
                                "recipient__profile")
-    #msgs = msgs.order_by("-sent_date")
     return msgs
 
 
@@ -79,37 +78,57 @@ def message_list(request, template="message_list.html", listing=INBOX):
     return render(request, template, context)
 
 
-def message_view(request, msg):
-
-    # Build the message tree from bottom up
-    tree = auth.build_msg_tree(msg=msg, tree=[])
-
-    active_tab = request.GET.get(ACTIVE_MESSAGE_TAB, INBOX)
-
-    context = dict(base_message=msg, tree=tree, extra_tab="active",
-                   extra_tab_name=active_tab)
-
-    return render(request, "message_view.html", context=context)
+@login_required
+def reply(request, uid):
+    parent_msg = Message.objects.filter(uid=uid).first()
+    form = forms.Reply()
+    context = dict(msg=parent_msg, form=form)
+    return render(request, "reply.html", context=context)
 
 
-@message_access(access_to=INBOX)
+@object_exists(klass=Message)
 @login_required
 def inbox_view(request, uid):
     "Checks to see you are the recipient to a message."
 
-    msg = Message.objects.filter(uid=uid).first()
+    msg = Message.objects.filter(recipient=request.user, uid=uid).first()
     # Update the unread flag
     Message.objects.filter(pk=msg.pk).update(unread=False)
 
-    return message_view(request, msg=msg)
+    # Get the reply form
+    if request.method == "POST":
+        form = forms.Reply(data=request.POST)
+        if form.is_valid():
+            uid = form.save(sender=request.user, recipients=msg.sender.username, parent=msg)
+            # Redirect to outbox of recently sent with message
+            return redirect(reverse("outbox_view", kwargs=dict(uid=uid)))
+
+    # Build the message tree from bottom up
+    tree = auth.build_msg_tree(msg=msg, tree=[])
+
+    active_tab = request.GET.get("active", INBOX)
+
+    context = dict(base_message=msg, tree=tree, extra_tab="active",
+                   extra_tab_name=active_tab)
+    return render(request, "message_view.html", context=context)
 
 
-@message_access(access_to=OUTBOX)
+@object_exists(klass=Message)
 @login_required
 def outbox_view(request, uid):
     "Checks to see if you are the sender of the message."
-    msg = Message.objects.filter(uid=uid).first()
-    return message_view(request, msg=msg)
+    sender = request.user
+    msg = Message.objects.filter(sender=sender, uid=uid).first()
+    if not msg:
+        messages.error(request, "Message does not exist in your outbox")
+        return redirect(reverse("outbox"))
+
+    # Build the message tree from bottom up
+    tree = auth.build_msg_tree(msg=msg, tree=[])
+
+    context = dict(base_message=msg, tree=tree, extra_tab="active",
+                   extra_tab_name=OUTBOX)
+    return render(request, "message_view.html", context=context)
 
 
 @login_required

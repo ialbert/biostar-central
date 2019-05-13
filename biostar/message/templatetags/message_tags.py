@@ -25,6 +25,13 @@ def get_all_message_count(request):
     return context
 
 
+@register.inclusion_tag("widgets/message_top_actionbar.html", takes_context=True)
+def message_top_actionbar(context, with_pages=False):
+    extra_context = dict(with_pages=with_pages)
+    context.update(extra_context)
+    return context
+
+
 @register.simple_tag
 def is_unread(user, message):
 

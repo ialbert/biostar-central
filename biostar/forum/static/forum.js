@@ -34,12 +34,20 @@ $.ajaxSetup({
 
 function mod_votecount(elem, k) {
 
-    count = parseInt(elem.siblings('.count').text()) || 0
-    count += k
+    count = parseInt(elem.siblings('.count').text()) || 0;
+    count += k;
     elem.siblings('.count').text(count)
 
-}
+};
 
+function get_height(elem) {
+
+    //height = elem.attr(".ui.messaging.grid").height();
+
+    $("#messaging-menu").css( "height", function( ) {
+        return $("#messaging-grid").height();
+        })
+}
 
 function pop_over(elem, msg, cls) {
     var text = '<div></div>'
@@ -98,7 +106,7 @@ function ajax_vote(elem, post_uid, vote_type, vote_url) {
             },
 
         success: function (data) {
-            if (data.status == 'error') {
+            if (data.status === 'error') {
                 toggle_button(elem); // Untoggle the button if there was an error
                 pop_over(elem, data.msg, data.status);
             } else {
@@ -112,45 +120,61 @@ function ajax_vote(elem, post_uid, vote_type, vote_url) {
     });
 }
 
+function add_reply(elem){
+
+    // Remove body if it exists.
+    $("#reply-row").remove();
+
+    var msg_uid = elem.attr('data-value');
+    var container = $("#reply-container-"+ msg_uid);
+    var reply_url = elem.attr("reply-url");
+
+    var page = $('<div id="reply-row"></div>').load(reply_url);
+    container.after(page);
+
+}
+
+
+function block_form(){
+
+    $("#block-row").remove();
+
+    var post_uid = elem.attr('data-value');
+    var container = $("#block-container-"+ post_uid);
+    var block_url = elem.attr("block-url");
+    var page = $('<div id="block-row"></div>').load(block_url);
+
+    container.after(page);
+
+};
+
+function feed_item(){
+
+    let container = $("#feed-item");
+    let feed_url = container.parent().attr('feed-url');
+    //first.remove();
+    //first.load(feed_url);
+    var page = $('<div id="test"></div>').load(feed_url);
+    container.after(page.unwrap("#test"));
+
+};
+
+function blocked_form(){
+
+}
+
+
 function add_comment(elem) {
 
     // remove comment body if exists.
     $("#comment-row").remove();
 
     var post_uid = elem.attr('data-value');
-    var project_uid = elem.attr('project-uid');
     var container = $("#comment-container-"+ post_uid);
     var comment_url = elem.attr("comment-url");
-    var csrf_html = jQuery("[name=csrfmiddlewaretoken]").val();
+    var page = $('<div id="comment-row"></div>').load(comment_url);
 
-    //alert(comment_url);
-    // Going to be refactored out and loaded separately
-    container.after(`<div id="comment-row" class="ui basic segment inputcolor">
-    <form id="comment-form" class="ui form" action=${comment_url}  method="post">
-        <input type="hidden" name="parent_uid" id="parent_uid" value=${post_uid} />
-        <input type="hidden" name="project_uid" id="project_uid" value=${project_uid} />
-        <input type="hidden" name="csrfmiddlewaretoken" value=${csrf_html} />
-
-        <div class="">
-            <div id="wmd-button-bar-2"></div>
-            <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="6"></textarea>
-        </div>
-        <div>
-
-            <button class="ui submit green button" type="submit">
-                <i class="check icon"></i>Add Comment
-            </button>
-            <a class="ui orange right floated button" onclick="javascript:obj=$(\'#comment-row\').remove();">
-            <i class="undo icon"></i> Cancel
-            </a>
-        </div>
-    </form>
-    </div>`
-    );
-
-    var converter = new Markdown.Converter();
-    var editor = new Markdown.Editor(converter, '-2');
-    editor.run();
+    container.after(page);
 
 };
 
@@ -173,6 +197,11 @@ $(document).ready(function () {
         event.preventDefault();
         add_comment($(this));
         });
+
+    $(".reply-button").click(function (){
+        event.preventDefault();
+        add_reply($(this));
+    });
 
     $(".add-answer").click(function (event) {
         add_answer($(this));
@@ -197,6 +226,11 @@ $(document).ready(function () {
             ajax_vote(elem, post_uid, vote_type, vote_url);
         });
     });
+    get_height($(this));
+    //feed_item();
+
+
+
 
 
 });

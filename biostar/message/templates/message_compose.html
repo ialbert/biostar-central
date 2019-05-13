@@ -10,58 +10,8 @@
 {% block grid %}
 {% show_messages messages %}
 
-  <div class="ui doubling stackable grid">
-  <div class="messages row">
-    {% with params=request.GET.urlencode %}
-     <div class="pages-banner">
-
-            <div class="ui small compact menu no-shadow float-left">
-              <div class="ui simple dropdown item">
-
-                <i class="{% get_icon string=limit default='all' %}"></i>
-                <span class="tablet">{% get_wording prefix="Limit to:" filtered=limit default="all" %}</span>
-                <i class="dropdown icon"></i>
-
-                <div class="menu">
-                      <a class="item" href="{% url "inbox" %}{% relative_url 'all' 'limit' params %}">
-                          <i class="{% get_icon 'all' %}"></i>all time
-                      </a>
-                      <a class="item" href="{% url "inbox" %}{% relative_url 'today' 'limit' params %}">
-                          <i class="{% get_icon 'today' %}"></i>today
-                      </a>
-                      <a class="item" href="{% url "inbox" %}{% relative_url 'week' 'limit' params %}">
-                          <i class="{% get_icon 'week' %}"></i>this week
-                      </a>
-                      <a class="item" href="{% url "inbox" %}{% relative_url 'month' 'limit' params %}">
-                          <i class="{% get_icon 'month' %}"></i>this month
-                      </a>
-                      <a class="item" href="{% url "inbox" %}{% relative_url 'year' 'limit' params %}">
-                          <i class="{% get_icon 'year' %}"></i>this year
-                      </a>
-                </div>
-              </div>
-            </div>
-
-            <div class="ui small compact menu ordering no-shadow" style="float: right">
-              <div class="ui simple dropdown item">
-
-                <i class="{% get_icon string=order default='sent' %}"></i>
-                <span class="tablet">{% get_wording prefix="Sort :" filtered=order default="sent" %}</span>
-                <i class="dropdown icon"></i>
-
-                <div class="menu">
-                      <a class="item" href="{% url "inbox" %}{% relative_url 'sent' 'order' params %}">
-                          <i class="{% get_icon 'sent' %}"></i>newest to oldest
-                      </a>
-                      <a class="item" href="{% url "inbox" %}{% relative_url 'rsent' 'order' params %}">
-                          <i class="{% get_icon 'rsent' %}"></i>oldest to newst
-                      </a>
-                </div>
-              </div>
-            </div>
-    </div>
-{% endwith %}
-  </div>
+  <div class="ui doubling stackable messaging grid" id="messaging-grid">
+{% message_top_actionbar %}
 
     <div class="three wide column">
 

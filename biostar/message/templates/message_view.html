@@ -11,59 +11,8 @@
 {% block grid %}
     {% show_messages messages %}
 
-<div class="ui doubling stackable grid">
-    <div class="messages row">
-        {% with params=request.GET.urlencode %}
-         <div class="pages-banner">
-
-                <div class="ui small compact menu no-shadow" style="float: left">
-                  <div class="ui simple dropdown item">
-
-                    <i class="{% get_icon string=limit default='all' %}"></i>
-                    <span class="tablet">{% get_wording prefix="Limit to:" filtered=limit default="all" %}</span>
-                    <i class="dropdown icon"></i>
-
-                    <div class="menu">
-                          <a class="item" href="{% url "inbox" %}{% relative_url 'all' 'limit' params %}">
-                              <i class="{% get_icon 'all' %}"></i>all time
-                          </a>
-                          <a class="item" href="{% url "inbox" %}{% relative_url 'today' 'limit' params %}">
-                              <i class="{% get_icon 'today' %}"></i>today
-                          </a>
-                          <a class="item" href="{% url "inbox" %}{% relative_url 'week' 'limit' params %}">
-                              <i class="{% get_icon 'week' %}"></i>this week
-                          </a>
-                          <a class="item" href="{% url "inbox" %}{% relative_url 'month' 'limit' params %}">
-                              <i class="{% get_icon 'month' %}"></i>this month
-                          </a>
-                          <a class="item" href="{% url "inbox" %}{% relative_url 'year' 'limit' params %}">
-                              <i class="{% get_icon 'year' %}"></i>this year
-                          </a>
-                    </div>
-                  </div>
-                </div>
-                <div class="ui small compact menu ordering no-shadow">
-                  <div class="ui simple dropdown item">
-
-                    <i class="{% get_icon string=order default='sent' %}"></i>
-                    <span class="tablet">{% get_wording prefix="Sort :" filtered=order default="sent" %}</span>
-                    <i class="dropdown icon"></i>
-
-                    <div class="menu">
-                          <a class="item" href="{% url "inbox" %}{% relative_url 'sent' 'order' params %}">
-                              <i class="{% get_icon 'sent' %}"></i>newest to oldest
-                          </a>
-                          <a class="item" href="{% url "inbox" %}{% relative_url 'rsent' 'order' params %}">
-                              <i class="{% get_icon 'rsent' %}"></i>oldest to newst
-                          </a>
-
-                    </div>
-                  </div>
-                </div>
-        </div>
-    {% endwith %}
-    </div>
-
+<div class="ui doubling messaging stackable grid" id="messaging-grid">
+{% message_top_actionbar %}
 
     <div class="three wide messages column">
         {% message_menu extra_tab=extra_tab_name request=request %}
@@ -72,7 +21,7 @@
     <div class="thirteen wide messages column">
 
                 {% for msg in tree %}
-
+                    <div class="ui basic segment">
 
                             <div>
                                 <b>From : </b>{{ msg.sender.profile.name }}
@@ -89,14 +38,26 @@
                                     <b>Sent :</b> {{ msg.sent_date }}
                                 </div>
 
-                                <div class="ui label"> Reply</div>
-                                <div class="ui label"> Block </div>
-                                <div class="ui label"> Report as spam </div>
-
 
                                 <div class="ui basic segment">
                                     {{ msg.body }}
                                 </div>
+
+
+
+                            <div class="ui compact small menu no-shadow" style="margin-top: 5px;">
+
+                                <a class="reply-button item" reply-url="{% url 'reply' msg.uid %}" data-value="{{msg.uid}}">
+                                    <i class="exchange icon"></i>REPLY
+                                </a>
+                                <a class="item"> <i class="x icon"></i>BLOCK </a>
+                                <div class="item"> REPORT SPAM </div>
+
+                            </div>
+                    <div id="reply-container-{{msg.uid}}"></div>
+
+
+                    </div>
 
                     <div class="ui divider"></div>
 

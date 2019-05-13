@@ -10,7 +10,8 @@ from django.db.models import F
 
 from biostar.utils.shortcuts import reverse
 from biostar.accounts.models import Profile
-from biostar.forum import util
+
+from biostar.message import util
 
 User = get_user_model()
 
@@ -51,8 +52,14 @@ class BlockList(models.Model):
     """
     Allow a user to block others from receiving/sending messages.
     """
+    # User that is blocking
     source_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="source", on_delete=models.CASCADE)
-    blocked_list = models.ManyToManyField(settings.AUTH_USER_MODEL)
+    # User being blocked by source_user
+    blocked = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, related_name="blocked", on_delete=models.SET_NULL)
+    # Reason for blocking particular user
+    reason = models.CharField(max_length=MAX_TEXT_LEN, default="")
+
+    uid = models.CharField(max_length=32, unique=True, default=util.get_uuid(10))
 
 
 # Connects user to message bodies

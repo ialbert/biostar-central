@@ -16,7 +16,7 @@ from biostar.forum import forms, auth, tasks, util
 from biostar.forum.const import *
 from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from biostar.utils.shortcuts import reverse
-from .models import Post, Vote, Subscription, Badge
+from biostar.forum.models import Post, Vote, Subscription, Badge
 
 User = get_user_model()
 
@@ -72,7 +72,7 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
         query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
     elif topic == MYPOSTS and user.is_authenticated:
         query = Post.objects.filter(author=user)
-    elif topic == MYVOTES:
+    elif topic == MYVOTES and user.is_authenticated:
         #TODO: switching to votes
         #votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
         #query = votes_query.values("post")
@@ -101,6 +101,22 @@ def get_posts(user, topic="", tag="", order="rank", limit=None):
     query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
 
     return query
+
+
+def feed_post(request):
+
+    # Feed one post at a time excluding uid
+    user = request.user
+
+    posts = get_posts(user=user, limit=1)
+
+    # Show open questions in feed, given random order for now.
+    posts = posts.filter(status=Post.OPEN).order_by("?")
+
+    single_post = posts.first()
+    context = dict(post=single_post, user=user)
+
+    return render(request, "widgets/feed_post.html", context=context)
 
 
 def post_list(request):
@@ -241,6 +257,14 @@ def post_view(request, uid):
     context = dict(post=obj, tree=comment_tree, form=form, answers=answers)
 
     return render(request, "post_view.html", context=context)
+
+
+@login_required
+def comment_form(request, uid):
+    parent_post = Post.objects.filter(uid=uid).first()
+    form = forms.PostShortForm()
+    context = dict(parent_uid=parent_post.uid, form=form)
+    return render(request, "widgets/comment_form.html", context=context)
 
 
 @login_required
