@@ -246,7 +246,7 @@ class PostModForm(forms.Form):
         (DELETE, "Delete post"),
     ]
 
-    action = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), label="Select Action")
+    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action")
 
     dupe = forms.CharField(required=False, max_length=200,
                            help_text="""One or more duplicated post numbers, 

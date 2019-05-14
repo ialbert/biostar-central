@@ -48,6 +48,8 @@ def my_posts(target, request):
         return Post.objects.filter(author=target).exclude(status=Post.DELETED)
 
     query = Post.objects.filter(author=target)
+    query = query.exclude(root=None)
+    query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
     query = query if (user.profile.is_moderator or user == target) else query.exclude(status=Post.DELETED)
 
     return query
@@ -349,7 +351,8 @@ def moderate_post(request, action, post, comment=None, dupes=[]):
     if action == DUPLICATE:
         Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
         Post.objects.filter(uid__in=dupes).update(status=Post.CLOSED)
-        content = util.render(name="messages/duplicate_posts.html", user=post.author, comment=comment, posts=post)
+        content = util.render(name="messages/duplicate_posts.html", user=post.author, comment=comment,
+                              posts=Post.objects.filter(uid=post.uid))
         # Create a comment to the post
         Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
         return url
