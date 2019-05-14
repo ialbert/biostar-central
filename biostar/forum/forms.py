@@ -140,12 +140,13 @@ class PostLongForm(forms.Form):
             self.post.content = content
             self.post.type = post_type
             self.post.html = html
+            self.post.tag_val = tag_val
             self.post.save()
-
             send(old_content=old_content, new_content=self.post.content, post=self.post)
             # Triggers another save
-            self.post.add_tags(text=tag_val)
+            #self.post.add_tags(text=tag_val)
         else:
+
             self.post = auth.create_post(title=title, content=content, post_type=post_type,
                                          tag_val=tag_val, author=author, project=self.project)
 

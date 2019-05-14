@@ -149,13 +149,10 @@ class Post(models.Model):
         text = text.strip()
         if not text:
             return
-       # Sanitize the tag value
-        self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
-       # Clear old tags
-        tag_list = [x.lower() for x in self.parse_tags()]
+        # Sanitize the tag value
+        # Clear old tags
         #self.tags.clear()
         #self.tags.add(*tag_list)
-        self.save()
 
     @property
     def as_text(self):

@@ -376,7 +376,7 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
         create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
 
     # Triggers another save in here
-    post.add_tags(post.tag_val)
+    #post.add_tags(post.tag_val)
 
     return post
 
