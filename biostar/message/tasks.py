@@ -88,14 +88,40 @@ def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR,
     # Create asynchronously when uwsgi is available
     if HAS_UWSGI:
         # Assign a worker to send mentioned users
-        async_create_messages(source=source, sender=sender, subject=subject, body=body, rec_list=rec_list,
-                              parent=parent, uid=uid)
+        async_create_messages(source=source, sender=sender, subject=subject, body=body,
+                              rec_list=rec_list, parent=parent, uid=uid)
         return
     # Can run synchrony only when debugging
     if settings.DEBUG:
         # Send subscription messages
-        auth.create_local_messages(body=body, sender=sender, subject=subject, rec_list=rec_list, source=source,
-                                   parent=parent, uid=uid)
+        auth.create_local_messages(body=body, sender=sender, subject=subject, rec_list=rec_list,
+                                   source=source, parent=parent, uid=uid)
+
+    return
+
+
+def send_notification_msgs(post):
+    # Get the user meant to send subscriptions and notification messages.
+    sender = User.objects.filter(is_superuser=True).first()
+
+    # Parse the mentioned message
+    ment_body, ment_subject, ment_users = parse_mention_msg(post=post)
+
+    # Send the mentioned notifications
+    send_message(source=models.Message.MENTIONED, subject=ment_subject, body=ment_body,
+                 rec_list=ment_users, sender=sender)
+    return
+
+
+def send_subs_msg(post):
+    # Get the user meant to send subscriptions and notification messages.
+    sender = User.objects.filter(is_superuser=True).first()
+
+    # Parse the subscribed message
+    sub_body, sub_subject, sub_users = parse_subs_msg(post=post)
+
+    # Send message to subscribed users.
+    send_message(subject=sub_subject, body=sub_body, rec_list=sub_users, sender=sender)
 
     return
 
@@ -104,20 +130,7 @@ def send_default_messages(post):
     """
     Parse mentioned and subscribed users from post and send a local message.
     """
-
-    # Get the user meant to send subscriptions and notification messages.
-    sender = User.objects.filter(is_superuser=True).first()
-
-    # Parse the mentioned message
-    ment_body, ment_subject, ment_users = parse_mention_msg(post=post)
-    # Parse the subscribed message 
-    sub_body, sub_subject, sub_users = parse_subs_msg(post=post)
-
-    # Send the mentioned notifications
-    send_message(source=models.Message.MENTIONED, subject=ment_subject, body=ment_body, rec_list=ment_users,
-                 sender=sender)
-    # Send message to subscribed users.
-    send_message(subject=sub_subject, body=sub_body, rec_list=sub_users, sender=sender)
-
+    send_notification_msgs(post)
+    send_subs_msg(post)
 
 

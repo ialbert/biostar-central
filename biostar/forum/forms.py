@@ -1,4 +1,5 @@
 import mistune
+from difflib import SequenceMatcher
 from pagedown.widgets import PagedownWidget
 from django import forms
 from .models import Post
@@ -6,14 +7,55 @@ from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.conf import settings
 from biostar.engine.models import Project
-
+from biostar.accounts.models import User
 from biostar.forum.awards import *
-
+from biostar.message.tasks import send_message, send_subs_msg, parse_mentioned_users, parse_mention_msg
+from biostar.message.models import Message
 from biostar.forum import models, auth, util
 
 from .const import *
 # Share logger with models
 logger = models.logger
+
+
+def send(old_content, new_content, post):
+    """
+    See if there is any change and send
+    notifications and subscriptions messages
+    """
+    # Get rid of white spaces and tabs by splitting into lists.
+    source_list = old_content.strip().split()
+    new_list = new_content.strip().split()
+    diffobj = SequenceMatcher(a=source_list, b=new_list)
+
+    # There is a change detected
+    change = diffobj.ratio() != 1
+
+    # Do nothing when no change is detected.
+    if not change:
+        return
+
+    # Get the sender for messages from biostar
+    sender = User.objects.filter(is_superuser=True).first()
+
+    # Send message to subscribed users.
+    send_subs_msg(post=post)
+
+    # Get mentioned users from new content
+    new_mentioned_users = parse_mentioned_users(content=new_content)
+    # Get old mentioned users and exclude them from these round of messages.
+    old_mentioned_users = parse_mentioned_users(content=old_content).values("id")
+
+    # Exclude old mentioned users from new ones.
+    ment_users = new_mentioned_users.exclude(id__in=old_mentioned_users)
+
+    # Parse the mentioned message
+    ment_body, ment_subject, _ = parse_mention_msg(post=post)
+
+    # Send the mentioned notifications
+    send_message(source=Message.MENTIONED, subject=ment_subject, body=ment_body,
+                 rec_list=ment_users, sender=sender)
+    return
 
 
 def english_only(text):
@@ -68,7 +110,7 @@ class PostLongForm(forms.Form):
             inital_content = self.post.content
             inital_type = self.post.type
 
-        self.fields["post_type"] = forms.ChoiceField(label="Post Type", choices=choices,
+        self.fields["post_type"] = forms.IntegerField(label="Post Type", widget=forms.Select(choices=choices),
                                                      help_text="Select a post type: Question, Forum, Job, Blog",
                                                      initial=inital_type)
         self.fields["title"] = forms.CharField(label="Post Title", max_length=200, min_length=2, initial=inital_title,
@@ -88,15 +130,19 @@ class PostLongForm(forms.Form):
         title = data.get('title')
         content = data.get("content")
         html = auth.parse_html(content)
-        post_type = int(data.get('post_type'))
+        post_type = data.get('post_type')
         tag_val = data.get('tag_val')
 
         if edit:
+
             self.post.title = title
+            old_content = self.post.content
             self.post.content = content
             self.post.type = post_type
             self.post.html = html
             self.post.save()
+
+            send(old_content=old_content, new_content=self.post.content, post=self.post)
             # Triggers another save
             self.post.add_tags(text=tag_val)
         else:
