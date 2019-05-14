@@ -243,17 +243,17 @@ class PostModForm(forms.Form):
         (TOGGLE_ACCEPT, "Toggle accepted status"),
         (MOVE_TO_ANSWER, "Move post to an answer"),
         (MOVE_TO_COMMENT, "Move post to a comment on the top level post"),
-        (DUPLICATE, "Duplicated post (top level)"),
+        (DUPLICATE, "Duplicated content from other websites. "),
         (DELETE, "Delete post"),
     ]
 
     action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action")
-
     dupe = forms.CharField(required=False, max_length=200,
-                           help_text="""One or more duplicated link, 
+                           help_text="""
+                                       One or more duplicated link, 
                                        comma separated (required for duplicate closing).
                                        """,
-                           label="Duplicate number(s)")
+                           label="Duplicate Link(s)")
 
     def __init__(self, post, request, user, *args, **kwargs):
         self.post = post
