@@ -202,12 +202,6 @@ class UserModerate(forms.Form):
         self.request = request
         super(UserModerate, self).__init__(*args, **kwargs)
 
-    def save(self):
-        cleaned_data = self.cleaned_data
-        state = cleaned_data["action"]
-        auth.moderate_user(target=self.target, state=state)
-        return
-
     def clean(self):
         cleaned_data = super(UserModerate, self).clean()
         if not self.source.profile.is_moderator:

@@ -336,20 +336,23 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
 def post_moderate(request, uid):
     user = request.user
     post = Post.objects.filter(uid=uid).first()
-    form = forms.PostModForm(post=post, user=user, request=request)
 
     if request.method == "POST":
 
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
         if form.is_valid():
-            url = form.save()
+            action = form.cleaned_data["action"]
+            duplicate = form.cleaned_data["dupe"]
+            redir = auth.moderate_post(post=post, request=request, action=action, dupes=duplicate)
             if tasks.HAS_UWSGI:
                 tasks.moderated_post(pid=post.id)
-            return redirect(url)
+            return redirect(redir)
+
         else:
-            msg = ','.join([y for x in form.errors.values() for y in x])
-            messages.error(request, msg)
-            return redirect(post.root.get_absolute_url())
+            messages.error(request, "Invalid moderation error.")
+            return redirect(reverse("post_view", kwargs=dict(uid=uid)))
+    else:
+        form = forms.PostModForm(post=post, user=user, request=request)
 
     context = dict(form=form, post=post)
     return render(request, "post_moderate.html", context)

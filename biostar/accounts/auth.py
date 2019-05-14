@@ -16,17 +16,6 @@ from .tokens import account_verification_token
 logger = logging.getLogger('engine')
 
 
-def moderate_user(target, state):
-
-    Profile.objects.filter(user=target).update(state=state)
-    if Profile.BANNED == state:
-        # Delete posts of banned users
-        Post.objects.filter(author=target).delete()
-        
-
-    return
-
-
 def check_user(email, password):
     "Used to validate user across apps. Returns a tuple ( login message, False or True ) "
 

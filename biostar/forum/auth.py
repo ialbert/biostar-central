@@ -259,7 +259,13 @@ def parse_html(text):
     # This will collect the objects that could be embedded
     mentioned_users = parse_mentioned_users(content=text)
 
+    # First step, transform into an html text,
     html = mistune.markdown(text)
+
+    # Second step, sanitize the html ( of allowed tags and all)
+
+    # Last step is to embed links
+
 
     # embed the objects
     for user in mentioned_users:

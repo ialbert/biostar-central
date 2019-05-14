@@ -146,7 +146,6 @@ class PostLongForm(forms.Form):
             # Triggers another save
             #self.post.add_tags(text=tag_val)
         else:
-
             self.post = auth.create_post(title=title, content=content, post_type=post_type,
                                          tag_val=tag_val, author=author, project=self.project)
 
@@ -261,16 +260,6 @@ class PostModForm(forms.Form):
         self.user = user
         self.request = request
         super(PostModForm, self).__init__(*args, **kwargs)
-
-    def save(self):
-
-        cleaned_data = self.cleaned_data
-        action = cleaned_data.get("action")
-        dupe = cleaned_data.get("dupe")
-
-        url = auth.moderate_post(post=self.post, request=self.request,
-                                 action=action, dupes=dupe)
-        return url
 
     def clean(self):
         cleaned_data = super(PostModForm, self).clean()
