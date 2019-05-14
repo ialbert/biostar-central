@@ -43,8 +43,9 @@ if settings.ONLY_FORUM_URLS:
 
     # Replace the engine handler with the forums
     urlpatterns = [
-                    url(r'^accounts/', include(accounts_urls)),
+
                     url(r'^', include(forum_urls)),
+                    url(r'^accounts/', include(accounts_urls)),
                     url(r'^django/admin/', admin.site.urls, name='django_admin'),
                     url(r'^message/', include(message_urls))
                     ]
