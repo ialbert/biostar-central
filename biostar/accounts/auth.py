@@ -18,8 +18,8 @@ logger = logging.getLogger('engine')
 
 def moderate_user(target, state):
 
+    Profile.objects.filter(user=target).update(state=state)
     if Profile.BANNED == state:
-        Profile.objects.filter(user=target).update(state=state)
         # Delete posts of banned users
         Post.objects.filter(author=target).delete()
         

@@ -251,7 +251,7 @@ class PostModForm(forms.Form):
     action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action")
 
     dupe = forms.CharField(required=False, max_length=200,
-                           help_text="""One or more duplicated post numbers, 
+                           help_text="""One or more duplicated link, 
                                        comma separated (required for duplicate closing).
                                        """,
                            label="Duplicate number(s)")
