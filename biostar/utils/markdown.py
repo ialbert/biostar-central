@@ -1,0 +1,199 @@
+"""
+Markdown parser to render the Biostar style markdown.
+"""
+import re
+import requests
+
+import mistune
+from mistune import Renderer, InlineLexer
+
+from django.conf import settings
+
+from biostar.forum.models import Post
+
+# Test input.
+TEST_INPUT = '''
+
+https://www.biostars.org/p/1 https://www.biostars.org/p/2
+
+https://www.biostars.org/p/3/#4
+
+https://www.biostars.org/u/5
+
+<b>BOLD</b>
+
+
+https://www.youtube.com/watch?v=Hc8QdwfYFT8
+
+```
+print 123
+http://www.psu.edu
+```
+
+https://twitter.com/Linux/status/2311234267
+
+'''
+
+
+
+# Shortcut to re.compile
+rec = re.compile
+
+# Set here to make testing easier.
+# TODO: pull from settings
+SITE_DOMAIN = 'www.biostars.org'
+
+# Biostar patterns.
+USER_PATTERN = rec(r"http(s)?://%s/u/(?P<uid>(\w+))(/)" % SITE_DOMAIN)
+POST_TOPLEVEL = rec(r"^http(s)?://%s/p/(?P<uid>(\w+))(/)?" % SITE_DOMAIN)
+POST_ANCHOR = rec(r"^http(s)?://%s/p/\w+//\#(?P<uid>(\w+))(/)?" % SITE_DOMAIN)
+
+# Youtube pattern.
+YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
+YOUTUBE_PATTERN2 = rec(r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
+YOUTUBE_PATTERN3 = rec(r"https://youtu.be/(?P<uid>([\w-]+))(/)?")
+YOUTUBE_HTML = '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>'
+
+# Ftp link pattern.
+FTP_PATTERN = rec(r"^ftp://[\w\.]+(/?)$")
+
+# Gist pattern.
+GIST_PATTERN = rec(r"^https://gist.github.com/(?P<uid>([\w/]+))")
+GIST_HTML = '<script src="https://gist.github.com/%s.js"></script>'
+
+# Twitter pattern.
+TWITTER_PATTERN = rec(r"http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))")
+
+
+def get_tweet(tweet_id):
+    """
+    Get the HTML code with the embedded tweet.
+    It requires an API call at https://api.twitter.com/1/statuses/oembed.json as documented here:
+    https://dev.twitter.com/docs/embedded-tweets - section "Embedded Tweets for Developers"
+    https://dev.twitter.com/docs/api/1/get/statuses/oembed
+    Params:
+    tweet_id -- a tweet's numeric id like 2311234267 for the tweet at
+    https://twitter.com/Linux/status/2311234267
+    """
+    try:
+        response = requests.get("https://api.twitter.com/1/statuses/oembed.json?id={}".format(
+            tweet_id))
+        return response.json()['html']
+    except:
+        return ''
+
+
+class BiostarInlineLexer(InlineLexer):
+
+    def enable_post_link(self):
+        self.rules.post_link = POST_TOPLEVEL
+        self.default_rules.insert(0, 'post_link')
+
+    def output_post_link(self, m):
+        uid = m.group("uid")
+        post = Post.objects.filter(uid=uid).first() or Post(title=f"Invalid post uid: {uid}")
+        link = m.group(0)
+        print(post.title)
+        return f'<a href="{link}">{post.title}</a>'
+
+    def enable_anchor_link(self):
+        self.rules.anchor_link = POST_ANCHOR
+        self.default_rules.insert(0, 'anchor_link')
+
+    def output_anchor_link(self, m):
+        uid = m.group("uid")
+        alt, link = f"{uid}", m.group(0)
+        return f'<a href="{link}">ANCHOR: {alt}</a>'
+
+    def enable_user_link(self):
+        self.rules.user_link = USER_PATTERN
+        self.default_rules.insert(0, 'user_link')
+
+    def output_user_link(self, m):
+        uid = m.group("uid")
+        alt, link = f"{uid}", m.group(0)
+        return f'<a href="{link}">USER: {alt}</a>'
+
+    def enable_youtube_link1(self):
+        self.rules.youtube_link1 = YOUTUBE_PATTERN1
+        self.default_rules.insert(1, 'youtube_link1')
+
+    def output_youtube_link1(self, m):
+        uid = m.group("uid")
+        return YOUTUBE_HTML % uid
+
+    def enable_youtube_link2(self):
+        self.rules.youtube_link2 = YOUTUBE_PATTERN2
+        self.default_rules.insert(1, 'youtube_link2')
+
+    def output_youtube_link2(self, m):
+        uid = m.group("uid")
+        return YOUTUBE_HTML % uid
+
+    def enable_youtube_link3(self):
+        self.rules.youtube_link3 = YOUTUBE_PATTERN3
+        self.default_rules.insert(1, 'youtube_link3')
+
+    def output_youtube_link3(self, m):
+        uid = m.group("uid")
+        return YOUTUBE_HTML % uid
+
+    def enable_twitter_link(self):
+        self.rules.twitter_link = TWITTER_PATTERN
+        self.default_rules.insert(1, 'twitter_link')
+
+    def output_twitter_link(self, m):
+        uid = m.group("uid")
+        return get_tweet(uid)
+
+    def enable_gist_link(self):
+        self.rules.gist_link = GIST_PATTERN
+        self.default_rules.insert(3, 'gist_link')
+
+    def output_gist_link(self, m):
+        uid = m.group("uid")
+        return GIST_HTML % uid
+
+    def enable_ftp_link(self):
+        self.rules.ftp_link = FTP_PATTERN
+        self.default_rules.insert(3, 'ftp_link')
+
+    def output_ftp_link(self, m):
+        link = m.group(0)
+        return f'<a href="{link}">{link}</a>'
+
+
+def parse(text):
+    """
+    Parses markdown into html.
+    Expands certain patterns into HTML.
+    """
+    renderer = Renderer(escape=True, hard_wrap=True)
+    inline = BiostarInlineLexer(renderer=renderer)
+    inline.enable_post_link()
+    #inline.enable_anchor_link()
+    #inline.enable_user_link()
+    #inline.enable_youtube_link1()
+    #inline.enable_youtube_link2()
+    #inline.enable_youtube_link3()
+    #inline.enable_ftp_link()
+    #inline.enable_twitter_link()
+
+    markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline)
+
+    html = markdown(text)
+
+    return html
+
+
+def test():
+    html = parse(TEST_INPUT)
+    return html
+
+
+if __name__ == '__main__':
+
+
+    html = test()
+
+    print(html)

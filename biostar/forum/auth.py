@@ -3,7 +3,6 @@ import bleach
 import datetime
 import logging
 import re
-import mistune
 from itertools import chain
 
 from django.contrib import messages
@@ -251,13 +250,11 @@ def parse_mentioned_users(content):
     return User.objects.filter(username__in=users_list)
 
 
-def parse_html(text):
+def parse_htmlXXX(text):
     "Sanitize text and expand links to match content"
 
     # This will collect the objects that could be embedded
     mentioned_users = parse_mentioned_users(content=text)
-
-    html = mistune.markdown(text)
 
     # embed the objects
     for user in mentioned_users:
@@ -372,8 +369,7 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
 
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
-        author=author, type=post_type, parent=parent, root=root,
-        project=project, html=parse_html(content))
+        author=author, type=post_type, parent=parent, root=root, project=project)
 
     root = root or post.root
     # Trigger notifications for subscribers and mentioned users

@@ -433,6 +433,10 @@ a:hover{
     border-radius: 3px;
 }
 
+pre > code {
+    padding: 0px 0px 0px 0px;
+}
+
 code {
     color: #c7254e;;
     background-color: #EEEEEE;
