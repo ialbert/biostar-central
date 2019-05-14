@@ -35,7 +35,7 @@ def send(old_content, new_content, post):
     if not change:
         return
 
-    # Get the sender for messages from biostar
+    # Get sender for these messages from biostar
     sender = User.objects.filter(is_superuser=True).first()
 
     # Send message to subscribed users.
@@ -52,7 +52,7 @@ def send(old_content, new_content, post):
     # Parse the mentioned message
     ment_body, ment_subject, _ = parse_mention_msg(post=post)
 
-    # Send the mentioned notifications
+    # Send the mentioned message.
     send_message(source=Message.MENTIONED, subject=ment_subject, body=ment_body,
                  rec_list=ment_users, sender=sender)
     return
@@ -214,8 +214,10 @@ class PostShortForm(forms.Form):
 
         if edit:
             self.post.html = html
+            old_content = self.post.content
             self.post.content = content
             self.post.save()
+            send(old_content=old_content, new_content=self.post.content, post=self.post)
         else:
             parent = Post.objects.filter(uid=parent).first()
             project = Project.objects.filter(uid=project).first()
