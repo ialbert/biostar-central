@@ -3,10 +3,10 @@ from biostar.settings import *
 
 # Additional apps enabled.
 INSTALLED_APPS += [
-    'biostar.accounts.apps.MessageConfig'
+    'biostar.emailer.apps.EmailerConfig'
 ]
 
 # The url specification.
-ROOT_URLCONF = 'biostar.message.urls'
+ROOT_URLCONF = 'biostar.emailer.urls'
 
 

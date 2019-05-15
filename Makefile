@@ -15,6 +15,10 @@ accounts:
 	$(eval DJANGO_SETTING_MODULE := biostar.accounts.settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 
+emailer:
+	$(eval DJANGO_SETTING_MODULE := biostar.emailer.settings)
+	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+
 pg:
 	$(eval DJANGO_SETTING_MODULE := conf.postgres.postgres_settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
@@ -36,8 +40,9 @@ serve:
 	python manage.py runserver --settings ${DJANGO_SETTING_MODULE}
 
 init:
-	python manage.py collectstatic --noinput -v 0
-	python manage.py migrate -v 0
+	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTING_MODULE}
+	python manage.py migrate -v 0  --settings ${DJANGO_SETTING_MODULE}
 
 delete:
 	# Delete the database,logs and CACHE files
@@ -47,6 +52,17 @@ delete:
 	rm -rf export/static/CACHE
 	rm -rf *.egg
 	rm -rf *.egg-info
+
+# Resets the site without removing jobs.
+reset: delete init
+    # Initializes the test project.
+
+    
+projects: delete init
+	#python manage.py project --pid test --name "Test Project" --public
+	#python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson
+	#python manage.py recipe --pid test --rid kraken2 --json ~/book/biostar-handbook-2/recipes/work/classify/kraken2.hjson
+
 
 tutorial:
 	# Perform a full delete of all content.
@@ -59,12 +75,6 @@ full_delete: delete
 	rm -rf export/spooler/*spool*
 	rm -rf export/media/*
 
-# Resets the site without removing jobs.
-reset: delete init
-    # Initializes the test project.
-	python manage.py project --pid test --name "Test Project" --public
-	#python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson
-	#python manage.py recipe --pid test --rid kraken2 --json ~/book/biostar-handbook-2/recipes/work/classify/kraken2.hjson
 
 # Resets site and loads existing fixture
 reset_load: delete init loaddata

@@ -11,7 +11,6 @@ class EmailerConfig(AppConfig):
         post_migrate.connect(init_group, sender=self)
         post_migrate.connect(init_sub, sender=self)
 
-
 def init_group(sender, **kwargs):
     """
     Initialize with groups.

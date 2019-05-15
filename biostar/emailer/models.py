@@ -1,15 +1,16 @@
-
+import uuid
 from django.db import models
-from biostar.accounts.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from biostar.engine.util import get_uuid
 
 
 MAX_NAME_LEN = 256
 MAX_FIELD_LEN = 1024
 MAX_TEXT_LEN = 10000
 MAX_TEMPLATE_LEN = 20 * MAX_TEXT_LEN
+
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
 
 
 class EmailGroup(models.Model):
