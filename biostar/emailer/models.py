@@ -33,7 +33,6 @@ class EmailAddress(models.Model):
     # Require email
     email = models.CharField(max_length=MAX_NAME_LEN, unique=True, blank=False)
     name = models.CharField(max_length=MAX_NAME_LEN)
-    group = models.ForeignKey(EmailGroup, null=True, on_delete="cascade")
     uid = models.CharField(max_length=32, unique=True)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
@@ -51,13 +50,12 @@ class Subscription(models.Model):
     STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (UNSUBSCRIBE, "Unsubscirbed")]
 
     uid = models.CharField(max_length=32, unique=True)
-
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
     address = models.ForeignKey(EmailAddress, on_delete=models.CASCADE)
     group = models.ForeignKey(EmailGroup, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.address.name} | {self.group.name}"
+        return f"{self.address.name} | {self.list.name}"
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or get_uuid(16)
