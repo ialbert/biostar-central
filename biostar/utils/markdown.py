@@ -119,7 +119,6 @@ class BiostarInlineLexer(MonkeyPatch):
         uid = m.group("uid")
         post = Post.objects.filter(uid=uid).first() or Post(title=f"Invalid post uid: {uid}")
         link = m.group(0)
-        print (post.title, link)
         return f'<a href="{link}">{post.title}</a>'
 
     def enable_anchor_link(self):
