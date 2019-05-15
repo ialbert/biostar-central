@@ -242,65 +242,6 @@ def create_post_from_json(json_dict):
     return post
 
 
-def embedder(attrs, new, embed=[]):
-
-    # This is an existing <a> tag, leave it be.
-    #if not new:
-    #    return attrs
-    ytube = '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>'
-    pattern_map = {util.GIST_PATTERN: lambda x: '<script src="https://gist.github.com/%s.js"></script>' % x,
-                   util.YOUTUBE_PATTERN1: lambda x: ytube % x,
-                   util.YOUTUBE_PATTERN2: lambda x: ytube % x,
-                   util.TWITTER_PATTERN: util.get_embedded_tweet}
-    href = attrs['_text']
-
-    # Don't linkify non http links
-    if href[:4] not in ('http', 'ftp:'):
-        return None
-
-    # Try embedding patterns
-    target_patterns = [util.GIST_PATTERN, util.YOUTUBE_PATTERN1, util.YOUTUBE_PATTERN2,
-                       util.TWITTER_PATTERN]
-
-    for pattern in target_patterns:
-        patt = re.compile(pattern).search(href)
-        if patt:
-            uid = patt.group("uid")
-            # Prepare text
-            get_text = pattern_map.get(pattern)
-            obj = get_text(uid)
-            embed.append((pattern, obj))
-            #attrs['_text'] = uid
-            #attrs['href'] = uid
-            if 'rel' in attrs:
-                del attrs['rel']
-            1/0
-    return attrs
-
-
-def internal_links(attrs, new=False):
-    "Matches a post and user"
-    try:
-        link = attrs['_text']
-        base_site = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
-        post_patt = re.compile(util.post_pattern(base_site=base_site)).search(link)
-
-        if post_patt:
-            uid = post_patt.group("uid")
-            attrs['_text'] = Post.objects.get(uid=uid).title
-
-        # Try the user patterns
-        user_patt = re.compile(util.user_pattern(base_site=base_site)).search(link)
-        if user_patt:
-            uid = user_patt.group("uid")
-            attrs['_text'] = Profile.objects.filter(uid=uid).first().name
-
-    except Exception as exc:
-        logger.error(exc)
-
-    return attrs
-
-
 def parse_mentioned_users(content):
 
     # Any word preceded by a @ is considered a user handler.
@@ -309,41 +250,6 @@ def parse_mentioned_users(content):
     users_list = set(x[1:] for x in re.findall(handler_pattern, content))
 
     return User.objects.filter(username__in=users_list)
-
-
-def parse_htmlXXX(text):
-    "Sanitize text and expand links to match content"
-
-    # Apply a markdown transformation last.
-    try:
-        # First step, transform into an html text,
-        html = mistune.markdown(text)
-    except Exception as exc:
-        html = text
-        logger.error('crash during markdown conversion: %s' % exc)
-
-    # Second step, sanitize the html ( of allowed tags and all)
-    html = util.clean(html)
-    to_embed = []
-    embed = lambda attrs, new: embedder(embed=to_embed, attrs=attrs, new=new)
-    # Add the links
-    html = bleach.linkify(html, callbacks=[embed, internal_links])
-
-    # Collect the objects that could be embedded
-    mentioned_users = parse_mentioned_users(content=text)
-
-    # embed the objects
-    for user in mentioned_users:
-        url = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
-        handler = f"@{user.username}"
-        emb_patt = f'<a href="{url}">{handler}</a>'
-        html = html.replace(handler, emb_patt)
-
-    # embed the objects
-    for uid, obj in to_embed:
-        emb_patt = '<a href="%s">%s</a>' % (uid, obj)
-        html = html.replace(emb_patt, obj)
-    return html
 
 
 def delete_post(post, request):
