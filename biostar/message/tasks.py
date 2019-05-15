@@ -126,11 +126,3 @@ def send_subs_msg(post):
     return
 
 
-def send_default_messages(post):
-    """
-    Parse mentioned and subscribed users from post and send a local message.
-    """
-    send_notification_msgs(post)
-    send_subs_msg(post)
-
-
