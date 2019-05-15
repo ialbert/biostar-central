@@ -146,8 +146,12 @@ def post_list(request):
     # Apply the post paging.
     posts = paginator.get_page(page)
 
+    # Set the active tab.
+    tab = topic or tag or "latest"
+
+    print(tab)
     # Fill in context.
-    context = dict(posts=posts, topic=topic, tag=tag, order=order, limit=limit)
+    context = dict(posts=posts, tab=tab, tag=tag, order=order, limit=limit)
 
     #tag_dispay = tag.replace("-", "_")
 
@@ -173,7 +177,7 @@ def community_list(request):
 
     paginator = Paginator(users, settings.USERS_PER_PAGE)
     users = paginator.get_page(page)
-    context = dict(community="active", objs=users, order=ordering, limit=limit_to)
+    context = dict(tab="community", objs=users, order=ordering, limit=limit_to)
 
     return render(request, "community_list.html", context=context)
 
