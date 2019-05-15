@@ -19,12 +19,16 @@ pg:
 	$(eval DJANGO_SETTING_MODULE := conf.postgres.postgres_settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 
+message:
+	$(eval DJANGO_SETTING_MODULE := biostar.message.settings)
+	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+
 engine:
-	$(eval DJANGO_SETTING_MODULE := conf.engine.settings)
+	$(eval DJANGO_SETTING_MODULE := biostar.engine.settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 
 forum:
-	$(eval DJANGO_SETTING_MODULE := conf.forum.settings)
+	$(eval DJANGO_SETTING_MODULE := biostar.forum.settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 
 serve:
