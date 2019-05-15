@@ -242,16 +242,6 @@ def create_post_from_json(json_dict):
     return post
 
 
-def parse_mentioned_users(content):
-
-    # Any word preceded by a @ is considered a user handler.
-    handler_pattern = "\@[^\s]+"
-    # Drop leading @
-    users_list = set(x[1:] for x in re.findall(handler_pattern, content))
-
-    return User.objects.filter(username__in=users_list)
-
-
 def delete_post(post, request):
     # Delete marks a post deleted but does not remove it.
     # Remove means to delete the post from the database with no trace.
@@ -353,7 +343,8 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
     root = root or post.root
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously
-    tasks.send_default_messages(post=post)
+    tasks.send_notification_msgs(post)
+    tasks.send_subs_msg(post)
 
     # Subscribe the author to the root, if not already
     if sub_to_root:
