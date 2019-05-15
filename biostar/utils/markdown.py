@@ -9,8 +9,9 @@ from mistune import Renderer, InlineLexer
 
 from django.conf import settings
 
+from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post
-from biostar.accounts.models import Profile
+from biostar.accounts.models import Profile, User
 
 # Test input.
 TEST_INPUT = '''
@@ -43,6 +44,8 @@ rec = re.compile
 USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
 POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
 POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
+MENTINONED_USERS = rec("\@[^\s]+")
+
 
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
@@ -91,6 +94,26 @@ class BiostarInlineLexer(MonkeyPatch):
     def enable_post_link(self):
         self.rules.post_link = POST_TOPLEVEL
         self.default_rules.insert(0, 'post_link')
+
+    def enable_mention_link(self):
+        self.rules.mention_link = MENTINONED_USERS
+        self.default_rules.insert(0, 'mention_link')
+
+    def output_mention_link(self, m):
+        self.rules.mention_link = MENTINONED_USERS
+
+        # Get the handle
+        handle = m.group(0)
+        # Remove leading @ in front
+        username = handle[1:]
+        # Query user and get the link
+        user = User.objects.filter(username=username).first()
+        if user:
+            link = f'<a href="{reverse("user_profile", kwargs=dict(uid=user.profile.uid))}">{user.profile.name}</a>'
+        else:
+            link = handle
+
+        return link
 
     def output_post_link(self, m):
         uid = m.group("uid")
@@ -176,13 +199,15 @@ def parse(text):
     renderer = Renderer(escape=True, hard_wrap=True)
     inline = BiostarInlineLexer(renderer=renderer)
     inline.enable_post_link()
+    inline.enable_mention_link()
+
     inline.enable_anchor_link()
     inline.enable_user_link()
-    #inline.enable_youtube_link1()
-    #inline.enable_youtube_link2()
-    #inline.enable_youtube_link3()
+    inline.enable_youtube_link1()
+    inline.enable_youtube_link2()
+    inline.enable_youtube_link3()
     inline.enable_ftp_link()
-    #inline.enable_twitter_link()
+    inline.enable_twitter_link()
 
     markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline, renderer=renderer)
 
