@@ -12,8 +12,8 @@ class ForumConfig(AppConfig):
 
     def ready(self):
         # Triggered upon app initialization.
-        #post_migrate.connect(init_post, sender=self)
-        #post_migrate.connect(init_awards, sender=self)
+        post_migrate.connect(init_post, sender=self)
+        post_migrate.connect(init_awards, sender=self)
 
         pass
 

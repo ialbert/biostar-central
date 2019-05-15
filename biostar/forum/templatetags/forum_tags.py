@@ -45,6 +45,10 @@ ICON_MAP = dict(
     rep="user outline icon"
 )
 
+@register.simple_tag
+def activate(state, target):
+    return "active" if state == target else ""
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 

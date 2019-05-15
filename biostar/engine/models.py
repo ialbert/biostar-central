@@ -31,11 +31,11 @@ def get_placeholder():
 
 
 def make_html(text):
-    #from biostar.utils import markdown
-    #html = markdown.parse(text)
+    from biostar.utils import markdown
+    html = markdown.parse(text)
     #html = mistune.markdown(text)
-    markdown = mistune.Markdown(escape=True, hard_wrap=True)
-    html = markdown(text)
+    #markdown = mistune.Markdown(escape=True, hard_wrap=True)
+    #html = markdown(text)
     return html
 
 

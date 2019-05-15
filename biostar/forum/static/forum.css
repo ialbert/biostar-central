@@ -3,15 +3,23 @@ body {
     padding-top: 1rem;
 }
 
+#logo{
+    padding:5px;
+}
+#menu .item {
+    vertical-align: bottom;
+    padding-top: 20px;
+}
 
-.ui.menu {
-    font-size: 1.1rem;
+#new {
+    color: #1a69a4;
+}
+
+#search {
+
 }
 
 
-.ui.table.messages{
-    border: none;
-}
 .forumtabs.active.label {
     background-color: #dff0d8;
     color: #428bca ;
@@ -21,13 +29,10 @@ body {
 }
 
 .ui.basic.label.forumtabs{
-    font-size:14.5px;
-    margin:0.0px ;
     border:none ;
-    font-weight: lighter ;
     color: #428bca ;
     text-align: center ;
-    width: 96px ;
+    width: 90px ;
     position: relative ;
     top: 10px ;
 }
@@ -62,21 +67,11 @@ body {
     text-align: center;
 }
 
-.side-pads{
-     padding-right: 10px;
-     padding-left: 10px;
-}
-
-.ui.compact.menu.float-left{
-    float:left;
-}
-
 
 .pages-banner{
 
     text-align: center ;
     margin-top: 15px;
-    width:100%;
 }
 
 .ui.small.compact.menu {
@@ -171,11 +166,6 @@ figure { display: block; margin: 0; }
   color: #fff;
 }
 
-.ui.stat.label.forum{
-    background-color: #b79538;
-    color: white;
-}
-
 img {
     max-width: 100%;
 }
@@ -222,11 +212,6 @@ img {
   color: #8f2c47;
 }
 
-.ui.basic.segment.no-padding{
-    padding: 1px;
-
-}
-
 .ui.darkgreen.label {
   background-color: #326b2b;
   color: #fff;
@@ -248,33 +233,11 @@ img {
     padding-top: 0px;
 }
 
-.ui.divided.items>.item.unread-message.message {
-    background: #d5f7cd;
-    padding:5px;
-}
 .ui.title.header {
-    font-size: smaller;
+    font-size: .80em;
+    font-weight: 100;
 
 }
-.ui.grid>.row.messages{
-    padding-bottom: 0px;
-    margin-right: 20px;
-    margin-left: 10px;
-
-}
-.ui.grid>.column.messages:not(.row) {
-     padding-top: 0px;
-}
-
-.ui.small.header.messages {
-    margin: 0;
-}
-
-.item.message {
-    padding:5px;
-    margin: 0px;
-}
-
 
 .unread-message{
     background: #d5f7cd;
@@ -325,7 +288,7 @@ img {
 
 }
 
-.centering{
+.centered{
 
     text-align: center !important;
 }
@@ -370,11 +333,6 @@ img {
 
 .modcolor{
     color:#8f2c47 !important;
-}
-
-.feed-item> .ui.divided.items>.item:first-child{
-
-    background-color:red;
 }
 
 .subs{
@@ -472,6 +430,12 @@ a{
     padding: 0;
 }
 
+.ui.title.header {
+    font-size: .80em;
+    font-weight: bold;
+
+}
+
 a:hover{
     background-color: #EEEEEE;
     border-radius: 3px;
@@ -488,6 +452,7 @@ code {
     border-radius: 3px;
     line-height: 1.7;
 }
+
 
 #comment {
 

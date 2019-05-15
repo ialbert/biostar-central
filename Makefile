@@ -43,8 +43,8 @@ full_delete: delete
 reset: delete init
     # Initializes the test project.
 	python manage.py project --pid test --name "Test Project" --public
-	python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson
-	python manage.py recipe --pid test --rid kraken2 --json ~/book/biostar-handbook-2/recipes/work/classify/kraken2.hjson
+	#python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson
+	#python manage.py recipe --pid test --rid kraken2 --json ~/book/biostar-handbook-2/recipes/work/classify/kraken2.hjson
 
 # Resets site and loads existing fixture
 reset_load: delete init loaddata
