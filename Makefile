@@ -7,13 +7,29 @@ DATA_HOST=data.bioinformatics.recipes
 DUMP_FILE=export/database/engine.json
 BACKUP_DUMP_FILE=export/database/engine_`date +'%s'`.json
 
+DJANGO_SETTING_MODULE := biostar.engine.settings
+
 all: serve
 
-serve:
-	python manage.py runserver
+accounts:
+	$(eval DJANGO_SETTING_MODULE := biostar.accounts.settings)
+	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 
-pg_serve:
-	python manage.py runserver --settings conf.postgres.postgres_settings
+pg:
+	$(eval DJANGO_SETTING_MODULE := conf.postgres.postgres_settings)
+	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+
+engine:
+	$(eval DJANGO_SETTING_MODULE := conf.engine.settings)
+	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+
+forum:
+	$(eval DJANGO_SETTING_MODULE := conf.forum.settings)
+	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+
+serve:
+	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	python manage.py runserver --settings ${DJANGO_SETTING_MODULE}
 
 init:
 	python manage.py collectstatic --noinput -v 0
@@ -63,12 +79,6 @@ dumpdata:
 
 uwsgi:
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
-
-serve_forum:
-	python manage.py runserver --settings=biostar.forum.settings
-
-pg_forum:
-	python manage.py runserver --settings=biostar.forum.postgres_settings
 
 
 projects:
