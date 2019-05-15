@@ -1,7 +1,7 @@
 {% load forum_tags %}
 {% load staticfiles %}
 
-<div class="ui labeled icon attached pointing menu" id="menu">
+<div class="ui labeled icon attached pointing menu" id="menu-header">
 
     <span class="">
         <a href="/"><img class="ui image" src="{% static "images/biostar-logo.png" %}" id="logo"></a>
@@ -11,11 +11,11 @@
         <i class="world icon"></i>
         Community
     </a>
-    <a class="item {% activate tab "messages" %}"  href="{% url 'inbox' %}">
+    <a class="item {% activate tab "inbox" %}"  href="{% url 'inbox' %}">
         <i class="mail icon"> </i>
         Messages (2)
     </a>
-    <a class="item {% activate tab "votes" %}"  href="{% url 'post_list' %}?topic=myvotes">
+    <a class="item {% activate tab "myvotes" %}"  href="{% url 'post_list' %}?topic=myvotes">
         <i class="heart icon centericon"></i>
         Votes
     </a>

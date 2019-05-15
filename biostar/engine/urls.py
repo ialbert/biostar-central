@@ -1,7 +1,8 @@
 from django.conf.urls import url
 from django.urls import path
 
-from biostar.forum import views as forum_views
+from biostar.accounts.urls import urlpatterns as account_patterns
+
 from . import views, api
 
 urlpatterns = [
@@ -64,17 +65,6 @@ urlpatterns = [
     url(r'^api/project/(?P<uid>[-\w]+)/$', api.project_info, name='project_api_info'),
     url(r'^api/project/image/(?P<uid>[-\w]+)/$', api.project_image, name='project_api_image'),
 
-    # Discussions
-    #url(r'^discussion/list/(?P<uid>[-\w]+)/$', views.discussion_list, name='discussion_list'),
-    #url(r'^discussion/create/(?P<uid>[-\w]+)/$', views.discussion_create, name='discussion_create'),
-    #url(r'^discussion/view/(?P<uid>[-\w]+)/$', views.discussion_view, name='discussion_view'),
-    #url(r'^comment/$', forum_views.comment, name='discussion_comment'),
-
-    # Ajax calls
-    #url(r'^data/copy/$', views.ajax_data_copy, name='data_copy'),
-    #url(r'^result/copy/$', views.ajax_job_copy, name='job_copy'),
-    #url(r'^recipe/copy/$', views.ajax_recipe_copy, name='recipe_copy'),
-
     url(r'^data/copy/(?P<uid>[-\w]+)/$', views.data_copy, name='data_copy'),
     url(r'^result/copy/(?P<uid>[-\w]+)/$', views.job_copy, name='job_copy'),
     url(r'^recipe/copy/(?P<uid>[-\w]+)/$', views.recipe_copy, name='recipe_copy'),
@@ -83,4 +73,6 @@ urlpatterns = [
     url(r'^file/paste/(?P<uid>[-\w]+)/$', views.file_paste, name='file_paste'),
 
 ]
+
+urlpatterns += account_patterns
 

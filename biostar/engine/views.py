@@ -17,8 +17,6 @@ from django.conf import settings
 from django.db.models import Q, Count
 
 from biostar.accounts.models import User
-from biostar.forum import views as forum_views
-from biostar.forum.models import Post
 from biostar.utils.shortcuts import reverse
 from . import tasks, auth, forms, const, util, search
 from .decorators import read_access, write_access

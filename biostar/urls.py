@@ -60,3 +60,4 @@ if settings.DEBUG and settings.INTERNAL_IPS:
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
 
+1/0

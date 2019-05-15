@@ -30,7 +30,6 @@ RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_PRIVATE_KEY = ""
 
 MENU_BAR = "widgets/menubar.html"
-PROFILE_TEMPLTE = "accounts/user_profile.html"
 
 SUBS_TEMPLATE = ""
 MENTIONED_TEMPLATE = ""
@@ -130,20 +129,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'mailer',
-    'compressor',
-    'pagedown',
-    'taggit',
-    'debug_toolbar',
-    'snowpenguin.django.recaptcha2',
-    'rest_framework',
-    # The order of apps matters in the template loading
-    'biostar.engine.apps.EngineConfig',
-    'biostar.emailer.apps.EmailerConfig',
+
+    # Accounts configuration.
     'biostar.accounts.apps.AccountsConfig',
-    'biostar.forum.apps.ForumConfig',
-    'biostar.message.apps.MessageConfig',
-    'biostar.transfer',
+
     # Allauth templates come last.
     'allauth',
     'allauth.account',
@@ -193,13 +182,6 @@ TEMPLATES = [
         },
     },
 ]
-
-REST_FRAMEWORK = {
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.MultiPartParser',
-    ),
-
-}
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",

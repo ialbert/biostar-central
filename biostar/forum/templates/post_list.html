@@ -1,4 +1,4 @@
-{% extends "forum_base.html" %}
+{% extends "forum_list.html" %}
 {% load forum_tags %}
 
 {% block headtitle %}
@@ -88,3 +88,8 @@
     </div>
 
 {% endblock %}
+
+{%  block sidebar %}
+    {%  feed user=request.user %}
+{%  endblock %}
+
