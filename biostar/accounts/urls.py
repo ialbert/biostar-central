@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
 
     # Get the reset/ urls
-    url('^', views.user_login, name="test"),
+    url('^$', views.user_login, name="test"),
     url(r'^password/reset/$', views.password_reset, name='password_reset'),
     url(r'^password/reset/done/$', views.password_reset_done, name='password_reset_done'),
 

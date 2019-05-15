@@ -69,6 +69,40 @@ def pluralize(value, word):
 
 
 @register.filter
+def show_score_icon(user):
+
+    color = "modcolor" if user.profile.is_moderator else ""
+
+    if user.profile.score > 150:
+        icon = f'<i class="ui bolt icon {color}"></i>'
+    else:
+        icon = f'<i class="ui genderless icon {color}"></i>'
+
+    return mark_safe(icon)
+
+
+@register.filter
+def show_score(score):
+
+    score = (score * 14) + 1
+    return score
+
+@register.filter
+def bignum(number):
+    "Reformats numbers with qualifiers as K"
+    try:
+        value = float(number) / 1000.0
+        if value > 10:
+            return "%0.fk" % value
+        elif value > 1:
+            return "%0.1fk" % value
+    except ValueError as exc:
+        pass
+    return str(number)
+
+
+
+@register.filter
 def time_ago(date):
     if not date:
         return ''
