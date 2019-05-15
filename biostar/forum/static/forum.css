@@ -6,9 +6,13 @@ body {
 #logo{
     padding:5px;
 }
-#menu > .item {
+#menu .item {
     vertical-align: bottom;
     padding-top: 20px;
+}
+
+#new {
+    color: #1a69a4;
 }
 
 #search {

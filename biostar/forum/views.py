@@ -303,7 +303,7 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
                 tasks.created_post(pid=post.id)
             return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
 
-    context = dict(form=form, extra_tab="active", extra_tab_name="New Post", action_url=reverse("post_create"))
+    context = dict(form=form, tab="new",  action_url=reverse("post_create"))
     context.update(extra_context)
 
     return render(request, template, context=context)
