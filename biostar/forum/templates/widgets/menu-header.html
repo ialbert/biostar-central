@@ -7,30 +7,30 @@
         <a href="/"><img class="ui image" src="{% static "images/biostar-logo.png" %}" id="logo"></a>
     </span>
 
-    <a class="item {% activate tab "community" %}" src="/">
+    <a class="item {% activate tab "community" %}"  href="{% url 'community_list' %}">
         <i class="world icon"></i>
         Community
     </a>
-    <a class="item {% activate tab "messages" %}">
+    <a class="item {% activate tab "messages" %}"  href="{% url 'inbox' %}">
         <i class="mail icon"> </i>
         Messages (2)
     </a>
-    <a class="item {% activate tab "votes" %}">
+    <a class="item {% activate tab "votes" %}"  href="{% url 'post_list' %}?topic=myvotes">
         <i class="heart icon centericon"></i>
         Votes
     </a>
 
-    <a class="item {% activate tab "myposts" %}">
+    <a class="item {% activate tab "myposts" %}"  href="{% url 'post_list' %}?topic=myposts">
         <i class="comments icon"></i>
         My Posts
     </a>
 
-    <a class="item {% activate tab "following" %}">
+    <a class="item {% activate tab "following" %}" href="{% url 'post_list' %}?topic=following">
         <i class="eye icon"></i>
         Following
     </a>
 
-    <a class="item {% activate tab "bookmarks" %}">
+    <a class="item {% activate tab "bookmarks" %}" href="{% url 'post_list' %}?topic=bookmarks">
         <i class="book icon"></i>
         Bookmarks
     </a>
