@@ -79,7 +79,14 @@ def get_tweet(tweet_id):
         return ''
 
 
-class BiostarInlineLexer(InlineLexer):
+class MonkeyPatch(InlineLexer):
+
+    def __init__(self, *args, **kwds):
+        super(MonkeyPatch, self).__init__(*args, **kwds)
+        self.default_rules = list(InlineLexer.default_rules)
+
+
+class BiostarInlineLexer(MonkeyPatch):
 
     def enable_post_link(self):
         self.rules.post_link = POST_TOPLEVEL
@@ -169,16 +176,15 @@ def parse(text):
     renderer = Renderer(escape=True, hard_wrap=True)
     inline = BiostarInlineLexer(renderer=renderer)
     inline.enable_post_link()
-
     inline.enable_anchor_link()
     inline.enable_user_link()
-    inline.enable_youtube_link1()
+    #inline.enable_youtube_link1()
     #inline.enable_youtube_link2()
     #inline.enable_youtube_link3()
     inline.enable_ftp_link()
     #inline.enable_twitter_link()
 
-    markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline)
+    markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline, renderer=renderer)
 
     html = markdown(text)
 
