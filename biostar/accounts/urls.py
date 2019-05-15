@@ -7,7 +7,7 @@ urlpatterns = [
 
     # Get the reset/ urls
     #url('^', include('django.contrib.auth.urls')),
-
+    url('^', include('django.contrib.auth.urls')),
     url(r'^password/reset/$', views.password_reset, name='password_reset'),
     url(r'^password/reset/done/$', views.password_reset_done, name='password_reset_done'),
 
@@ -36,6 +36,8 @@ urlpatterns = [
 
     # Used for 3rd party logins.
     url("^social/", include('allauth.urls')),
+
+
 
 ]
 

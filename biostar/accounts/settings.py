@@ -29,45 +29,9 @@ DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_PRIVATE_KEY = ""
 
-MENU_BAR = "widgets/menubar.html"
-
-SUBS_TEMPLATE = ""
-MENTIONED_TEMPLATE = ""
-
-POSTS_PER_PAGE = 40
-USERS_PER_PAGE = 100
-MESSAGES_PER_PAGE = 100
-TAGS_PER_PAGE = 50
-
-VOTE_FEED_COUNT = 10
-LOCATION_FEED_COUNT = 5
-AWARDS_FEED_COUNT = 10
-REPLIES_FEED_COUNT = 15
-PROJECT_FEED_COUNT = 8
-
-SEARCH_CHAR_MIN = 2
-
-
-ENGINE_AS_ROOT = True
-
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
-
-# Maximum number of projects allowed
-MAX_PROJECTS = 20
-
-# Maximum amount of data allowed
-MAX_DATA = 100
-
-# Maximum amount of items per clipboard
-MAX_CLIPBOARD = 5
-
-# Name of the clipboard inside of sessions
-CLIPBOARD_NAME = "clipboard"
-
-# Maximum amount of total running jobs allowed for non-staff user.
-MAX_RUNNING_JOBS = 5
 
 # Set the home page to the engine or forum
 INTERNAL_IPS = ['127.0.0.1']
@@ -79,9 +43,6 @@ ADMINS = [
 
 # The default sender name on emails.
 DEFAULT_FROM_EMAIL = f"{ADMINS[0][0]} <{ADMINS[0][1]}>"
-
-# Maximum amount of cumulative uploaded files a user is allowed, in mega-bytes.
-MAX_UPLOAD_SIZE = 10
 
 # These must be set remote hosts.
 SITE_ID = 1
@@ -95,8 +56,6 @@ HTTP_PORT = ':8000'
 
 BASE_URL = f"{PROTOCOL}://{SITE_DOMAIN}{HTTP_PORT}"
 
-FTP_HOST = "localhost"
-FTP_PORT = 8021
 
 # Should the site allow signup.
 ALLOW_SIGNUP = False
@@ -104,8 +63,6 @@ ALLOW_SIGNUP = False
 # Allow users to toggle their status moderator
 ALLOW_SELF_MODERATE = False
 
-# Maximum size of each file upload in MB
-MAX_FILE_SIZE_MB = 300
 
 LOGIN_REDIRECT_URL = "/project/list/private"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
@@ -190,11 +147,36 @@ WSGI_APPLICATION = 'biostar.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': DATABASE_NAME,
     }
+}
+
+DATABASES = {
+
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'engine.db',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+    },
+
+    'biostar2': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'biostar.db',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+        'TEST': {
+            'MIRROR': 'default',
+        }
+    },
 }
 
 # Password validation

@@ -20,7 +20,7 @@ pg:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 
 engine:
-	$(eval DJANGO_SETTING_MODULE := conf.engine.settings)
+	$(eval DJANGO_SETTING_MODULE := biostar.engine.settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 
 forum:

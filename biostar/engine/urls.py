@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.urls import path
 
 from biostar.accounts.urls import urlpatterns as account_patterns
@@ -76,7 +76,7 @@ urlpatterns = [
     url(r'^data/file/copy/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.data_file_copy, name='data_file_copy'),
     url(r'^job/file/copy/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_file_copy, name='job_file_copy'),
     url(r'^file/paste/(?P<uid>[-\w]+)/$', views.file_paste, name='file_paste'),
-
+    url(r'^accounts/', include(account_patterns)),
 ]
 
 urlpatterns += account_patterns
