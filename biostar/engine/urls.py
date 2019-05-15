@@ -1,3 +1,5 @@
+
+from django.contrib import admin
 from django.conf.urls import url
 from django.urls import path
 
@@ -6,6 +8,9 @@ from biostar.accounts.urls import urlpatterns as account_patterns
 from . import views, api
 
 urlpatterns = [
+    # The django generated admin site.
+    url(r'^django/admin/', admin.site.urls, name='django_admin'),
+
     url(r'^$', views.index, name="index"),
 
     # Site
@@ -75,4 +80,6 @@ urlpatterns = [
 ]
 
 urlpatterns += account_patterns
+
+
 

@@ -16,12 +16,6 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
-from biostar.engine.auth import get_project_list
-from biostar.engine.views import annotate_projects
-from biostar.forum.auth import my_posts
-from biostar.forum.models import Post, Subscription, Vote, Badge, Award
-from biostar.message.models import Message
-from biostar.engine.models import Project
 from biostar.utils.shortcuts import reverse
 from . import forms
 from .auth import check_user, send_verification_email
@@ -66,27 +60,27 @@ def toggle_moderate(request):
     return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 
 
-def ban_user(user):
-
-    # Delete the posts, votes, awards, messages, and subs
-    Post.objects.filter(author=user).delete()
-    Message.objects.filter(sender=user).delete()
-    Subscription.objects.filter(user=user).delete()
-    Award.objects.filter(user=user).delete()
-    Vote.objects.filter(author=user).delete()
-
-    User.objects.filter(pk=user.id).update(email=f"banned-{user.id}@nomail.com", username=f"banned-{user.id}")
-    Profile.objects.filter(user=user).update(name="banned", text="", html="")
-    edited_posts = Post.objects.filter(lastedit_user=user)
-
-    def gen():
-        for post in edited_posts:
-            post.lastedit_user = post.author
-            yield post
-
-    Post.objects.bulk_update(objs=gen(), fields=["lastedit_user"], batch_size=10)
-    #User.objects.filter(pk=user.id).first().delete()
-    return
+# def ban_user(user):
+#
+#     # Delete the posts, votes, awards, messages, and subs
+#     Post.objects.filter(author=user).delete()
+#     Message.objects.filter(sender=user).delete()
+#     Subscription.objects.filter(user=user).delete()
+#     Award.objects.filter(user=user).delete()
+#     Vote.objects.filter(author=user).delete()
+#
+#     User.objects.filter(pk=user.id).update(email=f"banned-{user.id}@nomail.com", username=f"banned-{user.id}")
+#     Profile.objects.filter(user=user).update(name="banned", text="", html="")
+#     edited_posts = Post.objects.filter(lastedit_user=user)
+#
+#     def gen():
+#         for post in edited_posts:
+#             post.lastedit_user = post.author
+#             yield post
+#
+#     Post.objects.bulk_update(objs=gen(), fields=["lastedit_user"], batch_size=10)
+#     #User.objects.filter(pk=user.id).first().delete()
+#     return
 
 
 @login_required
@@ -102,7 +96,8 @@ def user_moderate(request, uid):
             Profile.objects.filter(user=target).update(state=state)
             if Profile.BANNED == state:
                 # Delete posts of banned users
-                ban_user(user=target)
+                Profile.objects.filter(user=target).update(state=state)
+                #ban_user(user=target)
             messages.success(request, "User moderation complete.")
         else:
             messages.error(request, "Invalid user moderation.")
@@ -123,28 +118,12 @@ def user_profile(request, uid):
         return redirect("/")
 
     # Get the active tab, defaults to project
-    active_tab = request.GET.get(ACTIVE_TAB, POSTS)
+    active_tab = request.GET.get("active", "posts")
     # User viewing profile is a moderator
-    can_moderate = profile.can_moderate(source=request.user)
+    can_moderate = (request.user.is_authenticated and request.user.profile.is_moderator) or (request.user == profile.user)
 
-    if active_tab == PROJECT:
-        objs = get_project_list(user=profile.user, include_public=False)
-        objs = annotate_projects(objs)
-        objs = objs.exclude(privacy=Project.PRIVATE) if request.user != profile.user else objs
-        objs = objs.order_by("rank", "-date")
-    else:
-        objs = my_posts(target=profile.user, request=request)
-        objs = objs.prefetch_related("root", "lastedit_user__profile", "thread_users__profile")
-        objs = objs.order_by("rank", '-lastedit_date')
-
-    page = request.GET.get("page", 1)
-    paginator = Paginator(objs, per_page=20)
-    page = page if page is not None else 1
-
-    objs = paginator.get_page(page)
-    context = dict(user=profile.user, objs=objs, active=active_tab, debugging=settings.DEBUG,
+    context = dict(user=profile.user, active=active_tab, debugging=settings.DEBUG,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, tab="profile")
-
 
     return render(request, "accounts/user_profile.html", context)
 

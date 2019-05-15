@@ -136,7 +136,7 @@ class Post(models.Model):
 
     # The tag set is built from the tag string and used only for fast filtering
     tags = TaggableManager()
-
+    
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
 

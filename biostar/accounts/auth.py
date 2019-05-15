@@ -5,9 +5,6 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib import auth
 from django.conf import settings
 
-from biostar.forum.models import Post
-from biostar.engine.auth import get_project_list
-from biostar.engine.models import Project
 from biostar.emailer.auth import notify
 from .models import User, Profile
 from . import util, const

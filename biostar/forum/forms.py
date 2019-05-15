@@ -246,7 +246,7 @@ class PostModForm(forms.Form):
         (DELETE, "Delete post"),
     ]
 
-    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action", required=False)
+    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action", required=False )
     dupe = forms.CharField(required=False, max_length=200,
                            help_text="""One or more duplicated link, 
                                         comma separated (required for duplicate closing).
@@ -270,7 +270,7 @@ class PostModForm(forms.Form):
         pid = cleaned_data.get("pid").strip()
         cleaned_data["pid"] = pid
 
-        if not action and not (dupe or pid):
+        if (action is None) and not (dupe or pid):
             raise forms.ValidationError("Select an action")
 
         if not (self.user.profile.is_moderator or self.user.profile.is_manager):

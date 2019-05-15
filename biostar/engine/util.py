@@ -7,6 +7,8 @@ import tarfile
 import uuid
 from itertools import islice
 from urllib.parse import quote
+from datetime import datetime
+from django.utils.timezone import utc
 import hjson
 
 CHUNK = 1024 * 1024
@@ -26,6 +28,11 @@ def fix_endings(text):
 
 class File(object):
     pass
+
+
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
+
 
 
 def pp(json):

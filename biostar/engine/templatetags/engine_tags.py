@@ -3,7 +3,10 @@ import logging
 import os
 import re
 from textwrap import dedent
+import hashlib
+import urllib.parse
 
+from datetime import timedelta, datetime
 from django.contrib import messages
 from django import template
 from django.conf import settings
@@ -56,6 +59,56 @@ def moderate(request):
 @register.simple_tag
 def build_path(path, name):
     return f'{path}/{name}'
+
+
+def pluralize(value, word):
+    if value > 1:
+        return "%d %ss" % (value, word)
+    else:
+        return "%d %s" % (value, word)
+
+
+@register.filter
+def time_ago(date):
+    if not date:
+        return ''
+    delta = util.now() - date
+    if delta < timedelta(minutes=1):
+        return 'just now'
+    elif delta < timedelta(hours=1):
+        unit = pluralize(delta.seconds // 60, "minute")
+    elif delta < timedelta(days=1):
+        unit = pluralize(delta.seconds // 3600, "hour")
+    elif delta < timedelta(days=30):
+        unit = pluralize(delta.days, "day")
+    elif delta < timedelta(days=90):
+        unit = pluralize(int(delta.days / 7), "week")
+    elif delta < timedelta(days=730):
+        unit = pluralize(int(delta.days / 30), "month")
+    else:
+        diff = delta.days / 365.0
+        unit = '%0.1f years' % diff
+    return "%s ago" % unit
+
+
+@register.simple_tag
+def gravatar(user, size=80):
+    #name = user.profile.name
+    if user.is_anonymous or user.profile.is_suspended:
+        # Removes spammy images for suspended users
+        email = 'suspended@biostars.org'.encode('utf8')
+    else:
+        email = user.email.encode('utf8')
+
+    hash = hashlib.md5(email).hexdigest()
+
+    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
+    gravatar_url += urllib.parse.urlencode({
+        's': str(size),
+        'd': 'retro',
+    }
+    )
+    return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
 
 
 @register.inclusion_tag('widgets/job_file_list.html', takes_context=True)
