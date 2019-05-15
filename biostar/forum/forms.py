@@ -253,7 +253,7 @@ class PostModForm(forms.Form):
                                        """,
                            label="Duplicate Link(s)")
     pid = forms.CharField(required=False, max_length=200,
-                           help_text=""" Uid of parent to move comment to.
+                           help_text=""" Parent uid to move comment under.
                                      """,
                            label="Duplicate Link(s)")
 
