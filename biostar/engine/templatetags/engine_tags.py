@@ -33,6 +33,33 @@ DATA_COLORS = {
 }
 
 
+@register.inclusion_tag('widgets/pages.html')
+def pages(objs, request):
+
+    url = request.path
+    return dict(objs=objs, url=url, request=request)
+
+@register.simple_tag
+def relative_url(value, field_name, urlencode=None):
+    """
+    Updates field_name parameters in url with value
+    """
+    # Create query string with updated field_name, value pair.
+    url = '?{}={}'.format(field_name, value)
+    if urlencode:
+        # Split query string
+        querystring = urlencode.split('&')
+        # Exclude old value 'field_name' from query string
+        filter_func = lambda p: p.split('=')[0] != field_name
+        filtered_querystring = filter(filter_func, querystring)
+        # Join the filtered string
+        encoded_querystring = '&'.join(filtered_querystring)
+        # Update query string
+        url = '{}&{}'.format(url, encoded_querystring)
+
+    return url
+
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 

@@ -38,7 +38,6 @@ SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 INSTALLED_APPS += [
 
-
     # Accounts configuration.
     'biostar.accounts.apps.AccountsConfig',
 

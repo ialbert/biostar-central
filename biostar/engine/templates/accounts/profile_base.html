@@ -1,6 +1,7 @@
+
 {% load staticfiles %}
 {% load compress %}
-{% load accounts_tags %}
+{% load engine_tags %}
 
 {% load recaptcha2 %}
 
@@ -24,22 +25,53 @@
     {% recaptcha_init %}
 
 
+    {% compress css %}
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'style.css' %}" rel="stylesheet">
+    <link href="{% static 'forum.css' %}" rel="stylesheet">
+    {% endcompress %}
+
+    {% compress js %}
+        <script src="{% static 'semantic.min.js' %}">
+        </script>
+            <script src="{% static 'forum.js' %}">
+        </script>
+        <script src="{% static 'engine.js' %}">
+        </script>
+    {% endcompress %}
+
     {% block js %}
     {% endblock %}
 
 </head>
 <body>
 
-        {% block title %}
-        {% endblock %}
 
+
+
+<div class="ui container">
+
+
+    <div class="ui center aligned header">
+        {% block title %}
+            {% include "site_header.html" %}
+        {% endblock %}
+    </div>
 
     {% block menu %}
+
+    {% menubar request=request %}
+
+
     {% endblock %}
 
 
+    <div class="ui bottom attached segment">
+        <div class="ui center aligned basic vertical segment">
 
-        {% show_messages messages %}
+{% show_messages messages %}
+
+    </div>
 
 
         {% block body %}
@@ -53,11 +85,23 @@
         {% endblock %}
 
 
+    </div>
+
 
     {% block footer %}
+        <div class="ui vertical center aligned segment">
+                <p class="muted">
+                    <a href="https://github.com/biostars/biostar-engine" class="ui image">
+                    <img src="{% static 'images/badge-engine.svg' %}"></a>
+                    and
+                    <a href="https://github.com/biostars/biostar-recipes" class="ui image">
+                    <img src="{% static 'images/badge-recipe.svg' %}"></a>
+                </p>
+            <p class="muted smaller">Software version: {{ VERSION }}</p>
+        </div>
     {% endblock %}
 
-
+</div>
 
 
 

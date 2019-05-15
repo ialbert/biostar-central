@@ -15,7 +15,7 @@ def get_uuid(limit=32):
 logger = logging.getLogger('engine')
 
 
-class ForumNavigation(TestCase):
+class MessageNavigation(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
@@ -54,8 +54,6 @@ class ForumNavigation(TestCase):
             reverse('compose'),
             reverse("inbox_view", kwargs=dict(uid=self.message.uid)),
             reverse('outbox_view', kwargs=dict(uid=self.message.uid)),
-
-
         ]
 
         self.visit_urls(urls, [200])

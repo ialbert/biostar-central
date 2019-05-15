@@ -405,21 +405,19 @@ def boxclass(post):
 
 
 @register.simple_tag
-def render_comments(request, tree, post, next_url, project_uid=None,
-                    comment_template='widgets/comment_body.html'):
+def render_comments(request, tree, post, next_url, comment_template='widgets/comment_body.html'):
 
     if post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
                                  comment_template=comment_template,
-                                 next_url=next_url, project_uid=project_uid)
+                                 next_url=next_url)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template, next_url,
-                      project_uid=None):
+def traverse_comments(request, post, tree, comment_template, next_url):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
@@ -430,8 +428,7 @@ def traverse_comments(request, post, tree, comment_template, next_url,
 
         data = ['<div class="ui comment segments">']
         cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url,
-                "vote_url": vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME,
-                "project_uid": project_uid}
+                "vote_url": vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):

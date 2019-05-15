@@ -3,7 +3,6 @@ from unittest.mock import patch, MagicMock
 from django.test import TestCase, override_settings
 from django.test import Client
 from biostar.accounts import models, views, auth
-from biostar.engine.auth import create_project
 from django.core import signing
 
 from django.conf import settings
@@ -13,6 +12,7 @@ from . import util
 
 
 logger = logging.getLogger('engine')
+
 
 class UserAccountTests(TestCase):
 
@@ -90,7 +90,7 @@ class LoginTest(TestCase):
         resp = c.post(url, data=data)
 
         self.assertEqual(resp.status_code, 302)
-        self.assertTrue(resp.url == reverse("project_list_private"),
+        self.assertTrue(resp.url == settings.LOGIN_REDIRECT_URL,
                          f"Invlaid redirection when logging in.\nexpected: /\ngot:{resp.url}")
 
         return

@@ -10,7 +10,7 @@ from biostar.engine import auth
 from biostar.engine import models, views, forms
 from . import util
 
-TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'engine', 'test'))
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'test'))
 
 logger = logging.getLogger('engine')
 

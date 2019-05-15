@@ -286,7 +286,7 @@ SENDFILE_BACKEND = "sendfile.backends.development"
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
-STATIC_ROOT = join(BASE_DIR, '..', '..', 'export', 'static')
+STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
 
 STATICFILES_DIRS = [
     join(BASE_DIR, "static"),

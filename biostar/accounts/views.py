@@ -232,7 +232,8 @@ def user_login(request):
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
                 Profile.objects.filter(user=user).update(last_login=now())
                 messages.success(request, "Login successful!")
-                return redirect(reverse("project_list_private"))
+                redir = settings.LOGIN_REDIRECT_URL or "/"
+                return redirect(redir)
             else:
                 messages.error(request, mark_safe(message))
 

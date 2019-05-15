@@ -59,8 +59,11 @@ class BlockList(models.Model):
     # Reason for blocking particular user
     reason = models.CharField(max_length=MAX_TEXT_LEN, default="")
 
-    uid = models.CharField(max_length=32, unique=True, default=util.get_uuid(10))
+    uid = models.CharField(max_length=32, unique=True)
 
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or util.get_uuid(8)
+        super(BlockList, self).save(**kwargs)
 
 # Connects user to message bodies
 class Message(models.Model):

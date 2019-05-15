@@ -15,7 +15,6 @@ from django.db.models import F, Q
 
 from taggit.managers import TaggableManager
 from biostar.utils.shortcuts import reverse
-from biostar.engine.models import Project
 from biostar.accounts.models import Profile
 from . import util
 
@@ -67,7 +66,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # The project that this post belongs to.
-    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
+    #project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
 
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(User, related_name='editor', null=True,
@@ -447,7 +446,6 @@ def check_root(sender, instance, created, *args, **kwargs):
         if not instance.is_toplevel:
             # Title is inherited from top level.
             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
-            instance.project = instance.root.project
 
             if instance.type == Post.ANSWER:
                 Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
