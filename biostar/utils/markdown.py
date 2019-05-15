@@ -111,7 +111,7 @@ class BiostarInlineLexer(MonkeyPatch):
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
         else:
-            link = handle
+            link = m.group(0)
 
         return link
 
