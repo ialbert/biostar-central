@@ -4,6 +4,7 @@ import datetime
 import logging
 import re
 from itertools import chain
+import mistune
 
 from django.contrib import messages
 from django.utils.timezone import utc
@@ -26,7 +27,6 @@ User = get_user_model()
 logger = logging.getLogger("engine")
 
 
-
 def get_votes(user, thread):
 
     store = {Vote.BOOKMARK: set(), Vote.UP:set()}
@@ -47,6 +47,8 @@ def my_posts(target, request):
         return Post.objects.filter(author=target).exclude(status=Post.DELETED)
 
     query = Post.objects.filter(author=target)
+    query = query.exclude(root=None)
+    query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
     query = query if (user.profile.is_moderator or user == target) else query.exclude(status=Post.DELETED)
 
     return query
@@ -250,22 +252,6 @@ def parse_mentioned_users(content):
     return User.objects.filter(username__in=users_list)
 
 
-def parse_htmlXXX(text):
-    "Sanitize text and expand links to match content"
-
-    # This will collect the objects that could be embedded
-    mentioned_users = parse_mentioned_users(content=text)
-
-    # embed the objects
-    for user in mentioned_users:
-        url = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
-        handler = f"@{user.username}"
-        emb_patt = f'<a href="{url}">{handler}</a>'
-        html = html.replace(handler, emb_patt)
-
-    return html
-
-
 def delete_post(post, request):
     # Delete marks a post deleted but does not remove it.
     # Remove means to delete the post from the database with no trace.
@@ -299,7 +285,7 @@ def delete_post(post, request):
     return url
 
 
-def moderate_post(request, action, post, comment=None, dupes=[]):
+def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
 
     root = post.root
     user = request.user
@@ -337,24 +323,18 @@ def moderate_post(request, action, post, comment=None, dupes=[]):
         messages.success(request, "Moved comment to answer")
         return url
 
-    if action == MOVE_TO_COMMENT:
-        Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=post.root, reply_count=F("reply_count") - 1)
+    if action == MOVE_TO_COMMENT or pid:
+        parent = Post.objects.filter(uid=pid).first() or post.root
+        Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent, reply_count=F("reply_count") - 1)
         Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") - 1)
         messages.success(request, "Moved answer to comment")
-        return url
-
-    if action == CLOSE_OFFTOPIC:
-        Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-        Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") - 1)
-        content = util.render(name="messages/offtopic_posts.html", user=post.author, comment=comment, posts=post)
-        # Create a comment to the post
-        Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
         return url
 
     if action == DUPLICATE:
         Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
         Post.objects.filter(uid__in=dupes).update(status=Post.CLOSED)
-        content = util.render(name="messages/duplicate_posts.html", user=post.author, comment=comment, posts=post)
+        content = util.render(name="messages/duplicate_posts.html", user=post.author, comment=comment,
+                              posts=Post.objects.filter(uid=post.uid))
         # Create a comment to the post
         Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
         return url
@@ -370,18 +350,17 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
         author=author, type=post_type, parent=parent, root=root, project=project)
-
     root = root or post.root
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously
-    tasks.send_default_messages(post=post, sender=author)
+    tasks.send_default_messages(post=post)
 
     # Subscribe the author to the root, if not already
     if sub_to_root:
         create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
 
     # Triggers another save in here
-    post.add_tags(post.tag_val)
+    #post.add_tags(post.tag_val)
 
     return post
 

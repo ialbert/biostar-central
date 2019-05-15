@@ -57,10 +57,9 @@ class Post(models.Model):
     ]
     TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
-    SPAM, VALID, NEW = range(3)
-    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Non spam"), (NEW, "New post")]
-
-    spam = models.IntegerField(choices=SPAM_CHOICES, default=NEW)
+    SPAM, VALID, UNKNOWN = range(3)
+    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Not spam"), (UNKNOWN, "Unknown")]
+    spam = models.IntegerField(choices=SPAM_CHOICES, default=UNKNOWN)
 
     title = models.CharField(max_length=200, null=False, db_index=True)
 
@@ -151,13 +150,10 @@ class Post(models.Model):
         text = text.strip()
         if not text:
             return
-       # Sanitize the tag value
-        self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
-       # Clear old tags
-        tag_list = [x.lower() for x in self.parse_tags()]
+        # Sanitize the tag value
+        # Clear old tags
         #self.tags.clear()
         #self.tags.add(*tag_list)
-        self.save()
 
     @property
     def as_text(self):
@@ -227,7 +223,7 @@ class Post(models.Model):
         if self.is_toplevel and self.type != Post.QUESTION:
             required_tag = self.get_type_display().lower()
 
-            if self.tag_val and (required_tag not in self.tag_val.split()):
+            if self.tag_val and (required_tag not in self.tag_val.split(",")):
                 self.tag_val += "," + required_tag
             else:
                 self.tag_val = required_tag
@@ -237,9 +233,8 @@ class Post(models.Model):
 
         # Set the timestamps on the parent
         if self.type == Post.ANSWER:
-            self.parent.lastedit_date = self.lastedit_date
-            self.parent.lastedit_user = self.lastedit_user
-            self.parent.save()
+            Post.objects.filter(uid=self.parent.uid).update(lastedit_date=self.lastedit_date,
+                                                            lastedit_user=self.lastedit_user)
 
         super(Post, self).save(*args, **kwargs)
 

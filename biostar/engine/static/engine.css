@@ -130,12 +130,6 @@ figure { display: block; margin: 0; }
     padding-top: 0px;
 }
 
-.ui.title.header {
-    font-size: .80em;
-    font-weight: 9000;
-
-}
-
 .ui.divided.items>.post.item {
     padding-bottom: 0;
 }

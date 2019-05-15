@@ -5,11 +5,12 @@
 {% get_all_message_count request=request as msg_counts %}
 
 
-<div class="ui  vertical tabular menu">
+<div class="ui  vertical tabular menu" id="messaging-menu">
 
-            <a class=" green item" href="#">
-            <i class="write icon"></i>Compose
-        </a>
+    <a class=" {{ compose }} blue item" href="{% url 'compose' %}">
+        <i class="write icon"></i>Compose
+    </a>
+
     <a class="{{inbox}} blue item" href="{% url 'inbox' %}?{{ active_tab }}={{ const_in }}">
       Inbox
 

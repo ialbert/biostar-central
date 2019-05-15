@@ -215,7 +215,7 @@ class ProfileTest(TestCase):
 
         self.user.delete()
 
-        #print(posts, project, self.user)
+        print(posts, project, self.user)
         #1/0
 
     def test_banned_user_login(self):

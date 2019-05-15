@@ -31,7 +31,7 @@ def get_placeholder():
 
 
 def make_html(text):
-    html = mistune.markdown(text, escape=False)
+    html = mistune.markdown(text)
     return html
 
 

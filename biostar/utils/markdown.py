@@ -10,6 +10,7 @@ from mistune import Renderer, InlineLexer
 from django.conf import settings
 
 from biostar.forum.models import Post
+from biostar.accounts.models import Profile
 
 # Test input.
 TEST_INPUT = '''
@@ -35,18 +36,13 @@ https://twitter.com/Linux/status/2311234267
 '''
 
 
-
 # Shortcut to re.compile
 rec = re.compile
 
-# Set here to make testing easier.
-# TODO: pull from settings
-SITE_DOMAIN = 'www.biostars.org'
-
 # Biostar patterns.
-USER_PATTERN = rec(r"http(s)?://%s/u/(?P<uid>(\w+))(/)" % SITE_DOMAIN)
-POST_TOPLEVEL = rec(r"^http(s)?://%s/p/(?P<uid>(\w+))(/)?" % SITE_DOMAIN)
-POST_ANCHOR = rec(r"^http(s)?://%s/p/\w+//\#(?P<uid>(\w+))(/)?" % SITE_DOMAIN)
+USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
+POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
+POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
 
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
@@ -83,7 +79,14 @@ def get_tweet(tweet_id):
         return ''
 
 
-class BiostarInlineLexer(InlineLexer):
+class MonkeyPatch(InlineLexer):
+
+    def __init__(self, *args, **kwds):
+        super(MonkeyPatch, self).__init__(*args, **kwds)
+        self.default_rules = list(InlineLexer.default_rules)
+
+
+class BiostarInlineLexer(MonkeyPatch):
 
     def enable_post_link(self):
         self.rules.post_link = POST_TOPLEVEL
@@ -93,7 +96,6 @@ class BiostarInlineLexer(InlineLexer):
         uid = m.group("uid")
         post = Post.objects.filter(uid=uid).first() or Post(title=f"Invalid post uid: {uid}")
         link = m.group(0)
-        print(post.title)
         return f'<a href="{link}">{post.title}</a>'
 
     def enable_anchor_link(self):
@@ -111,8 +113,10 @@ class BiostarInlineLexer(InlineLexer):
 
     def output_user_link(self, m):
         uid = m.group("uid")
-        alt, link = f"{uid}", m.group(0)
-        return f'<a href="{link}">USER: {alt}</a>'
+        link = m.group(0)
+        profile = Profile.objects.filter(uid=uid).first()
+        name = profile.name if profile else f"Invalid user uid: {uid}"
+        return f'<a href="{link}">USER: {name}</a>'
 
     def enable_youtube_link1(self):
         self.rules.youtube_link1 = YOUTUBE_PATTERN1
@@ -168,18 +172,19 @@ def parse(text):
     Parses markdown into html.
     Expands certain patterns into HTML.
     """
+
     renderer = Renderer(escape=True, hard_wrap=True)
     inline = BiostarInlineLexer(renderer=renderer)
     inline.enable_post_link()
-    #inline.enable_anchor_link()
-    #inline.enable_user_link()
+    inline.enable_anchor_link()
+    inline.enable_user_link()
     #inline.enable_youtube_link1()
     #inline.enable_youtube_link2()
     #inline.enable_youtube_link3()
-    #inline.enable_ftp_link()
+    inline.enable_ftp_link()
     #inline.enable_twitter_link()
 
-    markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline)
+    markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline, renderer=renderer)
 
     html = markdown(text)
 
@@ -192,7 +197,6 @@ def test():
 
 
 if __name__ == '__main__':
-
 
     html = test()
 

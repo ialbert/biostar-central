@@ -18,19 +18,19 @@
             {{form.action}}
         </div>
 
-        <div class="ui segment">
-            <b>Comment</b>
-            {{form.comment}}
-                        <div class="ui muted">
-                Enter a reason (required when closing, crosspost). This will be inserted into a template comment.
-            </div>
-        </div>
 
         <div class="ui segment">
             <b>Duplicate number(s)</b>
             {{form.dupe}}
             <div class="ui muted">
-                One or more duplicated post numbers, space or comma separated (required for duplicate closing).
+                One or more duplicated links, space or comma separated (required for duplicate closing).
+            </div>
+        </div>
+        <div class="ui segment">
+            <b>Parent uid to move comment under</b>
+            {{form.pid}}
+            <div class="ui muted">
+                Parent uid of the parent to move current post under ( required to move comments ).
             </div>
         </div>
 

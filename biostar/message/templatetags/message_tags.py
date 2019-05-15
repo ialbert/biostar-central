@@ -25,21 +25,26 @@ def get_all_message_count(request):
     return context
 
 
+@register.inclusion_tag("widgets/message_top_actionbar.html", takes_context=True)
+def message_top_actionbar(context, with_pages=False):
+    extra_context = dict(with_pages=with_pages)
+    context.update(extra_context)
+    return context
+
+
 @register.simple_tag
-def is_unread(tab_name, message):
+def is_unread(user, message):
 
-    inbox_tab = tab_name in [const.INBOX, const.MENTIONED, const.UNREAD]
-
-    if inbox_tab and message.unread:
+    if message.recipient == user and message.unread:
         return "unread-message"
 
     return ""
 
 
-@register.filter
-def is_inbox(tab_name):
+@register.simple_tag
+def is_inbox(message, target):
 
-    return tab_name in [const.INBOX, const.MENTIONED, const.UNREAD]
+    return message.recipient == target
 
 
 @register.inclusion_tag("widgets/message_menu.html")

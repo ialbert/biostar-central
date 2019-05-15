@@ -24,23 +24,24 @@ def build_msg_tree(msg, tree=[]):
     # Check if it has a parent
     # and recursively add that to the tree.
     if msg.parent_msg and msg.parent_msg != msg:
-        tree.append(msg.parent_msg)
         build_msg_tree(msg=msg.parent_msg, tree=tree)
 
     # End of tree, at the root message
     return tree
 
 
-def create_local_messages(body, sender, rec_list, subject="", parent=None,
+def create_local_messages(body, sender, rec_list, subject="", parent=None, uid=None,
                           source=Message.REGULAR, mtype=Profile.LOCAL_MESSAGE):
     "Create batch message from sender for a given recipient_list"
 
     subject = subject or f"Message from : {sender.profile.name}"
     msgs = []
     for rec in rec_list:
+        actual_uid = uid or get_uuid(10)
         msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, source=source,
-                               sent_date=now(), uid=get_uuid(10), body=body, parent_msg=parent, type=mtype)
+                                     sent_date=now(), uid=actual_uid, body=body, parent_msg=parent, type=mtype)
 
         msgs.append(msg)
 
     return msgs
+

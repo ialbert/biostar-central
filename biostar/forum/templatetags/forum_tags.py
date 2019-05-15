@@ -40,6 +40,9 @@ ICON_MAP = dict(
     reputation='star icon',
     joined='sign in icon',
     activity='comment icon',
+    rsent="sort numeric down icon",
+    sent="sort numeric up icon",
+    rep="user outline icon"
 )
 
 @register.simple_tag
@@ -114,11 +117,8 @@ def post_body(context, post, user, tree, form):
 
     "Renders the post body"
     request = context['request']
-
-    next_url = reverse("post_view", request=request, kwargs=dict(uid=post.uid))
-
     return dict(post=post, user=user, tree=tree, request=request,
-                form=form, next_url=next_url,
+                form=form,
                 redir_field_name=const.REDIRECT_FIELD_NAME)
 
 
@@ -140,6 +140,16 @@ def subs_actions(post, user):
     button = "Follow" if unsubbed else "Update"
 
     return dict(post=post, form=form, button=button)
+
+
+@register.inclusion_tag("widgets/forum_top_actionbar.html", takes_context=True)
+def forum_top_actionbar(context, base_url="", objs=None):
+
+    bar_objs = context.get("objs", objs)
+    extra_context = dict(base_url=reverse(base_url), objs=bar_objs)
+    context.update(extra_context)
+    
+    return context
 
 
 @register.filter
@@ -229,9 +239,11 @@ def get_wording(filtered, prefix="Sort by:", default=""):
     """
 
     display = dict(all="all time", week="this week", month="this month",
-                   year="this year", rank="rank", views="views",
+                   year="this year", rank="rank", views="views", today="today",
                    replies="replies", votes="votes", visit="recent visit",
-                   reputation="reputation", joined="date joined", activity="activity level")
+                   reputation="reputation", joined="date joined", activity="activity level",
+                   rsent="oldest to newest ", sent="newest to oldest",
+                   rep="sender reputation")
     if display.get(filtered):
         displayed = display[filtered]
     else:
@@ -350,7 +362,7 @@ def boxclass(post):
     elif post.type == Post.TOOL:
         style = "tool"
     elif post.type == Post.FORUM:
-        style = "gold"
+        style = "forum"
     elif post.type == Post.NEWS:
         style = "news"
     elif post.has_accepted:

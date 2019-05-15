@@ -20,7 +20,7 @@ urlpatterns = [
     url(r'^verify/$', views.send_email_verify, name="send_email_verify"),
 
     url(r'^reset/done/$', views.password_reset_complete, name='password_reset_complete'),
-    url(r'^user/moderate/(?P<uid>[-\w]+)/$', views.user_moderate, name="user_moderate"),
+    url(r'^moderate/(?P<uid>[-\w]+)/$', views.user_moderate, name="user_moderate"),
     url(r'^login/$', views.user_login, name="login"),
     url(r'^signup/$', views.user_signup, name="signup"),
     url(r'^profile/(?P<uid>[-\w]+)/$', views.user_profile, name="user_profile"),

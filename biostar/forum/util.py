@@ -2,13 +2,12 @@ import re
 import bleach
 import logging
 import uuid
+
 from datetime import datetime, timedelta
 
 
-from django.template import loader, Context
+from django.template import loader
 from django.utils.timezone import utc
-
-logger = logging.getLogger(__name__)
 
 
 def fixcase(name):
@@ -38,7 +37,7 @@ def get_uuid(limit=32):
 
 def strip_tags(text):
     "Strip html tags from text"
-    text = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
+    text = bleach.clean(text, tags=[], attributes={}, styles=[], strip=True)
     return text
 
 

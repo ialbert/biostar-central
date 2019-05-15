@@ -13,11 +13,11 @@
 
         <div class="ui aligned large header"> {{ user.profile.get_role_display }}: {{ user.profile.name }}</div>
    </div>
-<div class="ui horizontal segments">
+<div class="ui horizontal segments no-shadow" style="border: none">
 
         <div class="ui center aligned large segment">
 
-            <div>
+            <div class="ui circular image">
                 {% gravatar user=user size=200 %}
             </div>
 
@@ -34,7 +34,7 @@
             {% endif %}
 
 
-            {% if request.user.is_superuser %}
+            {% if request.user.is_superuser and debugging %}
                 <a class="ui profile label" href="{% url 'debug_user' %}?uid={{user.profile.uid}}">
                     <i class="address card icon"></i> Log in as user
                 </a>
@@ -74,7 +74,7 @@
                 {% endif %}
 
 
-                <div class="item"> <b>Handle</b> : <a href="#">@{{ user.username }}</a>
+                <div class="item"> <b>Handle</b> : <a href="{% url 'compose' %}?initial={{user.username}}">@{{ user.username }}</a>
                 </div>
             </div>
 
@@ -99,7 +99,7 @@
 
             <div class="ui bottom attached segment">
 
-            <div class="centered">
+            <div class="centering">
                 {% pages objs=objs request=request  %}
             </div>
                     <div class="ui divided items">
@@ -108,7 +108,7 @@
                         {%  endfor %}
                     </div>
 
-            <div class="centered">
+            <div class="centering">
 
                 {% pages objs=objs request=request  %}
             </div>

@@ -32,12 +32,13 @@ try:
     HAS_UWSGI = True
 
     @spool(pass_arguments=True)
-    def async_create_messages(subject, sender, body, rec_list, source=models.Message.MENTIONED):
+    def async_create_messages(subject, sender, body, rec_list, source=models.Message.MENTIONED, parent=None, uid=None):
         """
         Create messages to users in recipient list
         """
         # Assign a task to a a worker
-        auth.create_local_messages(body=body, subject=subject, rec_list=rec_list, sender=sender, source=source)
+        auth.create_local_messages(body=body, subject=subject, rec_list=rec_list, sender=sender, source=source,
+                                   parent=parent, uid=uid)
 
 
 except (ModuleNotFoundError, NameError) as exc:
@@ -47,11 +48,11 @@ except (ModuleNotFoundError, NameError) as exc:
     pass
 
 
-def parse_mention_msg(post, author):
+def parse_mention_msg(post):
     title = post.title
     mentioned_users = parse_mentioned_users(content=post.content)
     defalut_body = f"""
-            Hello, You have been mentioned in a post by {author.profile.name}.
+            Hello, You have been mentioned in a post by {post.author.profile.name}.
             The root post is :{title}.
             Here is where you are mentioned :
             {post.content}
@@ -62,12 +63,12 @@ def parse_mention_msg(post, author):
     return body, subject, mentioned_users
 
 
-def parse_subs_msg(post, author):
+def parse_subs_msg(post):
     title = post.title
     # Load template if its available
     default_body = f"""
           Hello,\n
-          There is an addition by {author.profile.name} to a post you are subscribed to.\n
+          There is an addition by {post.author.profile.name} to a post you are subscribed to.\n
           Post: {title}\n
           Addition: {post.content}\n
           """
@@ -83,35 +84,53 @@ def parse_subs_msg(post, author):
     return body, subject, subbed_users
 
 
-def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR):
+def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR, parent=None, uid=None):
     # Create asynchronously when uwsgi is available
     if HAS_UWSGI:
         # Assign a worker to send mentioned users
-        async_create_messages(source=source, sender=sender, subject=subject, body=body, rec_list=rec_list)
+        async_create_messages(source=source, sender=sender, subject=subject, body=body,
+                              rec_list=rec_list, parent=parent, uid=uid)
         return
     # Can run synchrony only when debugging
     if settings.DEBUG:
         # Send subscription messages
-        auth.create_local_messages(body=body, sender=sender, subject=subject, rec_list=rec_list, source=source)
+        auth.create_local_messages(body=body, sender=sender, subject=subject, rec_list=rec_list,
+                                   source=source, parent=parent, uid=uid)
 
     return
 
 
-def send_default_messages(post, sender):
-    """
-    Parse mentioned and subscribed users from post and send a local message.
-    """
+def send_notification_msgs(post):
+    # Get the user meant to send subscriptions and notification messages.
+    sender = User.objects.filter(is_superuser=True).first()
 
     # Parse the mentioned message
-    ment_body, ment_subject, ment_users = parse_mention_msg(post=post, author=sender)
-    # Parse the subscribed message 
-    sub_body, sub_subject, sub_users = parse_subs_msg(post=post,  author=sender)
+    ment_body, ment_subject, ment_users = parse_mention_msg(post=post)
 
     # Send the mentioned notifications
-    send_message(source=models.Message.MENTIONED, subject=ment_subject, body=ment_body, rec_list=ment_users,
-                 sender=sender)
+    send_message(source=models.Message.MENTIONED, subject=ment_subject, body=ment_body,
+                 rec_list=ment_users, sender=sender)
+    return
+
+
+def send_subs_msg(post):
+    # Get the user meant to send subscriptions and notification messages.
+    sender = User.objects.filter(is_superuser=True).first()
+
+    # Parse the subscribed message
+    sub_body, sub_subject, sub_users = parse_subs_msg(post=post)
+
     # Send message to subscribed users.
     send_message(subject=sub_subject, body=sub_body, rec_list=sub_users, sender=sender)
 
+    return
+
+
+def send_default_messages(post):
+    """
+    Parse mentioned and subscribed users from post and send a local message.
+    """
+    send_notification_msgs(post)
+    send_subs_msg(post)
 
 

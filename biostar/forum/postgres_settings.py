@@ -7,6 +7,7 @@ ENGINE_AS_ROOT = False
 
 MENU_BAR = "widgets/forum_menubar.html"
 PROFILE_TEMPLTE = "accounts/forum_profile.html"
+LOGIN_REDIRECT_URL = "/"
 
 WSGI_APPLICATION = 'conf.postgres.postgres_wsgi.application'
 

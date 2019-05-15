@@ -1,19 +1,62 @@
 import mistune
+from difflib import SequenceMatcher
 from pagedown.widgets import PagedownWidget
 from django import forms
 from .models import Post
 from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.conf import settings
+from biostar.utils import markdown
 from biostar.engine.models import Project
-
+from biostar.accounts.models import User
 from biostar.forum.awards import *
-
+from biostar.message.tasks import send_message, send_subs_msg, parse_mentioned_users, parse_mention_msg
+from biostar.message.models import Message
 from biostar.forum import models, auth, util
 
 from .const import *
 # Share logger with models
 logger = models.logger
+
+
+def send(old_content, new_content, post):
+    """
+    See if there is any change and send
+    notifications and subscriptions messages
+    """
+    # Get rid of white spaces and tabs by splitting into lists.
+    source_list = old_content.strip().split()
+    new_list = new_content.strip().split()
+    diffobj = SequenceMatcher(a=source_list, b=new_list)
+
+    # There is a change detected
+    change = diffobj.ratio() != 1
+
+    # Do nothing when no change is detected.
+    if not change:
+        return
+
+    # Get sender for these messages from biostar
+    sender = User.objects.filter(is_superuser=True).first()
+
+    # Send message to subscribed users.
+    send_subs_msg(post=post)
+
+    # Get mentioned users from new content
+    new_mentioned_users = parse_mentioned_users(content=new_content)
+    # Get old mentioned users and exclude them from these round of messages.
+    old_mentioned_users = parse_mentioned_users(content=old_content).values("id")
+
+    # Exclude old mentioned users from new ones.
+    ment_users = new_mentioned_users.exclude(id__in=old_mentioned_users)
+
+    # Parse the mentioned message
+    ment_body, ment_subject, _ = parse_mention_msg(post=post)
+
+    # Send the mentioned message.
+    send_message(source=Message.MENTIONED, subject=ment_subject, body=ment_body,
+                 rec_list=ment_users, sender=sender)
+    return
 
 
 def english_only(text):
@@ -56,7 +99,7 @@ class PostLongForm(forms.Form):
                         (Post.JOB, "Job Ad"),
                         (Post.TUTORIAL, "Tutorial"), (Post.TOOL, "Tool"),
                         (Post.FORUM, "Forum"), (Post.NEWS, "News"),
-                        (Post.BLOG, "Blog"), (Post.PAGE, "Page")]
+                        (Post.BLOG, "Blog")]
 
         # Pass a filtering function to customize choices between sites.
         choices = list(filter(filter_func, POST_CHOICES))
@@ -65,10 +108,10 @@ class PostLongForm(forms.Form):
         if self.post:
             inital_title = self.post.title
             inital_tags = self.post.tag_val
-            inital_content = self.post.html
+            inital_content = self.post.content
             inital_type = self.post.type
 
-        self.fields["post_type"] = forms.ChoiceField(label="Post Type", choices=choices,
+        self.fields["post_type"] = forms.IntegerField(label="Post Type", widget=forms.Select(choices=choices),
                                                      help_text="Select a post type: Question, Forum, Job, Blog",
                                                      initial=inital_type)
         self.fields["title"] = forms.CharField(label="Post Title", max_length=200, min_length=2, initial=inital_title,
@@ -83,22 +126,26 @@ class PostLongForm(forms.Form):
                                                  label="Enter your post below")
 
     def save(self, author=None, edit=False):
-        data = self.cleaned_data.get
+        data = self.cleaned_data
 
-        title = data('title')
-        html = data("content")
-        content = util.strip_tags(html)
-        post_type = int(data('post_type'))
-        tag_val = data('tag_val')
+        title = data.get('title')
+        content = data.get("content")
+        html = markdown.parse(content)
+        post_type = data.get('post_type')
+        tag_val = data.get('tag_val')
 
         if edit:
+
             self.post.title = title
+            old_content = self.post.content
             self.post.content = content
             self.post.type = post_type
             self.post.html = html
+            self.post.tag_val = tag_val
             self.post.save()
+            send(old_content=old_content, new_content=self.post.content, post=self.post)
             # Triggers another save
-            self.post.add_tags(text=tag_val)
+            #self.post.add_tags(text=tag_val)
         else:
             self.post = auth.create_post(title=title, content=content, post_type=post_type,
                                          tag_val=tag_val, author=author, project=self.project)
@@ -160,27 +207,28 @@ class PostShortForm(forms.Form):
 
     def save(self, author=None, post_type=Post.ANSWER, edit=False):
         data = self.cleaned_data
-        html = data.get("content")
         project = data.get("project_uid")
         parent = data.get("parent_uid")
-        content = util.strip_tags(html)
+        content = data.get("content")
+        html = markdown.parse(content)
 
         if edit:
             self.post.html = html
+            old_content = self.post.content
             self.post.content = content
             self.post.save()
+            send(old_content=old_content, new_content=self.post.content, post=self.post)
         else:
             parent = Post.objects.filter(uid=parent).first()
             project = Project.objects.filter(uid=project).first()
 
             self.post = auth.create_post(title=parent.root.title,
-                              parent=parent,
-                              author=author,
-                              content=content,
-                              post_type=post_type,
-                              project=project,
-                              sub_to_root=True,
-                              )
+                                         parent=parent,
+                                         author=author,
+                                         content=content,
+                                         post_type=post_type,
+                                         project=project,
+                                         sub_to_root=True)
         return self.post
 
     #def clean(self):
@@ -195,21 +243,19 @@ class PostModForm(forms.Form):
         (MOD_OPEN, "Open a closed or deleted post"),
         (TOGGLE_ACCEPT, "Toggle accepted status"),
         (MOVE_TO_ANSWER, "Move post to an answer"),
-        (MOVE_TO_COMMENT, "Move post to a comment on the top level post"),
-        (DUPLICATE, "Duplicated post (top level)"),
-        (CROSSPOST, "Cross posted at other site"),
-        (CLOSE_OFFTOPIC, "Close post (top level)"),
         (DELETE, "Delete post"),
     ]
 
-    action = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), label="Select Action")
-
-    comment = forms.CharField(required=False, max_length=200,
-                              help_text="Enter a reason (required when closing, crosspost). This will be inserted into a template comment.")
-
+    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action", required=False)
     dupe = forms.CharField(required=False, max_length=200,
-                           help_text="One or more duplicated post numbers, space or comma separated (required for duplicate closing).",
-                           label="Duplicate number(s)")
+                           help_text="""One or more duplicated link, 
+                                        comma separated (required for duplicate closing).
+                                       """,
+                           label="Duplicate Link(s)")
+    pid = forms.CharField(required=False, max_length=200,
+                           help_text=""" Parent uid to move comment under.
+                                     """,
+                           label="Duplicate Link(s)")
 
     def __init__(self, post, request, user, *args, **kwargs):
         self.post = post
@@ -217,40 +263,35 @@ class PostModForm(forms.Form):
         self.request = request
         super(PostModForm, self).__init__(*args, **kwargs)
 
-    def save(self):
-
-        cleaned_data = self.cleaned_data
-        action = int(cleaned_data.get("action"))
-        comment = cleaned_data.get("comment")
-        dupe = cleaned_data.get("dupe")
-
-        url = auth.moderate_post(post=self.post, request=self.request,
-                                 action=action, comment=comment, dupes=dupe)
-        return url
-
     def clean(self):
         cleaned_data = super(PostModForm, self).clean()
-        action = int(cleaned_data.get("action"))
-        comment = cleaned_data.get("comment")
+        action = cleaned_data.get("action")
         dupe = cleaned_data.get("dupe")
+        pid = cleaned_data.get("pid").strip()
+        cleaned_data["pid"] = pid
+
+        if not action and not (dupe or pid):
+            raise forms.ValidationError("Select an action")
 
         if not (self.user.profile.is_moderator or self.user.profile.is_manager):
-            raise forms.ValidationError( "Only a moderator/manager may perform these actions")
+            raise forms.ValidationError("Only a moderator/manager may perform these actions")
 
-        if action in (CLOSE_OFFTOPIC, DUPLICATE, BUMP_POST) and not self.post.is_toplevel:
+        if action in (DUPLICATE, BUMP_POST) and not self.post.is_toplevel:
             raise forms.ValidationError("You can only perform these actions to a top-level post")
-        elif action in (TOGGLE_ACCEPT, MOVE_TO_COMMENT) and self.post.type != Post.ANSWER:
+        if action in (TOGGLE_ACCEPT, MOVE_TO_COMMENT) and self.post.type != Post.ANSWER:
             raise forms.ValidationError("You can only perform these actions to an answer.")
-        elif action == MOVE_TO_ANSWER and self.post.type != Post.COMMENT:
+        if action == MOVE_TO_ANSWER and self.post.type != Post.COMMENT:
             raise forms.ValidationError("You can only perform these actions to a comment.")
-        if action == CLOSE_OFFTOPIC and not comment:
-            raise forms.ValidationError("Unable to close. Please add a comment!")
-
-        if action == CROSSPOST and not comment:
-            raise forms.ValidationError("Please add URL into the comment!")
 
         if action == DUPLICATE and not dupe:
             raise forms.ValidationError("Unable to close duplicate. Please fill in the post numbers")
+
+        parent = Post.objects.filter(uid=pid).first()
+        if not parent and pid:
+            raise forms.ValidationError(f"Parent uid : {parent} does not exist.")
+
+        if parent and parent.root != self.post.root:
+            raise forms.ValidationError(f"Parent does not share the same root.")
 
         if dupe:
             dupe = dupe.replace(",", " ")

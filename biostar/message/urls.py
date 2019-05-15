@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^outbox/$', views.outbox_list, name='outbox'),
     url(r'^inbox/(?P<uid>[-\w]+)/$', views.inbox_view, name='inbox_view'),
     url(r'^outbox/(?P<uid>[-\w]+)/$', views.outbox_view, name='outbox_view'),
-    #url(r'^compose/$', views.message_view, name='compose'),
+    url(r'^reply/(?P<uid>[-\w]+)/$', views.reply, name="reply"),
+    url(r'^compose/$', views.message_compose, name='compose')
 
     ]

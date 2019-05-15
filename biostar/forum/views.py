@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
@@ -16,9 +17,11 @@ from biostar.forum import forms, auth, tasks, util
 from biostar.forum.const import *
 from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from biostar.utils.shortcuts import reverse
-from .models import Post, Vote, Subscription, Badge
+from biostar.forum.models import Post, Vote, Subscription, Badge
 
 User = get_user_model()
+
+logger = logging.getLogger('engine')
 
 # Valid post values as they correspond to database post types.
 POST_TYPE_MAPPER = dict(
@@ -72,7 +75,7 @@ def get_posts(user, topic="latest", tag="", order="rank", limit=None):
         query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
     elif topic == MYPOSTS and user.is_authenticated:
         query = Post.objects.filter(author=user)
-    elif topic == MYVOTES:
+    elif topic == MYVOTES and user.is_authenticated:
         #TODO: switching to votes
         #votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
         #query = votes_query.values("post")
@@ -101,6 +104,22 @@ def get_posts(user, topic="latest", tag="", order="rank", limit=None):
     query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
 
     return query
+
+
+def feed_post(request):
+
+    # Feed one post at a time excluding uid
+    user = request.user
+
+    posts = get_posts(user=user, limit=1)
+
+    # Show open questions in feed, given random order for now.
+    posts = posts.filter(status=Post.OPEN).order_by("?")
+
+    single_post = posts.first()
+    context = dict(post=single_post, user=user)
+
+    return render(request, "widgets/feed_post.html", context=context)
 
 
 def post_list(request):
@@ -232,6 +251,7 @@ def post_view(request, uid):
         if form.is_valid():
             post = form.save(author=request.user)
             location = reverse("post_view", request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
+
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
 
@@ -246,6 +266,14 @@ def post_view(request, uid):
 
 
 @login_required
+def comment_form(request, uid):
+    parent_post = Post.objects.filter(uid=uid).first()
+    form = forms.PostShortForm()
+    context = dict(parent_uid=parent_post.uid, form=form)
+    return render(request, "widgets/comment_form.html", context=context)
+
+
+@login_required
 def comment(request):
     location = reverse("post_list")
     if request.method == "POST":
@@ -253,7 +281,7 @@ def comment(request):
         if form.is_valid():
             post = form.save(author=request.user, post_type=Post.COMMENT)
             messages.success(request, "Added comment")
-            location = reverse("post_view", kwargs=dict(uid=post.uid)) + "#" + post.uid
+            location = reverse("post_view", kwargs=dict(uid=post.root.uid)) + "#" + post.uid
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
         else:
@@ -314,20 +342,25 @@ def post_create(request, project=None, template="post_create.html", url="post_vi
 def post_moderate(request, uid):
     user = request.user
     post = Post.objects.filter(uid=uid).first()
-    form = forms.PostModForm(post=post, user=user, request=request)
 
     if request.method == "POST":
 
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
+
         if form.is_valid():
-            url = form.save()
+            action = form.cleaned_data["action"]
+            duplicate = form.cleaned_data["dupe"]
+            pid = form.cleaned_data.get("pid", "")
+            redir = auth.moderate_post(post=post, request=request, action=action, dupes=duplicate, pid=pid)
             if tasks.HAS_UWSGI:
                 tasks.moderated_post(pid=post.id)
-            return redirect(url)
+            return redirect(redir)
+
         else:
-            msg = ','.join([y for x in form.errors.values() for y in x])
-            messages.error(request, msg)
-            return redirect(post.root.get_absolute_url())
+            messages.error(request, "Invalid moderation error.")
+            return redirect(reverse("post_view", kwargs=dict(uid=uid)))
+    else:
+        form = forms.PostModForm(post=post, user=user, request=request)
 
     context = dict(form=form, post=post)
     return render(request, "post_moderate.html", context)
@@ -351,7 +384,8 @@ def edit_post(request, uid):
         if form.is_valid():
             form.save(edit=True)
             messages.success(request, f"Edited :{post.title}")
-            return redirect(reverse("post_view", kwargs=dict(uid=uid)))
+            location = reverse("post_view", kwargs=dict(uid=post.root.uid)) + "#" + post.uid
+            return redirect(location)
 
     context = dict(form=form, post=post, action_url=reverse("post_edit", kwargs=dict(uid=uid)),
                    extra_tab="active", extra_tab_name="Edit Post")

@@ -1,6 +1,7 @@
 {% extends "forum_base.html" %}
 {% load message_tags %}
 {% load forum_tags %}
+{% load engine_tags %}
 
 
 {% block headtitle %}
@@ -8,72 +9,71 @@
 {% endblock %}
 
 
-
 {% block grid %}
+    {% show_messages messages %}
 
-<div class="ui doubling stackable grid">
+    <div class="ui basic no-padding segment">
+
+<div class="ui doubling stackable messaging grid" id="messaging-grid">
+{% message_top_actionbar with_pages=True %}
     <div class="three wide column">
-
-        <div class="ui basic segment" style="padding-left:5px">
-
             {% message_menu extra_tab=extra_tab_name request=request %}
 
-        </div>
-
-</div>
+    </div>
 
 <div class="thirteen wide column">
-<div class="ui basic segment" >
-<div class="centered">
-    {% pages objs=all_messages request=request %}
-</div>
-   <div class="ui relaxed divided list">
+
+<table class="ui table messages">
+
 
 {% for message in all_messages %}
 
-    <div class="item {% is_unread tab_name=extra_tab_name message=message%}">
+<tbody class="item {% is_unread user=request.user message=message%} message">
+<tr>
+ <td>
+        <a class="ui mini avatar image" href="{% url "user_profile" message.sender.profile.uid %}" style="width:25px">
+            {% gravatar user=message.sender size=50 %}</a>
+        {{message.sender.profile.name}}
+ </td>
+<td>
+        <div class="middle aligned content">
+            <div class="ui small messages header">
+                {% is_inbox message=message target=request.user as in_inbox %}
+                Subject:
+                {% if in_inbox %}
+                <a href="{{message.inbox_url}}?active={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
+                {% else %}
+                <a href="{{message.outbox_url}}">{{message.subject|truncatechars:90}}</a>
+                {% endif %}
 
-       <div class="ui relaxed horizontal list">
+            </div>
 
-           <div class="item">
 
-               <div class="content">
-                   <div class="ui tiny header">{{message.sender.profile.name}}</div>
-               </div>
-           </div>
-           <div class="item">
-                <div class="content">
-                    <div class="ui small header">Subject:
-                        {% if extra_tab_name|is_inbox %}
-                        <a href="{{message.inbox_url}}?active={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
-                        {% else %}
-                        <a href="{{message.outbox_url}}?active={{extra_tab_name}}">{{message.subject|truncatechars:90}}</a>
-                        {% endif %}
-                    </div>
-                </div>
-           </div>
-           <div class="ui right floated item">
+
+           <div class="ui right floated item" style="float: right;">
            {{message.sent_date|time_ago}}
            </div>
 
-            <div class="ui muted item" style="padding-left:95px;">
+            <div class="ui muted item" style="">
               {{message.body|truncatechars:140}}
           </div>
+        </div>
 
-       </div>
+    </td>
 
-
-      </div>
+        </tr>
+    </tbody>
 
 {% endfor %}
+
+
+</table>
+
 </div>
 
 </div>
-<div class="centered">
+    </div>
+    <div class="centered">
     {% pages objs=all_messages request=request %}
-</div>
-</div>
-</div>
-
 </div>
 {% endblock %}

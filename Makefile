@@ -12,7 +12,7 @@ all: serve
 serve:
 	python manage.py runserver
 
-serve_pg:
+pg_serve:
 	python manage.py runserver --settings conf.postgres.postgres_settings
 
 init:
@@ -67,7 +67,7 @@ uwsgi:
 serve_forum:
 	python manage.py runserver --settings=biostar.forum.settings
 
-pgserve_forum:
+pg_forum:
 	python manage.py runserver --settings=biostar.forum.postgres_settings
 
 
@@ -111,6 +111,9 @@ verbose:
 	# Makes logging more verbose.
 	export DJANGO_LOG_LEVEL=DEBUG
 
+pg_forum:
+	python manage.py runserver --settings=biostar.forum.postgres_settings
+
 pg_drop:
 	dropdb --if-exists engine.db
 
@@ -120,7 +123,7 @@ pg_create:
 	python manage.py migrate --settings conf.postgres.postgres_settings
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
-postgress:
+postgres:
 	python manage.py migrate --settings conf.postgres.postgres_settings
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
