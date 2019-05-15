@@ -168,7 +168,6 @@ def parse(text):
 
     renderer = Renderer(escape=True, hard_wrap=True)
     inline = BiostarInlineLexer(renderer=renderer)
-
     inline.enable_post_link()
 
     inline.enable_anchor_link()

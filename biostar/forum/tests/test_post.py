@@ -3,10 +3,10 @@ import logging
 from django.test import TestCase
 from django.urls import reverse
 
-from biostar.forum import models, views, auth, forms
+from biostar.forum import models, views, auth, forms, const
 from biostar.engine.test.util import fake_request, get_uuid
 from biostar.accounts.models import User
-
+from biostar.forum.views import POST_TYPE_MAPPER, ORDER_MAPPER, LIMIT_MAP
 
 logger = logging.getLogger('engine')
 
@@ -77,19 +77,35 @@ class PostTest(TestCase):
 
         return
 
-    def test_answer(self):
+    def test_post_list(self):
+        """Test private post list pages"""
+
+        url = reverse("post_list")
+
+        testing = [const.OPEN, const.BOOKMARKS, const.FOLLOWING, const.MYPOSTS, const.MYVOTES, "tool", "foobar"]
+        for topic in testing:
+
+            query_dict = dict(topic=topic, limit='week', order="rank")
+
+            request = fake_request(url=url, method="GET", data=query_dict, user=self.owner)
+            response = views.post_list(request=request)
+            self.assertEqual(response.status_code, 200,
+                             f"Could not reach post list with :\nresponse:{response}\ndata:{query_dict}")
 
         return
 
-    def test_moderate(self):
+    def test_post_view(self):
+        """
+        Test submitting answer through the post view
+        """
+        url = reverse("post_view", kwargs=dict(uid=self.post.uid))
 
-        # Test every moderation action
-        for action in forms.PostModForm.CHOICES:
-            data = {"action": action, "content": "tested content for a question"}
-            request = fake_request(url=reverse('post_comment'), data=data, user=self.owner)
-            response = views.post_moderate(request=request, uid=self.post.uid)
-            self.process_response(response)
+        # Get form data
 
+        data = dict(content="testing edit", parent_uid=self.post.uid)
+        request = fake_request(url=url, data=data, user=self.owner)
+        response = views.post_view(request=request, uid=self.post.uid)
+        self.process_response(response)
         return
 
     def process_response(self, response):
@@ -97,9 +113,6 @@ class PostTest(TestCase):
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect after tested :\nresponse:{response}")
-
-
-
 
 
 

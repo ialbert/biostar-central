@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.test import Client
 from biostar.forum import auth, models
 from biostar.accounts.models import User
+from biostar.forum.models import Badge
 
 from django.urls import reverse
 import uuid
@@ -22,7 +23,7 @@ class ForumNavigation(TestCase):
 
         self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com")
         self.owner.set_password("tested")
-
+        self.badge = Badge.objects.first()
         # Create a tested post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",
                                      post_type=models.Post.QUESTION)
@@ -50,6 +51,8 @@ class ForumNavigation(TestCase):
             reverse('post_list'),
             reverse('post_create'),
             reverse("community_list"),
+            reverse('badge_list'),
+            reverse('badge_view', kwargs=dict(uid=self.badge.uid)),
             #reverse("tags_list"),
 
             reverse('post_view', kwargs=dict(uid=self.post.uid)),

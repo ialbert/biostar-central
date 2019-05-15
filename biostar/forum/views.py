@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
@@ -19,6 +20,8 @@ from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Vote, Subscription, Badge
 
 User = get_user_model()
+
+logger = logging.getLogger('engine')
 
 # Valid post values as they correspond to database post types.
 POST_TYPE_MAPPER = dict(
@@ -246,6 +249,7 @@ def post_view(request, uid):
         if form.is_valid():
             post = form.save(author=request.user)
             location = reverse("post_view", request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
+
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
 

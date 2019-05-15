@@ -12,7 +12,7 @@ all: serve
 serve:
 	python manage.py runserver
 
-pg:
+pg_serve:
 	python manage.py runserver --settings conf.postgres.postgres_settings
 
 init:
