@@ -96,9 +96,9 @@ TEMPLATES = [
 ]
 
 # Authentication backend.
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-)
+]
 
 # The WSGI application.
 WSGI_APPLICATION = 'biostar.wsgi.application'

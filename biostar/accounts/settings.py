@@ -1,3 +1,5 @@
+from biostar.settings import *
+
 import os
 
 # Apply the logger settings.
@@ -77,15 +79,8 @@ BASE_DIR = os.path.dirname(join(__file__))
 
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
+INSTALLED_APPS += [
+
 
     # Accounts configuration.
     'biostar.accounts.apps.AccountsConfig',
@@ -98,148 +93,14 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
 ]
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
 
 ROOT_URLCONF = 'biostar.accounts.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'string_if_invalid': "**MISSING**",
-            'context_processors': [
-                'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.template.context_processors.media',
-                'django.contrib.messages.context_processors.messages',
-                'biostar.engine.context.engine',
 
-            ],
-            # 'loaders': [
-            #     ('django.template.loaders.cached.Loader',
-            #         'django.template.loaders.filesystem.Loader',
-            #         'django.template.loaders.app_directories.Loader',
-            #     )
-            # ]
-
-        },
-    },
-]
-
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
+AUTHENTICATION_BACKENDS += [
     "allauth.account.auth_backends.AuthenticationBackend",
-)
-
-WSGI_APPLICATION = 'biostar.wsgi.application'
-
-# Database settings.
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
-
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATABASE_NAME,
-    }
-}
-
-DATABASES = {
-
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'engine.db',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    },
-
-    'biostar2': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'biostar.db',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-        'TEST': {
-            'MIRROR': 'default',
-        }
-    },
-}
-
-# Password validation
-# https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-
 ]
 
-ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
-
-# Internationalization
-# https://docs.djangoproject.com/en/1.11/topics/i18n/
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
-
-MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
-
-# Directory where files are extracted to
-EXTRACT_TO = join(BASE_DIR, "..", "export", "extracted")
-os.makedirs(EXTRACT_TO, exist_ok=True)
-
-# The location of application specific data.
-LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
-
-# The location for the table of contents.
-TOC_ROOT = join(MEDIA_ROOT, 'tocs')
-
-# Time between two accesses from the same IP to qualify as a different view.
-POST_VIEW_MINUTES = 7
-
-# Configure language detection
-LANGUAGE_DETECTION = ['en']
-
-# Ensure that the table of directory exists.
-os.makedirs(TOC_ROOT, exist_ok=True)
-
-# Sendfile settings go here.
-SENDFILE_ROOT = MEDIA_ROOT
-SENDFILE_URL = '/protected/'
-
-# Settings used to enable/disable the forum.
-ENABLE_FORUM = False
-ONLY_FORUM_URLS = False
-
-# Session settings go here
-SESSION_KEY = "session"
-
-COUNT_INTERVAL_WEEKS = 10000
-
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 # SENDFILE_BACKEND = "sendfile.backends.nginx"
 
