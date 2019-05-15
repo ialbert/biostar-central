@@ -3,9 +3,16 @@ body {
     padding-top: 1rem;
 }
 
+#logo{
+    padding:5px;
+}
+#menu > .item {
+    vertical-align: bottom;
+    padding-top: 20px;
+}
 
-.ui.menu {
-    font-size: 1.1rem;
+#search {
+
 }
 
 
@@ -18,10 +25,7 @@ body {
 }
 
 .ui.basic.label.forumtabs{
-    font-size:14.5px;
-    //margin:0.5px ;
     border:none ;
-    font-weight: lighter ;
     color: #428bca ;
     text-align: center ;
     width: 90px ;
@@ -444,6 +448,7 @@ code {
     border-radius: 3px;
     line-height: 1.7;
 }
+
 
 #comment {
 

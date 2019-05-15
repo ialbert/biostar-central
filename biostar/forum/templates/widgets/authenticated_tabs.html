@@ -2,34 +2,43 @@
 {% load message_tags %}
 
 
-<a class="ui {{community}} basic label forumtabs" href="{% url 'community_list' %}" >
-    <i class="world icon centericon" ></i><div class="tablet lowertab">Community</div>
+
+<a class="ui {{ community }} basic label forumtabs" href="{% url 'community_list' %}">
+    <i class="world icon centericon"></i>
+    <div class="tablet lowertab">Community</div>
 </a>
-<a class="ui {{latest}} basic label forumtabs" href="{% url 'post_list' %}?topic=latest">
-    <i class="comment alternate icon centericon" ></i><div class="tablet lowertab">Latest</div>
+<a class="ui {{ latest }} basic label forumtabs" href="{% url 'post_list' %}?topic=latest">
+    <i class="comment alternate icon centericon"></i>
+    <div class="tablet lowertab">Latest</div>
 </a>
 
-<a class="ui {{message}} basic label tablet forumtabs" href="{% url 'inbox' %}">
-        {% if user.profile.new_messages %}
-            <span>{{ user.profile.new_messages}}</span>
-            <i class="mail icon centericon new-message" >  </i>
+<a class="ui {{ message }} basic label tablet forumtabs" href="{% url 'inbox' %}">
+    {% if user.profile.new_messages %}
+        <span>{{ user.profile.new_messages }}</span>
+        <i class="mail icon centericon new-message"> </i>
         <div class="tablet lowertab">Messages</div>
-        {% else%}
-        <i class="mail icon centericon" ></i><div class="tablet lowertab">Messages</div>
-        {%endif%}
+    {% else %}
+        <i class="mail icon centericon"></i>
+        <div class="tablet lowertab">Messages</div>
+    {% endif %}
 </a>
-<a class="ui {{myvotes}} basic label forumtabs" href="{% url 'post_list' %}?topic=myvotes">
-    <i class="heart icon centericon"></i> <div class="tablet lowertab">Votes</div>
+<a class="ui {{ myvotes }} basic label forumtabs" href="{% url 'post_list' %}?topic=myvotes">
+    <i class="heart icon centericon"></i>
+    <div class="tablet lowertab">Votes</div>
 </a>
-<a class="ui {{myposts}} basic label forumtabs" href="{% url 'post_list' %}?topic=myposts">
-    <i class="comments icon centericon"></i> <div class="tablet lowertab">My Posts</div>
+<a class="ui {{ myposts }} basic label forumtabs" href="{% url 'post_list' %}?topic=myposts">
+    <i class="comments icon centericon"></i>
+    <div class="tablet lowertab">My Posts</div>
 </a>
-<a class="ui {{mytags}} basic label forumtabs" href="{% url 'post_list' %}?topic=mytags">
-    <i class="tags icon centericon"></i><div class="tablet lowertab">My Tags</div>
+<a class="ui {{ mytags }} basic label forumtabs" href="{% url 'post_list' %}?topic=mytags">
+    <i class="tags icon centericon"></i>
+    <div class="tablet lowertab">My Tags</div>
 </a>
-<a class="ui {{following}} basic label forumtabs" href="{% url 'post_list' %}?topic=following">
-    <i class="eye icon centericon"></i><div class="tablet lowertab">Following</div>
+<a class="ui {{ following }} basic label forumtabs" href="{% url 'post_list' %}?topic=following">
+    <i class="eye icon centericon"></i>
+    <div class="tablet lowertab">Following</div>
 </a>
-<a class="ui {{bookmarks}} basic label forumtabs" href="{% url 'post_list' %}?topic=bookmarks">
-    <i class="book icon centericon"></i><div class="tablet lowertab">Bookmarks</div>
+<a class="ui {{ bookmarks }} basic label forumtabs" href="{% url 'post_list' %}?topic=bookmarks">
+    <i class="book icon centericon"></i>
+    <div class="tablet lowertab">Bookmarks</div>
 </a>

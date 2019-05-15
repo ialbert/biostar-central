@@ -42,6 +42,10 @@ ICON_MAP = dict(
     activity='comment icon',
 )
 
+@register.simple_tag
+def activate(state, target):
+    return "active" if state == target else ""
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 

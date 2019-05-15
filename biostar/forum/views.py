@@ -51,7 +51,7 @@ ORDER_MAPPER = dict(
 )
 
 
-def get_posts(user, topic="", tag="", order="rank", limit=None):
+def get_posts(user, topic="latest", tag="", order="rank", limit=None):
     """
     Generates a post list on a topic.
     """
@@ -128,9 +128,11 @@ def post_list(request):
     posts = paginator.get_page(page)
 
     # Fill in context.
-    context = dict(posts=posts, active=topic, tag=tag, order=order, limit=limit)
-    tag_dispay = tag.replace("-", "_")
-    context.update({topic: "active", tag_dispay: "active"})
+    context = dict(posts=posts, topic=topic, tag=tag, order=order, limit=limit)
+
+    #tag_dispay = tag.replace("-", "_")
+
+    #context.update({topic: "active", tag_dispay: "active"})
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)

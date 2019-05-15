@@ -24,7 +24,7 @@
 
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
-        <link href="{% static 'style.css' %}" rel="stylesheet">
+
         <link href="{% static 'forum.css' %}" rel="stylesheet">
     {% endcompress %}
 
@@ -33,7 +33,7 @@
         </script>
         <script src="{% static 'forum.js' %}">
         </script>
-            <script src="{% static 'engine.js' %}">
+        <script src="{% static 'engine.js' %}">
         </script>
     {% endcompress %}
 
@@ -45,77 +45,140 @@
 
 <div class="ui container">
 
-        {% block menu %}
 
-            {% menubar request=request %}
-
-        {% endblock %}
-
-<div class="ui bottom attached  segment">
-{% show_messages messages %}
-
-{% include 'widgets/tags_banner.html' %}
-    <a href="{% url 'post_list' %}">
-    <img class="ui image right spaced tablet" src="/static/images/biostar-logo.png" style="margin:0px;max-width: 100%;">
-    </a>
-
-    {% if user.is_authenticated %}
-        {% include 'widgets/authenticated_tabs.html' %}
-    {% else %}
-        {% include 'widgets/anonymous_tabs.html' %}
-    {% endif %}
-
-{% block grid %}
-    <div class="ui stackable grid">
-
-        <div class="twelve wide column">
-
-            {% block body %}
-                {# Main body #}
-                BODY
+    <div class="ui top attached text menu">
 
 
-                {% block content %}
+        <a class="item {% activate topic "latest" %}">
+            Latest
+        </a>
+        <a class="item {% activate topic "open" %}">
+            Open
+        </a>
+        <a class="item {% activate tag "rnaseq" %}">
+            RNA-Seq
+        </a>
+
+        <a class="item {% activate tag "chipseq" %}">
+            ChIP-Seq
+        </a>
+
+        <a class="item {% activate tag "SNP" %}">
+            SNP
+        </a>
+
+        <a class="item {% activate tag "tutorial" %}">
+            Tutorials
+        </a>
+
+        <a class="item {% activate topic "jobs" %}">
+            Jobs
+        </a>
+
+        <a class="item {% activate topic "forum" %}">
+            Forum
+        </a>
+
+        <div class="right menu">
+            <a class="item">Sign Up</a>
+            <a class="item">Log In</a>
+        </div>
+
+    </div>
+
+    <div class="ui labeled icon attached pointing menu" id="menu">
+
+    <span class="">
+        <a href="/"><img class="ui image" src="/static/images/biostar-logo.png" id="logo"></a>
+    </span>
+
+        <a class="item {% activate active "community" %}" src="/">
+            <i class="world icon"></i>
+            Community
+        </a>
+        <a class="item {% activate active "messages" %}">
+            <i class="mail icon"> </i>
+            Messages (2)
+        </a>
+        <a class="item {% activate active "votes" %}">
+            <i class="heart icon centericon"></i>
+            Votes
+        </a>
+
+        <a class="item {% activate active "myposts" %}">
+            <i class="comments icon"></i>
+            My Posts
+        </a>
+
+        <a class="item {% activate active "following" %}">
+            <i class="eye icon"></i>
+            Following
+        </a>
+
+        <a class="item {% activate active "bookmarks" %}">
+            <i class="book icon"></i>
+            Bookmarks
+        </a>
+    </div>
+
+    <div class="ui attached menu">
+          <div class="ui category search item" id="search">
+             <div class="ui transparent icon input">
+                <input class="prompt" type="text" placeholder="Search posts...">
+                <i class="search link icon"></i>
+            </div>
+            <div class="results"></div>
+        </div>
+    </div>
+    <div class="ui bottom attached  segment">
+        {% show_messages messages %}
+
+        {% block grid %}
+            <div class="ui stackable grid">
+
+                <div class="twelve wide column">
+
+                    {% block body %}
+                        {# Main body #}
+                        BODY
+
+
+                        {% block content %}
+
+                        {% endblock %}
+
+
+                    {% endblock %}
+                </div>
+
+                {% block feed %}
+
+                    <div class="four wide column">
+
+                        {% feed user=request.user %}
+
+                    </div>
 
                 {% endblock %}
 
-
-            {% endblock %}
-        </div>
-
-        {% block feed %}
-
-            <div class="four wide column">
-
-                {% feed user=request.user %}
-
             </div>
-
         {% endblock %}
 
+
     </div>
-{%  endblock %}
-
-
-</div>
 
 
 
     {% block footer %}
-        <div class="ui vertical center aligned segment">
-                <p class="muted">
-                    <a href="https://github.com/biostars/biostar-engine" class="ui image">
-                    <img src="{% static 'images/badge-engine.svg' %}"></a>
-                    and
-                    <a href="https://github.com/biostars/biostar-recipes" class="ui image">
-                    <img src="{% static 'images/badge-recipe.svg' %}"></a>
-                </p>
-            <p class="muted smaller">Software version: {{ VERSION }}</p>
+        <div class="ui vertical center aligned basic segment">
+            <div class="smaller muted">
+                Powered by the <a href="https://github.com/biostars/biostar-engine" class="ui image">
+                <img src="{% static 'images/badge-engine.svg' %}"></a> version {{ VERSION }}
+            </div>
+
         </div>
     {% endblock %}
 </div>
-
-
 
 
 </body>
