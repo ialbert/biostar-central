@@ -149,13 +149,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'biostar.engine.middleware.engine_middleware',
-    'biostar.forum.middleware.forum_middleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
-
 ]
 
-ROOT_URLCONF = 'biostar.urls'
+ROOT_URLCONF = 'biostar.accounts.urls'
 
 TEMPLATES = [
     {
@@ -192,21 +188,13 @@ WSGI_APPLICATION = 'biostar.wsgi.application'
 
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-ENGINE_DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
-BIOSTAR2_DATABASE = join(BASE_DIR, '..', 'export', 'database', 'biostar.db')
+DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ENGINE_DATABASE_NAME,
-    },
-    'biostar2': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BIOSTAR2_DATABASE,
-        'TEST': {
-            'MIRROR': 'default',
-        }
-    },
+        'NAME': DATABASE_NAME,
+    }
 }
 
 # Password validation
