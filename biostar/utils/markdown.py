@@ -2,28 +2,28 @@
 Markdown parser to render the Biostar style markdown.
 """
 import re
-import requests
 
 import mistune
+import requests
+from django.conf import settings
 from mistune import Renderer, InlineLexer
 
-from django.conf import settings
 
 from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post
 from biostar.accounts.models import Profile, User
+
 
 # Test input.
 TEST_INPUT = '''
 
 https://www.biostars.org/p/1 https://www.biostars.org/p/2
 
-https://www.biostars.org/p/3/#4
+https://localhost:8000/p/3/#4
 
-https://www.biostars.org/u/5
+https://localhos/u/5
 
 <b>BOLD</b>
-
 
 https://www.youtube.com/watch?v=Hc8QdwfYFT8
 
@@ -39,13 +39,14 @@ https://twitter.com/Linux/status/2311234267
 
 # Shortcut to re.compile
 rec = re.compile
+SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 
-# Biostar patterns.
+
+# Biostar patterns
 USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
 POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
 POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
-MENTINONED_USERS = rec("\@[^\s]+")
-
+MENTINONED_USERS = rec("(\@(?P<handle>[^\s]+))")
 
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
@@ -103,11 +104,9 @@ class BiostarInlineLexer(MonkeyPatch):
         self.rules.mention_link = MENTINONED_USERS
 
         # Get the handle
-        handle = m.group(0)
-        # Remove leading @ in front
-        username = handle[1:]
+        handle = m.group("handle")
         # Query user and get the link
-        user = User.objects.filter(username=username).first()
+        user = User.objects.filter(username=handle).first()
         if user:
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
@@ -120,6 +119,7 @@ class BiostarInlineLexer(MonkeyPatch):
         uid = m.group("uid")
         post = Post.objects.filter(uid=uid).first() or Post(title=f"Invalid post uid: {uid}")
         link = m.group(0)
+        print (post.title, link)
         return f'<a href="{link}">{post.title}</a>'
 
     def enable_anchor_link(self):
