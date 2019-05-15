@@ -44,11 +44,9 @@ The installation is now complete. All server management commands run through `ma
 
       make reset serve
 
-Visit `localhost:8000` to view the site. Use the command
+Visit `localhost:8000` to view the site. List all the additional commands that may be executed with
 
     python manage.py
-
-to see all the additional commands that may be executed.
 
 To run bioinformatics oriented recipes further configuration of your environment may be necessary:
 
