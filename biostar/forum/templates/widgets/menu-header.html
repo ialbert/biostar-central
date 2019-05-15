@@ -1,0 +1,46 @@
+{% load forum_tags %}
+{% load staticfiles %}
+
+<div class="ui labeled icon attached pointing menu" id="menu">
+
+    <span class="">
+        <a href="/"><img class="ui image" src="{% static "images/biostar-logo.png" %}" id="logo"></a>
+    </span>
+
+    <a class="item {% activate tab "community" %}" src="/">
+        <i class="world icon"></i>
+        Community
+    </a>
+    <a class="item {% activate tab "messages" %}">
+        <i class="mail icon"> </i>
+        Messages (2)
+    </a>
+    <a class="item {% activate tab "votes" %}">
+        <i class="heart icon centericon"></i>
+        Votes
+    </a>
+
+    <a class="item {% activate tab "myposts" %}">
+        <i class="comments icon"></i>
+        My Posts
+    </a>
+
+    <a class="item {% activate tab "following" %}">
+        <i class="eye icon"></i>
+        Following
+    </a>
+
+    <a class="item {% activate tab "bookmarks" %}">
+        <i class="book icon"></i>
+        Bookmarks
+    </a>
+
+    <div class="right menu">
+        <a class="item {% activate tab "new" %}" id="new" href="{% url 'post_create' %}">
+            <i class="edit icon"></i>
+            New Post
+        </a>
+
+    </div>
+
+</div>

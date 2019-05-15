@@ -1,0 +1,49 @@
+{% load forum_tags %}
+
+<div class="ui top attached text menu">
+
+    <a class="item {% activate tab "latest" %}">
+        Latest
+    </a>
+    <a class="item {% activate tab "open" %}">
+        Open
+    </a>
+    <a class="item {% activate tab "rnaseq" %}">
+        RNA-Seq
+    </a>
+
+    <a class="item {% activate tab "chipseq" %}">
+        ChIP-Seq
+    </a>
+
+    <a class="item {% activate tab "SNP" %}">
+        SNP
+    </a>
+
+    <a class="item {% activate tag "tutorial" %}">
+        Tutorials
+    </a>
+
+    <a class="item {% activate tab "jobs" %}">
+        Jobs
+    </a>
+
+    <a class="item {% activate tab "forum" %}">
+        Forum
+    </a>
+
+    <div class="right menu">
+    {%  if user.is_authenticated %}
+        <a class="item"><i class="user icon"></i>{{ user.profile.name }}</a>
+         <a class="item" href="{% url 'logout' %}">
+            <i class="sign-out icon"></i>Logout
+        </a>
+    {%  else %}
+        <a class="item" href="{% url 'login' %}"><i class="sign-in icon"></i> Log In</a>
+        <a class="item" href="{% url 'signup' %}"><i class="arrow circle up icon"></i>Sign Up</a>
+
+
+        <a class="item"><i class="info circle icon"></i> About</a>
+    {%  endif %}
+     </div>
+</div>

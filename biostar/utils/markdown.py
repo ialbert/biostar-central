@@ -2,27 +2,25 @@
 Markdown parser to render the Biostar style markdown.
 """
 import re
-import requests
 
 import mistune
+import requests
+from django.conf import settings
 from mistune import Renderer, InlineLexer
 
-from django.conf import settings
-
-from biostar.forum.models import Post
 from biostar.accounts.models import Profile
+from biostar.forum.models import Post
 
 # Test input.
 TEST_INPUT = '''
 
 https://www.biostars.org/p/1 https://www.biostars.org/p/2
 
-https://www.biostars.org/p/3/#4
+https://localhost:8000/p/3/#4
 
-https://www.biostars.org/u/5
+https://localhos/u/5
 
 <b>BOLD</b>
-
 
 https://www.youtube.com/watch?v=Hc8QdwfYFT8
 
@@ -38,11 +36,16 @@ https://twitter.com/Linux/status/2311234267
 
 # Shortcut to re.compile
 rec = re.compile
+SITE_URL=f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
+
+print(SITE_URL)
+
+print ("*" * 100)
 
 # Biostar patterns.
-USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
-POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
-POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
+USER_PATTERN = rec(fr"^http(s)?://{SITE_URL}/accounts/profile/(?P<uid>(\w+))(/)?$")
+POST_TOPLEVEL = rec(fr"^http(s)?://{SITE_URL}/p/(?P<uid>(\w+))(/)?$")
+POST_ANCHOR = rec(fr"^http(s)?://{SITE_URL}/p/\w+//\#(?P<uid>(\w+))(/)?$")
 
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
@@ -96,6 +99,7 @@ class BiostarInlineLexer(MonkeyPatch):
         uid = m.group("uid")
         post = Post.objects.filter(uid=uid).first() or Post(title=f"Invalid post uid: {uid}")
         link = m.group(0)
+        print (post.title, link)
         return f'<a href="{link}">{post.title}</a>'
 
     def enable_anchor_link(self):
@@ -178,11 +182,11 @@ def parse(text):
     inline.enable_post_link()
     inline.enable_anchor_link()
     inline.enable_user_link()
-    #inline.enable_youtube_link1()
-    #inline.enable_youtube_link2()
-    #inline.enable_youtube_link3()
+    inline.enable_youtube_link1()
+    inline.enable_youtube_link2()
+    inline.enable_youtube_link3()
     inline.enable_ftp_link()
-    #inline.enable_twitter_link()
+    inline.enable_twitter_link()
 
     markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline, renderer=renderer)
 
