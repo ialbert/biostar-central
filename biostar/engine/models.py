@@ -31,7 +31,8 @@ def get_placeholder():
 
 
 def make_html(text):
-    html = mistune.markdown(text, escape=False)
+    from biostar.utils import markdown
+    html = markdown.parse(text)
     return html
 
 

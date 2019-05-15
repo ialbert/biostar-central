@@ -19,6 +19,7 @@ from biostar.engine.models import Project
 from biostar.accounts.models import Profile
 from . import util
 
+
 User = get_user_model()
 
 
@@ -202,12 +203,15 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
 
+        # Needs to be imported here to avoid circular imports.
+        from biostar.utils import markdown
+
         self.lastedit_user = self.lastedit_user or self.author
         self.creation_date = self.creation_date or util.now()
         self.lastedit_date = self.lastedit_date or self.creation_date
 
         # Sanitize the post body.
-        self.html = self.html or mistune.markdown(self.content)
+        self.html = markdown.parse(self.content)
 
         # Set the rank
         self.rank = self.lastedit_date.timestamp()

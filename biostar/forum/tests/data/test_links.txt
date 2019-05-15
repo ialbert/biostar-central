@@ -1,9 +1,0 @@
-http://localhost:8000/accounts/profile/9c8e68bf/
-
-http://localhost:8000/p/p9715/
-
-https://www.youtube.com/watch?v=pFS4zYWxzNA
-
-http://psu.edu
-
-ftp://psu.edu

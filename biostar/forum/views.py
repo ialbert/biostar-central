@@ -340,10 +340,12 @@ def post_moderate(request, uid):
     if request.method == "POST":
 
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
+
         if form.is_valid():
             action = form.cleaned_data["action"]
             duplicate = form.cleaned_data["dupe"]
-            redir = auth.moderate_post(post=post, request=request, action=action, dupes=duplicate)
+            pid = form.cleaned_data.get("pid", "")
+            redir = auth.moderate_post(post=post, request=request, action=action, dupes=duplicate, pid=pid)
             if tasks.HAS_UWSGI:
                 tasks.moderated_post(pid=post.id)
             return redirect(redir)

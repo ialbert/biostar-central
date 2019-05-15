@@ -3,8 +3,8 @@ import bleach
 import datetime
 import logging
 import re
-import mistune
 from itertools import chain
+import mistune
 
 from django.contrib import messages
 from django.utils.timezone import utc
@@ -311,7 +311,7 @@ def parse_mentioned_users(content):
     return User.objects.filter(username__in=users_list)
 
 
-def parse_html(text):
+def parse_htmlXXX(text):
     "Sanitize text and expand links to match content"
 
     # Apply a markdown transformation last.
@@ -379,7 +379,7 @@ def delete_post(post, request):
     return url
 
 
-def moderate_post(request, action, post, comment=None, dupes=[]):
+def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
 
     root = post.root
     user = request.user
@@ -417,8 +417,9 @@ def moderate_post(request, action, post, comment=None, dupes=[]):
         messages.success(request, "Moved comment to answer")
         return url
 
-    if action == MOVE_TO_COMMENT:
-        Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=post.root, reply_count=F("reply_count") - 1)
+    if action == MOVE_TO_COMMENT or pid:
+        parent = Post.objects.filter(uid=pid).first() or post.root
+        Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent, reply_count=F("reply_count") - 1)
         Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") - 1)
         messages.success(request, "Moved answer to comment")
         return url
@@ -442,8 +443,7 @@ def create_post(title, author, content, post_type, tag_val="", parent=None,root=
 
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
-        author=author, type=post_type, parent=parent, root=root,
-        project=project, html=parse_html(content))
+        author=author, type=post_type, parent=parent, root=root, project=project)
     root = root or post.root
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously

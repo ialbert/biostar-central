@@ -103,7 +103,6 @@ def user_moderate(request, uid):
             if Profile.BANNED == state:
                 # Delete posts of banned users
                 ban_user(user=target)
-
             messages.success(request, "User moderation complete.")
         else:
             messages.error(request, "Invalid user moderation.")

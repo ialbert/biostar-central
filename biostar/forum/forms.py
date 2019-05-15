@@ -6,6 +6,7 @@ from .models import Post
 from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.conf import settings
+from biostar.utils import markdown
 from biostar.engine.models import Project
 from biostar.accounts.models import User
 from biostar.forum.awards import *
@@ -129,7 +130,7 @@ class PostLongForm(forms.Form):
 
         title = data.get('title')
         content = data.get("content")
-        html = auth.parse_html(content)
+        html = markdown.parse(content)
         post_type = data.get('post_type')
         tag_val = data.get('tag_val')
 
@@ -209,7 +210,7 @@ class PostShortForm(forms.Form):
         project = data.get("project_uid")
         parent = data.get("parent_uid")
         content = data.get("content")
-        html = auth.parse_html(content)
+        html = markdown.parse(content)
 
         if edit:
             self.post.html = html
@@ -242,17 +243,18 @@ class PostModForm(forms.Form):
         (MOD_OPEN, "Open a closed or deleted post"),
         (TOGGLE_ACCEPT, "Toggle accepted status"),
         (MOVE_TO_ANSWER, "Move post to an answer"),
-        (MOVE_TO_COMMENT, "Move post to a comment on the top level post"),
-        (DUPLICATE, "Duplicated content from other websites. "),
         (DELETE, "Delete post"),
     ]
 
-    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action")
+    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action", required=False)
     dupe = forms.CharField(required=False, max_length=200,
-                           help_text="""
-                                       One or more duplicated link, 
-                                       comma separated (required for duplicate closing).
+                           help_text="""One or more duplicated link, 
+                                        comma separated (required for duplicate closing).
                                        """,
+                           label="Duplicate Link(s)")
+    pid = forms.CharField(required=False, max_length=200,
+                           help_text=""" Uid of parent to move comment to.
+                                     """,
                            label="Duplicate Link(s)")
 
     def __init__(self, post, request, user, *args, **kwargs):
@@ -265,6 +267,11 @@ class PostModForm(forms.Form):
         cleaned_data = super(PostModForm, self).clean()
         action = cleaned_data.get("action")
         dupe = cleaned_data.get("dupe")
+        pid = cleaned_data.get("pid").strip()
+        cleaned_data["pid"] = pid
+
+        if not action and not (dupe or pid):
+            raise forms.ValidationError("Select an action")
 
         if not (self.user.profile.is_moderator or self.user.profile.is_manager):
             raise forms.ValidationError("Only a moderator/manager may perform these actions")
@@ -278,6 +285,13 @@ class PostModForm(forms.Form):
 
         if action == DUPLICATE and not dupe:
             raise forms.ValidationError("Unable to close duplicate. Please fill in the post numbers")
+
+        parent = Post.objects.filter(uid=pid).first()
+        if not parent and pid:
+            raise forms.ValidationError(f"Parent uid : {parent} does not exist.")
+
+        if parent and parent.root != self.post.root:
+            raise forms.ValidationError(f"Parent does not share the same root.")
 
         if dupe:
             dupe = dupe.replace(",", " ")
