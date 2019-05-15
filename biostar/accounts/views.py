@@ -143,9 +143,10 @@ def user_profile(request, uid):
 
     objs = paginator.get_page(page)
     context = dict(user=profile.user, objs=objs, active=active_tab, debugging=settings.DEBUG,
-                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate)
+                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, tab="profile")
 
-    return render(request, settings.PROFILE_TEMPLTE, context)
+
+    return render(request, "accounts/user_profile.html", context)
 
 
 def toggle_notify(request):

@@ -59,6 +59,8 @@ def get_messages(user, listing, limit=0, order="sent"):
 
 def message_list(request, template="message_list.html", listing=INBOX):
 
+    user = request.user
+
     page = request.GET.get("page", 1)
     limit = request.GET.get("limit", 0)
     order = request.GET.get("order", "sent")
@@ -68,10 +70,10 @@ def message_list(request, template="message_list.html", listing=INBOX):
     paginator = Paginator(messages, settings.MESSAGES_PER_PAGE)
     messages = paginator.get_page(page)
 
-    context = dict(message="active", all_messages=messages, order=order, limit=limit,
+    context = dict(tab="inbox", all_messages=messages, order=order, limit=limit,
                    extra_tab_name=listing)
 
-    user = request.user
+
 
     Profile.objects.filter(user=user).update(new_messages=0)
 

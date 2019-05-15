@@ -6,10 +6,20 @@ body {
 #logo{
     padding:5px;
 }
-#menu .item {
+#menu-header .item {
     vertical-align: bottom;
     padding-top: 20px;
 }
+
+#menu-header .item.active{
+    background-color: #fbfdef;
+}
+
+#menu-topics .item.active{
+    color: #1a69a4;
+    text-decoration: underline;
+}
+
 
 #new {
     color: #1a69a4;
