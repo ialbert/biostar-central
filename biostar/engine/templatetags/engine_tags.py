@@ -69,6 +69,18 @@ def pluralize(value, word):
 
 
 @register.filter
+def show_email(user):
+
+    try:
+        head, tail = user.email.split("@")
+        email = head[0] + "*" * 10 + tail
+    except:
+        return user.email[0] + "*" * 10
+
+    return email
+
+
+@register.filter
 def show_score_icon(user):
 
     color = "modcolor" if user.profile.is_moderator else ""
