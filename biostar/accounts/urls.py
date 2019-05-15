@@ -39,9 +39,3 @@ urlpatterns = [
 
 
 ]
-
-if settings.ALLOW_SELF_MODERATE:
-    # Allow users to toggle their moderation state
-    urlpatterns += [url(r'^toggle/moderate/$', views.toggle_moderate, name="toggle_moderate")]
-
-
