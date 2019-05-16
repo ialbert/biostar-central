@@ -258,9 +258,6 @@ LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 # The location for the table of contents.
 TOC_ROOT = join(MEDIA_ROOT, 'tocs')
 
-# Time between two accesses from the same IP to qualify as a different view.
-POST_VIEW_MINUTES = 7
-
 # Configure language detection
 LANGUAGE_DETECTION = ['en']
 
@@ -271,9 +268,6 @@ os.makedirs(TOC_ROOT, exist_ok=True)
 SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = '/protected/'
 
-# Session settings go here
-SESSION_KEY = "session"
-
 COUNT_INTERVAL_WEEKS = 10000
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
@@ -282,45 +276,8 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 SENDFILE_BACKEND = "sendfile.backends.development"
 
-MEDIA_URL = '/media/'
-STATIC_URL = '/static/'
-STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
-
-STATICFILES_DIRS = [
-    join(BASE_DIR, "static"),
-]
-
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+STATICFILES_FINDERS += [
     'compressor.finders.CompressorFinder',
-)
-
-# Apply default logger setting.
-LOGGER_NAME = "engine"
-
-# Use django-mailer to store emails in the database.
-# EMAIL_BACKEND = "mailer.backend.DbBackend"
-
-# The email delivery engine.
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# List of social login clients tuples.
-# ( name, client_id, secret )
-
-# Default clients redirect to localhost.
-# Default clients may not be operational. See the
-# django allauth documentataion on how to set them up.
-
-#
-# Callback example settings:
-#
-# http://localhost:8000/accounts/social/google/login/callback/
-# http://localhost:8000/accounts/social/github/login/callback/
-#
-SOCIAL_CLIENTS = [
-    # Localhost callbacks.
-    ("Google", "547073349197-ri3eku9fdpi1ble7eoc4amlsrh7m2oiv.apps.googleusercontent.com", "DR1-zMqOLTqRGvhSDb5rQBMg"),
-    ("GitHub", "d8493ce8967ea5abbd73", "04ff5043ebce2317d3c26bfe90fbc5e67fa38d05")
-
 ]
+
+
