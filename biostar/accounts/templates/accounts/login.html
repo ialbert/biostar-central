@@ -7,13 +7,18 @@
 <body>
 <h2>Please log in</h2>
 <p>
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
 
     <form action="{% url 'login' %}" method="post" >
 
         {% csrf_token %}
-
-        {{ form.as_table }}
-
+        {{ form.as_p }}
         <input type="submit">Log In</input>
     </form>
 

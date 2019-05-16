@@ -73,6 +73,13 @@ def get_tags_list(tags_str):
     return set(util.split_tags(tags_str))
 
 
+@register.inclusion_tag('widgets/show_messages.html')
+def show_messages(messages):
+    """
+    Renders the messages
+    """
+    return dict(messages=messages)
+
 @register.simple_tag
 def gravatar(user, size=80):
     #name = user.profile.name

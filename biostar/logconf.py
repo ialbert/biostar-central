@@ -14,11 +14,11 @@ LOGGING = {
     'formatters': {
 
         'verbose': {
-            'format': '%(levelname)s\t%(asctime)s\t%(module)s. %(message)s'
+            'format': '%(levelname)s\t%(asctime)s\t%(module)s.%(funcName)s\t%(lineno)s\t%(message)s\t'
         },
 
         'simple': {
-            'format': '%(levelname)s\t%(module)s.%(funcName)-12s\t%(message)s'
+            'format': '%(levelname)s\t%(module)s\t%(message)s'
         },
 
     },
