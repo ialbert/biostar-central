@@ -9,9 +9,11 @@
 <body>
 <h2>Please log in</h2>
 <p>
+
+{% show_messages messages %}
+    
     {% if  social_login %}
 
-            <p>
                 Click the link below to log in or sign up automatically:
             </p>
 
@@ -31,14 +33,12 @@
             </p>
 
     {% endif %}
-{% show_messages messages %}
+
 
     <form action="{% url 'login' %}" method="post" >
         {% form_errors form %}
         {% csrf_token %}
-
-        {{ form.as_table }}
-
+        {{ form.as_p }}
         <input type="submit">Log In</input>
     </form>
 

@@ -1,12 +1,8 @@
+# Inherit from the main settings file.
+from biostar.settings import *
+
+# Inherit from the accounts settings file.
 from biostar.accounts.settings import *
-
-import os
-
-# Apply the logger settings.
-from biostar.logconf import LOGGING
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # Django debug flag.
 DEBUG = True
@@ -28,16 +24,8 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
 
-
 LOGIN_REDIRECT_URL = "/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
-
-# Helper function for building absolute paths.
-def join(*args):
-    return os.path.abspath(os.path.join(*args))
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(join(__file__))
 
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
@@ -98,39 +86,11 @@ TEMPLATES = [
 
 ROOT_URLCONF = 'biostar.forum.urls'
 
-
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-)
-
 WSGI_APPLICATION = 'biostar.wsgi.application'
 
-# Database settings.
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-ENGINE_DATABASE_NAME = join(BASE_DIR, '..', '..', 'export', 'database', 'engine.db')
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ENGINE_DATABASE_NAME,
-    },
-}
-
-# Password validation
-# https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-
-]
-
-ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
 
 # Time between two accesses from the same IP to qualify as a different view.
 POST_VIEW_MINUTES = 7
-
 
 COUNT_INTERVAL_WEEKS = 10000
 

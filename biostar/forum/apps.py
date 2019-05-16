@@ -52,12 +52,13 @@ def init_post(sender,  **kwargs):
     User = get_user_model()
 
     name, email = settings.ADMINS[0]
-
     user = User.objects.filter(email=email).first()
 
+    # Create admin user.
     if not user:
-        user = User.objects.create(email=email, username="admin", is_superuser=True,
-                                   password=email)
+        user = User.objects.create(email=email, username="admin", is_superuser=True)
+        user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
+        user.save()
 
     # Make a couple of tested posts
     blog_title = "Welcome to Biostar-Engine!"
@@ -81,4 +82,3 @@ def init_post(sender,  **kwargs):
 
         logger.info(f"Created {title} post of {post.get_type_display()}")
 
-    return

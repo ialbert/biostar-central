@@ -1,24 +1,22 @@
-import logging
 import hashlib
-import urllib.parse
 import itertools
+import logging
+import random
+import urllib.parse
+from datetime import datetime
+from datetime import timedelta
 
-from datetime import timedelta, datetime
-from django.utils.timezone import utc
 from django import template
-from django.utils.safestring import mark_safe
-from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
 from django.db.models import Count
-from django.db.models import Q
-from datetime import datetime
-from django.contrib import messages
+from django.utils.safestring import mark_safe
+from django.utils.timezone import utc
 
-from biostar.utils.shortcuts import reverse
+from biostar.forum import forms, models, const, util
 from biostar.forum.models import Post, Vote, Award
-from biostar.forum import auth, forms, models, const, util
-
+from biostar.utils.shortcuts import reverse
 
 User = get_user_model()
 
@@ -45,9 +43,11 @@ ICON_MAP = dict(
     rep="user outline icon"
 )
 
+
 @register.simple_tag
 def activate(state, target):
     return "active" if state == target else ""
+
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
@@ -55,13 +55,11 @@ def now():
 
 @register.inclusion_tag('widgets/user_box.html')
 def user_box(user):
-
     return dict(user=user)
 
 
 @register.inclusion_tag('widgets/pages.html')
 def pages(objs, request):
-
     url = request.path
 
     return dict(objs=objs, url=url, request=request)
@@ -69,13 +67,25 @@ def pages(objs, request):
 
 @register.simple_tag
 def get_tags_list(tags_str):
-
     return set(util.split_tags(tags_str))
 
 
 @register.simple_tag
+def randparam():
+    "Append to URL to bypass server caching of CSS or JS files"
+    return f"?randval={random.randint(1,10000000)}" if settings.DEBUG else ""
+
+@register.inclusion_tag('widgets/show_messages.html')
+def show_messages(messages):
+    """
+    Renders the messages
+    """
+    return dict(messages=messages)
+
+
+@register.simple_tag
 def gravatar(user, size=80):
-    #name = user.profile.name
+    # name = user.profile.name
     if user.is_anonymous or user.profile.is_suspended:
         # Removes spammy images for suspended users
         email = 'suspended@biostars.org'.encode('utf8')
@@ -96,7 +106,6 @@ def gravatar(user, size=80):
 
 @register.inclusion_tag('widgets/tags_banner.html', takes_context=True)
 def tags_banner(context, limit=5, listing=False):
-
     request = context["request"]
     page = request.GET.get("page")
 
@@ -114,7 +123,6 @@ def tags_banner(context, limit=5, listing=False):
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
 def post_body(context, post, user, tree, form):
-
     "Renders the post body"
     request = context['request']
     return dict(post=post, user=user, tree=tree, request=request,
@@ -124,7 +132,6 @@ def post_body(context, post, user, tree, form):
 
 @register.inclusion_tag('widgets/subs_actions.html')
 def subs_actions(post, user):
-
     if user.is_anonymous:
         sub = None
     else:
@@ -144,11 +151,10 @@ def subs_actions(post, user):
 
 @register.inclusion_tag("widgets/forum_top_actionbar.html", takes_context=True)
 def forum_top_actionbar(context, base_url="", objs=None):
-
     bar_objs = context.get("objs", objs)
     extra_context = dict(base_url=reverse(base_url), objs=bar_objs)
     context.update(extra_context)
-    
+
     return context
 
 
@@ -161,7 +167,6 @@ def get_last_login(user):
 
 @register.filter
 def show_email(user):
-
     try:
         head, tail = user.email.split("@")
         email = head[0] + "*" * 10 + tail
@@ -173,7 +178,6 @@ def show_email(user):
 
 @register.simple_tag
 def is_moderator(user):
-
     if user.is_authenticated and user.profile.is_moderator:
         return True
     return False
@@ -181,7 +185,6 @@ def is_moderator(user):
 
 @register.inclusion_tag('widgets/feed.html')
 def feed(user):
-
     recent_votes = Vote.objects.prefetch_related("post")[:settings.VOTE_FEED_COUNT]
 
     recent_locations = User.objects.exclude(profile__location="")
@@ -201,7 +204,6 @@ def feed(user):
 
 @register.filter
 def show_score_icon(user):
-
     color = "modcolor" if user.profile.is_moderator else ""
 
     if user.profile.score > 150:
@@ -214,20 +216,17 @@ def show_score_icon(user):
 
 @register.filter
 def show_score(score):
-
     score = (score * 14) + 1
     return score
 
 
 @register.inclusion_tag('widgets/user_info.html')
 def user_info(post, by_diff=False, with_image=True):
-
     return dict(post=post, by_diff=by_diff, with_image=with_image)
 
 
 @register.simple_tag
 def get_icon(string, default=""):
-
     icon = ICON_MAP.get(string) or ICON_MAP.get(default)
     return icon
 
@@ -277,7 +276,6 @@ def relative_url(value, field_name, urlencode=None):
 
 @register.simple_tag
 def get_thread_users(post, limit=5):
-
     thread_users = post.thread_users.all()
     stream = itertools.islice(thread_users, limit)
 
@@ -293,7 +291,6 @@ def get_thread_users(post, limit=5):
 
 @register.inclusion_tag('widgets/listing.html')
 def listing(post=None, user=None):
-
     if user is None:
         return dict(post=post)
 
@@ -311,7 +308,6 @@ def show_nonzero(value):
 
 @register.simple_tag
 def object_count(request, otype):
-
     user = request.user
     count = 0
 
@@ -332,7 +328,6 @@ def pluralize(value, word):
 
 @register.filter
 def time_ago(date):
-
     if not date:
         return ''
     delta = now() - date
@@ -354,10 +349,8 @@ def time_ago(date):
     return "%s ago" % unit
 
 
-
 @register.filter
 def get_subcount(sub_count):
-
     if sub_count > 5:
         return mark_safe(f'<div class="subs">{sub_count} follow</div>')
 
@@ -406,7 +399,6 @@ def boxclass(post):
 
 @register.simple_tag
 def render_comments(request, tree, post, next_url, comment_template='widgets/comment_body.html'):
-
     if post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
                                  comment_template=comment_template,
@@ -427,12 +419,11 @@ def traverse_comments(request, post, tree, comment_template, next_url):
         vote_url = reverse("vote")
 
         data = ['<div class="ui comment segments">']
-        cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url,
-                "vote_url": vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME}
+        cont = {"post": node, 'user': request.user, 'request': request, "comment_url": comment_url,
+                "vote_url": vote_url, "next_url": next_url, "redir_field_name": const.REDIRECT_FIELD_NAME}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):
-
             data.append(f'<div class="ui segment comment basic">')
             data.append(traverse(child))
             data.append("</div>")
@@ -446,5 +437,3 @@ def traverse_comments(request, post, tree, comment_template, next_url):
         coll.append(traverse(node))
 
     return '\n'.join(coll)
-
-
