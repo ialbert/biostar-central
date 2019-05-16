@@ -51,6 +51,9 @@ def init_post(sender,  **kwargs):
 
     user = User.objects.filter(email=email).first()
 
+    if not user:
+        user = User.objects.create(email=email, username="admin", password=email)
+
     # Make a couple of tested posts
     blog_title = "Welcome to Biostar-Engine!"
     blog_content = "A small description on the biostar-engine and its use"
@@ -60,7 +63,7 @@ def init_post(sender,  **kwargs):
 
     test_posts = {
                 blog_title: dict(post_type=models.Post.BLOG, content=blog_content),
-                tutorial_title:dict(post_type=models.Post.TUTORIAL,
+                tutorial_title: dict(post_type=models.Post.TUTORIAL,
                                     content=tutorial_content),
                   }
 

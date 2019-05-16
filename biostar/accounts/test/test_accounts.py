@@ -54,7 +54,6 @@ class UserAccountTests(TestCase):
     def test_page_responses(self):
 
         urls = [
-            reverse('index'),
             reverse('logout'),
             reverse('login'),
             reverse("user_profile", kwargs=dict(uid=self.user.profile.uid)),

@@ -1,6 +1,5 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
-{% load engine_tags %}
 
 
 {% block headtitle %}
@@ -10,7 +9,6 @@
 
 {% block body %}
 
-        {% form_errors form %}
 <div class="ui container segment inputcolor">
 
         <form method="post" class="ui form" action="{{action_url}}">

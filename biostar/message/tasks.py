@@ -57,10 +57,9 @@ def parse_mention_msg(post):
             Here is where you are mentioned :
             {post.content}
             """
-    body = settings.MENTIONED_TEMPLATE or defalut_body
     subject = f"Mentioned in a post."
 
-    return body, subject, mentioned_users
+    return defalut_body, subject, mentioned_users
 
 
 def parse_subs_msg(post):
@@ -78,10 +77,9 @@ def parse_subs_msg(post):
 
     subbed_users = User.objects.filter(id__in=users_id_list)
 
-    body = settings.SUBS_TEMPLATE or default_body
     subject = f"Subscription to a post."
 
-    return body, subject, subbed_users
+    return default_body, subject, subbed_users
 
 
 def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR, parent=None, uid=None):

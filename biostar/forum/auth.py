@@ -333,13 +333,13 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
     return url
 
 
-def create_post(title, author, content, post_type, tag_val="", parent=None,root=None, project=None,
+def create_post(title, author, content, post_type, tag_val="", parent=None, root=None,
                 sub_to_root=True):
     "Used to create posts across apps"
 
     post = Post.objects.create(
         title=title, content=content, tag_val=tag_val,
-        author=author, type=post_type, parent=parent, root=root, project=project)
+        author=author, type=post_type, parent=parent, root=root)
     root = root or post.root
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously

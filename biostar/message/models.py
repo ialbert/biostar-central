@@ -10,7 +10,6 @@ from django.db.models import F
 
 from biostar.utils.shortcuts import reverse
 from biostar.accounts.models import Profile
-from biostar.utils import markdown
 from biostar.message import util
 
 User = get_user_model()
@@ -103,6 +102,7 @@ class Message(models.Model):
     sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
+        from biostar.utils import markdown
         self.html = markdown.parse(self.body)
         super(Message, self).save(**kwargs)
 

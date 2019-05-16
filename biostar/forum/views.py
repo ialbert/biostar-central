@@ -318,16 +318,16 @@ def subs_action(request, uid):
 
 
 @login_required
-def post_create(request, project=None, template="post_create.html", url="post_view",
+def post_create(request, template="post_create.html", url="post_view",
                 extra_context={}, filter_func=lambda x: x):
     "Make a new post"
 
     # Filter function ( filter_func ) is used to filter choices from the form
     # between sites.
-    form = forms.PostLongForm(project=project, filter_func=filter_func)
+    form = forms.PostLongForm( filter_func=filter_func)
 
     if request.method == "POST":
-        form = forms.PostLongForm(data=request.POST, project=project, filter_func=filter_func)
+        form = forms.PostLongForm(data=request.POST, filter_func=filter_func)
         if form.is_valid():
             # Create a new post by user
             post = form.save(author=request.user)

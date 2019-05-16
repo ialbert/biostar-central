@@ -8,9 +8,9 @@ import requests
 from django.conf import settings
 from mistune import Renderer, InlineLexer
 
-#from biostar.utils.shortcuts import reverse
-#from biostar.forum.models import Post
-#from biostar.accounts.models import Profile, User
+from biostar.utils.shortcuts import reverse
+from biostar.forum.models import Post
+from biostar.accounts.models import Profile, User
 
 # Test input.
 TEST_INPUT = '''

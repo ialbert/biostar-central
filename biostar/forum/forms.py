@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.conf import settings
 from biostar.utils import markdown
-from biostar.engine.models import Project
 from biostar.accounts.models import User
 from biostar.forum.awards import *
 from biostar.message.tasks import send_message, send_subs_msg, parse_mentioned_users, parse_mention_msg
@@ -89,9 +88,8 @@ def valid_tag(text):
 
 class PostLongForm(forms.Form):
 
-    def __init__(self, project=None, filter_func=lambda x: x, post=None, user=None, *args, **kwargs):
+    def __init__(self, filter_func=lambda x: x, post=None, user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.project = project
         self.post = post
         self.user = user
 
@@ -148,7 +146,7 @@ class PostLongForm(forms.Form):
             #self.post.add_tags(text=tag_val)
         else:
             self.post = auth.create_post(title=title, content=content, post_type=post_type,
-                                         tag_val=tag_val, author=author, project=self.project)
+                                         tag_val=tag_val, author=author)
 
         return self.post
 
@@ -202,12 +200,9 @@ class PostShortForm(forms.Form):
                                                  initial=inital_content)
 
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
-    project_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
-                                  required=False)
 
     def save(self, author=None, post_type=Post.ANSWER, edit=False):
         data = self.cleaned_data
-        project = data.get("project_uid")
         parent = data.get("parent_uid")
         content = data.get("content")
         html = markdown.parse(content)
@@ -220,14 +215,11 @@ class PostShortForm(forms.Form):
             send(old_content=old_content, new_content=self.post.content, post=self.post)
         else:
             parent = Post.objects.filter(uid=parent).first()
-            project = Project.objects.filter(uid=project).first()
-
             self.post = auth.create_post(title=parent.root.title,
                                          parent=parent,
                                          author=author,
                                          content=content,
                                          post_type=post_type,
-                                         project=project,
                                          sub_to_root=True)
         return self.post
 
