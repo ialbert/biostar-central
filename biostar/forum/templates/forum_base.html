@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% load compress %}
 {% load forum_tags %}
+{% load accounts_tags %}
 
 <html>
 <head>
@@ -58,7 +59,7 @@
     -->
 
     <div class="ui bottom attached  segment">
-
+{% show_messages messages %}
         {% block content %}
             MAIN CONTENT
         {% endblock %}
