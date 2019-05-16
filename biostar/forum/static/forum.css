@@ -244,9 +244,8 @@ img {
 }
 
 .ui.title.header {
-    font-size: .80em;
-    font-weight: 100;
-
+    font-size: 0.9em;
+    font-weight: bold;
 }
 
 .unread-message{
@@ -441,9 +440,7 @@ a{
 }
 
 .ui.title.header {
-    font-size: .80em;
     font-weight: bold;
-
 }
 
 a:hover{
