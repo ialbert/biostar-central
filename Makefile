@@ -76,6 +76,12 @@ test:
 	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
 	coverage html --skip-covered
 
+test_all:
+	$(MAKE) engine test
+	$(MAKE) accounts test
+	$(MAKE) forum test
+	$(MAKE) message test
+
 
 projects: delete init
 	#python manage.py project --pid test --name "Test Project" --public
