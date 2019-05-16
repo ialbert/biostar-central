@@ -47,6 +47,13 @@ def edit_profile(request):
     return render(request, 'accounts/edit_profile.html', context=context)
 
 
+def listing(request):
+
+    users = User.objects.all()
+    context = dict(users=users)
+    return render(request, "accounts/listing.html", context=context)
+
+
 @login_required
 def toggle_moderate(request):
     user = request.user
