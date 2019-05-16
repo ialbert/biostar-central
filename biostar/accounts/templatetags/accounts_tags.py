@@ -87,6 +87,27 @@ def pluralize(value, word):
         return "%d %s" % (value, word)
 
 
+@register.simple_tag
+def relative_url(value, field_name, urlencode=None):
+    """
+    Updates field_name parameters in url with value
+    """
+    # Create query string with updated field_name, value pair.
+    url = '?{}={}'.format(field_name, value)
+    if urlencode:
+        # Split query string
+        querystring = urlencode.split('&')
+        # Exclude old value 'field_name' from query string
+        filter_func = lambda p: p.split('=')[0] != field_name
+        filtered_querystring = filter(filter_func, querystring)
+        # Join the filtered string
+        encoded_querystring = '&'.join(filtered_querystring)
+        # Update query string
+        url = '{}&{}'.format(url, encoded_querystring)
+
+    return url
+
+
 @register.filter
 def show_email(user):
 
