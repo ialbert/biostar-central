@@ -138,9 +138,6 @@ verbose:
 	# Makes logging more verbose.
 	export DJANGO_LOG_LEVEL=DEBUG
 
-pg_forum:
-	python manage.py runserver --settings=biostar.forum.postgres_settings
-
 pg_drop:
 	dropdb --if-exists engine.db
 

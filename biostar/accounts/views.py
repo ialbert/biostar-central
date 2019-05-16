@@ -224,6 +224,7 @@ def user_logout(request):
 
 def user_login(request):
     form = forms.LoginForm()
+
     if request.method == "POST":
         form = forms.LoginForm(data=request.POST)
 
@@ -329,10 +330,8 @@ def password_reset_done(request):
 def pass_reset_confirm(request, uidb64, token):
     context = dict()
 
-    return PasswordResetConfirmView.as_view(extra_context=context,
-                                            template_name="accounts/password_reset_confirm.html",
-                                            uidb64=uidb64,
-                                            token=token)(request=request)
+    return PasswordResetConfirmView.as_view(extra_context=context, uidb64=uidb64, token=token,
+                                            template_name="accounts/password_reset_confirm.html")(request=request)
 
 
 def password_reset_complete(request):
