@@ -7,7 +7,8 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView,
-                                       PasswordResetConfirmView, PasswordResetCompleteView)
+                                       PasswordResetConfirmView, PasswordResetCompleteView,
+                                       )
 from django.core import signing
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
@@ -330,8 +331,10 @@ def password_reset_done(request):
 def pass_reset_confirm(request, uidb64, token):
     context = dict()
 
-    return PasswordResetConfirmView.as_view(extra_context=context, uidb64=uidb64, token=token,
-                                            template_name="accounts/password_reset_confirm.html")(request=request)
+    return PasswordResetConfirmView.as_view(extra_context=context,
+                                            template_name="accounts/password_reset_confirm.html")(request=request,
+                                                                                                  uidb64=uidb64,
+                                                                                                  token=token)
 
 
 def password_reset_complete(request):
