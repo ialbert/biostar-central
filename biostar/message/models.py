@@ -103,6 +103,7 @@ class Message(models.Model):
 
     def save(self, *args, **kwargs):
         self.html = mistune.markdown(self.body)
+        self.uid = self.uid or util.get_uuid(15)
         super(Message, self).save(**kwargs)
 
     def __str__(self):
@@ -115,14 +116,6 @@ class Message(models.Model):
     @property
     def from_mentions(self):
         return self.source == self.MENTIONED
-
-    @property
-    def inbox_url(self):
-        return reverse("inbox_view", kwargs=dict(uid=self.uid))
-
-    @property
-    def outbox_url(self):
-        return reverse("outbox_view", kwargs=dict(uid=self.uid))
 
 
 @receiver(post_save, sender=Message)

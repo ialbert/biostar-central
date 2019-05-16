@@ -28,7 +28,6 @@ def init_messages(sender, **kwargs):
 
     sender = User.objects.filter(email=email).first()
     if not sender:
-        print(email, "EMAIL")
         sender = User.objects.create(email=email, username="admin", is_superuser=True)
         sender.set_password(email)
 

@@ -96,9 +96,9 @@ def is_inbox(message, target):
 
 
 @register.inclusion_tag("widgets/message_menu.html")
-def message_menu(extra_tab=None, request=None):
+def message_menu(tab=None, request=None):
 
-    extra = {extra_tab: "active"}
+    extra = {tab: "active"}
     context = dict(request=request, active_tab=const.ACTIVE_MESSAGE_TAB,
                    const_in=const.INBOX, const_out=const.OUTBOX,
                    const_unread=const.UNREAD)

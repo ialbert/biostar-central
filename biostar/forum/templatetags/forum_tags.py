@@ -14,6 +14,7 @@ from django.db.models import Count
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
+from  biostar.message.models import Message
 from biostar.forum import forms, models, const, util
 from biostar.forum.models import Post, Vote, Award
 from biostar.utils.shortcuts import reverse
@@ -56,6 +57,23 @@ def now():
 @register.inclusion_tag('widgets/user_box.html')
 def user_box(user):
     return dict(user=user)
+
+@register.simple_tag
+def get_all_message_count(request):
+
+    user = request.user
+    outbox = inbox = projects = mentioned = unread = 0
+
+    if user.is_authenticated:
+        inbox = Message.objects.inbox_for(user=user)
+        outbox = Message.objects.outbox_for(user=user).count()
+        unread = inbox.filter(unread=True).count()
+        mentioned = inbox.filter(source=Message.MENTIONED).count()
+
+    context = dict(outbox=outbox, inbox=inbox.count(), projects=projects, mentioned=mentioned,
+                   unread=unread)
+
+    return context
 
 
 @register.inclusion_tag('widgets/pages.html')
