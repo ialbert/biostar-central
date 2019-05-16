@@ -8,9 +8,9 @@ import requests
 from django.conf import settings
 from mistune import Renderer, InlineLexer
 
-#from biostar.utils.shortcuts import reverse
-#from biostar.forum.models import Post
-#from biostar.accounts.models import Profile, User
+from biostar.utils.shortcuts import reverse
+from biostar.forum.models import Post
+from biostar.accounts.models import Profile, User
 
 # Test input.
 TEST_INPUT = '''
@@ -100,7 +100,6 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_mention_link(self, m):
         self.rules.mention_link = MENTINONED_USERS
-
         # Get the handle
         handle = m.group("handle")
         # Query user and get the link
@@ -109,7 +108,7 @@ class BiostarInlineLexer(MonkeyPatch):
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
         else:
-            link = handle
+            link = m.group(0)
 
         return link
 
@@ -117,7 +116,6 @@ class BiostarInlineLexer(MonkeyPatch):
         uid = m.group("uid")
         post = Post.objects.filter(uid=uid).first() or Post(title=f"Invalid post uid: {uid}")
         link = m.group(0)
-        print (post.title, link)
         return f'<a href="{link}">{post.title}</a>'
 
     def enable_anchor_link(self):

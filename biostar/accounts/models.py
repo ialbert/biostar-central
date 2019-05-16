@@ -8,7 +8,6 @@ from django.dispatch import receiver
 from django.db import models
 from django.conf import settings
 
-from biostar.forum.util import time_ago
 
 MAX_UID_LEN = 255
 MAX_NAME_LEN = 255

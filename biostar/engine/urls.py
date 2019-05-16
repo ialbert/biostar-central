@@ -1,11 +1,16 @@
-from django.conf.urls import url
+
+from django.contrib import admin
+from django.conf.urls import url, include
 from django.urls import path
 
-from biostar.accounts.urls import urlpatterns as account_patterns
+import biostar.accounts.urls as account_patterns
 
 from . import views, api
 
 urlpatterns = [
+    # The django generated admin site.
+    url(r'^django/admin/', admin.site.urls, name='django_admin'),
+
     url(r'^$', views.index, name="index"),
 
     # Site
@@ -72,7 +77,9 @@ urlpatterns = [
     url(r'^job/file/copy/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_file_copy, name='job_file_copy'),
     url(r'^file/paste/(?P<uid>[-\w]+)/$', views.file_paste, name='file_paste'),
 
+    # Include the accounts urls
+    url(r'^accounts/', include(account_patterns)),
 ]
 
-urlpatterns += account_patterns
+
 

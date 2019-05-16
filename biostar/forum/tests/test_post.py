@@ -43,17 +43,17 @@ class PostTest(TestCase):
     def test_comment(self):
         """Test adding comment using POST request"""
 
-        data = {"parent_uid": self.post.uid,"content": "tested content for a question"}
+        data = {"parent_uid": self.post.uid, "content": "tested content for a question"}
         request = fake_request(url=reverse('post_comment'), data=data, user=self.owner)
         response = views.comment(request=request)
 
-        wrong_data = {"content": "tested content for a question"}
+        wrong_data = {"parent_uid": self.post.uid, "content": "x"}
         wrong_request = fake_request(url=reverse('post_comment'), data=wrong_data, user=self.owner)
         wrong_response = views.comment(request=wrong_request)
 
         self.process_response(response=response)
 
-        self.assertEqual(wrong_response.url, reverse("post_list"))
+        self.assertEqual(wrong_response.url, reverse("post_view", kwargs=dict(uid=self.post.uid)))
         self.process_response(response=wrong_response)
 
     def make_votes(self, post, user):

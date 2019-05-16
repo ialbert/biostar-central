@@ -1,21 +1,18 @@
-{% extends "forum_base.html" %}
+{% extends "message_base.html" %}
 {% load message_tags %}
-{% load forum_tags %}
-{% load engine_tags %}
-
+{% load accounts_tags %}
 
 {% block headtitle %}
     Messages
 {% endblock %}
 
 
-{% block grid %}
-    {% show_messages messages %}
+{% block content %}
 
     <div class="ui basic no-padding segment">
 
 <div class="ui doubling stackable messaging grid" id="messaging-grid">
-{% message_top_actionbar with_pages=True %}
+
     <div class="three wide column">
             {% message_menu extra_tab=extra_tab_name request=request %}
 

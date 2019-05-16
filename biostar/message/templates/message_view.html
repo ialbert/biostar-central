@@ -1,14 +1,13 @@
-{% extends "forum_base.html" %}
+{% extends "message_base.html" %}
 {% load message_tags %}
-{% load forum_tags %}
-{% load engine_tags %}
+{% load accounts_tags %}
 
 {% block headtitle %}
     {{ base_message.subject }}
 {% endblock %}
 
 
-{% block grid %}
+{% block content %}
     {% show_messages messages %}
 
 <div class="ui doubling messaging stackable grid" id="messaging-grid">

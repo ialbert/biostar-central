@@ -36,7 +36,7 @@ class SiteAdminTest(TestCase):
     def test_site_admin(self):
         "Test site admin page"
 
-        url =  reverse("site_admin")
+        url = reverse("site_admin")
         request = util.fake_request(url=url, data={}, method="GET",user=self.user)
 
         response = views.site_admin(request=request)

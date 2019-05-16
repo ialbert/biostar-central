@@ -1,3 +1,5 @@
+from biostar.accounts.settings import *
+
 import os
 
 # Apply the logger settings.
@@ -47,9 +49,6 @@ PROJECT_FEED_COUNT = 8
 
 SEARCH_CHAR_MIN = 2
 
-
-ENGINE_AS_ROOT = True
-
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
@@ -90,7 +89,7 @@ SITE_NAME = "Biostar Engine"
 
 # Deployment specific parameters.
 PROTOCOL = "http"
-HTTP_PORT = ':8000'
+HTTP_PORT = '8000'
 
 
 BASE_URL = f"{PROTOCOL}://{SITE_DOMAIN}{HTTP_PORT}"
@@ -107,7 +106,7 @@ ALLOW_SELF_MODERATE = False
 # Maximum size of each file upload in MB
 MAX_FILE_SIZE_MB = 300
 
-LOGIN_REDIRECT_URL = "/project/list/private"
+LOGIN_REDIRECT_URL = "/project/list/private/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 # Helper function for building absolute paths.
@@ -130,7 +129,6 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'mailer',
     'compressor',
-    'pagedown',
     'taggit',
     'snowpenguin.django.recaptcha2',
     'rest_framework',
@@ -286,7 +284,7 @@ SENDFILE_BACKEND = "sendfile.backends.development"
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
-STATIC_ROOT = join(BASE_DIR, '..', '..', 'export', 'static')
+STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
 
 STATICFILES_DIRS = [
     join(BASE_DIR, "static"),

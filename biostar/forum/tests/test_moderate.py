@@ -26,12 +26,14 @@ class PostTest(TestCase):
     def test_moderate(self):
 
         # Test every moderation action
-        for action in forms.PostModForm.CHOICES:
+        choices = dict(forms.PostModForm.CHOICES)
+        for action, wording in choices.items():
             data = {"action": action}
-            request = fake_request(url=reverse('post_moderate', kwargs=dict(uid=self.post.uid)), data=data,
-                                   user=self.owner)
+            url = reverse('post_moderate', kwargs=dict(uid=self.post.uid))
+            request = fake_request(url=url, data=data, user=self.owner)
             response = views.post_moderate(request=request, uid=self.post.uid)
             self.process_response(response)
+
         return
 
     def process_response(self, response):

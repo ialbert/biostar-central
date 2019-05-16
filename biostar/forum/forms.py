@@ -7,10 +7,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import F
 from django.conf import settings
 from biostar.utils import markdown
-from biostar.engine.models import Project
 from biostar.accounts.models import User
 from biostar.forum.awards import *
-from biostar.message.tasks import send_message, send_subs_msg, parse_mentioned_users, parse_mention_msg
 from biostar.message.models import Message
 from biostar.forum import models, auth, util
 
@@ -18,45 +16,45 @@ from .const import *
 # Share logger with models
 logger = models.logger
 
-
-def send(old_content, new_content, post):
-    """
-    See if there is any change and send
-    notifications and subscriptions messages
-    """
-    # Get rid of white spaces and tabs by splitting into lists.
-    source_list = old_content.strip().split()
-    new_list = new_content.strip().split()
-    diffobj = SequenceMatcher(a=source_list, b=new_list)
-
-    # There is a change detected
-    change = diffobj.ratio() != 1
-
-    # Do nothing when no change is detected.
-    if not change:
-        return
-
-    # Get sender for these messages from biostar
-    sender = User.objects.filter(is_superuser=True).first()
-
-    # Send message to subscribed users.
-    send_subs_msg(post=post)
-
-    # Get mentioned users from new content
-    new_mentioned_users = parse_mentioned_users(content=new_content)
-    # Get old mentioned users and exclude them from these round of messages.
-    old_mentioned_users = parse_mentioned_users(content=old_content).values("id")
-
-    # Exclude old mentioned users from new ones.
-    ment_users = new_mentioned_users.exclude(id__in=old_mentioned_users)
-
-    # Parse the mentioned message
-    ment_body, ment_subject, _ = parse_mention_msg(post=post)
-
-    # Send the mentioned message.
-    send_message(source=Message.MENTIONED, subject=ment_subject, body=ment_body,
-                 rec_list=ment_users, sender=sender)
-    return
+#
+# def send(old_content, new_content, post):
+#     """
+#     See if there is any change and send
+#     notifications and subscriptions messages
+#     """
+#     # Get rid of white spaces and tabs by splitting into lists.
+#     source_list = old_content.strip().split()
+#     new_list = new_content.strip().split()
+#     diffobj = SequenceMatcher(a=source_list, b=new_list)
+#
+#     # There is a change detected
+#     change = diffobj.ratio() != 1
+#
+#     # Do nothing when no change is detected.
+#     if not change:
+#         return
+#
+#     # Get sender for these messages from biostar
+#     sender = User.objects.filter(is_superuser=True).first()
+#
+#     # Send message to subscribed users.
+#     send_subs_msg(post=post)
+#
+#     # Get mentioned users from new content
+#     new_mentioned_users = parse_mentioned_users(content=new_content)
+#     # Get old mentioned users and exclude them from these round of messages.
+#     old_mentioned_users = parse_mentioned_users(content=old_content).values("id")
+#
+#     # Exclude old mentioned users from new ones.
+#     ment_users = new_mentioned_users.exclude(id__in=old_mentioned_users)
+#
+#     # Parse the mentioned message
+#     ment_body, ment_subject, _ = parse_mention_msg(post=post)
+#
+#     # Send the mentioned message.
+#     send_message(source=Message.MENTIONED, subject=ment_subject, body=ment_body,
+#                  rec_list=ment_users, sender=sender)
+#     return
 
 
 def english_only(text):
@@ -89,9 +87,8 @@ def valid_tag(text):
 
 class PostLongForm(forms.Form):
 
-    def __init__(self, project=None, filter_func=lambda x: x, post=None, user=None, *args, **kwargs):
+    def __init__(self, filter_func=lambda x: x, post=None, user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.project = project
         self.post = post
         self.user = user
 
@@ -143,12 +140,11 @@ class PostLongForm(forms.Form):
             self.post.html = html
             self.post.tag_val = tag_val
             self.post.save()
-            send(old_content=old_content, new_content=self.post.content, post=self.post)
             # Triggers another save
             #self.post.add_tags(text=tag_val)
         else:
             self.post = auth.create_post(title=title, content=content, post_type=post_type,
-                                         tag_val=tag_val, author=author, project=self.project)
+                                         tag_val=tag_val, author=author)
 
         return self.post
 
@@ -202,12 +198,9 @@ class PostShortForm(forms.Form):
                                                  initial=inital_content)
 
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
-    project_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000,
-                                  required=False)
 
     def save(self, author=None, post_type=Post.ANSWER, edit=False):
         data = self.cleaned_data
-        project = data.get("project_uid")
         parent = data.get("parent_uid")
         content = data.get("content")
         html = markdown.parse(content)
@@ -217,17 +210,13 @@ class PostShortForm(forms.Form):
             old_content = self.post.content
             self.post.content = content
             self.post.save()
-            send(old_content=old_content, new_content=self.post.content, post=self.post)
         else:
             parent = Post.objects.filter(uid=parent).first()
-            project = Project.objects.filter(uid=project).first()
-
             self.post = auth.create_post(title=parent.root.title,
                                          parent=parent,
                                          author=author,
                                          content=content,
                                          post_type=post_type,
-                                         project=project,
                                          sub_to_root=True)
         return self.post
 
@@ -246,7 +235,7 @@ class PostModForm(forms.Form):
         (DELETE, "Delete post"),
     ]
 
-    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action", required=False)
+    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action", required=False )
     dupe = forms.CharField(required=False, max_length=200,
                            help_text="""One or more duplicated link, 
                                         comma separated (required for duplicate closing).
@@ -270,7 +259,7 @@ class PostModForm(forms.Form):
         pid = cleaned_data.get("pid").strip()
         cleaned_data["pid"] = pid
 
-        if not action and not (dupe or pid):
+        if (action is None) and not (dupe or pid):
             raise forms.ValidationError("Select an action")
 
         if not (self.user.profile.is_moderator or self.user.profile.is_manager):

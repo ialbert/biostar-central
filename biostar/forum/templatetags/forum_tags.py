@@ -323,9 +323,36 @@ def object_count(request, otype):
     return count
 
 
+def pluralize(value, word):
+    if value > 1:
+        return "%d %ss" % (value, word)
+    else:
+        return "%d %s" % (value, word)
+
+
 @register.filter
 def time_ago(date):
-    return util.time_ago(date=date)
+
+    if not date:
+        return ''
+    delta = now() - date
+    if delta < timedelta(minutes=1):
+        return 'just now'
+    elif delta < timedelta(hours=1):
+        unit = pluralize(delta.seconds // 60, "minute")
+    elif delta < timedelta(days=1):
+        unit = pluralize(delta.seconds // 3600, "hour")
+    elif delta < timedelta(days=30):
+        unit = pluralize(delta.days, "day")
+    elif delta < timedelta(days=90):
+        unit = pluralize(int(delta.days / 7), "week")
+    elif delta < timedelta(days=730):
+        unit = pluralize(int(delta.days / 30), "month")
+    else:
+        diff = delta.days / 365.0
+        unit = '%0.1f years' % diff
+    return "%s ago" % unit
+
 
 
 @register.filter
@@ -378,21 +405,19 @@ def boxclass(post):
 
 
 @register.simple_tag
-def render_comments(request, tree, post, next_url, project_uid=None,
-                    comment_template='widgets/comment_body.html'):
+def render_comments(request, tree, post, next_url, comment_template='widgets/comment_body.html'):
 
     if post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree,
                                  comment_template=comment_template,
-                                 next_url=next_url, project_uid=project_uid)
+                                 next_url=next_url)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template, next_url,
-                      project_uid=None):
+def traverse_comments(request, post, tree, comment_template, next_url):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
@@ -403,8 +428,7 @@ def traverse_comments(request, post, tree, comment_template, next_url,
 
         data = ['<div class="ui comment segments">']
         cont = {"post": node, 'user': request.user, 'request': request, "comment_url":comment_url,
-                "vote_url": vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME,
-                "project_uid": project_uid}
+                "vote_url": vote_url, "next_url":next_url, "redir_field_name":const.REDIRECT_FIELD_NAME}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):

@@ -288,10 +288,13 @@ def comment(request):
             location = reverse("post_view", kwargs=dict(uid=post.root.uid)) + "#" + post.uid
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
-        else:
-            messages.error(request, f"Error adding comment:{form.errors}")
-            parent = Post.objects.filter(uid=request.POST.get("parent_uid")).first()
-            location = location if parent is None else reverse("post_view", kwargs=dict(uid=parent.root.uid))
+            return redirect(location)
+
+        messages.error(request, f"Error adding comment:{form.errors}")
+        pid = request.POST.get("parent_uid")
+        parent = Post.objects.filter(uid=pid).first()
+        anchor = reverse("post_view", kwargs=dict(uid=parent.root.uid))
+        location = location if parent is None else anchor
 
     return redirect(location)
 
@@ -318,16 +321,16 @@ def subs_action(request, uid):
 
 
 @login_required
-def post_create(request, project=None, template="post_create.html", url="post_view",
+def post_create(request, template="post_create.html", url="post_view",
                 extra_context={}, filter_func=lambda x: x):
     "Make a new post"
 
     # Filter function ( filter_func ) is used to filter choices from the form
     # between sites.
-    form = forms.PostLongForm(project=project, filter_func=filter_func)
+    form = forms.PostLongForm( filter_func=filter_func)
 
     if request.method == "POST":
-        form = forms.PostLongForm(data=request.POST, project=project, filter_func=filter_func)
+        form = forms.PostLongForm(data=request.POST, filter_func=filter_func)
         if form.is_valid():
             # Create a new post by user
             post = form.save(author=request.user)
@@ -352,9 +355,11 @@ def post_moderate(request, uid):
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
 
         if form.is_valid():
+
             action = form.cleaned_data["action"]
             duplicate = form.cleaned_data["dupe"]
             pid = form.cleaned_data.get("pid", "")
+
             redir = auth.moderate_post(post=post, request=request, action=action, dupes=duplicate, pid=pid)
             if tasks.HAS_UWSGI:
                 tasks.moderated_post(pid=post.id)

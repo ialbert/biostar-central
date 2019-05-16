@@ -1,16 +1,14 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
-{% load engine_tags %}
-
+{% load accounts_tags %}
 
 {% block headtitle %}
     New Post
 {% endblock %}
 
 
-{% block body %}
+{% block content %}
 
-{% form_errors form %}
 <div class="ui segment inputcolor">
 
     <form method="post" class="ui form" action="{%  url 'post_edit' post.uid %}">

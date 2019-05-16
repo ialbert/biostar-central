@@ -1,5 +1,9 @@
 from . import views
-from django.conf.urls import url
+from django.conf import settings
+from django.conf.urls import url, include
+
+import biostar.message.urls as msg_patterns
+import biostar.accounts.urls as account_patterns
 
 urlpatterns = [
 
@@ -25,6 +29,12 @@ urlpatterns = [
 
     # Community urls
     url(r'^community/list/$', views.community_list, name='community_list'),
+
+    # Include messages urls
+    url(r'^message/', include(msg_patterns)),
+
+    # Include the accounts urls
+    url(r'^accounts/', include(account_patterns)),
 
 ]
 

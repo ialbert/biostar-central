@@ -10,7 +10,7 @@ MAX_TEXT_LEN = 5000
 
 class Reply(forms.Form):
     # Message body and subjects
-    body = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
+    body = forms.CharField(widget=forms.Textarea(),
                            min_length=2, max_length=MAX_TEXT_LEN,
                            help_text="Message body.")
 
@@ -39,7 +39,7 @@ class Reply(forms.Form):
 class Compose(forms.Form):
 
     # Message body and subjects
-    body = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
+    body = forms.CharField(widget=forms.Textarea(),
                            min_length=2, max_length=MAX_TEXT_LEN,
                            help_text="Message body.")
 

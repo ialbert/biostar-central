@@ -10,7 +10,6 @@ from django.db.models import F
 
 from biostar.utils.shortcuts import reverse
 from biostar.accounts.models import Profile
-from biostar.utils import markdown
 from biostar.message import util
 
 User = get_user_model()
@@ -59,8 +58,11 @@ class BlockList(models.Model):
     # Reason for blocking particular user
     reason = models.CharField(max_length=MAX_TEXT_LEN, default="")
 
-    uid = models.CharField(max_length=32, unique=True, default=util.get_uuid(10))
+    uid = models.CharField(max_length=32, unique=True)
 
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or util.get_uuid(8)
+        super(BlockList, self).save(**kwargs)
 
 # Connects user to message bodies
 class Message(models.Model):
@@ -100,7 +102,7 @@ class Message(models.Model):
     sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.html = markdown.parse(self.body)
+        self.html = mistune.markdown(self.body)
         super(Message, self).save(**kwargs)
 
     def __str__(self):

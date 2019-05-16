@@ -6,8 +6,7 @@ from . import views
 urlpatterns = [
 
     # Get the reset/ urls
-    #url('^', include('django.contrib.auth.urls')),
-
+    url('^$', views.listing, name="accounts_index"),
     url(r'^password/reset/$', views.password_reset, name='password_reset'),
     url(r'^password/reset/done/$', views.password_reset_done, name='password_reset_done'),
 
@@ -37,10 +36,6 @@ urlpatterns = [
     # Used for 3rd party logins.
     url("^social/", include('allauth.urls')),
 
+
+
 ]
-
-if settings.ALLOW_SELF_MODERATE:
-    # Allow users to toggle their moderation state
-    urlpatterns += [url(r'^toggle/moderate/$', views.toggle_moderate, name="toggle_moderate")]
-
-

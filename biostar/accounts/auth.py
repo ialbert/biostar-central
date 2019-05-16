@@ -5,10 +5,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib import auth
 from django.conf import settings
 
-from biostar.forum.models import Post
-from biostar.engine.auth import get_project_list
-from biostar.engine.models import Project
-from biostar.emailer.auth import notify
+#from biostar.emailer.auth import notify
 from .models import User, Profile
 from . import util, const
 from .tokens import account_verification_token
@@ -51,10 +48,10 @@ def send_verification_email(user):
     email_list = [user.email]
     context = dict(token=token, userid=userid, user=user)
 
-    # Send the verification email
-    notify(template_name=template, email_list=email_list,
-           extra_context=context, from_email=from_email,
-           subject="Verify your email", send=True)
+    # # Send the verification email
+    # notify(template_name=template, email_list=email_list,
+    #        extra_context=context, from_email=from_email,
+    #        subject="Verify your email", send=True)
 
     return True
 

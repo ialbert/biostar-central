@@ -8,16 +8,21 @@ DUMP_FILE=export/database/engine.json
 BACKUP_DUMP_FILE=export/database/engine_`date +'%s'`.json
 
 DJANGO_SETTING_MODULE := biostar.engine.settings
+DJANGO_APP := biostar.engine
 
 all: serve
 
 accounts:
 	$(eval DJANGO_SETTING_MODULE := biostar.accounts.settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	$(eval DJANGO_APP := biostar.accounts)
+	@echo DJANGO_APP=${DJANGO_APP}
 
 emailer:
 	$(eval DJANGO_SETTING_MODULE := biostar.emailer.settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	$(eval DJANGO_APP := biostar.emailer)
+	@echo DJANGO_APP=${DJANGO_APP}
 
 pg:
 	$(eval DJANGO_SETTING_MODULE := conf.postgres.postgres_settings)
@@ -26,14 +31,20 @@ pg:
 message:
 	$(eval DJANGO_SETTING_MODULE := biostar.message.settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	$(eval DJANGO_APP := biostar.message)
+	@echo DJANGO_APP=${DJANGO_APP}
 
 engine:
 	$(eval DJANGO_SETTING_MODULE := biostar.engine.settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	$(eval DJANGO_APP := biostar.engine)
+	@echo DJANGO_APP=${DJANGO_APP}
 
 forum:
 	$(eval DJANGO_SETTING_MODULE := biostar.forum.settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	$(eval DJANGO_APP := biostar.forum)
+	@echo DJANGO_APP=${DJANGO_APP}
 
 serve:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
@@ -57,7 +68,16 @@ delete:
 reset: delete init
     # Initializes the test project.
 
-    
+
+test:
+	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	@echo DJANGO_APP=${DJANGO_APP}
+	python manage.py collectstatic --noinput -v 0 --settings ${DJANGO_SETTING_MODULE}
+	python manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
+	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
+	coverage html --skip-covered
+
+
 projects: delete init
 	#python manage.py project --pid test --name "Test Project" --public
 	#python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson
@@ -155,11 +175,7 @@ postgres:
 next:
 	python manage.py job --next
 
-test:
-	python manage.py collectstatic --noinput -v 0
-	python manage.py test -v 2 --failfast
-	coverage run manage.py test
-	coverage html --skip-covered
+
 
 ftp:
 	python manage.py ftp

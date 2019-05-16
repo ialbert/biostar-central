@@ -1,12 +1,12 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
-{% load engine_tags %}
+{% load accounts_tags %}
 
 {% block headtitle %}
     {{ post.title }}
 {% endblock %}
 
-{% block body %}
+{% block content %}
 <div class="ui small header">Add your comment</div>
         <div class="ui basic segment inputcolor">
 

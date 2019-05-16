@@ -1,6 +1,5 @@
-{% load forum_tags %}
 {% load humanize %}
-
+{% load accounts_tags %}
         {% if objs.has_previous %}
             <div class="ui basic label pages-size">
                 <a href="{{ url }}{% relative_url objs.previous_page_number 'page' request.GET.urlencode %}">

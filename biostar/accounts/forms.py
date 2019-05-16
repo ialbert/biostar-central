@@ -107,8 +107,8 @@ class EditProfile(forms.Form):
                                                  required=False)
         self.fields["scholar"] = forms.CharField(label="Scholar", max_length=100, initial=self.user.profile.scholar,
                                                  required=False)
-        self.fields["text"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
-                               min_length=2, max_length=5000, initial=self.user.profile.text, required=False)
+        self.fields["text"] = forms.CharField(widget=forms.Textarea(),min_length=2, max_length=5000,
+                                              initial=self.user.profile.text, required=False)
         self.fields["my_tags"] = forms.CharField(max_length=100, required=False, initial=self.user.profile.my_tags,
                                   help_text="""Post with tags listed here will show up in the My Tags tab. 
                                   Use a comma to separate tags. 
