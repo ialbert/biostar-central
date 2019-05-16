@@ -58,6 +58,7 @@ def now():
 def user_box(user):
     return dict(user=user)
 
+
 @register.simple_tag
 def get_all_message_count(request):
 

@@ -79,7 +79,7 @@ def message_list(request, listing="inbox"):
     paginator = Paginator(messages, settings.MESSAGES_PER_PAGE)
     messages = paginator.get_page(page)
 
-    context = dict(tab="inbox", all_messages=messages, order=order, limit=limit,
+    context = dict(tab="messages", all_messages=messages, order=order, limit=limit,
                    tab_name=listing)
 
     Profile.objects.filter(user=user).update(new_messages=0)
@@ -122,8 +122,7 @@ def inbox_view(request, uid):
 
     active_tab = request.GET.get("active", INBOX)
 
-    context = dict(base_message=msg, tree=tree, extra_tab="active",
-                   extra_tab_name=active_tab, message=msg)
+    context = dict(base_message=msg, tree=tree, tab_name=active_tab, message=msg, tab="messages")
     return render(request, "message/message_view.html", context=context)
 
 
@@ -140,8 +139,7 @@ def outbox_view(request, uid):
     # Build the message tree from bottom up
     tree = auth.build_msg_tree(msg=msg, tree=[])
 
-    context = dict(base_message=msg, tree=tree, extra_tab="active",
-                   extra_tab_name=OUTBOX, message=msg)
+    context = dict(base_message=msg, tree=tree, tab_name=OUTBOX, message=msg, tab="messages")
     return render(request, "message/message_view.html", context=context)
 
 
@@ -164,7 +162,7 @@ def message_compose(request):
             messages.success(request, "Sent message to recipients")
             return redirect(reverse("outbox"))
 
-    context = dict(form=form, compose='active')
+    context = dict(form=form, tab_name="compose", tab="messages")
 
     return render(request, "message/message_compose.html", context)
 

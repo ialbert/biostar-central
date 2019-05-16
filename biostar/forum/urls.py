@@ -34,7 +34,7 @@ urlpatterns = [
     url(r'^message/', include(msg_patterns)),
 
     # Include the accounts urls
-    url(r'^foo/', include(account_patterns)),
+    url(r'^accounts/', include(account_patterns)),
 
 ]
 
