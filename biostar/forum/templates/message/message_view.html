@@ -1,0 +1,68 @@
+{% extends "forum_base.html" %}
+{% load message_tags %}
+{% load accounts_tags %}
+
+{% block headtitle %}
+    {{ base_message.subject }}
+{% endblock %}
+
+
+{% block content %}
+    {% show_messages messages %}
+
+<div class="ui doubling messaging stackable grid" id="messaging-grid">
+
+    <div class="three wide messages column">
+        {% message_menu extra_tab=extra_tab_name request=request %}
+    </div>
+
+    <div class="thirteen wide messages column">
+
+                {% for msg in tree %}
+                    <div class="ui basic segment">
+
+                            <div>
+                                <b>From : </b>{{ msg.sender.profile.name }}
+                            </div>
+                            <div>
+                                <b>To : </b>{{ msg.recipient.profile.name }}
+                            </div>
+
+                                <div>
+                                    <b>Subject :</b> {{ msg.subject }}
+                                </div>
+
+                                <div>
+                                    <b>Sent :</b> {{ msg.sent_date }}
+                                </div>
+
+
+                                <div class="ui basic segment">
+                                    {{ msg.body }}
+                                </div>
+
+
+
+                            <div class="ui compact small menu no-shadow" style="margin-top: 5px;">
+
+                                <a class="reply-button item" reply-url="{% url 'reply' msg.uid %}" data-value="{{msg.uid}}">
+                                    <i class="exchange icon"></i>REPLY
+                                </a>
+
+                            </div>
+                    <div id="reply-container-{{msg.uid}}"></div>
+
+
+                    </div>
+
+                    <div class="ui divider"></div>
+
+                {% endfor %}
+    </div>
+
+
+</div>
+
+
+
+{% endblock %}

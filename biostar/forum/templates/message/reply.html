@@ -1,0 +1,17 @@
+<div class="ui basic segment inputcolor">
+    <form class="ui form" action="{% url 'inbox_view' msg.uid %}"  method="post">
+        {{ form.media }}
+        {% csrf_token %}
+        <div class="field">
+            {{ form.body }}
+        </div>
+        <div>
+            <button class="ui submit green button" type="submit">
+                <i class="send mail icon"></i>Send Reply
+            </button>
+            <a class="ui orange right floated button" onclick="javascript:obj=$('#reply-row').remove();">
+            <i class="undo icon"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
