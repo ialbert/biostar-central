@@ -13,11 +13,15 @@ all: serve
 
 accounts:
 	$(eval DJANGO_SETTING_MODULE := biostar.accounts.settings)
+	$(eval TESTING := biostar.accounts)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	@echo TESTING=${TESTING}
 
 emailer:
 	$(eval DJANGO_SETTING_MODULE := biostar.emailer.settings)
+	$(eval TESTING := biostar.emailer)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	@echo TESTING=${TESTING}
 
 pg:
 	$(eval DJANGO_SETTING_MODULE := conf.postgres.postgres_settings)
@@ -25,15 +29,21 @@ pg:
 
 message:
 	$(eval DJANGO_SETTING_MODULE := biostar.message.settings)
+	$(eval TESTING := biostar.message)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	@echo TESTING=${TESTING}
 
 engine:
 	$(eval DJANGO_SETTING_MODULE := biostar.engine.settings)
+	$(eval TESTING := biostar.engine)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	@echo TESTING=${TESTING}
 
 forum:
 	$(eval DJANGO_SETTING_MODULE := biostar.forum.settings)
+	$(eval TESTING := biostar.forum)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
+	@echo TESTING=${TESTING}
 
 serve:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
@@ -155,36 +165,11 @@ postgres:
 next:
 	python manage.py job --next
 
-accounts_test:accounts
-	python manage.py collectstatic --noinput -v 0
-	python manage.py test biostar.accounts -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
-	coverage run manage.py test biostar.accounts -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
-	coverage html --skip-covered
-
-engine_test:engine
-	python manage.py collectstatic --noinput -v 0
-	python manage.py test biostar.engine --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
-	coverage run manage.py test  biostar.engine --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
-	coverage html --skip-covered
-
-
-forum_test:forum
-	python manage.py collectstatic --noinput -v 0
-	python manage.py test biostar.forum -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
-	coverage run manage.py test biostar.forum -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
-	coverage html --skip-covered
-
-message_test:message
-	python manage.py collectstatic --noinput -v 0
-	python manage.py test biostar.message -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
-	coverage run manage.py test biostar.message -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
-	coverage html --skip-covered
-
 
 test:
 	python manage.py collectstatic --noinput -v 0
-	python manage.py test -v 2 --failfast
-	coverage run manage.py test
+	python manage.py test ${TESTING} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
+	coverage run manage.py test ${TESTING} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
 	coverage html --skip-covered
 
 ftp:
