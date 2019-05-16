@@ -3,7 +3,6 @@ import re
 from django.conf import settings
 from biostar.message import models, auth
 from biostar.accounts.models import Profile
-from biostar.forum.models import Subscription
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -62,7 +61,7 @@ def parse_mention_msg(post):
     return defalut_body, subject, mentioned_users
 
 
-def parse_subs_msg(post):
+def parse_subs_msg(post, subs):
     title = post.title
     # Load template if its available
     default_body = f"""
@@ -71,8 +70,6 @@ def parse_subs_msg(post):
           Post: {title}\n
           Addition: {post.content}\n
           """
-    root = post if post.is_toplevel else post.root
-    subs = Subscription.objects.filter(post=root)
     users_id_list = subs.values_list("user", flat=True).distinct()
 
     subbed_users = User.objects.filter(id__in=users_id_list)
@@ -111,12 +108,12 @@ def send_notification_msgs(post):
     return
 
 
-def send_subs_msg(post):
+def send_subs_msg(post, subs):
     # Get the user meant to send subscriptions and notification messages.
     sender = User.objects.filter(is_superuser=True).first()
 
     # Parse the subscribed message
-    sub_body, sub_subject, sub_users = parse_subs_msg(post=post)
+    sub_body, sub_subject, sub_users = parse_subs_msg(post=post, subs=subs)
 
     # Send message to subscribed users.
     send_message(subject=sub_subject, body=sub_body, rec_list=sub_users, sender=sender)

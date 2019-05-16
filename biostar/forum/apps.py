@@ -45,6 +45,10 @@ def init_post(sender,  **kwargs):
     from django.contrib.auth import get_user_model
     from . import auth, models
 
+    # Only initialize when debugging
+    if not settings.DEBUG:
+        return
+
     User = get_user_model()
 
     name, email = settings.ADMINS[0]
@@ -52,7 +56,8 @@ def init_post(sender,  **kwargs):
     user = User.objects.filter(email=email).first()
 
     if not user:
-        user = User.objects.create(email=email, username="admin", password=email)
+        user = User.objects.create(email=email, username="admin", is_superuser=True,
+                                   password=email)
 
     # Make a couple of tested posts
     blog_title = "Welcome to Biostar-Engine!"

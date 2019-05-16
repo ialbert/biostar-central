@@ -13,6 +13,39 @@ logger = logging.getLogger("engine")
 register = template.Library()
 
 
+@register.inclusion_tag('widgets/form_errors.html')
+def form_errors(form):
+    """
+    Turns form errors into a data structure
+    """
+    try:
+        errorlist = [('', message) for message in form.non_field_errors()]
+
+        for field in form:
+            for error in field.errors:
+                errorlist.append((f'{field.name}:', error))
+    except Exception:
+        errorlist = []
+
+    context = dict(errorlist=errorlist)
+
+    return context
+
+
+@register.inclusion_tag('widgets/pages.html')
+def pages(objs, request):
+
+    url = request.path
+
+    return dict(objs=objs, url=url, request=request)
+
+
+@register.inclusion_tag('widgets/show_messages.html')
+def show_messages(messages):
+    """
+    Renders the messages
+    """
+    return dict(messages=messages)
 
 @register.filter
 def show_score_icon(user):

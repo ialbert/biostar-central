@@ -9,7 +9,6 @@ from django.conf import settings
 from biostar.utils import markdown
 from biostar.accounts.models import User
 from biostar.forum.awards import *
-from biostar.message.tasks import send_message, send_subs_msg, parse_mentioned_users, parse_mention_msg
 from biostar.message.models import Message
 from biostar.forum import models, auth, util
 
@@ -17,45 +16,45 @@ from .const import *
 # Share logger with models
 logger = models.logger
 
-
-def send(old_content, new_content, post):
-    """
-    See if there is any change and send
-    notifications and subscriptions messages
-    """
-    # Get rid of white spaces and tabs by splitting into lists.
-    source_list = old_content.strip().split()
-    new_list = new_content.strip().split()
-    diffobj = SequenceMatcher(a=source_list, b=new_list)
-
-    # There is a change detected
-    change = diffobj.ratio() != 1
-
-    # Do nothing when no change is detected.
-    if not change:
-        return
-
-    # Get sender for these messages from biostar
-    sender = User.objects.filter(is_superuser=True).first()
-
-    # Send message to subscribed users.
-    send_subs_msg(post=post)
-
-    # Get mentioned users from new content
-    new_mentioned_users = parse_mentioned_users(content=new_content)
-    # Get old mentioned users and exclude them from these round of messages.
-    old_mentioned_users = parse_mentioned_users(content=old_content).values("id")
-
-    # Exclude old mentioned users from new ones.
-    ment_users = new_mentioned_users.exclude(id__in=old_mentioned_users)
-
-    # Parse the mentioned message
-    ment_body, ment_subject, _ = parse_mention_msg(post=post)
-
-    # Send the mentioned message.
-    send_message(source=Message.MENTIONED, subject=ment_subject, body=ment_body,
-                 rec_list=ment_users, sender=sender)
-    return
+#
+# def send(old_content, new_content, post):
+#     """
+#     See if there is any change and send
+#     notifications and subscriptions messages
+#     """
+#     # Get rid of white spaces and tabs by splitting into lists.
+#     source_list = old_content.strip().split()
+#     new_list = new_content.strip().split()
+#     diffobj = SequenceMatcher(a=source_list, b=new_list)
+#
+#     # There is a change detected
+#     change = diffobj.ratio() != 1
+#
+#     # Do nothing when no change is detected.
+#     if not change:
+#         return
+#
+#     # Get sender for these messages from biostar
+#     sender = User.objects.filter(is_superuser=True).first()
+#
+#     # Send message to subscribed users.
+#     send_subs_msg(post=post)
+#
+#     # Get mentioned users from new content
+#     new_mentioned_users = parse_mentioned_users(content=new_content)
+#     # Get old mentioned users and exclude them from these round of messages.
+#     old_mentioned_users = parse_mentioned_users(content=old_content).values("id")
+#
+#     # Exclude old mentioned users from new ones.
+#     ment_users = new_mentioned_users.exclude(id__in=old_mentioned_users)
+#
+#     # Parse the mentioned message
+#     ment_body, ment_subject, _ = parse_mention_msg(post=post)
+#
+#     # Send the mentioned message.
+#     send_message(source=Message.MENTIONED, subject=ment_subject, body=ment_body,
+#                  rec_list=ment_users, sender=sender)
+#     return
 
 
 def english_only(text):
@@ -141,7 +140,6 @@ class PostLongForm(forms.Form):
             self.post.html = html
             self.post.tag_val = tag_val
             self.post.save()
-            send(old_content=old_content, new_content=self.post.content, post=self.post)
             # Triggers another save
             #self.post.add_tags(text=tag_val)
         else:
@@ -212,7 +210,6 @@ class PostShortForm(forms.Form):
             old_content = self.post.content
             self.post.content = content
             self.post.save()
-            send(old_content=old_content, new_content=self.post.content, post=self.post)
         else:
             parent = Post.objects.filter(uid=parent).first()
             self.post = auth.create_post(title=parent.root.title,

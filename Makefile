@@ -155,24 +155,31 @@ postgres:
 next:
 	python manage.py job --next
 
-accounts_test:
-	python manage.py collectstatic --settings biostar.accounts.settings --noinput -v 0
-	python manage.py test biostar.accounts -v 2 --failfast --settings biostar.accounts.settings
-	coverage run manage.py test biostar.accounts -v 2 --failfast --settings biostar.accounts.settings
-	coverage html --skip-covered
-
-engine_test:
+accounts_test:accounts
 	python manage.py collectstatic --noinput -v 0
-	python manage.py test biostar.engine --settings biostar.engine.settings -v 2 --failfast
-	coverage run manage.py test  biostar.engine --settings biostar.engine.settings -v 2 --failfast
+	python manage.py test biostar.accounts -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
+	coverage run manage.py test biostar.accounts -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
 	coverage html --skip-covered
 
-
-forum_test:
+engine_test:engine
 	python manage.py collectstatic --noinput -v 0
-	python manage.py test biostar.forum -v 2 --failfast --settings biostar.forum.settings
-	coverage run manage.py test biostar.forum -v 2 --failfast --settings biostar.forum.settings
+	python manage.py test biostar.engine --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
+	coverage run manage.py test  biostar.engine --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
 	coverage html --skip-covered
+
+
+forum_test:forum
+	python manage.py collectstatic --noinput -v 0
+	python manage.py test biostar.forum -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
+	coverage run manage.py test biostar.forum -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
+	coverage html --skip-covered
+
+message_test:message
+	python manage.py collectstatic --noinput -v 0
+	python manage.py test biostar.message -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
+	coverage run manage.py test biostar.message -v 2 --failfast --settings ${DJANGO_SETTING_MODULE}
+	coverage html --skip-covered
+
 
 test:
 	python manage.py collectstatic --noinput -v 0

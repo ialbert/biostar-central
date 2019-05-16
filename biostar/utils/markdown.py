@@ -100,7 +100,6 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_mention_link(self, m):
         self.rules.mention_link = MENTINONED_USERS
-
         # Get the handle
         handle = m.group("handle")
         # Query user and get the link

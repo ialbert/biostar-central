@@ -11,6 +11,9 @@ from biostar.logconf import LOGGING
 # Django debug flag.
 DEBUG = True
 
+# Should the site allow signup.
+ALLOW_SIGNUP = False
+
 # Private key used to validate external logins
 LOGIN_PRIVATE_KEY = "private-key"
 

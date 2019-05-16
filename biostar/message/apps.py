@@ -12,7 +12,7 @@ class MessageConfig(AppConfig):
 
     def ready(self):
         # Triggered upon app initialization.
-        post_migrate.connect(init_messages, sender=self)
+        #post_migrate.connect(init_messages, sender=self)
 
         pass
 

@@ -48,6 +48,7 @@ class ForumNavigation(TestCase):
         "Checking public forum pages"
 
         urls = [
+            reverse("inbox"),
             reverse('post_list'),
             reverse('post_create'),
             reverse("community_list"),

@@ -1,43 +1,15 @@
 from biostar.accounts.settings import *
 
-"""
-Common settings that are applicable to all biostar apps.
-"""
-
 import os
 
-# The logging configuration
+# Apply the logger settings.
 from biostar.logconf import LOGGING
 
-
-# Helper function for building absolute paths.
-def join(*args):
-    return os.path.abspath(os.path.join(*args))
-
-
-# Set the home page to the engine or forum
-INTERNAL_IPS = ['127.0.0.1']
-
-# Admin users will be created automatically with DEFAULT_ADMIN_PASSWORD.
-ADMINS = [
-    ("Admin User", "admin@localhost")
-]
-
-POST_VIEW_MINUTES = 7
-
-# Shortcut to first admin information.
-ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
-
-# The default sender name on emails.
-DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
-
-# The current directory path.
-___CURR_DIR = os.path.dirname(join(__file__))
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # Django debug flag.
 DEBUG = True
-
-ROOT_URLCONF = 'biostar.forum.urls'
 
 # Override compression if needed.
 # COMPRESS_ENABLED = True
@@ -57,7 +29,18 @@ SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
 
 
-# Default installed apps.
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+
+# Helper function for building absolute paths.
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(join(__file__))
+
+SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -69,16 +52,16 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'mailer',
     'compressor',
-    'pagedown',
     'taggit',
     'snowpenguin.django.recaptcha2',
     'rest_framework',
-    # The order of apps matters in the template loading
 
+    # The order of apps matters in the template loading
     'biostar.forum.apps.ForumConfig',
-    'biostar.accounts.apps.AccountsConfig',
     'biostar.emailer.apps.EmailerConfig',
+    'biostar.accounts.apps.AccountsConfig',
     'biostar.message.apps.MessageConfig',
+    'biostar.utils',
 
     # Allauth templates come last.
     'allauth',
@@ -88,31 +71,42 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
 ]
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+ROOT_URLCONF = 'biostar.forum.urls'
+
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+WSGI_APPLICATION = 'biostar.wsgi.application'
+
+# Database settings.
+# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+ENGINE_DATABASE_NAME = join(BASE_DIR, '..', '..', 'export', 'database', 'engine.db')
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ENGINE_DATABASE_NAME,
+    },
+}
+
+# Password validation
+# https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+
 ]
 
-# Site specific information
-SITE_ID = 1
-SITE_DOMAIN = "localhost"
-SITE_NAME = "Biostar Engine"
-
-# Deployment specific parameters.
-PROTOCOL = "http"
-HTTP_PORT = '8000'
-BASE_URL = f"{PROTOCOL}://{SITE_DOMAIN}:{HTTP_PORT}"
-
-# Change this in production!
-SECRET_KEY = 'secret-key'
-
-# Change this in production!
-API_KEY = "api-key"
-
-
 ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
+
+# Time between two accesses from the same IP to qualify as a different view.
+POST_VIEW_MINUTES = 7
+
+
+COUNT_INTERVAL_WEEKS = 10000
+

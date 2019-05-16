@@ -102,8 +102,7 @@ class Message(models.Model):
     sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
-        from biostar.utils import markdown
-        self.html = markdown.parse(self.body)
+        self.html = mistune.markdown(self.body)
         super(Message, self).save(**kwargs)
 
     def __str__(self):

@@ -288,10 +288,13 @@ def comment(request):
             location = reverse("post_view", kwargs=dict(uid=post.root.uid)) + "#" + post.uid
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
-        else:
-            messages.error(request, f"Error adding comment:{form.errors}")
-            parent = Post.objects.filter(uid=request.POST.get("parent_uid")).first()
-            location = location if parent is None else reverse("post_view", kwargs=dict(uid=parent.root.uid))
+            return redirect(location)
+
+        messages.error(request, f"Error adding comment:{form.errors}")
+        pid = request.POST.get("parent_uid")
+        parent = Post.objects.filter(uid=pid).first()
+        anchor = reverse("post_view", kwargs=dict(uid=parent.root.uid))
+        location = location if parent is None else anchor
 
     return redirect(location)
 

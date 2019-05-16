@@ -1,0 +1,10 @@
+{% if messages %}
+    <div class="ui vertical segment">
+        {% for message in messages %}
+            <div class="ui {{ message.tags }} message">
+                <p>{{ message }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
