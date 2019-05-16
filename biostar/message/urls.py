@@ -4,6 +4,9 @@ import biostar.accounts.urls as account_patterns
 urlpatterns = [
 
     # Message urls
+    url(r'^$', views.index, name='index'),
+
+    url(r'^inbox/$', views.inbox_list, name='inbox'),
     url(r'^inbox/$', views.inbox_list, name='inbox'),
     url(r'^outbox/$', views.outbox_list, name='outbox'),
     url(r'^inbox/(?P<uid>[-\w]+)/$', views.inbox_view, name='inbox_view'),

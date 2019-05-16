@@ -1,0 +1,14 @@
+{% extends "message_base.html" %}
+{% load message_tags %}
+{% load accounts_tags %}
+
+{% block headtitle %}
+    Compose
+{% endblock %}
+
+{% block content %}
+
+<h3>Index page for biostar messaging</h3>
+<a href="{% url 'login' %}">Log in to view messages</a>
+
+{% endblock %}

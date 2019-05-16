@@ -30,6 +30,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
 ]
 
+LOGIN_REDIRECT_URL = "/inbox/"
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+
 
 # The url specification.
 ROOT_URLCONF = 'biostar.message.urls'

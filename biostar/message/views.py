@@ -28,6 +28,11 @@ ORDER_MAPPER = dict(
 )
 
 
+def index(request):
+    context = dict()
+    return render(request, "index.html", context)
+
+
 def get_messages(user, listing, limit=0, order="sent"):
 
     msg_map = dict(

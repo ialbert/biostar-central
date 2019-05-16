@@ -7,8 +7,7 @@ DATA_HOST=data.bioinformatics.recipes
 DUMP_FILE=export/database/engine.json
 BACKUP_DUMP_FILE=export/database/engine_`date +'%s'`.json
 
-DJANGO_SETTING_MODULE := biostar.engine.settings
-DJANGO_APP := biostar.engine
+DJANGO_SETTING_MODULE := conf.all.settings
 
 all: serve
 
@@ -122,22 +121,6 @@ projects:
 	# Load data associated with projects
 	python manage.py api create --json ../biostar-recipes/data.hjson --is_data
 
-
-recipes2: projects
-
-	# Load recipes from json files in --dir, start jobs on some
-	python manage.py api create --dir ../biostar-recipes/recipes/cookbook/ --create_jobs
-	python manage.py api create --dir ../biostar-recipes/recipes/tutorial --create_jobs
-	python manage.py api create --dir ../biostar-recipes/recipes/fish/
-	python manage.py api create --dir ../biostar-recipes/recipes/giraffe/
-	python manage.py api create --dir ../biostar-recipes/recipes/handbook/
-	python manage.py api create --dir ../biostar-recipes/recipes/mothur/
-	python manage.py api create --dir ../biostar-recipes/recipes/trout/
-
-	# Create initial users
-	python manage.py add_user --fname initial/initial-users.csv
-	python manage.py add_access initial/initial-access.csv
-
 # Load all recipes
 recipes: tutorial
 	python manage.py project --root ../biostar-recipes --json projects/cookbook-project.hjson --privacy public --jobs
@@ -174,11 +157,6 @@ postgres:
 
 next:
 	python manage.py job --next
-
-
-
-ftp:
-	python manage.py ftp
 
 push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"

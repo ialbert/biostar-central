@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load compress %}
+{% load accounts_tags %}
 {% load message_tags %}
 
 <html>
@@ -54,7 +55,7 @@
     -->
 
     <div class="ui bottom attached  segment">
-
+{% show_messages messages %}
         {% block content %}
             MAIN CONTENT
         {% endblock %}
