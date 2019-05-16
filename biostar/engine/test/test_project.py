@@ -2,7 +2,6 @@ import logging
 import os
 from unittest.mock import patch, MagicMock
 
-from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -10,7 +9,8 @@ from biostar.engine import auth
 from biostar.engine import models, views, forms
 from . import util
 
-TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'test'))
+__MODULE_DIR = os.path.dirname(auth.__file__)
+TEST_ROOT = os.path.join(__MODULE_DIR, 'test')
 
 logger = logging.getLogger('engine')
 

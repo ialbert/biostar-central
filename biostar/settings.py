@@ -28,7 +28,10 @@ ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
 DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
 
 # The current directory path.
-___CURR_DIR = os.path.dirname(join(__file__))
+__CURR_DIR = os.path.dirname(join(__file__))
+
+# The directory relative to which all content is store.
+BASE_DIR = join(__CURR_DIR, "..")
 
 # Django debug flag.
 DEBUG = True
@@ -114,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-DATABASE_NAME = join(___CURR_DIR, '..', 'export', 'database', 'engine.db')
+DATABASE_NAME = join(BASE_DIR, 'export', 'database', 'engine.db')
 
 DATABASES = {
     'default': {
@@ -140,12 +143,17 @@ USE_TZ = True
 # Configure language detection
 LANGUAGE_DETECTION = ['en']
 
-MEDIA_URL = '/media/'
-
+# The static URL start.
 STATIC_URL = '/static/'
 
-# The static root to export static files to.
-STATIC_ROOT = join(___CURR_DIR, '..', 'export', 'static')
+# The static root directory.
+STATIC_ROOT = join(BASE_DIR, 'export', 'static')
+
+# The media URL start.
+MEDIA_URL = '/media/'
+
+# The media root directory.
+MEDIA_ROOT = join(BASE_DIR, 'export', 'media')
 
 # Specify static directories.
 STATICFILES_DIRS = [

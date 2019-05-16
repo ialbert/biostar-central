@@ -14,7 +14,7 @@ all: engine serve
 
 accounts:
 	$(eval DJANGO_SETTING_MODULE := biostar.accounts.settings)
-    $(eval DJANGO_APP := biostar.accounts)
+	$(eval DJANGO_APP := biostar.accounts)
 
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
