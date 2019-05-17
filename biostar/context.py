@@ -1,6 +1,7 @@
 from biostar import VERSION
 
-def accounts(request):
+
+def biostar(request):
     '''
     Additional context applied to each request.
     Note: This function is critically important!
