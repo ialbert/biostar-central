@@ -17,11 +17,14 @@
             {% message_menu tab=tab_name request=request %}
 
     </div>
-
-<div class="thirteen wide column">
 {% if all_messages %}
-<table class="ui table messages">
+<div class="thirteen wide column">
 
+<div style="text-align: center">
+{% pages objs=all_messages request=request %}
+</div>
+
+<table class="ui table messages">
 
 {% for message in all_messages %}
 
@@ -64,12 +67,15 @@
 {% endfor %}
 
 </table>
+
+<div style="text-align: center">
+{% pages objs=all_messages request=request %}
+</div>
+
+</div>
 {% endif %}
 
-</div>
 
-</div>
-
-{% pages objs=all_messages request=request %}
+</div >
 
 {% endblock %}

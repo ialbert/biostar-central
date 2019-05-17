@@ -104,7 +104,7 @@ class Profile(models.Model):
     objects = Manager()
 
     def __str__(self):
-        return self.user.email
+        return self.name
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or generate_uuid(8)
