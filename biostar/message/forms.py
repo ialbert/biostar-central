@@ -49,13 +49,14 @@ class Compose(forms.Form):
     recipients = forms.CharField(max_length=100, required=True,
                                  help_text="Comma separated list of user handles: user1, user2, etc...")
 
-    def save(self, sender):
+    def save(self, sender, request):
         subject = self.cleaned_data.get("subject", "subject")
         body = self.cleaned_data.get("body", "Body")
         rec_str = self.cleaned_data.get("recipients", "")
         rec_list = rec_str.split(",")
         # Use the __in query on a known length list
-        rec_users = User.objects.filter(username__in=rec_list).exclude(username=sender)
+        rec_users = User.objects.filter(username__in=rec_list)
+
         # Create a message
         send_message(subject=subject, body=body, rec_list=rec_users, sender=sender)
         return
