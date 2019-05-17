@@ -1,8 +1,8 @@
 # Inherit from the main settings file.
-from biostar.settings import *
 
 # Inherit from the accounts settings file.
 from biostar.accounts.settings import *
+from biostar.message.settings import *
 
 # Django debug flag.
 DEBUG = True
@@ -29,35 +29,11 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    'mailer',
-    'compressor',
-    'taggit',
-    'snowpenguin.django.recaptcha2',
-    'rest_framework',
-
-    # The order of apps matters in the template loading
+FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
-    'biostar.emailer.apps.EmailerConfig',
-    'biostar.accounts.apps.AccountsConfig',
-    'biostar.message.apps.MessageConfig',
-    'biostar.utils',
-
-    # Allauth templates come last.
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.github',
 ]
+
+INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + MESSAGE_APPS + ACCOUNTS_APPS
 
 # Template specific settings.
 TEMPLATES = [

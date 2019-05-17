@@ -1,4 +1,5 @@
 from biostar.accounts.settings import *
+from biostar.emailer.settings import *
 
 # Django debug flag.
 DEBUG = True
@@ -55,35 +56,11 @@ MAX_FILE_SIZE_MB = 300
 LOGIN_REDIRECT_URL = "/project/list/private/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    'mailer',
-    'compressor',
-    'taggit',
-    'snowpenguin.django.recaptcha2',
-    'rest_framework',
-
-    # The order of apps matters in the template loading
+ENGINE_APPS = [
     'biostar.engine.apps.EngineConfig',
-    'biostar.emailer.apps.EmailerConfig',
-    'biostar.accounts.apps.AccountsConfig',
-    'biostar.message.apps.MessageConfig',
-    'biostar.utils',
-
-    # Allauth templates come last.
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.github',
 ]
+
+INSTALLED_APPS = DEFAULT_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 # Additional middleware.
 MIDDLEWARE += [

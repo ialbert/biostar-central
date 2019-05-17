@@ -30,14 +30,14 @@ DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
 # The current directory path.
 __CURR_DIR = os.path.dirname(join(__file__))
 
-# The directory relative to which all content is store.
+# The directory relative to which all content is stored.
 BASE_DIR = join(__CURR_DIR, "..")
 
 # Django debug flag.
 DEBUG = True
 
 # Default installed apps.
-INSTALLED_APPS = [
+DEFAULT_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,7 +46,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'mailer',
+    'compressor',
+    'taggit',
+    'snowpenguin.django.recaptcha2',
+    'rest_framework',
 ]
+
+# Enabled apps.
+INSTALLED_APPS = DEFAULT_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

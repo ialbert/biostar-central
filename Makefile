@@ -80,16 +80,12 @@ reset: delete init
 test:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	python manage.py collectstatic --noinput -v 0 --settings ${DJANGO_SETTING_MODULE}
 	python manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
 	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
 	coverage html --skip-covered
 
 test_all:
-	$(MAKE) engine test
-	$(MAKE) forum test
-	$(MAKE) message test
-	$(MAKE) accounts test
+	python manage.py test --settings biostar.test.test_settings -v 2 --failfast
 
 projects:
 	python manage.py project --pid test --name "Test Project" --public

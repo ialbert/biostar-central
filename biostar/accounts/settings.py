@@ -37,7 +37,7 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
-INSTALLED_APPS += [
+ACCOUNTS_APPS = [
 
     # Accounts configuration.
     'biostar.accounts.apps.AccountsConfig',
@@ -49,6 +49,8 @@ INSTALLED_APPS += [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
 ]
+
+INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS
 
 # Template specific settings.
 TEMPLATES = [
