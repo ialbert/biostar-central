@@ -13,7 +13,7 @@ logger = logging.getLogger("engine")
 from itertools import count, islice
 
 
-LIMIT = 10000
+LIMIT = 100
 
 
 def timer_func():
@@ -30,7 +30,7 @@ def timer_func():
         last = now
         print(f"{msg} in {sec} seconds")
 
-    def progress(index, step=5000, msg=""):
+    def progress(index, step=500, msg=""):
         nonlocal last
         if index % step == 0:
             elapsed(f"... {index} {msg}")
@@ -49,7 +49,7 @@ def uid_from_context(context):
     return uid
 
 
-def bulk_copy_users():
+def bulk_copy_users(limit):
     def gen_users():
         logger.info(f"Transferring users")
 
@@ -59,10 +59,9 @@ def bulk_copy_users():
         elapsed, progress = timer_func()
 
         # Allow limiting the input
-        stream = islice(zip(count(1), users), LIMIT)
-
+        stream = islice(zip(count(1), users), limit)
         for index, user in stream:
-            progress(index, msg="users")
+            progress(index=index,  msg="users")
             username = f"{user.name}{user.id}"
             # Create user
             user = User(username=username, email=user.email, password=user.password,
@@ -80,8 +79,7 @@ def bulk_copy_users():
         elapsed, progress = timer_func()
 
         # Allow limiting the input
-        stream = islice(zip(count(1), users), LIMIT)
-
+        stream = islice(zip(count(1), users), limit)
         for index, user in stream:
             progress(index, msg="profiles")
             text = util.strip_tags(user.profile.info)
@@ -107,7 +105,7 @@ def bulk_copy_users():
     elapsed(f"transferred {pcount} profiles")
 
 
-def bulk_copy_votes():
+def bulk_copy_votes(limit):
     posts = PostsVote.objects.all()
 
     def gen_votes():
@@ -115,10 +113,9 @@ def bulk_copy_votes():
         posts_set = {post.uid: post for post in Post.objects.all()}
         users_set = {user.profile.uid: user for user in User.objects.all()}
         stream = zip(count(1), posts)
-        stream = islice(stream, LIMIT)
+        stream = islice(stream, limit)
 
         elapsed, progress = timer_func()
-
         for index, vote in stream:
             progress(index, msg="votes")
             post = posts_set.get(str(vote.post_id))
@@ -137,22 +134,21 @@ def bulk_copy_votes():
     elapsed(f"transferred {vcount} votes")
 
 
-def bulk_copy_posts():
+def bulk_copy_posts(limit):
     relations = {}
-    all_users = User.objects.all().order_by("id")[:LIMIT]
+    all_users = User.objects.all().order_by("id")[:limit]
 
     # Walk through tree and update parent, root, post, relationships
     def gen_posts():
         logger.info("transferring posts")
 
-        posts = PostsPost.objects.order_by("id")[:LIMIT]
+        posts = PostsPost.objects.order_by("id")[:limit]
 
         users_set = {user.profile.uid: user for user in all_users}
 
         elapsed, progress = timer_func()
         stream = zip(count(1), posts)
-        stream = islice(stream, LIMIT)
-
+        stream = islice(stream, limit)
         for index, post in stream:
             progress(index, msg="posts")
 
@@ -214,8 +210,7 @@ def bulk_copy_posts():
         awards = BadgesAward.objects.all()
 
         stream = zip(count(1), awards)
-        stream = islice(stream, LIMIT)
-
+        stream = islice(stream, limit)
         elapsed, progress = timer_func()
         for index, award in stream:
             progress(index, msg="awards")
@@ -244,7 +239,7 @@ def bulk_copy_posts():
     elapsed(f"transferred {acount} awards")
 
 
-def bulk_copy_subs():
+def bulk_copy_subs(limit):
     def generate():
         users = {user.profile.uid: user for user in User.objects.all()}
         posts = {post.uid: post for post in Post.objects.all()}
@@ -253,8 +248,7 @@ def bulk_copy_subs():
         logger.info("Copying subscriptions")
         elapsed, progress = timer_func()
         stream = zip(count(1), subs)
-        stream = islice(stream, LIMIT)
-
+        stream = islice(stream, limit)
         for index, sub in stream:
             progress(index, msg="subscriptions")
             user = users.get(str(sub.user_id))
@@ -293,7 +287,8 @@ class Command(BaseCommand):
         parser.add_argument('--users', action="store_true", help="Transfer users from source database to target.")
         parser.add_argument('--votes', action="store_true", help="Transfer votes from source database to target.")
         parser.add_argument('--subs', action="store_true", help="Transfer subs from source database to target.")
-        pass
+        parser.add_argument('--limit', '-n', type=int, default=LIMIT,
+                            help="Transfer subs from source database to target.")
 
     def handle(self, *args, **options):
 
@@ -301,27 +296,28 @@ class Command(BaseCommand):
         load_users = options["users"]
         load_votes = options["votes"]
         load_subs = options["subs"]
+        limit = options.get("limit", LIMIT)
 
         if load_posts:
-            bulk_copy_posts()
+            bulk_copy_posts(limit=limit)
             return
         if load_votes:
-            bulk_copy_votes()
+            bulk_copy_votes(limit=limit)
             return
         if load_users:
-            bulk_copy_users()
+            bulk_copy_users(limit=limit)
             return
         if load_subs:
-            bulk_copy_subs()
+            bulk_copy_subs(limit=limit)
             return
 
         # Copy everything
-        bulk_copy_users()
+        bulk_copy_users(limit=limit)
 
-        bulk_copy_posts()
+        bulk_copy_posts(limit=limit)
 
-        bulk_copy_votes()
+        bulk_copy_votes(limit=limit)
 
-        bulk_copy_subs()
+        bulk_copy_subs(limit=limit)
 
         return

@@ -86,6 +86,9 @@ test:
 
 test_all:
 	python manage.py test --settings biostar.test.test_settings -v 2 --failfast
+	python manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
+	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
+	coverage html --skip-covered
 
 projects:
 	python manage.py project --pid test --name "Test Project" --public
@@ -107,22 +110,15 @@ uwsgi:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 	uwsgi --ini conf/devel/devel_uwsgi.ini
 
-
-pg_forum:
-	python manage.py runserver --settings=biostar.forum.postgres_settings
-
-pg_drop:
+drop_create:
 	dropdb --if-exists engine.db
-
-pg_create:
-	#dropdb --if-exists engine.db
 	createdb engine.db
-	python manage.py migrate --settings conf.postgres.postgres_settings
-	python manage.py test --settings conf.postgres.postgres_settings --failfast
+
+transfer:
+	python manage.py transfer -n 600 --settings conf.postgres.transfer_settings
 
 postgres:
-	python manage.py migrate --settings conf.postgres.postgres_settings
-	python manage.py test --settings conf.postgres.postgres_settings --failfast
+	$(MAKE) pg init
 
 next:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
