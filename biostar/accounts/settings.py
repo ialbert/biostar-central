@@ -1,9 +1,10 @@
 from biostar.settings import *
 
-import os
+try:
+    from conf.secrets.defaults import *
+except ImportError as err:
+    print (f"*** unable to import secrets: {err}")
 
-# Apply the logger settings.
-from biostar.logconf import LOGGING
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -30,9 +31,6 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
 
-
-# Should the site allow signup.
-ALLOW_SIGNUP = False
 
 LOGIN_REDIRECT_URL = "/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
@@ -69,8 +67,9 @@ ROOT_URLCONF = 'biostar.accounts.urls'
 # http://localhost:8000/accounts/social/github/login/callback/
 #
 SOCIAL_CLIENTS = [
-
-    ("Google", "547073349197-ri3eku9fdpi1ble7eoc4amlsrh7m2oiv.apps.googleusercontent.com", "DR1-zMqOLTqRGvhSDb5rQBMg"),
-    ("GitHub", "d8493ce8967ea5abbd73", "04ff5043ebce2317d3c26bfe90fbc5e67fa38d05")
-
+    ("Google", "A", "B"),
+    ("GitHub", "A", "B")
 ]
+
+
+
