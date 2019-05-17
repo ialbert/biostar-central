@@ -9,14 +9,12 @@ from datetime import timedelta
 from django import template
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.paginator import Paginator
-from django.db.models import Count
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
-from  biostar.message.models import Message
 from biostar.forum import forms, models, const, util
 from biostar.forum.models import Post, Vote, Award
+from biostar.message.models import Message
 from biostar.utils.shortcuts import reverse
 
 User = get_user_model()
@@ -55,13 +53,12 @@ def now():
 
 
 @register.inclusion_tag('widgets/user_box.html')
-def user_box(user):
-    return dict(user=user)
+def user_box(user, post):
+    return dict(user=user, post=post)
 
 
 @register.simple_tag
 def get_all_message_count(request):
-
     user = request.user
     outbox = inbox = projects = mentioned = unread = 0
 
@@ -92,7 +89,8 @@ def get_tags_list(tags_str):
 @register.simple_tag
 def randparam():
     "Append to URL to bypass server caching of CSS or JS files"
-    return f"?randval={random.randint(1,10000000)}" if settings.DEBUG else ""
+    return f"?randval={random.randint(1, 10000000)}" if settings.DEBUG else ""
+
 
 @register.inclusion_tag('widgets/show_messages.html')
 def show_messages(messages):
@@ -113,14 +111,12 @@ def gravatar(user, size=80):
 
     hash = hashlib.md5(email).hexdigest()
 
-    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
-    gravatar_url += urllib.parse.urlencode({
+    url = "https://secure.gravatar.com/avatar/%s?" % hash
+    url += urllib.parse.urlencode({
         's': str(size),
         'd': 'retro',
-    }
-    )
-
-    return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
+    })
+    return url
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
@@ -206,20 +202,31 @@ def feed(user):
 
 @register.filter
 def show_score_icon(user):
-    color = "modcolor" if user.profile.is_moderator else ""
+    return icon(user)
 
-    if user.profile.score > 150:
-        icon = f'<i class="ui bolt icon {color}"></i>'
+
+@register.filter
+def icon(user):
+    if user.profile.is_moderator:
+        icon = f'<i class="ui muted bolt icon"></i>'
+    elif user.profile.score > 100:
+        icon = f'<i class="ui muted user icon"></i>'
     else:
-        icon = f'<i class="ui genderless icon {color}"></i>'
+        icon = f'<i class="ui muted user outline icon"></i>'
 
     return mark_safe(icon)
 
 
 @register.filter
 def show_score(score):
-    score = (score * 14) + 1
+    score = (score * 10) + 1
     return score
+
+
+@register.inclusion_tag('widgets/render_tags.html')
+def render_tags(post):
+    tags = post.tag_val.split(",")
+    return dict(tags=tags)
 
 
 @register.inclusion_tag('widgets/user_info.html')

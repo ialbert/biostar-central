@@ -1,154 +1,102 @@
 {% load forum_tags %}
 
-    {% if post.is_toplevel %}
-        <div class="ui vertical segment">
-            <a name="{{post.uid}}" style="padding:0;"></a>
+{# Renders a single top level post or answer.  #}
+<div class="post {{ post.css }}">
 
-            {% subs_actions post=post user=request.user %}
-            <div class="ui header" >{{ post.get_type_display }}: {{ post.title }}</div>
+    {#  Show title on top level posts #}
+    {% if post.is_toplevel %}
+        <div class="title">
+            {#  Page anchor. #}
+            <a name="{{ post.uid }}"></a>
+            {#  Post title. #}
+            {{ post.get_type_display }}: {{ post.title }}
+        </div>
+        {#  {% subs_actions post=post user=request.user %} #}
+    {% endif %}
+
+    {#  Post body #}
+    <div class="body">
+
+        {#  Display post stats #}
+
+        <div class="votebox">
+
+            <div class="value">
+                <a data-post_uid="{{ post.uid }}" data-type="upvote" vote-url="{% url 'vote' %}">
+                    {% if post.has_upvote %}
+                        <i class="big thumbs up icon "></i>
+                    {% else %}
+                        <i class="big thumbs up outline icon"></i>
+                    {% endif %}
+                </a>
+            </div>
+
+            <div class="count">
+                {{ post.vote_count }}
+            </div>
+
+            <div class="value">
+                <a class="value" data-post_uid="{{ post.uid }}" data-type="bookmark" vote-url="{% url 'vote' %}">
+                    {% if post.has_bookmark %}
+                        <i class="big book icon"></i>
+                    {% else %}
+                        <i class="big bookmark outline icon"></i>
+                    {% endif %}
+
+                </a>
+            </div>
 
         </div>
 
-    {% endif %}
+        <div class="content">
+            {# Display post author. #}
+            {% user_box user=post.author post=post %}
 
-    <div class="ui items {{post.deleted_class}} {{post.accepted_class}}">
-        <div class="item">
-            <a name="{{post.uid}}" style="padding:0;"></a>
-            <div class="ui image" style="font-size: 12px">
+            {# Display post content. #}
+            {{ post.html|safe }}
 
-                <a class="vote" data-post_uid="{{post.uid}}" data-type="upvote" vote-url="{% url 'vote' %}">
-                    {% if post.has_upvote %}
-                        <i class="large thumbs up icon"></i>
-                    {% else %}
-                        <i class="large thumbs up outline icon"></i>
-                    {% endif %}
+            {# Show tags for top level posts. #}
+            {% if post.is_toplevel %}
+                <div class="tags">
+                    {% render_tags post %} &bull; {{ post.root.view_count|bignum }} views
+                </div>
+            {% endif %}
 
+            {#  Post action bar. #}
+            <div class="actions">
+
+                <a class="add-comment ui tiny label" comment-url="{% url 'comment_form' post.uid %}"
+                   data-value="{{ post.uid }}">
+                    ADD COMMENT
                 </a>
 
-                <div class="ui center aligned count header">{{ post.vote_count }}</div>
+                &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
+                &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
+                &bull; <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}"
+                          data-value="{{ post.uid }}">moderate</a>
 
-                <a class="vote" data-post_uid="{{post.uid}}" data-type="bookmark" vote-url="{% url 'vote' %}">
-                    {% if post.has_bookmark %}
-                        <i class="large bookmark icon"></i>
-                    {% else %}
-                        <i class="large bookmark outline icon"></i>
-                    {% endif %}
-
-                </a>
-
-                <div></div>
-
-                {% if user == post.root.author and not post.is_toplevel %}
-
-                    <a class="vote" data-post_uid="{{post.uid}}" data-type="accept" vote-url="{% url 'vote' %}">
-                        {% if not post.has_accepted %}<i class="large check circle green outline icon"></i>
-                        {% else %}<i class="large check circle green icon"></i>{% endif %}
-                    </a>
-                {% elif post.has_accepted and not post.is_toplevel %}
-                    <i class="large check circle green icon"></i>
-                {% endif %}
+                <span class="status muted">
+                    updated {{ post.lastedit_date|time_ago }} by
+                    <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+                    {{ post.lastedit_user.profile.name }} </a>
+                    {{ post.lastedit_user | icon }}
+                    {{ post.lastedit_user.profile.score | show_score | bignum }}
+                </span>
+                <div id="mod-container-{{ post.uid }}"></div>
 
             </div>
 
-             <div class="content">
-
-
-                 <div class="ui right floated image" >
-                        {% user_box user=post.author %}
-                 </div>
-
-
-                 <div class="ui container postbody">
-
-                        {{ post.html|safe }}
-                 </div>
-
-                <div class="extra">
-                         {% if post.is_toplevel %}
-
-
-                                 <div class="" style="">
-
-                            {% get_tags_list post.tag_val as tags_list %}
-
-                            {% for tag in tags_list %}
-                                <a class="ui tiny tagging label" href="{% url 'post_list' %}?tag={{tag}}">
-                                {{ tag }}
-                                </a>
-                            {% endfor %}
-                                    &bull; {{ post.root.view_count|bignum }} views
-                                 </div>
-
-
-
-                         {% endif %}
-                </div>
-
-
-                 <div class="extrainfo">
-
-                     {% if user.is_authenticated %}
-                        <a class="add-comment ui mini label" comment-url="{% url 'comment_form' post.uid %}"
-                           data-value="{{post.uid}}">
-                            ADD COMMENT
-                        </a>
-                     {% else %}
-                         <a class="ui mini label" href="{% url 'login' %}">
-                            ADD COMMENT
-                        </a>
-
-                     {% endif %}
-
-                             &bull;
-                     <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
-
-                      {% if  user.is_authenticated %}
-                         {% if user == post.author or user.profile.is_moderator %}
-                                &bull;
-                                 <a href="{% url 'post_edit' post.uid %}">
-                                edit
-                            </a>
-                         {% endif %}
-                     {% endif %}
-
-
-                         <div class="ui muted" style="float: right">
-                            updated
-                            <span>{{ post.lastedit_date|time_ago }}</span> by
-                            <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
-
-                            {{post.lastedit_user.profile.name }}
-
-                            </a>
-                            {{ post.lastedit_user |show_score_icon }}
-                            {{ post.lastedit_user.profile.score | show_score | bignum }}
-
-                        </div>
-
-
-                     {% if user.is_authenticated and user.profile.is_moderator or user.profile.is_manager %}
-                         &bull;
-                         <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}" data-value="{{post.uid}}">
-                        moderate
-                        </a>
-                         <div id="mod-container-{{post.uid}}"></div>
-                     {% endif %}
-
-                        <div id="comment-container-{{post.uid}}"></div>
-                        {# Comments for each post rendered here #}
-                      {% render_comments tree=tree post=post %}
-
-
-                 </div>
-
-
-
-             </div>
-
+            <div id="comment-container-{{ post.uid }}"></div>
+            {# Comments for each post rendered here #}
+            {% render_comments tree=tree post=post %}
         </div>
 
 
     </div>
+
+
+</div>
+
 
 
 
