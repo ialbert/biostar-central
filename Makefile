@@ -85,6 +85,12 @@ test:
 	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
 	coverage html --skip-covered
 
+test_all:
+	$(MAKE) engine test
+	$(MAKE) forum test
+	$(MAKE) message test
+	$(MAKE) accounts test
+
 projects:
 	python manage.py project --pid test --name "Test Project" --public
 	python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson
@@ -132,4 +138,3 @@ push:
 
 deploy:
 	(cd conf/ansible && ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars -v)
-

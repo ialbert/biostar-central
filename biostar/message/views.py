@@ -28,6 +28,11 @@ ORDER_MAPPER = dict(
 )
 
 
+def index(request):
+    context = dict()
+    return render(request, "message/index.html", context)
+
+
 def get_messages(user, listing, limit=0, order="sent"):
 
     msg_map = dict(
@@ -56,28 +61,35 @@ def get_messages(user, listing, limit=0, order="sent"):
                                "recipient__profile")
     return msgs
 
-
-def message_list(request, template="message_list.html", listing=INBOX):
+@login_required
+def message_list(request, listing="inbox"):
 
     user = request.user
 
     page = request.GET.get("page", 1)
     limit = request.GET.get("limit", 0)
     order = request.GET.get("order", "sent")
+
+    listing = request.GET.get("active", None) or listing
+    #print(request.GET.get("active", None))
+
     messages = get_messages(user=request.user, listing=listing, limit=limit, order=order)
 
     # Get the pagination info
     paginator = Paginator(messages, settings.MESSAGES_PER_PAGE)
     messages = paginator.get_page(page)
 
-    context = dict(tab="inbox", all_messages=messages, order=order, limit=limit,
-                   extra_tab_name=listing)
-
-
+    context = dict(tab="messages", all_messages=messages, order=order, limit=limit,
+                   tab_name=listing)
 
     Profile.objects.filter(user=user).update(new_messages=0)
 
-    return render(request, template, context)
+    return render(request, "message/message_list.html", context)
+
+
+@login_required
+def outbox(request):
+    return message_list(request, listing="outbox")
 
 
 @login_required
@@ -85,7 +97,7 @@ def reply(request, uid):
     parent_msg = Message.objects.filter(uid=uid).first()
     form = forms.Reply()
     context = dict(msg=parent_msg, form=form)
-    return render(request, "reply.html", context=context)
+    return render(request, "message/reply.html", context=context)
 
 
 @object_exists(klass=Message)
@@ -110,9 +122,8 @@ def inbox_view(request, uid):
 
     active_tab = request.GET.get("active", INBOX)
 
-    context = dict(base_message=msg, tree=tree, extra_tab="active",
-                   extra_tab_name=active_tab)
-    return render(request, "message_view.html", context=context)
+    context = dict(base_message=msg, tree=tree, tab_name=active_tab, message=msg, tab="messages")
+    return render(request, "message/message_view.html", context=context)
 
 
 @object_exists(klass=Message)
@@ -128,31 +139,8 @@ def outbox_view(request, uid):
     # Build the message tree from bottom up
     tree = auth.build_msg_tree(msg=msg, tree=[])
 
-    context = dict(base_message=msg, tree=tree, extra_tab="active",
-                   extra_tab_name=OUTBOX)
-    return render(request, "message_view.html", context=context)
-
-
-@login_required
-def inbox_list(request):
-
-    # Get the unread messages from inbox
-    listing = request.GET.get("active", INBOX)
-
-    return message_list(request, template="message_list.html", listing=listing)
-
-
-@login_required
-def outbox_list(request):
-    return message_list(request, template="message_list.html", listing=OUTBOX)
-
-
-def block_user(request):
-    return
-
-
-def report_spam(request):
-    return
+    context = dict(base_message=msg, tree=tree, tab_name=OUTBOX, message=msg, tab="messages")
+    return render(request, "message/message_view.html", context=context)
 
 
 @login_required
@@ -170,11 +158,11 @@ def message_compose(request):
     if request.method == "POST":
         form = forms.Compose(data=request.POST)
         if form.is_valid():
-            form.save(sender=author)
+            form.save(sender=author, request=request)
             messages.success(request, "Sent message to recipients")
             return redirect(reverse("outbox"))
 
-    context = dict(form=form, compose='active')
+    context = dict(form=form, tab_name="compose", tab="messages")
 
-    return render(request, "message_compose.html", context)
+    return render(request, "message/message_compose.html", context)
 

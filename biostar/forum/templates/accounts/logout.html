@@ -1,13 +1,14 @@
-{% extends "accounts/profile_base.html" %}
-{% load engine_tags %}
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+{% load accounts_tags %}
 
-{% block headtitle %} Biostar Engine {% endblock %}
+{% block headtitle %} Biostar Forum {% endblock %}
 {% block title %} Log out {% endblock %}
 
-{% block body %}
+{% block content %}
 
      <form method="post" action="{% url 'logout' %}" >
-    {% show_messages messages %}
+
         <div class="ui center aligned header">
 
             <i class="sign out icon"></i>Do you want to log out?

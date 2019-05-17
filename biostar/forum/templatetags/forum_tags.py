@@ -14,6 +14,7 @@ from django.db.models import Count
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
+from  biostar.message.models import Message
 from biostar.forum import forms, models, const, util
 from biostar.forum.models import Post, Vote, Award
 from biostar.utils.shortcuts import reverse
@@ -56,6 +57,24 @@ def now():
 @register.inclusion_tag('widgets/user_box.html')
 def user_box(user):
     return dict(user=user)
+
+
+@register.simple_tag
+def get_all_message_count(request):
+
+    user = request.user
+    outbox = inbox = projects = mentioned = unread = 0
+
+    if user.is_authenticated:
+        inbox = Message.objects.inbox_for(user=user)
+        outbox = Message.objects.outbox_for(user=user).count()
+        unread = inbox.filter(unread=True).count()
+        mentioned = inbox.filter(source=Message.MENTIONED).count()
+
+    context = dict(outbox=outbox, inbox=inbox.count(), projects=projects, mentioned=mentioned,
+                   unread=unread)
+
+    return context
 
 
 @register.inclusion_tag('widgets/pages.html')
@@ -102,23 +121,6 @@ def gravatar(user, size=80):
     )
 
     return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
-
-
-@register.inclusion_tag('widgets/tags_banner.html', takes_context=True)
-def tags_banner(context, limit=5, listing=False):
-    request = context["request"]
-    page = request.GET.get("page")
-
-    tags = Post.objects.order_by("-pk").values("tags__name").annotate(Count('tags__name'))
-
-    if listing:
-        # Get the page info
-        paginator = Paginator(tags, settings.TAGS_PER_PAGE)
-        all_tags = paginator.get_page(page)
-    else:
-        all_tags = tags
-
-    return dict(tags=all_tags, limit=limit, listing=listing, request=request)
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
@@ -397,30 +399,26 @@ def boxclass(post):
     return style
 
 
-@register.simple_tag
-def render_comments(request, tree, post, next_url, comment_template='widgets/comment_body.html'):
+@register.simple_tag(takes_context=True)
+def render_comments(context, tree, post, comment_template='widgets/comment_body.html'):
+    request = context["request"]
     if post.id in tree:
-        text = traverse_comments(request=request, post=post, tree=tree,
-                                 comment_template=comment_template,
-                                 next_url=next_url)
+        text = traverse_comments(request=request, post=post, tree=tree, comment_template=comment_template)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template, next_url):
+def traverse_comments(request, post, tree, comment_template):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
-    comment_url = reverse("post_comment")
 
     def traverse(node):
-        vote_url = reverse("vote")
 
         data = ['<div class="ui comment segments">']
-        cont = {"post": node, 'user': request.user, 'request': request, "comment_url": comment_url,
-                "vote_url": vote_url, "next_url": next_url, "redir_field_name": const.REDIRECT_FIELD_NAME}
+        cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):

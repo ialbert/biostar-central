@@ -1,0 +1,36 @@
+{% load forum_tags %}
+{% load accounts_tags %}
+
+{% get_all_message_count request=request as msg_counts %}
+
+
+<div class="ui  vertical tabular menu" id="messaging-menu">
+
+    <a class=" {{ compose }} blue item" href="{% url 'compose' %}">
+        <i class="write icon"></i>Compose
+    </a>
+
+    <a class="{{inbox}} blue item" href="{% url 'inbox' %}">
+      Inbox
+
+    {%if msg_counts.inbox %}<div class="ui label">{{msg_counts.inbox}}</div>{%endif%}
+    </a>
+    <a class="{{unread}} blue item" href="{% url 'inbox' %}?active=unread">
+      Unread
+    {%if msg_counts.unread %}<div class="ui label">{{msg_counts.unread}}</div>{%endif%}
+    </a>
+   <a class="{{mentioned}} blue item" href="{% url 'inbox' %}?active=mentioned">
+      Mentioned
+
+    {% if msg_counts.mentioned %}<div class="ui label">{{msg_counts.mentioned}}</div>{%endif%}
+    </a>
+
+    <a class="{{outbox}} blue item" href="{% url 'outbox' %}">
+      Outbox
+
+    {%if msg_counts.outbox %}<div class="ui label">{{msg_counts.outbox }}</div>{%endif%}
+    </a>
+    <a class="item red">
+      Trash
+    </a>
+</div>

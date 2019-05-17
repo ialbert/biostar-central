@@ -7,7 +7,8 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView,
-                                       PasswordResetConfirmView, PasswordResetCompleteView)
+                                       PasswordResetConfirmView, PasswordResetCompleteView,
+                                       )
 from django.core import signing
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
@@ -127,7 +128,7 @@ def user_profile(request, uid):
     # Get the active tab, defaults to project
     active_tab = request.GET.get("active", "posts")
     # User viewing profile is a moderator
-    can_moderate = (request.user.is_authenticated and request.user.profile.is_moderator) or (request.user == profile.user)
+    can_moderate = request.user.is_authenticated and request.user.profile.is_moderator
 
     context = dict(user=profile.user, active=active_tab, debugging=settings.DEBUG,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, tab="profile")
@@ -224,6 +225,7 @@ def user_logout(request):
 
 def user_login(request):
     form = forms.LoginForm()
+
     if request.method == "POST":
         form = forms.LoginForm(data=request.POST)
 
@@ -330,9 +332,9 @@ def pass_reset_confirm(request, uidb64, token):
     context = dict()
 
     return PasswordResetConfirmView.as_view(extra_context=context,
-                                            template_name="accounts/password_reset_confirm.html",
-                                            uidb64=uidb64,
-                                            token=token)(request=request)
+                                            template_name="accounts/password_reset_confirm.html")(request=request,
+                                                                                                  uidb64=uidb64,
+                                                                                                  token=token)
 
 
 def password_reset_complete(request):

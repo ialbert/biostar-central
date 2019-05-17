@@ -1,10 +1,11 @@
-{% extends "accounts/profile_base.html" %}
-{% load engine_tags %}
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+{% load accounts_tags %}
 {% load socialaccount %}
 {% block headtitle %}Welcome{% endblock %}
 
 
-{% block body %}
+{% block content %}
 
         {% show_messages messages %}
 

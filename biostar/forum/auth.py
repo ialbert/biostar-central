@@ -296,7 +296,7 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
         return delete_post(post=post, request=request)
 
     if action == CROSSPOST:
-        content = util.render(name="messages/crossposted.html", user=post.author, comment=comment, posts=post)
+        content = util.render(name="default_messages/crossposted.html", user=post.author, comment=comment, posts=post)
         # Create a comment to the post
         Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
         return url
@@ -323,7 +323,7 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
     if action == DUPLICATE:
         Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
         Post.objects.filter(uid__in=dupes).update(status=Post.CLOSED)
-        content = util.render(name="messages/duplicate_posts.html", user=post.author, comment=comment,
+        content = util.render(name="default_messages/duplicate_posts.html", user=post.author, comment=comment,
                               posts=Post.objects.filter(uid=post.uid))
         # Create a comment to the post
         Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)

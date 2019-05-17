@@ -51,7 +51,6 @@ urlpatterns = [
 
     # Actions
     url(r'^action/clear/(?P<uid>[-\w]+)/$', views.clear_clipboard, name='clear_clipboard'),
-    #url(r'^action/subscribe/(?P<uid>[-\w]+)/$', views.discussion_subs, name='discussion_subs'),
     url(r"^search/$", views.search_bar, name='search'),
 
     # Jobs

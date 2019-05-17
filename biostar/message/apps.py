@@ -12,7 +12,7 @@ class MessageConfig(AppConfig):
 
     def ready(self):
         # Triggered upon app initialization.
-        #post_migrate.connect(init_messages, sender=self)
+        post_migrate.connect(init_messages, sender=self)
 
         pass
 
@@ -27,6 +27,10 @@ def init_messages(sender, **kwargs):
     name, email = settings.ADMINS[0]
 
     sender = User.objects.filter(email=email).first()
+    if not sender:
+        sender = User.objects.create(email=email, username="admin", is_superuser=True)
+        sender.set_password(email)
+
     body = "Hello from the biostar-engine developers, we hope you enjoy the website."
     subject = "Welcome to the biostar-engine!"
 

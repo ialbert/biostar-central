@@ -135,8 +135,8 @@
                      {% endif %}
 
                         <div id="comment-container-{{post.uid}}"></div>
-                         {# Comments for each post rendered here #}
-                      {% render_comments tree=tree request=request post=post next_url=next_url %}
+                        {# Comments for each post rendered here #}
+                      {% render_comments tree=tree post=post %}
 
 
                  </div>

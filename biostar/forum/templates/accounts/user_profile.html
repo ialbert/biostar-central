@@ -90,34 +90,5 @@
     </div>
 
     {{ user.profile.html |safe }}
-    <div class="ui vertical segment">
-        <div class="ui top attached tabular large menu">
-            <div class="active item">
-                <a href="{% url "user_profile" user.profile.uid %}?active={{ const_post }}">
-                    Posts
-                </a>
-            </div>
-
-        </div>
-
-        <div class="ui bottom attached segment">
-
-            <div class="centering">
-                {% pages objs=objs request=request %}
-            </div>
-            <div class="ui divided items">
-                {% for post in objs %}
-                    {% listing post=post %}
-                {% endfor %}
-            </div>
-
-            <div class="centering">
-
-                {% pages objs=objs request=request %}
-            </div>
-
-        </div>
-
-    </div>
 
 {% endblock %}

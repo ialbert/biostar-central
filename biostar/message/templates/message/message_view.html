@@ -1,0 +1,39 @@
+{% load message_tags %}
+
+{% include "widgets/message_menu.html" %}
+<div>
+{% is_inbox message target=request.user as in_inbox %}
+
+{% if is_inbox %}
+    <h2>Inbox</h2>
+    <a href="{% url 'inbox' %}">Back</a>
+{% else %}
+    <h2>Outbox</h2>
+    <a href="{% url 'outbox' %}" >Return</a>
+{% endif %}
+
+{% for msg in tree %}
+
+
+    <div>
+    <b>From : </b>{{ msg.sender.profile.name }}
+    </div>
+    <div>
+    <b>To : </b>{{ msg.recipient.profile.name }}
+    </div>
+
+    <div>
+        <b>Subject :</b> {{ msg.subject }}
+    </div>
+
+    <div>
+        <b>Sent :</b> {{ msg.sent_date }}
+    </div>
+
+
+    <p>
+        {{ msg.body }}
+    </p>
+
+{% endfor %}
+</div>

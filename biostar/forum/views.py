@@ -149,13 +149,8 @@ def post_list(request):
     # Set the active tab.
     tab = topic or tag or "latest"
 
-    print(tab)
     # Fill in context.
     context = dict(posts=posts, tab=tab, tag=tag, order=order, limit=limit)
-
-    #tag_dispay = tag.replace("-", "_")
-
-    #context.update({topic: "active", tag_dispay: "active"})
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)

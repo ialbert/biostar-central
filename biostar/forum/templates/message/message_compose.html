@@ -1,4 +1,4 @@
-{% extends "message_base.html" %}
+{% extends "forum_base.html" %}
 {% load message_tags %}
 {% load accounts_tags %}
 
@@ -10,11 +10,10 @@
 {% show_messages messages %}
 
   <div class="ui doubling stackable messaging grid" id="messaging-grid">
-{% message_top_actionbar %}
 
     <div class="three wide column">
 
-            {% message_menu extra_tab='compose' request=request %}
+        {% message_menu tab=tab_name request=request %}
 
     </div>
 
