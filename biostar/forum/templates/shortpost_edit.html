@@ -36,6 +36,10 @@
         <i class="check icon"></i>Submit
     </button>
 
+        <a  class="ui right floated button" href="{% url 'post_view' post.uid %}">
+        <i class="undo icon"></i>Cancel
+    </a>
+
     </form>
 </div>
 {% endblock %}

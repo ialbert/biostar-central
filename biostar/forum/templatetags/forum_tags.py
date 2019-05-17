@@ -123,23 +123,6 @@ def gravatar(user, size=80):
     return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
 
 
-@register.inclusion_tag('widgets/tags_banner.html', takes_context=True)
-def tags_banner(context, limit=5, listing=False):
-    request = context["request"]
-    page = request.GET.get("page")
-
-    tags = Post.objects.order_by("-pk").values("tags__name").annotate(Count('tags__name'))
-
-    if listing:
-        # Get the page info
-        paginator = Paginator(tags, settings.TAGS_PER_PAGE)
-        all_tags = paginator.get_page(page)
-    else:
-        all_tags = tags
-
-    return dict(tags=all_tags, limit=limit, listing=listing, request=request)
-
-
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
 def post_body(context, post, user, tree, form):
     "Renders the post body"
@@ -416,30 +399,26 @@ def boxclass(post):
     return style
 
 
-@register.simple_tag
-def render_comments(request, tree, post, next_url, comment_template='widgets/comment_body.html'):
+@register.simple_tag(takes_context=True)
+def render_comments(context, tree, post, comment_template='widgets/comment_body.html'):
+    request = context["request"]
     if post.id in tree:
-        text = traverse_comments(request=request, post=post, tree=tree,
-                                 comment_template=comment_template,
-                                 next_url=next_url)
+        text = traverse_comments(request=request, post=post, tree=tree, comment_template=comment_template)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template, next_url):
+def traverse_comments(request, post, tree, comment_template):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(comment_template)
-    comment_url = reverse("post_comment")
 
     def traverse(node):
-        vote_url = reverse("vote")
 
         data = ['<div class="ui comment segments">']
-        cont = {"post": node, 'user': request.user, 'request': request, "comment_url": comment_url,
-                "vote_url": vote_url, "next_url": next_url, "redir_field_name": const.REDIRECT_FIELD_NAME}
+        cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):
