@@ -26,7 +26,6 @@ urlpatterns = [
     url(r'^comment/$', views.comment, name='post_comment'),
     url(r"^comment/form/(?P<uid>[-\w]+)/$", views.comment_form, name="comment_form"),
     url(r'^vote/$', views.ajax_vote, name='vote'),
-    url(r'^quick/feed/$', views.feed_post, name='feed_post'),
 
     #url(r'^tags/list/$', views.tags_list, name='tags_list'),
     url(r'^moderate/(?P<uid>[-\w]+)/$', views.post_moderate, name="post_moderate"),

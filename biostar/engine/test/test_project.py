@@ -50,6 +50,19 @@ class ProjectViewTest(TestCase):
         self.process_response(response=response, data=data, save=True)
 
     @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
+    def test_project_delete(self):
+
+        url = reverse('project_delete', kwargs=dict(uid=self.profile.uid))
+
+        request = util.fake_request(url=url, method='GET', user=self.owner)
+
+        response = views.project_edit(request, uid=self.project.uid)
+
+        print(response)
+
+        return
+
+    @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
     def test_edit_view(self):
         "Test project edit view with POST request"
 

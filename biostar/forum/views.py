@@ -108,22 +108,6 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     return query
 
 
-def feed_post(request):
-
-    # Feed one post at a time excluding uid
-    user = request.user
-
-    posts = get_posts(user=user, limit=1)
-
-    # Show open questions in feed, given random order for now.
-    posts = posts.filter(status=Post.OPEN).order_by("?")
-
-    single_post = posts.first()
-    context = dict(post=single_post, user=user)
-
-    return render(request, "widgets/feed_post.html", context=context)
-
-
 def post_list(request, show=None):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
@@ -406,7 +390,6 @@ def post_moderate(request, uid):
             if tasks.HAS_UWSGI:
                 tasks.moderated_post(pid=post.id)
             return redirect(redir)
-
         else:
             messages.error(request, "Invalid moderation error.")
             return redirect(reverse("post_view", kwargs=dict(uid=uid)))

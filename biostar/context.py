@@ -1,7 +1,7 @@
 from biostar import VERSION
 
 
-def biostar(request):
+def main(request):
     '''
     Additional context applied to each request.
     Note: This function is critically important!

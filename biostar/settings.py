@@ -95,7 +95,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.template.context_processors.media',
                 'django.contrib.messages.context_processors.messages',
-                'biostar.context',
+                'biostar.context.main',
             ],
             # 'loaders': [
             #     ('django.template.loaders.cached.Loader',

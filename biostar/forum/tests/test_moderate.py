@@ -14,7 +14,8 @@ class PostTest(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
-        self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com", password="tested")
+        self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com",
+                                         password="tested", is_superuser=True, is_staff=True)
 
         # Create an existing tested post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",

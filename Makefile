@@ -86,8 +86,8 @@ test:
 
 test_all:
 	python manage.py test --settings biostar.test.test_settings -v 2 --failfast
-	python manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
-	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTING_MODULE} -v 2 --failfast
+	python manage.py test --settings biostar.test.test_settings -v 2 --failfast
+	coverage run manage.py test --settings biostar.test.test_settings -v 2 --failfast
 	coverage html --skip-covered
 
 projects:

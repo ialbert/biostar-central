@@ -3,10 +3,9 @@ import logging
 from django.test import TestCase
 from django.urls import reverse
 
-from biostar.forum import models, views, auth, forms, const
-from biostar.engine.test.util import fake_request, get_uuid
+from biostar.forum import models, views, auth
+from biostar.forum.tests.util import fake_request, get_uuid
 from biostar.accounts.models import User
-from biostar.forum.views import POST_TYPE_MAPPER, ORDER_MAPPER, LIMIT_MAP
 
 logger = logging.getLogger('engine')
 
@@ -77,22 +76,31 @@ class PostTest(TestCase):
 
         return
 
-    def test_post_list(self):
-        """Test private post list pages"""
+    def test_edit_post(self):
+        """
+        Test post edit for root and descendants
+        """
+        url = reverse("post_edit", kwargs=dict(uid=self.post.uid))
 
-        url = reverse("post_list")
+        # Create a child post to test short form edit
+        # Create an existing tested post
+        child = auth.create_post(title="Test", author=self.owner, content="Test",
+                                 post_type=models.Post.COMMENT, parent=self.post)
 
-        testing = [const.OPEN, const.BOOKMARKS, const.FOLLOWING, const.MYPOSTS, const.MYVOTES, "tool", "foobar"]
-        for topic in testing:
+        title = "Test title for long test"
+        tag_val = "foo,bar,foo"
+        content = "Test the content with more things "
 
-            query_dict = dict(topic=topic, limit='week', order="rank")
+        longform_data = dict(title=title, tag_val=tag_val, content=content, post_type=models.Post.TUTORIAL)
+        shortform_data = dict(content=content, parent_uid=self.post.uid)
 
-            request = fake_request(url=url, method="GET", data=query_dict, user=self.owner)
-            response = views.post_list(request=request)
-            self.assertEqual(response.status_code, 200,
-                             f"Could not reach post list with :\nresponse:{response}\ndata:{query_dict}")
+        longform_request = fake_request(url=url, data=longform_data, user=self.owner)
+        longform_response = views.edit_post(request=longform_request, uid=self.post.uid)
+        self.process_response(longform_response)
 
-        return
+        shortform_request = fake_request(url=url, data=shortform_data, user=self.owner)
+        shortform_response = views.edit_post(request=shortform_request, uid=child.uid)
+        self.process_response(shortform_response)
 
     def test_post_view(self):
         """
