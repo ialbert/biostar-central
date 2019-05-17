@@ -1,11 +1,5 @@
 from biostar.settings import *
 
-try:
-    from conf.secrets.defaults import *
-except ImportError as err:
-    print (f"*** unable to import secrets: {err}")
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -98,5 +92,10 @@ SOCIAL_CLIENTS = [
     ("GitHub", "A", "B")
 ]
 
+try:
+    from conf.secrets.defaults import *
+    print (f"*** loaded 'conf.secrets.defaults'")
+except ImportError as err:
+    print (f"*** unable to import secrets: {err}")
 
 
