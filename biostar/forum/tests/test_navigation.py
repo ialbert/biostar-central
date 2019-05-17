@@ -50,6 +50,10 @@ class ForumNavigation(TestCase):
         urls = [
             reverse("inbox"),
             reverse('post_list'),
+            reverse("bookmarks"),
+            reverse("following"),
+            reverse("myposts"),
+            reverse("myvotes"),
             reverse('post_create'),
             reverse("community_list"),
             reverse('badge_list'),

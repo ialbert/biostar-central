@@ -8,7 +8,11 @@ import biostar.accounts.urls as account_patterns
 urlpatterns = [
 
     # Main entry. Post listing.
-    url(r'^$', views.post_list, name='post_list'),
+    url(r'^$', views.latest, name='post_list'),
+    url(r'^myvotes/$', views.myvotes, name='myvotes'),
+    url(r'^bookmarks/$', views.bookmarks, name='bookmarks'),
+    url(r'^following/$', views.following, name='following'),
+    url(r'^myposts/$', views.myposts, name='myposts'),
 
     url(r'^p/(?P<uid>[-\w]+)/$', views.post_view, name='post_view'),
 
@@ -28,7 +32,7 @@ urlpatterns = [
     url(r'^moderate/(?P<uid>[-\w]+)/$', views.post_moderate, name="post_moderate"),
 
     # Community urls
-    url(r'^community/list/$', views.community_list, name='community_list'),
+    url(r'^community/$', views.community_list, name='community_list'),
 
     # Include messages urls
     url(r'^message/', include(msg_patterns)),

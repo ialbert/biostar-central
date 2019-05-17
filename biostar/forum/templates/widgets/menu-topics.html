@@ -2,10 +2,10 @@
 
 <div class="ui top attached text menu" id="menu-topics">
 
-    <a class="item {% activate tab "latest" %}" href="{% url 'post_list' %}?topic=latest">
+    <a class="item {% activate tab "latest" %}" href="{% url 'post_list' %}">
         Latest
     </a>
-    <a class="item {% activate tab "open" %}" href="{% url 'post_list' %}?topic=open">
+    <a class="item {% activate tab "open" %}" href="{% url 'post_list' %}?type=open">
         Open
     </a>
     <a class="item {% activate tab "rna-seq" %}" href="{% url 'post_list' %}?tag=rna-seq">
@@ -20,15 +20,15 @@
         SNP
     </a>
 
-    <a class="item {% activate tab "tutorial" %}" href="{% url 'post_list' %}?topic=tutorial">
+    <a class="item {% activate tab "tutorial" %}" href="{% url 'post_list' %}?type=tutorial">
         Tutorials
     </a>
 
-    <a class="item {% activate tab "job" %}" href="{% url 'post_list' %}?topic=job">
+    <a class="item {% activate tab "job" %}" href="{% url 'post_list' %}?type=job">
         Jobs
     </a>
 
-    <a class="item {% activate tab "forum" %}" href="{% url 'post_list' %}?topic=forum">
+    <a class="item {% activate tab "forum" %}" href="{% url 'post_list' %}?type=forum">
         Forum
     </a>
 

@@ -3,7 +3,9 @@ from datetime import timedelta
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
 from django.utils.timezone import utc
+from functools import wraps
 
+from django.utils.decorators import available_attrs
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -54,12 +56,12 @@ ORDER_MAPPER = dict(
 )
 
 
-def get_posts(user, topic="latest", tag="", order="rank", limit=None):
+def get_posts(user, show="latest", tag="", order="rank", limit=None):
     """
     Generates a post list on a topic.
     """
     # Topics are case insensitive.
-    topic = topic.lower()
+    topic = show.lower()
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
@@ -122,7 +124,7 @@ def feed_post(request):
     return render(request, "widgets/feed_post.html", context=context)
 
 
-def post_list(request):
+def post_list(request, show=None):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
@@ -133,12 +135,12 @@ def post_list(request):
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
     tag = request.GET.get("tag", "")
-    topic = request.GET.get("topic", "")
     order = request.GET.get("order", "rank")
+    show = show or request.GET.get("type", "")
     limit = request.GET.get("limit", "all")
 
     # Get posts available to users.
-    posts = get_posts(user=user, topic=topic, tag=tag, order=order, limit=limit)
+    posts = get_posts(user=user, show=show, tag=tag, order=order, limit=limit)
 
     # Create the paginator
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
@@ -147,13 +149,58 @@ def post_list(request):
     posts = paginator.get_page(page)
 
     # Set the active tab.
-    tab = topic or tag or "latest"
+    tab = show or tag or "latest"
 
     # Fill in context.
     context = dict(posts=posts, tab=tab, tag=tag, order=order, limit=limit)
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
+
+
+def authenticated(func):
+    def _wrapper_(request, **kwargs):
+        if request.user.is_anonymous:
+            messages.error(request, "You need to be logged in to view this page.")
+        return func(request, **kwargs)
+    return _wrapper_
+
+
+def latest(request):
+    show = request.GET.get("type", "") or LATEST
+    return post_list(request, show=show)
+
+
+@authenticated
+def myvotes(request):
+    """
+    Show posts by user that received votes
+    """
+    return post_list(request, show=MYVOTES)
+
+
+@authenticated
+def myposts(request):
+    """
+    Show posts by user
+    """
+    return post_list(request, show=MYPOSTS)
+
+
+@authenticated
+def following(request):
+    """
+    Show posts followed by user
+    """
+    return post_list(request, show=FOLLOWING)
+
+
+@authenticated
+def bookmarks(request):
+    """
+    Show posts bookmarked by user
+    """
+    return post_list(request, show=BOOKMARKS)
 
 
 def community_list(request):
