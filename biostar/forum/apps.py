@@ -56,7 +56,7 @@ def init_post(sender,  **kwargs):
 
     # Create admin user.
     if not user:
-        user = User.objects.create(email=email, username="admin", is_superuser=True)
+        user = User.objects.create(email=email, username="admin", is_superuser=True, is_staff=True)
         user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
         user.save()
 

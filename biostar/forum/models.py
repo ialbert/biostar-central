@@ -218,15 +218,6 @@ class Post(models.Model):
         # Must add tags with instance method. This is just for safety.
         self.tag_val = util.strip_tags(self.tag_val)
 
-        # Posts other than a question also carry the same tag
-        if self.is_toplevel and self.type != Post.QUESTION:
-            required_tag = self.get_type_display().lower()
-
-            if self.tag_val and (required_tag not in self.tag_val.split(",")):
-                self.tag_val += "," + required_tag
-            else:
-                self.tag_val = required_tag
-
         self.creation_date = self.creation_date or util.now()
         self.lastedit_date = self.lastedit_date or self.creation_date
 

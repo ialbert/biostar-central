@@ -139,7 +139,9 @@ class PostLongForm(forms.Form):
             self.post.type = post_type
             self.post.html = html
             self.post.tag_val = tag_val
+
             self.post.save()
+
             # Triggers another save
             #self.post.add_tags(text=tag_val)
         else:
