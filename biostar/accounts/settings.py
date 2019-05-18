@@ -46,6 +46,8 @@ ACCOUNTS_APPS = [
 
 INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS
 
+AUTHENTICATION_BACKENDS += ["allauth.account.auth_backends.AuthenticationBackend"]
+
 
 ROOT_URLCONF = 'biostar.accounts.urls'
 

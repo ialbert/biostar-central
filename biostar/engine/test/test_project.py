@@ -52,13 +52,13 @@ class ProjectViewTest(TestCase):
     @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
     def test_project_delete(self):
 
-        url = reverse('project_delete', kwargs=dict(uid=self.profile.uid))
+        url = reverse('project_delete', kwargs=dict(uid=self.owner.profile.uid))
 
-        request = util.fake_request(url=url, method='GET', user=self.owner)
+        request = util.fake_request(url=url, method='GET', data={}, user=self.owner)
 
-        response = views.project_edit(request, uid=self.project.uid)
+        response = views.project_delete(request, uid=self.project.uid)
 
-        print(response)
+        self.process_response(response, data={})
 
         return
 

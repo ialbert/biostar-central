@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 from django.core import management
 from django.urls import reverse
 from django.conf import settings
-from biostar.engine import auth
+from biostar.engine import auth, const
 from biostar.engine import models, views
 
 from . import util
@@ -53,6 +53,44 @@ class JobViewTest(TestCase):
         management.call_command('job', id=self.job.id, verbosity=2)
         management.call_command('job', list=True)
 
+    def test_job_copy_and_paste(self):
+
+        url = reverse("job_copy", kwargs=dict(uid=self.job.uid))
+        request = util.fake_request(url=url, data={}, user=self.owner)
+        response = views.job_copy(request=request, uid=self.job.uid)
+        self.process_response(response, data={})
+
+        board = request.session.get(settings.CLIPBOARD_NAME, {}).get(const.RESULTS_CLIPBOARD, [])
+        success = len(board) == 1 and board[0] == self.job.uid
+        print(board)
+
+        self.assertTrue(success, "Job uid not copied to clipboard")
+        return
+
+    def test_job_delete(self):
+        "Test job delete"
+
+        url = reverse('job_delete', kwargs=dict(uid=self.job.uid))
+
+        request = util.fake_request(url=url, data={}, user=self.owner)
+
+        response = views.job_delete(request=request, uid=self.job.uid)
+
+        self.process_response(response=response, data={})
+
+    def test_job_file_copy(self):
+        "Test the job file copying interface"
+
+        data = {settings.CLIPBOARD_NAME: const.FILES_CLIPBOARD, 'path': self.job.get_data_dir()}
+        copy_url = reverse("job_file_copy", kwargs=dict(uid=self.job.uid, path=self.job.get_data_dir()))
+        copy_request = util.fake_request(url=copy_url, data=data, user=self.owner)
+        copy_response = views.job_file_copy(request=copy_request, uid=self.job.uid, path=self.job.get_data_dir())
+        self.process_response(copy_response, data={})
+
+        paste_url = reverse("file_paste", kwargs=dict(uid=self.project.uid))
+        paste_request = util.fake_request(url=paste_url, data=data, user=self.owner)
+        paste_response = views.file_paste(request=paste_request, uid=self.project.uid)
+        self.process_response(paste_response, data={})
 
     def test_job_serve(self):
         "Test file serve function."

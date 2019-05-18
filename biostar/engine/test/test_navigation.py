@@ -34,19 +34,27 @@ class SiteNavigation(TestCase):
         self.data_params = dict(uid=data.uid)
         self.job_params = dict(uid=self.job.uid)
 
-    def visit_urls(self, urls, codes):
+    def visit_urls(self, urls, codes, anon_urls=[]):
         c = Client()
+        # Used to test norname urls
         c.login(username=self.username, email='tested@tested.com', password='tested')
-        for url in urls:
-            print(url)
-            resp = c.get(url, data={"q": "tested"})
-            code = resp.status_code
-            if code not in codes:
-                # We already know it is an error.
-                # Use this to prints the url and the code.
-                logger.error(f"")
-                logger.error(f"Error accessing: {url}, code={code} not in expected values {codes}")
-                self.assertTrue(code in codes)
+        # Used to test with anon users
+        anon_c = Client()
+
+        def visit(pages, client):
+            for url in pages:
+                print(url)
+                resp = client.get(url, data={"q": "tested"})
+                code = resp.status_code
+                if code not in codes:
+                    # We already know it is an error.
+                    # Use this to prints the url and the code.
+                    logger.error(f"")
+                    logger.error(f"Error accessing: {url}, code={code} not in expected values {codes}")
+                    self.assertTrue(code in codes)
+
+        visit(pages=urls, client=c)
+        visit(pages=anon_urls, client=anon_c)
 
     def test_public_pages(self):
         "Checking public pages"
@@ -57,11 +65,17 @@ class SiteNavigation(TestCase):
             reverse('recipe_api_json', kwargs=self.analysis_params),
             reverse('recipe_api_template', kwargs=self.analysis_params)
         ]
+        anon_urls = [
+            reverse("index"),
+            reverse("project_list"),
+
+        ]
 
         urls = [
             reverse('index'),
             reverse('logout'),
             reverse('login'),
+            reverse('search'),
             reverse('project_list'),
             reverse('project_list_private'),
             reverse('data_list', kwargs=self.proj_params),
@@ -75,7 +89,6 @@ class SiteNavigation(TestCase):
             reverse('project_edit', kwargs=self.proj_params),
             reverse('recipe_list', kwargs=self.proj_params),
             reverse('recipe_view', kwargs=self.analysis_params),
-            reverse("recipe_code_edit", kwargs=self.analysis_params),
             reverse('recipe_run', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse('recipe_edit', kwargs=self.analysis_params),
@@ -85,8 +98,9 @@ class SiteNavigation(TestCase):
 
         ]
 
-        self.visit_urls(urls, [200])
-        self.visit_urls(api_urls, [200])
+        self.visit_urls(urls=urls, codes=[200])
+        self.visit_urls(urls=api_urls, codes=[200])
+        self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
 
     def test_page_redirect(self):
         "Testing that a redirect occurs for some pages"

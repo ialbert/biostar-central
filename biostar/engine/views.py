@@ -618,6 +618,7 @@ def recipe_code_download(request, uid):
         script = script_template.render(context)
     except Exception as exc:
         logger.error(exc)
+        script = recipe.template
 
     # Trigger file download with name of the recipe
     filename = "_".join(recipe.name.split()) + ".sh"
@@ -628,33 +629,33 @@ def recipe_code_download(request, uid):
     return response
 
 
-@read_access(type=Analysis)
-def recipe_code_view(request, uid):
-    """
-    Returns an analysis code view based on its id.
-    """
-    user = request.user
-    recipe = Analysis.objects.get_all(uid=uid).first()
-
-    project = recipe.project
-
-    try:
-        # Fill in the script with json data.
-        json_data = auth.fill_data_by_name(project=project, json_data=recipe.json_data)
-        ctx = Context(json_data)
-        script_template = Template(recipe.template)
-        script = script_template.render(ctx)
-    except Exception as exc:
-        messages.error(request, f"Error rendering code: {exc}")
-        script = recipe.template
-
-    context = dict(recipe=recipe, project=project, activate='Recipe Code', script=script)
-
-    rcount = Job.objects.filter(analysis=recipe).count()
-    counts = get_counts(project)
-    context.update(counts, rcount=rcount)
-
-    return render(request, "recipe_code_view.html", context)
+# @read_access(type=Analysis)
+# def recipe_code_view(request, uid):
+#     """
+#     Returns an analysis code view based on its id.
+#     """
+#     user = request.user
+#     recipe = Analysis.objects.get_all(uid=uid).first()
+#
+#     project = recipe.project
+#
+#     try:
+#         # Fill in the script with json data.
+#         json_data = auth.fill_data_by_name(project=project, json_data=recipe.json_data)
+#         ctx = Context(json_data)
+#         script_template = Template(recipe.template)
+#         script = script_template.render(ctx)
+#     except Exception as exc:
+#         messages.error(request, f"Error rendering code: {exc}")
+#         script = recipe.template
+#
+#     context = dict(recipe=recipe, project=project, activate='Recipe Code', script=script)
+#
+#     rcount = Job.objects.filter(analysis=recipe).count()
+#     counts = get_counts(project)
+#     context.update(counts, rcount=rcount)
+#
+#     return render(request, "recipe_code_view.html", context)
 
 
 @read_access(type=Analysis)
