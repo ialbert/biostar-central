@@ -18,12 +18,12 @@ from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
 from biostar.utils.shortcuts import reverse
-from . import forms
-from .auth import check_user, send_verification_email
-from .const import *
-from .models import User, Profile
-from .tokens import account_verification_token
-from .util import now, get_uuid
+from biostar.accounts import forms
+from biostar.accounts.auth import check_user, send_verification_email
+from biostar.accounts.const import *
+from biostar.accounts.models import User, Profile
+from biostar.accounts.tokens import account_verification_token
+from biostar.accounts.util import now, get_uuid
 
 from django.db.models import Q, Count
 

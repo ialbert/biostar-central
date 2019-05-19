@@ -134,7 +134,6 @@ class PostLongForm(forms.Form):
         if edit:
 
             self.post.title = title
-            old_content = self.post.content
             self.post.content = content
             self.post.type = post_type
             self.post.html = html
@@ -261,6 +260,7 @@ class PostModForm(forms.Form):
         pid = cleaned_data.get("pid").strip()
         cleaned_data["pid"] = pid
 
+        print(action == TOGGLE_ACCEPT)
         if (action is None) and not (dupe or pid):
             raise forms.ValidationError("Select an action")
 
@@ -270,12 +270,10 @@ class PostModForm(forms.Form):
         if action in (DUPLICATE, BUMP_POST) and not self.post.is_toplevel:
             raise forms.ValidationError("You can only perform these actions to a top-level post")
         if action in (TOGGLE_ACCEPT, MOVE_TO_COMMENT) and self.post.type != Post.ANSWER:
+            1/0
             raise forms.ValidationError("You can only perform these actions to an answer.")
         if action == MOVE_TO_ANSWER and self.post.type != Post.COMMENT:
             raise forms.ValidationError("You can only perform these actions to a comment.")
-
-        if action == DUPLICATE and not dupe:
-            raise forms.ValidationError("Unable to close duplicate. Please fill in the post numbers")
 
         parent = Post.objects.filter(uid=pid).first()
         if not parent and pid:

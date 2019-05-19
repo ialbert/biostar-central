@@ -2,10 +2,10 @@
 from django.contrib import admin
 from django.conf.urls import url, include
 from django.urls import path
-
+from django.conf import settings
+from django.conf.urls.static import static
 import biostar.accounts.urls as account_patterns
-
-from . import views, api
+from biostar.engine import views, api
 
 urlpatterns = [
     # The django generated admin site.
@@ -79,6 +79,12 @@ urlpatterns = [
     # Include the accounts urls
     url(r'^accounts/', include(account_patterns)),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT, show_indexes=True)
+
 
 
 

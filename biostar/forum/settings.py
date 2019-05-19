@@ -35,7 +35,6 @@ FORUM_APPS = [
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + MESSAGE_APPS + ACCOUNTS_APPS
 
-
 ROOT_URLCONF = 'biostar.forum.urls'
 
 WSGI_APPLICATION = 'biostar.wsgi.application'

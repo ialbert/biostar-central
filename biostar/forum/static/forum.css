@@ -15,6 +15,22 @@ body {
     background-color: #fbfdef;
 }
 
+#vote-menu .item>i.icon{
+
+    float: none;
+}
+
+#vote-menu .item{
+    padding: 4;
+    font-size: medium;
+}
+
+#vote-menu {
+    width: min-content;
+    text-align: center;
+
+}
+
 #menu-topics .item.active{
     color: #1a69a4;
     text-decoration: underline;

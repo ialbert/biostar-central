@@ -1,15 +1,15 @@
 <p>Hello {{ user.profile.name }}!</p>
 
-<p>Questions similar to yours can already be found at:</p>
+<p>Posts similar to yours can already be found at:</p>
 
 <ul>
-{% for post in posts %}
-	<li> <a href="{{ post.get_absolute_url }}">{{post.title}}</a></li>
+{% for dupe_url in dupes %}
+	<li> <a href="{{ dupe_url }}">{{dupe_url}} </a></li>
 {% endfor %}
 </ul>
 
 <p>
-    We have closed your question to allow us to keep similar content in the same thread.
+    We have closed your post to allow us to keep similar content in the same thread.
 </p>
 
 <p>
