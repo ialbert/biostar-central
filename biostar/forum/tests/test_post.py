@@ -127,17 +127,16 @@ class PostTest(TestCase):
         shortform_response = views.edit_post(request=shortform_request, uid=child.uid)
         self.process_response(shortform_response)
 
-    def test_post_view(self):
+    def test_post_answer(self):
         """
         Test submitting answer through the post view
         """
-        url = reverse("post_view", kwargs=dict(uid=self.post.uid))
+        url = reverse("post_answer", kwargs=dict(uid=self.post.uid))
 
         # Get form data
-
-        data = dict(content="testing edit", parent_uid=self.post.uid)
+        data = dict(content="testing answer", parent_uid=self.post.uid)
         request = fake_request(url=url, data=data, user=self.owner)
-        response = views.post_view(request=request, uid=self.post.uid)
+        response = views.post_answer(request=request, uid=self.post.uid)
         self.process_response(response)
         return
 
@@ -151,7 +150,7 @@ class PostTest(TestCase):
         "Check the response on POST request is redirected"
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect after tested :\nresponse:{response}")
+                         f"Could not redirect :\nresponse:{response}")
 
 
 

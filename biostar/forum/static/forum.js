@@ -32,31 +32,13 @@ $.ajaxSetup({
 });
 
 
-function mod_votecount(elem, k) {
-
-    count = parseInt(elem.siblings('.count').text()) || 0;
-    count += k;
-    elem.siblings('.count').text(count)
-
-};
-
 function get_height(elem) {
 
     //height = elem.attr(".ui.messaging.grid").height();
 
-    $("#messaging-menu").css( "height", function( ) {
+    $("#messaging-menu").css("height", function () {
         return $("#messaging-grid").height();
-        })
-}
-
-function pop_over(elem, msg, cls) {
-    var text = '<div></div>'
-    var tag = $(text).insertAfter(elem)
-    tag.addClass('ui message ' + cls)
-    tag.text(msg)
-    tag.delay(1000).fadeOut(500, function () {
-        $(this).remove()
-    });
+    })
 }
 
 // Triggered on moderation.
@@ -76,7 +58,7 @@ function moderate(elem) {
 };
 
 
-function toggle_button(elem) {
+function toggle_icon(elem) {
 
     var icon = elem.children("i.icon");
 
@@ -91,10 +73,22 @@ function toggle_button(elem) {
     mod_votecount(elem, change)
 }
 
+
+function mod_votecount(elem, k) {
+
+    count = parseInt(elem.siblings('.count').text()) || 0;
+    count += k;
+    elem.siblings('.count').text(count)
+
+};
+
 function ajax_vote(elem, post_uid, vote_type, vote_url) {
 
-    // Pre-emptitively toggle the button to provide feedback
-    toggle_button(elem);
+    // Toggle the button to provide feedback
+    toggle_icon(elem);
+
+    // The vote handler.
+    vote_url = "/vote/"
 
     $.ajax(vote_url, {
         type: 'POST',
@@ -103,11 +97,11 @@ function ajax_vote(elem, post_uid, vote_type, vote_url) {
         data: {
             'post_uid': post_uid,
             'vote_type': vote_type,
-            },
+        },
 
         success: function (data) {
             if (data.status === 'error') {
-                toggle_button(elem); // Untoggle the button if there was an error
+                toggle_icon(elem); // Untoggle the button if there was an error
                 pop_over(elem, data.msg, data.status);
             } else {
                 //pop_over(elem, data.msg, data.status)
@@ -115,18 +109,18 @@ function ajax_vote(elem, post_uid, vote_type, vote_url) {
 
         },
         error: function () {
-            toggle_button(elem, vote_type);
+            toggle_icon(elem, vote_type);
         }
     });
 }
 
-function add_reply(elem){
+function add_reply(elem) {
 
     // Remove body if it exists.
     $("#reply-row").remove();
 
     var msg_uid = elem.attr('data-value');
-    var container = $("#reply-container-"+ msg_uid);
+    var container = $("#reply-container-" + msg_uid);
     var reply_url = elem.attr("reply-url");
 
     var page = $('<div id="reply-row"></div>').load(reply_url);
@@ -141,7 +135,7 @@ function add_comment(elem) {
     $("#comment-row").remove();
 
     var post_uid = elem.attr('data-value');
-    var container = $("#comment-container-"+ post_uid);
+    var container = $("#comment-container-" + post_uid);
     var comment_url = elem.attr("comment-url");
     var page = $('<div id="comment-row"></div>').load(comment_url);
 
@@ -150,56 +144,147 @@ function add_comment(elem) {
 };
 
 
+function pop_message(elem, msg, cls) {
+    var text = '<div></div>'
+    var tag = $(text).insertBefore(elem)
+    tag.addClass('popover ' + cls)
+    tag.text(msg)
+    tag.delay(1000).fadeOut(500, function () {
+        $(this).remove()
+    });
+}
+
+
+function count_elem(post_uid){
+    // The DOM element that stores the count
+    elem = $("#count-" + post_uid)
+    return elem;
+}
+
+function toggle_class(elem, post_uid) {
+
+    var icon = elem
+
+    // Toggles the state of the buttons and updates the label messages
+    if (icon.hasClass('on')) {
+        icon.removeClass("on");
+        change = -1
+    } else {
+        icon.addClass("on")
+        change = 1
+
+    }
+    // Increment the post score counter
+    elem = count_elem(post_uid)
+    var value = (parseInt(elem.text()) || 0) + change;
+    elem.text(value)
+
+};
+
+function apply_vote(elem, post_uid, vote_type) {
+
+    // Toggle the button to provide feedback
+    toggle_class(elem, post_uid);
+
+    // Message target.
+    var target = count_elem(post_uid)
+
+    // The vote handler.
+    vote_url = "/vote/"
+
+    $.ajax(vote_url, {
+        type: 'POST',
+        dataType: 'json',
+        ContentType: 'application/json',
+        data: {
+            'post_uid': post_uid,
+            'vote_type': vote_type,
+        },
+
+        success: function (data) {
+            if (data.status === 'error') {
+                // Untoggle the button if there was an error
+                toggle_class(elem, post_uid);
+                pop_message(target, data.msg, data.status);
+            } else {
+                pop_message(target, data.msg, data.status);
+            }
+
+        },
+        error: function (xhr, status, text) {
+            toggle_class(elem, post_uid);
+            pop_message(target, text, "error")
+        }
+    });
+}
+
 $(document).ready(function () {
 
-     $('select')
+    $('select')
         .dropdown()
     ;
-
-//    $(".items > .item").click(function (event) {
-//        var obj = $(this).find("a:first");
-//        if (typeof obj !== 'undefined') {
-//            window.location = obj.attr("href");
-//       }
-//    });
 
 
     $(".add-comment").click(function (event) {
         event.preventDefault();
         add_comment($(this));
-        });
+    });
 
-    $(".reply-button").click(function (){
+    $(".reply-button").click(function () {
         event.preventDefault();
         add_reply($(this));
     });
 
     $(".add-answer").click(function (event) {
         add_answer($(this));
-        });
+    });
 
     $(".moderate-post").click(function (event) {
         moderate($(this));
-        });
+    });
 
     $(".moderate-user").click(function (event) {
         moderate($(this));
-        });
+    });
+
 
     $('.vote').each(function (event) {
 
+        var elem = $(this);
+        var vote_type = elem.attr('data-type');
+        var data_state = elem.attr('data-state');
+
+        // Popup information
+        if (vote_type == "bookmark") {
+            content = (data_state == "0") ? "Click to add bookmark" : "Click to remove bookmark"
+        } else {
+            content = (data_state == "0") ? "Click to add vote" : "Click to remove vote"
+        }
+
+        // Set the on class if the vote is selected.
+        if (data_state == "1") {
+            elem.addClass("on")
+        }
+        // Initialize each popup on the page.
+        elem.popup({
+                on: 'hover',
+                content: content,
+                delay: {
+                    show: 800,
+                    hide: 200
+                }
+            }
+        );
+
+        // Actions taken on vote click.
         $($(this)).click(function () {
             var elem = $(this);
-            var post_uid = elem.attr('data-post_uid');
-            var vote_type = elem.attr('data-type');
-            var vote_url = elem.attr('vote-url');
+            var data_uid = elem.attr('data-uid');
+            var data_type = elem.attr('data-type');
+            apply_vote(elem, data_uid, data_type);
 
-            ajax_vote(elem, post_uid, vote_type, vote_url);
         });
     });
-    get_height($(this));
-
-
 
 
 

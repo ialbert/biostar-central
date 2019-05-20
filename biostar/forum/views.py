@@ -242,9 +242,9 @@ def ajax_vote(request):
     user = request.user
     type_map = dict(upvote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
 
-    vote_type = request.POST['vote_type']
-    vote_type = type_map[vote_type]
-    post_uid = request.POST['post_uid']
+    vote_type = request.POST.get('vote_type')
+    vote_type = type_map.get(vote_type)
+    post_uid = request.POST.get('post_uid')
 
     # Check the post that is voted on.
     post = Post.objects.filter(uid=post_uid).first()
@@ -272,32 +272,40 @@ def post_view(request, uid):
     # Form used for answers
     form = forms.PostShortForm()
 
-    # Get the parents info
-    obj = Post.objects.filter(uid=uid).first()
-    # Return root view if not at top level.
-    obj = obj if obj.is_toplevel else obj.root
+    # Get the post.
+    post = Post.objects.filter(uid=uid).first()
 
-    auth.update_post_views(post=obj, request=request)
+    # Establish the root for the post.
+    root = post if post.is_toplevel else post.root
 
+    #auth.update_post_views(post=obj, request=request)
+
+    # Build the comment tree .
+    root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=root)
+
+    context = dict(post=post, tree=comment_tree, form=form, answers=answers)
+
+    return render(request, "post_view.html", context=context)
+
+
+@object_exists(klass=Post)
+def post_answer(request, uid):
+    """
+    Process an answer with form
+    """
+    # Get the post.
+    root = Post.objects.filter(uid=uid).first()
+    redir = reverse("post_view", request=request, kwargs=dict(uid=root.uid))
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
-            post = form.save(author=request.user)
-            location = reverse("post_view", request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
-
+            answer = form.save(author=request.user)
             if tasks.HAS_UWSGI:
-                tasks.created_post(pid=post.id)
+                tasks.created_post(pid=answer.id)
+            # Anchor location to answer
+            redir = redir + "#" + answer.uid
 
-            return redirect(location)
-
-    # Populate the object to build a tree that contains all posts in the thread.
-    # Answers are added here as well.
-    comment_tree, answers, thread = auth.build_obj_tree(request=request, obj=obj)
-    #print(comment_tree)
-
-    context = dict(post=obj, tree=comment_tree, form=form, answers=answers)
-
-    return render(request, "post_view.html", context=context)
+    return redirect(redir)
 
 
 @login_required
