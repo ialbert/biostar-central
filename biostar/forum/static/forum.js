@@ -135,37 +135,6 @@ function add_reply(elem){
 }
 
 
-function block_form(){
-
-    $("#block-row").remove();
-
-    var post_uid = elem.attr('data-value');
-    var container = $("#block-container-"+ post_uid);
-    var block_url = elem.attr("block-url");
-    var page = $('<div id="block-row"></div>').load(block_url);
-
-    container.after(page);
-
-};
-
-function feed_item(){
-
-    var container = $("#feed-item");
-    var feed_url = container.parent().attr('feed-url');
-    //first.remove();
-    //first.load(feed_url);
-    var page = $('<div id="test"></div>').load(feed_url);
-    alert(feed_url);
-    container.after(page);//.unwrap("test"));
-
-
-};
-
-function blocked_form(){
-
-}
-
-
 function add_comment(elem) {
 
     // remove comment body if exists.
@@ -229,7 +198,6 @@ $(document).ready(function () {
         });
     });
     get_height($(this));
-    //feed_item();
 
 
 

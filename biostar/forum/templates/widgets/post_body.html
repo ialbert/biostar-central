@@ -36,7 +36,7 @@
             </div>
 
             <div class="value">
-                <a class="value" data-post_uid="{{ post.uid }}" data-type="bookmark" vote-url="{% url 'vote' %}">
+                <a class="value" uid="{{ post.uid }}" data-type="bookmark" vote-url="{% url 'vote' %}">
                     {% if post.has_bookmark %}
                         <i class="big book icon"></i>
                     {% else %}

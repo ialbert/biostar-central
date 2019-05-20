@@ -9,7 +9,7 @@
 {% block body %}
 
     {% with params=request.GET.urlencode %}
-        <div class="pages-banner">
+        <div class="pages-banner" id="actions-menu">
 
             <div class="ui small compact menu no-shadow" style="float:left;">
               <div class="ui simple dropdown item">
@@ -38,9 +38,9 @@
               </div>
             </div>
 
-            {% pages objs=posts request=request %}
+                {% pages objs=posts request=request %}
 
-            <div class="ui small compact menu ordering no-shadow">
+            <div class="ui small compact menu ordering no-shadow" id="actions-menu">
               <div class="ui simple dropdown item">
 
                 <i class="{% get_icon string=order default='rank' %}"></i>

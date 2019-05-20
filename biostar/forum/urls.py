@@ -1,14 +1,20 @@
-from . import views
+
 from django.conf import settings
+from django.conf.urls.static import static
 from django.conf.urls import url, include
 
+from biostar.forum import views
 import biostar.message.urls as msg_patterns
 import biostar.accounts.urls as account_patterns
 
 urlpatterns = [
 
     # Main entry. Post listing.
-    url(r'^$', views.post_list, name='post_list'),
+    url(r'^$', views.latest, name='post_list'),
+    url(r'^myvotes/$', views.myvotes, name='myvotes'),
+    url(r'^bookmarks/$', views.bookmarks, name='bookmarks'),
+    url(r'^following/$', views.following, name='following'),
+    url(r'^myposts/$', views.myposts, name='myposts'),
 
     url(r'^p/(?P<uid>[-\w]+)/$', views.post_view, name='post_view'),
 
@@ -22,13 +28,12 @@ urlpatterns = [
     url(r'^comment/$', views.comment, name='post_comment'),
     url(r"^comment/form/(?P<uid>[-\w]+)/$", views.comment_form, name="comment_form"),
     url(r'^vote/$', views.ajax_vote, name='vote'),
-    url(r'^quick/feed/$', views.feed_post, name='feed_post'),
 
     #url(r'^tags/list/$', views.tags_list, name='tags_list'),
     url(r'^moderate/(?P<uid>[-\w]+)/$', views.post_moderate, name="post_moderate"),
 
     # Community urls
-    url(r'^community/list/$', views.community_list, name='community_list'),
+    url(r'^community/$', views.community_list, name='community_list'),
 
     # Include messages urls
     url(r'^message/', include(msg_patterns)),
@@ -38,6 +43,10 @@ urlpatterns = [
 
 ]
 
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT, show_indexes=True)
 
 
 

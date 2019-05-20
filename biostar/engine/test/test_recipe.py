@@ -26,7 +26,7 @@ class RecipeViewTest(TestCase):
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
         # Test data
-        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="")
+        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="#test template")
         self.recipe.save()
 
     @patch('biostar.engine.models.Job.save', MagicMock(name="save"))
@@ -72,6 +72,18 @@ class RecipeViewTest(TestCase):
         response = views.recipe_edit(request=request, uid=self.recipe.uid)
         self.process_response(response=response, data=data, save=True)
 
+    def test_recipe_code_download(self):
+        "Test recipe code download "
+
+        url = reverse("recipe_download", kwargs=dict(uid=self.recipe.uid))
+        request = util.fake_request(url=url, data={}, user=self.owner)
+        response = views.recipe_code_download(request=request, uid=self.recipe.uid)
+
+        self.assertTrue(response.content.decode() == self.recipe.template,
+                        f"Error downloading code. Expected: {self.recipe.template} "
+                        f"received: {response.content.decode()}")
+
+
     def test_recipe_copy(self):
         "Test recipe copy interface"
 
@@ -96,23 +108,35 @@ class RecipeViewTest(TestCase):
 
         self.process_response(response=response, data={})
 
+    def test_recipe_delete(self):
+        "Test reset delete"
+
+        url = reverse('recipe_delete', kwargs=dict(uid=self.recipe.uid))
+
+        request = util.fake_request(url=url, data={}, user=self.owner)
+
+        response = views.recipe_delete(request=request, uid=self.recipe.uid)
+
+        self.process_response(response=response, data={})
+
+
     def Xtest_api(self):
-        "Test the recipe api"
+            "Test the recipe api"
 
-        api_list = reverse('api_list'), api.recipe_api_list, {}
-        api_json = reverse('recipe_api_json', kwargs=dict(uid=self.recipe.uid)), api.recipe_json, dict(
-            uid=self.recipe.uid)
-        api_template = reverse('recipe_api_template', kwargs=dict(uid=self.recipe.uid)), api.recipe_template, dict(
-            uid=self.recipe.uid)
+            api_list = reverse('api_list'), api.recipe_api_list, {}
+            api_json = reverse('recipe_api_json', kwargs=dict(uid=self.recipe.uid)), api.recipe_json, dict(
+                uid=self.recipe.uid)
+            api_template = reverse('recipe_api_template', kwargs=dict(uid=self.recipe.uid)), api.recipe_template, dict(
+                uid=self.recipe.uid)
 
-        for data in [api_list, api_json, api_template]:
-            url, view_func, params = data
+            for data in [api_list, api_json, api_template]:
+                url, view_func, params = data
 
-            request = util.fake_request(url=url, data={'k': settings.API_KEY}, user=self.owner)
+                request = util.fake_request(url=url, data={'k': settings.API_KEY}, user=self.owner)
 
-            response = view_func(request=request, **params)
+                response = view_func(request=request, **params)
 
-            self.assertEqual(response.status_code, 200, f"Could not redirect :\nresponse:{response}")
+                self.assertEqual(response.status_code, 200, f"Could not redirect :\nresponse:{response}")
 
     def test_recipe_update(self):
         "Test updating recipe through auth"

@@ -1,7 +1,7 @@
 
 from django.conf.urls import url, include
 from django.conf import settings
-from . import views
+from biostar.accounts import views
 
 urlpatterns = [
 

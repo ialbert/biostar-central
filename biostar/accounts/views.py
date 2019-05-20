@@ -18,12 +18,12 @@ from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
 from biostar.utils.shortcuts import reverse
-from . import forms
-from .auth import check_user, send_verification_email
-from .const import *
-from .models import User, Profile
-from .tokens import account_verification_token
-from .util import now, get_uuid
+from biostar.accounts import forms
+from biostar.accounts.auth import check_user, send_verification_email
+from biostar.accounts.const import *
+from biostar.accounts.models import User, Profile
+from biostar.accounts.tokens import account_verification_token
+from biostar.accounts.util import now, get_uuid
 
 from django.db.models import Q, Count
 
@@ -53,20 +53,6 @@ def listing(request):
     users = User.objects.all()
     context = dict(users=users)
     return render(request, "accounts/listing.html", context=context)
-
-
-@login_required
-def toggle_moderate(request):
-    user = request.user
-
-    if settings.ALLOW_SELF_MODERATE:
-        role = Profile.NORMAL if user.profile.is_moderator else Profile.MODERATOR
-        Profile.objects.filter(user=user).update(role=role)
-        mapper = {Profile.MODERATOR: " a moderator"}
-        messages.success(request, f"You are now {mapper.get(role, 'not a moderator')}")
-
-    return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
-
 
 # def ban_user(user):
 #
@@ -128,9 +114,8 @@ def user_profile(request, uid):
     # Get the active tab, defaults to project
     active_tab = request.GET.get("active", "posts")
     # User viewing profile is a moderator
-    can_moderate = request.user.is_authenticated and request.user.profile.is_moderator
-
-    context = dict(user=profile.user, active=active_tab, debugging=settings.DEBUG,
+    can_moderate = request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser)
+    context = dict(target=profile.user, active=active_tab, debugging=settings.DEBUG,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, tab="profile")
 
     return render(request, "accounts/user_profile.html", context)

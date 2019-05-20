@@ -8,7 +8,6 @@ from django.conf import settings
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
 
 from biostar.engine.models import Analysis, Project, image_path
 from biostar.engine.decorators import require_api_key

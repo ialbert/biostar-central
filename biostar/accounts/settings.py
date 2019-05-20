@@ -46,31 +46,7 @@ ACCOUNTS_APPS = [
 
 INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS
 
-# Template specific settings.
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'string_if_invalid': "**MISSING**",
-            'context_processors': [
-                'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.template.context_processors.media',
-                'django.contrib.messages.context_processors.messages',
-                'biostar.accounts.context.accounts',
-            ],
-            # 'loaders': [
-            #     ('django.template.loaders.cached.Loader',
-            #         'django.template.loaders.filesystem.Loader',
-            #         'django.template.loaders.app_directories.Loader',
-            #     )
-            # ]
-        },
-    },
-]
-
+AUTHENTICATION_BACKENDS += ["allauth.account.auth_backends.AuthenticationBackend"]
 
 ROOT_URLCONF = 'biostar.accounts.urls'
 
@@ -93,9 +69,9 @@ SOCIAL_CLIENTS = [
 ]
 
 try:
-    from conf.secrets.defaults import *
-    print (f"*** loaded 'conf.secrets.defaults'")
+   from conf.secrets.defaults import *
+   print (f"*** loaded 'conf.secrets.defaults'")
 except ImportError as err:
-    print (f"*** unable to import secrets: {err}")
+   print (f"*** unable to import secrets: {err}")
 
 

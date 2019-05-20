@@ -58,6 +58,5 @@
 {% endblock %}
 
 {%  block sidebar %}
-    {%  feed user=request.user %}
+    {%  single_post_feed post=post %}
 {%  endblock %}
-

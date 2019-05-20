@@ -49,10 +49,15 @@ class ForumNavigation(TestCase):
 
         urls = [
             reverse("inbox"),
-            reverse('post_list'),
+            reverse("post_list"),
+            reverse("bookmarks"),
+            reverse("following"),
+            reverse("myposts"),
+            reverse("myvotes"),
             reverse('post_create'),
             reverse("community_list"),
             reverse('badge_list'),
+            reverse("comment_form", kwargs=dict(uid=self.post.uid)),
             reverse('badge_view', kwargs=dict(uid=self.badge.uid)),
             #reverse("tags_list"),
 

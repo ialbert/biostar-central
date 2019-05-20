@@ -3,9 +3,11 @@ import logging
 from django.test import TestCase
 from django.urls import reverse
 
-from biostar.forum import models, views, auth, forms
-from biostar.engine.test.util import fake_request, get_uuid
 from biostar.accounts.models import User
+
+from biostar.forum import models, views, auth, forms, const
+from biostar.forum.tests.util import fake_request
+from biostar.forum.util import get_uuid
 
 logger = logging.getLogger('engine')
 
@@ -14,7 +16,8 @@ class PostTest(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
-        self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com", password="tested")
+        self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com",
+                                         password="tested", is_superuser=True, is_staff=True)
 
         # Create an existing tested post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",
@@ -23,18 +26,61 @@ class PostTest(TestCase):
         self.owner.save()
         pass
 
-    def test_moderate(self):
+    def moderate(self, choices, post):
 
-        # Test every moderation action
-        choices = dict(forms.PostModForm.CHOICES)
-        for action, wording in choices.items():
+        for action in choices:
             data = {"action": action}
-            url = reverse('post_moderate', kwargs=dict(uid=self.post.uid))
+            url = reverse('post_moderate', kwargs=dict(uid=post.uid))
             request = fake_request(url=url, data=data, user=self.owner)
-            response = views.post_moderate(request=request, uid=self.post.uid)
+            response = views.post_moderate(request=request, uid=post.uid)
             self.process_response(response)
 
         return
+
+    def test_toplevel_moderation(self):
+        "Test top level post moderation."
+        # Test every moderation action
+        choices = [const.BUMP_POST, const.MOD_OPEN, const.DELETE]
+
+        self.moderate(choices=choices, post=self.post)
+
+        return
+
+    def test_answer_moderation(self):
+        "Test answer moderation."
+        choices = [const.TOGGLE_ACCEPT, const.MOVE_TO_COMMENT, const.DELETE]
+
+        # Create an answer to moderate
+        anwser = auth.create_post(title="Test", author=self.owner, content="Test",
+                                  post_type=models.Post.ANSWER, root=self.post,
+                                  parent=self.post)
+
+        self.moderate(choices=choices, post=anwser)
+
+        return
+
+    def test_comment_moderation(self):
+        "Test comment moderation."
+        choices = [const.MOVE_TO_ANSWER, const.DELETE]
+
+        # Create a comment to moderate
+        comment = auth.create_post(title="Test", author=self.owner, content="Test",
+                                   post_type=models.Post.COMMENT, root=self.post,
+                                   parent=self.post)
+
+        self.moderate(choices=choices, post=comment)
+
+    def test_duplicate_post(self):
+        "Test duplicate post moderation"
+
+        data = {"dupe": "google.com"}
+
+        url = reverse('post_moderate', kwargs=dict(uid=self.post.uid))
+        request = fake_request(url=url, data=data, user=self.owner)
+        response = views.post_moderate(request=request, uid=self.post.uid)
+        self.process_response(response)
+
+        pass
 
     def process_response(self, response):
         "Check the response on POST request is redirected"

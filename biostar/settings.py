@@ -95,6 +95,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.template.context_processors.media',
                 'django.contrib.messages.context_processors.messages',
+                'biostar.context.main',
             ],
             # 'loaders': [
             #     ('django.template.loaders.cached.Loader',
@@ -163,16 +164,23 @@ MEDIA_URL = '/media/'
 # The media root directory.
 MEDIA_ROOT = join(BASE_DIR, 'export', 'media')
 
-# Specify static directories.
 STATICFILES_DIRS = [
-
 ]
 
-# Static file finders.
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
+
+# # Specify static directories.
+# STATICFILES_DIRS = [
+# ]
+#
+# # Static file finders.
+# STATICFILES_FINDERS = [
+#     'django.contrib.staticfiles.finders.FileSystemFinder',
+#     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+# ]
 
 # Apply default logger setting.
 LOGGER_NAME = "biostar"

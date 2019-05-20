@@ -2,10 +2,10 @@
 from django.contrib import admin
 from django.conf.urls import url, include
 from django.urls import path
-
+from django.conf import settings
+from django.conf.urls.static import static
 import biostar.accounts.urls as account_patterns
-
-from . import views, api
+from biostar.engine import views, api
 
 urlpatterns = [
     # The django generated admin site.
@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^recipe/view/(?P<uid>[-\w]+)/$', views.recipe_view, name='recipe_view'),
     url(r'^recipe/run/(?P<uid>[-\w]+)/$', views.recipe_run, name='recipe_run'),
     url(r'^recipe/edit/(?P<uid>[-\w]+)/$', views.recipe_edit, name='recipe_edit'),
-    url(r'^recipe/code/view/(?P<uid>[-\w]+)/$', views.recipe_code_view, name='recipe_code_view'),
+    #url(r'^recipe/code/view/(?P<uid>[-\w]+)/$', views.recipe_code_view, name='recipe_code_view'),
     url(r'^recipe/code/edit/(?P<uid>[-\w]+)/$', views.recipe_code_edit, name='recipe_code_edit'),
     url(r'^recipe/paste/(?P<uid>[-\w]+)/$', views.recipe_paste, name='recipe_paste'),
     url(r'^recipe/delete/(?P<uid>[-\w]+)/$', views.recipe_delete, name='recipe_delete'),
@@ -79,6 +79,12 @@ urlpatterns = [
     # Include the accounts urls
     url(r'^accounts/', include(account_patterns)),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT, show_indexes=True)
+
 
 
 

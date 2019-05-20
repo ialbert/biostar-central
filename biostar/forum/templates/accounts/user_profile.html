@@ -1,14 +1,14 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
 
-{% block headtitle %}{{ user.profile.name }}{% endblock %}
+{% block headtitle %}{{ target.profile.name }}{% endblock %}
 
 {% block content %}
 
     <div class="ui center aligned basic segment">
 
         <div class="ui aligned large header">
-            {{ user.profile.get_role_display }}: {{ user.profile.name }}
+            {{ target.profile.get_role_display }}: {{ target.profile.name }}
         </div>
     </div>
 
@@ -17,25 +17,25 @@
         <div class="ui center aligned large segment">
 
             <div class="ui circular image">
-                {% gravatar user=user size=200 %}
+                {% gravatar user=target size=200 %}
             </div>
 
-            <div><a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name }}</a>
-                {{ user |show_score_icon }}{{ user.profile.score | show_score }}
+            <div><a href="{% url "user_profile" target.profile.uid %}">{{ target.profile.name }}</a>
+                {{ target |show_score_icon }}{{ target.profile.score | show_score }}
             </div>
 
             {% if can_moderate %}
-                <a class="ui orange moderate-user profile label" data-value="{{ user.profile.uid }}"
-                   mod-url="{% url 'user_moderate' user.profile.uid %}">
+                <a class="ui orange moderate-user profile label" data-value="{{ target.profile.uid }}"
+                   mod-url="{% url 'user_moderate' target.profile.uid %}">
                     Moderate</a>
                 <div class="ui left aligned basic large segment" style="margin:0;padding:0;">
-                    <div id="mod-container-{{ user.profile.uid }}"></div>
+                    <div id="mod-container-{{ target.profile.uid }}"></div>
                 </div>
             {% endif %}
 
 
             {% if request.user.is_superuser and debugging %}
-                <a class="ui profile label" href="{% url 'debug_user' %}?uid={{ user.profile.uid }}">
+                <a class="ui profile label" href="{% url 'debug_user' %}?uid={{ target.profile.uid }}">
                     <i class="address card icon"></i> Log in as user
                 </a>
             {% endif %}
@@ -43,8 +43,8 @@
         </div>
 
         <div class="ui large segment">
-            {% if can_moderate or request.user == user %}
-                {% if user.profile.email_verified %}
+            {% if can_moderate or request.user == target %}
+                {% if target.profile.email_verified %}
                     <div class="ui top left attached basic green large label">
                         <i class="check icon"></i> Email Verified
                     </div>{% endif %}
@@ -52,36 +52,36 @@
 
             <div class="ui relaxed list">
                 <div class="item">
-                    <b>Reputation</b>: {{ user.profile.score | show_score }}
+                    <b>Reputation</b>: {{ target.profile.score | show_score }}
                 </div>
                 <div class="item">
-                    <b>Status</b> : {{ user.profile.get_state_display }}
+                    <b>Status</b> : {{ target.profile.get_state_display }}
                 </div>
                 <div class="item">
-                    <b>Location</b> : {{ user.profile.location }}
+                    <b>Location</b> : {{ target.profile.location }}
                 </div>
 
-                {% if user.profile.last_login %}
+                {% if target.profile.last_login %}
                     <div class="item">
-                        <b>Last seen </b> : {{ user.profile.last_login |time_ago }}
+                        <b>Last seen </b> : {{ target.profile.last_login |time_ago }}
                     </div>
                 {% endif %}
                 <div class="item">
-                    <b>Joined</b> : {{ user.profile.date_joined|time_ago }}
+                    <b>Joined</b> : {{ target.profile.date_joined|time_ago }}
                 </div>
-                {% if user == request.user %}
-                    <div class="item"><b>Email</b> : {{ user.email }}</div>
+                {% if target == request.user %}
+                    <div class="item"><b>Email</b> : {{ target.email }}</div>
                 {% else %}
-                    <div class="item"><b>Email</b> : {{ user |show_email }}</div>
+                    <div class="item"><b>Email</b> : {{ target |show_email }}</div>
                 {% endif %}
 
 
                 <div class="item"><b>Handle</b> : <a
-                href="{% url 'compose' %}?initial={{ user.username }}">@{{ user.username }}</a>
+                href="{% url 'compose' %}?initial={{ target.username }}">@{{ target.username }}</a>
                 </div>
             </div>
 
-            {% if user == request.user %}
+            {% if target == request.user %}
                 <a class="ui profile label" href="{% url 'edit_profile' %}">
                     <i class="write icon"></i>Edit profile
                 </a>
@@ -89,6 +89,6 @@
         </div>
     </div>
 
-    {{ user.profile.html |safe }}
+    {{ target.profile.html |safe }}
 
 {% endblock %}

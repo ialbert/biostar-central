@@ -193,55 +193,6 @@ def preform_vote(post, user, vote_type, uid=None):
     return msg, vote
 
 
-def create_post_from_json(json_dict):
-
-    root_uid = json_dict.get("root_id")
-    parent_uid = json_dict.get("parent_id", None)
-
-    lastedit_user_uid = json_dict.get("lastedit_user_id")
-    author_uid = json_dict.get("author_id")
-
-    author = User.objects.filter(profile__uid=author_uid).first()
-    lastedit_user = User.objects.filter(profile__uid=lastedit_user_uid).first()
-
-    root = Post.objects.filter(uid=root_uid).first()
-    parent = Post.objects.filter(uid=parent_uid).first()
-
-    creation_date = json_dict.get("creation_date")
-    lastedit_date = json_dict.get("lastedit_date")
-
-    title = json_dict.get("title")
-    has_accepted = json_dict.get("has_accepted", False)
-    type = json_dict.get("type")
-    status = json_dict.get("status", Post.OPEN)
-    content = util.strip_tags(json_dict.get("text", ""))
-    html = json_dict.get("html", "")
-    tag_val = json_dict.get("tag_val")
-
-    #reply_count = json_dict.get("reply_count", 0)
-    #thread_score = json_dict.get("thread_score", 0)
-    #vote_count = json_dict.get("vote_count", 0)
-    view_count = json_dict.get("view_count", 0)
-
-    uid = json_dict.get("id")
-    post = Post.objects.filter(uid=uid)
-    if post.exists() or status == Post.DELETED:
-        logger.error(f"Post with uid={uid} already exists or status is deleted.")
-        return post.first()
-
-    post = Post.objects.create(uid=uid, author=author, lastedit_user=lastedit_user,
-                               root=root, parent=parent, creation_date=creation_date,
-                               lastedit_date=lastedit_date, title=title, has_accepted=has_accepted,
-                               type=type, status=status, content=content, html=html, tag_val=tag_val,
-                               view_count=view_count)
-    # Trigger another save
-    #post.add_tags(post.tag_val)
-
-    logger.info(f"Created post.uid={post.uid}")
-
-    return post
-
-
 def delete_post(post, request):
     # Delete marks a post deleted but does not remove it.
     # Remove means to delete the post from the database with no trace.
@@ -295,12 +246,6 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
     if action == DELETE:
         return delete_post(post=post, request=request)
 
-    if action == CROSSPOST:
-        content = util.render(name="default_messages/crossposted.html", user=post.author, comment=comment, posts=post)
-        # Create a comment to the post
-        Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
-        return url
-
     if action == TOGGLE_ACCEPT:
         root_has_accepted = Post.objects.filter(root=root, type=Post.ANSWER, has_accepted=True).count()
         Post.objects.filter(uid=post.uid).update(has_accepted=not post.has_accepted)
@@ -320,13 +265,14 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
         messages.success(request, "Moved answer to comment")
         return url
 
-    if action == DUPLICATE:
+    if dupes:
         Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-        Post.objects.filter(uid__in=dupes).update(status=Post.CLOSED)
-        content = util.render(name="default_messages/duplicate_posts.html", user=post.author, comment=comment,
-                              posts=Post.objects.filter(uid=post.uid))
+        html = util.render(name="default_messages/duplicate_posts.html", user=post.author, dupes=dupes,
+                              comment=comment, posts=Post.objects.filter(uid=post.uid))
+        content = util.strip_tags(html)
         # Create a comment to the post
-        Post.objects.create(content=content, type=Post.COMMENT, html=content, parent=post, author=user)
+        modpost = Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
+        Post.objects.filter(uid=modpost.uid).update(html=html)
         return url
 
     messages.error(request, "Invalid moderation action given")

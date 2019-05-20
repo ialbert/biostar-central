@@ -134,12 +134,13 @@ class PostLongForm(forms.Form):
         if edit:
 
             self.post.title = title
-            old_content = self.post.content
             self.post.content = content
             self.post.type = post_type
             self.post.html = html
             self.post.tag_val = tag_val
+
             self.post.save()
+
             # Triggers another save
             #self.post.add_tags(text=tag_val)
         else:
@@ -271,9 +272,6 @@ class PostModForm(forms.Form):
             raise forms.ValidationError("You can only perform these actions to an answer.")
         if action == MOVE_TO_ANSWER and self.post.type != Post.COMMENT:
             raise forms.ValidationError("You can only perform these actions to a comment.")
-
-        if action == DUPLICATE and not dupe:
-            raise forms.ValidationError("Unable to close duplicate. Please fill in the post numbers")
 
         parent = Post.objects.filter(uid=pid).first()
         if not parent and pid:

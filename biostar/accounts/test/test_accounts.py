@@ -18,7 +18,7 @@ class UserAccountTests(TestCase):
 
     def setUp(self):
         self.password = "testing"
-        self.user = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
+        self.user = models.User.objects.create_user(username=f"user1", email="tested@l.com")
         self.user.set_password(self.password)
         self.user.save()
 
@@ -54,8 +54,10 @@ class UserAccountTests(TestCase):
     def test_page_responses(self):
 
         urls = [
+            reverse('accounts_index'),
             reverse('logout'),
             reverse('login'),
+            reverse("user_moderate", kwargs=dict(uid=self.user.profile.uid)),
             reverse("user_profile", kwargs=dict(uid=self.user.profile.uid)),
             reverse('edit_profile'),
             reverse('password_reset'),
@@ -150,6 +152,7 @@ class SignUpTest(TestCase):
             self.assertEqual(resp.status_code, code)
 
 
+
 class ProfileTest(TestCase):
 
 
@@ -202,20 +205,6 @@ class ProfileTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
 
-    def XXtest_user_delete(self):
-        "Test deleting a user."
-
-        # Set up projects/posts to key user to
-        #project = create_project(user=self.user, name="tested project", text="Text", summary="summary",
-        #                        uid="testing")
-
-        #posts = create_post(title="Title of post", author=self.user, content="Post content",
-        #                    post_type=Post.QUESTION)
-
-        self.user.delete()
-
-        print(posts, project, self.user)
-        #1/0
 
     def test_banned_user_login(self):
         "Test banned user can not login "

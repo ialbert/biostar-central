@@ -15,22 +15,22 @@
         <i class="mail icon"> </i>
         Messages (2)
     </a>
-    <a class="item {% activate tab "myvotes" %}"  href="{% url 'post_list' %}?topic=myvotes">
+    <a class="item {% activate tab "myvotes" %}"  href="{% url 'myvotes' %}">
         <i class="heart icon centericon"></i>
         Votes
     </a>
 
-    <a class="item {% activate tab "myposts" %}"  href="{% url 'post_list' %}?topic=myposts">
+    <a class="item {% activate tab "myposts" %}"  href="{% url 'myposts' %}">
         <i class="comments icon"></i>
         My Posts
     </a>
 
-    <a class="item {% activate tab "following" %}" href="{% url 'post_list' %}?topic=following">
+    <a class="item {% activate tab "following" %}" href="{% url 'following' %}">
         <i class="eye icon"></i>
         Following
     </a>
 
-    <a class="item {% activate tab "bookmarks" %}" href="{% url 'post_list' %}?topic=bookmarks">
+    <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
         <i class="book icon"></i>
         Bookmarks
     </a>

@@ -1,0 +1,31 @@
+{% load forum_tags %}
+
+<div class="ui large biostar-feed">
+
+   <div class="event">
+        <div class="ui container">
+                <b>Similar Posts </b>
+                <div class="ui relaxed list" >
+
+                    {% for post in posts %}
+
+                        <div class="item spaced">
+                            <a href="{% url "post_view" post.uid %}"> {{ post.title }}</a>
+                            by
+                            <a href="{% url "user_profile"  post.author.profile.uid %}">{{ post.author.profile.name }}
+                            </a>
+
+                        <span>  {{ post.author |show_score_icon }}
+                        {{ post.author.profile.score | show_score | bignum }}</span>
+
+                        <div class="muted" style="padding-top:5px;">
+                            {{ post.content |truncatechars:140 }}
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+        </div>
+    </div>
+</div>
