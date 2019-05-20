@@ -147,38 +147,9 @@ def create_sub(post, user, sub_type=None):
     return sub
 
 
-def trigger_vote(vote_type, post, change):
-    Post.objects.filter(uid=post.uid).update(vote_count=F('vote_count') + change)
-
-    if vote_type == Vote.BOOKMARK:
-        # Apply the vote
-        Post.objects.filter(uid=post.uid).update(book_count=F('book_count') + change)
-
-    elif vote_type == Vote.ACCEPT:
-
-        if change > 0:
-            # There does not seem to be a negation operator for F objects.
-            Post.objects.filter(uid=post.uid).update(has_accepted=True)
-            Post.objects.filter(uid=post.root.uid).update(has_accepted=True)
-        else:
-            Post.objects.filter(uid=post.uid).update(has_accepted=False)
-            accepted_siblings = Post.objects.filter(root=post.root, has_accepted=True).exclude(pk=post.root_id).count()
-
-            # Only set root as not accepted if there are no accepted siblings
-            if accepted_siblings == 0:
-                Post.objects.filter(uid=post.root.uid).update(has_accepted=False)
-    else:
-        thread_query = Post.objects.filter(status=Post.OPEN, root=post.root)
-
-        reply_count = thread_query.exclude(uid=post.parent.uid).filter(type=Post.ANSWER).count()
-        thread_score = thread_query.exclude(uid=post.root.uid).count()
-        Post.objects.filter(root=post.root).update(thread_votecount=F('thread_votecount') + change)
-        Post.objects.filter(parent=post.parent).update(reply_count=reply_count)
-        Post.objects.filter(root=post.root).update(thread_score=thread_score)
-
-
 @transaction.atomic
-def preform_vote(post, user, vote_type, uid=None):
+def apply_vote(post, user, vote_type):
+
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
 
     if vote:
@@ -187,7 +158,7 @@ def preform_vote(post, user, vote_type, uid=None):
         vote.delete()
     else:
         change = +1
-        vote = Vote.objects.create(author=user, post=post, type=vote_type, uid=uid)
+        vote = Vote.objects.create(author=user, post=post, type=vote_type)
         msg = "%s added" % vote.get_type_display()
 
     if post.author != user:
@@ -197,7 +168,23 @@ def preform_vote(post, user, vote_type, uid=None):
     # The thread vote count represents all votes in a thread
     Post.objects.filter(uid=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
 
-    trigger_vote(vote_type=vote_type, post=post, change=change)
+    # Increment the post vote count.
+    Post.objects.filter(uid=post.uid).update(vote_count=F('vote_count') + change)
+
+    # Increment the bookmark count.
+    if vote_type == Vote.BOOKMARK:
+        Post.objects.filter(uid=post.uid).update(book_count=F('book_count') + change)
+
+    # Add accept vote.
+    if vote_type == Vote.ACCEPT and change == 1:
+        Post.objects.filter(uid=post.uid).update(has_accepted=True)
+        Post.objects.filter(uid=post.root.uid).update(has_accepted=True)
+
+    # Remove accept vote.
+    if vote_type == Vote.ACCEPT and change == -1:
+        Post.objects.filter(uid=post.uid).update(has_accepted=False)
+        Post.objects.filter(uid=post.root.uid).update(has_accepted=False)
+
 
     return msg, vote
 

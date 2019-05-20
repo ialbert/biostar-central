@@ -255,10 +255,8 @@ def ajax_vote(request):
     if post.root.author != user and vote_type == Vote.ACCEPT:
         return ajax_error("Only the person asking the question may accept this answer.")
 
-    msg, vote = auth.preform_vote(post=post, user=user, vote_type=vote_type)
+    msg, vote = auth.apply_vote(post=post, user=user, vote_type=vote_type)
 
-    if tasks.HAS_UWSGI:
-        tasks.triggered_vote(pid=post.id, vtype=vote_type)
     return ajax_success(msg)
 
 
