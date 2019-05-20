@@ -13,7 +13,7 @@
 
     <div class="pages-banner">
 
-        <div class="ui small compact menu no-shadow" style="float:left;">
+        <div class="ui small compact menu no-shadow float-left" id="actions-menu">
 
           <div class="ui simple dropdown item">
               <i class="{% get_icon string=limit default='all' %}"></i>
@@ -43,7 +43,7 @@
         </div>
 
     {% pages objs=objs request=request %}
-        <div class="ui small compact menu ordering no-shadow">
+        <div class="ui small compact menu ordering no-shadow" id="actions-menu">
           <div class="ui simple dropdown item">
 
             <i class="{% get_icon string=order default='visit' %}"></i>
