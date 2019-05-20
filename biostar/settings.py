@@ -165,8 +165,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = join(BASE_DIR, 'export', 'media')
 
 STATICFILES_DIRS = [
-    join(BASE_DIR, "biostar", "engine", "static"),
-    join(BASE_DIR, "biostar", "forum", "static"),
 ]
 
 STATICFILES_FINDERS = [
