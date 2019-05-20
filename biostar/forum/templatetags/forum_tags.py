@@ -194,14 +194,13 @@ def single_post_feed(post):
     tags = post.tag_val.split(",")
 
     # Gather similar posts
-    query = [Q(tag_val__iregex=tag) for tag in tags]
-    posts = Post.objects.filter(tag_val__iregex__in=tags)
-
+    query = Q()
     for tag in tags:
-        posts = Post.objects.filter(tag_val__iregex=tag)
+        query |= Q(tag_val__iregex=tag)
 
+    posts = Post.objects.exclude(uid=post.uid).filter(query)[:settings.SINGLE_FEED_COUNT]
     context = dict(posts=posts)
-    return const
+    return context
 
 
 @register.inclusion_tag('widgets/feed.html')

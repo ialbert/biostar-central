@@ -68,10 +68,10 @@ SOCIAL_CLIENTS = [
     ("GitHub", "A", "B")
 ]
 
-#try:
-#    from conf.secrets.defaults import *
-#    print (f"*** loaded 'conf.secrets.defaults'")
-#except ImportError as err:
-#    print (f"*** unable to import secrets: {err}")
+try:
+   from conf.secrets.defaults import *
+   print (f"*** loaded 'conf.secrets.defaults'")
+except ImportError as err:
+   print (f"*** unable to import secrets: {err}")
 
 
