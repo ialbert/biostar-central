@@ -242,8 +242,9 @@ class Post(models.Model):
         return self.type in Post.TOP_LEVEL
 
     @property
-    def deleted_class(self):
-        return "deleted" if self.status == Post.DELETED else ""
+    def css(self):
+        # Used to simplify CSS rendering.
+        return self.get_status_display()
 
     @property
     def accepted_class(self):

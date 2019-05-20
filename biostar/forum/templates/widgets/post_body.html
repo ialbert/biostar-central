@@ -1,0 +1,103 @@
+{% load forum_tags %}
+
+{# Renders a single top level post or answer.  #}
+<div class="post {{ post.css }}">
+
+    {#  Show title on top level posts #}
+    {% if post.is_toplevel %}
+        <div class="title">
+            {#  Page anchor. #}
+            <a name="{{ post.uid }}"></a>
+            {#  Post title. #}
+            {{ post.get_type_display }}: {{ post.title }}
+        </div>
+        {#  {% subs_actions post=post user=request.user %} #}
+    {% endif %}
+
+    {#  Post body #}
+    <div class="body">
+
+        {#  Display post stats #}
+
+        <div class="votebox">
+
+            <div class="value">
+                <a data-post_uid="{{ post.uid }}" data-type="upvote" vote-url="{% url 'vote' %}">
+                    {% if post.has_upvote %}
+                        <i class="big thumbs up icon "></i>
+                    {% else %}
+                        <i class="big thumbs up outline icon"></i>
+                    {% endif %}
+                </a>
+            </div>
+
+            <div class="count">
+                {{ post.vote_count }}
+            </div>
+
+            <div class="value">
+                <a class="value" uid="{{ post.uid }}" data-type="bookmark" vote-url="{% url 'vote' %}">
+                    {% if post.has_bookmark %}
+                        <i class="big book icon"></i>
+                    {% else %}
+                        <i class="big bookmark outline icon"></i>
+                    {% endif %}
+
+                </a>
+            </div>
+
+        </div>
+
+        <div class="content">
+            {# Display post author. #}
+            {% user_box user=post.author post=post %}
+
+            {# Display post content. #}
+            {{ post.html|safe }}
+
+            {# Show tags for top level posts. #}
+            {% if post.is_toplevel %}
+                <div class="tags">
+                    {% render_tags post %} &bull; {{ post.root.view_count|bignum }} views
+                </div>
+            {% endif %}
+
+            {#  Post action bar. #}
+            <div class="actions">
+
+                <a class="add-comment ui tiny label" comment-url="{% url 'comment_form' post.uid %}"
+                   data-value="{{ post.uid }}">
+                    ADD COMMENT
+                </a>
+
+                &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
+                &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
+                &bull; <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}"
+                          data-value="{{ post.uid }}">moderate</a>
+
+                <span class="status muted">
+                    updated {{ post.lastedit_date|time_ago }} by
+                    <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+                    {{ post.lastedit_user.profile.name }} </a>
+                    {{ post.lastedit_user | icon }}
+                    {{ post.lastedit_user.profile.score | show_score | bignum }}
+                </span>
+                <div id="mod-container-{{ post.uid }}"></div>
+
+            </div>
+
+            <div id="comment-container-{{ post.uid }}"></div>
+            {# Comments for each post rendered here #}
+            {% render_comments tree=tree post=post %}
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+
+
