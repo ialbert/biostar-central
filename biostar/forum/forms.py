@@ -260,7 +260,6 @@ class PostModForm(forms.Form):
         pid = cleaned_data.get("pid").strip()
         cleaned_data["pid"] = pid
 
-        print(action == TOGGLE_ACCEPT)
         if (action is None) and not (dupe or pid):
             raise forms.ValidationError("Select an action")
 

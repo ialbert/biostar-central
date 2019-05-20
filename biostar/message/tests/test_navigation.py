@@ -36,7 +36,6 @@ class MessageNavigation(TestCase):
         c = Client()
         c.login(username=self.owner.username, email='tested@tested.com', password='tested')
         for url in urls:
-            print(url)
             resp = c.get(url)
             code = resp.status_code
             if code not in codes:

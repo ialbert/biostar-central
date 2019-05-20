@@ -1,19 +1,20 @@
 {% load forum_tags %}
+{% load humanize %}
 
-<div class="ui center aligned segment userbox" >
+<div class="ui center aligned segment userbox no-shadow" >
 
     <div class="center aligned author">
 
         <a href="{% url "user_profile" user.profile.uid %}">
-      <div class="ui circular image">
-        {% gravatar user=user size=70 %}
+      <div class="ui user image">
+        {% gravatar user=user size=55 %}
       </div>
         </a>
     </div>
 
-            <a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
-            {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
-<div>
+            <a href="{% url "user_profile" user.profile.uid %}" class="smaller-font">{{user.profile.name| truncatechars:10}}
+                {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}</a>
+<div class="smaller-font">
     <div class="muted">
     {{ user|get_last_login }}
     </div>

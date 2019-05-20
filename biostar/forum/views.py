@@ -385,8 +385,6 @@ def post_moderate(request, uid):
             action = form.cleaned_data["action"]
             duplicate = form.cleaned_data["dupe"]
             pid = form.cleaned_data.get("pid", "")
-            print(duplicate, "DUPPPP")
-
             redir = auth.moderate_post(post=post, request=request, action=action, dupes=duplicate, pid=pid)
             if tasks.HAS_UWSGI:
                 tasks.moderated_post(pid=post.id)

@@ -48,7 +48,6 @@ INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS
 
 AUTHENTICATION_BACKENDS += ["allauth.account.auth_backends.AuthenticationBackend"]
 
-
 ROOT_URLCONF = 'biostar.accounts.urls'
 
 # List of social login clients tuples.
@@ -69,10 +68,10 @@ SOCIAL_CLIENTS = [
     ("GitHub", "A", "B")
 ]
 
-try:
-    from conf.secrets.defaults import *
-    print (f"*** loaded 'conf.secrets.defaults'")
-except ImportError as err:
-    print (f"*** unable to import secrets: {err}")
+#try:
+#    from conf.secrets.defaults import *
+#    print (f"*** loaded 'conf.secrets.defaults'")
+#except ImportError as err:
+#    print (f"*** unable to import secrets: {err}")
 
 

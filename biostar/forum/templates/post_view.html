@@ -8,8 +8,12 @@
 
 {% block body %}
 
+<div class="ui vertical segment no-top-padding">
+    {# This is the toplevel post #}
+
     {% post_body post=post user=request.user tree=tree form=form %}
 
+</div>
     {# Render each answer for the post #}
     {% for answer in answers %}
         <div class="ui vertical segment">
@@ -55,3 +59,6 @@
 
 {% endblock %}
 
+{% block sidebar %}
+    {% single_post_feed post=post %}
+{% endblock %}

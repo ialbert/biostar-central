@@ -3,9 +3,11 @@ import logging
 from django.test import TestCase
 from django.urls import reverse
 
-from biostar.forum import models, views, auth, forms, const
-from biostar.engine.test.util import fake_request, get_uuid
 from biostar.accounts.models import User
+
+from biostar.forum import models, views, auth, forms, const
+from biostar.forum.tests.util import fake_request
+from biostar.forum.util import get_uuid
 
 logger = logging.getLogger('engine')
 

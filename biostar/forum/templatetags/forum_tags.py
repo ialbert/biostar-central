@@ -7,6 +7,7 @@ from datetime import datetime
 from datetime import timedelta
 
 from django import template
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
@@ -123,7 +124,7 @@ def gravatar(user, size=80):
     return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
 
 
-@register.inclusion_tag('widgets/post_body.html', takes_context=True)
+@register.inclusion_tag('post_content.html', takes_context=True)
 def post_body(context, post, user, tree, form):
     "Renders the post body"
     request = context['request']
@@ -183,6 +184,24 @@ def is_moderator(user):
     if user.is_authenticated and user.profile.is_moderator:
         return True
     return False
+
+
+@register.inclusion_tag('widgets/single_feed.html')
+def single_post_feed(post):
+    """
+    Return single post feed populated with similar posts.
+    """
+    tags = post.tag_val.split(",")
+
+    # Gather similar posts
+    query = [Q(tag_val__iregex=tag) for tag in tags]
+    posts = Post.objects.filter(tag_val__iregex__in=tags)
+
+    for tag in tags:
+        posts = Post.objects.filter(tag_val__iregex=tag)
+
+    context = dict(posts=posts)
+    return const
 
 
 @register.inclusion_tag('widgets/feed.html')

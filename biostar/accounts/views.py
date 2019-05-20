@@ -54,20 +54,6 @@ def listing(request):
     context = dict(users=users)
     return render(request, "accounts/listing.html", context=context)
 
-
-@login_required
-def toggle_moderate(request):
-    user = request.user
-
-    if settings.ALLOW_SELF_MODERATE:
-        role = Profile.NORMAL if user.profile.is_moderator else Profile.MODERATOR
-        Profile.objects.filter(user=user).update(role=role)
-        mapper = {Profile.MODERATOR: " a moderator"}
-        messages.success(request, f"You are now {mapper.get(role, 'not a moderator')}")
-
-    return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
-
-
 # def ban_user(user):
 #
 #     # Delete the posts, votes, awards, messages, and subs
@@ -129,7 +115,7 @@ def user_profile(request, uid):
     active_tab = request.GET.get("active", "posts")
     # User viewing profile is a moderator
     can_moderate = request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser)
-    context = dict(user=profile.user, active=active_tab, debugging=settings.DEBUG,
+    context = dict(target=profile.user, active=active_tab, debugging=settings.DEBUG,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, tab="profile")
 
     return render(request, "accounts/user_profile.html", context)

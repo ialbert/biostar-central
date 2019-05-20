@@ -50,93 +50,93 @@
              <div class="content">
 
 
-                 <div class="ui right floated image" >
-                        {% user_box user=post.author %}
+ <div class="ui right floated image" >
+        {% user_box user=post.author %}
+ </div>
+
+
+ <div class="ui container postbody">
+
+        {{ post.html|safe }}
+ </div>
+
+<div class="extra">
+         {% if post.is_toplevel %}
+
+
+                 <div class="" style="">
+
+            {% get_tags_list post.tag_val as tags_list %}
+
+            {% for tag in tags_list %}
+                <a class="ui tiny tagging label" href="{% url 'post_list' %}?tag={{tag}}">
+                {{ tag }}
+                </a>
+            {% endfor %}
+                    &bull; {{ post.root.view_count|bignum }} views
                  </div>
 
 
-                 <div class="ui container postbody">
 
-                        {{ post.html|safe }}
-                 </div>
-
-                <div class="extra">
-                         {% if post.is_toplevel %}
+         {% endif %}
+</div>
 
 
-                                 <div class="" style="">
+ <div class="extrainfo">
 
-                            {% get_tags_list post.tag_val as tags_list %}
+     {% if user.is_authenticated %}
+        <a class="add-comment ui mini label" comment-url="{% url 'comment_form' post.uid %}"
+           data-value="{{post.uid}}">
+            ADD COMMENT
+        </a>
+     {% else %}
+         <a class="ui mini label" href="{% url 'login' %}">
+            ADD COMMENT
+        </a>
 
-                            {% for tag in tags_list %}
-                                <a class="ui tiny tagging label" href="{% url 'post_list' %}?tag={{tag}}">
-                                {{ tag }}
-                                </a>
-                            {% endfor %}
-                                    &bull; {{ post.root.view_count|bignum }} views
-                                 </div>
+     {% endif %}
 
+             &bull;
+     <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
 
-
-                         {% endif %}
-                </div>
-
-
-                 <div class="extrainfo">
-
-                     {% if user.is_authenticated %}
-                        <a class="add-comment ui mini label" comment-url="{% url 'comment_form' post.uid %}"
-                           data-value="{{post.uid}}">
-                            ADD COMMENT
-                        </a>
-                     {% else %}
-                         <a class="ui mini label" href="{% url 'login' %}">
-                            ADD COMMENT
-                        </a>
-
-                     {% endif %}
-
-                             &bull;
-                     <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
-
-                      {% if  user.is_authenticated %}
-                         {% if user == post.author or user.profile.is_moderator %}
-                                &bull;
-                                 <a href="{% url 'post_edit' post.uid %}">
-                                edit
-                            </a>
-                         {% endif %}
-                     {% endif %}
+      {% if  user.is_authenticated %}
+         {% if user == post.author or user.profile.is_moderator %}
+                &bull;
+                 <a href="{% url 'post_edit' post.uid %}">
+                edit
+            </a>
+         {% endif %}
+     {% endif %}
 
 
-                         <div class="ui muted" style="float: right">
-                            updated
-                            <span>{{ post.lastedit_date|time_ago }}</span> by
-                            <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+         <div class="ui muted" style="float: right">
+            updated
+            <span>{{ post.lastedit_date|time_ago }}</span> by
+            <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
 
-                            {{post.lastedit_user.profile.name }}
+            {{post.lastedit_user.profile.name }}
 
-                            </a>
-                            {{ post.lastedit_user |show_score_icon }}
-                            {{ post.lastedit_user.profile.score | show_score | bignum }}
+            </a>
+            {{ post.lastedit_user |show_score_icon }}
+            {{ post.lastedit_user.profile.score | show_score | bignum }}
 
-                        </div>
-
-
-                     {% if user.is_authenticated and user.profile.is_moderator %}
-                         &bull;
-                         <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}" data-value="{{post.uid}}">
-                        moderate
-                        </a>
-                         <div id="mod-container-{{post.uid}}"></div>
-                     {% endif %}
-
-                        <div id="comment-container-{{post.uid}}"></div>
-                        {# Comments for each post rendered here #}
-                      {% render_comments tree=tree post=post %}
+        </div>
 
 
-                 </div>
+     {% if user.is_authenticated and user.profile.is_moderator %}
+         &bull;
+         <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}" data-value="{{post.uid}}">
+        moderate
+        </a>
+         <div id="mod-container-{{post.uid}}"></div>
+     {% endif %}
+
+        <div id="comment-container-{{post.uid}}"></div>
+        {# Comments for each post rendered here #}
+      {% render_comments tree=tree post=post %}
+
+
+ </div>
 
 
 
