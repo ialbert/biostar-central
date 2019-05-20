@@ -269,7 +269,6 @@ class PostModForm(forms.Form):
         if action in (DUPLICATE, BUMP_POST) and not self.post.is_toplevel:
             raise forms.ValidationError("You can only perform these actions to a top-level post")
         if action in (TOGGLE_ACCEPT, MOVE_TO_COMMENT) and self.post.type != Post.ANSWER:
-            1/0
             raise forms.ValidationError("You can only perform these actions to an answer.")
         if action == MOVE_TO_ANSWER and self.post.type != Post.COMMENT:
             raise forms.ValidationError("You can only perform these actions to a comment.")
