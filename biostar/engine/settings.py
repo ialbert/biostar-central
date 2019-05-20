@@ -113,3 +113,5 @@ SENDFILE_BACKEND = "sendfile.backends.development"
 STATICFILES_FINDERS += [
     'compressor.finders.CompressorFinder',
 ]
+
+print(SOCIAL_CLIENTS)
