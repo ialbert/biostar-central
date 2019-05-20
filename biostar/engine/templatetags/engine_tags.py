@@ -39,48 +39,9 @@ def pages(objs, request):
     url = request.path
     return dict(objs=objs, url=url, request=request)
 
-@register.simple_tag
-def relative_url(value, field_name, urlencode=None):
-    """
-    Updates field_name parameters in url with value
-    """
-    # Create query string with updated field_name, value pair.
-    url = '?{}={}'.format(field_name, value)
-    if urlencode:
-        # Split query string
-        querystring = urlencode.split('&')
-        # Exclude old value 'field_name' from query string
-        filter_func = lambda p: p.split('=')[0] != field_name
-        filtered_querystring = filter(filter_func, querystring)
-        # Join the filtered string
-        encoded_querystring = '&'.join(filtered_querystring)
-        # Update query string
-        url = '{}&{}'.format(url, encoded_querystring)
-
-    return url
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
-
-
-@register.simple_tag
-def moderate(request):
-    url = reverse("recipe_mod", request=request)
-    user = request.user
-    recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW).count()
-
-    correct = f"<b>{recipes} recipes</b> need" if recipes > 1 else f"<b>{recipes} recipe</b> needs"
-    template = ''
-    if user.is_authenticated and user.profile.is_manager and (recipes > 0):
-        template = f"""
-            <div class="ui message">
-            <i class="ui check circle icon"></i>
-            {correct} to be <a href={url}>reviewed and authorized</a>.
-            </div>
-            """
-
-    return mark_safe(template)
 
 
 @register.simple_tag
@@ -94,37 +55,6 @@ def pluralize(value, word):
     else:
         return "%d %s" % (value, word)
 
-
-@register.filter
-def show_email(user):
-
-    try:
-        head, tail = user.email.split("@")
-        email = head[0] + "*" * 10 + tail
-    except:
-        return user.email[0] + "*" * 10
-
-    return email
-
-
-@register.filter
-def show_score_icon(user):
-
-    color = "modcolor" if user.profile.is_moderator else ""
-
-    if user.profile.score > 150:
-        icon = f'<i class="ui bolt icon {color}"></i>'
-    else:
-        icon = f'<i class="ui genderless icon {color}"></i>'
-
-    return mark_safe(icon)
-
-
-@register.filter
-def show_score(score):
-
-    score = (score * 14) + 1
-    return score
 
 @register.filter
 def bignum(number):

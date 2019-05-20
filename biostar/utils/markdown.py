@@ -17,9 +17,9 @@ TEST_INPUT = '''
 
 https://www.biostars.org/p/1 https://www.biostars.org/p/2
 
-https://localhost:8000/p/3/
+http://localhost:8000/p/3/
 
-https://localhost:8000/u/5
+http://localhost:8000/accounts/profile/5
 
 @test
 

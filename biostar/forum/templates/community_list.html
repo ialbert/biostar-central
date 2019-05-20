@@ -1,5 +1,6 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
+{% load humanize %}
 
 {% block headtitle %}
     Community
@@ -13,7 +14,7 @@
 
     <div class="pages-banner">
 
-        <div class="ui small compact menu no-shadow float-left" id="actions-menu">
+        <div class="ui small compact menu no-shadow float-left" >
 
           <div class="ui simple dropdown item">
               <i class="{% get_icon string=limit default='all' %}"></i>
@@ -72,34 +73,40 @@
 {% endwith %}
 
 <div class="ui basic segment">
-    <div class="ui grid">
 
-          {%  for user in objs %}
+    <div class="ui seven column grid">
+              {%  for user in objs %}
 
-                <div class="four wide column centered">
-                    <div class="center aligned author">
-                        <a href="{% url "user_profile" user.profile.uid %}">
-                          <div class="ui image">
-                            <img class="ui centered image" src="{% gravatar user=user size=80 %}">
-                          </div>
+                <div class="column">
+
+                    <div class="ui fluid card" href="{% url "user_profile" user.profile.uid %}">
+
+                        <a class="image" href="{% url "user_profile" user.profile.uid %}">
+                            <img class="ui centered image" src="{% gravatar user=user size=70 %}" >
                         </a>
+
+                        <div class="content">
+                            <a  class="header " href="{% url "user_profile" user.profile.uid %}">
+                            {{user.profile.name|truncatechars:8}}
+
+                            </a>
+                            {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+                        </div>
+
+                        <div class="extra content">
+                            <div>{{ user|get_user_location|truncatechars:10}}</div>
+                            {{ user|get_last_login }}
+                        </div>
+
                     </div>
 
-                    <a href="{% url "user_profile" user.profile.uid %}">{{user.profile.name}}</a>
-                    {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
-
-                    <div>
-                        {{ user|get_last_login }}
-                    </div>
-                    <div class="muted">
-                            {{ user.profile.location |truncatechars:40}}
-                    </div>
 
                 </div>
 
           {%  endfor %}
 
     </div>
+
 </div>
 
 <div class="centered">

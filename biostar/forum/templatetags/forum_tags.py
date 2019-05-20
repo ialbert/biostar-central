@@ -137,10 +137,16 @@ def get_award_context(award):
 
 
 @register.filter
+def get_user_location(user):
+
+    return user.profile.location or "location unknown"
+
+
+@register.filter
 def get_last_login(user):
     if user.profile.last_login:
-        return f"visited {time_ago(user.profile.last_login)}"
-    return f"visited {time_ago(user.profile.date_joined)}"
+        return f"{time_ago(user.profile.last_login)}"
+    return f"{time_ago(user.profile.date_joined)}"
 
 
 @register.filter

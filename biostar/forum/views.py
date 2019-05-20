@@ -365,7 +365,6 @@ def post_create(request, template="post_create.html", url="post_view",
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
             return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
-
     context = dict(form=form, tab="new",  action_url=reverse("post_create"))
     context.update(extra_context)
 

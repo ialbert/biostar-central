@@ -160,5 +160,5 @@ def gravatar(user, size=80):
         'd': 'retro',
     }
     )
-    return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
+    return gravatar_url #mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
 

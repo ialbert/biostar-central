@@ -27,7 +27,7 @@ class PostTest(TestCase):
     def test_post_create(self):
         """Test post creation with POST request"""
 
-        content = f"@{self.owner.username}"
+        content = f"@{self.owner.username} " + "testing " * 10
 
         # Create fake request
         data = {'post_type': models.Post.QUESTION,
