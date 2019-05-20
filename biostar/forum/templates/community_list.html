@@ -79,8 +79,8 @@
                 <div class="four wide column centered">
                     <div class="center aligned author">
                         <a href="{% url "user_profile" user.profile.uid %}">
-                          <div class="ui user image">
-                            {% gravatar user=user size=80 %}
+                          <div class="ui image">
+                            <img class="ui centered image" src="{% gravatar user=user size=80 %}">
                           </div>
                         </a>
                     </div>

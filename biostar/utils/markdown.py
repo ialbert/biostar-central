@@ -17,9 +17,11 @@ TEST_INPUT = '''
 
 https://www.biostars.org/p/1 https://www.biostars.org/p/2
 
-https://localhost:8000/p/3/#4
+https://localhost:8000/p/3/
 
-https://localhost/u/5
+https://localhost:8000/u/5
+
+@test
 
 <b>BOLD</b>
 

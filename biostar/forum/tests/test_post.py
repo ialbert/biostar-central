@@ -14,11 +14,12 @@ class PostTest(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
-        self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com", password="tested")
+        self.owner = User.objects.create(username=f"test", email="tested@tested.com", password="tested")
 
         # Create an existing tested post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",
                                      post_type=models.Post.QUESTION)
+        self.post.update_reply_count()
 
         self.owner.save()
         pass
@@ -55,10 +56,29 @@ class PostTest(TestCase):
         self.assertEqual(wrong_response.url, reverse("post_view", kwargs=dict(uid=self.post.uid)))
         self.process_response(response=wrong_response)
 
-    def Xtest_comment_traversal(self):
+    def test_comment_traversal(self):
         """Test comment rendering pages"""
-        pass
 
+        # Create a couple of comments to traverse
+
+        comment = auth.create_post(title="Test", author=self.owner, content="Test",
+                                   post_type=models.Post.COMMENT, root=self.post,
+                                   parent=self.post)
+        comment2 = auth.create_post(title="Test", author=self.owner, content="Test",
+                                   post_type=models.Post.COMMENT, root=self.post,
+                                   parent=comment)
+
+        url = reverse("post_view", kwargs=dict(uid=self.post.uid))
+
+        request = fake_request(url=url, data={}, user=self.owner)
+
+        response = views.post_view(request=request, uid=self.post.uid)
+
+        self.assertTrue(response.status_code == 200, 'Error rendering comments')
+
+        print(response)
+
+        pass
 
     def make_votes(self, post, user):
 

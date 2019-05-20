@@ -129,6 +129,12 @@ def post_body(context, post, user, tree, form):
                 redir_field_name=const.REDIRECT_FIELD_NAME)
 
 
+@register.filter
+def get_award_context(award):
+    post = award.post
+    context = f"For : <a href={post.get_absolute_url()}>{post.title}</a>" if post else ""
+    return context
+
 
 @register.filter
 def get_last_login(user):
