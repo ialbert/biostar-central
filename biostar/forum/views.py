@@ -302,7 +302,8 @@ def post_answer(request, uid):
             answer = form.save(author=request.user)
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=answer.id)
-            # Anchor location to answer
+
+            # Anchor location to recently created answer
             redir = redir + "#" + answer.uid
 
     return redirect(redir)
