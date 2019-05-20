@@ -13,7 +13,7 @@ logger = logging.getLogger("engine")
 from itertools import count, islice
 
 
-LIMIT = 100
+LIMIT = None
 
 
 def timer_func():
@@ -30,7 +30,7 @@ def timer_func():
         last = now
         print(f"{msg} in {sec} seconds")
 
-    def progress(index, step=500, msg=""):
+    def progress(index, step=1000, msg=""):
         nonlocal last
         if index % step == 0:
             elapsed(f"... {index} {msg}")
@@ -50,6 +50,9 @@ def uid_from_context(context):
 
 
 def bulk_copy_users(limit):
+
+    current = dict()
+
     def gen_users():
         logger.info(f"Transferring users")
 
@@ -64,14 +67,15 @@ def bulk_copy_users(limit):
             progress(index=index,  msg="users")
             username = f"{user.name}{user.id}"
             # Create user
-            user = User(username=username, email=user.email, password=user.password,
-                        is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
-            yield user
+            new_user = User(username=username, email=user.email, password=user.password,
+                            is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
+            current[user.email] = new_user
+            yield new_user
 
     def gen_profile():
         logger.info(f"Transferring profiles")
 
-        current = {user.email: user for user in User.objects.filter(profile=None)}
+        #current = {user.email: user for user in User.objects.filter(profile=None)}
 
         # Exclude existing users from source database.
         users = UsersUser.objects.all().order_by("id")
