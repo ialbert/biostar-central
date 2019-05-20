@@ -1,47 +1,41 @@
-
-import bleach
 import datetime
 import logging
-import re
-from itertools import chain
-import mistune
 
-from django.contrib import messages
-from django.utils.timezone import utc
-from django.db.models import F, Q
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import F
+from django.utils.timezone import utc
 
-from biostar.message import tasks
-from biostar.forum.awards import ALL_AWARDS
 from biostar.accounts.models import Profile
-from biostar.utils.shortcuts import reverse
-from .models import Post, Vote, Subscription, PostView, Award, Badge
+from biostar.message import tasks
 from . import util
 from .const import *
+from .models import Post, Vote, Subscription, PostView
 
 User = get_user_model()
-
 
 logger = logging.getLogger("engine")
 
 
-def get_votes(user, thread):
+def get_votes(user, root):
+    store = {
+        Vote.BOOKMARK: set(),
+        Vote.UP: set()
+    }
 
-    store = {Vote.BOOKMARK: set(), Vote.UP:set()}
-
+    # Collect all the votes for the user.
     if user.is_authenticated:
-        votes = Vote.objects.filter(post__in=thread, author=user).values_list("post__id", "type")
+        votes = Vote.objects.filter(post__root=root, author=user).values_list("type", "post__id")
 
-        for post_id, vote_type in votes:
+        for vote_type, post_id, in votes:
             store.setdefault(vote_type, set()).add(post_id)
 
     return store
 
 
 def my_posts(target, request):
-
     user = request.user
     if user.is_anonymous or target.is_anonymous:
         return Post.objects.filter(author=target).exclude(status=Post.DELETED)
@@ -54,42 +48,58 @@ def my_posts(target, request):
     return query
 
 
-def build_obj_tree(request, obj):
+def post_tree(user, root):
+    """
+    Populates a tree that contains all posts in the thread.
 
-    # Populate the object to build a tree that contains all posts in the thread.
-    # Answers sorted before comments.
-    user = request.user
-    query = Post.objects.filter(root=obj)
+    Answers sorted before comments.
+    """
+
+    # Get all posts that belong to post root.
+    query = Post.objects.filter(root=root).exclude(pk=root.id)
+
+    # Add all related objects.
     query = query.select_related("lastedit_user__profile", "root__lastedit_user__profile",
                                  "root__author__profile", "author__profile")
-    if user.is_anonymous or not user.profile.is_moderator:
+
+    is_moderator = user.is_authenticated and user.profile.is_moderator
+
+    # Only moderators
+    if not is_moderator:
         query = query.exclude(status=Post.DELETED)
+
+    # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
-    # Gather votes
-    votes = get_votes(user=user, thread=thread)
+    # Gather votes by the current user.
+    votes = get_votes(user=user, root=root)
+
     # Shortcuts to each storage.
-    bookmarks = votes[Vote.BOOKMARK]
-    upvotes = votes[Vote.UP]
+    bookmarks, upvotes = votes[Vote.BOOKMARK], votes[Vote.UP]
+
     # Build comments tree.
     comment_tree = dict()
 
-    def decorate(posts):
-        # Can the current user accept answers
-        # TODO: use annotate.
-        for post in posts:
-            if post.is_comment:
-                comment_tree.setdefault(post.parent_id, []).append(post)
+    def decorate(post):
+        # Mutates the incoming parameterts!
+        if post.is_comment:
+            comment_tree.setdefault(post.parent_id, []).append(post)
 
-            post.has_bookmark = post.id in bookmarks
-            post.has_upvote = post.id in upvotes
-            post.is_editable = user.is_authenticated and (user == post.author or user.profile.is_moderator)
+        post.has_bookmark = int(post.id in bookmarks)
+        post.has_upvote = int(post.id in upvotes)
+        post.is_editable = user.is_authenticated and (user == post.author or user.profile.is_moderator)
 
-    answers = thread.filter(type=Post.ANSWER)
     # Decorate the objects for easier access
-    decorate(chain(thread, answers))
+    list(map(decorate, thread))
 
-    return comment_tree, answers, thread
+    # Decorate the root post
+    decorate(root)
+
+    # Select the answers from the thread.
+    answers = [p for p in thread if p.type == Post.ANSWER]
+
+
+    return root, comment_tree,  answers, thread
 
 
 def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
@@ -113,7 +123,7 @@ def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
     return post
 
 
-def create_sub(post,  user, sub_type=None):
+def create_sub(post, user, sub_type=None):
     "Creates a subscription of a user to a post"
 
     root = post.root
@@ -169,7 +179,6 @@ def trigger_vote(vote_type, post, change):
 
 @transaction.atomic
 def preform_vote(post, user, vote_type, uid=None):
-
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
 
     if vote:
@@ -227,7 +236,6 @@ def delete_post(post, request):
 
 
 def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
-
     root = post.root
     user = request.user
     now = datetime.datetime.utcnow().replace(tzinfo=utc)
@@ -268,7 +276,7 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
     if dupes:
         Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
         html = util.render(name="default_messages/duplicate_posts.html", user=post.author, dupes=dupes,
-                              comment=comment, posts=Post.objects.filter(uid=post.uid))
+                           comment=comment, posts=Post.objects.filter(uid=post.uid))
         content = util.strip_tags(html)
         # Create a comment to the post
         modpost = Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
@@ -297,14 +305,6 @@ def create_post(title, author, content, post_type, tag_val="", parent=None, root
         create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
 
     # Triggers another save in here
-    #post.add_tags(post.tag_val)
+    # post.add_tags(post.tag_val)
 
     return post
-
-
-
-
-
-
-
-

@@ -30,13 +30,13 @@ body {
 
 }
 
-a:hover{
+a:hover {
     text-decoration: underline;
 }
 
 .ui.small.label.tags:hover {
-  color: white;
-  background-color: #6B3E4A;
+    color: white;
+    background-color: #6B3E4A;
 }
 
 .ui.small.label.tags {
@@ -70,18 +70,18 @@ a:hover{
 
 }
 
-.user.box  div {
+.user.box div {
     text-align: center;
-      margin-left: auto;
+    margin-left: auto;
     margin-right: auto;
 }
 
 
-
 .post {
-     border-bottom: 1px solid #d3d3d3;
+    border-bottom: 1px solid #d3d3d3;
     overflow: auto
 }
+
 .post > .title {
     text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1);
     font-size: 1.3rem;
@@ -91,16 +91,51 @@ a:hover{
     border-bottom: 1px solid #d3d3d3;
 }
 
+.on {
+    color:green!important;
+}
+
+.popover {
+    position: absolute;
+    color: #3c763d;
+    padding: 15px;
+    margin-top: 1px;
+    margin-left:4em;
+    border-radius: .28571429rem;
+    z-index: 100;
+    opacity: 0.9;
+}
+
+.popover.error {
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+}
+
+.popover.success {
+     background-color: #fcfff5;
+    color: #2c662d;
+    box-shadow: 0 0 0 1px #a3c293 inset, 0 0 0 0 transparent;
+
+    border-color: #ebccd1;
+}
+
 .post > .body {
     display: flex; /* or inline-flex */
 }
 
 .post > .body > .content {
     overflow: auto;
+    width: 100%;
 }
 
 .post .actions {
     padding: 1rem 1em 1rem 0em;
+}
+
+.post.Deleted {
+    background-color: #f7e4de;
+    opacity: 0.6;
 }
 
 .votebox {
@@ -112,13 +147,16 @@ a:hover{
 }
 
 .votebox > .value {
-    opacity: 0.5;
-    color: #2F5B14;
     padding-bottom: 1rem;
-
 }
 
-.votebox > .value  .icon {
+.voteicon {
+    opacity: 0.5;
+    color: #2F5B14;
+}
+
+
+.votebox > .value .icon {
     color: #2F5B14;
     margin: 0;
 }
@@ -127,17 +165,13 @@ a:hover{
     font-size: 240%;
     padding-bottom: 0.5rem;
     font-weight: bold;
-     opacity: 0.9;
+    opacity: 0.9;
 }
 
 .status {
     float: right;
 }
 
-.post.Deleted {
-    background-color: #f7e4de;
-    opacity: 0.6;
-}
 
 body {
     font-family: sans-serif;

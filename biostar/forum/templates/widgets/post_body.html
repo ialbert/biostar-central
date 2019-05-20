@@ -21,30 +21,17 @@
 
         <div class="votebox">
 
-            <div class="value">
-                <a data-post_uid="{{ post.uid }}" data-type="upvote" vote-url="{% url 'vote' %}">
-                    {% if post.has_upvote %}
-                        <i class="big thumbs up icon "></i>
-                    {% else %}
-                        <i class="big thumbs up outline icon"></i>
-                    {% endif %}
-                </a>
-            </div>
+            <button class="ui icon button vote" data-uid="{{ post.uid }}" data-type="upvote"
+                    data-position="right center" data-state="{{ post.has_upvote }}">
+                <i class="thumbs up icon "></i>
+            </button>
 
-            <div class="count">
-                {{ post.vote_count }}
-            </div>
+            <div class="count" id="count-{{ post.uid }}">{{ post.thread_score }}</div>
 
-            <div class="value">
-                <a class="value" uid="{{ post.uid }}" data-type="bookmark" vote-url="{% url 'vote' %}">
-                    {% if post.has_bookmark %}
-                        <i class="big book icon"></i>
-                    {% else %}
-                        <i class="big bookmark outline icon"></i>
-                    {% endif %}
-
-                </a>
-            </div>
+            <button class="ui icon button vote" data-uid="{{ post.uid }}" data-type="bookmark"
+                    data-position="right center" data-state="{{ post.has_bookmark }}">
+                <i class="bookmark icon "></i>
+            </button>
 
         </div>
 
