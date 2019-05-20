@@ -133,33 +133,6 @@ def post_body(context, post, user, tree, form):
                 redir_field_name=const.REDIRECT_FIELD_NAME)
 
 
-@register.inclusion_tag('widgets/subs_actions.html')
-def subs_actions(post, user):
-    if user.is_anonymous:
-        sub = None
-    else:
-        sub = post.subs.filter(user=user).first()
-
-    sub_type = models.Subscription.NO_MESSAGES if not sub else sub.type
-
-    initial = dict(subtype=sub_type)
-
-    form = forms.SubsForm(user=user, post=post, initial=initial)
-    unsubbed = sub_type == models.Subscription.NO_MESSAGES
-
-    button = "Follow" if unsubbed else "Update"
-
-    return dict(post=post, form=form, button=button)
-
-
-@register.inclusion_tag("widgets/forum_top_actionbar.html", takes_context=True)
-def forum_top_actionbar(context, base_url="", objs=None):
-    bar_objs = context.get("objs", objs)
-    extra_context = dict(base_url=reverse(base_url), objs=bar_objs)
-    context.update(extra_context)
-
-    return context
-
 
 @register.filter
 def get_last_login(user):

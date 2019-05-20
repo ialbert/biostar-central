@@ -55,6 +55,11 @@ class PostTest(TestCase):
         self.assertEqual(wrong_response.url, reverse("post_view", kwargs=dict(uid=self.post.uid)))
         self.process_response(response=wrong_response)
 
+    def Xtest_comment_traversal(self):
+        """Test comment rendering pages"""
+        pass
+
+
     def make_votes(self, post, user):
 
         for vtype in ["upvote", "bookmark", "accept"]:
