@@ -4,7 +4,9 @@
 {% block headtitle %}{{ target.profile.name }}{% endblock %}
 
 {% block content %}
+        <div class="ui horizontal segments">
 
+    <div class="ui segment">
 
     <div class="ui card">
         <div class="image">
@@ -71,6 +73,10 @@
         <div id="mod-container-{{ target.profile.uid }}"></div>
 
     </div>
+            <div class="ui segment">
+    {{ target.profile.html |safe }}
+        </div>
+
 
 
             {% if can_moderate or request.user == target %}
@@ -79,8 +85,6 @@
                         <i class="check icon"></i> Email Verified
                     </div>{% endif %}
             {% endif %}
-
-
-    {{ target.profile.html |safe }}
-
+    </div>
+        </div>
 {% endblock %}

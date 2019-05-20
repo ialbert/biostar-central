@@ -26,17 +26,8 @@ body {
     color: #1a69a4;
 }
 
-#search {
-
-}
-
 a:hover{
     text-decoration: underline;
-}
-
-.ui.small.label.tags:hover {
-  color: white;
-  background-color: #6B3E4A;
 }
 
 .ui.small.label.tags {
@@ -144,34 +135,6 @@ body {
     color: #333;
     line-height: 1.428571429;
     font-size: 13px;
-}
-
-.forumtabs.active.label {
-    background-color: #dff0d8;
-    color: #428bca;
-    border: none;
-    height: 60px;
-
-}
-
-.ui.basic.label.forumtabs {
-    border: none;
-    color: #428bca;
-    text-align: center;
-    width: 90px;
-    position: relative;
-    top: 10px;
-}
-
-.ui.list > .item.spaced {
-    line-height: 1.29rem;
-
-}
-
-.ui.basic.label.forumtabs:hover {
-    background: #edefed;
-    height: 60px;
-
 }
 
 .ui.list.questions > .item > {

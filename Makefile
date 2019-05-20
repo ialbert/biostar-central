@@ -115,7 +115,7 @@ drop_create:
 	createdb engine.db
 
 transfer:
-	python manage.py transfer --settings conf.postgres.transfer_settings
+	python manage.py transfer -n 500 --settings conf.postgres.transfer_settings
 
 postgres:
 	$(MAKE) pg init

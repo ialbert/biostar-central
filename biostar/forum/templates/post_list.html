@@ -76,11 +76,7 @@
     {% endif %}
 
     <div class="ui divided items">
-        {% for post in posts %}
-            {% listing post=post user=user %}
-        {% empty %}
-        <div class="ui warning message">There are no results for this page.</div>
-        {% endfor %}
+    {% listing posts=posts %}
     </div>
 
     <div class="centered">

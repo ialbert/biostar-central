@@ -1,7 +1,8 @@
 {% load forum_tags %}
 
 
-{% if post %}
+
+    {% for post in posts %}
 <div class="post item {{post.deleted_class}}">
 
 <div class="ui image">
@@ -91,5 +92,6 @@
 
 </div>
         </div>
+    {% endfor %}
 
-{% endif %}
+
