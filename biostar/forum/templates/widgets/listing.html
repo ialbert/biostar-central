@@ -6,7 +6,7 @@
 
 <div class="post item {{post.deleted_class}}">
 
-    <div class="ui image">
+    <div class="image">
 
                 <div class="ui left stat label mini" >
                     <div class="number-stat">
@@ -69,7 +69,7 @@
 
                     <div class="right floated">
                         <div class="ui muted">
-                            updated<span>{{ post.lastedit_date|time_ago }}</span>by
+                            updated <span>{{ post.lastedit_date|time_ago }}</span> by
                             <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
                                 {{post.lastedit_user.profile.name }}
                             </a>

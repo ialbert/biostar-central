@@ -30,6 +30,10 @@ body {
     margin: 0;
 }
 
+.ui.items>.post.item>.image:not(.ui) {
+    width: max-content;
+}
+
 a:hover {
     text-decoration: underline;
 }
@@ -185,35 +189,6 @@ body {
 
 }
 
-.ui.list > .item.spaced {
-    line-height: 1.29rem;
-
-}
-
-.ui.list.questions > .item > {
-
-}
-
-.ui.list.questions > .item > .header {
-    #font-size: 1.2em;
-    #margin: 1ex 0em 1ex 0em;
-}
-
-.ui.list.questions > .item > .description {
-/ / font-size: 1.1 em;
-    margin: 0ex 0em 0ex 0em;
-    line-height: 1.5;
-}
-
-.newpost {
-    text-align: center;
-}
-
-
-
-.ui.small.compact.menu {
-    font-size: .85rem;
-}
 
 .ui.items > .item > .content > a.header {
     color: #4183c4;
