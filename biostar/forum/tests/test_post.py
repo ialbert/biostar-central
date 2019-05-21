@@ -19,8 +19,6 @@ class PostTest(TestCase):
         # Create an existing tested post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",
                                      post_type=models.Post.QUESTION)
-        self.post.update_reply_count()
-
         self.owner.save()
         pass
 
