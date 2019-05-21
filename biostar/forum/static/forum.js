@@ -131,6 +131,10 @@ function add_reply(elem) {
 
 function add_comment(elem) {
 
+    var target = count_elem(post_uid)
+    
+    pop_message(elem, "WHO", "error")
+
     // remove comment body if exists.
     $("#comment-row").remove();
 
@@ -224,7 +228,6 @@ $(document).ready(function () {
         .dropdown()
     ;
 
-
     $(".add-comment").click(function (event) {
         event.preventDefault();
         add_comment($(this));
@@ -279,9 +282,9 @@ $(document).ready(function () {
         // Actions taken on vote click.
         $($(this)).click(function () {
             var elem = $(this);
-            var data_uid = elem.attr('data-uid');
+            var post_uid = elem.attr('data-value');
             var data_type = elem.attr('data-type');
-            apply_vote(elem, data_uid, data_type);
+            apply_vote(elem, post_uid, data_type);
 
         });
     });
