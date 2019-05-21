@@ -32,7 +32,8 @@ POST_TYPE_MAPPER = dict(
     tutorial=Post.TUTORIAL,
     forum=Post.FORUM,
     blog=Post.BLOG,
-    tool=Post.TOOL
+    tool=Post.TOOL,
+    news=Post.NEWS
 )
 
 LIMIT_MAP = dict(
@@ -65,7 +66,6 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
-
     # Determines how to start the query.
     if post_type:
         query = Post.objects.filter(type=post_type)

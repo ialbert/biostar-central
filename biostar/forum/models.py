@@ -418,7 +418,9 @@ def complete_post(sender, instance, created, *args, **kwargs):
         # Update the root answer count
         if instance.type == Post.ANSWER:
             Post.objects.filter(id=instance.root.id).update(answer_count=F("answer_count") + 1)
-
+        # Update root comment count
+        if instance.type == Post.COMMENT:
+            Post.objects.filter(id=instance.root.id).update(comment_count=F("comment_count") + 1)
         # Update the reply counts.
         thread = Post.objects.filter(status=instance.OPEN, root=instance.root)
         reply_count = thread.exclude(uid=instance.parent.uid).count()

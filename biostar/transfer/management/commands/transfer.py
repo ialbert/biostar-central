@@ -138,15 +138,16 @@ def bulk_copy_votes(limit):
     elapsed(f"transferred {vcount} votes")
 
 
+
 def bulk_copy_posts(limit):
     relations = {}
-    all_users = User.objects.all().order_by("id")[:limit]
+    all_users = User.objects.order_by("id")
     users_set = {user.profile.uid: user for user in all_users}
-    # Walk through tree and update parent, root, post, relationships
+
     def gen_posts():
         logger.info("transferring posts")
 
-        posts = PostsPost.objects.order_by("id")[:limit]
+        posts = PostsPost.objects.order_by("id")
 
         elapsed, progress = timer_func()
         stream = zip(count(1), posts)
@@ -159,12 +160,17 @@ def bulk_copy_posts(limit):
             # Incomplete author information loaded or existing posts.
             if not (author and lastedit_user):
                 continue
+            siblings = posts.filter(root_id=post.root_id)
+            # Record replies, comments, and answers to root
+            reply_count = siblings.count()
+            comment_count = siblings.filter(type=Post.COMMENT).count()
+
             rank = post.lastedit_date.timestamp()
             content = util.strip_tags(post.content)
-            new_post = Post(uid=post.id, html=post.html, type=post.type,
+            new_post = Post(uid=post.id, html=post.html, type=post.type, reply_count=reply_count,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
                             author=author, status=post.status, rank=rank, accept_count=int(post.has_accepted),
-                            lastedit_date=post.lastedit_date, book_count=post.book_count,
+                            lastedit_date=post.lastedit_date, book_count=post.book_count, comment_count=comment_count,
                             content=content, title=post.title, vote_count=post.vote_count,
                             creation_date=post.creation_date, tag_val=post.tag_val, answer_count=post.reply_count,
                             view_count=post.view_count)
@@ -183,12 +189,6 @@ def bulk_copy_posts(limit):
             parent = posts.get(parent_uid)
             if not (root and parent):
                 continue
-
-            #TODO: eventually going to take out.
-            reply_count = Post.objects.exclude(pk=root.pk).filter(root=root).count()
-            post.reply_count = reply_count
-            print(reply_count)
-            1/0
             post.root = root
             post.parent = parent
             yield post
@@ -235,7 +235,7 @@ def bulk_copy_posts(limit):
     pcount = Post.objects.all().count()
     elapsed(f"transferred {pcount} posts")
 
-    Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent", "reply_count"], batch_size=1000)
+    Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)
     update_threadusers()
     elapsed(f"updated {pcount} post threads")
 

@@ -26,8 +26,8 @@ body {
     color: #1a69a4;
 }
 
-#search {
-
+.post.item > .content .ui.label{
+    margin: 0;
 }
 
 a:hover {
@@ -178,6 +178,11 @@ body {
     color: #333;
     line-height: 1.428571429;
     font-size: 13px;
+}
+
+.ui.items>.item .extra {
+    margin: 0px;
+
 }
 
 .ui.list > .item.spaced {
