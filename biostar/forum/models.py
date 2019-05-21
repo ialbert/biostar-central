@@ -400,6 +400,9 @@ def complete_post(sender, instance, created, *args, **kwargs):
         instance.last_contributor = instance.author
         instance.status = instance.status or Post.PENDING
 
+        # Default tags
+        instance.tag_val = instance.tag_val or "tag1,tag2"
+
         if instance.parent:
             # When the parent is set the root must follow the parent root.
             instance.root = instance.parent.root

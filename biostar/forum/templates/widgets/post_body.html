@@ -73,13 +73,17 @@
 
             </div>
 
-            <div id="comment-container-{{ post.uid }}"></div>
+
             {# Comments for each post rendered here #}
-            {% render_comments tree=tree post=post %}
+
         </div>
 
 
     </div>
+
+    <div id="comment-container-{{ post.uid }}"></div>
+
+    {% render_comments tree=tree post=post %}
 
 
 </div>
