@@ -180,31 +180,8 @@ body {
     font-size: 13px;
 }
 
-.forumtabs.active.label {
-    background-color: #dff0d8;
-    color: #428bca;
-    border: none;
-    height: 60px;
-
-}
-
-.ui.basic.label.forumtabs {
-    border: none;
-    color: #428bca;
-    text-align: center;
-    width: 90px;
-    position: relative;
-    top: 10px;
-}
-
 .ui.list > .item.spaced {
     line-height: 1.29rem;
-
-}
-
-.ui.basic.label.forumtabs:hover {
-    background: #edefed;
-    height: 60px;
 
 }
 
@@ -366,6 +343,10 @@ img {
     color: #fff;
 }
 
+.ui.forum.label{
+    background-color: #b79538;
+    color: white;
+}
 
 .ui.darkgreen.label {
     background-color: #326b2b;
