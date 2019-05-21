@@ -12,8 +12,6 @@
 
 {% with params=request.GET.urlencode %}
 
-
-
         <div class="ui small compact menu no-shadow" >
           <div class="ui simple dropdown item">
             <i class="{% get_icon string=active default='all' %}"></i>
@@ -43,7 +41,7 @@
 
     {% pages objs=users request=request %}
 
-    <div class="ui small compact menu ordering no-shadow" id="actions-menu">
+    <div class="ui small compact menu no-shadow" id="actions-menu">
       <div class="ui simple dropdown item">
         <i class="{% get_icon string=order default='visit' %}"></i>
           <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="visit" %}</span>

@@ -228,11 +228,6 @@ body {
 }
 
 
-.pages-banner {
-
-    text-align: center;
-    margin-top: 15px;
-}
 
 .ui.small.compact.menu {
     font-size: .85rem;
@@ -467,25 +462,6 @@ img {
     float: left;
 }
 
-.ui.menu.item .item.tags-banner.active {
-    background-color: #dff0d8;
-
-}
-
-.ui.tagging.label {
-    margin: 1px !important;
-    font-size: 13.0px;
-    padding: 3px;
-    color: #8f2c47;
-    font-weight: 100;
-}
-
-.ui.tagging.label:hover {
-    background-color: #8f2c47;
-    color: white;
-
-}
-
 .ui.comment.segments {
     box-shadow: 0 0px 0px 0px rgba(34, 36, 38, .15);
     border: none transparent;
@@ -544,29 +520,6 @@ img {
 .centerbox {
     display: inline-block !important;
     text-align: center !important;
-}
-
-.ui.label > .icon.centericon {
-    width: 0;
-    font-size: 18px;
-}
-
-.ui.basic.label.pages-size {
-    font-size: .85rem;
-    line-height: 1;
-    background: 0 0;
-    color: rgba(0, 0, 0, .87);
-    font-weight: 400;
-    padding: 10px;
-}
-
-.lowertab {
-    top: 12px;
-    position: relative;
-}
-
-.wide {
-    width: 95% !important;
 }
 
 
@@ -629,9 +582,6 @@ pre {
     background-color: #EEEEEE;
 }
 
-.smaller {
-    font-size: smaller;
-}
 
 .tablet {
 
@@ -643,6 +593,9 @@ pre {
 
 .phone {
 
+}
+.ui.items>.item.post>.image+.content {
+    padding:0px;
 }
 
 .socialbox {
