@@ -12,77 +12,78 @@
 
 {% with params=request.GET.urlencode %}
 
-    <div class="pages-banner">
 
-        <div class="ui small compact menu no-shadow float-left" >
 
+        <div class="ui small compact menu no-shadow" >
           <div class="ui simple dropdown item">
-              <i class="{% get_icon string=limit default='all' %}"></i>
-              <span class="tablet">
-                  {% get_wording prefix="Limit to:" filtered=limit default="all" %}
-              </span>
-
+            <i class="{% get_icon string=active default='all' %}"></i>
+            <span class="tablet">{% get_wording prefix="Limit to:" filtered=active default="all" %}</span>
             <i class="dropdown icon"></i>
+
             <div class="menu">
-              <a class="item" href="{% url "community_list" %}{% relative_url 'all' 'limit' params %}">
-                  <i class="{% get_icon 'all' %}"></i>all time
-              </a>
-              <a class="item" href="{% url "community_list" %}{% relative_url 'today' 'limit' params %}">
-                  <i class="{% get_icon 'today' %}"></i>today
-              </a>
-              <a class="item" href="{% url "community_list" %}{% relative_url 'week' 'limit' params %}">
-                  <i class="{% get_icon 'week' %}"></i>this week
-              </a>
-              <a class="item" href="{% url "community_list" %}{% relative_url 'month' 'limit' params %}">
-                  <i class="{% get_icon 'month' %}"></i>this month
-              </a>
-              <a class="item" href="{% url "community_list" %}{% relative_url 'year' 'limit' params %}">
-                  <i class="{% get_icon 'year' %}"></i>this year
-              </a>
+                  <a class="item" href="{% url 'community_list'  as url %}{% relative_url 'all' 'limit' params %}">
+                      <i class="{% get_icon 'all' %}"></i>all time
+                  </a>
+                  <a class="item" href="{% url 'community_list'  as url %}{% relative_url 'today' 'limit' params %}">
+                      <i class="{% get_icon 'today' %}"></i>today
+                  </a>
+                  <a class="item" href="{% url 'community_list'  as url %}{% relative_url 'week' 'limit' params %}">
+                      <i class="{% get_icon 'week' %}"></i>this week
+                  </a>
+                  <a class="item" href="{% url 'community_list'  as url %}{% relative_url 'month' 'limit' params %}">
+                      <i class="{% get_icon 'month' %}"></i>this month
+                  </a>
+                  <a class="item" href="{% url 'community_list'  as url %}{% relative_url 'year' 'limit' params %}">
+                      <i class="{% get_icon 'year' %}"></i>this year
+                  </a>
             </div>
           </div>
         </div>
 
-    {% pages objs=objs request=request %}
-        <div class="ui small compact menu ordering no-shadow" id="actions-menu">
-          <div class="ui simple dropdown item">
 
-            <i class="{% get_icon string=order default='visit' %}"></i>
-              <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="visit" %}</span>
+    {% pages objs=users request=request %}
 
-            <i class="dropdown icon"></i>
+    <div class="ui small compact menu ordering no-shadow" id="actions-menu">
+      <div class="ui simple dropdown item">
+        <i class="{% get_icon string=order default='visit' %}"></i>
+          <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="visit" %}</span>
 
-            <div class="menu">
-              <a class="item" href="{% url "community_list" %}{% relative_url 'visit' 'order' params %}">
+        <i class="dropdown icon"></i>
+
+        <div class="menu">
+
+              <a class="item" href="{{ url }}{% relative_url 'visit' 'order' params %}">
                   <i class="{% get_icon 'visit' %}"></i>recent visit
               </a>
-              <a class="item" href="{% url "community_list" %}{% relative_url 'reputation' 'order' params %}">
+              <a class="item" href="{{ url }}{% relative_url 'reputation' 'order' params %}">
                   <i class="{% get_icon 'reputation' %}"></i>reputation
               </a>
-              <a class="item" href="{% url "community_list" %}{% relative_url 'joined' 'order' params %}">
+              <a class="item" href="{{ url }}{% relative_url 'joined' 'order' params %}">
                   <i class="{% get_icon 'joined' %}"></i>date joined
               </a>
-              <a class="item" href="{% url "community_list" %}{% relative_url 'activity' 'order' params %}">
+              <a class="item" href="{{ url }}{% relative_url 'activity' 'order' params %}">
                   <i class="{% get_icon 'activity' %}"></i>activity level
               </a>
-            </div>
-          </div>
+
         </div>
+
+      </div>
     </div>
+
 
 {% endwith %}
 
 <div class="ui basic segment">
 
     <div class="ui seven column grid">
-              {%  for user in objs %}
+              {%  for user in users %}
 
                 <div class="column">
 
                     <div class="ui fluid centered card" href="{% url "user_profile" user.profile.uid %}">
 
                         <a class="image" href="{% url "user_profile" user.profile.uid %}">
-                            <img class="ui centered image" src="{% gravatar user=user size=70 %}" >
+                            <img class="ui centered image" src="{% gravatar user=user size=80 %}" >
                         </a>
 
                         <div class="content">
@@ -110,7 +111,7 @@
 </div>
 
 <div class="centered">
-    {% pages objs=objs request=request %}
+    {% pages objs=users request=request %}
 </div>
 
 {% endblock %}

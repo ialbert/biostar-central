@@ -69,9 +69,9 @@ SOCIAL_CLIENTS = [
 ]
 
 try:
-   from conf.secrets.defaults import *
-   print (f"*** loaded 'conf.secrets.defaults'")
+    from conf.secrets.defaults import *
+    print (f"*** loaded 'conf.secrets.defaults'")
 except ImportError as err:
-   print (f"*** unable to import secrets: {err}")
+    print (f"*** unable to import secrets: {err}")
 
 

@@ -1,8 +1,9 @@
 {% load forum_tags %}
 
-
+<div class="ui divided items">
 
     {% for post in posts %}
+
 <div class="post item {{post.deleted_class}}">
 
 <div class="ui image">
@@ -37,7 +38,7 @@
 </div>
 
 
-<div class="content" style="padding-left:2;">
+<div class="content">
 
         <div class="header">
 
@@ -93,5 +94,5 @@
 </div>
         </div>
     {% endfor %}
-
+</div>
 

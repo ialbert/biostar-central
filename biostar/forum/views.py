@@ -206,7 +206,7 @@ def community_list(request):
 
     paginator = Paginator(users, settings.USERS_PER_PAGE)
     users = paginator.get_page(page)
-    context = dict(tab="community", objs=users, order=ordering, limit=limit_to)
+    context = dict(tab="community", users=users, order=ordering, limit=limit_to)
 
     return render(request, "community_list.html", context=context)
 

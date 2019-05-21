@@ -1,42 +1,42 @@
 {% load forum_tags %}
 {% load staticfiles %}
 
-<div class="ui labeled icon attached pointing menu" id="menu-header">
+<div class="ui labeled icon attached pointing menu" id="menu-header" user-id="{{ request.user.id }}">
 
     <span class="">
         <a href="/"><img class="ui image" src="{% static "images/biostar-logo.png" %}" id="logo"></a>
     </span>
 
-    <a class="item {% activate tab "community" %}"  href="{% url 'community_list' %}">
+    <a class="item {% activate tab "community" %} popupmenu"  href="{% url 'community_list' %}" content="View the Biostar Community.">
         <i class="world icon"></i>
         Community
     </a>
-    <a class="item {% activate tab "messages" %}"  href="{% url 'inbox' %}">
+    <a class="item {% activate tab "messages" %} popupmenu"  href="{% url 'inbox' %}" content="View your messages">
         <i class="mail icon"> </i>
         Messages (2)
     </a>
-    <a class="item {% activate tab "myvotes" %}"  href="{% url 'myvotes' %}">
+    <a class="item {% activate tab "myvotes" %} popupmenu"  href="{% url 'myvotes' %}" content="Your upvoted posts.">
         <i class="heart icon centericon"></i>
         Votes
     </a>
 
-    <a class="item {% activate tab "myposts" %}"  href="{% url 'myposts' %}">
+    <a class="item {% activate tab "myposts" %} popupmenu"  href="{% url 'myposts' %}" content="Posts created by you">
         <i class="comments icon"></i>
         My Posts
     </a>
 
-    <a class="item {% activate tab "following" %}" href="{% url 'following' %}">
+    <a class="item {% activate tab "following" %} popupmenu" href="{% url 'following' %}" content="View subscribed posts">
         <i class="eye icon"></i>
         Following
     </a>
 
-    <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
+    <a class="item {% activate tab "bookmarks" %} popupmenu" href="{% url 'bookmarks' %}" content="View bookmarked posts">
         <i class="book icon"></i>
         Bookmarks
     </a>
 
     <div class="right menu">
-        <a class="item {% activate tab "new" %}" id="new" href="{% url 'post_create' %}">
+        <a class="item {% activate tab "new" %} popupmenu" id="new" href="{% url 'post_create' %}" data-content="Create new posts">
             <i class="edit icon"></i>
             New Post
         </a>

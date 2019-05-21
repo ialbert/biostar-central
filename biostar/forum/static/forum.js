@@ -32,15 +32,6 @@ $.ajaxSetup({
 });
 
 
-function get_height(elem) {
-
-    //height = elem.attr(".ui.messaging.grid").height();
-
-    $("#messaging-menu").css("height", function () {
-        return $("#messaging-grid").height();
-    })
-}
-
 // Triggered on moderation.
 function moderate(elem) {
 
@@ -247,6 +238,24 @@ $(document).ready(function () {
         moderate($(this));
     });
 
+    $('.popupmenu').each(function (event) {
+        var elem = $(this);
+        var data_content = elem.attr("content");
+
+        //Check if the user is logged in and
+        user_id = $('#menu-header').attr("user-id");
+
+        content = user_id ?  data_content : "Please Log In";
+        elem.popup({
+            on: 'hover',
+            content: content,
+            position : 'bottom center',
+            delay: {
+              show: 400,
+              hide: 300,
+             }
+             });
+        });
 
     $('.vote').each(function (event) {
 

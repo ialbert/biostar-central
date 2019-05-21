@@ -96,8 +96,7 @@ def post_tree(user, root):
     decorate(root)
 
     # Select the answers from the thread.
-    answers = [p for p in thread if p.type == Post.ANSWER]
-
+    answers = thread.filter(type=Post.ANSWER)
 
     return root, comment_tree,  answers, thread
 
