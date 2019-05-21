@@ -180,31 +180,8 @@ body {
     font-size: 13px;
 }
 
-.forumtabs.active.label {
-    background-color: #dff0d8;
-    color: #428bca;
-    border: none;
-    height: 60px;
-
-}
-
-.ui.basic.label.forumtabs {
-    border: none;
-    color: #428bca;
-    text-align: center;
-    width: 90px;
-    position: relative;
-    top: 10px;
-}
-
 .ui.list > .item.spaced {
     line-height: 1.29rem;
-
-}
-
-.ui.basic.label.forumtabs:hover {
-    background: #edefed;
-    height: 60px;
 
 }
 
@@ -228,11 +205,6 @@ body {
 }
 
 
-.pages-banner {
-
-    text-align: center;
-    margin-top: 15px;
-}
 
 .ui.small.compact.menu {
     font-size: .85rem;
@@ -366,13 +338,14 @@ img {
 }
 
 
-.ui.maroon.label {
+.ui.open.label {
     background-color: #8f2c47;
     color: #fff;
 }
 
-.ui.maroon.header {
-    color: #8f2c47;
+.ui.forum.label{
+    background-color: #b79538;
+    color: white;
 }
 
 .ui.darkgreen.label {
@@ -452,10 +425,6 @@ img {
 
 }
 
-.centered {
-
-    text-align: center !important;
-}
 
 .detail-stat {
     font-size: 1.15em;
@@ -469,25 +438,6 @@ img {
     color: #428bca;
     font-size: 13px;
     float: left;
-}
-
-.ui.menu.item .item.tags-banner.active {
-    background-color: #dff0d8;
-
-}
-
-.ui.tagging.label {
-    margin: 1px !important;
-    font-size: 13.0px;
-    padding: 3px;
-    color: #8f2c47;
-    font-weight: 100;
-}
-
-.ui.tagging.label:hover {
-    background-color: #8f2c47;
-    color: white;
-
 }
 
 .ui.comment.segments {
@@ -550,29 +500,6 @@ img {
     text-align: center !important;
 }
 
-.ui.label > .icon.centericon {
-    width: 0;
-    font-size: 18px;
-}
-
-.ui.basic.label.pages-size {
-    font-size: .85rem;
-    line-height: 1;
-    background: 0 0;
-    color: rgba(0, 0, 0, .87);
-    font-weight: 400;
-    padding: 10px;
-}
-
-.lowertab {
-    top: 12px;
-    position: relative;
-}
-
-.wide {
-    width: 95% !important;
-}
-
 
 .code {
     font-family: monospace;
@@ -633,9 +560,6 @@ pre {
     background-color: #EEEEEE;
 }
 
-.smaller {
-    font-size: smaller;
-}
 
 .tablet {
 
@@ -647,6 +571,9 @@ pre {
 
 .phone {
 
+}
+.ui.items>.item.post>.image+.content {
+    padding:0px;
 }
 
 .socialbox {

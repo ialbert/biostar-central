@@ -96,8 +96,7 @@ def post_tree(user, root):
     decorate(root)
 
     # Select the answers from the thread.
-    answers = [p for p in thread if p.type == Post.ANSWER]
-
+    answers = thread.filter(type=Post.ANSWER)
 
     return root, comment_tree,  answers, thread
 
@@ -177,8 +176,8 @@ def apply_vote(post, user, vote_type):
 
     # Handle accepted vote.
     if vote_type == Vote.ACCEPT:
-        Post.objects.filter(uid=post.uid).update(has_accepted=(change == 1))
-        Post.objects.filter(uid=post.root.uid).update(has_accepted=(change == 1))
+        Post.objects.filter(uid=post.uid).update(accept_count=F('accept_count') + 1)
+        Post.objects.filter(uid=post.root.uid).update(accept_count=F('accept_count') + 1)
 
     return msg, vote
 
@@ -210,8 +209,9 @@ def delete_post(post, request):
         reply_count = Post.objects.filter(parent=post.parent, type=Post.ANSWER, status=Post.OPEN).count()
         Post.objects.filter(pk=post.parent_id).update(reply_count=reply_count)
 
-    thread_score = Post.objects.filter(type=Post.ANSWER, root=post.root, status=Post.OPEN).count()
-    Post.objects.filter(pk=post.root_id).update(thread_score=thread_score)
+    reply_count = Post.objects.filter(root=post.root, status=Post.OPEN).count()
+
+    Post.objects.filter(pk=post.root_id).update(reply_count=reply_count)
 
     return url
 
@@ -236,20 +236,22 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
         return delete_post(post=post, request=request)
 
     if action == TOGGLE_ACCEPT:
-        root_has_accepted = Post.objects.filter(root=root, type=Post.ANSWER, has_accepted=True).count()
-        Post.objects.filter(uid=post.uid).update(has_accepted=not post.has_accepted)
-        Post.objects.filter(uid=root.uid).update(has_accepted=root_has_accepted)
+        # Recompute accept count for post
+        change = -1 if post.has_accepted else + 1
+        Post.objects.filter(uid=post.uid).update(accept_count=F("accept_count") + change)
+        Post.objects.filter(uid=root.uid).update(accept_count=F("accept_count") + change)
+
         return url
 
     if action == MOVE_TO_ANSWER:
-        Post.objects.filter(uid=post.uid).update(type=Post.ANSWER, parent=post.root, reply_count=F("reply_count") + 1)
+        Post.objects.filter(uid=post.uid).update(type=Post.ANSWER, parent=post.root)
         Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") + 1)
         messages.success(request, "Moved comment to answer")
         return url
 
     if action == MOVE_TO_COMMENT or pid:
         parent = Post.objects.filter(uid=pid).first() or post.root
-        Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent, reply_count=F("reply_count") - 1)
+        Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
         Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") - 1)
         messages.success(request, "Moved answer to comment")
         return url

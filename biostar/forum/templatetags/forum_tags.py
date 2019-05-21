@@ -129,12 +129,24 @@ def post_body(context, post, user, tree, form):
                 redir_field_name=const.REDIRECT_FIELD_NAME)
 
 
+@register.filter
+def get_award_context(award):
+    post = award.post
+    context = f"For : <a href={post.get_absolute_url()}>{post.title}</a>" if post else ""
+    return context
+
+
+@register.filter
+def get_user_location(user):
+
+    return user.profile.location or "location unknown"
+
 
 @register.filter
 def get_last_login(user):
     if user.profile.last_login:
-        return f"visited {time_ago(user.profile.last_login)}"
-    return f"visited {time_ago(user.profile.date_joined)}"
+        return f"{time_ago(user.profile.last_login)}"
+    return f"{time_ago(user.profile.date_joined)}"
 
 
 @register.filter
@@ -290,14 +302,8 @@ def get_thread_users(post, limit=5):
 
 
 @register.inclusion_tag('widgets/listing.html')
-def listing(post=None, user=None):
-    if user is None:
-        return dict(post=post)
-
-    if post.is_deleted and (user.is_anonymous or not user.profile.is_moderator):
-        return None
-
-    return dict(post=post)
+def listing(posts=None):
+    return dict(posts=posts)
 
 
 @register.filter
@@ -392,7 +398,7 @@ def boxclass(post):
     elif post.comment_count > 0:
         style = "grey"
     else:
-        style = "maroon"
+        style = "open"
 
     return style
 

@@ -31,8 +31,8 @@
 <tbody class="item {% is_unread user=request.user message=message%} message">
 <tr>
  <td>
-        <a class="ui mini avatar image" href="{% url "user_profile" message.sender.profile.uid %}" style="width:25px">
-            {% gravatar user=message.sender size=50 %}</a>
+        <a class="ui mini avatar image" href="{% url "user_profile" message.sender.profile.uid %}">
+            <img class="ui centered image" src="{% gravatar user=message.sender size=50 %}" ></a>
         {{message.sender.profile.name}}
  </td>
 <td>

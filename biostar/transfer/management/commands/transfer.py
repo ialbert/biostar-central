@@ -165,10 +165,9 @@ def bulk_copy_posts(limit):
             content = util.strip_tags(post.content)
             new_post = Post(uid=post.id, html=post.html, type=post.type,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
-                            author=author, status=post.status, rank=rank, has_accepted=post.has_accepted,
+                            author=author, status=post.status, rank=rank, accept_count=int(post.has_accepted),
                             lastedit_date=post.lastedit_date, book_count=post.book_count, reply_count=post.reply_count,
                             content=content, title=post.title, vote_count=post.vote_count,
-                            thread_score=post.reply_count,
                             creation_date=post.creation_date, tag_val=post.tag_val,
                             view_count=post.view_count)
 

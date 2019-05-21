@@ -1,95 +1,83 @@
 {% load forum_tags %}
 
+<div class="ui divided items">
 
-{% if post %}
+    {% for post in posts %}
+
 <div class="post item {{post.deleted_class}}">
 
-<div class="ui image">
+    <div class="ui image">
 
-            <div class="ui left stat label mini" >
-                <div class="number-stat">
-                {{ post.get_votecount }}
+                <div class="ui left stat label mini" >
+                    <div class="number-stat">
+                    {{ post.get_votecount }}
+                    </div>
+                    <div class="detail-stat">Vote{{ post.get_votecount|pluralize }}</div>
+
                 </div>
-                <div class="detail-stat">Vote{{ post.get_votecount|pluralize }}</div>
 
+                <div class="ui {% boxclass post %} label stat mini">
+                    <div class="number-stat">
+                    {{ post.get_reply_count }}
+                    </div>
+                    <div class="detail-stat">Answer{{ post.get_reply_count|pluralize }}</div>
+
+                </div>
+
+                <div class="ui label basic transparent stat mini">
+
+                    <div class="number-stat">
+                        {{ post.root.view_count|bignum }}
+                    </div>
+                    <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
+
+                </div>
+
+            {{ post.subs_count| get_subcount}}
+
+    </div>
+
+
+    <div class="content">
+
+            <div class="header">
+
+                    <span class="ui title header">
+                        {% if post.type != post.QUESTION %}
+                            {{ post.get_type_display }}:
+                        {% endif %}
+                    </span>
+
+                 <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
+                    class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
+                 </a>
             </div>
 
-            <div class="ui {% boxclass post %} label stat mini" style="margin:-1px;">
-                <div class="number-stat">
-                {{ post.get_reply_count }}
-                </div>
-                <div class="detail-stat">Answer{{ post.get_reply_count|pluralize }}</div>
-
-            </div>
-
-            <div class="ui label basic transparent stat mini">
-
-                <div class="number-stat">
-                    {{ post.root.view_count|bignum }}
-                </div>
-                <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
-
-            </div>
-
-        {{ post.subs_count| get_subcount}}
-
-</div>
-
-
-<div class="content" style="padding-left:2;">
-
-        <div class="header">
-
-                <span class="ui title header">
-                    {% if post.type != post.QUESTION %}
-                        {{ post.get_type_display }}:
-                    {% endif %}
-                </span>
-
-             <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
-                class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
-             </a>
-
-
-
-        </div>
-            <div style="float: right !important;">
+            <div class="right floated">
                 {% get_thread_users post=post as extra_users %}
-
                 {% for extra_user in extra_users %}
-                 <a class="ui mini avatar image" href="{% url "user_profile" extra_user.profile.uid %}" style="width:25px">
-                 <img src="{% gravatar user=extra_user size=50 %}"></a>
-
+                     <a class="ui mini avatar image" href="{% url "user_profile" extra_user.profile.uid %}" style="width:25px">
+                     <img src="{% gravatar user=extra_user size=50 %}">
+                     </a>
                 {% endfor %}
 
             </div>
 
-            <div class="extra" style="margin: 2px; float: right !important;">
+            <div class="extra">
 
-                    {% get_tags_list post.tag_val as tags_list %}
-
-                    {% for tag in tags_list %}
-                        <a class="ui tiny tagging label" href="{% url 'post_list' %}?tag={{tag}}">
-                        {{ tag }}
-                        </a>
-                    {% endfor %}
-                    <div style="padding:0px; font-size:12;float: right !important;">
-
+                    {% render_tags post %}
+                    <div class="right floated">
                         <div class="ui muted">
-
-                            updated
-                            <span>{{ post.lastedit_date|time_ago }}</span>
-                                                    by
+                            updated<span>{{ post.lastedit_date|time_ago }}</span>by
                             <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
                                 {{post.lastedit_user.profile.name }}
                             </a>
-
                         </div>
-
                     </div>
             </div>
 
+    </div>
 </div>
-        </div>
+    {% endfor %}
+</div>
 
-{% endif %}

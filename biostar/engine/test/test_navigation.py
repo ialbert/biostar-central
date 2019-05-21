@@ -68,7 +68,7 @@ class SiteNavigation(TestCase):
         anon_urls = [
             reverse("index"),
             reverse("project_list"),
-
+            reverse('project_view', kwargs=self.proj_params)
         ]
 
         urls = [
