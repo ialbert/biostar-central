@@ -403,12 +403,6 @@ def boxclass(post):
     return style
 
 
-@register.inclusion_tag("widgets/menu_limit.html")
-def menu_limit(active="limit", url=None):
-    context = dict(active=active, url=url)
-    return context
-
-
 @register.simple_tag(takes_context=True)
 def render_comments(context, tree, post, comment_template='widgets/comment_body.html'):
     request = context["request"]
