@@ -361,14 +361,11 @@ img {
 }
 
 
-.ui.maroon.label {
+.ui.open.label {
     background-color: #8f2c47;
     color: #fff;
 }
 
-.ui.maroon.header {
-    color: #8f2c47;
-}
 
 .ui.darkgreen.label {
     background-color: #326b2b;
