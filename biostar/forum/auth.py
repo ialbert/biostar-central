@@ -69,7 +69,7 @@ def post_tree(user, root):
         query = query.exclude(status=Post.DELETED)
 
     # Apply the sort order to all posts in thread.
-    thread = query.order_by("type", "-has_accepted", "-vote_count", "creation_date")
+    thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
 
     # Gather votes by the current user.
     votes = get_votes(user=user, root=root)
@@ -175,16 +175,10 @@ def apply_vote(post, user, vote_type):
     if vote_type == Vote.BOOKMARK:
         Post.objects.filter(uid=post.uid).update(book_count=F('book_count') + change)
 
-    # Add accept vote.
-    if vote_type == Vote.ACCEPT and change == 1:
-        Post.objects.filter(uid=post.uid).update(has_accepted=True)
-        Post.objects.filter(uid=post.root.uid).update(has_accepted=True)
-
-    # Remove accept vote.
-    if vote_type == Vote.ACCEPT and change == -1:
-        Post.objects.filter(uid=post.uid).update(has_accepted=False)
-        Post.objects.filter(uid=post.root.uid).update(has_accepted=False)
-
+    # Handle accepted vote.
+    if vote_type == Vote.ACCEPT:
+        Post.objects.filter(uid=post.uid).update(has_accepted=(change == 1))
+        Post.objects.filter(uid=post.root.uid).update(has_accepted=(change == 1))
 
     return msg, vote
 

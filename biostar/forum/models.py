@@ -1,26 +1,19 @@
-import bleach
 import logging
-import datetime
-import mistune
 
-from django.utils import timezone
-from django.db import models
-from django.db.models import Q
+import bleach
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
-from django.dispatch import receiver
+from django.db import models
+from django.db.models import F
 from django.db.models.signals import post_save
-from django.db.models import F, Q
-
+from django.dispatch import receiver
 from taggit.managers import TaggableManager
+
 from biostar.utils.shortcuts import reverse
-from biostar.accounts.models import Profile
 from . import util
 
-
 User = get_user_model()
-
 
 # The maximum length in characters for a typical name and text field.
 MAX_NAME_LEN = 256
@@ -56,21 +49,29 @@ class Post(models.Model):
     ]
     TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
-    SPAM, VALID, UNKNOWN = range(3)
-    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Not spam"), (UNKNOWN, "Unknown")]
-    spam = models.IntegerField(choices=SPAM_CHOICES, default=UNKNOWN)
+    # Possile spam states.
+    SPAM, NOT_SPAM, DEFAULT = range(3)
+    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (DEFAULT, "Default")]
 
+    # Post status: open, closed, deleted.
+    status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN, db_index=True)
+
+    # The type of the post: question, answer, comment.
+    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
+
+    # Post title.
     title = models.CharField(max_length=200, null=False, db_index=True)
 
     # The user that originally created the post.
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    # The project that this post belongs to.
-    #project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
-
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(User, related_name='editor', null=True,
                                       on_delete=models.CASCADE)
+
+    # The user that last contributed to the thread.
+    last_contributor = models.ForeignKey(User, related_name='contributor', null=True,
+                                         on_delete=models.CASCADE)
 
     # Store users contributing to the thread as "tags" to query later.
     thread_users = models.ManyToManyField(User, related_name="thread_users")
@@ -79,25 +80,25 @@ class Post(models.Model):
     rank = models.FloatField(default=0, blank=True, db_index=True)
 
     # Indicates whether the post has accepted answer.
-    has_accepted = models.BooleanField(default=False, blank=True)
+    answer_count = models.IntegerField(default=0, blank=True, db_index=True)
 
-    # Post status: open, closed, deleted.
-    status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN, db_index=True)
+    # The number of accepted answers.
+    accept_count = models.IntegerField(default=0, blank=True)
 
-    # The type of the post: question, answer, comment.
-    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
-
-    # Number of upvotes for the post
-    vote_count = models.IntegerField(default=0, blank=True, db_index=True)
-
-    # The number of views for the post.
-    view_count = models.IntegerField(default=0, blank=True, db_index=True)
-
-    # The number of answers that a post has.
+    # The number of replies for  thread.
     reply_count = models.IntegerField(default=0, blank=True, db_index=True)
 
     # The number of comments that a post has.
     comment_count = models.IntegerField(default=0, blank=True)
+
+    # Number of upvotes for the post
+    vote_count = models.IntegerField(default=0, blank=True, db_index=True)
+
+    # The total numbers of votes for a top-level post.
+    thread_votecount = models.IntegerField(default=0, db_index=True)
+
+    # The number of views for the post.
+    view_count = models.IntegerField(default=0, blank=True, db_index=True)
 
     # Bookmark count.
     book_count = models.IntegerField(default=0)
@@ -105,17 +106,13 @@ class Post(models.Model):
     # How many people follow that thread.
     subs_count = models.IntegerField(default=0)
 
-    # The total numbers of votes for a top-level post.
-    thread_votecount = models.IntegerField(default=0, db_index=True)
-
-    # The total number of comments + answers for a thread
-    thread_score = models.IntegerField(default=0, blank=True, db_index=True)
-
-    # Date related fields.
+    # Post creation date.
     creation_date = models.DateTimeField(db_index=True)
+
+    # Post last edit date.
     lastedit_date = models.DateTimeField(db_index=True)
 
-    # Stickiness of the post.
+    # Sticky posts go on top.
     sticky = models.BooleanField(default=False)
 
     # This will maintain the ancestor/descendant relationship bewteen posts.
@@ -135,11 +132,15 @@ class Post(models.Model):
 
     # The tag set is built from the tag string and used only for fast filtering
     tags = TaggableManager()
-    
+
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
 
+    # Unique id for the post.
     uid = models.CharField(max_length=32, unique=True, db_index=True)
+
+    # Spam labeling.
+    spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
     def parse_tags(self):
         return util.split_tags(self.tag_val)
@@ -151,8 +152,8 @@ class Post(models.Model):
             return
         # Sanitize the tag value
         # Clear old tags
-        #self.tags.clear()
-        #self.tags.add(*tag_list)
+        # self.tags.clear()
+        # self.tags.add(*tag_list)
 
     @property
     def as_text(self):
@@ -169,9 +170,6 @@ class Post(models.Model):
 
     @property
     def get_reply_count(self):
-
-        if self.is_toplevel:
-            return self.thread_score
         return self.reply_count
 
     @property
@@ -183,22 +181,15 @@ class Post(models.Model):
         return self.status == Post.DELETED
 
     @property
+    def has_accepted(self):
+        return bool(self.accept_count)
+
+    @property
     def is_comment(self):
         return self.type == Post.COMMENT
 
     def get_absolute_url(self):
         return reverse("post_view", kwargs=dict(uid=self.root.uid))
-
-    def update_reply_count(self):
-        "This can be used to set the answer count."
-        if self.type == Post.ANSWER:
-            reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
-            Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
-
-        thread_score = Post.objects.filter(Q(type=Post.ANSWER) | Q(type=Post.COMMENT), parent=self.parent,
-                                           status=Post.OPEN).count()
-
-        Post.objects.filter(pk=self.parent_id).update(thread_score=thread_score)
 
     def save(self, *args, **kwargs):
 
@@ -208,6 +199,7 @@ class Post(models.Model):
         self.lastedit_user = self.lastedit_user or self.author
         self.creation_date = self.creation_date or util.now()
         self.lastedit_date = self.lastedit_date or self.creation_date
+        self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
         self.html = markdown.parse(self.content)
@@ -219,20 +211,15 @@ class Post(models.Model):
         self.tag_val = util.strip_tags(self.tag_val)
 
         self.creation_date = self.creation_date or util.now()
+
         self.lastedit_date = self.lastedit_date or self.creation_date
 
-        # Set the timestamps on the parent
         if self.type == Post.ANSWER:
             Post.objects.filter(uid=self.parent.uid).update(lastedit_date=self.lastedit_date,
                                                             lastedit_user=self.lastedit_user)
 
+        # This will trigger the signals
         super(Post, self).save(*args, **kwargs)
-
-        thread = Post.objects.filter(status=self.OPEN, root=self.root)
-        reply_count = thread.exclude(uid=self.parent.uid).filter(type=self.ANSWER).count()
-        thread_score = thread.exclude(uid=self.root.uid).count()
-        Post.objects.filter(uid=self.parent.uid).update(reply_count=reply_count)
-        Post.objects.filter(uid=self.root.uid).update(thread_score=thread_score)
 
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
@@ -296,7 +283,7 @@ class PostView(models.Model):
 class Subscription(models.Model):
     "Connects a post to a user"
 
-    #NO_MESSAGES, LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(4)
+    # NO_MESSAGES, LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(4)
     LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
 
     MESSAGING_CHOICES = [
@@ -304,7 +291,7 @@ class Subscription(models.Model):
         (LOCAL_MESSAGE, "Local messages"),
         (EMAIL_MESSAGE, "Email for every new post added to current one."),
         (ALL_MESSAGES, "Email for every new thread (mailing list mode)")
-        ]
+    ]
 
     class Meta:
         unique_together = (("user", "post"))
@@ -328,7 +315,6 @@ class Subscription(models.Model):
 
     @staticmethod
     def get_sub(post, user):
-
         sub = Subscription.objects.filter(post=post, user=user)
         return None if user.is_anonymous else sub
 
@@ -369,7 +355,7 @@ class Award(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField()
-    #context = models.CharField(max_length=1000, default='')
+    # context = models.CharField(max_length=1000, default='')
     uid = models.CharField(max_length=32, unique=True)
 
     def save(self, *args, **kwargs):
@@ -384,55 +370,48 @@ class Award(models.Model):
 
 
 @receiver(post_save, sender=Post)
-def set_post(sender, instance, created, *args, **kwargs ):
+def complete_post(sender, instance, created, *args, **kwargs):
+    # Determine the root of the post.
+    root = instance.root if instance.root is not None else instance
+
+    # Make current use first in the list of contributors.
+    root.thread_users.remove(instance.author)
+    root.thread_users.add(instance.author)
 
     if created:
         # Make the Uid user friendly
         instance.uid = instance.uid or f"p{instance.pk}"
+
         # Set the titles
         if instance.parent and not instance.title:
             instance.title = instance.parent.title
 
+        # Only comments may be added to a parent that is answer or comment.
         if instance.parent and instance.parent.type in (Post.ANSWER, Post.COMMENT):
-            # Only comments may be added to a parent that is answer or comment.
             instance.type = Post.COMMENT
 
+        # Set post type if it was left empty.
         if instance.type is None:
-            # Set post type if it was left empty.
             instance.type = Post.COMMENT if instance.parent else Post.FORUM
 
         # This runs only once upon object creation.
         instance.title = instance.parent.title if instance.parent else instance.title
         instance.lastedit_user = instance.author
+        instance.last_contributor = instance.author
         instance.status = instance.status or Post.PENDING
 
-
-@receiver(post_save, sender=Post)
-def check_root(sender, instance, created, *args, **kwargs):
-    "We need to ensure that the parent and root are set on object creation."
-
-    # Add the author to the thread_users of the root.
-    obj = instance.root if instance.root is not None else instance
-    obj.thread_users.remove(instance.author)
-    obj.thread_users.add(instance.author)
-
-    if created:
-        if not (instance.root or instance.parent):
-            # Neither root or parent are set.
+        if instance.parent:
+            # When the parent is set the root must follow the parent root.
+            instance.root = instance.parent.root
+        else:
+            # When there is no parent, root and parent are set to itself.
             instance.root = instance.parent = instance
 
-        elif instance.parent:
-            # When only the parent is set the root must follow the parent root.
-            instance.root = instance.parent.root
-
-        elif instance.root:
-            # The root should never be set on creation.
-            raise Exception('Root may not be set on creation')
-
+        # Answers and comments may only have comments associated with them.
         if instance.parent.type in (Post.ANSWER, Post.COMMENT):
-            # Answers and comments may only have comments associated with them.
             instance.type = Post.COMMENT
 
+        # Sanity check.
         assert instance.root and instance.parent
 
         if not instance.is_toplevel:
@@ -442,5 +421,12 @@ def check_root(sender, instance, created, *args, **kwargs):
             if instance.type == Post.ANSWER:
                 Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
 
-        instance.save()
+        # Update the reply counts.
+        thread = Post.objects.filter(status=instance.OPEN, root=instance.root)
+        reply_count = thread.exclude(uid=instance.parent.uid).count()
+        instance.reply_count = reply_count
 
+        # Update last contributor to the thread.
+        instance.root.last_contributor = instance.last_contributor
+
+        instance.save()
