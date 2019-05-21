@@ -363,18 +363,13 @@ class Award(models.Model):
         self.uid = self.uid or util.get_uuid(limit=16)
         super(Award, self).save(*args, **kwargs)
 
-    @property
-    def context(self):
-        link = f"For : <a href={self.post.get_absolute_url()}>{self.post.title}</a>" if self.post else ""
-        return link
-
 
 @receiver(post_save, sender=Post)
 def complete_post(sender, instance, created, *args, **kwargs):
     # Determine the root of the post.
     root = instance.root if instance.root is not None else instance
 
-    # Make current use first in the list of contributors.
+    # Make current user first in the list of contributors.
     root.thread_users.remove(instance.author)
     root.thread_users.add(instance.author)
 

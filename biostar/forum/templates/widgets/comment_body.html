@@ -17,7 +17,7 @@
         written {{ post.creation_date|time_ago }}
 
         by <a href="{% url "user_profile"  post.author.profile.uid %}">
-        <div class="ui avatar image">{% gravatar user=post.author size=100 %}</div>
+        <div class="ui avatar image"><img class="ui centered image" src="{% gravatar user=post.author size=80 %}"></div>
         {{post.author.profile.name }}
         </a>
         {{post.author |show_score_icon}}

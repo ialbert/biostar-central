@@ -39,92 +39,9 @@ def pages(objs, request):
     url = request.path
     return dict(objs=objs, url=url, request=request)
 
-@register.simple_tag
-def relative_url(value, field_name, urlencode=None):
-    """
-    Updates field_name parameters in url with value
-    """
-    # Create query string with updated field_name, value pair.
-    url = '?{}={}'.format(field_name, value)
-    if urlencode:
-        # Split query string
-        querystring = urlencode.split('&')
-        # Exclude old value 'field_name' from query string
-        filter_func = lambda p: p.split('=')[0] != field_name
-        filtered_querystring = filter(filter_func, querystring)
-        # Join the filtered string
-        encoded_querystring = '&'.join(filtered_querystring)
-        # Update query string
-        url = '{}&{}'.format(url, encoded_querystring)
-
-    return url
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
-
-
-@register.simple_tag
-def moderate(request):
-    url = reverse("recipe_mod", request=request)
-    user = request.user
-    recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW).count()
-
-    correct = f"<b>{recipes} recipes</b> need" if recipes > 1 else f"<b>{recipes} recipe</b> needs"
-    template = ''
-    if user.is_authenticated and user.profile.is_manager and (recipes > 0):
-        template = f"""
-            <div class="ui message">
-            <i class="ui check circle icon"></i>
-            {correct} to be <a href={url}>reviewed and authorized</a>.
-            </div>
-            """
-
-    return mark_safe(template)
-
-
-@register.simple_tag
-def build_path(path, name):
-    return f'{path}/{name}'
-
-
-def pluralize(value, word):
-    if value > 1:
-        return "%d %ss" % (value, word)
-    else:
-        return "%d %s" % (value, word)
-
-
-@register.filter
-def show_email(user):
-
-    try:
-        head, tail = user.email.split("@")
-        email = head[0] + "*" * 10 + tail
-    except:
-        return user.email[0] + "*" * 10
-
-    return email
-
-
-@register.filter
-def show_score_icon(user):
-
-    color = "modcolor" if user.profile.is_moderator else ""
-
-    if user.profile.score > 150:
-        icon = f'<i class="ui bolt icon {color}"></i>'
-    else:
-        icon = f'<i class="ui genderless icon {color}"></i>'
-
-    return mark_safe(icon)
-
-
-@register.filter
-def show_score(score):
-
-    score = (score * 14) + 1
-    return score
 
 @register.filter
 def bignum(number):
@@ -138,68 +55,6 @@ def bignum(number):
     except ValueError as exc:
         pass
     return str(number)
-
-
-
-@register.filter
-def time_ago(date):
-    if not date:
-        return ''
-    delta = util.now() - date
-    if delta < timedelta(minutes=1):
-        return 'just now'
-    elif delta < timedelta(hours=1):
-        unit = pluralize(delta.seconds // 60, "minute")
-    elif delta < timedelta(days=1):
-        unit = pluralize(delta.seconds // 3600, "hour")
-    elif delta < timedelta(days=30):
-        unit = pluralize(delta.days, "day")
-    elif delta < timedelta(days=90):
-        unit = pluralize(int(delta.days / 7), "week")
-    elif delta < timedelta(days=730):
-        unit = pluralize(int(delta.days / 30), "month")
-    else:
-        diff = delta.days / 365.0
-        unit = '%0.1f years' % diff
-    return "%s ago" % unit
-
-
-@register.simple_tag
-def gravatar(user, size=80):
-    #name = user.profile.name
-    if user.is_anonymous or user.profile.is_suspended:
-        # Removes spammy images for suspended users
-        email = 'suspended@biostars.org'.encode('utf8')
-    else:
-        email = user.email.encode('utf8')
-
-    hash = hashlib.md5(email).hexdigest()
-
-    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
-    gravatar_url += urllib.parse.urlencode({
-        's': str(size),
-        'd': 'retro',
-    }
-    )
-    return mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
-
-
-@register.inclusion_tag('widgets/job_file_list.html', takes_context=True)
-def job_file_list(context, path, files, job, form=None):
-    back = "/".join(path.split("/")[:-1])
-    return dict(path=path, files=files, job=job, form=form, back=back)
-
-
-@register.inclusion_tag('widgets/file_list.html', takes_context=True)
-def file_list(context, path, files, obj, form=None):
-    back = "/".join(path.split("/")[:-1])
-
-    if isinstance(obj, Data):
-        view_url, serve_url = 'data_view', 'data_serve'
-    else:
-        view_url, serve_url = 'job_view', 'job_serve'
-
-    return dict(path=path, files=files, obj=obj, form=form, back=back, view_url=view_url, serve_url=serve_url)
 
 
 @register.filter
@@ -233,22 +88,6 @@ def list_view(context, projects=None, data_list=None, recipe_list=None, job_list
 
     return dict(projects=projects, data_list=data_list, recipe_list=recipe_list,
                 job_list=job_list, request=request)
-
-
-@register.inclusion_tag('widgets/recipe_moderate.html')
-def recipes_moderate(cutoff=0):
-    recipes = Analysis.objects.filter(security=Analysis.UNDER_REVIEW,
-                                      deleted=False).order_by("-date")
-
-    cutoff = cutoff or len(recipes)
-    return dict(recipes=recipes[:cutoff])
-
-
-@register.filter
-def has_data(request):
-    data_clipboard = request.session.get("data_clipboard", [])
-
-    return len(data_clipboard)
 
 
 @register.inclusion_tag('widgets/paste.html', takes_context=True)
@@ -319,19 +158,6 @@ def data_color(data):
     "Return a color based on data status."
 
     return DATA_COLORS.get(data.state, "")
-
-
-@register.simple_tag
-def access_color(user, project):
-    if user.is_authenticated:
-        access = Access.objects.filter(user=user, project=project).first()
-    else:
-        access = None
-
-    if access and access.access == Access.WRITE_ACCESS:
-        return "green"
-    else:
-        return ""
 
 
 @register.simple_tag

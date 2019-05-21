@@ -102,6 +102,9 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         delta = util.now() - timedelta(days=days)
         query = query.filter(lastedit_date__gt=delta)
 
+    # Filter deleted items for non subscribed users
+    cond = user.is_authenticated and user.profile.is_moderator
+    query = query if cond else query.exclude(status=Post.DELETED)
     # Select related information used during rendering.
     query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
 
@@ -203,7 +206,7 @@ def community_list(request):
 
     paginator = Paginator(users, settings.USERS_PER_PAGE)
     users = paginator.get_page(page)
-    context = dict(tab="community", objs=users, order=ordering, limit=limit_to)
+    context = dict(tab="community", users=users, order=ordering, limit=limit_to)
 
     return render(request, "community_list.html", context=context)
 
@@ -275,24 +278,33 @@ def post_view(request, uid):
 
     #auth.update_post_views(post=obj, request=request)
 
-    # Why is a FORM in a post view?
-    #if request.method == "POST":
-    #    form = forms.PostShortForm(data=request.POST)
-    #    if form.is_valid():
-    #        post = form.save(author=request.user)
-    #        location = reverse("post_view", request=request, kwargs=dict(uid=obj.root.uid)) + "#" + post.uid
-    #
-    #        if tasks.HAS_UWSGI:
-    #            tasks.created_post(pid=post.id)
-    #
-    #        return redirect(location)
-
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=root)
 
     context = dict(post=post, tree=comment_tree, form=form, answers=answers)
 
     return render(request, "post_view.html", context=context)
+
+
+@object_exists(klass=Post)
+def post_answer(request, uid):
+    """
+    Process an answer with form
+    """
+    # Get the post.
+    root = Post.objects.filter(uid=uid).first()
+    redir = reverse("post_view", request=request, kwargs=dict(uid=root.uid))
+    if request.method == "POST":
+        form = forms.PostShortForm(data=request.POST)
+        if form.is_valid():
+            answer = form.save(author=request.user)
+            if tasks.HAS_UWSGI:
+                tasks.created_post(pid=answer.id)
+
+            # Anchor location to recently created answer
+            redir = redir + "#" + answer.uid
+
+    return redirect(redir)
 
 
 @login_required
@@ -363,7 +375,6 @@ def post_create(request, template="post_create.html", url="post_view",
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
             return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
-
     context = dict(form=form, tab="new",  action_url=reverse("post_create"))
     context.update(extra_context)
 

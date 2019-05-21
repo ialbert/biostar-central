@@ -2,21 +2,19 @@
 {% load humanize %}
 
         {% if objs.has_previous %}
-            <div class="ui basic label pages-size">
-                <a href="{{ url }}{% relative_url objs.previous_page_number 'page' request.GET.urlencode %}">
+            <a class="ui small basic button" href="{{ url }}{% relative_url objs.previous_page_number 'page' request.GET.urlencode %}">
                     <i class="ui angle  double left icon"> </i>
-                </a>
-            </div>
+            </a>
         {% else %}
 
-        <div class="ui basic  label pages-size">
-             <a>
+        <div class="ui small basic button">
+
                 <i class="ui angle double left icon"> </i>
-            </a>
+
         </div>
         {% endif %}
 
-        <div class="ui basic  label pages-size">
+        <div class="ui small basic  button">
             {{objs.paginator.count|intcomma}}
             result{{objs.paginator.count|pluralize}}
             &bull;
@@ -29,19 +27,17 @@
 
     {% if objs.has_next %}
 
-        <div class="ui basic label pages-size">
+        <a class="ui small basic button" href="{{ url }}{% relative_url objs.next_page_number 'page' request.GET.urlencode %}">
 
-            <a href="{{ url }}{% relative_url objs.next_page_number 'page' request.GET.urlencode %}">
                 <i class="ui angle  double right icon"></i>
-            </a>
-        </div>
+        </a>
 
     {% else %}
 
-        <div class="ui basic label pages-size">
-             <span >
+        <div class="ui small basic button">
+
              <i class="ui angle  double right icon"></i>
-            </span>
+
         </div>
 
     {% endif %}

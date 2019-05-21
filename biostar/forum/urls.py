@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^myposts/$', views.myposts, name='myposts'),
 
     url(r'^p/(?P<uid>[-\w]+)/$', views.post_view, name='post_view'),
+    url(r'^p/answer/(?P<uid>[-\w]+)/$', views.post_answer, name='post_answer'),
 
     url(r'^b/list/$', views.badge_list, name='badge_list'),
 

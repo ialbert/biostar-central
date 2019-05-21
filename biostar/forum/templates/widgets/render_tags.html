@@ -1,6 +1,8 @@
 
 {% for tag in tags %}
+
     <a class="ui small label tags" href="{% url 'post_list' %}?tag={{ tag }}">
         {{ tag }}
     </a>
+
 {% endfor %}
