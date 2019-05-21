@@ -412,17 +412,21 @@ def complete_post(sender, instance, created, *args, **kwargs):
         # Sanity check.
         assert instance.root and instance.parent
 
+        # Title is inherited from top level.
         if not instance.is_toplevel:
-            # Title is inherited from top level.
             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
-
-            if instance.type == Post.ANSWER:
-                Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
+        # Update the root answer count
+        if instance.type == Post.ANSWER:
+            Post.objects.filter(id=instance.root.id).update(answer_count=F("answer_count") + 1)
 
         # Update the reply counts.
         thread = Post.objects.filter(status=instance.OPEN, root=instance.root)
         reply_count = thread.exclude(uid=instance.parent.uid).count()
+        # Update the instance reply count
         instance.reply_count = reply_count
+
+        # Update the root reply count
+        Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
 
         # Update last contributor to the thread.
         instance.root.last_contributor = instance.last_contributor

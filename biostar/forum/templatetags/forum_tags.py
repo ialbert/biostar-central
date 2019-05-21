@@ -149,24 +149,6 @@ def get_last_login(user):
     return f"{time_ago(user.profile.date_joined)}"
 
 
-@register.filter
-def show_email(user):
-    try:
-        head, tail = user.email.split("@")
-        email = head[0] + "*" * 10 + tail
-    except:
-        return user.email[0] + "*" * 10
-
-    return email
-
-
-@register.simple_tag
-def is_moderator(user):
-    if user.is_authenticated and user.profile.is_moderator:
-        return True
-    return False
-
-
 @register.inclusion_tag('widgets/single_feed.html')
 def single_post_feed(post):
     """
@@ -393,10 +375,8 @@ def boxclass(post):
         style = "news"
     elif post.has_accepted:
         style = "accept"
-    elif post.reply_count > 0:
-        style = "lightgreen"
-    elif post.comment_count > 0:
-        style = "grey"
+    elif post.answer_count > 0:
+        style = "answered"
     else:
         style = "open"
 

@@ -141,14 +141,12 @@ def bulk_copy_votes(limit):
 def bulk_copy_posts(limit):
     relations = {}
     all_users = User.objects.all().order_by("id")[:limit]
-
+    users_set = {user.profile.uid: user for user in all_users}
     # Walk through tree and update parent, root, post, relationships
     def gen_posts():
         logger.info("transferring posts")
 
         posts = PostsPost.objects.order_by("id")[:limit]
-
-        users_set = {user.profile.uid: user for user in all_users}
 
         elapsed, progress = timer_func()
         stream = zip(count(1), posts)
@@ -166,9 +164,9 @@ def bulk_copy_posts(limit):
             new_post = Post(uid=post.id, html=post.html, type=post.type,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
                             author=author, status=post.status, rank=rank, accept_count=int(post.has_accepted),
-                            lastedit_date=post.lastedit_date, book_count=post.book_count, reply_count=post.reply_count,
+                            lastedit_date=post.lastedit_date, book_count=post.book_count,
                             content=content, title=post.title, vote_count=post.vote_count,
-                            creation_date=post.creation_date, tag_val=post.tag_val,
+                            creation_date=post.creation_date, tag_val=post.tag_val, answer_count=post.reply_count,
                             view_count=post.view_count)
 
             # Store parent and root for every post.
@@ -185,6 +183,12 @@ def bulk_copy_posts(limit):
             parent = posts.get(parent_uid)
             if not (root and parent):
                 continue
+
+            #TODO: eventually going to take out.
+            reply_count = Post.objects.exclude(pk=root.pk).filter(root=root).count()
+            post.reply_count = reply_count
+            print(reply_count)
+            1/0
             post.root = root
             post.parent = parent
             yield post
@@ -195,9 +199,9 @@ def bulk_copy_posts(limit):
         # Get all authors belonging to descendants of root
         get_authors = lambda root: Post.objects.filter(root=root).values_list("author")
         # Create dict key by root and its contributors
-        roots_set = {root: User.objects.filter(pk__in=get_authors(root=root)) for root in roots}
-        for post in roots_set:
-            users = roots_set[post]
+        roots = {root: User.objects.filter(pk__in=get_authors(root=root)) for root in roots}
+        for post in roots:
+            users = roots[post]
             if post.root.thread_users.filter(pk__in=users):
                 continue
 
@@ -207,8 +211,6 @@ def bulk_copy_posts(limit):
         logger.info("Transferring awards.")
         # Query the badges
         badges = {badge.name: badge for badge in Badge.objects.all()}
-        # Query users
-        users = {profile.uid: profile.user for profile in Profile.objects.all()}
         # exists = list( Award.objects.values_list("uid", flat=True) )
         awards = BadgesAward.objects.all()
 
@@ -218,7 +220,7 @@ def bulk_copy_posts(limit):
         for index, award in stream:
             progress(index, msg="awards")
             badge = badges[award.badge.name]
-            user = users.get(str(award.user_id))
+            user = users_set.get(str(award.user_id))
             # Get post uid from context
             post_uid = uid_from_context(award.context)
             post = Post.objects.filter(uid=post_uid).first()
@@ -233,7 +235,7 @@ def bulk_copy_posts(limit):
     pcount = Post.objects.all().count()
     elapsed(f"transferred {pcount} posts")
 
-    Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)
+    Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent", "reply_count"], batch_size=1000)
     update_threadusers()
     elapsed(f"updated {pcount} post threads")
 

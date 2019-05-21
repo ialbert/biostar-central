@@ -208,7 +208,6 @@ class PostShortForm(forms.Form):
 
         if edit:
             self.post.html = html
-            old_content = self.post.content
             self.post.content = content
             self.post.save()
         else:

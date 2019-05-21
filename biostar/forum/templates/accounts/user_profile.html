@@ -1,5 +1,5 @@
 {% extends "forum_base.html" %}
-{% load forum_tags %}
+{% load accounts_tags %}
 
 {% block headtitle %}{{ target.profile.name }}{% endblock %}
 
@@ -32,6 +32,9 @@
 
                 <div>
                     <b>Location</b> : {{ target.profile.location }}
+                </div>
+                <div>
+                    <b>Email</b> : {{ target|show_email:request.user }}
                 </div>
 
                 {% if target.profile.last_login %}
