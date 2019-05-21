@@ -244,8 +244,7 @@ $(document).ready(function () {
 
         //Check if the user is logged in and
         user_id = $('#menu-header').attr("user-id");
-
-        content = user_id ?  data_content : "Please Log In";
+        content = user_id === "None" ?   "Please Log In" : data_content;
         elem.popup({
             on: 'hover',
             content: content,
