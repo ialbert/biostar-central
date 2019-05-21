@@ -236,9 +236,10 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
         return delete_post(post=post, request=request)
 
     if action == TOGGLE_ACCEPT:
-        #TODO: answers still need has_accepted
-        Post.objects.filter(uid=post.uid).update(accept_count=F("accept_count") + 1)
-        Post.objects.filter(uid=root.uid).update(accept_count=F("accept_count") + 1)
+        # Recompute accept count for post
+        change = -1 if post.has_accepted else + 1
+        Post.objects.filter(uid=post.uid).update(accept_count=F("accept_count") + change)
+        Post.objects.filter(uid=root.uid).update(accept_count=F("accept_count") + change)
 
         return url
 
