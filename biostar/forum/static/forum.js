@@ -62,29 +62,7 @@ function moderate(elem) {
 };
 
 
-function toggle_icon(elem) {
 
-    var icon = elem.children("i.icon");
-
-    // Toggles the state of the buttons and updates the label messages
-    if (icon.hasClass('outline')) {
-        icon.removeClass('outline');
-        change = 1
-    } else {
-        icon.addClass('outline');
-        change = -1
-    }
-    mod_votecount(elem, change)
-}
-
-
-function mod_votecount(elem, k) {
-
-    count = parseInt(elem.siblings('.count').text()) || 0;
-    count += k;
-    elem.siblings('.count').text(count)
-
-};
 
 
 function add_reply(elem) {
@@ -139,7 +117,8 @@ function add_comment(elem) {
     comment.keydown(function (e) {
         if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
             textarea_size_check()
-        };
+        }
+        ;
     });
 
     // Replace comment form from server
@@ -153,7 +132,7 @@ function add_comment(elem) {
                 textarea_size_check()
             });
         } else {
-            pop_message(elem, response, "error")
+            error_message(elem, xhr, status, "")
             comment.remove()
         }
     });
@@ -161,42 +140,26 @@ function add_comment(elem) {
 };
 
 
-function pop_message(elem, msg, cls) {
+function pop_message(elem, msg, cls, timeout) {
+    timeout = typeof timeout !== 'undefined' ? timeout : 1000;
     var text = '<div></div>'
     var tag = $(text).insertBefore(elem)
     tag.addClass('popover ' + cls)
     tag.text(msg)
-    tag.delay(1000).fadeOut(500, function () {
+    tag.delay(timeout).fadeOut(500, function () {
         $(this).remove()
     });
 }
 
-
-function toggle_class(elem, post_uid) {
-
-    var icon = elem
-
-    // Toggles the state of the buttons and updates the label messages
-    if (icon.hasClass('on')) {
-        icon.removeClass("on");
-        change = -1
-    } else {
-        icon.addClass("on")
-        change = 1
-
-    }
-
-    // Increment the post score counter
-    var score = $("#score-" + post_uid)
-    var value = (parseInt(score.text()) || 0) + change;
-    score.text(value)
-
-};
+// Triggered on network errors.
+function error_message(elem, xhr, status, text){
+    pop_message(elem, "Error! readyState=" + xhr.readyState + " status="+status + " text=" + text, "error", timeout=5000)
+}
 
 function apply_vote(elem, post_uid, vote_type) {
 
     // Toggle the button to provide feedback
-    toggle_class(elem, post_uid);
+    elem.toggleClass("on")
 
     // The vote handler.
     vote_url = "/ajax/vote/"
@@ -213,17 +176,21 @@ function apply_vote(elem, post_uid, vote_type) {
         success: function (data) {
             if (data.status === 'error') {
                 // Untoggle the button if there was an error
-                toggle_class(elem, post_uid);
+                elem.toggleClass("on")
                 pop_message(elem, data.msg, data.status);
             } else {
                 // Success
                 //pop_message(elem, data.msg, data.status);
+                // Increment the post score counter
+                var score = $("#score-" + post_uid)
+                var value = (parseInt(score.text()) || 0) + parseInt(data.change) || 0;
+                score.text(value)
             }
 
         },
         error: function (xhr, status, text) {
-            toggle_class(elem, post_uid);
-            pop_message(elem, text, "error")
+            elem.toggleClass("on")
+            error_message(elem, xhr, status, text)
         }
     });
 }

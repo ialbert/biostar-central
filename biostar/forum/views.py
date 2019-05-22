@@ -252,7 +252,7 @@ def post_view(request, uid):
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
-    context = dict(post=post, tree=comment_tree, form=form, answers=answers)
+    context = dict(post=root, tree=comment_tree, form=form, answers=answers)
 
     return render(request, "post_view.html", context=context)
 
@@ -297,7 +297,8 @@ def create_comment(request, uid):
         if form.is_valid():
             content = form.cleaned_data['content']
             comment = auth.create_post(parent=post.parent, author=user, content=content, post_type=Post.COMMENT)
-            return redirect(reverse("post_view", kwargs=dict(uid=comment.uid)))
+            return redirect(comment.get_absolute_url())
+
         messages.error(request, f"Error adding comment:{form.errors}")
     else:
         initial = dict(parent_uid=post.uid, content="")
@@ -399,8 +400,7 @@ def edit_post(request, uid):
         if form.is_valid():
             form.save(edit=True)
             messages.success(request, f"Edited :{post.title}")
-            location = reverse("post_view", kwargs=dict(uid=post.root.uid)) + "#" + post.uid
-            return redirect(location)
+            return redirect(post.get_absolute_url())
 
     context = dict(form=form, post=post, action_url=reverse("post_edit", kwargs=dict(uid=uid)),
                    extra_tab="active", extra_tab_name="Edit Post")

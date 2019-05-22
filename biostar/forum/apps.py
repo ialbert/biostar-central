@@ -61,11 +61,11 @@ def init_post(sender,  **kwargs):
         user.save()
 
     # Make a couple of tested posts
-    blog_title = "Welcome to Biostar-Engine!"
+    blog_title = "Welcome to Biostar!"
     blog_content = "A small description on the biostar-engine and its use"
 
-    tutorial_title = "Get started with your first project"
-    tutorial_content = "This is a tested on the in's and out's of the engine."
+    tutorial_title = "Get started with the site"
+    tutorial_content = "This is a test post."
 
     test_posts = {
                 blog_title: dict(post_type=models.Post.BLOG, content=blog_content),
