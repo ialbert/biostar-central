@@ -41,6 +41,8 @@
             {# Display post author. #}
             {% user_box user=post.author post=post %}
 
+            <a href="#" id="username" data-type="text" data-pk="1" data-url="/ajax/test/" data-title="Enter username">superuser</a>
+
             {# Display post content. #}
             {{ post.html|safe }}
 

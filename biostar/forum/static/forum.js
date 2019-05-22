@@ -278,6 +278,11 @@ $(document).ready(function () {
         });
     });
 
+
+    $.fn.editable.defaults.mode = 'inline';
+
+    $('#username').editable();
+
     $('.vote').each(function (event) {
 
         var elem = $(this);

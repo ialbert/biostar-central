@@ -158,29 +158,22 @@ STATIC_URL = '/static/'
 # The static root directory.
 STATIC_ROOT = join(BASE_DIR, 'export', 'static')
 
+# Global directories for static files.
+STATICFILES_DIRS = [
+    ("main", join(BASE_DIR, "biostar", "static")),
+]
+
 # The media URL start.
 MEDIA_URL = '/media/'
 
 # The media root directory.
 MEDIA_ROOT = join(BASE_DIR, 'export', 'media')
 
-STATICFILES_DIRS = [
-]
 
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
-
-# # Specify static directories.
-# STATICFILES_DIRS = [
-# ]
-#
-# # Static file finders.
-# STATICFILES_FINDERS = [
-#     'django.contrib.staticfiles.finders.FileSystemFinder',
-#     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-# ]
 
 # Apply default logger setting.
 LOGGER_NAME = "biostar"

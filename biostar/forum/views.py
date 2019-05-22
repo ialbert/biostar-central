@@ -261,7 +261,7 @@ def ajax_vote(request):
 
     msg, vote = auth.apply_vote(post=post, user=user, vote_type=vote_type)
 
-    return ajax_success(msg)
+    jquery.poshytip.js
 
 
 @object_exists(klass=Post)
@@ -308,16 +308,13 @@ def post_answer(request, uid):
     return redirect(redir)
 
 
-@login_required
-def create_cosmmentX(request, uid):
+def ajax_test(request):
     """
     Creates a commment on a top level post.
     """
-
-    location = reverse("post_list")
-    form = forms.PostShortForm()
-    context = dict(parent_uid=parent_post.uid, form=form)
-    return render(request, "widgets/create_comment.html", context=context)
+    msg="OK"
+    print (f"HeRe= {request.POST} ")
+    return ajax_success(msg=msg)
 
 
 @login_required

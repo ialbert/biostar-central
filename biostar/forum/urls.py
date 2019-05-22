@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^vote/$', views.ajax_vote, name='vote'),
 
 
+    url(r'^ajax/test/$', views.ajax_test, name='ajax_test'),
 
     #url(r'^tags/list/$', views.tags_list, name='tags_list'),
     url(r'^moderate/(?P<uid>[-\w]+)/$', views.post_moderate, name="post_moderate"),
