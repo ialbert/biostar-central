@@ -262,7 +262,7 @@ $(document).ready(function () {
 
     $.fn.editable.defaults.mode = 'inline';
 
-    $('#username').editable();
+    $('.inplace').editable();
 
     $('.vote').each(function (event) {
 
