@@ -162,6 +162,10 @@ a:hover {
     color: #2F5B14;
 }
 
+.highlight {
+    border-right: 5px solid green!important;
+}
+
 .votebox > .value .icon {
     color: #2F5B14;
     margin: 0;
