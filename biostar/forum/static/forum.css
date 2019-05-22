@@ -26,8 +26,12 @@ body {
     color: #1a69a4;
 }
 
-#search {
+.post.item > .content .ui.label{
+    margin: 0;
+}
 
+.ui.items>.post.item>.image:not(.ui) {
+    width: max-content;
 }
 
 a:hover {
@@ -180,35 +184,11 @@ body {
     font-size: 13px;
 }
 
-.ui.list > .item.spaced {
-    line-height: 1.29rem;
+.ui.items>.item .extra {
+    margin: 0px;
 
 }
 
-.ui.list.questions > .item > {
-
-}
-
-.ui.list.questions > .item > .header {
-    #font-size: 1.2em;
-    #margin: 1ex 0em 1ex 0em;
-}
-
-.ui.list.questions > .item > .description {
-/ / font-size: 1.1 em;
-    margin: 0ex 0em 0ex 0em;
-    line-height: 1.5;
-}
-
-.newpost {
-    text-align: center;
-}
-
-
-
-.ui.small.compact.menu {
-    font-size: .85rem;
-}
 
 .ui.items > .item > .content > a.header {
     color: #4183c4;
@@ -232,28 +212,24 @@ figure {
     color: #333333;
 / / text-shadow: 1 px 1 px 1 px rgba(0, 0, 0, 0.1);
 }
-
-.fancy {
-    position: relative;
-    float: left;
-    margin-right: 20px;
-    margin-bottom: 20px;
-    box-shadow: rgba(0, 0, 0, .2) 2px 3px 3px;
-}
-
-.dirname {
-    background-color: #EFEFEF;
-    padding: 0px 5px 0px 5px;
-}
-
-
-.imgpad {
-    margin-left: -0.5em !important;
-}
-
 .ui.divided.items > .post.item.deleted {
     background-color: #f7e4de;
     opacity: .0%;
+}
+
+.ui.horizontal.segments.top-menu > .ui.segment{
+    padding:0;
+    border: none;
+}
+
+.ui.horizontal.segments.top-menu > .ui.second.segment{
+    text-align: center;
+}
+.ui.horizontal.segments.top-menu {
+    padding:0;
+    border: none;
+    box-shadow: none;
+    margin: 0;
 }
 
 .ui.items.deleted {
@@ -284,11 +260,6 @@ figure {
 
 }
 
-.customsearch {
-    width: 100% !important;
-}
-
-
 .ui.stat.label.job {
     background-color: #e9530f;
     color: #fff;
@@ -310,33 +281,13 @@ img {
 
 }
 
-.ui.small.menu.ordering {
-    float: right;
-    margin-bottom: 10px;
-}
-
 .no-shadow {
     box-shadow: none !important;
 }
 
-.ui[class*="center aligned"].segment.userbox {
-    width: 130px;
-    background: #f5f5f5;
-    color: #333;
-    padding: 2px;
+.float-right{
+    float: right;
 }
-
-
-.ui.userinfo.segment {
-    margin: 0;
-    padding: 0;
-}
-
-.ui.tags.segment {
-    padding: 0;
-    margin: 5px;
-}
-
 
 .ui.open.label {
     background-color: #8f2c47;
@@ -353,7 +304,7 @@ img {
     color: #fff;
 }
 
-.ui.lightgreen.label {
+.ui.answered.label {
     background-color: #5b8c3e;
     color: #fff;
 }
@@ -412,41 +363,15 @@ img {
 }
 
 
-.ui.button.create-button {
-
-    min-height: 2.35714286em;
-    margin: 16px;
-    font-size: .93rem;
-    line-height: 1;
-    background: #e1ecf2;
-    padding: 10px;
-    color: #5a5b5b;
-    font-weight: 200;
-
-}
-
-
 .detail-stat {
     font-size: 1.15em;
     text-align: center;
     font-weight: 500;
 }
 
-
-.ui.menu.item .item.tags-banner {
-    margin: 0px;
-    color: #428bca;
-    font-size: 13px;
-    float: left;
-}
-
 .ui.comment.segments {
     box-shadow: 0 0px 0px 0px rgba(34, 36, 38, .15);
     border: none transparent;
-}
-
-.modcolor {
-    color: #8f2c47 !important;
 }
 
 .subs {
@@ -475,11 +400,6 @@ img {
     padding-bottom: 0px;
 }
 
-.actionbar {
-    margin-top: -20px !important;
-}
-
-
 .inputcolor {
     background: #fff8db !important;
 }
@@ -495,10 +415,6 @@ img {
     border-bottom: 1px solid #EEEEEE;
 }
 
-.centerbox {
-    display: inline-block !important;
-    text-align: center !important;
-}
 
 
 .code {
@@ -580,11 +496,6 @@ pre {
     width: 450 !important;
     margin-left: auto !important;
     margin-right: auto !important;
-
-}
-
-.profile {
-    margin-top: 17px !important;
 
 }
 

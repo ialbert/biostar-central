@@ -57,24 +57,16 @@ class ForumNavigation(TestCase):
             reverse('post_create'),
             reverse("community_list"),
             reverse('badge_list'),
-            reverse("comment_form", kwargs=dict(uid=self.post.uid)),
             reverse('badge_view', kwargs=dict(uid=self.badge.uid)),
-            #reverse("tags_list"),
 
             reverse('post_view', kwargs=dict(uid=self.post.uid)),
             reverse('post_edit', kwargs=dict(uid=self.post.uid)),
+            reverse("create_comment", kwargs=dict(uid=self.post.uid))
+
 
         ]
 
         self.visit_urls(urls, [200])
-
-    def test_page_redirect(self):
-        "Testing that a redirect occurs for some pages"
-        urls = [
-            reverse("post_comment")
-        ]
-
-        self.visit_urls(urls, [302])
 
 
 

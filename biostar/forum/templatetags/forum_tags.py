@@ -75,10 +75,10 @@ def get_all_message_count(request):
     return context
 
 
-@register.inclusion_tag('widgets/pages.html')
-def pages(objs, request):
+@register.inclusion_tag('widgets/pages.html', takes_context=True)
+def pages(context, objs):
+    request = context["request"]
     url = request.path
-
     return dict(objs=objs, url=url, request=request)
 
 
@@ -149,24 +149,6 @@ def get_last_login(user):
     return f"{time_ago(user.profile.date_joined)}"
 
 
-@register.filter
-def show_email(user):
-    try:
-        head, tail = user.email.split("@")
-        email = head[0] + "*" * 10 + tail
-    except:
-        return user.email[0] + "*" * 10
-
-    return email
-
-
-@register.simple_tag
-def is_moderator(user):
-    if user.is_authenticated and user.profile.is_moderator:
-        return True
-    return False
-
-
 @register.inclusion_tag('widgets/single_feed.html')
 def single_post_feed(post):
     """
@@ -181,6 +163,15 @@ def single_post_feed(post):
 
     posts = Post.objects.exclude(uid=post.uid).filter(query)[:settings.SINGLE_FEED_COUNT]
     context = dict(posts=posts)
+    return context
+
+
+@register.inclusion_tag('widgets/listing.html', takes_context=True)
+def list_posts(context, user):
+
+    posts = Post.objects.filter(author=user)
+    request = context["request"]
+    context = dict(posts=posts, request=request)
     return context
 
 
@@ -234,11 +225,6 @@ def render_comment(comment):
 def render_tags(post):
     tags = post.tag_val.split(",")
     return dict(tags=tags)
-
-
-@register.inclusion_tag('widgets/user_info.html')
-def user_info(post, by_diff=False, with_image=True):
-    return dict(post=post, by_diff=by_diff, with_image=with_image)
 
 
 @register.simple_tag
@@ -305,9 +291,10 @@ def get_thread_users(post, limit=5):
     return users
 
 
-@register.inclusion_tag('widgets/listing.html')
-def listing(posts=None):
-    return dict(posts=posts)
+@register.inclusion_tag('widgets/listing.html', takes_context=True)
+def listing(context, posts=None):
+    request = context["request"]
+    return dict(posts=posts, request=request)
 
 
 @register.filter
@@ -397,10 +384,8 @@ def boxclass(post):
         style = "news"
     elif post.has_accepted:
         style = "accept"
-    elif post.reply_count > 0:
-        style = "lightgreen"
-    elif post.comment_count > 0:
-        style = "grey"
+    elif post.answer_count > 0:
+        style = "answered"
     else:
         style = "open"
 

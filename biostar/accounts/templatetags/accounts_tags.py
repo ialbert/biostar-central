@@ -109,13 +109,16 @@ def relative_url(value, field_name, urlencode=None):
 
 
 @register.filter
-def show_email(user):
+def show_email(target, user=None):
+
+    if target == user:
+        return target.email
 
     try:
-        head, tail = user.email.split("@")
+        head, tail = target.email.split("@")
         email = head[0] + "*" * 10 + tail
     except:
-        return user.email[0] + "*" * 10
+        return target.email[0] + "*" * 10
 
     return email
 

@@ -34,7 +34,9 @@
                 <div>
                     <b>Location</b> : {{ target.profile.location }}
                 </div>
-
+                <div>
+                    <b>Email</b> : {{ target|show_email:request.user }}
+                </div>
                 {% if target.profile.last_login %}
                     <div>
                         <b>Last seen </b> : {{ target.profile.last_login |time_ago }}

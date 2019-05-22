@@ -6,7 +6,7 @@
 
 <div class="post item {{post.deleted_class}}">
 
-    <div class="ui image">
+    <div class="image">
 
                 <div class="ui left stat label mini" >
                     <div class="number-stat">
@@ -18,9 +18,9 @@
 
                 <div class="ui {% boxclass post %} label stat mini">
                     <div class="number-stat">
-                    {{ post.get_reply_count }}
+                    {{ post.reply_count }}
                     </div>
-                    <div class="detail-stat">Answer{{ post.get_reply_count|pluralize }}</div>
+                    <div class="detail-stat">Repl{{ post.reply_count|pluralize:"y,ies" }}</div>
 
                 </div>
 
@@ -32,7 +32,6 @@
                     <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
 
                 </div>
-
             {{ post.subs_count| get_subcount}}
 
     </div>
@@ -63,12 +62,13 @@
 
             </div>
 
-            <div class="extra">
+            <div class="extra right floated">
 
                     {% render_tags post %}
+
                     <div class="right floated">
                         <div class="ui muted">
-                            updated<span>{{ post.lastedit_date|time_ago }}</span>by
+                            updated <span>{{ post.lastedit_date|time_ago }}</span> by
                             <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
                                 {{post.lastedit_user.profile.name }}
                             </a>
@@ -79,5 +79,6 @@
     </div>
 </div>
     {% endfor %}
+
 </div>
 
