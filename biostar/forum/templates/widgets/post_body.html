@@ -54,7 +54,7 @@
             {#  Post action bar. #}
             <div class="actions">
 
-                <a class="add-comment ui tiny label" comment-url="{% url 'comment_form' post.uid %}"
+                <a class="add-commentX ui tiny label" href="{% url 'create_comment' post.uid %}"
                    data-value="{{ post.uid }}" >
                     ADD COMMENT
                 </a>

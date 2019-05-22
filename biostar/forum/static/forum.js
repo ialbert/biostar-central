@@ -122,17 +122,36 @@ function add_reply(elem) {
 
 function add_comment(elem) {
 
+    var post_uid = elem.attr('data-value');
     var target = count_elem(post_uid)
-    
-    pop_message(elem, "WHO", "error")
+    var url = "/create/comment/" + post_uid + "/"
 
     // remove comment body if exists.
     $("#comment-row").remove();
 
-    var post_uid = elem.attr('data-value');
+
     var container = $("#comment-container-" + post_uid);
     var comment_url = elem.attr("comment-url");
-    var page = $('<div id="comment-row"></div>').load(comment_url);
+
+
+    $.ajax(url, {
+        type: 'POST',
+        dataType: 'json',
+        ContentType: 'application/json',
+        success: function (data) {
+            if (data.status === 'error') {
+                // Untoggle the button if there was an error
+                pop_message(target, data.msg, data.status);
+                alert(data.msg);
+            } else {
+                pop_message(target, data.msg, data.status);
+            }
+
+        },
+        error: function (xhr, status, text) {
+            pop_message(target, text, "error")
+        }
+    });
 
     container.after(page);
 
@@ -150,7 +169,7 @@ function pop_message(elem, msg, cls) {
 }
 
 
-function count_elem(post_uid){
+function count_elem(post_uid) {
     // The DOM element that stores the count
     elem = $("#count-" + post_uid)
     return elem;
@@ -247,17 +266,17 @@ $(document).ready(function () {
 
         //Check if the user is logged in and
         user_id = $('#menu-header').attr("user-id");
-        content = user_id === "None" ?  "Please Log In" : data_content;
+        content = user_id === "None" ? "Please Log In" : data_content;
         elem.popup({
             on: 'hover',
             content: content,
-            position : 'bottom center',
+            position: 'bottom center',
             delay: {
-              show: 500,
-              hide: 300,
-             }
-             });
+                show: 500,
+                hide: 300,
+            }
         });
+    });
 
     $('.vote').each(function (event) {
 
@@ -296,7 +315,6 @@ $(document).ready(function () {
 
         });
     });
-
 
 
 });
