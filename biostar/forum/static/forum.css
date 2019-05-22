@@ -285,6 +285,14 @@ img {
 
 }
 
+.handle-text{
+  overflow: hidden;
+}
+
+.xsmall{
+    font-size: xx-small !important;
+}
+
 .no-shadow {
     box-shadow: none !important;
 }

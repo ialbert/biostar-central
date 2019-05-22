@@ -260,14 +260,24 @@ $(document).ready(function () {
         moderate($(this));
     });
 
-    //$.fn.editable.defaults.mode = 'inline';
+    $("#handle").click(function () {
+        var elem = $(this);
+        //var uid = elem.attr("uid");
+        var divHtml = elem.html(); //select's the contents of div immediately previous to the button
 
-    $('#handle').editable(
-        1/0
+        // Textarea for user input
+        var editableText = $("<div>" +
+                             "<textarea name='handle' class='handle-text' rows='1'/>" +
+                             "<span class='ui submit xsmall circular label'><i class='write icon'></i>Edit</span>" +
+                             "</div>"
+                            );
+        //
+        editableText.find('textarea[name="handle"]').val(divHtml);
 
-    );
+        $.ajax()
 
-    $('#test').editable();
+        $(this).replaceWith(editableText);
+        });
 
     $('.vote').each(function (event) {
 
