@@ -75,10 +75,10 @@ def get_all_message_count(request):
     return context
 
 
-@register.inclusion_tag('widgets/pages.html')
-def pages(objs, request):
+@register.inclusion_tag('widgets/pages.html', takes_context=True)
+def pages(context, objs):
+    request = context["request"]
     url = request.path
-
     return dict(objs=objs, url=url, request=request)
 
 
@@ -163,6 +163,15 @@ def single_post_feed(post):
 
     posts = Post.objects.exclude(uid=post.uid).filter(query)[:settings.SINGLE_FEED_COUNT]
     context = dict(posts=posts)
+    return context
+
+
+@register.inclusion_tag('widgets/listing.html', takes_context=True)
+def list_posts(context, user):
+
+    posts = Post.objects.filter(author=user)
+    request = context["request"]
+    context = dict(posts=posts, request=request)
     return context
 
 
@@ -283,9 +292,10 @@ def get_thread_users(post, limit=5):
     return users
 
 
-@register.inclusion_tag('widgets/listing.html')
-def listing(posts=None):
-    return dict(posts=posts)
+@register.inclusion_tag('widgets/listing.html', takes_context=True)
+def listing(context, posts=None):
+    request = context["request"]
+    return dict(posts=posts, request=request)
 
 
 @register.filter

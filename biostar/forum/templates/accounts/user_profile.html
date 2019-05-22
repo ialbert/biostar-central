@@ -1,6 +1,6 @@
 {% extends "forum_base.html" %}
 {% load accounts_tags %}
-
+{% load forum_tags %}
 {% block headtitle %}{{ target.profile.name }}{% endblock %}
 
 {% block content %}
@@ -92,4 +92,14 @@
                     </div>{% endif %}
             {% endif %}
 </div>
+
+    <div class="ui centered header"> Posts by {{ target.profile.name }}</div>
+    {# List the users posts #}
+    {% list_posts user=user %}
+
+
+    </div>
+
+
+
 {% endblock %}

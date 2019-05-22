@@ -169,10 +169,6 @@ class Post(models.Model):
         return self.vote_count
 
     @property
-    def get_reply_count(self):
-        return self.reply_count
-
-    @property
     def is_open(self):
         return self.status == Post.OPEN
 

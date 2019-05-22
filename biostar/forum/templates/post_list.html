@@ -1,6 +1,6 @@
 {% extends "forum_list.html" %}
 {% load forum_tags %}
-
+{% load humanize %}
 {% block headtitle %}
     Biostar Forum
 {% endblock %}
@@ -8,6 +8,8 @@
 
 {% block body %}
 
+<div class="ui horizontal basic top-menu segments">
+    <div class="ui first segment">
     <div class="ui small compact menu no-shadow" >
       <div class="ui simple dropdown item">
         <i class="{% get_icon string=limit default='all' %}"></i>
@@ -33,10 +35,14 @@
         </div>
       </div>
     </div>
+    </div>
 
-        {% pages objs=posts request=request %}
+<div class="ui second center aligned segment">
+        {% pages objs=posts %}
+</div>
 
-    <div class="ui small compact menu ordering no-shadow">
+    <div class="ui third segment">
+    <div class="ui small compact menu no-shadow float-right">
           <div class="ui simple dropdown item">
 
             <i class="{% get_icon string=order default='rank' %}"></i>
@@ -64,6 +70,8 @@
             </div>
           </div>
     </div>
+    </div>
+</div>
 
     {% if tag  %}
         <div class="ui blue filter message">
@@ -71,11 +79,10 @@
         </div>
     {% endif %}
 
-
     {% listing posts=posts %}
 
 
-    {% pages objs=posts request=request %}
+    {% pages objs=posts %}
 
 
 {% endblock %}
