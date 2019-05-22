@@ -31,7 +31,7 @@ def ajax_vote(request):
         return ajax_error("Only the person asking the question may accept this answer.")
 
     msg, vote = auth.apply_vote(post=post, user=user, vote_type=vote_type)
-
+    return ajax_success(msg=msg)
 
 def ajax_test(request):
     """

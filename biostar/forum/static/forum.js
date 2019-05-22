@@ -204,7 +204,7 @@ function apply_vote(elem, post_uid, vote_type) {
     var target = count_elem(post_uid)
 
     // The vote handler.
-    vote_url = "/vote/"
+    vote_url = "/ajax/vote/"
 
     $.ajax(vote_url, {
         type: 'POST',
