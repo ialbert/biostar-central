@@ -62,9 +62,6 @@ function moderate(elem) {
 };
 
 
-
-
-
 function add_reply(elem) {
 
     // Remove body if it exists.
@@ -152,8 +149,8 @@ function pop_message(elem, msg, cls, timeout) {
 }
 
 // Triggered on network errors.
-function error_message(elem, xhr, status, text){
-    pop_message(elem, "Error! readyState=" + xhr.readyState + " status="+status + " text=" + text, "error", timeout=5000)
+function error_message(elem, xhr, status, text) {
+    pop_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
 }
 
 function apply_vote(elem, post_uid, vote_type) {
@@ -222,6 +219,15 @@ $(document).ready(function () {
     $(".moderate-user").click(function (event) {
         moderate($(this));
     });
+
+    $('.message .close')
+        .on('click', function () {
+            $(this)
+                .closest('.message')
+                .transition('fade')
+            ;
+        })
+    ;
 
     $('.vote').each(function (event) {
 

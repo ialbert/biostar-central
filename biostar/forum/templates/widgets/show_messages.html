@@ -1,8 +1,20 @@
 {% if messages %}
-    <div class="ui vertical segment">
+    <div class="ui basic segment">
+
         {% for message in messages %}
-            <div class="ui {{ message.tags }} message">
-                <p>{{ message }}</p>
+            <div class="ui icon {{ message.tags }} message">
+                <i class="info circle icon"></i>
+
+                <i class="close icon"></i>
+
+                <div class="content">
+                    <div class="header">
+                        Site Message
+                    </div>
+                    <p> {{ message }}</p>
+                </div>
+
+
             </div>
         {% endfor %}
     </div>
