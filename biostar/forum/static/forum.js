@@ -62,9 +62,6 @@ function moderate(elem) {
 };
 
 
-
-
-
 function add_reply(elem) {
 
     // Remove body if it exists.
@@ -152,8 +149,8 @@ function pop_message(elem, msg, cls, timeout) {
 }
 
 // Triggered on network errors.
-function error_message(elem, xhr, status, text){
-    pop_message(elem, "Error! readyState=" + xhr.readyState + " status="+status + " text=" + text, "error", timeout=5000)
+function error_message(elem, xhr, status, text) {
+    pop_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
 }
 
 function apply_vote(elem, post_uid, vote_type) {
@@ -195,6 +192,16 @@ function apply_vote(elem, post_uid, vote_type) {
     });
 }
 
+function replace_textbox(elem, username){
+
+    var given_input = "<span id='profile-name'>" + username + "</span>";
+
+    var textbox = $("#user-input");
+
+    textbox.replaceWith(given_input);
+
+}
+
 $(document).ready(function () {
 
     $('select')
@@ -227,17 +234,32 @@ $(document).ready(function () {
     $("#profile-name").click(function () {
         var elem = $(this);
         //var uid = elem.attr("uid");
-        var divHtml = elem.html(); //select's the contents of div immediately previous to the button
+        var divHtml = elem.text(); //select's the contents of div immediately previous to the button
 
         // Textarea for user input
-        var editableText = $("<textarea/>");
+        var editableText = $("<textarea id='user-input'/>");
         //
-        editableText.val(divHtml).wrap( "<div class='new'></div>" );
+        //editableText.val(divHtml) ;
+        //editableText.wrap( "<div class='profile-wrapper'></div>" );
 
+        editableText.append(divHtml);
+        
         $.ajax();
+        $(this).after("<div class='ui right floated xsmall button' onclick='replace_textbox($(this), $(this).text())'>cancel</div>");
 
         $(this).replaceWith(editableText);
+
         });
+
+
+    $('.message .close')
+        .on('click', function () {
+            $(this)
+                .closest('.message')
+                .transition('fade')
+            ;
+        })
+    ;
 
     $('.vote').each(function (event) {
 

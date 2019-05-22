@@ -7,7 +7,7 @@
             <i class="sign-in icon"></i>
             <div class="content">
                 <div class="header">
-                    <a href="{% url "login" %}">Login required</a>
+                    <a href="{% url "login" %}?next={{ post.get_absolute_url }}">Login required</a>
                 </div>
                 <p>You must be logged in to comment</p>
             </div>
