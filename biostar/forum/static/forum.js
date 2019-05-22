@@ -1,3 +1,16 @@
+// As seen in: https://stackoverflow.com/questions/1038746/equivalent-of-string-format-in-jquery
+// Usage: 'Hello {0} and {1}, and {0}'.f("World", "John");
+
+String.prototype.format = String.prototype.f = function () {
+    var s = this,
+        i = arguments.length;
+
+    while (i--) {
+        s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
+    }
+    return s;
+};
+
 // using jQuery
 function getCookie(name) {
     var cookieValue = null;
@@ -73,37 +86,6 @@ function mod_votecount(elem, k) {
 
 };
 
-function ajax_vote(elem, post_uid, vote_type, vote_url) {
-
-    // Toggle the button to provide feedback
-    toggle_icon(elem);
-
-    // The vote handler.
-    vote_url = "/vote/"
-
-    $.ajax(vote_url, {
-        type: 'POST',
-        dataType: 'json',
-        ContentType: 'application/json',
-        data: {
-            'post_uid': post_uid,
-            'vote_type': vote_type,
-        },
-
-        success: function (data) {
-            if (data.status === 'error') {
-                toggle_icon(elem); // Untoggle the button if there was an error
-                pop_over(elem, data.msg, data.status);
-            } else {
-                //pop_over(elem, data.msg, data.status)
-            }
-
-        },
-        error: function () {
-            toggle_icon(elem, vote_type);
-        }
-    });
-}
 
 function add_reply(elem) {
 
@@ -119,41 +101,62 @@ function add_reply(elem) {
 
 }
 
-
+// Adds a comment to the post
 function add_comment(elem) {
 
     var post_uid = elem.attr('data-value');
-    var target = count_elem(post_uid)
+    var container = $("#comment-insert-" + post_uid);
     var url = "/create/comment/" + post_uid + "/"
 
-    // remove comment body if exists.
-    $("#comment-row").remove();
+    // Check for existing comment.
+    var comment = $("#new-comment")
 
 
-    var container = $("#comment-container-" + post_uid);
-    var comment_url = elem.attr("comment-url");
+    if (comment.length) {
+        // Remove comment if exits.
+        comment.remove();
+        return;
+    } else {
+        // Create a new comment.
+        comment = $('<div id="new-comment"><div class="ui active centered inline loader"></div></div>')
+    }
 
+    // Insert into the page.
+    container.after(comment);
 
-    $.ajax(url, {
-        type: 'POST',
-        dataType: 'json',
-        ContentType: 'application/json',
-        success: function (data) {
-            if (data.status === 'error') {
-                // Untoggle the button if there was an error
-                pop_message(target, data.msg, data.status);
-                alert(data.msg);
-            } else {
-                pop_message(target, data.msg, data.status);
-            }
-
-        },
-        error: function (xhr, status, text) {
-            pop_message(target, text, "error")
+    // Checks the size of the comment.
+    function textarea_size_check() {
+        var input = $("#comment-input")
+        var size = input.val().length;
+        if (size < 10) {
+            pop_message(input, "More than 10 characters please!", "error");
+        } else {
+            $("#comment-form").submit()
         }
+    }
+
+    // Submit form with CTRL-ENTER
+    comment.keydown(function (e) {
+        if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
+            textarea_size_check()
+        };
     });
 
-    container.after(page);
+    // Replace comment form from server
+    comment.load(url, function (response, status, xhr) {
+        if (status == 'success') {
+            // Focus on the input
+            $("#comment-input").focus();
+            // Appply size check to submit button.
+            $("#comment-submit").click(function (e) {
+                e.preventDefault();
+                textarea_size_check()
+            });
+        } else {
+            pop_message(elem, response, "error")
+            comment.remove()
+        }
+    });
 
 };
 
@@ -169,12 +172,6 @@ function pop_message(elem, msg, cls) {
 }
 
 
-function count_elem(post_uid) {
-    // The DOM element that stores the count
-    elem = $("#count-" + post_uid)
-    return elem;
-}
-
 function toggle_class(elem, post_uid) {
 
     var icon = elem
@@ -188,10 +185,11 @@ function toggle_class(elem, post_uid) {
         change = 1
 
     }
+
     // Increment the post score counter
-    elem = count_elem(post_uid)
-    var value = (parseInt(elem.text()) || 0) + change;
-    elem.text(value)
+    var score = $("#score-" + post_uid)
+    var value = (parseInt(score.text()) || 0) + change;
+    score.text(value)
 
 };
 
@@ -199,9 +197,6 @@ function apply_vote(elem, post_uid, vote_type) {
 
     // Toggle the button to provide feedback
     toggle_class(elem, post_uid);
-
-    // Message target.
-    var target = count_elem(post_uid)
 
     // The vote handler.
     vote_url = "/ajax/vote/"
@@ -219,15 +214,16 @@ function apply_vote(elem, post_uid, vote_type) {
             if (data.status === 'error') {
                 // Untoggle the button if there was an error
                 toggle_class(elem, post_uid);
-                pop_message(target, data.msg, data.status);
+                pop_message(elem, data.msg, data.status);
             } else {
-                pop_message(target, data.msg, data.status);
+                // Success
+                //pop_message(elem, data.msg, data.status);
             }
 
         },
         error: function (xhr, status, text) {
             toggle_class(elem, post_uid);
-            pop_message(target, text, "error")
+            pop_message(elem, text, "error")
         }
     });
 }
@@ -260,19 +256,16 @@ $(document).ready(function () {
         moderate($(this));
     });
 
+
     $("#handle").click(function () {
         var elem = $(this);
         //var uid = elem.attr("uid");
         var divHtml = elem.html(); //select's the contents of div immediately previous to the button
 
         // Textarea for user input
-        var editableText = $("<div>" +
-                             "<textarea name='handle' class='handle-text' rows='1'/>" +
-                             "<span class='ui submit xsmall circular label'><i class='write icon'></i>Edit</span>" +
-                             "</div>"
-                            );
+        var editableText = $("<textarea/>");
         //
-        editableText.find('textarea[name="handle"]').val(divHtml);
+        editableText.val(divHtml);
 
         $.ajax()
 

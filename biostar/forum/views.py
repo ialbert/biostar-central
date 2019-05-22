@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import render, redirect
+from django.http import HttpResponseBadRequest
 
 from biostar.forum import forms, auth, tasks, util
 from biostar.forum.const import *
@@ -242,13 +243,14 @@ def post_view(request, uid):
     # Get the post.
     post = Post.objects.filter(uid=uid).first()
 
-    # Establish the root for the post.
-    root = post if post.is_toplevel else post.root
+    # Redirect non-top level posts.
+    if not post.is_toplevel:
+        return redirect(post.get_absolute_url())
 
     # auth.update_post_views(post=obj, request=request)
 
     # Build the comment tree .
-    root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=root)
+    root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
     context = dict(post=post, tree=comment_tree, form=form, answers=answers)
 
@@ -285,8 +287,8 @@ def ajax_test(request):
     return ajax_error(msg=msg)
 
 
-@login_required
 def create_comment(request, uid):
+
     user = request.user
     post = Post.objects.filter(uid=uid).first()
 
@@ -295,14 +297,14 @@ def create_comment(request, uid):
         if form.is_valid():
             content = form.cleaned_data['content']
             comment = auth.create_post(parent=post.parent, author=user, content=content, post_type=Post.COMMENT)
-            context = dict(comment=comment)
-            return render(request, "widgets/render_comment.html", context=context)
+            return redirect(reverse("post_view", kwargs=dict(uid=comment.uid)))
         messages.error(request, f"Error adding comment:{form.errors}")
     else:
         initial = dict(parent_uid=post.uid, content="")
         form = forms.CommentForm(initial=initial)
 
-    context = dict(post=post, form=form)
+    context = dict(post=post, form=form, user=user)
+
     return render(request, "widgets/create_comment.html", context=context)
 
 

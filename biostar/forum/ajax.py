@@ -33,6 +33,7 @@ def ajax_vote(request):
     msg, vote = auth.apply_vote(post=post, user=user, vote_type=vote_type)
     return ajax_success(msg=msg)
 
+
 def ajax_test(request):
     """
     Creates a commment on a top level post.
