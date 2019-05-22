@@ -123,8 +123,13 @@ function add_reply(elem) {
 function add_comment(elem) {
 
     var post_uid = elem.attr('data-value');
-    var target = count_elem(post_uid)
+    var score_elem = post_score_div(post_uid)
     var url = "/create/comment/" + post_uid + "/"
+
+    pop_message(score_elem, "FOO", "error")
+
+    console.log(message_target.html() )
+
 
     // remove comment body if exists.
     $("#comment-row").remove();
@@ -169,7 +174,7 @@ function pop_message(elem, msg, cls) {
 }
 
 
-function count_elem(post_uid) {
+function post_score_div(post_uid) {
     // The DOM element that stores the count
     elem = $("#count-" + post_uid)
     return elem;
@@ -189,9 +194,9 @@ function toggle_class(elem, post_uid) {
 
     }
     // Increment the post score counter
-    elem = count_elem(post_uid)
+    var count_elem = post_score_div(post_uid)
     var value = (parseInt(elem.text()) || 0) + change;
-    elem.text(value)
+    count_elem.text(value)
 
 };
 
@@ -201,7 +206,7 @@ function apply_vote(elem, post_uid, vote_type) {
     toggle_class(elem, post_uid);
 
     // Message target.
-    var target = count_elem(post_uid)
+    var target = post_score_div(post_uid)
 
     // The vote handler.
     vote_url = "/vote/"
@@ -261,13 +266,6 @@ $(document).ready(function () {
     });
 
     //$.fn.editable.defaults.mode = 'inline';
-
-    $('.inplace').editable({
-
-        }
-    );
-
-    $('#test').editable();
 
     $('.vote').each(function (event) {
 
