@@ -48,7 +48,13 @@
                 </div>
 
                 <div>
-                    <b>Handle</b>:@{{ target.username }}
+                    <b>Handle</b>:
+                    {# testing out inplace editing #}
+                    <a data-placeholder="{{ target.username }}" href="#" id="handle"
+                       data-value="{{ target.username }}" data-url="/edit/profile/">
+                        @{{ target.username }}
+                    </a>
+
                 </div>
             </div>
 
@@ -70,11 +76,6 @@
                 {% endif %}
 
             </div>
-            {% if target == request.user and target.is_superuser %}
-                <a class="ui blue button"  href="{% url 'site_admin' %}">
-                    <i class="dashboard icon"></i> Site Admin
-                </a>
-            {% endif %}
 
             <div id="mod-container-{{ target.profile.uid }}"></div>
 
