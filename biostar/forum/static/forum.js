@@ -262,10 +262,9 @@ $(document).ready(function () {
 
     //$.fn.editable.defaults.mode = 'inline';
 
-    $('.inplace').editable(
-        {
+    $('#handle').editable(
+        1/0
 
-        }
     );
 
     $('#test').editable();

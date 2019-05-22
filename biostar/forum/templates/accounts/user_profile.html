@@ -49,11 +49,9 @@
 
                 <div>
                     <b>Handle</b>:
-
-                    <a data-placeholder="{{ target.username }}"
-                       href="#" id="handle" data-type="textarea"
-                       data-value="{{ target.username }}" data-pk="1" data-url="/ajax/test/" data-title="">
-
+                    {# testing out inplace editing #}
+                    <a data-placeholder="{{ target.username }}" href="#" id="handle"
+                       data-value="{{ target.username }}" data-url="/edit/profile/">
                         @{{ target.username }}
                     </a>
 
