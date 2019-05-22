@@ -21,8 +21,8 @@
             </div>
 
             <div class="content">
-                 <a  class="header " href="{% url "user_profile" target.profile.uid %}">
-                {{target.profile.name}}
+                 <a  class="header " >
+                     <span id="profile-name">{{target.profile.name}}</span>
                 {{ target |show_score_icon }}{{ target.profile.score | show_score }}
                 </a>
 
@@ -50,7 +50,7 @@
                 <div>
                     <b>Handle</b>: @
                     {# testing out inplace editing #}
-                    <a id="handle">
+
                         {{ target.username }}
                     </a>
 

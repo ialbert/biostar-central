@@ -224,7 +224,7 @@ $(document).ready(function () {
     });
 
 
-    $("#handle").click(function () {
+    $("#profile-name").click(function () {
         var elem = $(this);
         //var uid = elem.attr("uid");
         var divHtml = elem.html(); //select's the contents of div immediately previous to the button
@@ -232,9 +232,9 @@ $(document).ready(function () {
         // Textarea for user input
         var editableText = $("<textarea/>");
         //
-        editableText.val(divHtml);
+        editableText.val(divHtml).wrap( "<div class='new'></div>" );
 
-        $.ajax()
+        $.ajax();
 
         $(this).replaceWith(editableText);
         });
