@@ -75,8 +75,6 @@ def bulk_copy_users(limit):
     def gen_profile():
         logger.info(f"Transferring profiles")
 
-        #current = {user.email: user for user in User.objects.filter(profile=None)}
-
         # Exclude existing users from source database.
         users = UsersUser.objects.all().order_by("id")
 
@@ -160,6 +158,7 @@ def bulk_copy_posts(limit):
             # Incomplete author information loaded or existing posts.
             if not (author and lastedit_user):
                 continue
+
             siblings = posts.filter(root_id=post.root_id)
             # Record replies, comments, and answers to root
             reply_count = siblings.count()
