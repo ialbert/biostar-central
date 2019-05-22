@@ -260,9 +260,15 @@ $(document).ready(function () {
         moderate($(this));
     });
 
-    $.fn.editable.defaults.mode = 'inline';
+    //$.fn.editable.defaults.mode = 'inline';
 
-    $('.inplace').editable();
+    $('.inplace').editable(
+        {
+
+        }
+    );
+
+    $('#test').editable();
 
     $('.vote').each(function (event) {
 
@@ -303,4 +309,5 @@ $(document).ready(function () {
     });
 
 
-});
+})
+;

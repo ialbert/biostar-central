@@ -276,6 +276,15 @@ def post_answer(request, uid):
     return redirect(redir)
 
 
+def ajax_test(request):
+    """
+    Creates a commment on a top level post.
+    """
+    msg="OK"
+    print (f"HeRe= {request.POST} ")
+    return ajax_error(msg=msg)
+
+
 @login_required
 def create_comment(request, uid):
     user = request.user

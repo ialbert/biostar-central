@@ -17,7 +17,7 @@
     {#  Post body #}
     <div class="body">
         {#  Page anchor. #}
-            <a name="{{ post.uid }}"></a>
+        <a name="{{ post.uid }}"></a>
 
         {#  Display post stats #}
 
@@ -41,7 +41,6 @@
             {# Display post author. #}
             {% user_box user=post.author post=post %}
 
-            <a href="#" id="username" data-type="text" data-pk="1" data-url="/ajax/test/" data-title="Enter username">superuser</a>
 
             {# Display post content. #}
             {{ post.html|safe }}
@@ -56,17 +55,17 @@
             {#  Post action bar. #}
             <div class="actions">
 
-                <a class="inplace ui tiny label" hrefs="{% url 'create_comment' post.uid %}"
-                   data-value="{{ post.uid }}" >
-                    ADD COMMENT
-                </a>
+                <a class="inplace ui tiny label" data-placeholder="Enter your comment"
+                   href="#" id="test" data-type="textarea"
+                   data-value="" data-pk="1" data-url="/ajax/test/" data-title="">ADD COMMENT</a>
+
 
                 &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
                 {% if post.is_editable %}
-                &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
-                &bull; <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}"
-                          data-value="{{ post.uid }}">moderate</a>
-                {%  endif %}
+                    &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
+                    &bull; <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}"
+                              data-value="{{ post.uid }}">moderate</a>
+                {% endif %}
 
                 <span class="status muted">
                     updated {{ post.lastedit_date|time_ago }} by
