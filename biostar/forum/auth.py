@@ -80,11 +80,11 @@ def post_tree(user, root):
     # Build comments tree.
     comment_tree = dict()
 
+
     def decorate(post):
         # Mutates the incoming parameters
         if post.is_comment:
             comment_tree.setdefault(post.parent_id, []).append(post)
-
         post.has_bookmark = int(post.id in bookmarks)
         post.has_upvote = int(post.id in upvotes)
         post.is_editable = user.is_authenticated and (user == post.author or user.profile.is_moderator)
@@ -160,26 +160,29 @@ def apply_vote(post, user, vote_type):
         vote = Vote.objects.create(author=user, post=post, type=vote_type)
         msg = "%s added" % vote.get_type_display()
 
-    if post.author != user:
-        # Update the user reputation only if the author is different.
+    if post.author == user:
+        # Author making the change
+        change = 0
+    else:
+        # Update the various counts only if the user is different.
         Profile.objects.filter(user=post.author).update(score=F('score') + change)
 
-    # The thread vote count represents all votes in a thread
-    Post.objects.filter(uid=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
+        # Increment the post vote count.
+        Post.objects.filter(uid=post.uid).update(vote_count=F('vote_count') + change)
 
-    # Increment the post vote count.
-    Post.objects.filter(uid=post.uid).update(vote_count=F('vote_count') + change)
+        # The thread vote count represents all votes in a thread
+        Post.objects.filter(uid=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
 
-    # Increment the bookmark count.
-    if vote_type == Vote.BOOKMARK:
-        Post.objects.filter(uid=post.uid).update(book_count=F('book_count') + change)
+        # Increment the bookmark count.
+        if vote_type == Vote.BOOKMARK:
+            Post.objects.filter(uid=post.uid).update(book_count=F('book_count') + change)
 
-    # Handle accepted vote.
-    if vote_type == Vote.ACCEPT:
-        Post.objects.filter(uid=post.uid).update(accept_count=F('accept_count') + 1)
-        Post.objects.filter(uid=post.root.uid).update(accept_count=F('accept_count') + 1)
+        # Handle accepted vote.
+        if vote_type == Vote.ACCEPT:
+            Post.objects.filter(uid=post.uid).update(accept_count=F('accept_count') + 1)
+            Post.objects.filter(uid=post.root.uid).update(accept_count=F('accept_count') + 1)
 
-    return msg, vote
+    return msg, vote, change
 
 
 def delete_post(post, request):
