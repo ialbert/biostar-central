@@ -1,6 +1,5 @@
 {% load forum_tags %}
 {% load humanize %}
-
         {% if objs.has_previous %}
             <a class="ui small basic button" href="{{ url }}{% relative_url objs.previous_page_number 'page' request.GET.urlencode %}">
                     <i class="ui angle  double left icon"> </i>
@@ -14,7 +13,7 @@
         </div>
         {% endif %}
 
-        <div class="ui small basic  button">
+
             {{objs.paginator.count|intcomma}}
             result{{objs.paginator.count|pluralize}}
             &bull;
@@ -22,7 +21,7 @@
             <span class="current">
                 Page {{ objs.number }} of {{ objs.paginator.num_pages }}
             </span>
-        </div>
+
 
 
     {% if objs.has_next %}

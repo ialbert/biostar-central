@@ -184,7 +184,7 @@ def apply_vote(post, user, vote_type):
 
 def delete_post(post, request):
     # Delete marks a post deleted but does not remove it.
-    # Remove means to delete the post from the database with no trace.
+
 
     # Posts with children or older than some value can only be deleted not removed
     # The children of a post.
@@ -198,20 +198,21 @@ def delete_post(post, request):
         Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
         url = post.root.get_absolute_url()
         messages.success(request, "Deleted post: %s" % post.title)
+    # Remove post from the database with no trace.
     else:
         # This will remove the post. Redirect depends on the level of the post.
         url = "/" if post.is_toplevel else post.root.get_absolute_url()
         post.delete()
         messages.success(request, "Removed post: %s" % post.title)
 
-    # Recompute post reply count
+    # Recompute answers count
     if post.type == Post.ANSWER:
-        reply_count = Post.objects.filter(parent=post.parent, type=Post.ANSWER, status=Post.OPEN).count()
-        Post.objects.filter(pk=post.parent_id).update(reply_count=reply_count)
+        answer_count = Post.objects.filter(root=post.root, type=Post.ANSWER).count()
+        Post.objects.filter(pk=post.parent_id).update(answer_count=answer_count)
 
-    reply_count = Post.objects.filter(root=post.root, status=Post.OPEN).count()
+    reply_count = Post.objects.filter(root=post.root).count()
 
-    Post.objects.filter(pk=post.root_id).update(reply_count=reply_count)
+    Post.objects.filter(pk=post.root.id).update(reply_count=reply_count)
 
     return url
 

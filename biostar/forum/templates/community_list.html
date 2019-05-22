@@ -11,7 +11,8 @@
 
 
 {% with params=request.GET.urlencode %}
-
+<div class="ui horizontal basic top-menu segments">
+    <div class="ui first segment">
         <div class="ui small compact menu no-shadow" >
           <div class="ui simple dropdown item">
             <i class="{% get_icon string=active default='all' %}"></i>
@@ -37,43 +38,47 @@
             </div>
           </div>
         </div>
-
-
-    {% pages objs=users request=request %}
-
-    <div class="ui small compact menu no-shadow" id="actions-menu">
-      <div class="ui simple dropdown item">
-        <i class="{% get_icon string=order default='visit' %}"></i>
-          <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="visit" %}</span>
-
-        <i class="dropdown icon"></i>
-
-        <div class="menu">
-
-              <a class="item" href="{% url 'community_list' %}{% relative_url 'visit' 'order' params %}">
-                  <i class="{% get_icon 'visit' %}"></i>recent visit
-              </a>
-              <a class="item" href="{% url 'community_list' %}{% relative_url 'reputation' 'order' params %}">
-                  <i class="{% get_icon 'reputation' %}"></i>reputation
-              </a>
-              <a class="item" href="{% url 'community_list' %}{% relative_url 'joined' 'order' params %}">
-                  <i class="{% get_icon 'joined' %}"></i>date joined
-              </a>
-              <a class="item" href="{% url 'community_list' %}{% relative_url 'activity' 'order' params %}">
-                  <i class="{% get_icon 'activity' %}"></i>activity level
-              </a>
-
-        </div>
-
-      </div>
     </div>
+
+    <div class="ui second center aligned segment">
+        {% pages objs=users %}
+    </div>
+    <div class="ui third segment">
+        <div class="ui small compact menu no-shadow float-right">
+          <div class="ui simple dropdown item">
+            <i class="{% get_icon string=order default='visit' %}"></i>
+              <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="visit" %}</span>
+
+            <i class="dropdown icon"></i>
+
+            <div class="menu">
+
+                  <a class="item" href="{% url 'community_list' %}{% relative_url 'visit' 'order' params %}">
+                      <i class="{% get_icon 'visit' %}"></i>recent visit
+                  </a>
+                  <a class="item" href="{% url 'community_list' %}{% relative_url 'reputation' 'order' params %}">
+                      <i class="{% get_icon 'reputation' %}"></i>reputation
+                  </a>
+                  <a class="item" href="{% url 'community_list' %}{% relative_url 'joined' 'order' params %}">
+                      <i class="{% get_icon 'joined' %}"></i>date joined
+                  </a>
+                  <a class="item" href="{% url 'community_list' %}{% relative_url 'activity' 'order' params %}">
+                      <i class="{% get_icon 'activity' %}"></i>activity level
+                  </a>
+
+            </div>
+
+          </div>
+        </div>
+    </div>
+</div>
 
 
 {% endwith %}
 
 <div class="ui basic segment">
 
-    <div class="ui seven column grid">
+    <div class="ui nine column grid">
               {%  for user in users %}
 
                 <div class="column">
@@ -81,20 +86,20 @@
                     <div class="ui fluid card" href="{% url "user_profile" user.profile.uid %}">
 
                         <a class="image" href="{% url "user_profile" user.profile.uid %}">
-                            <img class="ui centered image" src="{% gravatar user=user size=80 %}" >
+                            <img class="ui centered image" src="{% gravatar user=user size=50 %}" >
                         </a>
 
                         <div class="center aligned content">
-                            <a  class="center aligned header" href="{% url "user_profile" user.profile.uid %}">
-                            {{user.profile.name|truncatechars:8}}
+                            <a  class="center aligned small header" href="{% url "user_profile" user.profile.uid %}">
+                            {{user.profile.name|truncatechars:6}}
 
                             </a>
                             {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
                         </div>
 
                         <div class="extra content">
-                            <div>{{ user|get_user_location|truncatechars:10}}</div>
-                            {{ user|get_last_login }}
+                            <div>{{ user|get_user_location|truncatechars:7}}</div>
+                            {{ user|get_last_login|truncatechars:7 }}
                         </div>
 
                     </div>
@@ -108,8 +113,10 @@
 
 </div>
 
-<div class="centered">
-    {% pages objs=users request=request %}
+<div class="ui horizontal basic top-menu segments">
+    <div class="ui second segment">
+        {% pages objs=users %}
+    </div>
 </div>
 
 {% endblock %}

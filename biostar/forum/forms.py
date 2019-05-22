@@ -202,7 +202,6 @@ class PostShortForm(forms.Form):
                                                  min_length=2, max_length=5000,
                                                  initial=inital_content)
 
-
     def save(self, author=None, post_type=Post.ANSWER, edit=False):
         data = self.cleaned_data
         parent = data.get("parent_uid")
