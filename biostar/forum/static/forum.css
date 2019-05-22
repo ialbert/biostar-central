@@ -26,11 +26,11 @@ body {
     color: #1a69a4;
 }
 
-.post.item > .content .ui.label{
+.post.item > .content .ui.label {
     margin: 0;
 }
 
-.ui.items>.post.item>.image:not(.ui) {
+.ui.items > .post.item > .image:not(.ui) {
     width: max-content;
 }
 
@@ -96,15 +96,15 @@ a:hover {
 }
 
 .on {
-    color:green!important;
+    color: green !important;
 }
 
 .popover {
     position: absolute;
     color: #3c763d;
     padding: 15px;
-    margin-top: 1px;
-    margin-left:4em;
+    //margin-top: 4ex;
+
     border-radius: .28571429rem;
     z-index: 100;
     opacity: 0.9;
@@ -121,10 +121,9 @@ a:hover {
 }
 
 .popover.success {
-     background-color: #fcfff5;
+    background-color: #fcfff5;
     color: #2c662d;
     box-shadow: 0 0 0 1px #a3c293 inset, 0 0 0 0 transparent;
-
     border-color: #ebccd1;
 }
 
@@ -163,13 +162,12 @@ a:hover {
     color: #2F5B14;
 }
 
-
 .votebox > .value .icon {
     color: #2F5B14;
     margin: 0;
 }
 
-.votebox > .count {
+.votebox > .score {
     font-size: 240%;
     padding-bottom: 0.5rem;
     font-weight: bold;
@@ -188,7 +186,7 @@ body {
     font-size: 13px;
 }
 
-.ui.items>.item .extra {
+.ui.items > .item .extra {
     margin: 0px;
 
 }
@@ -216,21 +214,23 @@ figure {
     color: #333333;
 / / text-shadow: 1 px 1 px 1 px rgba(0, 0, 0, 0.1);
 }
+
 .ui.divided.items > .post.item.deleted {
     background-color: #f7e4de;
     opacity: .0%;
 }
 
-.ui.horizontal.segments.top-menu > .ui.segment{
-    padding:0;
+.ui.horizontal.segments.top-menu > .ui.segment {
+    padding: 0;
     border: none;
 }
 
-.ui.horizontal.segments.top-menu > .ui.second.segment{
+.ui.horizontal.segments.top-menu > .ui.second.segment {
     text-align: center;
 }
+
 .ui.horizontal.segments.top-menu {
-    padding:0;
+    padding: 0;
     border: none;
     box-shadow: none;
     margin: 0;
@@ -289,7 +289,7 @@ img {
     box-shadow: none !important;
 }
 
-.float-right{
+.float-right {
     float: right;
 }
 
@@ -298,7 +298,7 @@ img {
     color: #fff;
 }
 
-.ui.forum.label{
+.ui.forum.label {
     background-color: #b79538;
     color: white;
 }
@@ -420,7 +420,6 @@ img {
 }
 
 
-
 .code {
     font-family: monospace;
 }
@@ -492,8 +491,9 @@ pre {
 .phone {
 
 }
-.ui.items>.item.post>.image+.content {
-    padding:0px;
+
+.ui.items > .item.post > .image + .content {
+    padding: 0px;
 }
 
 .socialbox {

@@ -1,19 +1,39 @@
-<div class="ui basic segment">
-    <form id="comment-form" class="ui form" action="{% url 'create_comment' post.uid %}"  method="post">
-        <input type="hidden" name="post_uid" id="post_uid" value={{ post_uid }} />
-        {% csrf_token %}
-        <div class="">
-            <div id="wmd-button-bar-2"></div>
-            <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="6"></textarea>
-        </div>
-        <div>
 
-            <button class="ui submit green button" type="submit">
-                <i class="check icon"></i>Add Comment
-            </button>
-            <a class="ui orange right floated button" onclick="javascript:obj=$('#comment-row').remove();">
-            <i class="undo icon"></i> Cancel
-            </a>
+
+
+{% if user.is_anonymous %}
+    <div class="ui basic segment">
+        <div class="ui icon warning message">
+            <i class="sign-in icon"></i>
+            <div class="content">
+                <div class="header">
+                    <a href="{% url "login" %}">Login required</a>
+                </div>
+                <p>You must be logged in to comment</p>
+            </div>
         </div>
-    </form>
-</div>
+    </div>
+{% else %}
+    <div class="ui basic segment inputcolor">
+        <form id="comment-form" class="ui form" action="{% url 'create_comment' post.uid %}" method="post">
+            <input type="hidden" name="post_uid" id="post_uid" value={{ post_uid }}/>
+            {% csrf_token %}
+            <div class="field">
+                <textarea id="comment-input" name="content" rows="6" minlength="10" placeholder="Comment..."></textarea>
+            </div>
+            <div>
+                <button class="ui submit small green button" type="submit" id="comment-submit">
+                    <i class="check icon"></i> Submit
+                </button>
+                <a class="ui orange small right floated button" onclick="javascript:obj=$('#new-comment').remove();">
+                    <i class="undo icon"></i> Cancel
+                </a>
+            </div>
+        </form>
+        <p class="muted">Markdown welcome. CTRL + ENTER submits form.</p>
+    </div>
+{% endif %}
+
+
+
+

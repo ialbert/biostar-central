@@ -185,7 +185,8 @@ class Post(models.Model):
         return self.type == Post.COMMENT
 
     def get_absolute_url(self):
-        return reverse("post_view", kwargs=dict(uid=self.root.uid))
+        url = reverse("post_view", kwargs=dict(uid=self.root.uid))
+        return url if self.is_toplevel else "%s#%s" % (url, self.uid)
 
     def save(self, *args, **kwargs):
 

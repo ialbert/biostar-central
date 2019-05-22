@@ -3,8 +3,8 @@ import logging
 from django.test import TestCase
 from django.urls import reverse
 
-from biostar.forum import models, views, auth
-from biostar.forum.tests.util import fake_request, get_uuid
+from biostar.forum import models, views, auth, ajax
+from biostar.forum.tests.util import fake_request
 from biostar.accounts.models import User
 
 logger = logging.getLogger('engine')
@@ -79,7 +79,7 @@ class PostTest(TestCase):
 
             data = {"vote_type": vtype, "post_uid": post.uid}
             request = fake_request(url=reverse('vote'), data=data, user=user)
-            response = views.ajax_vote(request=request)
+            response = ajax.ajax_vote(request=request)
 
     def test_vote(self):
         """Test the ajax voting using POST request """

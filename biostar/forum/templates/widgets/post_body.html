@@ -28,7 +28,7 @@
                 <i class="thumbs up icon "></i>
             </button>
 
-            <div class="count" id="count-{{ post.uid }}">{{ post.vote_count }}</div>
+            <div class="score" id="score-{{ post.uid }}">{{ post.vote_count }}</div>
 
             <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="bookmark"
                     data-position="right center" data-state="{{ post.has_bookmark }}">
@@ -57,7 +57,6 @@
 
                 <a class="add-comment ui tiny label" data-value="{{ post.uid }}">ADD COMMENT</a>
 
-
                 &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
                 {% if post.is_editable %}
                     &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
@@ -73,7 +72,7 @@
                     {{ post.lastedit_user.profile.score | show_score | bignum }}
                 </span>
 
-                <div id="mod-container-{{ post.uid }}"></div>
+                <div id="moderate-container-{{ post.uid }}"></div>
 
             </div>
 
@@ -85,7 +84,8 @@
 
     </div>
 
-    <div id="comment-container-{{ post.uid }}">COMMENTS</div>
+    <div id="comment-insert-{{ post.uid }}"></div>
+
 
     {% render_comments tree=tree post=post %}
 
