@@ -212,25 +212,6 @@ figure {
     color: #333333;
 / / text-shadow: 1 px 1 px 1 px rgba(0, 0, 0, 0.1);
 }
-
-.fancy {
-    position: relative;
-    float: left;
-    margin-right: 20px;
-    margin-bottom: 20px;
-    box-shadow: rgba(0, 0, 0, .2) 2px 3px 3px;
-}
-
-.dirname {
-    background-color: #EFEFEF;
-    padding: 0px 5px 0px 5px;
-}
-
-
-.imgpad {
-    margin-left: -0.5em !important;
-}
-
 .ui.divided.items > .post.item.deleted {
     background-color: #f7e4de;
     opacity: .0%;
@@ -239,6 +220,10 @@ figure {
 .ui.horizontal.segments.top-menu > .ui.segment{
     padding:0;
     border: none;
+}
+
+.ui.horizontal.segments.top-menu > .ui.second.segment{
+    text-align: center;
 }
 .ui.horizontal.segments.top-menu {
     padding:0;
@@ -275,11 +260,6 @@ figure {
 
 }
 
-.customsearch {
-    width: 100% !important;
-}
-
-
 .ui.stat.label.job {
     background-color: #e9530f;
     color: #fff;
@@ -308,17 +288,6 @@ img {
 .float-right{
     float: right;
 }
-
-.ui.userinfo.segment {
-    margin: 0;
-    padding: 0;
-}
-
-.ui.tags.segment {
-    padding: 0;
-    margin: 5px;
-}
-
 
 .ui.open.label {
     background-color: #8f2c47;
@@ -394,20 +363,6 @@ img {
 }
 
 
-.ui.button.create-button {
-
-    min-height: 2.35714286em;
-    margin: 16px;
-    font-size: .93rem;
-    line-height: 1;
-    background: #e1ecf2;
-    padding: 10px;
-    color: #5a5b5b;
-    font-weight: 200;
-
-}
-
-
 .detail-stat {
     font-size: 1.15em;
     text-align: center;
@@ -417,10 +372,6 @@ img {
 .ui.comment.segments {
     box-shadow: 0 0px 0px 0px rgba(34, 36, 38, .15);
     border: none transparent;
-}
-
-.modcolor {
-    color: #8f2c47 !important;
 }
 
 .subs {
@@ -449,11 +400,6 @@ img {
     padding-bottom: 0px;
 }
 
-.actionbar {
-    margin-top: -20px !important;
-}
-
-
 .inputcolor {
     background: #fff8db !important;
 }
@@ -469,10 +415,6 @@ img {
     border-bottom: 1px solid #EEEEEE;
 }
 
-.centerbox {
-    display: inline-block !important;
-    text-align: center !important;
-}
 
 
 .code {
@@ -554,11 +496,6 @@ pre {
     width: 450 !important;
     margin-left: auto !important;
     margin-right: auto !important;
-
-}
-
-.profile {
-    margin-top: 17px !important;
 
 }
 

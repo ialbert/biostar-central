@@ -13,7 +13,7 @@
         </div>
         {% endif %}
 
-        <div class="ui small basic tablet button">
+
             {{objs.paginator.count|intcomma}}
             result{{objs.paginator.count|pluralize}}
             &bull;
@@ -21,7 +21,7 @@
             <span class="current">
                 Page {{ objs.number }} of {{ objs.paginator.num_pages }}
             </span>
-        </div>
+
 
 
     {% if objs.has_next %}

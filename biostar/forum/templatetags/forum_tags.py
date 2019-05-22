@@ -223,11 +223,6 @@ def render_tags(post):
     return dict(tags=tags)
 
 
-@register.inclusion_tag('widgets/user_info.html')
-def user_info(post, by_diff=False, with_image=True):
-    return dict(post=post, by_diff=by_diff, with_image=with_image)
-
-
 @register.simple_tag
 def get_icon(string, default=""):
     icon = ICON_MAP.get(string) or ICON_MAP.get(default)
