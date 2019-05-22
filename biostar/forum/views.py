@@ -314,7 +314,7 @@ def ajax_test(request):
     """
     msg="OK"
     print (f"HeRe= {request.POST} ")
-    return ajax_success(msg=msg)
+    return ajax_error(msg=msg)
 
 
 @login_required
