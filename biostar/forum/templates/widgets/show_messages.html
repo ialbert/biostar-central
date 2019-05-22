@@ -1,12 +1,9 @@
 {% if messages %}
-    <div class="ui basic segment">
+    <div class="ui basic segment" id="site-messages">
 
         {% for message in messages %}
             <div class="ui icon {{ message.tags }} message">
                 <i class="info circle icon"></i>
-
-                <i class="close icon"></i>
-
                 <div class="content">
                     <div class="header">
                         Site Message

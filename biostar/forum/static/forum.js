@@ -86,9 +86,8 @@ function add_comment(elem) {
     // Check for existing comment.
     var comment = $("#new-comment")
 
-
     if (comment.length) {
-        // Remove comment if exits.
+        // Remove comment if exists.
         comment.remove();
         return;
     } else {
@@ -104,7 +103,7 @@ function add_comment(elem) {
         var input = $("#comment-input")
         var size = input.val().length;
         if (size < 10) {
-            pop_message(input, "More than 10 characters please!", "error");
+            popup_message(input, "More than 10 characters please!", "error");
         } else {
             $("#comment-form").submit()
         }
@@ -137,7 +136,7 @@ function add_comment(elem) {
 };
 
 
-function pop_message(elem, msg, cls, timeout) {
+function popup_message(elem, msg, cls, timeout) {
     timeout = typeof timeout !== 'undefined' ? timeout : 1000;
     var text = '<div></div>'
     var tag = $(text).insertBefore(elem)
@@ -150,7 +149,7 @@ function pop_message(elem, msg, cls, timeout) {
 
 // Triggered on network errors.
 function error_message(elem, xhr, status, text) {
-    pop_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
+    popup_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
 }
 
 function apply_vote(elem, post_uid, vote_type) {
@@ -174,10 +173,10 @@ function apply_vote(elem, post_uid, vote_type) {
             if (data.status === 'error') {
                 // Untoggle the button if there was an error
                 elem.toggleClass("on")
-                pop_message(elem, data.msg, data.status);
+                popup_message(elem, data.msg, data.status);
             } else {
                 // Success
-                //pop_message(elem, data.msg, data.status);
+                //popup_message(elem, data.msg, data.status);
                 // Increment the post score counter
                 var score = $("#score-" + post_uid)
                 var value = (parseInt(score.text()) || 0) + parseInt(data.change) || 0;
@@ -220,14 +219,10 @@ $(document).ready(function () {
         moderate($(this));
     });
 
-    $('.message .close')
-        .on('click', function () {
-            $(this)
-                .closest('.message')
-                .transition('fade')
-            ;
-        })
-    ;
+    // Makes site messages dissapear.
+    $('#site-messages').delay(2500).slideUp(800, function () {
+        $(this).remove();
+    });
 
     $('.vote').each(function (event) {
 

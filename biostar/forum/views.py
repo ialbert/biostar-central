@@ -8,12 +8,11 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import render, redirect
-from django.http import HttpResponseBadRequest
 
 from biostar.forum import forms, auth, tasks, util
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Subscription, Badge
-from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
+from biostar.utils.decorators import object_exists
 from biostar.utils.shortcuts import reverse
 
 User = get_user_model()
@@ -278,17 +277,7 @@ def post_answer(request, uid):
     return redirect(redir)
 
 
-def ajax_test(request):
-    """
-    Creates a commment on a top level post.
-    """
-    msg="OK"
-    print (f"HeRe= {request.POST} ")
-    return ajax_error(msg=msg)
-
-
 def create_comment(request, uid):
-
     user = request.user
     post = Post.objects.filter(uid=uid).first()
 
