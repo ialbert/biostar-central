@@ -216,6 +216,10 @@ def show_score(score):
     score = (score * 10) + 1
     return score
 
+@register.inclusion_tag('widgets/render_comment.html')
+def render_comment(comment):
+    return dict(comment=comment)
+
 
 @register.inclusion_tag('widgets/render_tags.html')
 def render_tags(post):
@@ -404,6 +408,8 @@ def traverse_comments(request, post, tree, comment_template):
 
     body = template.loader.get_template(comment_template)
 
+    seen = set()
+
     def traverse(node):
 
         data = ['<div class="ui comment segments">']
@@ -411,6 +417,9 @@ def traverse_comments(request, post, tree, comment_template):
         html = body.render(cont)
         data.append(html)
         for child in tree.get(node.id, []):
+            if child in seen:
+                raise Exception(f"circular tree {child.pk} {child.title}")
+            seen.add(child)
             data.append(f'<div class="ui segment comment basic">')
             data.append(traverse(child))
             data.append("</div>")

@@ -187,27 +187,27 @@ class SubsForm(forms.Form):
 
 class PostShortForm(forms.Form):
 
+    parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
+    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
+                                             min_length=2, max_length=5000,)
+
     def __init__(self, user=None, post=None, *args, **kwargs):
 
         self.user = user
         self.post = post
 
         super().__init__(*args, **kwargs)
-        inital_content = "" if not self.post else self.post.content
+        inital_content = self.post.content if self.post else ""
         self.fields["content"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                                                  min_length=2, max_length=5000,
                                                  initial=inital_content)
-
-    parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
 
     def save(self, author=None, post_type=Post.ANSWER, edit=False):
         data = self.cleaned_data
         parent = data.get("parent_uid")
         content = data.get("content")
-        html = markdown.parse(content)
 
         if edit:
-            self.post.html = html
             self.post.content = content
             self.post.save()
         else:
@@ -223,6 +223,12 @@ class PostShortForm(forms.Form):
     #def clean(self):
     #    cleaned_data = super(PostShortForm, self).clean()
     #    return
+
+
+class CommentForm(forms.Form):
+
+    post_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
+    content = forms.CharField( widget=forms.Textarea,min_length=2, max_length=5000)
 
 
 class PostModForm(forms.Form):

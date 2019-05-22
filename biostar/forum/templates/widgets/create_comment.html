@@ -1,6 +1,6 @@
-<div class="ui basic segment inputcolor">
-    <form id="comment-form" class="ui form" action="{% url 'post_comment' %}"  method="post">
-        <input type="hidden" name="parent_uid" id="parent_uid" value={{ parent_uid }} />
+<div class="ui basic segment">
+    <form id="comment-form" class="ui form" action="{% url 'create_comment' post.uid %}"  method="post">
+        <input type="hidden" name="post_uid" id="post_uid" value={{ post_uid }} />
         {% csrf_token %}
         <div class="">
             <div id="wmd-button-bar-2"></div>

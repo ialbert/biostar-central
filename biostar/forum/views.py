@@ -1,25 +1,19 @@
 import logging
 from datetime import timedelta
-from urllib.parse import urlparse, parse_qs
-from datetime import datetime
-from django.utils.timezone import utc
-from functools import wraps
 
-from django.utils.decorators import available_attrs
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
 from django.db.models import Count
-
+from django.shortcuts import render, redirect
 
 from biostar.forum import forms, auth, tasks, util
 from biostar.forum.const import *
+from biostar.forum.models import Post, Vote, Subscription, Badge
 from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
 from biostar.utils.shortcuts import reverse
-from biostar.forum.models import Post, Vote, Subscription, Badge
 
 User = get_user_model()
 
@@ -78,9 +72,9 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     elif topic == MYPOSTS and user.is_authenticated:
         query = Post.objects.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
-        #TODO: switching to votes
-        #votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
-        #query = votes_query.values("post")
+        # TODO: switching to votes
+        # votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
+        # query = votes_query.values("post")
         query = Post.objects.filter(votes__post__author=user).exclude(votes__author=user)
     else:
         query = Post.objects.filter(type__in=Post.TOP_LEVEL)
@@ -150,6 +144,7 @@ def authenticated(func):
         if request.user.is_anonymous:
             messages.error(request, "You need to be logged in to view this page.")
         return func(request, **kwargs)
+
     return _wrapper_
 
 
@@ -236,6 +231,12 @@ def badge_view(request, uid):
 #    context = dict(extra_tab="active", extra_tab_name="All Tags")
 #    return render(request, "tags_list.html", context=context)
 
+@ajax_error_wrapper(method="POST")
+def comment_box(request):
+    """
+    Returns the comment box
+    """
+
 
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
@@ -276,7 +277,7 @@ def post_view(request, uid):
     # Establish the root for the post.
     root = post if post.is_toplevel else post.root
 
-    #auth.update_post_views(post=obj, request=request)
+    # auth.update_post_views(post=obj, request=request)
 
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=root)
@@ -308,33 +309,37 @@ def post_answer(request, uid):
 
 
 @login_required
-def comment_form(request, uid):
-    parent_post = Post.objects.filter(uid=uid).first()
+def create_cosmmentX(request, uid):
+    """
+    Creates a commment on a top level post.
+    """
+
+    location = reverse("post_list")
     form = forms.PostShortForm()
     context = dict(parent_uid=parent_post.uid, form=form)
-    return render(request, "widgets/comment_form.html", context=context)
+    return render(request, "widgets/create_comment.html", context=context)
 
 
 @login_required
-def comment(request):
-    location = reverse("post_list")
+def create_comment(request, uid):
+    user = request.user
+    post = Post.objects.filter(uid=uid).first()
+
     if request.method == "POST":
-        form = forms.PostShortForm(data=request.POST)
+        form = forms.CommentForm(data=request.POST)
         if form.is_valid():
-            post = form.save(author=request.user, post_type=Post.COMMENT)
-            messages.success(request, "Added comment")
-            location = reverse("post_view", kwargs=dict(uid=post.root.uid)) + "#" + post.uid
-            if tasks.HAS_UWSGI:
-                tasks.created_post(pid=post.id)
-            return redirect(location)
+            content = form.cleaned_data['content']
+            comment = auth.create_post(parent=post.parent, author=user, content=content, post_type=Post.COMMENT)
+            context = dict(comment=comment)
+            return render(request, "widgets/render_comment.html", context=context)
 
         messages.error(request, f"Error adding comment:{form.errors}")
-        pid = request.POST.get("parent_uid")
-        parent = Post.objects.filter(uid=pid).first()
-        anchor = reverse("post_view", kwargs=dict(uid=parent.root.uid))
-        location = location if parent is None else anchor
+    else:
+        initial = dict(parent_uid=post.uid, content="")
+        form = forms.CommentForm(initial=initial)
 
-    return redirect(location)
+    context = dict(post=post, form=form)
+    return render(request, "widgets/create_comment.html", context=context)
 
 
 @object_exists(klass=Post)
@@ -365,7 +370,7 @@ def post_create(request, template="post_create.html", url="post_view",
 
     # Filter function ( filter_func ) is used to filter choices from the form
     # between sites.
-    form = forms.PostLongForm( filter_func=filter_func)
+    form = forms.PostLongForm(filter_func=filter_func)
 
     if request.method == "POST":
         form = forms.PostLongForm(data=request.POST, filter_func=filter_func)
@@ -375,7 +380,7 @@ def post_create(request, template="post_create.html", url="post_view",
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
             return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
-    context = dict(form=form, tab="new",  action_url=reverse("post_create"))
+    context = dict(form=form, tab="new", action_url=reverse("post_create"))
     context.update(extra_context)
 
     return render(request, template, context=context)

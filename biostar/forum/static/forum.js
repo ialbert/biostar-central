@@ -122,13 +122,36 @@ function add_reply(elem) {
 
 function add_comment(elem) {
 
+    var post_uid = elem.attr('data-value');
+    var target = count_elem(post_uid)
+    var url = "/create/comment/" + post_uid + "/"
+
     // remove comment body if exists.
     $("#comment-row").remove();
 
-    var post_uid = elem.attr('data-value');
+
     var container = $("#comment-container-" + post_uid);
     var comment_url = elem.attr("comment-url");
-    var page = $('<div id="comment-row"></div>').load(comment_url);
+
+
+    $.ajax(url, {
+        type: 'POST',
+        dataType: 'json',
+        ContentType: 'application/json',
+        success: function (data) {
+            if (data.status === 'error') {
+                // Untoggle the button if there was an error
+                pop_message(target, data.msg, data.status);
+                alert(data.msg);
+            } else {
+                pop_message(target, data.msg, data.status);
+            }
+
+        },
+        error: function (xhr, status, text) {
+            pop_message(target, text, "error")
+        }
+    });
 
     container.after(page);
 
@@ -146,7 +169,7 @@ function pop_message(elem, msg, cls) {
 }
 
 
-function count_elem(post_uid){
+function count_elem(post_uid) {
     // The DOM element that stores the count
     elem = $("#count-" + post_uid)
     return elem;
@@ -215,7 +238,6 @@ $(document).ready(function () {
         .dropdown()
     ;
 
-
     $(".add-comment").click(function (event) {
         event.preventDefault();
         add_comment($(this));
@@ -269,13 +291,12 @@ $(document).ready(function () {
         // Actions taken on vote click.
         $($(this)).click(function () {
             var elem = $(this);
-            var data_uid = elem.attr('data-uid');
+            var post_uid = elem.attr('data-value');
             var data_type = elem.attr('data-type');
-            apply_vote(elem, data_uid, data_type);
+            apply_vote(elem, post_uid, data_type);
 
         });
     });
-
 
 
 });

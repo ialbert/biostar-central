@@ -23,14 +23,14 @@
 
         <div class="votebox">
 
-            <button class="ui icon button vote" data-uid="{{ post.uid }}" data-type="upvote"
+            <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="upvote"
                     data-position="right center" data-state="{{ post.has_upvote }}">
                 <i class="thumbs up icon "></i>
             </button>
 
             <div class="count" id="count-{{ post.uid }}">{{ post.vote_count }}</div>
 
-            <button class="ui icon button vote" data-uid="{{ post.uid }}" data-type="bookmark"
+            <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="bookmark"
                     data-position="right center" data-state="{{ post.has_bookmark }}">
                 <i class="bookmark icon "></i>
             </button>
@@ -54,15 +54,17 @@
             {#  Post action bar. #}
             <div class="actions">
 
-                <a class="add-comment ui tiny label" comment-url="{% url 'comment_form' post.uid %}"
-                   data-value="{{ post.uid }}">
+                <a class="add-commentX ui tiny label" href="{% url 'create_comment' post.uid %}"
+                   data-value="{{ post.uid }}" >
                     ADD COMMENT
                 </a>
 
                 &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
+                {% if post.is_editable %}
                 &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
                 &bull; <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}"
                           data-value="{{ post.uid }}">moderate</a>
+                {%  endif %}
 
                 <span class="status muted">
                     updated {{ post.lastedit_date|time_ago }} by

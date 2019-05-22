@@ -29,7 +29,7 @@
       <div class="smaller-font">
 
         {% if request.user.is_authenticated %}
-        <a class="add-comment ui mini grey basic label" comment-url="{% url 'comment_form' post.uid %}"
+        <a class="add-comment ui mini grey basic label" comment-url="{% url 'create_comment' post.uid %}"
            data-value="{{post.uid}}">
             ADD REPLY
         </a>

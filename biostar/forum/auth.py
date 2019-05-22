@@ -81,7 +81,7 @@ def post_tree(user, root):
     comment_tree = dict()
 
     def decorate(post):
-        # Mutates the incoming parameterts!
+        # Mutates the incoming parameters
         if post.is_comment:
             comment_tree.setdefault(post.parent_id, []).append(post)
 
@@ -271,22 +271,21 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
     return url
 
 
-def create_post(title, author, content, post_type, tag_val="", parent=None, root=None,
+def create_post(author, content, post_type, title="Title", tag_val="tag1, tag2", parent=None, root=None,
                 sub_to_root=True):
     "Used to create posts across apps"
 
-    post = Post.objects.create(
-        title=title, content=content, tag_val=tag_val,
+    post = Post.objects.create(title=title, content=content, tag_val=tag_val,
         author=author, type=post_type, parent=parent, root=root)
-    root = root or post.root
+
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously
     tasks.send_notification_msgs(post)
-    tasks.send_subs_msg(post=root, subs=Subscription.objects.filter(post=root))
+    tasks.send_subs_msg(post=post.root, subs=Subscription.objects.filter(post=post.root))
 
     # Subscribe the author to the root, if not already
     if sub_to_root:
-        create_sub(post=root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
+        create_sub(post=post.root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
 
     # Triggers another save in here
     # post.add_tags(post.tag_val)
