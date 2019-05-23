@@ -11,6 +11,7 @@ from django.dispatch import receiver
 from taggit.managers import TaggableManager
 
 from biostar.utils.shortcuts import reverse
+from biostar.accounts.models import Profile
 from . import util
 
 User = get_user_model()
@@ -22,12 +23,6 @@ MAX_TEXT_LEN = 10000
 MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 
 logger = logging.getLogger("engine")
-
-
-class SubscriptionManager(models.Manager):
-    def get_subs(self, post):
-        "Returns all subscriptions for a post, exclude the "
-        return self.filter(post=post.root).select_related("user", "user__profile")
 
 
 class Post(models.Model):
@@ -280,26 +275,14 @@ class PostView(models.Model):
 class Subscription(models.Model):
     "Connects a post to a user"
 
-    # NO_MESSAGES, LOCAL_MESSAGE, EMAIL_MESSAGE, DIGEST_MESSAGES = range(4)
-    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
-
-    MESSAGING_CHOICES = [
-        (DEFAULT_MESSAGES, "Default to Local Messages"),
-        (LOCAL_MESSAGE, "Local messages"),
-        (EMAIL_MESSAGE, "Email for every new post added to current one."),
-        (ALL_MESSAGES, "Email for every new thread (mailing list mode)")
-    ]
-
     class Meta:
         unique_together = (("user", "post"))
 
     uid = models.CharField(max_length=32, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs", on_delete=models.CASCADE)
-    type = models.IntegerField(choices=MESSAGING_CHOICES, default=LOCAL_MESSAGE)
+    type = models.IntegerField(choices=Profile.MESSAGING_TYPE_CHOICES, default=Profile.LOCAL_MESSAGE)
     date = models.DateTimeField()
-
-    objects = SubscriptionManager()
 
     def __str__(self):
         return "%s to %s" % (self.user.name, self.post.title)
@@ -312,7 +295,7 @@ class Subscription(models.Model):
 
     @staticmethod
     def get_sub(post, user):
-        sub = Subscription.objects.filter(post=post, user=user)
+        sub = Subscription.objects.filter(post=post, user=user).first()
         return None if user.is_anonymous else sub
 
 

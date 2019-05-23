@@ -1,12 +1,54 @@
+from functools import wraps, partial
 
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.utils.decorators import available_attrs
 from ratelimit.decorators import ratelimit
-from django.shortcuts import render
 
-from biostar.forum import forms, auth
+from biostar.forum import auth
 from biostar.forum.models import Post, Vote
-from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success
+
+
+def ajax_msg(msg, status, **kwargs):
+    payload = dict(status=status, msg=msg)
+    payload.update(kwargs)
+    return JsonResponse(payload)
+
+
+ajax_success = partial(ajax_msg, status='success')
+ajax_error = partial(ajax_msg, status='error')
+
+
+class ajax_error_wrapper:
+    """
+    Used as decorator to trap/display  errors in the ajax calls
+    """
+
+    def __init__(self, method):
+        self.method = method
+
+    def __call__(self, func, *args, **kwargs):
+
+        @wraps(func, assigned=available_attrs(func))
+        def _ajax_view(request, *args, **kwargs):
+
+            if request.method != self.method:
+                return ajax_error(f'{self.method} method must be used.')
+
+            if not request.user.is_authenticated:
+                return ajax_error('You must be logged in.')
+
+            return func(request, *args, **kwargs)
+
+        return _ajax_view
+
+def ajax_test(request):
+    """
+    Creates a commment on a top level post.
+    """
+    msg="OK"
+    print (f"HeRe= {request.POST} ")
+    return ajax_error(msg=msg)
+
 
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
@@ -41,10 +83,7 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
-def ajax_test(request):
-    """
-    Creates a commment on a top level post.
-    """
-    msg="OK"
-    print (f"HeRe= {request.POST} ")
-    return ajax_success(msg=msg)
+def ajax_subs():
+    return
+
+

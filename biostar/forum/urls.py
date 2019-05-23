@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^b/view/(?P<uid>[-\w]+)/$', views.badge_view, name='badge_view'),
 
 
-    url(r'^sub/(?P<uid>[-\w]+)/$', views.subs_action, name='subs_action'),
+    #url(r'^sub/(?P<uid>[-\w]+)/$', views.subs_action, name='subs_action'),
     url(r'^edit/(?P<uid>[-\w]+)/$', views.edit_post, name='post_edit'),
 
     url(r'^ajax/vote/$', ajax.ajax_vote, name='vote'),

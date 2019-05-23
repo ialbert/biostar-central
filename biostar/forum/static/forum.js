@@ -45,22 +45,6 @@ $.ajaxSetup({
 });
 
 
-// Triggered on moderation.
-function moderate(elem) {
-
-    $('#modpanel').remove();
-
-    // Could be a user or post uid
-    var data_uid = elem.attr('data-value');
-
-    var container = $("#mod-container-" + data_uid);
-    var mod_url = elem.attr('mod-url');
-
-    var page = $('<div id="modpanel"></div>').load(mod_url);
-    container.after(page)
-
-};
-
 
 function add_reply(elem) {
 
@@ -86,9 +70,8 @@ function add_comment(elem) {
     // Check for existing comment.
     var comment = $("#new-comment")
 
-
     if (comment.length) {
-        // Remove comment if exits.
+        // Remove comment if exists.
         comment.remove();
         return;
     } else {
@@ -104,12 +87,11 @@ function add_comment(elem) {
         var input = $("#comment-input")
         var size = input.val().length;
         if (size < 10) {
-            pop_message(input, "More than 10 characters please!", "error");
+            popup_message(input, "More than 10 characters please!", "error");
         } else {
             $("#comment-form").submit()
         }
     }
-
     // Submit form with CTRL-ENTER
     comment.keydown(function (e) {
         if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
@@ -123,7 +105,7 @@ function add_comment(elem) {
         if (status == 'success') {
             // Focus on the input
             $("#comment-input").focus();
-            // Appply size check to submit button.
+            // Apply size check to submit button.
             $("#comment-submit").click(function (e) {
                 e.preventDefault();
                 textarea_size_check()
@@ -137,7 +119,7 @@ function add_comment(elem) {
 };
 
 
-function pop_message(elem, msg, cls, timeout) {
+function popup_message(elem, msg, cls, timeout) {
     timeout = typeof timeout !== 'undefined' ? timeout : 1000;
     var text = '<div></div>'
     var tag = $(text).insertBefore(elem)
@@ -150,7 +132,7 @@ function pop_message(elem, msg, cls, timeout) {
 
 // Triggered on network errors.
 function error_message(elem, xhr, status, text) {
-    pop_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
+    popup_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
 }
 
 function apply_vote(elem, post_uid, vote_type) {
@@ -174,10 +156,10 @@ function apply_vote(elem, post_uid, vote_type) {
             if (data.status === 'error') {
                 // Untoggle the button if there was an error
                 elem.toggleClass("on")
-                pop_message(elem, data.msg, data.status);
+                popup_message(elem, data.msg, data.status);
             } else {
                 // Success
-                //pop_message(elem, data.msg, data.status);
+                //popup_message(elem, data.msg, data.status);
                 // Increment the post score counter
                 var score = $("#score-" + post_uid)
                 var value = (parseInt(score.text()) || 0) + parseInt(data.change) || 0;
@@ -190,16 +172,6 @@ function apply_vote(elem, post_uid, vote_type) {
             error_message(elem, xhr, status, text)
         }
     });
-}
-
-function replace_textbox(elem, username){
-
-    var given_input = "<span id='profile-name'>" + username + "</span>";
-
-    var textbox = $("#user-input");
-
-    textbox.replaceWith(given_input);
-
 }
 
 $(document).ready(function () {
@@ -223,43 +195,30 @@ $(document).ready(function () {
     });
 
     $(".moderate-post").click(function (event) {
-        moderate($(this));
+        event.preventDefault();
+        var elem = $(this);
+
+        $('#modpanel').remove();
+
+        // Could be a user or post uid
+        var data_uid = elem.attr('data-value');
+
+        var container = $("#moderate-insert-" + data_uid);
+        var mod_url = '/moderate/'+ data_uid + '/';
+
+        var page = $('<div id="modpanel"></div>').load(mod_url);
+        container.after(page)
+
     });
 
     $(".moderate-user").click(function (event) {
         moderate($(this));
     });
 
-
-    $("#profile-name").click(function () {
-        var elem = $(this);
-        //var uid = elem.attr("uid");
-        var divHtml = elem.text(); //select's the contents of div immediately previous to the button
-
-        // Textarea for user input
-        var editableText = $("<textarea id='user-input'/>");
-        //
-        //editableText.val(divHtml) ;
-        //editableText.wrap( "<div class='profile-wrapper'></div>" );
-
-        editableText.append(divHtml);
-        
-        $.ajax();
-        $(this).after("<div class='ui right floated xsmall button' onclick='replace_textbox($(this), $(this).text())'>cancel</div>");
-
-        $(this).replaceWith(editableText);
-
-        });
-
-
-    $('.message .close')
-        .on('click', function () {
-            $(this)
-                .closest('.message')
-                .transition('fade')
-            ;
-        })
-    ;
+    // Makes site messages dissapear.
+    $('#site-messages').delay(2500).slideUp(800, function () {
+        $(this).remove();
+    });
 
     $('.vote').each(function (event) {
 

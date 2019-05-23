@@ -61,8 +61,7 @@
                 &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
                 {% if post.is_editable %}
                     &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
-                    &bull; <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}"
-                              data-value="{{ post.uid }}">moderate</a>
+                    &bull; <a class="moderate-post" data-value="{{ post.uid }}">moderate</a>
                 {% endif %}
 
                 <span class="status muted">
@@ -73,7 +72,7 @@
                     {{ post.lastedit_user.profile.score | show_score | bignum }}
                 </span>
 
-                <div id="moderate-container-{{ post.uid }}"></div>
+
 
             </div>
 
@@ -81,10 +80,9 @@
             {# Comments for each post rendered here #}
 
         </div>
-
-
     </div>
 
+    <div id="moderate-insert-{{ post.uid }}"></div>
     <div id="comment-insert-{{ post.uid }}"></div>
 
 

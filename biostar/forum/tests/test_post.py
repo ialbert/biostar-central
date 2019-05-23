@@ -47,7 +47,7 @@ class PostTest(TestCase):
         request = fake_request(url=url, data=data, user=self.owner)
         response = views.create_comment(request=request, uid=self.post.uid)
 
-        self.assertEqual(response.status_code, 200, f"Could not render comments")
+        self.assertEqual(response.status_code, 302, f"Could not add comments")
 
     def test_comment_traversal(self):
         """Test comment rendering pages"""

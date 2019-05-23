@@ -8,12 +8,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import render, redirect
-from django.http import HttpResponseBadRequest
 
-from biostar.forum import forms, auth, tasks, util
-from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Subscription, Badge
-from biostar.utils.decorators import ajax_error, ajax_error_wrapper, ajax_success, object_exists
+from biostar.utils import markdown
+from . import forms, auth, tasks, util, ajax
+from .const import *
+from .models import Post, Vote, Subscription, Badge
+from biostar.utils.decorators import object_exists
 from biostar.utils.shortcuts import reverse
 
 User = get_user_model()
@@ -69,7 +69,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     elif topic == BOOKMARKS and user.is_authenticated:
         query = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
     elif topic == FOLLOWING and user.is_authenticated:
-        query = Post.objects.exclude(subs__type=Subscription.NO_MESSAGES).filter(subs__user=user)
+        query = Post.objects.filter(subs__user=user)
     elif topic == MYPOSTS and user.is_authenticated:
         query = Post.objects.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
@@ -268,27 +268,21 @@ def post_answer(request, uid):
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
-            answer = form.save(author=request.user)
+            author = request.user
+            content = form.cleaned_data.get("content")
+            # Create answer to root
+            answer = auth.create_post(title=root.title, parent=root, author=author,
+                                      content=content, post_type=Post.ANSWER, root=root)
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=answer.id)
 
             # Anchor location to recently created answer
-            redir = redir + "#" + answer.uid
+            redir = f"{redir}#{answer.uid}"
 
     return redirect(redir)
 
 
-def ajax_test(request):
-    """
-    Creates a commment on a top level post.
-    """
-    msg="OK"
-    print (f"HeRe= {request.POST} ")
-    return ajax_error(msg=msg)
-
-
 def create_comment(request, uid):
-
     user = request.user
     post = Post.objects.filter(uid=uid).first()
 
@@ -296,9 +290,8 @@ def create_comment(request, uid):
         form = forms.CommentForm(data=request.POST)
         if form.is_valid():
             content = form.cleaned_data['content']
-            comment = auth.create_post(parent=post.parent, author=user, content=content, post_type=Post.COMMENT)
+            comment = auth.create_post(parent=post, author=user, content=content, post_type=Post.COMMENT)
             return redirect(comment.get_absolute_url())
-
         messages.error(request, f"Error adding comment:{form.errors}")
     else:
         initial = dict(parent_uid=post.uid, content="")
@@ -308,49 +301,56 @@ def create_comment(request, uid):
 
     return render(request, "widgets/create_comment.html", context=context)
 
+#
+# @object_exists(klass=Post)
+# @login_required
+# def subs_action(request, uid):
+#     # Post actions are being taken on
+#     post = Post.objects.filter(uid=uid).first()
+#     user = request.user
+#     #TODO: moving to ajax
+#     if request.method == "POST":
+#         form = forms.SubsForm(data=request.POST)
+#         if form.is_valid():
+#             sub_type = form.cleaned_data["subtype"]
+#             sub = auth.create_sub(post=post, user=user, sub_type=sub_type)
+#             msg = f"Updated Subscription to : {sub.get_type_display()}"
+#             messages.success(request, msg)
+#             if tasks.HAS_UWSGI:
+#                 tasks.added_sub(sid=sub.id)
+#
+#     return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
+#
 
-@object_exists(klass=Post)
+
 @login_required
-def subs_action(request, uid):
-    # Post actions are being taken on
-    post = Post.objects.filter(uid=uid).first()
-    user = request.user
-
-    if request.method == "POST" and user.is_authenticated:
-        form = forms.SubsForm(data=request.POST, post=post, user=user)
-
-        if form.is_valid():
-            sub = form.save()
-            msg = f"Updated Subscription to : {sub.get_type_display()}"
-            messages.success(request, msg)
-
-            if tasks.HAS_UWSGI:
-                tasks.added_sub(sid=sub.id)
-
-    return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
-
-
-@login_required
-def post_create(request, template="post_create.html", url="post_view",
-                extra_context={}, filter_func=lambda x: x):
-    "Make a new post"
-
-    # Filter function ( filter_func ) is used to filter choices from the form
-    # between sites.
-    form = forms.PostLongForm(filter_func=filter_func)
-
+def post_create(request):
+    """
+    Make a new post
+    """
+    form = forms.PostLongForm()
+    author = request.user
     if request.method == "POST":
-        form = forms.PostLongForm(data=request.POST, filter_func=filter_func)
+        form = forms.PostLongForm(data=request.POST)
         if form.is_valid():
             # Create a new post by user
-            post = form.save(author=request.user)
+            title = form.cleaned_data.get('title')
+            content = form.cleaned_data.get("content")
+            post_type = form.cleaned_data.get('post_type')
+            tag_val = form.cleaned_data.get('tag_val')
+            post = auth.create_post(title=title, content=content, post_type=post_type,
+                                    tag_val=tag_val, author=author)
+
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
-            return redirect(reverse(url, request=request, kwargs=dict(uid=post.uid)))
-    context = dict(form=form, tab="new", action_url=reverse("post_create"))
-    context.update(extra_context)
 
-    return render(request, template, context=context)
+            return redirect(reverse("post_view", request=request, kwargs=dict(uid=post.uid)))
+
+    # Action url for the form
+    action_url = reverse("post_create")
+    context = dict(form=form, tab="new", action_url=action_url)
+
+    return render(request, "post_create.html", context=context)
 
 
 @object_exists(klass=Post)
@@ -364,7 +364,6 @@ def post_moderate(request, uid):
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
 
         if form.is_valid():
-
             action = form.cleaned_data["action"]
             duplicate = form.cleaned_data["dupe"]
             pid = form.cleaned_data.get("pid", "")
@@ -388,21 +387,23 @@ def edit_post(request, uid):
     "Edit an existing post"
 
     post = Post.objects.filter(uid=uid).first()
-    if post.is_toplevel:
-        template, edit_form = "post_create.html", forms.PostLongForm
-    else:
-        template, edit_form = "shortpost_edit.html", forms.PostShortForm
-
+    action_url = reverse("post_edit", kwargs=dict(uid=post.uid))
     user = request.user
-    form = edit_form(post=post, user=user)
+    if post.is_toplevel:
+        template, form_class = "post_create.html", forms.PostLongForm
+        initial = dict(content=post.content, title=post.title, tag_val=post.tag_val, post_type=post.type)
+    else:
+        template, form_class = "shortpost_edit.html", forms.PostShortForm
+        initial = dict(content=post.content)
+
+    form = form_class(post=post, initial=initial, user=user)
     if request.method == "POST":
-        form = edit_form(post=post, data=request.POST, user=user)
+        form = form_class(post=post, initial=initial, data=request.POST, user=user)
         if form.is_valid():
-            form.save(edit=True)
+            form.edit()
             messages.success(request, f"Edited :{post.title}")
             return redirect(post.get_absolute_url())
 
-    context = dict(form=form, post=post, action_url=reverse("post_edit", kwargs=dict(uid=uid)),
-                   extra_tab="active", extra_tab_name="Edit Post")
+    context = dict(form=form, post=post, action_url=action_url)
 
     return render(request, template, context)
