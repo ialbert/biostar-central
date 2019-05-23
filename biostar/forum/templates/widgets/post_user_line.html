@@ -1,12 +1,12 @@
 {% load humanize %}
-{% load forum_tags %}
+{% load accounts_tags %}
 
 
     updated {{ post.lastedit_date|time_ago }} by
     <a href="{% url "user_profile"  post.author.profile.uid %}">
         {% if avatar %}
             <div class="ui avatar image">
-                <img class="ui centered image" src="{% gravatar user=post.author size=80 %}">
+                <img class="ui centered image" src="{% user_image user=post.author size=80 %}">
             </div>
         {% endif %}
         {{ post.lastedit_user.profile.name }}

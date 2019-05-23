@@ -287,7 +287,7 @@ class Subscription(models.Model):
     date = models.DateTimeField()
 
     def __str__(self):
-        return "%s to %s" % (self.user.name, self.post.title)
+        return "%s to %s" % (self.user.profile.name, self.post.title)
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
@@ -351,10 +351,10 @@ def create_sub(user, root):
     Create a user subscription to root upon creation
     """
     sub = Subscription.objects.filter(post=root, user=user).first()
-    date = util.now()
     # Update an existing subscriptions
     if sub:
         return sub
+    date = util.now()
     # Create new subscriptions
     Subscription.objects.create(post=root, user=user, type=user.profile.message_prefs, date=date)
     # Increase the subscription count of the root.

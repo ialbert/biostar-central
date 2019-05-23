@@ -324,6 +324,7 @@ img {
 
 .no-shadow {
     box-shadow: none !important;
+    border: none !important;
 }
 
 .float-right {

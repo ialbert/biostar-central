@@ -23,14 +23,14 @@
 
     {#  Show title on top level posts #}
     {% if post.is_toplevel %}
-        &bull; <div class="ui dropdown" id="sub" uid="{{ post.uid }}">
-            <div class="text notify">current status</div>
+        &bull; <div class="ui subscribe dropdown" rid="{{ post.uid }}">
+            <div class="text" id="active">{{ post|subtype:request.user }}</div>
             <i class="dropdown icon"></i>
             <div class="menu">
-                <div class="item">Default</div>
-                <div class="item active">Messages</div>
-                <div class="item">Email</div>
-                <div class="item">Not following</div>
+                <div class="item" data-value="messages">Messages</div>
+                <div class="item" data-value="email">Email</div>
+                <div class="item" data-value="list">Mailing List</div>
+                <div class="item" data-value="unfollow">Not Following</div>
             </div>
         </div>
     {% endif %}

@@ -1,11 +1,13 @@
 from functools import wraps, partial
-
+import logging
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
+from django.db.models import F
 from ratelimit.decorators import ratelimit
 
-from biostar.forum import auth
-from biostar.forum.models import Post, Vote
+from biostar.accounts.models import Profile
+from . import auth, util
+from .models import Post, Vote, Subscription
 
 
 def ajax_msg(msg, status, **kwargs):
@@ -13,9 +15,13 @@ def ajax_msg(msg, status, **kwargs):
     payload.update(kwargs)
     return JsonResponse(payload)
 
+logger = logging.getLevelName("biostar")
 
 ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
+
+# Shared with forum tags
+SUBES_TYPE_MAP = dict(messages=Profile.LOCAL_MESSAGE, email=Profile.EMAIL_MESSAGE, list=Profile.MAILING_LIST)
 
 
 class ajax_error_wrapper:
@@ -84,6 +90,8 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def ajax_subs(request):
     was_limited = getattr(request, 'limited', False)
@@ -91,11 +99,31 @@ def ajax_subs(request):
     if was_limited:
         return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
 
-    post_uid = request.POST.get('uid')
+    # Get the root and sub type.
+    root_uid = request.POST.get('root_uid')
     sub_type = request.POST.get("sub_type")
-    
+    sub_type = SUBES_TYPE_MAP.get(sub_type, "unfollow")
+    user = request.user
 
-    1/0
-    return
+    # Get the post that is subscribed to.
+    root = Post.objects.filter(uid=root_uid).first()
+    sub = Subscription.objects.filter(post=root, user=user).first()
+    date = util.now()
+    # Delete a subscription
+    if sub_type == "unfollow":
+        if sub:
+            sub.delete()
+        return ajax_success(msg="Unsubscribed to post.")
+
+    # Update an existing subscription
+    if sub:
+        Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
+    else:
+        # Create new subscriptions
+        Subscription.objects.create(post=root, user=user, type=sub_type, date=date)
+        # Increase the subscription count of the root.
+        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+
+    return ajax_success(msg="Changed subscription.")
 
 

@@ -13,8 +13,9 @@ from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
+from biostar.accounts.models import Profile
 from biostar.forum import const, util
-from biostar.forum.models import Post, Vote, Award
+from biostar.forum.models import Post, Vote, Award, Subscription
 from biostar.message.models import Message
 
 User = get_user_model()
@@ -62,9 +63,10 @@ def post_user_box(user, post):
     return dict(user=user, post=post)
 
 
-@register.inclusion_tag('widgets/post_actions.html')
-def post_actions(post, label="ADD COMMENT"):
-    return dict(post=post, label=label)
+@register.inclusion_tag('widgets/post_actions.html', takes_context=True)
+def post_actions(context, post, label="ADD COMMENT"):
+    request = context["request"]
+    return dict(post=post, label=label, request=request)
 
 
 @register.inclusion_tag('widgets/post_tags.html')
@@ -115,10 +117,9 @@ def show_messages(messages):
     """
     return dict(messages=messages)
 
-
 @register.simple_tag
 def gravatar(user, size=80):
-    # name = user.profile.name
+
     if user.is_anonymous or user.profile.is_suspended:
         # Removes spammy images for suspended users
         email = 'suspended@biostars.org'.encode('utf8')
@@ -127,12 +128,27 @@ def gravatar(user, size=80):
 
     hash = hashlib.md5(email).hexdigest()
 
-    url = "https://secure.gravatar.com/avatar/%s?" % hash
-    url += urllib.parse.urlencode({
+    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
+    gravatar_url += urllib.parse.urlencode({
         's': str(size),
-        'd': 'retro',
-    })
-    return url
+        'd': 'mp',
+    }
+    )
+    return gravatar_url #mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
+
+
+@register.filter
+def subtype(post, user):
+
+    # Get the user subscriptions
+    sub = Subscription.objects.filter(post=post, user=user).first()
+    default = "Not Following"
+    type_map = {Profile.LOCAL_MESSAGE: "Messages", Profile.EMAIL_MESSAGE: "Email",
+                Profile.MAILING_LIST: "Mailing List"}
+
+    stype = type_map.get(sub.type, default) if sub else default
+
+    return stype
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)

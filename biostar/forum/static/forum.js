@@ -176,27 +176,36 @@ function apply_vote(elem, post_uid, vote_type) {
 
 $(document).ready(function () {
 
-    $('.ui.dropdown')
-      .dropdown({
-
-          action: function (text, value) {
-            var elem = $(this);
-            var post_uid = elem.attr("uid");
-            var subs_url = '/ajax/subscribe/';
-            alert(post_uid);
-            alert(value);
-
-            //Call the jax here.
-              $.ajax(subs_url,
-                  {
+    $('.ui.subscribe.dropdown')
+        .dropdown({
+          action:'hide',
+          onChange: function (value, text, $selectedItem) {
+          var elem = $(this);
+          // Get the root id
+          var rid = elem.attr("rid");
+          // Currently selected item
+          var active = $('#active');
+          // Subscription url
+          var subs_url = '/ajax/subscribe/';
+          $.ajax(subs_url,
+              {
                   type: 'POST',
                   dataType: 'json',
                   ContentType: 'application/json',
                   data: {
-                          'post_uid': post_uid,
-                          'sub_type': value
-                        },
+                      'root_uid': rid,
+                      'sub_type': value
+                  },
+                  success: function (data) {
+                      if (data.status === 'error') {
+                          popup_message(elem, data.msg, data.status);
+                      } else {
+                          // Replace the current item with the select item.
+                          active.text($selectedItem.text());
+                      }
+
                   }
+              }
               )
           }
 

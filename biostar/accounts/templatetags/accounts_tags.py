@@ -9,7 +9,7 @@ from django import template
 from django.utils.safestring import mark_safe
 
 from biostar.accounts.util import now
-logger = logging.getLogger("engine")
+logger = logging.getLogger("biostar")
 register = template.Library()
 
 
@@ -32,20 +32,13 @@ def form_errors(form):
     return context
 
 
-@register.inclusion_tag('widgets/pages.html')
-def pages(objs, request):
-
-    url = request.path
-
-    return dict(objs=objs, url=url, request=request)
-
-
 @register.inclusion_tag('widgets/show_messages.html')
 def show_messages(messages):
     """
     Renders the messages
     """
     return dict(messages=messages)
+
 
 @register.filter
 def show_score_icon(user):
@@ -160,7 +153,7 @@ def gravatar(user, size=80):
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
     gravatar_url += urllib.parse.urlencode({
         's': str(size),
-        'd': 'retro',
+        'd': 'mp',
     }
     )
     return gravatar_url #mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
