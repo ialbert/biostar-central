@@ -7,16 +7,15 @@ from datetime import datetime
 from datetime import timedelta
 
 from django import template
-from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
-from biostar.forum import forms, models, const, util
+from biostar.forum import const, util
 from biostar.forum.models import Post, Vote, Award
 from biostar.message.models import Message
-from biostar.utils.shortcuts import reverse
 
 User = get_user_model()
 
@@ -57,18 +56,22 @@ def now():
 def post_user_line(post, avatar=False):
     return dict(post=post, avatar=avatar)
 
+
 @register.inclusion_tag('widgets/post_user_box.html')
 def post_user_box(user, post):
     return dict(user=user, post=post)
+
 
 @register.inclusion_tag('widgets/post_actions.html')
 def post_actions(post, label="ADD COMMENT"):
     return dict(post=post, label=label)
 
+
 @register.inclusion_tag('widgets/post_tags.html')
 def post_tags(post, show_views=False):
     tags = post.tag_val.split(",")
     return dict(post=post, tags=tags, show_views=show_views)
+
 
 @register.simple_tag
 def get_all_message_count(request):
@@ -150,7 +153,6 @@ def get_award_context(award):
 
 @register.filter
 def get_user_location(user):
-
     return user.profile.location or "location unknown"
 
 
@@ -180,7 +182,6 @@ def single_post_feed(post):
 
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
 def list_posts(context, user):
-
     posts = Post.objects.filter(author=user)
     request = context["request"]
     context = dict(posts=posts, request=request)
@@ -412,26 +413,27 @@ def traverse_comments(request, post, tree, template_name):
 
     seen = set()
 
-    def traverse(node):
+    def traverse(node, collect=[]):
 
-        data = ['<div class="ui comment segments">']
         cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
-        data.append(html)
+
+        collect.append(f'<div class="indent"><div class="comment">{html}</div>')
+
         for child in tree.get(node.id, []):
             if child in seen:
                 raise Exception(f"circular tree {child.pk} {child.title}")
             seen.add(child)
-            data.append(f'<div class="ui segment comment basic">')
-            data.append(traverse(child))
-            data.append("</div>")
+            traverse(child, collect=collect)
 
-        data.append("</div>")
-        return '\n'.join(data)
+        collect.append(f"</div>")
 
     # this collects the comments for the post
-    coll = []
+    collect = ['<div class="comment-list">']
     for node in tree[post.id]:
-        coll.append(traverse(node))
+        traverse(node, collect=collect)
+    collect.append("</div>")
 
-    return '\n'.join(coll)
+    html = '\n'.join(collect)
+
+    return html
