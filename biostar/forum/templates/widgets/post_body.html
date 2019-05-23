@@ -55,11 +55,7 @@
             {# Show the post actions #}
             {% post_actions post=post %}
 
-        </div>
-
-    </div>
-
-    {#  Post moderation actions are inserted here #}
+             {#  Post moderation actions are inserted here #}
     <div id="moderate-insert-{{ post.uid }}"></div>
 
     {#  Comments will be inserted here #}
@@ -67,6 +63,12 @@
 
     {# Render all comments #}
     {% render_comments tree=tree post=post %}
+
+        </div>
+
+    </div>
+
+
 
 </div>
 

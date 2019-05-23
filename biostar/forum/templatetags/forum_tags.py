@@ -385,14 +385,19 @@ def boxclass(post):
         style = "forum"
     elif post.type == Post.NEWS:
         style = "news"
-    elif post.has_accepted:
-        style = "accept"
-    elif post.answer_count > 0:
-        style = "answered"
     else:
-        style = "open"
+        style = "question"
 
-    return style
+    if post.has_accepted:
+        modifier = "accepted"
+    elif post.answer_count:
+        modifier = "has_answers"
+    elif post.reply_count:
+        modifier = "has_replies"
+    else:
+        modifier = "open"
+
+    return f"{style} {modifier}"
 
 
 @register.simple_tag(takes_context=True)
