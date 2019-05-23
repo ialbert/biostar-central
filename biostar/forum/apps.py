@@ -75,9 +75,19 @@ def init_post(sender,  **kwargs):
         post = auth.create_post(title=title, author=user, content=content, post_type=ptype)
         logger.info(f"Created {title} post of {post.get_type_display()}")
 
+    questions = list(Post.objects.all().order_by("-id")[:4])
+    # Generate answers
+    for count in range(10):
+        parent = random.choice(questions)
+        content = f"Answer number {count}"
+        answer = auth.create_post(post_type=Post.ANSWER, parent=parent, content=content, author=user)
+
+
     # Generate comments
     for count in range(10):
-        all = list(Post.objects.order_by("-id")[:4])
-        parent = random.choice(all)
+        posts= list(Post.objects.order_by("-id"))
+        parent = random.choice(posts)
         content = f"Comment number {count}"
         comment = auth.create_post(post_type=Post.COMMENT, parent=parent, content=content, author=user)
+
+

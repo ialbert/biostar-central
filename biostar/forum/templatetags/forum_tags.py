@@ -130,7 +130,7 @@ def gravatar(user, size=80):
     url = "https://secure.gravatar.com/avatar/%s?" % hash
     url += urllib.parse.urlencode({
         's': str(size),
-        'd': 'retro',
+        'd': 'wavatar',
     })
     return url
 

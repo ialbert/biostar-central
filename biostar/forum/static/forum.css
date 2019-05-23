@@ -87,6 +87,7 @@ a:hover {
 
 .post {
     border-bottom: 1px solid #d3d3d3;
+    overflow: auto;
 }
 
 .post > .title {
@@ -134,13 +135,20 @@ a:hover {
     display: flex; /* or inline-flex */
 }
 
-.html_content {
+.wrap {
     overflow: auto;
-    padding-bottom: 5px;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+    color: red;
 }
 
 .post > .body > .content {
     width: 100%;
+    overflow: auto;
 }
 
 .post .actions {
