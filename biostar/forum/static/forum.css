@@ -107,6 +107,9 @@ a:hover {
     color: green !important;
 }
 
+.disabled {
+    color: red;
+}
 .popover {
     position: absolute;
     color: #3c763d;
