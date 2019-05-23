@@ -6,15 +6,7 @@
 
     {#  Show title on top level posts #}
     {% if post.is_toplevel %}
-        <div class="ui dropdown" id="sub" uid="{{ post.uid }}">
-            <div class="text">subscribe</div>
-            <i class="dropdown icon"></i>
-            <div class="menu">
-                <div class="item">Choice 1</div>
-                <div class="item">Choice 2</div>
-                <div class="item">Choice 3</div>
-            </div>
-        </div>
+
         <div class="title">
             {#  Page anchor. #}
             <a name="{{ post.uid }}"></a>
@@ -53,7 +45,7 @@
             {% post_user_box user=post.author post=post %}
 
             {# Display post content. #}
-            {{ post.html|safe }}
+            <div class="html_content">{{ post.html|safe }}</div>
 
             {# Show tags #}
             {% if post.is_toplevel %}
@@ -64,6 +56,7 @@
             {% post_actions post=post %}
 
         </div>
+
     </div>
 
     {#  Post moderation actions are inserted here #}

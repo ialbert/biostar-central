@@ -57,7 +57,7 @@ a:hover {
     font-size: 1em;
 }
 
-.user.box {
+.user_box {
     width: 150px;
     margin: 0em 0em 0.5em 0.5em;
     padding: 10px 0px 10px 0px;
@@ -70,7 +70,7 @@ a:hover {
     overflow: hidden;
 }
 
-.user.box div {
+.user_box div {
     text-align: center;
     margin-left: auto;
     margin-right: auto;
@@ -78,9 +78,7 @@ a:hover {
 }
 
 
-.post {
-    border-bottom: 1px solid #d3d3d3;
-    overflow: auto
+.notify {
 }
 
 .post.comment {
@@ -89,7 +87,6 @@ a:hover {
 
 .post {
     border-bottom: 1px solid #d3d3d3;
-    overflow: auto
 }
 
 .post > .title {
@@ -137,8 +134,11 @@ a:hover {
     display: flex; /* or inline-flex */
 }
 
-.post > .body > .content {
+.html_content {
     overflow: auto;
+}
+
+.post > .body > .content {
     width: 100%;
 }
 

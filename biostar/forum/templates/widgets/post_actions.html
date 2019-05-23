@@ -20,6 +20,21 @@
         {{ post.lastedit_user.profile.score | show_score | bignum }}
     </span>
 
+
+    {#  Show title on top level posts #}
+    {% if post.is_toplevel %}
+        &bull;
+        <div class="ui dropdown" id="sub" uid="{{ post.uid }}">
+            <div class="text notify">notify</div>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+                <div class="item">Messages</div>
+                <div class="item">Email</div>
+                <div class="item">Unsubscribe</div>
+            </div>
+        </div>
+    {% endif %}
+
 </div>
 
 
