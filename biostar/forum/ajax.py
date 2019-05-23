@@ -84,7 +84,15 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
-def ajax_subs():
+@ajax_error_wrapper(method="POST")
+def ajax_subs(request):
+    was_limited = getattr(request, 'limited', False)
+
+    if was_limited:
+        return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
+
+    post_uid = ""
+    1/0
     return
 
 

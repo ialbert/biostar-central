@@ -176,8 +176,44 @@ function apply_vote(elem, post_uid, vote_type) {
 
 $(document).ready(function () {
 
-    $('select')
-        .dropdown()
+    $('.ui.dropdown')
+      .dropdown({
+
+          action: function (text, value) {
+            var elem = $(this);
+            var post_uid = elem.attr("uid");
+            var subs_url = '/ajax/subscribe/';
+            alert(post_uid);
+            alert(value);
+
+            //Call the jax here.
+              $.ajax(subs_url,
+                  {
+                  type: 'POST',
+                  dataType: 'json',
+                  ContentType: 'application/json',
+                  data: {
+                          'post_uid': post_uid,
+                          'sub_type': value,
+                        },
+
+                        success: function (data) {
+                            if (data.status === 'error') {
+                                popup_message(elem, data.msg, data.status);
+                            } else {
+
+                                popup_message(elem, data.msg, data.status);
+                            }
+
+                        },
+                        error: function (xhr, status, text) {
+                            error_message(elem, xhr, status, text)
+                        }
+                  }
+              )
+          }
+
+      })
     ;
 
     $(".add-comment").click(function (event) {
@@ -185,14 +221,8 @@ $(document).ready(function () {
         add_comment($(this));
     });
 
-    $(".reply-button").click(function () {
-        event.preventDefault();
-        add_reply($(this));
-    });
 
-    $(".add-answer").click(function (event) {
-        add_answer($(this));
-    });
+
 
     $(".moderate-post").click(function (event) {
         event.preventDefault();
