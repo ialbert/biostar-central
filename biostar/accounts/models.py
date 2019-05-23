@@ -1,17 +1,20 @@
 import uuid
 import mistune
+import os
 
 from django.contrib.auth.models import User
-
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from django.conf import settings
 
+from biostar.accounts import util
 
 MAX_UID_LEN = 255
 MAX_NAME_LEN = 255
 MAX_TEXT_LEN = 10000
+MAX_FIELD_LEN = 1024
 
 
 def generate_uuid(limit=32):
@@ -23,6 +26,17 @@ class Manager(models.Manager):
     def get_all(self, **kwargs):
         "Return everything"
         return super().get_queryset().filter(**kwargs)
+
+
+def image_path(instance, filename):
+    # Name the data by the filename.
+    name, ext = os.path.splitext(filename)
+    imgname = f"images/profiles/image-{instance.uid}{ext}"
+    # Uploads need to go relative to media directory.
+    path = os.path.relpath(settings.MEDIA_ROOT)
+    imgpath = os.path.join(path, imgname)
+
+    return imgpath
 
 
 class Profile(models.Model):
@@ -51,6 +65,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     uid = models.CharField(max_length=MAX_UID_LEN, unique=True)
     name = models.CharField(max_length=MAX_NAME_LEN, default='', db_index=True)
+    # User displayed image.
+    image = models.ImageField(default=None, blank=True, null=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
     # Maximum amount of uploaded files a user is allowed to aggregate, in mega-bytes.
     max_upload_size = models.IntegerField(default=0)

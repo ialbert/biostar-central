@@ -8,12 +8,26 @@ from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
 from django.conf import settings
-from pagedown.widgets import PagedownWidget
+from biostar.utils import markdown
 from .models import Profile
 from . import auth
 
 
 logger = logging.getLogger("engine")
+
+
+def check_size(fobj, maxsize=0.3):
+    # maxsize in megabytes!
+
+    try:
+        if fobj and fobj.size > maxsize * 1024 * 1024.0:
+            curr_size = fobj.size / 1024 / 1024.0
+            msg = f"File too large: {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
+            raise forms.ValidationError(msg)
+    except Exception as exc:
+        raise forms.ValidationError(f"File size validation error: {exc}")
+
+    return fobj
 
 
 class SignUpForm(forms.Form):
@@ -89,6 +103,27 @@ class LogoutForm(forms.Form):
 
 
 class EditProfile(forms.Form):
+    email = forms.CharField(label='Email', max_length=100)
+    name = forms.CharField(label='Name', max_length=100)
+    image = forms.ImageField(required=False)
+    username = forms.CharField(label="Handler", max_length=100)
+    location = forms.CharField(label="Location", max_length=100, required=False)
+    website = forms.URLField(label="Website", max_length=225, required=False)
+    twitter = forms.CharField(label="Twitter Id", max_length=100, required=False)
+    scholar = forms.CharField(label="Scholar", max_length=100, required=False)
+    text = forms.CharField(widget=forms.Textarea(),min_length=2, max_length=5000, required=False)
+    my_tags = forms.CharField(max_length=100, required=False,
+                              help_text="""Post with tags listed here will show up in the My Tags tab. 
+                              Use a comma to separate tags. 
+                              Add a <code>!</code> to remove a tag. Example: <code>galaxy, bed, solid!</code> (optional)
+                              """)
+    digest_prefs = forms.ChoiceField(required=True, choices=Profile.DIGEST_CHOICES, label="Email Digest",
+                                     help_text="""(This feature is not working yet!). 
+                                     Sets the frequence of digest emails. 
+                                     A digest email is a summary of events on the site.""")
+    message_prefs = forms.ChoiceField(required=True, choices=Profile.MESSAGING_TYPE_CHOICES, label="Notifications",
+                                      help_text="""Default mode  sends you an email 
+                                      if you receive anwers to questions that you've posted.""")
 
     def __init__(self, user,  *args, **kwargs):
 
@@ -96,64 +131,13 @@ class EditProfile(forms.Form):
 
         super(EditProfile, self).__init__(*args, **kwargs)
 
-        self.fields["email"] = forms.CharField(label='Email', max_length=100, initial=self.user.email)
-        self.fields["name"] = forms.CharField(label='Name', max_length=100, initial=self.user.profile.name)
-        self.fields["username"] = forms.CharField(label="Handler", max_length=100, initial=self.user.username)
-        self.fields["location"] = forms.CharField(label="Location", max_length=100, initial=self.user.profile.location,
-                                                  required=False)
-        self.fields["website"] = forms.URLField(label="Website", max_length=225, initial=self.user.profile.website,
-                                                required=False)
-        self.fields["twitter"] = forms.CharField(label="Twitter Id", max_length=100, initial=self.user.profile.twitter,
-                                                 required=False)
-        self.fields["scholar"] = forms.CharField(label="Scholar", max_length=100, initial=self.user.profile.scholar,
-                                                 required=False)
-        self.fields["text"] = forms.CharField(widget=forms.Textarea(),min_length=2, max_length=5000,
-                                              initial=self.user.profile.text, required=False)
-        self.fields["my_tags"] = forms.CharField(max_length=100, required=False, initial=self.user.profile.my_tags,
-                                  help_text="""Post with tags listed here will show up in the My Tags tab. 
-                                  Use a comma to separate tags. 
-                                  Add a <code>!</code> to remove a tag. Example: <code>galaxy, bed, solid!</code> (optional)
-                                  """
-                                  )
-        self.fields["digest_prefs"] = forms.ChoiceField(required=True, choices=Profile.DIGEST_CHOICES, label="Email Digest",
-                                         help_text="""(This feature is not working yet!). 
-                                         Sets the frequence of digest emails. 
-                                         A digest email is a summary of events on the site.""",
-                                         initial=self.user.profile.digest_prefs
-                                         )
+    def clean_image(self):
 
-        self.fields["message_prefs"] = forms.ChoiceField(required=True, choices=Profile.MESSAGING_TYPE_CHOICES, label="Notifications",
-                                          help_text="""Default mode  sends you an email 
-                                          if you receive anwers to questions that you've posted.""",
-                                          initial=self.user.profile.message_prefs)
+        cleaned_data = super(EditProfile, self).clean()
+        image = cleaned_data.get('image')
+        check_size(fobj=image)
 
-    def save(self, request):
-
-        email = self.cleaned_data['email']
-        email_verified = self.user.profile.email_verified
-
-        if self.user.email != email:
-            messages.info(request, "Email has to be reverified since it has changed")
-            email_verified = False
-
-        self.user.email = self.cleaned_data['email']
-
-
-        self.user.username = self.cleaned_data["username"]
-        self.user.save()
-
-        Profile.objects.filter(user=self.user).update(name=self.cleaned_data['name'],
-                                                      location=self.cleaned_data['location'],
-                                                      website=self.cleaned_data['website'],
-                                                      twitter=self.cleaned_data['twitter'],
-                                                      scholar=self.cleaned_data['scholar'],
-                                                      text=self.cleaned_data["text"],
-                                                      my_tags=self.cleaned_data["my_tags"],
-                                                      digest_prefs=self.cleaned_data["digest_prefs"],
-                                                      message_prefs=self.cleaned_data["message_prefs"],
-                                                      html=mistune.markdown(self.cleaned_data["text"]),
-                                                      email_verified=email_verified)
-        return self.user
+        return image
 
     def clean_email(self):
 

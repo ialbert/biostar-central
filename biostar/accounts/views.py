@@ -17,6 +17,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
+from biostar.utils import markdown
 from biostar.utils.shortcuts import reverse
 from biostar.accounts import forms
 from biostar.accounts.auth import check_user, send_verification_email
@@ -25,7 +26,6 @@ from biostar.accounts.models import User, Profile
 from biostar.accounts.tokens import account_verification_token
 from biostar.accounts.util import now, get_uuid
 
-from django.db.models import Q, Count
 
 logger = logging.getLogger('engine')
 
@@ -36,12 +36,41 @@ def edit_profile(request):
         return redirect("/")
 
     user = request.user
-    form = forms.EditProfile(user=user)
+    initial = dict(username=user.username, email=user.email, name=user.profile.name, image=user.profile.image,
+                   location=user.profile.location, website=user.profile.website, twitter=user.profile.twitter,
+                   scholar=user.profile.scholar, text=user.profile.text, my_tags=user.profile.my_tags,
+                   digest_prefs=user.profile.digest_prefs, message_prefs=user.profile.message_prefs,
+                   email_verified=user.profile.email_verified)
+
+    form = forms.EditProfile(user=user, initial=initial)
 
     if request.method == "POST":
-        form = forms.EditProfile(data=request.POST, user=user)
+        form = forms.EditProfile(data=request.POST, user=user, initial=initial, files=request.FILES)
         if form.is_valid():
-            form.save(request=request)
+            # Update the email and username of User object.
+            email = form.cleaned_data['email']
+            username = form.cleaned_data["username"]
+            User.objects.filter(pk=user.pk).update(username=username, email=email)
+
+            # Change verification if email has been edited.
+            email_verified = False if user.email != initial["email"] else user.profile.email_verified
+            # Update user information in Profile object.
+            Profile.objects.filter(user=user).update(name=form.cleaned_data['name'],
+                                                     location=form.cleaned_data['location'],
+                                                     website=form.cleaned_data['website'],
+                                                     twitter=form.cleaned_data['twitter'],
+                                                     scholar=form.cleaned_data['scholar'],
+                                                     text=form.cleaned_data["text"],
+                                                     my_tags=form.cleaned_data["my_tags"],
+                                                     digest_prefs=form.cleaned_data["digest_prefs"],
+                                                     message_prefs=form.cleaned_data["message_prefs"],
+                                                     html=markdown.parse(form.cleaned_data["text"]),
+                                                     email_verified=email_verified)
+            # Save the image
+            stream = form.cleaned_data["image"]
+            if stream:
+                user.profile.image.save(stream.name, stream, save=True)
+
             return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 
     context = dict(user=user, form=form)

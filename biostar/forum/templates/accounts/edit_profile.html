@@ -6,33 +6,47 @@
 
 {% block content %}
 
-<form method="post" class="ui form" action="{% url 'edit_profile' %}">
+<form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
     {{ form.media }}
-      {% csrf_token %}
+     {% csrf_token %}
+
      {% form_errors form %}
 
-    <div class="ui basic center aligned segment">
+<div class="ui basic center aligned segment">
     <span class="ui header">Update your profile</span>
-    |
-               <a class="ui blue label" href="{% url 'password_reset' %}">
-                <i class="undo icon"></i>Reset password
-            </a>
-    </div>
+    &bull;
+    <a class="ui blue label" href="{% url 'password_reset' %}">
+    <i class="undo icon"></i>Reset password
+    </a>
+</div>
+
 <div class="ui divider"></div>
 
-
-        <div class="three fields">
-            <div class="field"></div>
-
-              <div class="field inputcolor">
-                  <b>Name *</b>
-                {{ form.name }}
-                  <div class="muted">
-                      The name displayed on the site (required)
-                  </div>
-            </div>
-            <div class="field"></div>
+<div class="three fields">
+    <div class="field"></div>
+    <div class="field inputcolor">
+        <b>Name *</b>
+        {{ form.name }}
+        <div class="muted">
+          The name displayed on the site (required)
         </div>
+    </div>
+    <div class="field"></div>
+</div>
+
+<div class="three fields">
+
+<div class="field"></div>
+
+    <div class="field inputcolor">
+        <b>Profile Picture </b>
+        {{ form.image }}
+        <div class="muted">
+          The image displayed on the site ( default to gravatar if left empty )
+        </div>
+        </div>
+    <div class="field"></div>
+</div>
 
 
     <div class="three fields">
@@ -109,7 +123,7 @@
           </div>
 
       </div>
-                    <div class="field inputcolor">
+    <div class="field inputcolor">
 
           <b>Scholar</b>
         {{ form.scholar }}
