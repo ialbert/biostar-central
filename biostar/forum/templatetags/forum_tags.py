@@ -7,16 +7,15 @@ from datetime import datetime
 from datetime import timedelta
 
 from django import template
-from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
-from biostar.forum import forms, models, const, util
+from biostar.forum import const, util
 from biostar.forum.models import Post, Vote, Award
 from biostar.message.models import Message
-from biostar.utils.shortcuts import reverse
 
 User = get_user_model()
 
@@ -53,9 +52,25 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
-@register.inclusion_tag('widgets/user_box.html')
-def user_box(user, post):
+@register.inclusion_tag('widgets/post_user_line.html')
+def post_user_line(post, avatar=False):
+    return dict(post=post, avatar=avatar)
+
+
+@register.inclusion_tag('widgets/post_user_box.html')
+def post_user_box(user, post):
     return dict(user=user, post=post)
+
+
+@register.inclusion_tag('widgets/post_actions.html')
+def post_actions(post, label="ADD COMMENT"):
+    return dict(post=post, label=label)
+
+
+@register.inclusion_tag('widgets/post_tags.html')
+def post_tags(post, show_views=False):
+    tags = post.tag_val.split(",")
+    return dict(post=post, tags=tags, show_views=show_views)
 
 
 @register.simple_tag
@@ -138,7 +153,6 @@ def get_award_context(award):
 
 @register.filter
 def get_user_location(user):
-
     return user.profile.location or "location unknown"
 
 
@@ -168,7 +182,6 @@ def single_post_feed(post):
 
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
 def list_posts(context, user):
-
     posts = Post.objects.filter(author=user)
     request = context["request"]
     context = dict(posts=posts, request=request)
@@ -215,16 +228,6 @@ def icon(user):
 def show_score(score):
     score = (score * 10) + 1
     return score
-
-@register.inclusion_tag('widgets/render_comment.html')
-def render_comment(comment):
-    return dict(comment=comment)
-
-
-@register.inclusion_tag('widgets/render_tags.html')
-def render_tags(post):
-    tags = post.tag_val.split(",")
-    return dict(tags=tags)
 
 
 @register.simple_tag
@@ -393,43 +396,44 @@ def boxclass(post):
 
 
 @register.simple_tag(takes_context=True)
-def render_comments(context, tree, post, comment_template='widgets/comment_body.html'):
+def render_comments(context, tree, post, template_name='widgets/comment_body.html'):
     request = context["request"]
     if post.id in tree:
-        text = traverse_comments(request=request, post=post, tree=tree, comment_template=comment_template)
+        text = traverse_comments(request=request, post=post, tree=tree, template_name=template_name)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template):
+def traverse_comments(request, post, tree, template_name):
     "Traverses the tree and generates the page"
 
-    body = template.loader.get_template(comment_template)
+    body = template.loader.get_template(template_name)
 
     seen = set()
 
-    def traverse(node):
+    def traverse(node, collect=[]):
 
-        data = ['<div class="ui comment segments">']
         cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
-        data.append(html)
+
+        collect.append(f'<div class="indent"><div class="comment">{html}</div>')
+
         for child in tree.get(node.id, []):
             if child in seen:
                 raise Exception(f"circular tree {child.pk} {child.title}")
             seen.add(child)
-            data.append(f'<div class="ui segment comment basic">')
-            data.append(traverse(child))
-            data.append("</div>")
+            traverse(child, collect=collect)
 
-        data.append("</div>")
-        return '\n'.join(data)
+        collect.append(f"</div>")
 
     # this collects the comments for the post
-    coll = []
+    collect = ['<div class="comment-list">']
     for node in tree[post.id]:
-        coll.append(traverse(node))
+        traverse(node, collect=collect)
+    collect.append("</div>")
 
-    return '\n'.join(coll)
+    html = '\n'.join(collect)
+
+    return html

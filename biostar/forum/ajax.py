@@ -91,7 +91,10 @@ def ajax_subs(request):
     if was_limited:
         return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
 
-    post_uid = ""
+    post_uid = request.POST.get('uid')
+    sub_type = request.POST.get("sub_type")
+    
+
     1/0
     return
 

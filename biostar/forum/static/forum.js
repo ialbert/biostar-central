@@ -233,7 +233,7 @@ $(document).ready(function () {
     });
 
     // Makes site messages dissapear.
-    $('#site-messages').delay(2500).slideUp(800, function () {
+    $('#site-messages').delay(2000).slideUp(800, function () {
         $(this).remove();
     });
 

@@ -1,21 +1,12 @@
 {% load forum_tags %}
 
 
-
 {# Renders a single top level post or answer.  #}
 <div class="post {{ post.css }}">
 
     {#  Show title on top level posts #}
     {% if post.is_toplevel %}
-        <div class="ui dropdown" id="sub" uid="{{ post.uid }}">
-      <div class="text">subscribe</div>
-      <i class="dropdown icon"></i>
-      <div class="menu">
-        <div class="item">Choice 1</div>
-        <div class="item">Choice 2</div>
-        <div class="item">Choice 3</div>
-      </div>
-</div>
+
         <div class="title">
             {#  Page anchor. #}
             <a name="{{ post.uid }}"></a>
@@ -24,17 +15,15 @@
 
         </div>
         {#  {% subs_actions post=post user=request.user %} #}
-
-
     {% endif %}
 
     {#  Post body #}
     <div class="body">
+
         {#  Page anchor. #}
         <a name="{{ post.uid }}"></a>
 
-        {#  Display post stats #}
-
+        {#  Voting regions #}
         <div class="votebox">
 
             <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="upvote"
@@ -53,61 +42,31 @@
 
         <div class="content">
             {# Display post author. #}
-            {% user_box user=post.author post=post %}
+            {% post_user_box user=post.author post=post %}
 
             {# Display post content. #}
-            {{ post.html|safe }}
+            <div class="html_content">{{ post.html|safe }}</div>
 
-            {# Show tags for top level posts. #}
+            {# Show tags #}
             {% if post.is_toplevel %}
-                <div class="tags">
-                    {% render_tags post %} &bull; {{ post.root.view_count|bignum }} views
-
-
-                </div>
-
+                {%  post_tags post=post show_views=True %}
             {% endif %}
 
-
-            {#  Post action bar. #}
-            <div class="actions">
-
-
-                <a class="add-comment ui tiny label" data-value="{{ post.uid }}">ADD COMMENT</a>
-
-
-                &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
-                {% if post.is_editable %}
-                    &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
-                    &bull; <a class="moderate-post" data-value="{{ post.uid }}">moderate</a>
-                {% endif %}
-
-
-
-                <span class="status muted">
-                    updated {{ post.lastedit_date|time_ago }} by
-                    <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
-                    {{ post.lastedit_user.profile.name }} </a>
-                    {{ post.lastedit_user | icon }}
-                    {{ post.lastedit_user.profile.score | show_score | bignum }}
-                </span>
-
-
-
-            </div>
-
-
-            {# Comments for each post rendered here #}
+            {# Show the post actions #}
+            {% post_actions post=post %}
 
         </div>
+
     </div>
 
+    {#  Post moderation actions are inserted here #}
     <div id="moderate-insert-{{ post.uid }}"></div>
+
+    {#  Comments will be inserted here #}
     <div id="comment-insert-{{ post.uid }}"></div>
 
-
+    {# Render all comments #}
     {% render_comments tree=tree post=post %}
-
 
 </div>
 
