@@ -53,10 +53,22 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
-@register.inclusion_tag('widgets/user_box.html')
-def user_box(user, post):
+@register.inclusion_tag('widgets/post_user_line.html')
+def post_user_line(post, avatar=False):
+    return dict(post=post, avatar=avatar)
+
+@register.inclusion_tag('widgets/post_user_box.html')
+def post_user_box(user, post):
     return dict(user=user, post=post)
 
+@register.inclusion_tag('widgets/post_actions.html')
+def post_actions(post, label="ADD COMMENT"):
+    return dict(post=post, label=label)
+
+@register.inclusion_tag('widgets/post_tags.html')
+def post_tags(post, show_views=False):
+    tags = post.tag_val.split(",")
+    return dict(post=post, tags=tags, show_views=show_views)
 
 @register.simple_tag
 def get_all_message_count(request):
@@ -215,16 +227,6 @@ def icon(user):
 def show_score(score):
     score = (score * 10) + 1
     return score
-
-@register.inclusion_tag('widgets/render_comment.html')
-def render_comment(comment):
-    return dict(comment=comment)
-
-
-@register.inclusion_tag('widgets/render_tags.html')
-def render_tags(post):
-    tags = post.tag_val.split(",")
-    return dict(tags=tags)
 
 
 @register.simple_tag
@@ -393,20 +395,20 @@ def boxclass(post):
 
 
 @register.simple_tag(takes_context=True)
-def render_comments(context, tree, post, comment_template='widgets/comment_body.html'):
+def render_comments(context, tree, post, template_name='widgets/comment_body.html'):
     request = context["request"]
     if post.id in tree:
-        text = traverse_comments(request=request, post=post, tree=tree, comment_template=comment_template)
+        text = traverse_comments(request=request, post=post, tree=tree, template_name=template_name)
     else:
         text = ''
 
     return mark_safe(text)
 
 
-def traverse_comments(request, post, tree, comment_template):
+def traverse_comments(request, post, tree, template_name):
     "Traverses the tree and generates the page"
 
-    body = template.loader.get_template(comment_template)
+    body = template.loader.get_template(template_name)
 
     seen = set()
 

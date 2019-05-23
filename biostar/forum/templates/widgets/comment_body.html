@@ -1,47 +1,37 @@
 {% load forum_tags %}
-{% load forum_tags %}
 
-<div class="ui segment basic commentcolor {{post.deleted_class}}" id="comment-{{ post.uid }}">
+<div class="post {{ post.css }}">
 
-    <div class="ui muted">
-        <a name="{{post.uid}}"></a>
+    <div class="body comment">
 
-        <span class="votebox">
-            <button class="ui icon tiny basic left floated button vote" data-value="{{ post.uid }}" data-type="upvote"
+        <div class="votebox">
+
+            <button class="ui icon mini button vote" data-value="{{ post.uid }}" data-type="upvote"
                     data-position="right center" data-state="{{ post.has_upvote }}">
                 <i class="thumbs up icon "></i>
             </button>
-        </span>
 
-        <span class="score" id="score-{{ post.uid }}">{{ post.vote_count }}</span>
+            <div class="score" id="score-{{ post.uid }}">{{ post.vote_count }}</div>
 
-        updated {{ post.lastedit_date|time_ago }}
-        by <a href="{% url "user_profile"  post.author.profile.uid %}">
-        <div class="ui avatar image"><img class="ui centered image" src="{% gravatar user=post.author size=80 %}"></div>
-        {{post.author.profile.name }}
-        </a>
-        {{post.author |show_score_icon}}
-        {{post.author.profile.score | show_score |bignum }}
+        </div>
+
+        <div class="content">
+
+            {{ post.html|safe }}
+
+            {% post_actions post=post label="ADD REPLY" %}
+
+        </div>
+
     </div>
 
-    <div class="content">
-        <p>{{ post.html|safe }}</p>
-    </div>
-
-    <a class="add-comment ui tiny label" data-value="{{ post.uid }}">ADD REPLY </a>
-
-    &bull; <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
-    {% if post.is_editable %}
-        &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
-    {% endif %}
-
-    {% if user.is_authenticated and user.profile.is_moderator %}
-        &bull;<a class="moderate-post" data-value="{{post.uid}}">moderate</a>
-        <div id="moderate-insert-{{post.uid}}"></div>
-    {% endif %}
+    {# Insertion targets #}
+    <div id="moderate-insert-{{ post.uid }}"></div>
     <div id="comment-insert-{{ post.uid }}"></div>
 
 </div>
+
+
 
 
 

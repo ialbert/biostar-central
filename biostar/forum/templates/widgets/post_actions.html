@@ -1,0 +1,31 @@
+{% load humanize %}
+{% load forum_tags %}
+
+{#  Post action bar. #}
+<div class="actions">
+
+    <a class="add-comment ui tiny label" data-value="{{ post.uid }}">{{ label }}</a>
+
+    &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
+    {% if post.is_editable %}
+        &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
+        &bull; <a class="moderate-post" data-value="{{ post.uid }}">moderate</a>
+    {% endif %}
+
+    <span class="status muted">
+        updated {{ post.lastedit_date|time_ago }} by
+        <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+        {{ post.lastedit_user.profile.name }} </a>
+        {{ post.lastedit_user | icon }}
+        {{ post.lastedit_user.profile.score | show_score | bignum }}
+    </span>
+
+</div>
+
+
+
+
+
+
+
+

@@ -1,8 +1,5 @@
-{% load forum_tags %}
 {% load humanize %}
-
 {% load forum_tags %}
-
 
 <div class="user box right">
 
@@ -10,10 +7,6 @@
         <a href="{% url "user_profile" user.profile.uid %}">
             <img class="ui centered image" src="{% gravatar user=user size=100 %}">
         </a>
-    </div>
-
-    <div class="muted centerme">
-        {{ post.creation_date | time_ago }}
     </div>
 
     <div>

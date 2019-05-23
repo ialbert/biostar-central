@@ -64,16 +64,14 @@
 
             <div class="extra right floated">
 
-                    {% render_tags post %}
+                <div class="left floated">
+                    {% post_tags post %}
+                </div>
 
-                    <div class="right floated">
-                        <div class="ui muted">
-                            updated <span>{{ post.lastedit_date|time_ago }}</span> by
-                            <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
-                                {{post.lastedit_user.profile.name }}
-                            </a>
-                        </div>
-                    </div>
+                <div class="right floated">
+                    {%  post_user_line post %}
+                </div>
+
             </div>
 
     </div>

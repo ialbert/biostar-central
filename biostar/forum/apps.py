@@ -1,4 +1,4 @@
-import logging
+import logging, random
 
 from django.db.models.signals import post_migrate
 from django.apps import AppConfig
@@ -14,8 +14,6 @@ class ForumConfig(AppConfig):
         # Triggered upon app initialization.
         post_migrate.connect(init_post, sender=self)
         post_migrate.connect(init_awards, sender=self)
-
-        pass
 
 
 def init_awards(sender,  **kwargs):
@@ -41,13 +39,16 @@ def init_awards(sender,  **kwargs):
 
 
 def init_post(sender,  **kwargs):
-
+    from biostar.accounts.apps import init_users
     from django.contrib.auth import get_user_model
-    from . import auth, models
+    from . import auth
+    from .models import Post
 
     # Only initialize when debugging
     if not settings.DEBUG:
         return
+
+    init_users()
 
     User = get_user_model()
 
@@ -60,25 +61,23 @@ def init_post(sender,  **kwargs):
         user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
         user.save()
 
-    # Make a couple of tested posts
-    blog_title = "Welcome to Biostar!"
-    blog_content = "A small description on the biostar-engine and its use"
+    # Type, title, content
+    initial = [
+        (Post.BLOG, "A blog post", "This is a blog post"),
+        (Post.TUTORIAL, "A tutorial post", "This is a tutorial post."),
+        (Post.FORUM, "A forum post", "This is a forum post"),
+        (Post.QUESTION, "A question post", "This is a question post")
+    ]
 
-    tutorial_title = "Get started with the site"
-    tutorial_content = "This is a test post."
-
-    test_posts = {
-                blog_title: dict(post_type=models.Post.BLOG, content=blog_content),
-                tutorial_title: dict(post_type=models.Post.TUTORIAL,
-                                    content=tutorial_content),
-                  }
-
-    for title, val in test_posts.items():
-
-        if models.Post.objects.filter(title=title).exists():
+    for ptype, title, content in initial:
+        if Post.objects.filter(title=title).exists():
             continue
-
-        post = auth.create_post(title=title, author=user, content=val["content"],post_type=val["post_type"])
-
+        post = auth.create_post(title=title, author=user, content=content, post_type=ptype)
         logger.info(f"Created {title} post of {post.get_type_display()}")
 
+    # Generate comments
+    for count in range(10):
+        all = list(Post.objects.order_by("-id")[:4])
+        parent = random.choice(all)
+        content = f"Comment number {count}"
+        comment = auth.create_post(post_type=Post.COMMENT, parent=parent, content=content, author=user)
