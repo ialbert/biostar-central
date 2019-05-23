@@ -4,7 +4,7 @@
 
     {% for post in posts %}
 
-<div class="post item {{post.deleted_class}}">
+<div class="post item {{post.css}}">
 
     <div class="image">
 
@@ -16,7 +16,7 @@
 
                 </div>
 
-                <div class="ui {% boxclass post %} label stat mini">
+                <div class="ui label stat mini {% boxclass post %}">
                     <div class="number-stat">
                     {{ post.reply_count }}
                     </div>

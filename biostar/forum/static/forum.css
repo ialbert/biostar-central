@@ -330,9 +330,13 @@ img {
     float: right;
 }
 
-.ui.open.label {
+.has_replies.label {
+   color:#E1E818!important;
+}
+
+.ui.question.label {
     background-color: #8f2c47;
-    color: #fff;
+     color: white;
 }
 
 .ui.forum.label {
@@ -340,14 +344,19 @@ img {
     color: white;
 }
 
+.ui.questions.label {
+    background-color: #b79538;
+    color: white;
+}
+
 .ui.darkgreen.label {
     background-color: #326b2b;
-    color: #fff;
+    color: white;
 }
 
 .ui.answered.label {
     background-color: #5b8c3e;
-    color: #fff;
+    color: white;
 }
 
 .ui.stats.segment {
