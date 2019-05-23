@@ -194,7 +194,7 @@ $(document).ready(function () {
                   ContentType: 'application/json',
                   data: {
                           'post_uid': post_uid,
-                          'sub_type': value,
+                          'sub_type': value
                         },
                   }
               )
