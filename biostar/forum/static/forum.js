@@ -196,19 +196,6 @@ $(document).ready(function () {
                           'post_uid': post_uid,
                           'sub_type': value,
                         },
-
-                        success: function (data) {
-                            if (data.status === 'error') {
-                                popup_message(elem, data.msg, data.status);
-                            } else {
-
-                                popup_message(elem, data.msg, data.status);
-                            }
-
-                        },
-                        error: function (xhr, status, text) {
-                            error_message(elem, xhr, status, text)
-                        }
                   }
               )
           }
