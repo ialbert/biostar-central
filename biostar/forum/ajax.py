@@ -41,6 +41,7 @@ class ajax_error_wrapper:
 
         return _ajax_view
 
+
 def ajax_test(request):
     """
     Creates a commment on a top level post.
