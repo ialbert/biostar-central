@@ -9,7 +9,9 @@ from django.conf import settings
 from mistune import Renderer, InlineLexer
 
 from biostar.utils.shortcuts import reverse
-from biostar.forum.models import Post
+from biostar.forum.models import Post, Subscription
+from biostar.message import tasks
+from biostar.message.models import Message
 from biostar.accounts.models import Profile, User
 
 # Test input.
@@ -92,6 +94,10 @@ class MonkeyPatch(InlineLexer):
 
 class BiostarInlineLexer(MonkeyPatch):
 
+    def __init__(self, uid=None, *args, **kwargs):
+        self.post_uid = uid
+        super(BiostarInlineLexer, self).__init__(*args, **kwargs)
+
     def enable_post_link(self):
         self.rules.post_link = POST_TOPLEVEL
         self.default_rules.insert(0, 'post_link')
@@ -111,6 +117,7 @@ class BiostarInlineLexer(MonkeyPatch):
             link = f'<a href="{profile}">{user.profile.name}</a>'
         else:
             link = m.group(0)
+        # Send notification message to user.
 
         return link
 
@@ -189,14 +196,14 @@ class BiostarInlineLexer(MonkeyPatch):
         return f'<a href="{link}">{link}</a>'
 
 
-def parse(text):
+def parse(text, uid=None):
     """
     Parses markdown into html.
     Expands certain patterns into HTML.
     """
 
     renderer = Renderer(escape=True, hard_wrap=True)
-    inline = BiostarInlineLexer(renderer=renderer)
+    inline = BiostarInlineLexer(renderer=renderer, uid=uid)
     inline.enable_post_link()
     inline.enable_mention_link()
 
@@ -213,6 +220,26 @@ def parse(text):
     html = markdown(text)
 
     return html
+
+
+def send_mentioned(post, user):
+    # Get message sender
+    sender = User.objects.filter(is_superuser=True).first()
+    title = post.title
+    # Parse the mentioned message
+    # Default mentioned body
+    body = f"""
+            Hello, You have been mentioned in a post by {post.author.profile.name}.
+            The root post is :{title}.
+            Here is where you are mentioned :
+            {post.content}
+            """
+    subject = "Mentioned in a post."
+
+    # Send the mentioned notifications
+    tasks.send_message(source=Message.MENTIONED, subject=subject, body=body, rec_list=[user], sender=sender)
+    return
+
 
 
 def test():

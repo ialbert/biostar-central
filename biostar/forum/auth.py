@@ -263,12 +263,9 @@ def create_post(author, content, post_type, title="Title", tag_val="tag1, tag2",
     post = Post.objects.create(title=title, content=content, tag_val=tag_val,
                                author=author, type=post_type, parent=parent, root=root)
 
-    # Subscribe the author to the root
-    create_sub(post=post.root, sub_type=Profile.LOCAL_MESSAGE, user=author)
-
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously
-    tasks.send_mentioned(post)
-    tasks.send_subs(post=post.root, subs=Subscription.objects.filter(post=post.root))
+    #tasks.send_mentioned(post)
+    #tasks.send_subs(post=post.root, subs=)
 
     return post

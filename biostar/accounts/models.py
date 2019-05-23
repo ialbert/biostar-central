@@ -108,8 +108,7 @@ class Profile(models.Model):
     notify = models.BooleanField(default=False)
 
     # Default subscriptions inherit from this
-    message_prefs = models.IntegerField(choices=MESSAGING_TYPE_CHOICES,
-                                        default=LOCAL_MESSAGE)
+    message_prefs = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE)
 
     # Subscription to daily and weekly digests.
     digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=WEEKLY_DIGEST)

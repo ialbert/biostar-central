@@ -10,6 +10,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from taggit.managers import TaggableManager
 
+from biostar.message import tasks
 from biostar.utils.shortcuts import reverse
 from biostar.accounts.models import Profile
 from . import util
@@ -194,7 +195,7 @@ class Post(models.Model):
         self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
-        self.html = markdown.parse(self.content)
+        self.html = markdown.parse(self.content, uid=self.uid)
 
         # Set the rank
         self.rank = self.lastedit_date.timestamp()
@@ -344,6 +345,53 @@ class Award(models.Model):
         super(Award, self).save(*args, **kwargs)
 
 
+def create_sub(user, root):
+    """
+    Create a user subscription to root upon creation
+    """
+    sub = Subscription.objects.filter(post=root, user=user).first()
+    date = util.now()
+    # Update an existing subscriptions
+    if sub:
+        return sub
+    # Create new subscriptions
+    Subscription.objects.create(post=root, user=user, type=user.profile.message_prefs, date=date)
+    # Increase the subscription count of the root.
+    Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+    logger.info(f"Created a subscription for user:{user}")
+
+    return
+
+
+def subscription_msg(root, author):
+    """
+    Send subscribed users, excluding author, a message.
+    """
+
+    # Get message sender
+    sender = User.objects.filter(is_superuser=True).first()
+    title = root.title
+    # Default message body
+    body = f"""
+          Hello,\n
+          There is an addition by {root.author.profile.name} to a post you are subscribed to.\n
+          Post: {title}\n
+          Addition: {root.content}\n
+          """
+    # Get the subscribed users
+    subs = Subscription.objects.filter(post=root)
+    print(subs.user_set)
+
+    id_list = subs.values_list("user", flat=True).distinct()
+    users = User.objects.exclude(id=author.pk).filter(id__in=id_list)
+    subject = f"Subscription to a post."
+
+    # Send message to subscribed users.
+    tasks.send_message(subject=subject, body=body, rec_list=users, sender=sender)
+
+    return
+
+
 @receiver(post_save, sender=Post)
 def complete_post(sender, instance, created, *args, **kwargs):
     # Determine the root of the post.
@@ -413,4 +461,8 @@ def complete_post(sender, instance, created, *args, **kwargs):
         # Update last contributor to the thread.
         instance.root.last_contributor = instance.last_contributor
 
+        # Subscribe the author to the root
+        create_sub(user=instance.author, root=root)
+
+        # Send mentioned users in
         instance.save()
