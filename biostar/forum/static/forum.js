@@ -240,30 +240,13 @@ $(document).ready(function () {
     $('.vote').each(function (event) {
 
         var elem = $(this);
-        var vote_type = elem.attr('data-type');
-        var data_state = elem.attr('data-state');
 
-        // Popup information
-        if (vote_type == "bookmark") {
-            content = (data_state == "0") ? "Click to add bookmark" : "Click to remove bookmark"
-        } else {
-            content = (data_state == "0") ? "Click to add vote" : "Click to remove vote"
-        }
+        var data_state = elem.attr('data-state');
 
         // Set the on class if the vote is selected.
         if (data_state == "1") {
             elem.addClass("on")
         }
-        // Initialize each popup on the page.
-        elem.popup({
-                on: 'hover',
-                content: content,
-                delay: {
-                    show: 800,
-                    hide: 200
-                }
-            }
-        );
 
         // Actions taken on vote click.
         $($(this)).click(function () {
@@ -271,7 +254,6 @@ $(document).ready(function () {
             var post_uid = elem.attr('data-value');
             var data_type = elem.attr('data-type');
             apply_vote(elem, post_uid, data_type);
-
         });
     });
 
