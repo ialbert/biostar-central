@@ -1,59 +1,46 @@
 {% load forum_tags %}
+{% load forum_tags %}
 
 <div class="ui segment basic commentcolor {{post.deleted_class}}" id="comment-{{ post.uid }}">
 
-<div class="ui muted">
-<a name="{{post.uid}}"></a>
-        <a class="vote" data-post_uid="{{post.uid}}" data-type="upvote" vote-url="{% url 'vote' %}">
-       {% if post.has_upvote %}
-            <i class=" thumbs up icon"></i>
-        {% else %}
-            <i class=" thumbs up outline icon"></i>
-        {% endif %}
+    <div class="ui muted">
+        <a name="{{post.uid}}"></a>
 
-        </a>
-<span class="count">{{ post.vote_count }}</span>
+        <span class="votebox">
+            <button class="ui icon tiny basic left floated button vote" data-value="{{ post.uid }}" data-type="upvote"
+                    data-position="right center" data-state="{{ post.has_upvote }}">
+                <i class="thumbs up icon "></i>
+            </button>
+        </span>
 
-        written {{ post.creation_date|time_ago }}
+        <span class="score" id="score-{{ post.uid }}">{{ post.vote_count }}</span>
 
+        updated {{ post.lastedit_date|time_ago }}
         by <a href="{% url "user_profile"  post.author.profile.uid %}">
         <div class="ui avatar image"><img class="ui centered image" src="{% gravatar user=post.author size=80 %}"></div>
         {{post.author.profile.name }}
         </a>
         {{post.author |show_score_icon}}
         {{post.author.profile.score | show_score |bignum }}
-
     </div>
 
-    {{ post.html|safe }}
-      <div class="smaller-font">
+    <div class="content">
+        <p>{{ post.html|safe }}</p>
+    </div>
 
-        {% if request.user.is_authenticated %}
-        <a class="add-comment ui mini grey basic label" comment-url="{% url 'create_comment' post.uid %}"
-           data-value="{{post.uid}}">
-            ADD REPLY
-        </a>
-        {% else %}
-            <a class="ui mini grey basic label" href="{% url 'login' %}" > ADD REPLY </a>
-        {% endif %}
+    <a class="add-comment ui tiny label" data-value="{{ post.uid }}">ADD REPLY </a>
 
-        &bull; <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
+    &bull; <a href="{% url 'post_view' post.root.uid %}#{{post.uid}}">link</a>
+    {% if post.is_editable %}
+        &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
+    {% endif %}
 
-        {% if  user.is_authenticated %}
-         {% if user == post.author or user.profile.is_moderator %}
-            &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
-         {% endif %}
-        {% endif %}
+    {% if user.is_authenticated and user.profile.is_moderator %}
+        &bull;<a class="moderate-post" data-value="{{post.uid}}">moderate</a>
+        <div id="moderate-insert-{{post.uid}}"></div>
+    {% endif %}
+    <div id="comment-insert-{{ post.uid }}"></div>
 
-
-        {% if user.is_authenticated and user.profile.is_moderator or user.profile.is_manager %}
-            &bull;<a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}" data-value="{{post.uid}}">
-            moderate</a>
-            <div id="mod-container-{{post.uid}}"></div>
-        {% endif %}
-
-        <div id="comment-container-{{post.uid}}"></div>
-      </div>
 </div>
 
 

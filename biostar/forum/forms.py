@@ -16,46 +16,6 @@ from .const import *
 # Share logger with models
 logger = models.logger
 
-#
-# def send(old_content, new_content, post):
-#     """
-#     See if there is any change and send
-#     notifications and subscriptions messages
-#     """
-#     # Get rid of white spaces and tabs by splitting into lists.
-#     source_list = old_content.strip().split()
-#     new_list = new_content.strip().split()
-#     diffobj = SequenceMatcher(a=source_list, b=new_list)
-#
-#     # There is a change detected
-#     change = diffobj.ratio() != 1
-#
-#     # Do nothing when no change is detected.
-#     if not change:
-#         return
-#
-#     # Get sender for these messages from biostar
-#     sender = User.objects.filter(is_superuser=True).first()
-#
-#     # Send message to subscribed users.
-#     send_subs_msg(post=post)
-#
-#     # Get mentioned users from new content
-#     new_mentioned_users = parse_mentioned_users(content=new_content)
-#     # Get old mentioned users and exclude them from these round of messages.
-#     old_mentioned_users = parse_mentioned_users(content=old_content).values("id")
-#
-#     # Exclude old mentioned users from new ones.
-#     ment_users = new_mentioned_users.exclude(id__in=old_mentioned_users)
-#
-#     # Parse the mentioned message
-#     ment_body, ment_subject, _ = parse_mention_msg(post=post)
-#
-#     # Send the mentioned message.
-#     send_message(source=Message.MENTIONED, subject=ment_subject, body=ment_body,
-#                  rec_list=ment_users, sender=sender)
-#     return
-
 
 def english_only(text):
 
@@ -87,142 +47,63 @@ def valid_tag(text):
 
 class PostLongForm(forms.Form):
 
-    def __init__(self, filter_func=lambda x: x, post=None, user=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    post_type = forms.IntegerField(label="Post Type", widget=forms.Select(choices=Post.TYPE_CHOICES),
+                                   help_text="Select a post type: Question, Forum, Job, Blog")
+    title = forms.CharField(label="Post Title", max_length=200, min_length=2,
+                            validators=[valid_title, english_only],
+                            help_text="Descriptive titles promote better answers.")
+    tag_val = forms.CharField(label="Post Tags", max_length=50, required=False, validators=[valid_tag],
+                              help_text="""Choose one or more tags to match the topic. 
+                                     To create a new tag just type it in comma seperated.""")
+    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
+                              min_length=10, max_length=15000, label="Enter your post below")
+
+    def __init__(self, post=None, user=None, *args, **kwargs):
         self.post = post
         self.user = user
+        super(PostLongForm, self).__init__(*args, **kwargs)
 
-        POST_CHOICES = [(Post.QUESTION, "Question"),
-                        (Post.JOB, "Job Ad"),
-                        (Post.TUTORIAL, "Tutorial"), (Post.TOOL, "Tool"),
-                        (Post.FORUM, "Forum"), (Post.NEWS, "News"),
-                        (Post.BLOG, "Blog")]
-
-        # Pass a filtering function to customize choices between sites.
-        choices = list(filter(filter_func, POST_CHOICES))
-        inital_title = inital_tags = inital_content = ""
-        inital_type = Post.FORUM
-        if self.post:
-            inital_title = self.post.title
-            inital_tags = self.post.tag_val
-            inital_content = self.post.content
-            inital_type = self.post.type
-
-        self.fields["post_type"] = forms.IntegerField(label="Post Type", widget=forms.Select(choices=choices),
-                                                     help_text="Select a post type: Question, Forum, Job, Blog",
-                                                     initial=inital_type)
-        self.fields["title"] = forms.CharField(label="Post Title", max_length=200, min_length=2, initial=inital_title,
-                                               validators=[valid_title, english_only],
-                                               help_text="Descriptive titles promote better answers.")
-        self.fields["tag_val"] = forms.CharField(label="Post Tags", max_length=50, required=False, validators=[valid_tag],
-                                                 help_text="""Choose one or more tags to match the topic. 
-                                                        To create a new tag just type it in comma seperated.""",
-                                                 initial=inital_tags)
-        self.fields["content"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
-                                                 min_length=10, max_length=15000, initial=inital_content,
-                                                 label="Enter your post below")
-
-    def save(self, author=None, edit=False):
+    def edit(self):
+        """
+        Edit an existing post.
+        """
+        if self.user != self.post.author and not self.user.profile.is_moderator:
+            raise forms.ValidationError("Only the author or a moderator can edit a post.")
         data = self.cleaned_data
-
-        title = data.get('title')
-        content = data.get("content")
-        html = markdown.parse(content)
-        post_type = data.get('post_type')
-        tag_val = data.get('tag_val')
-
-        if edit:
-
-            self.post.title = title
-            self.post.content = content
-            self.post.type = post_type
-            self.post.html = html
-            self.post.tag_val = tag_val
-
-            self.post.save()
-
-            # Triggers another save
-            #self.post.add_tags(text=tag_val)
-        else:
-            self.post = auth.create_post(title=title, content=content, post_type=post_type,
-                                         tag_val=tag_val, author=author)
-
+        self.post.title = data.get('title')
+        self.post.content = data.get("content")
+        self.post.type = data.get('post_type')
+        self.post.tag_val = data.get('tag_val')
+        self.post.save()
         return self.post
-
-    def clean(self):
-
-        if self.post and self.user != self.post.author:
-            if self.user.profile.is_manager or self.user.profile.is_moderator:
-                pass
-            else:
-                raise forms.ValidationError("Only the author or a moderator can edit a post.")
 
 
 class SubsForm(forms.Form):
 
-    choices = models.Subscription.MESSAGING_CHOICES
-
+    choices = models.Profile.MESSAGING_TYPE_CHOICES
     subtype = forms.IntegerField(widget=forms.Select(choices=choices))
-
-    def __init__(self, user, post, *args, **kwargs):
-
-        self.user = user
-        self.post = post
-
-        super(SubsForm, self).__init__(*args, **kwargs)
-
-    def save(self):
-
-        sub_type = self.cleaned_data["subtype"]
-
-        sub = models.Subscription.objects.filter(post=self.post, user=self.user).first()
-
-        if sub and (sub.type == sub_type):
-            return sub
-
-        sub = auth.create_sub(post=self.post, user=self.user, sub_type=sub_type)
-
-        return sub
 
 
 class PostShortForm(forms.Form):
 
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
-                                             min_length=2, max_length=5000,)
+                              min_length=2, max_length=5000)
 
     def __init__(self, user=None, post=None, *args, **kwargs):
-
         self.user = user
         self.post = post
-
         super().__init__(*args, **kwargs)
-        inital_content = self.post.content if self.post else ""
-        self.fields["content"] = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
-                                                 min_length=2, max_length=5000,
-                                                 initial=inital_content)
 
-    def save(self, author=None, post_type=Post.ANSWER, edit=False):
+    def edit(self):
         data = self.cleaned_data
-        parent = data.get("parent_uid")
         content = data.get("content")
+        if self.user != self.post.author and not self.user.profile.is_moderator:
+            raise forms.ValidationError("Only the author or a moderator can edit a post.")
 
-        if edit:
-            self.post.content = content
-            self.post.save()
-        else:
-            parent = Post.objects.filter(uid=parent).first()
-            self.post = auth.create_post(title=parent.root.title,
-                                         parent=parent,
-                                         author=author,
-                                         content=content,
-                                         post_type=post_type,
-                                         sub_to_root=True)
+        self.post.content = content
+        self.post.save()
         return self.post
-
-    #def clean(self):
-    #    cleaned_data = super(PostShortForm, self).clean()
-    #    return
 
 
 class CommentForm(forms.Form):

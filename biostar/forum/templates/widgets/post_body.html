@@ -1,17 +1,31 @@
 {% load forum_tags %}
 
+
+
 {# Renders a single top level post or answer.  #}
 <div class="post {{ post.css }}">
 
     {#  Show title on top level posts #}
     {% if post.is_toplevel %}
+        <div class="ui dropdown" id="sub" uid="{{ post.uid }}">
+      <div class="text">subscribe</div>
+      <i class="dropdown icon"></i>
+      <div class="menu">
+        <div class="item">Choice 1</div>
+        <div class="item">Choice 2</div>
+        <div class="item">Choice 3</div>
+      </div>
+</div>
         <div class="title">
             {#  Page anchor. #}
             <a name="{{ post.uid }}"></a>
             {#  Post title. #}
             {{ post.get_type_display }}: {{ post.title }}
+
         </div>
         {#  {% subs_actions post=post user=request.user %} #}
+
+
     {% endif %}
 
     {#  Post body #}
@@ -48,20 +62,27 @@
             {% if post.is_toplevel %}
                 <div class="tags">
                     {% render_tags post %} &bull; {{ post.root.view_count|bignum }} views
+
+
                 </div>
+
             {% endif %}
+
 
             {#  Post action bar. #}
             <div class="actions">
 
+
                 <a class="add-comment ui tiny label" data-value="{{ post.uid }}">ADD COMMENT</a>
+
 
                 &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
                 {% if post.is_editable %}
                     &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
-                    &bull; <a class="moderate-post" mod-url="{% url 'post_moderate' post.uid %}"
-                              data-value="{{ post.uid }}">moderate</a>
+                    &bull; <a class="moderate-post" data-value="{{ post.uid }}">moderate</a>
                 {% endif %}
+
+
 
                 <span class="status muted">
                     updated {{ post.lastedit_date|time_ago }} by
@@ -71,7 +92,7 @@
                     {{ post.lastedit_user.profile.score | show_score | bignum }}
                 </span>
 
-                <div id="moderate-container-{{ post.uid }}"></div>
+
 
             </div>
 
@@ -79,10 +100,9 @@
             {# Comments for each post rendered here #}
 
         </div>
-
-
     </div>
 
+    <div id="moderate-insert-{{ post.uid }}"></div>
     <div id="comment-insert-{{ post.uid }}"></div>
 
 

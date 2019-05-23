@@ -41,6 +41,7 @@ class ajax_error_wrapper:
 
         return _ajax_view
 
+
 def ajax_test(request):
     """
     Creates a commment on a top level post.
@@ -83,10 +84,15 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
-def ajax_test(request):
-    """
-    Creates a commment on a top level post.
-    """
-    msg = "OK"
-    print(f"HeRe= {request.POST} ")
-    return ajax_success(msg=msg)
+@ajax_error_wrapper(method="POST")
+def ajax_subs(request):
+    was_limited = getattr(request, 'limited', False)
+
+    if was_limited:
+        return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
+
+    post_uid = ""
+    1/0
+    return
+
+

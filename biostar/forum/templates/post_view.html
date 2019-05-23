@@ -33,7 +33,6 @@
                 above to respond to someone, ask for clarifications, request more details etc.</p>
             </div>
             <input type="hidden" name="{{ form.parent_uid.name }}" id="{{ form.parent_uid.id_for_label }}" value={{post.uid}} />
-            <input type="hidden" name="{{ form.redir_url.name }}" id="{{ form.redir_url.id_for_label }}" value="{% url 'post_view' post.uid %}" />
             <div class="field">
                 {{ form.content }}
             </div>

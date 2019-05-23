@@ -47,38 +47,6 @@ except (ModuleNotFoundError, NameError) as exc:
     pass
 
 
-def parse_mention_msg(post):
-    title = post.title
-    mentioned_users = parse_mentioned_users(content=post.content)
-    defalut_body = f"""
-            Hello, You have been mentioned in a post by {post.author.profile.name}.
-            The root post is :{title}.
-            Here is where you are mentioned :
-            {post.content}
-            """
-    subject = f"Mentioned in a post."
-
-    return defalut_body, subject, mentioned_users
-
-
-def parse_subs_msg(post, subs):
-    title = post.title
-    # Load template if its available
-    default_body = f"""
-          Hello,\n
-          There is an addition by {post.author.profile.name} to a post you are subscribed to.\n
-          Post: {title}\n
-          Addition: {post.content}\n
-          """
-    users_id_list = subs.values_list("user", flat=True).distinct()
-
-    subbed_users = User.objects.filter(id__in=users_id_list)
-
-    subject = f"Subscription to a post."
-
-    return default_body, subject, subbed_users
-
-
 def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR, parent=None, uid=None):
     # Create asynchronously when uwsgi is available
     if HAS_UWSGI:
@@ -95,28 +63,45 @@ def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR,
     return
 
 
-def send_notification_msgs(post):
-    # Get the user meant to send subscriptions and notification messages.
+def send_mentioned(post):
+    # Get message sender
     sender = User.objects.filter(is_superuser=True).first()
-
+    title = post.title
     # Parse the mentioned message
-    ment_body, ment_subject, ment_users = parse_mention_msg(post=post)
+    mentioned_users = parse_mentioned_users(content=post.content)
+    # Default mentioned body
+    body = f"""
+            Hello, You have been mentioned in a post by {post.author.profile.name}.
+            The root post is :{title}.
+            Here is where you are mentioned :
+            {post.content}
+            """
+    subject = "Mentioned in a post."
 
     # Send the mentioned notifications
-    send_message(source=models.Message.MENTIONED, subject=ment_subject, body=ment_body,
-                 rec_list=ment_users, sender=sender)
+    send_message(source=models.Message.MENTIONED, subject=subject, body=body,
+                 rec_list=mentioned_users, sender=sender)
     return
 
 
-def send_subs_msg(post, subs):
-    # Get the user meant to send subscriptions and notification messages.
+def send_subs(post, subs):
+    # Get message sender
     sender = User.objects.filter(is_superuser=True).first()
-
-    # Parse the subscribed message
-    sub_body, sub_subject, sub_users = parse_subs_msg(post=post, subs=subs)
+    title = post.title
+    # Default message body
+    body = f"""
+          Hello,\n
+          There is an addition by {post.author.profile.name} to a post you are subscribed to.\n
+          Post: {title}\n
+          Addition: {post.content}\n
+          """
+    # Get the subscribed users
+    users_id_list = subs.values_list("user", flat=True).distinct()
+    users = User.objects.filter(id__in=users_id_list)
+    subject = f"Subscription to a post."
 
     # Send message to subscribed users.
-    send_message(subject=sub_subject, body=sub_body, rec_list=sub_users, sender=sender)
+    send_message(subject=subject, body=body, rec_list=users, sender=sender)
 
     return
 

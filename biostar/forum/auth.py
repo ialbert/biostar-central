@@ -35,18 +35,6 @@ def get_votes(user, root):
     return store
 
 
-def my_posts(target, request):
-    user = request.user
-    if user.is_anonymous or target.is_anonymous:
-        return Post.objects.filter(author=target).exclude(status=Post.DELETED)
-
-    query = Post.objects.filter(author=target)
-    query = query.exclude(root=None)
-    query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
-    query = query if (user.profile.is_moderator or user == target) else query.exclude(status=Post.DELETED)
-
-    return query
-
 
 def post_tree(user, root):
     """
@@ -125,23 +113,18 @@ def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
 def create_sub(post, user, sub_type=None):
     "Creates a subscription of a user to a post"
 
+    # Get root post to subscribe to
     root = post.root
     sub = Subscription.objects.filter(post=root, user=user).first()
-    date = datetime.datetime.utcnow().replace(tzinfo=utc)
-
-    # Update an existing sub with new type.
+    date = util.now()
+    # Update an existing subscriptions
     if sub:
         Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
-        # The sub is being changed to "No message"
-        if sub_type == Subscription.NO_MESSAGES:
-            Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') - 1)
-
-    # Create a new sub object
-    else:
-        sub = Subscription.objects.create(post=root, user=user, type=sub_type, date=date)
-        # Increase the subscription count of the root.
-        if sub_type != Subscription.NO_MESSAGES:
-            Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+        return sub
+    # Create new subscriptions
+    sub = Subscription.objects.create(post=root, user=user, type=sub_type, date=date)
+    # Increase the subscription count of the root.
+    Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
 
     return sub
 
@@ -274,23 +257,18 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
     return url
 
 
-def create_post(author, content, post_type, title="Title", tag_val="tag1, tag2", parent=None, root=None,
-                sub_to_root=True):
+def create_post(author, content, post_type, title="Title", tag_val="tag1, tag2", parent=None, root=None,):
     "Used to create posts across apps"
 
     post = Post.objects.create(title=title, content=content, tag_val=tag_val,
-        author=author, type=post_type, parent=parent, root=root)
+                               author=author, type=post_type, parent=parent, root=root)
+
+    # Subscribe the author to the root
+    create_sub(post=post.root, sub_type=Profile.LOCAL_MESSAGE, user=author)
 
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously
-    tasks.send_notification_msgs(post)
-    tasks.send_subs_msg(post=post.root, subs=Subscription.objects.filter(post=post.root))
-
-    # Subscribe the author to the root, if not already
-    if sub_to_root:
-        create_sub(post=post.root, sub_type=Subscription.LOCAL_MESSAGE, user=author)
-
-    # Triggers another save in here
-    # post.add_tags(post.tag_val)
+    tasks.send_mentioned(post)
+    tasks.send_subs(post=post.root, subs=Subscription.objects.filter(post=post.root))
 
     return post

@@ -45,22 +45,6 @@ $.ajaxSetup({
 });
 
 
-// Triggered on moderation.
-function moderate(elem) {
-
-    $('#modpanel').remove();
-
-    // Could be a user or post uid
-    var data_uid = elem.attr('data-value');
-
-    var container = $("#mod-container-" + data_uid);
-    var mod_url = elem.attr('mod-url');
-
-    var page = $('<div id="modpanel"></div>').load(mod_url);
-    container.after(page)
-
-};
-
 
 function add_reply(elem) {
 
@@ -108,7 +92,6 @@ function add_comment(elem) {
             $("#comment-form").submit()
         }
     }
-
     // Submit form with CTRL-ENTER
     comment.keydown(function (e) {
         if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
@@ -122,7 +105,7 @@ function add_comment(elem) {
         if (status == 'success') {
             // Focus on the input
             $("#comment-input").focus();
-            // Appply size check to submit button.
+            // Apply size check to submit button.
             $("#comment-submit").click(function (e) {
                 e.preventDefault();
                 textarea_size_check()
@@ -193,8 +176,31 @@ function apply_vote(elem, post_uid, vote_type) {
 
 $(document).ready(function () {
 
-    $('select')
-        .dropdown()
+    $('.ui.dropdown')
+      .dropdown({
+
+          action: function (text, value) {
+            var elem = $(this);
+            var post_uid = elem.attr("uid");
+            var subs_url = '/ajax/subscribe/';
+            alert(post_uid);
+            alert(value);
+
+            //Call the jax here.
+              $.ajax(subs_url,
+                  {
+                  type: 'POST',
+                  dataType: 'json',
+                  ContentType: 'application/json',
+                  data: {
+                          'post_uid': post_uid,
+                          'sub_type': value
+                        },
+                  }
+              )
+          }
+
+      })
     ;
 
     $(".add-comment").click(function (event) {
@@ -202,17 +208,24 @@ $(document).ready(function () {
         add_comment($(this));
     });
 
-    $(".reply-button").click(function () {
-        event.preventDefault();
-        add_reply($(this));
-    });
 
-    $(".add-answer").click(function (event) {
-        add_answer($(this));
-    });
+
 
     $(".moderate-post").click(function (event) {
-        moderate($(this));
+        event.preventDefault();
+        var elem = $(this);
+
+        $('#modpanel').remove();
+
+        // Could be a user or post uid
+        var data_uid = elem.attr('data-value');
+
+        var container = $("#moderate-insert-" + data_uid);
+        var mod_url = '/moderate/'+ data_uid + '/';
+
+        var page = $('<div id="modpanel"></div>').load(mod_url);
+        container.after(page)
+
     });
 
     $(".moderate-user").click(function (event) {
