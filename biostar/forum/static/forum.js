@@ -73,10 +73,9 @@ function add_comment(elem) {
     if (comment.length) {
         // Remove comment if exists.
         comment.remove();
-        return;
     } else {
         // Create a new comment.
-        comment = $('<div id="new-comment"><div class="ui active centered inline loader"></div></div>')
+        comment = $('<div id="new-comment"></div>')
     }
 
     // Insert into the page.
@@ -174,6 +173,13 @@ function apply_vote(elem, post_uid, vote_type) {
     });
 }
 
+function remove_trigger(){
+  // Makes site messages dissapear.
+    $('.remove').delay(2000).slideUp(800, function () {
+        $(this).remove();
+    });
+}
+
 $(document).ready(function () {
 
     $('.ui.dropdown')
@@ -209,7 +215,7 @@ $(document).ready(function () {
     });
 
 
-
+    remove_trigger();
 
     $(".moderate-post").click(function (event) {
         event.preventDefault();
@@ -232,10 +238,7 @@ $(document).ready(function () {
         moderate($(this));
     });
 
-    // Makes site messages dissapear.
-    $('#site-messages').delay(2000).slideUp(800, function () {
-        $(this).remove();
-    });
+
 
     $('.vote').each(function (event) {
 
