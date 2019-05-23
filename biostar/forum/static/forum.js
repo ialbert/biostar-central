@@ -45,7 +45,6 @@ $.ajaxSetup({
 });
 
 
-
 function add_reply(elem) {
 
     // Remove body if it exists.
@@ -91,6 +90,7 @@ function add_comment(elem) {
             $("#comment-form").submit()
         }
     }
+
     // Submit form with CTRL-ENTER
     comment.keydown(function (e) {
         if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
@@ -173,8 +173,8 @@ function apply_vote(elem, post_uid, vote_type) {
     });
 }
 
-function remove_trigger(){
-  // Makes site messages dissapear.
+function remove_trigger() {
+    // Makes site messages dissapear.
     $('.remove').delay(2000).slideUp(800, function () {
         $(this).remove();
     });
@@ -183,30 +183,30 @@ function remove_trigger(){
 $(document).ready(function () {
 
     $('.ui.dropdown')
-      .dropdown({
+        .dropdown({
 
-          action: function (text, value) {
-            var elem = $(this);
-            var post_uid = elem.attr("uid");
-            var subs_url = '/ajax/subscribe/';
-            alert(post_uid);
-            alert(value);
+            action: function (text, value) {
+                var elem = $(this);
+                var post_uid = elem.attr("uid");
+                var subs_url = '/ajax/subscribe/';
+                alert(post_uid);
+                alert(value);
 
-            //Call the jax here.
-              $.ajax(subs_url,
-                  {
-                  type: 'POST',
-                  dataType: 'json',
-                  ContentType: 'application/json',
-                  data: {
-                          'post_uid': post_uid,
-                          'sub_type': value
+                //Call the jax here.
+                $.ajax(subs_url,
+                    {
+                        type: 'POST',
+                        dataType: 'json',
+                        ContentType: 'application/json',
+                        data: {
+                            'post_uid': post_uid,
+                            'sub_type': value
                         },
-                  }
-              )
-          }
+                    }
+                )
+            }
 
-      })
+        })
     ;
 
     $(".add-comment").click(function (event) {
@@ -227,7 +227,7 @@ $(document).ready(function () {
         var data_uid = elem.attr('data-value');
 
         var container = $("#moderate-insert-" + data_uid);
-        var mod_url = '/moderate/'+ data_uid + '/';
+        var mod_url = '/moderate/' + data_uid + '/';
 
         var page = $('<div id="modpanel"></div>').load(mod_url);
         container.after(page)
@@ -237,7 +237,6 @@ $(document).ready(function () {
     $(".moderate-user").click(function (event) {
         moderate($(this));
     });
-
 
 
     $('.vote').each(function (event) {

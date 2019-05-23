@@ -23,9 +23,9 @@
 
     {#  Show title on top level posts #}
     {% if post.is_toplevel %}
-        &bull; <div class="ui dropdown" id="sub" uid="{{ post.uid }}">
+        &bull; <div class="ui bottom pointing dropdown" id="sub" uid="{{ post.uid }}">
             <div class="text notify">current status</div>
-            <i class="dropdown icon"></i>
+            <i class="caret up icon"></i>
             <div class="menu">
                 <div class="item">Default</div>
                 <div class="item active">Messages</div>
