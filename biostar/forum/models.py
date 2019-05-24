@@ -446,16 +446,11 @@ def complete_post(sender, instance, created, *args, **kwargs):
         if instance.type == Post.COMMENT:
             Post.objects.filter(id=instance.root.id).update(comment_count=F("comment_count") + 1)
 
-        #reply_count = thread.count()
-
-        # Update the instance reply count
-        instance.parent.reply_count = Post.objects.filter(parent=instance.parent).count()
-
         # Update the root reply count
         Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
 
         # Update the parent reply counts.
-        if instance.root != instance.parent:
+        if instance.parent != instance.root:
             Post.objects.filter(pk=instance.parent.pk).update(reply_count=F("reply_count") + 1)\
 
         # Update last contributor to the thread.
