@@ -8,7 +8,6 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from biostar.engine import auth
-from biostar.utils.shortcuts import reverse
 from biostar.engine.models import Project, Analysis
 
 logger = logging.getLogger(settings.LOGGER_NAME)

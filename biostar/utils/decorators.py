@@ -6,9 +6,6 @@ from django.shortcuts import redirect, reverse
 from django.contrib import messages
 
 
-
-
-
 class object_exists:
 
     def __init__(self, klass, url=None):

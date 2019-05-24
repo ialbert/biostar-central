@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Sum
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.template import Template, Context
 from django.db.models import Count
 from django.utils import timezone
@@ -17,7 +17,6 @@ from django.conf import settings
 from django.db.models import Q, Count
 
 from biostar.accounts.models import User
-from biostar.utils.shortcuts import reverse
 from . import tasks, auth, forms, const, util, search
 from .decorators import read_access, write_access
 from .models import (Project, Data, Analysis, Job, Access)
@@ -159,7 +158,7 @@ def project_users(request, uid):
             user, access = form.save()
             msg = f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}"
             messages.success(request, mark_safe(msg))
-            return redirect(reverse("project_users", request=request, kwargs=dict(uid=project.uid)))
+            return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
 
     # Users that have been searched for.
     targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
@@ -172,7 +171,7 @@ def project_users(request, uid):
     return render(request, "project_users.html", context=context)
 
 
-@read_access(type=Project)
+@read_access(obj_type=Project)
 def project_info(request, uid):
 
     user = request.user
@@ -240,7 +239,7 @@ def project_list(request):
         return project_list_public(request)
 
 
-@read_access(type=Project)
+@read_access(obj_type=Project)
 def data_list(request, uid):
     """
     Returns the list of data for a project uid.
@@ -250,7 +249,7 @@ def data_list(request, uid):
                         active='data', show_summary=True)
 
 
-@read_access(type=Project)
+@read_access(obj_type=Project)
 def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
@@ -278,7 +277,7 @@ def get_counts(project):
     )
 
 
-@read_access(type=Project)
+@read_access(obj_type=Project)
 def project_view(request, uid, template_name="project_info.html", active='info', show_summary=None,
                  extra_context={}):
     """
@@ -341,7 +340,7 @@ def project_edit(request, uid):
         if form.is_valid():
             project = form.save()
             Project.objects.get_all(uid=uid).update(lastedit_user=request.user)
-            return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
+            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
     context = dict(project=project, form=form)
     return render(request, "project_edit.html", context=context)
@@ -362,13 +361,13 @@ def project_create(request):
         form = forms.ProjectForm(request=request, data=request.POST, create=True, files=request.FILES)
         if form.is_valid():
             project = form.custom_save(owner=request.user)
-            return redirect(reverse("project_view", request=request, kwargs=dict(uid=project.uid)))
+            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
     context = dict(form=form)
     return render(request, "project_create.html", context=context)
 
 
-@read_access(type=Data)
+@read_access(obj_type=Data)
 def data_copy(request, uid):
     data = Data.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
@@ -378,7 +377,7 @@ def data_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(type=Analysis)
+@read_access(obj_type=Analysis)
 def recipe_copy(request, uid):
     recipe = Analysis.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
@@ -388,7 +387,7 @@ def recipe_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(type=Job)
+@read_access(obj_type=Job)
 def job_copy(request, uid):
     job = Job.objects.get_all(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
@@ -398,7 +397,7 @@ def job_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(type=Data)
+@read_access(obj_type=Data)
 def data_file_copy(request, uid, path):
 
     # Get the root data where the file exists
@@ -409,7 +408,7 @@ def data_file_copy(request, uid, path):
     return redirect(reverse("data_view", kwargs=dict(uid=uid)))
 
 
-@read_access(type=Job)
+@read_access(obj_type=Job)
 def job_file_copy(request, uid, path):
 
     # Get the root data where the file exists
@@ -508,7 +507,7 @@ def file_paste(request, uid):
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
-@read_access(type=Data)
+@read_access(obj_type=Data)
 def data_view(request, uid):
     "Show information specific to each data."
 
@@ -535,7 +534,7 @@ def data_edit(request, uid):
         form = forms.DataEditForm(data=request.POST, instance=data, user=request.user, files=request.FILES)
         if form.is_valid():
             form.save()
-            return redirect(reverse("data_view", request=request, kwargs=dict(uid=data.uid)))
+            return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
     context = dict(data=data, form=form)
     return render(request, 'data_edit.html', context)
 
@@ -555,7 +554,7 @@ def data_upload(request, uid):
         if form.is_valid():
             data = form.save()
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
-            return redirect(reverse("data_list", request=request, kwargs={'uid': project.uid}))
+            return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
     uploaded_files = Data.objects.filter(owner=owner, method=Data.UPLOAD)
 
@@ -575,7 +574,7 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@read_access(type=Analysis)
+@read_access(obj_type=Analysis)
 def recipe_view(request, uid):
     """
     Returns a recipe view based on its id.
@@ -603,7 +602,7 @@ def recipe_view(request, uid):
     return render(request, "recipe_view.html", context)
 
 
-@read_access(type=Analysis)
+@read_access(obj_type=Analysis)
 def recipe_code_download(request, uid):
     """
     Download the raw recipe template as a file
@@ -658,7 +657,7 @@ def recipe_code_download(request, uid):
 #     return render(request, "recipe_code_view.html", context)
 
 
-@read_access(type=Analysis)
+@read_access(obj_type=Analysis)
 @ratelimit(key='ip', rate='10/h', block=True, method=ratelimit.UNSAFE)
 def recipe_run(request, uid):
     """
@@ -695,7 +694,7 @@ def recipe_run(request, uid):
                 # Spool via UWSGI.
                 tasks.execute_job.spool(job_id=job.id)
 
-            return redirect(reverse("job_list", request=request, kwargs=dict(uid=project.uid)))
+            return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
     else:
         initial = dict(name=f"Results for: {analysis.name}")
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
@@ -707,7 +706,7 @@ def recipe_run(request, uid):
     return render(request, 'recipe_run.html', context)
 
 
-@read_access(type=Analysis)
+@read_access(obj_type=Analysis)
 def recipe_code_edit(request, uid):
     """
     Displays and allows edit on a recipe code.
@@ -731,7 +730,7 @@ def recipe_code_edit(request, uid):
             analysis = form.save(commit=commit)
             if commit:
                 messages.info(request, "The recipe has been updated.")
-                return redirect(reverse("recipe_view", request=request, kwargs=dict(uid=analysis.uid)))
+                return redirect(reverse("recipe_view",  kwargs=dict(uid=analysis.uid)))
     else:
         # This gets triggered on a GET request.
         initial = dict(template=analysis.template, json=analysis.json_text)
@@ -763,14 +762,14 @@ def recipe_edit(request, uid):
     recipe = Analysis.objects.get_all(uid=uid).first()
     project = recipe.project
 
-    action_url = reverse('recipe_edit', request=request, kwargs=dict(uid=recipe.uid))
+    action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
     form = forms.RecipeForm(instance=recipe, user=request.user)
 
     if request.method == "POST":
         form = forms.RecipeForm(data=request.POST, files=request.FILES, instance=recipe, user=request.user)
         if form.is_valid():
             recipe = form.save()
-            return redirect(reverse("recipe_view", request=request, kwargs=dict(uid=recipe.uid)))
+            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
     context = dict(analysis=recipe, project=project, form=form, action_url=action_url,
                    name=recipe.name)
@@ -790,7 +789,7 @@ def job_edit(request, uid):
         form = forms.JobEditForm(data=request.POST, files=request.FILES, instance=job, user=request.user)
         if form.is_valid():
             form.save()
-            return redirect(reverse("job_view", request=request, kwargs=dict(uid=job.uid)))
+            return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
 
     context = dict(job=job, project=project, form=form)
     return render(request, 'job_edit.html', context)
@@ -828,7 +827,7 @@ def data_delete(request, uid):
     return redirect(reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
 
-@read_access(type=Job)
+@read_access(obj_type=Job)
 def job_view(request, uid):
     '''
     Views the state of a single job.
@@ -882,7 +881,7 @@ def file_serve(request, path, obj):
     return data
 
 
-@read_access(type=Data)
+@read_access(obj_type=Data)
 def data_serve(request, uid, path):
     """
     Serves files from a data directory.

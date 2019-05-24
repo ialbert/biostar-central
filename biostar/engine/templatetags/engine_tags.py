@@ -17,7 +17,7 @@ from django.utils.safestring import mark_safe
 
 from biostar.engine import auth, util, const
 from biostar.engine.models import Job, make_html, Project, Data, Analysis, Access
-from biostar.utils.shortcuts import reverse
+
 
 logger = logging.getLogger("engine")
 register = template.Library()

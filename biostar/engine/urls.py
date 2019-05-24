@@ -78,6 +78,7 @@ urlpatterns = [
 
     # Include the accounts urls
     url(r'^accounts/', include(account_patterns)),
+
 ]
 
 

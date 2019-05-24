@@ -1,9 +1,10 @@
 import logging
-
+from mistune import markdown
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login
+from django.shortcuts import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView,
@@ -17,8 +18,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
-from biostar.utils import markdown
-from biostar.utils.shortcuts import reverse
+
 from biostar.accounts import forms
 from biostar.accounts.auth import check_user, send_verification_email
 from biostar.accounts.const import *
@@ -63,7 +63,7 @@ def edit_profile(request):
                                                      my_tags=form.cleaned_data["my_tags"],
                                                      digest_prefs=form.cleaned_data["digest_prefs"],
                                                      message_prefs=form.cleaned_data["message_prefs"],
-                                                     html=markdown.parse(form.cleaned_data["text"]),
+                                                     html=markdown(form.cleaned_data["text"]),
                                                      email_verified=email_verified)
 
             return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))

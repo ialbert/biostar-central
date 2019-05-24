@@ -5,10 +5,10 @@ import re
 
 import mistune
 import requests
+from django.shortcuts import reverse
 from django.conf import settings
 from mistune import Renderer, InlineLexer
 
-from biostar.utils.shortcuts import reverse
 from biostar.forum.models import Post, Subscription
 from biostar.message import tasks
 from biostar.message.models import Message
@@ -96,28 +96,10 @@ class MonkeyPatch(InlineLexer):
         self.default_rules = list(InlineLexer.default_rules)
 
 
-def send_mentioned(post, user):
-    # Get message sender
-    sender = User.objects.filter(is_superuser=True).first()
-    title = post.title
-    # Parse the mentioned message
-    # Default mentioned body
-    body = f"""
-            Hello, You have been mentioned in a post by {post.author.profile.name}.
-            The root post is :{title}.
-            Here is where you are mentioned :
-            {post.content}
-            """
-    subject = "Mentioned in a post."
-    # Send the mentioned notifications
-    tasks.send_message(source=Message.MENTIONED, subject=subject, body=body, rec_list=[user], sender=sender)
-    return
-
-
 class BiostarInlineLexer(MonkeyPatch):
 
-    def __init__(self, uid=None, *args, **kwargs):
-        self.post_uid = uid
+    def __init__(self, post_uid=None, *args, **kwargs):
+        self.post_uid = post_uid
         super(BiostarInlineLexer, self).__init__(*args, **kwargs)
 
     def enable_post_link(self):
@@ -137,8 +119,12 @@ class BiostarInlineLexer(MonkeyPatch):
         if user:
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
-            #post = Post.objects.filter(uid=self.post_uid).first()
-            #send_mentioned(user=user, post=post)
+            post = Post.objects.filter(uid=self.post_uid).first()
+            # Subscribe mentioned users to post.
+            if post:
+                Subscription.objects.get_or_create(user=user, post=post)
+                #if not sub:
+
         else:
             link = m.group(0)
         # Send notification message to user.
@@ -220,14 +206,14 @@ class BiostarInlineLexer(MonkeyPatch):
         return f'<a href="{link}">{link}</a>'
 
 
-def parse(text, uid=None):
+def parse(text, post_uid=None):
     """
     Parses markdown into html.
     Expands certain patterns into HTML.
     """
 
     renderer = Renderer(escape=True, hard_wrap=True)
-    inline = BiostarInlineLexer(renderer=renderer, uid=uid)
+    inline = BiostarInlineLexer(renderer=renderer, uid=post_uid)
     inline.enable_post_link()
     inline.enable_mention_link()
 

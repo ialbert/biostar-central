@@ -8,6 +8,7 @@
 
 {% block body %}
 
+{% with params=request.GET.urlencode %}
 <div class="ui horizontal basic top-menu segments">
     <div class="ui first segment">
     <div class="ui small compact menu no-shadow" >
@@ -72,6 +73,8 @@
     </div>
     </div>
 </div>
+
+{% endwith %}
 
     {% if tag  %}
         <div class="ui blue filter message">
