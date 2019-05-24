@@ -63,7 +63,7 @@ def init_post(sender,  **kwargs):
 
     users = []
     for i in range(5):
-        email = f"John{i}@lvh.me"
+        email = f"User{i}@lvh.me"
         user, flag = User.objects.get_or_create(email=email)
         users.append(user)
 

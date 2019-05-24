@@ -4,13 +4,17 @@ body {
 }
 
 #logo {
-    padding: 5px;
+    padding: 1px 10px;
 }
 
 #menu-header .item {
     vertical-align: bottom;
-    padding-top: 20px;
+
     color: #333333;
+}
+
+#menu-header .item:not(:first-child) {
+
 }
 
 #menu-header .item.active {

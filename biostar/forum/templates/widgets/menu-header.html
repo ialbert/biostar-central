@@ -3,9 +3,9 @@
 
 <div class="ui labeled icon attached pointing menu" id="menu-header" user-id="{{ request.user.id }}">
 
-    <span class="">
-        <a href="/"><img class="ui image" src="{% static "images/biostar-logo.png" %}" id="logo"></a>
-    </span>
+    <div class="header item" id="logo">
+        <a href="/"><img class="ui image" src="{% static "images/biostar-logo.png" %}"></a>
+    </div>
 
     <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
         <i class="world icon"></i>
