@@ -1,6 +1,5 @@
 
 import logging
-import mistune
 from django import forms
 
 from django.contrib import messages
@@ -8,7 +7,6 @@ from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
 from django.conf import settings
-from biostar.utils import markdown
 from .models import Profile
 from . import auth
 
