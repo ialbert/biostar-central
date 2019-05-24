@@ -6,7 +6,7 @@
 
 {% block content %}
 
-<form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
+<form method="post" class="ui form" action="{% url 'edit_profile' %}">
     {{ form.media }}
      {% csrf_token %}
 
