@@ -6,17 +6,16 @@
 
     <div>
         <a href="{% url "user_profile" user.profile.uid %}">
-            <img class="ui centered image" src="{% gravatar user=user size=100 %}">
+            <img class="ui centered circular image" src="{% gravatar user=user size=100 %}">
         </a>
     </div>
-
-    <div>
-        <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name }}</a>
-        {{ user | icon }} <b>{{ user.profile.score | show_score |bignum }}</b>
-    </div>
-
     <div class="muted">
-        {{ user.profile.location }}
+        {{ post.lastedit_date|time_ago }}<br>
+
+        <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name }}</a>
+        {{ user | icon }} <b>{{ user.profile.score | show_score |bignum }}</b><br>
+
+        {{ user.profile.location }} FOO
     </div>
 
 </div>

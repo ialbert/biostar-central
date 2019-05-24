@@ -1,7 +1,6 @@
 {% load humanize %}
 {% load accounts_tags %}
 
-
     updated {{ post.lastedit_date|time_ago }} by
     <a href="{% url "user_profile"  post.author.profile.uid %}">
         {% if avatar %}

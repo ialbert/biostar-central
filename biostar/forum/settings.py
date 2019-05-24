@@ -33,7 +33,12 @@ SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
+    'pagedown'
 ]
+
+# Import the default pagedown css first, then our custom CSS sheet
+ # to avoid having to specify all the default styles
+PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css', "lib/pagedown.css",)
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + MESSAGE_APPS + ACCOUNTS_APPS
 

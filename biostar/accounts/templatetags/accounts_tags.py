@@ -141,19 +141,24 @@ def time_ago(date):
 
 @register.simple_tag
 def gravatar(user, size=80):
-    #name = user.profile.name
+
+    style = "retro"
     if user.is_anonymous or user.profile.is_suspended:
         # Removes spammy images for suspended users
-        email = 'suspended@biostars.org'.encode('utf8')
+        #email = 'suspended@biostars.org'.encode('utf8')
+        style = "monsterid"
     else:
+        if user.profile.is_moderator:
+            style = "robohash"
         email = user.email.encode('utf8')
+
 
     hash = hashlib.md5(email).hexdigest()
 
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
     gravatar_url += urllib.parse.urlencode({
         's': str(size),
-        'd': 'retro',
+        'd': style,
     }
     )
-    return gravatar_url #mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
+    return gravatar_url
