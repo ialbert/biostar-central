@@ -287,7 +287,7 @@ def create_comment(request, uid):
     post = Post.objects.filter(uid=uid).first()
 
     if request.method == "POST":
-        form = forms.CommentForm(data=request.POST)
+        form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             content = form.cleaned_data['content']
             comment = auth.create_post(parent=post, author=user, content=content, post_type=Post.COMMENT)
@@ -295,7 +295,7 @@ def create_comment(request, uid):
         messages.error(request, f"Error adding comment:{form.errors}")
     else:
         initial = dict(parent_uid=post.uid, content="")
-        form = forms.CommentForm(initial=initial)
+        form = forms.PostShortForm(initial=initial)
 
     context = dict(post=post, form=form, user=user)
 
