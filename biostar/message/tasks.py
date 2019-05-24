@@ -13,17 +13,6 @@ HAS_UWSGI = False
 
 COUNTER = 1
 
-
-def parse_mentioned_users(content):
-
-    # Any word preceded by a @ is considered a user handler.
-    handler_pattern = "\@[^\s]+"
-    # Drop leading @
-    users_list = set(x[1:] for x in re.findall(handler_pattern, content))
-
-    return User.objects.filter(username__in=users_list)
-
-
 try:
 
     from uwsgidecorators import *
@@ -59,50 +48,9 @@ def send_message(subject, body, rec_list, sender, source=models.Message.REGULAR,
         # Send subscription messages
         auth.create_local_messages(body=body, sender=sender, subject=subject, rec_list=rec_list,
                                    source=source, parent=parent, uid=uid)
-
     return
 
 
-def send_mentioned(post):
-    # Get message sender
-    sender = User.objects.filter(is_superuser=True).first()
-    title = post.title
-    # Parse the mentioned message
-    mentioned_users = parse_mentioned_users(content=post.content)
-    # Default mentioned body
-    body = f"""
-            Hello, You have been mentioned in a post by {post.author.profile.name}.
-            The root post is :{title}.
-            Here is where you are mentioned :
-            {post.content}
-            """
-    subject = "Mentioned in a post."
 
-    # Send the mentioned notifications
-    send_message(source=models.Message.MENTIONED, subject=subject, body=body,
-                 rec_list=mentioned_users, sender=sender)
-    return
-
-
-def send_subs(post, subs):
-    # Get message sender
-    sender = User.objects.filter(is_superuser=True).first()
-    title = post.title
-    # Default message body
-    body = f"""
-          Hello,\n
-          There is an addition by {post.author.profile.name} to a post you are subscribed to.\n
-          Post: {title}\n
-          Addition: {post.content}\n
-          """
-    # Get the subscribed users
-    users_id_list = subs.values_list("user", flat=True).distinct()
-    users = User.objects.filter(id__in=users_id_list)
-    subject = f"Subscription to a post."
-
-    # Send message to subscribed users.
-    send_message(subject=subject, body=body, rec_list=users, sender=sender)
-
-    return
 
 

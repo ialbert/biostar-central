@@ -182,29 +182,39 @@ function remove_trigger() {
 
 $(document).ready(function () {
 
-    $('.ui.dropdown')
+    $('#subscribe')
         .dropdown({
+          action:'hide',
+          onChange: function (value, text, $selectedItem) {
+          var elem = $(this);
+          // Get the root id
+          var post_id = elem.attr("data-uid");
+          // Currently selected item
+          var active = $('#active');
+          // Subscription url
+          var subs_url = '/ajax/subscribe/';
+          $.ajax(subs_url,
+              {
+                  type: 'POST',
+                  dataType: 'json',
+                  ContentType: 'application/json',
+                  data: {
+                      'root_uid': post_id,
+                      'sub_type': value
+                  },
+                  success: function (data) {
+                      if (data.status === 'error') {
+                          popup_message(elem, data.msg, data.status);
+                      } else {
+                          // Replace the current item with the select item.
+                          active.text($selectedItem.text());
+                      }
 
-            action: function (text, value) {
-                var elem = $(this);
-                var post_uid = elem.attr("uid");
-                var subs_url = '/ajax/subscribe/';
-                alert(post_uid);
-                alert(value);
+                  }
+              }
+              )
+          }
 
-                //Call the jax here.
-                $.ajax(subs_url,
-                    {
-                        type: 'POST',
-                        dataType: 'json',
-                        ContentType: 'application/json',
-                        data: {
-                            'post_uid': post_uid,
-                            'sub_type': value
-                        },
-                    }
-                )
-            }
 
         })
     ;
@@ -235,7 +245,19 @@ $(document).ready(function () {
     });
 
     $(".moderate-user").click(function (event) {
-        moderate($(this));
+        event.preventDefault();
+        var elem = $(this);
+
+        $('#modpanel').remove();
+
+        // Could be a user or post uid
+        var data_uid = elem.attr('data-value');
+
+        var container = $("#moderate-insert-" + data_uid);
+        var mod_url = '/accounts/moderate/'+ data_uid + '/';
+
+        var page = $('<div id="modpanel"></div>').load(mod_url);
+        container.after(page)
     });
 
 

@@ -2,16 +2,17 @@ import uuid
 import mistune
 
 from django.contrib.auth.models import User
-
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.db import models
 from django.conf import settings
 
+from biostar.accounts import util
 
 MAX_UID_LEN = 255
 MAX_NAME_LEN = 255
 MAX_TEXT_LEN = 10000
+MAX_FIELD_LEN = 1024
 
 
 def generate_uuid(limit=32):
@@ -92,8 +93,7 @@ class Profile(models.Model):
     notify = models.BooleanField(default=False)
 
     # Default subscriptions inherit from this
-    message_prefs = models.IntegerField(choices=MESSAGING_TYPE_CHOICES,
-                                        default=LOCAL_MESSAGE)
+    message_prefs = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE)
 
     # Subscription to daily and weekly digests.
     digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=WEEKLY_DIGEST)

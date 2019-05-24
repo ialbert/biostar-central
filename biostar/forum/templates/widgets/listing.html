@@ -1,40 +1,39 @@
 {% load forum_tags %}
+{% load accounts_tags %}
 
 <div class="ui divided items">
 
-    {% for post in posts %}
+{% for post in posts %}
 
-<div class="post item {{post.css}}">
+    <div class="post item {{post.css}}">
 
-    <div class="image">
-
-                <div class="ui left stat label mini" >
-                    <div class="number-stat">
-                    {{ post.get_votecount }}
+        <div class="statbox">
+                    <div class="ui left stat label mini" >
+                        <div class="number-stat">
+                        {{ post.get_votecount }}
+                        </div>
+                        <div class="detail-stat">Vote{{ post.get_votecount|pluralize }}</div>
                     </div>
-                    <div class="detail-stat">Vote{{ post.get_votecount|pluralize }}</div>
 
-                </div>
-
-                <div class="ui label stat mini {% boxclass post %}">
-                    <div class="number-stat">
-                    {{ post.reply_count }}
+                    <div class="ui label stat mini {% boxclass post %}">
+                        <div class="number-stat">
+                        {{ post.reply_count }}
+                        </div>
+                        <div class="detail-stat">Repl{{ post.reply_count|pluralize:"y,ies" }}</div>
                     </div>
-                    <div class="detail-stat">Repl{{ post.reply_count|pluralize:"y,ies" }}</div>
 
-                </div>
-
-                <div class="ui label basic transparent stat mini">
-
-                    <div class="number-stat">
-                        {{ post.root.view_count|bignum }}
+                    <div class="ui label basic transparent stat mini">
+                        <div class="number-stat">
+                            {{ post.root.view_count|bignum }}
+                        </div>
+                        <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
                     </div>
-                    <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
+                {{ post.subs_count| get_subcount}}
+        </div>
 
-                </div>
-            {{ post.subs_count| get_subcount}}
 
-    </div>
+
+
 
 
     <div class="content">
@@ -55,7 +54,7 @@
             <div class="right floated">
                 {% get_thread_users post=post as extra_users %}
                 {% for extra_user in extra_users %}
-                     <a class="ui mini avatar image" href="{% url "user_profile" extra_user.profile.uid %}" style="width:25px">
+                     <a class="ui mini avatar image" href="{% url "user_profile" extra_user.profile.uid %}" style="width:25px;">
                      <img src="{% gravatar user=extra_user size=50 %}">
                      </a>
                 {% endfor %}

@@ -79,7 +79,7 @@ class PostTest(TestCase):
 
             data = {"vote_type": vtype, "post_uid": post.uid}
             request = fake_request(url=reverse('vote'), data=data, user=user)
-            response = ajax.ajax_vote(request=request)
+            response = ajax.ajax_vote(request)
 
     def test_vote(self):
         """Test the ajax voting using POST request """
