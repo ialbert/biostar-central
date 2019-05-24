@@ -16,19 +16,6 @@ from . import auth
 logger = logging.getLogger("engine")
 
 
-def check_size(fobj, maxsize=0.3):
-    # maxsize in megabytes!
-
-    try:
-        if fobj and fobj.size > maxsize * 1024 * 1024.0:
-            curr_size = fobj.size / 1024 / 1024.0
-            msg = f"File too large: {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
-            raise forms.ValidationError(msg)
-    except Exception as exc:
-        raise forms.ValidationError(f"File size validation error: {exc}")
-
-    return fobj
-
 
 class SignUpForm(forms.Form):
 
@@ -105,7 +92,6 @@ class LogoutForm(forms.Form):
 class EditProfile(forms.Form):
     email = forms.CharField(label='Email', max_length=100)
     name = forms.CharField(label='Name', max_length=100)
-    image = forms.ImageField(required=False)
     username = forms.CharField(label="Handler", max_length=100)
     location = forms.CharField(label="Location", max_length=100, required=False)
     website = forms.URLField(label="Website", max_length=225, required=False)
@@ -131,13 +117,6 @@ class EditProfile(forms.Form):
 
         super(EditProfile, self).__init__(*args, **kwargs)
 
-    def clean_image(self):
-
-        cleaned_data = super(EditProfile, self).clean()
-        image = cleaned_data.get('image')
-        check_size(fobj=image)
-
-        return image
 
     def clean_email(self):
 

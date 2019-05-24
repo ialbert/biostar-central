@@ -157,14 +157,3 @@ def gravatar(user, size=80):
     }
     )
     return gravatar_url #mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
-
-
-@register.simple_tag
-def user_image(user, size=50):
-    """
-    Return profile pic if its set or
-    """
-    if user.is_authenticated and user.profile.image:
-        return user.profile.image.url
-
-    return gravatar(user=user, size=size)

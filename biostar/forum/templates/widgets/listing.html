@@ -55,7 +55,7 @@
                 {% get_thread_users post=post as extra_users %}
                 {% for extra_user in extra_users %}
                      <a class="ui mini avatar image" href="{% url "user_profile" extra_user.profile.uid %}" style="width:25px;">
-                     <img src="{% user_image user=extra_user size=50 %}">
+                     <img src="{% gravatar user=extra_user size=50 %}">
                      </a>
                 {% endfor %}
 

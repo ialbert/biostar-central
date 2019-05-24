@@ -36,11 +36,10 @@ def edit_profile(request):
         return redirect("/")
 
     user = request.user
-    initial = dict(username=user.username, email=user.email, name=user.profile.name, image=user.profile.image,
-                   location=user.profile.location, website=user.profile.website, twitter=user.profile.twitter,
-                   scholar=user.profile.scholar, text=user.profile.text, my_tags=user.profile.my_tags,
-                   digest_prefs=user.profile.digest_prefs, message_prefs=user.profile.message_prefs,
-                   email_verified=user.profile.email_verified)
+    initial = dict(username=user.username, email=user.email, name=user.profile.name,location=user.profile.location,
+                   website=user.profile.website, twitter=user.profile.twitter,scholar=user.profile.scholar, text=user.profile.text,
+                   my_tags=user.profile.my_tags, digest_prefs=user.profile.digest_prefs,
+                   message_prefs=user.profile.message_prefs, email_verified=user.profile.email_verified)
 
     form = forms.EditProfile(user=user, initial=initial)
 
@@ -66,10 +65,6 @@ def edit_profile(request):
                                                      message_prefs=form.cleaned_data["message_prefs"],
                                                      html=markdown.parse(form.cleaned_data["text"]),
                                                      email_verified=email_verified)
-            # Save the image
-            stream = form.cleaned_data["image"]
-            if stream:
-                user.profile.image.save(stream.name, stream, save=True)
 
             return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 
