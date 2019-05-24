@@ -200,6 +200,9 @@ a:hover {
     margin: 0;
 }
 
+.statbox{
+    white-space: nowrap;
+}
 .comment-list {
 
 }
