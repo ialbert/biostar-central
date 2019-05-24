@@ -19,6 +19,7 @@
 
     {% compress css %}
         <link href="{% static 'main/semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'prism.css' %}" rel="stylesheet">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
     {% endcompress %}
 
@@ -26,6 +27,9 @@
 
         <script src="{% static 'main/semantic.min.js' %}">
         </script>
+
+        <script src="{% static 'prism.js' %}"></script>
+
         <script src="{% static 'forum.js' %}{% randparam %}">
         </script>
 

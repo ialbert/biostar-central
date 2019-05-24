@@ -64,7 +64,7 @@ function add_comment(elem) {
 
     var post_uid = elem.attr('data-value');
     var container = $("#comment-insert-" + post_uid);
-    var url = "/create/comment/" + post_uid + "/"
+    var url = "/new/comment/" + post_uid + "/"
 
     // Check for existing comment.
     var comment = $("#new-comment")
@@ -259,6 +259,10 @@ $(document).ready(function () {
         var page = $('<div id="modpanel"></div>').load(mod_url);
         container.after(page)
     });
+
+    $('pre').addClass('language-bash');
+        Prism.highlightAll();
+
 
 
     $('.vote').each(function (event) {
