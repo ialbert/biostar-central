@@ -64,9 +64,9 @@ def post_user_box(user, post):
 
 
 @register.inclusion_tag('widgets/post_actions.html', takes_context=True)
-def post_actions(context, post, label="ADD COMMENT"):
+def post_actions(context, post, label="ADD COMMENT", avatar=False):
     request = context["request"]
-    return dict(post=post, label=label, request=request)
+    return dict(post=post, label=label, request=request, avatar=avatar)
 
 
 @register.inclusion_tag('widgets/post_tags.html')

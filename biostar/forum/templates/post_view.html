@@ -8,9 +8,9 @@
 
 {% block body %}
 
-{# The toplevel post #}
+    {# The toplevel post #}
 
-{% post_body post=post user=request.user tree=tree form=form %}
+    {% post_body post=post user=request.user tree=tree form=form %}
 
     {# Render each answer for the post #}
     {% for answer in answers %}
@@ -19,43 +19,50 @@
         </div>
     {% endfor %}
 
-<div class="ui basic segment inputcolor">
-<div class="ui small header">Add your answer</div>
+    <div class="ui basic segment inputcolor">
 
-    {% if request.user.is_authenticated %}
-        <form method="post" class="ui form" action="{%  url 'post_answer' post.uid %}">
-            {{ form.media }}
-            {% csrf_token %}
+        <div class="ui header">Add Your Answer</div>
 
-            <div class="ui mini info message">
-                <p><b>Note:</b> Answers should ONLY be used to respond to the original question at the top of this page! </p>
-                <p>Use the <span class="ui tiny label">ADD COMMENT</span> or <span class="ui tiny label">ADD REPLY</span> buttons
-                above to respond to someone, ask for clarifications, request more details etc.</p>
+        {% if request.user.is_authenticated %}
+
+            <form method="post" class="ui form" action="{% url 'post_answer' post.uid %}">
+
+                {{ form.media }}
+
+                {% csrf_token %}
+
+                <div class="ui info message">
+                    <p><b>Note:</b> Answers should be used only as a response to the original post seen the top of the
+                        page!<br>
+                        Use the <span class="ui tiny label">ADD COMMENT</span> or <span
+                        class="ui tiny label">ADD REPLY</span> buttons
+                        embedded in each post to comment, to ask for clarifications, to request more details etc.</p>
+                </div>
+                <input type="hidden" name="{{ form.parent_uid.name }}" id="{{ form.parent_uid.id_for_label }}"
+                       value={{ post.uid }}/>
+                <div class="field">
+                    {{ form.content }}
+                </div>
+
+                <button type="submit" class="ui submit green button">
+                    <i class="check icon"></i>Submit
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <div class="ui info message">
+                <p><a class="ui small label" href="{% url 'login' %}">
+                    <i class="sign in icon"></i>Login</a> before adding your answer.</p>
             </div>
-            <input type="hidden" name="{{ form.parent_uid.name }}" id="{{ form.parent_uid.id_for_label }}" value={{post.uid}} />
-            <div class="field">
-                {{ form.content }}
-            </div>
 
-       <button type="submit" class="ui submit green button">
-            <i class="check icon"></i>Submit
-       </button>
-
-        </form>
-
-    {% else %}
-
-        <div class="ui mini info message">
-        <p><a class="ui small label" href="{% url 'login' %}">
-            <i class="sign in icon"></i>Login</a> before adding your answer.</p>
-        </div>
-
-    {% endif %}
+        {% endif %}
     </div>
 
 
 {% endblock %}
 
-{%  block sidebar %}
-    {%  single_post_feed post=post %}
-{%  endblock %}
+{% block sidebar %}
+    {% single_post_feed post=post %}
+{% endblock %}

@@ -11,6 +11,7 @@ class ForumConfig(AppConfig):
     name = 'biostar.forum'
 
     def ready(self):
+        from . import signals
         # Triggered upon app initialization.
         post_migrate.connect(init_post, sender=self)
         post_migrate.connect(init_awards, sender=self)
