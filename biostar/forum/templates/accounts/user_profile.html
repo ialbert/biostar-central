@@ -11,58 +11,17 @@
     </a>
 {% endif %}
 
-<div class="ui two column grid">
+<div class="ui three column grid">
 
     <div class="column">
         <div class="ui centered card">
-
             <div class="image">
                 <img class="ui centered image" src="{% gravatar user=target size=300 %}" >
             </div>
-
-            <div class="content">
-                 <a  class="header " >
-                     {{target.profile.name}}
-                {{ target |show_score_icon }}{{ target.profile.score | show_score }}
-                </a>
-
-                <div>
-                    <b>Status</b> : {{ target.profile.get_state_display }}
-                </div>
-
-                <div>
-                    <b>Location</b> : {{ target.profile.location }}
-                </div>
-                <div>
-                    <b>Email</b> : {{ target|show_email:request.user }}
-                </div>
-
-                {% if target.profile.last_login %}
-                    <div>
-                        <b>Last seen </b> : {{ target.profile.last_login |time_ago }}
-                    </div>
-                {% endif %}
-
-                <div>
-                    <b>Joined</b> : {{ target.profile.date_joined|time_ago }}
-                </div>
-
-                <div>
-                    <b>Handle</b>: @
-                    {# testing out inplace editing #}
-
-                        {{ target.username }}
-                    </a>
-
-                </div>
-            </div>
-
-
             <div class="ui bottom attached buttons">
 
                 {% if can_moderate %}
-                    <div class="ui button moderate-user" data-value="{{ target.profile.uid }}"
-                         mod-url="{% url 'user_moderate' target.profile.uid %}">
+                    <div class="ui button moderate-user" data-value="{{ target.profile.uid }}">
                       <i class="hand paper icon"></i>
                       Moderate
                     </div>
@@ -73,10 +32,40 @@
                         <i class="write icon"></i>Edit
                     </a>
                 {% endif %}
-
             </div>
+        </div>
+            <div id="moderate-insert-{{ target.profile.uid }}"></div>
+    </div>
 
-            <div id="mod-container-{{ target.profile.uid }}"></div>
+    <div class="column">
+         <a  class="ui header" >
+             {{target.profile.name}}
+        {{ target |show_score_icon }}{{ target.profile.score | show_score }}
+        </a>
+
+        <div>
+            <b>Status</b> : {{ target.profile.get_state_display }}
+        </div>
+
+        <div>
+            <b>Location</b> : {{ target.profile.location }}
+        </div>
+        <div>
+            <b>Email</b> : {{ target|show_email:request.user }}
+        </div>
+
+        {% if target.profile.last_login %}
+            <div>
+                <b>Last seen </b> : {{ target.profile.last_login |time_ago }}
+            </div>
+        {% endif %}
+
+        <div>
+            <b>Joined</b> : {{ target.profile.date_joined|time_ago }}
+        </div>
+
+        <div>
+            <b>Handle</b>: @{{ target.username }}
 
         </div>
     </div>
@@ -85,21 +74,11 @@
         {{ target.profile.html |safe }}
     </div>
 
-            {% if can_moderate or request.user == target %}
-                {% if target.profile.email_verified %}
-                    <div class="ui top left attached basic green large label">
-                        <i class="check icon"></i> Email Verified
-                    </div>{% endif %}
-            {% endif %}
 </div>
 
     <div class="ui centered header"> Posts by {{ target.profile.name }}</div>
     {# List the users posts #}
     {% list_posts user=target %}
-
-
-    </div>
-
 
 
 {% endblock %}

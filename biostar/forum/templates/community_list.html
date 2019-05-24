@@ -1,5 +1,6 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
+{% load accounts_tags %}
 {% load humanize %}
 
 {% block headtitle %}
@@ -86,7 +87,7 @@
                     <div class="ui fluid card" href="{% url "user_profile" user.profile.uid %}">
 
                         <a class="image" href="{% url "user_profile" user.profile.uid %}">
-                            <img class="ui centered image" src="{% gravatar user=user size=50 %}" >
+                            <img src="{% gravatar user=user size=50 %}" >
                         </a>
 
                         <div class="center aligned content">

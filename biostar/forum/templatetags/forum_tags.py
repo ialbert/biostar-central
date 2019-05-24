@@ -13,8 +13,9 @@ from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
+from biostar.accounts.models import Profile
 from biostar.forum import const, util
-from biostar.forum.models import Post, Vote, Award
+from biostar.forum.models import Post, Vote, Award, Subscription
 from biostar.message.models import Message
 
 User = get_user_model()
@@ -62,9 +63,10 @@ def post_user_box(user, post):
     return dict(user=user, post=post)
 
 
-@register.inclusion_tag('widgets/post_actions.html')
-def post_actions(post, label="ADD COMMENT"):
-    return dict(post=post, label=label)
+@register.inclusion_tag('widgets/post_actions.html', takes_context=True)
+def post_actions(context, post, label="ADD COMMENT"):
+    request = context["request"]
+    return dict(post=post, label=label, request=request)
 
 
 @register.inclusion_tag('widgets/post_tags.html')
@@ -73,33 +75,11 @@ def post_tags(post, show_views=False):
     return dict(post=post, tags=tags, show_views=show_views)
 
 
-@register.simple_tag
-def get_all_message_count(request):
-    user = request.user
-    outbox = inbox = projects = mentioned = unread = 0
-
-    if user.is_authenticated:
-        inbox = Message.objects.inbox_for(user=user)
-        outbox = Message.objects.outbox_for(user=user).count()
-        unread = inbox.filter(unread=True).count()
-        mentioned = inbox.filter(source=Message.MENTIONED).count()
-
-    context = dict(outbox=outbox, inbox=inbox.count(), projects=projects, mentioned=mentioned,
-                   unread=unread)
-
-    return context
-
-
 @register.inclusion_tag('widgets/pages.html', takes_context=True)
 def pages(context, objs):
     request = context["request"]
     url = request.path
     return dict(objs=objs, url=url, request=request)
-
-
-@register.simple_tag
-def get_tags_list(tags_str):
-    return set(util.split_tags(tags_str))
 
 
 @register.simple_tag
@@ -116,23 +96,19 @@ def show_messages(messages):
     return dict(messages=messages)
 
 
-@register.simple_tag
-def gravatar(user, size=80):
-    # name = user.profile.name
-    if user.is_anonymous or user.profile.is_suspended:
-        # Removes spammy images for suspended users
-        email = 'suspended@biostars.org'.encode('utf8')
-    else:
-        email = user.email.encode('utf8')
+@register.filter
+def subtype(post, user):
 
-    hash = hashlib.md5(email).hexdigest()
+    default = "unsubscribe"
+    type_map = {Profile.LOCAL_MESSAGE: "default", Profile.EMAIL_MESSAGE: "email"}
 
-    url = "https://secure.gravatar.com/avatar/%s?" % hash
-    url += urllib.parse.urlencode({
-        's': str(size),
-        'd': 'retro',
-    })
-    return url
+    if user.is_anonymous:
+        return default
+    # Get the user subscriptions
+    sub = Subscription.objects.filter(post=post, user=user).first()
+    stype = type_map.get(sub.type, default) if sub else default
+
+    return stype
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)

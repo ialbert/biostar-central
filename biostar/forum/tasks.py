@@ -45,99 +45,10 @@ def days_to_secs(days=1):
     return secs
 
 
-def send_digest_emails(users, template_name, extra_context):
-
-    # debug only
-    #to_email = users.filter(email="natay.aberra@gmail.com")
-    #to_email = to_email.values_list("email", flat=True).first()
-
-    to_email = users.values_list("email", flat=True)
-
-    # Add site info to context
-    context = dict(domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL, port=settings.HTTP_PORT, name=settings.SITE_NAME)
-    context.update(extra_context)
-
-    # Load the template and prepare email
-    template = loader.get_template(template_name)
-    email = template.render(context=context)
-    subject = context.get("subject", "Digest")
-
-    # Get the from email
-    from_email = User.objects.filter(is_superuser=True).first()
-
-    # Send email.
-    send_mail(subject=subject, from_email=from_email, recipient_list=to_email, html_message=email, message=email)
-    return
-
-
 try:
     from uwsgidecorators import *
 
     HAS_UWSGI = True
-
-    def send_post_mail(pid):
-        """Send email for users subscribed to specific post """
-        return
-
-    #@timer(secs=1)
-    #@timer(secs=days_to_secs(days=1))
-    def send_daily_digest(args):
-        """Send daily digest to users """
-        today = datetime.utcnow().replace(tzinfo=utc)
-        posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date__day=today.day,
-                                    creation_date__month=today.month, creation_date__year=today.year)
-
-        # Prepare context to populate template
-        subject = f"Daily Digest for :{today.date()}"
-        msg = f"Hello, here are a digest of posts from today, {today.date()}. "
-        context = dict(posts=posts, msg=msg, subject=subject)
-        # Get users that opted for daily
-        users = User.objects.filter(profile__digest_prefs=Profile.DAILY_DIGEST,
-                                    profile__message_prefs=Profile.MAILING_LIST)
-
-        send_digest_emails(users=users, extra_context=context, template_name="messages/digest.html")
-
-        return
-
-    #@timer(secs=days_to_secs(days=7))
-    def send_weekly_digest(args):
-        """Send weekly digest to users """
-
-        today = datetime.utcnow().replace(tzinfo=utc)
-        last_week = today - timedelta(days=7)
-        posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date__gte=last_week,
-                                    creation_date__lte=today)
-
-        # Load template with message
-        subject = f"Weekly Digest for :{today.date()}"
-        msg = f"Hello, here are a digest of posts from this past week, {last_week}-{today.date()}. "
-        context = dict(posts=posts, msg=msg, subject=subject)
-
-        users = User.objects.filter(profile__digest_prefs=Profile.WEEKLY_DIGEST,
-                                    profile__message_prefs=Profile.MAILING_LIST)
-
-        send_digest_emails(template_name="messages/digest.html", users=users, extra_context=context)
-
-        return
-
-    #@timer(secs=days_to_secs(days=30))
-    def send_monthly_digest(args):
-        """Send monthly (30 days) digest to users """
-
-        # Get top level posts one month old.
-        today = datetime.utcnow().replace(tzinfo=utc)
-        posts = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date__month=today.month)
-
-        # Load template with message
-        subject = f"Monthly Digest for :{today.month}"
-        msg = f"Hello, here are posts from your monthly digest for the month {today.month}. "
-        context = dict(posts=posts, msg=msg, subject=subject)
-        users = User.objects.filter(profile__digest_prefs=Profile.MONTHLY_DIGEST,
-                                    profile__message_prefs=Profile.MAILING_LIST)
-        send_digest_emails(users=users, extra_context=context, template_name="messages/digest.html")
-
-        return
-
 
     @spool(pass_arguments=True)
     def create_user_awards(user_id):
