@@ -35,17 +35,17 @@ class PostTest(TestCase):
                 }
 
         request = fake_request(url=reverse('post_create'), data=data, user=self.owner)
-        response = views.post_create(request=request)
+        response = views.new_post(request=request)
         self.process_response(response=response)
 
     def test_comment(self):
         """Test adding comment using POST request"""
 
-        data = {"post_uid": self.post.uid, "content": "tested content for a question"}
+        data = {"parent_uid": self.post.uid, "content": "tested content for a question"}
         url = reverse('create_comment', kwargs=dict(uid=self.post.uid))
 
         request = fake_request(url=url, data=data, user=self.owner)
-        response = views.create_comment(request=request, uid=self.post.uid)
+        response = views.new_comment(request=request, uid=self.post.uid)
 
         self.assertEqual(response.status_code, 302, f"Could not add comments")
 
