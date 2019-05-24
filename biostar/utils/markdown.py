@@ -105,7 +105,6 @@ def send_mentioned(post, user):
             {post.content}
             """
     subject = "Mentioned in a post."
-
     # Send the mentioned notifications
     tasks.send_message(source=Message.MENTIONED, subject=subject, body=body, rec_list=[user], sender=sender)
     return
@@ -134,6 +133,8 @@ class BiostarInlineLexer(MonkeyPatch):
         if user:
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
+            #post = Post.objects.filter(uid=self.post_uid).first()
+            #send_mentioned(user=user, post=post)
         else:
             link = m.group(0)
         # Send notification message to user.

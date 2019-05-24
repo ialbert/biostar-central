@@ -39,7 +39,6 @@ class ajax_error_wrapper:
 
             if request.method != self.method:
                 return ajax_error(f'{self.method} method must be used.')
-
             if not request.user.is_authenticated:
                 return ajax_error('You must be logged in.')
 
@@ -116,7 +115,6 @@ def ajax_subs(request):
             sub.delete()
             Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') - 1)
         return ajax_success(msg="Unsubscribed to post.")
-    #    padding: 6.5px;
     # Update an existing subscription
     if sub:
         Subscription.objects.filter(pk=sub.pk).update(type=sub_type)

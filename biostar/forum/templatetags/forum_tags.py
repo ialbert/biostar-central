@@ -99,12 +99,14 @@ def show_messages(messages):
 @register.filter
 def subtype(post, user):
 
-    # Get the user subscriptions
-    sub = Subscription.objects.filter(post=post, user=user).first()
     default = "Not Following"
     type_map = {Profile.LOCAL_MESSAGE: "Messages", Profile.EMAIL_MESSAGE: "Email",
                 Profile.MAILING_LIST: "Mailing List"}
 
+    if user.is_anonymous:
+        return default
+    # Get the user subscriptions
+    sub = Subscription.objects.filter(post=post, user=user).first()
     stype = type_map.get(sub.type, default) if sub else default
 
     return stype

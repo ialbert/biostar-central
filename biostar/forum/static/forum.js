@@ -236,7 +236,19 @@ $(document).ready(function () {
     });
 
     $(".moderate-user").click(function (event) {
-        moderate($(this));
+        event.preventDefault();
+        var elem = $(this);
+
+        $('#modpanel').remove();
+
+        // Could be a user or post uid
+        var data_uid = elem.attr('data-value');
+
+        var container = $("#moderate-insert-" + data_uid);
+        var mod_url = '/accounts/moderate/'+ data_uid + '/';
+
+        var page = $('<div id="modpanel"></div>').load(mod_url);
+        container.after(page)
     });
 
     // Makes site messages dissapear.
