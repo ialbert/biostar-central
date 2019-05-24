@@ -166,15 +166,18 @@ def list_posts(context, user):
 
 @register.inclusion_tag('widgets/feed.html')
 def feed(user):
-    recent_votes = Vote.objects.prefetch_related("post")[:settings.VOTE_FEED_COUNT]
+    recent_votes = Vote.objects.prefetch_related("post")
+    recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
     recent_locations = User.objects.exclude(profile__location="")
     recent_locations = recent_locations.prefetch_related("profile")[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
     recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
+
     recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER])
-    recent_replies = recent_replies.select_related("author__profile", "author")[:settings.REPLIES_FEED_COUNT]
+    recent_replies = recent_replies.select_related("author__profile", "author")
+    recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,

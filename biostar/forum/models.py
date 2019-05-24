@@ -194,6 +194,12 @@ class Post(models.Model):
         self.lastedit_date = self.lastedit_date or self.creation_date
         self.last_contributor = self.lastedit_user
 
+        if self.type in (Post.ANSWER, Post.COMMENT):
+            pass
+            #print(self.reply_count, self.parent.reply_count, self.root.reply_count)
+            #print(self.pk, self.parent.pk, self.root.pk)
+            #1/0
+
         # Sanitize the post body.
         self.html = markdown.parse(self.content)#, uid=self.root.uid)
 
@@ -448,14 +454,18 @@ def complete_post(sender, instance, created, *args, **kwargs):
         # Update root comment count
         if instance.type == Post.COMMENT:
             Post.objects.filter(id=instance.root.id).update(comment_count=F("comment_count") + 1)
-        # Update the reply counts.
-        thread = Post.objects.filter(status=instance.OPEN, root=instance.root)
-        reply_count = thread.exclude(uid=instance.parent.uid).count()
+
+        #reply_count = thread.count()
+
         # Update the instance reply count
-        instance.reply_count = reply_count
+        instance.parent.reply_count = Post.objects.filter(parent=instance.parent).count()
 
         # Update the root reply count
         Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
+
+        # Update the parent reply counts.
+        if instance.root != instance.parent:
+            Post.objects.filter(pk=instance.parent.pk).update(reply_count=F("reply_count") + 1)\
 
         # Update last contributor to the thread.
         instance.root.last_contributor = instance.last_contributor
