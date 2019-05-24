@@ -192,6 +192,7 @@ class Post(models.Model):
         self.creation_date = self.creation_date or util.now()
         self.lastedit_date = self.lastedit_date or self.creation_date
         self.last_contributor = self.lastedit_user
+        self.uid = self.uid or util.get_uuid(10)
 
         # Sanitize the post body.
         self.html = markdown.parse(self.content)
@@ -372,9 +373,6 @@ def complete_post(sender, instance, created, *args, **kwargs):
 
         # This runs only once upon object creation.
         instance.title = instance.parent.title if instance.parent else instance.title
-        instance.lastedit_user = instance.author
-        instance.last_contributor = instance.author
-        instance.status = instance.status or Post.PENDING
 
         # Default tags
         instance.tag_val = instance.tag_val or "tag1,tag2"
