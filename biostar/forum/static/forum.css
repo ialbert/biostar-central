@@ -208,12 +208,12 @@ a:hover {
 
 }
 
-.indent:first-child {
+.comment-list > .indent {
     margin-left: 0em;
 }
 
 .indent {
-    margin-left: 2em;
+    margin-left: 3em;
 }
 
 .comment {
