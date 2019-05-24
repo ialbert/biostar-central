@@ -218,8 +218,6 @@ $(document).ready(function () {
     });
 
 
-
-
     $(".moderate-post").click(function (event) {
         event.preventDefault();
         var elem = $(this);

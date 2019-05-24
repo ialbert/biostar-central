@@ -92,6 +92,25 @@ class MonkeyPatch(InlineLexer):
         self.default_rules = list(InlineLexer.default_rules)
 
 
+def send_mentioned(post, user):
+    # Get message sender
+    sender = User.objects.filter(is_superuser=True).first()
+    title = post.title
+    # Parse the mentioned message
+    # Default mentioned body
+    body = f"""
+            Hello, You have been mentioned in a post by {post.author.profile.name}.
+            The root post is :{title}.
+            Here is where you are mentioned :
+            {post.content}
+            """
+    subject = "Mentioned in a post."
+
+    # Send the mentioned notifications
+    tasks.send_message(source=Message.MENTIONED, subject=subject, body=body, rec_list=[user], sender=sender)
+    return
+
+
 class BiostarInlineLexer(MonkeyPatch):
 
     def __init__(self, uid=None, *args, **kwargs):
@@ -222,23 +241,6 @@ def parse(text, uid=None):
     return html
 
 
-def send_mentioned(post, user):
-    # Get message sender
-    sender = User.objects.filter(is_superuser=True).first()
-    title = post.title
-    # Parse the mentioned message
-    # Default mentioned body
-    body = f"""
-            Hello, You have been mentioned in a post by {post.author.profile.name}.
-            The root post is :{title}.
-            Here is where you are mentioned :
-            {post.content}
-            """
-    subject = "Mentioned in a post."
-
-    # Send the mentioned notifications
-    tasks.send_message(source=Message.MENTIONED, subject=subject, body=body, rec_list=[user], sender=sender)
-    return
 
 
 

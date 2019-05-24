@@ -1,12 +1,12 @@
 {% load forum_tags %}
 {% load humanize %}
         {% if objs.has_previous %}
-            <a class="ui small basic button" href="{{ url }}{% relative_url objs.previous_page_number 'page' request.GET.urlencode %}">
+            <a class="ui small basic button no-shadow" href="{{ url }}{% relative_url objs.previous_page_number 'page' request.GET.urlencode %}">
                     <i class="ui angle  double left icon"> </i>
             </a>
         {% else %}
 
-        <div class="ui small basic button">
+        <div class="ui small basic button no-shadow">
 
                 <i class="ui angle double left icon"> </i>
 
@@ -26,14 +26,14 @@
 
     {% if objs.has_next %}
 
-        <a class="ui small basic button" href="{{ url }}{% relative_url objs.next_page_number 'page' request.GET.urlencode %}">
+        <a class="ui small basic button no-shadow" href="{{ url }}{% relative_url objs.next_page_number 'page' request.GET.urlencode %}">
 
                 <i class="ui angle  double right icon"></i>
         </a>
 
     {% else %}
 
-        <div class="ui small basic button">
+        <div class="ui small basic button no-shadow">
 
              <i class="ui angle  double right icon"></i>
 

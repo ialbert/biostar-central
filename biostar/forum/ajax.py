@@ -109,17 +109,19 @@ def ajax_subs(request):
     root = Post.objects.filter(uid=root_uid).first()
     sub = Subscription.objects.filter(post=root, user=user).first()
     date = util.now()
+
     # Delete a subscription
     if sub_type == "unfollow":
         if sub:
             sub.delete()
+            Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') - 1)
         return ajax_success(msg="Unsubscribed to post.")
-
+    #    padding: 6.5px;
     # Update an existing subscription
     if sub:
         Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
+    # Create new subscriptions
     else:
-        # Create new subscriptions
         Subscription.objects.create(post=root, user=user, type=sub_type, date=date)
         # Increase the subscription count of the root.
         Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)

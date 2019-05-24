@@ -75,33 +75,11 @@ def post_tags(post, show_views=False):
     return dict(post=post, tags=tags, show_views=show_views)
 
 
-@register.simple_tag
-def get_all_message_count(request):
-    user = request.user
-    outbox = inbox = projects = mentioned = unread = 0
-
-    if user.is_authenticated:
-        inbox = Message.objects.inbox_for(user=user)
-        outbox = Message.objects.outbox_for(user=user).count()
-        unread = inbox.filter(unread=True).count()
-        mentioned = inbox.filter(source=Message.MENTIONED).count()
-
-    context = dict(outbox=outbox, inbox=inbox.count(), projects=projects, mentioned=mentioned,
-                   unread=unread)
-
-    return context
-
-
 @register.inclusion_tag('widgets/pages.html', takes_context=True)
 def pages(context, objs):
     request = context["request"]
     url = request.path
     return dict(objs=objs, url=url, request=request)
-
-
-@register.simple_tag
-def get_tags_list(tags_str):
-    return set(util.split_tags(tags_str))
 
 
 @register.simple_tag
@@ -116,25 +94,6 @@ def show_messages(messages):
     Renders the messages
     """
     return dict(messages=messages)
-
-@register.simple_tag
-def gravatar(user, size=80):
-
-    if user.is_anonymous or user.profile.is_suspended:
-        # Removes spammy images for suspended users
-        email = 'suspended@biostars.org'.encode('utf8')
-    else:
-        email = user.email.encode('utf8')
-
-    hash = hashlib.md5(email).hexdigest()
-
-    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
-    gravatar_url += urllib.parse.urlencode({
-        's': str(size),
-        'd': 'mp',
-    }
-    )
-    return gravatar_url #mark_safe(f"""<img src={gravatar_url} height={size} width={size}/>""")
 
 
 @register.filter

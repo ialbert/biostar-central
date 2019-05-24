@@ -12,6 +12,9 @@ body {
     padding-top: 20px;
     color: #333333;
 }
+#menu-header .item::before {
+    background: none;
+}
 
 #menu-header .item.active {
     background-color: #fbfdef;
@@ -325,7 +328,9 @@ img {
 .no-shadow {
     box-shadow: none !important;
     border: none !important;
+    -webkit-box-shadow: none;
 }
+
 
 .float-right {
     float: right;
@@ -387,7 +392,7 @@ img {
 }
 
 .ui.divided.items > .post.item {
-    padding-bottom: 0;
+    padding: 4px;
 }
 
 
@@ -398,7 +403,7 @@ img {
 
 .ui.stat.label {
     width: 53px;
-    margin: 0;
+    margin: -1.5px;
     border-radius: 0;
 }
 
@@ -420,10 +425,6 @@ img {
     font-weight: 500;
 }
 
-.ui.comment.segments {
-    box-shadow: 0 0px 0px 0px rgba(34, 36, 38, .15);
-    border: none transparent;
-}
 
 .subs {
     text-align: center;
@@ -431,41 +432,9 @@ img {
     color: #762C90;
 }
 
-
-.ui.comment.segments > .commentcolor {
-    background-color: #f2f2f2;
-    padding: 2px;
-}
-
-
-.deleted.commentcolor {
-    background-color: #f7e4de !important;
-    padding: 2px !important;
-}
-
-.ui.comment.segment {
-    border-top: none;
-    padding-right: 0;
-    padding-top: 8px;
-    padding-left: 30px;
-    padding-bottom: 0px;
-}
-
 .inputcolor {
     background: #fff8db !important;
 }
-
-
-.page > h1 {
-    font-size: 1.28em !important;
-    border-bottom: 1px solid #EEEEEE;
-}
-
-.page > h2 {
-    font-size: 1.18em !important;
-    border-bottom: 1px solid #EEEEEE;
-}
-
 
 .code {
     font-family: monospace;
@@ -476,11 +445,6 @@ h1 {
     font-size: 1.4rem;
 }
 
-
-.subheader {
-    font-size: 1.1em;
-    font-weight: 700;
-}
 
 a {
     padding: 0;
@@ -544,19 +508,12 @@ pre {
 }
 
 .socialbox {
-    width: 450 !important;
+    width: 450px !important;
     margin-left: auto !important;
     margin-right: auto !important;
 
 }
 
-
-.mainmenubar {
-    width: 900px !important;
-    padding: 0 !important;
-    margin-left: 0 !important;
-    margin-top: 0 !important;
-}
 
 @media all and (max-width: 1024px) {
 
@@ -572,11 +529,6 @@ pre {
         display: none !important;
     }
 
-    .mainmenubar {
-        width: auto !important;
-        padding: 0 !important;
-        margin-left: 0 !important;
-    }
 
 }
 
@@ -586,10 +538,5 @@ pre {
         display: none !important;
     }
 
-    .mainmenubar {
-        width: auto !important;
-        padding: 0 !important;
-        margin-left: 0 !important;
-    }
 
 }

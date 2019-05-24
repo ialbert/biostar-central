@@ -359,7 +359,7 @@ def create_sub(user, root):
     Subscription.objects.create(post=root, user=user, type=user.profile.message_prefs, date=date)
     # Increase the subscription count of the root.
     Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
-    logger.info(f"Created a subscription for user:{user}")
+    logger.info(f"Created a subscription for user:{user} to root:{root.title}")
 
     return
 
@@ -368,7 +368,6 @@ def subscription_msg(root, author):
     """
     Send subscribed users, excluding author, a message.
     """
-
     # Get message sender
     sender = User.objects.filter(is_superuser=True).first()
     title = root.title
@@ -381,14 +380,13 @@ def subscription_msg(root, author):
           """
     # Get the subscribed users
     subs = Subscription.objects.filter(post=root)
-    print(subs.user_set)
-
     id_list = subs.values_list("user", flat=True).distinct()
     users = User.objects.exclude(id=author.pk).filter(id__in=id_list)
-    subject = f"Subscription to a post."
+    subject = "Subscription to a post."
 
     # Send message to subscribed users.
     tasks.send_message(subject=subject, body=body, rec_list=users, sender=sender)
+    logger.info(f"Sent to subscriptions to users:{users}")
 
     return
 
@@ -465,5 +463,6 @@ def complete_post(sender, instance, created, *args, **kwargs):
         # Subscribe the author to the root
         create_sub(user=instance.author, root=root)
 
-        # Send mentioned users in
+        # Send subscription messages
+        subscription_msg(root=instance.root, author=instance.author)
         instance.save()
