@@ -72,24 +72,24 @@ def forum_middleware(get_response):
         if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
             logout(request)
-
-        # Handle tasks async
-        if tasks.HAS_UWSGI and user.is_authenticated:
-            tasks.create_user_awards(user_id=user.id)
-
-        # Handle the user counts and last login.
-        elapsed = (now() - user.profile.last_login).seconds
-
-        if elapsed > settings.SESSION_UPDATE_SECONDS:
-            # Set the last login time.
-            Profile.objects.filter(user=user).update(last_login=now())
-
-            # Compute the counts.
-            counts = get_counts(request)
-
-            # Store the counts in the session for later use.
-            session[settings.SESSION_KEY] = counts
-
+        #
+        # # Handle tasks async
+        # if tasks.HAS_UWSGI and user.is_authenticated:
+        #     tasks.create_user_awards(user_id=user.id)
+        #
+        # # Handle the user counts and last login.
+        # elapsed = (now() - user.profile.last_login).seconds
+        #
+        # if elapsed > settings.SESSION_UPDATE_SECONDS:
+        #     # Set the last login time.
+        #     Profile.objects.filter(user=user).update(last_login=now())
+        #
+        #     # Compute the counts.
+        #     counts = get_counts(request)
+        #
+        #     # Store the counts in the session for later use.
+        #     session[settings.SESSION_KEY] = counts
+        #
         response = get_response(request)
         # Can process response here after its been handled by the view
 
