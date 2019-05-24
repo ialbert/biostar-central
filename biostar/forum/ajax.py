@@ -20,9 +20,6 @@ logger = logging.getLevelName("biostar")
 ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
 
-# Shared with forum tags
-SUBES_TYPE_MAP = dict(messages=Profile.LOCAL_MESSAGE, email=Profile.EMAIL_MESSAGE, list=Profile.MAILING_LIST)
-
 
 class ajax_error_wrapper:
     """
@@ -98,10 +95,11 @@ def ajax_subs(request):
     if was_limited:
         return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
 
+    type_map = dict(messages=Profile.LOCAL_MESSAGE, email=Profile.EMAIL_MESSAGE, list=Profile.MAILING_LIST)
     # Get the root and sub type.
     root_uid = request.POST.get('root_uid')
     sub_type = request.POST.get("sub_type")
-    sub_type = SUBES_TYPE_MAP.get(sub_type, "unfollow")
+    sub_type = type_map.get(sub_type, "unfollow")
     user = request.user
 
     # Get the post that is subscribed to.

@@ -3,40 +3,69 @@
 
 <div class="ui labeled icon attached pointing menu" id="menu-header" user-id="{{ request.user.id }}">
 
-    <span class="">
-        <a href="/"><img class="ui image" src="{% static "images/biostar-logo.png" %}" id="logo"></a>
-    </span>
+    <div class="header item" id="logo">
+        <a href="/"><img class="ui image" src="{% static "images/biostar-logo.png" %}"></a>
+    </div>
 
-    <a class="item {% activate tab "community" %} popupmenu"  href="{% url 'community_list' %}" content="View the Biostar Community.">
+    <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
         <i class="world icon"></i>
         Community
     </a>
-    <a class="item {% activate tab "messages" %} popupmenu"  href="{% url 'inbox' %}" content="View your messages">
-        <i class="mail icon"> </i>
-        Messages (2)
-    </a>
-    <a class="item {% activate tab "myvotes" %} popupmenu"  href="{% url 'myvotes' %}" content="View your upvoted posts">
-        <i class="heart icon centericon"></i>
-        Votes
-    </a>
 
-    <a class="item {% activate tab "myposts" %} popupmenu"  href="{% url 'myposts' %}" content="View posts you created">
-        <i class="comments icon"></i>
-        My Posts
-    </a>
+    {% if user.is_anonymous %}
 
-    <a class="item {% activate tab "following" %} popupmenu" href="{% url 'following' %}" content="View subscribed posts">
-        <i class="eye icon"></i>
-        Following
-    </a>
+        <a class="item disabled" href="#">
+            <i class="mail icon"> </i>
+            Messages
+        </a>
+        <a class="item disabled" href="#">
+            <i class="heart icon centericon"></i>
+            Votes
+        </a>
 
-    <a class="item {% activate tab "bookmarks" %} popupmenu" href="{% url 'bookmarks' %}" content="View bookmarked posts">
-        <i class="book icon"></i>
-        Bookmarks
-    </a>
+        <a class="item disabled" href="#">
+            <i class="comments icon"></i>
+            My Posts
+        </a>
 
+        <a class="item disabled" href="#">
+            <i class="eye icon"></i>
+            Following
+        </a>
+
+        <a class="item disabled" href="#">
+            <i class="book icon"></i>
+            Bookmarks
+        </a>
+
+    {% else %}
+        <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
+            <i class="mail icon"> </i>
+            Messages (2)
+        </a>
+        <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
+            <i class="heart icon centericon"></i>
+            Votes
+        </a>
+
+        <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
+            <i class="comments icon"></i>
+            My Posts
+        </a>
+
+        <a class="item {% activate tab "following" %}" href="{% url 'following' %}">
+            <i class="eye icon"></i>
+            Following
+        </a>
+
+        <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
+            <i class="book icon"></i>
+            Bookmarks
+        </a>
+    {% endif %}
     <div class="right menu">
-        <a class="item {% activate tab "new" %} popupmenu" id="new" href="{% url 'post_create' %}" data-content="Create New Posts">
+        <a class="item {% activate tab "new" %}" id="new" href="{% url 'post_create' %}"
+           data-content="Create New Posts">
             <i class="edit icon"></i>
             New Post
         </a>

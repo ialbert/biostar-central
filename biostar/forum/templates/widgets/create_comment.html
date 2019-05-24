@@ -2,7 +2,7 @@
 
 
 {% if user.is_anonymous %}
-    <div class="ui basic segment">
+    <div class="padded" id="login-message">
         <div class="ui icon error message">
             <i class="sign-in icon"></i>
             <div class="content">
@@ -33,7 +33,11 @@
         <p class="muted">Markdown welcome. CTRL + ENTER submits form.</p>
     </div>
 {% endif %}
-
+<script>
+     $('#login-message').delay(2000).slideUp(800, function () {
+        $(this).remove();
+    });
+</script>
 
 
 

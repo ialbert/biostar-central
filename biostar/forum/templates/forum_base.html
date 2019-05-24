@@ -19,7 +19,7 @@
 
     {% compress css %}
         <link href="{% static 'main/semantic.min.css' %}" rel="stylesheet">
-        <link href="{% static 'forum.css' %}{%  randparam %}" rel="stylesheet">
+        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
     {% endcompress %}
 
     {% compress js %}
@@ -28,6 +28,7 @@
         </script>
         <script src="{% static 'forum.js' %}{% randparam %}">
         </script>
+
     {% endcompress %}
 
     {% block head %}
@@ -60,7 +61,7 @@
 
     <div class="ui bottom attached  segment">
 
-        {%  show_messages messages %}
+        {% show_messages messages %}
 
         {% block content %}
             MAIN CONTENT

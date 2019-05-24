@@ -45,7 +45,6 @@ $.ajaxSetup({
 });
 
 
-
 function add_reply(elem) {
 
     // Remove body if it exists.
@@ -73,10 +72,9 @@ function add_comment(elem) {
     if (comment.length) {
         // Remove comment if exists.
         comment.remove();
-        return;
     } else {
         // Create a new comment.
-        comment = $('<div id="new-comment"><div class="ui active centered inline loader"></div></div>')
+        comment = $('<div id="new-comment"></div>')
     }
 
     // Insert into the page.
@@ -92,6 +90,7 @@ function add_comment(elem) {
             $("#comment-form").submit()
         }
     }
+
     // Submit form with CTRL-ENTER
     comment.keydown(function (e) {
         if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
@@ -174,15 +173,22 @@ function apply_vote(elem, post_uid, vote_type) {
     });
 }
 
+function remove_trigger() {
+    // Makes site messages dissapear.
+    $('.remove').delay(2000).slideUp(800, function () {
+        $(this).remove();
+    });
+}
+
 $(document).ready(function () {
 
-    $('.ui.subscribe.dropdown')
+    $('#subscribe')
         .dropdown({
           action:'hide',
           onChange: function (value, text, $selectedItem) {
           var elem = $(this);
           // Get the root id
-          var rid = elem.attr("rid");
+          var post_id = elem.attr("data-uid");
           // Currently selected item
           var active = $('#active');
           // Subscription url
@@ -193,7 +199,7 @@ $(document).ready(function () {
                   dataType: 'json',
                   ContentType: 'application/json',
                   data: {
-                      'root_uid': rid,
+                      'root_uid': post_id,
                       'sub_type': value
                   },
                   success: function (data) {
@@ -209,7 +215,8 @@ $(document).ready(function () {
               )
           }
 
-      })
+
+        })
     ;
 
     $(".add-comment").click(function (event) {
@@ -217,6 +224,8 @@ $(document).ready(function () {
         add_comment($(this));
     });
 
+
+    remove_trigger();
 
     $(".moderate-post").click(function (event) {
         event.preventDefault();
@@ -228,7 +237,7 @@ $(document).ready(function () {
         var data_uid = elem.attr('data-value');
 
         var container = $("#moderate-insert-" + data_uid);
-        var mod_url = '/moderate/'+ data_uid + '/';
+        var mod_url = '/moderate/' + data_uid + '/';
 
         var page = $('<div id="modpanel"></div>').load(mod_url);
         container.after(page)
@@ -251,10 +260,6 @@ $(document).ready(function () {
         container.after(page)
     });
 
-    // Makes site messages dissapear.
-    $('#site-messages').delay(2000).slideUp(800, function () {
-        $(this).remove();
-    });
 
     $('.vote').each(function (event) {
 
@@ -275,7 +280,6 @@ $(document).ready(function () {
             apply_vote(elem, post_uid, data_type);
         });
     });
-
 
 })
 ;

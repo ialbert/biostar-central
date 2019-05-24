@@ -41,37 +41,37 @@
         </div>
 
         <div class="content">
-            {# Display post author. #}
-            {% post_user_box user=post.author post=post %}
 
-            {# Display post content. #}
-            <div class="html_content">{{ post.html|safe }}</div>
+            <div class="wrap">
+                {# Display post author. #}
+                {% post_user_box user=post.author post=post %}
+
+                {# Display post content. #}
+                {{ post.html|safe }}
+            </div>
 
             {# Show tags #}
             {% if post.is_toplevel %}
-                {%  post_tags post=post show_views=True %}
+                {% post_tags post=post show_views=True %}
             {% endif %}
 
             {# Show the post actions #}
             {% post_actions post=post %}
 
-             {#  Post moderation actions are inserted here #}
-    <div id="moderate-insert-{{ post.uid }}"></div>
+            {#  Post moderation actions are inserted here #}
+            <div id="moderate-insert-{{ post.uid }}"></div>
 
-    {#  Comments will be inserted here #}
-    <div id="comment-insert-{{ post.uid }}"></div>
+            {#  Comments will be inserted here #}
+            <div id="comment-insert-{{ post.uid }}"></div>
 
-    {# Render all comments #}
-    {% render_comments tree=tree post=post %}
+            {# Render all comments #}
+            {% render_comments tree=tree post=post %}
 
         </div>
 
     </div>
 
-
-
 </div>
-
 
 
 

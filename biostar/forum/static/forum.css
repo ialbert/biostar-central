@@ -4,16 +4,20 @@ body {
 }
 
 #logo {
-    padding: 5px;
+    padding: 1px 10px;
 }
 
 #menu-header .item {
     vertical-align: bottom;
-    padding-top: 20px;
+
     color: #333333;
 }
 #menu-header .item::before {
     background: none;
+}
+
+#menu-header .item:not(:first-child) {
+
 }
 
 #menu-header .item.active {
@@ -27,6 +31,10 @@ body {
 
 #new {
     color: #1a69a4;
+}
+
+.padded {
+   padding: 0.0rem 0rem 0.5rem 0rem;
 }
 
 .post.item > .content .ui.label {
@@ -90,6 +98,7 @@ a:hover {
 
 .post {
     border-bottom: 1px solid #d3d3d3;
+    overflow: auto;
 }
 
 .post > .title {
@@ -105,6 +114,9 @@ a:hover {
     color: green !important;
 }
 
+.disabled {
+    color: red;
+}
 .popover {
     position: absolute;
     color: #3c763d;
@@ -137,13 +149,20 @@ a:hover {
     display: flex; /* or inline-flex */
 }
 
-.html_content {
+.wrap {
     overflow: auto;
-    padding-bottom: 5px;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+    color: red;
 }
 
 .post > .body > .content {
     width: 100%;
+    overflow: auto;
 }
 
 .post .actions {

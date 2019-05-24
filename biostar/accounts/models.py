@@ -3,8 +3,7 @@ import mistune
 import os
 
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.db import models
 from django.conf import settings
@@ -153,6 +152,11 @@ class Profile(models.Model):
     def is_suspended(self):
         return self.state == self.SUSPENDED
 
+
+@receiver(pre_save, sender=User)
+def create_uuid(sender, instance,*args, **kwargs):
+
+   instance.username = instance.username or generate_uuid(8)
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, raw, using, **kwargs):

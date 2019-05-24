@@ -99,9 +99,8 @@ def show_messages(messages):
 @register.filter
 def subtype(post, user):
 
-    default = "Not Following"
-    type_map = {Profile.LOCAL_MESSAGE: "Messages", Profile.EMAIL_MESSAGE: "Email",
-                Profile.MAILING_LIST: "Mailing List"}
+    default = "unsubscribe"
+    type_map = {Profile.LOCAL_MESSAGE: "default", Profile.EMAIL_MESSAGE: "email"}
 
     if user.is_anonymous:
         return default
