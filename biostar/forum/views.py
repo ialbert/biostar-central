@@ -7,14 +7,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Count
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 
-from biostar.utils import markdown
 from . import forms, auth, tasks, util, ajax
 from .const import *
 from .models import Post, Vote, Subscription, Badge
 from biostar.utils.decorators import object_exists
-from biostar.utils.shortcuts import reverse
+
 
 User = get_user_model()
 
@@ -264,7 +263,7 @@ def post_answer(request, uid):
     """
     # Get the post.
     root = Post.objects.filter(uid=uid).first()
-    redir = reverse("post_view", request=request, kwargs=dict(uid=root.uid))
+    url = root.get_absolute_url()
     if request.method == "POST":
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
@@ -277,9 +276,9 @@ def post_answer(request, uid):
                 tasks.created_post(pid=answer.id)
 
             # Anchor location to recently created answer
-            redir = f"{redir}#{answer.uid}"
+            url = answer.get_absolute_url()
 
-    return redirect(redir)
+    return redirect(url)
 
 
 def create_comment(request, uid):
@@ -344,7 +343,7 @@ def post_create(request):
             if tasks.HAS_UWSGI:
                 tasks.created_post(pid=post.id)
 
-            return redirect(reverse("post_view", request=request, kwargs=dict(uid=post.uid)))
+            return redirect(post.get_absolute_url())
 
     # Action url for the form
     action_url = reverse("post_create")

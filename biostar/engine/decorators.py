@@ -1,17 +1,32 @@
 from functools import wraps
 
 from django.contrib import messages
-from django.shortcuts import redirect
+from django.shortcuts import redirect, reverse
 from django.utils.decorators import available_attrs
 from django.conf import settings
 from django.http import HttpResponse
 
 from rest_framework import status
-from biostar.utils.shortcuts import reverse
 from . import models, auth
 
 # Share the logger with models
 logger = models.logger
+
+
+def reverse2(view, request=None, kwargs=dict()):
+    from django.urls import reverse as main_reverse
+    from django.contrib import messages
+
+    try:
+        url = main_reverse(view, kwargs=kwargs)
+    except Exception as exc:
+        print("*"*100, exc)
+        url = "/"
+        if request:
+            messages.error(request, f"Error reversing: {view}")
+
+    return url
+
 
 
 class read_access:
@@ -19,9 +34,9 @@ class read_access:
     Controls READ level access to urls.
     """
 
-    def __init__(self, type):
-        self.type = type
-        self.fallback_url = reverse("project_list")
+    def __init__(self, obj_type):
+        self.type = obj_type
+        self.fallback_url = lambda : reverse("project_list")
 
     def __call__(self, function, *args, **kwargs):
         # Pass function attributes to the wrapper
@@ -40,7 +55,7 @@ class read_access:
             # Object does not exist.
             if not instance:
                 messages.error(request, f"Object id {uid} does not exist")
-                return redirect(self.fallback_url)
+                return redirect(self.fallback_url())
 
             # Get project for the instance.
             project = instance.project
@@ -52,7 +67,7 @@ class read_access:
             # Anonymous users may not access non public projects.
             if user.is_anonymous:
                 messages.error(request, f"You must be logged in to access object id {uid}")
-                return redirect(self.fallback_url)
+                return redirect(self.fallback_url())
 
             # Check the presence of READ or WRITE access
             read_or_write = [models.Access.READ_ACCESS, models.Access.WRITE_ACCESS]
@@ -65,7 +80,7 @@ class read_access:
             # Deny access by default.
             msg = auth.access_denied_message(user=user, needed_access=models.Access.READ_ACCESS)
             messages.error(request, msg)
-            return redirect(self.fallback_url)
+            return redirect(self.fallback_url())
 
         return wrapper
 

@@ -7,11 +7,12 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models import F
 from django.db.models.signals import post_save
+from django.shortcuts import reverse
 from django.dispatch import receiver
 from taggit.managers import TaggableManager
 
 from biostar.message import tasks
-from biostar.utils.shortcuts import reverse
+
 from biostar.accounts.models import Profile
 from . import util
 
@@ -293,6 +294,8 @@ class Subscription(models.Model):
         # Set the date to current time if missing.
         self.date = self.date or util.now()
         self.uid = self.uid or util.get_uuid(limit=16)
+        self.type = self.type or self.user.profile.message_prefs
+
         super(Subscription, self).save(*args, **kwargs)
 
     @staticmethod
@@ -356,7 +359,7 @@ def create_sub(user, root):
         return sub
     date = util.now()
     # Create new subscriptions
-    Subscription.objects.create(post=root, user=user, type=user.profile.message_prefs, date=date)
+    Subscription.objects.create(post=root, user=user, date=date)
     # Increase the subscription count of the root.
     Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
     logger.info(f"Created a subscription for user:{user} to root:{root.title}")

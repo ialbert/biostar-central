@@ -1,4 +1,4 @@
-from django.contrib import auth
+from django.contrib.auth import logout
 from django.contrib import messages
 from biostar.accounts.models import Profile
 
@@ -12,7 +12,7 @@ def engine_middleware(get_response):
         # Banned and suspended users are not allowed
         if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
-            auth.logout(request)
+            logout(request)
 
         response = get_response(request)
         # Can process response here after its been handled by the view
