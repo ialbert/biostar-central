@@ -196,9 +196,9 @@ def icon(user):
     if user.profile.is_moderator:
         icon = f'<i class="ui muted bolt icon"></i>'
     elif user.profile.score > 100:
-        icon = f'<i class="ui muted user icon"></i>'
+        icon = "&bull;"
     else:
-        icon = f'<i class="ui muted user outline icon"></i>'
+        icon = "&bull;"
 
     return mark_safe(icon)
 

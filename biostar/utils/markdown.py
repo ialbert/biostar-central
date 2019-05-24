@@ -86,7 +86,11 @@ def get_tweet(tweet_id):
 
 
 class MonkeyPatch(InlineLexer):
-
+    """
+    Mistune uses class attributes for default_rules and those do provide isolation
+    between different instances of the parser.
+    This subclass moves the default_rules to instance attributes.
+    """
     def __init__(self, *args, **kwds):
         super(MonkeyPatch, self).__init__(*args, **kwds)
         self.default_rules = list(InlineLexer.default_rules)

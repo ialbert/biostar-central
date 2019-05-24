@@ -129,7 +129,7 @@ class PostTest(TestCase):
         # Get form data
         data = dict(content="testing answer", parent_uid=self.post.uid)
         request = fake_request(url=url, data=data, user=self.owner)
-        response = views.post_answer(request=request, uid=self.post.uid)
+        response = views.new_answer(request=request, uid=self.post.uid)
         self.process_response(response)
         return
 

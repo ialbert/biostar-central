@@ -41,25 +41,6 @@ def show_messages(messages):
 
 
 @register.filter
-def show_score_icon(user):
-
-    color = "modcolor" if user.profile.is_moderator else ""
-
-    if user.profile.score > 150:
-        icon = f'<i class="ui bolt icon {color}"></i>'
-    else:
-        icon = f'<i class="ui genderless icon {color}"></i>'
-
-    return mark_safe(icon)
-
-
-@register.filter
-def show_score(score):
-
-    score = (score * 14) + 1
-    return score
-
-@register.filter
 def bignum(number):
     "Reformats numbers with qualifiers as K"
     try:
@@ -151,7 +132,6 @@ def gravatar(user, size=80):
         if user.profile.is_moderator:
             style = "robohash"
         email = user.email.encode('utf8')
-
 
     hash = hashlib.md5(email).hexdigest()
 

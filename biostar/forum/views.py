@@ -257,7 +257,7 @@ def post_view(request, uid):
 
 
 @object_exists(klass=Post)
-def post_answer(request, uid):
+def new_answer(request, uid):
     """
     Process an answer with form
     """
@@ -269,6 +269,7 @@ def post_answer(request, uid):
         if form.is_valid():
             author = request.user
             content = form.cleaned_data.get("content")
+
             # Create answer to root
             answer = auth.create_post(title=root.title, parent=root, author=author,
                                       content=content, post_type=Post.ANSWER, root=root)
@@ -281,12 +282,12 @@ def post_answer(request, uid):
     return redirect(url)
 
 
-def create_comment(request, uid):
+def new_comment(request, uid):
     user = request.user
     post = Post.objects.filter(uid=uid).first()
 
     if request.method == "POST":
-        form = forms.CommentForm(data=request.POST)
+        form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             content = form.cleaned_data['content']
             comment = auth.create_post(parent=post, author=user, content=content, post_type=Post.COMMENT)
@@ -294,11 +295,11 @@ def create_comment(request, uid):
         messages.error(request, f"Error adding comment:{form.errors}")
     else:
         initial = dict(parent_uid=post.uid, content="")
-        form = forms.CommentForm(initial=initial)
+        form = forms.PostShortForm(initial=initial)
 
     context = dict(post=post, form=form, user=user)
 
-    return render(request, "widgets/create_comment.html", context=context)
+    return render(request, "new_comment.html", context=context)
 
 #
 # @object_exists(klass=Post)
@@ -323,9 +324,9 @@ def create_comment(request, uid):
 
 
 @login_required
-def post_create(request):
+def new_post(request):
     """
-    Make a new post
+    Creates a new post
     """
     form = forms.PostLongForm()
     author = request.user
@@ -345,11 +346,12 @@ def post_create(request):
 
             return redirect(post.get_absolute_url())
 
-    # Action url for the form
+    # Action url for the form is the current url
     action_url = reverse("post_create")
-    context = dict(form=form, tab="new", action_url=action_url)
 
-    return render(request, "post_create.html", context=context)
+    context = dict(form=form, tab="new", action_url=action_url, form_title="Create New Post")
+
+    return render(request, "new_post.html", context=context)
 
 
 @object_exists(klass=Post)
@@ -383,13 +385,15 @@ def post_moderate(request, uid):
 @object_exists(klass=Post)
 @login_required
 def edit_post(request, uid):
-    "Edit an existing post"
-
+    """
+    Edit an existing post"
+    """
     post = Post.objects.filter(uid=uid).first()
     action_url = reverse("post_edit", kwargs=dict(uid=post.uid))
     user = request.user
+
     if post.is_toplevel:
-        template, form_class = "post_create.html", forms.PostLongForm
+        template, form_class = "new_post.html", forms.PostLongForm
         initial = dict(content=post.content, title=post.title, tag_val=post.tag_val, post_type=post.type)
     else:
         template, form_class = "shortpost_edit.html", forms.PostShortForm
@@ -403,6 +407,6 @@ def edit_post(request, uid):
             messages.success(request, f"Edited :{post.title}")
             return redirect(post.get_absolute_url())
 
-    context = dict(form=form, post=post, action_url=action_url)
+    context = dict(form=form, post=post, action_url=action_url, form_title="Edit post")
 
     return render(request, template, context)

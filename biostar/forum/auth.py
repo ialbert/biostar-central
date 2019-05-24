@@ -59,6 +59,7 @@ def post_tree(user, root):
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
 
+
     # Gather votes by the current user.
     votes = get_votes(user=user, root=root)
 
@@ -68,23 +69,23 @@ def post_tree(user, root):
     # Build comments tree.
     comment_tree = dict()
 
-
     def decorate(post):
-        # Mutates the incoming parameters
+        # Mutates the elements! Not worth creating copies.
         if post.is_comment:
             comment_tree.setdefault(post.parent_id, []).append(post)
         post.has_bookmark = int(post.id in bookmarks)
         post.has_upvote = int(post.id in upvotes)
         post.is_editable = user.is_authenticated and (user == post.author or user.profile.is_moderator)
+        return post
 
     # Decorate the objects for easier access
-    list(map(decorate, thread))
+    thread = list(map(decorate, thread))
 
     # Decorate the root post
-    decorate(root)
+    root = decorate(root)
 
     # Select the answers from the thread.
-    answers = thread.filter(type=Post.ANSWER)
+    answers = [ p for p in thread if p.type==Post.ANSWER ]
 
     return root, comment_tree,  answers, thread
 
