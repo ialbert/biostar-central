@@ -10,9 +10,10 @@
         {% endif %}
         {{ post.lastedit_user.profile.name }}
     </a>
-    {{ post.author |show_score_icon }}
-    {{ post.author.profile.score | show_score |bignum }}
 
+    {{ post.author | show_score_icon }}
+
+    {{ post.author.profile.score | show_score |bignum }}
 
 
 

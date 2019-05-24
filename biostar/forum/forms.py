@@ -85,10 +85,10 @@ class SubsForm(forms.Form):
 
 
 class PostShortForm(forms.Form):
-
-    parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
+    MIN_LEN, MAX_LEN = 10, 10000
+    parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=32)
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
-                              min_length=2, max_length=5000)
+                              min_length=MIN_LEN, max_length=MAX_LEN)
 
     def __init__(self, user=None, post=None, *args, **kwargs):
         self.user = user
@@ -98,12 +98,14 @@ class PostShortForm(forms.Form):
     def edit(self):
         data = self.cleaned_data
         content = data.get("content")
+
         if self.user != self.post.author and not self.user.profile.is_moderator:
             raise forms.ValidationError("Only the author or a moderator can edit a post.")
 
         self.post.content = content
         self.post.save()
         return self.post
+
 
 
 class CommentForm(forms.Form):
