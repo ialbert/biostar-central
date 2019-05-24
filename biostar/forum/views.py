@@ -270,6 +270,7 @@ def post_answer(request, uid):
         if form.is_valid():
             author = request.user
             content = form.cleaned_data.get("content")
+
             # Create answer to root
             answer = auth.create_post(title=root.title, parent=root, author=author,
                                       content=content, post_type=Post.ANSWER, root=root)

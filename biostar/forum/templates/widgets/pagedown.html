@@ -5,7 +5,7 @@
             <textarea{{ attrs|safe }}>{{ body }}</textarea>
         </div>
         {% if show_preview %}
-            <p class="wmd-preview-title"><small>HTML Preview:</small></p>
+            <div class="wmd-preview-title">HTML Preview</div>
             <div id="{{ id|safe }}_wmd_preview" class="wmd-preview"></div>
         {% endif %}
     </div>

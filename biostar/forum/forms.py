@@ -94,9 +94,11 @@ class PostShortForm(forms.Form):
         self.user = user
         self.post = post
         super().__init__(*args, **kwargs)
+        self.fields['content'].strip = False
 
     def edit(self):
         data = self.cleaned_data
+
         content = data.get("content")
 
         if self.user != self.post.author and not self.user.profile.is_moderator:
