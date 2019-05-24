@@ -61,6 +61,12 @@ def init_post(sender,  **kwargs):
         user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
         user.save()
 
+    users = []
+    for i in range(5):
+        email = f"John{i}@lvh.me"
+        user, flag = User.objects.get_or_create(email=email)
+        users.append(user)
+
     # Type, title, content
     initial = [
         (Post.BLOG, "A blog post", "This is a blog post"),
@@ -69,25 +75,26 @@ def init_post(sender,  **kwargs):
         (Post.QUESTION, "A question post", "This is a question post")
     ]
 
+    posts = []
     for ptype, title, content in initial:
-        if Post.objects.filter(title=title).exists():
-            continue
-        post = auth.create_post(title=title, author=user, content=content, post_type=ptype)
-        logger.info(f"Created {title} post of {post.get_type_display()}")
+        author = random.choice(users)
+        post = auth.create_post(title=title, author=author, content=content, post_type=ptype)
+        posts.append(post)
 
-    questions = list(Post.objects.all().order_by("-id")[:4])
+
     # Generate answers
     for count in range(10):
-        parent = random.choice(questions)
+        author = random.choice(users)
+        parent = random.choice(posts)
         content = f"Answer number {count}"
-        answer = auth.create_post(post_type=Post.ANSWER, parent=parent, content=content, author=user)
-
+        answer = auth.create_post(post_type=Post.ANSWER, parent=parent, content=content, author=author)
 
     # Generate comments
     for count in range(10):
-        posts= list(Post.objects.order_by("-id"))
-        parent = random.choice(posts)
+        author = random.choice(users)
+        parents= list(Post.objects.order_by("-id"))
+        parent = random.choice(parents)
         content = f"Comment number {count}"
-        comment = auth.create_post(post_type=Post.COMMENT, parent=parent, content=content, author=user)
+        comment = auth.create_post(post_type=Post.COMMENT, parent=parent, content=content, author=author)
 
 
