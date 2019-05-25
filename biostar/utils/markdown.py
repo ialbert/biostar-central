@@ -123,7 +123,6 @@ class BiostarInlineLexer(MonkeyPatch):
             # Subscribe mentioned users to post.
             if post:
                 Subscription.objects.get_or_create(user=user, post=post)
-                #if not sub:
 
         else:
             link = m.group(0)
