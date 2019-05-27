@@ -1,3 +1,13 @@
 
 
-{{ post.content }}
+<span>{{ post.author.profile.name }}, @{{ post.author.username }},
+      added a {{ post.get_type_display }} to {{ post.root.title }}.</span>
+<a href="{{ post.get_absolute_url }}">{{ post.title }}</a>.
+
+<div class="muted">
+    {{ post.content }}
+</div>
+
+<div>
+    created {{post.creation_date}}
+</div>

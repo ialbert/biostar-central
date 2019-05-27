@@ -29,7 +29,7 @@ try:
     HAS_UWSGI = True
 
     @spool(pass_arguments=True)
-    def async_create_messages(subject, sender, body, rec_list, uid=None):
+    def async_create_messages( sender, body, rec_list, subject="", uid=None):
         """
         Create messages to users in recipient list
         """

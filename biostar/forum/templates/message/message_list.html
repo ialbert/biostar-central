@@ -1,4 +1,4 @@
-{% extends "forum_base.html" %}
+{% extends "forum_list.html" %}
 {% load forum_tags %}
 {% load accounts_tags %}
 
@@ -7,59 +7,34 @@
 {% endblock %}
 
 
-{% block content %}
-
-
-<div class="ui doubling stackable messaging grid" id="messaging-grid">
+{% block body %}
 
 
 <div class="centered">
 {% pages objs=all_messages %}
 </div>
 
-<table class="ui table messages">
-
+<div class="ui divided list">
 {% for message in all_messages %}
 
-<tbody class="item {% is_unread user=request.user message=message%} message">
-<tr>
- <td>
-        <a class="ui mini avatar image" href="{% url "user_profile" message.sender.profile.uid %}">
-            <img class="ui centered image" src="{% gravatar user=message.sender size=50 %}" ></a>
-        {{message.sender.profile.name}}
- </td>
-<td>
-        <div class="middle aligned content">
-            <div class="ui small messages header">
-                Subject:
-                {{ message.subject|safe }}
-            </div>
+  <div class="item {% is_unread user=request.user message=message%} message">
 
+    <div class="content">
 
+        <div class="description">{{ message.body|safe }}</div>
+    </div>
 
-           <div class="ui right floated item" style="float: right;">
-           {{message.sent_date|time_ago}}
-           </div>
-
-            <div class="ui muted item" style="">
-              {{message.body|truncatechars:140}}
-          </div>
-        </div>
-
-    </td>
-
-        </tr>
-    </tbody>
-
+  </div>
 {% endfor %}
-
-</table>
+</div>
 
 <div class="centered">
 {% pages objs=all_messages %}
 </div>
 
-</div>
 
+{% endblock %}
 
+{% block sidebar %}
+Messages sidebar
 {% endblock %}

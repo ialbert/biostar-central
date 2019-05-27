@@ -253,7 +253,7 @@ def create_post(author, content, post_type, title="Title", tag_val="tag1, tag2",
 def create_local_messages(body, sender, rec_list, subject="", uid=None):
     "Create batch message from sender for a given recipient_list"
 
-    subject = subject or f"Message from : {sender.profile.name}"
+    #subject = subject or f"Message from : {sender.profile.name}"
     msgs = []
     for rec in rec_list:
         actual_uid = uid or util.get_uuid(10)

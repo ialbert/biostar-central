@@ -414,13 +414,9 @@ def subscription_msg(post, author):
     from . import tasks, auth
     # Default message body
     body_template = "default_messages/subscription.html"
-    subject_template = "default_messages/subscription_subject.html"
     context = dict(post=post)
-    body_tmpl = loader.get_template(template_name=body_template)
-    body = body_tmpl.render(context)
-
-    subject_template = loader.get_template(template_name=subject_template)
-    subject = subject_template.render(context)
+    tmpl = loader.get_template(template_name=body_template)
+    body = tmpl.render(context)
 
     subs = Subscription.objects.filter(post=post.root)
     id_list = subs.values_list("user", flat=True).distinct()
@@ -431,10 +427,10 @@ def subscription_msg(post, author):
     # Asynchronously sent when uwsgi is active
     if tasks.HAS_UWSGI:
         # Assign a worker to send mentioned users
-        tasks.async_create_messages(sender=author, subject=subject, body=body, rec_list=users)
+        tasks.async_create_messages(sender=author, body=body, rec_list=users)
         return
     else:
-        auth.create_local_messages(body=body, subject=subject, rec_list=users, sender=author)
+        auth.create_local_messages(body=body, rec_list=users, sender=author)
 
     logger.info(f"Sent to subscription message to users:{users}")
 

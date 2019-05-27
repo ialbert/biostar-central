@@ -51,6 +51,14 @@ ORDER_MAPPER = dict(
 )
 
 
+def authenticated(func):
+    def _wrapper_(request, **kwargs):
+        if request.user.is_anonymous:
+            messages.error(request, "You need to be logged in to view this page.")
+        return func(request, **kwargs)
+    return _wrapper_
+
+
 def post_exists(func):
     """
     Ensure uid passed to view function exists.
@@ -74,10 +82,12 @@ def message_list(request):
     user = request.user
     page = request.GET.get("page", 1)
     msgs = Message.objects.filter(recipient=user)
-    msgs = msgs.select_related("recipient", "sender", "sender__profile", "recipient__profile")
+    msgs = msgs.select_related("sender", "sender__profile")
+    msgs = msgs.order_by("-sent_date")
     # Get the pagination info
     paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
     msgs = paginator.get_page(page)
+
     context = dict(tab="messages", all_messages=msgs)
     Profile.objects.filter(user=user).update(new_messages=0)
 
@@ -170,15 +180,6 @@ def post_list(request, show=None):
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
-
-
-def authenticated(func):
-    def _wrapper_(request, **kwargs):
-        if request.user.is_anonymous:
-            messages.error(request, "You need to be logged in to view this page.")
-        return func(request, **kwargs)
-
-    return _wrapper_
 
 
 def latest(request):
