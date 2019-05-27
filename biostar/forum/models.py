@@ -199,6 +199,7 @@ class Post(models.Model):
         # Sanitize the post body.
         self.html = markdown.parse(self.content)#, post_uid=self.root.uid)
 
+
         # Set the rank
         self.rank = self.lastedit_date.timestamp()
 
