@@ -6,6 +6,7 @@ import re
 import mistune
 import requests
 from django.shortcuts import reverse
+from django.db.models import F
 from django.conf import settings
 from mistune import Renderer, InlineLexer
 
@@ -120,9 +121,11 @@ class BiostarInlineLexer(MonkeyPatch):
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
             post = Post.objects.filter(uid=self.post_uid).first()
+            print(post, self.post_uid)
             # Subscribe mentioned users to post.
             if post:
                 Subscription.objects.get_or_create(user=user, post=post)
+                Post.objects.filter(pk=post.root.pk).update(subs_count=F('subs_count') + 1)
 
         else:
             link = m.group(0)
@@ -212,7 +215,7 @@ def parse(text, post_uid=None):
     """
 
     renderer = Renderer(escape=True, hard_wrap=True)
-    inline = BiostarInlineLexer(renderer=renderer, uid=post_uid)
+    inline = BiostarInlineLexer(renderer=renderer, post_uid=post_uid)
     inline.enable_post_link()
     inline.enable_mention_link()
 
