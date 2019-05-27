@@ -4,6 +4,7 @@ import json
 from biostar.accounts.models import User, Profile
 from biostar.accounts import auth as accounts_auth
 
+from .auth import create_local_messages
 
 logger = logging.getLogger("engine")
 
@@ -27,6 +28,13 @@ try:
 
     HAS_UWSGI = True
 
+    @spool(pass_arguments=True)
+    def async_create_messages(subject, sender, body, rec_list, uid=None):
+        """
+        Create messages to users in recipient list
+        """
+        # Assign a task to a a worker
+        create_local_messages(body=body, subject=subject, rec_list=rec_list, sender=sender, uid=uid)
 
     @spool(pass_arguments=True)
     def async_check_profile(request, user_id):
@@ -59,3 +67,16 @@ except (ModuleNotFoundError, NameError) as exc:
     HAS_UWSGI = False
     logger.error(exc)
     pass
+
+
+def send_message(subject, body, rec_list, sender, uid=None):
+    # Create asynchronously when uwsgi is available
+    if HAS_UWSGI:
+        # Assign a worker to send mentioned users
+        async_create_messages(sender=sender, subject=subject, body=body, rec_list=rec_list, uid=uid)
+        return
+    # Can run synchrony only when debugging
+    if settings.DEBUG:
+        # Send subscription messages
+        auth.create_local_messages(body=body, sender=sender, subject=subject, rec_list=rec_list, uid=uid)
+    return

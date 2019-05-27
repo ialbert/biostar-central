@@ -1,5 +1,5 @@
 import logging
-
+import mistune
 import bleach
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -12,7 +12,6 @@ from django.dispatch import receiver
 from django.template import loader
 from taggit.managers import TaggableManager
 
-from biostar.message import tasks
 
 from biostar.accounts.models import Profile
 from . import util
@@ -199,7 +198,6 @@ class Post(models.Model):
         # Sanitize the post body.
         self.html = markdown.parse(self.content)#, post_uid=self.root.uid)
 
-
         # Set the rank
         self.rank = self.lastedit_date.timestamp()
 
@@ -351,6 +349,45 @@ class Award(models.Model):
         super(Award, self).save(*args, **kwargs)
 
 
+# Connects user to message bodies
+class Message(models.Model):
+    "Connects recipients to sent messages"
+
+    SPAM, VALID, UNKNOWN = range(3)
+    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Not spam"), (UNKNOWN, "Unknown")]
+    spam = models.IntegerField(choices=SPAM_CHOICES, default=UNKNOWN)
+
+    uid = models.CharField(max_length=32, unique=True)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", on_delete=models.CASCADE)
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    subject = models.CharField(max_length=120)
+
+    body = models.TextField(max_length=MAX_TEXT_LEN)
+    html = models.TextField(default='', max_length=MAX_TEXT_LEN * 10)
+    unread = models.BooleanField(default=True)
+    sent_date = models.DateTimeField(db_index=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.html = self.html or mistune.markdown(self.body)
+        self.uid = self.uid or util.get_uuid(15)
+        super(Message, self).save(**kwargs)
+
+    def __str__(self):
+        return f"Message {self.sender}, {self.recipient}"
+
+
+@receiver(post_save, sender=Message)
+def update_new_messages(sender, instance, created, *args, **kwargs ):
+    "Update the user's new_messages flag on creation"
+
+    if created:
+        # Add 1 to recipient's new messages once uponce creation
+        user = instance.recipient
+        msgs = F('new_messages')
+        Profile.objects.filter(user=user).update(new_messages=msgs + 1)
+
+
 def create_sub(user, root):
     """
     Create a user subscription to root upon creation
@@ -374,13 +411,16 @@ def subscription_msg(post, author):
     """
     Send subscribed users, excluding author, a message.
     """
-    title = post.title
+    from . import tasks, auth
     # Default message body
-    template = "default_messages/subscription_msg.html"
-
+    body_template = "default_messages/subscription.html"
+    subject_template = "default_messages/subscription_subject.html"
     context = dict(post=post)
-    tmpl = loader.get_template(template_name=template)
-    body = tmpl.render(context)
+    body_tmpl = loader.get_template(template_name=body_template)
+    body = body_tmpl.render(context)
+
+    subject_template = loader.get_template(template_name=subject_template)
+    subject = subject_template.render(context)
 
     subs = Subscription.objects.filter(post=post.root)
     id_list = subs.values_list("user", flat=True).distinct()
@@ -388,7 +428,14 @@ def subscription_msg(post, author):
     users = User.objects.exclude(id=author.pk).filter(id__in=id_list)
 
     # Send message to subscribed users.
-    tasks.send_message(subject=title, body=body, rec_list=users, sender=author)
+    # Asynchronously sent when uwsgi is active
+    if tasks.HAS_UWSGI:
+        # Assign a worker to send mentioned users
+        tasks.async_create_messages(sender=author, subject=subject, body=body, rec_list=users)
+        return
+    else:
+        auth.create_local_messages(body=body, subject=subject, rec_list=users, sender=author)
+
     logger.info(f"Sent to subscription message to users:{users}")
 
     return

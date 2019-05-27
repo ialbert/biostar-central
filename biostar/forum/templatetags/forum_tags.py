@@ -16,7 +16,6 @@ from django.utils.timezone import utc
 from biostar.accounts.models import Profile
 from biostar.forum import const, util
 from biostar.forum.models import Post, Vote, Award, Subscription
-from biostar.message.models import Message
 
 User = get_user_model()
 
@@ -94,6 +93,15 @@ def show_messages(messages):
     Renders the messages
     """
     return dict(messages=messages)
+
+
+@register.simple_tag
+def is_unread(user, message):
+
+    if message.recipient == user and message.unread:
+        return "unread-message"
+
+    return ""
 
 
 @register.filter

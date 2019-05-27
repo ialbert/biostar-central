@@ -11,7 +11,7 @@ from django.utils.timezone import utc
 from biostar.accounts.models import Profile
 from . import util
 from .const import *
-from .models import Post, Vote, Subscription, PostView
+from .models import Post, Vote, Subscription, PostView, Message
 
 User = get_user_model()
 
@@ -248,3 +248,19 @@ def create_post(author, content, post_type, title="Title", tag_val="tag1, tag2",
     # async or synchronously
 
     return post
+
+
+def create_local_messages(body, sender, rec_list, subject="", uid=None):
+    "Create batch message from sender for a given recipient_list"
+
+    subject = subject or f"Message from : {sender.profile.name}"
+    msgs = []
+    for rec in rec_list:
+        actual_uid = uid or util.get_uuid(10)
+        sent_date = util.now()
+        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, sent_date=sent_date,
+                                     uid=actual_uid, body=body)
+
+        msgs.append(msg)
+
+    return msgs

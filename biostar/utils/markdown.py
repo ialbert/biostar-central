@@ -11,8 +11,6 @@ from django.conf import settings
 from mistune import Renderer, InlineLexer
 
 from biostar.forum.models import Post, Subscription
-from biostar.message import tasks
-from biostar.message.models import Message
 from biostar.accounts.models import Profile, User
 
 # Test input.
@@ -121,7 +119,6 @@ class BiostarInlineLexer(MonkeyPatch):
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
             post = Post.objects.filter(uid=self.post_uid).first()
-            print(post, self.post_uid)
             # Subscribe mentioned users to post.
             if post:
                 Subscription.objects.get_or_create(user=user, post=post)
@@ -129,7 +126,6 @@ class BiostarInlineLexer(MonkeyPatch):
 
         else:
             link = m.group(0)
-        # Send notification message to user.
 
         return link
 

@@ -99,3 +99,33 @@ def init_post(sender,  **kwargs):
         comment = auth.create_post(post_type=Post.COMMENT, parent=parent, content=content, author=author)
 
 
+def init_messages(sender, **kwargs):
+
+    from django.contrib.auth import get_user_model
+    from . import auth, models
+
+    User = get_user_model()
+
+    name, email = settings.ADMINS[0]
+
+    sender = User.objects.filter(email=email).first()
+    if not sender:
+        sender = User.objects.create(email=email, username="admin", is_superuser=True)
+        sender.set_password(email)
+
+    body = "Hello from the biostar-engine developers, we hope you enjoy the website."
+    subject = "Welcome to the biostar-engine!"
+
+    test_2 = User.objects.filter(username="tested").first()
+    if not test_2:
+        # Create user and send message once.
+        test_2 = User.objects.create(username="tested", email="tested@tested")
+        recipient_list = [sender, test_2]
+        msg = auth.create_local_messages(body=body, subject=subject, rec_list=recipient_list,
+                                         sender=sender)
+
+        # Test with a message tree whenever debugging
+        if settings.DEBUG:
+            msg1 = msg[1]
+            msg2 = msg[0]
+            models.Message.objects.filter(pk=msg2.pk).update(parent_msg=msg1)

@@ -9,7 +9,6 @@ from django.conf import settings
 from biostar.utils import markdown
 from biostar.accounts.models import User
 from biostar.forum.awards import *
-from biostar.message.models import Message
 from biostar.forum import models, auth, util
 
 from .const import *
@@ -76,12 +75,6 @@ class PostLongForm(forms.Form):
         self.post.tag_val = data.get('tag_val')
         self.post.save()
         return self.post
-
-
-class SubsForm(forms.Form):
-
-    choices = models.Profile.MESSAGING_TYPE_CHOICES
-    subtype = forms.IntegerField(widget=forms.Select(choices=choices))
 
 
 class PostShortForm(forms.Form):

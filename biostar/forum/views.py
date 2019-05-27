@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta
-
+from functools import wraps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -9,10 +9,10 @@ from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
 
-from . import forms, auth, tasks, util, ajax
+from biostar.accounts.models import Profile
+from . import forms, auth, tasks, util
 from .const import *
-from .models import Post, Vote, Subscription, Badge
-from biostar.utils.decorators import object_exists
+from .models import Post, Vote, Badge, Message
 
 
 User = get_user_model()
@@ -49,6 +49,39 @@ ORDER_MAPPER = dict(
     activity='-profile__date_joined'
 
 )
+
+
+def post_exists(func):
+    """
+    Ensure uid passed to view function exists.
+    """
+    @wraps(func)
+    def _wrapper_(request, **kwargs):
+        uid = kwargs.get('uid')
+        post = Post.objects.filter(uid=uid).exists()
+        if not post:
+            messages.error(request, "Object does not exist.")
+            return redirect(reverse("post_list"))
+        return func(request, **kwargs)
+    return _wrapper_
+
+
+@login_required
+def message_list(request):
+    """
+    Show messages belonging to user.
+    """
+    user = request.user
+    page = request.GET.get("page", 1)
+    msgs = Message.objects.filter(recipient=user)
+    msgs = msgs.select_related("recipient", "sender", "sender__profile", "recipient__profile")
+    # Get the pagination info
+    paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
+    msgs = paginator.get_page(page)
+    context = dict(tab="messages", all_messages=msgs)
+    Profile.objects.filter(user=user).update(new_messages=0)
+
+    return render(request, "message/message_list.html", context)
 
 
 def get_posts(user, show="latest", tag="", order="rank", limit=None):
@@ -232,7 +265,7 @@ def badge_view(request, uid):
 #    return render(request, "tags_list.html", context=context)
 
 
-@object_exists(klass=Post)
+@post_exists
 def post_view(request, uid):
     "Return a detailed view for specific post"
 
@@ -256,7 +289,7 @@ def post_view(request, uid):
     return render(request, "post_view.html", context=context)
 
 
-@object_exists(klass=Post)
+@post_exists
 def new_answer(request, uid):
     """
     Process an answer with form
@@ -301,27 +334,6 @@ def new_comment(request, uid):
 
     return render(request, "new_comment.html", context=context)
 
-#
-# @object_exists(klass=Post)
-# @login_required
-# def subs_action(request, uid):
-#     # Post actions are being taken on
-#     post = Post.objects.filter(uid=uid).first()
-#     user = request.user
-#     #TODO: moving to ajax
-#     if request.method == "POST":
-#         form = forms.SubsForm(data=request.POST)
-#         if form.is_valid():
-#             sub_type = form.cleaned_data["subtype"]
-#             sub = auth.create_sub(post=post, user=user, sub_type=sub_type)
-#             msg = f"Updated Subscription to : {sub.get_type_display()}"
-#             messages.success(request, msg)
-#             if tasks.HAS_UWSGI:
-#                 tasks.added_sub(sid=sub.id)
-#
-#     return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
-#
-
 
 @login_required
 def new_post(request):
@@ -354,7 +366,7 @@ def new_post(request):
     return render(request, "new_post.html", context=context)
 
 
-@object_exists(klass=Post)
+@post_exists
 @login_required
 def post_moderate(request, uid):
     user = request.user
@@ -382,7 +394,7 @@ def post_moderate(request, uid):
     return render(request, "post_moderate.html", context)
 
 
-@object_exists(klass=Post)
+@post_exists
 @login_required
 def edit_post(request, uid):
     """

@@ -1,6 +1,5 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
-{% load message_tags %}
 {% load accounts_tags %}
 
 {% block headtitle %}
@@ -32,14 +31,8 @@
 <td>
         <div class="middle aligned content">
             <div class="ui small messages header">
-                {% is_inbox message=message target=request.user as in_inbox %}
                 Subject:
-                {% if in_inbox %}
-                <a href="{% url 'inbox_view' message.uid%}">{{message.subject|truncatechars:90}}</a>
-                {% else %}
-                <a href="{% url 'outbox_view' message.uid%}">{{message.subject|truncatechars:90}}</a>
-                {% endif %}
-
+                {{ message.subject|safe }}
             </div>
 
 

@@ -5,7 +5,6 @@ from django.contrib.auth import logout
 from django.conf import settings
 
 from biostar.accounts.models import Profile
-from biostar.message.models import Message
 import biostar.accounts.auth as accounts_auth
 from .util import now
 from . import tasks
