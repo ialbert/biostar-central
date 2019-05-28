@@ -40,6 +40,7 @@ message:
 engine:
 	$(eval DJANGO_SETTING_MODULE := biostar.engine.settings)
 	$(eval DJANGO_APP := biostar.engine)
+    $(eval UWSGI_INI := conf/devel/devel_uwsgi.ini)
 
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -47,6 +48,7 @@ engine:
 forum:
 	$(eval DJANGO_SETTING_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
+    $(eval UWSGI_INI := conf/uwsgi/forum_uwsgi.ini)
 
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -108,7 +110,8 @@ dump:
 
 uwsgi:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
-	uwsgi --ini conf/devel/devel_uwsgi.ini
+	@echo UWSGI_INI=${UWSGI_INI}
+	uwsgi --ini ${UWSGI_INI}
 
 drop_create:
 	dropdb --if-exists engine.db

@@ -1,20 +1,12 @@
 import logging
 from urllib.request import urlopen
 import json
-from biostar.accounts.models import User, Profile
-from biostar.accounts import auth as accounts_auth
-
-from biostar.emailer.auth import notify
-from biostar.message.auth import create_local_messages
-
 
 logger = logging.getLogger("engine")
 
 HAS_UWSGI = False
 
-
 COUNTER = 1
-
 
 def days_to_secs(days=1):
     """
@@ -32,6 +24,7 @@ try:
 
     @spool(pass_arguments=True)
     def async_check_profile(request, user_id):
+
         user = User.objects.filter(id=user_id)
         accounts_auth.check_user_profile(request=request, user=user)
         logger.info(f"Checked user profile user={user}")
@@ -79,14 +72,13 @@ except (ModuleNotFoundError, NameError) as exc:
     pass
 
 
-
-def foo_task(*args, **kwargs):
-    print (f"Task called with {args} and {kwargs}")
+def info_task(*args, **kwargs):
+   logger.info(f"info_task called with {args} and {kwargs}")
 
 if HAS_UWSGI:
-    spool_decorate(f, pass_arguments, _spool)
+    info_task = spool(info_task, pass_arguments=True)
 else:
-    foo_task.spool = foo_task
+    info_task.spool = info_task
 
 
 def send_message(subject, body, rec_list, sender, parent=None, uid=None):

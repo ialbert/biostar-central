@@ -135,6 +135,11 @@ def post_list(request, show=None):
     # Fill in context.
     context = dict(posts=posts, tab=tab, tag=tag, order=order, limit=limit)
 
+    # Call a spooled task.
+    tasks.info_task.spool(100, value='FOO')
+
+    logger.info("test_task spooled")
+
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
 

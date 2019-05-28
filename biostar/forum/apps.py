@@ -45,8 +45,6 @@ def init_post(sender,  **kwargs):
     from . import auth, tasks
     from .models import Post
 
-    tasks.foo_task(1,2,3, a="A", b="B", c="C")
-
     # Only initialize when debugging
     if not settings.DEBUG:
         return
