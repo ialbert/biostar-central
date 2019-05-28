@@ -47,7 +47,7 @@ MIDDLEWARE += [
 # to avoid having to specify all the default styles
 PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css', "lib/pagedown.css",)
 
-INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + MESSAGE_APPS + ACCOUNTS_APPS
+INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + MESSAGE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 ROOT_URLCONF = 'biostar.forum.urls'
 

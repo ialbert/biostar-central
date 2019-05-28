@@ -41,12 +41,13 @@ class Profile(models.Model):
     DIGEST_CHOICES = [(NO_DIGEST, 'Never'), (DAILY_DIGEST, 'Daily'),
                       (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly')]
 
-    LOCAL_MESSAGE, EMAIL_MESSAGE, MAILING_LIST = range(3)
+    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
     MESSAGING_TYPE_CHOICES = [
-        (LOCAL_MESSAGE, "Local messages."),
-        (EMAIL_MESSAGE, "Email messages."),
+        (DEFAULT_MESSAGES, "default"),
+        (LOCAL_MESSAGE, "local messages"),
+        (EMAIL_MESSAGE, "email"),
         # Email for every new thread (mailing list mode)
-        (MAILING_LIST, "Mailing list.")
+        (ALL_MESSAGES, "email for every new thread (mailing list mode)")
                             ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)

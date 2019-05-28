@@ -1,5 +1,5 @@
 from biostar.settings import *
-
+from biostar.emailer.settings import *
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -44,7 +44,7 @@ ACCOUNTS_APPS = [
     'allauth.socialaccount.providers.github',
 ]
 
-INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS
+INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 AUTHENTICATION_BACKENDS += ["allauth.account.auth_backends.AuthenticationBackend"]
 

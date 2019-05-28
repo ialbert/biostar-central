@@ -126,6 +126,7 @@ class BiostarInlineLexer(MonkeyPatch):
             if post:
                 Subscription.objects.get_or_create(user=user, post=post)
                 Post.objects.filter(pk=post.root.pk).update(subs_count=F('subs_count') + 1)
+                1/0
 
         else:
             link = m.group(0)
@@ -232,9 +233,6 @@ def parse(text, post_uid=None):
     html = markdown(text)
 
     return html
-
-
-
 
 
 def test():

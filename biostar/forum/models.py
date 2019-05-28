@@ -12,8 +12,7 @@ from django.dispatch import receiver
 from django.template import loader
 from taggit.managers import TaggableManager
 
-from biostar.message import tasks
-
+from biostar.emailer.auth import notify
 from biostar.accounts.models import Profile
 from . import util
 
@@ -373,22 +372,39 @@ def subscription_msg(post, author):
     """
     Send subscribed users, excluding author, a message.
     """
+    from . import tasks
+
     title = post.title
     # Default message body
     template = "default_messages/subscription_msg.html"
-
     context = dict(post=post)
     tmpl = loader.get_template(template_name=template)
     body = tmpl.render(context)
 
     subs = Subscription.objects.filter(post=post.root)
-    id_list = subs.values_list("user", flat=True).distinct()
-    # Get the subscribed users
-    users = User.objects.exclude(id=author.pk).filter(id__in=id_list)
+    subs = subs.exclude(type=Profile.NO_MESSAGES)
+    id_list = subs.values_list("user", flat=True).exclude(id=author.pk).distinct()
 
-    # Send message to subscribed users.
+    # Everyone subscribed gets a local message
+    users = User.objects.filter(id__in=id_list)
     tasks.send_message(subject=title, body=body, rec_list=users, sender=author)
-    logger.info(f"Sent to subscription message to users:{users}")
+
+    # Email and default types get an additional email
+    subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
+
+    emails = subs.values_list("user__email", flat=True).exclude(id=author.pk).distinct()
+    from_email = settings.ADMIN_EMAIL
+    print(emails)
+
+    # Send emails asynchronously
+    if tasks.HAS_UWSGI:
+        tasks.async_send_email(emails, context, from_email, subject="", template=template, send=True)
+    else:
+        notify(template_name=template, email_list=emails,
+               extra_context=context, from_email=from_email,
+               subject="Subscription", send=True)
+
+    logger.info(f"Sent to subscription messages to users:{users}")
 
     return
 
