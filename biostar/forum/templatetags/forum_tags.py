@@ -1,8 +1,6 @@
-import hashlib
 import itertools
 import logging
 import random
-import urllib.parse
 from datetime import datetime
 from datetime import timedelta
 
@@ -14,9 +12,8 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
 from biostar.accounts.models import Profile
-from biostar.forum import const, util
+from biostar.forum import const
 from biostar.forum.models import Post, Vote, Award, Subscription
-from biostar.message.models import Message
 
 User = get_user_model()
 
@@ -98,8 +95,7 @@ def show_messages(messages):
 
 @register.filter
 def subtype(post, user):
-
-    unsubbed = "unsubscribed"
+    unsubbed = "not following"
     type_map = {Profile.LOCAL_MESSAGE: "messages", Profile.EMAIL_MESSAGE: "email",
                 Profile.DEFAULT_MESSAGES: "default", Profile.NO_MESSAGES: unsubbed}
 
@@ -111,6 +107,30 @@ def subtype(post, user):
     stype = type_map.get(sub.type, unsubbed) if sub else unsubbed
 
     return stype
+
+@register.simple_tag(takes_context=True)
+def follow_label(context, post):
+
+    user = context["request"].user
+
+    not_following = "not following"
+
+    label_map = {
+        Profile.LOCAL_MESSAGE: "followig with messages",
+        Profile.EMAIL_MESSAGE: "following via email",
+        Profile.NO_MESSAGES: not_following
+    }
+
+    if user.is_anonymous:
+        return not_following
+
+    # Get the current subscription
+    sub = Subscription.objects.filter(post=post, user=user).first()
+    sub = sub or Subscription(post=post, user=user, type=Profile.NO_MESSAGES)
+
+    label = label_map.get(sub.type, not_following)
+
+    return label
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
