@@ -13,22 +13,6 @@ from . import models, auth
 logger = models.logger
 
 
-def reverse2(view, request=None, kwargs=dict()):
-    from django.urls import reverse as main_reverse
-    from django.contrib import messages
-
-    try:
-        url = main_reverse(view, kwargs=kwargs)
-    except Exception as exc:
-        print("*"*100, exc)
-        url = "/"
-        if request:
-            messages.error(request, f"Error reversing: {view}")
-
-    return url
-
-
-
 class read_access:
     """
     Controls READ level access to urls.
