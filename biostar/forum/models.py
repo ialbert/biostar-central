@@ -355,9 +355,9 @@ def create_sub(user, root):
     """
 
     sub = Subscription.objects.filter(post=root, user=user).first()
-    # Update an existing subscriptions
     if sub:
         return sub
+
     date = util.now()
     # Create new subscriptions
     Subscription.objects.create(post=root, user=user, date=date)
@@ -375,10 +375,11 @@ def subscription_msg(post, author):
     from . import tasks
 
     title = post.title
-    # Default message body
-    template = "default_messages/subscription_msg.html"
+
+    # Local message template
+    local_template = "default_messages/subscription_message.html"
     context = dict(post=post)
-    tmpl = loader.get_template(template_name=template)
+    tmpl = loader.get_template(template_name=local_template)
     body = tmpl.render(context)
 
     subs = Subscription.objects.filter(post=post.root)
@@ -390,17 +391,17 @@ def subscription_msg(post, author):
     tasks.send_message(subject=title, body=body, rec_list=users, sender=author)
 
     # Email and default types get an additional email
-    subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
+    email_subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
+    to_emails = email_subs.values_list("user__email", flat=True).exclude(id=author.pk).distinct()
 
-    emails = subs.values_list("user__email", flat=True).exclude(id=author.pk).distinct()
     from_email = settings.ADMIN_EMAIL
-    print(emails)
 
-    # Send emails asynchronously
+    # Email template
+    email_template = "default_messages/subscription_email.html"
     if tasks.HAS_UWSGI:
-        tasks.async_send_email(emails, context, from_email, subject="", template=template, send=True)
+        tasks.async_send_email(to_emails, context, from_email, subject="", template=email_template, send=True)
     else:
-        notify(template_name=template, email_list=emails,
+        notify(template_name=email_template, email_list=to_emails,
                extra_context=context, from_email=from_email,
                subject="Subscription", send=True)
 

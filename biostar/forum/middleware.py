@@ -5,7 +5,6 @@ from django.contrib.auth import logout
 from django.conf import settings
 
 from biostar.accounts.models import Profile
-from biostar.message.models import Message
 import biostar.accounts.auth as accounts_auth
 from .util import now
 from . import tasks
@@ -41,14 +40,13 @@ def forum_middleware(get_response):
 
         # Update count information inside session
         if elapsed > settings.SESSION_UPDATE_SECONDS:
+            # Set the last login time.
+            Profile.objects.filter(user=user).update(last_login=now())
 
             # Store the counts in the session.
             votes = Vote.objects.filter(post__author=user, date__gt=last_login).exclude(author=user).count()
             counts = dict(votes=votes)
             request.session["counts"] = counts
-
-            # Set the last login time.
-            Profile.objects.filter(user=user).update(last_login=now())
 
         response = get_response(request)
         # Can process response here after its been handled by the view

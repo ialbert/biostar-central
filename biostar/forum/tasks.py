@@ -104,10 +104,4 @@ def send_message(subject, body, rec_list, sender, parent=None, uid=None):
     return
 
 
-def send_email():
-    return
-
-
-
-
 

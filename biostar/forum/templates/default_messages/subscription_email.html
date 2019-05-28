@@ -1,0 +1,32 @@
+
+{%  block subject %}
+
+    [biostar-forum] Subscription
+
+{% endblock %}
+
+
+{% block html %}
+
+    {{ post.html|safe }}
+
+    {{ protocol }}://{{ domain }}:{{port}}
+
+
+    Sincerely,
+    The Biostar Team
+
+
+{% endblock %}
+
+{% block text %}
+
+    {{post.content}}
+
+    {{ protocol }}://{{ domain }}:{{port}}
+
+    Sincerely,
+    The Biostar Team
+
+{% endblock %}
+
