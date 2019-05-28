@@ -179,7 +179,9 @@ STATICFILES_FINDERS = [
 LOGGER_NAME = "biostar"
 
 # The email delivery engine.
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
 
 # Session engine.
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
