@@ -310,14 +310,8 @@ figure {
     font-size: .85714286rem;
 }
 
-.ui.stat.label.accept {
-    background-color: #436c27;
-    color: #ffff00;
-}
-
-.ui.items.accepted {
-    background-color: #f9fcf9;
-    border-radius: 1rem;
+.top-padding{
+    padding-top: 5px;
 }
 
 
