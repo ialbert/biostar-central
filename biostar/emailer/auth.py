@@ -10,7 +10,6 @@ from .models import EmailAddress, Subscription
 
 logger = logging.getLogger("engine")
 
-
 def add_subscription(email, group, name=''):
 
     # Get the address from the database.
@@ -52,7 +51,7 @@ def notify(template_name, email_list, extra_context={}, from_email=None, subject
         if send and email_list:
             # Send the emails.
             send_all()
-            logger.info(f"Email has been sent to { len(email_list) } accounts.")
+            logging.info(f"Email has been sent to { len(email_list) } accounts.")
 
     except Exception as exc:
         logger.error(f"Mailing error : {exc}")
