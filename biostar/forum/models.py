@@ -387,7 +387,7 @@ def subscription_msg(post, author):
 
     tasks.send_email.spool(template=email_template, context=context, subject="Subscription",
                            email_list=email_list, from_email=from_email)
-    logger.info(f"Sent to subscription message to users:{users}")
+    logger.debug(f"Sent to subscription message to users:{users}")
 
 
 @receiver(post_save, sender=Post)

@@ -80,10 +80,11 @@ def init_users():
         else:
             logger.info(f"Admin user: {user.email} exists.")
 
+
 def init_messages():
 
     from django.contrib.auth import get_user_model
-    from biostar.accounts import models, auth
+    from biostar.accounts import  auth
 
     User = get_user_model()
 
@@ -102,14 +103,8 @@ def init_messages():
         # Create user and send message once.
         test_2 = User.objects.create(username="tested", email="tested@tested")
         recipient_list = [sender, test_2]
-        msg = auth.create_local_messages(body=body, subject=subject, rec_list=recipient_list,
-                                         sender=sender)
-
-        # Test with a message tree whenever debugging
-        if settings.DEBUG:
-            msg1 = msg[1]
-            msg2 = msg[0]
-            models.Message.objects.filter(pk=msg2.pk).update(parent_msg=msg1)
+        auth.create_local_messages(body=body, subject=subject, rec_list=recipient_list,
+                                   sender=sender)
 
 def init_site():
     """

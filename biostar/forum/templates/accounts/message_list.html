@@ -20,8 +20,12 @@
   <div class="item {% is_unread user=request.user message=message%} message">
 
     <div class="content">
+        <div class="header">{{message.subject}}</div>
+        {{ message.sender.profile.name }} wrote the following:
 
-        <div class="description">{{ message.body|safe }}</div>
+        <div class="description">
+
+            {{ message.body|safe }}</div>
     </div>
 
   </div>
