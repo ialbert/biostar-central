@@ -1,0 +1,43 @@
+{% extends "forum_list.html" %}
+{% load forum_tags %}
+{% load accounts_tags %}
+
+{% block headtitle %}
+    Messages
+{% endblock %}
+
+
+{% block body %}
+
+
+<div class="center-item" style="text-align: center">
+{% pages objs=all_messages %}
+</div>
+
+<table class="ui very basic striped table">
+    {% for message in all_messages %}
+        <tbody class="{% is_unread user=request.user message=message%}">
+            <tr>
+                <td>
+                  <div class="item " style="margin-bottom: 2px;">
+
+                    <div class="content">
+                        {{ message.sent_date|timesince }} ago: {{ message.html|safe }}
+                    </div>
+                  </div>
+                </td>
+            </tr>
+        </tbody>
+    {% endfor %}
+</table>
+
+<div class="center-item" style="text-align: center">
+{% pages objs=all_messages %}
+</div>
+
+
+{% endblock %}
+
+{% block sidebar %}
+Messages sidebar
+{% endblock %}

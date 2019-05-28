@@ -11,7 +11,7 @@ from django.utils.timezone import utc
 from biostar.accounts.models import Profile
 from . import util
 from .const import *
-from .models import Post, Vote, Subscription, PostView
+from .models import Post, Vote, PostView
 
 User = get_user_model()
 
@@ -228,7 +228,7 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
 
     if dupes:
         Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-        html = util.render(name="default_messages/duplicate_posts.html", user=post.author, dupes=dupes,
+        html = util.render(name="messages/duplicate_posts.html", user=post.author, dupes=dupes,
                            comment=comment, posts=Post.objects.filter(uid=post.uid))
         content = util.strip_tags(html)
         # Create a comment to the post

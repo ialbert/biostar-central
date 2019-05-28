@@ -113,6 +113,15 @@ def show_messages(messages):
     return dict(messages=messages)
 
 
+@register.simple_tag
+def is_unread(user, message):
+
+    if message.recipient == user and message.unread:
+        return "unread-message"
+
+    return ""
+
+
 @register.filter
 def subtype(post, user):
     unsubbed = "not following"

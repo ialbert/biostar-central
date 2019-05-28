@@ -1,5 +1,5 @@
 import logging
-
+import mistune
 import bleach
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -11,7 +11,7 @@ from django.shortcuts import reverse
 from django.dispatch import receiver
 from taggit.managers import TaggableManager
 
-from biostar.emailer.auth import notify
+
 from biostar.accounts.models import Profile
 from . import util
 
@@ -287,7 +287,7 @@ class Subscription(models.Model):
     date = models.DateTimeField()
 
     def __str__(self):
-        return "%s to %s" % (self.user.profile.name, self.post.title)
+        return f"{self.user.profile.name} to {self.post.title}"
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
@@ -369,9 +369,9 @@ def subscription_msg(post, author):
     from . import tasks
 
     # Template used to send local messages
-    local_template = "default_messages/subscription_message.html"
+    local_template = "messages/subscription_message.html"
     # Template used to send emails with
-    email_template = "default_messages/subscription_email.html"
+    email_template = "messages/subscription_email.html"
     context = dict(post=post)
 
     # Everyone subscribed gets a local message
@@ -387,10 +387,7 @@ def subscription_msg(post, author):
 
     tasks.send_email.spool(template=email_template, context=context, subject="Subscription",
                            email_list=email_list, from_email=from_email)
-
-    logger.debug(f"Sent to subscription messages to users:{users}")
-
-    return
+    logger.debug(f"Sent to subscription message to users:{users}")
 
 
 @receiver(post_save, sender=Post)

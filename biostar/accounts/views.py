@@ -19,12 +19,12 @@ from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
 
-from biostar.accounts import forms
-from biostar.accounts.auth import check_user, send_verification_email
-from biostar.accounts.const import *
-from biostar.accounts.models import User, Profile
-from biostar.accounts.tokens import account_verification_token
-from biostar.accounts.util import now, get_uuid
+from . import forms
+from .auth import check_user, send_verification_email
+from .const import *
+from .models import User, Profile, Message
+from .tokens import account_verification_token
+from .util import now, get_uuid
 
 
 logger = logging.getLogger('engine')
@@ -37,8 +37,8 @@ def edit_profile(request):
 
     user = request.user
     initial = dict(username=user.username, email=user.email, name=user.profile.name,location=user.profile.location,
-                   website=user.profile.website, twitter=user.profile.twitter,scholar=user.profile.scholar, text=user.profile.text,
-                   my_tags=user.profile.my_tags, digest_prefs=user.profile.digest_prefs,
+                   website=user.profile.website, twitter=user.profile.twitter,scholar=user.profile.scholar,
+                   text=user.profile.text, my_tags=user.profile.my_tags, digest_prefs=user.profile.digest_prefs,
                    message_prefs=user.profile.message_prefs, email_verified=user.profile.email_verified)
 
     form = forms.EditProfile(user=user, initial=initial)
@@ -126,6 +126,29 @@ def user_moderate(request, uid):
 
     context = dict(form=form, target=target)
     return render(request, "accounts/user_moderate.html", context)
+
+
+@login_required
+def message_list(request):
+    """
+    Show messages belonging to user.
+    """
+    user = request.user
+    page = request.GET.get("page", 1)
+    msgs = Message.objects.filter(recipient=user)
+    msgs = msgs.select_related("sender", "sender__profile")
+    msgs = msgs.order_by("-sent_date")
+    # Update the unread flag
+    Message.objects.filter(id__in=msgs).update(unread=False)
+
+    # Get the pagination info
+    paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
+    msgs = paginator.get_page(page)
+
+    context = dict(tab="messages", all_messages=msgs)
+    Profile.objects.filter(user=user).update(new_messages=0)
+
+    return render(request, "messages/message_list.html", context)
 
 
 def user_profile(request, uid):

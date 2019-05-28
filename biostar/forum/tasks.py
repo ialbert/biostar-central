@@ -2,6 +2,7 @@ import logging
 from urllib.request import urlopen
 import json
 
+
 logger = logging.getLogger("engine")
 
 HAS_UWSGI = False
@@ -26,18 +27,21 @@ def created_post(pid):
 
 def send_message(template, context, sender, rec_list):
     from django.template import loader
-    from biostar.message.auth import create_local_messages
+    from biostar.accounts.auth import create_local_messages
+    from .util import strip_tags
+
     # Render the template
     tmpl = loader.get_template(template_name=template)
-    body = tmpl.render(context)
+    html = tmpl.render(context)
+    body = strip_tags(html)
 
     # Send the local message
-    create_local_messages(body=body, sender=sender, rec_list=rec_list)
+    create_local_messages(body=body, sender=sender, rec_list=rec_list, html=html)
 
 
 def check_profile(request, user):
-    from biostar.accounts import auth
-    auth.check_user_profile(request=request, user=user)
+    from biostar.accounts.auth import check_user_profile
+    check_user_profile(request=request, user=user)
     logger.info(f"Checked user profile user={user}")
 
 
@@ -60,4 +64,3 @@ else:
     check_profile.spool = check_profile
     send_email.spool = send_email
     created_post.spool = created_post
-

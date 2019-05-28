@@ -2,7 +2,6 @@
 
 # Inherit from the accounts settings file.
 from biostar.accounts.settings import *
-from biostar.message.settings import *
 
 # Django debug flag.
 DEBUG = True
@@ -23,6 +22,7 @@ REPLIES_FEED_COUNT = 15
 SINGLE_FEED_COUNT = 40
 
 SESSION_UPDATE_SECONDS = 10
+
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
@@ -47,7 +47,7 @@ MIDDLEWARE += [
 # to avoid having to specify all the default styles
 PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css', "lib/pagedown.css",)
 
-INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + MESSAGE_APPS + ACCOUNTS_APPS + EMAILER_APP
+INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 ROOT_URLCONF = 'biostar.forum.urls'
 

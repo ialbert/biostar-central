@@ -11,8 +11,6 @@ from django.conf import settings
 from mistune import Renderer, InlineLexer
 
 from biostar.forum.models import Post, Subscription
-from biostar.message import tasks
-from biostar.message.models import Message
 from biostar.accounts.models import Profile, User
 
 # Test input.
@@ -127,7 +125,6 @@ class BiostarInlineLexer(MonkeyPatch):
                     Post.objects.filter(pk=self.root.pk).update(subs_count=F('subs_count') + 1)
         else:
             link = m.group(0)
-        # Send notification message to user.
 
         return link
 
@@ -211,8 +208,8 @@ def parse(text, post=None):
     Parses markdown into html.
     Expands certain patterns into HTML.
     """
-
-    root = post.parent.root if post and post.parent else None
+    # Resolve the root
+    root = post.parent.root if (post and post.parent) else None
     renderer = Renderer(escape=True, hard_wrap=True)
     inline = BiostarInlineLexer(renderer=renderer, root=root)
     inline.enable_post_link()
