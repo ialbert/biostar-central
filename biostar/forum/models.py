@@ -354,18 +354,13 @@ def create_sub(user, root):
     Create a user subscription to root upon creation
     """
 
-    sub = Subscription.objects.filter(post=root, user=user).first()
-    if sub:
-        return sub
+    sub, created = Subscription.objects.get_or_create(post=root, user=user)
+    if created:
+        # Increase the subscription count of the root.
+        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+        logger.info(f"Created a subscription for user:{user} to root:{root.title}")
 
-    date = util.now()
-    # Create new subscriptions
-    Subscription.objects.create(post=root, user=user, date=date)
-    # Increase the subscription count of the root.
-    Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
-    logger.info(f"Created a subscription for user:{user} to root:{root.title}")
-
-    return
+    return sub
 
 
 def subscription_msg(post, author):
@@ -392,6 +387,7 @@ def subscription_msg(post, author):
 
     # Email and default types get an additional email
     email_subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
+
     to_emails = email_subs.values_list("user__email", flat=True).exclude(id=author.pk).distinct()
 
     from_email = settings.ADMIN_EMAIL

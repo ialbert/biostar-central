@@ -96,7 +96,7 @@ def ajax_subs(request):
         return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
 
     type_map = dict(messages=Profile.LOCAL_MESSAGE, email=Profile.EMAIL_MESSAGE, all=Profile.ALL_MESSAGES,
-                    unfollow=Profile.NO_MESSAGES)
+                    unfollow=Profile.NO_MESSAGES, default=Profile.DEFAULT_MESSAGES)
     # Get the root and sub type.
     root_uid = request.POST.get('root_uid')
     sub_type = request.POST.get("sub_type")
