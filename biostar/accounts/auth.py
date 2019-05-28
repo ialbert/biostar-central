@@ -47,14 +47,14 @@ def check_user_profile(request, user):
     ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
     ip = ip1 or ip2 or '0.0.0.0'
 
-    logger.info(f"profile check from {ip} on {user}")
+    logger.debug(f"profile check from {ip} on {user}")
     # Check and log location.
     if not user.profile.location:
         try:
             url = f"http://api.hostip.info/get_json.php?ip={ip}"
             req = Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
             user_info = urlopen(req, timeout=3).read()
-            logger.info(f"{ip}, {user}, {url}")
+            logger.debug(f"{ip}, {user}, {url}")
 
             data = hjson.loads(user_info)
             location = data.get('country_name', '').title()

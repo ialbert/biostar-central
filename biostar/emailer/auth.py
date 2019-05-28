@@ -52,7 +52,7 @@ def notify(template_name, email_list, extra_context={}, from_email=None, subject
         if send and email_list:
             # Send the emails.
             send_all()
-            logger.info(f"Emails have been sent to { len(email_list) } accounts.")
+            logger.info(f"Email haa been sent to { len(email_list) } accounts.")
 
     except Exception as exc:
         logger.error(f"Mailing error : {exc}")
