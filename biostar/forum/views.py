@@ -278,8 +278,7 @@ def new_answer(request, uid):
             # Create answer to root
             answer = auth.create_post(title=root.title, parent=root, author=author,
                                       content=content, post_type=Post.ANSWER, root=root)
-            if tasks.HAS_UWSGI:
-                tasks.created_post(pid=answer.id)
+            tasks.created_post.spool(pid=answer.id)
 
             # Anchor location to recently created answer
             url = answer.get_absolute_url()
@@ -306,27 +305,6 @@ def new_comment(request, uid):
 
     return render(request, "new_comment.html", context=context)
 
-#
-# @object_exists(klass=Post)
-# @login_required
-# def subs_action(request, uid):
-#     # Post actions are being taken on
-#     post = Post.objects.filter(uid=uid).first()
-#     user = request.user
-#     #TODO: moving to ajax
-#     if request.method == "POST":
-#         form = forms.SubsForm(data=request.POST)
-#         if form.is_valid():
-#             sub_type = form.cleaned_data["subtype"]
-#             sub = auth.create_sub(post=post, user=user, sub_type=sub_type)
-#             msg = f"Updated Subscription to : {sub.get_type_display()}"
-#             messages.success(request, msg)
-#             if tasks.HAS_UWSGI:
-#                 tasks.added_sub(sid=sub.id)
-#
-#     return redirect(reverse("post_view", kwargs=dict(uid=post.uid)))
-#
-
 
 @login_required
 def new_post(request):
@@ -346,8 +324,7 @@ def new_post(request):
             post = auth.create_post(title=title, content=content, post_type=post_type,
                                     tag_val=tag_val, author=author)
 
-            if tasks.HAS_UWSGI:
-                tasks.created_post(pid=post.id)
+            tasks.created_post.spool(pid=post.id)
 
             return redirect(post.get_absolute_url())
 
@@ -374,8 +351,6 @@ def post_moderate(request, uid):
             duplicate = form.cleaned_data["dupe"]
             pid = form.cleaned_data.get("pid", "")
             redir = auth.moderate_post(post=post, request=request, action=action, dupes=duplicate, pid=pid)
-            if tasks.HAS_UWSGI:
-                tasks.moderated_post(pid=post.id)
             return redirect(redir)
         else:
             messages.error(request, "Invalid moderation error.")
