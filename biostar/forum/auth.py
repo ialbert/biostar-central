@@ -34,6 +34,9 @@ def get_votes(user, root):
     return store
 
 
+def is_suspended(user):
+    return user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED)
+
 
 def post_tree(user, root):
     """
@@ -58,7 +61,6 @@ def post_tree(user, root):
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
 
-
     # Gather votes by the current user.
     votes = get_votes(user=user, root=root)
 
@@ -74,6 +76,7 @@ def post_tree(user, root):
             comment_tree.setdefault(post.parent_id, []).append(post)
         post.has_bookmark = int(post.id in bookmarks)
         post.has_upvote = int(post.id in upvotes)
+        post.can_accept = not post.is_toplevel and user == post.root.author
         post.is_editable = user.is_authenticated and (user == post.author or user.profile.is_moderator)
         return post
 
@@ -143,15 +146,14 @@ def apply_vote(post, user, vote_type):
 
         # Handle accepted vote.
         if vote_type == Vote.ACCEPT:
-            Post.objects.filter(uid=post.uid).update(accept_count=F('accept_count') + 1)
-            Post.objects.filter(uid=post.root.uid).update(accept_count=F('accept_count') + 1)
+            Post.objects.filter(uid=post.uid).update(accept_count=F('accept_count') + change)
+            Post.objects.filter(uid=post.root.uid).update(accept_count=F('accept_count') + change)
 
     return msg, vote, change
 
 
 def delete_post(post, request):
     # Delete marks a post deleted but does not remove it.
-
 
     # Posts with children or older than some value can only be deleted not removed
     # The children of a post.

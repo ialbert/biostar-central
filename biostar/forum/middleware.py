@@ -6,8 +6,9 @@ from django.conf import settings
 
 from biostar.accounts.models import Profile
 import biostar.accounts.auth as accounts_auth
+from biostar.message.models import Message
 from .util import now
-from . import tasks
+from . import tasks, auth
 from .models import Post, Vote
 
 
@@ -25,29 +26,26 @@ def forum_middleware(get_response):
             return get_response(request)
 
         # Banned and suspended users are not allowed
-        if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
+        if auth.is_suspended(user=user):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
             logout(request)
 
         # Check the user profile.
-        if tasks.HAS_UWSGI:
-            tasks.async_check_profile(request=request, user_id=user.id)
-        else:
-            accounts_auth.check_user_profile(request=request, user=user)
+        tasks.check_profile.spool(request=request, user=user)
 
         last_login = user.profile.last_login or user.profile.date_joined
         elapsed = (now() - last_login).total_seconds()
 
         # Update count information inside session
         if elapsed > settings.SESSION_UPDATE_SECONDS:
-
-            # Store the counts in the session.
-            votes = Vote.objects.filter(post__author=user, date__gt=last_login).exclude(author=user).count()
-            counts = dict(votes=votes)
-            request.session["counts"] = counts
-
             # Set the last login time.
             Profile.objects.filter(user=user).update(last_login=now())
+
+            # Store the counts in the session.
+            msgs = Message.objects.filter(recipient=user, unread=True, sent_date__gt=last_login).count()
+            votes = Vote.objects.filter(post__author=user, date__gt=last_login).exclude(author=user).count()
+            counts = dict(votes=votes, msgs=msgs)
+            request.session["counts"] = counts
 
         response = get_response(request)
         # Can process response here after its been handled by the view

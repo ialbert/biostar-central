@@ -261,7 +261,6 @@ $(document).ready(function () {
     });
 
     $('.vote').each(function (event) {
-        //event.preventDefault();
         var elem = $(this);
         var data_state = elem.attr('data-state');
 

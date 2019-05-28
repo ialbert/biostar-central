@@ -24,9 +24,11 @@
             <div class="text" id="active">{{ post|subtype:request.user }}</div>
             <i class="caret up icon"></i>
             <div class="menu">
-                <div class="item" data-value="messages">default</div>
+
+                <div class="item" data-value="default">default</div>
                 <div class="item" data-value="email">email</div>
-                <div class="item" data-value="unfollow">unsubscribe</div>
+                <div class="item" data-value="messages">messages</div>
+                <div class="item" data-value="unfollow">unsubscribed</div>
             </div>
         </div>
     {% endif %}

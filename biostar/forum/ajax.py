@@ -53,8 +53,8 @@ def ajax_test(request):
     return ajax_error(msg=msg)
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+@ratelimit(key='ip', rate='500/h')
+@ratelimit(key='ip', rate='25/m')
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
     was_limited = getattr(request, 'limited', False)
@@ -95,7 +95,8 @@ def ajax_subs(request):
     if was_limited:
         return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
 
-    type_map = dict(messages=Profile.LOCAL_MESSAGE, email=Profile.EMAIL_MESSAGE, list=Profile.MAILING_LIST)
+    type_map = dict(messages=Profile.LOCAL_MESSAGE, email=Profile.EMAIL_MESSAGE, all=Profile.ALL_MESSAGES,
+                    unfollow=Profile.NO_MESSAGES, default=Profile.DEFAULT_MESSAGES)
     # Get the root and sub type.
     root_uid = request.POST.get('root_uid')
     sub_type = request.POST.get("sub_type")
@@ -110,7 +111,7 @@ def ajax_subs(request):
     # Delete a subscription
     if sub_type == "unfollow":
         if sub:
-            sub.delete()
+            Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
             Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') - 1)
         return ajax_success(msg="Unsubscribed to post.")
     # Update an existing subscription

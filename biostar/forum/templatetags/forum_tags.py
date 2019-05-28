@@ -107,14 +107,16 @@ def is_unread(user, message):
 @register.filter
 def subtype(post, user):
 
-    default = "unsubscribe"
-    type_map = {Profile.LOCAL_MESSAGE: "default", Profile.EMAIL_MESSAGE: "email"}
+    unsubbed = "unsubscribed"
+    type_map = {Profile.LOCAL_MESSAGE: "messages", Profile.EMAIL_MESSAGE: "email",
+                Profile.DEFAULT_MESSAGES: "default", Profile.NO_MESSAGES: unsubbed}
 
     if user.is_anonymous:
-        return default
+        return unsubbed
     # Get the user subscriptions
     sub = Subscription.objects.filter(post=post, user=user).first()
-    stype = type_map.get(sub.type, default) if sub else default
+
+    stype = type_map.get(sub.type, unsubbed) if sub else unsubbed
 
     return stype
 
@@ -213,7 +215,7 @@ def icon(user):
 
 @register.filter
 def show_score(score):
-    score = (score * 10) + 1
+    score = (score * 10)
     return score
 
 

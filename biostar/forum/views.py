@@ -307,8 +307,7 @@ def new_answer(request, uid):
             # Create answer to root
             answer = auth.create_post(title=root.title, parent=root, author=author,
                                       content=content, post_type=Post.ANSWER, root=root)
-            if tasks.HAS_UWSGI:
-                tasks.created_post(pid=answer.id)
+            tasks.created_post.spool(pid=answer.id)
 
             # Anchor location to recently created answer
             url = answer.get_absolute_url()
@@ -354,8 +353,7 @@ def new_post(request):
             post = auth.create_post(title=title, content=content, post_type=post_type,
                                     tag_val=tag_val, author=author)
 
-            if tasks.HAS_UWSGI:
-                tasks.created_post(pid=post.id)
+            tasks.created_post.spool(pid=post.id)
 
             return redirect(post.get_absolute_url())
 
@@ -382,8 +380,6 @@ def post_moderate(request, uid):
             duplicate = form.cleaned_data["dupe"]
             pid = form.cleaned_data.get("pid", "")
             redir = auth.moderate_post(post=post, request=request, action=action, dupes=duplicate, pid=pid)
-            if tasks.HAS_UWSGI:
-                tasks.moderated_post(pid=post.id)
             return redirect(redir)
         else:
             messages.error(request, "Invalid moderation error.")

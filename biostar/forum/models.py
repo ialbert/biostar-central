@@ -9,7 +9,6 @@ from django.db.models import F
 from django.db.models.signals import post_save
 from django.shortcuts import reverse
 from django.dispatch import receiver
-from django.template import loader
 from taggit.managers import TaggableManager
 
 
@@ -196,7 +195,7 @@ class Post(models.Model):
         self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
-        self.html = markdown.parse(self.content)#, post_uid=self.root.uid)
+        self.html = markdown.parse(self.content, post=self)
 
         # Set the rank
         self.rank = self.lastedit_date.timestamp()
@@ -393,48 +392,41 @@ def create_sub(user, root):
     Create a user subscription to root upon creation
     """
 
-    sub = Subscription.objects.filter(post=root, user=user).first()
-    # Update an existing subscriptions
-    if sub:
-        return sub
-    date = util.now()
-    # Create new subscriptions
-    Subscription.objects.create(post=root, user=user, date=date)
-    # Increase the subscription count of the root.
-    Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
-    logger.info(f"Created a subscription for user:{user} to root:{root.title}")
+    sub, created = Subscription.objects.get_or_create(post=root, user=user)
+    if created:
+        # Increase the subscription count of the root.
+        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+        logger.debug(f"Created a subscription for user:{user} to root:{root.title}")
 
-    return
+    return sub
 
 
 def subscription_msg(post, author):
     """
-    Send subscribed users, excluding author, a message.
+    Send subscribed users, excluding author, a message/email.
     """
-    from . import tasks, auth
-    # Default message body
-    body_template = "default_messages/subscription.html"
+    from . import tasks
+
+    # Template used to send local messages
+    local_template = "default_messages/subscription_message.html"
+    # Template used to send emails with
+    email_template = "default_messages/subscription_email.html"
     context = dict(post=post)
-    tmpl = loader.get_template(template_name=body_template)
-    body = tmpl.render(context)
 
-    subs = Subscription.objects.filter(post=post.root)
-    id_list = subs.values_list("user", flat=True).distinct()
-    # Get the subscribed users
-    users = User.objects.exclude(id=author.pk).filter(id__in=id_list)
+    # Everyone subscribed gets a local message
+    subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
+    user_ids = subs.values("user").distinct()
+    users = User.objects.filter(id__in=user_ids)
+    tasks.send_message.spool(template=local_template, context=context, rec_list=users, sender=author)
 
-    # Send message to subscribed users.
-    # Asynchronously sent when uwsgi is active
-    if tasks.HAS_UWSGI:
-        # Assign a worker to send mentioned users
-        tasks.async_create_messages(sender=author, body=body, rec_list=users)
-        return
-    else:
-        auth.create_local_messages(body=body, rec_list=users, sender=author)
+    # Send emails to users that specified "email" or "default"
+    email_subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
+    email_list = email_subs.values_list("user__email", flat=True)
+    from_email = settings.ADMIN_EMAIL
 
+    tasks.send_email.spool(template=email_template, context=context, subject="Subscription",
+                           email_list=email_list, from_email=from_email)
     logger.info(f"Sent to subscription message to users:{users}")
-
-    return
 
 
 @receiver(post_save, sender=Post)

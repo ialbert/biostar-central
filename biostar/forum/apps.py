@@ -36,13 +36,13 @@ def init_awards(sender,  **kwargs):
             badge.type = obj.type
             badge.save()
 
-        logger.info("initializing badge %s" % badge)
+        #logger.info("initializing badge %s" % badge)
 
 
 def init_post(sender,  **kwargs):
     from biostar.accounts.apps import init_users
     from django.contrib.auth import get_user_model
-    from . import auth
+    from . import auth, tasks
     from .models import Post
 
     # Only initialize when debugging

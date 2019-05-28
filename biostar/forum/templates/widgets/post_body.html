@@ -25,7 +25,7 @@
         {#  Voting regions #}
         <div class="votebox">
 
-            <button class="ui icon button vote" id="vote" data-value="{{ post.uid }}" data-type="upvote"
+            <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="upvote"
                     data-position="right center" data-state="{{ post.has_upvote }}">
                 <i class="thumbs up icon "></i>
             </button>
@@ -36,6 +36,15 @@
                     data-position="right center" data-state="{{ post.has_bookmark }}">
                 <i class="bookmark icon "></i>
             </button>
+
+            {% if post.can_accept %}
+            <div class="top-padding">
+                <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="accept"
+                        data-position="right center" data-state="{{ post.accept_count }}">
+                    <i class="check circle icon "></i>
+                </button>
+            </div>
+            {% endif %}
 
         </div>
 
