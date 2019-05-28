@@ -9,7 +9,6 @@ from django.db.models import F
 from django.db.models.signals import post_save
 from django.shortcuts import reverse
 from django.dispatch import receiver
-from django.template import loader
 from taggit.managers import TaggableManager
 
 from biostar.emailer.auth import notify
@@ -365,40 +364,29 @@ def create_sub(user, root):
 
 def subscription_msg(post, author):
     """
-    Send subscribed users, excluding author, a message.
+    Send subscribed users, excluding author, a message/email.
     """
     from . import tasks
 
-    title = post.title
-
-    # Local message template
+    # Template used to send local messages
     local_template = "default_messages/subscription_message.html"
+    # Template used to send emails with
+    email_template = "default_messages/subscription_email.html"
     context = dict(post=post)
-    tmpl = loader.get_template(template_name=local_template)
-    body = tmpl.render(context)
-
-    subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
-    id_list = subs.values_list("user", flat=True).distinct()
 
     # Everyone subscribed gets a local message
-    users = User.objects.filter(id__in=id_list)
+    subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
+    user_ids = subs.values("user").distinct()
+    users = User.objects.filter(id__in=user_ids)
+    tasks.send_message.spool(template=local_template, context=context, rec_list=users, sender=author)
 
-    tasks.send_message(subject=title, body=body, rec_list=users, sender=author)
-
-    # Email and default types get an additional email
-
+    # Send emails to users that specified "email" or "default"
     email_subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
     email_list = email_subs.values_list("user__email", flat=True)
-
     from_email = settings.ADMIN_EMAIL
 
-    # Email message template
-    email_template = "default_messages/subscription_email.html"
-    if tasks.HAS_UWSGI:
-        tasks.async_send_email(email_list, context, from_email, subject="", template=email_template, send=True)
-    else:
-        notify(template_name=email_template, email_list=email_list, extra_context=context, from_email=from_email,
-               subject="Subscription", send=True)
+    tasks.send_email.spool(template=email_template, context=context, subject="Subscription",
+                           email_list=email_list, from_email=from_email)
 
     logger.debug(f"Sent to subscription messages to users:{users}")
 

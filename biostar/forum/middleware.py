@@ -31,10 +31,7 @@ def forum_middleware(get_response):
             logout(request)
 
         # Check the user profile.
-        if tasks.HAS_UWSGI:
-            tasks.async_check_profile(request=request, user_id=user.id)
-        else:
-            accounts_auth.check_user_profile(request=request, user=user)
+        tasks.check_profile.spool(request=request, user=user)
 
         last_login = user.profile.last_login or user.profile.date_joined
         elapsed = (now() - last_login).total_seconds()
