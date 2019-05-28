@@ -22,7 +22,7 @@ REPLIES_FEED_COUNT = 15
 
 SINGLE_FEED_COUNT = 40
 
-SESSION_UPDATE_SECONDS = 1
+SESSION_UPDATE_SECONDS = 30
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
@@ -38,11 +38,16 @@ FORUM_APPS = [
     'pagedown'
 ]
 
+# Additional middleware.
+MIDDLEWARE += [
+    'biostar.forum.middleware.forum_middleware',
+]
+
 # Import the default pagedown css first, then our custom CSS sheet
- # to avoid having to specify all the default styles
+# to avoid having to specify all the default styles
 PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css', "lib/pagedown.css",)
 
-INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + MESSAGE_APPS + ACCOUNTS_APPS
+INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + MESSAGE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 ROOT_URLCONF = 'biostar.forum.urls'
 

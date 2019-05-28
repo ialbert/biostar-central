@@ -72,10 +72,10 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     elif topic == MYPOSTS and user.is_authenticated:
         query = Post.objects.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
-        # TODO: switching to votes
-        # votes_query = Vote.objects.filter(post__author=user).exclude(author=user)
+        #TODO: change making 2 hit to db
+        votes = Vote.objects.filter(post__author=user).exclude(author=user)
         # query = votes_query.values("post")
-        query = Post.objects.filter(votes__post__author=user).exclude(votes__author=user)
+        query = Post.objects.filter(votes__in=votes)
     else:
         query = Post.objects.filter(type__in=Post.TOP_LEVEL)
 

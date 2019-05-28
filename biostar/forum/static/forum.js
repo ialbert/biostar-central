@@ -206,7 +206,7 @@ $(document).ready(function () {
                       if (data.status === 'error') {
                           popup_message(elem, data.msg, data.status);
                       } else {
-                          // Replace the current item with the select item.
+                          // Replace current item with the select one.
                           active.text($selectedItem.text());
                       }
 
@@ -260,15 +260,8 @@ $(document).ready(function () {
         container.after(page)
     });
 
-    $('pre').addClass('language-bash');
-        Prism.highlightAll();
-
-
-
     $('.vote').each(function (event) {
-
         var elem = $(this);
-
         var data_state = elem.attr('data-state');
 
         // Set the on class if the vote is selected.
@@ -284,6 +277,9 @@ $(document).ready(function () {
             apply_vote(elem, post_uid, data_type);
         });
     });
+
+    $('pre').addClass('language-bash');
+        Prism.highlightAll();
 
 })
 ;

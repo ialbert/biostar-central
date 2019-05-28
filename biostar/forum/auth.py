@@ -9,7 +9,6 @@ from django.db.models import F
 from django.utils.timezone import utc
 
 from biostar.accounts.models import Profile
-from biostar.message import tasks
 from . import util
 from .const import *
 from .models import Post, Vote, Subscription, PostView
@@ -34,6 +33,9 @@ def get_votes(user, root):
 
     return store
 
+
+def is_suspended(user):
+    return user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED)
 
 
 def post_tree(user, root):
@@ -109,25 +111,6 @@ def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
         PostView.objects.create(ip=ip, post=post, date=now)
         Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
     return post
-
-
-def create_sub(post, user, sub_type=None):
-    "Creates a subscription of a user to a post"
-
-    # Get root post to subscribe to
-    root = post.root
-    sub = Subscription.objects.filter(post=root, user=user).first()
-    date = util.now()
-    # Update an existing subscriptions
-    if sub:
-        Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
-        return sub
-    # Create new subscriptions
-    sub = Subscription.objects.create(post=root, user=user, type=sub_type, date=date)
-    # Increase the subscription count of the root.
-    Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
-
-    return sub
 
 
 @transaction.atomic
@@ -266,7 +249,5 @@ def create_post(author, content, post_type, title="Title", tag_val="tag1, tag2",
 
     # Trigger notifications for subscribers and mentioned users
     # async or synchronously
-    #tasks.send_mentioned(post)
-    #tasks.send_subs(post=post.root, subs=)
 
     return post

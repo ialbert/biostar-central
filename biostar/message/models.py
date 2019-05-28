@@ -27,7 +27,7 @@ class MessageManager(models.Manager):
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
         return super().get_queryset().select_related("sender", "recipient",
-                                                                           "sender__profile", "recipient__profile")
+                                                     "sender__profile", "recipient__profile")
 
     def inbox_for(self, user):
         "Returns all messages that were received by the given user"
@@ -63,6 +63,7 @@ class BlockList(models.Model):
         self.uid = self.uid or util.get_uuid(8)
         super(BlockList, self).save(**kwargs)
 
+
 # Connects user to message bodies
 class Message(models.Model):
     "Connects recipients to sent messages"
@@ -72,10 +73,10 @@ class Message(models.Model):
 
     PROJECTS, MENTIONED, REGULAR = range(3)
     SOURCE_TYPE_CHOICES = [
-                            (PROJECTS, "From project discussion"),
-                            (MENTIONED, "Mentioned in a post"),
-                            (REGULAR, "Regular")
-                            ]
+        (PROJECTS, "From project discussion"),
+        (MENTIONED, "Mentioned in a post"),
+        (REGULAR, "Regular")
+    ]
     source = models.IntegerField(choices=SOURCE_TYPE_CHOICES, default=REGULAR, db_index=True)
 
     SPAM, VALID, UNKNOWN = range(3)
@@ -96,7 +97,7 @@ class Message(models.Model):
     recipient_deleted = models.BooleanField(default=False)
 
     body = models.TextField(max_length=MAX_TEXT_LEN)
-    html = models.TextField(default='', max_length= MAX_TEXT_LEN * 10)
+    html = models.TextField(default='', max_length=MAX_TEXT_LEN * 10)
     unread = models.BooleanField(default=True)
     sent_date = models.DateTimeField(db_index=True, null=True)
 
@@ -118,7 +119,7 @@ class Message(models.Model):
 
 
 @receiver(post_save, sender=Message)
-def update_new_messages(sender, instance, created, *args, **kwargs ):
+def update_new_messages(sender, instance, created, *args, **kwargs):
     "Update the user's new_messages flag on creation"
 
     if created:
