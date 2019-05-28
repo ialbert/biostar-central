@@ -34,6 +34,9 @@ def get_votes(user, root):
     return store
 
 
+def is_suspended(user):
+    return user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED)
+
 
 def post_tree(user, root):
     """

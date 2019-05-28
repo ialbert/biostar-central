@@ -43,6 +43,7 @@ class Profile(models.Model):
 
     LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
     MESSAGING_TYPE_CHOICES = [
+        (NO_MESSAGES, "no messages"),
         (DEFAULT_MESSAGES, "default"),
         (LOCAL_MESSAGE, "local messages"),
         (EMAIL_MESSAGE, "email"),

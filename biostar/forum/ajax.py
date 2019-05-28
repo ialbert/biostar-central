@@ -53,8 +53,8 @@ def ajax_test(request):
     return ajax_error(msg=msg)
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+@ratelimit(key='ip', rate='500/h')
+@ratelimit(key='ip', rate='25/m')
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
     was_limited = getattr(request, 'limited', False)

@@ -36,7 +36,7 @@ def init_awards(sender,  **kwargs):
             badge.type = obj.type
             badge.save()
 
-        logger.info("initializing badge %s" % badge)
+        #logger.info("initializing badge %s" % badge)
 
 
 def init_post(sender,  **kwargs):

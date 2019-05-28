@@ -7,7 +7,7 @@ from django.conf import settings
 from biostar.accounts.models import Profile
 import biostar.accounts.auth as accounts_auth
 from .util import now
-from . import tasks
+from . import tasks, auth
 from .models import Post, Vote
 
 
@@ -25,7 +25,7 @@ def forum_middleware(get_response):
             return get_response(request)
 
         # Banned and suspended users are not allowed
-        if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
+        if auth.is_suspended(user=user):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
             logout(request)
 

@@ -387,7 +387,6 @@ def subscription_msg(post, author):
 
     # Email and default types get an additional email
     email_subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
-
     to_emails = email_subs.values_list("user__email", flat=True).exclude(id=author.pk).distinct()
 
     from_email = settings.ADMIN_EMAIL

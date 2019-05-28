@@ -207,7 +207,7 @@ def icon(user):
 
 @register.filter
 def show_score(score):
-    score = (score * 10) + 1
+    score = (score * 10)
     return score
 
 
