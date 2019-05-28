@@ -5,11 +5,9 @@ from django.contrib.auth import logout
 from django.conf import settings
 
 from biostar.accounts.models import Profile
-import biostar.accounts.auth as accounts_auth
-from biostar.message.models import Message
 from .util import now
 from . import tasks, auth
-from .models import Post, Vote
+from .models import Post, Vote, Message
 
 
 logger = logging.getLevelName("biostar")
