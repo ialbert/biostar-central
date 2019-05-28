@@ -99,8 +99,8 @@ class MonkeyPatch(InlineLexer):
 
 class BiostarInlineLexer(MonkeyPatch):
 
-    def __init__(self, post_uid=None, *args, **kwargs):
-        self.post_uid = post_uid
+    def __init__(self, root=None, *args, **kwargs):
+        self.root = root
         super(BiostarInlineLexer, self).__init__(*args, **kwargs)
 
     def enable_post_link(self):
@@ -120,14 +120,11 @@ class BiostarInlineLexer(MonkeyPatch):
         if user:
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
-            post = Post.objects.filter(uid=self.post_uid).first()
-            print(post, self.post_uid)
             # Subscribe mentioned users to post.
-            if post:
-                Subscription.objects.get_or_create(user=user, post=post)
-                Post.objects.filter(pk=post.root.pk).update(subs_count=F('subs_count') + 1)
-                1/0
-
+            if self.root:
+                sub, created = Subscription.objects.get_or_create(user=user, post=self.root)
+                if created:
+                    Post.objects.filter(pk=self.root.pk).update(subs_count=F('subs_count') + 1)
         else:
             link = m.group(0)
         # Send notification message to user.
@@ -209,14 +206,15 @@ class BiostarInlineLexer(MonkeyPatch):
         return f'<a href="{link}">{link}</a>'
 
 
-def parse(text, post_uid=None):
+def parse(text, post=None):
     """
     Parses markdown into html.
     Expands certain patterns into HTML.
     """
 
+    root = post.parent.root if post and post.parent else None
     renderer = Renderer(escape=True, hard_wrap=True)
-    inline = BiostarInlineLexer(renderer=renderer, post_uid=post_uid)
+    inline = BiostarInlineLexer(renderer=renderer, root=root)
     inline.enable_post_link()
     inline.enable_mention_link()
 
