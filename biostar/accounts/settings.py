@@ -15,6 +15,7 @@ LOGIN_PRIVATE_KEY = "private-key"
 # In MB
 MAX_UPLOAD_SIZE = 10
 
+MESSAGES_PER_PAGE = 5
 # The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 

@@ -1,17 +1,15 @@
-import mistune
-from difflib import SequenceMatcher
+
 from pagedown.widgets import PagedownWidget
 from django import forms
-from .models import Post
+
 from django.core.exceptions import ValidationError
-from django.db.models import F
 from django.conf import settings
-from biostar.utils import markdown
 from biostar.accounts.models import User
-from biostar.forum.awards import *
-from biostar.forum import models, auth, util
+from .models import Post
+from biostar.forum import models
 
 from .const import *
+
 # Share logger with models
 logger = models.logger
 

@@ -287,7 +287,7 @@ class Subscription(models.Model):
     date = models.DateTimeField()
 
     def __str__(self):
-        return "%s to %s" % (self.user.profile.name, self.post.title)
+        return f"{self.user.profile.name} to {self.post.title}"
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
@@ -346,45 +346,6 @@ class Award(models.Model):
         # Set the date to current time if missing.
         self.uid = self.uid or util.get_uuid(limit=16)
         super(Award, self).save(*args, **kwargs)
-
-
-# Connects user to message bodies
-class Message(models.Model):
-    "Connects recipients to sent messages"
-
-    SPAM, VALID, UNKNOWN = range(3)
-    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Not spam"), (UNKNOWN, "Unknown")]
-    spam = models.IntegerField(choices=SPAM_CHOICES, default=UNKNOWN)
-
-    uid = models.CharField(max_length=32, unique=True)
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", on_delete=models.CASCADE)
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-    subject = models.CharField(max_length=120)
-
-    body = models.TextField(max_length=MAX_TEXT_LEN)
-    html = models.TextField(default='', max_length=MAX_TEXT_LEN * 10)
-    unread = models.BooleanField(default=True)
-    sent_date = models.DateTimeField(db_index=True, null=True)
-
-    def save(self, *args, **kwargs):
-        self.html = self.html or mistune.markdown(self.body)
-        self.uid = self.uid or util.get_uuid(15)
-        super(Message, self).save(**kwargs)
-
-    def __str__(self):
-        return f"Message {self.sender}, {self.recipient}"
-
-
-@receiver(post_save, sender=Message)
-def update_new_messages(sender, instance, created, *args, **kwargs ):
-    "Update the user's new_messages flag on creation"
-
-    if created:
-        # Add 1 to recipient's new messages once uponce creation
-        user = instance.recipient
-        msgs = F('new_messages')
-        Profile.objects.filter(user=user).update(new_messages=msgs + 1)
 
 
 def create_sub(user, root):

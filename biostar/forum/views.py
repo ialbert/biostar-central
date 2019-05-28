@@ -9,10 +9,9 @@ from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
 
-from biostar.accounts.models import Profile
 from . import forms, auth, tasks, util
 from .const import *
-from .models import Post, Vote, Badge, Message
+from .models import Post, Vote, Badge
 
 
 User = get_user_model()
@@ -68,30 +67,10 @@ def post_exists(func):
         uid = kwargs.get('uid')
         post = Post.objects.filter(uid=uid).exists()
         if not post:
-            messages.error(request, "Object does not exist.")
+            messages.error(request, "Post does not exist.")
             return redirect(reverse("post_list"))
         return func(request, **kwargs)
     return _wrapper_
-
-
-@login_required
-def message_list(request):
-    """
-    Show messages belonging to user.
-    """
-    user = request.user
-    page = request.GET.get("page", 1)
-    msgs = Message.objects.filter(recipient=user)
-    msgs = msgs.select_related("sender", "sender__profile")
-    msgs = msgs.order_by("-sent_date")
-    # Get the pagination info
-    paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
-    msgs = paginator.get_page(page)
-
-    context = dict(tab="messages", all_messages=msgs)
-    Profile.objects.filter(user=user).update(new_messages=0)
-
-    return render(request, "message/message_list.html", context)
 
 
 def get_posts(user, show="latest", tag="", order="rank", limit=None):

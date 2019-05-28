@@ -42,9 +42,6 @@ urlpatterns = [
     # Community urls
     url(r'^community/$', views.community_list, name='community_list'),
 
-    # Message urls
-    url(r'^inbox/$', views.message_list, name='inbox'),
-
     # Include the accounts urls
     url(r'^accounts/', include(account_patterns)),
 

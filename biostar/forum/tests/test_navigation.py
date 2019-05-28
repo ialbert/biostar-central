@@ -48,7 +48,6 @@ class ForumNavigation(TestCase):
         "Checking public forum pages"
 
         urls = [
-            reverse("inbox"),
             reverse("post_list"),
             reverse("bookmarks"),
             reverse("following"),

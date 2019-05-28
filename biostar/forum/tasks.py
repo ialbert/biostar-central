@@ -27,7 +27,7 @@ def created_post(pid):
 
 def send_message(template, context, sender, rec_list):
     from django.template import loader
-    from .auth import create_local_messages
+    from biostar.accounts.auth import create_local_messages
     # Render the template
     tmpl = loader.get_template(template_name=template)
     body = tmpl.render(context)
@@ -37,8 +37,8 @@ def send_message(template, context, sender, rec_list):
 
 
 def check_profile(request, user):
-    from biostar.accounts import auth
-    auth.check_user_profile(request=request, user=user)
+    from biostar.accounts.auth import check_user_profile
+    check_user_profile(request=request, user=user)
     logger.info(f"Checked user profile user={user}")
 
 

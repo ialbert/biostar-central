@@ -4,10 +4,10 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.conf import settings
 
-from biostar.accounts.models import Profile
+from biostar.accounts.models import Profile, Message
 from .util import now
 from . import tasks, auth
-from .models import Post, Vote, Message
+from .models import Post, Vote
 
 
 logger = logging.getLevelName("biostar")

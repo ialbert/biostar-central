@@ -209,7 +209,7 @@ def parse(text, post=None):
     Expands certain patterns into HTML.
     """
     # Resolve the root
-    root = post.parent.root if post and post.parent else None
+    root = post.parent.root if (post and post.parent) else None
     renderer = Renderer(escape=True, hard_wrap=True)
     inline = BiostarInlineLexer(renderer=renderer, root=root)
     inline.enable_post_link()
