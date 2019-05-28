@@ -1,4 +1,5 @@
 import logging
+import bleach
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -82,7 +83,7 @@ def init_users():
 
 
 def init_messages():
-
+    from django.template import loader
     from django.contrib.auth import get_user_model
     from biostar.accounts import  auth
 
@@ -95,16 +96,19 @@ def init_messages():
         sender = User.objects.create(email=email, username="admin", is_superuser=True)
         sender.set_password(email)
 
-    body = "Hello from the biostar developers, we hope you enjoy the website."
-    subject = "Welcome to the biostar-engine!"
+    tmpl_name = "messages/welcome.html"
+    tmpl = loader.get_template(template_name=tmpl_name)
+    context = dict()
+    html = tmpl.render(context)
+    body = bleach.clean(html)
 
     test_2 = User.objects.filter(username="tested").first()
     if not test_2:
         # Create user and send message once.
         test_2 = User.objects.create(username="tested", email="tested@tested")
         recipient_list = [sender, test_2]
-        auth.create_local_messages(body=body, subject=subject, rec_list=recipient_list,
-                                   sender=sender)
+        auth.create_local_messages(body=body, rec_list=recipient_list, sender=sender, html=html)
+
 
 def init_site():
     """

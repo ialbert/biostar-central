@@ -14,15 +14,17 @@ from .tokens import account_verification_token
 logger = logging.getLogger('engine')
 
 
-def create_local_messages(body, sender, rec_list, subject="", uid=None):
-    "Create batch message from sender for a given recipient_list"
+def create_local_messages(body, sender, rec_list, subject="", html='', uid=None):
+    """
+    Create batch message from sender for a given recipient_list
+    """
 
     msgs = []
     for rec in rec_list:
         actual_uid = uid or util.get_uuid(10)
         sent_date = util.now()
         msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, sent_date=sent_date,
-                                     uid=actual_uid, body=body)
+                                     uid=actual_uid, body=body, html=html)
 
         msgs.append(msg)
 
@@ -30,7 +32,9 @@ def create_local_messages(body, sender, rec_list, subject="", uid=None):
 
 
 def check_user(email, password):
-    "Used to validate user across apps. Returns a tuple ( login message, False or True )"
+    """
+    Used to validate user across apps. Returns a tuple ( login message, False or True )
+    """
 
     user = User.objects.filter(email__iexact=email).order_by('-id').first()
 

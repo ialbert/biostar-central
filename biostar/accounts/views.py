@@ -138,6 +138,9 @@ def message_list(request):
     msgs = Message.objects.filter(recipient=user)
     msgs = msgs.select_related("sender", "sender__profile")
     msgs = msgs.order_by("-sent_date")
+    # Update the unread flag
+    #Message.objects.filter(id__in=msgs).update(unread=False)
+
     # Get the pagination info
     paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
     msgs = paginator.get_page(page)
@@ -145,7 +148,7 @@ def message_list(request):
     context = dict(tab="messages", all_messages=msgs)
     Profile.objects.filter(user=user).update(new_messages=0)
 
-    return render(request, "accounts/message_list.html", context)
+    return render(request, "messages/message_list.html", context)
 
 
 def user_profile(request, uid):

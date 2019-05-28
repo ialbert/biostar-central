@@ -369,9 +369,9 @@ def subscription_msg(post, author):
     from . import tasks
 
     # Template used to send local messages
-    local_template = "default_messages/subscription_message.html"
+    local_template = "messages/subscription_message.html"
     # Template used to send emails with
-    email_template = "default_messages/subscription_email.html"
+    email_template = "messages/subscription_email.html"
     context = dict(post=post)
 
     # Everyone subscribed gets a local message

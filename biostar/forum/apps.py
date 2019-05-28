@@ -42,7 +42,7 @@ def init_awards(sender,  **kwargs):
 def init_post(sender,  **kwargs):
     from biostar.accounts.apps import init_users
     from django.contrib.auth import get_user_model
-    from . import auth, tasks
+    from . import auth, tasks, ajax
     from .models import Post
 
     # Only initialize when debugging
