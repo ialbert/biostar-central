@@ -195,7 +195,7 @@ class Post(models.Model):
         self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
-        self.html = markdown.parse(self.content)#, post_uid=self.root.uid)
+        self.html = markdown.parse(self.content, post=self)
 
         # Set the rank
         self.rank = self.lastedit_date.timestamp()
