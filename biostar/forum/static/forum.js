@@ -185,8 +185,11 @@ $(document).ready(function () {
     $('#subscribe')
         .dropdown({
           action:'hide',
-          onChange: function (value, text, $selectedItem) {
+          onChange: function (value, text, $item) {
           var elem = $(this);
+
+          console.log(elem.id);
+
           // Get the root id
           var post_id = elem.attr("data-uid");
           // Currently selected item
@@ -207,7 +210,7 @@ $(document).ready(function () {
                           popup_message(elem, data.msg, data.status);
                       } else {
                           // Replace current item with the select one.
-                          active.text($selectedItem.text());
+                          active.text($item.text());
                       }
 
                   }

@@ -3,33 +3,33 @@
 <div class="ui top attached text menu" id="menu-topics">
 
     <a class="item {% activate tab "latest" %}" href="{% url 'post_list' %}">
-        Latest
+        <i class="list ol icon"></i> Latest
     </a>
     <a class="item {% activate tab "open" %}" href="{% url 'post_list' %}?type=open">
-        Open
+        <i class="question circle outline icon"></i> Open
     </a>
     <a class="item {% activate tab "rna-seq" %}" href="{% url 'post_list' %}?tag=rna-seq">
-        RNA-Seq
+       <i class="tag icon"></i>  RNA-Seq
     </a>
 
     <a class="item {% activate tab "chip-seq" %}" href="{% url 'post_list' %}?tag=chip-seq">
-        ChIP-Seq
+        <i class="tag icon"></i> ChIP-Seq
     </a>
 
     <a class="item {% activate tab "SNP" %}" href="{% url 'post_list' %}?tag=SNP">
-        SNP
+        <i class="tag icon"></i> SNP
     </a>
 
     <a class="item {% activate tab "tutorial" %}" href="{% url 'post_list' %}?type=tutorial">
-        Tutorials
+        <i class="tag icon"></i> Tutorials
     </a>
 
     <a class="item {% activate tab "job" %}" href="{% url 'post_list' %}?type=job">
-        Jobs
+        <i class="tag icon"></i> Jobs
     </a>
 
     <a class="item {% activate tab "forum" %}" href="{% url 'post_list' %}?type=forum">
-        Forum
+        <i class="tag icon"></i> Forum
     </a>
 
     <div class="right menu">

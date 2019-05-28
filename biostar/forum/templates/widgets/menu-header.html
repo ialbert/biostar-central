@@ -4,7 +4,7 @@
 <div class="ui labeled icon attached pointing menu" id="menu-header" user-id="{{ request.user.id }}">
 
     <div class="header item" id="logo">
-        <a href="/"><img class="ui image" src="{% static "images/biostar-logo.png" %}"></a>
+        <a href="/"><img class="ui image"  src="{% static "images/logo.svg" %}"></a>
     </div>
 
     <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
@@ -41,11 +41,11 @@
     {% else %}
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
             <i class="mail icon"> </i>
-            Messages {% if request.session.counts.msgs %} ({{request.session.counts.msgs}}){% endif %}
+            Messages {%  count_label label="message_count" %}
         </a>
         <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
             <i class="heart icon centericon"></i>
-            Votes{% if request.session.counts.votes %} ({{ request.session.counts.votes }}){% endif %}
+            Votes {%  count_label label="vote_count" %}
         </a>
 
         <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">

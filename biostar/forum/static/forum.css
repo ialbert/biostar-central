@@ -4,12 +4,11 @@ body {
 }
 
 #logo {
-    padding: 1px 10px;
+    padding: 10px;
+    width: 220px;
 }
 
 #menu-header .item {
-    vertical-align: bottom;
-
     color: #333333;
 }
 #menu-header .item::before {
@@ -26,13 +25,18 @@ body {
 
 #menu-topics .item.active {
     color: #1a69a4;
-    text-decoration: underline;
+    font-weight: bold;
+    //text-decoration: underline;
 }
 
 #new {
     color: #1a69a4;
 }
 
+#menu-header .item.new {
+    color: green;
+    font-weight: bold;
+}
 
 .padded {
    padding: 0.0rem 0rem 0.5rem 0rem;
