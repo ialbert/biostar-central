@@ -90,8 +90,15 @@ except (ModuleNotFoundError, NameError) as exc:
     pass
 
 
+
 def foo_task(*args, **kwargs):
     print (f"Task called with {args} and {kwargs}")
+
+if HAS_UWSGI:
+    spool_decorate(f, pass_arguments, _spool)
+else:
+    foo_task.spool = foo_task
+
 
 def send_message(subject, body, rec_list, sender, parent=None, uid=None):
     # Create asynchronously when uwsgi is available
