@@ -61,7 +61,6 @@ def post_tree(user, root):
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
 
-
     # Gather votes by the current user.
     votes = get_votes(user=user, root=root)
 
@@ -146,8 +145,8 @@ def apply_vote(post, user, vote_type):
 
         # Handle accepted vote.
         if vote_type == Vote.ACCEPT:
-            Post.objects.filter(uid=post.uid).update(accept_count=F('accept_count') + 1)
-            Post.objects.filter(uid=post.root.uid).update(accept_count=F('accept_count') + 1)
+            Post.objects.filter(uid=post.uid).update(accept_count=F('accept_count') + change)
+            Post.objects.filter(uid=post.root.uid).update(accept_count=F('accept_count') + change)
 
     return msg, vote, change
 
