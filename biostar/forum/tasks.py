@@ -35,7 +35,7 @@ def send_message(template, context, sender, rec_list):
     html = tmpl.render(context)
     body = strip_tags(html)
 
-    # Send the local message
+    # Send local message
     create_local_messages(body=body, sender=sender, rec_list=rec_list, html=html)
 
 

@@ -77,6 +77,7 @@ def post_tree(user, root):
         post.has_bookmark = int(post.id in bookmarks)
         post.has_upvote = int(post.id in upvotes)
         post.can_accept = not post.is_toplevel and user == post.root.author
+        post.can_moderate = user.is_authenticated and user.profile.is_moderator
         post.is_editable = user.is_authenticated and (user == post.author or user.profile.is_moderator)
         return post
 

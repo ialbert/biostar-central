@@ -122,22 +122,6 @@ def is_unread(user, message):
     return ""
 
 
-@register.filter
-def subtype(post, user):
-    unsubbed = "not following"
-    type_map = {Profile.LOCAL_MESSAGE: "messages", Profile.EMAIL_MESSAGE: "email",
-                Profile.DEFAULT_MESSAGES: "default", Profile.NO_MESSAGES: unsubbed}
-
-    if user.is_anonymous:
-        return unsubbed
-    # Get the user subscriptions
-    sub = Subscription.objects.filter(post=post, user=user).first()
-
-    stype = type_map.get(sub.type, unsubbed) if sub else unsubbed
-
-    return stype
-
-
 @register.simple_tag(takes_context=True)
 def follow_label(context, post):
     user = context["request"].user
