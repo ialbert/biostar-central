@@ -41,7 +41,7 @@
     {% else %}
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
             <i class="mail icon"> </i>
-            Messages {% if user.profile.new_messages %} ({{user.profile.new_messages}}){% endif %}
+            Messages {% if request.session.counts.msgs %} ({{request.session.counts.msgs}}){% endif %}
         </a>
         <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
             <i class="heart icon centericon"></i>

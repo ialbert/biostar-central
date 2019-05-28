@@ -116,14 +116,3 @@ class Message(models.Model):
     @property
     def from_mentions(self):
         return self.source == self.MENTIONED
-
-
-@receiver(post_save, sender=Message)
-def update_new_messages(sender, instance, created, *args, **kwargs):
-    "Update the user's new_messages flag on creation"
-
-    if created:
-        # Add 1 to recipient's new messages once uponce creation
-        user = instance.recipient
-        msgs = F('new_messages')
-        Profile.objects.filter(user=user).update(new_messages=msgs + 1)

@@ -66,7 +66,7 @@ class EmailTemplate(object):
     def send(self, context, from_email, recipient_list):
 
         recipients = ", ".join(recipient_list)
-        logger.info(f"sending email to: {recipients}")
+        logger.debug(f"sending email to: {recipients}")
 
         subj, text, html = self.render(context)
 
