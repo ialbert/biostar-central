@@ -1,15 +1,12 @@
 import logging
-from datetime import datetime, timedelta
-from django.utils.timezone import utc
+from urllib.request import urlopen
+import json
 from biostar.accounts.models import User, Profile
-from biostar.forum.models import Award, Badge, Post
-from biostar.forum.awards import ALL_AWARDS
-from biostar.forum import util
-from biostar.message.models import Message
-from django.template import loader
+from biostar.accounts import auth as accounts_auth
 
-from django.conf import settings
-from django.core.mail import send_mail
+from biostar.emailer.auth import notify
+from biostar.message.auth import create_local_messages
+
 
 logger = logging.getLogger("engine")
 
@@ -17,23 +14,6 @@ HAS_UWSGI = False
 
 
 COUNTER = 1
-
-
-def send_award_messages(award):
-    """ Send local message to user when award is won"""
-
-    user = award.user
-
-    award_template = "message/award_creation.html"
-    # Generate the message from the template.
-    content = util.render(name=award_template, award=award, user=user)
-
-    subject = "Congratulations: you won %s" % award.badge.name
-
-    # Create the message body.
-    Message.objects.create(user=user, subject=subject, body=content,)
-
-    return
 
 
 def days_to_secs(days=1):
@@ -51,48 +31,36 @@ try:
     HAS_UWSGI = True
 
     @spool(pass_arguments=True)
-    def create_user_awards(user_id):
+    def async_check_profile(request, user_id):
+        user = User.objects.filter(id=user_id)
+        accounts_auth.check_user_profile(request=request, user=user)
+        logger.info(f"Checked user profile user={user}")
 
-        user = User.objects.filter(id=user_id).first()
-        awards = dict()
-        for award in Award.objects.filter(user=user).select_related('badge'):
-            awards.setdefault(award.badge.name, []).append(award)
+    @spool(pass_arguments=True)
+    def async_create_messages(subject, sender, body, rec_list, parent=None, uid=None):
+        """
+        Create messages to users in recipient list
+        """
+        # Assign a task to a a worker
+        create_local_messages(body=body, subject=subject, rec_list=rec_list, sender=sender, parent=parent, uid=uid)
 
-        get_award_count = lambda name: len(awards[name]) if name in awards else 0
 
-        for obj in ALL_AWARDS:
+    @spool(pass_arguments=True)
+    def async_send_email(template, emails, context, from_email, subject, send=False):
+        notify(template_name=template, email_list=emails,
+               extra_context=context, from_email=from_email,
+               subject=subject, send=True)
 
-            # How many times has been awarded to this user.
-            seen_count = get_award_count(obj.name)
+        # template = "default_messages/subscription_msg.html"
+        #
+        # context = dict(post=post)
+        # tmpl = loader.get_template(template_name=template)
+        # body = tmpl.render(context)
+        #
+        # subs = Subscription.objects.filter(post=post.root)
+        # subs = subs.exclude(type=Profile.NO_MESSAGES)
+        # id_list = subs.values_list("user", flat=True).exclude(id=author.pk).distinct()
 
-            # How many times should it been awarded
-            valid_targets = obj.validate(user)
-
-            # Keep that targets that have not been awarded
-            valid_targets = valid_targets[seen_count:]
-
-            # Some limit on awards
-            valid_targets = valid_targets[:100]
-
-            # Award the targets
-            for target in valid_targets:
-                # Update the badge counts.
-                badge = Badge.objects.filter(name=obj.name)
-                badge.count += 1
-                badge.save()
-                date = user.profile.last_login
-
-                if isinstance(target, Post):
-                    award = Award.objects.create(user=user, badge=badge, date=date, post=target)
-                else:
-                    award = Award.objects.create(user=user, badge=badge, date=date)
-
-                send_award_messages(award=award)
-                logger.info("award %s created for %s" % (award.badge.name, user.email))
-
-        return
-
-    def check_user_profile(ip, user):
         return
 
     @spool(pass_arguments=True)
@@ -120,3 +88,26 @@ except (ModuleNotFoundError, NameError) as exc:
     HAS_UWSGI = False
     logger.error(exc)
     pass
+
+
+def send_message(subject, body, rec_list, sender, parent=None, uid=None):
+    # Create asynchronously when uwsgi is available
+    if HAS_UWSGI:
+        # Assign a worker to send mentioned users
+        async_create_messages(sender=sender, subject=subject, body=body,
+                              rec_list=rec_list, parent=parent, uid=uid)
+        return
+
+    # Send messages synchronously
+    create_local_messages(body=body, sender=sender, subject=subject, rec_list=rec_list,
+                          parent=parent, uid=uid)
+    return
+
+
+def send_email():
+    return
+
+
+
+
+

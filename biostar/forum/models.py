@@ -9,10 +9,10 @@ from django.db.models import F
 from django.db.models.signals import post_save
 from django.shortcuts import reverse
 from django.dispatch import receiver
+from django.template import loader
 from taggit.managers import TaggableManager
 
-from biostar.message import tasks
-
+from biostar.emailer.auth import notify
 from biostar.accounts.models import Profile
 from . import util
 
@@ -196,7 +196,7 @@ class Post(models.Model):
         self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
-        self.html = markdown.parse(self.content)#, uid=self.root.uid)
+        self.html = markdown.parse(self.content)#, post_uid=self.root.uid)
 
         # Set the rank
         self.rank = self.lastedit_date.timestamp()
@@ -353,6 +353,7 @@ def create_sub(user, root):
     """
     Create a user subscription to root upon creation
     """
+
     sub = Subscription.objects.filter(post=root, user=user).first()
     # Update an existing subscriptions
     if sub:
@@ -367,29 +368,43 @@ def create_sub(user, root):
     return
 
 
-def subscription_msg(root, author):
+def subscription_msg(post, author):
     """
     Send subscribed users, excluding author, a message.
     """
-    # Get message sender
-    sender = User.objects.filter(is_superuser=True).first()
-    title = root.title
-    # Default message body
-    body = f"""
-          Hello,\n
-          There is an addition by {root.author.profile.name} to a post you are subscribed to.\n
-          Post: {title}\n
-          Addition: {root.content}\n
-          """
-    # Get the subscribed users
-    subs = Subscription.objects.filter(post=root)
-    id_list = subs.values_list("user", flat=True).distinct()
-    users = User.objects.exclude(id=author.pk).filter(id__in=id_list)
-    subject = "Subscription to a post."
+    from . import tasks
 
-    # Send message to subscribed users.
-    tasks.send_message(subject=subject, body=body, rec_list=users, sender=sender)
-    logger.info(f"Sent to subscriptions to users:{users}")
+    title = post.title
+    # Default message body
+    template = "default_messages/subscription_msg.html"
+    context = dict(post=post)
+    tmpl = loader.get_template(template_name=template)
+    body = tmpl.render(context)
+
+    subs = Subscription.objects.filter(post=post.root)
+    subs = subs.exclude(type=Profile.NO_MESSAGES)
+    id_list = subs.values_list("user", flat=True).exclude(id=author.pk).distinct()
+
+    # Everyone subscribed gets a local message
+    users = User.objects.filter(id__in=id_list)
+    tasks.send_message(subject=title, body=body, rec_list=users, sender=author)
+
+    # Email and default types get an additional email
+    subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
+
+    emails = subs.values_list("user__email", flat=True).exclude(id=author.pk).distinct()
+    from_email = settings.ADMIN_EMAIL
+    print(emails)
+
+    # Send emails asynchronously
+    if tasks.HAS_UWSGI:
+        tasks.async_send_email(emails, context, from_email, subject="", template=template, send=True)
+    else:
+        notify(template_name=template, email_list=emails,
+               extra_context=context, from_email=from_email,
+               subject="Subscription", send=True)
+
+    logger.info(f"Sent to subscription messages to users:{users}")
 
     return
 
@@ -458,10 +473,9 @@ def complete_post(sender, instance, created, *args, **kwargs):
 
         # Update last contributor to the thread.
         instance.root.last_contributor = instance.last_contributor
-
-        # Subscribe the author to the root
-        create_sub(user=instance.author, root=root)
-
-        # Send subscription messages
-        subscription_msg(root=instance.root, author=instance.author)
         instance.save()
+
+        create_sub(user=instance.author, root=instance.root)
+        # Send subscription messages
+        subscription_msg(post=instance, author=instance.author)
+
