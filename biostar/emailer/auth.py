@@ -38,7 +38,7 @@ def notify(template_name, email_list, extra_context={}, from_email=None, subject
         return False
     try:
         # Generate emails.
-        logger.info(f"Emails from={from_email} to email_list={email_list} using template:{template_name}")
+        logger.debug(f"Emails from={from_email} to email_list={email_list} using template:{template_name}")
 
         # The object that parsers the template.
         email = sender.EmailTemplate(template_name)
@@ -52,7 +52,7 @@ def notify(template_name, email_list, extra_context={}, from_email=None, subject
         if send and email_list:
             # Send the emails.
             send_all()
-            logger.info("Emails have been sent")
+            logger.info(f"Emails have been sent to { len(email_list) } accounts.")
 
     except Exception as exc:
         logger.error(f"Mailing error : {exc}")

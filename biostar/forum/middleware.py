@@ -6,6 +6,7 @@ from django.conf import settings
 
 from biostar.accounts.models import Profile
 import biostar.accounts.auth as accounts_auth
+from biostar.message.models import Message
 from .util import now
 from . import tasks, auth
 from .models import Post, Vote
@@ -44,8 +45,9 @@ def forum_middleware(get_response):
             Profile.objects.filter(user=user).update(last_login=now())
 
             # Store the counts in the session.
+            msgs = Message.objects.filter(recipient=user, unread=True, sent_date__gt=last_login).count()
             votes = Vote.objects.filter(post__author=user, date__gt=last_login).exclude(author=user).count()
-            counts = dict(votes=votes)
+            counts = dict(votes=votes, msgs=msgs)
             request.session["counts"] = counts
 
         response = get_response(request)

@@ -49,18 +49,7 @@ try:
     def async_send_email(template, emails, context, from_email, subject, send=False):
         notify(template_name=template, email_list=emails,
                extra_context=context, from_email=from_email,
-               subject=subject, send=True)
-
-        # template = "default_messages/subscription_msg.html"
-        #
-        # context = dict(post=post)
-        # tmpl = loader.get_template(template_name=template)
-        # body = tmpl.render(context)
-        #
-        # subs = Subscription.objects.filter(post=post.root)
-        # subs = subs.exclude(type=Profile.NO_MESSAGES)
-        # id_list = subs.values_list("user", flat=True).exclude(id=author.pk).distinct()
-
+               subject=subject, send=send)
         return
 
     @spool(pass_arguments=True)

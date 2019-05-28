@@ -61,6 +61,7 @@ def get_messages(user, listing, limit=0, order="sent"):
                                "recipient__profile")
     return msgs
 
+
 @login_required
 def message_list(request, listing="inbox"):
 
@@ -74,6 +75,8 @@ def message_list(request, listing="inbox"):
     #print(request.GET.get("active", None))
 
     messages = get_messages(user=request.user, listing=listing, limit=limit, order=order)
+    # Switch the unread flag
+    Message.objects.filter(pk__in=messages).update(unread=False)
 
     # Get the pagination info
     paginator = Paginator(messages, settings.MESSAGES_PER_PAGE)
@@ -82,7 +85,7 @@ def message_list(request, listing="inbox"):
     context = dict(tab="messages", all_messages=messages, order=order, limit=limit,
                    tab_name=listing)
 
-    Profile.objects.filter(user=user).update(new_messages=0)
+    #Profile.objects.filter(user=user).update(new_messages=0)
 
     return render(request, "message/message_list.html", context)
 

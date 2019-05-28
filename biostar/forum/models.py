@@ -358,7 +358,7 @@ def create_sub(user, root):
     if created:
         # Increase the subscription count of the root.
         Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
-        logger.info(f"Created a subscription for user:{user} to root:{root.title}")
+        logger.debug(f"Created a subscription for user:{user} to root:{root.title}")
 
     return sub
 
@@ -377,30 +377,30 @@ def subscription_msg(post, author):
     tmpl = loader.get_template(template_name=local_template)
     body = tmpl.render(context)
 
-    subs = Subscription.objects.filter(post=post.root)
-    subs = subs.exclude(type=Profile.NO_MESSAGES)
-    id_list = subs.values_list("user", flat=True).exclude(id=author.pk).distinct()
+    subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
+    id_list = subs.values_list("user", flat=True).distinct()
 
     # Everyone subscribed gets a local message
     users = User.objects.filter(id__in=id_list)
+
     tasks.send_message(subject=title, body=body, rec_list=users, sender=author)
 
     # Email and default types get an additional email
+
     email_subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
-    to_emails = email_subs.values_list("user__email", flat=True).exclude(id=author.pk).distinct()
+    email_list = email_subs.values_list("user__email", flat=True)
 
     from_email = settings.ADMIN_EMAIL
 
-    # Email template
+    # Email message template
     email_template = "default_messages/subscription_email.html"
     if tasks.HAS_UWSGI:
-        tasks.async_send_email(to_emails, context, from_email, subject="", template=email_template, send=True)
+        tasks.async_send_email(email_list, context, from_email, subject="", template=email_template, send=True)
     else:
-        notify(template_name=email_template, email_list=to_emails,
-               extra_context=context, from_email=from_email,
+        notify(template_name=email_template, email_list=email_list, extra_context=context, from_email=from_email,
                subject="Subscription", send=True)
 
-    logger.info(f"Sent to subscription messages to users:{users}")
+    logger.debug(f"Sent to subscription messages to users:{users}")
 
     return
 
