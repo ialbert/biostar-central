@@ -21,7 +21,7 @@ def forum_middleware(get_response):
 
         user, session = request.user, request.session
 
-        # Anonymous users are left alone
+        # Anonymous users are not processed.
         if user.is_anonymous:
             return get_response(request)
 
@@ -42,9 +42,12 @@ def forum_middleware(get_response):
             Profile.objects.filter(user=user).update(last_login=now())
 
             # Store the counts in the session.
-            msgs = Message.objects.filter(recipient=user, unread=True, sent_date__gt=last_login).count()
-            votes = Vote.objects.filter(post__author=user, date__gt=last_login).exclude(author=user).count()
-            counts = dict(votes=votes, msgs=msgs)
+            message_count = Message.objects.filter(recipient=user, unread=True).count()
+            print (message_count)
+            vote_count = Vote.objects.filter(post__author=user, date__gt=last_login).exclude(author=user).count()
+
+            # Save the counts into the session.
+            counts = dict(message_count=message_count, vote_count=vote_count)
             request.session["counts"] = counts
 
         response = get_response(request)

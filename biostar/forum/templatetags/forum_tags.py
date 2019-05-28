@@ -41,10 +41,30 @@ ICON_MAP = dict(
 )
 
 
-@register.simple_tag
-def activate(state, target):
-    return "active" if state == target else ""
+@register.simple_tag(takes_context=True)
+def activate(context, state, target):
 
+    label = "active" if state == target else ""
+    request = context['request']
+    count = 0
+
+    # Special casing a few targets to generate an extra css class.
+    if target == "messages":
+        count = request.session.get("counts", {}).get("message_count", 0)
+    elif target == "votes":
+        count = request.session.get("counts", {}).get("vote_count", 0)
+
+    # Generate a broader css if necessary.
+    label = f"new {label}" if count else label
+
+    return label
+
+@register.simple_tag(takes_context=True)
+def count_label(context, label):
+    request = context['request']
+    count = request.session.get("counts", {}).get(label, 0)
+    label = f"({count})" if count else ""
+    return label
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
@@ -108,9 +128,9 @@ def subtype(post, user):
 
     return stype
 
+
 @register.simple_tag(takes_context=True)
 def follow_label(context, post):
-
     user = context["request"].user
 
     not_following = "not following"

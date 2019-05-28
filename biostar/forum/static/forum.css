@@ -25,14 +25,18 @@ body {
 
 #menu-topics .item.active {
     color: #1a69a4;
+    font-weight: bold;
     //text-decoration: underline;
-
 }
 
 #new {
     color: #1a69a4;
 }
 
+#menu-header .item.new {
+    color: green;
+    font-weight: bold;
+}
 
 .padded {
    padding: 0.0rem 0rem 0.5rem 0rem;

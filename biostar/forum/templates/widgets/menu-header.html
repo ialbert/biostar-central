@@ -41,11 +41,11 @@
     {% else %}
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
             <i class="mail icon"> </i>
-            Messages {% if request.session.counts.msgs %} ({{request.session.counts.msgs}}){% endif %}
+            Messages {%  count_label label="message_count" %}
         </a>
         <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
             <i class="heart icon centericon"></i>
-            Votes{% if request.session.counts.votes %} ({{ request.session.counts.votes }}){% endif %}
+            Votes {%  count_label label="vote_count" %}
         </a>
 
         <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
