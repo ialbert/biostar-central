@@ -79,6 +79,9 @@ except (ModuleNotFoundError, NameError) as exc:
     pass
 
 
+def foo_task(*args, **kwargs):
+    print (f"Task called with {args} and {kwargs}")
+
 def send_message(subject, body, rec_list, sender, parent=None, uid=None):
     # Create asynchronously when uwsgi is available
     if HAS_UWSGI:
