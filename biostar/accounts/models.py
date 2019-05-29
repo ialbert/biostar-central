@@ -158,20 +158,20 @@ class Message(models.Model):
     body = models.TextField(max_length=MAX_TEXT_LEN)
     html = models.TextField(default='', max_length=MAX_TEXT_LEN * 10)
     unread = models.BooleanField(default=True)
-    sent_date = models.DateTimeField(db_index=True, auto_now_add=True, null=True)
+    sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
         self.html = self.html or mistune.markdown(self.body)
-        self.uid = self.uid or generate_uuid(10)
         super(Message, self).save(**kwargs)
 
     def __str__(self):
         return f"Message {self.sender}, {self.recipient}"
 
 
-@receiver(post_save, sender=Message)
-def finalize_message(sender, instance, created, raw, using, **kwargs):
+@receiver(pre_save, sender=Message)
+def finalize_message(sender, instance, *args, **kwargs):
     instance.sent_date = instance.sent_date or util.now()
+    instance.uid = instance.uid or generate_uuid(10)
 
 
 @receiver(pre_save, sender=User)
