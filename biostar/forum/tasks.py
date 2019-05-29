@@ -25,12 +25,17 @@ def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-def send_message(template, context, sender, rec_list):
-    from biostar.accounts.auth import create_local_messages
+def send_message(template, context, sender, subs=[]):
+    from biostar.accounts import auth, models
 
+    # Exclude current author of the post from receiving a message.
+    user_ids = subs.values("user").exclude(user=sender).distinct()
+
+    users = models.User.objects.filter(id__in=user_ids)
     # Send local message
-    create_local_messages(template=template, sender=sender, rec_list=rec_list, context=context)
+    auth.create_local_messages(template=template, sender=sender, rec_list=users, context=context)
 
+    logger.debug(f"Sent to subscription message to {len(users)} users.")
 
 def check_profile(request, user):
     from biostar.accounts.auth import check_user_profile
