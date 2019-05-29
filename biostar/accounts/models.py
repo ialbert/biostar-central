@@ -192,6 +192,6 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         name, email = settings.ADMINS[0]
         sent_by = User.objects.filter(email=email).first()
         context = dict(sender=sent_by)
-        auth.create_local_messages(template=tmpl_name, rec_list=[instance], sender=sent_by, context=context)
+        auth.create_messages(template=tmpl_name, rec_list=[instance], sender=sent_by, context=context)
 
     instance.username = instance.username or f"user-{instance.pk}"

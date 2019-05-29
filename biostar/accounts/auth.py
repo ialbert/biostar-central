@@ -16,7 +16,7 @@ from .tokens import account_verification_token
 logger = logging.getLogger('engine')
 
 
-def create_local_messages(template, sender, rec_list, context={}, subject=""):
+def create_messages(template, sender, rec_list, context={}, subject=""):
     """
     Create batch message from sender for a given recipient_list
     """

@@ -32,10 +32,11 @@ def send_message(template, context, sender, subs=[]):
     user_ids = subs.values("user").exclude(user=sender).distinct()
 
     users = models.User.objects.filter(id__in=user_ids)
-    # Send local message
-    auth.create_local_messages(template=template, sender=sender, rec_list=users, context=context)
+    # Send local messages
+    auth.create_messages(template=template, sender=sender, rec_list=users, context=context)
 
     logger.debug(f"Sent to subscription message to {len(users)} users.")
+
 
 def check_profile(request, user):
     from biostar.accounts.auth import check_user_profile
