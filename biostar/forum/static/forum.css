@@ -98,12 +98,14 @@ a:hover {
     padding: 0.2em;
 }
 
-.profile > .item {
+.profile tbody td {
     padding: 1ex!important;
+    width: 50%;
 }
 
-.profile > .item:nth-child(even) {
-    background: #F8F8FE;
+.profile tbody > tr > td:first-child {
+    font-weight: bold;
+    text-align: right;
 }
 
 .notify {

@@ -79,7 +79,8 @@ def init_users():
             user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
             user.save()
 
-            Profile.objects.filter(user__pk=user.pk).update(location="", name=name, text="Admin User.")
+            text = "I am not really a user but a background process tasked with the essential duty of keeping things tidy."
+            Profile.objects.filter(user__pk=user.pk).update(location="Server Farm", name=name, text=text, html=text)
             logger.info(f"Created admin user: {user.email}, {user.username}")
         else:
             logger.info(f"Admin user: {user.email}, {user.username} exists.")

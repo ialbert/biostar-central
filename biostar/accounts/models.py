@@ -100,7 +100,7 @@ class Profile(models.Model):
     my_tags = models.CharField(default="", max_length=255, blank=True)
 
     # Description provided by the user html.
-    text = models.TextField(default="No information", null=True, max_length=MAX_TEXT_LEN, blank=True)
+    text = models.TextField(default="No profile information", null=True, max_length=MAX_TEXT_LEN, blank=True)
 
     # The html version of the user information.
     html = models.TextField(null=True, max_length=MAX_TEXT_LEN, blank=True)

@@ -44,68 +44,67 @@
         <div class="column">
 
 
-            <div class="profile ui relaxed divided list profile">
+            <div class="ui center aligned basic segment">
 
-                <div class="item">
-                    <div class="content">
-                            <span class="ui header">
+                <span class="ui centered header">
                             {{ target.profile.name }}
                             {% user_icon user=target %}
                 </span>
 
-                    </div>
-                </div>
+                <table class="ui very basic table profile">
+                    <tbody>
 
 
-                {%  if target.profile.is_moderator %}
-                <div class="item">
-                    <div class="content">
-                        <b>Role:</b> {{ target.profile.get_role_display }}
-                    </div>
-                </div>
-                {%  endif %}
-            
-                 <div class="item">
-                    <div class="content">
-                        <b>Status:</b> {{ target.profile.get_state_display }}
-                    </div>
-                </div>
 
-                  <div class="item">
-                    <div class="content">
-                        <b>Handle:</b> @{{ target.username }}
-                    </div>
-                </div>
+                    {% if target.profile.is_moderator %}
+                        <tr>
+                            <td>Role:</td>
+                            <td>{{ target.profile.get_role_display }}</td>
+                        </tr>
+                    {% endif %}
 
-                <div class="item">
-                    <div class="content">
-                        <b>Reputation:</b> {% user_score user=target %}
-                    </div>
-                </div>
+                    <tr>
+                        <td>Status:</td>
+                        <td>{{ target.profile.get_state_display }}</td>
+                    </tr>
 
-                <div class="item">
-                    <div class="content">
-                        <b>Email:</b> {{ target|show_email:request.user }}
-                    </div>
-                </div>
+                    <tr>
+                        <td>Handle:</td>
+                        <td> @{{ target.username }}</td>
+                    </tr>
 
-                <div class="item">
-                    <div class="content">
-                        <b>Joined:</b> {{ target.profile.date_joined|time_ago }}
-                    </div>
-                </div>
+                    <tr>
+                        <td>Status:</td>
+                        <td>{{ target.profile.get_state_display }}</td>
+                    </tr>
 
-                <div class="item">
-                    <div class="content">
-                        <b>Last seen:</b> {{ target.profile.last_login |time_ago }}
-                    </div>
-                </div>
+                    <tr>
+                        <td>Reputation:</td>
+                        <td>{% user_score user=target %}</td>
+                    </tr>
 
-                <div class="item">
-                    <div class="content">
-                        <b>Location:</b> {{ target.profile.location }}
-                    </div>
-                </div>
+                    <tr>
+                        <td>Email:</td>
+                        <td>{{ target|show_email:request.user }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Joined:</td>
+                        <td>{{ target.profile.date_joined|time_ago }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Last seen:</td>
+                        <td>{{ target.profile.last_login |time_ago }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Location:</td>
+                        <td>{{ target.profile.location }}</td>
+                    </tr>
+
+                    </tbody>
+                </table>
 
             </div>
 
@@ -116,7 +115,7 @@
 
                 <div class="item">
                     <div class="content">
-                        {{ target.profile.html |safe }}
+                        <p>{{ target.profile.html |safe }}</p>
                     </div>
                 </div>
             </div>
