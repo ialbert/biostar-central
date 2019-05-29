@@ -1,19 +1,14 @@
 import logging
-from urllib.request import urlopen
-import json
+from biostar.accounts.tasks import detect_location
 
-
-logger = logging.getLogger("engine")
-
-HAS_UWSGI = False
+logger = logging.getLogger("biostar")
 
 try:
     from uwsgidecorators import *
     HAS_UWSGI = True
-
 except (ModuleNotFoundError, NameError) as exc:
     HAS_UWSGI = False
-    logger.error(exc)
+    logger.warn(exc)
     pass
 
 
@@ -37,11 +32,6 @@ def send_message(template, context, sender, subs=[]):
 
     logger.debug(f"Sent to subscription message to {len(users)} users.")
 
-def check_profile(request, user):
-    from biostar.accounts.auth import check_user_profile
-    check_user_profile(request=request, user=user)
-    logger.info(f"Checked user profile user={user}")
-
 
 def send_email(template, context, subject, email_list, from_email):
     from biostar.emailer.auth import notify
@@ -49,16 +39,15 @@ def send_email(template, context, subject, email_list, from_email):
            extra_context=context, from_email=from_email,
            subject=subject, send=True)
 
-
 if HAS_UWSGI:
     info_task = spool(info_task, pass_arguments=True)
     send_message = spool(send_message, pass_arguments=True)
-    check_profile = spool(send_message, pass_arguments=True)
+    detect_location = spool(detect_location, pass_arguments=True)
     send_email = spool(send_email, pass_arguments=True)
     created_post = spool(created_post, pass_arguments=True)
 else:
     info_task.spool = info_task
     send_message.spool = send_message
-    check_profile.spool = check_profile
+    detect_location.spool = detect_location
     send_email.spool = send_email
     created_post.spool = created_post

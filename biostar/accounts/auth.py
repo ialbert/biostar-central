@@ -64,30 +64,6 @@ def check_user(email, password):
     return "Invalid fallthrough", False
 
 
-def check_user_profile(request, user):
-
-    # Get the ip information
-    ip1 = request.META.get('REMOTE_ADDR', '')
-    ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
-    ip = ip1 or ip2 or '0.0.0.0'
-
-    logger.debug(f"profile check from {ip} on {user}")
-    # Check and log location.
-    if not user.profile.location:
-        try:
-            url = f"http://api.hostip.info/get_json.php?ip={ip}"
-            req = Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
-            user_info = urlopen(req, timeout=3).read()
-            logger.debug(f"{ip}, {user}, {url}")
-
-            data = hjson.loads(user_info)
-            location = data.get('country_name', '').title()
-            location = "localhost" if ip in ('127.0.0.1') else location
-
-            if "unknown" not in location.lower():
-                Profile.objects.filter(user=user).update(location=location)
-        except Exception as exc:
-            logger.error(exc)
 
 
 def send_verification_email(user):

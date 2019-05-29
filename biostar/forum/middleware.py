@@ -28,8 +28,9 @@ def forum_middleware(get_response):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
             logout(request)
 
-        # Check the user profile.
-        tasks.check_profile.spool(request=request, user=user)
+
+        # Detect user location.
+        tasks.detect_location.spool(request=request, user=user)
 
         last_login = user.profile.last_login or user.profile.date_joined
         elapsed = (now() - last_login).total_seconds()
@@ -41,7 +42,7 @@ def forum_middleware(get_response):
 
             # Store the counts in the session.
             message_count = Message.objects.filter(recipient=user, unread=True).count()
-            print(message_count)
+
             vote_count = Vote.objects.filter(post__author=user, date__gt=last_login).exclude(author=user).count()
 
             # Save the counts into the session.
