@@ -28,14 +28,12 @@ def form_errors(form):
     return context
 
 
-
 @register.inclusion_tag('widgets/show_messages.html')
 def show_messages(messages):
     """
     Renders the messages
     """
     return dict(messages=messages)
-
 
 
 def pluralize(value, word):

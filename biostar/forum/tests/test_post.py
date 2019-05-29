@@ -71,17 +71,20 @@ class PostTest(TestCase):
 
     def test_ajax_subs(self):
 
-        return
+        for stype in ["unfollow", "messages", "email", "all", "default"]:
 
-    def make_votes(self, post, user):
+            data = {"sub_type": stype, "root_uid": self.post.uid}
+            request = fake_request(url=reverse('vote'), data=data, user=self.owner)
+            response = ajax.ajax_subs(request)
+            self.assertEqual(response.status_code, 200, f"Could not preform subscription action:{stype}.")
 
+    def preform_votes(self, post, user):
         for vtype in ["upvote", "bookmark", "accept"]:
 
             data = {"vote_type": vtype, "post_uid": post.uid}
             request = fake_request(url=reverse('vote'), data=data, user=user)
             response = ajax.ajax_vote(request)
-            self.assertEqual(response.status_code, 302,
-                             f"Could not redirect :\nresponse:{response}")
+            self.assertEqual(response.status_code, 200, f"Could not preform vote:{vtype}.")
 
     def test_ajax_vote(self):
         """Test the ajax voting using POST request """
@@ -91,9 +94,9 @@ class PostTest(TestCase):
         answer = auth.create_post(title="answer", author=user2, content="tested foo bar too for",
                                   post_type=models.Post.ANSWER, parent=self.post)
 
-        self.make_votes(post=answer, user=self.owner)
-        self.make_votes(post=self.post, user=self.owner)
-        self.make_votes(post=self.post, user=user2)
+        self.preform_votes(post=answer, user=self.owner)
+        self.preform_votes(post=self.post, user=self.owner)
+        self.preform_votes(post=self.post, user=user2)
 
         return
 
