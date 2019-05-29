@@ -68,7 +68,7 @@ class PostTest(TestCase):
         response = views.post_view(request=request, uid=self.post.uid)
 
         self.assertTrue(response.status_code == 200, 'Error rendering comments')
-        
+
     def test_ajax_subs(self):
 
         return

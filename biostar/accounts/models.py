@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timedelta
 
 import mistune
 from django.conf import settings
@@ -6,8 +7,15 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-
+from django.utils.timezone import utc
 from biostar.accounts import util
+
+
+def fixcase(name):
+    return name.upper() if len(name) == 1 else name.lower()
+
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
 
 MAX_UID_LEN = 255
 MAX_NAME_LEN = 255
@@ -61,7 +69,10 @@ class Profile(models.Model):
     # Maximum amount of uploaded files a user is allowed to aggregate, in mega-bytes.
     max_upload_size = models.IntegerField(default=0)
 
+    # The role of the user.
     role = models.IntegerField(default=READER, choices=ROLE_CHOICES)
+
+    # The date the user last logged in.
     last_login = models.DateTimeField(null=True, max_length=255, db_index=True)
 
     # The number of new messages for the user.
@@ -119,6 +130,8 @@ class Profile(models.Model):
         self.html = self.html or mistune.markdown(self.text)
         self.max_upload_size = self.max_upload_size or settings.MAX_UPLOAD_SIZE
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
+        self.date_joined = self.date_joined or now()
+        self.last_login = self.last_login or now()
         super(Profile, self).save(*args, **kwargs)
 
     @property
@@ -187,3 +200,4 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
 
         # Create welcome message upon profile creation.
         auth.create_messages(template="messages/welcome.html", rec_list=[instance])
+

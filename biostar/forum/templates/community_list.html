@@ -17,7 +17,8 @@
         <div class="ui small compact menu no-shadow" >
           <div class="ui simple dropdown item">
             <i class="{% get_icon string=active default='all' %}"></i>
-            <span class="tablet">{% get_wording prefix="Limit to:" filtered=active default="all" %}</span>
+
+              <span class="tablet">{% get_wording prefix="Limit to:" filtered=active default="all" %}</span>
             <i class="dropdown icon"></i>
 
             <div class="menu">
@@ -79,32 +80,12 @@
 
 <div class="ui basic segment">
 
-    <div class="ui nine column grid">
+    <div class="ui six column grid">
               {%  for user in users %}
 
                 <div class="column">
 
-                    <div class="ui fluid card" href="{% url "user_profile" user.profile.uid %}">
-
-                        <a class="image" href="{% url "user_profile" user.profile.uid %}">
-                            <img src="{% gravatar user=user size=50 %}" >
-                        </a>
-
-                        <div class="center aligned content">
-                            <a  class="center aligned small header" href="{% url "user_profile" user.profile.uid %}">
-                            {{user.profile.name|truncatechars:6}}
-
-                            </a>
-                            {% user_stats user=user %}
-                        </div>
-
-                        <div class="extra content">
-                            <div>{{ user|get_user_location|truncatechars:7}}</div>
-                            {{ user|get_last_login|truncatechars:7 }}
-                        </div>
-
-                    </div>
-
+                  {% user_card user %}
 
                 </div>
 

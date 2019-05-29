@@ -86,6 +86,11 @@ a:hover {
     overflow: hidden;
 }
 
+.user_card {
+    text-align: center;
+    overflow: hidden;
+}
+
 .user_box div {
     text-align: center;
     margin-left: auto;
