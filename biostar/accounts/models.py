@@ -121,14 +121,6 @@ class Profile(models.Model):
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         super(Profile, self).save(*args, **kwargs)
 
-    def can_moderate(self, source):
-        "Check if the current user can moderate the target"
-
-        if source == self.user:
-            return False
-
-        return source.is_authenticated and (source.profile.is_manager or source.profile.is_moderator)
-
     @property
     def is_moderator(self):
         # Managers can moderate as well.
