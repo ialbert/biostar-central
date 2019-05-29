@@ -9,65 +9,65 @@
 
     <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
         <i class="world icon"></i>
-        Community
+        <span class="tablet">Community</span>
     </a>
 
     {% if user.is_anonymous %}
 
         <a class="item disabled" href="#">
             <i class="mail icon"> </i>
-            Messages
+            <span class="tablet">Messages</span>
         </a>
         <a class="item disabled" href="#">
-            <i class="heart icon centericon"></i>
-            Votes
+            <i class="heart icon"></i>
+            <span class="tablet">Votes</span>
         </a>
 
         <a class="item disabled" href="#">
             <i class="comments icon"></i>
-            My Posts
+            <span class="tablet">My Posts</span>
         </a>
 
         <a class="item disabled" href="#">
             <i class="eye icon"></i>
-            Following
+            <span class="tablet">Following</span>
         </a>
 
         <a class="item disabled" href="#">
             <i class="book icon"></i>
-            Bookmarks
+            <span class="tablet">Bookmarks</span>
         </a>
 
     {% else %}
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
             <i class="mail icon"> </i>
-            Messages {%  count_label label="message_count" %}
+            <span class="tablet">Messages </span>{%  count_label label="message_count" %}
         </a>
         <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
             <i class="heart icon centericon"></i>
-            Votes {%  count_label label="vote_count" %}
+            <span class="tablet">Votes</span> {%  count_label label="vote_count" %}
         </a>
 
         <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
             <i class="comments icon"></i>
-            My Posts
+            <span class="tablet">My Posts</span>
         </a>
 
         <a class="item {% activate tab "following" %}" href="{% url 'following' %}">
             <i class="eye icon"></i>
-            Following
+            <span class="tablet">Following</span>
         </a>
 
         <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
             <i class="book icon"></i>
-            Bookmarks
+            <span class="tablet">Bookmarks</span>
         </a>
     {% endif %}
     <div class="right menu">
         <a class="item {% activate tab "new" %}" id="new" href="{% url 'post_create' %}"
            data-content="Create New Posts">
             <i class="edit icon"></i>
-            New Post
+            <span class="tablet">New Post</span>
         </a>
 
     </div>
