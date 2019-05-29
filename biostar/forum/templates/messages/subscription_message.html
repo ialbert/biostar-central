@@ -1,4 +1,6 @@
 
 <a href="{% url 'user_profile' post.author.profile.uid %}">
 {{ post.author.profile.name }}</a> wrote on
-<a href="{{ post.get_absolute_url }}">{{ post.title }}</a> : {{post.content}}
+<a href="{{ post.get_absolute_url }}">{{ post.title }}</a> :
+<p>  </p>
+<p>{{post.content}}</p>
