@@ -33,6 +33,6 @@ class Command(BaseCommand):
 
         logger.info("sending to %s" % recipient_list)
 
-        auth.notify(template_name="test_email.html", email_list=recipient_list,
-                    from_email=from_email, subject=subject, send=send)
+        auth.send(template_name="test_email.html", email_list=recipient_list,
+                  from_email=from_email, subject=subject, send=send)
 

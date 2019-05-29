@@ -8,7 +8,7 @@ from django.contrib import auth
 from django.conf import settings
 from django.template import loader
 
-from biostar.emailer.auth import notify
+from biostar.emailer.auth import send
 from .models import User, Profile, Message
 from . import util, const
 from .tokens import account_verification_token
@@ -69,8 +69,6 @@ def validate_login(email, password):
     return "Invalid fallthrough", False
 
 
-
-
 def send_verification_email(user):
 
     from_email = settings.DEFAULT_FROM_EMAIL
@@ -81,8 +79,8 @@ def send_verification_email(user):
     context = dict(token=token, userid=userid, user=user)
 
     # Send the verification email
-    notify(template_name=template, email_list=email_list,
-           extra_context=context, from_email=from_email,
-           subject="Verify your email", send=True)
+    send(template_name=template, email_list=email_list,
+         extra_context=context, from_email=from_email,
+         subject="Verify your email", send=True)
 
     return True

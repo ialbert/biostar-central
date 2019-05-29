@@ -34,10 +34,10 @@ def send_message(template, context, sender, subs=[]):
 
 
 def send_email(template, context, subject, email_list, from_email):
-    from biostar.emailer.auth import notify
-    notify(template_name=template, email_list=email_list,
-           extra_context=context, from_email=from_email,
-           subject=subject, send=True)
+    from biostar.emailer.auth import send
+    send(template_name=template, email_list=email_list,
+         extra_context=context, from_email=from_email,
+         subject=subject, send=True)
 
 
 if HAS_UWSGI:
