@@ -40,7 +40,7 @@
     <div class="column">
          <a  class="ui header" >
              {{target.profile.name}}
-        {{ target |show_score_icon }}{{ target.profile.score | show_score }}
+             {% user_stats user=target %}
         </a>
 
         <div>

@@ -26,17 +26,10 @@ def created_post(pid):
 
 
 def send_message(template, context, sender, rec_list):
-    from django.template import loader
     from biostar.accounts.auth import create_local_messages
-    from .util import strip_tags
-
-    # Render the template
-    tmpl = loader.get_template(template_name=template)
-    html = tmpl.render(context)
-    body = strip_tags(html)
 
     # Send local message
-    create_local_messages(body=body, sender=sender, rec_list=rec_list, html=html)
+    create_local_messages(template=template, sender=sender, rec_list=rec_list, context=context)
 
 
 def check_profile(request, user):

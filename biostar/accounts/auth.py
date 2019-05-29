@@ -1,10 +1,12 @@
 import hjson
+import bleach
 from urllib.request import urlopen, Request
 import logging
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.contrib import auth
 from django.conf import settings
+from django.template import loader
 
 from biostar.emailer.auth import notify
 from .models import User, Profile, Message
@@ -14,10 +16,13 @@ from .tokens import account_verification_token
 logger = logging.getLogger('engine')
 
 
-def create_local_messages(body, sender, rec_list, subject="", html='', uid=None):
+def create_local_messages(template, sender, rec_list, context={}, subject="", uid=None):
     """
     Create batch message from sender for a given recipient_list
     """
+    tmpl = loader.get_template(template_name=template)
+    html = tmpl.render(context)
+    body = bleach.clean(html)
 
     msgs = []
     for rec in rec_list:
@@ -77,6 +82,8 @@ def check_user_profile(request, user):
 
             data = hjson.loads(user_info)
             location = data.get('country_name', '').title()
+            location = "localhost" if ip in ('127.0.0.1') else location
+
             if "unknown" not in location.lower():
                 Profile.objects.filter(user=user).update(location=location)
         except Exception as exc:

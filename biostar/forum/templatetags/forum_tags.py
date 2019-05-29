@@ -113,12 +113,10 @@ def show_messages(messages):
     return dict(messages=messages)
 
 
-@register.simple_tag
-def is_unread(user, message):
-
+@register.filter
+def unread(message, user):
     if message.recipient == user and message.unread:
         return "unread-message"
-
     return ""
 
 
@@ -219,29 +217,6 @@ def feed(user):
                    user=user)
 
     return context
-
-
-@register.filter
-def show_score_icon(user):
-    return icon(user)
-
-
-@register.filter
-def icon(user):
-    if user.profile.is_moderator:
-        icon = f'<i class="ui muted bolt icon"></i>'
-    elif user.profile.score > 100:
-        icon = "&bull;"
-    else:
-        icon = "&bull;"
-
-    return mark_safe(icon)
-
-
-@register.filter
-def show_score(score):
-    score = (score * 10)
-    return score
 
 
 @register.simple_tag

@@ -146,7 +146,6 @@ def message_list(request):
     msgs = paginator.get_page(page)
 
     context = dict(tab="messages", all_messages=msgs)
-    Profile.objects.filter(user=user).update(new_messages=0)
 
     return render(request, "messages/message_list.html", context)
 

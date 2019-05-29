@@ -32,6 +32,14 @@ def form_errors(form):
     return context
 
 
+@register.inclusion_tag('widgets/user_stats.html')
+def user_stats(user):
+    score = user.profile.score * 5
+
+    context = dict(user=user, score=bignum(score))
+    return context
+
+
 @register.inclusion_tag('widgets/show_messages.html')
 def show_messages(messages):
     """
@@ -67,7 +75,7 @@ def relative_url(value, field_name, urlencode=None):
     Updates field_name parameters in url with value
     """
     # Create query string with updated field_name, value pair.
-    url = '?{}={}'.format(field_name, value)
+    url = f'?{field_name}={value}'
     if urlencode:
         # Split query string
         querystring = urlencode.split('&')
@@ -77,7 +85,7 @@ def relative_url(value, field_name, urlencode=None):
         # Join the filtered string
         encoded_querystring = '&'.join(filtered_querystring)
         # Update query string
-        url = '{}&{}'.format(url, encoded_querystring)
+        url = f'{url}&{encoded_querystring}'
 
     return url
 
@@ -119,6 +127,9 @@ def time_ago(date):
         unit = '%0.1f years' % diff
     return "%s ago" % unit
 
+
+def user_stats():
+    return
 
 @register.simple_tag
 def gravatar(user, size=80):

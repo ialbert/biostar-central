@@ -16,7 +16,7 @@
 
 <table class="ui very basic striped table">
     {% for message in all_messages %}
-        <tbody class="{% is_unread user=request.user message=message%}">
+        <tbody>
             <tr>
                 <td>
                   <div class="item " style="margin-bottom: 2px;">
@@ -39,5 +39,31 @@
 {% endblock %}
 
 {% block sidebar %}
-Messages sidebar
+
+<div class="ui large biostar-feed">
+
+    <div class="event">
+        <div class="ui container">
+                <b> Messages by: </b>
+                <div class="ui relaxed list" >
+                    {% for message in all_messages %}
+                       <div class="item spaced" >
+                       <img class="ui centered circular image" src="{% gravatar user=user size=30 %}">
+                            <a href="{% url 'user_profile' message.sender.profile.uid %}">
+                                {{ message.sender.profile.name }}
+                                {% user_stats user=message.sender %}
+                            </a>
+
+                       </div>
+                    {% empty %}
+                        <div class="ui message">No messages</div>
+                    {% endfor %}
+                </div>
+        </div>
+    </div>
+
+
+</div>
+
+
 {% endblock %}

@@ -10,7 +10,9 @@
 
     {% if post.is_editable %}
         &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
-        &bull; <a class="moderate-post" data-value="{{ post.uid }}">moderate</a>
+    {% endif %}
+    {% if post.can_moderate %}
+        &bull; <a class="moderate-post" href="#" data-value="{{ post.uid }}">moderate</a>
     {% endif %}
 
     <span class="status muted">

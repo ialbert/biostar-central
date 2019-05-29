@@ -83,7 +83,6 @@ def init_users():
 
 
 def init_messages():
-    from django.template import loader
     from django.contrib.auth import get_user_model
     from biostar.accounts import  auth
 
@@ -97,17 +96,14 @@ def init_messages():
         sender.set_password(email)
 
     tmpl_name = "messages/welcome.html"
-    tmpl = loader.get_template(template_name=tmpl_name)
     context = dict()
-    html = tmpl.render(context)
-    body = bleach.clean(html)
 
     test_2 = User.objects.filter(username="tested").first()
     if not test_2:
         # Create user and send message once.
         test_2 = User.objects.create(username="tested", email="tested@tested")
         recipient_list = [sender, test_2]
-        auth.create_local_messages(body=body, rec_list=recipient_list, sender=sender, html=html)
+        auth.create_local_messages(template=tmpl_name, rec_list=recipient_list, sender=sender, context=context)
 
 
 def init_site():

@@ -54,8 +54,7 @@
                             <span>
                                 <a href="{% url 'badge_view' award.badge.uid %}">{{ award.badge.name }} <i class="{{ award.badge.icon }}"></i></a> to
                                 <a href="{% url "user_profile" award.user.profile.uid %}">
-                                    {{award.user.profile.name}} {{ award.user|show_score_icon }}
-                                    {{ award.user.profile.score | show_score | bignum }}</a>
+                                    {{award.user.profile.name}} {% user_stats user=award.user %}</a>
                             </span>
                         </div>
 
@@ -80,8 +79,7 @@
                             <a href="{% url "user_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}
                             </a>
 
-                        <span>  {{ replies.author |show_score_icon }}
-                        {{ replies.author.profile.score | show_score | bignum }}</span>
+                        <span>  {% user_stats user=replies.author %}</span>
 
                         <div class="muted" style="">
                             {{ replies.content |truncatechars:140 }}

@@ -13,7 +13,7 @@
         {{ post.lastedit_date|time_ago }}<br>
 
         <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name }}</a>
-        {{ user | icon }} <b>{{ user.profile.score | show_score |bignum }}</b><br>
+        {% user_stats user=user %}<br>
 
         {{ user.profile.location }} FOO
     </div>
