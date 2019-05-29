@@ -213,14 +213,13 @@ $(document).ready(function () {
                           active.text($item.text());
                       }
 
+                      },
+                  error: function (xhr, status, text) {
+                    error_message(elem, xhr, status, text)
                   }
-              }
-              )
+              })
           }
-
-
-        })
-    ;
+        });
 
     $(".add-comment").click(function (event) {
         event.preventDefault();
