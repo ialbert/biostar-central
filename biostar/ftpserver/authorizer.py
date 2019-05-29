@@ -47,7 +47,7 @@ class BiostarAuthorizer(object):
         The stored password in the user_table is a hashed-string
         """
 
-        message, valid_django_user = accounts_auth.check_user(email=username, password=password)
+        message, valid_django_user = accounts_auth.validate_login(email=username, password=password)
 
         if valid_django_user:
 

@@ -5,81 +5,121 @@
 
 {% block content %}
 
-{% if request.user.is_superuser and debugging %}
-    <a href="{% url 'debug_user' %}?uid={{ target.profile.uid }}">
-        <i class="address card icon"></i> Log in as user
-    </a>
-{% endif %}
 
-<div class="ui three column grid">
+    <div class="ui stackable three column grid">
 
-    <div class="column">
+        <div class="center aligned column">
 
-        <div class="ui centered card">
-            <div class="image">
-                <img class="ui centered image" src="{% gravatar user=target size=150 %}" >
+            <div class="ui basic segment">
+                <img class="ui centered image" src="{% gravatar user=target size=150 %}">
             </div>
-            <div class="ui bottom attached buttons">
+
+            <div class="ui basic segment">
+
+                {% if target == request.user %}
+                    <a class="ui mini button" href="{% url 'edit_profile' %}">
+                        <i class="write icon"></i>Edit profile
+                    </a>
+                {% endif %}
 
                 {% if can_moderate %}
-                    <div class="ui button moderate-user" data-value="{{ target.profile.uid }}">
-                      <i class="hand paper icon"></i>
-                      Moderate
+                    <div class="ui mini button orange moderate-user" data-value="{{ target.profile.uid }}">
+                        <i class="hand paper icon"></i>
+                        Moderate
                     </div>
                 {% endif %}
 
-                {% if target == request.user %}
-                    <a class="ui button" href="{% url 'edit_profile' %}">
-                        <i class="write icon"></i>Edit
+
+
+                {% if request.user.is_superuser and debugging %}
+                    <a class="ui mini red button" href="{% url 'debug_user' %}?uid={{ target.profile.uid }}">
+                        <i class="sign in icon"></i> Log in
                     </a>
                 {% endif %}
+
             </div>
-        </div>
+
+
             <div id="moderate-insert-{{ target.profile.uid }}"></div>
-    </div>
-
-    <div class="column">
-         <a  class="ui header" >
-             {{target.profile.name}}
-             {% user_stats user=target %}
-        </a>
-
-        <div>
-            <b>Status</b> : {{ target.profile.get_state_display }}
         </div>
 
-        <div>
-            <b>Location</b> : {{ target.profile.location }}
-        </div>
-        <div>
-            <b>Email</b> : {{ target|show_email:request.user }}
-        </div>
+        <div class="column">
+            <div class="ui basic segment">
 
-        {% if target.profile.last_login %}
-            <div>
-                <b>Last seen </b> : {{ target.profile.last_login |time_ago }}
+                <div class="profile ui relaxed divided list profile">
+
+                    <div class="item">
+                        <div class="content">
+                            <span class="ui header">
+                    {{ target.profile.name }}
+                    {% user_stats user=target %}
+                </span>
+
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="content">
+                            <b>Reputation:</b> {{ target.profile.score }}
+                        </div>
+                    </div>
+
+
+                    <div class="item">
+                        <div class="content">
+                            <b>Handle:</b> @{{ target.username }}
+                        </div>
+                    </div>
+
+
+                    <div class="item">
+                        <div class="content">
+                            <b>Status:</b> {{ target.profile.get_state_display }}
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="content">
+                            <b>Role:</b> {{ target.profile.get_role_display }}
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="content">
+                            <b>Email:</b> {{ target|show_email:request.user }}
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="content">
+                            <b>Joined:</b> {{ target.profile.date_joined|time_ago }}
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="content">
+                            <b>Last seen:</b> {{ target.profile.last_login |time_ago }}
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="content">
+                            <b>Location:</b> {{ target.profile.location }}
+                        </div>
+                    </div>
+
+                </div>
+
+
             </div>
-        {% endif %}
-
-        <div>
-            <b>Joined</b> : {{ target.profile.date_joined|time_ago }}
         </div>
-
-        <div>
-            <b>Handle</b>: @{{ target.username }}
-
+        <div class="column">
+            {{ target.profile.html |safe }}
         </div>
     </div>
-
-    <div class="column">
-        {{ target.profile.html |safe }}
-    </div>
-
-</div>
 
     <div class="ui centered header"> Posts by {{ target.profile.name }}</div>
     {# List the users posts #}
     {% list_posts user=target %}
-
 
 {% endblock %}

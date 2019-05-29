@@ -41,7 +41,7 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     return msgs
 
 
-def check_user(email, password):
+def validate_login(email, password):
     """
     Used to validate user across apps. Returns a tuple ( login message, False or True )
     """

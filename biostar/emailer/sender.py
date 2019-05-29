@@ -1,15 +1,18 @@
-import uuid, logging, string, textwrap, re, sys
-from django.core.mail import send_mail
-from django.template.loader import get_template
-from django.template import Context, Template
+import logging
+import re
+import textwrap
+
 from django.core.mail import EmailMultiAlternatives
+from django.core.mail import send_mail
+from django.template import Context, Template
+from django.template.loader import get_template
 
 logger = logging.getLogger("biostar")
-
 
 # Pattern to extract named blocks from a django template.
 block_patt = r'{%\s+block\s+(?P<name>(.+?))\s+%}(?P<value>(.+?)){%\s+endblock\s+%}'
 block_regx = re.compile(block_patt)
+
 
 def strip(text):
     return text.strip()
@@ -35,6 +38,7 @@ def safe_render(templ, context):
         logger.error(msg)
         return msg
 
+
 def first_line(text):
     """
     Returns the first non-empty line of a multi-line text
@@ -49,6 +53,7 @@ class EmailTemplate(object):
     """
     Generates a subject, text and html based email from a single template.
     """
+
     def __init__(self, name):
         self.template = get_template(name)
         self.content = open(self.template.origin.name).read()
@@ -70,7 +75,7 @@ class EmailTemplate(object):
 
         subj, text, html = self.render(context)
 
-        # Text may be indendented in template.
+        # Text may be indented in template.
         text = textwrap.dedent(text)
 
         if len(html) > 10:

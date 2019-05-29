@@ -213,7 +213,7 @@ class ProfileTest(TestCase):
         self.user.profile.state = models.Profile.BANNED
         self.user.profile.save()
 
-        message, valid = auth.check_user(email=self.user.email, password=self.password )
+        message, valid = auth.validate_login(email=self.user.email, password=self.password)
 
         print(message, valid)
 

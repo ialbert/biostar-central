@@ -98,6 +98,9 @@ a:hover {
     padding: 0.2em;
 }
 
+.profile > .item {
+    padding: 2em!important;
+}
 
 .notify {
 }

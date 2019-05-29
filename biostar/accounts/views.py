@@ -20,7 +20,7 @@ from ratelimit.decorators import ratelimit
 
 
 from . import forms
-from .auth import check_user, send_verification_email
+from .auth import validate_login, send_verification_email
 from .const import *
 from .models import User, Profile, Message
 from .tokens import account_verification_token
@@ -266,7 +266,7 @@ def user_login(request):
             password = form.cleaned_data['password']
 
             user = User.objects.filter(email__iexact=email).order_by('-id').first()
-            message, valid_user = check_user(email=email, password=password)
+            message, valid_user = validate_login(email=email, password=password)
 
             if valid_user:
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")

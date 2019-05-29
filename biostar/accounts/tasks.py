@@ -7,7 +7,7 @@ logger = logging.getLogger('biostar')
 
 def detect_location(request, user):
     """
-    Fills the user location basaed
+    Fills the user location based on url.
     """
     from .models import Profile
 
