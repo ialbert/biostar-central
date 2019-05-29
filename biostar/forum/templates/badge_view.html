@@ -5,8 +5,6 @@
     Badge View
 {% endblock %}
 
-
-
 {% block content %}
 
 <div class="ui basic segment">
@@ -35,7 +33,7 @@
                     </a>
                 </div>
                 <a href="{% url "user_profile" award.user.profile.uid %}">{{award.user.profile.name}}</a>
-                {% user_stats user=award.user %}
+                {% user_icon user=award.user %}
             <div>
             {{ award.user|get_last_login }}
 

@@ -52,7 +52,7 @@
                         <div class="content">
                             <span class="ui header">
                     {{ target.profile.name }}
-                    {% user_stats user=target %}
+                    {% user_icon user=target %}
                 </span>
 
                         </div>
@@ -60,7 +60,7 @@
 
                     <div class="item">
                         <div class="content">
-                            <b>Reputation:</b> {{ target.profile.score }}
+                            <b>Reputation:</b> {% user_score user=target %}
                         </div>
                     </div>
 

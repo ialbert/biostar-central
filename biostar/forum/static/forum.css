@@ -99,7 +99,11 @@ a:hover {
 }
 
 .profile > .item {
-    padding: 2em!important;
+    padding: 1ex!important;
+}
+
+.profile > .item:nth-child(even) {
+    background: #F8F8FE;
 }
 
 .notify {

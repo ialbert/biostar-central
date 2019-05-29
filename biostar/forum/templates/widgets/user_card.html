@@ -11,7 +11,7 @@
 
     <div class="muted">
         <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name }}</a>
-         {% user_stats user=user %}<br>
+         {% user_icon user=user %}<br>
         visited {{ user.profile.last_login|time_ago }}<br>
         {{ user.profile.location }}
     </div>

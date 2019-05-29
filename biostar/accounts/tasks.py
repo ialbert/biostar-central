@@ -1,9 +1,9 @@
 import logging
 import hjson
 from urllib.request import urlopen, Request
+from django.conf import settings
 
 logger = logging.getLogger('biostar')
-
 
 def detect_location(request, user):
     """
@@ -18,8 +18,13 @@ def detect_location(request, user):
 
     logger.info(f"location-check\tid={user.id}\tip={ip}")
 
+    # Don't hammer the servers when testing
+    if settings.DEBUG:
+        return
+
     # Check and log location.
     if user.is_authenticated and not user.profile.location:
+
         try:
             url = f"http://api.hostip.info/get_json.php?ip={ip}"
             logger.debug(f"{ip}, {user}, {url}")

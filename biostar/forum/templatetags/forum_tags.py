@@ -111,9 +111,15 @@ def gravatar(user, size=80):
     return gravatar_url
 
 
-@register.inclusion_tag('widgets/user_stats.html')
-def user_stats(user):
+@register.simple_tag()
+def user_score(user):
     score = user.profile.score * 10
+    return score
+
+
+@register.inclusion_tag('widgets/user_icon.html')
+def user_icon(user):
+    score = user_score(user)
     context = dict(user=user, score=score)
     return context
 
