@@ -30,6 +30,9 @@ urlpatterns = [
 
     url(r'^debug/user$', views.debug_user, name="debug_user"),
 
+    # Message urls
+    url(r'^inbox/$', views.message_list, name='inbox'),
+
     # External url login
     url(r'^external/$', views.external_login, name="external"),
 

@@ -126,7 +126,7 @@ class Profile(models.Model):
     @property
     def is_moderator(self):
         # Managers can moderate as well.
-        return self.role == self.MODERATOR or self.role == self.MANAGER or self.user.is_staff
+        return self.role == self.MODERATOR or self.role == self.MANAGER or self.user.is_staff or self.user.is_superuser
 
     @property
     def trusted(self):
@@ -141,10 +141,39 @@ class Profile(models.Model):
         return self.state == self.SUSPENDED
 
 
+# Connects user to message bodies
+class Message(models.Model):
+    "Connects recipients to sent messages"
+
+    SPAM, VALID, UNKNOWN = range(3)
+    SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Not spam"), (UNKNOWN, "Unknown")]
+    spam = models.IntegerField(choices=SPAM_CHOICES, default=UNKNOWN)
+
+    uid = models.CharField(max_length=32, unique=True)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", on_delete=models.CASCADE)
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    subject = models.CharField(max_length=120)
+
+    body = models.TextField(max_length=MAX_TEXT_LEN)
+    html = models.TextField(default='', max_length=MAX_TEXT_LEN * 10)
+    unread = models.BooleanField(default=True)
+    sent_date = models.DateTimeField(db_index=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.html = self.html or mistune.markdown(self.body)
+        self.uid = self.uid or util.get_uuid(15)
+        super(Message, self).save(**kwargs)
+
+    def __str__(self):
+        return f"Message {self.sender}, {self.recipient}"
+
+
 @receiver(pre_save, sender=User)
 def create_uuid(sender, instance,*args, **kwargs):
 
    instance.username = instance.username or generate_uuid(8)
+
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, raw, using, **kwargs):

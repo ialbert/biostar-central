@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta
-
+from functools import wraps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -9,10 +9,9 @@ from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
 
-from . import forms, auth, tasks, util, ajax
+from . import forms, auth, tasks, util
 from .const import *
-from .models import Post, Vote, Subscription, Badge
-from biostar.utils.decorators import object_exists
+from .models import Post, Vote, Badge
 
 
 User = get_user_model()
@@ -49,6 +48,29 @@ ORDER_MAPPER = dict(
     activity='-profile__date_joined'
 
 )
+
+
+def authenticated(func):
+    def _wrapper_(request, **kwargs):
+        if request.user.is_anonymous:
+            messages.error(request, "You need to be logged in to view this page.")
+        return func(request, **kwargs)
+    return _wrapper_
+
+
+def post_exists(func):
+    """
+    Ensure uid passed to view function exists.
+    """
+    @wraps(func)
+    def _wrapper_(request, **kwargs):
+        uid = kwargs.get('uid')
+        post = Post.objects.filter(uid=uid).exists()
+        if not post:
+            messages.error(request, "Post does not exist.")
+            return redirect(reverse("post_list"))
+        return func(request, **kwargs)
+    return _wrapper_
 
 
 def get_posts(user, show="latest", tag="", order="rank", limit=None):
@@ -139,15 +161,6 @@ def post_list(request, show=None):
     return render(request, template_name="post_list.html", context=context)
 
 
-def authenticated(func):
-    def _wrapper_(request, **kwargs):
-        if request.user.is_anonymous:
-            messages.error(request, "You need to be logged in to view this page.")
-        return func(request, **kwargs)
-
-    return _wrapper_
-
-
 def latest(request):
     show = request.GET.get("type", "") or LATEST
     return post_list(request, show=show)
@@ -232,7 +245,7 @@ def badge_view(request, uid):
 #    return render(request, "tags_list.html", context=context)
 
 
-@object_exists(klass=Post)
+@post_exists
 def post_view(request, uid):
     "Return a detailed view for specific post"
 
@@ -256,7 +269,7 @@ def post_view(request, uid):
     return render(request, "post_view.html", context=context)
 
 
-@object_exists(klass=Post)
+@post_exists
 def new_answer(request, uid):
     """
     Process an answer with form
@@ -331,7 +344,7 @@ def new_post(request):
     return render(request, "new_post.html", context=context)
 
 
-@object_exists(klass=Post)
+@post_exists
 @login_required
 def post_moderate(request, uid):
     user = request.user
@@ -357,7 +370,7 @@ def post_moderate(request, uid):
     return render(request, "post_moderate.html", context)
 
 
-@object_exists(klass=Post)
+@post_exists
 @login_required
 def edit_post(request, uid):
     """

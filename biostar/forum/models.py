@@ -11,7 +11,7 @@ from django.shortcuts import reverse
 from django.dispatch import receiver
 from taggit.managers import TaggableManager
 
-from biostar.emailer.auth import notify
+
 from biostar.accounts.models import Profile
 from . import util
 
@@ -287,7 +287,7 @@ class Subscription(models.Model):
     date = models.DateTimeField()
 
     def __str__(self):
-        return "%s to %s" % (self.user.profile.name, self.post.title)
+        return f"{self.user.profile.name} to {self.post.title}"
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
@@ -369,28 +369,25 @@ def subscription_msg(post, author):
     from . import tasks
 
     # Template used to send local messages
-    local_template = "default_messages/subscription_message.html"
+    local_template = "messages/subscription_message.html"
     # Template used to send emails with
-    email_template = "default_messages/subscription_email.html"
+    email_template = "messages/subscription_email.html"
     context = dict(post=post)
 
-    # Everyone subscribed gets a local message
+    # Everyone subscribed gets a local message.
     subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
-    user_ids = subs.values("user").distinct()
-    users = User.objects.filter(id__in=user_ids)
-    tasks.send_message.spool(template=local_template, context=context, rec_list=users, sender=author)
+
+    tasks.send_message.spool(template=local_template, context=context, subs=subs, sender=author)
 
     # Send emails to users that specified "email" or "default"
     email_subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
-    email_list = email_subs.values_list("user__email", flat=True)
+
+    emails = email_subs.values_list("user__email", flat=True).exclude(user=author)
+
     from_email = settings.ADMIN_EMAIL
 
     tasks.send_email.spool(template=email_template, context=context, subject="Subscription",
-                           email_list=email_list, from_email=from_email)
-
-    logger.debug(f"Sent to subscription messages to users:{users}")
-
-    return
+                           email_list=emails, from_email=from_email)
 
 
 @receiver(post_save, sender=Post)

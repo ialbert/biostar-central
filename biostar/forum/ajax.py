@@ -100,29 +100,23 @@ def ajax_subs(request):
     # Get the root and sub type.
     root_uid = request.POST.get('root_uid')
     sub_type = request.POST.get("sub_type")
-    sub_type = type_map.get(sub_type, "unfollow")
+    sub_type = type_map.get(sub_type, Profile.NO_MESSAGES)
     user = request.user
 
     # Get the post that is subscribed to.
     root = Post.objects.filter(uid=root_uid).first()
-    sub = Subscription.objects.filter(post=root, user=user).first()
-    date = util.now()
+    sub, created = Subscription.objects.get_or_create(post=root, user=user)
+    msg = "Changed subscription."
+    change = 0
+    if created and sub_type != Profile.NO_MESSAGES:
+        change = +1
+    if sub and sub_type == Profile.NO_MESSAGES:
+        change = -1
+        msg = "Unsubscribed to post."
 
-    # Delete a subscription
-    if sub_type == "unfollow":
-        if sub:
-            Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
-            Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') - 1)
-        return ajax_success(msg="Unsubscribed to post.")
-    # Update an existing subscription
-    if sub:
-        Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
-    # Create new subscriptions
-    else:
-        Subscription.objects.create(post=root, user=user, type=sub_type, date=date)
-        # Increase the subscription count of the root.
-        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+    Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + change)
+    Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
 
-    return ajax_success(msg="Changed subscription.")
+    return ajax_success(msg=msg)
 
 

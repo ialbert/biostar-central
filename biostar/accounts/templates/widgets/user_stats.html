@@ -1,0 +1,11 @@
+
+{% if user.is_authenticated and user.profile.is_moderator%}
+
+    <i class="ui muted bolt icon"></i>
+
+{% else %}
+    &bull;
+{% endif %}
+
+{{ score }}
+

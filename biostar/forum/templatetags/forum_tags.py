@@ -114,19 +114,10 @@ def show_messages(messages):
 
 
 @register.filter
-def subtype(post, user):
-    unsubbed = "not following"
-    type_map = {Profile.LOCAL_MESSAGE: "messages", Profile.EMAIL_MESSAGE: "email",
-                Profile.DEFAULT_MESSAGES: "default", Profile.NO_MESSAGES: unsubbed}
-
-    if user.is_anonymous:
-        return unsubbed
-    # Get the user subscriptions
-    sub = Subscription.objects.filter(post=post, user=user).first()
-
-    stype = type_map.get(sub.type, unsubbed) if sub else unsubbed
-
-    return stype
+def unread(message, user):
+    if message.recipient == user and message.unread:
+        return "unread-message"
+    return ""
 
 
 @register.simple_tag(takes_context=True)
@@ -226,29 +217,6 @@ def feed(user):
                    user=user)
 
     return context
-
-
-@register.filter
-def show_score_icon(user):
-    return icon(user)
-
-
-@register.filter
-def icon(user):
-    if user.profile.is_moderator:
-        icon = f'<i class="ui muted bolt icon"></i>'
-    elif user.profile.score > 100:
-        icon = "&bull;"
-    else:
-        icon = "&bull;"
-
-    return mark_safe(icon)
-
-
-@register.filter
-def show_score(score):
-    score = (score * 10)
-    return score
 
 
 @register.simple_tag

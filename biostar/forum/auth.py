@@ -11,7 +11,7 @@ from django.utils.timezone import utc
 from biostar.accounts.models import Profile
 from . import util
 from .const import *
-from .models import Post, Vote, Subscription, PostView
+from .models import Post, Vote, PostView
 
 User = get_user_model()
 
@@ -77,6 +77,7 @@ def post_tree(user, root):
         post.has_bookmark = int(post.id in bookmarks)
         post.has_upvote = int(post.id in upvotes)
         post.can_accept = not post.is_toplevel and user == post.root.author
+        post.can_moderate = user.is_authenticated and user.profile.is_moderator
         post.is_editable = user.is_authenticated and (user == post.author or user.profile.is_moderator)
         return post
 
@@ -228,7 +229,7 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
 
     if dupes:
         Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-        html = util.render(name="default_messages/duplicate_posts.html", user=post.author, dupes=dupes,
+        html = util.render(name="messages/duplicate_posts.html", user=post.author, dupes=dupes,
                            comment=comment, posts=Post.objects.filter(uid=post.uid))
         content = util.strip_tags(html)
         # Create a comment to the post

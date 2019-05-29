@@ -10,7 +10,9 @@
 
     {% if post.is_editable %}
         &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
-        &bull; <a class="moderate-post" data-value="{{ post.uid }}">moderate</a>
+    {% endif %}
+    {% if post.can_moderate %}
+        &bull; <a class="moderate-post" href="#" data-value="{{ post.uid }}">moderate</a>
     {% endif %}
 
     <span class="status muted">
@@ -24,7 +26,7 @@
             <div class="text" id="active">{% follow_label post=post %}</div>
             <i class="caret up icon"></i>
             <div class="menu">
-                <div class="item" data-value="default"><i class="envelope icon"></i>follow via messages </div>
+                <div class="item" data-value="messages"><i class="envelope icon"></i>follow via messages </div>
                 <div class="item" data-value="email"><i class="envelope outline icon"></i> follow via email</div>
                 <div class="item" data-value="unfollow"><i class="close icon"></i> stop following</div>
             </div>

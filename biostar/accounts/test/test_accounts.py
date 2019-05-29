@@ -54,6 +54,7 @@ class UserAccountTests(TestCase):
     def test_page_responses(self):
 
         urls = [
+            reverse("inbox"),
             reverse('accounts_index'),
             reverse('logout'),
             reverse('login'),

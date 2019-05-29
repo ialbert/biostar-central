@@ -4,9 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.conf import settings
 
-from biostar.accounts.models import Profile
-import biostar.accounts.auth as accounts_auth
-from biostar.message.models import Message
+from biostar.accounts.models import Profile, Message
 from .util import now
 from . import tasks, auth
 from .models import Post, Vote
@@ -43,7 +41,7 @@ def forum_middleware(get_response):
 
             # Store the counts in the session.
             message_count = Message.objects.filter(recipient=user, unread=True).count()
-            print (message_count)
+            print(message_count)
             vote_count = Vote.objects.filter(post__author=user, date__gt=last_login).exclude(author=user).count()
 
             # Save the counts into the session.

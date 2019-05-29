@@ -1,21 +1,45 @@
 import hjson
+import bleach
 from urllib.request import urlopen, Request
 import logging
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.contrib import auth
 from django.conf import settings
+from django.template import loader
 
 from biostar.emailer.auth import notify
-from .models import User, Profile
+from .models import User, Profile, Message
 from . import util, const
 from .tokens import account_verification_token
 
 logger = logging.getLogger('engine')
 
 
+def create_local_messages(template, sender, rec_list, context={}, subject="", uid=None):
+    """
+    Create batch message from sender for a given recipient_list
+    """
+    tmpl = loader.get_template(template_name=template)
+    html = tmpl.render(context)
+    body = bleach.clean(html)
+
+    msgs = []
+    for rec in rec_list:
+        actual_uid = uid or util.get_uuid(10)
+        sent_date = util.now()
+        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, sent_date=sent_date,
+                                     uid=actual_uid, body=body, html=html)
+
+        msgs.append(msg)
+
+    return msgs
+
+
 def check_user(email, password):
-    "Used to validate user across apps. Returns a tuple ( login message, False or True )"
+    """
+    Used to validate user across apps. Returns a tuple ( login message, False or True )
+    """
 
     user = User.objects.filter(email__iexact=email).order_by('-id').first()
 
@@ -58,6 +82,8 @@ def check_user_profile(request, user):
 
             data = hjson.loads(user_info)
             location = data.get('country_name', '').title()
+            location = "localhost" if ip in ('127.0.0.1') else location
+
             if "unknown" not in location.lower():
                 Profile.objects.filter(user=user).update(location=location)
         except Exception as exc:

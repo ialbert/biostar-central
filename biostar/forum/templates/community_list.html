@@ -95,7 +95,7 @@
                             {{user.profile.name|truncatechars:6}}
 
                             </a>
-                            {{ user |show_score_icon}}  {{ user.profile.score | show_score |bignum }}
+                            {% user_stats user=user %}
                         </div>
 
                         <div class="extra content">

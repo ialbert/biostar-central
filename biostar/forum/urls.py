@@ -5,7 +5,6 @@ from django.conf.urls import url, include
 
 from biostar.forum import views
 from biostar.forum import ajax
-import biostar.message.urls as msg_patterns
 import biostar.accounts.urls as account_patterns
 
 urlpatterns = [
@@ -42,9 +41,6 @@ urlpatterns = [
 
     # Community urls
     url(r'^community/$', views.community_list, name='community_list'),
-
-    # Include messages urls
-    url(r'^message/', include(msg_patterns)),
 
     # Include the accounts urls
     url(r'^accounts/', include(account_patterns)),

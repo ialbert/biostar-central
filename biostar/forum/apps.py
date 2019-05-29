@@ -36,13 +36,13 @@ def init_awards(sender,  **kwargs):
             badge.type = obj.type
             badge.save()
 
-        #logger.info("initializing badge %s" % badge)
+        logger.debug("initializing badge %s" % badge)
 
 
 def init_post(sender,  **kwargs):
     from biostar.accounts.apps import init_users
     from django.contrib.auth import get_user_model
-    from . import auth, tasks
+    from . import auth
     from .models import Post
 
     # Only initialize when debugging
@@ -97,5 +97,3 @@ def init_post(sender,  **kwargs):
         parent = random.choice(parents)
         content = f"Comment number {count}"
         comment = auth.create_post(post_type=Post.COMMENT, parent=parent, content=content, author=author)
-
-
