@@ -191,7 +191,7 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
 
         # Make sure staff users are also moderators.
         role = Profile.MANAGER if instance.is_staff else Profile.READER
-        Profile.objects.create(user=instance, uid=username, name=instance.first_name, role=role)
+        Profile.objects.using(using).create(user=instance, uid=username, name=instance.first_name, role=role)
 
         # Create welcome message upon profile creation.
         auth.create_messages(template="messages/welcome.html", rec_list=[instance])
