@@ -377,12 +377,13 @@ def subscription_msg(post, author):
     # Everyone subscribed gets a local message
     subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
     user_ids = subs.values("user").distinct()
-    users = User.objects.filter(id__in=user_ids)
+    users = User.objects.filter(id__in=user_ids).exclude(pk=author.pk)
+
     tasks.send_message.spool(template=local_template, context=context, rec_list=users, sender=author)
 
     # Send emails to users that specified "email" or "default"
     email_subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
-    email_list = email_subs.values_list("user__email", flat=True)
+    email_list = email_subs.values_list("user__email", flat=True).exclude(user=author)
     from_email = settings.ADMIN_EMAIL
 
     tasks.send_email.spool(template=email_template, context=context, subject="Subscription",
