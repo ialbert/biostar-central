@@ -379,8 +379,8 @@ def notify_followers(post, author):
 
     tasks.send_message.spool(template=local_template, context=context, subs=subs, sender=author)
 
-    # Send emails to users that specified "email" or "default"
-    email_subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE])
+    # Send emails to users that specified so
+    email_subs = subs.filter(type=Profile.EMAIL_MESSAGE)
 
     emails = email_subs.values_list("user__email", flat=True).exclude(user=author)
 
