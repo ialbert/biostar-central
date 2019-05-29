@@ -10,7 +10,7 @@
 {% block body %}
 
 
-<div class="center-item" style="text-align: center">
+<div class="center-text">
 {% pages objs=all_messages %}
 </div>
 
@@ -19,7 +19,7 @@
         <tbody>
             <tr>
                 <td>
-                  <div class="item " style="margin-bottom: 2px;">
+                  <div class="item ">
 
                     <div class="content">
                         {{ message.sent_date|timesince }} ago: {{ message.html|safe }}
@@ -31,7 +31,7 @@
     {% endfor %}
 </table>
 
-<div class="center-item" style="text-align: center">
+<div class="center-text">
 {% pages objs=all_messages %}
 </div>
 

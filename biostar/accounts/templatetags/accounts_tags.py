@@ -128,9 +128,6 @@ def time_ago(date):
     return "%s ago" % unit
 
 
-def user_stats():
-    return
-
 @register.simple_tag
 def gravatar(user, size=80):
 
