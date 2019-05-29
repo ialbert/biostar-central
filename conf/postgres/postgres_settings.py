@@ -1,7 +1,7 @@
 from biostar.engine.settings import *
 from biostar.forum.settings import *
 
-INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ENGINE_APPS + MESSAGE_APPS + ACCOUNTS_APPS + EMAILER_APP
+INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 ROOT_URLCONF = 'biostar.test.test_urls'
 

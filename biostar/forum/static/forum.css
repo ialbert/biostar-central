@@ -103,6 +103,10 @@ a:hover {
     width: 50%;
 }
 
+.ui.header .icon:only-child {
+    margin-right: 0rem;
+}
+
 .profile tbody > tr > td:first-child {
     font-weight: bold;
     text-align: right;

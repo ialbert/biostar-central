@@ -40,7 +40,7 @@ class Profile(models.Model):
     state = models.IntegerField(default=NEW, choices=STATE_CHOICES, db_index=True)
 
     READER, MODERATOR, MANAGER, BLOG = range(4)
-    ROLE_CHOICES = [(READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Manager"), (BLOG, "Blog User")]
+    ROLE_CHOICES = [(READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Admin"), (BLOG, "Blog User")]
 
     NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST = range(4)
 
