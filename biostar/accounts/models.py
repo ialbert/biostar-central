@@ -1,11 +1,11 @@
 import uuid
-import mistune
 
+import mistune
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.db import models
-from django.conf import settings
 
 from biostar.accounts import util
 
@@ -27,14 +27,12 @@ class Manager(models.Manager):
 
 
 class Profile(models.Model):
-
     NEW, TRUSTED, SUSPENDED, BANNED = range(4)
     STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
     state = models.IntegerField(default=NEW, choices=STATE_CHOICES, db_index=True)
 
-    NORMAL, MODERATOR, MANAGER, BLOG = range(4)
-    ROLE_CHOICES = [(NORMAL, "User"), (MODERATOR, "Moderator"), (MANAGER, "Manager"),
-                    (BLOG, "Blog User")]
+    READER, MODERATOR, MANAGER, BLOG = range(4)
+    ROLE_CHOICES = [(READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Manager"), (BLOG, "Blog User")]
 
     NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST = range(4)
 
@@ -49,16 +47,21 @@ class Profile(models.Model):
         (EMAIL_MESSAGE, "email"),
         # Email for every new thread (mailing list mode)
         (ALL_MESSAGES, "email for every new thread (mailing list mode)")
-                            ]
+    ]
 
+    # Connection to the user.
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    # User unique id (handle)
     uid = models.CharField(max_length=MAX_UID_LEN, unique=True)
+
+    # User diplay name.
     name = models.CharField(max_length=MAX_NAME_LEN, default='', db_index=True)
 
     # Maximum amount of uploaded files a user is allowed to aggregate, in mega-bytes.
     max_upload_size = models.IntegerField(default=0)
 
-    role = models.IntegerField(default=NORMAL, choices=ROLE_CHOICES)
+    role = models.IntegerField(default=READER, choices=ROLE_CHOICES)
     last_login = models.DateTimeField(null=True, max_length=255, db_index=True)
 
     # The number of new messages for the user.
@@ -76,6 +79,7 @@ class Profile(models.Model):
     # Google scholar ID
     scholar = models.CharField(default="", max_length=255, blank=True)
 
+    # User reputation score.
     score = models.IntegerField(default=0, db_index=True)
 
     # Twitter ID
@@ -87,8 +91,10 @@ class Profile(models.Model):
     # Description provided by the user html.
     text = models.TextField(default="", null=True, max_length=MAX_TEXT_LEN, blank=True)
 
+    # The html version of the user information.
     html = models.TextField(null=True, max_length=MAX_TEXT_LEN, blank=True)
 
+    # The state of the user email verfication.
     email_verified = models.BooleanField(default=False)
 
     # Automatic notification
@@ -116,7 +122,7 @@ class Profile(models.Model):
         super(Profile, self).save(*args, **kwargs)
 
     def can_moderate(self, source):
-        "Check if the source user can moderate the target( self.user)"
+        "Check if the current user can moderate the target"
 
         if source == self.user:
             return False
@@ -162,36 +168,30 @@ class Message(models.Model):
 
     def save(self, *args, **kwargs):
         self.html = self.html or mistune.markdown(self.body)
+        self.uid = self.uid or generate_uuid(10)
+        self.sent_date = self.sent_date or util.now()
         super(Message, self).save(**kwargs)
 
     def __str__(self):
         return f"Message {self.sender}, {self.recipient}"
 
 
-@receiver(pre_save, sender=Message)
-def finalize_message(sender, instance, *args, **kwargs):
-    instance.sent_date = instance.sent_date or util.now()
-    instance.uid = instance.uid or generate_uuid(10)
-
-
 @receiver(pre_save, sender=User)
-def create_uuid(sender, instance,*args, **kwargs):
-
-   instance.username = instance.username or generate_uuid(8)
+def create_uuid(sender, instance, *args, **kwargs):
+    instance.username = instance.username or generate_uuid(8)
 
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, raw, using, **kwargs):
     from biostar.accounts import auth
     if created:
+        # Set the username to a simpler form.
+        username = f"user-{instance.pk}"
+        User.objects.filter(pk=instance.pk).update(username=username)
+
         # Make sure staff users are also moderators.
-        role = Profile.MANAGER if instance.is_staff else Profile.NORMAL
-        Profile.objects.using(using).create(user=instance, name=instance.first_name, role=role)
+        role = Profile.MANAGER if instance.is_staff else Profile.READER
+        Profile.objects.create(user=instance, uid=username, name=instance.first_name, role=role)
 
-        tmpl_name = "messages/welcome.html"
-        name, email = settings.ADMINS[0]
-        sent_by = User.objects.filter(email=email).first()
-        context = dict(sender=sent_by)
-        auth.create_messages(template=tmpl_name, rec_list=[instance], sender=sent_by, context=context)
-
-    instance.username = instance.username or f"user-{instance.pk}"
+        # Create welcome message upon profile creation.
+        auth.create_messages(template="messages/welcome.html", rec_list=[instance])

@@ -105,6 +105,7 @@ def ajax_subs(request):
 
     # Get the post that is subscribed to.
     root = Post.objects.filter(uid=root_uid).first()
+    # Get or create a subscription for user
     sub, created = Subscription.objects.get_or_create(post=root, user=user)
     msg = "Changed subscription."
     change = 0
