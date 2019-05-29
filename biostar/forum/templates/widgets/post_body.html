@@ -52,8 +52,9 @@
 
             <div class="wrap">
                 {# Display post author. #}
+                <span class="tablet">
                 {% post_user_box user=post.author post=post %}
-
+                </span>
                 {# Display post content. #}
                 {{ post.html|safe }}
             </div>

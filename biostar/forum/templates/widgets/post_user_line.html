@@ -2,7 +2,7 @@
 {% load forum_tags %}
 {% load accounts_tags %}
 
-    updated {{ post.lastedit_date|time_ago }} by
+<span class="tablet">updated {{ post.lastedit_date|time_ago }} by</span>
     <a href="{% url "user_profile"  post.author.profile.uid %}">
         {% if avatar %}
             <div class="ui avatar image">
