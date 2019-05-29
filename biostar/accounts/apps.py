@@ -18,7 +18,6 @@ def init_app(sender, **kwargs):
     init_site()
     init_users()
     init_social()
-    init_messages()
 
 def init_social():
     """Initialize social account providers."""
@@ -80,30 +79,6 @@ def init_users():
             logger.info(f"Created admin user: {user.email}")
         else:
             logger.info(f"Admin user: {user.email} exists.")
-
-
-def init_messages():
-    from django.contrib.auth import get_user_model
-    from biostar.accounts import  auth
-
-    User = get_user_model()
-
-    name, email = settings.ADMINS[0]
-
-    sender = User.objects.filter(email=email).first()
-    if not sender:
-        sender = User.objects.create(email=email, username="admin", is_superuser=True)
-        sender.set_password(email)
-
-    tmpl_name = "messages/welcome.html"
-    context = dict()
-
-    test_2 = User.objects.filter(username="tested").first()
-    if not test_2:
-        # Create user and send message once.
-        test_2 = User.objects.create(username="tested", email="tested@tested")
-        recipient_list = [sender, test_2]
-        auth.create_local_messages(template=tmpl_name, rec_list=recipient_list, sender=sender, context=context)
 
 
 def init_site():

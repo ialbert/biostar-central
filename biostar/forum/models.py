@@ -362,7 +362,7 @@ def create_sub(user, root):
     return sub
 
 
-def subscription_msg(post, author):
+def notify_followers(post, author):
     """
     Send subscribed users, excluding author, a message/email.
     """
@@ -458,5 +458,5 @@ def complete_post(sender, instance, created, *args, **kwargs):
 
         create_sub(user=instance.author, root=instance.root)
         # Send subscription messages
-        subscription_msg(post=instance, author=instance.author)
+        notify_followers(post=instance, author=instance.author)
 
