@@ -159,10 +159,11 @@ def user_profile(request, uid):
 
     # Get the active tab, defaults to project
     active_tab = request.GET.get("active", "posts")
+
     # User viewing profile is a moderator
     can_moderate = request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser)
     context = dict(target=profile.user, active=active_tab, debugging=settings.DEBUG,
-                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, tab="profile")
+                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate)
 
     return render(request, "accounts/user_profile.html", context)
 
