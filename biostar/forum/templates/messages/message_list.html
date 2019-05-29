@@ -28,6 +28,8 @@
                 </td>
             </tr>
         </tbody>
+    {% empty %}
+    <div class="ui message">No messages</div>
     {% endfor %}
 </table>
 
@@ -56,7 +58,7 @@
 
                        </div>
                     {% empty %}
-                        <div class="ui message">No messages</div>
+                        No messages
                     {% endfor %}
                 </div>
         </div>

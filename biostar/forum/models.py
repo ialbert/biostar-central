@@ -381,7 +381,9 @@ def subscription_msg(post, author):
 
     # Send emails to users that specified "email" or "default"
     email_subs = subs.filter(type__in=[Profile.EMAIL_MESSAGE, Profile.DEFAULT_MESSAGES])
+
     emails = email_subs.values_list("user__email", flat=True).exclude(user=author)
+
     from_email = settings.ADMIN_EMAIL
 
     tasks.send_email.spool(template=email_template, context=context, subject="Subscription",
