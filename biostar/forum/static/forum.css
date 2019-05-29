@@ -350,7 +350,9 @@ img {
     color: #fff;
 
 }
-
+.center-text{
+    text-align: center;
+}
 .no-shadow {
     box-shadow: none !important;
     border: none !important;

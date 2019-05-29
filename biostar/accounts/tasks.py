@@ -4,6 +4,7 @@ from urllib.request import urlopen, Request
 
 logger = logging.getLogger('biostar')
 
+
 def detect_location(request, user):
     """
     Fills the user location basaed

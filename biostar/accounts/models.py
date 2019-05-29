@@ -134,14 +134,6 @@ class Profile(models.Model):
         self.last_login = self.last_login or now()
         super(Profile, self).save(*args, **kwargs)
 
-    def can_moderate(self, source):
-        "Check if the current user can moderate the target"
-
-        if source == self.user:
-            return False
-
-        return source.is_authenticated and (source.profile.is_manager or source.profile.is_moderator)
-
     @property
     def is_moderator(self):
         # Managers can moderate as well.
@@ -181,7 +173,8 @@ class Message(models.Model):
 
     def save(self, *args, **kwargs):
         self.html = self.html or mistune.markdown(self.body)
-        self.uid = self.uid or util.get_uuid(15)
+        self.uid = self.uid or generate_uuid(10)
+        self.sent_date = self.sent_date or util.now()
         super(Message, self).save(**kwargs)
 
     def __str__(self):
@@ -195,7 +188,7 @@ def create_uuid(sender, instance, *args, **kwargs):
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, raw, using, **kwargs):
-
+    from biostar.accounts import auth
     if created:
         # Set the username to a simpler form.
         username = f"user-{instance.pk}"
@@ -204,4 +197,7 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         # Make sure staff users are also moderators.
         role = Profile.MANAGER if instance.is_staff else Profile.READER
         Profile.objects.using(using).create(user=instance, uid=username, name=instance.first_name, role=role)
+
+        # Create welcome message upon profile creation.
+        auth.create_messages(template="messages/welcome.html", rec_list=[instance])
 

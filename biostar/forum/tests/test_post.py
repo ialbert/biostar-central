@@ -69,9 +69,9 @@ class PostTest(TestCase):
 
         self.assertTrue(response.status_code == 200, 'Error rendering comments')
 
-        print(response)
+    def test_ajax_subs(self):
 
-        pass
+        return
 
     def make_votes(self, post, user):
 
@@ -80,9 +80,12 @@ class PostTest(TestCase):
             data = {"vote_type": vtype, "post_uid": post.uid}
             request = fake_request(url=reverse('vote'), data=data, user=user)
             response = ajax.ajax_vote(request)
+            self.assertEqual(response.status_code, 302,
+                             f"Could not redirect :\nresponse:{response}")
 
-    def test_vote(self):
+    def test_ajax_vote(self):
         """Test the ajax voting using POST request """
+        # Create a different user to vote with
         user2 = User.objects.create(username="user", email="user@tested.com", password="tested")
 
         answer = auth.create_post(title="answer", author=user2, content="tested foo bar too for",

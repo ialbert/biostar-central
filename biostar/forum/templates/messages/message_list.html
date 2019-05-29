@@ -9,29 +9,28 @@
 
 {% block body %}
 
-
 <div class="center-text">
 {% pages objs=all_messages %}
 </div>
 
 <table class="ui very basic striped table">
-    {% for message in all_messages %}
-        <tbody>
-            <tr>
-                <td>
-                  <div class="item ">
-
-                    <div class="content">
-                        {{ message.sent_date|timesince }} ago: {{ message.html|safe }}
-                    </div>
-                  </div>
-                </td>
-            </tr>
-        </tbody>
-    {% empty %}
-    <div class="ui message">No messages</div>
-    {% endfor %}
+    <tbody>
+        {% for message in all_messages %}
+                <tr>
+                    <td>
+                      <div class="item ">
+                        <div class="content">
+                            {{ message.sent_date|timesince }} ago: {{ message.html|safe }}
+                        </div>
+                      </div>
+                    </td>
+                </tr>
+        {% empty %}
+        <div class="ui message">No messages</div>
+        {% endfor %}
+    </tbody>
 </table>
+
 
 <div class="center-text">
 {% pages objs=all_messages %}

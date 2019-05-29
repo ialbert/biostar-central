@@ -8,7 +8,7 @@ try:
     HAS_UWSGI = True
 except (ModuleNotFoundError, NameError) as exc:
     HAS_UWSGI = False
-    logger.warn(exc)
+    logger.warning(exc)
     pass
 
 
@@ -27,8 +27,8 @@ def send_message(template, context, sender, subs=[]):
     user_ids = subs.values("user").exclude(user=sender).distinct()
 
     users = models.User.objects.filter(id__in=user_ids)
-    # Send local message
-    auth.create_local_messages(template=template, sender=sender, rec_list=users, context=context)
+    # Send local messages
+    auth.create_messages(template=template, sender=sender, rec_list=users, extra_context=context)
 
     logger.debug(f"Sent to subscription message to {len(users)} users.")
 
@@ -38,6 +38,7 @@ def send_email(template, context, subject, email_list, from_email):
     notify(template_name=template, email_list=email_list,
            extra_context=context, from_email=from_email,
            subject=subject, send=True)
+
 
 if HAS_UWSGI:
     info_task = spool(info_task, pass_arguments=True)

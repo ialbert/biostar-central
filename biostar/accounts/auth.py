@@ -16,21 +16,26 @@ from .tokens import account_verification_token
 logger = logging.getLogger('engine')
 
 
-def create_local_messages(template, sender, rec_list, context={}, subject="", uid=None):
+def create_messages(template, rec_list, sender=None, extra_context={}, subject=""):
     """
     Create batch message from sender for a given recipient_list
     """
+    # Get the sender
+    name, email = settings.ADMINS[0]
+    sender = sender or User.objects.filter(email=email).first()
+
+    # Load the template and context
     tmpl = loader.get_template(template_name=template)
+    context = dict(sender=sender, subject=subject)
+    context.update(extra_context)
+
     html = tmpl.render(context)
+    # Create a clean text version of the html
     body = bleach.clean(html)
 
     msgs = []
     for rec in rec_list:
-        actual_uid = uid or util.get_uuid(10)
-        sent_date = util.now()
-        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, sent_date=sent_date,
-                                     uid=actual_uid, body=body, html=html)
-
+        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
         msgs.append(msg)
 
     return msgs
