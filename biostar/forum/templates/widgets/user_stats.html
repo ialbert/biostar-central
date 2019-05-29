@@ -1,0 +1,10 @@
+{%  load forum_tags %}
+{% if user.profile.is_moderator %}
+    <i class="ui muted bolt icon"></i>
+{%  elif score > 1000 %}
+    <i class="ui user icon"></i>
+{% else %}
+    <i class="ui user outline icon"></i>
+{% endif %}
+{{ score|bignum }}
+

@@ -1,8 +1,12 @@
+import hashlib
 import itertools
 import logging
 import random
 from datetime import datetime
 from datetime import timedelta
+
+import hashlib
+import urllib.parse
 
 from django import template
 from django.conf import settings
@@ -43,7 +47,6 @@ ICON_MAP = dict(
 
 @register.simple_tag(takes_context=True)
 def activate(context, state, target):
-
     label = "active" if state == target else ""
     request = context['request']
     count = 0
@@ -59,6 +62,20 @@ def activate(context, state, target):
 
     return label
 
+@register.filter
+def bignum(number):
+    "Reformats numbers with qualifiers as K"
+    try:
+        value = float(number) / 1000.0
+        if value > 10:
+            return "%0.fk" % value
+        elif value > 1:
+            return "%0.1fk" % value
+    except ValueError as exc:
+        pass
+    return str(number)
+
+
 @register.simple_tag(takes_context=True)
 def count_label(context, label):
     request = context['request']
@@ -66,13 +83,48 @@ def count_label(context, label):
     label = f"({count})" if count else ""
     return label
 
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
+@register.simple_tag
+def gravatar(user, size=80):
+    style = "retro"
+    if user.is_anonymous or user.profile.is_suspended:
+        # Removes spammy images for suspended users
+        # email = 'suspended@biostars.org'.encode('utf8')
+        style = "monsterid"
+    else:
+        if user.profile.is_moderator:
+            style = "robohash"
+        email = user.email.encode('utf8')
+
+    hash = hashlib.md5(email).hexdigest()
+
+    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
+    gravatar_url += urllib.parse.urlencode({
+        's': str(size),
+        'd': style,
+    }
+    )
+    return gravatar_url
+
+
+@register.inclusion_tag('widgets/user_stats.html')
+def user_stats(user):
+    score = user.profile.score * 10
+    context = dict(user=user, score=bignum(score))
+    return context
+
 @register.inclusion_tag('widgets/post_user_line.html')
 def post_user_line(post, avatar=False):
     return dict(post=post, avatar=avatar)
+
+
+@register.inclusion_tag('widgets/user_card.html')
+def user_card(user):
+    return dict(user=user)
 
 
 @register.inclusion_tag('widgets/post_user_box.html')

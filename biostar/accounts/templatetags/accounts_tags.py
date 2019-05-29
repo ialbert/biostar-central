@@ -1,12 +1,8 @@
 
 import logging
 
-import hashlib
-import urllib.parse
-
 from datetime import timedelta
 from django import template
-from django.utils.safestring import mark_safe
 
 from biostar.accounts.util import now
 logger = logging.getLogger("biostar")
@@ -32,13 +28,6 @@ def form_errors(form):
     return context
 
 
-@register.inclusion_tag('widgets/user_stats.html')
-def user_stats(user):
-    score = user.profile.score * 5
-
-    context = dict(user=user, score=bignum(score))
-    return context
-
 
 @register.inclusion_tag('widgets/show_messages.html')
 def show_messages(messages):
@@ -47,19 +36,6 @@ def show_messages(messages):
     """
     return dict(messages=messages)
 
-
-@register.filter
-def bignum(number):
-    "Reformats numbers with qualifiers as K"
-    try:
-        value = float(number) / 1000.0
-        if value > 10:
-            return "%0.fk" % value
-        elif value > 1:
-            return "%0.1fk" % value
-    except ValueError as exc:
-        pass
-    return str(number)
 
 
 def pluralize(value, word):
@@ -128,25 +104,3 @@ def time_ago(date):
     return "%s ago" % unit
 
 
-@register.simple_tag
-def gravatar(user, size=80):
-
-    style = "retro"
-    if user.is_anonymous or user.profile.is_suspended:
-        # Removes spammy images for suspended users
-        #email = 'suspended@biostars.org'.encode('utf8')
-        style = "monsterid"
-    else:
-        if user.profile.is_moderator:
-            style = "robohash"
-        email = user.email.encode('utf8')
-
-    hash = hashlib.md5(email).hexdigest()
-
-    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
-    gravatar_url += urllib.parse.urlencode({
-        's': str(size),
-        'd': style,
-    }
-    )
-    return gravatar_url
