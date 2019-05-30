@@ -4,7 +4,7 @@ import logging
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from biostar.emailer import auth
+from biostar.emailer import tasks
 
 
 logger = logging.getLogger(__name__)
@@ -33,6 +33,6 @@ class Command(BaseCommand):
 
         logger.info("sending to %s" % recipient_list)
 
-        auth.send(template_name="test_email.html", email_list=recipient_list,
-                  from_email=from_email, subject=subject, send=send)
+        tasks.send_email(template_name="test_email.html", email_list=recipient_list,
+                         from_email=from_email, subject=subject, send=send)
 

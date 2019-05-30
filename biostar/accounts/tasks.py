@@ -5,22 +5,15 @@ from urllib.request import urlopen, Request
 from django.conf import settings
 from django.template import loader
 
-logger = logging.getLogger('biostar')
+from biostar.accounts import models
 
-try:
-    from uwsgidecorators import *
-    HAS_UWSGI = True
-except (ModuleNotFoundError, NameError) as exc:
-    HAS_UWSGI = False
-    logger.warning(exc)
-    pass
+logger = logging.getLogger('biostar')
 
 
 def detect_location(request, user):
     """
     Fills the user location based on url.
     """
-    from .models import Profile
 
     # Get the ip information
     ip1 = request.META.get('REMOTE_ADDR', '')
@@ -47,7 +40,7 @@ def detect_location(request, user):
             location = city or country
             location = "localhost" if ip in ('127.0.0.1') else location
             if "unknown" not in location.lower():
-                Profile.objects.filter(user=user).update(location=location)
+                models.Profile.objects.filter(user=user).update(location=location)
                 logger.info(f"location-set\tid={user.id}\tip={ip}\tloc={location}")
 
         except Exception as exc:
@@ -55,7 +48,7 @@ def detect_location(request, user):
 
 
 def create_messages(template, rec_list, sender=None, extra_context={}, subject=""):
-    from biostar.accounts import models
+
     """
     Create batch message from sender to a given recipient_list
     """
@@ -69,6 +62,7 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     context.update(extra_context)
 
     html = tmpl.render(context)
+
     body = bleach.clean(html)
 
     msgs = []
@@ -77,11 +71,3 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
         msgs.append(msg)
 
     return msgs
-
-
-if HAS_UWSGI:
-    detect_location = spool(detect_location, pass_arguments=True)
-    create_messages = spool(create_messages, pass_arguments=True)
-else:
-    detect_location.spool = detect_location
-    create_messages.spool = create_messages

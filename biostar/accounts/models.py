@@ -5,8 +5,6 @@ import mistune
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save, pre_save
-from django.dispatch import receiver
 from django.utils.timezone import utc
 from biostar.accounts import util
 
@@ -14,24 +12,15 @@ from biostar.accounts import util
 def fixcase(name):
     return name.upper() if len(name) == 1 else name.lower()
 
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
+
 
 MAX_UID_LEN = 255
 MAX_NAME_LEN = 255
 MAX_TEXT_LEN = 10000
 MAX_FIELD_LEN = 1024
-
-
-def generate_uuid(limit=32):
-    return str(uuid.uuid4())[:limit]
-
-
-class Manager(models.Manager):
-
-    def get_all(self, **kwargs):
-        "Return everything"
-        return super().get_queryset().filter(**kwargs)
 
 
 class Profile(models.Model):
@@ -120,13 +109,11 @@ class Profile(models.Model):
     # Opt-in to all messages from the site
     opt_in = models.BooleanField(default=False)
 
-    objects = Manager()
-
     def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.uid = self.uid or generate_uuid(8)
+        self.uid = self.uid or util.get_uuid(8)
         self.html = self.html or mistune.markdown(self.text)
         self.max_upload_size = self.max_upload_size or settings.MAX_UPLOAD_SIZE
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
@@ -173,31 +160,9 @@ class Message(models.Model):
 
     def save(self, *args, **kwargs):
         self.html = self.html or mistune.markdown(self.body)
-        self.uid = self.uid or generate_uuid(10)
+        self.uid = self.uid or util.get_uuid(10)
         self.sent_date = self.sent_date or util.now()
         super(Message, self).save(**kwargs)
 
     def __str__(self):
         return f"Message {self.sender}, {self.recipient}"
-
-
-@receiver(pre_save, sender=User)
-def create_uuid(sender, instance, *args, **kwargs):
-    instance.username = instance.username or generate_uuid(8)
-
-
-@receiver(post_save, sender=User)
-def create_profile(sender, instance, created, raw, using, **kwargs):
-    from biostar.accounts import tasks
-    if created:
-        # Set the username to a simpler form.
-        username = f"user-{instance.pk}"
-        User.objects.filter(pk=instance.pk).update(username=username)
-
-        # Make sure staff users are also moderators.
-        role = Profile.MANAGER if instance.is_staff else Profile.READER
-        Profile.objects.using(using).create(user=instance, uid=username, name=instance.first_name, role=role)
-
-        # Create welcome message upon profile creation.
-        tasks.create_messages.spool(template="messages/welcome.html", rec_list=[instance])
-

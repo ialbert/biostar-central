@@ -5,9 +5,8 @@ from django.contrib.auth import logout
 from django.conf import settings
 
 from biostar.accounts.models import Profile, Message
-from biostar.accounts.tasks import detect_location
 from .util import now
-from . import auth
+from . import auth, tasks
 from .models import Post, Vote
 
 
@@ -30,7 +29,7 @@ def forum_middleware(get_response):
             logout(request)
 
         # Detect user location.
-        detect_location.spool(request=request, user=user)
+        tasks.detect_location.spool(request=request, user=user)
 
         last_login = user.profile.last_login or user.profile.date_joined
         elapsed = (now() - last_login).total_seconds()
