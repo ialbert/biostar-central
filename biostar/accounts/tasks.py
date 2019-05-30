@@ -1,15 +1,19 @@
 import logging
 import hjson
+import bleach
 from urllib.request import urlopen, Request
 from django.conf import settings
+from django.template import loader
+
+from biostar.accounts import models
 
 logger = logging.getLogger('biostar')
+
 
 def detect_location(request, user):
     """
     Fills the user location based on url.
     """
-    from .models import Profile
 
     # Get the ip information
     ip1 = request.META.get('REMOTE_ADDR', '')
@@ -36,9 +40,34 @@ def detect_location(request, user):
             location = city or country
             location = "localhost" if ip in ('127.0.0.1') else location
             if "unknown" not in location.lower():
-                Profile.objects.filter(user=user).update(location=location)
+                models.Profile.objects.filter(user=user).update(location=location)
                 logger.info(f"location-set\tid={user.id}\tip={ip}\tloc={location}")
 
         except Exception as exc:
             logger.error(exc)
 
+
+def create_messages(template, rec_list, sender=None, extra_context={}, subject=""):
+
+    """
+    Create batch message from sender to a given recipient_list
+    """
+    # Get the sender
+    name, email = settings.ADMINS[0]
+    sender = sender or models.User.objects.filter(email=email).first()
+
+    # Load the template and context
+    tmpl = loader.get_template(template_name=template)
+    context = dict(sender=sender, subject=subject)
+    context.update(extra_context)
+
+    html = tmpl.render(context)
+
+    body = bleach.clean(html)
+
+    msgs = []
+    for rec in rec_list:
+        msg = models.Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
+        msgs.append(msg)
+
+    return msgs

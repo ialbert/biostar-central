@@ -6,7 +6,7 @@ from django.conf import settings
 
 from biostar.accounts.models import Profile, Message
 from .util import now
-from . import tasks, auth
+from . import auth, tasks
 from .models import Post, Vote
 
 
@@ -27,7 +27,6 @@ def forum_middleware(get_response):
         if auth.is_suspended(user=user):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
             logout(request)
-
 
         # Detect user location.
         tasks.detect_location.spool(request=request, user=user)

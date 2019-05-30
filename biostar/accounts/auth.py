@@ -1,44 +1,15 @@
-import hjson
-import bleach
-from urllib.request import urlopen, Request
 import logging
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.contrib import auth
 from django.conf import settings
-from django.template import loader
 
-from biostar.emailer.auth import send
-from .models import User, Profile, Message
-from . import util, const
+
+from biostar.emailer.tasks import send_email
+from .models import User, Profile
 from .tokens import account_verification_token
 
 logger = logging.getLogger('engine')
-
-
-def create_messages(template, rec_list, sender=None, extra_context={}, subject=""):
-    """
-    Create batch message from sender for a given recipient_list
-    """
-    # Get the sender
-    name, email = settings.ADMINS[0]
-    sender = sender or User.objects.filter(email=email).first()
-
-    # Load the template and context
-    tmpl = loader.get_template(template_name=template)
-    context = dict(sender=sender, subject=subject)
-    context.update(extra_context)
-
-    html = tmpl.render(context)
-    # Create a clean text version of the html
-    body = bleach.clean(html)
-
-    msgs = []
-    for rec in rec_list:
-        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
-        msgs.append(msg)
-
-    return msgs
 
 
 def validate_login(email, password):
@@ -79,8 +50,8 @@ def send_verification_email(user):
     context = dict(token=token, userid=userid, user=user)
 
     # Send the verification email
-    send(template_name=template, email_list=email_list,
-         extra_context=context, from_email=from_email,
-         subject="Verify your email", send=True)
+    send_email(template_name=template, email_list=email_list,
+               extra_context=context, from_email=from_email,
+               subject="Verify your email", send=True)
 
     return True

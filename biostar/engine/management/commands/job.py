@@ -9,7 +9,7 @@ from django.utils.encoding import force_text
 from biostar.engine.models import Job
 from biostar.engine import auth
 from django.utils import timezone
-from biostar.emailer.auth import send
+from biostar.emailer.tasks import send_email
 
 logger = logging.getLogger('engine')
 
@@ -214,8 +214,8 @@ def run(job, options={}):
         context = dict(subject=job.project.name, job=job)
 
         # Send notification emails
-        send(template_name="emailer/job_finished.html", email_list=[job.owner.email], send=True,
-             extra_context=context)
+        send_email(template_name="emailer/job_finished.html", email_list=[job.owner.email], send=True,
+                   extra_context=context)
 
 
 class Command(BaseCommand):

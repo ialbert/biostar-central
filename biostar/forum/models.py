@@ -5,12 +5,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.db import models
-from django.db.models import F
-from django.db.models.signals import post_save
 from django.shortcuts import reverse
-from django.dispatch import receiver
 from taggit.managers import TaggableManager
-
 
 from biostar.accounts.models import Profile
 from . import util
@@ -326,7 +322,7 @@ class Badge(models.Model):
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
-        self.uid = self.uid or util.get_uuid(limit=4)
+        self.uid = self.uid or util.get_uuid(limit=8)
         super(Badge, self).save(*args, **kwargs)
 
 
@@ -346,117 +342,3 @@ class Award(models.Model):
         # Set the date to current time if missing.
         self.uid = self.uid or util.get_uuid(limit=16)
         super(Award, self).save(*args, **kwargs)
-
-
-def create_sub(user, root):
-    """
-    Create a user subscription to root upon creation
-    """
-
-    sub, created = Subscription.objects.get_or_create(post=root, user=user)
-    if created:
-        # Increase the subscription count of the root.
-        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
-        logger.debug(f"Created a subscription for user:{user} to root:{root.title}")
-
-    return sub
-
-
-def notify_followers(post, author):
-    """
-    Send subscribed users, excluding author, a message/email.
-    """
-    from . import tasks
-
-    # Template used to send local messages
-    local_template = "messages/subscription_message.html"
-    # Template used to send emails with
-    email_template = "messages/subscription_email.html"
-    context = dict(post=post)
-
-    # Everyone subscribed gets a local message.
-    subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
-
-    tasks.send_message.spool(template=local_template, context=context, subs=subs, sender=author)
-
-    # Send emails to users that specified so
-    email_subs = subs.filter(type=Profile.EMAIL_MESSAGE)
-
-    emails = email_subs.values_list("user__email", flat=True).exclude(user=author)
-
-    from_email = settings.ADMIN_EMAIL
-
-    tasks.send_email.spool(template=email_template, context=context, subject="Subscription",
-                           email_list=emails, from_email=from_email)
-
-
-@receiver(post_save, sender=Post)
-def complete_post(sender, instance, created, *args, **kwargs):
-    # Determine the root of the post.
-    root = instance.root if instance.root is not None else instance
-
-    # Make current user first in the list of contributors.
-    root.thread_users.remove(instance.author)
-    root.thread_users.add(instance.author)
-
-    if created:
-        # Make the Uid user friendly
-        instance.uid = instance.uid or f"p{instance.pk}"
-
-        # Set the titles
-        if instance.parent and not instance.title:
-            instance.title = instance.parent.title
-
-        # Only comments may be added to a parent that is answer or comment.
-        if instance.parent and instance.parent.type in (Post.ANSWER, Post.COMMENT):
-            instance.type = Post.COMMENT
-
-        # Set post type if it was left empty.
-        if instance.type is None:
-            instance.type = Post.COMMENT if instance.parent else Post.FORUM
-
-        # This runs only once upon object creation.
-        instance.title = instance.parent.title if instance.parent else instance.title
-
-        # Default tags
-        instance.tag_val = instance.tag_val or "tag1,tag2"
-
-        if instance.parent:
-            # When the parent is set the root must follow the parent root.
-            instance.root = instance.parent.root
-        else:
-            # When there is no parent, root and parent are set to itself.
-            instance.root = instance.parent = instance
-
-        # Answers and comments may only have comments associated with them.
-        if instance.parent.type in (Post.ANSWER, Post.COMMENT):
-            instance.type = Post.COMMENT
-
-        # Sanity check.
-        assert instance.root and instance.parent
-
-        # Title is inherited from top level.
-        if not instance.is_toplevel:
-            instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
-        # Update the root answer count
-        if instance.type == Post.ANSWER:
-            Post.objects.filter(id=instance.root.id).update(answer_count=F("answer_count") + 1)
-        # Update root comment count
-        if instance.type == Post.COMMENT:
-            Post.objects.filter(id=instance.root.id).update(comment_count=F("comment_count") + 1)
-
-        # Update the root reply count
-        Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
-
-        # Update the parent reply counts.
-        if instance.parent != instance.root:
-            Post.objects.filter(pk=instance.parent.pk).update(reply_count=F("reply_count") + 1)\
-
-        # Update last contributor to the thread.
-        instance.root.last_contributor = instance.last_contributor
-        instance.save()
-
-        create_sub(user=instance.author, root=instance.root)
-        # Send subscription messages
-        notify_followers(post=instance, author=instance.author)
-

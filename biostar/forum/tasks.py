@@ -1,6 +1,10 @@
 import logging
-from biostar.accounts.tasks import detect_location
-
+from django.conf import settings
+from django.db.models import F
+from biostar.accounts import models
+from biostar.accounts.tasks import detect_location, create_messages
+from biostar.emailer.tasks import send_email
+from biostar.forum.models import Subscription, Post
 logger = logging.getLogger("biostar")
 
 try:
@@ -20,35 +24,59 @@ def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-def send_message(template, context, sender, subs=[]):
-    from biostar.accounts import auth, models
+def create_subscription(root, user):
 
-    # Exclude current author of the post from receiving a message.
-    user_ids = subs.values("user").exclude(user=sender).distinct()
+    # Create user subscription to post.
+    sub, created = Subscription.objects.get_or_create(post=root, user=user)
+    if created:
+        # Increase subscription count of the root.
+        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+        logger.debug(f"Created a subscription for user:{user} to root:{root.title}")
 
-    users = models.User.objects.filter(id__in=user_ids)
+    return
+
+
+def notify_followers(post, author):
+    """
+    Send subscribed users, excluding author, a message/email.
+    """
+
+    # Template used to send local messages
+    local_template = "messages/subscription_message.html"
+    # Template used to send emails with
+    email_template = "messages/subscription_email.html"
+    context = dict(post=post)
+
+    # Everyone subscribed gets a local message.
+    subs = Subscription.objects.filter(post=post.root).exclude(type=models.Profile.NO_MESSAGES)
+
     # Send local messages
-    auth.create_messages(template=template, sender=sender, rec_list=users, extra_context=context)
+    users = set(sub.user for sub in subs if sub.user != author)
+    create_messages(template=local_template, extra_context=context, rec_list=users, sender=author)
 
-    logger.debug(f"Sent to subscription message to {len(users)} users.")
+    # Send emails to users that specified so
+    subs = subs.filter(type=models.Profile.EMAIL_MESSAGE)
+    emails = [sub.user.email for sub in subs if (sub.user != author and sub.type == models.Profile.EMAIL_MESSAGE)]
 
+    from_email = settings.ADMIN_EMAIL
 
-def send_email(template, context, subject, email_list, from_email):
-    from biostar.emailer.auth import send
-    send(template_name=template, email_list=email_list,
-         extra_context=context, from_email=from_email,
-         subject=subject, send=True)
+    send_email(template_name=email_template, extra_context=context, subject="Subscription",
+               email_list=emails, from_email=from_email, send=True,)
 
 
 if HAS_UWSGI:
     info_task = spool(info_task, pass_arguments=True)
-    send_message = spool(send_message, pass_arguments=True)
-    detect_location = spool(detect_location, pass_arguments=True)
     send_email = spool(send_email, pass_arguments=True)
+    detect_location.spool = spool(detect_location, pass_arguments=True)
+    create_messages.spool = spool(create_messages, pass_arguments=True)
+    notify_followers = spool(notify_followers, pass_arguments=True)
+    create_subscription = spool(create_subscription, pass_arguments=True)
     created_post = spool(created_post, pass_arguments=True)
 else:
     info_task.spool = info_task
-    send_message.spool = send_message
+    create_messages.spool = create_messages
     detect_location.spool = detect_location
+    notify_followers.spool = notify_followers
+    create_subscription.spool = create_subscription
     send_email.spool = send_email
     created_post.spool = created_post

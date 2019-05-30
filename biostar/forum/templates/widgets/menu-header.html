@@ -41,11 +41,11 @@
     {% else %}
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
             <i class="mail icon"> </i>
-            <span class="tablet">Messages </span>{%  count_label label="message_count" %}
+            <span class="tablet">Messages {% count_label label="message_count" %} </span>
         </a>
         <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
             <i class="heart icon centericon"></i>
-            <span class="tablet">Votes</span> {%  count_label label="vote_count" %}
+            <span class="tablet">Votes {%  count_label label="vote_count" %} </span>
         </a>
 
         <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">

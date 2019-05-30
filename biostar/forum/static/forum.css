@@ -112,8 +112,6 @@ a:hover {
     text-align: right;
 }
 
-.notify {
-}
 
 .post.comment {
     border-bottom: 0;
@@ -151,9 +149,6 @@ a:hover {
     opacity: 0.9;
 }
 
-.editable-input {
-    font-size: 2em;
-}
 
 .popover.error {
     background-color: #f2dede;
