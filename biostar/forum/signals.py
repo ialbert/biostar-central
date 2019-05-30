@@ -76,12 +76,7 @@ def finalize_post(sender, instance, created, **kwargs):
         instance.root.last_contributor = instance.last_contributor
         instance.save()
 
-        # Create subscription for author
-        sub, created = models.Subscription.objects.get_or_create(post=root, user=instance.author)
-        if created:
-            # Increase subscription count of the root.
-            models.Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
-            logger.debug(f"Created a subscription for user:{instance.author} to root:{root.title}")
-
+        # Create a subscription to post.
+        tasks.create_subscription.spool(root=instance.root, user=instance.author)
         # Send subscription messages
         tasks.notify_followers.spool(post=instance, author=instance.author)

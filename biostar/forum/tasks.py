@@ -1,5 +1,6 @@
 import logging
 from django.conf import settings
+from django.db.models import F
 from biostar.accounts import models
 from biostar.accounts.tasks import detect_location, create_messages
 from biostar.emailer.tasks import send_email
@@ -21,6 +22,18 @@ def info_task(*args, **kwargs):
 
 def created_post(pid):
     logger.info(f"Created post={pid}")
+
+
+def create_subscription(root, user):
+
+    # Create user subscription to post.
+    sub, created = Subscription.objects.get_or_create(post=root, user=user)
+    if created:
+        # Increase subscription count of the root.
+        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+        logger.debug(f"Created a subscription for user:{user} to root:{root.title}")
+
+    return
 
 
 def notify_followers(post, author):
@@ -57,11 +70,13 @@ if HAS_UWSGI:
     detect_location.spool = spool(detect_location, pass_arguments=True)
     create_messages.spool = spool(create_messages, pass_arguments=True)
     notify_followers = spool(notify_followers, pass_arguments=True)
+    create_subscription = spool(create_subscription, pass_arguments=True)
     created_post = spool(created_post, pass_arguments=True)
 else:
     info_task.spool = info_task
     create_messages.spool = create_messages
     detect_location.spool = detect_location
     notify_followers.spool = notify_followers
+    create_subscription.spool = create_subscription
     send_email.spool = send_email
     created_post.spool = created_post
