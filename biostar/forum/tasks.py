@@ -1,6 +1,7 @@
 import logging
-from biostar.accounts.tasks import detect_location
-
+from django.conf import settings
+from biostar.accounts import tasks, models
+from biostar.forum.models import Subscription
 logger = logging.getLogger("biostar")
 
 try:
@@ -20,19 +21,6 @@ def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-def send_message(template, context, sender, subs=[]):
-    from biostar.accounts import auth, models
-
-    # Exclude current author of the post from receiving a message.
-    user_ids = subs.values("user").exclude(user=sender).distinct()
-
-    users = models.User.objects.filter(id__in=user_ids)
-    # Send local messages
-    auth.create_messages(template=template, sender=sender, rec_list=users, extra_context=context)
-
-    logger.debug(f"Sent to subscription message to {len(users)} users.")
-
-
 def send_email(template, context, subject, email_list, from_email):
     from biostar.emailer.auth import send
     send(template_name=template, email_list=email_list,
@@ -40,15 +28,41 @@ def send_email(template, context, subject, email_list, from_email):
          subject=subject, send=True)
 
 
+def notify_followers(post, author):
+    """
+    Send subscribed users, excluding author, a message/email.
+    """
+
+    # Template used to send local messages
+    local_template = "messages/subscription_message.html"
+    # Template used to send emails with
+    email_template = "messages/subscription_email.html"
+    context = dict(post=post)
+
+    # Everyone subscribed gets a local message.
+    subs = Subscription.objects.filter(post=post.root).exclude(type=models.Profile.NO_MESSAGES)
+
+    # Send local messages
+    users = [sub.user for sub in subs if sub.user != author]
+    tasks.create_messages.spool(template=local_template, extra_context=context, rec_list=users, sender=author)
+
+    # Send emails to users that specified so
+    subs = subs.filter(type=models.Profile.EMAIL_MESSAGE)
+    emails = [sub.user.email for sub in subs if (sub.user != author and sub.type == models.Profile.EMAIL_MESSAGE)]
+
+    from_email = settings.ADMIN_EMAIL
+
+    send_email.spool(template=email_template, context=context, subject="Subscription",
+                     email_list=emails, from_email=from_email)
+
+
 if HAS_UWSGI:
     info_task = spool(info_task, pass_arguments=True)
-    send_message = spool(send_message, pass_arguments=True)
-    detect_location = spool(detect_location, pass_arguments=True)
     send_email = spool(send_email, pass_arguments=True)
+    notify_followers = spool(notify_followers, pass_arguments=True)
     created_post = spool(created_post, pass_arguments=True)
 else:
     info_task.spool = info_task
-    send_message.spool = send_message
-    detect_location.spool = detect_location
+    notify_followers.spool = notify_followers
     send_email.spool = send_email
     created_post.spool = created_post

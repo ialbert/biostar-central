@@ -1,9 +1,20 @@
 import logging
 import hjson
+import bleach
 from urllib.request import urlopen, Request
 from django.conf import settings
+from django.template import loader
 
 logger = logging.getLogger('biostar')
+
+try:
+    from uwsgidecorators import *
+    HAS_UWSGI = True
+except (ModuleNotFoundError, NameError) as exc:
+    HAS_UWSGI = False
+    logger.warning(exc)
+    pass
+
 
 def detect_location(request, user):
     """
@@ -42,3 +53,35 @@ def detect_location(request, user):
         except Exception as exc:
             logger.error(exc)
 
+
+def create_messages(template, rec_list, sender=None, extra_context={}, subject=""):
+    from biostar.accounts import models
+    """
+    Create batch message from sender to a given recipient_list
+    """
+    # Get the sender
+    name, email = settings.ADMINS[0]
+    sender = sender or models.User.objects.filter(email=email).first()
+
+    # Load the template and context
+    tmpl = loader.get_template(template_name=template)
+    context = dict(sender=sender, subject=subject)
+    context.update(extra_context)
+
+    html = tmpl.render(context)
+    body = bleach.clean(html)
+
+    msgs = []
+    for rec in rec_list:
+        msg = models.Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
+        msgs.append(msg)
+
+    return msgs
+
+
+if HAS_UWSGI:
+    detect_location = spool(detect_location, pass_arguments=True)
+    create_messages = spool(create_messages, pass_arguments=True)
+else:
+    detect_location.spool = detect_location
+    create_messages.spool = create_messages

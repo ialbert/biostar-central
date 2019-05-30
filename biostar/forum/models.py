@@ -11,7 +11,6 @@ from django.shortcuts import reverse
 from django.dispatch import receiver
 from taggit.managers import TaggableManager
 
-
 from biostar.accounts.models import Profile
 from . import util
 
@@ -362,36 +361,12 @@ def create_sub(user, root):
     return sub
 
 
-def notify_followers(post, author):
-    """
-    Send subscribed users, excluding author, a message/email.
-    """
-    from . import tasks
-
-    # Template used to send local messages
-    local_template = "messages/subscription_message.html"
-    # Template used to send emails with
-    email_template = "messages/subscription_email.html"
-    context = dict(post=post)
-
-    # Everyone subscribed gets a local message.
-    subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
-
-    tasks.send_message.spool(template=local_template, context=context, subs=subs, sender=author)
-
-    # Send emails to users that specified so
-    email_subs = subs.filter(type=Profile.EMAIL_MESSAGE)
-
-    emails = email_subs.values_list("user__email", flat=True).exclude(user=author)
-
-    from_email = settings.ADMIN_EMAIL
-
-    tasks.send_email.spool(template=email_template, context=context, subject="Subscription",
-                           email_list=emails, from_email=from_email)
-
-
 @receiver(post_save, sender=Post)
 def complete_post(sender, instance, created, *args, **kwargs):
+    # TODO: imported here to avoid circular imports,
+    #  taken out once this function is moved to signals
+
+    from biostar.forum import tasks
     # Determine the root of the post.
     root = instance.root if instance.root is not None else instance
 
@@ -458,5 +433,5 @@ def complete_post(sender, instance, created, *args, **kwargs):
 
         create_sub(user=instance.author, root=instance.root)
         # Send subscription messages
-        notify_followers(post=instance, author=instance.author)
+        tasks.notify_followers.spool(post=instance, author=instance.author)
 
