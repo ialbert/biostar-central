@@ -338,6 +338,8 @@ figure {
 
 }
 
+
+
 .ui.stat.label.job {
     background-color: #e9530f;
     color: #fff;
@@ -417,13 +419,9 @@ img {
     font-weight: bold;
 }
 
-.unread-message {
-    background: #d5f7cd;
-    padding: 5px;
-}
-
 .new-message {
-    color: #5fc64f !important;
+    background-color: #cfffbf !important;
+
 }
 
 .ui.divided.items > .post.item {
