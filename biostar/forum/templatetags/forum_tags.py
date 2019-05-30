@@ -185,7 +185,8 @@ def follow_label(context, post):
     not_following = "not following"
 
     label_map = {
-        Profile.LOCAL_MESSAGE: "followig with messages",
+        Profile.LOCAL_MESSAGE: "following with messages",
+        Profile.DEFAULT_MESSAGES: "following with messages",
         Profile.EMAIL_MESSAGE: "following via email",
         Profile.NO_MESSAGES: not_following
     }

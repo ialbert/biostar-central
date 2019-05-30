@@ -27,7 +27,7 @@ def add_subscription(email, group, name=''):
     Subscription.objects.create(group=group, address=address)
 
 
-def notify(template_name, email_list, extra_context={}, from_email=None, subject="Subject", send=False):
+def send(template_name, email_list, extra_context={}, from_email=None, subject="Subject", send=False):
 
     from_email = from_email or settings.ADMINS[0][1]
 

@@ -15,13 +15,12 @@
 {% endif %}
 
 
-    {{objs.paginator.count|intcomma}}
+    <span class="phone">{{objs.paginator.count|intcomma}}
     result{{objs.paginator.count|pluralize}}
     &bull;
 
-    <span class="current">
-        Page {{ objs.number }} of {{ objs.paginator.num_pages }}
-    </span>
+        Page </span> {{ objs.number }} of {{ objs.paginator.num_pages }}
+
 
 
 

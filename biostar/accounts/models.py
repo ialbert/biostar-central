@@ -188,7 +188,7 @@ def create_uuid(sender, instance, *args, **kwargs):
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, raw, using, **kwargs):
-    from biostar.accounts import auth
+    from biostar.accounts import tasks
     if created:
         # Set the username to a simpler form.
         username = f"user-{instance.pk}"
@@ -199,5 +199,5 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         Profile.objects.using(using).create(user=instance, uid=username, name=instance.first_name, role=role)
 
         # Create welcome message upon profile creation.
-        auth.create_messages(template="messages/welcome.html", rec_list=[instance])
+        tasks.create_messages.spool(template="messages/welcome.html", rec_list=[instance])
 

@@ -19,8 +19,8 @@ class SendMailTest(TestCase):
         context = dict(target_email="2@lvh.me")
         from_mail= "mailer@biostars.org"
         template_name = "test_email.html"
-        successful = auth.notify(email_list=["2@lvh.me"], extra_context=context,
-                                 template_name=template_name, from_email=from_mail)
+        successful = auth.send(email_list=["2@lvh.me"], extra_context=context,
+                               template_name=template_name, from_email=from_mail)
 
         self.assertTrue(successful, "Error sending mail")
 
