@@ -11,6 +11,7 @@ class AccountsConfig(AppConfig):
     name = 'biostar.accounts'
 
     def ready(self):
+        from . import signals
         # Triggered upon app initialization.
         post_migrate.connect(init_app, sender=self)
 
