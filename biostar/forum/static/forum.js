@@ -283,18 +283,20 @@ $(document).ready(function () {
     $("#form-errors .error").each(function () {
 
         var elem = $(this);
+        // Get the field id and name with an error
         var field_id = elem.attr('data-value');
         var field_name = elem.attr('name');
         // Get the error message
         var message = elem.attr("message");
+        // Select the field in the form using it's id
         var field = $(field_id);
+        // Add an 'error' to the '.ui.field' to turn it red.
         field.closest(".field").addClass("error");
-        //field.addClass("error");
-        var page = $().load(message);
-        //alert(page.html());
-        field.after('<div class="ui small red message"><div class="header capitalize">{0}</div>{1}</div>'.f(field_name, message));
-
-
+        // Insert the error message
+        field.after('<div class="ui small red message">' +
+                        '<div class="header capitalize">{0}</div>{1}' +
+                    '</div>'.f(field_name, message));
+        
     });
 
     $('pre').addClass('language-bash');
