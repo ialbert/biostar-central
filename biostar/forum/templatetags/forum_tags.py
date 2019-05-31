@@ -203,6 +203,25 @@ def follow_label(context, post):
     return label
 
 
+@register.inclusion_tag('widgets/form_errors.html')
+def form_errors(form):
+    """
+    Turns form errors into a data structure
+    """
+    try:
+        errorlist = [('', message) for message in form.non_field_errors()]
+
+        for field in form:
+            for error in field.errors:
+                errorlist.append((f'{field.name}:', error))
+    except Exception:
+        errorlist = []
+
+    context = dict(errorlist=errorlist)
+
+    return context
+
+
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
 def post_body(context, post, user, tree, form):
     "Renders the post body"

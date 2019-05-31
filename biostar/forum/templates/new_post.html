@@ -11,7 +11,6 @@
 
     {% form_errors form %}
 
-    <div class="ui container segment inputcolor">
 
         <div class="ui center aligned basic segment">
             <div class="ui center aligned header">{{ form_title }}  <a class="ui link label" href="#" onclick="window.history.back();"><i class="undo icon"></i>Back </a></div>
@@ -29,11 +28,12 @@
                 <p class="muted">{{ form.title.help_text }}</p>
             </div>
 
-            <div class="required field">
+            <div class="required inline field">
                 <label>{{ form.post_type.label }}</label>
                 {{ form.post_type }}
-                <p class="muted">{{ form.post_type.help_text }}</p>
+
             </div>
+            <p class="muted">{{ form.post_type.help_text }}</p>
 
             <div class="field">
                 <label>{{ form.tag_val.label }}</label>
@@ -55,7 +55,7 @@
                 <i class="undo icon"></i>Cancel
             </a>
         </form>
-    </div>
+
 
 
 {% endblock %}
