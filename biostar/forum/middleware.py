@@ -32,11 +32,8 @@ def forum_middleware(get_response):
         tasks.detect_location.spool(request=request, user=user)
 
         elapsed = (now() - user.profile.last_login).total_seconds()
-        # User just logged in when time elapsed is 0.
-        just_logged_in = int(elapsed) == 0
-
         # Update count information inside session
-        if elapsed > settings.SESSION_UPDATE_SECONDS or just_logged_in:
+        if elapsed > settings.SESSION_UPDATE_SECONDS:
             # Set the last login time.
             Profile.objects.filter(user=user).update(last_login=now())
 

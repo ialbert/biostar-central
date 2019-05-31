@@ -280,7 +280,6 @@ def user_login(request):
 
             if valid_user:
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-                Profile.objects.filter(user=user).update(last_login=now())
                 messages.success(request, "Login successful!")
                 redir = settings.LOGIN_REDIRECT_URL or "/"
                 return redirect(redir)
