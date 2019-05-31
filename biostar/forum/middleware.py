@@ -30,8 +30,8 @@ def forum_middleware(get_response):
 
         # Detect user location.
         tasks.detect_location.spool(request=request, user=user)
-
         elapsed = (now() - user.profile.last_login).total_seconds()
+
         # Update count information inside session
         if elapsed > settings.SESSION_UPDATE_SECONDS:
             # Set the last login time.

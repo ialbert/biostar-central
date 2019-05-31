@@ -336,7 +336,6 @@ def new_post(request):
 
             return redirect(post.get_absolute_url())
         print(form.errors, "views")
-
     # Action url for the form is the current url
     action_url = reverse("post_create")
 

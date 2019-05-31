@@ -280,14 +280,19 @@ $(document).ready(function () {
         });
     });
 
-    $("#form-errors").each(function () {
+    $("#form-errors .item").each(function () {
 
-        var errorlist = $(this);
-        alert(errorlist);
+        var elem = $(this);
+        var field_id = elem.attr('data-value');
+        // Get the error message
+        var message = elem.attr("message");
+
+        var field = $(field_id);
+
+        field.after(message);
+
 
     });
-
-
 
     $('pre').addClass('language-bash');
         Prism.highlightAll();
