@@ -32,8 +32,9 @@ def forum_middleware(get_response):
         tasks.detect_location.spool(request=request, user=user)
 
         elapsed = (now() - user.profile.last_login).total_seconds()
+        #TODO: clicking really fast also makes this true
         just_logged_in = int(elapsed) == 0
-        print(elapsed)
+
         # Update count information inside session
         if elapsed > settings.SESSION_UPDATE_SECONDS or just_logged_in:
             # Set the last login time.
@@ -47,8 +48,7 @@ def forum_middleware(get_response):
             # Save the counts into the session.
             counts = dict(message_count=message_count, vote_count=vote_count)
             request.session["counts"] = counts
-            
-        print(request.session["counts"]["message_count"], "middleware")
+
         response = get_response(request)
 
         # Can process response here after its been handled by the view
