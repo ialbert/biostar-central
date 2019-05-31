@@ -138,6 +138,7 @@ def message_list(request):
     msgs = Message.objects.filter(recipient=user)
     msgs = msgs.select_related("sender", "sender__profile")
     msgs = msgs.order_by("-sent_date")
+
     # Update the unread flag every second visits
     second_visit = request.session.get("second_visit", False)
     if second_visit:
@@ -147,11 +148,14 @@ def message_list(request):
     paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
     msgs = paginator.get_page(page)
 
-    # First visit is complete
+    # Ensures messages get unread flag updated
     request.session["second_visit"] = True
+    # Set count back to 0
+    counts = request.session.get("counts", {})
+    counts["message_count"] = 0
+    request.session["counts"] = counts
 
     context = dict(tab="messages", all_messages=msgs)
-
     return render(request, "messages/message_list.html", context)
 
 
