@@ -32,7 +32,7 @@ def forum_middleware(get_response):
         tasks.detect_location.spool(request=request, user=user)
 
         elapsed = (now() - user.profile.last_login).total_seconds()
-        #TODO: clicking really fast also makes this true
+        # User just logged in when time elapsed is 0.
         just_logged_in = int(elapsed) == 0
 
         # Update count information inside session
