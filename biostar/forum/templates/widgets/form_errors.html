@@ -1,16 +1,10 @@
 {% if errorlist %}
 
-    <div class="ui red message" id="form-errors">
-        <div class="ui icons list">
+    <div id="form-errors">
             {% for name, message, field_id in errorlist %}
-                <div class="errored item" data-value="#{{ field_id }}" message="{{ message }}">
-                    <i class="warning circle icon"></i>
-                    <div class="content">
-                        {{ name }} {{ message }}
-                    </div>
+                <div class="error" data-value="#{{ field_id }}" name={{ name }} message="{{ message }}">
                 </div>
             {% endfor %}
-        </div>
     </div>
 
 {% endif %}

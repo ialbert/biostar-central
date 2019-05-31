@@ -10,12 +10,15 @@
 {% block content %}
 
     {% form_errors form %}
+<div class="ui horizontal segments no-shadow">
+<div class="ui segment  no-shadow"></div>
 
+<div class="ui basic compact segment no-shadow">
 
-        <div class="ui center aligned basic segment">
-            <div class="ui center aligned header">{{ form_title }}  <a class="ui link label" href="#" onclick="window.history.back();"><i class="undo icon"></i>Back </a></div>
-
+        <div class="ui medium header">{{ form_title }} <a class="ui link label" href="{% url 'post_list' %}">
+            <i class="undo icon"></i> Back</a>
         </div>
+    <div class="ui divider"></div>
 
         <form method="post" class="ui form" action="{{ action_url }}">
 
@@ -57,5 +60,7 @@
         </form>
 
 
+</div>
 
+<div class="ui segment no-shadow"></div></div>
 {% endblock %}

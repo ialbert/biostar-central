@@ -419,6 +419,10 @@ img {
     font-weight: bold;
 }
 
+.capitalize{
+    text-transform:capitalize;
+}
+
 .new-message {
     background-color: #cfffbf !important;
 

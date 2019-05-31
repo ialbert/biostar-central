@@ -280,16 +280,19 @@ $(document).ready(function () {
         });
     });
 
-    $("#form-errors .item").each(function () {
+    $("#form-errors .error").each(function () {
 
         var elem = $(this);
         var field_id = elem.attr('data-value');
+        var field_name = elem.attr('name');
         // Get the error message
         var message = elem.attr("message");
-
         var field = $(field_id);
-
-        field.after(message);
+        field.closest(".field").addClass("error");
+        //field.addClass("error");
+        var page = $().load(message);
+        //alert(page.html());
+        field.after('<div class="ui small red message"><div class="header capitalize">{0}</div>{1}</div>'.f(field_name, message));
 
 
     });
