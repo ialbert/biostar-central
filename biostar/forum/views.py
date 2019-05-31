@@ -335,6 +335,7 @@ def new_post(request):
             tasks.created_post.spool(pid=post.id)
 
             return redirect(post.get_absolute_url())
+        print(form.errors, "views")
 
     # Action url for the form is the current url
     action_url = reverse("post_create")

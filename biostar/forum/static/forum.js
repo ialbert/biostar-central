@@ -280,6 +280,15 @@ $(document).ready(function () {
         });
     });
 
+    $("#form-errors").each(function () {
+
+        var errorlist = $(this);
+        alert(errorlist);
+
+    });
+
+
+
     $('pre').addClass('language-bash');
         Prism.highlightAll();
 
