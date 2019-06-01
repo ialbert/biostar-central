@@ -15,8 +15,8 @@ def ajax_msg(msg, status, **kwargs):
     payload.update(kwargs)
     return JsonResponse(payload)
 
-logger = logging.getLevelName("biostar")
 
+logger = logging.getLevelName("biostar")
 ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
 
@@ -121,5 +121,4 @@ def ajax_subs(request):
     Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
 
     return ajax_success(msg=msg)
-
 

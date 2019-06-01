@@ -10,6 +10,9 @@
 {% block content %}
 
     {% form_errors form %}
+                    <div class="ui form">
+
+
 <div class="ui horizontal segments no-shadow">
 <div class="ui segment  no-shadow"></div>
 
@@ -33,7 +36,7 @@
 
             <div class="required field">
                 <label>{{ form.post_type.label }}</label>
-                <select class="ui fluid dropdown" name="{{ form.post_type.name }}" id="{{ form.post_type.id_for_label }}">
+                <select class="ui fluid select dropdown" name="{{ form.post_type.name }}" id="{{ form.post_type.id_for_label }}">
                     {% for val,name in  form.post_type.field.widget.choices %}
                         <option value="{{ val }}">{{ name }}</option>
                     {% endfor %}
@@ -42,9 +45,19 @@
             </div>
              <p class="muted">{{ form.post_type.help_text }}</p>
 
-            <div class="input field">
+            <div class="field">
                 <label>{{ form.tag_val.label }}</label>
-                {{ form.tag_val }}
+
+                <input type="text" name="{{ form.tag_val.name }}" id="{{ form.id_for_label }}">
+
+                <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-id">
+                  <option value="">Select Country</option>
+                  <option value="AF" >Afghanistan</option>
+                  <option value="AX" >Åland Islands</option>
+                  <option value="AL" >Albania</option>
+                </select>
+
+
                 <p class="muted">{{ form.tag_val.help_text }}</p>
             </div>
 

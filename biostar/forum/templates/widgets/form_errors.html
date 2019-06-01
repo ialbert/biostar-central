@@ -1,10 +1,9 @@
 {% if errorlist %}
 
     <div id="form-errors">
-            {% for name, message, field_id in errorlist %}
-                <div class="error" data-value="#{{ field_id }}" name={{ name }} message="{{ message }}">
-                </div>
-            {% endfor %}
+        {% for label, message, field_id in errorlist %}
+            <div class="error" data-value="#{{ field_id }}" label="{{ label }}" message="{{ message }}"></div>
+        {% endfor %}
     </div>
 
 {% endif %}

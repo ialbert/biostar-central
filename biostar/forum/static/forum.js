@@ -182,6 +182,33 @@ function remove_trigger() {
 
 $(document).ready(function () {
 
+    $('.ui.dropdown').dropdown();
+
+    $('.tag-field >input.search').keyup(function() {
+
+
+        var tagelem = $("#tag-id");
+
+        var value = $(this).val();
+
+        var prev_elem = tagelem.children('option.typed').first();
+        var prev_value = prev_elem.attr("value");
+
+        // Check if previous key stroke has been selected
+        var selected = $('.tag-field > .label[data-value="{0}"]'.f(prev_value));
+
+        if (selected.length === 0){
+            prev_elem.remove();
+        }
+
+        //$("#tag-field option.typed").remove();
+        //alert($(".ui.multiple.dropdown>.label").attr("data-value"));
+        tagelem.prepend('<option value="{0}" class="typed">{0}</option>'.f(value));
+        //tagelem.focus()
+        //$(this).reload();
+
+    });
+
     $('#subscribe')
         .dropdown({
           action:'hide',
@@ -283,9 +310,9 @@ $(document).ready(function () {
     $("#form-errors .error").each(function () {
 
         var elem = $(this);
-        // Get the field id and name with an error
+        // Get errored out field id and label
         var field_id = elem.attr('data-value');
-        var field_name = elem.attr('name');
+        var field_label = elem.attr('label');
         // Get the error message
         var message = elem.attr("message");
         // Select the field in the form using it's id
@@ -294,10 +321,11 @@ $(document).ready(function () {
         field.closest(".field").addClass("error");
         // Insert the error message
         field.after('<div class="ui small red message">' +
-                        '<div class="header capitalize">{0}</div>{1}' +
-                    '</div>'.f(field_name, message));
-        
+                        '<div class="header capitalize">' +
+                            '{0}</div><i class="warning small icon"></i>{1}'.f(field_label, message) +
+                    '</div>')
     });
+
 
     $('pre').addClass('language-bash');
         Prism.highlightAll();
