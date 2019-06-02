@@ -343,6 +343,7 @@ def new_post(request):
 
     return render(request, "new_post.html", context=context)
 
+
 @post_exists
 @login_required
 def post_moderate(request, uid):

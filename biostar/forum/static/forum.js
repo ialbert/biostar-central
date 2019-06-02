@@ -184,10 +184,19 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
 
+    $('.tag-field').dropdown({
+
+        onChange: function(value, text, $selectedItem) {
+            var tagid = $("#tag-menu").attr('field_id');
+            var tagelem = $('#{0}'.f(tagid));
+            tagelem.val(value);
+
+    }
+    });
+
     $('.tag-field >input.search').keyup(function() {
 
-
-        var tagelem = $("#tag-id");
+        var tagelem = $("#tag-menu");
 
         var value = $(this).val();
 
@@ -201,13 +210,15 @@ $(document).ready(function () {
             prev_elem.remove();
         }
 
-        //$("#tag-field option.typed").remove();
-        //alert($(".ui.multiple.dropdown>.label").attr("data-value"));
         tagelem.prepend('<option value="{0}" class="typed">{0}</option>'.f(value));
-        //tagelem.focus()
+
+        //tagelem.dropdown("set selected", value);
         //$(this).reload();
+        //$(this).children(":first").focus();
 
     });
+
+
 
     $('#subscribe')
         .dropdown({

@@ -23,7 +23,7 @@
         </div>
     <div class="ui divider"></div>
 
-        <form method="post" class="ui form" action="{{ action_url }}">
+        <form method="post" class="ui create-form form" action="{{ action_url }}">
 
             {{ form.media }}
             {% csrf_token %}
@@ -34,9 +34,10 @@
                 <p class="muted">{{ form.title.help_text }}</p>
             </div>
 
-            <div class="required field">
+
+            <div class="required inline field">
                 <label>{{ form.post_type.label }}</label>
-                <select class="ui fluid select dropdown" name="{{ form.post_type.name }}" id="{{ form.post_type.id_for_label }}">
+                <select class="ui dropdown" name="{{ form.post_type.name }}" id="{{ form.post_type.id_for_label }}">
                     {% for val,name in  form.post_type.field.widget.choices %}
                         <option value="{{ val }}">{{ name }}</option>
                     {% endfor %}
@@ -48,10 +49,10 @@
             <div class="field">
                 <label>{{ form.tag_val.label }}</label>
 
-                <input type="text" name="{{ form.tag_val.name }}" id="{{ form.id_for_label }}">
+                <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}">
 
-                <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-id">
-                  <option value="">Select Country</option>
+                <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="{{ form.tag_val.id_for_label }}">
+                  <option value="">Tags</option>
                   <option value="AF" >Afghanistan</option>
                   <option value="AX" >Åland Islands</option>
                   <option value="AL" >Albania</option>
