@@ -321,6 +321,10 @@ def new_post(request):
     """
     form = forms.PostLongForm()
     author = request.user
+    # Map default tag values to not selected in dropdown
+    tags_options = {val: False for val in TAGS}
+    selected_tags = {}
+
     if request.method == "POST":
         form = forms.PostLongForm(data=request.POST)
         if form.is_valid():
@@ -331,15 +335,16 @@ def new_post(request):
             tag_val = form.cleaned_data.get('tag_val')
             post = auth.create_post(title=title, content=content, post_type=post_type,
                                     tag_val=tag_val, author=author)
-
             tasks.created_post.spool(pid=post.id)
-
             return redirect(post.get_absolute_url())
+        selected_tags = {val: True for val in request.POST.get('tag_val', '').split(",")}
 
     # Action url for the form is the current url
     action_url = reverse("post_create")
+    tags_options.update(selected_tags)
 
-    context = dict(form=form, tab="new", action_url=action_url, form_title="Create New Post")
+    context = dict(form=form, tab="new", action_url=action_url, tags_opt=tags_options.items(),
+                   form_title="Create New Post")
 
     return render(request, "new_post.html", context=context)
 

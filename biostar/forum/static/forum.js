@@ -185,40 +185,27 @@ $(document).ready(function () {
     $('.ui.dropdown').dropdown();
 
     $('.tag-field').dropdown({
-
+        maxSelections: 5,
+        allowAdditions: true,
         onChange: function(value, text, $selectedItem) {
+            // Get field to add recently selected value to
             var tagid = $("#tag-menu").attr('field_id');
-            var tagelem = $('#{0}'.f(tagid));
-            tagelem.val(value);
-
+            var tag_field = $('#{0}'.f(tagid));
+            // Add selected tag to field in a form.
+            tag_field.val(value);
     }
     });
-
-    $('.tag-field >input.search').keyup(function() {
-
-        var tagelem = $("#tag-menu");
-
-        var value = $(this).val();
-
-        var prev_elem = tagelem.children('option.typed').first();
-        var prev_value = prev_elem.attr("value");
-
-        // Check if previous key stroke has been selected
-        var selected = $('.tag-field > .label[data-value="{0}"]'.f(prev_value));
-
-        if (selected.length === 0){
-            prev_elem.remove();
+    $('.tag-field >input.search').keydown(function(event) {
+        
+        // Press ENTER and add current value to tags.
+        if (event.keyCode === 13 || event.keyCode === 10){
+            var value = $(this).val();
+            $("#tag-menu").dropdown("set selected", value);
+            $('.tag-field >input.search').val('');
+            event.preventDefault();
         }
 
-        tagelem.prepend('<option value="{0}" class="typed">{0}</option>'.f(value));
-
-        //tagelem.dropdown("set selected", value);
-        //$(this).reload();
-        //$(this).children(":first").focus();
-
     });
-
-
 
     $('#subscribe')
         .dropdown({

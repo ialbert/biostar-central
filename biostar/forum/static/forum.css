@@ -429,6 +429,12 @@ img {
     background: #f9f6f4;
 }
 
+.tag-field > input.search{
+    //width: 50% !important;
+}
+
+
+
 .new-message {
     background-color: #cfffbf !important;
 

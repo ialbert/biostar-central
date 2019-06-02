@@ -51,13 +51,15 @@
 
                 <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}">
 
-                <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="{{ form.tag_val.id_for_label }}">
+                <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="{{form.tag_val.id_for_label}}">
                   <option value="">Tags</option>
-                  <option value="AF" >Afghanistan</option>
-                  <option value="AX" >Åland Islands</option>
-                  <option value="AL" >Albania</option>
-                </select>
+                  {% for value, selected in tags_opt %}
+                      {% if selected %}<option value="{{ value }}" selected="selected">{{value}}</option>
+                      {% else %}<option value="{{ value }}">{{value}}</option>
+                      {% endif %}
+                  {% endfor %}
 
+                </select>
 
                 <p class="muted">{{ form.tag_val.help_text }}</p>
             </div>

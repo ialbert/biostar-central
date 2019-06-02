@@ -51,7 +51,7 @@ class PostLongForm(forms.Form):
                             help_text="Descriptive titles promote better answers.")
     tag_val = forms.CharField(label="Post Tags", max_length=50, required=False, validators=[valid_tag],
                               help_text="""Choose one or more tags to match the topic. 
-                                     To create a new tag just type it in and press ENTER.""",
+                                     To create a new tag just type and press ENTER.""",
                               widget=forms.HiddenInput())
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
                               min_length=10, max_length=15000, label="Enter your post below")
