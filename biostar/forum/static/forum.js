@@ -185,20 +185,19 @@ $(document).ready(function () {
     $('.ui.dropdown').dropdown();
 
     $('.tag-field').dropdown({
-        maxSelections: 5,
         allowAdditions: true,
         onChange: function(value, text, $selectedItem) {
-            // Get field to add recently selected value to
+            // Get form field to add to
             var tagid = $("#tag-menu").attr('field_id');
             var tag_field = $('#{0}'.f(tagid));
-            // Add selected tag to field in a form.
+            // Add selected tag to field
             tag_field.val(value);
     }
     });
     $('.tag-field >input.search').keydown(function(event) {
-        
+
         // Press ENTER and add current value to tags.
-        if (event.keyCode === 13 || event.keyCode === 10){
+        if (event.keyCode === 13){
             var value = $(this).val();
             $("#tag-menu").dropdown("set selected", value);
             $('.tag-field >input.search').val('');

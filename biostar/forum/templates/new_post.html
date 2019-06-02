@@ -49,7 +49,6 @@
             <div class="field">
                 <label>{{ form.tag_val.label }}</label>
 
-                <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}">
 
                 <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="{{form.tag_val.id_for_label}}">
                   <option value="">Tags</option>
@@ -60,6 +59,8 @@
                   {% endfor %}
 
                 </select>
+                <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}">
+
 
                 <p class="muted">{{ form.tag_val.help_text }}</p>
             </div>
