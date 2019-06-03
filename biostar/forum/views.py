@@ -322,8 +322,7 @@ def new_post(request):
     form = forms.PostLongForm()
     author = request.user
     # Map default tag values to not selected in dropdown
-    tags_options = {val: False for val in TAGS}
-    selected_tags = {}
+    tags_opts = {}
 
     if request.method == "POST":
         form = forms.PostLongForm(data=request.POST)
@@ -337,13 +336,12 @@ def new_post(request):
                                     tag_val=tag_val, author=author)
             tasks.created_post.spool(pid=post.id)
             return redirect(post.get_absolute_url())
-        selected_tags = {val: True for val in request.POST.get('tag_val', '').split(",")}
+        tags_opts = {val: True for val in request.POST.get('tag_val', '').split(",")}
 
-    # Action url for the form is the current url
+    # Action url for the form is the current view
     action_url = reverse("post_create")
-    tags_options.update(selected_tags)
-
-    context = dict(form=form, tab="new", action_url=action_url, tags_opt=tags_options.items(),
+    tags_opts = tags_opts.items()
+    context = dict(form=form, tab="new", action_url=action_url, tags_opt=tags_opts,
                    form_title="Create New Post")
 
     return render(request, "new_post.html", context=context)
@@ -384,6 +382,7 @@ def edit_post(request, uid):
     post = Post.objects.filter(uid=uid).first()
     action_url = reverse("post_edit", kwargs=dict(uid=post.uid))
     user = request.user
+    tags_opts = {val: True for val in post.tag_val.split(",")}
 
     if post.is_toplevel:
         template, form_class = "new_post.html", forms.PostLongForm
@@ -400,6 +399,8 @@ def edit_post(request, uid):
             messages.success(request, f"Edited :{post.title}")
             return redirect(post.get_absolute_url())
 
-    context = dict(form=form, post=post, action_url=action_url, form_title="Edit post")
+    tags_opts = tags_opts.items()
+    context = dict(form=form, post=post, action_url=action_url, form_title="Edit post",
+                   tags_opt=tags_opts)
 
     return render(request, template, context)

@@ -180,6 +180,7 @@ function remove_trigger() {
     });
 }
 
+
 $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
@@ -195,15 +196,32 @@ $(document).ready(function () {
     }
     });
     $('.tag-field >input.search').keydown(function(event) {
-
-        // Press ENTER and add current value to tags.
+        // Prevent submitting form when adding tag by pressing ENTER.
         if (event.keyCode === 13){
-            var value = $(this).val();
-            $("#tag-menu").dropdown("set selected", value);
-            $('.tag-field >input.search').val('');
             event.preventDefault();
         }
+    });
 
+    $('.edit-post').click(function(){
+        var post_uid = $(this).attr('post_uid');
+
+        $("#"+ post_uid ).editable("/ajax/edit/", {
+            loadurl: '/ajax/content/',
+            name : 'content',
+            loaddata: {"post_uid":post_uid},
+            submit: 'Save',
+            cancel : 'Cancel',
+            submitcssclass:'ui green button',
+            cancelcssclass:'ui right floated orange button',
+            type: 'textarea',
+            width: '605px',
+            height: '150px',
+            cssclass:"ui form",
+
+            onreset: function (settings, original) {
+
+            }
+        });
     });
 
     $('#subscribe')
@@ -312,9 +330,9 @@ $(document).ready(function () {
         var field_label = elem.attr('label');
         // Get the error message
         var message = elem.attr("message");
-        // Select the field in the form using it's id
+        // Select field in the form using it's id
         var field = $(field_id);
-        // Add an 'error' to the '.ui.field' to turn it red.
+        // Add an 'error' to '.ui.field' to turn it red.
         field.closest(".field").addClass("error");
         // Insert the error message
         field.after('<div class="ui small red message">' +

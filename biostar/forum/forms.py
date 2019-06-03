@@ -44,7 +44,8 @@ def valid_tag(text):
 
 class PostLongForm(forms.Form):
     choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
-    post_type = forms.IntegerField(label="Post Type", widget=forms.Select(choices=choices),
+    post_type = forms.IntegerField(label="Post Type",
+                                   widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
                                    help_text="Select a post type: Question, Forum, Job, Blog")
     title = forms.CharField(label="Post Title", max_length=200, min_length=2,
                             validators=[valid_title, english_only],

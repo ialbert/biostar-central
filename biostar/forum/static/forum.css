@@ -429,11 +429,6 @@ img {
     background: #f9f6f4;
 }
 
-.tag-field > input.search{
-    //width: 50% !important;
-}
-
-
 
 .new-message {
     background-color: #cfffbf !important;
@@ -512,15 +507,7 @@ pre > code {
     padding: 0px 0px 0px 0px;
 }
 
-code {
-    color: #c7254e;;
-    background-color: #EEEEEE;
-    padding: 2px 5px 2px 5px;
-    border-radius: 3px;
-    line-height: 1.7;
-    overflow: auto;
 
-}
 
 
 #comment {

@@ -48,15 +48,18 @@
 
         </div>
 
-        <div class="content">
+        <div class="content edit-post" post_uid="{{ post.uid }}">
 
             <div class="wrap">
                 {# Display post author. #}
-                <span class="tablet">
                 {% post_user_box user=post.author post=post %}
-                </span>
+
                 {# Display post content. #}
+
+                <span id="{{ post.uid }}">
                 {{ post.html|safe }}
+                </span>
+
             </div>
 
             {# Show tags #}

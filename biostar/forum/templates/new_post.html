@@ -37,11 +37,7 @@
 
             <div class="required inline field">
                 <label>{{ form.post_type.label }}</label>
-                <select class="ui dropdown" name="{{ form.post_type.name }}" id="{{ form.post_type.id_for_label }}">
-                    {% for val,name in  form.post_type.field.widget.choices %}
-                        <option value="{{ val }}">{{ name }}</option>
-                    {% endfor %}
-                </select>
+                {{ form.post_type }}
 
             </div>
              <p class="muted">{{ form.post_type.help_text }}</p>
@@ -49,9 +45,9 @@
             <div class="field">
                 <label>{{ form.tag_val.label }}</label>
 
-
                 <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="{{form.tag_val.id_for_label}}">
                   <option value="">Tags</option>
+
                   {% for value, selected in tags_opt %}
                       {% if selected %}<option value="{{ value }}" selected="selected">{{value}}</option>
                       {% else %}<option value="{{ value }}">{{value}}</option>
