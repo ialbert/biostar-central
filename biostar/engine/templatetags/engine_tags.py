@@ -12,6 +12,7 @@ from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator
+from django.db.models import Q,Count
 from django.template import defaultfilters
 from django.utils.safestring import mark_safe
 
@@ -33,12 +34,28 @@ DATA_COLORS = {
 }
 
 
-@register.inclusion_tag('widgets/pages.html')
-def pages(objs, request):
-
-    url = request.path
-    return dict(objs=objs, url=url, request=request)
-
+@register.filter
+def time_ago(date):
+    pluralize = lambda value, word: f"{value} {word}s" if value > 1 else f'{value} {word}'
+    if not date:
+        return ''
+    delta = util.now() - date
+    if delta < timedelta(minutes=1):
+        return 'just now'
+    elif delta < timedelta(hours=1):
+        unit = pluralize(delta.seconds // 60, "minute")
+    elif delta < timedelta(days=1):
+        unit = pluralize(delta.seconds // 3600, "hour")
+    elif delta < timedelta(days=30):
+        unit = pluralize(delta.days, "day")
+    elif delta < timedelta(days=90):
+        unit = pluralize(int(delta.days / 7), "week")
+    elif delta < timedelta(days=730):
+        unit = pluralize(int(delta.days / 30), "month")
+    else:
+        diff = delta.days / 365.0
+        unit = '%0.1f years' % diff
+    return "%s ago" % unit
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -55,6 +72,38 @@ def bignum(number):
     except ValueError as exc:
         pass
     return str(number)
+
+
+@register.simple_tag()
+def user_score(user):
+    score = user.profile.score * 10
+    return score
+
+
+@register.inclusion_tag('widgets/user_icon.html')
+def user_icon(user):
+    score = user_score(user)
+    context = dict(user=user, score=score)
+    return context
+
+
+@register.inclusion_tag('widgets/list_view.html', takes_context=True)
+def list_projects(context, target):
+
+    user = context["request"].user
+    projects = auth.get_project_list(user=target)
+
+    # Don't show private projects non owners
+    if user != target:
+        projects = projects.exclude(privacy=Project.PRIVATE)
+
+    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(deleted=False)),
+                                 job_count=Count('job', distinct=True, filter=Q(deleted=False)),
+                                 recipe_count=Count('analysis', distinct=True, filter=Q(deleted=False)),
+                                 )
+    projects = projects.order_by("-rank", "-lastedit_date")
+
+    return dict(projects=projects)
 
 
 @register.simple_tag
