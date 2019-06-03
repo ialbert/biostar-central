@@ -377,8 +377,13 @@ img {
     float: right;
 }
 
-.has_replies.label {
+.accepted.label {
    color:#E1E818!important;
+
+}
+
+.accepted.answer.label {
+   background-color: #436c27!important;
 }
 
 .ui.question.label {
@@ -401,7 +406,7 @@ img {
     color: white;
 }
 
-.ui.answered.label {
+.ui.has_answers.label {
     background-color: #5b8c3e;
     color: white;
 }

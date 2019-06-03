@@ -238,7 +238,7 @@ $(document).ready(function () {
             submit: 'Save',
             cancel : 'Cancel',
             submitcssclass:'ui green button inline-buttons',
-            cancelcssclass: 'ui orange right floated button inline-buttons',
+            cancelcssclass: 'ui orange button inline-buttons',
             type: 'textarea',
             width: inputwidth,
             height: $(this)[0].scrollHeight,
