@@ -178,6 +178,10 @@ a:hover {
     color: red;
 }
 
+.editing{
+    cursor: pointer;
+}
+
 .post > .body > .content {
     width: 100%;
     overflow: auto;

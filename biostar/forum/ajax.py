@@ -124,40 +124,22 @@ def ajax_subs(request):
     return ajax_success(msg=msg)
 
 
-@ajax_error_wrapper(method="POST")
-def ajax_edit(request):
-    """Return post html after an edit."""
-    uid = request.POST.get("id")
-    post = Post.objects.filter(uid=uid).first()
-    if post:
-        content = request.POST.get("content", post.content)
-        post.content = content
-        post.save()
-        return HttpResponse(content=post.html, content_type="text/html")
-
-    return HttpResponse(content="Post does not exist.", status=400, content_type="text/plain")
-
-
-@ajax_error_wrapper(method="GET")
-def ajax_html(request):
-    """Return post html."""
-    uid = request.GET.get("post_uid")
-    post = Post.objects.filter(uid=uid).first()
-
-    if post:
-        return HttpResponse(content=post.html, content_type="text/html")
-
-    return HttpResponse(content="Post does not exist.", status=400, content_type="text/plain")
-
-
-@ajax_error_wrapper(method="GET")
+#@ajax_error_wrapper(method="GET")
 def ajax_content(request):
-    """Return post content as a text response"""
+    """Return or edit post content as a text response"""
 
-    uid = request.GET.get("post_uid")
+    uid = request.GET.get("id", request.POST.get("id"))
     post = Post.objects.filter(uid=uid).first()
 
-    if post:
-        return HttpResponse(content=post.content, content_type="text/plain")
+    if not post:
+        return HttpResponse(content="Post does not exist.", status=400, content_type="text/plain")
 
-    return HttpResponse(content="Post does not exist.", status=400, content_type="text/plain")
+    if request.method == "POST":
+        if post:
+            content = request.POST.get("content", post.content)
+            post.content = content
+            post.save()
+
+        return HttpResponse(content=post.html, content_type="text/html")
+
+    return HttpResponse(content=post.content, content_type="text/plain")

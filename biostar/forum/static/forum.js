@@ -204,11 +204,12 @@ $(document).ready(function () {
 
     $('.edit-post').click(function(){
         var post_uid = $(this).attr('post_uid');
+        var editing = $("#"+ post_uid );
 
-        $("#"+ post_uid ).editable("/ajax/edit/", {
+        //$('element').data( 'old_html' )
+        editing.editable('/ajax/content/', {
             loadurl: '/ajax/content/',
             name : 'content',
-            loaddata: {"post_uid":post_uid},
             submit: 'Save',
             cancel : 'Cancel',
             submitcssclass:'ui green button',
@@ -218,7 +219,9 @@ $(document).ready(function () {
             height: '150px',
             cssclass:"ui form",
 
-            onreset: function (settings, original) {
+            callback: function (value, settings) {
+                //alert(value)
+                //$(this).html(editting.data('old_html'));
 
             }
         });
