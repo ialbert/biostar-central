@@ -204,16 +204,21 @@ $(document).ready(function () {
 
     $('.edit-post').click(function(){
         var post_uid = $(this).attr('post_uid');
-        var editing = $("#"+ post_uid );
+        var editing = $(" #"+ post_uid );
 
-        //$('element').data( 'old_html' )
+        editing.data( 'old_html' , editing.html());
+
         editing.editable('/ajax/content/', {
+            onblur: 'ignore',
+            onreset: function (settings, original) {
+                editing.load(location.href+" #"+ post_uid +">*","");
+            },
             loadurl: '/ajax/content/',
             name : 'content',
             submit: 'Save',
             cancel : 'Cancel',
-            submitcssclass:'ui green button',
-            cancelcssclass:'ui right floated orange button',
+            submitcssclass:'ui green button inline-buttons',
+            cancelcssclass:'ui right floated orange button inline-buttons',
             type: 'textarea',
             width: '605px',
             height: '150px',

@@ -178,7 +178,7 @@ a:hover {
     color: red;
 }
 
-.editing{
+.pointer{
     cursor: pointer;
 }
 
@@ -512,6 +512,9 @@ pre > code {
 }
 
 
+.inline-buttons{
+    margin-top: 5px !important;
+}
 
 
 #comment {

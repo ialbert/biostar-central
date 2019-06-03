@@ -56,9 +56,10 @@
 
                 {# Display post content. #}
 
-                <span class="editing" id="{{ post.uid }}">
-                {{ post.html|safe }}
+                <span class="pointer" id="{% if post.is_editable %}{{ post.uid }}{% endif %}">
+                    {{ post.html|safe }}
                 </span>
+
 
             </div>
 
