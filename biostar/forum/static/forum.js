@@ -180,6 +180,22 @@ function remove_trigger() {
     });
 }
 
+function do_resize(textbox) {
+
+ var maxrows=5;
+  var txt=textbox.value;
+  var cols=textbox.cols;
+
+ var arraytxt=txt.split('\n');
+  var rows=arraytxt.length;
+
+ for (i=0;i<arraytxt.length;i++)
+  rows+=parseInt(arraytxt[i].length/cols);
+
+ if (rows>maxrows) textbox.rows=maxrows;
+  else textbox.rows=rows;
+ }
+
 
 $(document).ready(function () {
 
@@ -201,10 +217,15 @@ $(document).ready(function () {
             event.preventDefault();
         }
     });
-
+    
     $('.edit-post').click(function(){
         var post_uid = $(this).attr('post_uid');
         var editing = $(" #"+ post_uid );
+        var inputwidth = $(this).attr('inputwidth') || '605px';
+
+        var arraytxt = editing.text().trim().split('\n');
+        var pad = 2;
+        var rows = arraytxt.length + pad;
 
         editing.editable('/ajax/content/', {
             onblur: 'ignore',
@@ -212,14 +233,15 @@ $(document).ready(function () {
                 editing.load('/ajax/html/' + post_uid + '/');
             },
             loadurl: '/ajax/content/',
+            rows:rows,
             name : 'content',
             submit: 'Save',
             cancel : 'Cancel',
             submitcssclass:'ui green button inline-buttons',
-            cancelcssclass:'ui right floated orange button inline-buttons',
+            cancelcssclass: 'ui orange right floated button inline-buttons',
             type: 'textarea',
-            width: '605px',
-            height: '150px',
+            width: inputwidth,
+            height: $(this)[0].scrollHeight,
             cssclass:"ui form"
         });
     });

@@ -18,9 +18,16 @@
 
         </div>
 
-        <div class="content">
+        <div class="content edit-post" post_uid="{{ post.uid }}" inputwidth="710px">
 
-            {{ post.html|safe }}
+            {% if post.is_editable %}
+                <div class="pointer" id="{{ post.uid }}">
+                    {{ post.html|safe }}
+                </div>
+            {% else %}
+                {{ post.html|safe }}
+            {% endif %}
+
 
             {% post_actions post=post label="ADD REPLY" avatar=True %}
 
