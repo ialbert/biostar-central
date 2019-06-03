@@ -209,7 +209,7 @@ $(document).ready(function () {
         editing.editable('/ajax/content/', {
             onblur: 'ignore',
             onreset: function (settings, original) {
-                editing.load(location.href+" #"+ post_uid +">*","");
+                editing.load('/ajax/html/' + post_uid + '/');
             },
             loadurl: '/ajax/content/',
             name : 'content',
