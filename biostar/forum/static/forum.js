@@ -206,8 +206,6 @@ $(document).ready(function () {
         var post_uid = $(this).attr('post_uid');
         var editing = $(" #"+ post_uid );
 
-        editing.data( 'old_html' , editing.html());
-
         editing.editable('/ajax/content/', {
             onblur: 'ignore',
             onreset: function (settings, original) {
