@@ -217,15 +217,15 @@ $(document).ready(function () {
             event.preventDefault();
         }
     });
-    
+
+
     $('.edit-post').click(function(){
         var post_uid = $(this).attr('post_uid');
         var editing = $(" #"+ post_uid );
         var inputwidth = $(this).attr('inputwidth') || '605px';
 
-        var arraytxt = editing.text().trim().split('\n');
-        var pad = 2;
-        var rows = arraytxt.length + pad;
+        var arraytxt = editing.text().split('\n');
+        var rows = arraytxt.length;
 
         editing.editable('/ajax/content/', {
             onblur: 'ignore',
@@ -242,7 +242,7 @@ $(document).ready(function () {
             type: 'textarea',
             width: inputwidth,
             height: $(this)[0].scrollHeight,
-            cssclass:"ui form"
+            cssclass:"ui inline-post form"
         });
     });
 
