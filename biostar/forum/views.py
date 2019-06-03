@@ -152,7 +152,7 @@ def post_list(request, show=None):
     posts = paginator.get_page(page)
 
     # Set the active tab.
-    tab = show or tag or "latest"
+    tab = tag or show or "latest"
 
     # Fill in context.
     context = dict(posts=posts, tab=tab, tag=tag, order=order, limit=limit)

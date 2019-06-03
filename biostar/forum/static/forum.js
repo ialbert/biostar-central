@@ -217,13 +217,7 @@ $(document).ready(function () {
             type: 'textarea',
             width: '605px',
             height: '150px',
-            cssclass:"ui form",
-
-            callback: function (value, settings) {
-                //alert(value)
-                //$(this).html(editting.data('old_html'));
-
-            }
+            cssclass:"ui form"
         });
     });
 
