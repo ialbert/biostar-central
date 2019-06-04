@@ -1,5 +1,5 @@
 ---
-- hosts: production
+- hosts: all
   user: www
 
 
@@ -9,6 +9,6 @@
 
   tasks:
     - include_vars: files/vars.yml
-    - include_tasks: files/deploy.yml
+    - include_tasks: files/deploy-tasks.yml
 
 
