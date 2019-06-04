@@ -167,6 +167,7 @@ def bulk_copy_posts(limit):
             comment_count = siblings.filter(type=Post.COMMENT).count()
 
             rank = post.lastedit_date.timestamp()
+            # bodywidth=0 leaves the width as is.
             content = html2text.html2text(post.content, bodywidth=0)
             html = markdown.parse(content)
             new_post = Post(uid=post.id, html=html, type=post.type, reply_count=reply_count,

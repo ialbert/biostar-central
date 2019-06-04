@@ -5,6 +5,7 @@ django-compressor
 django-taggit
 hjson
 pytz
+html2text
 coverage
 commonmark
 bleach

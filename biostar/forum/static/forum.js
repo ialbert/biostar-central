@@ -203,15 +203,21 @@ $(document).ready(function () {
         }
         // Set value with SPACE bar
         if (event.keyCode === 32){
+            event.preventDefault();
             $("#tag-menu").dropdown('set selected', $(this).val().trim());
             $(this).val('')
         }
 
     });
+    //var editor = $('.edit-post');
 
+    //$('#editing').keyup(function () {
+    //    alert("boo");
+
+    //});
 
     $('.edit-post').click(function(){
-
+        //alert("boo");
         var post_uid = $(this).attr('post_uid');
         // Get the element with the post content
         var editing = $(" #"+ post_uid );
@@ -239,11 +245,18 @@ $(document).ready(function () {
             name : 'content',
             submit: 'Save',
             cancel : 'Cancel',
+            formid:'inputform',
             submitcssclass:'ui green button inline-buttons',
             cancelcssclass: 'ui orange button inline-buttons',
             type: 'textarea',
             width: inputwidth,
             cssclass:"ui inline-post form"
+        }).keydown(function(event) {
+            alert("vvv")
+            if (event.keyCode === 13){
+                event.preventDefault();
+                $(this).submit()
+            }
         });
     });
 
@@ -332,7 +345,7 @@ $(document).ready(function () {
         var data_state = elem.attr('data-state');
 
         // Set the on class if the vote is selected.
-        if (data_state == "1") {
+        if (data_state === "1") {
             elem.addClass("on")
         }
 
