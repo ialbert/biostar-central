@@ -27,7 +27,7 @@ emailer:
 	@echo DJANGO_APP=${DJANGO_APP}
 
 pg:
-	$(eval DJANGO_SETTING_MODULE := conf.postgres.postgres_settings)
+	$(eval DJANGO_SETTING_MODULE := conf.examples.postgres.postgres_settings)
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 
 message:
@@ -117,7 +117,7 @@ drop_create:
 	createdb engine.db
 
 transfer:
-	python manage.py transfer -n 300 --settings conf.postgres.transfer_settings
+	python manage.py transfer -n 300 --settings conf.examples.postgres.transfer_settings
 
 postgres:
 	$(MAKE) pg init

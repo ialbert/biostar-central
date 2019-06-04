@@ -18,7 +18,7 @@
 
 <div class="ui basic compact segment no-shadow">
 
-        <div class="ui medium header">{{ form_title }} <a class="ui link label" href="{% url 'post_list' %}">
+        <div class="ui medium header">{{ form_title }} <a class="ui link label" onclick="window.history.back()">
             <i class="undo icon"></i> Back</a>
         </div>
     <div class="ui divider"></div>
@@ -72,7 +72,7 @@
                 <i class="check icon"></i>Submit
             </button>
 
-            <a class="ui right floated button" href="{% url 'post_list' %}">
+            <a class="ui right floated button" onclick="window.history.back()">
                 <i class="undo icon"></i>Cancel
             </a>
         </form>

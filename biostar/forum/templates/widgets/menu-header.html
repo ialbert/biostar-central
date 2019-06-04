@@ -41,6 +41,7 @@
     {% else %}
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
             <i class="mail icon"> </i>
+            {% count_label label="message_count" %}
             <span class="tablet">Messages {% count_label label="message_count" %} </span>
         </a>
         <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">

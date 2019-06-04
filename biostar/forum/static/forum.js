@@ -180,7 +180,7 @@ function remove_trigger() {
     });
 }
 
-function enable_inline_editing(editing, post_uid, width) {
+function enable_inline_editing(editing, post_uid) {
     // Make element 'editing_elem' editable with given params.
 
     // Determine number of rows in textarea from number of lines in content
@@ -190,10 +190,13 @@ function enable_inline_editing(editing, post_uid, width) {
     var html_url = '/ajax/html/' + post_uid + '/';
     // Url to edit text on POST request and return text on GET request
     var edit_url = '/ajax/edit/';
+    // Vary the width of textarea displayed
+    //var width = editing.attr('inputwidth') || '605px';
 
     // Make element editable.
     editing.editable(edit_url, {
         loadurl: edit_url,
+        loadtype:'POST',
         onblur: 'ignore',
         onreset: function (settings, original) {
             editing.load(html_url);
@@ -206,7 +209,7 @@ function enable_inline_editing(editing, post_uid, width) {
         submitcssclass: 'ui green small button save inline-buttons',
         cancelcssclass: 'ui orange small button cancel inline-buttons',
         type: 'textarea',
-        width: width,
+        width: '605px',
         cssclass: "ui inline-post form"
     }).keydown(function (event) {
         // Submit edit with CTRL-ENTER
@@ -251,20 +254,16 @@ $(document).ready(function () {
         var post_uid = $(this).attr('post_uid');
         // Get the element with the post content
         var editing = $(" #"+ post_uid );
-        // Vary the width of textarea displayed
-        var inputwidth = $(this).attr('inputwidth') || '605px';
-        enable_inline_editing(editing, post_uid, inputwidth);
+        enable_inline_editing(editing, post_uid);
 
     });
     $('.inline-edit').click(function (event) {
         var post_uid = $(this).attr('post_uid');
         // Get the element with the post content
         var editing = $(" #"+ post_uid );
-        // Vary the width of textarea displayed
-        var inputwidth = $(this).attr('inputwidth') || '605px';
-        enable_inline_editing(editing, post_uid, inputwidth);
-        // Determine number of rows in textarea from number of lines in content
-        editing.click();
+        enable_inline_editing(editing, post_uid);
+        // Trigger click event
+        editing.trigger('click')
     });
 
     $('#subscribe')

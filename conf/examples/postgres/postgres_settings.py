@@ -7,7 +7,7 @@ ROOT_URLCONF = 'biostar.test.test_urls'
 
 DEBUG = True
 
-WSGI_APPLICATION = 'conf.postgres.postgres_wsgi.application'
+WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
 
 DATABASES = {
 

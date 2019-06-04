@@ -18,10 +18,10 @@
 
         </div>
 
-        <div class="content edit-post" post_uid="{{ post.uid }}" inputwidth="100%">
+        <div class="content edit-post" post_uid="{{ post.uid }}">
 
             {% if post.is_editable %}
-                <div class="pointer" id="{{ post.uid }}">
+                <div class="pointer" id="{{ post.uid }}" inputwidth=100% >
                     {{ post.html|safe }}
                 </div>
             {% else %}
