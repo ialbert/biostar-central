@@ -192,6 +192,7 @@ $(document).ready(function () {
             var tagid = $("#tag-menu").attr('field_id');
             var tag_field = $('#{0}'.f(tagid));
             // Add selected tag to field
+            //alert(value);
             tag_field.val(value);
     }
     });
@@ -353,9 +354,8 @@ $(document).ready(function () {
         field.closest(".field").addClass("error");
         // Insert the error message
         field.after('<div class="ui small red message">' +
-                        '<div class="header capitalize">' +
-                            '{0}</div><i class="warning small icon"></i>{1}'.f(field_label, message) +
-                    '</div>')
+                        '<div class="header capitalize">{0}</div>{1}'.f(field_label, message) +
+                    '</div>' )
     });
 
 

@@ -36,7 +36,7 @@
 
 
             <div class="required inline field">
-                <label>{{ form.post_type.label }}</label>
+                <b>{{ form.post_type.label }}</b>
                 {{ form.post_type }}
 
             </div>
@@ -55,7 +55,8 @@
                   {% endfor %}
 
                 </select>
-                <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}">
+
+                <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}" value="{{selected}}">
 
 
                 <p class="muted">{{ form.tag_val.help_text }}</p>

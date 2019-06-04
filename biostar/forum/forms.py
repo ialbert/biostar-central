@@ -13,9 +13,9 @@ from .const import *
 # Share logger with models
 logger = models.logger
 
+MIN_CHARS = 5
 
 def english_only(text):
-
 
     try:
         text.encode('ascii')
@@ -29,9 +29,9 @@ def valid_title(text):
     if not text:
         raise ValidationError('Please enter a title')
 
-    words = text.split()
-    if len(words) < 3:
-        raise ValidationError('Too short, please add more than two words.')
+    text = text.replace(" ", '')
+    if len(text) < MIN_CHARS:
+        raise ValidationError(f'Too short, please add more than {MIN_CHARS}.')
 
 
 def valid_tag(text):
@@ -51,8 +51,7 @@ class PostLongForm(forms.Form):
                             validators=[valid_title, english_only],
                             help_text="Descriptive titles promote better answers.")
     tag_val = forms.CharField(label="Post Tags", max_length=50, required=False, validators=[valid_tag],
-                              help_text="""Choose one or more tags to match the topic. 
-                                     To create a new tag just type and press ENTER.""",
+                              help_text="""To create a new tag just type and press ENTER, SPACE, or add a comma.""",
                               widget=forms.HiddenInput())
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
                               min_length=10, max_length=15000, label="Enter your post below")
