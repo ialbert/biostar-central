@@ -201,7 +201,12 @@ $(document).ready(function () {
         if (event.keyCode === 13){
             event.preventDefault();
         }
-        // Set value when SPACE bar is pressed
+        // Set value with SPACE bar
+        if (event.keyCode === 32){
+            $("#tag-menu").dropdown('set selected', $(this).val().trim());
+            $(this).val('')
+        }
+
     });
 
 
@@ -238,7 +243,6 @@ $(document).ready(function () {
             cancelcssclass: 'ui orange button inline-buttons',
             type: 'textarea',
             width: inputwidth,
-            height: $(this)[0].scrollHeight,
             cssclass:"ui inline-post form"
         });
     });
