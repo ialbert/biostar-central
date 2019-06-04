@@ -29,13 +29,13 @@
     state: stopped
 
 - name: server reset
-  shell: "./server_reset.sh"
+  shell: "./server-reset.sh"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
 
 - name: server migrate
-  shell: "./server_migrate.sh"
+  shell: "./server-migrate.sh"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"

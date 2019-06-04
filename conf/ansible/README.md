@@ -27,6 +27,10 @@ Install the software:
 
     ansible-playbook -i hosts/test.biostars.org software-install.yml
 
+By default conda is not added to the `PATH`, is that behavior is desired one needs to run:
+
+    ~/miniconda3/bin/conda init
+
 Link the nginx and supervisor configurations:
 
     ln -sf /export/sites/biostar-engine/conf/site/site_nginx.conf /etc/nginx/sites-enabled/

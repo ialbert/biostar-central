@@ -69,3 +69,34 @@
     - server-migrate.sh
     - server-reset.sh
     - server-backup.sh
+
+- name: Copy settings file to runtime directories.
+  copy:
+    remote_src: true
+    force: no
+    src: "{{ engine_dir }}/conf/site/site_{{item}}"
+    dest: "{{ engine_dir }}/conf/run/{{ item }}"
+  with_items:
+    - site_nginx.conf
+    - site_settings.conf
+    - site_supervisor.conf
+    - site_wsgi.conf
+    - site_uwsgi.conf
+
+- name: Link nginx configuration file
+  file:
+    src: "{{ engine_dir }}/conf/run/site_nginx.conf"
+    dest: "/etc/nginx/sites-enabled/"
+    state: link
+  notify:
+    - restart nginx
+
+- name: Link supervisor configuration file
+  file:
+    src: "{{ engine_dir }}/conf/run/site_supervisor.conf"
+    dest: "/etc/supervisor/conf.d/ "
+    state: link
+  notify:
+    - restart supervisor
+
+
