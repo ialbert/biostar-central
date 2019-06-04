@@ -119,7 +119,6 @@ class Profile(models.Model):
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         self.date_joined = self.date_joined or now()
         self.last_login = self.last_login or now() - timedelta(days=1)
-        print(self.last_login, "last login")
         super(Profile, self).save(*args, **kwargs)
 
     @property

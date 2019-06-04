@@ -1,6 +1,6 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
-{% load accounts_tags %}
+
 
 {% block headtitle %}
     New Post
@@ -10,15 +10,20 @@
 {% block content %}
 
     {% form_errors form %}
+                    <div class="ui form">
 
-    <div class="ui container segment inputcolor">
 
-        <div class="ui center aligned basic segment">
-            <div class="ui center aligned header">{{ form_title }}  <a class="ui link label" href="#" onclick="window.history.back();"><i class="undo icon"></i>Back </a></div>
+<div class="ui horizontal segments no-shadow">
+<div class="ui segment  no-shadow"></div>
 
+<div class="ui basic compact segment no-shadow">
+
+        <div class="ui medium header">{{ form_title }} <a class="ui link label" href="{% url 'post_list' %}">
+            <i class="undo icon"></i> Back</a>
         </div>
+    <div class="ui divider"></div>
 
-        <form method="post" class="ui form" action="{{ action_url }}">
+        <form method="post" class="ui create-form form" action="{{ action_url }}">
 
             {{ form.media }}
             {% csrf_token %}
@@ -29,19 +34,34 @@
                 <p class="muted">{{ form.title.help_text }}</p>
             </div>
 
-            <div class="required field">
+
+            <div class="required inline field">
                 <label>{{ form.post_type.label }}</label>
                 {{ form.post_type }}
-                <p class="muted">{{ form.post_type.help_text }}</p>
+
             </div>
+             <p class="muted">{{ form.post_type.help_text }}</p>
 
             <div class="field">
                 <label>{{ form.tag_val.label }}</label>
-                {{ form.tag_val }}
+
+                <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="{{form.tag_val.id_for_label}}">
+                  <option value="">Tags</option>
+
+                  {% for value, selected in tags_opt %}
+                      {% if selected %}<option value="{{ value }}" selected="selected">{{value}}</option>
+                      {% else %}<option value="{{ value }}">{{value}}</option>
+                      {% endif %}
+                  {% endfor %}
+
+                </select>
+                <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}">
+
+
                 <p class="muted">{{ form.tag_val.help_text }}</p>
             </div>
 
-            <div class="required field">
+            <div class="required input field">
                 <label>{{ form.content.label }}</label>
                 {{ form.content }}
             </div>
@@ -55,7 +75,9 @@
                 <i class="undo icon"></i>Cancel
             </a>
         </form>
-    </div>
 
 
+</div>
+
+<div class="ui segment no-shadow"></div></div>
 {% endblock %}

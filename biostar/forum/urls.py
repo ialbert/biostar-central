@@ -32,9 +32,11 @@ urlpatterns = [
     #url(r'^sub/(?P<uid>[-\w]+)/$', views.subs_action, name='subs_action'),
     url(r'^edit/post/(?P<uid>[-\w]+)/$', views.edit_post, name='post_edit'),
 
+    url(r'^ajax/html/(?P<uid>[-\w]+)/$', ajax.ajax_html, name='ajax_html'),
     url(r'^ajax/vote/$', ajax.ajax_vote, name='vote'),
     url(r'^ajax/test/$', ajax.ajax_test, name='ajax_test'),
     url(r'^ajax/subscribe/$', ajax.ajax_subs, name='ajax_sub'),
+    url(r'^ajax/edit/$', ajax.ajax_edit, name='ajax_edit'),
 
     #url(r'^tags/list/$', views.tags_list, name='tags_list'),
     url(r'^moderate/(?P<uid>[-\w]+)/$', views.post_moderate, name="post_moderate"),

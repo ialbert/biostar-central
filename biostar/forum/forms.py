@@ -31,7 +31,7 @@ def valid_title(text):
 
     words = text.split()
     if len(words) < 3:
-        raise ValidationError('More than two words please.')
+        raise ValidationError('Too short, please add more than two words.')
 
 
 def valid_tag(text):
@@ -43,15 +43,17 @@ def valid_tag(text):
 
 
 class PostLongForm(forms.Form):
-
-    post_type = forms.IntegerField(label="Post Type", widget=forms.Select(choices=Post.TYPE_CHOICES),
+    choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
+    post_type = forms.IntegerField(label="Post Type",
+                                   widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
                                    help_text="Select a post type: Question, Forum, Job, Blog")
     title = forms.CharField(label="Post Title", max_length=200, min_length=2,
                             validators=[valid_title, english_only],
                             help_text="Descriptive titles promote better answers.")
     tag_val = forms.CharField(label="Post Tags", max_length=50, required=False, validators=[valid_tag],
                               help_text="""Choose one or more tags to match the topic. 
-                                     To create a new tag just type it in comma seperated.""")
+                                     To create a new tag just type and press ENTER.""",
+                              widget=forms.HiddenInput())
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
                               min_length=10, max_length=15000, label="Enter your post below")
 

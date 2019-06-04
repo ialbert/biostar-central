@@ -44,7 +44,9 @@
 
 
     <form action="{% url 'login' %}" method="post" >
-        {% form_errors form %}
+        {% if form.errors %}
+            {{form.errors}}
+        {% endif %}
         {% csrf_token %}
         {{ form.as_p }}
         <input type="submit">Log In</input>
