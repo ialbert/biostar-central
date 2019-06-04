@@ -1,5 +1,9 @@
 from biostar.settings import *
 
+import logging
+
+logger = logging.getLogger("engine")
+
 WSGI_APPLICATION = 'conf.test.test_wsgi.application'
 
 ALLOWED_HOSTS += ['test.metabarcode.com']
@@ -10,4 +14,4 @@ PROTOCOL = 'https'
 try:
     from .test_secrets import *
 except ImportError as exc:
-    print("No test_secrets module could be imported")
+    logger.error(f"Module with local secrets could not be imported: {exc}")

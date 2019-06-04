@@ -7,7 +7,6 @@ import os
 # The logging configuration
 from biostar.logconf import LOGGING
 
-
 # Helper function for building absolute paths.
 def join(*args):
     return os.path.abspath(os.path.join(*args))

@@ -1,5 +1,9 @@
 from biostar.settings import *
 
+import logging
+
+logger = logging.getLogger("biostar")
+
 DEBUG = False
 
 SITE_ID = 1
@@ -11,14 +15,11 @@ PROTOCOL = 'https'
 
 ALLOWED_HOSTS = [SITE_DOMAIN]
 
-WSGI_APPLICATION = 'conf.site.site_wsgi.application'
-
-SITE_HEADER = '<i class="barcode icon"></i>Bioinformatics Recipes'
-
-SECRET_KEY = "foo"
+WSGI_APPLICATION = 'conf.run.site_wsgi.application'
 
 try:
+    # Attempts to load site secrets.
     from .site_secrets import *
-    print("Imported settings from '.site_secrets")
+    logger.info("Imported settings from .site_secrets")
 except ImportError as exc:
-    print("No site_secrets module could be imported")
+    logger.warn(f"No secrets module could be imported: {exc}")

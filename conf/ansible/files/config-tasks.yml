@@ -1,4 +1,10 @@
-- name: Update apt-cache
+- name: Aptitude needs to be present.
+  vars:
+     packages: [ 'aptitude' ]
+  apt:
+    name: "{{ packages }}"
+
+- name: Update and upgrade packages.
   apt:
     upgrade=yes
     update_cache=yes
@@ -23,13 +29,18 @@
     shell: /bin/bash
     groups: www, bioinfo, sudo
 
+- name: Set authorized key for copying it from current user
+  authorized_key:
+    user: www
+    state: present
+    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
 - name: Install required packages
   vars:
      packages: [ 'nginx', 'postgresql', 'software-properties-common', 'python-certbot-nginx',
-      'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential',
-      'libboost-iostreams-dev', 'bamtools', 'libbamtools-dev', 'ncurses-dev', 'supervisor', 'python-psycopg2' ]
-  apt: name={{ item }} state=latest
-  with_items: "{{ packages }}"
+      'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'supervisor', 'python-psycopg2' ]
+  apt:
+    name: "{{ packages }}"
 
 - name: Allow SSH through the firewall
   ufw: rule=allow port={{item}}
@@ -53,9 +64,6 @@
     - "{{ bin_dir }}"
     - "{{ ref_dir }}"
     - "{{ engine_dir }}"
-    - "{{ recipe_dir }}"
-    - "{{ data_dir }}"
-    - "{{ data_dir }}/initial"
 
 - name: Allow write access to configuration directories
   file:
@@ -71,7 +79,7 @@
   become: yes
   become_user: postgres
   postgresql_user:
-    name: biostar_engine_user
+    name: biostar_user
     password: md5437a687918743dac1889ef033bcb5bbd
     role_attr_flags: CREATEDB,CREATEROLE
 

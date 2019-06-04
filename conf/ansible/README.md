@@ -1,12 +1,35 @@
-# Initial setup
+# Setup is automated via ansible
 
-Prepare the computer:
+Install ansible into the current python environment:
 
-    ansible-playbook -i hosts server_setup.yml
+    pip install ansible
+
+Check that ansible works (use your domain instead of test.biostars.org) :
+
+    ansible test.biostars.org -u www -m ping all
+
+or using a host file that contains target server names:
+
+    ansible -i hosts/test.biostars.org -u www -m ping all
+
+## Set up the infrastructure
+
+Ensure that you have a generated a public key on your current system. This will be copied over
+to the server for public key authentication.
+
+    shh-keygen
+
+Set up the server infrastructure (apt-get, default users, directories)
+
+    ansible-playbook -i hosts/test.biostars.org server-config.yml
 
 Install the software:
 
-    ansible-playbook -i hosts server_install.yml
+    ansible-playbook -i hosts/test.biostars.org software-install.yml
+
+By default conda is not added to the `PATH`, is that behavior is desired one needs to run:
+
+    ~/miniconda3/bin/conda init
 
 Link the nginx and supervisor configurations:
 
