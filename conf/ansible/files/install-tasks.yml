@@ -78,15 +78,15 @@
     dest: "{{ engine_dir }}/conf/run/{{ item }}"
   with_items:
     - site_nginx.conf
-    - site_settings.conf
     - site_supervisor.conf
-    - site_wsgi.conf
-    - site_uwsgi.conf
+    - site_settings.py
+    - site_wsgi.py
+    - site_uwsgi.ini
 
 - name: Link nginx configuration file
   file:
     src: "{{ engine_dir }}/conf/run/site_nginx.conf"
-    dest: "/etc/nginx/sites-enabled/"
+    dest: "/etc/nginx/sites-enabled/site_nginx.conf"
     state: link
   notify:
     - restart nginx
@@ -94,7 +94,7 @@
 - name: Link supervisor configuration file
   file:
     src: "{{ engine_dir }}/conf/run/site_supervisor.conf"
-    dest: "/etc/supervisor/conf.d/ "
+    dest: "/etc/supervisor/conf.d/site_supervisor.conf"
     state: link
   notify:
     - restart supervisor
