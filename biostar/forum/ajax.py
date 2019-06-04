@@ -140,7 +140,7 @@ def ajax_html(request, uid):
 #@ajax_error_wrapper(method="GET")
 def ajax_edit(request):
     """
-    Return or edit post content as a text response
+    Return or edit post content
     """
 
     uid = request.GET.get("id", request.POST.get("id"))
