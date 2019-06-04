@@ -29,7 +29,7 @@ class PostTest(TestCase):
         # Create fake request
         data = {'post_type': models.Post.QUESTION,
                 'title': 'title tested post',
-                "tag_val": "tested",
+                "tag_val": "tested,test3",
                 "content": content
                 }
 
