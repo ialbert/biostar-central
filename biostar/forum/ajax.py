@@ -138,7 +138,7 @@ def ajax_html(request, uid):
 
 
 #@ajax_error_wrapper(method="GET")
-def ajax_content(request):
+def ajax_edit(request):
     """
     Return or edit post content as a text response
     """

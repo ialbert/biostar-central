@@ -180,22 +180,6 @@ function remove_trigger() {
     });
 }
 
-function do_resize(textbox) {
-
- var maxrows=5;
-  var txt=textbox.value;
-  var cols=textbox.cols;
-
- var arraytxt=txt.split('\n');
-  var rows=arraytxt.length;
-
- for (i=0;i<arraytxt.length;i++)
-  rows+=parseInt(arraytxt[i].length/cols);
-
- if (rows>maxrows) textbox.rows=maxrows;
-  else textbox.rows=rows;
- }
-
 
 $(document).ready(function () {
 
@@ -220,19 +204,30 @@ $(document).ready(function () {
 
 
     $('.edit-post').click(function(){
+
         var post_uid = $(this).attr('post_uid');
+        // Get the element with the post content
         var editing = $(" #"+ post_uid );
+        // Vary the width of textarea displayed
         var inputwidth = $(this).attr('inputwidth') || '605px';
 
+        // Determine number of rows in textarea from number of lines in content
         var arraytxt = editing.text().split('\n');
         var rows = arraytxt.length;
 
-        editing.editable('/ajax/content/', {
+        // Url to reload html when user cancels edit.
+        var html_url = '/ajax/html/' + post_uid + '/';
+
+        // Url to edit text on POST request and return text on GET request
+        var edit_url = '/ajax/edit/';
+
+        // Make element editable.
+        editing.editable(edit_url, {
+            loadurl: edit_url,
             onblur: 'ignore',
             onreset: function (settings, original) {
-                editing.load('/ajax/html/' + post_uid + '/');
+                editing.load(html_url);
             },
-            loadurl: '/ajax/content/',
             rows:rows,
             name : 'content',
             submit: 'Save',

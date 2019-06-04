@@ -31,7 +31,7 @@ def valid_title(text):
 
     words = text.split()
     if len(words) < 3:
-        raise ValidationError('More than two words please.')
+        raise ValidationError('Too short, please add more than two words.')
 
 
 def valid_tag(text):

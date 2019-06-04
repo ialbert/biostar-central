@@ -36,7 +36,7 @@ urlpatterns = [
     url(r'^ajax/vote/$', ajax.ajax_vote, name='vote'),
     url(r'^ajax/test/$', ajax.ajax_test, name='ajax_test'),
     url(r'^ajax/subscribe/$', ajax.ajax_subs, name='ajax_sub'),
-    url(r'^ajax/content/$', ajax.ajax_content, name='ajax_content'),
+    url(r'^ajax/edit/$', ajax.ajax_edit, name='ajax_edit'),
 
     #url(r'^tags/list/$', views.tags_list, name='tags_list'),
     url(r'^moderate/(?P<uid>[-\w]+)/$', views.post_moderate, name="post_moderate"),
