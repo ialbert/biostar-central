@@ -246,16 +246,16 @@ $(document).ready(function () {
             submit: 'Save',
             cancel : 'Cancel',
             formid:'inputform',
-            submitcssclass:'ui green button inline-buttons',
-            cancelcssclass: 'ui orange button inline-buttons',
+            submitcssclass:'ui green small button save inline-buttons',
+            cancelcssclass: 'ui orange small button inline-buttons',
             type: 'textarea',
             width: inputwidth,
             cssclass:"ui inline-post form"
         }).keydown(function(event) {
-            alert("vvv")
-            if (event.keyCode === 13){
+            // Submit edit with CTRL-ENTER
+            if ((event.ctrlKey || event.metaKey) && (event.keyCode === 13 || event.keyCode === 10)){
                 event.preventDefault();
-                $(this).submit()
+                $(this).find('.save.inline-buttons').click();
             }
         });
     });
