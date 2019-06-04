@@ -9,7 +9,9 @@
     &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
 
     {% if post.is_editable %}
-        &bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
+        {% if post.is_toplevel %}&bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
+        {% else %}&bull; <a class="inline-edit pointer" post_uid="{{ post.uid }}">edit</a>
+        {% endif %}
     {% endif %}
     {% if post.can_moderate %}
         &bull; <a class="moderate-post" href="#" data-value="{{ post.uid }}">moderate</a>

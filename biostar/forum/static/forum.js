@@ -180,6 +180,43 @@ function remove_trigger() {
     });
 }
 
+function enable_inline_editing(editing, post_uid, width) {
+    // Make element 'editing_elem' editable with given params.
+
+    // Determine number of rows in textarea from number of lines in content
+    var arraytxt = editing.text().split('\n');
+    var rows = arraytxt.length;
+    // Url to reload html when user cancels edit.
+    var html_url = '/ajax/html/' + post_uid + '/';
+    // Url to edit text on POST request and return text on GET request
+    var edit_url = '/ajax/edit/';
+
+    // Make element editable.
+    editing.editable(edit_url, {
+        loadurl: edit_url,
+        onblur: 'ignore',
+        onreset: function (settings, original) {
+            editing.load(html_url);
+        },
+        rows: rows,
+        name: 'content',
+        submit: 'Save',
+        cancel: 'Cancel',
+        formid: 'inputform',
+        submitcssclass: 'ui green small button save inline-buttons',
+        cancelcssclass: 'ui orange small button cancel inline-buttons',
+        type: 'textarea',
+        width: width,
+        cssclass: "ui inline-post form"
+    }).keydown(function (event) {
+        // Submit edit with CTRL-ENTER
+        if ((event.ctrlKey || event.metaKey) && (event.keyCode === 13 || event.keyCode === 10)) {
+            event.preventDefault();
+            $(this).find('.save.inline-buttons').click();
+        }
+    });
+}
+
 
 $(document).ready(function () {
 
@@ -209,55 +246,25 @@ $(document).ready(function () {
         }
 
     });
-    //var editor = $('.edit-post');
-
-    //$('#editing').keyup(function () {
-    //    alert("boo");
-
-    //});
 
     $('.edit-post').click(function(){
-        //alert("boo");
         var post_uid = $(this).attr('post_uid');
         // Get the element with the post content
         var editing = $(" #"+ post_uid );
         // Vary the width of textarea displayed
         var inputwidth = $(this).attr('inputwidth') || '605px';
+        enable_inline_editing(editing, post_uid, inputwidth);
 
+    });
+    $('.inline-edit').click(function (event) {
+        var post_uid = $(this).attr('post_uid');
+        // Get the element with the post content
+        var editing = $(" #"+ post_uid );
+        // Vary the width of textarea displayed
+        var inputwidth = $(this).attr('inputwidth') || '605px';
+        enable_inline_editing(editing, post_uid, inputwidth);
         // Determine number of rows in textarea from number of lines in content
-        var arraytxt = editing.text().split('\n');
-        var rows = arraytxt.length;
-
-        // Url to reload html when user cancels edit.
-        var html_url = '/ajax/html/' + post_uid + '/';
-
-        // Url to edit text on POST request and return text on GET request
-        var edit_url = '/ajax/edit/';
-
-        // Make element editable.
-        editing.editable(edit_url, {
-            loadurl: edit_url,
-            onblur: 'ignore',
-            onreset: function (settings, original) {
-                editing.load(html_url);
-            },
-            rows:rows,
-            name : 'content',
-            submit: 'Save',
-            cancel : 'Cancel',
-            formid:'inputform',
-            submitcssclass:'ui green small button save inline-buttons',
-            cancelcssclass: 'ui orange small button inline-buttons',
-            type: 'textarea',
-            width: inputwidth,
-            cssclass:"ui inline-post form"
-        }).keydown(function(event) {
-            // Submit edit with CTRL-ENTER
-            if ((event.ctrlKey || event.metaKey) && (event.keyCode === 13 || event.keyCode === 10)){
-                event.preventDefault();
-                $(this).find('.save.inline-buttons').click();
-            }
-        });
+        editing.click();
     });
 
     $('#subscribe')

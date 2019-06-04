@@ -137,13 +137,11 @@ def ajax_html(request, uid):
     return HttpResponse(content=post.html, content_type="text/html")
 
 
-#@ajax_error_wrapper(method="GET")
 def ajax_edit(request):
     """
     Return or edit post content
     """
-
-    uid = request.GET.get("id", request.POST.get("id"))
+    uid = request.GET.get("id", request.POST.get("post_uid"))
     post = Post.objects.filter(uid=uid).first()
 
     if not post:
