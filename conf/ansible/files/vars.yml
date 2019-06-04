@@ -1,16 +1,12 @@
 
-engine_git: git@github.com:biostars/biostar-engine.git
-recipe_git: git@github.com:biostars/biostar-recipes.git
-
-engine_dir: "/export/sites/biostar-engine"
-recipe_dir: "/export/sites/biostar-recipes"
-data_dir: "/export/sites/biostar-data"
+engine_git: https://github.com/biostars/biostar-engine.git
+engine_dir: "/export/www/biostar-engine"
 
 bin_dir: "/export/bin"
 src_dir: "/export/src"
 ref_dir: "/export/refs"
 
-django_settings_module: "conf.site.site_settings"
+django_settings_module: "conf.site.defaults"
 
 # Installs recipe dependencies.
 install: False
@@ -18,10 +14,10 @@ restart: False
 reset: False
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
-conda_env: "engine"
+conda_env_name: "engine"
 
 conda_url: https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-conda_home: "~/miniconda3"
+conda_dir: "~/miniconda3"
 
 conda_environments:
   - { name: engine, python_version: 3}
