@@ -201,6 +201,7 @@ $(document).ready(function () {
         if (event.keyCode === 13){
             event.preventDefault();
         }
+        // Set value when SPACE bar is pressed
     });
 
 
