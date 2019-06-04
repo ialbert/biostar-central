@@ -138,15 +138,24 @@ def message_list(request):
     msgs = Message.objects.filter(recipient=user)
     msgs = msgs.select_related("sender", "sender__profile")
     msgs = msgs.order_by("-sent_date")
-    # Update the unread flag
-    Message.objects.filter(id__in=msgs).update(unread=False)
+
+    # Update unread flag if this is not the first visit
+    second_visit = request.session.get("second_visit", False)
+    if second_visit:
+        Message.objects.filter(id__in=msgs).update(unread=False)
 
     # Get the pagination info
     paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
     msgs = paginator.get_page(page)
 
-    context = dict(tab="messages", all_messages=msgs)
+    # Ensures unread flag gets updated after first visit
+    request.session["second_visit"] = True
+    counts = request.session.get("counts", {})
+    # Set count back to 0
+    counts["message_count"] = 0
+    request.session["counts"] = counts
 
+    context = dict(tab="messages", all_messages=msgs)
     return render(request, "messages/message_list.html", context)
 
 
@@ -271,7 +280,6 @@ def user_login(request):
 
             if valid_user:
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-                Profile.objects.filter(user=user).update(last_login=now())
                 messages.success(request, "Login successful!")
                 redir = settings.LOGIN_REDIRECT_URL or "/"
                 return redirect(redir)

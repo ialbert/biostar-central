@@ -1,9 +1,9 @@
 
 
-{% for messages in message %}
+{% for message in all_messages %}
 <div>
-    {{ messages.subject }}
-    {{ messages.body }}
+    {{ message.subject }}
+    {{ message.body }}
 </div>
 
 {% endfor %}

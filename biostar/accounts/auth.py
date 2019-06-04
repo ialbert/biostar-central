@@ -5,7 +5,7 @@ from django.contrib import auth
 from django.conf import settings
 
 
-from biostar.emailer.auth import send
+from biostar.emailer.tasks import send_email
 from .models import User, Profile
 from .tokens import account_verification_token
 
@@ -50,8 +50,8 @@ def send_verification_email(user):
     context = dict(token=token, userid=userid, user=user)
 
     # Send the verification email
-    send(template_name=template, email_list=email_list,
-         extra_context=context, from_email=from_email,
-         subject="Verify your email", send=True)
+    send_email(template_name=template, email_list=email_list,
+               extra_context=context, from_email=from_email,
+               subject="Verify your email", send=True)
 
     return True

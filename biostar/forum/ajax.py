@@ -1,5 +1,6 @@
 from functools import wraps, partial
 import logging
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.db.models import F
@@ -15,8 +16,8 @@ def ajax_msg(msg, status, **kwargs):
     payload.update(kwargs)
     return JsonResponse(payload)
 
-logger = logging.getLevelName("biostar")
 
+logger = logging.getLevelName("biostar")
 ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
 
@@ -123,3 +124,37 @@ def ajax_subs(request):
     return ajax_success(msg=msg)
 
 
+@ajax_error_wrapper(method="GET")
+def ajax_html(request, uid):
+    """
+    Return post html
+    """
+
+    post = Post.objects.filter(uid=uid).first()
+    if not post:
+        return HttpResponse(content="Post does not exist.", status=400, content_type="text/plain")
+
+    return HttpResponse(content=post.html, content_type="text/html")
+
+
+#@ajax_error_wrapper(method="GET")
+def ajax_edit(request):
+    """
+    Return or edit post content
+    """
+
+    uid = request.GET.get("id", request.POST.get("id"))
+    post = Post.objects.filter(uid=uid).first()
+
+    if not post:
+        return HttpResponse(content="Post does not exist.", status=400, content_type="text/plain")
+
+    if request.method == "POST":
+        if post:
+            content = request.POST.get("content", post.content)
+            post.content = content
+            post.save()
+
+        return HttpResponse(content=post.html, content_type="text/html")
+
+    return HttpResponse(content=post.content, content_type="text/plain")

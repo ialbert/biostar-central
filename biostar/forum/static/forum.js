@@ -180,7 +180,66 @@ function remove_trigger() {
     });
 }
 
+
 $(document).ready(function () {
+
+    $('.ui.dropdown').dropdown();
+
+    $('.tag-field').dropdown({
+        allowAdditions: true,
+        onChange: function(value, text, $selectedItem) {
+            // Get form field to add to
+            var tagid = $("#tag-menu").attr('field_id');
+            var tag_field = $('#{0}'.f(tagid));
+            // Add selected tag to field
+            tag_field.val(value);
+    }
+    });
+    $('.tag-field >input.search').keydown(function(event) {
+        // Prevent submitting form when adding tag by pressing ENTER.
+        if (event.keyCode === 13){
+            event.preventDefault();
+        }
+    });
+
+
+    $('.edit-post').click(function(){
+
+        var post_uid = $(this).attr('post_uid');
+        // Get the element with the post content
+        var editing = $(" #"+ post_uid );
+        // Vary the width of textarea displayed
+        var inputwidth = $(this).attr('inputwidth') || '605px';
+
+        // Determine number of rows in textarea from number of lines in content
+        var arraytxt = editing.text().split('\n');
+        var rows = arraytxt.length;
+
+        // Url to reload html when user cancels edit.
+        var html_url = '/ajax/html/' + post_uid + '/';
+
+        // Url to edit text on POST request and return text on GET request
+        var edit_url = '/ajax/edit/';
+
+        // Make element editable.
+        editing.editable(edit_url, {
+            loadurl: edit_url,
+            onblur: 'ignore',
+            onreset: function (settings, original) {
+                editing.load(html_url);
+            },
+            rows:rows,
+            name : 'content',
+            submit: 'Save',
+            cancel : 'Cancel',
+            submitcssclass:'ui green button inline-buttons',
+            cancelcssclass: 'ui orange button inline-buttons',
+            type: 'textarea',
+            width: inputwidth,
+            height: $(this)[0].scrollHeight,
+            cssclass:"ui inline-post form"
+        });
+    });
 
     $('#subscribe')
         .dropdown({
@@ -279,6 +338,26 @@ $(document).ready(function () {
             apply_vote(elem, post_uid, data_type);
         });
     });
+
+    $("#form-errors .error").each(function () {
+
+        var elem = $(this);
+        // Get errored out field id and label
+        var field_id = elem.attr('data-value');
+        var field_label = elem.attr('label');
+        // Get the error message
+        var message = elem.attr("message");
+        // Select field in the form using it's id
+        var field = $(field_id);
+        // Add an 'error' to '.ui.field' to turn it red.
+        field.closest(".field").addClass("error");
+        // Insert the error message
+        field.after('<div class="ui small red message">' +
+                        '<div class="header capitalize">' +
+                            '{0}</div><i class="warning small icon"></i>{1}'.f(field_label, message) +
+                    '</div>')
+    });
+
 
     $('pre').addClass('language-bash');
         Prism.highlightAll();

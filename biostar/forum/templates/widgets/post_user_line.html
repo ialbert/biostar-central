@@ -1,6 +1,5 @@
 {% load humanize %}
 {% load forum_tags %}
-{% load accounts_tags %}
 
 <span class="tablet">updated {{ post.lastedit_date|time_ago }} by</span>
     <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">

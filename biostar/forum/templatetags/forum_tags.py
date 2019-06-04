@@ -203,6 +203,26 @@ def follow_label(context, post):
     return label
 
 
+@register.inclusion_tag('widgets/form_errors.html')
+def form_errors(form):
+    """
+    Turns form errors into a data structure
+    """
+
+    try:
+        errorlist = [('', message) for message in form.non_field_errors()]
+        for field in form:
+            for error in field.errors:
+                errorlist.append((f'{field.name}:', error, field.id_for_label))
+    except Exception as exc:
+        errorlist = []
+        logging.error(exc)
+
+    context = dict(errorlist=errorlist)
+
+    return context
+
+
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
 def post_body(context, post, user, tree, form):
     "Renders the post body"
@@ -433,15 +453,13 @@ def boxclass(post):
         style = "forum"
     elif post.type == Post.NEWS:
         style = "news"
+    elif post.answer_count:
+        style = "has_answers"
     else:
         style = "question"
 
     if post.has_accepted:
-        modifier = "accepted"
-    elif post.answer_count:
-        modifier = "has_answers"
-    elif post.reply_count:
-        modifier = "has_replies"
+        modifier = "accepted answer" if post.type == Post.QUESTION else "accepted"
     else:
         modifier = "open"
 

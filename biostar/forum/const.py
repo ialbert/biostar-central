@@ -5,6 +5,8 @@ MOVE_TO_COMMENT, DUPLICATE, CROSSPOST, CLOSE_OFFTOPIC, DELETE = range(9)
 # Valid values for the order GET parameter.
 RANK, VIEWS, REPLIES = ("rank", "views", "replies")
 
+
+
 # Redirection field name.
 REDIRECT_FIELD_NAME = 'next'
 

@@ -17,8 +17,8 @@
     <tbody>
         {% for message in all_messages %}
                 <tr>
-                    <td>
-                      <div class="item ">
+                    <td class="{% if message.unread %} new-message {% endif %}">
+                      <div class="item">
                         <div class="content">
                             {{ message.sent_date|timesince }} ago: {{ message.html|safe }}
                         </div>

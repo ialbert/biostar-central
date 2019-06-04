@@ -178,6 +178,10 @@ a:hover {
     color: red;
 }
 
+.pointer{
+    cursor: pointer;
+}
+
 .post > .body > .content {
     width: 100%;
     overflow: auto;
@@ -338,6 +342,8 @@ figure {
 
 }
 
+
+
 .ui.stat.label.job {
     background-color: #e9530f;
     color: #fff;
@@ -371,8 +377,13 @@ img {
     float: right;
 }
 
-.has_replies.label {
+.accepted.label {
    color:#E1E818!important;
+
+}
+
+.accepted.answer.label {
+   background-color: #436c27!important;
 }
 
 .ui.question.label {
@@ -395,7 +406,7 @@ img {
     color: white;
 }
 
-.ui.answered.label {
+.ui.has_answers.label {
     background-color: #5b8c3e;
     color: white;
 }
@@ -417,13 +428,20 @@ img {
     font-weight: bold;
 }
 
-.unread-message {
-    background: #d5f7cd;
-    padding: 5px;
+.capitalize{
+    text-transform:capitalize;
 }
 
+.create-form{
+    padding:7px;
+    border-radius: 10px;
+    background: #f9f6f4;
+}
+
+
 .new-message {
-    color: #5fc64f !important;
+    background-color: #cfffbf !important;
+
 }
 
 .ui.divided.items > .post.item {
@@ -498,14 +516,9 @@ pre > code {
     padding: 0px 0px 0px 0px;
 }
 
-code {
-    color: #c7254e;;
-    background-color: #EEEEEE;
-    padding: 2px 5px 2px 5px;
-    border-radius: 3px;
-    line-height: 1.7;
-    overflow: auto;
 
+.inline-buttons{
+    margin-top: 5px !important;
 }
 
 
@@ -563,7 +576,7 @@ pre {
     .tablet {
         display: none !important;
     }
-    
+
 
 }
 
