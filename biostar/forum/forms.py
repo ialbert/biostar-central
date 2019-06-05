@@ -53,7 +53,7 @@ class PostLongForm(forms.Form):
                             validators=[valid_title, english_only],
                             help_text="Descriptive titles promote better answers.")
     tag_val = forms.CharField(label="Post Tags", max_length=50, required=False, validators=[valid_tag],
-                              help_text="""To create a new tag just type and press ENTER, SPACE, or add a comma.""",
+                              help_text="""To create a new tag just write then add a comma or press ENTER, SPACE.""",
                               widget=forms.HiddenInput())
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
                               min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Enter your post below")

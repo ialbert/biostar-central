@@ -44,10 +44,10 @@ SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 
 
 # Biostar patterns
-USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
-POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
-POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
-MENTINONED_USERS = rec("(\@(?P<handle>[^\s]+))")
+USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
+POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
+POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
+MENTINONED_USERS = rec("\@(?P<handle>[^\s]+)")
 
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
@@ -115,6 +115,8 @@ class BiostarInlineLexer(MonkeyPatch):
         handle = m.group("handle")
         # Query user and get the link
         user = User.objects.filter(username=handle).first()
+        print(handle)
+        1/0
         if user:
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
