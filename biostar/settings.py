@@ -172,6 +172,7 @@ MEDIA_ROOT = join(BASE_DIR, 'export', 'media')
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder'
 ]
 
 # Apply default logger setting.

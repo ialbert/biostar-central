@@ -12,7 +12,7 @@ class AccountsConfig(AppConfig):
 
     def ready(self):
         from . import signals
-        # Triggered upon app initialization.
+        # Triggered after a migration command.
         post_migrate.connect(init_app, sender=self)
 
 def init_app(sender, **kwargs):
@@ -30,24 +30,26 @@ def init_social():
     # Populate the provider map based existing apps.
     providers = dict()
     for provider in registry.get_list():
-        providers[provider.name.lower()] = provider
+        providers[provider.name] = provider
 
     # Create social apps as needed.
     for client in settings.SOCIAL_CLIENTS:
 
         name, client_id, client_secret = client
 
-        app = SocialApp.objects.filter(client_id=client_id)
+        # Check the app for existance.
+        app = SocialApp.objects.filter(name=name)
 
-        # If app exists we are done.
+        # Update the id and secrets to apply any changes that might have been made.
         if app.exists():
+            SocialApp.objects.filter(name=name).update(client_id=client_id, secret=client_secret)
             continue
 
-        # Create this social app.
+        # Create a new social app.
         logger.info(f"Creating social social app: {name}")
 
-        # Identify the social app
-        provider = providers.get(name.lower())
+        # Identify the social app.
+        provider = providers.get(name)
 
         if not provider:
             logger.error(f"Invalid provider name: {name}")
@@ -84,6 +86,9 @@ def init_users():
             Profile.objects.filter(user__pk=user.pk).update(location="Server Farm", name=name, text=text, html=text)
             logger.info(f"Created admin user: {user.email}, {user.username}")
         else:
+            # Reapply the default ADMIN password on migration.
+            user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
+            user.save()
             logger.info(f"Admin user: {user.email}, {user.username} exists.")
 
 

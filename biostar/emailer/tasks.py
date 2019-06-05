@@ -2,15 +2,14 @@ import os
 import logging
 
 from biostar.emailer import sender
-from mailer.engine import send_all
 
 from django.conf import settings
-
 
 logger = logging.getLogger("engine")
 
 
 def send_email(template_name, email_list, extra_context={}, from_email=None, subject="Subject", send=False):
+    from mailer.engine import send_all
 
     from_email = from_email or settings.ADMINS[0][1]
 

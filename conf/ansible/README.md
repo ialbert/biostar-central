@@ -57,6 +57,13 @@ By default conda will not be added to the `PATH` variable of the `www` user. If 
 
     ~/miniconda3/bin/conda init
 
+Activate and install the conda dependencies:
+
+    conda config --add channels bioconda
+    conda config --add channels conda-forge
+    conda activate engine
+    conda install --file conf/conda_requirements.txt
+
 ## Software deployment
 
 To deploy the latest version and restart the servers:

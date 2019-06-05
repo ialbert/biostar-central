@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-from biostar.accounts.models import Profile, User
+from biostar.accounts.models import Profile, User, Message
 from biostar.accounts import util, tasks
 from biostar.utils import markdown
 
@@ -19,7 +19,7 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         tasks.create_messages(rec_list=[instance], template="messages/welcome.md")
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=Message)
 def set_html(sender, instance, created, raw, using, **kwargs):
     if created:
         instance.html = instance.html or markdown.parse(instance.body)

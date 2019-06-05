@@ -23,7 +23,6 @@ SINGLE_FEED_COUNT = 40
 
 SESSION_UPDATE_SECONDS = 40
 
-
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
@@ -53,9 +52,14 @@ ROOT_URLCONF = 'biostar.forum.urls'
 
 WSGI_APPLICATION = 'biostar.wsgi.application'
 
-
 # Time between two accesses from the same IP to qualify as a different view.
 POST_VIEW_MINUTES = 7
 
 COUNT_INTERVAL_WEEKS = 10000
 
+
+try:
+    from conf.run.secrets import *
+    print(f"Loaded secrets from: conf.run.secrets")
+except Exception as exc:
+    print(f"Unable to load secrets: {exc}")

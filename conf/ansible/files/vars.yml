@@ -14,14 +14,14 @@ restart: False
 reset: False
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
-conda_env_name: "engine"
+conda_env: "engine"
 
 conda_url: https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 conda_dir: "~/miniconda3"
 
 conda_environments:
-  - { name: engine, python_version: 3}
-  - { name: test, python_version: 3}
+  - { name: "{{conda_env}}", python_version: 3.6}
+  - { name: test, python_version: 3.6}
   - { name: py2, python_version: 2}
 
 conda_modify_path: yes

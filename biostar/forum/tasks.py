@@ -1,30 +1,28 @@
 import logging
+
 from django.conf import settings
 from django.db.models import F
-from biostar.accounts.models import Profile, User
-from biostar.accounts.tasks import detect_location, create_messages
+
+from biostar.accounts.tasks import create_messages, detect_location
 from biostar.emailer.tasks import send_email
-from biostar.forum.models import Subscription, Post, Award
+from biostar.utils.decorators import spool
+
 logger = logging.getLogger("biostar")
 
-try:
-    from uwsgidecorators import *
-    HAS_UWSGI = True
-except (ModuleNotFoundError, NameError) as exc:
-    HAS_UWSGI = False
-    logger.warning(exc)
-    pass
 
-
+@spool(pass_arguments=True)
 def info_task(*args, **kwargs):
-   logger.info(f"info_task called with {args} and {kwargs}")
+    logger.info(f"info_task called with args={args} and kwargs={kwargs}")
 
 
+@spool(pass_arguments=True)
 def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
 def create_user_awards(user):
+    from biostar.accounts.models import Profile
+    from biostar.forum.models import Award
 
     if (user.profile.state == Profile.NEW) and (user.score > 10):
         user.profile.state = Profile.TRUSTED
@@ -39,7 +37,9 @@ def create_user_awards(user):
     return
 
 
+@spool(pass_arguments=True)
 def create_subscription(root, user):
+    from biostar.forum.models import Subscription, Post
 
     # Create user subscription to post.
     sub, created = Subscription.objects.get_or_create(post=root, user=user)
@@ -51,10 +51,13 @@ def create_subscription(root, user):
     return
 
 
+@spool(pass_arguments=True)
 def notify_followers(post, author):
     """
     Send subscribed users, excluding author, a message/email.
     """
+    from biostar.accounts.models import Profile
+    from biostar.forum.models import Subscription
 
     # Template used to send local messages
     local_template = "messages/subscription_message.html"
@@ -77,23 +80,3 @@ def notify_followers(post, author):
 
     send_email(template_name=email_template, extra_context=context, subject="Subscription",
                email_list=emails, from_email=from_email, send=True,)
-
-
-if HAS_UWSGI:
-    info_task = spool(info_task, pass_arguments=True)
-    send_email = spool(send_email, pass_arguments=True)
-    detect_location.spool = spool(detect_location, pass_arguments=True)
-    create_messages.spool = spool(create_messages, pass_arguments=True)
-    notify_followers = spool(notify_followers, pass_arguments=True)
-    create_subscription = spool(create_subscription, pass_arguments=True)
-    created_post = spool(created_post, pass_arguments=True)
-    create_user_awards = spool(create_user_awards, pass_arguments=True)
-else:
-    info_task.spool = info_task
-    create_messages.spool = create_messages
-    detect_location.spool = detect_location
-    notify_followers.spool = notify_followers
-    create_subscription.spool = create_subscription
-    send_email.spool = send_email
-    created_post.spool = created_post
-    create_user_awards.spool = create_user_awards
