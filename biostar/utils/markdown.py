@@ -96,7 +96,11 @@ class MonkeyPatch(InlineLexer):
 
 
 class CustomInlineGrammer(InlineGrammar):
-    # Override the text grammar pattern to contain the `@` as a stop element in the lookahead assertion
+
+    # 'text' rule matches any string after @ as part of the regular text and
+    # ends up not applying custom rules to the markdown.
+
+    # Override the text rule to contain the `@` as a stop element in the lookahead assertion
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[_*`~@]|https?://| {2,}\n|$)')
 
 

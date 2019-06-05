@@ -51,10 +51,10 @@
         <div class="content">
 
             <div class="wrap">
-                {# Display post author. #}
-                {% post_user_box user=post.author post=post %}
+            {# Display post author. #}
+            {% post_user_box user=post.author post=post %}
 
-                {# Display post content. #}
+            {# Display post content. #}
             {% if post.is_editable %}
 
             {% inplace_form post=post width="605px"%}
