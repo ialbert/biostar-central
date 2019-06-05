@@ -287,25 +287,26 @@ $(document).ready(function () {
     $('.inplace-form button.cancel').click(function (event) {
         event.preventDefault();
         var post_uid = $(this).closest('.inplace-form').attr('post_uid');
-        // Hide form
+        // Hide form and show content
         $('#inplace-form-' + post_uid).hide();
-        // Expose unedited content
         $('#inplace-' + post_uid).show().focus();
     });
 
     $('.inplace-form textarea').keyup(function (event) {
         var post_uid = $(this).closest('.inplace-form').attr('post_uid');
+
         // Submit edit when pressing CTRL-ENTER
         if ((event.ctrlKey || event.metaKey) && (event.keyCode === 13 || event.keyCode === 10)) {
             event.preventDefault();
             edit_post(post_uid);
             return;
         }
-        // Leave edit when pressing ESC
+        // Leave when pressing ESC
         if (event.keyCode === 27){
+            // Hide form and show content
             $('#inplace-form-' + post_uid).hide();
-            // Expose unedited content
             $('#inplace-' + post_uid).show().focus();
+
         }
 
     });

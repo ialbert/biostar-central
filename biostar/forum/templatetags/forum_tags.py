@@ -87,9 +87,9 @@ def count_label(context, label):
 @register.inclusion_tag('widgets/inplace_form.html')
 def inplace_form(post, boxwidth='100%'):
 
-    pad = 2
+    pad = 7
     rows = len(post.content.split("\n")) + pad
-    context = dict(content=post.content, uid=post.uid, boxwidth=boxwidth, rows=rows)
+    context = dict(post=post, boxwidth=boxwidth, rows=rows)
     return context
 
 

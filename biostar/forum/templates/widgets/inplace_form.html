@@ -1,11 +1,13 @@
 
-<form class="ui form inplace-form" post_uid="{{ uid }}" id="inplace-form-{{ uid }}" style="display:none;">
+<form class="ui compact form inplace-form" post_uid="{{ post.uid }}" id="inplace-form-{{ post.uid }}"
+
+      style="display:none;{% if post.type == post.COMMENT %}width: 100%{% else %}width: fit-content{% endif %}; ">
 
     <div class="field" style="display: inline;">
-        <textarea style="width:{{ boxwidth }}" rows="{{ rows }}">{{ content }}</textarea>
+        <textarea style="width:{{ boxwidth }}" rows="{{ rows }}">{{ post.content }}</textarea>
     </div>
     <div class="top-padding">
         <button class="ui small green save button"><i class="check icon"></i> Save</button>
-        <button class="ui small orange cancel button"><i class="undo icon"></i> Cancel</button>
+        <button class="ui small orange right floated cancel button"><i class="undo icon"></i> Cancel</button>
     </div>
 </form>
