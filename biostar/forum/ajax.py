@@ -7,7 +7,7 @@ from django.db.models import F
 from ratelimit.decorators import ratelimit
 
 from biostar.accounts.models import Profile
-from . import auth, util
+from . import auth, util, forms
 from .models import Post, Vote, Subscription
 
 
@@ -124,37 +124,27 @@ def ajax_subs(request):
     return ajax_success(msg=msg)
 
 
-@ajax_error_wrapper(method="GET")
-def ajax_html(request, uid):
-    """
-    Return post html
-    """
-
-    post = Post.objects.filter(uid=uid).first()
-    if not post:
-        return HttpResponse(content="Post does not exist.", status=400, content_type="text/plain")
-
-    return HttpResponse(content=post.html, content_type="text/html")
-
-
-#@ajax_error_wrapper(method="GET")
+@ajax_error_wrapper(method="POST")
 def ajax_edit(request):
     """
-    Return or edit post content
+    edit post content
     """
-
-    uid = request.GET.get("id", request.POST.get("id"))
+    uid = request.POST.get("post_uid")
     post = Post.objects.filter(uid=uid).first()
 
     if not post:
-        return HttpResponse(content="Post does not exist.", status=400, content_type="text/plain")
+        return ajax_error(msg="Post does not exist")
+    content = request.POST.get("content", post.content)
+    length = len(content.replace(" ", ''))
 
-    if request.method == "POST":
-        if post:
-            content = request.POST.get("content", post.content)
-            post.content = content
-            post.save()
+    if length < forms.MIN_CONTENT:
+        return ajax_error(msg=f"Too short, please add more than add more {forms.MIN_CONTENT} characters.")
+    if length > forms.MAX_CONTENT:
+        return ajax_error(msg=f"Too long, please add less than {forms.MAX_CONTENT} characters.")
 
-        return HttpResponse(content=post.html, content_type="text/html")
+    post.content = content
+    post.save()
 
-    return HttpResponse(content=post.content, content_type="text/plain")
+    # Note: returns html instead of JSON on success.
+    # Used to switch content inplace.
+    return ajax_success(msg=post.html)

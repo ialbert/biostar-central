@@ -1,0 +1,12 @@
+
+<form class="ui compact form {% if post.type == post.COMMENT %}comment{%else %}post{% endif %} inplace-form"
+      post_uid="{{ post.uid }}" id="inplace-form-{{ post.uid }}">
+
+    <div class="inline field">
+        <textarea style="width:{{ width }}" rows="{{ rows }}">{{ post.content }}</textarea>
+    </div>
+    <div class="top-padding">
+        <button class="ui small green save button"><i class="check icon"></i> Save</button>
+        <button class="ui small orange right floated cancel button"><i class="undo icon"></i> Cancel</button>
+    </div>
+</form>

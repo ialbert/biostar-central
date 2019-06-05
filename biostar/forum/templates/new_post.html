@@ -18,7 +18,7 @@
 
 <div class="ui basic compact segment no-shadow">
 
-        <div class="ui medium header">{{ form_title }} <a class="ui link label" href="{% url 'post_list' %}">
+        <div class="ui medium header">{{ form_title }} <a class="ui link label" onclick="window.history.back()">
             <i class="undo icon"></i> Back</a>
         </div>
     <div class="ui divider"></div>
@@ -29,21 +29,22 @@
             {% csrf_token %}
 
             <div class="required field">
-                <label>{{ form.title.label }}</label>
+                <b>{{ form.title.label }}</b>
                 {{ form.title }}
                 <p class="muted">{{ form.title.help_text }}</p>
             </div>
 
-
+            <b>{{ form.post_type.label }}</b>
             <div class="required inline field">
-                <label>{{ form.post_type.label }}</label>
+
                 {{ form.post_type }}
 
             </div>
              <p class="muted">{{ form.post_type.help_text }}</p>
 
             <div class="field">
-                <label>{{ form.tag_val.label }}</label>
+                <b>{{ form.tag_val.label }}</b>
+            <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}" value="{{selected}}">
 
                 <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="{{form.tag_val.id_for_label}}">
                   <option value="">Tags</option>
@@ -55,14 +56,14 @@
                   {% endfor %}
 
                 </select>
-                <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}">
+
 
 
                 <p class="muted">{{ form.tag_val.help_text }}</p>
             </div>
 
             <div class="required input field">
-                <label>{{ form.content.label }}</label>
+                <b>{{ form.content.label }}</b>
                 {{ form.content }}
             </div>
 
@@ -71,7 +72,7 @@
                 <i class="check icon"></i>Submit
             </button>
 
-            <a class="ui right floated button" href="{% url 'post_list' %}">
+            <a class="ui right floated button" onclick="window.history.back()">
                 <i class="undo icon"></i>Cancel
             </a>
         </form>

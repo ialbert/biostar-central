@@ -34,6 +34,7 @@ def forum_middleware(get_response):
 
         # Update count information inside session
         if elapsed > settings.SESSION_UPDATE_SECONDS:
+
             # Set the last login time.
             Profile.objects.filter(user=user).update(last_login=now())
 

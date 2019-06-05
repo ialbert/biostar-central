@@ -180,6 +180,34 @@ function remove_trigger() {
     });
 }
 
+function edit_post(post_uid) {
+    var edit_url = '/ajax/edit/';
+    var form_elem = $('#inplace-form-' + post_uid);
+    var edited = form_elem.find('textarea').val();
+    $.ajax(edit_url,
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'post_uid': post_uid,
+                'content': edited
+            },
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(form_elem, data.msg, data.status, 3000);
+                } else {
+                    // Hide form
+                    $('#inplace-form-' + post_uid).hide();
+                    // Replace with edited data
+                    $('#inplace-' + post_uid).html(data.msg).show().focus();
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        })
+}
 
 $(document).ready(function () {
 
@@ -192,6 +220,7 @@ $(document).ready(function () {
             var tagid = $("#tag-menu").attr('field_id');
             var tag_field = $('#{0}'.f(tagid));
             // Add selected tag to field
+            //alert(value);
             tag_field.val(value);
     }
     });
@@ -200,45 +229,61 @@ $(document).ready(function () {
         if (event.keyCode === 13){
             event.preventDefault();
         }
+        // Set value with SPACE bar
+        if (event.keyCode === 32){
+            event.preventDefault();
+            $("#tag-menu").dropdown('set selected', $(this).val().trim());
+            $(this).val('')
+        }
+
     });
 
-
-    $('.edit-post').click(function(){
-
+    $('.inplace').click(function () {
+        // Hide content
+        $(this).hide();
         var post_uid = $(this).attr('post_uid');
-        // Get the element with the post content
-        var editing = $(" #"+ post_uid );
-        // Vary the width of textarea displayed
-        var inputwidth = $(this).attr('inputwidth') || '605px';
+        // Exposes form
+        $('#inplace-form-' + post_uid).show().focus();
+    });
 
-        // Determine number of rows in textarea from number of lines in content
-        var arraytxt = editing.text().split('\n');
-        var rows = arraytxt.length;
+    $('.inplace-form button.cancel').click(function (event) {
+        event.preventDefault();
+        var post_uid = $(this).closest('.inplace-form').attr('post_uid');
+        // Hide form and show content
+        $('#inplace-form-' + post_uid).hide();
+        $('#inplace-' + post_uid).show().focus();
+    });
 
-        // Url to reload html when user cancels edit.
-        var html_url = '/ajax/html/' + post_uid + '/';
+    $('.inplace-form textarea').keyup(function (event) {
+        var post_uid = $(this).closest('.inplace-form').attr('post_uid');
 
-        // Url to edit text on POST request and return text on GET request
-        var edit_url = '/ajax/edit/';
+        // Submit edit when pressing CTRL-ENTER
+        if ((event.ctrlKey || event.metaKey) && (event.keyCode === 13 || event.keyCode === 10)) {
+            event.preventDefault();
+            edit_post(post_uid);
+            return;
+        }
+        // Leave when pressing ESC
+        if (event.keyCode === 27){
+            // Hide form and show content
+            $('#inplace-form-' + post_uid).hide();
+            $('#inplace-' + post_uid).show().focus();
 
-        // Make element editable.
-        editing.editable(edit_url, {
-            loadurl: edit_url,
-            onblur: 'ignore',
-            onreset: function (settings, original) {
-                editing.load(html_url);
-            },
-            rows:rows,
-            name : 'content',
-            submit: 'Save',
-            cancel : 'Cancel',
-            submitcssclass:'ui green button inline-buttons',
-            cancelcssclass: 'ui orange button inline-buttons',
-            type: 'textarea',
-            width: inputwidth,
-            height: $(this)[0].scrollHeight,
-            cssclass:"ui inline-post form"
-        });
+        }
+
+    });
+
+    $('.inplace-form button.save').click(function () {
+        // Submit edit when clicking save
+        event.preventDefault();
+        var post_uid = $(this).closest('.inplace-form').attr('post_uid');
+        edit_post(post_uid);
+    });
+
+    $('.inplace-edit').click(function () {
+        var post_uid = $(this).attr('post_uid');
+        $('#inplace-' + post_uid).hide();
+        $('#inplace-form-' + post_uid).show().focus();
     });
 
     $('#subscribe')
@@ -326,7 +371,7 @@ $(document).ready(function () {
         var data_state = elem.attr('data-state');
 
         // Set the on class if the vote is selected.
-        if (data_state == "1") {
+        if (data_state === "1") {
             elem.addClass("on")
         }
 
@@ -352,10 +397,7 @@ $(document).ready(function () {
         // Add an 'error' to '.ui.field' to turn it red.
         field.closest(".field").addClass("error");
         // Insert the error message
-        field.after('<div class="ui small red message">' +
-                        '<div class="header capitalize">' +
-                            '{0}</div><i class="warning small icon"></i>{1}'.f(field_label, message) +
-                    '</div>')
+        field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
     });
 
 

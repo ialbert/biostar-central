@@ -48,7 +48,7 @@
 
         </div>
 
-        <div class="content edit-post" post_uid="{{ post.uid }}">
+        <div class="content">
 
             <div class="wrap">
                 {# Display post author. #}
@@ -56,9 +56,13 @@
 
                 {# Display post content. #}
             {% if post.is_editable %}
-                <span class="pointer" id="{{ post.uid }}">
-                    {{ post.html|safe }}
-                </span>
+
+            {% inplace_form post=post width="605px"%}
+
+            <span class="pointer inplace" id="inplace-{{ post.uid }}" post_uid="{{ post.uid }}" >
+                {{ post.html|safe }}
+            </span>
+
             {% else %}
                 {{ post.html|safe }}
             {% endif %}

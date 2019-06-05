@@ -171,6 +171,17 @@ a:hover {
     overflow: auto;
 }
 
+.inplace-form.comment{
+    display:none;
+    width: 100%;
+}
+
+.inplace-form.post{
+    display:none;
+    width: fit-content;
+}
+
+
 .clearfix::after {
   content: "";
   clear: both;
@@ -194,6 +205,10 @@ a:hover {
 .post.Deleted {
     background-color: #f7e4de;
     opacity: 0.6;
+}
+
+.inline{
+    display: inline;
 }
 
 .votebox {
@@ -514,11 +529,6 @@ a:hover {
 
 pre > code {
     padding: 0px 0px 0px 0px;
-}
-
-
-.inline-buttons{
-    margin-top: 5px !important;
 }
 
 

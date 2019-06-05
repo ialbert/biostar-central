@@ -139,9 +139,10 @@ def message_list(request):
     msgs = msgs.select_related("sender", "sender__profile")
     msgs = msgs.order_by("-sent_date")
 
-    # Update unread flag if this is not the first visit
-    second_visit = request.session.get("second_visit", False)
-    if second_visit:
+    # Update unread flag if viewer has already viewed messages
+    viewed_messages = request.session.get("viewed_messages", False)
+    #print(multiple_visits)
+    if viewed_messages:
         Message.objects.filter(id__in=msgs).update(unread=False)
 
     # Get the pagination info
@@ -149,11 +150,11 @@ def message_list(request):
     msgs = paginator.get_page(page)
 
     # Ensures unread flag gets updated after first visit
-    request.session["second_visit"] = True
+    request.session["viewed_messages"] = True
     counts = request.session.get("counts", {})
     # Set count back to 0
     counts["message_count"] = 0
-    request.session["counts"] = counts
+    request.session.update(dict(counts=counts))
 
     context = dict(tab="messages", all_messages=msgs)
     return render(request, "messages/message_list.html", context)

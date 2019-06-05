@@ -1,6 +1,7 @@
 import logging
 import time
 import re
+import html2text
 
 from django.core.management.base import BaseCommand
 
@@ -9,6 +10,7 @@ from biostar.forum import util
 from biostar.forum.models import Post, Vote, Subscription, Badge, Award
 from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesAward
 
+from biostar.utils import markdown
 logger = logging.getLogger("engine")
 from itertools import count, islice
 
@@ -165,8 +167,10 @@ def bulk_copy_posts(limit):
             comment_count = siblings.filter(type=Post.COMMENT).count()
 
             rank = post.lastedit_date.timestamp()
-            content = util.strip_tags(post.content)
-            new_post = Post(uid=post.id, html=post.html, type=post.type, reply_count=reply_count,
+            # bodywidth=0 leaves the width as is.
+            content = html2text.html2text(post.content, bodywidth=0)
+            html = markdown.parse(content)
+            new_post = Post(uid=post.id, html=html, type=post.type, reply_count=reply_count,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
                             author=author, status=post.status, rank=rank, accept_count=int(post.has_accepted),
                             lastedit_date=post.lastedit_date, book_count=post.book_count, comment_count=comment_count,

@@ -1,10 +1,10 @@
 import logging
 from django.conf import settings
 from django.db.models import F
-from biostar.accounts import models
+from biostar.accounts.models import Profile, User
 from biostar.accounts.tasks import detect_location, create_messages
 from biostar.emailer.tasks import send_email
-from biostar.forum.models import Subscription, Post
+from biostar.forum.models import Subscription, Post, Award
 logger = logging.getLogger("biostar")
 
 try:
@@ -22,6 +22,20 @@ def info_task(*args, **kwargs):
 
 def created_post(pid):
     logger.info(f"Created post={pid}")
+
+
+def create_user_awards(user):
+
+    if (user.profile.state == Profile.NEW) and (user.score > 10):
+        user.profile.state = Profile.TRUSTED
+        user.save()
+
+    # The awards the user has won at this point
+    awards = dict()
+    for award in Award.objects.filter(user=user).select_related('badge'):
+        awards.setdefault(award.badge.name, []).append(award)
+
+    return
 
 
 def create_subscription(root, user):
@@ -48,15 +62,15 @@ def notify_followers(post, author):
     context = dict(post=post)
 
     # Everyone subscribed gets a local message.
-    subs = Subscription.objects.filter(post=post.root).exclude(type=models.Profile.NO_MESSAGES)
+    subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
 
     # Send local messages
     users = set(sub.user for sub in subs if sub.user != author)
     create_messages(template=local_template, extra_context=context, rec_list=users, sender=author)
 
     # Send emails to users that specified so
-    subs = subs.filter(type=models.Profile.EMAIL_MESSAGE)
-    emails = [sub.user.email for sub in subs if (sub.user != author and sub.type == models.Profile.EMAIL_MESSAGE)]
+    subs = subs.filter(type=Profile.EMAIL_MESSAGE)
+    emails = [sub.user.email for sub in subs if (sub.user != author and sub.type == Profile.EMAIL_MESSAGE)]
 
     from_email = settings.ADMIN_EMAIL
 

@@ -34,12 +34,11 @@
     <div class="content">
 
             <div class="header">
-
+                {% if post.type != post.QUESTION %}
                     <span class="ui title header">
-                        {% if post.type != post.QUESTION %}
-                            {{ post.get_type_display }}:
-                        {% endif %}
+                    {{ post.get_type_display }}:
                     </span>
+                {% endif %}
 
                  <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
                     class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
