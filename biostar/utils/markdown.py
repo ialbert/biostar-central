@@ -108,15 +108,20 @@ class BiostarInlineLexer(MonkeyPatch):
         self.default_rules.insert(0, 'post_link')
 
     def enable_test_link(self):
-        self.rules.post_link = test_pattern
+        self.rules.test_link = test_pattern
         self.default_rules.insert(0, 'test_link')
+
+    def output_test_link(self, m):
+        handle = m.group("handle")
+        1/0
+        return handle
 
     def enable_mention_link(self):
         self.rules.mention_link = MENTINONED_USERS
         self.default_rules.insert(0, 'mention_link')
 
     def output_mention_link(self, m):
-        self.rules.mention_link = MENTINONED_USERS
+        #self.rules.mention_link = MENTINONED_USERS
         # Get the handle
         handle = m.group("handle")
         # Query user and get the link
