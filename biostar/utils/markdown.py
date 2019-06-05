@@ -95,17 +95,18 @@ class MonkeyPatch(InlineLexer):
         self.default_rules = list(InlineLexer.default_rules)
 
 
-class CustomInlineGrammer(InlineGrammar):
-
-    # 'text' rule matches any string after @ as part of the regular text and
-    # ends up not applying custom rules to the markdown.
-
-    # Override the text rule to contain the `@` as a stop element in the lookahead assertion
+class BiostarInlineGrammer(InlineGrammar):
+    """
+    Mistune iterates through InlineGrammar rules before custom ones, slicing the markdown as each is applied.
+    The 'text' rule in parent class matches '@' as part of a regular string, excluding
+    custom rules from being applied to '@'
+    This subclass overrides the 'text' rule to contain `@` as a stop element in the lookahead assertion
+    """
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[_*`~@]|https?://| {2,}\n|$)')
 
 
 class BiostarInlineLexer(MonkeyPatch):
-    grammar_class = CustomInlineGrammer
+    grammar_class = BiostarInlineGrammer
 
     def __init__(self, root=None, *args, **kwargs):
         self.root = root

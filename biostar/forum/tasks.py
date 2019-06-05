@@ -35,6 +35,7 @@ def create_user_awards(user):
     for award in Award.objects.filter(user=user).select_related('badge'):
         awards.setdefault(award.badge.name, []).append(award)
 
+    print(awards)
     return
 
 
@@ -86,6 +87,7 @@ if HAS_UWSGI:
     notify_followers = spool(notify_followers, pass_arguments=True)
     create_subscription = spool(create_subscription, pass_arguments=True)
     created_post = spool(created_post, pass_arguments=True)
+    create_user_awards = spool(create_user_awards, pass_arguments=True)
 else:
     info_task.spool = info_task
     create_messages.spool = create_messages
@@ -94,3 +96,4 @@ else:
     create_subscription.spool = create_subscription
     send_email.spool = send_email
     created_post.spool = created_post
+    create_user_awards.spool = create_user_awards

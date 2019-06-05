@@ -1,6 +1,6 @@
 import logging
 import hjson
-import bleach
+
 from urllib.request import urlopen, Request
 from django.conf import settings
 from django.template import loader
@@ -61,13 +61,11 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     context = dict(sender=sender, subject=subject)
     context.update(extra_context)
 
-    html = tmpl.render(context)
-
-    body = bleach.clean(html)
+    body = tmpl.render(context)
 
     msgs = []
     for rec in rec_list:
-        msg = models.Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
+        msg = models.Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body)
         msgs.append(msg)
 
     return msgs
