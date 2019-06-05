@@ -224,7 +224,7 @@ function enable_inline_editing(editing, post_uid) {
 function edit_post(post_uid) {
     var edit_url = '/ajax/edit/';
     var form_elem = $('#inplace-form-' + post_uid);
-    var editted = form_elem.find('textarea').val();
+    var edited = form_elem.find('textarea').val();
     $.ajax(edit_url,
         {
             type: 'POST',
@@ -232,15 +232,15 @@ function edit_post(post_uid) {
             ContentType: 'application/json',
             data: {
                 'post_uid': post_uid,
-                'content': editted
+                'content': edited
             },
             success: function (data) {
                 if (data.status === 'error') {
-                    popup_message(form_elem, data.msg, data.status);
+                    popup_message(form_elem, data.msg, data.status, 3000);
                 } else {
                     // Hide form
                     $('#inplace-form-' + post_uid).hide();
-                    // Replace with editted data
+                    // Replace with edited data
                     $('#inplace-' + post_uid).html(data.msg).show().focus();
                 }
             },
@@ -435,9 +435,7 @@ $(document).ready(function () {
         // Add an 'error' to '.ui.field' to turn it red.
         field.closest(".field").addClass("error");
         // Insert the error message
-        field.after('<div class="ui small red message">' +
-                        '<div class="header capitalize">{0}</div>{1}'.f(field_label, message) +
-                    '</div>' )
+        field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
     });
 
 

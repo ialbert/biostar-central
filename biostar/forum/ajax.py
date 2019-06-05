@@ -7,7 +7,7 @@ from django.db.models import F
 from ratelimit.decorators import ratelimit
 
 from biostar.accounts.models import Profile
-from . import auth, util
+from . import auth, util, forms
 from .models import Post, Vote, Subscription
 
 
@@ -135,9 +135,16 @@ def ajax_edit(request):
     if not post:
         return ajax_error(msg="Post does not exist")
     content = request.POST.get("content", post.content)
+    length = len(content.replace(" ", ''))
+
+    if length < forms.MIN_CONTENT:
+        return ajax_error(msg=f"Too short, please add more than add more {forms.MIN_CONTENT} characters.")
+    if length > forms.MAX_CONTENT:
+        return ajax_error(msg=f"Too long, please add less than {forms.MAX_CONTENT} characters.")
+
     post.content = content
     post.save()
 
-    # Note: returns html instead of JSON.
+    # Note: returns html instead of JSON on success.
     # Used to switch content inplace.
     return ajax_success(msg=post.html)
