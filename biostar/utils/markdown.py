@@ -8,7 +8,7 @@ import requests
 from django.shortcuts import reverse
 from django.db.models import F
 from django.conf import settings
-from mistune import Renderer, InlineLexer
+from mistune import Renderer, InlineLexer, InlineGrammar
 
 from biostar.forum.models import Post, Subscription
 from biostar.accounts.models import Profile, User
@@ -47,9 +47,7 @@ SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
 POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
 POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
-MENTINONED_USERS = rec("\@(?P<handle>[^\s]+)")
-
-test_pattern = rec("\@(?P<handle>[test]+)")
+MENTINONED_USERS = rec(r"(\@(?P<handle>[^\s]+))")
 
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
@@ -97,7 +95,13 @@ class MonkeyPatch(InlineLexer):
         self.default_rules = list(InlineLexer.default_rules)
 
 
+class CustomInlineGrammer(InlineGrammar):
+    # Override the text grammar pattern to contain the `@` as a stop element in the lookahead assertion
+    text = re.compile(r'^[\s\S]+?(?=[\\<!\[_*`~@]|https?://| {2,}\n|$)')
+
+
 class BiostarInlineLexer(MonkeyPatch):
+    grammar_class = CustomInlineGrammer
 
     def __init__(self, root=None, *args, **kwargs):
         self.root = root
@@ -107,22 +111,12 @@ class BiostarInlineLexer(MonkeyPatch):
         self.rules.post_link = POST_TOPLEVEL
         self.default_rules.insert(0, 'post_link')
 
-    def enable_test_link(self):
-        self.rules.test_link = test_pattern
-        self.default_rules.insert(0, 'test_link')
-
-    def output_test_link(self, m):
-        handle = m.group("handle")
-        1/0
-        return handle
-
     def enable_mention_link(self):
         self.rules.mention_link = MENTINONED_USERS
         self.default_rules.insert(0, 'mention_link')
 
     def output_mention_link(self, m):
-        #self.rules.mention_link = MENTINONED_USERS
-        # Get the handle
+
         handle = m.group("handle")
         # Query user and get the link
         user = User.objects.filter(username=handle).first()
@@ -221,14 +215,12 @@ def parse(text, post=None):
     """
     # Resolve the root
     root = post.parent.root if (post and post.parent) else None
-    renderer = Renderer(escape=True, hard_wrap=True)
-    inline = BiostarInlineLexer(renderer=renderer, root=root)
+    inline = BiostarInlineLexer(renderer=Renderer(), root=root)
     inline.enable_post_link()
     inline.enable_mention_link()
     inline.enable_anchor_link()
     inline.enable_anchor_link()
     inline.enable_user_link()
-    inline.enable_test_link()
 
     inline.enable_youtube_link1()
     inline.enable_youtube_link2()
@@ -236,7 +228,7 @@ def parse(text, post=None):
     inline.enable_ftp_link()
     inline.enable_twitter_link()
 
-    markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline, renderer=renderer)
+    markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline)
 
     html = markdown(text)
 
