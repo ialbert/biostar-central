@@ -382,6 +382,10 @@ img {
 .center-text{
     text-align: center;
 }
+
+.inline-message p:first-child{
+    display: inline;
+}
 .no-shadow {
     box-shadow: none !important;
     border: none !important;

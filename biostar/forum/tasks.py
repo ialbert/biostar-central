@@ -60,7 +60,7 @@ def notify_followers(post, author):
     from biostar.forum.models import Subscription
 
     # Template used to send local messages
-    local_template = "messages/subscription_message.html"
+    local_template = "messages/subscription_message.md"
     # Template used to send emails with
     email_template = "messages/subscription_email.html"
     context = dict(post=post)

@@ -20,7 +20,7 @@
                     <td class="{% if message.unread %} new-message {% endif %}">
                       <div class="item">
                         <div class="content">
-                            {{ message.sent_date|timesince }} ago: <span>{{ message.html|safe }}</span>
+                            {{ message.sent_date|timesince }} ago: <span class="inline-message">{{ message.html|safe }}</span>
                         </div>
                       </div>
                     </td>
