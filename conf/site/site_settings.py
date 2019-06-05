@@ -1,3 +1,10 @@
+from biostar.settings import *
+
+# Enable the right settings.
+
+# from biostar.engine.settings import *
+# from biostar.forum.settings import *
+
 import logging
 
 logger = logging.getLogger("biostar")
@@ -13,7 +20,7 @@ PROTOCOL = 'http'
 
 ALLOWED_HOSTS = [SITE_DOMAIN]
 
-WSGI_APPLICATION = 'conf.site.site_wsgi.application'
+WSGI_APPLICATION = 'conf.run.site_wsgi.application'
 
 try:
     # Attempts to load site secrets.

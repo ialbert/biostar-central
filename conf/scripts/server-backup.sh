@@ -5,7 +5,7 @@
 # Activate the correct enviroment.
 source /home/www/miniconda3/envs/engine/bin/activate engine
 
-export DJANGO_SETTINGS_MODULE=conf.site.site_settings
+export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
 DUMP_FILE=export/database/recipe-backup.json
 BACKUP_DUMP_FILE=export/database/recipe_backup_`date +'%s'`.json

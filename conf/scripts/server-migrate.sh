@@ -1,19 +1,16 @@
 #!/bin/bash
 
-# Default database migration script.
+# Database migration script.
 
-# Activate the correct enviroment.
-source /home/www/miniconda3/envs/engine/bin/activate engine
+# Load the conda commands.
+source ~/miniconda3/etc/profile.d/conda.sh
+
+# Activate the conda environemnt.
+conda activate engine
 
 # Set the configuration module.
-export DJANGO_SETTINGS_MODULE=conf.site.site_settings
+export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
+# Migrate the server.
 python manage.py migrate
-python manage.py collectstatic --noinput -v 0
-python manage.py project --json initial/tutorial/tutorial-project.hjson --privacy public --jobs
-python manage.py project --root ../biostar-recipes --json projects/cookbook/cookbook-project.hjson --privacy public --jobs
-python manage.py project --root ../biostar-recipes --json projects/cookbook/biostar-handbook-project.hjson --privacy public --jobs
 
-# Add users as needed
-python manage.py add_user initial/initial-users.csv
-python manage.py add_access initial/initial-access.csv

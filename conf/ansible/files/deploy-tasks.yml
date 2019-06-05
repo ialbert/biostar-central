@@ -1,9 +1,3 @@
-- name: Create a backup
-  shell: "./server-backup.sh"
-  args:
-    executable: /bin/bash
-    chdir: "{{ engine_dir }}"
-
 - name: Update the biostar-engine
   git:
     repo: "{{ engine_git }}"
@@ -15,37 +9,5 @@
     - reload supervisor
     - restart nginx
 
-- name: Update the biostar-recipes
-  git:
-    repo: "{{ recipe_git }}"
-    dest: "{{ recipe_dir }}"
-    update: yes
 
-- name: Install dependencies
-  shell: ls
-  notify:
-    - recipe python install
-    - update data
-    - server migrate
-  when: install
-
-- name: Restart servers
-  shell: ls
-  notify:
-    - reload supervisor
-    - restart nginx
-  when: restart
-
-- name: Reset engine
-  shell: "ls"
-  args:
-    executable: /bin/bash
-    chdir: "{{ engine_dir }}"
-  notify:
-    - stop supervisor
-    - server reset
-    - server migrate
-    - reload supervisor
-    - restart nginx
-  when: reset
 
