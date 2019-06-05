@@ -165,6 +165,7 @@ class Message(models.Model):
     sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
+        self.html = self.html or mistune.markdown(self.body)
         self.uid = self.uid or util.get_uuid(10)
         self.sent_date = self.sent_date or util.now()
         super(Message, self).save(**kwargs)

@@ -44,12 +44,14 @@ def detect_location(ip, user_id):
         except Exception as exc:
             logger.error(exc)
 
+
 @spool(pass_arguments=True)
 def create_messages(template, rec_list, sender=None, extra_context={}, subject=""):
     """
     Create batch message from sender to a given recipient_list
     """
     from biostar.accounts.models import User, Message
+    from biostar.utils import markdown
 
     # Get the sender
     name, email = settings.ADMINS[0]
@@ -61,11 +63,12 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     context.update(extra_context)
 
     body = tmpl.render(context)
+    html = markdown.parse(body)
 
     msgs = []
     for rec in rec_list:
 
-        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body)
+        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
         msgs.append(msg)
 
     return msgs
