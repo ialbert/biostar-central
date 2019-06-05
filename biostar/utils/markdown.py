@@ -49,6 +49,8 @@ POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p
 POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
 MENTINONED_USERS = rec("\@(?P<handle>[^\s]+)")
 
+test_pattern = rec("\@(?P<handle>[test]+)")
+
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN2 = rec(r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
@@ -105,6 +107,10 @@ class BiostarInlineLexer(MonkeyPatch):
         self.rules.post_link = POST_TOPLEVEL
         self.default_rules.insert(0, 'post_link')
 
+    def enable_test_link(self):
+        self.rules.post_link = test_pattern
+        self.default_rules.insert(0, 'test_link')
+
     def enable_mention_link(self):
         self.rules.mention_link = MENTINONED_USERS
         self.default_rules.insert(0, 'mention_link')
@@ -115,8 +121,6 @@ class BiostarInlineLexer(MonkeyPatch):
         handle = m.group("handle")
         # Query user and get the link
         user = User.objects.filter(username=handle).first()
-        print(handle)
-        1/0
         if user:
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
@@ -216,9 +220,11 @@ def parse(text, post=None):
     inline = BiostarInlineLexer(renderer=renderer, root=root)
     inline.enable_post_link()
     inline.enable_mention_link()
-
+    inline.enable_anchor_link()
     inline.enable_anchor_link()
     inline.enable_user_link()
+    inline.enable_test_link()
+
     inline.enable_youtube_link1()
     inline.enable_youtube_link2()
     inline.enable_youtube_link3()
