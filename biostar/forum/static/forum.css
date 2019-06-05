@@ -207,6 +207,10 @@ a:hover {
     opacity: 0.6;
 }
 
+.inline{
+    display: inline;
+}
+
 .votebox {
     padding: 0em 0.5em 0em 0.5em;
     text-align: center;
@@ -525,11 +529,6 @@ a:hover {
 
 pre > code {
     padding: 0px 0px 0px 0px;
-}
-
-
-.inline-buttons{
-    margin-top: 5px !important;
 }
 
 

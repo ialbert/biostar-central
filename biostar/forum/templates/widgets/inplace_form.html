@@ -2,7 +2,7 @@
 <form class="ui compact form {% if post.type == post.COMMENT %}comment{%else %}post{% endif %} inplace-form"
       post_uid="{{ post.uid }}" id="inplace-form-{{ post.uid }}">
 
-    <div class="field" style="display: inline;">
+    <div class="inline field">
         <textarea style="width:{{ width }}" rows="{{ rows }}">{{ post.content }}</textarea>
     </div>
     <div class="top-padding">
