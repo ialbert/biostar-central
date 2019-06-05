@@ -84,6 +84,15 @@ def count_label(context, label):
     return label
 
 
+@register.inclusion_tag('widgets/inplace_form.html')
+def inplace_form(post, boxwidth='100%'):
+
+    pad = 2
+    rows = len(post.content.split("\n")) + pad
+    context = dict(content=post.content, uid=post.uid, boxwidth=boxwidth, rows=rows)
+    return context
+
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 

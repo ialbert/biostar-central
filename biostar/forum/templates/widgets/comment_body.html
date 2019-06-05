@@ -21,9 +21,10 @@
         <div class="content edit-post" post_uid="{{ post.uid }}">
 
             {% if post.is_editable %}
-                <div class="pointer" id="{{ post.uid }}" inputwidth=100% >
+                {% inplace_form post=post %}
+                <span class="pointer inplace" id="inplace-{{ post.uid }}" post_uid="{{ post.uid }}" >
                     {{ post.html|safe }}
-                </div>
+                </span>
             {% else %}
                 {{ post.html|safe }}
             {% endif %}

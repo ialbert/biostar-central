@@ -10,7 +10,7 @@
 
     {% if post.is_editable %}
         {% if post.is_toplevel %}&bull; <a href="{% url 'post_edit' post.uid %}">edit</a>
-        {% else %}&bull; <a class="inline-edit pointer" post_uid="{{ post.uid }}">edit</a>
+        {% else %}&bull; <a class="inplace-edit pointer" post_uid="{{ post.uid }}">edit</a>
         {% endif %}
     {% endif %}
     {% if post.can_moderate %}

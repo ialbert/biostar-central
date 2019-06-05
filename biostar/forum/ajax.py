@@ -124,35 +124,20 @@ def ajax_subs(request):
     return ajax_success(msg=msg)
 
 
-@ajax_error_wrapper(method="GET")
-def ajax_html(request, uid):
-    """
-    Return post html
-    """
-
-    post = Post.objects.filter(uid=uid).first()
-    if not post:
-        return HttpResponse(content="Post does not exist.", status=400, content_type="text/plain")
-
-    return HttpResponse(content=post.html, content_type="text/html")
-
-
+@ajax_error_wrapper(method="POST")
 def ajax_edit(request):
     """
-    Return or edit post content
+    edit post content
     """
-    uid = request.GET.get("id", request.POST.get("post_uid"))
+    uid = request.POST.get("post_uid")
     post = Post.objects.filter(uid=uid).first()
 
     if not post:
-        return HttpResponse(content="Post does not exist.", status=400, content_type="text/plain")
+        return ajax_error(msg="Post does not exist")
+    content = request.POST.get("content", post.content)
+    post.content = content
+    post.save()
 
-    if request.method == "POST":
-        if post:
-            content = request.POST.get("content", post.content)
-            post.content = content
-            post.save()
-
-        return HttpResponse(content=post.html, content_type="text/html")
-
-    return HttpResponse(content=post.content, content_type="text/plain")
+    # Note: returns html instead of JSON.
+    # Used to switch content inplace.
+    return ajax_success(msg=post.html)

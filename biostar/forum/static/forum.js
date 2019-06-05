@@ -221,6 +221,32 @@ function enable_inline_editing(editing, post_uid) {
 }
 
 
+function edit_post(post_uid) {
+    var edit_url = '/ajax/edit/';
+    var form_elem = $('#inplace-form-' + post_uid);
+    var editted = form_elem.find('textarea').val();
+    $.ajax(edit_url,
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'post_uid': post_uid,
+                'content': editted
+            },
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(form_elem, data.msg, data.status);
+                } else {
+                    // Hide form
+                    $('#inplace-form-' + post_uid).hide();
+                    // Replace with editted data
+                    $('#inplace-' + post_uid).html(data.msg).show().focus();
+                }
+            },
+        })
+}
+
 $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
@@ -250,20 +276,51 @@ $(document).ready(function () {
 
     });
 
-    $('.edit-post').click(function(){
+    $('.inplace').click(function () {
+        // Hide content
+        $(this).hide();
         var post_uid = $(this).attr('post_uid');
-        // Get the element with the post content
-        var editing = $(" #"+ post_uid );
-        enable_inline_editing(editing, post_uid);
+        // Exposes form
+        $('#inplace-form-' + post_uid).show().focus();
+    });
+
+    $('.inplace-form button.cancel').click(function (event) {
+        event.preventDefault();
+        var post_uid = $(this).closest('.inplace-form').attr('post_uid');
+        // Hide form
+        $('#inplace-form-' + post_uid).hide();
+        // Expose unedited content
+        $('#inplace-' + post_uid).show().focus();
+    });
+
+    $('.inplace-form textarea').keyup(function (event) {
+        var post_uid = $(this).closest('.inplace-form').attr('post_uid');
+        // Submit edit when pressing CTRL-ENTER
+        if ((event.ctrlKey || event.metaKey) && (event.keyCode === 13 || event.keyCode === 10)) {
+            event.preventDefault();
+            edit_post(post_uid);
+            return;
+        }
+        // Leave edit when pressing ESC
+        if (event.keyCode === 27){
+            $('#inplace-form-' + post_uid).hide();
+            // Expose unedited content
+            $('#inplace-' + post_uid).show().focus();
+        }
 
     });
-    $('.inline-edit').click(function (event) {
+
+    $('.inplace-form button.save').click(function () {
+        // Submit edit when clicking save
+        event.preventDefault();
+        var post_uid = $(this).closest('.inplace-form').attr('post_uid');
+        edit_post(post_uid);
+    });
+
+    $('.inplace-edit').click(function () {
         var post_uid = $(this).attr('post_uid');
-        // Get the element with the post content
-        var editing = $(" #"+ post_uid );
-        enable_inline_editing(editing, post_uid);
-        // Trigger click event
-        editing.trigger('click')
+        $('#inplace-' + post_uid).hide();
+        $('#inplace-form-' + post_uid).show().focus();
     });
 
     $('#subscribe')
