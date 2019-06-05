@@ -97,9 +97,8 @@ class MonkeyPatch(InlineLexer):
 
 class BiostarInlineGrammer(InlineGrammar):
     """
-    Mistune iterates through InlineGrammar rules before custom ones, slicing the markdown as each is applied.
-    The 'text' rule in parent class matches '@' as part of a regular string, excluding
-    custom rules from being applied to '@'
+    Mistune has a rule 'text' that sees '@' symbol as part of a regular string.
+    This excludes characters around the '@' symbol from being seen by other rules.
     This subclass overrides the 'text' rule to contain `@` as a stop element in the lookahead assertion
     """
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[_*`~@]|https?://| {2,}\n|$)')
