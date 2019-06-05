@@ -45,6 +45,9 @@ ACCOUNTS_APPS = [
     'allauth.socialaccount.providers.github',
 ]
 
+# Should the server look up locations in a task.
+LOCATION_LOOKUP = False
+
 INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 AUTHENTICATION_BACKENDS += ["allauth.account.auth_backends.AuthenticationBackend"]
@@ -68,5 +71,3 @@ SOCIAL_CLIENTS = [
     ("Google", "A", "B"),
     ("GitHub", "A", "B")
 ]
-
-

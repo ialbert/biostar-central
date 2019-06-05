@@ -5,33 +5,31 @@ from urllib.request import urlopen, Request
 from django.conf import settings
 from django.template import loader
 
-from biostar.accounts import models
+from biostar.utils.decorators import spool
 
 logger = logging.getLogger('biostar')
 
-
-def detect_location(request, user):
+@spool(pass_arguments=True)
+def detect_location(ip, user_id):
     """
     Fills the user location based on url.
     """
+    from biostar.accounts.models import Profile
 
-    # Get the ip information
-    ip1 = request.META.get('REMOTE_ADDR', '')
-    ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
-    ip = ip1 or ip2 or '0.0.0.0'
-
-    logger.info(f"location-check\tid={user.id}\tip={ip}")
+    logger.info(f"location-check\tid={user_id}\tip={ip}")
 
     # Don't hammer the servers when testing
     if settings.DEBUG:
         return
 
-    # Check and log location.
-    if user.is_authenticated and not user.profile.location:
+    # Get the profile for the user
+    profile = Profile.objects.filter(user__id=user_id).first()
 
+    # Check and log location.
+    if not profile.location and settings.LOCATION_LOOKUP:
         try:
             url = f"http://api.hostip.info/get_json.php?ip={ip}"
-            logger.debug(f"{ip}, {user}, {url}")
+            logger.debug(f"{ip}, {profile.user}, {url}")
             req = Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
             resp = urlopen(req, timeout=3).read()
             data = hjson.loads(resp)
@@ -40,21 +38,22 @@ def detect_location(request, user):
             location = city or country
             location = "localhost" if ip in ('127.0.0.1') else location
             if "unknown" not in location.lower():
-                models.Profile.objects.filter(user=user).update(location=location)
-                logger.info(f"location-set\tid={user.id}\tip={ip}\tloc={location}")
+                Profile.objects.filter(user=profile.user).update(location=location)
+                logger.info(f"location-set\tid={profile.user.id}\tip={ip}\tloc={location}")
 
         except Exception as exc:
             logger.error(exc)
 
-
+@spool(pass_arguments=True)
 def create_messages(template, rec_list, sender=None, extra_context={}, subject=""):
-
     """
     Create batch message from sender to a given recipient_list
     """
+    from biostar.accounts.models import User, Message
+
     # Get the sender
     name, email = settings.ADMINS[0]
-    sender = sender or models.User.objects.filter(email=email).first()
+    sender = sender or User.objects.filter(email=email).first()
 
     # Load the template and context
     tmpl = loader.get_template(template_name=template)
@@ -67,7 +66,7 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
 
     msgs = []
     for rec in rec_list:
-        msg = models.Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
+        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
         msgs.append(msg)
 
     return msgs

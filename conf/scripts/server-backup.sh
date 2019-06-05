@@ -2,18 +2,28 @@
 
 # Default database backup  script.
 
-# Activate the correct enviroment.
-source /home/www/miniconda3/envs/engine/bin/activate engine
+# Load the conda commands.
+source ~/miniconda3/etc/profile.d/conda.sh
 
+# Activate the conda environemnt.
+conda activate engine
+
+# Stop on errors.
+set -ue
+
+# Set the configuration module.
 export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
-DUMP_FILE=export/database/recipe-backup.json
-BACKUP_DUMP_FILE=export/database/recipe_backup_`date +'%s'`.json
+# Backup location
+mkdir -p export/backup
 
-python manage.py dumpdata --exclude contenttypes > $DUMP_FILE
+# Generate backup file location.
+TSTAMP=`date +'%Y-%m-%d-%H-%m'`
+BACKUP="export/backup/data-${TSTAMP}.json"
 
-cp -f $DUMP_FILE $BACKUP_DUMP_FILE
+# Dump the data in the desired format.
+python manage.py dumpdata --exclude contenttypes > $BACKUP
 
-# Produce a datadump count as a reminder.
-ls -1 export/database/*.json | wc -l
-~
+# Show the backup filename.
+echo "$BACKUP"
+
