@@ -57,7 +57,7 @@
                 {# Display post content. #}
             {% if post.is_editable %}
 
-            {% inplace_form post=post boxwidth="605px"%}
+            {% inplace_form post=post width="605px"%}
 
             <span class="pointer inplace" id="inplace-{{ post.uid }}" post_uid="{{ post.uid }}" >
                 {{ post.html|safe }}

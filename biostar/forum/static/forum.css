@@ -171,6 +171,17 @@ a:hover {
     overflow: auto;
 }
 
+.inplace-form.comment{
+    display:none;
+    width: 100%;
+}
+
+.inplace-form.post{
+    display:none;
+    width: fit-content;
+}
+
+
 .clearfix::after {
   content: "";
   clear: both;
