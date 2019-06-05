@@ -1,7 +1,7 @@
 import os, logging
 from django.core.wsgi import get_wsgi_application
 
-logger= logging.getLogger("biostar")
+logger= logging.getLogger("engine")
 
 # Override the DJANGO SETTINGS MODULE
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.run.site_settings")

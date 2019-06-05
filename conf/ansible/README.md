@@ -1,18 +1,20 @@
-# Setup is automated via ansible
+# Setting up the infrastrucuture
+
+Setup is automated via ansible.
 
 Install ansible into the current python environment:
 
     pip install ansible
 
-Check that ansible works (use your domain instead of test.biostars.org) :
+Check that ansible works (use your domain instead of test.biostars.org):
 
     ansible test.biostars.org -u www -m ping all
 
-or using a host file that contains target server names:
+Alternatively use a host file that contains target server names:
 
     ansible -i hosts/test.biostars.org -u www -m ping all
 
-## Set up the infrastructure
+## Server configuration
 
 Ensure that you have a generated a public key on your current system. This will be copied over
 to the server for public key authentication.
@@ -23,46 +25,54 @@ Set up the server infrastructure (apt-get, default users, directories)
 
     ansible-playbook -i hosts/test.biostars.org server-config.yml
 
-Install the software:
+The playbook above will bootstrap a Ubuntu based linux server, a user named `www` and
+`nginx` and `postgresql`. You may log into the `www` server via public key authentication.
+
+## Software installation
+
+To install the server and the python dependencies run:
 
     ansible-playbook -i hosts/test.biostars.org software-install.yml
 
-By default conda is not added to the `PATH`, is that behavior is desired one needs to run:
+The playbook above will clone the repository into the directory.
+
+    /export/www/biostar-engine/
+
+At the end of the installation, the playbook will copy the configuration files from
+
+    /export/www/biostar-engine/biostar-engine/conf/site/
+
+to
+
+    /export/www/biostar-engine/biostar-engine/conf/run/
+
+Link server files manually with:
+
+    ln -sf /export/www/biostar-engine/conf/run/site_nginx.conf /etc/nginx/sites-enabled/
+    ln -sf /export/www/biostar-engine/conf/run/site_supervisor.conf /etc/supervisor/conf.d/
+
+You may now edit and customize the settings file located in `biostar-engine/conf/run/`
+
+By default conda will not be added to the `PATH` variable of the `www` user. If that behavior is desired one needs to run:
 
     ~/miniconda3/bin/conda init
 
-Link the nginx and supervisor configurations:
+## Software deployment
 
-    ln -sf /export/sites/biostar-engine/conf/site/site_nginx.conf /etc/nginx/sites-enabled/
-    ln -sf /export/sites/biostar-engine/conf/site/site_supervisor.conf /etc/supervisor/conf.d/ 
-        
-Initialize the certificates
+To deploy the latest version and restart the servers:
 
-    sudo certbot --nginx
-
-You should test your configuration at:
-
-* https://www.ssllabs.com/ssltest/analyze.html?d=bioinformatics.recipes
-* https://www.ssllabs.com/ssltest/analyze.html?d=data.bioinformatics.recipes
-* https://www.ssllabs.com/ssltest/analyze.html?d=www.bioinformatics.recipes
-
-## Deployment
-
-The following will pull the new content and restart the servers:
-
-    ansible-playbook -i hosts server_deploy.yml --ask-become-pass
-
+    ansible-playbook -i hosts server-deploy.yml --ask-become-pass
 
 To restart servers alone:
 
-    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "restart=True"
+    ansible-playbook -i hosts server-deploy.yml --ask-become-pass --extra-vars "restart=True"
 
 
 To install dependencies:
 
-    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "install=True restart=True"
+    ansible-playbook -i hosts server-deploy.yml --ask-become-pass --extra-vars "install=True restart=True"
 
 To reset the site:
 
-    ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars "reset=True"
+    ansible-playbook -i hosts server-deploy.yml --ask-become-pass --extra-vars "reset=True"
 
