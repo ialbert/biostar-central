@@ -244,6 +244,9 @@ function edit_post(post_uid) {
                     $('#inplace-' + post_uid).html(data.msg).show().focus();
                 }
             },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
         })
 }
 
