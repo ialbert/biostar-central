@@ -20,11 +20,26 @@ def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-def create_user_awards(user):
-    from biostar.accounts.models import Profile
-    from biostar.forum.models import Award
+def create_award(targets, user, award):
+    from biostar.forum.models import Award, Post, Badge
+    for target in targets:
+        date = user.profile.last_login
+        post = target if isinstance(target, Post) else None
+        badge = Badge.objects.filter(name=award.name).first()
+        award = Award.objects.create(user=user, badge=badge, date=date, post=post)
+        logger.info("award %s created for %s" % (award.badge.name, user.email))
 
-    if (user.profile.state == Profile.NEW) and (user.score > 10):
+    return
+
+
+@spool(pass_arguments=True)
+def create_user_awards(user_id):
+    from biostar.accounts.models import Profile, User
+    from biostar.forum.models import Award, Post
+    from biostar.forum.awards import ALL_AWARDS
+
+    user = User.objects.filter(id=user_id).first()
+    if (user.profile.state == Profile.NEW) and (user.profile.score > 10):
         user.profile.state = Profile.TRUSTED
         user.save()
 
@@ -33,8 +48,22 @@ def create_user_awards(user):
     for award in Award.objects.filter(user=user).select_related('badge'):
         awards.setdefault(award.badge.name, []).append(award)
 
-    print(awards)
-    return
+    for award in ALL_AWARDS:
+
+        # How many times has this award has already been given
+        seen = len(awards[award.name]) if award.name in awards else 0
+
+        # How many times the user earned this award
+        valid_targets = award.validate(user)
+
+        # Order the queryset
+        valid_targets = valid_targets.order_by("-id")
+
+        # Keep targets have not been awarded
+        valid_targets = valid_targets[seen:]
+
+        # Create an award for each target
+        create_award(targets=valid_targets, user=user, award=award)
 
 
 @spool(pass_arguments=True)

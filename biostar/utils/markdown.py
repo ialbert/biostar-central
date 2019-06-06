@@ -102,6 +102,7 @@ class BiostarInlineGrammer(InlineGrammar):
     This subclass overrides the 'text' rule to contain `@` as a stop element in the lookahead assertion
     """
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[_*`~@]|https?://| {2,}\n|$)')
+    #text = re.compile(r'^[\s\S]+?(?=[\\<!\[_*`~]|https?://| {2,}\n|$)')
 
 
 class BiostarInlineLexer(MonkeyPatch):
@@ -109,19 +110,33 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def __init__(self, root=None, *args, **kwargs):
         self.root = root
+        #print(self.default_rules.index("text"))
+
         super(BiostarInlineLexer, self).__init__(*args, **kwargs)
+
+        #print(self.rules)
+
+    # def output_text(self, m):
+    #
+    #     print(m.group(), "TEXT")
+    #
+    #     return m.group()
 
     def enable_post_link(self):
         self.rules.post_link = POST_TOPLEVEL
+
         self.default_rules.insert(0, 'post_link')
 
     def enable_mention_link(self):
         self.rules.mention_link = MENTINONED_USERS
+        #nsert = self.default_rules.index("text")
+
         self.default_rules.insert(0, 'mention_link')
 
     def output_mention_link(self, m):
 
         handle = m.group("handle")
+
         # Query user and get the link
         user = User.objects.filter(username=handle).first()
         if user:
