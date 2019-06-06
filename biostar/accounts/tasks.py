@@ -16,17 +16,20 @@ def detect_location(ip, user_id):
     """
     from biostar.accounts.models import Profile
 
-    logger.info(f"location-check\tid={user_id}\tip={ip}")
+    msg = f"location check for \tid={user_id}\tip={ip}"
 
-    # Don't hammer the servers when testing
-    if settings.DEBUG:
+    # The lookup needs to be turned on.
+    if not settings.LOCATION_LOOKUP:
+        logger.info(f"skipping {msg}")
         return
+
+    logger.info(f"executing {msg}")
 
     # Get the profile for the user
     profile = Profile.objects.filter(user__id=user_id).first()
 
     # Check and log location.
-    if not profile.location and settings.LOCATION_LOOKUP:
+    if not profile.location:
         try:
             url = f"http://api.hostip.info/get_json.php?ip={ip}"
             logger.debug(f"{ip}, {profile.user}, {url}")
@@ -37,9 +40,12 @@ def detect_location(ip, user_id):
             country = data.get('country_name', '').title()
             location = city or country
             location = "localhost" if ip in ('127.0.0.1') else location
+            msg = f"location result for \tid={user_id}\tip={ip}\tloc={location}"
             if "unknown" not in location.lower():
                 Profile.objects.filter(user=profile.user).update(location=location)
-                logger.info(f"location-set\tid={profile.user.id}\tip={ip}\tloc={location}")
+                logger.info(f"updating {msg}")
+            else:
+                logger.info(f"skipping {msg}")
 
         except Exception as exc:
             logger.error(exc)

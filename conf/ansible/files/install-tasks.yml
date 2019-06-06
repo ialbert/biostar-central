@@ -84,13 +84,13 @@
     - site_uwsgi.ini
 
 - name: Install python requirements
-  shell: "/home/www/miniconda3/envs/{{conda_env}}/bin/pip install -r conf/pip_requirements.txt"
+  shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
 
 - name: Install conda requirements
-  shell: "conda activate {{conda_env}}  && conda install --file conf/conda_requirements.txt"
+  shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}}  && conda install --file conf/conda_requirements.txt"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
