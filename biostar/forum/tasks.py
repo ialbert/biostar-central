@@ -27,7 +27,7 @@ def create_award(targets, user, award):
         post = target if isinstance(target, Post) else None
         badge = Badge.objects.filter(name=award.name).first()
         award = Award.objects.create(user=user, badge=badge, date=date, post=post)
-        logger.info("award %s created for %s" % (award.badge.name, user.email))
+        logger.debug("award %s created for %s" % (award.badge.name, user.email))
 
     return
 

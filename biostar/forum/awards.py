@@ -19,13 +19,15 @@ def wrap_qs(user, cond):
 
 
 class AwardDef(object):
-    def __init__(self, name, desc, func, icon, type=Badge.BRONZE):
+    def __init__(self, name, desc, func, icon, max_awarded=None, type=Badge.BRONZE):
         self.name = name
         self.desc = desc
         self.fun = func
         self.icon = icon
         self.template = ""
         self.type = type
+        # Max number of times this award can be given
+        self.max_awarded = max_awarded
 
     def validate(self, *args, **kwargs):
 

@@ -123,7 +123,7 @@ transfer:
 	python manage.py transfer -n 300 --settings conf.examples.postgres.transfer_settings
 
 postgres:
-	$(MAKE) pg init posts
+	$(MAKE) pg init populate
 
 next:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
