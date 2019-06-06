@@ -2,14 +2,30 @@ import logging
 from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-
-from . import tasks, models
+from django.shortcuts import reverse
+from .models import Post, Award
+from . import tasks
 
 logger = logging.getLogger("biostar")
 
 
-@receiver(post_save, sender=models.Post)
+@receiver(post_save, sender=Award)
+def send_award_message(sender, instance, created, **kwargs):
+    """
+    Send message to users when they receive an award.
+    """
+    template = "messages/awards_created.md"
+    badge_url = reverse('badge_view', kwargs=dict(uid=instance.badge.uid))
+    print(instance.post, instance)
+    context = dict(badge_url=badge_url, award=instance, post=instance.post)
+
+    if created:
+        # Send local messages
+        tasks.create_messages.spool(template=template, extra_context=context, rec_list=[instance.user])
+    return
+
+
+@receiver(post_save, sender=Post)
 def finalize_post(sender, instance, created, **kwargs):
 
     # Determine the root of the post.
@@ -28,12 +44,12 @@ def finalize_post(sender, instance, created, **kwargs):
             instance.title = instance.parent.title
 
         # Only comments may be added to a parent that is answer or comment.
-        if instance.parent and instance.parent.type in (models.Post.ANSWER, models.Post.COMMENT):
-            instance.type = models.Post.COMMENT
+        if instance.parent and instance.parent.type in (Post.ANSWER, Post.COMMENT):
+            instance.type = Post.COMMENT
 
         # Set post type if it was left empty.
         if instance.type is None:
-            instance.type = models.Post.COMMENT if instance.parent else models.Post.FORUM
+            instance.type = Post.COMMENT if instance.parent else Post.FORUM
 
         # This runs only once upon object creation.
         instance.title = instance.parent.title if instance.parent else instance.title
@@ -49,8 +65,8 @@ def finalize_post(sender, instance, created, **kwargs):
             instance.root = instance.parent = instance
 
         # Answers and comments may only have comments associated with them.
-        if instance.parent.type in (models.Post.ANSWER, models.Post.COMMENT):
-            instance.type = models.Post.COMMENT
+        if instance.parent.type in (Post.ANSWER, Post.COMMENT):
+            instance.type = Post.COMMENT
 
         # Sanity check.
         assert instance.root and instance.parent
@@ -59,18 +75,18 @@ def finalize_post(sender, instance, created, **kwargs):
         if not instance.is_toplevel:
             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
         # Update the root answer count
-        if instance.type == models.Post.ANSWER:
-            models.Post.objects.filter(id=instance.root.id).update(answer_count=F("answer_count") + 1)
+        if instance.type == Post.ANSWER:
+            Post.objects.filter(id=instance.root.id).update(answer_count=F("answer_count") + 1)
         # Update root comment count
-        if instance.type == models.Post.COMMENT:
-            models.Post.objects.filter(id=instance.root.id).update(comment_count=F("comment_count") + 1)
+        if instance.type == Post.COMMENT:
+            Post.objects.filter(id=instance.root.id).update(comment_count=F("comment_count") + 1)
 
         # Update the root reply count
-        models.Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
+        Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
 
         # Update the parent reply counts.
         if instance.parent != instance.root:
-            models.Post.objects.filter(pk=instance.parent.pk).update(reply_count=F("reply_count") + 1)
+            Post.objects.filter(pk=instance.parent.pk).update(reply_count=F("reply_count") + 1)
 
         # Update last contributor to the thread.
         instance.root.last_contributor = instance.last_contributor

@@ -1,7 +1,7 @@
 import logging
 from django.test import TestCase
 from django.urls import reverse
-
+from django.core import management
 from biostar.forum import models, views, auth, ajax
 from biostar.forum.tests.util import fake_request
 from biostar.accounts.models import User
@@ -18,6 +18,7 @@ class PostTest(TestCase):
         # Create an existing tested post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",
                                      post_type=models.Post.QUESTION)
+        management.call_command('posts')
         self.owner.save()
         pass
 

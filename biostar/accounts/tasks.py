@@ -1,6 +1,6 @@
 import logging
 import hjson
-import bleach
+import mistune
 from urllib.request import urlopen, Request
 from django.conf import settings
 from django.template import loader
@@ -44,6 +44,7 @@ def detect_location(ip, user_id):
         except Exception as exc:
             logger.error(exc)
 
+
 @spool(pass_arguments=True)
 def create_messages(template, rec_list, sender=None, extra_context={}, subject=""):
     """
@@ -60,12 +61,12 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     context = dict(sender=sender, subject=subject)
     context.update(extra_context)
 
-    html = tmpl.render(context)
-
-    body = bleach.clean(html)
+    body = tmpl.render(context)
+    html = mistune.markdown(body)
 
     msgs = []
     for rec in rec_list:
+
         msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
         msgs.append(msg)
 

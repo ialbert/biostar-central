@@ -347,7 +347,7 @@ figure {
 }
 
 .top-padding{
-    padding-top: 5px;
+    padding-top: 5px !important;
 }
 
 
@@ -381,6 +381,10 @@ img {
 }
 .center-text{
     text-align: center;
+}
+
+.inline-message p:first-child{
+    display: inline;
 }
 .no-shadow {
     box-shadow: none !important;

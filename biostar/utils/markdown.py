@@ -8,7 +8,7 @@ import requests
 from django.shortcuts import reverse
 from django.db.models import F
 from django.conf import settings
-from mistune import Renderer, InlineLexer
+from mistune import Renderer, InlineLexer, InlineGrammar
 
 from biostar.forum.models import Post, Subscription
 from biostar.accounts.models import Profile, User
@@ -44,10 +44,10 @@ SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 
 
 # Biostar patterns
-USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
-POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
-POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
-MENTINONED_USERS = rec("(\@(?P<handle>[^\s]+))")
+USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
+POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
+POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
+MENTINONED_USERS = rec(r"(\@(?P<handle>[^\s]+))")
 
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
@@ -95,10 +95,21 @@ class MonkeyPatch(InlineLexer):
         self.default_rules = list(InlineLexer.default_rules)
 
 
+class BiostarInlineGrammer(InlineGrammar):
+    """
+    Mistune has a rule 'text' that sees '@' symbol as part of a regular string.
+    This excludes characters around the '@' symbol from being seen by other rules.
+    This subclass overrides the 'text' rule to contain `@` as a stop element in the lookahead assertion
+    """
+    text = re.compile(r'^[\s\S]+?(?=[\\<!\[*`~@]|https?://| {2,}\n|$)')
+
+
 class BiostarInlineLexer(MonkeyPatch):
+    grammar_class = BiostarInlineGrammer
 
     def __init__(self, root=None, *args, **kwargs):
         self.root = root
+
         super(BiostarInlineLexer, self).__init__(*args, **kwargs)
 
     def enable_post_link(self):
@@ -110,8 +121,7 @@ class BiostarInlineLexer(MonkeyPatch):
         self.default_rules.insert(0, 'mention_link')
 
     def output_mention_link(self, m):
-        self.rules.mention_link = MENTINONED_USERS
-        # Get the handle
+
         handle = m.group("handle")
         # Query user and get the link
         user = User.objects.filter(username=handle).first()
@@ -210,20 +220,20 @@ def parse(text, post=None):
     """
     # Resolve the root
     root = post.parent.root if (post and post.parent) else None
-    renderer = Renderer(escape=True, hard_wrap=True)
-    inline = BiostarInlineLexer(renderer=renderer, root=root)
+    inline = BiostarInlineLexer(renderer=Renderer(), root=root)
     inline.enable_post_link()
     inline.enable_mention_link()
-
+    inline.enable_anchor_link()
     inline.enable_anchor_link()
     inline.enable_user_link()
+
     inline.enable_youtube_link1()
     inline.enable_youtube_link2()
     inline.enable_youtube_link3()
     inline.enable_ftp_link()
     inline.enable_twitter_link()
 
-    markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline, renderer=renderer)
+    markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline)
 
     html = markdown(text)
 

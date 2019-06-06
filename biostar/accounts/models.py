@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import mistune
 from django.conf import settings
+from django.shortcuts import reverse
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import utc
@@ -133,6 +134,11 @@ class Profile(models.Model):
     @property
     def is_manager(self):
         return self.role == self.MANAGER
+
+    @property
+    def get_absolute_url(self):
+
+        return reverse('user_profile', kwargs=dict(uid=self.uid))
 
     @property
     def is_suspended(self):

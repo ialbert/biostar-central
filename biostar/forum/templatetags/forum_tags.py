@@ -272,7 +272,7 @@ def single_post_feed(post):
     for tag in tags:
         query |= Q(tag_val__iregex=tag)
 
-    posts = Post.objects.exclude(uid=post.uid).filter(query)[:settings.SINGLE_FEED_COUNT]
+    posts = Post.objects.exclude(uid=post.uid).filter(query, type__in=Post.TOP_LEVEL)[:settings.SINGLE_FEED_COUNT]
     context = dict(posts=posts)
     return context
 

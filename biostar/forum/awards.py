@@ -1,8 +1,10 @@
 import logging
-from biostar.forum.models import Post, Vote, Badge
 
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
+
+from biostar.accounts.models import User
+from biostar.forum.models import Post, Vote, Badge
 
 logger = logging.getLogger("engine")
 
@@ -11,8 +13,9 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
-def wrap_list(obj, cond):
-    return [obj] if cond else []
+def wrap_qs(user, cond):
+
+    return User.objects.filter(id=user.id) if cond else User.objects.none()
 
 
 class AwardDef(object):
@@ -25,6 +28,7 @@ class AwardDef(object):
         self.type = type
 
     def validate(self, *args, **kwargs):
+
         try:
             value = self.fun(*args, **kwargs)
             return value
@@ -43,14 +47,14 @@ class AwardDef(object):
 AUTOBIO = AwardDef(
     name="Autobiographer",
     desc="has more than 80 characters in the information field of the user's profile",
-    func=lambda user: wrap_list(user, len(user.profile.text) > 80),
+    func=lambda user: wrap_qs(user, len(user.profile.text) > 80),
     icon="bullhorn icon"
 )
 
 GOOD_QUESTION = AwardDef(
     name="Good Question",
     desc="asked a question that was upvoted at least 5 times",
-    func=lambda user: Post.objects.filter(vote_count__gt=5, author=user, type=Post.QUESTION),
+    func=lambda user: Post.objects.filter(vote_count__gte=5, author=user, type=Post.QUESTION),
     icon="question icon"
 )
 
@@ -85,7 +89,7 @@ COMMENTATOR = AwardDef(
 CENTURION = AwardDef(
     name="Centurion",
     desc="created 100 posts",
-    func=lambda user: wrap_list(user, Post.objects.filter(author=user).count() > 100),
+    func=lambda user: wrap_qs(user, Post.objects.filter(author=user).count() > 100),
     icon="bolt icon",
     type=Badge.SILVER,
 )
@@ -109,7 +113,7 @@ POPULAR = AwardDef(
 ORACLE = AwardDef(
     name="Oracle",
     desc="created more than 1,000 posts (questions + answers + comments)",
-    func=lambda user: wrap_list(user, Post.objects.filter(author=user).count() > 1000),
+    func=lambda user: wrap_qs(user, Post.objects.filter(author=user).count() > 1000),
     icon="sun icon",
     type=Badge.GOLD,
 )
@@ -125,7 +129,7 @@ PUNDIT = AwardDef(
 GURU = AwardDef(
     name="Guru",
     desc="received more than 100 upvotes",
-    func=lambda user: wrap_list(user, Vote.objects.filter(post__author=user).count() > 100),
+    func=lambda user: wrap_qs(user, Vote.objects.filter(post__author=user).count() > 100),
     icon="beer icon",
     type=Badge.SILVER,
 )
@@ -133,7 +137,7 @@ GURU = AwardDef(
 CYLON = AwardDef(
     name="Cylon",
     desc="received 1,000 up votes",
-    func=lambda user: wrap_list(user, Vote.objects.filter(post__author=user).count() > 1000),
+    func=lambda user: wrap_qs(user, Vote.objects.filter(post__author=user).count() > 1000),
     icon="rocket icon",
     type=Badge.GOLD,
 )
@@ -141,14 +145,14 @@ CYLON = AwardDef(
 VOTER = AwardDef(
     name="Voter",
     desc="voted more than 100 times",
-    func=lambda user: wrap_list(user, Vote.objects.filter(author=user).count() > 100),
+    func=lambda user: wrap_qs(user, Vote.objects.filter(author=user).count() > 100),
     icon="thumbs up outline"
 )
 
 SUPPORTER = AwardDef(
     name="Supporter",
     desc="voted at least 25 times",
-    func=lambda user: wrap_list(user, Vote.objects.filter(author=user).count() > 25),
+    func=lambda user: wrap_qs(user, Vote.objects.filter(author=user).count() > 25),
     icon="thumbs up icon",
     type=Badge.SILVER,
 )
@@ -156,7 +160,7 @@ SUPPORTER = AwardDef(
 SCHOLAR = AwardDef(
     name="Scholar",
     desc="created an answer that has been accepted",
-    func=lambda user: Post.objects.filter(author=user, type=Post.ANSWER, has_accepted=True),
+    func=lambda user: Post.objects.filter(author=user, type=Post.ANSWER, accept_count__gt=0),
     icon="check circle outline icon"
 )
 
@@ -179,7 +183,7 @@ def rising_star(user):
     # The user joined no more than three months ago
     cond = now() < user.profile.date_joined + timedelta(weeks=15)
     cond = cond and Post.objects.filter(author=user).count() > 50
-    return wrap_list(user, cond)
+    return wrap_qs(user, cond)
 
 RISING_STAR = AwardDef(
     name="Rising Star",

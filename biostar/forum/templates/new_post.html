@@ -44,13 +44,14 @@
 
             <div class="field">
                 <b>{{ form.tag_val.label }}</b>
-            <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}" value="{{selected}}">
+
+            <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}" value="{%if selected%} {{selected}} {%endif%}">
 
                 <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="{{form.tag_val.id_for_label}}">
                   <option value="">Tags</option>
 
-                  {% for value, selected in tags_opt %}
-                      {% if selected %}<option value="{{ value }}" selected="selected">{{value}}</option>
+                  {% for value, selected_tag in tags_opt %}
+                      {% if selected_tag %}<option value="{{ value }}" selected="selected">{{value}}</option>
                       {% else %}<option value="{{ value }}">{{value}}</option>
                       {% endif %}
                   {% endfor %}
