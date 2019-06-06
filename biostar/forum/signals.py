@@ -2,7 +2,7 @@ import logging
 from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+from django.shortcuts import reverse
 from .models import Post, Award
 from . import tasks
 
@@ -12,9 +12,16 @@ logger = logging.getLogger("biostar")
 @receiver(post_save, sender=Award)
 def send_award_message(sender, instance, created, **kwargs):
     """
-    Send message to user when they receive an award.
+    Send message to users when they receive an award.
     """
+    template = "messages/awards_created.md"
+    badge_url = reverse('badge_view', kwargs=dict(uid=instance.badge.uid))
+    print(instance.post, instance)
+    context = dict(badge_url=badge_url, award=instance, post=instance.post)
 
+    if created:
+        # Send local messages
+        tasks.create_messages.spool(template=template, extra_context=context, rec_list=[instance.user])
     return
 
 
