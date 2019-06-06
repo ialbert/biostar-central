@@ -386,6 +386,7 @@ def edit_post(request, uid):
     action_url = reverse("post_edit", kwargs=dict(uid=post.uid))
     user = request.user
     tags_opts = {val: True for val in post.tag_val.split(",")}
+    selected = post.tag_val
 
     if post.is_toplevel:
         template, form_class = "new_post.html", forms.PostLongForm
@@ -401,9 +402,11 @@ def edit_post(request, uid):
             form.edit()
             messages.success(request, f"Edited :{post.title}")
             return redirect(post.get_absolute_url())
+        tags_opts = {val: True for val in request.POST.get('tag_val', '').split(",")}
+        selected = request.POST.get('tag_val', '')
 
     tags_opts = tags_opts.items()
     context = dict(form=form, post=post, action_url=action_url, form_title="Edit post",
-                   tags_opt=tags_opts)
+                   tags_opt=tags_opts, selected=selected)
 
     return render(request, template, context)

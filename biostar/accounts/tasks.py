@@ -1,6 +1,6 @@
 import logging
 import hjson
-
+import mistune
 from urllib.request import urlopen, Request
 from django.conf import settings
 from django.template import loader
@@ -51,7 +51,6 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     Create batch message from sender to a given recipient_list
     """
     from biostar.accounts.models import User, Message
-    from biostar.utils import markdown
 
     # Get the sender
     name, email = settings.ADMINS[0]
@@ -63,7 +62,7 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     context.update(extra_context)
 
     body = tmpl.render(context)
-    html = markdown.parse(body)
+    html = mistune.markdown(body)
 
     msgs = []
     for rec in rec_list:

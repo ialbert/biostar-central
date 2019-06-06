@@ -3,7 +3,6 @@ from django.dispatch import receiver
 
 from biostar.accounts.models import Profile, User
 from biostar.accounts import util, tasks
-from biostar.utils import markdown
 
 
 @receiver(post_save, sender=User)

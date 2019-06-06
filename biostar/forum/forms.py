@@ -79,6 +79,15 @@ class PostLongForm(forms.Form):
         self.post.save()
         return self.post
 
+    def clean_tag_val(self):
+        """
+        Take out duplicates
+        """
+        tag_val = self.cleaned_data["tag_val"]
+        tags = set(tag_val.split(","))
+        return ",".join(tags)
+
+
 
 class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
