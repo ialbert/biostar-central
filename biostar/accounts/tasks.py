@@ -1,13 +1,15 @@
 import logging
+from urllib.request import urlopen, Request
+
 import hjson
 import mistune
-from urllib.request import urlopen, Request
 from django.conf import settings
 from django.template import loader
 
 from biostar.utils.decorators import spool
 
 logger = logging.getLogger('biostar')
+
 
 @spool(pass_arguments=True)
 def detect_location(ip, user_id):
@@ -28,6 +30,10 @@ def detect_location(ip, user_id):
     # Get the profile for the user
     profile = Profile.objects.filter(user__id=user_id).first()
 
+    # Skip value if it has the word unknown in it
+    def skip_unknown(value):
+        return "" if "unknown" in value.lower() else value
+
     # Check and log location.
     if not profile.location:
         try:
@@ -36,9 +42,11 @@ def detect_location(ip, user_id):
             req = Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
             resp = urlopen(req, timeout=3).read()
             data = hjson.loads(resp)
-            city = data.get("city", '')
-            country = data.get('country_name', '').title()
+
+            city = skip_unknown(data.get("city", ''))
+            country = skip_unknown(data.get("country", ''))
             location = city or country
+            location = location.title()
             location = "localhost" if ip in ('127.0.0.1') else location
             msg = f"location result for \tid={user_id}\tip={ip}\tloc={location}"
             if "unknown" not in location.lower():
@@ -72,7 +80,6 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
 
     msgs = []
     for rec in rec_list:
-
         msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
         msgs.append(msg)
 
