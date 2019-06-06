@@ -31,23 +31,24 @@ def detect_location(ip, user_id):
     profile = Profile.objects.filter(user__id=user_id).first()
 
     # Skip value if it has the word unknown in it
-    def skip_unknown(value):
-        return "" if "unknown" in value.lower() else value
+    def get(data, attr):
+        value = data.get(attr, '')
+        return "" if "unknown" in value.lower() else value.title()
 
     # Check and log location.
     if not profile.location:
         try:
             url = f"http://api.hostip.info/get_json.php?ip={ip}"
+            logger.info(url)
             logger.debug(f"{ip}, {profile.user}, {url}")
             req = Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
             resp = urlopen(req, timeout=3).read()
             data = hjson.loads(resp)
 
-            city = skip_unknown(data.get("city", ''))
-            country = skip_unknown(data.get("country", ''))
+            city = get(data, "city")
+            country = get(data, "country_name")
             location = city or country
-            location = location.title()
-            location = "localhost" if ip in ('127.0.0.1') else location
+           
             msg = f"location result for \tid={user_id}\tip={ip}\tloc={location}"
             if "unknown" not in location.lower():
                 Profile.objects.filter(user=profile.user).update(location=location)
