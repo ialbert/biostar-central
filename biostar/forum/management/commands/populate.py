@@ -82,6 +82,5 @@ class Command(BaseCommand):
 
         init_users()
         init_post(nposts=nposts, nusers=nusers)
-        init_awards()
 
         return

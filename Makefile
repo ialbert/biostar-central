@@ -95,8 +95,8 @@ projects:
 	python manage.py project --pid test --name "Test Project" --public
 	python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson
 
-posts:
-	python manage.py posts --settings ${DJANGO_SETTING_MODULE}
+populate:
+	python manage.py populate --settings ${DJANGO_SETTING_MODULE}
 
 hard_reset: delete
 	# Delete media and spooler.

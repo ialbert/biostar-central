@@ -1,4 +1,5 @@
 import logging
+from django.db.models.signals import post_migrate
 from django.apps import AppConfig
 
 logger = logging.getLogger('engine')
@@ -10,9 +11,10 @@ class ForumConfig(AppConfig):
     def ready(self):
         from . import signals
         # Triggered upon app initialization.
+        post_migrate.connect(init_awards, sender=self)
 
 
-def init_awards():
+def init_awards(sender, **kwargs):
     "Initializes the badges"
     from biostar.forum.models import Badge
     from biostar.forum.awards import ALL_AWARDS

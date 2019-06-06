@@ -28,7 +28,7 @@ class ForumNavigation(TestCase):
         # Create a tested post
         self.post = auth.create_post(title="Test", author=self.owner, content="Test",
                                      post_type=models.Post.QUESTION)
-        management.call_command('posts')
+        management.call_command('populate')
 
         self.owner.save()
 
@@ -58,7 +58,7 @@ class ForumNavigation(TestCase):
             reverse('post_create'),
             reverse("community_list"),
             reverse('badge_list'),
-            #reverse('badge_view', kwargs=dict(uid=self.badge.uid)),
+            reverse('badge_view', kwargs=dict(uid=self.badge.uid)),
 
             reverse('post_view', kwargs=dict(uid=self.post.uid)),
             reverse('post_edit', kwargs=dict(uid=self.post.uid)),
