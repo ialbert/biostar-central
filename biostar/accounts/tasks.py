@@ -22,10 +22,10 @@ def detect_location(ip, user_id):
 
     # The lookup needs to be turned on.
     if not settings.LOCATION_LOOKUP:
-        logger.info(f"skipping {msg}")
+        logger.info(f"skip {msg}")
         return
 
-    logger.info(f"executing {msg}")
+    logger.info(f"execute {msg}")
 
     # Get the profile for the user
     profile = Profile.objects.filter(user__id=user_id).first()
@@ -48,13 +48,13 @@ def detect_location(ip, user_id):
             city = get(data, "city")
             country = get(data, "country_name")
             location = city or country
-           
+
             msg = f"location result for \tid={user_id}\tip={ip}\tloc={location}"
-            if "unknown" not in location.lower():
+            if location:
                 Profile.objects.filter(user=profile.user).update(location=location)
-                logger.info(f"updating {msg}")
+                logger.info(f"updated profile {msg}")
             else:
-                logger.info(f"skipping {msg}")
+                logger.info(f"empty location {msg}")
 
         except Exception as exc:
             logger.error(exc)
