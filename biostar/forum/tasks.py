@@ -62,6 +62,8 @@ def create_user_awards(user_id):
         # Keep targets have not been awarded
         valid_targets = valid_targets[seen:]
 
+        # return valid targets,
+
         # Create an award for each target
         create_award(targets=valid_targets, user=user, award=award)
 

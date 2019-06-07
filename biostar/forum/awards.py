@@ -4,7 +4,7 @@ from django.utils.timezone import utc
 from datetime import datetime, timedelta
 
 from biostar.accounts.models import User
-from biostar.forum.models import Post, Vote, Badge
+from biostar.forum.models import Post, Vote, Badge, Award
 
 logger = logging.getLogger("engine")
 
@@ -31,11 +31,16 @@ class AwardDef(object):
 
     def validate(self, *args, **kwargs):
 
+        already_award = Award.objects.filter(user=user, badge__name=self.name).select_related('badge')
+
+        # Get the already awarded items
+
         try:
             value = self.fun(*args, **kwargs)
             return value
         except Exception as exc:
             logger.error("validator error %s" % exc)
+
         return 0
 
     def __hash__(self):
