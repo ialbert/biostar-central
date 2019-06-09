@@ -266,11 +266,9 @@ def single_post_feed(post):
     tags = post.tag_val.split(",")
 
     # Gather similar posts
-    query = Q()
-    for tag in tags:
-        query |= Q(tag_val__iregex=tag)
-
-    posts = Post.objects.exclude(uid=post.uid).filter(query, type__in=Post.TOP_LEVEL)[:settings.SINGLE_FEED_COUNT]
+    posts = Post.objects.exclude(uid=post.uid).filter(tags__name__in=tags,
+                                                      type__in=Post.TOP_LEVEL)[:settings.SINGLE_FEED_COUNT]
+    posts = posts.select_related("author__profile")
     context = dict(posts=posts)
     return context
 

@@ -49,8 +49,8 @@ def post_tree(user, root):
     query = Post.objects.filter(root=root).exclude(pk=root.id)
 
     # Add all related objects.
-    query = query.select_related("lastedit_user__profile", "root__lastedit_user__profile",
-                                 "root__author__profile", "author__profile")
+    query = query.select_related("lastedit_user__profile", "lastedit_user", "root__lastedit_user",
+                                 "root__lastedit_user__profile", "root__author__profile", "author__profile")
 
     is_moderator = user.is_authenticated and user.profile.is_moderator
 

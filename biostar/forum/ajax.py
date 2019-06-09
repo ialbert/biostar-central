@@ -124,6 +124,8 @@ def ajax_subs(request):
     return ajax_success(msg=msg)
 
 
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def ajax_edit(request):
     """
