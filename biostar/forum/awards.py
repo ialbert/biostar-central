@@ -30,10 +30,16 @@ class AwardDef(object):
         self.max_awarded = max_awarded
 
     def validate(self, *args, **kwargs):
-
-        already_award = Award.objects.filter(user=user, badge__name=self.name).select_related('badge')
+        user = args[0]
+        already_award = Award.objects.filter(user=user, badge__name=self.name).count()
 
         # Get the already awarded items
+
+        #print(already_award)
+
+        # Exceeded max amount for this award
+        #if already_award > self.max_awarded:
+        #    1/0
 
         try:
             value = self.fun(*args, **kwargs)

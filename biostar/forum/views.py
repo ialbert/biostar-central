@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 from functools import wraps
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -8,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
+from taggit.models import Tag
 
 from . import forms, auth, tasks, util
 from .const import *
@@ -103,7 +105,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Filter by tags if specified.
     if tag:
-        query = query.filter(tag_val__iregex=tag)
+        query = query.filter(tags__name=tag)
 
     # Apply post ordering.
     if ORDER_MAPPER.get(order):
@@ -161,6 +163,12 @@ def post_list(request, show=None):
 
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
+
+
+def tag_filter(request, tag):
+
+
+    return
 
 
 def latest(request):

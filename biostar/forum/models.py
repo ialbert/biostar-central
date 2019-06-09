@@ -196,8 +196,7 @@ class Post(models.Model):
         # Set the rank
         self.rank = self.lastedit_date.timestamp()
 
-        # Must add tags with instance method. This is just for safety.
-        self.tag_val = util.strip_tags(self.tag_val)
+        self.tag_val = self.tag_val.replace(' ', '')
 
         self.creation_date = self.creation_date or util.now()
 

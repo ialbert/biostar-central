@@ -233,12 +233,10 @@ def form_errors(form):
 
 
 @register.inclusion_tag('widgets/post_body.html', takes_context=True)
-def post_body(context, post, user, tree, form):
+def post_body(context, post, user, tree):
     "Renders the post body"
     request = context['request']
-    return dict(post=post, user=user, tree=tree, request=request,
-                form=form,
-                redir_field_name=const.REDIRECT_FIELD_NAME)
+    return dict(post=post, user=user, tree=tree, request=request)
 
 
 @register.filter
