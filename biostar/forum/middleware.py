@@ -47,9 +47,9 @@ def forum_middleware(get_response):
 
         detect_location.spool(ip=ip, user_id=user.id)
 
-        tasks.create_user_awards.spool(user_id=user.id)
-
         elapsed = (now() - user.profile.last_login).total_seconds()
+
+        tasks.create_user_awards.spool(user_id=user.id)
 
         # Update count information inside session
         if elapsed > settings.SESSION_UPDATE_SECONDS:

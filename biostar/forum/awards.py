@@ -33,8 +33,6 @@ class AwardDef(object):
         user = args[0]
         award_count = Award.objects.filter(user=user, badge__name=self.name).count()
 
-        if self.max_awarded and award_count > self.max_awarded:
-            return []
         # Get the already awarded items
         try:
             value = self.fun(*args, **kwargs).order_by("pk")
@@ -56,7 +54,6 @@ AUTOBIO = AwardDef(
     name="Autobiographer",
     desc="has more than 80 characters in the information field of the user's profile",
     func=lambda user: wrap_qs(user, len(user.profile.text) > 80),
-    max_awarded=1,
     icon="bullhorn icon"
 )
 

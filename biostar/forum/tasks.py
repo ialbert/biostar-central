@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.db.models import F
-
+from django.shortcuts import reverse
 from biostar.accounts.tasks import create_messages, detect_location
 from biostar.emailer.tasks import send_email
 from biostar.utils.decorators import spool
@@ -22,13 +22,20 @@ def created_post(pid):
 
 def create_award(targets, user, award):
     from biostar.forum.models import Award, Post, Badge
+    template = "messages/awards_created.md"
 
     for target in targets:
         date = user.profile.last_login
         post = target if isinstance(target, Post) else None
         badge = Badge.objects.filter(name=award.name).first()
-        award = Award.objects.create(user=user, badge=badge, date=date, post=post)
-        logger.debug("award %s created for %s" % (award.badge.name, user.email))
+        awarded = Award.objects.create(user=user, badge=badge, date=date, post=post)
+
+        badge_url = reverse('badge_view', kwargs=dict(uid=badge.uid))
+        context = dict(badge_url=badge_url, award=awarded, post=post)
+
+        create_messages(template=template, extra_context=context, rec_list=[user])
+
+        logger.debug("award %s created for %s" % (badge.name, user.email))
 
     return
 
@@ -43,7 +50,6 @@ def create_user_awards(user_id):
     if (user.profile.state == Profile.NEW) and (user.profile.score > 10):
         user.profile.state = Profile.TRUSTED
         user.save()
-
     # The awards the user has won at this point
     awards = dict()
     for award in Award.objects.filter(user=user).select_related('badge'):

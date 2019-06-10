@@ -66,6 +66,8 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     Create batch message from sender to a given recipient_list
     """
     from biostar.accounts.models import User, Message
+    if extra_context.get("post") and extra_context.get("award"):
+        print(extra_context.get("post"))
 
     # Get the sender
     name, email = settings.ADMINS[0]
@@ -75,7 +77,7 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     tmpl = loader.get_template(template_name=template)
     context = dict(sender=sender, subject=subject)
     context.update(extra_context)
-    print(context)
+    print(context, template)
     body = tmpl.render(context)
     html = mistune.markdown(body)
 

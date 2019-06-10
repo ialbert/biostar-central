@@ -10,21 +10,6 @@ from . import tasks
 logger = logging.getLogger("biostar")
 
 
-@receiver(post_save, sender=Award)
-def send_award_message(sender, instance, created, **kwargs):
-    """
-    Send message to users when they receive an award.
-    """
-    template = "messages/awards_created.md"
-    badge_url = reverse('badge_view', kwargs=dict(uid=instance.badge.uid))
-    context = dict(badge_url=badge_url, award=instance, post=instance.post)
-
-    if created:
-        # Send local messages
-        tasks.create_messages.spool(template=template, extra_context=context, rec_list=[instance.user])
-    return
-
-
 @receiver(post_save, sender=Post)
 def finalize_post(sender, instance, created, **kwargs):
 
@@ -99,6 +84,7 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Create user subscription to post.
         sub, created = Subscription.objects.get_or_create(post=root, user=instance.author)
+        print(sub)
         if created:
             # Increase subscription count of the root.
             Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
