@@ -453,14 +453,15 @@ img {
     text-transform:capitalize;
 }
 
-.create-form.compact{
-    width: fit-content;
-}
-
 .create-form{
     padding:7px;
     border-radius: 10px;
     background: #f9f6f4;
+}
+
+.wmd-preview{
+    background-color: #FFFFFF !important;
+    padding: 10px;
 }
 
 

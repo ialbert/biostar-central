@@ -26,50 +26,53 @@
 
             {{ form.media }}
             {% csrf_token %}
-
-            <div class="required create-form field">
+        <div class="ui segment" style="box-shadow: none;background: #f9f6f4;">
+            <div class="required field">
                 <label><i class="book icon"></i>{{ form.title.label }}</label>
-
                 {{ form.title }}
                 <p class="muted">{{ form.title.help_text }}</p>
             </div>
+        </div>
 
-
-            <div class="required create-form field">
-                <label><i class="question circile icon"></i>{{ form.post_type.label }}</label>
-                {{ form.post_type }}
-                <p class="muted">{{ form.post_type.help_text }}</p>
+            <div class="ui segment" style="box-shadow: none;background: #f9f6f4;">
+                <div class="required field">
+                    <label><i class="question circile icon"></i>{{ form.post_type.label }}</label>
+                    {{ form.post_type }}
+                    <p class="muted">{{ form.post_type.help_text }}</p>
+                </div>
             </div>
 
+            <div class="ui segment" style="box-shadow: none;background: #f9f6f4;">
+                <div class="field">
+                    <label><i class="tags icon"></i>{{ form.tag_val.label }}</label>
 
-            <div class="field create-form">
-                <label><i class="tags icon"></i>{{ form.tag_val.label }}</label>
+                    <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}"
+                           value="{% if selected %} {{ selected }} {% endif %}">
 
-            <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}" value="{%if selected%} {{selected}} {%endif%}">
+                    <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu"
+                            field_id="{{ form.tag_val.id_for_label }}">
+                        <option value="">Tags</option>
 
-                <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="{{form.tag_val.id_for_label}}">
-                  <option value="">Tags</option>
+                        {% for value, selected_tag in tags_opt %}
+                            {% if selected_tag %}
+                                <option value="{{ value }}" selected="selected">{{ value }}</option>
+                            {% else %}
+                                <option value="{{ value }}">{{ value }}</option>
+                            {% endif %}
+                        {% endfor %}
 
-                  {% for value, selected_tag in tags_opt %}
-                      {% if selected_tag %}<option value="{{ value }}" selected="selected">{{value}}</option>
-                      {% else %}<option value="{{ value }}">{{value}}</option>
-                      {% endif %}
-                  {% endfor %}
-
-                </select>
-
-
-
-                <p class="muted">{{ form.tag_val.help_text }}</p>
+                    </select>
+                    <p class="muted">{{ form.tag_val.help_text }}</p>
+                </div>
             </div>
-
-            <div class="required input create-form field">
+<div class="ui segment" style="box-shadow: none;background: #f9f6f4;">
+            <div class="required input field">
                 <label><i class="edit icon"></i>{{ form.content.label }}</label>
 
                 <div class="wmd-wrapper" id="{{ form.content.id_for_label }}-wmd-wrapper">
                     <div class="">
                         <div id="{{ form.content.id_for_label }}_wmd_button_bar"></div>
-                        <textarea class=" wmd-input" cols="40" name="content" rows="10" id="{{ form.content.id_for_label }}"></textarea>
+                        <textarea class=" wmd-input" cols="40" name="content" rows="10" id="{{ form.content.id_for_label }}">{{ content }}</textarea>
                     </div>
 
                     <div class="top-padding">
@@ -84,10 +87,13 @@
 
                 </div>
             </div>
+</div>
 
-        <div class="create-form field">
-            <div class="wmd-preview-title top-padding">HTML Preview</div>
+       <div class="ui segment" style="box-shadow: none;background: #f9f6f4;">
+           <div class="field">
+           <label><i class="code icon"></i>HTML Preview</label>
             <div id="{{ form.content.id_for_label }}_wmd_preview" class="wmd-preview"></div>
+           </div>
         </div>
 
 

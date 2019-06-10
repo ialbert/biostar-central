@@ -347,7 +347,8 @@ def new_post(request):
     action_url = reverse("post_create")
     tags_opts = tags_opts.items()
     selected = request.POST.get('tag_val', '')
-    context = dict(form=form, tab="new", action_url=action_url, tags_opt=tags_opts,
+    content = request.POST.get('content', '')
+    context = dict(form=form, tab="new", action_url=action_url, content=content, tags_opt=tags_opts,
                    form_title="Create New Post", selected=selected)
 
     return render(request, "new_post.html", context=context)

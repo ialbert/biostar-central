@@ -87,6 +87,12 @@ class PostLongForm(forms.Form):
         tags = set(tag_val.split(","))
         return ",".join(tags)
 
+    def clean_content(self):
+        content = self.cleaned_data["content"]
+        content = content.replace(" ", "")
+        if len(content) < MIN_CHARS:
+            raise forms.ValidationError(f"Too short, place add more than {MIN_CHARS}")
+
 
 
 class PostShortForm(forms.Form):
