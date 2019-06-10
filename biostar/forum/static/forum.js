@@ -69,8 +69,8 @@ function add_comment(elem) {
     // Checks the size of the comment.
     function textarea_size_check() {
         var input = $("#comment-input");
-        var content = input.val();
-        if (content.length < 10) {
+        var size = input.val().length;
+        if (size < 10) {
             popup_message(input, "More than 10 characters please!", "error");
         } else {
             //new_comment(post_uid, content);
