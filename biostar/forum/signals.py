@@ -3,6 +3,7 @@ from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.shortcuts import reverse
+from taggit.models import Tag
 from .models import Post, Award
 from . import tasks
 
@@ -34,6 +35,11 @@ def finalize_post(sender, instance, created, **kwargs):
     # Make current user first in the list of contributors.
     root.thread_users.remove(instance.author)
     root.thread_users.add(instance.author)
+
+    # Add tags
+    instance.tags.clear()
+    tags = [Tag.objects.get_or_create(name=name)[0] for name in instance.parse_tags()]
+    instance.tags.add(*tags)
 
     if created:
         # Make the Uid user friendly

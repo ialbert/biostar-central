@@ -4,7 +4,7 @@ from django.utils.timezone import utc
 from datetime import datetime, timedelta
 
 from biostar.accounts.models import User
-from biostar.forum.models import Post, Vote, Badge
+from biostar.forum.models import Post, Vote, Badge, Award
 
 logger = logging.getLogger("engine")
 
@@ -19,21 +19,29 @@ def wrap_qs(user, cond):
 
 
 class AwardDef(object):
-    def __init__(self, name, desc, func, icon, type=Badge.BRONZE):
+    def __init__(self, name, desc, func, icon, max_awarded=None, type=Badge.BRONZE):
         self.name = name
         self.desc = desc
         self.fun = func
         self.icon = icon
         self.template = ""
         self.type = type
+        # Max number of times this award can be given
+        self.max_awarded = max_awarded
 
     def validate(self, *args, **kwargs):
+        user = args[0]
+        award_count = Award.objects.filter(user=user, badge__name=self.name).count()
 
+        if self.max_awarded and award_count > self.max_awarded:
+            return []
+        # Get the already awarded items
         try:
-            value = self.fun(*args, **kwargs)
+            value = self.fun(*args, **kwargs).order_by("pk")
             return value
         except Exception as exc:
             logger.error("validator error %s" % exc)
+
         return 0
 
     def __hash__(self):
@@ -48,13 +56,15 @@ AUTOBIO = AwardDef(
     name="Autobiographer",
     desc="has more than 80 characters in the information field of the user's profile",
     func=lambda user: wrap_qs(user, len(user.profile.text) > 80),
+    max_awarded=1,
     icon="bullhorn icon"
 )
 
 GOOD_QUESTION = AwardDef(
     name="Good Question",
     desc="asked a question that was upvoted at least 5 times",
-    func=lambda user: Post.objects.filter(vote_count__gte=5, author=user, type=Post.QUESTION),
+    func=lambda user: Post.objects.filter(vote_count__gte=0, author=user, type=Post.QUESTION),
+    max_awarded=1,
     icon="question icon"
 )
 

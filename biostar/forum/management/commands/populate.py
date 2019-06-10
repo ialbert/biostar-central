@@ -15,28 +15,6 @@ logger = logging.getLogger('engine')
 NUSERS = 5
 NPOSTS = 10
 
-
-def init_awards():
-    "Initializes the badges"
-    from biostar.forum.models import Badge
-    from biostar.forum.awards import ALL_AWARDS
-
-    for obj in ALL_AWARDS:
-        badge = Badge.objects.filter(name=obj.name)
-        if badge:
-            continue
-        badge = Badge.objects.create(name=obj.name)
-
-        # Badge descriptions may change.
-        if badge.desc != obj.desc:
-            badge.desc = obj.desc
-            badge.icon = obj.icon
-            badge.type = obj.type
-            badge.save()
-
-        logger.debug("initializing badge %s" % badge)
-
-
 def init_post(nusers=NUSERS, nposts=NPOSTS):
 
     # Only initialize when debugging
@@ -104,6 +82,5 @@ class Command(BaseCommand):
 
         init_users()
         init_post(nposts=nposts, nusers=nusers)
-        init_awards()
 
         return

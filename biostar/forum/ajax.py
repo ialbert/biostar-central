@@ -1,13 +1,14 @@
 from functools import wraps, partial
 import logging
 from django.http import HttpResponse
+from django import template
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.db.models import F
 from ratelimit.decorators import ratelimit
 
 from biostar.accounts.models import Profile
-from . import auth, util, forms
+from . import auth, util, forms, tasks
 from .models import Post, Vote, Subscription
 
 
@@ -34,7 +35,6 @@ class ajax_error_wrapper:
 
         @wraps(func, assigned=available_attrs(func))
         def _ajax_view(request, *args, **kwargs):
-
             if request.method != self.method:
                 return ajax_error(f'{self.method} method must be used.')
             if not request.user.is_authenticated:
@@ -124,10 +124,12 @@ def ajax_subs(request):
     return ajax_success(msg=msg)
 
 
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def ajax_edit(request):
     """
-    edit post content
+    Edit post content using ajax.
     """
     uid = request.POST.get("post_uid")
     post = Post.objects.filter(uid=uid).first()

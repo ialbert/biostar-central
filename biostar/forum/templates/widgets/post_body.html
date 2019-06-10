@@ -13,7 +13,6 @@
             {{ post.get_type_display }}: {{ post.title }}
 
         </div>
-        {#  {% subs_actions post=post user=request.user %} #}
     {% endif %}
 
     {#  Post body #}
@@ -80,7 +79,7 @@
             {#  Post moderation actions are inserted here #}
             <div id="moderate-insert-{{ post.uid }}"></div>
 
-            {#  Comments will be inserted here #}
+            {#  Comments form will be inserted here #}
             <div id="comment-insert-{{ post.uid }}"></div>
 
             {# Render all comments #}

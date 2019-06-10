@@ -45,20 +45,6 @@ $.ajaxSetup({
 });
 
 
-function add_reply(elem) {
-
-    // Remove body if it exists.
-    $("#reply-row").remove();
-
-    var msg_uid = elem.attr('data-value');
-    var container = $("#reply-container-" + msg_uid);
-    var reply_url = elem.attr("reply-url");
-
-    var page = $('<div id="reply-row"></div>').load(reply_url);
-    container.after(page);
-
-}
-
 // Adds a comment to the post
 function add_comment(elem) {
 
@@ -82,11 +68,12 @@ function add_comment(elem) {
 
     // Checks the size of the comment.
     function textarea_size_check() {
-        var input = $("#comment-input")
+        var input = $("#comment-input");
         var size = input.val().length;
         if (size < 10) {
             popup_message(input, "More than 10 characters please!", "error");
         } else {
+            //new_comment(post_uid, content);
             $("#comment-form").submit()
         }
     }
@@ -95,13 +82,12 @@ function add_comment(elem) {
     comment.keydown(function (e) {
         if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
             textarea_size_check()
-        }
-        ;
+        };
     });
 
     // Replace comment form from server
     comment.load(url, function (response, status, xhr) {
-        if (status == 'success') {
+        if (status === 'success') {
             // Focus on the input
             $("#comment-input").focus();
             // Apply size check to submit button.

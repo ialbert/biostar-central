@@ -3,6 +3,7 @@
 
 <div class="ui divided items">
 
+
 {% for post in posts %}
 
     <div class="post item {{post.css}} top-padding">
@@ -48,7 +49,7 @@
             <div class="right floated">
                 {% get_thread_users post=post as extra_users %}
                 {% for extra_user in extra_users %}
-                     <a class="ui mini avatar image" href="{% url "user_profile" extra_user.profile.uid %}" style="width:25px;">
+                     <a class="ui mini avatar list-avatar image" href="{% url "user_profile" extra_user.profile.uid %}">
                      <img src="{% gravatar user=extra_user size=50 %}">
                      </a>
                 {% endfor %}
@@ -62,6 +63,7 @@
                 </div>
 
                 <div class="right floated">
+
                     {%  post_user_line post %}
                 </div>
 
