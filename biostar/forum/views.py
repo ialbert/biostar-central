@@ -165,11 +165,6 @@ def post_list(request, show=None):
     return render(request, template_name="post_list.html", context=context)
 
 
-def tag_filter(request, tag):
-
-    return
-
-
 def latest(request):
     show = request.GET.get("type", "") or LATEST
     return post_list(request, show=show)
