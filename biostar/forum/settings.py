@@ -6,6 +6,9 @@ from biostar.accounts.settings import *
 # Django debug flag.
 DEBUG = True
 
+# Show debug toolbar
+DEBUG_TOOLBAR = False
+
 # Override compression if needed.
 # COMPRESS_ENABLED = True
 
@@ -35,14 +38,20 @@ SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
     'pagedown',
-    'debug_toolbar',
+
 ]
 
 # Additional middleware.
 MIDDLEWARE += [
     'biostar.forum.middleware.forum_middleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
+
 ]
+
+# Enable debug toolbar specific functions
+if DEBUG_TOOLBAR:
+    FORUM_APPS.append('debug_toolbar')
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+
 
 # Import the default pagedown css first, then our custom CSS sheet
 # to avoid having to specify all the default styles
