@@ -31,18 +31,13 @@ class AwardDef(object):
 
     def validate(self, *args, **kwargs):
         user = args[0]
-        already_award = Award.objects.filter(user=user, badge__name=self.name).count()
+        award_count = Award.objects.filter(user=user, badge__name=self.name).count()
 
+        if self.max_awarded and award_count > self.max_awarded:
+            return []
         # Get the already awarded items
-
-        #print(already_award)
-
-        # Exceeded max amount for this award
-        #if already_award > self.max_awarded:
-        #    1/0
-
         try:
-            value = self.fun(*args, **kwargs)
+            value = self.fun(*args, **kwargs).order_by("pk")
             return value
         except Exception as exc:
             logger.error("validator error %s" % exc)
@@ -61,13 +56,15 @@ AUTOBIO = AwardDef(
     name="Autobiographer",
     desc="has more than 80 characters in the information field of the user's profile",
     func=lambda user: wrap_qs(user, len(user.profile.text) > 80),
+    max_awarded=1,
     icon="bullhorn icon"
 )
 
 GOOD_QUESTION = AwardDef(
     name="Good Question",
     desc="asked a question that was upvoted at least 5 times",
-    func=lambda user: Post.objects.filter(vote_count__gte=5, author=user, type=Post.QUESTION),
+    func=lambda user: Post.objects.filter(vote_count__gte=0, author=user, type=Post.QUESTION),
+    max_awarded=1,
     icon="question icon"
 )
 

@@ -22,6 +22,7 @@ def created_post(pid):
 
 def create_award(targets, user, award):
     from biostar.forum.models import Award, Post, Badge
+
     for target in targets:
         date = user.profile.last_login
         post = target if isinstance(target, Post) else None
@@ -56,13 +57,8 @@ def create_user_awards(user_id):
         # How many times the user earned this award
         valid_targets = award.validate(user)
 
-        # Order the queryset
-        valid_targets = valid_targets.order_by("-id")
-
         # Keep targets have not been awarded
         valid_targets = valid_targets[seen:]
-
-        # return valid targets,
 
         # Create an award for each target
         create_award(targets=valid_targets, user=user, award=award)

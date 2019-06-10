@@ -167,7 +167,6 @@ def post_list(request, show=None):
 
 def tag_filter(request, tag):
 
-
     return
 
 
