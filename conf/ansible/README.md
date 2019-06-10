@@ -68,18 +68,18 @@ Activate and install the conda dependencies:
 
 To deploy the latest version and restart the servers:
 
-    ansible-playbook -i hosts server-deploy.yml --ask-become-pass
+    ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass
 
 To restart servers alone:
 
-    ansible-playbook -i hosts server-deploy.yml --ask-become-pass --extra-vars "restart=True"
+    ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass --extra-vars "restart=True"
 
 
 To install dependencies:
 
-    ansible-playbook -i hosts server-deploy.yml --ask-become-pass --extra-vars "install=True restart=True"
+    ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass --extra-vars "install=True restart=True"
 
 To reset the site:
 
-    ansible-playbook -i hosts server-deploy.yml --ask-become-pass --extra-vars "reset=True"
+    ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass --extra-vars "reset=True"
 

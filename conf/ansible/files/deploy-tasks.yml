@@ -4,10 +4,17 @@
     dest: "{{ engine_dir }}"
     update: yes
   notify:
-    - engine python install
     - server migrate
     - reload supervisor
     - restart nginx
+
+- name: Restart servers
+  shell: ls
+  notify:
+    - reload supervisor
+    - restart nginx
+  when: restart
+
 
 
 
