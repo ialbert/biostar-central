@@ -350,7 +350,9 @@ figure {
     padding-top: 5px !important;
 }
 
-
+.list-avatar{
+    width:25px !important;
+}
 .ui.stat.label.tutorial {
     background-color: #2C7990;
     color: #fff;
