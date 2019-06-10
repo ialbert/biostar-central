@@ -17,10 +17,9 @@ def send_award_message(sender, instance, created, **kwargs):
     """
     template = "messages/awards_created.md"
     badge_url = reverse('badge_view', kwargs=dict(uid=instance.badge.uid))
-    context = dict(badge_url=badge_url, award=instance, post=instance.post, post_url=instance.post.get_absolute_url())
+    context = dict(badge_url=badge_url, award=instance, post=instance.post)
 
     if created:
-        print(context)
         # Send local messages
         tasks.create_messages.spool(template=template, extra_context=context, rec_list=[instance.user])
     return

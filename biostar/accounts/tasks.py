@@ -75,7 +75,7 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     tmpl = loader.get_template(template_name=template)
     context = dict(sender=sender, subject=subject)
     context.update(extra_context)
-
+    print(context)
     body = tmpl.render(context)
     html = mistune.markdown(body)
 
