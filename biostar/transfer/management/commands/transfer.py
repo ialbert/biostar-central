@@ -1,6 +1,7 @@
 import logging
 import time
 import re
+import os
 import html2text
 
 from django.core.management.base import BaseCommand
@@ -16,7 +17,8 @@ from itertools import count, islice
 
 
 LIMIT = None
-
+__CURRENT = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE = os.path.join(__CURRENT, 'log.txt')
 
 def timer_func():
     """
@@ -32,7 +34,7 @@ def timer_func():
         last = now
         print(f"{msg} in {sec} seconds")
 
-    def progress(index, step=1000, msg=""):
+    def progress(index, step=5000, msg=""):
         nonlocal last
         if index % step == 0:
             elapsed(f"... {index} {msg}")
@@ -138,11 +140,11 @@ def bulk_copy_votes(limit):
     elapsed(f"transferred {vcount} votes")
 
 
-
 def bulk_copy_posts(limit):
     relations = {}
     all_users = User.objects.order_by("id")
     users_set = {user.profile.uid: user for user in all_users}
+    logstream = open(LOG_FILE, "w")
 
     def gen_posts():
         logger.info("transferring posts")
@@ -168,8 +170,14 @@ def bulk_copy_posts(limit):
 
             rank = post.lastedit_date.timestamp()
             # bodywidth=0 leaves the width as is.
-            content = html2text.html2text(post.content, bodywidth=0)
-            html = markdown.parse(content)
+            try:
+                content = html2text.html2text(post.content, bodywidth=0)
+                html = markdown.parse(content)
+            except Exception as exc:
+                logger.error(exc)
+                logstream.write(f'{post.id}')
+                html = content = post.content
+
             new_post = Post(uid=post.id, html=html, type=post.type, reply_count=reply_count,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
                             author=author, status=post.status, rank=rank, accept_count=int(post.has_accepted),
@@ -233,6 +241,7 @@ def bulk_copy_posts(limit):
 
             yield award
 
+    logstream.close()
     elapsed, progress = timer_func()
     Post.objects.bulk_create(objs=gen_posts(), batch_size=1000)
     pcount = Post.objects.all().count()

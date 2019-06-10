@@ -65,20 +65,6 @@ def create_user_awards(user_id):
 
 
 @spool(pass_arguments=True)
-def create_subscription(root, user):
-    from biostar.forum.models import Subscription, Post
-
-    # Create user subscription to post.
-    sub, created = Subscription.objects.get_or_create(post=root, user=user)
-    if created:
-        # Increase subscription count of the root.
-        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
-        logger.debug(f"Created a subscription for user:{user} to root:{root.title}")
-
-    return
-
-
-@spool(pass_arguments=True)
 def notify_followers(post, author):
     """
     Send subscribed users, excluding author, a message/email.
@@ -90,13 +76,14 @@ def notify_followers(post, author):
     local_template = "messages/subscription_message.md"
     # Template used to send emails with
     email_template = "messages/subscription_email.html"
-    context = dict(post=post)
+    context = dict(post=post, post_url=post.get_absolute_url())
 
     # Everyone subscribed gets a local message.
     subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
 
     # Send local messages
     users = set(sub.user for sub in subs if sub.user != author)
+
     create_messages(template=local_template, extra_context=context, rec_list=users, sender=author)
 
     # Send emails to users that specified so

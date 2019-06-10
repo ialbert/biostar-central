@@ -27,7 +27,8 @@ class Bunch(object):
 
 
 def get_placeholder():
-    return os.path.dirname(join(settings.STATIC_ROOT, 'images', 'placeholder.png'))
+
+    return 'export/static'
 
 
 def make_html(text):
@@ -237,7 +238,7 @@ class Data(models.Model):
     size = models.BigIntegerField(default=0)
 
     # FilePathField points to an existing file
-    file = models.FilePathField(max_length=MAX_FIELD_LEN, path=get_placeholder())
+    file = models.FilePathField(max_length=MAX_FIELD_LEN, path='')
 
     uid = models.CharField(max_length=32, unique=True)
 

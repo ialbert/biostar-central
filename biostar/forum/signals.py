@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from taggit.models import Tag
-from .models import Post, Award
+from .models import Post, Award, Subscription
 from . import tasks
 
 logger = logging.getLogger("biostar")
@@ -17,10 +17,10 @@ def send_award_message(sender, instance, created, **kwargs):
     """
     template = "messages/awards_created.md"
     badge_url = reverse('badge_view', kwargs=dict(uid=instance.badge.uid))
-    print(instance.post, instance)
-    context = dict(badge_url=badge_url, award=instance, post=instance.post)
+    context = dict(badge_url=badge_url, award=instance, post=instance.post, post_url=instance.post.get_absolute_url())
 
     if created:
+        print(context)
         # Send local messages
         tasks.create_messages.spool(template=template, extra_context=context, rec_list=[instance.user])
     return
@@ -98,7 +98,12 @@ def finalize_post(sender, instance, created, **kwargs):
         instance.root.last_contributor = instance.last_contributor
         instance.save()
 
-        # Create a subscription to post.
-        tasks.create_subscription.spool(root=instance.root, user=instance.author)
+        # Create user subscription to post.
+        sub, created = Subscription.objects.get_or_create(post=root, user=instance.author)
+        if created:
+            # Increase subscription count of the root.
+            Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
+            logger.debug(f"Created a subscription for user:{instance.author} to root:{root.title}")
+
         # Send subscription messages
         tasks.notify_followers.spool(post=instance, author=instance.author)

@@ -199,7 +199,7 @@ class DataUploadForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['data_name', 'file', 'input_text', 'text', "type"]
+        fields = ['data_name', 'input_text', 'text', "type"]
 
     def clean(self):
 

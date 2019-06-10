@@ -339,6 +339,7 @@ def new_post(request):
             post = auth.create_post(title=title, content=content, post_type=post_type,
                                     tag_val=tag_val, author=author)
             tasks.created_post.spool(pid=post.id)
+
             return redirect(post.get_absolute_url())
         tags_opts = {val: True for val in request.POST.get('tag_val', '').split(",")}
 
