@@ -204,7 +204,7 @@ def follow_label(context, post):
         return not_following
 
     # Get the current subscription
-    sub = Subscription.objects.filter(post=post, user=user).first()
+    sub = Subscription.objects.filter(post=post.root, user=user).first()
     sub = sub or Subscription(post=post, user=user, type=Profile.NO_MESSAGES)
 
     label = label_map.get(sub.type, not_following)

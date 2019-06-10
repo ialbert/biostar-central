@@ -99,4 +99,4 @@ def notify_followers(post, author):
     from_email = settings.ADMIN_EMAIL
 
     send_email(template_name=email_template, extra_context=context, subject="Subscription",
-               email_list=emails, from_email=from_email, send=True,)
+               email_list=emails, from_email=from_email, send=True)
