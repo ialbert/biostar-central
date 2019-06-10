@@ -18,17 +18,17 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
     {% compress css %}
-        <link href="{% static 'main/semantic.min.css' %}" rel="stylesheet">
-        <link href="{% static 'lib/prism.css' %}" rel="stylesheet">
+        <link href="{% static 'global/semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'global/lib/prism-syntax.css' %}" rel="stylesheet">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
     {% endcompress %}
 
     {% compress js %}
 
-        <script src="{% static 'main/semantic.min.js' %}">
+        <script src="{% static 'global/semantic.min.js' %}">
         </script>
 
-        <script src="{% static 'lib/prism.js' %}"></script>
+        <script src="{% static 'global/lib/prism-syntax.js' %}"></script>
 
         <script src="{% static 'forum.js' %}{% randparam %}">
         </script>
