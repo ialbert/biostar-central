@@ -113,3 +113,8 @@ SENDFILE_BACKEND = "sendfile.backends.development"
 STATICFILES_FINDERS += [
     'compressor.finders.CompressorFinder',
 ]
+
+
+print (STATICFILES_DIRS)
+
+print (STATICFILES_FINDERS)

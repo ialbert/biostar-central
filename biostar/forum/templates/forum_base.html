@@ -13,34 +13,36 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="{% static 'forum_favicon.ico' %}" type="image/x-icon"/>
 
+    {# Set the favicon #}
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
+
+    {# Load JQuery. #}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
+    {#  CSS compression. #}
     {% compress css %}
         <link href="{% static 'global/semantic.min.css' %}" rel="stylesheet">
-        <link href="{% static 'global/lib/prism-syntax.css' %}" rel="stylesheet">
+        <link href="{% static 'global/prism-syntax.css' %}" rel="stylesheet">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
     {% endcompress %}
 
+    {# Javascript compression. #}
     {% compress js %}
-
-        <script src="{% static 'global/semantic.min.js' %}">
-        </script>
-
-        <script src="{% static 'global/lib/prism-syntax.js' %}"></script>
-
+        <script src="{% static 'global/semantic.min.js' %}"></script>
+        <script src="{% static 'global/prism-syntax.js' %}"></script>
         <script src="{% static 'forum.js' %}{% randparam %}">
         </script>
-
     {% endcompress %}
 
+     {# Extra header content that needs to be injected into the page. #}
     {% block head %}
-        {# Extra header content injected into the page.#}
+
     {% endblock %}
 
+    {# Extra javascript content that needs to be injected into the page. #}
     {% block js %}
-        {# Extra javascript content injected into the page.#}
+
     {% endblock %}
 
 </head>
@@ -62,8 +64,6 @@
         </div>
     </div>
     -->
-
-
 
     <div class="ui bottom attached  segment">
 
