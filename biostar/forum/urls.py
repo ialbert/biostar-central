@@ -22,7 +22,6 @@ urlpatterns = [
     path('new/answer/<str:uid>/', views.new_answer, name='post_answer'),
     path('new/comment/<str:uid>/', views.new_comment, name="create_comment"),
 
-    path('t/(<slug:tag>/', views.tag_filter, name='tag_filter'),
 
     path('b/list/', views.badge_list, name='badge_list'),
 
