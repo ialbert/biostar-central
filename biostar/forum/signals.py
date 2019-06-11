@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from django.shortcuts import reverse
 from taggit.models import Tag
 from .models import Post, Award, Subscription
-from . import tasks
+from . import tasks, auth
 
 logger = logging.getLogger("biostar")
 
@@ -96,12 +96,8 @@ def finalize_post(sender, instance, created, **kwargs):
         # Update last contributor to the thread.
         instance.root.last_contributor = instance.last_contributor
         instance.save()
-        # Create user subscription to post.
-        sub, created = Subscription.objects.get_or_create(post=instance.root, user=instance.author)
-        if created:
-            # Increase subscription count of the root.
-            Post.objects.filter(pk=instance.root.pk).update(subs_count=F('subs_count') + 1)
-            logger.debug(f"Created a subscription for user:{instance.author} to root:{instance.root.title}")
+
+        auth.create_subscription(post=instance.root, user=instance.author)
 
         # Send subscription messages
         tasks.notify_followers.spool(post=instance, author=instance.author)

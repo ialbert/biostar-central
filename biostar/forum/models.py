@@ -271,6 +271,8 @@ class PostView(models.Model):
 
 class Subscription(models.Model):
     "Connects a post to a user"
+    MESSAGE, EMAIL, NONE = range(3)
+    SUB_CHOICES = [(MESSAGE, "Local messages"), (EMAIL, "Email message"), (NONE, "Not subscribed")]
 
     class Meta:
         unique_together = (("user", "post"))
@@ -278,7 +280,7 @@ class Subscription(models.Model):
     uid = models.CharField(max_length=32, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs", on_delete=models.CASCADE)
-    type = models.IntegerField(choices=Profile.MESSAGING_TYPE_CHOICES, default=Profile.LOCAL_MESSAGE)
+    type = models.IntegerField(choices=SUB_CHOICES, null=True, default=MESSAGE)
     date = models.DateTimeField()
 
     def __str__(self):
@@ -288,7 +290,13 @@ class Subscription(models.Model):
         # Set the date to current time if missing.
         self.date = self.date or util.now()
         self.uid = self.uid or util.get_uuid(limit=16)
-        self.type = self.type or self.user.profile.message_prefs
+        type_map = {Profile.NO_MESSAGES: self.NONE,
+                    Profile.EMAIL_MESSAGE: self.EMAIL,
+                    Profile.LOCAL_MESSAGE: self.MESSAGE,
+                    Profile.DEFAULT_MESSAGES: self.MESSAGE}
+
+        if self.type is None:
+            self.type = type_map.get(self.user.profile.message_prefs, self.NONE)
 
         super(Subscription, self).save(*args, **kwargs)
 

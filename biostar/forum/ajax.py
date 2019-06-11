@@ -96,32 +96,20 @@ def ajax_subs(request):
     if was_limited:
         return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
 
-    type_map = dict(messages=Profile.LOCAL_MESSAGE, email=Profile.EMAIL_MESSAGE, all=Profile.ALL_MESSAGES,
-                    unfollow=Profile.NO_MESSAGES, default=Profile.DEFAULT_MESSAGES)
+    type_map = dict(messages=Subscription.MESSAGE, email=Subscription.EMAIL, unfollow=Subscription.NONE)
+
     # Get the root and sub type.
     root_uid = request.POST.get('root_uid')
     sub_type = request.POST.get("sub_type")
-    sub_type = type_map.get(sub_type, Profile.NO_MESSAGES)
+    sub_type = type_map.get(sub_type, Subscription.NONE)
     user = request.user
 
     # Get the post that is subscribed to.
     root = Post.objects.filter(uid=root_uid).first()
 
-    # Get or create a subscription for user
-    sub, created = Subscription.objects.get_or_create(post=root, user=user)
+    auth.create_subscription(post=root, user=user, sub_type=sub_type)
 
-    msg = "Changed subscription."
-    change = 0
-    if created and sub_type != Profile.NO_MESSAGES:
-        change = +1
-    if sub and sub_type == Profile.NO_MESSAGES:
-        change = -1
-        msg = "Unsubscribed to post."
-
-    Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + change)
-    Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
-
-    return ajax_success(msg=msg)
+    return ajax_success(msg="Changed subscription.")
 
 
 @ratelimit(key='ip', rate='50/h')

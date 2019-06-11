@@ -34,8 +34,9 @@ def get_votes(user, root):
     return store
 
 
-def create_subscription(post, user, sub_type):
+def create_subscription(post, user, sub_type=None):
     # Create user subscription to post.
+
     Subscription.objects.filter(post=post.root, user=user).delete()
 
     Subscription.objects.create(post=post.root, user=user, type=sub_type)
