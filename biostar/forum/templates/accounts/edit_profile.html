@@ -17,110 +17,131 @@
         {% form_errors form %}
 
         <div class="ui basic center aligned segment">
-            <span class="ui header">Update your profile</span>
-            &bull;
-            <a class="ui blue label" href="{% url 'password_reset' %}">
-                <i class="undo icon"></i>Reset password
-            </a>
+            <span class="ui header">Update Profile</span>
         </div>
 
         <div class="fields">
-
-            <div class="required field">
+            <div class="form-field field"></div>
+            <div class="required form-field field">
+                <div class="ui form-wrap segment">
                 <label><i class="address card icon"></i>Name </label>
                 {{ form.name }}
                 <div class="muted">
                     Displayed name
                 </div>
-            </div>
-
-            <div class="required field">
-                <label><i class="envelope card icon"></i>Email </label>
-                {{ form.email }}
-                <div class="muted">
-                    Email, not visible to others
                 </div>
             </div>
+            <div class="form-field field"></div>
+        </div>
 
-            <div class="required field">
+        <div class="fields">
+            <div class="form-field field"></div>
+            <div class="required form-field field">
+                <div class="ui form-wrap segment">
+                    <label><i class="envelope card icon"></i>Email </label>
+                    {{ form.email }}
+                    <div class="muted">
+                        Email, not visible to others
+                    </div>
+                </div>
+            </div>
+            <div class="form-field field"></div>
+        </div>
+
+        <div class="fields">
+            <div class="form-field field"></div>
+            <div class="required form-field field">
+                <div class="ui form-wrap segment">
                 <label><i class="at icon"></i>Handler</label>
                 {{ form.username }}
                 <div class="muted">
-                    Handler used to reference you
+                    Handler used to reference you in posts.
+                </div>
+                </div>
+            </div>
+            <div class="form-field field"></div>
+        </div>
+
+
+        <div class="fields">
+
+            <div class="field">
+                <div class="ui form-wrap segment">
+                    <label><i class="linkify icon"></i>Website</label>
+                    {{ form.website }}
+                    <div class="muted">
+                        URL to your website
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="ui form-wrap segment">
+                    <label><i class="map marker alternate icon"></i>Location</label>
+                    {{ form.location }}
+                    <div class="muted">
+                        Country/City/Institution
+                    </div>
                 </div>
             </div>
 
 
         </div>
 
-        <div class="fields">
-
-                    <div class="field">
-                        <label><i class="linkify icon"></i>Website</label>
-                        {{ form.website }}
-                        <div class="muted">
-                            URL to your website
-                        </div>
-                    </div>
-
-                    <div class="field">
-
-                        <label><i class="map marker alternate icon"></i>Location</label>
-                        {{ form.location }}
-                        <div class="muted">
-                            Country/City/Institution
-                        </div>
-                    </div>
-
-
-        </div>
-
 
         <div class="fields">
-            <div class="eight wide field">
+            <div class="field">
+                <div class="ui form-wrap segment">
 
                     <label><i class="twitter icon"></i>Twitter id</label>
                     {{ form.twitter }}
                     <div class="muted">
                         Your twitter id
                     </div>
-            </div>
-            <div class="eight wide field">
-
-                <label><i class="google icon"></i>Scholar</label>
-                {{ form.scholar }}
-                <div class="muted">
-                    Your Google Scholar ID
                 </div>
+            </div>
 
+            <div class="field">
+                <div class="ui form-wrap segment">
+                    <label><i class="google icon"></i>Scholar</label>
+                    {{ form.scholar }}
+                    <div class="muted">
+                        Your Google Scholar ID
+                    </div>
+                </div>
             </div>
         </div>
 
             <div class="fields">
 
                     <div class="field">
+                        <div class="ui form-wrap segment" style="display: grid">
                         <label><i class="bell icon"></i>Notifications </label>
                         {{ form.message_prefs }}
                         <div class="muted">
                             {{ form.message_prefs.help_text }}
                         </div>
-                    </div>
-
-            </div>
-
-
-            <div class="fields">
-
-                    <div class="field">
-                        <label><i class="info icon"></i>Description</label>
-                        {{ form.text }}
-                        <div class="muted">
-                            {{ form.text.help_text }}
                         </div>
                     </div>
 
             </div>
-                    <button type="submit" class="ui submit green button">
+
+
+        <div class="fields">
+
+            <div class="field">
+                <div class="ui form-wrap segment" style="display: grid">
+                    <label><i class="info icon"></i>Description</label>
+                    {{ form.text }}
+                    <div class="muted">
+                        {{ form.text.help_text }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <button type="submit" class="ui submit green button">
             <i class="save icon"></i>Submit
         </button>
 
