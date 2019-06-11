@@ -7,14 +7,6 @@ ROOT_URLCONF = 'biostar.test.test_urls'
 
 DEBUG = True
 
-# Show debug toolbar
-DEBUG_TOOLBAR = True
-
-# Enable debug toolbar specific functions
-if DEBUG_TOOLBAR:
-    INSTALLED_APPS.append('debug_toolbar')
-    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
-
 
 WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
 
