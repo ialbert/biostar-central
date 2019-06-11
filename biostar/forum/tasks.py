@@ -33,7 +33,7 @@ def create_award(targets, user, award):
         badge_url = reverse('badge_view', kwargs=dict(uid=badge.uid))
         context = dict(badge_url=badge_url, award=awarded, post=post)
 
-        create_messages(template=template, extra_context=context, rec_list=[user])
+        #create_messages(template=template, extra_context=context, rec_list=[user])
 
         logger.debug("award %s created for %s" % (badge.name, user.email))
 

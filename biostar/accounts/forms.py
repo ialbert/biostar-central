@@ -95,18 +95,12 @@ class EditProfile(forms.Form):
     website = forms.URLField(label="Website", max_length=225, required=False)
     twitter = forms.CharField(label="Twitter Id", max_length=100, required=False)
     scholar = forms.CharField(label="Scholar", max_length=100, required=False)
-    text = forms.CharField(widget=forms.Textarea(),min_length=2, max_length=5000, required=False)
-    my_tags = forms.CharField(max_length=100, required=False,
-                              help_text="""Post with tags listed here will show up in the My Tags tab. 
-                              Use a comma to separate tags. 
-                              Add a <code>!</code> to remove a tag. Example: <code>galaxy, bed, solid!</code> (optional)
-                              """)
-    digest_prefs = forms.ChoiceField(required=True, choices=Profile.DIGEST_CHOICES, label="Email Digest",
-                                     help_text="""(This feature is not working yet!). 
-                                     Sets the frequence of digest emails. 
-                                     A digest email is a summary of events on the site.""")
-    message_prefs = forms.ChoiceField(required=True, choices=Profile.MESSAGING_TYPE_CHOICES, label="Notifications",
-                                      help_text="""Default mode  sends you an email 
+    text = forms.CharField(widget=forms.Textarea(),min_length=2, max_length=5000, required=False,
+                           help_text="Extra information about you to personalize your profile.")
+
+    message_prefs = forms.ChoiceField(required=True, label="Notifications", choices=Profile.MESSAGING_TYPE_CHOICES,
+                                      widget=forms.Select(attrs={'class': "ui dropdown"}),
+                                      help_text="""Default mode sends you an email 
                                       if you receive anwers to questions that you've posted.""")
 
     def __init__(self, user,  *args, **kwargs):

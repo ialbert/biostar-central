@@ -464,6 +464,11 @@ img {
     padding: 10px;
 }
 
+.ui.segment.form-wrap{
+    box-shadow: none;
+    background: #f9f6f4;
+}
+
 
 .new-message {
     background-color: #cfffbf !important;

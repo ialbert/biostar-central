@@ -32,19 +32,20 @@ class Profile(models.Model):
     READER, MODERATOR, MANAGER, BLOG = range(4)
     ROLE_CHOICES = [(READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Admin"), (BLOG, "Blog User")]
 
-    NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST = range(4)
+    NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST,ALL_MESSAGES  = range(5)
 
     DIGEST_CHOICES = [(NO_DIGEST, 'Never'), (DAILY_DIGEST, 'Daily'),
-                      (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly')]
+                      (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly'),
+                      (ALL_MESSAGES, "Email for every new thread (mailing list mode)")
+                      ]
 
-    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
+    LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES = range(4)
     MESSAGING_TYPE_CHOICES = [
-        (NO_MESSAGES, "no messages"),
-        (DEFAULT_MESSAGES, "default"),
-        (LOCAL_MESSAGE, "local messages"),
-        (EMAIL_MESSAGE, "email"),
-        # Email for every new thread (mailing list mode)
-        (ALL_MESSAGES, "email for every new thread (mailing list mode)")
+        (DEFAULT_MESSAGES, "Default"),
+        (EMAIL_MESSAGE, "Email"),
+        (LOCAL_MESSAGE, "Local Messages"),
+        (NO_MESSAGES, "No messages"),
+
     ]
 
     # Connection to the user.

@@ -92,7 +92,7 @@ class PostLongForm(forms.Form):
         content = content.replace(" ", "")
         if len(content) < MIN_CHARS:
             raise forms.ValidationError(f"Too short, place add more than {MIN_CHARS}")
-
+        return content
 
 
 class PostShortForm(forms.Form):
