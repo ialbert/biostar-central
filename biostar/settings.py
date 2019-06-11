@@ -159,7 +159,7 @@ STATIC_ROOT = join(BASE_DIR, 'export', 'static')
 
 # Global directories for static files.
 STATICFILES_DIRS = [
-    ("main", join(BASE_DIR, "biostar", "static")),
+    ("global", join(BASE_DIR, "biostar", "static")),
 ]
 
 # The media URL start.

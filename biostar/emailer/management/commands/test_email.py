@@ -1,38 +1,36 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
+
 import logging
 
-from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.core.management.base import BaseCommand
 
 from biostar.emailer import tasks
 
-
 logger = logging.getLogger(__name__)
+
+DEFAULT_ADDR = settings.DEFAULT_FROM_EMAIL
 
 
 class Command(BaseCommand):
     help = 'tests email settings'
 
     def add_arguments(self, parser):
-        parser.add_argument('--emails', type=str,
-                            help="Comma separated emails to send tested emails to.")
-        parser.add_argument('--send', action="store_true",
-                            help="Comma separated emails to send tested emails to.")
+        parser.add_argument('-f', '--from', type=str, default=DEFAULT_ADDR,
+                            help="The sender's email (default=%(default)s")
+        parser.add_argument('-t', '--to', type=str, default=DEFAULT_ADDR,
+                            help="Comma separated emails of the recipients (default=%(default)s)")
 
     def handle(self, *args, **options):
+        from_email = options["from"]
+        recipient_list = options["to"]
 
-        to_emails = options["emails"]
-        send = options["send"]
-        if to_emails:
-            to_emails = to_emails.split(",")
+        recipient_list = recipient_list.split(",")
 
-        from_email = settings.ADMINS[0][1]
-        subject = "tested email"
+        subject = "Test email"
 
-        recipient_list = to_emails or [settings.ADMINS[0][1]]
-
-        logger.info("sending to %s" % recipient_list)
+        print(f"*** settings.EMAIL_BACKEND={settings.EMAIL_BACKEND}")
+        print(f"*** sending test email from {from_email} to {recipient_list}")
 
         tasks.send_email(template_name="test_email.html", email_list=recipient_list,
-                         from_email=from_email, subject=subject, send=send)
-
+                         from_email=from_email, subject=subject, send=True)
