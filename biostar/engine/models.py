@@ -26,11 +26,6 @@ class Bunch(object):
         self.__dict__.update(kwargs)
 
 
-def get_placeholder():
-
-    return 'export/static'
-
-
 def make_html(text):
     html = mistune.markdown(text)
     return html
