@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 
 from biostar.emailer import tasks
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("biostar")
 
 DEFAULT_ADDR = settings.DEFAULT_FROM_EMAIL
 
@@ -29,8 +29,10 @@ class Command(BaseCommand):
 
         subject = "Test email"
 
-        print(f"*** settings.EMAIL_BACKEND={settings.EMAIL_BACKEND}")
-        print(f"*** sending test email from {from_email} to {recipient_list}")
+        logger.info(f"settings.EMAIL_BACKEND={settings.EMAIL_BACKEND}")
+        logger.info(f"sending test email from {from_email} to {recipient_list}")
 
         tasks.send_email(template_name="test_email.html", email_list=recipient_list,
-                         from_email=from_email, subject=subject, send=True)
+                         from_email=from_email, subject=subject)
+
+        tasks.send_all()

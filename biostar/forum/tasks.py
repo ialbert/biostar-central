@@ -74,23 +74,34 @@ def notify_followers(post, author):
 
     # Template used to send local messages
     local_template = "messages/subscription_message.md"
+
     # Template used to send emails with
     email_template = "messages/subscription_email.html"
-    context = dict(post=post)
 
     # Everyone subscribed gets a local message.
     subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
 
-    # Send local messages
+    # Does the does not have subscriptions.
+    if not subs:
+        return
+
+    # Select users that should be notified.
     users = set(sub.user for sub in subs if sub.user != author)
 
+    # Additional context for the message.
+    context = dict(post=post)
+
+    # Every use gets local messages if subscribed in any way.
     create_messages(template=local_template, extra_context=context, rec_list=users, sender=author)
 
-    # Send emails to users that specified so
-    subs = subs.filter(type=Profile.EMAIL_MESSAGE)
-    emails = [sub.user.email for sub in subs if (sub.user != author and sub.type == Profile.EMAIL_MESSAGE)]
+    # Select users with email subscriptions.
+    email_subs = subs.filter(type=Subscription.EMAIL).exclude(user=author)
 
-    from_email = settings.ADMIN_EMAIL
+    # No email subscriptions
+    if not email_subs:
+        return
+
+    emails = [sub.user.email for sub in subs]
 
     send_email(template_name=email_template, extra_context=context, subject="Subscription",
-               email_list=emails, from_email=from_email, send=True)
+               email_list=emails,  send=True)

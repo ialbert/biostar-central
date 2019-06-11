@@ -12,21 +12,10 @@ def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
-class EmailGroup(models.Model):
-    name = models.CharField(max_length=MAX_NAME_LEN)
-    uid = models.CharField(max_length=32, unique=True)
-    text = models.CharField(max_length=MAX_TEXT_LEN)
-    html = models.CharField(max_length=MAX_TEXT_LEN)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.uid = self.uid or get_uuid(16)
-
-        super(EmailGroup, self).save()
-
 class EmailAddress(models.Model):
+    """
+    Represents an email address.
+    """
     ACTIVE, DELETED, INACTIVE, UNSUBSCRIBED = 1, 2, 3, 4
     STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (UNSUBSCRIBED, "Unsubscribed")]
 
@@ -41,11 +30,30 @@ class EmailAddress(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or get_uuid(16)
-
         super(EmailAddress, self).save()
 
 
+class EmailGroup(models.Model):
+    """
+    Represents an group of email addresses.
+    """
+    name = models.CharField(max_length=MAX_NAME_LEN)
+    uid = models.CharField(max_length=32, unique=True)
+    text = models.CharField(max_length=MAX_TEXT_LEN)
+    html = models.CharField(max_length=MAX_TEXT_LEN)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or get_uuid(16)
+        super(EmailGroup, self).save()
+
+
 class Subscription(models.Model):
+    """
+    Connects email groups to email addresses.
+    """
     ACTIVE, DELETED, INACTIVE, UNSUBSCRIBE = 1, 2, 3, 4
     STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (UNSUBSCRIBE, "Unsubscirbed")]
 
