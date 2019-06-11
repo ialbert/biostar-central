@@ -89,8 +89,8 @@ class PostLongForm(forms.Form):
 
     def clean_content(self):
         content = self.cleaned_data["content"]
-        content = content.replace(" ", "")
-        if len(content) < MIN_CHARS:
+        length = len(content.replace(" ", ""))
+        if length < MIN_CHARS:
             raise forms.ValidationError(f"Too short, place add more than {MIN_CHARS}")
         return content
 

@@ -76,3 +76,5 @@ try:
     print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
     print(f"Secrets module not imported: {exc}")
+
+print(SOCIAL_CLIENTS)
