@@ -120,11 +120,10 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         delta = util.now() - timedelta(days=days)
         query = query.filter(lastedit_date__gt=delta)
 
-    # Filter deleted items for non subscribed users
-    cond = user.is_authenticated and user.profile.is_moderator
-    #cond = False
-    #query = query if cond else query.exclude(status=Post.OPEN)
-    query = query.exclude(status=Post.DELETED)
+    # Filter deleted items
+    if user.is_authenticated and user.profile.is_moderator:
+        query = query.exclude(status=Post.DELETED)
+
     # Select related information used during rendering.
     query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
 

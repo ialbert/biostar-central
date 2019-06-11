@@ -10,6 +10,7 @@ from django.db.models import F
 from django.conf import settings
 from mistune import Renderer, InlineLexer, InlineGrammar
 
+from biostar.forum import auth
 from biostar.forum.models import Post, Subscription
 from biostar.accounts.models import Profile, User
 
@@ -130,9 +131,7 @@ class BiostarInlineLexer(MonkeyPatch):
             link = f'<a href="{profile}">{user.profile.name}</a>'
             # Subscribe mentioned users to post.
             if self.root:
-                sub, created = Subscription.objects.get_or_create(user=user, post=self.root)
-                if created:
-                    Post.objects.filter(pk=self.root.pk).update(subs_count=F('subs_count') + 1)
+                auth.create_subscription(post=self.root, user=user)
         else:
             link = m.group(0)
 

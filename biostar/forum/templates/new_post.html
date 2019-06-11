@@ -28,7 +28,7 @@
                 {% csrf_token %}
                 <div class="ui form-wrap segment">
                     <div class="required field">
-                        <label><i class="book icon"></i>{{ form.title.label }}</label>
+                        <label>{{ form.title.label }}</label>
                         {{ form.title }}
                         <p class="muted">{{ form.title.help_text }}</p>
                     </div>
@@ -36,7 +36,7 @@
 
                 <div class="ui form-wrap segment">
                     <div class="required field">
-                        <label><i class="question circile icon"></i>{{ form.post_type.label }}</label>
+                        <label>{{ form.post_type.label }}</label>
                         {{ form.post_type }}
                         <p class="muted">{{ form.post_type.help_text }}</p>
                     </div>
@@ -44,7 +44,7 @@
 
                 <div class="ui form-wrap segment">
                     <div class="field">
-                        <label><i class="tags icon"></i>{{ form.tag_val.label }}</label>
+                        <label>{{ form.tag_val.label }}</label>
 
                         <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}"
                                value="{% if selected %} {{ selected }} {% endif %}">
@@ -67,7 +67,7 @@
                 </div>
                 <div class="ui form-wrap segment">
                     <div class="required input field">
-                        <label><i class="edit icon"></i>{{ form.content.label }}</label>
+                        <label>{{ form.content.label }}</label>
 
                         <div class="wmd-wrapper" id="{{ form.content.id_for_label }}-wmd-wrapper">
                             <div class="">
@@ -92,7 +92,7 @@
 
                 <div class="ui form-wrap segment">
                     <div class="field">
-                        <label><i class="code icon"></i>HTML Preview</label>
+                        <label>HTML Preview</label>
                         <div id="{{ form.content.id_for_label }}_wmd_preview" class="wmd-preview"></div>
                     </div>
                 </div>
