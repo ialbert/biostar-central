@@ -33,7 +33,6 @@ class AwardDef(object):
         # Get the already awarded items
         try:
             value = self.fun(*args, **kwargs).order_by("pk")
-            print(value.count(), value, "VALUE")
             return value
         except Exception as exc:
             logger.error("validator error %s" % exc)
