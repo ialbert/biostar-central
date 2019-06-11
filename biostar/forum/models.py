@@ -119,6 +119,9 @@ class Post(models.Model):
     # This is the text that the user enters.
     content = models.TextField(default='')
 
+    # This is the text that the user enters.
+    #diff = models.TextField(default='')
+
     # This is the  HTML that gets displayed.
     html = models.TextField(default='')
 
@@ -194,6 +197,9 @@ class Post(models.Model):
         self.last_contributor = self.lastedit_user
         # Sanitize the post body.
         self.html = markdown.parse(self.content, post=self)
+
+        # Text to compare current content with
+        #self.diff = self.diff or self.content
 
         # Set the rank
         self.rank = self.lastedit_date.timestamp()
