@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.db.models import F
-
+from django.shortcuts import reverse
 from biostar.accounts.tasks import create_messages, detect_location
 from biostar.emailer.tasks import send_email
 from biostar.utils.decorators import spool
@@ -27,8 +27,9 @@ def create_award(targets, user, award):
         date = user.profile.last_login
         post = target if isinstance(target, Post) else None
         badge = Badge.objects.filter(name=award.name).first()
-        award = Award.objects.create(user=user, badge=badge, date=date, post=post)
-        logger.debug("award %s created for %s" % (award.badge.name, user.email))
+        Award.objects.create(user=user, badge=badge, date=date, post=post)
+
+        logger.debug("award %s created for %s" % (badge.name, user.email))
 
     return
 
@@ -43,7 +44,6 @@ def create_user_awards(user_id):
     if (user.profile.state == Profile.NEW) and (user.profile.score > 10):
         user.profile.state = Profile.TRUSTED
         user.save()
-
     # The awards the user has won at this point
     awards = dict()
     for award in Award.objects.filter(user=user).select_related('badge'):
@@ -65,20 +65,6 @@ def create_user_awards(user_id):
 
 
 @spool(pass_arguments=True)
-def create_subscription(root, user):
-    from biostar.forum.models import Subscription, Post
-
-    # Create user subscription to post.
-    sub, created = Subscription.objects.get_or_create(post=root, user=user)
-    if created:
-        # Increase subscription count of the root.
-        Post.objects.filter(pk=root.pk).update(subs_count=F('subs_count') + 1)
-        logger.debug(f"Created a subscription for user:{user} to root:{root.title}")
-
-    return
-
-
-@spool(pass_arguments=True)
 def notify_followers(post, author):
     """
     Send subscribed users, excluding author, a message/email.
@@ -97,6 +83,7 @@ def notify_followers(post, author):
 
     # Send local messages
     users = set(sub.user for sub in subs if sub.user != author)
+
     create_messages(template=local_template, extra_context=context, rec_list=users, sender=author)
 
     # Send emails to users that specified so
@@ -106,4 +93,4 @@ def notify_followers(post, author):
     from_email = settings.ADMIN_EMAIL
 
     send_email(template_name=email_template, extra_context=context, subject="Subscription",
-               email_list=emails, from_email=from_email, send=True,)
+               email_list=emails, from_email=from_email, send=True)

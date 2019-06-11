@@ -26,10 +26,6 @@ class Bunch(object):
         self.__dict__.update(kwargs)
 
 
-def get_placeholder():
-    return os.path.dirname(join(settings.STATIC_ROOT, 'images', 'placeholder.png'))
-
-
 def make_html(text):
     html = mistune.markdown(text)
     return html
@@ -237,7 +233,7 @@ class Data(models.Model):
     size = models.BigIntegerField(default=0)
 
     # FilePathField points to an existing file
-    file = models.FilePathField(max_length=MAX_FIELD_LEN, path=get_placeholder())
+    file = models.FilePathField(max_length=MAX_FIELD_LEN, path='')
 
     uid = models.CharField(max_length=32, unique=True)
 

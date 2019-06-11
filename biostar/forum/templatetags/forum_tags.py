@@ -204,7 +204,7 @@ def follow_label(context, post):
         return not_following
 
     # Get the current subscription
-    sub = Subscription.objects.filter(post=post, user=user).first()
+    sub = Subscription.objects.filter(post=post.root, user=user).first()
     sub = sub or Subscription(post=post, user=user, type=Profile.NO_MESSAGES)
 
     label = label_map.get(sub.type, not_following)
@@ -276,6 +276,8 @@ def single_post_feed(post):
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
 def list_posts(context, user):
     posts = Post.objects.filter(author=user)
+    posts = posts.prefetch_related("root", "author__profile",
+                                   "lastedit_user__profile", "thread_users__profile")
     request = context["request"]
     context = dict(posts=posts, request=request)
     return context

@@ -10,76 +10,99 @@
 {% block content %}
 
     {% form_errors form %}
-                    <div class="ui form">
 
 
-<div class="ui horizontal segments no-shadow">
-<div class="ui segment  no-shadow"></div>
+    <div class="ui horizontal segments no-shadow">
 
-<div class="ui basic compact segment no-shadow">
+        <div class="ui segment  no-shadow"></div>
 
-        <div class="ui medium header">{{ form_title }} <a class="ui link label" onclick="window.history.back()">
-            <i class="undo icon"></i> Back</a>
+        <div class="ui basic compact segment no-shadow">
+
+            <div class="ui medium header">{{ form_title }}
+            </div>
+            <div class="ui divider"></div>
+
+            <form method="post" class="ui  form" action="{{ action_url }}">
+
+                {{ form.media }}
+                {% csrf_token %}
+                <div class="ui form-wrap segment">
+                    <div class="required field">
+                        <label><i class="book icon"></i>{{ form.title.label }}</label>
+                        {{ form.title }}
+                        <p class="muted">{{ form.title.help_text }}</p>
+                    </div>
+                </div>
+
+                <div class="ui form-wrap segment">
+                    <div class="required field">
+                        <label><i class="question circile icon"></i>{{ form.post_type.label }}</label>
+                        {{ form.post_type }}
+                        <p class="muted">{{ form.post_type.help_text }}</p>
+                    </div>
+                </div>
+
+                <div class="ui form-wrap segment">
+                    <div class="field">
+                        <label><i class="tags icon"></i>{{ form.tag_val.label }}</label>
+
+                        <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}"
+                               value="{% if selected %} {{ selected }} {% endif %}">
+
+                        <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu"
+                                field_id="{{ form.tag_val.id_for_label }}">
+                            <option value="">Tags</option>
+
+                            {% for value, selected_tag in tags_opt %}
+                                {% if selected_tag %}
+                                    <option value="{{ value }}" selected="selected">{{ value }}</option>
+                                {% else %}
+                                    <option value="{{ value }}">{{ value }}</option>
+                                {% endif %}
+                            {% endfor %}
+
+                        </select>
+                        <p class="muted">{{ form.tag_val.help_text }}</p>
+                    </div>
+                </div>
+                <div class="ui form-wrap segment">
+                    <div class="required input field">
+                        <label><i class="edit icon"></i>{{ form.content.label }}</label>
+
+                        <div class="wmd-wrapper" id="{{ form.content.id_for_label }}-wmd-wrapper">
+                            <div class="">
+                                <div id="{{ form.content.id_for_label }}_wmd_button_bar"></div>
+                                <textarea class=" wmd-input" cols="40" name="content" rows="10"
+                                          id="{{ form.content.id_for_label }}">{{ content }}</textarea>
+                            </div>
+
+                            <div class="top-padding">
+                                <button type="submit" class="ui submit green button">
+                                    <i class="check icon"></i>Submit
+                                </button>
+
+                                <a class="ui right floated button" onclick="window.history.back()">
+                                    <i class="undo icon"></i>Cancel
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui form-wrap segment">
+                    <div class="field">
+                        <label><i class="code icon"></i>HTML Preview</label>
+                        <div id="{{ form.content.id_for_label }}_wmd_preview" class="wmd-preview"></div>
+                    </div>
+                </div>
+
+
+            </form>
+
+
         </div>
-    <div class="ui divider"></div>
 
-        <form method="post" class="ui create-form form" action="{{ action_url }}">
-
-            {{ form.media }}
-            {% csrf_token %}
-
-            <div class="required field">
-                <b>{{ form.title.label }}</b>
-                {{ form.title }}
-                <p class="muted">{{ form.title.help_text }}</p>
-            </div>
-
-            <b>{{ form.post_type.label }}</b>
-            <div class="required inline field">
-
-                {{ form.post_type }}
-
-            </div>
-             <p class="muted">{{ form.post_type.help_text }}</p>
-
-            <div class="field">
-                <b>{{ form.tag_val.label }}</b>
-
-            <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}" value="{%if selected%} {{selected}} {%endif%}">
-
-                <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="{{form.tag_val.id_for_label}}">
-                  <option value="">Tags</option>
-
-                  {% for value, selected_tag in tags_opt %}
-                      {% if selected_tag %}<option value="{{ value }}" selected="selected">{{value}}</option>
-                      {% else %}<option value="{{ value }}">{{value}}</option>
-                      {% endif %}
-                  {% endfor %}
-
-                </select>
-
-
-
-                <p class="muted">{{ form.tag_val.help_text }}</p>
-            </div>
-
-            <div class="required input field">
-                <b>{{ form.content.label }}</b>
-                {{ form.content }}
-            </div>
-
-
-            <button type="submit" class="ui submit green button">
-                <i class="check icon"></i>Submit
-            </button>
-
-            <a class="ui right floated button" onclick="window.history.back()">
-                <i class="undo icon"></i>Cancel
-            </a>
-        </form>
-
-
-</div>
-
-<div class="ui segment no-shadow"></div></div>
+        <div class="ui segment no-shadow"></div>
+    </div>
 {% endblock %}

@@ -97,12 +97,11 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     elif topic == MYPOSTS and user.is_authenticated:
         query = Post.objects.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
-        #TODO: change making 2 hit to db
         votes = Vote.objects.filter(post__author=user).exclude(author=user)
         # query = votes_query.values("post")
         query = Post.objects.filter(votes__in=votes)
     else:
-        query = Post.objects.filter(type__in=Post.TOP_LEVEL)
+        query = Post.objects.filter(is_toplevel=True)
 
     # Filter by tags if specified.
     if tag:
@@ -123,11 +122,14 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Filter deleted items for non subscribed users
     cond = user.is_authenticated and user.profile.is_moderator
-    query = query if cond else query.exclude(status=Post.DELETED)
+    #cond = False
+    #query = query if cond else query.exclude(status=Post.OPEN)
+    query = query.exclude(status=Post.DELETED)
     # Select related information used during rendering.
     query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
 
     return query
+
 
 @ensure_csrf_cookie
 def post_list(request, show=None):
@@ -341,6 +343,7 @@ def new_post(request):
             post = auth.create_post(title=title, content=content, post_type=post_type,
                                     tag_val=tag_val, author=author)
             tasks.created_post.spool(pid=post.id)
+
             return redirect(post.get_absolute_url())
         tags_opts = {val: True for val in request.POST.get('tag_val', '').split(",")}
 
@@ -348,7 +351,8 @@ def new_post(request):
     action_url = reverse("post_create")
     tags_opts = tags_opts.items()
     selected = request.POST.get('tag_val', '')
-    context = dict(form=form, tab="new", action_url=action_url, tags_opt=tags_opts,
+    content = request.POST.get('content', '')
+    context = dict(form=form, tab="new", action_url=action_url, content=content, tags_opt=tags_opts,
                    form_title="Create New Post", selected=selected)
 
     return render(request, "new_post.html", context=context)

@@ -37,9 +37,9 @@ def edit_profile(request):
 
     user = request.user
     initial = dict(username=user.username, email=user.email, name=user.profile.name,location=user.profile.location,
-                   website=user.profile.website, twitter=user.profile.twitter,scholar=user.profile.scholar,
-                   text=user.profile.text, my_tags=user.profile.my_tags, digest_prefs=user.profile.digest_prefs,
-                   message_prefs=user.profile.message_prefs, email_verified=user.profile.email_verified)
+                   website=user.profile.website, twitter=user.profile.twitter, scholar=user.profile.scholar,
+                   text=user.profile.text, my_tags=user.profile.my_tags, message_prefs=user.profile.message_prefs,
+                   email_verified=user.profile.email_verified)
 
     form = forms.EditProfile(user=user, initial=initial)
 
@@ -60,8 +60,6 @@ def edit_profile(request):
                                                      twitter=form.cleaned_data['twitter'],
                                                      scholar=form.cleaned_data['scholar'],
                                                      text=form.cleaned_data["text"],
-                                                     my_tags=form.cleaned_data["my_tags"],
-                                                     digest_prefs=form.cleaned_data["digest_prefs"],
                                                      message_prefs=form.cleaned_data["message_prefs"],
                                                      html=markdown(form.cleaned_data["text"]),
                                                      email_verified=email_verified)

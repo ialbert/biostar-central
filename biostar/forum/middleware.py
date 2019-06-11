@@ -47,8 +47,6 @@ def forum_middleware(get_response):
 
         detect_location.spool(ip=ip, user_id=user.id)
 
-        tasks.create_user_awards.spool(user_id=user.id)
-
         elapsed = (now() - user.profile.last_login).total_seconds()
 
         # Update count information inside session
@@ -67,7 +65,7 @@ def forum_middleware(get_response):
             request.session["counts"] = counts
 
         response = get_response(request)
-
+        tasks.create_user_awards.spool(user_id=user.id)
         # Can process response here after its been handled by the view
 
         return response

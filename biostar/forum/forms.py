@@ -48,17 +48,17 @@ class PostLongForm(forms.Form):
     choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
     post_type = forms.IntegerField(label="Post Type",
                                    widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
-                                   help_text="Select a post type: Question, Forum, Job, Blog")
+                                   help_text="Select a post type.")
     title = forms.CharField(label="Post Title", max_length=200, min_length=2,
                             validators=[valid_title, english_only],
-                            help_text="Descriptive titles promote better answers.")
+                            help_text="Enter a descriptive title to promote better answers.")
     tag_val = forms.CharField(label="Post Tags", max_length=50, required=False, validators=[valid_tag],
                               help_text="""
-                              To create a new tag just type and add a comma or press ENTER or SPACE.
+                              Create a new tag by typing a word then adding a comma or press ENTER or SPACE.
                               """,
                               widget=forms.HiddenInput())
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
-                              min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Enter your post below")
+                              min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content")
 
     def __init__(self, post=None, user=None, *args, **kwargs):
         self.post = post
@@ -87,6 +87,12 @@ class PostLongForm(forms.Form):
         tags = set(tag_val.split(","))
         return ",".join(tags)
 
+    def clean_content(self):
+        content = self.cleaned_data["content"]
+        content = content.replace(" ", "")
+        if len(content) < MIN_CHARS:
+            raise forms.ValidationError(f"Too short, place add more than {MIN_CHARS}")
+        return content
 
 
 class PostShortForm(forms.Form):

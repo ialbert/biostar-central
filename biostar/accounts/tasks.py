@@ -77,7 +77,7 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
     context.update(extra_context)
 
     body = tmpl.render(context)
-    html = mistune.markdown(body)
+    html = mistune.markdown(body, escape=False)
 
     msgs = []
     for rec in rec_list:
