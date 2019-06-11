@@ -11,7 +11,7 @@ from django.utils.timezone import utc
 from biostar.accounts.models import Profile
 from . import util
 from .const import *
-from .models import Post, Vote, PostView
+from .models import Post, Vote, PostView, Subscription
 
 User = get_user_model()
 
@@ -32,6 +32,17 @@ def get_votes(user, root):
             store.setdefault(vote_type, set()).add(post_id)
 
     return store
+
+
+def create_subscription(post, user, sub_type):
+    # Create user subscription to post.
+    Subscription.objects.filter(post=post.root, user=user).delete()
+
+    Subscription.objects.create(post=post.root, user=user, type=sub_type)
+
+    subs_count = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES).count()
+
+    Post.objects.filter(pk=post.root.pk).update(subs_count=subs_count)
 
 
 def is_suspended(user):

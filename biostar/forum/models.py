@@ -71,6 +71,9 @@ class Post(models.Model):
     # Indicates the information value of the post.
     rank = models.FloatField(default=0, blank=True, db_index=True)
 
+    # Show that post is top level
+    is_toplevel = models.BooleanField(default=False, db_index=True)
+
     # Indicates whether the post has accepted answer.
     answer_count = models.IntegerField(default=0, blank=True, db_index=True)
 
@@ -201,6 +204,8 @@ class Post(models.Model):
 
         self.lastedit_date = self.lastedit_date or self.creation_date
 
+        self.is_toplevel = self.type in Post.TOP_LEVEL
+
         if self.type == Post.ANSWER:
             Post.objects.filter(uid=self.parent.uid).update(lastedit_date=self.lastedit_date,
                                                             lastedit_user=self.lastedit_user)
@@ -210,10 +215,6 @@ class Post(models.Model):
 
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
-
-    @property
-    def is_toplevel(self):
-        return self.type in Post.TOP_LEVEL
 
     @property
     def css(self):

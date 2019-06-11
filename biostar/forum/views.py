@@ -97,12 +97,11 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     elif topic == MYPOSTS and user.is_authenticated:
         query = Post.objects.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
-        #TODO: change making 2 hit to db
         votes = Vote.objects.filter(post__author=user).exclude(author=user)
         # query = votes_query.values("post")
         query = Post.objects.filter(votes__in=votes)
     else:
-        query = Post.objects.filter(type__in=Post.TOP_LEVEL)
+        query = Post.objects.filter(is_toplevel=True)
 
     # Filter by tags if specified.
     if tag:
@@ -123,11 +122,14 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Filter deleted items for non subscribed users
     cond = user.is_authenticated and user.profile.is_moderator
-    query = query if cond else query.exclude(status=Post.DELETED)
+    #cond = False
+    #query = query if cond else query.exclude(status=Post.OPEN)
+    query = query.exclude(status=Post.DELETED)
     # Select related information used during rendering.
     query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
 
     return query
+
 
 @ensure_csrf_cookie
 def post_list(request, show=None):

@@ -163,7 +163,7 @@ def bulk_copy_posts(limit):
             if not (author and lastedit_user):
                 continue
 
-            siblings = posts.filter(root_id=post.root_id)
+            siblings = posts.filter(root_id=post.root_id).exclude(id=post.root_id)
             # Record replies, comments, and answers to root
             reply_count = siblings.count()
             comment_count = siblings.filter(type=Post.COMMENT).count()
@@ -247,7 +247,6 @@ def bulk_copy_posts(limit):
     Post.objects.bulk_create(objs=gen_posts(), batch_size=1000)
     pcount = Post.objects.all().count()
     elapsed(f"transferred {pcount} posts")
-
 
     Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)
     update_threadusers()
