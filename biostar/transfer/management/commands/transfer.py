@@ -144,7 +144,7 @@ def bulk_copy_posts(limit):
     relations = {}
     all_users = User.objects.order_by("id")
     users_set = {user.profile.uid: user for user in all_users}
-    logstream = open(LOG_FILE, "w")
+    logstream = open(LOG_FILE, "a")
 
     def gen_posts():
         logger.info("transferring posts")
@@ -177,7 +177,8 @@ def bulk_copy_posts(limit):
                 logger.error(exc)
                 logstream.write(f'{post.id}')
                 print(post.id)
-                html = content = post.content
+                content = post.content
+                html = post.html
 
             new_post = Post(uid=post.id, html=html, type=post.type, reply_count=reply_count,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,

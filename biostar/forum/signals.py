@@ -20,7 +20,7 @@ def send_award_message(sender, instance, created, **kwargs):
     context = dict(badge_url=badge_url, award=instance, post=instance.post)
 
     if created:
-        # Send local messages
+        # Send local message synchronously
         tasks.create_messages(template=template, extra_context=context, rec_list=[instance.user])
     return
 

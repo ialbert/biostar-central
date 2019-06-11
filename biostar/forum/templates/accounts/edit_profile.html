@@ -5,6 +5,10 @@
 {% block headtitle %}Edit Profile{% endblock %}
 
 {% block content %}
+   <div class="ui horizontal segments no-shadow">
+
+        <div class="ui segment  no-shadow"></div>
+           <div class="ui basic compact segment no-shadow">
 
     <form method="post" class="ui equal width form" action="{% url 'edit_profile' %}">
         {{ form.media }}
@@ -23,7 +27,7 @@
         <div class="fields">
 
             <div class="required field">
-                <label>Name </label>
+                <label><i class="address card icon"></i>Name </label>
                 {{ form.name }}
                 <div class="muted">
                     Displayed name
@@ -31,7 +35,7 @@
             </div>
 
             <div class="required field">
-                <label>Email </label>
+                <label><i class="envelope card icon"></i>Email </label>
                 {{ form.email }}
                 <div class="muted">
                     Email, not visible to others
@@ -39,10 +43,10 @@
             </div>
 
             <div class="required field">
-                <label>@Handler</label>
+                <label><i class="at icon"></i>Handler</label>
                 {{ form.username }}
                 <div class="muted">
-                    Unique handler used to reference you in posts
+                    Handler used to reference you
                 </div>
             </div>
 
@@ -52,7 +56,7 @@
         <div class="fields">
 
                     <div class="field">
-                        <label>Website</label>
+                        <label><i class="linkify icon"></i>Website</label>
                         {{ form.website }}
                         <div class="muted">
                             URL to your website
@@ -60,7 +64,8 @@
                     </div>
 
                     <div class="field">
-                        <label>Location</label>
+
+                        <label><i class="map marker alternate icon"></i>Location</label>
                         {{ form.location }}
                         <div class="muted">
                             Country/City/Institution
@@ -70,10 +75,11 @@
 
         </div>
 
+
         <div class="fields">
             <div class="eight wide field">
 
-                    <label>Twitter id</label>
+                    <label><i class="twitter icon"></i>Twitter id</label>
                     {{ form.twitter }}
                     <div class="muted">
                         Your twitter id
@@ -81,7 +87,7 @@
             </div>
             <div class="eight wide field">
 
-                <label>Scholar</label>
+                <label><i class="google icon"></i>Scholar</label>
                 {{ form.scholar }}
                 <div class="muted">
                     Your Google Scholar ID
@@ -90,11 +96,10 @@
             </div>
         </div>
 
-
             <div class="fields">
 
                     <div class="field">
-                        <label>Notifications </label>
+                        <label><i class="bell icon"></i>Notifications </label>
                         {{ form.message_prefs }}
                         <div class="muted">
                             {{ form.message_prefs.help_text }}
@@ -102,10 +107,12 @@
                     </div>
 
             </div>
+
+
             <div class="fields">
 
                     <div class="field">
-                        <label>Description</label>
+                        <label><i class="info icon"></i>Description</label>
                         {{ form.text }}
                         <div class="muted">
                             {{ form.text.help_text }}
@@ -113,8 +120,7 @@
                     </div>
 
             </div>
-        <div class="ui divider"></div>
-        <button type="submit" class="ui submit green button">
+                    <button type="submit" class="ui submit green button">
             <i class="save icon"></i>Submit
         </button>
 
@@ -123,7 +129,12 @@
         </a>
 
 
+
     </form>
+   </div>
+
+    <div class="ui segment no-shadow"></div>
+</div>
 
 
 {% endblock %}
