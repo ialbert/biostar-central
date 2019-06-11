@@ -101,3 +101,6 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Send subscription messages
         tasks.notify_followers.spool(post=instance, author=instance.author)
+        return
+
+    # Compute the diff between old and content and send notification if

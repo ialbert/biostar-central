@@ -116,7 +116,7 @@ class Post(models.Model):
     # This will maintain parent/child relationships between posts.
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
 
-    # This is the HTML that the user enters.
+    # This is the text that the user enters.
     content = models.TextField(default='')
 
     # This is the  HTML that gets displayed.
