@@ -10,20 +10,20 @@ from . import tasks
 logger = logging.getLogger("biostar")
 
 
-@receiver(post_save, sender=Award)
-def send_award_message(sender, instance, created, **kwargs):
-    """
-    Send message to users when they receive an award.
-    """
-    template = "messages/awards_created.md"
-    badge_url = reverse('badge_view', kwargs=dict(uid=instance.badge.uid))
-    context = dict(badge_url=badge_url, award=instance, post=instance.post)
-
-    if created:
-        # Send local message synchronously
-        tasks.create_messages(template=template, extra_context=context, rec_list=[instance.user])
-    return
-
+# @receiver(post_save, sender=Award)
+# def send_award_message(sender, instance, created, **kwargs):
+#     """
+#     Send message to users when they receive an award.
+#     """
+#     template = "messages/awards_created.md"
+#     badge_url = reverse('badge_view', kwargs=dict(uid=instance.badge.uid))
+#     context = dict(badge_url=badge_url, award=instance, post=instance.post)
+#
+#     if created:
+#         # Send local message synchronously
+#         tasks.create_messages(template=template, extra_context=context, rec_list=[instance.user])
+#     return
+#
 
 @receiver(post_save, sender=Post)
 def finalize_post(sender, instance, created, **kwargs):

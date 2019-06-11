@@ -65,7 +65,6 @@ def forum_middleware(get_response):
             request.session["counts"] = counts
 
         response = get_response(request)
-
         tasks.create_user_awards.spool(user_id=user.id)
         # Can process response here after its been handled by the view
 

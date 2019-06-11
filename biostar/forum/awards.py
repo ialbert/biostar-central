@@ -30,12 +30,10 @@ class AwardDef(object):
         self.max_awarded = max_awarded
 
     def validate(self, *args, **kwargs):
-        user = args[0]
-        award_count = Award.objects.filter(user=user, badge__name=self.name).count()
-
         # Get the already awarded items
         try:
             value = self.fun(*args, **kwargs).order_by("pk")
+            print(value.count(), value, "VALUE")
             return value
         except Exception as exc:
             logger.error("validator error %s" % exc)
@@ -61,7 +59,6 @@ GOOD_QUESTION = AwardDef(
     name="Good Question",
     desc="asked a question that was upvoted at least 5 times",
     func=lambda user: Post.objects.filter(vote_count__gte=0, author=user, type=Post.QUESTION),
-    max_awarded=1,
     icon="question icon"
 )
 
@@ -202,25 +199,9 @@ RISING_STAR = AwardDef(
 
 # These awards can only be earned once
 SINGLE_AWARDS = [
-    AUTOBIO,
-    STUDENT,
-    TEACHER,
-    COMMENTATOR,
-    SUPPORTER,
-    SCHOLAR,
-    VOTER,
-    CENTURION,
-    CYLON,
-    RISING_STAR,
-    GURU,
-    POPULAR,
-    EPIC_QUESTION,
-    ORACLE,
-    PUNDIT,
-    GOOD_ANSWER,
+
     GOOD_QUESTION,
-    PROPHET,
-    LIBRARIAN,
+
 ]
 
 GREAT_QUESTION = AwardDef(
@@ -250,9 +231,7 @@ APPRECIATED = AwardDef(
 
 # These awards can be won multiple times
 MULTI_AWARDS = [
-    GREAT_QUESTION,
-    GOLD_STANDARD,
-    APPRECIATED,
+
 ]
 
 ALL_AWARDS = SINGLE_AWARDS + MULTI_AWARDS
