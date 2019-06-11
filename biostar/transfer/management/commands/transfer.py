@@ -176,6 +176,7 @@ def bulk_copy_posts(limit):
             except Exception as exc:
                 logger.error(exc)
                 logstream.write(f'{post.id}')
+                print(post.id)
                 html = content = post.content
 
             new_post = Post(uid=post.id, html=html, type=post.type, reply_count=reply_count,
@@ -241,11 +242,11 @@ def bulk_copy_posts(limit):
 
             yield award
 
-    logstream.close()
     elapsed, progress = timer_func()
     Post.objects.bulk_create(objs=gen_posts(), batch_size=1000)
     pcount = Post.objects.all().count()
     elapsed(f"transferred {pcount} posts")
+
 
     Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)
     update_threadusers()
@@ -254,6 +255,7 @@ def bulk_copy_posts(limit):
     Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
     acount = Award.objects.all().count()
     elapsed(f"transferred {acount} awards")
+    logstream.close()
 
 
 def bulk_copy_subs(limit):

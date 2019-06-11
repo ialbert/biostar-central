@@ -22,18 +22,12 @@ def created_post(pid):
 
 def create_award(targets, user, award):
     from biostar.forum.models import Award, Post, Badge
-    template = "messages/awards_created.md"
 
     for target in targets:
         date = user.profile.last_login
         post = target if isinstance(target, Post) else None
         badge = Badge.objects.filter(name=award.name).first()
-        awarded = Award.objects.create(user=user, badge=badge, date=date, post=post)
-
-        badge_url = reverse('badge_view', kwargs=dict(uid=badge.uid))
-        context = dict(badge_url=badge_url, award=awarded, post=post)
-
-        #create_messages(template=template, extra_context=context, rec_list=[user])
+        Award.objects.create(user=user, badge=badge, date=date, post=post)
 
         logger.debug("award %s created for %s" % (badge.name, user.email))
 
