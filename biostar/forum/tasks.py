@@ -76,7 +76,7 @@ def notify_followers(post, author):
     local_template = "messages/subscription_message.md"
     # Template used to send emails with
     email_template = "messages/subscription_email.html"
-    context = dict(post=post, post_url=post.get_absolute_url())
+    context = dict(post=post)
 
     # Everyone subscribed gets a local message.
     subs = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES)
