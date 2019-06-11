@@ -194,10 +194,9 @@ def follow_label(context, post):
     not_following = "not following"
 
     label_map = {
-        Profile.LOCAL_MESSAGE: "following with messages",
-        Profile.DEFAULT_MESSAGES: "following with messages",
-        Profile.EMAIL_MESSAGE: "following via email",
-        Profile.NO_MESSAGES: not_following
+        Subscription.LOCAL_MESSAGE: "following with messages",
+        Subscription.EMAIL_MESSAGE: "following via email",
+        Subscription.NO_MESSAGES: not_following,
     }
 
     if user.is_anonymous:
@@ -205,7 +204,7 @@ def follow_label(context, post):
 
     # Get the current subscription
     sub = Subscription.objects.filter(post=post.root, user=user).first()
-    sub = sub or Subscription(post=post, user=user, type=Profile.NO_MESSAGES)
+    sub = sub or Subscription(post=post, user=user, type=Subscription.NO_MESSAGES)
 
     label = label_map.get(sub.type, not_following)
 

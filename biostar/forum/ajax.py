@@ -96,12 +96,13 @@ def ajax_subs(request):
     if was_limited:
         return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
 
-    type_map = dict(messages=Subscription.MESSAGE, email=Subscription.EMAIL, unfollow=Subscription.NONE)
+    type_map = dict(messages=Subscription.LOCAL_MESSAGE, email=Subscription.EMAIL_MESSAGE,
+                    unfollow=Subscription.NO_MESSAGES)
 
     # Get the root and sub type.
     root_uid = request.POST.get('root_uid')
     sub_type = request.POST.get("sub_type")
-    sub_type = type_map.get(sub_type, Subscription.NONE)
+    sub_type = type_map.get(sub_type, Subscription.NO_MESSAGES)
     user = request.user
 
     # Get the post that is subscribed to.
