@@ -9,11 +9,10 @@ ROOT_URLCONF = 'biostar.test.test_urls'
 
 DEBUG = True
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+#EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
 
-DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
 
 DATABASES = {
 
