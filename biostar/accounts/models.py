@@ -145,10 +145,23 @@ class Profile(models.Model):
     def is_suspended(self):
         return self.state == self.SUSPENDED
 
+# Connects user to message bodies
+class MessageBody(models.Model):
+    """
+    A message that may be shared across all users.
+    """
+    body = models.TextField(max_length=MAX_TEXT_LEN)
+    html = models.TextField(default='', max_length=MAX_TEXT_LEN * 10)
+
+    def save(self, *args, **kwargs):
+        self.html = self.html or mistune.markdown(self.body)
+        super(MessageBody, self).save(**kwargs)
 
 # Connects user to message bodies
 class Message(models.Model):
-    "Connects recipients to sent messages"
+    """
+    Connects recipients to sent messages
+    """
 
     SPAM, VALID, UNKNOWN = range(3)
     SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Not spam"), (UNKNOWN, "Unknown")]
@@ -159,14 +172,12 @@ class Message(models.Model):
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     subject = models.CharField(max_length=120)
+    body = models.ForeignKey(MessageBody, on_delete=models.CASCADE)
 
-    body = models.TextField(max_length=MAX_TEXT_LEN)
-    html = models.TextField(default='', max_length=MAX_TEXT_LEN * 10)
     unread = models.BooleanField(default=True)
     sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.html = self.html or mistune.markdown(self.body)
         self.uid = self.uid or util.get_uuid(10)
         self.sent_date = self.sent_date or util.now()
         super(Message, self).save(**kwargs)

@@ -19,7 +19,6 @@ def now():
 
 
 def split_tags(text):
-
     capitalize = lambda txt: txt.upper() if len(txt) == 1 else txt
     return [capitalize(x) for x in text.split(",") if len(x)]
 

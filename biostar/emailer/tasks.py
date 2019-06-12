@@ -25,7 +25,7 @@ def send_all():
         except Exception as exc:
             logger.error(f"send_all() error: {exc}")
 
-def send_email(template_name, email_list, extra_context={}, from_email=None, subject="Subject", send=True):
+def send_email(template_name, recipient_list, extra_context={}, from_email=None):
     """
     Sends an email using a template.
     """
@@ -38,22 +38,22 @@ def send_email(template_name, email_list, extra_context={}, from_email=None, sub
         return False
     try:
         # Generate emails.
-        logger.info(f"sending email from={from_email} recipient_list={email_list} template={template_name}")
+        logger.info(f"sending email from={from_email} recipient_list={recipient_list} template={template_name}")
 
         # The email template instance
         email = sender.EmailTemplate(template_name)
 
         # Default context added to each template.
         context = dict(domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
-                       port=settings.HTTP_PORT, subject=subject, name=settings.SITE_NAME)
+                       port=settings.HTTP_PORT, name=settings.SITE_NAME)
 
         # Additional context added to the template.
         context.update(extra_context)
 
         # Generate and send the email.
-        email.send(context=context, from_email=from_email, recipient_list=email_list)
+        email.send(context=context, from_email=from_email, recipient_list=recipient_list)
 
-        logging.info(f"email sent to recipient_list={email_list} ")
+        logging.info(f"email sent to recipient_list={recipient_list} ")
 
     except Exception as exc:
         logger.error(f"send_email error: {exc}")

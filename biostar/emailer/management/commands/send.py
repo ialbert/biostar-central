@@ -43,7 +43,7 @@ class Command(BaseCommand):
 
         logger.info(f"Email list size: {len(recipients)}")
 
-        tasks.send_email(template_name=template_name, email_list=recipients,
+        tasks.send_email(template_name=template_name, recipient_list=recipients,
                          from_email=from_email, subject=subject, send=True)
 
 

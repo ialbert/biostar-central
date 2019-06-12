@@ -19,7 +19,6 @@
                         <div class="number-stat">
                         {{ post.reply_count }}
                         </div>
-
                         <div class="detail-stat">Repl{{ post.reply_count|pluralize:"y,ies" }}</div>
                     </div>
 
@@ -42,7 +41,7 @@
                 {% endif %}
 
                  <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{post.uid}}{% endif %}"
-                    class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
+                    class="ui mini blue title header ">{{ post.reply_count }} {{ post.answer_count }} {{ post.comment_count }} {{ post.title|truncatechars:150 }}
                  </a>
             </div>
 

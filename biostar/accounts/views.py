@@ -134,7 +134,7 @@ def message_list(request):
     user = request.user
     page = request.GET.get("page", 1)
     msgs = Message.objects.filter(recipient=user)
-    msgs = msgs.select_related("sender", "sender__profile")
+    msgs = msgs.select_related("sender", "body", "sender__profile")
     msgs = msgs.order_by("-sent_date")
 
     # Get the pagination info

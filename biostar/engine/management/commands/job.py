@@ -214,7 +214,7 @@ def run(job, options={}):
         context = dict(subject=job.project.name, job=job)
 
         # Send notification emails
-        send_email(template_name="emailer/job_finished.html", email_list=[job.owner.email], send=True,
+        send_email(template_name="emailer/job_finished.html", recipient_list=[job.owner.email], send=True,
                    extra_context=context)
 
 

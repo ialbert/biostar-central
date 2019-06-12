@@ -10,6 +10,7 @@ DJANGO_SETTING_MODULE := biostar.engine.settings
 # Default app.
 DJANGO_APP := biostar.engine
 
+
 all: engine serve
 
 accounts:
@@ -40,7 +41,7 @@ message:
 engine:
 	$(eval DJANGO_SETTING_MODULE := biostar.engine.settings)
 	$(eval DJANGO_APP := biostar.engine)
-    $(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
+	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
 
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -48,7 +49,7 @@ engine:
 forum:
 	$(eval DJANGO_SETTING_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
-    $(eval UWSGI_INI := conf/uwsgi/forum_uwsgi.ini)
+	$(eval UWSGI_INI := conf/uwsgi/forum_uwsgi.ini)
 
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}

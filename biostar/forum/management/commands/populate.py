@@ -51,17 +51,21 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
         post = auth.create_post(title=title, author=author, content=content, post_type=ptype)
         posts.append(post)
 
+    # Drop one post from targets.
+    targets = posts[1:]
+
     # Generate answers
     for count in range(nposts):
         author = random.choice(users)
-        parent = random.choice(posts)
+        parent = random.choice(targets)
         content = f"Answer number {count}"
         answer = auth.create_post(post_type=Post.ANSWER, parent=parent, content=content, author=author)
 
     # Generate comments
     for count in range(nposts):
         author = random.choice(users)
-        parents= list(Post.objects.order_by("-id"))
+        # Exclude the first generated post.
+        parents= list(Post.objects.order_by("-id").exclude(pk=posts[0].pk))
         parent = random.choice(parents)
         content = f"Comment number {count}"
         comment = auth.create_post(post_type=Post.COMMENT, parent=parent, content=content, author=author)

@@ -80,21 +80,21 @@ class EmailTemplate(object):
         else:
             logger.info(f"sending email to: {recipients}")
 
-        subj, text, html = self.render(context)
+        subject, text, html = self.render(context)
 
         # Text may be indented in template.
         text = textwrap.dedent(text)
 
         if len(html) > 10:
             send_html_mail(
-                subject=subj,
+                subject=subject,
                 message=text,
                 message_html=html,
                 from_email=from_email,
                 recipient_list=recipient_list)
         else:
             send_mail(
-                subject=subj,
+                subject=subject,
                 message=text,
                 from_email=from_email,
                 recipient_list=recipient_list)

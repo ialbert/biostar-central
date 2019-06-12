@@ -6,6 +6,7 @@ from django.shortcuts import reverse
 from taggit.models import Tag
 from .models import Post, Award, Subscription
 from . import tasks, auth
+from django.db.models import F, Q
 
 logger = logging.getLogger("biostar")
 
@@ -31,9 +32,9 @@ def finalize_post(sender, instance, created, **kwargs):
     # Determine the root of the post.
     root = instance.root if instance.root is not None else instance
 
-    # Make current user first in the list of contributors.
-    root.thread_users.remove(instance.author)
-    root.thread_users.add(instance.author)
+    # Make last editor of the post the first in the list of contributors.
+    root.thread_users.remove(instance.lastedit_user)
+    root.thread_users.add(instance.lastedit_user)
 
     # Add tags
     instance.tags.clear()
@@ -79,25 +80,34 @@ def finalize_post(sender, instance, created, **kwargs):
         # Title is inherited from top level.
         if not instance.is_toplevel:
             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
+
+        # Update last contributor to the thread.
+        instance.root.last_contributor = instance.last_contributor
+
+        # Save the instance.
+        instance.save()
+
+        # Update all fields that need to bypass the instance save.
+
+        # Update the root reply count for non toplevel posts.
+        if not instance.is_toplevel:
+            Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
+
         # Update the root answer count
         if instance.type == Post.ANSWER:
             Post.objects.filter(id=instance.root.id).update(answer_count=F("answer_count") + 1)
+
         # Update root comment count
         if instance.type == Post.COMMENT:
             Post.objects.filter(id=instance.root.id).update(comment_count=F("comment_count") + 1)
-
-        # Update the root reply count
-        Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
+            Post.objects.filter(pk=instance.parent.pk, is_toplevel=False).update(comment_count=F("comment_count") + 1)
 
         # Update the parent reply counts.
         if instance.parent != instance.root:
             Post.objects.filter(pk=instance.parent.pk).update(reply_count=F("reply_count") + 1)
 
-        # Update last contributor to the thread.
-        instance.root.last_contributor = instance.last_contributor
-        instance.save()
-
+        # Create subscription for the author to the root.
         auth.create_subscription(post=instance.root, user=instance.author)
 
-        # Send subscription messages
+        # Send subscription messages to all subscribed users.
         tasks.notify_followers.spool(post=instance, author=instance.author)

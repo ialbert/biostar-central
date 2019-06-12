@@ -1,9 +1,8 @@
 import logging
 
-from django.conf import settings
-from django.db.models import F, Q
-from django.shortcuts import reverse
-from biostar.accounts.tasks import create_messages, detect_location
+from django.db.models import Q
+
+from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from biostar.utils.decorators import spool
 
@@ -37,7 +36,7 @@ def create_award(targets, user, award):
 @spool(pass_arguments=True)
 def create_user_awards(user_id):
     from biostar.accounts.models import Profile, User
-    from biostar.forum.models import Award, Post
+    from biostar.forum.models import Award
     from biostar.forum.awards import ALL_AWARDS
 
     user = User.objects.filter(id=user_id).first()
@@ -50,7 +49,6 @@ def create_user_awards(user_id):
         awards.setdefault(award.badge.name, []).append(award)
 
     for award in ALL_AWARDS:
-
         # How many times has this award has already been given
         seen = len(awards[award.name]) if award.name in awards else 0
 
@@ -67,7 +65,7 @@ def create_user_awards(user_id):
 @spool(pass_arguments=True)
 def notify_followers(post, author):
     """
-    Send subscribed users, excluding author, a message/email.
+    Generate notification to users subscribed to a post, excluding author, a message/email.
     """
     from biostar.forum.models import Subscription
 
@@ -90,7 +88,7 @@ def notify_followers(post, author):
     # Additional context for the message.
     extra_context = dict(post=post)
 
-    # Every use gets local messages if subscribed in any way.
+    # Every use gets local messages when subscribed with any subscription type.
     create_messages(template=local_template, extra_context=extra_context, rec_list=users, sender=author)
 
     # Select users with email subscriptions.
@@ -100,7 +98,6 @@ def notify_followers(post, author):
     if not email_subs:
         return
 
-    emails = [sub.user.email for sub in subs]
+    recipient_list = [sub.user.email for sub in subs]
 
-    send_email(template_name=email_template, extra_context=extra_context, subject="Subscription",
-               email_list=emails)
+    send_email(template_name=email_template, extra_context=extra_context, recipient_list=recipient_list)

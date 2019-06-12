@@ -61,11 +61,11 @@ def detect_location(ip, user_id):
 
 
 @spool(pass_arguments=True)
-def create_messages(template, rec_list, sender=None, extra_context={}, subject=""):
+def create_messages(template, rec_list, sender=None, extra_context={}):
     """
     Create batch message from sender to a given recipient_list
     """
-    from biostar.accounts.models import User, Message
+    from biostar.accounts.models import User, Message, MessageBody
 
     # Get the sender
     name, email = settings.ADMINS[0]
@@ -73,7 +73,7 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
 
     # Load the template and context
     tmpl = loader.get_template(template_name=template)
-    context = dict(sender=sender, subject=subject)
+    context = dict(sender=sender)
     context.update(extra_context)
 
     body = tmpl.render(context)
@@ -81,7 +81,8 @@ def create_messages(template, rec_list, sender=None, extra_context={}, subject="
 
     msgs = []
     for rec in rec_list:
-        msg = Message.objects.create(sender=sender, recipient=rec, subject=subject, body=body, html=html)
+        body = MessageBody.objects.create(body=body, html=html)
+        msg = Message.objects.create(sender=sender, recipient=rec, body=body)
         msgs.append(msg)
 
     return msgs

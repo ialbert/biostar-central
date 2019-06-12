@@ -204,6 +204,7 @@ class Post(models.Model):
 
         self.lastedit_date = self.lastedit_date or self.creation_date
 
+        # Set the top level state of the post.
         self.is_toplevel = self.type in Post.TOP_LEVEL
 
         if self.type == Post.ANSWER:

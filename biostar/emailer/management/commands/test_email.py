@@ -25,7 +25,7 @@ class Command(BaseCommand):
         from_email = options["from"]
         recipient_list = options["to"]
 
-    
+
 
         recipient_list = recipient_list.split(",")
 
@@ -34,7 +34,7 @@ class Command(BaseCommand):
         logger.info(f"settings.EMAIL_BACKEND={settings.EMAIL_BACKEND}")
         logger.info(f"sending test email from {from_email} to {recipient_list}")
 
-        tasks.send_email(template_name="test_email.html", email_list=recipient_list,
+        tasks.send_email(template_name="test_email.html", recipient_list=recipient_list,
                          from_email=from_email, subject=subject)
 
         # Triggers send if the backend is queued.
