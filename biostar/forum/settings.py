@@ -68,6 +68,9 @@ POST_VIEW_MINUTES = 7
 
 COUNT_INTERVAL_WEEKS = 10000
 
+# This flag is used flag stituation where a data migration is in progress.
+# Allows us to turn off certain type of actions (for example sending emails).
+DATA_MIGRATION = False
 
 # Tries to load up secret settings from a predetermined module
 # This is for convenience only!

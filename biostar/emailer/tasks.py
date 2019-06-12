@@ -9,7 +9,7 @@ logger = logging.getLogger("biostar")
 
 def send_all():
     """
-    Used when the backend is django-mailer.
+    Needed when the email backend is django-mailer to send queued emails.
     """
     if settings.EMAIL_BACKEND == "mailer.backend.DbBackend":
         try:
@@ -19,9 +19,10 @@ def send_all():
         except Exception as exc:
             logger.error(f"send_all() error: {exc}")
 
-
 def send_email(template_name, email_list, extra_context={}, from_email=None, subject="Subject", send=True):
-
+    """
+    Sends an email using a template.
+    """
     # The senders email.
     from_email = from_email or settings.DEFAULT_FROM_EMAIL
 
@@ -47,8 +48,6 @@ def send_email(template_name, email_list, extra_context={}, from_email=None, sub
         email.send(context=context, from_email=from_email, recipient_list=email_list)
 
         logging.info(f"email sent to recipient_list={email_list} ")
-
-        #1/0
 
     except Exception as exc:
         logger.error(f"send_email error: {exc}")

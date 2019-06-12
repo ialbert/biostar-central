@@ -35,4 +35,5 @@ class Command(BaseCommand):
         tasks.send_email(template_name="test_email.html", email_list=recipient_list,
                          from_email=from_email, subject=subject)
 
+        # Triggers send if the backend is queued.
         tasks.send_all()
