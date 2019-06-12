@@ -80,6 +80,7 @@ def init_users():
             # Reload to update state that signals may change.
             user = User.objects.filter(pk=user.pk).first()
             user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
+
             user.save()
 
             text = "I am not really a user but a background process tasked with the essential duty of keeping things tidy."

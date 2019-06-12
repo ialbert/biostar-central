@@ -51,7 +51,6 @@ def send_verification_email(user):
 
     # Send the verification email
     send_email(template_name=template, recipient_list=email_list,
-               extra_context=context, from_email=from_email,
-               subject="Verify your email", send=True)
+               extra_context=context, from_email=from_email)
 
     return True
