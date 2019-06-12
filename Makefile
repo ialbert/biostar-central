@@ -10,6 +10,9 @@ DJANGO_SETTING_MODULE := biostar.engine.settings
 # Default app.
 DJANGO_APP := biostar.engine
 
+# Database name
+DATABASE_NAME := database.db
+
 all: engine serve
 
 accounts:
@@ -40,7 +43,7 @@ message:
 engine:
 	$(eval DJANGO_SETTING_MODULE := biostar.engine.settings)
 	$(eval DJANGO_APP := biostar.engine)
-    $(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
+	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
 
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -48,10 +51,11 @@ engine:
 forum:
 	$(eval DJANGO_SETTING_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
-    $(eval UWSGI_INI := conf/uwsgi/forum_uwsgi.ini)
+	$(eval UWSGI_INI := conf/uwsgi/forum_uwsgi.ini)
 
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
+	@echo DATABASE_NAME=${DATABASE_NAME}
 
 serve:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
@@ -70,7 +74,7 @@ delete:
 	# Delete the database, logs and CACHE files.
 	# Keep media and spooler.
 	rm -rf export/logs/*.log
-	rm -f export/database/engine.db
+	rm -f export/database/${DATABASE_NAME}
 	rm -rf export/static/CACHE
 	rm -rf *.egg
 	rm -rf *.egg-info
@@ -116,14 +120,12 @@ uwsgi:
 	uwsgi --ini ${UWSGI_INI}
 
 drop_create:
-	dropdb --if-exists engine.db
-	createdb engine.db
+	dropdb --if-exists ${DATABASE_NAME}
+	createdb ${DATABASE_NAME}
 
 transfer:
+	python manage.py migrate --settings conf.examples.postgres.transfer_settings
 	python manage.py transfer -n 300 --settings conf.examples.postgres.transfer_settings
-
-postgres:
-	$(MAKE) pg init populate
 
 next:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}

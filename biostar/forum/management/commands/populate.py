@@ -5,7 +5,6 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
-from biostar.accounts.apps import init_users
 from biostar.forum import auth
 from biostar.forum.models import Post
 
@@ -80,7 +79,7 @@ class Command(BaseCommand):
         nusers = options["n_users"]
         nposts = options['n_posts']
 
-        init_users()
+        logger.info("Populating")
         init_post(nposts=nposts, nusers=nusers)
 
         return

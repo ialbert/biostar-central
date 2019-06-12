@@ -1,1 +1,0 @@
-# Stores the sqlite database
