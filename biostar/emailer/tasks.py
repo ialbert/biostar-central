@@ -11,6 +11,12 @@ def send_all():
     """
     Needed when the email backend is django-mailer to send queued emails.
     """
+
+    # No email sending during data migration.
+    if settings.DATA_MIGRATION:
+        return
+
+    # Queued email exists only when the backend is the django-mailer.
     if settings.EMAIL_BACKEND == "mailer.backend.DbBackend":
         try:
             from mailer import engine

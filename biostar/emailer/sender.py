@@ -6,6 +6,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.mail import send_mail
 from django.template import Context, Template
 from django.template.loader import get_template
+from django.conf import settings
 
 logger = logging.getLogger("biostar")
 
@@ -72,7 +73,12 @@ class EmailTemplate(object):
 
         recipients = ", ".join(recipient_list)
 
-        logger.info(f"sending email to: {recipients}")
+        # Skip sending emails during data migration
+        if settings.DATA_MIGRATION:
+            logger.info(f"skip email to: {recipients} DATA_MIGRATION={settings.DATA_MIGRATION} ")
+            return
+        else:
+            logger.info(f"sending email to: {recipients}")
 
         subj, text, html = self.render(context)
 
