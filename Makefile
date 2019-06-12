@@ -74,7 +74,7 @@ delete:
 	# Delete the database, logs and CACHE files.
 	# Keep media and spooler.
 	rm -rf export/logs/*.log
-	rm -f export/database/${DATABASE_NAME}
+	rm -f export/db/${DATABASE_NAME}
 	rm -rf export/static/CACHE
 	rm -rf *.egg
 	rm -rf *.egg-info

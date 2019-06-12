@@ -19,7 +19,8 @@
                     <td class="{% if message.unread %} new-message {% endif %}">
                       <div class="item">
                         <div class="content">
-                            {{ message.sent_date|timesince }} ago: <span class="inline-message">{{ message.body.html|safe }}</span>
+                            {{ message.sent_date|timesince }} ago <a href="{{message.sender.get_absolute_url}}">{{message.sender.profile.name }}</a> wrote
+                            :{{ message.body.html|safe }}
                         </div>
                       </div>
                     </td>
