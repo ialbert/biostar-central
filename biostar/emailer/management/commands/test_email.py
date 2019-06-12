@@ -25,6 +25,8 @@ class Command(BaseCommand):
         from_email = options["from"]
         recipient_list = options["to"]
 
+    
+
         recipient_list = recipient_list.split(",")
 
         subject = "Test email"
