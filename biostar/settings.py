@@ -125,7 +125,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-DATABASE_NAME = join(BASE_DIR, 'export', 'database', 'engine.db')
+
+DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
+DATABASE_NAME = join(BASE_DIR, 'export', 'db', DATABASE_NAME)
 
 DATABASES = {
     'default': {
