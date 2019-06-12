@@ -167,6 +167,7 @@ def bulk_copy_posts(limit):
             # Record replies, comments, and answers to root
             reply_count = siblings.count()
             comment_count = siblings.filter(type=Post.COMMENT).count()
+            is_toplevel = post.type in Post.TOP_LEVEL
 
             rank = post.lastedit_date.timestamp()
             # bodywidth=0 leaves the width as is.
@@ -182,7 +183,7 @@ def bulk_copy_posts(limit):
                 html = post.html
                 print(post.html)
 
-            new_post = Post(uid=post.id, html=html, type=post.type, reply_count=reply_count,
+            new_post = Post(uid=post.id, html=html, type=post.type, reply_count=reply_count, is_toplevel=is_toplevel,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
                             author=author, status=post.status, rank=rank, accept_count=int(post.has_accepted),
                             lastedit_date=post.lastedit_date, book_count=post.book_count, comment_count=comment_count,

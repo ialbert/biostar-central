@@ -198,9 +198,25 @@ RISING_STAR = AwardDef(
 
 # These awards can only be earned once
 SINGLE_AWARDS = [
-
+    AUTOBIO,
+    STUDENT,
+    TEACHER,
+    COMMENTATOR,
+    SUPPORTER,
+    SCHOLAR,
+    VOTER,
+    CENTURION,
+    CYLON,
+    RISING_STAR,
+    GURU,
+    POPULAR,
+    EPIC_QUESTION,
+    ORACLE,
+    PUNDIT,
+    GOOD_ANSWER,
     GOOD_QUESTION,
-
+    PROPHET,
+    LIBRARIAN,
 ]
 
 GREAT_QUESTION = AwardDef(
@@ -230,7 +246,8 @@ APPRECIATED = AwardDef(
 
 # These awards can be won multiple times
 MULTI_AWARDS = [
-
+    GREAT_QUESTION,
+    GOLD_STANDARD,
+    APPRECIATED,
 ]
-
 ALL_AWARDS = SINGLE_AWARDS + MULTI_AWARDS

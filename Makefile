@@ -120,12 +120,14 @@ uwsgi:
 	uwsgi --ini ${UWSGI_INI}
 
 drop_create:
+	@echo DATABASE_NAME=${DATABASE_NAME}
 	dropdb --if-exists ${DATABASE_NAME}
 	createdb ${DATABASE_NAME}
 
 transfer:
+	@echo DATABASE_NAME=${DATABASE_NAME}
 	python manage.py migrate --settings conf.examples.postgres.transfer_settings
-	python manage.py transfer -n 300 --settings conf.examples.postgres.transfer_settings
+	python manage.py transfer -n 10 --settings conf.examples.postgres.transfer_settings
 
 next:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
