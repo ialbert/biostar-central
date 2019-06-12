@@ -5,7 +5,7 @@ import os
 import html2text
 
 from django.core.management.base import BaseCommand
-
+from django.conf import settings
 from biostar.accounts.models import User, Profile
 from biostar.forum import util
 from biostar.forum.models import Post, Vote, Subscription, Badge, Award
