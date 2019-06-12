@@ -475,6 +475,7 @@ img {
 
 .new-message {
     background-color: #cfffbf !important;
+    box-shadow: 0 0 0 1px #a3c293 inset, 0 0 0 0 transparent;
 
 }
 
