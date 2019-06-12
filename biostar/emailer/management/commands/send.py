@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
         template_name = options['template']
         group_name = options['name']
-        subject = options['subject']
+
         from_email = options['from'] or settings.ADMINS[0][1]
 
         group = models.EmailGroup.objects.filter(name=group_name).first()
@@ -44,7 +44,7 @@ class Command(BaseCommand):
         logger.info(f"Email list size: {len(recipients)}")
 
         tasks.send_email(template_name=template_name, recipient_list=recipients,
-                         from_email=from_email, subject=subject, send=True)
+                         from_email=from_email)
 
 
 
