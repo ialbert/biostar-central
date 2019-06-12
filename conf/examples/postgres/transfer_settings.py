@@ -26,7 +26,7 @@ DATABASES = {
 
     'biostar2': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'biostar.db',
+        'NAME': 'original.db',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',

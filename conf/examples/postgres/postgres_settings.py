@@ -22,18 +22,6 @@ DATABASES = {
         'HOST': '',
         'PORT': '',
     },
-
-    'biostar2': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'biostar.db',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-        'TEST': {
-            'MIRROR': 'default',
-        }
-    },
 }
 
 try:

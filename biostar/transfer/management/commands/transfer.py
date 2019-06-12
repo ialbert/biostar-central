@@ -154,6 +154,7 @@ def bulk_copy_posts(limit):
         elapsed, progress = timer_func()
         stream = zip(count(1), posts)
         stream = islice(stream, limit)
+
         for index, post in stream:
             progress(index, msg="posts")
 
@@ -170,18 +171,13 @@ def bulk_copy_posts(limit):
             is_toplevel = post.type in Post.TOP_LEVEL
 
             rank = post.lastedit_date.timestamp()
-            # bodywidth=0 leaves the width as is.
-            try:
+            # Convert the content to markdown if its html
+            if post.html == post.content:
                 content = html2text.html2text(post.content, bodywidth=0)
                 html = markdown.parse(content)
-
-            except Exception as exc:
-                logger.error(exc)
-                logstream.write(f'{post.id}')
-                print(post.id)
+            else:
                 content = post.content
                 html = post.html
-                print(post.html)
 
             new_post = Post(uid=post.id, html=html, type=post.type, reply_count=reply_count, is_toplevel=is_toplevel,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
@@ -319,6 +315,9 @@ class Command(BaseCommand):
         load_votes = options["votes"]
         load_subs = options["subs"]
         limit = options.get("limit", LIMIT)
+
+        #p = PostsPost.objects.filter(id=225812).first()
+        #print(p.html, p.content, html2text.html2text(p.content, bodywidth=0))
 
         if load_posts:
             bulk_copy_posts(limit=limit)

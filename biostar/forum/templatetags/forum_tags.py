@@ -429,8 +429,8 @@ def time_ago(date):
     return "%s ago" % unit
 
 
-@register.filter
-def get_subcount(sub_count):
+@register.simple_tag
+def subscription_label(sub_count):
     if sub_count > 5:
         return mark_safe(f'<div class="subs">{sub_count} follow</div>')
 
