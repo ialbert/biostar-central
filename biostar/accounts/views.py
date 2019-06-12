@@ -137,20 +137,12 @@ def message_list(request):
     msgs = msgs.select_related("sender", "sender__profile")
     msgs = msgs.order_by("-sent_date")
 
-    # Update unread flag if viewer has already viewed messages
-    viewed_messages = request.session.get("viewed_messages", False)
-    #print(multiple_visits)
-    if viewed_messages:
-        Message.objects.filter(id__in=msgs).update(unread=False)
-
     # Get the pagination info
     paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
     msgs = paginator.get_page(page)
 
-    # Ensures unread flag gets updated after first visit
-    request.session["viewed_messages"] = True
     counts = request.session.get("counts", {})
-    # Set count back to 0
+    # Set message count back to 0
     counts["message_count"] = 0
     request.session.update(dict(counts=counts))
 

@@ -459,6 +459,8 @@ img {
     background: #f9f6f4;
 }
 
+
+
 .wmd-preview{
     background-color: #FFFFFF !important;
     padding: 10px;
@@ -469,9 +471,12 @@ img {
     background: #f9f6f4;
 }
 
+.ui.form .fields>.field.form-field{
+    width: unset;
+}
 
 .new-message {
-    background-color: #cfffbf !important;
+    background-color: #f2ffe8 !important;
 
 }
 

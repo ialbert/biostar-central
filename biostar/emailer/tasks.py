@@ -48,7 +48,7 @@ def send_email(template_name, email_list, extra_context={}, from_email=None, sub
 
         logging.info(f"email sent to recipient_list={email_list} ")
 
-        1/0
+        #1/0
 
     except Exception as exc:
         logger.error(f"send_email error: {exc}")

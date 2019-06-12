@@ -173,12 +173,14 @@ def bulk_copy_posts(limit):
             try:
                 content = html2text.html2text(post.content, bodywidth=0)
                 html = markdown.parse(content)
+
             except Exception as exc:
                 logger.error(exc)
                 logstream.write(f'{post.id}')
                 print(post.id)
                 content = post.content
                 html = post.html
+                print(post.html)
 
             new_post = Post(uid=post.id, html=html, type=post.type, reply_count=reply_count,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,

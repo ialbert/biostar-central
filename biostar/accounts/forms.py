@@ -100,8 +100,7 @@ class EditProfile(forms.Form):
 
     message_prefs = forms.ChoiceField(required=True, label="Notifications", choices=Profile.MESSAGING_TYPE_CHOICES,
                                       widget=forms.Select(attrs={'class': "ui dropdown"}),
-                                      help_text="""Default mode sends you an email 
-                                      if you receive anwers to questions that you've posted.""")
+                                      help_text="""Default mode sends notifications using local messages.""")
 
     def __init__(self, user,  *args, **kwargs):
 

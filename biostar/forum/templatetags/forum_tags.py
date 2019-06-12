@@ -15,7 +15,7 @@ from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
-from biostar.accounts.models import Profile
+from biostar.accounts.models import Profile, Message
 from biostar.forum import const
 from biostar.forum.models import Post, Vote, Award, Subscription
 
@@ -187,6 +187,12 @@ def unread(message, user):
     return ""
 
 
+@register.simple_tag
+def messages_read(user):
+    Message.objects.filter(recipient=user, unread=True).update(unread=False)
+    return ''
+
+
 @register.simple_tag(takes_context=True)
 def follow_label(context, post):
     user = context["request"].user
@@ -194,10 +200,9 @@ def follow_label(context, post):
     not_following = "not following"
 
     label_map = {
-        Profile.LOCAL_MESSAGE: "following with messages",
-        Profile.DEFAULT_MESSAGES: "following with messages",
-        Profile.EMAIL_MESSAGE: "following via email",
-        Profile.NO_MESSAGES: not_following
+        Subscription.LOCAL_MESSAGE: "following with messages",
+        Subscription.EMAIL_MESSAGE: "following via email",
+        Subscription.NO_MESSAGES: not_following,
     }
 
     if user.is_anonymous:
@@ -205,7 +210,7 @@ def follow_label(context, post):
 
     # Get the current subscription
     sub = Subscription.objects.filter(post=post.root, user=user).first()
-    sub = sub or Subscription(post=post, user=user, type=Profile.NO_MESSAGES)
+    sub = sub or Subscription(post=post, user=user, type=Subscription.NO_MESSAGES)
 
     label = label_map.get(sub.type, not_following)
 

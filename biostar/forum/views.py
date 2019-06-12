@@ -414,6 +414,6 @@ def edit_post(request, uid):
 
     tags_opts = tags_opts.items()
     context = dict(form=form, post=post, action_url=action_url, form_title="Edit post",
-                   tags_opt=tags_opts, selected=selected)
+                   tags_opt=tags_opts, selected=selected, content=post.content)
 
     return render(request, template, context)

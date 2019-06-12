@@ -33,7 +33,6 @@ class AwardDef(object):
         # Get the already awarded items
         try:
             value = self.fun(*args, **kwargs).order_by("pk")
-            print(value.count(), value, "VALUE")
             return value
         except Exception as exc:
             logger.error("validator error %s" % exc)
@@ -58,7 +57,7 @@ AUTOBIO = AwardDef(
 GOOD_QUESTION = AwardDef(
     name="Good Question",
     desc="asked a question that was upvoted at least 5 times",
-    func=lambda user: Post.objects.filter(vote_count__gte=0, author=user, type=Post.QUESTION),
+    func=lambda user: Post.objects.filter(vote_count__gte=5, author=user, type=Post.QUESTION),
     icon="question icon"
 )
 

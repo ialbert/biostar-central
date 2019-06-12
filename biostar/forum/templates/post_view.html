@@ -20,8 +20,9 @@
         </div>
     {% endfor %}
 
-    <div class="ui vertical segment inputcolor">
-        <div class="ui basic segment inputcolor">
+
+        <div class="ui form-wrap segment">
+
             <div class="ui header">Add Your Answer</div>
 
             {% if request.user.is_authenticated %}
@@ -61,8 +62,9 @@
                 </div>
 
             {% endif %}
+
         </div>
-    </div>
+
 
 {% endblock %}
 
