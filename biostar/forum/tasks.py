@@ -103,4 +103,4 @@ def notify_followers(post, author):
     emails = [sub.user.email for sub in subs]
 
     send_email(template_name=email_template, extra_context=extra_context, subject="Subscription",
-               email_list=emails,  send=True)
+               email_list=emails)
