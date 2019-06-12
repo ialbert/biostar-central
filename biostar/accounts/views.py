@@ -137,16 +137,12 @@ def message_list(request):
     msgs = msgs.select_related("sender", "sender__profile")
     msgs = msgs.order_by("-sent_date")
 
-    # Set unread flag for currently listed messages
-    msgs.update(unread=False)
-
-    # Get the pagination information.
+    # Get the pagination info
     paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
     msgs = paginator.get_page(page)
 
     counts = request.session.get("counts", {})
-
-    # Set the message count back to zero.
+    # Set message count back to 0
     counts["message_count"] = 0
     request.session.update(dict(counts=counts))
 

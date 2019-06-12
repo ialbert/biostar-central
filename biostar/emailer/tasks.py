@@ -20,7 +20,7 @@ def send_all():
             logger.error(f"send_all() error: {exc}")
 
 
-def send_email(template_name, email_list, extra_context={}, from_email=None, subject="Subject"):
+def send_email(template_name, email_list, extra_context={}, from_email=None, subject="Subject", send=True):
 
     # The senders email.
     from_email = from_email or settings.DEFAULT_FROM_EMAIL

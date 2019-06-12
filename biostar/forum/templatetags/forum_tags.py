@@ -15,7 +15,7 @@ from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
-from biostar.accounts.models import Profile
+from biostar.accounts.models import Profile, Message
 from biostar.forum import const
 from biostar.forum.models import Post, Vote, Award, Subscription
 
@@ -185,6 +185,12 @@ def unread(message, user):
     if message.recipient == user and message.unread:
         return "unread-message"
     return ""
+
+
+@register.simple_tag
+def messages_read(user):
+    Message.objects.filter(recipient=user, unread=True).update(unread=False)
+    return ''
 
 
 @register.simple_tag(takes_context=True)
