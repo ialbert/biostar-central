@@ -34,5 +34,5 @@ LIMIT=0
 #cat ${DATABASE_SQL} | gunzip -c | psql -d ${TRANSFER_DATABASE}
 
 # Transfer the data
-python manage.py transfer --limit ${LIMIT} --settings ${TRANSFER_SETTINGS_MODULE}
+python manage.py transfer --limit $LIMIT --settings ${TRANSFER_SETTINGS_MODULE}
 
