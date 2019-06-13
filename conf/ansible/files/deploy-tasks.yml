@@ -13,13 +13,6 @@
     - reload supervisor
     - restart nginx
 
-- name: Migrate servers
-  shell: ls
-  notify:
-    - server migrate
-  when: migrate
-
-
 - name: Restart servers
   shell: ls
   notify:
