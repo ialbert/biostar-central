@@ -1,3 +1,8 @@
+- name: Backup servers
+  shell: ls
+  notify:
+    - server backup
+
 - name: Update the biostar-engine
   git:
     repo: "{{ engine_git }}"
@@ -8,13 +13,17 @@
     - reload supervisor
     - restart nginx
 
+- name: Migrate servers
+  shell: ls
+  notify:
+    - server migrate
+  when: migrate
+
+
 - name: Restart servers
   shell: ls
   notify:
     - reload supervisor
     - restart nginx
   when: restart
-
-
-
 
