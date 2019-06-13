@@ -1,1 +1,2 @@
 uwsgi
+psycopg2
