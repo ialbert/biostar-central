@@ -168,7 +168,12 @@ def bulk_copy_posts(limit):
 
             force_text = post.content.strip().startswith("<")
             if force_text:
-                content = html2text.html2text(post.content, bodywidth=0)
+                try:
+                    content = html2text.html2text(post.content, bodywidth=0)
+                except Exception as exc:
+                    content = post.content
+                    logger.error(f"Failed parsing post={post.id}.")
+
                 html = markdown.parse(content)
             else:
                 content = post.content
@@ -322,8 +327,7 @@ class Command(BaseCommand):
         parser.add_argument('--users', action="store_true", help="Transfer users from source database to target.")
         parser.add_argument('--votes', action="store_true", help="Transfer votes from source database to target.")
         parser.add_argument('--subs', action="store_true", help="Transfer subs from source database to target.")
-        parser.add_argument('--limit', '-n', type=int, default=LIMIT,
-                            help="Transfer subs from source database to target.")
+        parser.add_argument('--limit', '-n', type=int, help="Transfer subs from source database to target.")
 
     def handle(self, *args, **options):
 
@@ -331,7 +335,7 @@ class Command(BaseCommand):
         load_users = options["users"]
         load_votes = options["votes"]
         load_subs = options["subs"]
-        limit = options.get("limit", LIMIT)
+        limit = options.get("limit") or LIMIT
 
         if load_posts:
             bulk_copy_posts(limit=limit)
