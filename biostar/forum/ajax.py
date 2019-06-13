@@ -133,8 +133,7 @@ def ajax_edit(request):
     if length > forms.MAX_CONTENT:
         return ajax_error(msg=f"Too long, please add less than {forms.MAX_CONTENT} characters.")
 
-    # Set the diff for later comparison.
-    post.diff = post.content
+    post.lastedit_user = request.user
     post.content = content
     post.save()
 

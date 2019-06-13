@@ -76,6 +76,7 @@ class PostLongForm(forms.Form):
         self.post.content = data.get("content")
         self.post.type = data.get('post_type')
         self.post.tag_val = data.get('tag_val')
+        self.post.lastedit_user = self.user
         self.post.save()
         return self.post
 
@@ -118,7 +119,6 @@ class PostShortForm(forms.Form):
         self.post.content = content
         self.post.save()
         return self.post
-
 
 
 class CommentForm(forms.Form):

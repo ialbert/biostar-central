@@ -41,6 +41,10 @@ def finalize_post(sender, instance, created, **kwargs):
     tags = [Tag.objects.get_or_create(name=name)[0] for name in instance.parse_tags()]
     instance.tags.add(*tags)
 
+    # Update last contributor, last editor, and last edit date to the thread
+    Post.objects.filter(uid=root.uid).update(lastedit_user=instance.lastedit_user,
+                                             last_contributor=instance.last_contributor,
+                                             lastedit_date=instance.lastedit_date)
     if created:
         # Make the Uid user friendly
         instance.uid = instance.uid or f"p{instance.pk}"
@@ -80,9 +84,6 @@ def finalize_post(sender, instance, created, **kwargs):
         # Title is inherited from top level.
         if not instance.is_toplevel:
             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
-
-        # Update last contributor to the thread.
-        instance.root.last_contributor = instance.last_contributor
 
         # Save the instance.
         instance.save()
