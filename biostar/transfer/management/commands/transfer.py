@@ -18,8 +18,6 @@ from itertools import count, islice
 
 
 LIMIT = None
-__CURRENT = os.path.dirname(os.path.abspath(__file__))
-LOG_FILE = os.path.join(__CURRENT, 'log.txt')
 
 def timer_func():
     """
@@ -145,8 +143,6 @@ def bulk_copy_posts(limit):
     relations = {}
     all_users = User.objects.order_by("id")
     users_set = {user.profile.uid: user for user in all_users}
-
-    logstream = open(LOG_FILE, "a")
 
     def gen_posts():
         logger.info("Transferring posts")
@@ -274,7 +270,6 @@ def bulk_copy_posts(limit):
     Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
     acount = Award.objects.all().count()
     elapsed(f"transferred {acount} awards")
-    logstream.close()
 
 
 def bulk_copy_subs(limit):
