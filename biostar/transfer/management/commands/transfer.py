@@ -165,7 +165,9 @@ def bulk_copy_posts(limit):
 
             rank = post.lastedit_date.timestamp()
             # Convert the content to markdown if its html
-            if post.html == post.content:
+
+            force_text = post.content.strip().startswith("<")
+            if force_text:
                 content = html2text.html2text(post.content, bodywidth=0)
                 html = markdown.parse(content)
             else:
