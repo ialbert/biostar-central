@@ -100,16 +100,21 @@ def now():
 
 @register.simple_tag
 def gravatar(user, size=80):
-    style = "retro"
+
     if user.is_anonymous or user.profile.is_suspended:
         # Removes spammy images for suspended users
-        # email = 'suspended@biostars.org'.encode('utf8')
+        #email = 'suspended@biostars.org'.encode('utf8')
         style = "monsterid"
+    elif user.profile.is_moderator:
+        style = "robohash"
+    elif user.profile.score > 100:
+        style = "retro"
+    elif user.profile.score > 0:
+        style = "identicon"
     else:
-        if user.profile.is_moderator:
-            style = "robohash"
-        email = user.email.encode('utf8')
+        style = "mp"
 
+    email = user.email.encode('utf8')
     hash = hashlib.md5(email).hexdigest()
 
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
