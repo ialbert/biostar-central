@@ -77,8 +77,6 @@ class PostLongForm(forms.Form):
         self.post.type = data.get('post_type')
         self.post.tag_val = data.get('tag_val')
         self.post.lastedit_user = self.user
-        self.post.lastedit_date = util.now()
-
         self.post.save()
         return self.post
 
