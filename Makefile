@@ -125,7 +125,7 @@ drop_create:
 
 transfer:
 	python manage.py migrate --settings conf.examples.postgres.transfer_settings
-	python manage.py transfer --settings conf.examples.postgres.transfer_settings
+	python manage.py transfer -n 300 --settings conf.examples.postgres.transfer_settings
 
 next:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
