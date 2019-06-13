@@ -10,27 +10,17 @@ DEBUG = True
 
 WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
 
+DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
+
 DATABASES = {
 
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'engine.db',
+        'NAME': DATABASE_NAME,
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
-    },
-
-    'biostar2': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'biostar.db',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-        'TEST': {
-            'MIRROR': 'default',
-        }
     },
 }
 

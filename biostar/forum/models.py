@@ -138,23 +138,7 @@ class Post(models.Model):
     spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
     def parse_tags(self):
-        return util.split_tags(self.tag_val)
-
-    def add_tags(self, text):
-
-        text = text.strip()
-        if not text:
-            return
-        # Sanitize the tag value
-        # Clear old tags
-        # self.tags.clear()
-        # self.tags.add(*tag_list)
-
-    @property
-    def as_text(self):
-        "Returns the body of the post after stripping the HTML tags"
-        text = bleach.clean(self.content, tags=[], attributes={}, styles=[], strip=True)
-        return text
+        return [tag.lower() for tag in self.tag_val.split(",") if tag]
 
     @property
     def get_votecount(self):

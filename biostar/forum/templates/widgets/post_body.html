@@ -6,7 +6,7 @@
     {#  Show title on top level posts #}
     {% if post.is_toplevel %}
 
-        <div class="title">
+        <div class="title wrap-text">
             {#  Page anchor. #}
             <a name="{{ post.uid }}"></a>
             {#  Post title. #}
@@ -47,7 +47,7 @@
 
         </div>
 
-        <div class="content">
+        <div class="content wrap-text">
 
             <div class="wrap">
             {# Display post author. #}

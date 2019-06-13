@@ -3,10 +3,7 @@ import bleach
 import logging
 import uuid
 
-from datetime import datetime, timedelta
-
-
-from django.template import loader
+from datetime import datetime
 from django.utils.timezone import utc
 
 
@@ -16,18 +13,6 @@ def fixcase(name):
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
-
-
-def split_tags(text):
-    capitalize = lambda txt: txt.upper() if len(txt) == 1 else txt
-    return [capitalize(x) for x in text.split(",") if len(x)]
-
-
-def render(name, **kwds):
-    "Helper function to render a template"
-    tmpl = loader.get_template(name)
-    page = tmpl.render(kwds)
-    return page
 
 
 def get_uuid(limit=32):

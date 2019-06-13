@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from django.template import loader
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -209,7 +210,7 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
     root = post.root
     user = request.user
     now = datetime.datetime.utcnow().replace(tzinfo=utc)
-    url = post.root.get_absolute_url()
+    url = post.get_absolute_url()
 
     if action == BUMP_POST:
         Post.objects.filter(uid=post.uid).update(lastedit_date=now, lastedit_user=request.user)
@@ -234,25 +235,26 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
 
     if action == MOVE_TO_ANSWER:
         Post.objects.filter(uid=post.uid).update(type=Post.ANSWER, parent=post.root)
-        Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") + 1)
+        Post.objects.filter(uid=root.uid).update(reply_count=F("answer_count") + 1)
         messages.success(request, "Moved comment to answer")
         return url
 
     if action == MOVE_TO_COMMENT or pid:
         parent = Post.objects.filter(uid=pid).first() or post.root
         Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
-        Post.objects.filter(uid=root.uid).update(reply_count=F("reply_count") - 1)
+        Post.objects.filter(uid=root.uid).update(reply_count=F("answer_count") - 1)
         messages.success(request, "Moved answer to comment")
         return url
 
     if dupes:
+        # Change post status to closed.
         Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-        html = util.render(name="messages/duplicate_posts.html", user=post.author, dupes=dupes,
-                           comment=comment, posts=Post.objects.filter(uid=post.uid))
-        content = util.strip_tags(html)
-        # Create a comment to the post
-        modpost = Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
-        Post.objects.filter(uid=modpost.uid).update(html=html)
+        # Load comment explaining post closure.
+        tmpl = loader.get_template("messages/duplicate_posts.md")
+        context = dict(user=post.author, dupes=dupes, comment=comment)
+        content = tmpl.render(context)
+        # Create a comment with explanation as to why post is closed.
+        Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
         return url
 
     messages.error(request, "Invalid moderation action given")

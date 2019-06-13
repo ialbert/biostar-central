@@ -3,6 +3,7 @@ import time
 import re
 import os
 import html2text
+from taggit.models import Tag
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -17,8 +18,6 @@ from itertools import count, islice
 
 
 LIMIT = None
-__CURRENT = os.path.dirname(os.path.abspath(__file__))
-LOG_FILE = os.path.join(__CURRENT, 'log.txt')
 
 def timer_func():
     """
@@ -144,16 +143,15 @@ def bulk_copy_posts(limit):
     relations = {}
     all_users = User.objects.order_by("id")
     users_set = {user.profile.uid: user for user in all_users}
-    logstream = open(LOG_FILE, "a")
 
     def gen_posts():
-        logger.info("transferring posts")
+        logger.info("Transferring posts")
 
         posts = PostsPost.objects.order_by("id")
-
         elapsed, progress = timer_func()
         stream = zip(count(1), posts)
         stream = islice(stream, limit)
+
         for index, post in stream:
             progress(index, msg="posts")
 
@@ -163,36 +161,48 @@ def bulk_copy_posts(limit):
             if not (author and lastedit_user):
                 continue
 
-            siblings = posts.filter(root_id=post.root_id).exclude(id=post.root_id)
-            # Record replies, comments, and answers to root
-            reply_count = siblings.count()
-            comment_count = siblings.filter(type=Post.COMMENT).count()
+            is_toplevel = post.type in Post.TOP_LEVEL
 
             rank = post.lastedit_date.timestamp()
-            # bodywidth=0 leaves the width as is.
-            try:
+            # Convert the content to markdown if its html
+            if post.html == post.content:
                 content = html2text.html2text(post.content, bodywidth=0)
                 html = markdown.parse(content)
-
-            except Exception as exc:
-                logger.error(exc)
-                logstream.write(f'{post.id}')
-                print(post.id)
+            else:
                 content = post.content
                 html = post.html
-                print(post.html)
 
-            new_post = Post(uid=post.id, html=html, type=post.type, reply_count=reply_count,
+            new_post = Post(uid=post.id, html=html, type=post.type, is_toplevel=is_toplevel,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
                             author=author, status=post.status, rank=rank, accept_count=int(post.has_accepted),
-                            lastedit_date=post.lastedit_date, book_count=post.book_count, comment_count=comment_count,
+                            lastedit_date=post.lastedit_date, book_count=post.book_count,
                             content=content, title=post.title, vote_count=post.vote_count,
-                            creation_date=post.creation_date, tag_val=post.tag_val, answer_count=post.reply_count,
+                            creation_date=post.creation_date, tag_val=post.tag_val,
                             view_count=post.view_count)
 
             # Store parent and root for every post.
             relations[str(new_post.uid)] = [str(post.root_id), str(post.parent_id)]
             yield new_post
+
+    def add_tags():
+        logger.info("Transferring tags")
+        for post in Post.objects.all():
+            tags = [Tag.objects.get_or_create(name=name)[0] for name in post.parse_tags()]
+            post.tags.add(*tags)
+
+    def set_counts():
+        logger.info("Setting post counts")
+        descendants = lambda p: Post.objects.filter(root=p) if p.is_toplevel else Post.objects.filter(parent=p)
+        posts = {post: (descendants(post).exclude(id=post.id).filter(type=Post.ANSWER).count(),
+                        descendants(post).exclude(id=post.id).filter(type=Post.COMMENT).count())
+                 for post in Post.objects.all()}
+
+        for post in posts:
+            answer_count, comment_count = posts[post][0], posts[post][1]
+            post.reply_count = answer_count + comment_count
+            post.answer_count = answer_count
+            post.comment_count = comment_count
+            yield post
 
     def gen_updates():
         logger.info("Updating post relations")
@@ -226,7 +236,6 @@ def bulk_copy_posts(limit):
         logger.info("Transferring awards.")
         # Query the badges
         badges = {badge.name: badge for badge in Badge.objects.all()}
-        # exists = list( Award.objects.values_list("uid", flat=True) )
         awards = BadgesAward.objects.all()
 
         stream = zip(count(1), awards)
@@ -252,12 +261,15 @@ def bulk_copy_posts(limit):
 
     Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)
     update_threadusers()
-    elapsed(f"updated {pcount} post threads")
+    add_tags()
+    elapsed(f"Updated {pcount} post threads")
+
+    Post.objects.bulk_update(objs=set_counts(), fields=["reply_count", "comment_count", "answer_count"], batch_size=1000)
+    elapsed(f"Set {pcount} post counts.")
 
     Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
     acount = Award.objects.all().count()
     elapsed(f"transferred {acount} awards")
-    logstream.close()
 
 
 def bulk_copy_subs(limit):

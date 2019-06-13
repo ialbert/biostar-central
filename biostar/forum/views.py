@@ -10,7 +10,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
-from taggit.models import Tag
 
 from . import forms, auth, tasks, util
 from .const import *
@@ -105,7 +104,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Filter by tags if specified.
     if tag:
-        query = query.filter(tags__name=tag)
+        query = query.filter(tags__name=tag.lower())
 
     # Apply post ordering.
     if ORDER_MAPPER.get(order):
@@ -120,8 +119,8 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         delta = util.now() - timedelta(days=days)
         query = query.filter(lastedit_date__gt=delta)
 
-    # Filter deleted items
-    if user.is_authenticated and user.profile.is_moderator:
+    # Filter deleted items for anonymous and non-moderators.
+    if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
         query = query.exclude(status=Post.DELETED)
 
     # Select related information used during rendering.

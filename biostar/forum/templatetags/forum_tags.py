@@ -8,6 +8,7 @@ from datetime import timedelta
 import hashlib
 import urllib.parse
 
+from django.core.paginator import Paginator
 from django import template
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -188,7 +189,7 @@ def unread(message, user):
 
 
 @register.simple_tag
-def messages_read(user):
+def toggle_unread(user):
     Message.objects.filter(recipient=user, unread=True).update(unread=False)
     return ''
 
@@ -280,11 +281,21 @@ def single_post_feed(post):
 
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
 def list_posts(context, user):
+    request = context["request"]
     posts = Post.objects.filter(author=user)
+    page = request.GET.get('page', 1)
     posts = posts.prefetch_related("root", "author__profile",
                                    "lastedit_user__profile", "thread_users__profile")
+    # Filter deleted items for anonymous and non-moderators.
+    if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
+        posts = posts.exclude(status=Post.DELETED)
+    posts = posts.order_by("-rank")
+    # Create the paginator and apply post paging
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    posts = paginator.get_page(page)
+
     request = context["request"]
-    context = dict(posts=posts, request=request)
+    context = dict(posts=posts, request=request, include_pages_bar=True)
     return context
 
 
@@ -293,8 +304,8 @@ def feed(user):
     recent_votes = Vote.objects.prefetch_related("post")
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
-    recent_locations = User.objects.exclude(profile__location="")
-    recent_locations = recent_locations.prefetch_related("profile")[:settings.LOCATION_FEED_COUNT]
+    recent_locations = Profile.objects.exclude(location="").order_by('-last_login')
+    recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
     recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
@@ -429,8 +440,8 @@ def time_ago(date):
     return "%s ago" % unit
 
 
-@register.filter
-def get_subcount(sub_count):
+@register.simple_tag
+def subscription_label(sub_count):
     if sub_count > 5:
         return mark_safe(f'<div class="subs">{sub_count} follow</div>')
 

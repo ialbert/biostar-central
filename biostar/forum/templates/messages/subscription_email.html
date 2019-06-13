@@ -8,18 +8,25 @@
 
 {% block html %}
 
+    <p>There is an addition to a post you are subscribed to: {{ post.root.title }}.</p>
+
+    <p>{{ post.lastedit_user }} wrote on {{ post.lastedit_date }}:</p>
+
     {{ post.html|safe }}
 
-    {{ protocol }}://{{ domain }}:{{port}}
+    <p>{{ protocol }}://{{ domain }}:{{port}}</p>
 
-
-    Sincerely,
-    The Biostar Team
+    <p>Sincerely,</p>
+    <p>The Biostar Team</p>
 
 
 {% endblock %}
 
 {% block text %}
+
+    There is an addition to a post you are subscribed to: {{ post.root.title }}.
+
+    {{ post.lastedit_user }} wrote on {{ post.lastedit_date }}:
 
     {{post.content}}
 
