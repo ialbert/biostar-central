@@ -22,7 +22,7 @@ DATABASE_SQL=export/sql/biostar-database-2.3.0-hourly-00.sql.gz
 TRANSFER_DATABASE=transfer.db
 
 # How many posts to load
-LIMIT=0
+LIMIT=1000
 
 # Drop the old database if exists.
 #dropdb --if-exists ${TRANSFER_DATABASE}
