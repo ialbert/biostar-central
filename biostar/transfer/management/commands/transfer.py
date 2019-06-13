@@ -68,6 +68,7 @@ def bulk_copy_users(limit):
         stream = islice(zip(count(1), users), limit)
         for index, user in stream:
             progress(index=index,  msg="users")
+            # Replace spaces with underscores in handles
             name = '_'.join(user.name.split())
             username = f"{name}{user.id}"
             # Create user
