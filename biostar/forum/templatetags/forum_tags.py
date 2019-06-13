@@ -304,8 +304,8 @@ def feed(user):
     recent_votes = Vote.objects.prefetch_related("post")
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
-    recent_locations = User.objects.exclude(profile__location="")
-    recent_locations = recent_locations.prefetch_related("profile")[:settings.LOCATION_FEED_COUNT]
+    recent_locations = Profile.objects.exclude(location="").order_by('-last_login')
+    recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
     recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
