@@ -48,7 +48,8 @@ SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
 POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
 POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
-# Match any alphanumeric character ( instead of doing it backwards with ^\s )
+# Match any alphanumeric characters after the @
+# These characters are allowed in handles: _ , . , -
 MENTINONED_USERS = rec(r"(\@(?P<handle>[\w_.-]+))")
 
 # Youtube pattern.
