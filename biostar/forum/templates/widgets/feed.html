@@ -1,7 +1,7 @@
 {% load forum_tags %}
 {% load accounts_tags %}
 
-<div class="ui large biostar-feed">
+<div class="ui large wrap-text">
 
     <div class="event">
         <div class="ui container">
@@ -25,14 +25,15 @@
 
                  <div class="ui relaxed list" >
 
-                    {% for user in recent_locations %}
+                    {% for profile in recent_locations %}
+                        <div class="item spaced" >
+                            <a href="{% url "user_profile"  profile.uid %}">
+                                <div class="ui avatar image">
+                                    <img class="ui centered image" src="{% gravatar user=profile.user size=50 %}">
+                                </div>
+                            </a>
 
-                        <div class="item spaced"  style="">
-                            <a href="{% url "user_profile" user.profile.uid %}">
-                                <div class="ui avatar image"><img class="ui centered image" src="{% gravatar user=user size=100 %}"></div>
-                                {{user.profile.name}}</a>
-                            from
-                            {{user.profile.location }}
+                            {{profile.location }}, <span class="muted">{{ profile.last_login|time_ago }}</span>
                         </div>
 
                     {% endfor %}
@@ -54,7 +55,8 @@
                             <span>
                                 <a href="{% url 'badge_view' award.badge.uid %}">{{ award.badge.name }} <i class="{{ award.badge.icon }}"></i></a> to
                                 <a href="{% url "user_profile" award.user.profile.uid %}">
-                                    {{award.user.profile.name}} {% user_icon user=award.user %}</a>
+                                    {{award.user.profile.name}}</a>
+                                <span>  {% user_icon user=award.user %}</span>
                             </span>
                         </div>
 

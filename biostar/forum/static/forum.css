@@ -324,7 +324,7 @@ figure {
     border: none;
 }
 
-.ui.horizontal.segments.top-menu > .ui.second.segment {
+.ui.horizontal.segments.top-menu > .ui.page-bar.segment {
     text-align: center;
 }
 
@@ -469,15 +469,28 @@ img {
 .ui.segment.form-wrap{
     box-shadow: none;
     background: #f9f6f4;
+    overflow-wrap: break-word;
 }
 
 .ui.form .fields>.field.form-field{
-    width: unset;
+    width: 280px;
+}
+
+.ui.form .fields>.field.empty.form-field{
+    width: 0px;
+}
+
+.filter.message{
+    padding: 8px;
+    text-align: center;
 }
 
 .new-message {
     background-color: #f2ffe8 !important;
 
+}
+.wrap-text{
+    overflow-wrap: break-word;
 }
 
 .ui.divided.items > .post.item {

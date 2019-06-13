@@ -11,6 +11,7 @@ DEBUG = True
 
 WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
 
+DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
 
 DATABASES = {
 

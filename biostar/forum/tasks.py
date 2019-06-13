@@ -88,7 +88,7 @@ def notify_followers(post, author):
     # Additional context for the message.
     extra_context = dict(post=post)
 
-    # Every use gets local messages when subscribed with any subscription type.
+    # Every subscribed user gets local messages with any subscription type.
     create_messages(template=local_template, extra_context=extra_context, rec_list=users, sender=author)
 
     # Select users with email subscriptions.

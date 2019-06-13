@@ -1,5 +1,5 @@
 
-[{{ sender.profile.name}}]({{ sender.profile.get_absolute_url }}) wrote: Hello your name here! Welcome to Biostar <i class="globe icon"></i> !
+Hello! Welcome to Biostar <i class="globe icon"></i> !
 
 We hope you'll find the site useful and our community friendly.
 
