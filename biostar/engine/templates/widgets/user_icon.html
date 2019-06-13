@@ -2,9 +2,9 @@
 {% if user.profile.is_moderator %}
     <i class="ui muted bolt icon"></i>
 {%  elif score > 10 %}
-    <i class="ui user icon"></i>
+    &bull;
 {% else %}
-    <i class="ui user outline icon"></i>
+    &bull;
 {% endif %}
 {{ score }}
 
