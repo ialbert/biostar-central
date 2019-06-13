@@ -1,17 +1,15 @@
-from biostar.engine.settings import *
-from biostar.forum.settings import *
+from conf.examples.pg.forum_settings import *
+
 import os
 TRANSFER_APP = ['biostar.transfer']
 
-INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP + TRANSFER_APP
-
-ROOT_URLCONF = 'biostar.test.test_urls'
+INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP + TRANSFER_APP
 
 DEBUG = True
 
 WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
 
-DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
+TRANSFER_DATABASE = os.environ.setdefault("TRANSFER_DATABASE", "transfer.db")
 
 DATABASES = {
 
@@ -26,7 +24,7 @@ DATABASES = {
 
     'biostar2': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'biostar.db',
+        'NAME': TRANSFER_DATABASE,
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
