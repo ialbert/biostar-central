@@ -1,2 +1,2 @@
 [all]
-45.56.108.195
+test.biostars.org

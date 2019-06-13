@@ -34,7 +34,7 @@
     <div class="right menu">
         {% if user.is_authenticated %}
             <a class="item {% activate tab "profile" %}" href="{% url 'user_profile' user.profile.uid %}">
-                <i class="user icon"></i>{{ user.profile.name }} {{ user.profile.score }}
+                {{ user.profile.name }}   {%  user_icon user %}
             </a>
             <a class="item {% activate tab "logout" %}" href="{% url 'logout' %}">
         <i class="sign-out icon"></i> Logout
