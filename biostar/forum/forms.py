@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from biostar.accounts.models import User
 from .models import Post
-from biostar.forum import models
+from biostar.forum import models, util
 
 from .const import *
 
@@ -76,6 +76,9 @@ class PostLongForm(forms.Form):
         self.post.content = data.get("content")
         self.post.type = data.get('post_type')
         self.post.tag_val = data.get('tag_val')
+        self.post.lastedit_user = self.user
+        self.post.lastedit_date = util.now()
+
         self.post.save()
         return self.post
 
@@ -118,7 +121,6 @@ class PostShortForm(forms.Form):
         self.post.content = content
         self.post.save()
         return self.post
-
 
 
 class CommentForm(forms.Form):
