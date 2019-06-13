@@ -48,7 +48,8 @@ SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
 POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/(?P<uid>(\w+))(/)?$")
 POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
-MENTINONED_USERS = rec(r"(\@(?P<handle>[^\s]+))")
+# Match any alphanumeric character ( instead of doing it backwards with ^\s )
+MENTINONED_USERS = rec(r"(\@(?P<handle>[\w_.-]+))")
 
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
