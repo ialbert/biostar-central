@@ -41,7 +41,7 @@ def finalize_post(sender, instance, created, **kwargs):
     tags = [Tag.objects.get_or_create(name=name)[0] for name in instance.parse_tags()]
     instance.tags.add(*tags)
 
-    # Update last contributor last editor to the thread
+    # Update last contributor, last editor, and last edit date to the thread
     Post.objects.filter(uid=root.uid).update(lastedit_user=instance.lastedit_user,
                                              last_contributor=instance.last_contributor,
                                              lastedit_date=instance.lastedit_date)
