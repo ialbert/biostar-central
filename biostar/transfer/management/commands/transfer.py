@@ -141,15 +141,6 @@ def bulk_copy_votes(limit):
     elapsed(f"transferred {vcount} votes")
 
 
-def get_post_counts():
-    counts = {}
-    descendants = lambda p: Post.objects.filter(root=p) if p.is_toplevel else Post.objects.filter(parent=p)
-    posts = {post: (descendants(post).exclude(id=post.id).count(),
-                    descendants(post).exclude(id=post.id).filter(type=Post.COMMENT).count())
-             for post in Post.objects.all()}
-
-    return counts
-
 def bulk_copy_posts(limit):
     relations = {}
     all_users = User.objects.order_by("id")
