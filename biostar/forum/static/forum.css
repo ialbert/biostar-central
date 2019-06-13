@@ -469,6 +469,7 @@ img {
 .ui.segment.form-wrap{
     box-shadow: none;
     background: #f9f6f4;
+    overflow-wrap: break-word;
 }
 
 .ui.form .fields>.field.form-field{
@@ -487,6 +488,9 @@ img {
 .new-message {
     background-color: #f2ffe8 !important;
 
+}
+.wrap-text{
+    overflow-wrap: break-word;
 }
 
 .ui.divided.items > .post.item {
