@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from biostar.accounts.models import User
 from .models import Post
-from biostar.forum import models, util
+from biostar.forum import models
 
 from .const import *
 

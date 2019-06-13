@@ -43,7 +43,8 @@ def finalize_post(sender, instance, created, **kwargs):
 
     # Update las contributor last editor of the root
     Post.objects.filter(uid=root.uid).update(lastedit_user=instance.lastedit_user,
-                                             last_contributor=instance.last_contributor)
+                                             last_contributor=instance.last_contributor,
+                                             lastedit_date=instance.lastedit_date)
 
     if created:
         # Make the Uid user friendly
@@ -84,7 +85,7 @@ def finalize_post(sender, instance, created, **kwargs):
         # Title is inherited from top level.
         if not instance.is_toplevel:
             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
-            
+
         # Save the instance.
         instance.save()
 
