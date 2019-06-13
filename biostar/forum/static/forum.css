@@ -324,7 +324,7 @@ figure {
     border: none;
 }
 
-.ui.horizontal.segments.top-menu > .ui.second.segment {
+.ui.horizontal.segments.top-menu > .ui.page-bar.segment {
     text-align: center;
 }
 
@@ -472,7 +472,16 @@ img {
 }
 
 .ui.form .fields>.field.form-field{
-    width: unset;
+    width: 280px;
+}
+
+.ui.form .fields>.field.empty.form-field{
+    width: 0px;
+}
+
+.filter.message{
+    padding: 8px;
+    text-align: center;
 }
 
 .new-message {

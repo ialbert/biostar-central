@@ -10,7 +10,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
-from taggit.models import Tag
 
 from . import forms, auth, tasks, util
 from .const import *
@@ -105,7 +104,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Filter by tags if specified.
     if tag:
-        query = query.filter(tags__name=tag)
+        query = query.filter(tags__name=tag.lower())
 
     # Apply post ordering.
     if ORDER_MAPPER.get(order):

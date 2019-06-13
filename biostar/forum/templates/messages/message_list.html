@@ -32,7 +32,7 @@
 </table>
 
 {#  this will reset the user unread messages #}
-{% messages_read user=request.user %}
+{% toggle_unread user=request.user %}
 
 <div class="center-text">
 {% pages objs=all_messages %}
