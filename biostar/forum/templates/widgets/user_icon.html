@@ -1,4 +1,5 @@
 {% load forum_tags %}
+{% load humanize %}
 {% if user.profile.is_moderator %}
     <i class="ui muted bolt icon"></i>
 {%  elif score > 1000 %}
@@ -6,5 +7,5 @@
 {% else %}
     &bull;
 {% endif %}
-{{ score }}
+{{ score|bignum }}
 

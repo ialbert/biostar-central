@@ -107,8 +107,10 @@ def gravatar(user, size=80):
         style = "monsterid"
     elif user.profile.is_moderator:
         style = "robohash"
-    elif user.profile.score > 1000:
+    elif user.profile.score > 100:
         style = "retro"
+    elif user.profile.score > 0:
+        style = "identicon"
     else:
         style = "mp"
 
