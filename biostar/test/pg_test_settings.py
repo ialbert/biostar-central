@@ -3,9 +3,9 @@ from biostar.forum.settings import *
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
-DEBUG = True
+ROOT_URLCONF = 'biostar.test.test_urls'
 
-WSGI_APPLICATION = 'conf.examples.pg.forum_wsgi.application'
+DEBUG = True
 
 DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
 
@@ -20,8 +20,3 @@ DATABASES = {
         'PORT': '',
     },
 }
-
-try:
-    from .postgres_secrets import *
-except ImportError as exc:
-    print("No postgres_secrets module could be imported")
