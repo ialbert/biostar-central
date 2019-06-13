@@ -68,7 +68,11 @@ def bulk_copy_users(limit):
         stream = islice(zip(count(1), users), limit)
         for index, user in stream:
             progress(index=index,  msg="users")
-            username = f"{user.name}{user.id}"
+            # Set the username to twitter id or a default
+            # Extra prefix 'username' necessary in default to avoid duplicating
+            # from already migrated/populated users: user-1, user-2
+            default_username = f'username-{user.id}'
+            username = user.profile.twitter_id or default_username
             # Create user
             new_user = User(username=username, email=user.email, password=user.password,
                             is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
