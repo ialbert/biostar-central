@@ -2,8 +2,7 @@
 {% load forum_tags %}
 
 {% if post.author.id != post.lastedit_user.id %}
-
-written {{ post.creation_date|time_ago }} by
+{{ post.creation_date|time_ago }}
     <a href="{% url "user_profile"  post.author.profile.uid %}">
         {% if avatar %}
             <div class="ui avatar image">
@@ -15,9 +14,11 @@ written {{ post.creation_date|time_ago }} by
 
     {% user_icon user=post.author %}
     &bull;
+
+
 {% endif %}
 
-updated {{ post.lastedit_date|time_ago }} by
+{{ post.lastedit_date|time_ago }}
     <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
         {% if avatar %}
             <div class="ui avatar image">
