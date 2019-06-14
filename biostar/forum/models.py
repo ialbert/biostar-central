@@ -179,9 +179,6 @@ class Post(models.Model):
         # Sanitize the post body.
         self.html = markdown.parse(self.content, post=self)
 
-        # Set the rank
-        self.rank = self.lastedit_date.timestamp()
-
         self.tag_val = self.tag_val.replace(' ', '')
 
         self.creation_date = self.creation_date or util.now()

@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from django.shortcuts import reverse
 from taggit.models import Tag
 from .models import Post, Award, Subscription
-from . import tasks, auth
+from . import tasks, auth, util
 from django.db.models import F, Q
 
 logger = logging.getLogger("biostar")
@@ -31,10 +31,6 @@ def finalize_post(sender, instance, created, **kwargs):
 
     # Determine the root of the post.
     root = instance.root if instance.root is not None else instance
-
-    # Make last editor of the post the first in the list of contributors.
-    root.thread_users.remove(instance.lastedit_user)
-    root.thread_users.add(instance.lastedit_user)
 
     # Add tags
     instance.tags.clear()
@@ -85,10 +81,15 @@ def finalize_post(sender, instance, created, **kwargs):
         if not instance.is_toplevel:
             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
 
+        # Make last editor of post the first in the list of contributors
+        instance.root.thread_users.remove(instance.lastedit_user)
+        instance.root.thread_users.add(instance.lastedit_user)
+
+        # Update the post rank on create and not every save.
+        instance.rank = instance.lastedit_date.timestamp()
+
         # Save the instance.
         instance.save()
-
-        # Update all fields that need to bypass the instance save.
 
         # Update the root reply count for non toplevel posts.
         if not instance.is_toplevel:
@@ -107,6 +108,8 @@ def finalize_post(sender, instance, created, **kwargs):
         if instance.parent != instance.root:
             Post.objects.filter(pk=instance.parent.pk).update(reply_count=F("reply_count") + 1)
 
+        # Bump the root post rank on post creation
+        Post.objects.filter(uid=instance.root.uid).update(rank=util.now().timestamp())
         # Create subscription for the author to the root.
         auth.create_subscription(post=instance.root, user=instance.author)
 

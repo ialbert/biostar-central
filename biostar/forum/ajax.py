@@ -126,7 +126,7 @@ def ajax_edit(request):
     if not post:
         return ajax_error(msg="Post does not exist")
     content = request.POST.get("content", post.content)
-    length = len(content.replace(" ", ''))
+    length = len(content.replace(' ', ''))
 
     if length < forms.MIN_CONTENT:
         return ajax_error(msg=f"Too short, please add more than add more {forms.MIN_CONTENT} characters.")
