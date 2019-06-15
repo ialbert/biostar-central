@@ -285,9 +285,10 @@ def single_post_feed(post):
 
 
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
-def list_posts(context, user):
+def list_posts(context, target):
     request = context["request"]
-    posts = Post.objects.filter(author=user)
+    user = request.user
+    posts = Post.objects.filter(author=target)
     page = request.GET.get('page', 1)
     posts = posts.prefetch_related("root", "author__profile",
                                    "lastedit_user__profile", "thread_users__profile")
@@ -393,6 +394,7 @@ def get_thread_users(post, limit=5):
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
 def listing(context, posts=None):
     request = context["request"]
+
     return dict(posts=posts, request=request)
 
 
