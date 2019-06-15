@@ -82,10 +82,11 @@ def finalize_post(sender, instance, created, **kwargs):
             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
 
         # Make last editor of post the first in the list of contributors
+        # Done on post creation to avoid mods being added to list for editing a post.
         instance.root.thread_users.remove(instance.lastedit_user)
         instance.root.thread_users.add(instance.lastedit_user)
 
-        # Update the post rank on create and not every save.
+        # Update the post rank on create and not every edit.
         instance.rank = instance.lastedit_date.timestamp()
 
         # Save the instance.
@@ -108,8 +109,9 @@ def finalize_post(sender, instance, created, **kwargs):
         if instance.parent != instance.root:
             Post.objects.filter(pk=instance.parent.pk).update(reply_count=F("reply_count") + 1)
 
-        # Bump the root rank on post creation
+        # Bump the root rank when a new descendant is added.
         Post.objects.filter(uid=instance.root.uid).update(rank=util.now().timestamp())
+
         # Create subscription for the author to the root.
         auth.create_subscription(post=instance.root, user=instance.author)
 
