@@ -108,7 +108,7 @@ def finalize_post(sender, instance, created, **kwargs):
         if instance.parent != instance.root:
             Post.objects.filter(pk=instance.parent.pk).update(reply_count=F("reply_count") + 1)
 
-        # Bump the root post rank on post creation
+        # Bump the root rank on post creation
         Post.objects.filter(uid=instance.root.uid).update(rank=util.now().timestamp())
         # Create subscription for the author to the root.
         auth.create_subscription(post=instance.root, user=instance.author)
