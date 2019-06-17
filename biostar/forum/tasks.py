@@ -43,13 +43,10 @@ def create_user_awards(user_id):
     if (user.profile.state == Profile.NEW) and (user.profile.score > 10):
         user.profile.state = Profile.TRUSTED
         user.save()
-    # The awards the user has won at this point
-    #awards = dict()
-    #for award in Award.objects.filter(user=user).select_related('badge'):
-    #    awards.setdefault(award.badge.name, []).append(award)
 
     for award in ALL_AWARDS:
 
+        # Award user has won at this point.
         given = Award.objects.filter(badge__name=award, user=user).count()
 
         # How many times has this award has already been given
