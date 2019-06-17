@@ -19,47 +19,26 @@ def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-def create_award(targets, user, award):
-    from biostar.forum.models import Award, Post, Badge
-
-    for target in targets:
-        date = user.profile.last_login
-        post = target if isinstance(target, Post) else None
-        badge = Badge.objects.filter(name=award.name).first()
-        Award.objects.create(user=user, badge=badge, date=date, post=post)
-
-        logger.debug("award %s created for %s" % (badge.name, user.email))
-
-    return
-
-
 @spool(pass_arguments=True)
 def create_user_awards(user_id):
-    from biostar.accounts.models import Profile, User
-    from biostar.forum.models import Award
+    from biostar.accounts.models import User
+    from biostar.forum.models import Award, Badge, Post
     from biostar.forum.awards import ALL_AWARDS
 
     user = User.objects.filter(id=user_id).first()
-    if (user.profile.state == Profile.NEW) and (user.profile.score > 10):
-        user.profile.state = Profile.TRUSTED
-        user.save()
 
     for award in ALL_AWARDS:
-
-        # Award user has won at this point.
-        given = Award.objects.filter(badge__name=award, user=user).count()
-
-        # How many times has this award has already been given
-        #seen = len(awards[award.name]) if award.name in awards else 0
-
         # How many times the user earned this award
-        valid_targets = award.validate(user)
-
-        # Keep targets have not been awarded
-        valid_targets = valid_targets[seen:]
+        targets = award.validate(user)
 
         # Create an award for each target
-        create_award(targets=valid_targets, user=user, award=award)
+        for target in targets:
+            date = user.profile.last_login
+            post = target if isinstance(target, Post) else None
+            badge = Badge.objects.filter(name=award.name).first()
+            Award.objects.create(user=user, badge=badge, date=date, post=post)
+
+            logger.debug("award %s created for %s" % (badge.name, user.email))
 
 
 @spool(pass_arguments=True)
@@ -67,6 +46,7 @@ def notify_followers(post, author):
     """
     Generate notification to users subscribed to a post, excluding author, a message/email.
     """
+    # TODO: make it work off of subsscriptions.
     from biostar.forum.models import Subscription
 
     # Template used to send local messages
