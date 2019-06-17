@@ -44,13 +44,16 @@ def create_user_awards(user_id):
         user.profile.state = Profile.TRUSTED
         user.save()
     # The awards the user has won at this point
-    awards = dict()
-    for award in Award.objects.filter(user=user).select_related('badge'):
-        awards.setdefault(award.badge.name, []).append(award)
+    #awards = dict()
+    #for award in Award.objects.filter(user=user).select_related('badge'):
+    #    awards.setdefault(award.badge.name, []).append(award)
 
     for award in ALL_AWARDS:
+
+        given = Award.objects.filter(badge__name=award, user=user).count()
+
         # How many times has this award has already been given
-        seen = len(awards[award.name]) if award.name in awards else 0
+        #seen = len(awards[award.name]) if award.name in awards else 0
 
         # How many times the user earned this award
         valid_targets = award.validate(user)
