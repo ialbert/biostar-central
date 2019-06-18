@@ -42,7 +42,7 @@ def create_user_awards(user_id):
 
 
 @spool(pass_arguments=True)
-def notify_followers(post, author):
+def notify_followers(subs, author):
     """
     Generate notification to users subscribed to a post, excluding author, a message/email.
     """
@@ -54,9 +54,6 @@ def notify_followers(post, author):
 
     # Template used to send emails with
     email_template = "messages/subscription_email.html"
-
-    # Everyone subscribed gets a local message.
-    subs = Subscription.objects.filter(post=post.root).exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=author))
 
     # Does the does not have subscriptions.
     if not subs:

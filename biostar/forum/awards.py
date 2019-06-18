@@ -40,7 +40,7 @@ class AwardDef(object):
             value = self.fun(*args, **kwargs).order_by("pk")
         except Exception as exc:
             logger.error("validator error %s" % exc)
-            value = []
+            return []
 
         # Award user has won at this point.
         awarded = Award.objects.filter(badge__name=self.name, user=user)

@@ -115,5 +115,8 @@ def finalize_post(sender, instance, created, **kwargs):
         # Create subscription for the author to the root.
         auth.create_subscription(post=instance.root, user=instance.author)
 
-        # Send subscription messages to all subscribed users.
+        # Get all users subscribed to root post, excluding current post author.
+        subs = Subscription.objects.filter(post=instance.root).exclude(Q(type=Subscription.NO_MESSAGES)
+                                                                       | Q(user=instance.user))
+
         tasks.notify_followers.spool(post=instance, author=instance.author)
