@@ -35,16 +35,19 @@ def get_votes(user, root):
     return store
 
 
-def create_subscription(post, user, sub_type=None):
+def create_subscription(post, user, sub_type=None, delete_exisiting=True):
     """
     Creates subscription to a post. Returns a list of subscriptions.
     """
     # Drop all existing subscriptions for the user if these exists.
     # Only one subscription may exist.
-    Subscription.objects.filter(post=post.root, user=user).delete()
+    if delete_exisiting:
+        Subscription.objects.filter(post=post.root, user=user).delete()
+        # Create the subscription to the user.
+        Subscription.objects.create(post=post.root, user=user, type=sub_type)
 
-    # Create the subscription to the user.
-    Subscription.objects.create(post=post.root, user=user, type=sub_type)
+    else:
+        pass
 
     # Recompute post subscription.
     subs_count = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES).count()

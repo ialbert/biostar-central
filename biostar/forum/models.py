@@ -173,17 +173,14 @@ class Post(models.Model):
         from biostar.utils import markdown
 
         self.lastedit_user = self.lastedit_user or self.author
+
         self.creation_date = self.creation_date or util.now()
         self.lastedit_date = util.now()
         self.last_contributor = self.lastedit_user
+
         # Sanitize the post body.
         self.html = markdown.parse(self.content, post=self)
-
         self.tag_val = self.tag_val.replace(' ', '')
-
-        self.creation_date = self.creation_date or util.now()
-
-        self.lastedit_date = self.lastedit_date or self.creation_date
 
         # Set the top level state of the post.
         self.is_toplevel = self.type in Post.TOP_LEVEL

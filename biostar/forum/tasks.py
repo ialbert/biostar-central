@@ -42,11 +42,10 @@ def create_user_awards(user_id):
 
 
 @spool(pass_arguments=True)
-def notify_followers(subs, author):
+def notify_followers(subs, author, extra_context={}):
     """
     Generate notification to users subscribed to a post, excluding author, a message/email.
     """
-    # TODO: make it work off of subsscriptions.
     from biostar.forum.models import Subscription
 
     # Template used to send local messages
@@ -61,9 +60,6 @@ def notify_followers(subs, author):
 
     # Select users that should be notified.
     users = [sub.user for sub in subs]
-
-    # Additional context for the message.
-    extra_context = dict(post=post)
 
     # Every subscribed user gets local messages with any subscription type.
     create_messages(template=local_template, extra_context=extra_context, rec_list=users, sender=author)

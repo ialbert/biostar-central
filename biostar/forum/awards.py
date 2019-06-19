@@ -31,10 +31,7 @@ class AwardDef(object):
         self.max_awarded = max_awarded
 
     def validate(self, *args, **kwargs):
-        # Get the already awarded items
-        #
-        print(kwargs)
-        1/0
+
         user = args[0]
         try:
             value = self.fun(*args, **kwargs).order_by("pk")
