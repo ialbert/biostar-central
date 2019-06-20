@@ -138,9 +138,10 @@ def user_icon(user):
     context = dict(user=user, score=score)
     return context
 
+
 @register.inclusion_tag('widgets/post_user_line.html')
-def post_user_line(post, avatar=False):
-    return dict(post=post, avatar=avatar)
+def post_user_line(post, avatar=False, short=False):
+    return dict(post=post, avatar=avatar, short=short)
 
 
 @register.inclusion_tag('widgets/user_card.html')
@@ -154,9 +155,9 @@ def post_user_box(user, post):
 
 
 @register.inclusion_tag('widgets/post_actions.html', takes_context=True)
-def post_actions(context, post, label="ADD COMMENT", avatar=False):
+def post_actions(context, post, label="ADD COMMENT", avatar=False, short=False):
     request = context["request"]
-    return dict(post=post, label=label, request=request, avatar=avatar)
+    return dict(post=post, label=label, request=request, avatar=avatar, short=short)
 
 
 @register.inclusion_tag('widgets/post_tags.html')

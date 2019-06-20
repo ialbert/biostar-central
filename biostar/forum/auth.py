@@ -39,12 +39,12 @@ def create_subscription(post, user, sub_type=None, delete_exisiting=True):
     """
     Creates subscription to a post. Returns a list of subscriptions.
     """
-    # Drop all existing subscriptions for the user if these exists.
-    # Only one subscription may exist.
+    # Drop all existing subscriptions for the user by default.
     if delete_exisiting:
         Subscription.objects.filter(post=post.root, user=user).delete()
-        # Create the subscription to the user.
+        # Create new subscription to the user.
         Subscription.objects.create(post=post.root, user=user, type=sub_type)
+    # Update an existing subscription type.
     else:
         sub, created = Subscription.objects.get_or_create(post=post.root, user=user)
         Subscription.objects.filter(pk=sub.pk).update(type=sub_type)

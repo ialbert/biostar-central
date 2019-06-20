@@ -42,8 +42,7 @@ def finalize_post(sender, instance, created, **kwargs):
                                              last_contributor=instance.last_contributor,
                                              lastedit_date=instance.lastedit_date)
 
-    # Get newly created subscriptions
-    # Additional context for subscription messages.
+    # Get newly created subscriptions since the last edit date.
     extra_context = dict(post=instance)
     subs = Subscription.objects.filter(date__gte=instance.lastedit_date, post=instance.root)
     if created:
@@ -91,7 +90,7 @@ def finalize_post(sender, instance, created, **kwargs):
         instance.root.thread_users.remove(instance.lastedit_user)
         instance.root.thread_users.add(instance.lastedit_user)
 
-        # Update the post rank on create and not every edit.
+        # Update this post rank on create and not every edit.
         instance.rank = instance.lastedit_date.timestamp()
 
         # Save the instance.
