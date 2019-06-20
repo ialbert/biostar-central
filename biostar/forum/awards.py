@@ -41,13 +41,14 @@ class AwardDef(object):
 
         # Award user has won at this point.
         awarded = Award.objects.filter(badge__name=self.name, user=user)
-        # Exclude targets already awarded
+
+        # Exclude targets that already awarded.
         if isinstance(value, Post):
             value = value.exclude(id__in=awarded.post_set)
         else:
             value = value.exclude(pk=user.id)
 
-        # Ensure users does not receive multiple awards when not necessary
+        # Ensure users does not get over awarded.
         if self.max_awarded and len(awarded) >= self.max_awarded:
             return []
 

@@ -1,8 +1,6 @@
 import logging
-from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.shortcuts import reverse
 from taggit.models import Tag
 from .models import Post, Award, Subscription
 from . import tasks, auth, util
@@ -11,20 +9,19 @@ from django.db.models import F, Q
 logger = logging.getLogger("biostar")
 
 
-# @receiver(post_save, sender=Award)
-# def send_award_message(sender, instance, created, **kwargs):
-#     """
-#     Send message to users when they receive an award.
-#     """
-#     template = "messages/awards_created.md"
-#     badge_url = reverse('badge_view', kwargs=dict(uid=instance.badge.uid))
-#     context = dict(badge_url=badge_url, award=instance, post=instance.post)
-#
-#     if created:
-#         # Send local message synchronously
-#         tasks.create_messages(template=template, extra_context=context, rec_list=[instance.user])
-#     return
-#
+@receiver(post_save, sender=Award)
+def send_award_message(sender, instance, created, **kwargs):
+    """
+    Send message to users when they receive an award.
+    """
+    if created:
+        template = "messages/awards_created.md"
+        context = dict(award=instance)
+        # Send local message
+        tasks.create_messages(template=template, extra_context=context, rec_list=[instance.user])
+
+    return
+
 
 @receiver(post_save, sender=Post)
 def finalize_post(sender, instance, created, **kwargs):
@@ -43,23 +40,14 @@ def finalize_post(sender, instance, created, **kwargs):
                                              lastedit_date=instance.lastedit_date)
 
     # Get newly created subscriptions since the last edit date.
-    extra_context = dict(post=instance)
     subs = Subscription.objects.filter(date__gte=instance.lastedit_date, post=instance.root)
+
     if created:
         # Make the Uid user friendly
         instance.uid = instance.uid or f"p{instance.pk}"
 
-        # Set the titles
-        if instance.parent and not instance.title:
-            instance.title = instance.parent.title
-
-        # Only comments may be added to a parent that is answer or comment.
-        if instance.parent and instance.parent.type in (Post.ANSWER, Post.COMMENT):
-            instance.type = Post.COMMENT
-
-        # Set post type if it was left empty.
-        if instance.type is None:
-            instance.type = Post.COMMENT if instance.parent else Post.FORUM
+        # Set post type.
+        instance.type = instance.type or (Post.COMMENT if instance.parent else Post.QUESTION)
 
         # This runs only once upon object creation.
         instance.title = instance.parent.title if instance.parent else instance.title
@@ -119,8 +107,10 @@ def finalize_post(sender, instance, created, **kwargs):
         # Create subscription for the author to the root.
         auth.create_subscription(post=instance.root, user=instance.author)
 
-        # Get all users subscribed to root post, excluding current post author.
-        subs = Subscription.objects.filter(post=instance.root).exclude(Q(type=Subscription.NO_MESSAGES)
-                                                                       | Q(user=instance.author))
+        # Get all subscribed users when a new post is created
+        subs = Subscription.objects.filter(post=instance.root)
 
+    # Exclude current authors from receiving messages from themselves
+    subs = subs.exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=instance.author))
+    extra_context = dict(post=instance)
     tasks.notify_followers.spool(subs=subs, author=instance.author, extra_context=extra_context)
