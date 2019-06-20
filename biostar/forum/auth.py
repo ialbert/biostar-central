@@ -45,9 +45,9 @@ def create_subscription(post, user, sub_type=None, delete_exisiting=True):
         Subscription.objects.filter(post=post.root, user=user).delete()
         # Create the subscription to the user.
         Subscription.objects.create(post=post.root, user=user, type=sub_type)
-
     else:
-        pass
+        sub, created = Subscription.objects.get_or_create(post=post.root, user=user)
+        Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
 
     # Recompute post subscription.
     subs_count = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES).count()

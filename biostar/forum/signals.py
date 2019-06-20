@@ -43,13 +43,9 @@ def finalize_post(sender, instance, created, **kwargs):
                                              lastedit_date=instance.lastedit_date)
 
     # Get newly created subscriptions
-    # Additional context for the message.
+    # Additional context for subscription messages.
     extra_context = dict(post=instance)
-    new_subs = Subscription.objects.filter(date__gte=instance.lastedit_date, post=instance.root)
-    tasks.notify_followers.spool(subs=new_subs, author=instance.author, extra_context=extra_context)
-
-    print(Subscription.objects.filter(date__gte=instance.lastedit_date, post=instance.root))
-    1/0
+    subs = Subscription.objects.filter(date__gte=instance.lastedit_date, post=instance.root)
     if created:
         # Make the Uid user friendly
         instance.uid = instance.uid or f"p{instance.pk}"
@@ -126,6 +122,6 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Get all users subscribed to root post, excluding current post author.
         subs = Subscription.objects.filter(post=instance.root).exclude(Q(type=Subscription.NO_MESSAGES)
-                                                                       | Q(user=instance.user))
+                                                                       | Q(user=instance.author))
 
-        tasks.notify_followers.spool(subs=subs, author=instance.author, extra_context=extra_context)
+    tasks.notify_followers.spool(subs=subs, author=instance.author, extra_context=extra_context)
