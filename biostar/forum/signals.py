@@ -46,15 +46,6 @@ def finalize_post(sender, instance, created, **kwargs):
         # Make the Uid user friendly
         instance.uid = instance.uid or f"p{instance.pk}"
 
-        # Set post type.
-        instance.type = instance.type or (Post.COMMENT if instance.parent else Post.QUESTION)
-
-        # This runs only once upon object creation.
-        instance.title = instance.parent.title if instance.parent else instance.title
-
-        # Default tags
-        instance.tag_val = instance.tag_val or "tag1,tag2"
-
         if instance.parent:
             # When the parent is set the root must follow the parent root.
             instance.root = instance.parent.root
@@ -84,22 +75,19 @@ def finalize_post(sender, instance, created, **kwargs):
         # Save the instance.
         instance.save()
 
-        # Update the root reply count for non toplevel posts.
-        if not instance.is_toplevel:
-            Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
+        descendants = Post.objects.filter(root=instance.root).exclude(pk=instance.root.pk)
+        children = Post.objects.filter(parent=instance.parent).exclude(pk=instance.parent.pk)
+        answer_count = descendants.filter(type=Post.ANSWER).count()
+        comment_count = descendants.filter(type=Post.COMMENT).count()
+        reply_count = descendants.count()
 
-        # Update the root answer count
-        if instance.type == Post.ANSWER:
-            Post.objects.filter(id=instance.root.id).update(answer_count=F("answer_count") + 1)
+        # Update the root answer and comment  count
+        Post.objects.filter(pk=instance.root.pk).update(reply_count=reply_count, answer_count=answer_count,
+                                                        comment_count=comment_count)
 
-        # Update root comment count
-        if instance.type == Post.COMMENT:
-            Post.objects.filter(id=instance.root.id).update(comment_count=F("comment_count") + 1)
-            Post.objects.filter(pk=instance.parent.pk, is_toplevel=False).update(comment_count=F("comment_count") + 1)
-
-        # Update the parent reply counts.
-        if instance.parent != instance.root:
-            Post.objects.filter(pk=instance.parent.pk).update(reply_count=F("reply_count") + 1)
+        com_count = children.filter(type=Post.COMMENT).count()
+        Post.objects.filter(pk=instance.parent.pk, is_toplevel=False).update(comment_count=com_count,
+                                                                             reply_count=children.count())
 
         # Bump the root rank when a new descendant is added.
         Post.objects.filter(uid=instance.root.uid).update(rank=util.now().timestamp())

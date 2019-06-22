@@ -19,7 +19,7 @@ def wrap_qs(cond, klass, pk):
 
 
 class AwardDef(object):
-    def __init__(self, name, desc, func, icon, max_awarded=None, type=Badge.BRONZE):
+    def __init__(self, name, desc, func, icon, max=None, type=Badge.BRONZE):
         self.name = name
         self.desc = desc
         self.fun = func
@@ -28,7 +28,7 @@ class AwardDef(object):
         self.type = type
         # Max number of times this award can be given
         # No limit if left empty.
-        self.max_awarded = max_awarded
+        self.max = max
 
     def validate(self, *args, **kwargs):
 
@@ -48,8 +48,8 @@ class AwardDef(object):
         else:
             value = value.exclude(pk=user.id)
 
-        # Ensure users does not get over awarded.
-        if self.max_awarded and len(awarded) >= self.max_awarded:
+        # Ensure users does not get over rewarded.
+        if self.max and len(awarded) >= self.max:
             return []
 
         return value
@@ -66,7 +66,7 @@ AUTOBIO = AwardDef(
     name="Autobiographer",
     desc="has more than 80 characters in the information field of the user's profile",
     func=lambda user: wrap_qs(len(user.profile.text) > 80, User, user.id),
-    max_awarded=1,
+    max=1,
     icon="bullhorn icon"
 )
 
@@ -74,7 +74,7 @@ GOOD_QUESTION = AwardDef(
     name="Good Question",
     desc="asked a question that was upvoted at least 5 times",
     func=lambda user: Post.objects.filter(vote_count__gte=5, author=user, type=Post.QUESTION),
-    max_awarded=1,
+    max=1,
     icon="question icon"
 )
 
@@ -82,7 +82,7 @@ GOOD_ANSWER = AwardDef(
     name="Good Answer",
     desc="created an answer that was upvoted at least 5 times",
     func=lambda user: Post.objects.filter(vote_count__gt=5, author=user, type=Post.ANSWER),
-    max_awarded=1,
+    max=1,
     icon="edit outline icon"
 )
 
@@ -90,7 +90,7 @@ STUDENT = AwardDef(
     name="Student",
     desc="asked a question with at least 3 up-votes",
     func=lambda user: Post.objects.filter(vote_count__gt=2, author=user, type=Post.QUESTION),
-    max_awarded=1,
+    max=1,
     icon="certificate icon"
 )
 
@@ -98,7 +98,7 @@ TEACHER = AwardDef(
     name="Teacher",
     desc="created an answer with at least 3 up-votes",
     func=lambda user: Post.objects.filter(vote_count__gt=2, author=user, type=Post.ANSWER),
-    max_awarded=1,
+    max=1,
     icon="smile outline icon"
 )
 
@@ -106,7 +106,7 @@ COMMENTATOR = AwardDef(
     name="Commentator",
     desc="created a comment with at least 3 up-votes",
     func=lambda user: Post.objects.filter(vote_count__gt=2, author=user, type=Post.COMMENT),
-    max_awarded=1,
+    max=1,
     icon="comment icon"
 )
 
@@ -114,7 +114,7 @@ CENTURION = AwardDef(
     name="Centurion",
     desc="created 100 posts",
     func=lambda user: wrap_qs(Post.objects.filter(author=user).count() > 100, User, user.id),
-    max_awarded=1,
+    max=1,
     icon="bolt icon",
     type=Badge.SILVER,
 )
@@ -123,7 +123,7 @@ EPIC_QUESTION = AwardDef(
     name="Epic Question",
     desc="created a question with more than 10,000 views",
     func=lambda user: Post.objects.filter(author=user, view_count__gt=10000),
-    max_awarded=1,
+    max=1,
     icon="bullseye icon",
     type=Badge.GOLD,
 )
@@ -132,7 +132,7 @@ POPULAR = AwardDef(
     name="Popular Question",
     desc="created a question with more than 1,000 views",
     func=lambda user: Post.objects.filter(author=user, view_count__gt=1000),
-    max_awarded=1,
+    max=1,
     icon="eye icon",
     type=Badge.GOLD,
 )
@@ -141,7 +141,7 @@ ORACLE = AwardDef(
     name="Oracle",
     desc="created more than 1,000 posts (questions + answers + comments)",
     func=lambda user: wrap_qs(Post.objects.filter(author=user).count() > 1000, User, user.id),
-    max_awarded=1,
+    max=1,
     icon="sun icon",
     type=Badge.GOLD,
 )
@@ -150,7 +150,7 @@ PUNDIT = AwardDef(
     name="Pundit",
     desc="created a comment with more than 10 votes",
     func=lambda user: Post.objects.filter(author=user, type=Post.COMMENT, vote_count__gt=10),
-    max_awarded=1,
+    max=1,
     icon="comments icon",
     type=Badge.SILVER,
 )
@@ -159,7 +159,7 @@ GURU = AwardDef(
     name="Guru",
     desc="received more than 100 upvotes",
     func=lambda user: wrap_qs(Vote.objects.filter(post__author=user).count() > 100, User, user.id),
-    max_awarded=1,
+    max=1,
     icon="beer icon",
     type=Badge.SILVER,
 )
@@ -168,7 +168,7 @@ CYLON = AwardDef(
     name="Cylon",
     desc="received 1,000 up votes",
     func=lambda user: wrap_qs(Vote.objects.filter(post__author=user).count() > 1000, User, user.id),
-    max_awarded=1,
+    max=1,
     icon="rocket icon",
     type=Badge.GOLD,
 )
@@ -177,7 +177,7 @@ VOTER = AwardDef(
     name="Voter",
     desc="voted more than 100 times",
     func=lambda user: wrap_qs(Vote.objects.filter(author=user).count() > 100, User, user.id),
-    max_awarded=1,
+    max=1,
     icon="thumbs up outline"
 )
 
@@ -185,7 +185,7 @@ SUPPORTER = AwardDef(
     name="Supporter",
     desc="voted at least 25 times",
     func=lambda user: wrap_qs(Vote.objects.filter(author=user).count() > 25, User, user.id),
-    max_awarded=1,
+    max=1,
     icon="thumbs up icon",
     type=Badge.SILVER,
 )
@@ -194,7 +194,7 @@ SCHOLAR = AwardDef(
     name="Scholar",
     desc="created an answer that has been accepted",
     func=lambda user: Post.objects.filter(author=user, type=Post.ANSWER, accept_count__gt=0),
-    max_awarded=1,
+    max=1,
     icon="check circle outline icon"
 )
 
@@ -202,7 +202,7 @@ PROPHET = AwardDef(
     name="Prophet",
     desc="created a post with more than 20 followers",
     func=lambda user: Post.objects.filter(author=user, type__in=Post.TOP_LEVEL, subs_count__gt=20),
-    max_awarded=1,
+    max=1,
     icon="leaf icon"
 )
 
@@ -210,7 +210,7 @@ LIBRARIAN = AwardDef(
     name="Librarian",
     desc="created a post with more than 10 bookmarks",
     func=lambda user: Post.objects.filter(author=user, type__in=Post.TOP_LEVEL, book_count__gt=10),
-    max_awarded=1,
+    max=1,
     icon="bookmark outline icon"
 )
 
@@ -226,7 +226,7 @@ RISING_STAR = AwardDef(
     desc="created 50 posts within first three months of joining",
     func=rising_star,
     icon="star icon",
-    max_awarded=1,
+    max=1,
     type=Badge.GOLD,
 )
 

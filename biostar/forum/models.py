@@ -181,7 +181,8 @@ class Post(models.Model):
         # Sanitize the post body.
         self.html = markdown.parse(self.content, post=self)
         self.tag_val = self.tag_val.replace(' ', '')
-
+        # Default tags
+        self.tag_val = self.tag_val or "tag1,tag2"
         # Set the top level state of the post.
         self.is_toplevel = self.type in Post.TOP_LEVEL
 
