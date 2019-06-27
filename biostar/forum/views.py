@@ -130,7 +130,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
 
 @ensure_csrf_cookie
-def post_list(request, show=None):
+def post_list(request, show=None, extra_context=dict()):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
@@ -161,7 +161,7 @@ def post_list(request, show=None):
 
     # Fill in context.
     context = dict(posts=posts, tab=tab, tag=tag, order=order, limit=limit)
-
+    context.update(extra_context)
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
 
@@ -176,7 +176,8 @@ def myvotes(request):
     """
     Show posts by user that received votes
     """
-    return post_list(request, show=MYVOTES)
+    extra_context = dict(display_feed="myvotes")
+    return post_list(request, show=MYVOTES, extra_context=extra_context)
 
 
 @authenticated

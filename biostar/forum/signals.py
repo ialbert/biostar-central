@@ -64,7 +64,7 @@ def finalize_post(sender, instance, created, **kwargs):
         if not instance.is_toplevel:
             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
 
-        # Make last editor of post the first in the list of contributors
+        # Make the last editor first in the list of contributors
         # Done on post creation to avoid mods being added to list for editing a post.
         instance.root.thread_users.remove(instance.lastedit_user)
         instance.root.thread_users.add(instance.lastedit_user)
@@ -76,23 +76,23 @@ def finalize_post(sender, instance, created, **kwargs):
         instance.save()
 
         descendants = Post.objects.filter(root=instance.root).exclude(pk=instance.root.pk)
-        children = Post.objects.filter(parent=instance.parent).exclude(pk=instance.parent.pk)
         answer_count = descendants.filter(type=Post.ANSWER).count()
         comment_count = descendants.filter(type=Post.COMMENT).count()
         reply_count = descendants.count()
-
-        # Update the root answer and comment  count
+        # Update the root reply, answer, and comment counts.
         Post.objects.filter(pk=instance.root.pk).update(reply_count=reply_count, answer_count=answer_count,
                                                         comment_count=comment_count)
 
+        children = Post.objects.filter(parent=instance.parent).exclude(pk=instance.parent.pk)
         com_count = children.filter(type=Post.COMMENT).count()
+        # Update parent reply, answer, and comment counts.
         Post.objects.filter(pk=instance.parent.pk, is_toplevel=False).update(comment_count=com_count,
                                                                              reply_count=children.count())
 
         # Bump the root rank when a new descendant is added.
         Post.objects.filter(uid=instance.root.uid).update(rank=util.now().timestamp())
 
-        # Create subscription for the author to the root.
+        # Create subscription to the root.
         auth.create_subscription(post=instance.root, user=instance.author)
 
         # Get all subscribed users when a new post is created

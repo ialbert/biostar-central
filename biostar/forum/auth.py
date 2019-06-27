@@ -251,7 +251,7 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
 
     if dupes:
         # Change post status to closed.
-        Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
+        Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
         # Load comment explaining post closure.
         tmpl = loader.get_template("messages/duplicate_posts.md")
         context = dict(user=post.author, dupes=dupes, comment=comment)

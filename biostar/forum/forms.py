@@ -135,18 +135,18 @@ class PostModForm(forms.Form):
         (TOGGLE_ACCEPT, "Toggle accepted status"),
         (MOVE_TO_ANSWER, "Move post to an answer"),
         (DELETE, "Delete post"),
+        (OFFTOPIC, "Post is off topic")
     ]
 
     action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action", required=False )
     dupe = forms.CharField(required=False, max_length=200,
-                           help_text="""One or more duplicated link, 
-                                        comma separated (required for duplicate closing).
-                                       """,
+                           help_text="One or more link, comma separated (required for duplicate closing).",
                            label="Duplicate Link(s)")
     pid = forms.CharField(required=False, max_length=200,
-                           help_text=""" Parent uid to move comment under.
-                                     """,
-                           label="Duplicate Link(s)")
+                          help_text="Parent id to move comment under.", label="Parent id")
+    offtopic = forms.CharField(required=False, max_length=200,
+                               help_text="The reason why this post is off topic ( required for off topic",
+                               label="Duplicate Link(s)")
 
     def __init__(self, post, request, user, *args, **kwargs):
         self.post = post
