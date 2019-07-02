@@ -19,7 +19,6 @@ urlpatterns = [
     path('p/<str:uid>/', views.post_view, name='post_view'),
 
     path('new/post/', views.new_post, name='post_create'),
-    path('new/answer/<str:uid>/', views.new_answer, name='post_answer'),
     path('new/comment/<str:uid>/', views.new_comment, name="create_comment"),
 
 
