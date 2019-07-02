@@ -27,15 +27,24 @@ def create_user_awards(user_id):
 
     user = User.objects.filter(id=user_id).first()
 
+    # debugging
+    #Award.objects.all().delete()
+
     for award in ALL_AWARDS:
-        # How many times the user earned this award
+        # Valid award targets the user has earned
         targets = award.validate(user)
 
-        # Create an award for each target
         for target in targets:
             date = user.profile.last_login
             post = target if isinstance(target, Post) else None
             badge = Badge.objects.filter(name=award.name).first()
+
+            # Do not award a post multiple times.
+            already_awarded = Award.objects.filter(user=user, badge=badge, post=post).exists()
+            if post and already_awarded:
+                continue
+
+            # Create an award for each target.
             Award.objects.create(user=user, badge=badge, date=date, post=post)
 
             logger.debug("award %s created for %s" % (badge.name, user.email))

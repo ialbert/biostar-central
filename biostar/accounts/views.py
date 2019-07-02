@@ -147,7 +147,7 @@ def message_list(request):
     request.session.update(dict(counts=counts))
 
     context = dict(tab="messages", all_messages=msgs)
-    return render(request, "messages/message_list.html", context)
+    return render(request, "message_list.html", context)
 
 
 def user_profile(request, uid):

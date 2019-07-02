@@ -1,6 +1,5 @@
 # Action codes.
-BUMP_POST, MOD_OPEN, TOGGLE_ACCEPT, MOVE_TO_ANSWER, \
-MOVE_TO_COMMENT, DUPLICATE, OFFTOPIC, DELETE = range(8)
+BUMP_POST, MOD_OPEN, TOGGLE_ACCEPT, MOVE_POST, DUPLICATE, OFFTOPIC, DELETE = range(7)
 
 # Valid values for the order GET parameter.
 RANK, VIEWS, REPLIES = ("rank", "views", "replies")

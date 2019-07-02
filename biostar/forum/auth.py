@@ -98,7 +98,7 @@ def post_tree(user, root):
             comment_tree.setdefault(post.parent_id, []).append(post)
         post.has_bookmark = int(post.id in bookmarks)
         post.has_upvote = int(post.id in upvotes)
-        post.can_accept = not post.is_toplevel and user == post.root.author
+        post.can_accept = not post.is_toplevel and (user == post.root.author or user.profile.is_moderator)
         post.can_moderate = user.is_authenticated and user.profile.is_moderator
         post.is_editable = user.is_authenticated and (user == post.author or user.profile.is_moderator)
         return post
@@ -209,7 +209,18 @@ def delete_post(post, request):
     return url
 
 
-def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
+def off_topic(post, content, user, ptype=None):
+    Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
+    # Load comment explaining post closure.
+    default = Post.ANSWER if post.is_toplevel else Post.COMMENT
+    ptype = ptype or default
+
+    # Create an anwser or comment with explanation as to why post is off topic.
+    Post.objects.create(content=content, type=ptype, parent=post, author=user)
+    return
+
+
+def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pid=None):
     root = post.root
     user = request.user
     now = datetime.datetime.utcnow().replace(tzinfo=utc)
@@ -228,39 +239,29 @@ def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
     if action == DELETE:
         return delete_post(post=post, request=request)
 
-    if action == TOGGLE_ACCEPT:
-        # Recompute accept count for post
-        change = -1 if post.has_accepted else + 1
-        Post.objects.filter(uid=post.uid).update(accept_count=F("accept_count") + change)
-        Post.objects.filter(uid=root.uid).update(accept_count=F("accept_count") + change)
-
-        return url
-
-    if action == MOVE_TO_ANSWER:
-        Post.objects.filter(uid=post.uid).update(type=Post.ANSWER, parent=post.root)
-        Post.objects.filter(uid=root.uid).update(reply_count=F("answer_count") + 1)
-        messages.success(request, "Moved comment to answer")
-        return url
-
-    if action == MOVE_TO_COMMENT or pid:
+    if pid:
         parent = Post.objects.filter(uid=pid).first() or post.root
         Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
         Post.objects.filter(uid=root.uid).update(reply_count=F("answer_count") - 1)
         messages.success(request, "Moved answer to comment")
         return url
 
-    if dupes:
-        # Change post status to closed.
-        Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
+    if offtopic:
         # Load comment explaining post closure.
+        tmpl = loader.get_template("messages/off_topic.md")
+        context = dict(user=post.author, offtopic=offtopic)
+        content = tmpl.render(context)
+        off_topic(post=post, content=content, user=user)
+        return url
+
+    if dupes:
+        # Load comment explaining post off topic label.
         tmpl = loader.get_template("messages/duplicate_posts.md")
         context = dict(user=post.author, dupes=dupes, comment=comment)
         content = tmpl.render(context)
-        # Create a comment with explanation as to why post is closed.
-        Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
+        off_topic(post=post, content=content, user=user, ptype=Post.COMMENT)
         return url
 
-    messages.error(request, "Invalid moderation action given")
     return url
 
 

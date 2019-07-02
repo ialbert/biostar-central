@@ -17,7 +17,7 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
 from biostar.accounts.models import Profile, Message
-from biostar.forum import const
+from biostar.forum import const, search
 from biostar.forum.models import Post, Vote, Award, Subscription
 
 User = get_user_model()
@@ -224,11 +224,19 @@ def follow_label(context, post):
     return label
 
 
+def get_tags(post):
+
+    tags_opts = {val: True for val in post.tag_val.split(",")}
+
+    return
+
+
 @register.inclusion_tag('widgets/form_errors.html')
 def form_errors(form):
     """
     Turns form errors into a data structure
     """
+    print(form.errors, "errors")
 
     try:
         errorlist = [('', message) for message in form.non_field_errors()]
@@ -275,13 +283,11 @@ def single_post_feed(post):
     """
     Return single post feed populated with similar posts.
     """
-    tags = post.tag_val.split(",")
+    #tags = post.tag_val.split(",")
 
-    # Gather similar posts
-    posts = Post.objects.exclude(uid=post.uid).filter(tags__name__in=tags,
-                                                      type__in=Post.TOP_LEVEL)[:settings.SINGLE_FEED_COUNT]
-    posts = posts.select_related("author__profile")
-    context = dict(posts=posts)
+    #
+    search.search_index(query=post.title)
+    context = dict()
     return context
 
 

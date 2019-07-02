@@ -133,8 +133,7 @@ class BiostarInlineLexer(MonkeyPatch):
             link = f'<a href="{profile}">{user.profile.name}</a>'
             # Subscribe mentioned users to post.
             if self.root:
-                # Check if it already exists
-                # If it exists, then do not do anything
+                # Create user subscription if it does not already exist.
                 auth.create_subscription(post=self.root, user=user, delete_exisiting=False)
         else:
             link = m.group(0)

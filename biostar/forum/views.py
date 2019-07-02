@@ -52,13 +52,6 @@ ORDER_MAPPER = dict(
 )
 
 
-def authenticated(func):
-    def _wrapper_(request, **kwargs):
-        if request.user.is_anonymous:
-            messages.error(request, "You need to be logged in to view this page.")
-        return func(request, **kwargs)
-    return _wrapper_
-
 
 def post_exists(func):
     """
@@ -171,6 +164,14 @@ def latest(request):
     return post_list(request, show=show)
 
 
+def authenticated(func):
+    def _wrapper_(request, **kwargs):
+        if request.user.is_anonymous:
+            messages.error(request, "You need to be logged in to view this page.")
+        return func(request, **kwargs)
+    return _wrapper_
+
+
 @authenticated
 def myvotes(request):
     """
@@ -262,11 +263,18 @@ def post_view(request, uid):
     # Get the post.
     post = Post.objects.filter(uid=uid).first()
 
-    # Redirect non-top level posts.
-    if not post.is_toplevel:
-        return redirect(post.get_absolute_url())
+    if request.method == "POST":
+        form = forms.PostShortForm(data=request.POST)
+        if form.is_valid():
+            author = request.user
+            content = form.cleaned_data.get("content")
+            # Create answer to root
+            answer = auth.create_post(title=post.title, parent=post, author=author,
+                                      content=content, post_type=Post.ANSWER, root=post.root)
+            tasks.created_post.spool(pid=answer.id)
+            return redirect(answer.get_absolute_url())
 
-    # auth.update_post_views(post=obj, request=request)
+    #auth.update_post_views(post=obj, request=request)
 
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
@@ -297,6 +305,7 @@ def new_answer(request, uid):
 
             # Anchor location to recently created answer
             url = answer.get_absolute_url()
+        print(form.errors)
 
     return redirect(url)
 
@@ -360,24 +369,10 @@ def new_post(request):
 @post_exists
 @login_required
 def post_moderate(request, uid):
+    """Used to make dispaly post moderate form given a post request."""
     user = request.user
     post = Post.objects.filter(uid=uid).first()
-
-    if request.method == "POST":
-
-        form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
-
-        if form.is_valid():
-            action = form.cleaned_data["action"]
-            duplicate = form.cleaned_data["dupe"]
-            pid = form.cleaned_data.get("pid", "")
-            redir = auth.moderate_post(post=post, request=request, action=action, dupes=duplicate, pid=pid)
-            return redirect(redir)
-        else:
-            messages.error(request, "Invalid moderation error.")
-            return redirect(reverse("post_view", kwargs=dict(uid=uid)))
-    else:
-        form = forms.PostModForm(post=post, user=user, request=request)
+    form = forms.PostModForm(post=post, user=user, request=request)
 
     context = dict(form=form, post=post)
     return render(request, "post_moderate.html", context)
@@ -392,28 +387,17 @@ def edit_post(request, uid):
     post = Post.objects.filter(uid=uid).first()
     action_url = reverse("post_edit", kwargs=dict(uid=post.uid))
     user = request.user
-    tags_opts = {val: True for val in post.tag_val.split(",")}
-    selected = post.tag_val
+    initial = dict(content=post.content, title=post.title, tag_val=post.tag_val, post_type=post.type)
 
-    if post.is_toplevel:
-        template, form_class = "new_post.html", forms.PostLongForm
-        initial = dict(content=post.content, title=post.title, tag_val=post.tag_val, post_type=post.type)
-    else:
-        template, form_class = "shortpost_edit.html", forms.PostShortForm
-        initial = dict(content=post.content)
+    form = forms.PostLongForm(post=post, initial=initial, user=user)
 
-    form = form_class(post=post, initial=initial, user=user)
     if request.method == "POST":
-        form = form_class(post=post, initial=initial, data=request.POST, user=user)
+        form = forms.PostLongForm(post=post, initial=initial, data=request.POST, user=user)
         if form.is_valid():
             form.edit()
             messages.success(request, f"Edited :{post.title}")
             return redirect(post.get_absolute_url())
-        tags_opts = {val: True for val in request.POST.get('tag_val', '').split(",")}
-        selected = request.POST.get('tag_val', '')
 
-    tags_opts = tags_opts.items()
-    context = dict(form=form, post=post, action_url=action_url, form_title="Edit post",
-                   tags_opt=tags_opts, selected=selected, content=post.content)
+    context = dict(form=form, post=post, action_url=action_url, form_title="Edit post", content=post.content)
 
-    return render(request, template, context)
+    return render(request, "new_post.html", context)

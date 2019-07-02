@@ -163,6 +163,10 @@ class Post(models.Model):
     def is_comment(self):
         return self.type == Post.COMMENT
 
+    @property
+    def is_answer(self):
+        return self.type == Post.ANSWER
+
     def get_absolute_url(self):
         url = reverse("post_view", kwargs=dict(uid=self.root.uid))
         return url if self.is_toplevel else "%s#%s" % (url, self.uid)

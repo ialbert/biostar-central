@@ -58,7 +58,7 @@ class PostLongForm(forms.Form):
                               """,
                               widget=forms.HiddenInput())
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
-                              min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content")
+                              min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content", strip=False)
 
     def __init__(self, post=None, user=None, *args, **kwargs):
         self.post = post
@@ -108,18 +108,6 @@ class PostShortForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['content'].strip = False
 
-    def edit(self):
-        data = self.cleaned_data
-
-        content = data.get("content")
-
-        if self.user != self.post.author and not self.user.profile.is_moderator:
-            raise forms.ValidationError("Only the author or a moderator can edit a post.")
-
-        self.post.content = content
-        self.post.save()
-        return self.post
-
 
 class CommentForm(forms.Form):
 
@@ -127,67 +115,46 @@ class CommentForm(forms.Form):
     content = forms.CharField( widget=forms.Textarea,min_length=2, max_length=5000)
 
 
-class PostModForm(forms.Form):
-
-    CHOICES = [
+def mod_choices(post):
+    choices = [
         (BUMP_POST, "Bump a post"),
         (MOD_OPEN, "Open a closed or deleted post"),
-        (TOGGLE_ACCEPT, "Toggle accepted status"),
-        (MOVE_TO_ANSWER, "Move post to an answer"),
-        (DELETE, "Delete post"),
-        (OFFTOPIC, "Post is off topic")
+        (DELETE, "Delete post")
     ]
 
-    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action", required=False )
-    dupe = forms.CharField(required=False, max_length=200,
-                           help_text="One or more link, comma separated (required for duplicate closing).",
-                           label="Duplicate Link(s)")
-    pid = forms.CharField(required=False, max_length=200,
-                          help_text="Parent id to move comment under.", label="Parent id")
-    offtopic = forms.CharField(required=False, max_length=200,
-                               help_text="The reason why this post is off topic ( required for off topic",
-                               label="Duplicate Link(s)")
+    allowed = []
+
+    # Moderation options for top level posts
+    allowed += [BUMP_POST] if post.is_toplevel else []
+
+    # Open/Off topic moderation options
+    allowed += [MOD_OPEN] if post.status in [post.OFFTOPIC, post.DELETED] else [DELETE]
+
+    # Filter the appropriate choices
+    choices = filter(lambda action: action[0] in allowed if allowed else True, choices)
+
+    return choices
+
+
+class PostModForm(forms.Form):
 
     def __init__(self, post, request, user, *args, **kwargs):
         self.post = post
         self.user = user
         self.request = request
+
         super(PostModForm, self).__init__(*args, **kwargs)
 
-    def clean(self):
-        cleaned_data = super(PostModForm, self).clean()
-        action = cleaned_data.get("action")
-        dupe = cleaned_data.get("dupe")
-        pid = cleaned_data.get("pid").strip()
-        cleaned_data["pid"] = pid
+        choices = mod_choices(post=self.post)
 
-        if (action is None) and not (dupe or pid):
-            raise forms.ValidationError("Select an action")
+        if self.post.is_toplevel:
+            self.fields['dupe'] = forms.CharField(required=False, max_length=200)
+            self.fields['comment'] = forms.CharField(required=False, max_length=200)
+        else:
+            self.fields['pid'] = forms.CharField(required=False, max_length=200, label="Parent id")
 
-        if not (self.user.profile.is_moderator or self.user.profile.is_manager):
-            raise forms.ValidationError("Only a moderator/manager may perform these actions")
-
-        if action in (DUPLICATE, BUMP_POST) and not self.post.is_toplevel:
-            raise forms.ValidationError("You can only perform these actions to a top-level post")
-        if action in (TOGGLE_ACCEPT, MOVE_TO_COMMENT) and self.post.type != Post.ANSWER:
-            raise forms.ValidationError("You can only perform these actions to an answer.")
-        if action == MOVE_TO_ANSWER and self.post.type != Post.COMMENT:
-            raise forms.ValidationError("You can only perform these actions to a comment.")
-
-        parent = Post.objects.filter(uid=pid).first()
-        if not parent and pid:
-            raise forms.ValidationError(f"Parent uid : {parent} does not exist.")
-
-        if parent and parent.root != self.post.root:
-            raise forms.ValidationError(f"Parent does not share the same root.")
-
-        if dupe:
-            dupe = dupe.replace(",", " ")
-            dupes = dupe.split()[:5]
-            cleaned_data['dupe'] = dupes
-
-        return cleaned_data
-
+        self.fields['offtopic'] = forms.CharField(required=False, max_length=200)
+        self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=False)
 
 
 

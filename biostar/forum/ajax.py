@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.db.models import F
 from ratelimit.decorators import ratelimit
-
+from .const import *
 from biostar.accounts.models import Profile
 from . import auth, util, forms, tasks
 from .models import Post, Vote, Subscription
@@ -140,3 +140,53 @@ def ajax_edit(request):
     # Note: returns html instead of JSON on success.
     # Used to switch content inplace.
     return ajax_success(msg=post.html)
+
+
+def validate_moderation(request, post):
+
+    action = request.POST.get("action")
+    dupe = request.POST.get("dupe")
+    dupes = dupe.split(",")[:5]
+    dupe_comment = request.POST.get("comment")
+    mod_uid = request.POST.get("mod_uid")
+    offtopic = request.POST.get("offtopic")
+    is_valid, msg = False, "Invalid"
+
+    if (action is None) and not (dupe or mod_uid):
+        msg = "Select an action."
+    if action == BUMP_POST and not post.is_toplevel:
+        msg = "You can only perform this action to a top-level post"
+
+    auth.moderate_post(post=post, request=request, action=action, comment=dupe_comment,
+                       dupes=dupes, pid=mod_uid, offtopic=offtopic)
+
+    parent = Post.objects.filter(uid=mod_uid).first()
+    if not parent and mod_uid:
+        msg = f"Parent id: {mod_uid} does not exist."
+
+    if parent.root != post.root:
+        msg = f"Parent does not share the same root."
+
+    return is_valid, msg
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def ajax_moderate(request):
+    user = request.user
+    is_moderator = user.is_authenticated and user.profile.is_moderator
+    uid = request.POST.get("uid")
+    post = Post.objects.filter(uid=uid).first()
+
+    # Bail out on errors
+    if not is_moderator:
+        return ajax_error(msg="You need to be a moderator to preform this action.")
+    if not post:
+        return ajax_error(msg=f"Post id: {uid} does not exist.")
+
+    is_valid, msg = validate_moderation(request=request, post=post)
+
+    return validate_moderation(request=request, post=post)
+
+

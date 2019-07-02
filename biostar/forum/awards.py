@@ -26,7 +26,7 @@ class AwardDef(object):
         self.icon = icon
         self.template = ""
         self.type = type
-        # Max number of times this award can be given
+        # Max number of times this award can be given by a user.
         # No limit if left empty.
         self.max = max
 
@@ -41,12 +41,6 @@ class AwardDef(object):
 
         # Award user has won at this point.
         awarded = Award.objects.filter(badge__name=self.name, user=user)
-
-        # Exclude targets that already awarded.
-        if isinstance(value, Post):
-            value = value.exclude(id__in=awarded.post_set)
-        else:
-            value = value.exclude(pk=user.id)
 
         # Ensure users does not get over rewarded.
         if self.max and len(awarded) >= self.max:
@@ -220,6 +214,7 @@ def rising_star(user):
     cond = now() < user.profile.date_joined + timedelta(weeks=15)
     cond = cond and Post.objects.filter(author=user).count() > 50
     return wrap_qs(cond, User, user.id)
+
 
 RISING_STAR = AwardDef(
     name="Rising Star",
