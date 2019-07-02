@@ -319,6 +319,11 @@ $(document).ready(function () {
 
     remove_trigger();
 
+    $('.enter.button').click(function (event) {
+        alert("fff");
+        event.preventDefault();
+    });
+
     $(".moderate-post").click(function (event) {
         event.preventDefault();
         var elem = $(this);

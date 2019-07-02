@@ -224,11 +224,18 @@ def follow_label(context, post):
     return label
 
 
-def get_tags(post):
+@register.simple_tag
+def get_tags(post, request):
 
-    tags_opts = {val: True for val in post.tag_val.split(",")}
+    # Get tags in requests before fetching ones in the post.
+    # This is done to accommodate populating tags in forms
+    tags = request.GET.get('tag_val', request.POST.get('tag_val'))
+    tags = tags or post.tag_val
 
-    return
+    tags_opt = {val: True for val in tags.split(",")}
+    context = dict(selected=tags, tags_opt=tags_opt.items())
+
+    return context
 
 
 @register.inclusion_tag('widgets/form_errors.html')

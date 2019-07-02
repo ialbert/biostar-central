@@ -52,7 +52,6 @@ ORDER_MAPPER = dict(
 )
 
 
-
 def post_exists(func):
     """
     Ensure uid passed to view function exists.
@@ -284,32 +283,6 @@ def post_view(request, uid):
     return render(request, "post_view.html", context=context)
 
 
-@post_exists
-def new_answer(request, uid):
-    """
-    Process an answer with form
-    """
-    # Get the post.
-    root = Post.objects.filter(uid=uid).first()
-    url = root.get_absolute_url()
-    if request.method == "POST":
-        form = forms.PostShortForm(data=request.POST)
-        if form.is_valid():
-            author = request.user
-            content = form.cleaned_data.get("content")
-
-            # Create answer to root
-            answer = auth.create_post(title=root.title, parent=root, author=author,
-                                      content=content, post_type=Post.ANSWER, root=root)
-            tasks.created_post.spool(pid=answer.id)
-
-            # Anchor location to recently created answer
-            url = answer.get_absolute_url()
-        print(form.errors)
-
-    return redirect(url)
-
-
 def new_comment(request, uid):
     user = request.user
     post = Post.objects.filter(uid=uid).first()
@@ -337,8 +310,6 @@ def new_post(request):
     """
     form = forms.PostLongForm()
     author = request.user
-    # Map default tag values to not selected in dropdown
-    tags_opts = {}
 
     if request.method == "POST":
         form = forms.PostLongForm(data=request.POST)
@@ -353,15 +324,11 @@ def new_post(request):
             tasks.created_post.spool(pid=post.id)
 
             return redirect(post.get_absolute_url())
-        tags_opts = {val: True for val in request.POST.get('tag_val', '').split(",")}
 
     # Action url for the form is the current view
     action_url = reverse("post_create")
-    tags_opts = tags_opts.items()
-    selected = request.POST.get('tag_val', '')
     content = request.POST.get('content', '')
-    context = dict(form=form, tab="new", action_url=action_url, content=content, tags_opt=tags_opts,
-                   form_title="Create New Post", selected=selected)
+    context = dict(form=form, tab="new", action_url=action_url, content=content, form_title="Create New Post")
 
     return render(request, "new_post.html", context=context)
 

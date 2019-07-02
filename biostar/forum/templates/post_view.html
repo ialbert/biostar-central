@@ -51,7 +51,7 @@
                             <div class="">
                                 <div id="{{ form.content.id_for_label }}_wmd_button_bar"></div>
                                 <textarea class=" wmd-input" cols="40" name="content" rows="10"
-                                          id="{{ form.content.id_for_label }}"></textarea>
+                                          id="{{ form.content.id_for_label }}">{% if request.POST.content %}{{ request.POST.content }}{% endif %}</textarea>
                             </div>
 
                             <div class="top-padding">

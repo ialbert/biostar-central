@@ -5,7 +5,7 @@
     <b>Moderating {{ post.get_type_display }}: {{ post.title }}</b>
 
 
-    <form method="post" class="ui form" id="modform" action="{% url 'post_moderate' post.uid %}">
+    <form method="post" class="ui form" id="modform">
 
         {% csrf_token %}
 
@@ -59,7 +59,7 @@
             </div>
         {% endif %}
 
-        <button type="submit" class="ui green button">
+        <button type="submit" class="ui green enter button">
             <i class="check icon"></i>
             Submit
         </button>
