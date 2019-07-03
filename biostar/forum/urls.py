@@ -33,6 +33,7 @@ urlpatterns = [
     path('ajax/test/', ajax.ajax_test, name='ajax_test'),
     path('ajax/subscribe/', ajax.ajax_subs, name='ajax_sub'),
     path('ajax/edit/', ajax.ajax_edit, name='ajax_edit'),
+    path('ajax/search/', ajax.ajax_search, name='ajax_search'),
 
     path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
 

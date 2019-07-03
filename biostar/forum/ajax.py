@@ -1,14 +1,12 @@
 from functools import wraps, partial
 import logging
-from django.http import HttpResponse
-from django import template
+from ratelimit.decorators import ratelimit
+
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
-from django.db.models import F
-from ratelimit.decorators import ratelimit
+
 from .const import *
-from biostar.accounts.models import Profile
-from . import auth, util, forms, tasks
+from . import auth, util, forms, tasks, search
 from .models import Post, Vote, Subscription
 
 
@@ -140,6 +138,24 @@ def ajax_edit(request):
     # Note: returns html instead of JSON on success.
     # Used to switch content inplace.
     return ajax_success(msg=post.html)
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def ajax_search(request):
+
+    query = request.POST.get('query', '')
+
+    fields = ['content', 'tags', 'title']
+    if query:
+        results = search.search_index(query=query, fields=fields)
+
+        print(results)
+        1/0
+
+    return
+
 
 
 def validate_moderation(request, post):

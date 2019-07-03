@@ -319,6 +319,35 @@ $(document).ready(function () {
 
     remove_trigger();
 
+    $('#search').keyup(function (event) {
+        var search_url='/ajax/search/';
+        var query = $(this).val();
+
+        $.ajax(search_url, {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'query':query
+            },
+
+            success: function (data) {
+                if (data.status === 'error') {
+                    // Untoggle the button if there was an error
+                } else {
+                    // Success
+                    //popup_message(elem, data.msg, data.status);
+                    // Increment the post score counter
+                }
+
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        });
+
+
+    });
 
     $(".moderate-post").click(function (event) {
         event.preventDefault();
