@@ -298,7 +298,7 @@ def single_post_feed(post):
     fields = ['content']
     # Exclude this post from the results.
     exclude = search_query.Term('uid', post.uid)
-    results = search.search_index(query=query, fields=fields, sortedby='rank', mask=exclude, reverse=True)
+    results = search.search_index(query=query, fields=fields, mask=exclude)
 
     context = dict(results=results)
     return context

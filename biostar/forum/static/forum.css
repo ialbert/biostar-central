@@ -15,6 +15,14 @@ body {
     background: none;
 }
 
+.slim{
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-bottom: 5px !important;
+    border: none !important;
+    box-shadow: none!important;
+}
+
 #menu-header .item:not(:first-child) {
 
 }

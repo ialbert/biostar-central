@@ -17,7 +17,7 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
     """
     # Create the schema
     schema = Schema(title=TEXT(stored=True), url=ID(stored=True), content=TEXT(stored=True),
-                    tags=KEYWORD(stored=True), toplevel=BOOLEAN(stored=True),
+                    tags=KEYWORD(stored=True), toplevel=BOOLEAN(stored=True), author_uid=ID(stored=True),
                     rank=NUMERIC(stored=True, sortable=True), author=TEXT(stored=True),
                     author_url=ID(stored=True), uid=ID(stored=True))
 
@@ -30,7 +30,7 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
         writer.add_document(title=f"{post.title}", url=post.get_absolute_url(),
                             content=post.content, tags=post.tag_val, toplevel=post.is_toplevel,
                             rank=post.rank, author=post.author.profile.name, uid=post.uid,
-                            author_url=post.author.profile.get_absolute_url())
+                            author_uid=post.author.profile.uid, author_url=post.author.profile.get_absolute_url())
     writer.commit()
 
     logger.info(f"Created search index in {index_dir}")
@@ -42,8 +42,8 @@ def search_index(query='', fields=['content'], index_dir=settings.INDEX_DIR, ind
 
     #with ix.searcher() as searcher:
     searcher = ix.searcher()
-    # Group each word with an OR like such:
-    # with a query 'foo bar' search 'foo OR bar'
+    # Group each word with an OR clause.
+    # For example, the query 'foo bar' will be: 'foo OR bar'
     og = OrGroup
     query = MultifieldParser(fields, ix.schema, group=og).parse(query)
     results = searcher.search(query, limit=settings.SINGLE_FEED_COUNT, **kwargs)
