@@ -4,6 +4,7 @@ import logging
 import random
 from datetime import datetime
 from datetime import timedelta
+import whoosh.query as search_query
 
 import hashlib
 import urllib.parse
@@ -295,7 +296,9 @@ def single_post_feed(post):
     # Search for posts with similar content
     query = post.content
     fields = ['content']
-    results = search.search_index(query=query, fields=fields)
+    # Exclude this post from the results.
+    exclude = search_query.Term('uid', post.uid)
+    results = search.search_index(query=query, fields=fields, sortedby='rank', mask=exclude, reverse=True)
 
     context = dict(results=results)
     return context
