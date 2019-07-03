@@ -225,12 +225,13 @@ def follow_label(context, post):
 
 
 @register.simple_tag
-def get_tags(post, request):
+def get_tags(request, post=None):
 
     # Get tags in requests before fetching ones in the post.
     # This is done to accommodate populating tags in forms
-    tags = request.GET.get('tag_val', request.POST.get('tag_val'))
-    tags = tags or post.tag_val
+    tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
+    if post:
+        tags = tags or post.tag_val
 
     tags_opt = {val: True for val in tags.split(",")}
     context = dict(selected=tags, tags_opt=tags_opt.items())
@@ -290,11 +291,13 @@ def single_post_feed(post):
     """
     Return single post feed populated with similar posts.
     """
-    #tags = post.tag_val.split(",")
 
-    #
-    search.search_index(query=post.title)
-    context = dict()
+    # Search for posts with similar content
+    query = post.content
+    fields = ['content']
+    results = search.search_index(query=query, fields=fields)
+
+    context = dict(results=results)
     return context
 
 

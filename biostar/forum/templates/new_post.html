@@ -45,7 +45,10 @@
                 <div class="ui form-wrap segment">
                     <div class="field">
                         <label>{{ form.tag_val.label }}</label>
-                        {% get_tags request=request post=post as tags %}
+                        {% if post %}{% get_tags request=request post=post as tags %}
+                        {% else %}
+                            {% get_tags request=request as tags %}
+                        {% endif %}
                         <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}"
                                value="{% if selected %} {{ tags.selected }} {% endif %}">
 

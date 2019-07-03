@@ -95,6 +95,10 @@ test_all:
 	coverage run manage.py test --settings biostar.test.test_settings -v 2 --failfast
 	coverage html --skip-covered
 
+index:
+	python manage.py index --settings ${DJANGO_SETTING_MODULE}
+
+
 projects:
 	python manage.py project --pid test --name "Test Project" --public
 	python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson

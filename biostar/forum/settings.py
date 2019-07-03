@@ -28,7 +28,7 @@ SESSION_UPDATE_SECONDS = 40
 
 # Search index name
 INDEX_NAME = "index"
-INDEX_DIR = os.path.join(MEDIA_ROOT, 'search')
+INDEX_DIR = os.path.join(MEDIA_ROOT, '..', 'search')
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
