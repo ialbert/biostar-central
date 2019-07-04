@@ -336,10 +336,31 @@ def new_post(request):
 @post_exists
 @login_required
 def post_moderate(request, uid):
+
     """Used to make dispaly post moderate form given a post request."""
     user = request.user
     post = Post.objects.filter(uid=uid).first()
-    form = forms.PostModForm(post=post, user=user, request=request)
+
+    if request.method == "POST":
+
+        form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
+
+        if form.is_valid():
+            action = request.POST.get("action")
+            dupe = request.POST.get("dupe")
+            dupes = dupe.split(",")[:5]
+            dupe_comment = request.POST.get("comment")
+            mod_uid = request.POST.get("mod_uid")
+            offtopic = request.POST.get("offtopic")
+            print(action)
+            redir = auth.moderate_post(post=post, request=request, action=action, comment=dupe_comment,
+                       dupes=dupes, pid=mod_uid, offtopic=offtopic)
+            return redirect(redir)
+        else:
+            messages.error(request, "Invalid moderation error.")
+            return redirect(reverse("post_view", kwargs=dict(uid=uid)))
+    else:
+        form = forms.PostModForm(post=post, user=user, request=request)
 
     context = dict(form=form, post=post)
     return render(request, "post_moderate.html", context)

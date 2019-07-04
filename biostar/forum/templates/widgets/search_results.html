@@ -4,14 +4,14 @@
 <div class="ui segment" style="height: fit-content; overflow-y: auto; max-height: 500px">
 <div class="ui relaxed divided list">
 {% for result in results %}
-    <div class="item">
+    <a class="item" href="{{ result.url }}">
         <b>{{ result.title }}</b>
         <div class="muted">
             {{ result|highlight:'content' }}
             {{ result.content|truncatechars:120 }}
             <div>by {{ result.author }}</div>
         </div>
-    </div>
+    </a>
 {% endfor %}
 </div>
 </div>

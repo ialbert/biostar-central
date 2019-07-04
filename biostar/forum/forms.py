@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from biostar.accounts.models import User
 from .models import Post
-from biostar.forum import models
+from biostar.forum import models, auth
 
 from .const import *
 
@@ -118,7 +118,7 @@ class CommentForm(forms.Form):
 def mod_choices(post):
     choices = [
         (BUMP_POST, "Bump a post"),
-        (MOD_OPEN, "Open a closed or deleted post"),
+        (MOD_OPEN, "Open a deleted post"),
         (DELETE, "Delete post")
     ]
 
@@ -128,7 +128,8 @@ def mod_choices(post):
     allowed += [BUMP_POST] if post.is_toplevel else []
 
     # Open/Off topic moderation options
-    allowed += [MOD_OPEN] if post.status in [post.OFFTOPIC, post.DELETED] else [DELETE]
+    allowed += [MOD_OPEN] if post.status in [Post.OFFTOPIC, Post.DELETED] else [DELETE]
+    print(allowed, post.status in [post.OFFTOPIC, post.DELETED], post.status)
 
     # Filter the appropriate choices
     choices = filter(lambda action: action[0] in allowed if allowed else True, choices)
@@ -156,5 +157,33 @@ class PostModForm(forms.Form):
         self.fields['offtopic'] = forms.CharField(required=False, max_length=200)
         self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=False)
 
+    def clean_dupe(self):
+        dupe = self.cleaned_data.get("dupe")
+        dupes = dupe.split(",")[:5]
 
+        return dupes
+
+    def clean(self):
+        action = self.cleaned_data.get("action")
+        dupes = self.cleaned_data.get("dupe")
+        dupe_comment = self.cleaned_data.get("comment")
+        mod_uid = self.cleaned_data.get("mod_uid")
+        offtopic = self.cleaned_data.get("offtopic")
+
+        if (action is None) and not (dupes or mod_uid):
+            raise forms.ValidationError("Select an action.")
+        if action == BUMP_POST and not self.post.is_toplevel:
+            raise forms.ValidationError("You can only perform this action to a top-level post")
+
+        auth.moderate_post(post=self.post, request=self.request, action=action, comment=dupe_comment,
+                           dupes=dupes, pid=mod_uid, offtopic=offtopic)
+
+        parent = Post.objects.filter(uid=mod_uid).first()
+        if not parent and mod_uid:
+            raise forms.ValidationError(f"Parent id: {mod_uid} does not exist.")
+
+        if parent and parent.root != self.post.root:
+            raise forms.ValidationError(f"Parent does not share the same root.")
+
+        return self.cleaned_data
 

@@ -5,7 +5,7 @@
     <b>Moderating {{ post.get_type_display }}: {{ post.title }}</b>
 
 
-    <form method="post" class="ui form" id="modform">
+    <form method="post" class="ui form" id="modform" action="{% url 'post_moderate' post.uid %}">
 
         {% csrf_token %}
 
