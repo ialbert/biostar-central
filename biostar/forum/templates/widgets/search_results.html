@@ -1,8 +1,16 @@
 
-<div class="ui relaxed divided list">
+{% if results %}
+<div class="ui segment">
+<div class="ui relaxed divided list" style="max-height: 50%; overflow-y: scroll">
 {% for result in results %}
     <div class="item">
-    {{ result.title }}
+        <b>{{ result.title }}</b>
+        <div class="muted">
+            {{ result.content|truncatechars:120 }}
+            <div>by {{ result.author }}</div>
+        </div>
     </div>
 {% endfor %}
 </div>
+</div>
+{% endif %}

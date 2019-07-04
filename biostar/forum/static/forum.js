@@ -339,7 +339,7 @@ $(document).ready(function () {
                     //popup_message(elem, data.msg, data.status);
                     // Increment the post score counter
                     var res = $('#results');
-                    alert(data.html);
+                    //alert(data.html);
                     res.html(data.html)
                 }
 
