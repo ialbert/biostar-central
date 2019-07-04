@@ -167,20 +167,20 @@ class PostModForm(forms.Form):
         action = self.cleaned_data.get("action")
         dupes = self.cleaned_data.get("dupe")
         dupe_comment = self.cleaned_data.get("comment")
-        mod_uid = self.cleaned_data.get("mod_uid")
+        pid = self.cleaned_data.get("pid")
         offtopic = self.cleaned_data.get("offtopic")
 
-        if (action is None) and not (dupes or mod_uid):
+        if (action is None) and not (dupes or pid):
             raise forms.ValidationError("Select an action.")
         if action == BUMP_POST and not self.post.is_toplevel:
             raise forms.ValidationError("You can only perform this action to a top-level post")
 
         auth.moderate_post(post=self.post, request=self.request, action=action, comment=dupe_comment,
-                           dupes=dupes, pid=mod_uid, offtopic=offtopic)
+                           dupes=dupes, pid=pid, offtopic=offtopic)
 
-        parent = Post.objects.filter(uid=mod_uid).first()
-        if not parent and mod_uid:
-            raise forms.ValidationError(f"Parent id: {mod_uid} does not exist.")
+        parent = Post.objects.filter(uid=pid).first()
+        if not parent and pid:
+            raise forms.ValidationError(f"Parent id: {pid} does not exist.")
 
         if parent and parent.root != self.post.root:
             raise forms.ValidationError(f"Parent does not share the same root.")

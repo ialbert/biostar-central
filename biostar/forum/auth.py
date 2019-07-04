@@ -199,7 +199,6 @@ def delete_post(post, request):
 
     # Recompute answers count
     if post.type == Post.ANSWER:
-        1/0
         answer_count = Post.objects.filter(root=post.root, type=Post.ANSWER).count()
         Post.objects.filter(pk=post.parent_id).update(answer_count=answer_count)
 

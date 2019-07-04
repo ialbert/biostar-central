@@ -346,15 +346,13 @@ def post_moderate(request, uid):
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
 
         if form.is_valid():
-            action = request.POST.get("action")
-            dupe = request.POST.get("dupe")
-            dupes = dupe.split(",")[:5]
-            dupe_comment = request.POST.get("comment")
-            mod_uid = request.POST.get("mod_uid")
-            offtopic = request.POST.get("offtopic")
-            print(action)
+            action = form.cleaned_data.get('action')
+            dupe = form.cleaned_data.get('dupe')
+            dupe_comment = form.cleaned_data.get('comment')
+            mod_uid = form.cleaned_data.get('pid')
+            offtopic = form.cleaned_data.get('offtopic')
             redir = auth.moderate_post(post=post, request=request, action=action, comment=dupe_comment,
-                       dupes=dupes, pid=mod_uid, offtopic=offtopic)
+                                       dupes=dupe, pid=mod_uid, offtopic=offtopic)
             return redirect(redir)
         else:
             messages.error(request, "Invalid moderation error.")
