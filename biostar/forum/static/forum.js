@@ -323,6 +323,13 @@ $(document).ready(function () {
         var search_url='/ajax/search/';
         var query = $(this).val();
 
+        if (query.trim().length < 3) {
+            var res = $('#results');
+            popup_message(res, "More than 3 characters please!", "error", 1000);
+            res.html('');
+            return
+        }
+
         $.ajax(search_url, {
             type: 'POST',
             dataType: 'json',
@@ -336,8 +343,6 @@ $(document).ready(function () {
                     // Untoggle the button if there was an error
                 } else {
                     // Success
-                    //popup_message(elem, data.msg, data.status);
-                    // Increment the post score counter
                     var res = $('#results');
                     //alert(data.html);
                     res.html(data.html)

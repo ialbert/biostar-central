@@ -287,6 +287,12 @@ def get_last_login(user):
     return f"{time_ago(user.profile.date_joined)}"
 
 
+@register.filter
+def highlight(hit, field):
+
+    return mark_safe(hit.highlights(field))
+
+
 @register.inclusion_tag('widgets/single_feed.html')
 def single_post_feed(post):
     """

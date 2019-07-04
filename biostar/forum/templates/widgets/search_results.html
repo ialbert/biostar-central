@@ -1,11 +1,13 @@
+{% load forum_tags %}
 
 {% if results %}
-<div class="ui segment">
-<div class="ui relaxed divided list" style="max-height: 50%; overflow-y: scroll">
+<div class="ui segment" style="height: fit-content; overflow-y: auto; max-height: 500px">
+<div class="ui relaxed divided list">
 {% for result in results %}
     <div class="item">
         <b>{{ result.title }}</b>
         <div class="muted">
+            {{ result|highlight:'content' }}
             {{ result.content|truncatechars:120 }}
             <div>by {{ result.author }}</div>
         </div>
@@ -13,4 +15,9 @@
 {% endfor %}
 </div>
 </div>
+{% else %}
+    <div class="ui blue message" style="padding: 10px">
+    <i class="info icon"></i>
+    No results found.
+    </div>
 {% endif %}

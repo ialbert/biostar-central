@@ -34,6 +34,7 @@ class ajax_error_wrapper:
 
         @wraps(func, assigned=available_attrs(func))
         def _ajax_view(request, *args, **kwargs):
+
             if request.method != self.method:
                 return ajax_error(f'{self.method} method must be used.')
             if not request.user.is_authenticated:
@@ -144,11 +145,9 @@ def ajax_edit(request):
 
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
 def ajax_search(request):
 
     query = request.POST.get('query', '')
-
     fields = ['content', 'tags', 'title']
     if query:
         results = search.search_index(query=query, fields=fields)
@@ -156,9 +155,7 @@ def ajax_search(request):
         context = dict(results=results)
         results_html = tmpl.render(context)
 
-        print(results)
         return ajax_success(html=results_html, msg="success")
-        1/0
 
     return
 

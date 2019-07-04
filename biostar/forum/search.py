@@ -7,6 +7,7 @@ from whoosh.qparser import MultifieldParser, QueryParser, OrGroup
 from whoosh.index import create_in, open_dir
 from whoosh.fields import ID, NGRAM, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC
 
+from .models import Post
 logger = logging.getLogger('engine')
 
 
@@ -16,12 +17,14 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
     Created inside of directory with the
     """
     # Create the schema
-    schema = Schema(title=TEXT(stored=True), url=ID(stored=True), content=TEXT(stored=True),
+    schema = Schema(title=NGRAM(stored=True), url=ID(stored=True), content=NGRAM(stored=True),
                     tags=KEYWORD(stored=True), toplevel=BOOLEAN(stored=True), author_uid=ID(stored=True),
                     rank=NUMERIC(stored=True, sortable=True), author=TEXT(stored=True),
                     author_url=ID(stored=True), uid=ID(stored=True))
 
     ix = create_in(index_dir, schema, indexname=index_name)
+    # Exclude deleted posts.
+    posts = posts.exclude(status=Post.DELETED)
     writer = ix.writer()
     # Add the post contents to index and commit.
     for post in posts:
@@ -44,8 +47,8 @@ def search_index(query='', fields=['content'], index_dir=settings.INDEX_DIR, ind
     searcher = ix.searcher()
     # Group each word with an OR clause.
     # For example, the query 'foo bar' will be: 'foo OR bar'
-    og = OrGroup
-    query = MultifieldParser(fields, ix.schema, group=og).parse(query)
+    #og = OrGroup
+    query = MultifieldParser(fields, ix.schema).parse(query)
     results = searcher.search(query, limit=settings.SINGLE_FEED_COUNT, **kwargs)
     #searcher.close()
     return results
