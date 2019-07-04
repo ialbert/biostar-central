@@ -2,6 +2,7 @@ from functools import wraps, partial
 import logging
 from ratelimit.decorators import ratelimit
 
+from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 
@@ -77,8 +78,9 @@ def ajax_vote(request):
     if post.author == user and vote_type == Vote.ACCEPT:
         return ajax_error("You can not accept your own post.")
 
-    if post.root.author != user and vote_type == Vote.ACCEPT:
-        return ajax_error("Only the person asking the question may accept this answer.")
+    not_moderator = user.is_authenticated and not user.profile.is_moderator
+    if post.root.author != user and not_moderator and vote_type == Vote.ACCEPT:
+        return ajax_error("Only moderators or the person asking the question may accept answers.")
 
     msg, vote, change = auth.apply_vote(post=post, user=user, vote_type=vote_type)
 
@@ -150,12 +152,15 @@ def ajax_search(request):
     fields = ['content', 'tags', 'title']
     if query:
         results = search.search_index(query=query, fields=fields)
+        tmpl = loader.get_template("widgets/search_results.html")
+        context = dict(results=results)
+        results_html = tmpl.render(context)
 
         print(results)
+        return ajax_success(html=results_html, msg="success")
         1/0
 
     return
-
 
 
 def validate_moderation(request, post):

@@ -9,11 +9,13 @@
 {% block body %}
         <div class="ui segment slim">
           <div class="ui fluid icon input" >
-            <input type="text" id="search" name="search" placeholder="Search here ..." style="background-color: #f7f7f7; border: none;">
+            <input type="text" id="search" name="search" placeholder="Search here . . ." style="background-color: #f2f0f0; border: none;">
             <i class="search icon"></i>
 
           </div>
+        <div id="results"></div>
         </div>
+
 {% with params=request.GET.urlencode %}
 <div class="ui horizontal basic top-menu segments">
 
