@@ -118,7 +118,7 @@ class CommentForm(forms.Form):
 def mod_choices(post):
     choices = [
         (BUMP_POST, "Bump a post"),
-        (MOD_OPEN, "Open a deleted post"),
+        (OPEN_POST, "Open deleted or off topic post"),
         (DELETE, "Delete post")
     ]
 
@@ -128,9 +128,11 @@ def mod_choices(post):
     allowed += [BUMP_POST] if post.is_toplevel else []
 
     # Open/Off topic moderation options
-    allowed += [MOD_OPEN] if post.status in [Post.OFFTOPIC, Post.DELETED] else [DELETE]
-    print(allowed, post.status in [post.OFFTOPIC, post.DELETED], post.status)
+    if post.status in [Post.DELETED, Post.OFFTOPIC]:
+        allowed += [OPEN_POST]
 
+    if post.status != Post.DELETED:
+        allowed += [DELETE]
     # Filter the appropriate choices
     choices = filter(lambda action: action[0] in allowed if allowed else True, choices)
 
@@ -166,17 +168,14 @@ class PostModForm(forms.Form):
     def clean(self):
         action = self.cleaned_data.get("action")
         dupes = self.cleaned_data.get("dupe")
-        dupe_comment = self.cleaned_data.get("comment")
         pid = self.cleaned_data.get("pid")
         offtopic = self.cleaned_data.get("offtopic")
 
-        if (action is None) and not (dupes or pid):
+        if (action is None) and not (dupes or pid or offtopic):
             raise forms.ValidationError("Select an action.")
+
         if action == BUMP_POST and not self.post.is_toplevel:
             raise forms.ValidationError("You can only perform this action to a top-level post")
-
-        auth.moderate_post(post=self.post, request=self.request, action=action, comment=dupe_comment,
-                           dupes=dupes, pid=pid, offtopic=offtopic)
 
         parent = Post.objects.filter(uid=pid).first()
         if not parent and pid:

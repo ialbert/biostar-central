@@ -104,36 +104,26 @@ class PostTest(TestCase):
         """
         url = reverse("post_edit", kwargs=dict(uid=self.post.uid))
 
-        # Create a child post to test short form edit
-        # Create an existing tested post
-        child = auth.create_post(title="Test", author=self.owner, content="Test",
-                                 post_type=models.Post.COMMENT, parent=self.post)
-
         title = "Test title for long test"
         tag_val = "foo,bar,foo"
         content = "Test the content with more things "
 
         longform_data = dict(title=title, tag_val=tag_val, content=content, post_type=models.Post.TUTORIAL)
-        shortform_data = dict(content=content, parent_uid=self.post.uid)
 
         longform_request = fake_request(url=url, data=longform_data, user=self.owner)
         longform_response = views.edit_post(request=longform_request, uid=self.post.uid)
         self.process_response(longform_response)
 
-        shortform_request = fake_request(url=url, data=shortform_data, user=self.owner)
-        shortform_response = views.edit_post(request=shortform_request, uid=child.uid)
-        self.process_response(shortform_response)
-
     def test_post_answer(self):
         """
         Test submitting answer through the post view
         """
-        url = reverse("post_answer", kwargs=dict(uid=self.post.uid))
+        url = reverse("post_view", kwargs=dict(uid=self.post.uid))
 
         # Get form data
         data = dict(content="testing answer", parent_uid=self.post.uid)
         request = fake_request(url=url, data=data, user=self.owner)
-        response = views.new_answer(request=request, uid=self.post.uid)
+        response = views.post_view(request=request, uid=self.post.uid)
         self.process_response(response)
         return
 

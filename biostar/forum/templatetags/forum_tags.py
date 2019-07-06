@@ -293,10 +293,23 @@ def highlight(hit, field):
     return mark_safe(hit.highlights(field))
 
 
-@register.inclusion_tag('widgets/single_feed.html')
+@register.inclusion_tag('widgets/feed_custom.html')
+def custom_feed(objs, feed_type='', title=''):
+
+    users = ()
+    if feed_type == 'messages':
+        users = set(m.sender for m in objs)
+    if feed_type == 'votes':
+        users = set(v.author for v in objs)
+
+    context = dict(users=users, title=title)
+    return context
+
+
+@register.inclusion_tag('widgets/feed_single.html')
 def single_post_feed(post):
     """
-    Return single post feed populated with similar posts.
+    Return feed populated with posts similar to the one given.
     """
 
     # Search for posts with similar content
@@ -331,30 +344,8 @@ def list_posts(context, target):
     return context
 
 
-@register.inclusion_tag('widgets/default_feed.html')
+@register.inclusion_tag('widgets/feed_default.html')
 def default_feed(user):
-    recent_votes = Vote.objects.prefetch_related("post")
-    recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
-
-    recent_locations = Profile.objects.exclude(location="").order_by('-last_login')
-    recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
-
-    recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
-    recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
-
-    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER])
-    recent_replies = recent_replies.select_related("author__profile", "author")
-    recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
-
-    context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
-                   recent_locations=recent_locations, recent_replies=recent_replies,
-                   user=user)
-    return context
-
-
-@register.inclusion_tag('widgets/feed.html')
-def feed(user, display):
-
     recent_votes = Vote.objects.prefetch_related("post")
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 

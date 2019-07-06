@@ -89,9 +89,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     elif topic == MYPOSTS and user.is_authenticated:
         query = Post.objects.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
-        votes = Vote.objects.filter(post__author=user).exclude(author=user)
-        # query = votes_query.values("post")
-        query = Post.objects.filter(votes__in=votes)
+        query = Post.objects.filter(votes__post__author=user)
     else:
         query = Post.objects.filter(is_toplevel=True)
 
@@ -177,8 +175,16 @@ def myvotes(request):
     """
     Show posts by user that received votes
     """
-    extra_context = dict(display_feed="myvotes")
-    return post_list(request, show=MYVOTES, extra_context=extra_context)
+    page = request.GET.get('page', 1)
+    votes = Vote.objects.filter(post__author=request.user).order_by("-date")
+    # Create the paginator
+    paginator = Paginator(votes, settings.POSTS_PER_PAGE)
+
+    # Apply the votes paging.
+    votes = paginator.get_page(votes)
+
+    context = dict(votes=votes, page=page)
+    return render(request, template_name="votes_list.html", context=context)
 
 
 @authenticated
@@ -274,7 +280,7 @@ def post_view(request, uid):
             tasks.created_post.spool(pid=answer.id)
             return redirect(answer.get_absolute_url())
 
-    #auth.update_post_views(post=obj, request=request)
+    auth.update_post_views(post=post, request=request)
 
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)

@@ -157,7 +157,7 @@ def ajax_search(request):
 
         return ajax_success(html=results_html, msg="success")
 
-    return
+    return ajax_success(html="", msg="success")
 
 
 

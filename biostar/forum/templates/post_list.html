@@ -103,6 +103,6 @@
 {% endblock %}
 
 {%  block sidebar %}
-    {%  feed user=request.user display=display_feed %}
+    {%  default_feed user=request.user %}
 {%  endblock %}
 

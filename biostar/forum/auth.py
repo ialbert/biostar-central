@@ -131,6 +131,7 @@ def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
 
     # One view per time interval from each IP address.
     if not PostView.objects.filter(ip=ip, post=post, date__gt=since).exists():
+        # Update the last time
         PostView.objects.create(ip=ip, post=post, date=now)
         Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
     return post
@@ -227,11 +228,12 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
     url = post.get_absolute_url()
 
     if action == BUMP_POST:
+        print("EXTRA fuck")
         Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp(), last_contributor=request.user)
         messages.success(request, "Post bumped")
         return url
 
-    if action == MOD_OPEN:
+    if action == OPEN_POST:
         Post.objects.filter(uid=post.uid).update(status=Post.OPEN)
         messages.success(request, f"Opened post: {post.title}")
         return url

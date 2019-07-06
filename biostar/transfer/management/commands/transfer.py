@@ -259,7 +259,8 @@ def bulk_copy_posts(limit):
             # Get post uid from context
             post_uid = uid_from_context(award.context)
             post = Post.objects.filter(uid=post_uid).first()
-            if not user:
+            # Bail when a user or post do not exist
+            if not user or (post_uid and not post):
                 continue
             award = Award(date=award.date, post=post, badge=badge, user=user, uid=award.id)
 
