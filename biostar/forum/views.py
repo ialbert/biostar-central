@@ -183,7 +183,7 @@ def myvotes(request):
     # Apply the votes paging.
     votes = paginator.get_page(votes)
 
-    context = dict(votes=votes, page=page)
+    context = dict(votes=votes, page=page, tab='myvotes')
     return render(request, template_name="votes_list.html", context=context)
 
 

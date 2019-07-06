@@ -8,6 +8,8 @@
 
 {% block body %}
 
+{% search_bar %}
+
 <div class="center-text">
 {% pages objs=votes %}
 </div>
@@ -26,7 +28,7 @@
                     </td>
                 </tr>
         {% empty %}
-        <div class="ui message">No Posts</div>
+        <div class="ui message">No votes found.</div>
         {% endfor %}
     </tbody>
 </table>

@@ -306,6 +306,12 @@ def custom_feed(objs, feed_type='', title=''):
     return context
 
 
+@register.inclusion_tag('widgets/search_bar.html')
+def search_bar():
+    context = dict()
+    return context
+
+
 @register.inclusion_tag('widgets/feed_single.html')
 def single_post_feed(post):
     """

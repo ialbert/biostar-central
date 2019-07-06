@@ -7,13 +7,8 @@
 
 
 {% block body %}
-        <div class="ui segment slim">
-          <div class="ui fluid icon input" >
-            <input type="text" id="search" name="search" placeholder="Search here . . ." >
-            <i class="search icon"></i>
-          </div>
-        <div id="results"></div>
-        </div>
+
+{% search_bar %}
 
 {% with params=request.GET.urlencode %}
 <div class="ui horizontal basic top-menu segments">
