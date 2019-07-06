@@ -5,7 +5,7 @@ import logging
 from django.conf import settings
 from whoosh.qparser import MultifieldParser, QueryParser, OrGroup
 from whoosh.index import create_in, open_dir
-from whoosh.fields import ID, NGRAM, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC
+from whoosh.fields import ID, NGRAM, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, NGRAMWORDS
 
 from .models import Post
 logger = logging.getLogger('engine')
@@ -17,7 +17,8 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
     Created inside of directory with the
     """
     # Create the schema
-    schema = Schema(title=NGRAM(stored=True), url=ID(stored=True), content=NGRAM(stored=True),
+    schema = Schema(title=NGRAMWORDS(stored=True, at='start'), url=ID(stored=True),
+                    content=NGRAMWORDS(stored=True, at='start'),
                     tags=KEYWORD(stored=True), toplevel=BOOLEAN(stored=True), author_uid=ID(stored=True),
                     rank=NUMERIC(stored=True, sortable=True), author=TEXT(stored=True),
                     author_url=ID(stored=True), uid=ID(stored=True))
@@ -39,7 +40,8 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
     logger.info(f"Created search index in {index_dir}")
 
 
-def search_index(query='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME, **kwargs):
+def search_index(query='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME, group=None,
+                 **kwargs):
 
     ix = open_dir(dirname=index_dir, indexname=index_name)
 
@@ -47,8 +49,8 @@ def search_index(query='', fields=['content'], index_dir=settings.INDEX_DIR, ind
     searcher = ix.searcher()
     # Group each word with an OR clause.
     # For example, the query 'foo bar' will be: 'foo OR bar'
-    #og = OrGroup
-    query = MultifieldParser(fields, ix.schema).parse(query)
+    og = OrGroup
+    query = MultifieldParser(fields, ix.schema, group=og).parse(query)
     results = searcher.search(query, limit=settings.SINGLE_FEED_COUNT, **kwargs)
     #searcher.close()
     return results

@@ -10,6 +10,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
+from antispam import akismet
 
 from . import forms, auth, tasks, util
 from .const import *
