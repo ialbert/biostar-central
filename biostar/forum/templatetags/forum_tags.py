@@ -299,8 +299,8 @@ def custom_feed(objs, feed_type='', title=''):
     users = ()
     if feed_type == 'messages':
         users = set(m.sender for m in objs)
-    if feed_type == 'votes':
-        users = set(v.author for v in objs)
+    if feed_type in ['following', 'bookmarks', 'votes']:
+        users = set(o.author for o in objs)
 
     context = dict(users=users, title=title)
     return context
@@ -404,10 +404,10 @@ def get_wording(filtered, prefix="Sort by:", default=""):
 @register.simple_tag
 def relative_url(value, field_name, urlencode=None):
     """
-    Updates field_name parameters in url with value
+    Updates field_name parameters in url with new value
     """
     # Create query string with updated field_name, value pair.
-    url = '?{}={}'.format(field_name, value)
+    url = f'?{field_name}={value}'
     if urlencode:
         # Split query string
         querystring = urlencode.split('&')
@@ -417,7 +417,7 @@ def relative_url(value, field_name, urlencode=None):
         # Join the filtered string
         encoded_querystring = '&'.join(filtered_querystring)
         # Update query string
-        url = '{}&{}'.format(url, encoded_querystring)
+        url = f'{url}&{encoded_querystring}'
 
     return url
 

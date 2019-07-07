@@ -98,6 +98,13 @@
 {% endblock %}
 
 {%  block sidebar %}
-    {%  default_feed user=request.user %}
+
+    {% if tab == 'following' %}
+        {% custom_feed feed_type=tab objs=posts title='People you are following'%}
+    {% elif tab == 'bookmarks' %}
+        {% custom_feed feed_type=tab objs=posts title='People you have bookmarked'%}
+    {% else %}
+        {%  default_feed user=request.user %}
+    {% endif %}
 {%  endblock %}
 

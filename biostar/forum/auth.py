@@ -254,6 +254,14 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         context = dict(user=post.author, offtopic=offtopic)
         content = tmpl.render(context)
         off_topic(post=post, content=content, user=user)
+
+        Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
+        # Load answer/comment explaining post.
+        #ptype = Post.ANSWER if post.is_toplevel else Post.COMMENT
+        ptype = ''
+        # Create an anwser or comment with explanation as to why post is off topic.
+        Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user, rank='')
+
         return url
 
     if dupes:
