@@ -20,8 +20,8 @@ class PostTest(TestCase):
                                          password="tested", is_superuser=True, is_staff=True)
 
         # Create an existing tested post
-        self.post = auth.create_post(title="Test", author=self.owner, content="Test",
-                                     post_type=models.Post.QUESTION)
+        self.post = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                     type=models.Post.QUESTION)
 
         self.owner.save()
         pass
@@ -52,8 +52,8 @@ class PostTest(TestCase):
         choices = [const.TOGGLE_ACCEPT, const.DELETE]
 
         # Create an answer to moderate
-        anwser = auth.create_post(title="Test", author=self.owner, content="Test",
-                                  post_type=models.Post.ANSWER, root=self.post,
+        anwser = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                  type=models.Post.ANSWER, root=self.post,
                                   parent=self.post)
 
         self.moderate(choices=choices, post=anwser)
@@ -65,8 +65,8 @@ class PostTest(TestCase):
         choices = [const.DELETE]
 
         # Create a comment to moderate
-        comment = auth.create_post(title="Test", author=self.owner, content="Test",
-                                   post_type=models.Post.COMMENT, root=self.post,
+        comment = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                   type=models.Post.COMMENT, root=self.post,
                                    parent=self.post)
 
         self.moderate(choices=choices, post=comment, extra={'pid': self.post.uid})

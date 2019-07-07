@@ -7,6 +7,7 @@ from django.conf import settings
 from biostar.accounts.models import User
 from .models import Post
 from biostar.forum import models, auth
+from antispam import akismet
 
 from .const import *
 
@@ -17,12 +18,34 @@ MIN_CHARS = 5
 MAX_CONTENT = 15000
 MIN_CONTENT = 10
 
-def english_only(text):
 
+class CommentSpam(akismet.Comment):
+    def as_params(self):
+        params = super(CommentSpam, self).as_params()
+        params['comment_date'] = self.created
+        return params
+
+
+def english_only(text):
     try:
         text.encode('ascii')
     except Exception:
-        raise ValidationError('Title may only contain plain text (ASCII) characters')
+        raise ValidationError('Text may only contain plain text (ASCII) characters')
+
+
+def check_spam(request, content):
+    # Check API if post content being submitted is spam
+
+    name, email = request.user.profile.name, request.user.email
+    post = CommentSpam(content=content, type='comment', author=akismet.Author(name=name, email=email))
+
+    # Returns a score with the likely hood of this content being spam
+    spam_score = akismet.check(request=akismet.Request.from_django_request(request), comment=post)
+
+    spam_staus = dict(ham=0, unknown=1, probable_spam=2, definite_spam=3)
+
+    print(spam_score, f"spam score :{spam_staus.get(spam_score, 'unknown')}")
+    return
 
 
 def valid_title(text):
@@ -60,9 +83,10 @@ class PostLongForm(forms.Form):
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
                               min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content", strip=False)
 
-    def __init__(self, post=None, user=None, *args, **kwargs):
+    def __init__(self, post=None, user=None, request=None, *args, **kwargs):
         self.post = post
         self.user = user
+        self.request = request
         super(PostLongForm, self).__init__(*args, **kwargs)
 
     def edit(self):
@@ -80,11 +104,17 @@ class PostLongForm(forms.Form):
         self.post.save()
         return self.post
 
+    # def clean(self):
+    #     content = self.cleaned_data.get("content", '')
+    #     if self.request:
+    #         check_spam(request=self.request, content=content)
+    #     return self.cleaned_data
+
     def clean_tag_val(self):
         """
         Take out duplicates
         """
-        tag_val = self.cleaned_data["tag_val"]
+        tag_val = self.cleaned_data["tag_val"] or 'tag1,tag2'
         tags = set(tag_val.split(","))
         return ",".join(tags)
 

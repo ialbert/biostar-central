@@ -275,8 +275,8 @@ def post_view(request, uid):
             author = request.user
             content = form.cleaned_data.get("content")
             # Create answer to root
-            answer = auth.create_post(title=post.title, parent=post, author=author,
-                                      content=content, post_type=Post.ANSWER, root=post.root)
+            answer = Post.objects.create(title=post.title, parent=post, author=author,
+                                         content=content, type=Post.ANSWER, root=post.root)
             tasks.created_post.spool(pid=answer.id)
             return redirect(answer.get_absolute_url())
 
@@ -298,7 +298,7 @@ def new_comment(request, uid):
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             content = form.cleaned_data['content']
-            comment = auth.create_post(parent=post, author=user, content=content, post_type=Post.COMMENT)
+            comment = Post.objects.create(parent=post, author=user, content=content, type=Post.COMMENT)
             return redirect(comment.get_absolute_url())
         messages.error(request, f"Error adding comment:{form.errors}")
     else:
@@ -319,15 +319,16 @@ def new_post(request):
     author = request.user
 
     if request.method == "POST":
-        form = forms.PostLongForm(data=request.POST)
+        form = forms.PostLongForm(data=request.POST, request=request)
         if form.is_valid():
             # Create a new post by user
             title = form.cleaned_data.get('title')
             content = form.cleaned_data.get("content")
             post_type = form.cleaned_data.get('post_type')
             tag_val = form.cleaned_data.get('tag_val')
-            post = auth.create_post(title=title, content=content, post_type=post_type,
+            post = Post.objects.create(title=title, content=content, type=post_type,
                                     tag_val=tag_val, author=author)
+
             tasks.created_post.spool(pid=post.id)
 
             return redirect(post.get_absolute_url())

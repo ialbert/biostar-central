@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from antispam import akismet
 from django.template import loader
 from django.conf import settings
 from django.contrib import messages
@@ -273,15 +274,3 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         return url
 
     return url
-
-
-def create_post(author, content, post_type, title="Title", tag_val="tag1, tag2", parent=None, root=None,):
-    "Used to create posts across apps"
-
-    post = Post.objects.create(title=title, content=content, tag_val=tag_val,
-                               author=author, type=post_type, parent=parent, root=root)
-
-    # Trigger notifications for subscribers and mentioned users
-    # async or synchronously
-
-    return post

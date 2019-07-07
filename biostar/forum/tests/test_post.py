@@ -15,8 +15,8 @@ class PostTest(TestCase):
         self.owner = User.objects.create(username=f"test", email="tested@tested.com", password="tested")
 
         # Create an existing tested post
-        self.post = auth.create_post(title="Test", author=self.owner, content="Test",
-                                     post_type=models.Post.QUESTION)
+        self.post = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                     type=models.Post.QUESTION)
         self.owner.save()
         pass
 
@@ -52,11 +52,11 @@ class PostTest(TestCase):
 
         # Create a couple of comments to traverse
 
-        comment = auth.create_post(title="Test", author=self.owner, content="Test",
-                                   post_type=models.Post.COMMENT, root=self.post,
+        comment = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                   type=models.Post.COMMENT, root=self.post,
                                    parent=self.post)
-        comment2 = auth.create_post(title="Test", author=self.owner, content="Test",
-                                   post_type=models.Post.COMMENT, root=self.post,
+        comment2 = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                   type=models.Post.COMMENT, root=self.post,
                                    parent=comment)
 
         url = reverse("post_view", kwargs=dict(uid=self.post.uid))
@@ -89,8 +89,8 @@ class PostTest(TestCase):
         # Create a different user to vote with
         user2 = User.objects.create(username="user", email="user@tested.com", password="tested")
 
-        answer = auth.create_post(title="answer", author=user2, content="tested foo bar too for",
-                                  post_type=models.Post.ANSWER, parent=self.post)
+        answer = models.Post.objects.create(title="answer", author=user2, content="tested foo bar too for",
+                                  type=models.Post.ANSWER, parent=self.post)
 
         self.preform_votes(post=answer, user=self.owner)
         self.preform_votes(post=self.post, user=self.owner)

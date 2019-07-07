@@ -17,10 +17,11 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
-
+# TODO: testing anti-spam API.
 AKISMET_API_KEY = 'spam-key'
 AKISMET_SITE_URL = BASE_URL
-AKISMET_TEST_MODE = True
+# Do not hammer the API when testing
+AKISMET_TEST_MODE = False
 
 
 VOTE_FEED_COUNT = 10
