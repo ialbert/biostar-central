@@ -183,10 +183,10 @@ class PostModForm(forms.Form):
         if self.post.is_toplevel:
             self.fields['dupe'] = forms.CharField(required=False, max_length=200)
             self.fields['comment'] = forms.CharField(required=False, max_length=200)
+            self.fields['offtopic'] = forms.CharField(required=False, max_length=200)
         else:
             self.fields['pid'] = forms.CharField(required=False, max_length=200, label="Parent id")
 
-        self.fields['offtopic'] = forms.CharField(required=False, max_length=200)
         self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=False)
 
     def clean_dupe(self):

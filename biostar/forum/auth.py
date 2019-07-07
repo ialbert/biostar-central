@@ -211,17 +211,6 @@ def delete_post(post, request):
     return url
 
 
-def off_topic(post, content, user, ptype=None):
-    Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
-    # Load comment explaining post closure.
-    default = Post.ANSWER if post.is_toplevel else Post.COMMENT
-    ptype = ptype or default
-
-    # Create an anwser or comment with explanation as to why post is off topic.
-    Post.objects.create(content=content, type=ptype, parent=post, author=user)
-    return
-
-
 def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pid=None):
     root = post.root
     user = request.user
@@ -229,7 +218,6 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
     url = post.get_absolute_url()
 
     if action == BUMP_POST:
-        print("EXTRA fuck")
         Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp(), last_contributor=request.user)
         messages.success(request, "Post bumped")
         return url
@@ -252,16 +240,12 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
     if offtopic:
         # Load comment explaining post closure.
         tmpl = loader.get_template("messages/off_topic.md")
-        context = dict(user=post.author, offtopic=offtopic)
+        context = dict(user=post.author, comment=offtopic)
         content = tmpl.render(context)
-        off_topic(post=post, content=content, user=user)
 
         Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
-        # Load answer/comment explaining post.
-        #ptype = Post.ANSWER if post.is_toplevel else Post.COMMENT
-        ptype = ''
-        # Create an anwser or comment with explanation as to why post is off topic.
-        Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user, rank='')
+        # Load answer explaining post being off topic.
+        Post.objects.create(content=content, type=Post.ANSWER, parent=post, author=user)
 
         return url
 
@@ -270,7 +254,10 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         tmpl = loader.get_template("messages/duplicate_posts.md")
         context = dict(user=post.author, dupes=dupes, comment=comment)
         content = tmpl.render(context)
-        off_topic(post=post, content=content, user=user, ptype=Post.COMMENT)
+
+        Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
+        Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
+
         return url
 
     return url

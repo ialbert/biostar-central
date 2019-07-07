@@ -1,17 +1,11 @@
 
 Hello {{ user.profile.name }}!
 
-This post 
+We believe that this post does not fit the main topic of this site as it is not a bioinformatics question.
 
-Posts similar to yours can already be found at:
+For this reason we have closed your question. This allows us to keep the site focused on the topics that the community can help with.
 
-{% for dupe_url in dupes %}
-- [{{ dupe_url }}]({{dupe_url}})
-{% endfor %}
-
-We have closed your post to allow us to keep similar content in the same thread.
-
-If you disagree with this please tell us why in a reply below. We'll be happy to talk about it.
+If you disagree please tell us why in a reply below, we'll be happy to talk about it.
 
 Cheers!
 

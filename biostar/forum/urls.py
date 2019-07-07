@@ -1,5 +1,6 @@
 
 from django.conf import settings
+from django.contrib import admin
 from django.conf.urls.static import static
 from django.urls import include, path  # For django versions from 2.0 and up
 import debug_toolbar
@@ -11,6 +12,9 @@ urlpatterns = [
 
     # Main entry. Post listing.
     path('', views.latest, name='post_list'),
+    # The django generated admin site.
+    path('django/admin/', admin.site.urls, name='django_admin'),
+
     path('votes/', views.myvotes, name='myvotes'),
     path('bookmarks/', views.bookmarks, name='bookmarks'),
     path('following/', views.following, name='following'),
