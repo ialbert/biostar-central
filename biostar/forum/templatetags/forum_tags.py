@@ -318,13 +318,15 @@ def single_post_feed(post):
     Return feed populated with posts similar to the one given.
     """
 
-    # Search for posts with similar content
-    query = post.content
-    fields = ['content']
-    # Exclude this post from the results.
-    exclude = search_query.Term('uid', post.uid)
-    results = search.search_index(query=query, fields=fields, mask=exclude)
+    results = []
+    # Retrieve this post from the search index.
+    indexed_post = search.search_index(query=post.uid, fields=['uid'])
 
+    # Get top level posts similar to this one.
+    if not indexed_post.is_empty():
+        result_filter = search_query.Term('toplevel', True)
+        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT,
+                                                 filter=result_filter)
     context = dict(results=results)
     return context
 

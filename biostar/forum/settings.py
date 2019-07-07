@@ -28,7 +28,7 @@ LOCATION_FEED_COUNT = 5
 AWARDS_FEED_COUNT = 10
 REPLIES_FEED_COUNT = 15
 
-SINGLE_FEED_COUNT = 30
+SIMILAR_FEED_COUNT = 30
 
 SESSION_UPDATE_SECONDS = 40
 
@@ -48,8 +48,12 @@ SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
     'pagedown',
+    'antispam',
+    'antispam.akismet',
 
 ]
+
+# Akismet protection configuration (optional)
 
 # Additional middleware.
 MIDDLEWARE += [
