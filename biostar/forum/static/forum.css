@@ -173,6 +173,17 @@ a:hover {
     border: none;
 }
 
+.search.message{
+    padding: 10px;
+    margin: 0px;
+}
+
+.search-results{
+    height: fit-content;
+    overflow-y: auto;
+    max-height: 500px
+}
+
 
 .popover.error {
     background-color: #f2dede;

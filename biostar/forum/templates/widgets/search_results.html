@@ -1,7 +1,7 @@
 {% load forum_tags %}
 
 {% if results %}
-    <div class="ui segment" style="height: fit-content; overflow-y: auto; max-height: 500px">
+    <div class="ui search-results segment">
         <div class="ui relaxed divided list">
             {% for result in results %}
                 <a class="item" href="{{ result.url }}">
@@ -16,7 +16,7 @@
         </div>
     </div>
 {% else %}
-    <div class="ui blue message" style="padding: 10px">
+    <div class="ui blue search message">
         <i class="info icon"></i>
         No results found.
     </div>

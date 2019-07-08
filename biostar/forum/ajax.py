@@ -148,7 +148,7 @@ def ajax_edit(request):
 @ratelimit(key='ip', rate='10/m')
 def ajax_search(request):
 
-    query = request.POST.get('query', '')
+    query = request.GET.get('query', '')
     fields = ['content', 'tags', 'title']
     if query:
         results = search.search_index(query=query, fields=fields)
