@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load compress %}
+{% load recaptcha2 %}
 {% load forum_tags %}
 {% load accounts_tags %}
 
@@ -18,6 +19,8 @@
 
     {# Load JQuery. #}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    {# Load recaptcha #}
+    {% recaptcha_init %}
 
     {#  CSS compression. #}
     {% compress css %}

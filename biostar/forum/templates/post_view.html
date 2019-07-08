@@ -10,7 +10,6 @@
 
     {# The toplevel post #}
     <div class="ui vertical segment">
-
         {% post_body post=post user=request.user tree=tree %}
     </div>
 
@@ -53,7 +52,6 @@
                                 <textarea class=" wmd-input" cols="40" name="content" rows="10"
                                           id="{{ form.content.id_for_label }}">{% if request.POST.content %}{{ request.POST.content }}{% endif %}</textarea>
                             </div>
-
                             <div class="top-padding">
                                 <button type="submit" class="ui submit green button">
                                     <i class="check icon"></i>Submit
@@ -84,9 +82,6 @@
                 </div>
 
             {% endif %}
-
-
-
 
 {% endblock %}
 

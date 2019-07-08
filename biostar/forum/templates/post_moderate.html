@@ -4,7 +4,6 @@
 <div class="ui form-wrap segment" style="background-color: #f9f6f4">
     <b>Moderating {{ post.get_type_display }}: {{ post.title }}</b>
 
-
     <form method="post" class="ui form" id="modform" action="{% url 'post_moderate' post.uid %}">
 
         {% csrf_token %}

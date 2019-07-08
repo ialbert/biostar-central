@@ -192,7 +192,7 @@ class PostModForm(forms.Form):
     def clean_dupe(self):
         dupe = self.cleaned_data.get("dupe")
         dupes = dupe.split(",")[:5]
-
+        dupes = ','.join(dupes)
         return dupes
 
     def clean(self):

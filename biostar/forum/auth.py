@@ -246,6 +246,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
         # Load answer explaining post being off topic.
         Post.objects.create(content=content, type=Post.ANSWER, parent=post, author=user)
+        messages.success(request, "Marked the post as off topic.")
 
         return url
 
@@ -257,6 +258,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
 
         Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
         Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
+        messages.success(request, "Closed duplicated post.")
 
         return url
 

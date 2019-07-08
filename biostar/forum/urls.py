@@ -12,8 +12,6 @@ urlpatterns = [
 
     # Main entry. Post listing.
     path('', views.latest, name='post_list'),
-    # The django generated admin site.
-    path('django/admin/', admin.site.urls, name='django_admin'),
 
     path('votes/', views.myvotes, name='myvotes'),
     path('bookmarks/', views.bookmarks, name='bookmarks'),

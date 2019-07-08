@@ -16,6 +16,7 @@ def ajax_msg(msg, status, **kwargs):
     payload.update(kwargs)
     return JsonResponse(payload)
 
+MAX_CHARS = 200
 
 logger = logging.getLevelName("biostar")
 ajax_success = partial(ajax_msg, status='success')
@@ -158,6 +159,4 @@ def ajax_search(request):
         return ajax_success(html=results_html, msg="success")
 
     return ajax_success(html="", msg="success")
-
-
 

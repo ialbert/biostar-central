@@ -350,12 +350,11 @@ def post_moderate(request, uid):
     post = Post.objects.filter(uid=uid).first()
 
     if request.method == "POST":
-
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
 
         if form.is_valid():
             action = form.cleaned_data.get('action')
-            dupe = form.cleaned_data.get('dupe')
+            dupe = form.cleaned_data.get('dupe', '').split(",")
             dupe_comment = form.cleaned_data.get('comment')
             mod_uid = form.cleaned_data.get('pid')
             offtopic = form.cleaned_data.get('offtopic')
@@ -363,7 +362,7 @@ def post_moderate(request, uid):
                                        dupes=dupe, pid=mod_uid, offtopic=offtopic)
             return redirect(redir)
         else:
-            messages.error(request, "Invalid moderation error.")
+            messages.error(request, "Invalid action")
             return redirect(reverse("post_view", kwargs=dict(uid=uid)))
     else:
         form = forms.PostModForm(post=post, user=user, request=request)

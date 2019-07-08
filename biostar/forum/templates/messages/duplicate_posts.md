@@ -14,5 +14,5 @@ If you disagree with this please tell us why in a reply below. We'll be happy to
 Cheers!
 
 {%  if comment %}
-    PS: {{ comment }}
+ PS: {{ comment }}
 {%  endif %}
