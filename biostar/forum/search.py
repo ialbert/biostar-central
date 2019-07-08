@@ -4,12 +4,17 @@ import whoosh.query as search_query
 import logging
 from django.conf import settings
 from whoosh.qparser import MultifieldParser, QueryParser, OrGroup
-from whoosh.analysis import SpaceSeparatedTokenizer
+from whoosh.analysis import SpaceSeparatedTokenizer, StandardAnalyzer, StopFilter, STOP_WORDS
 from whoosh.index import create_in, open_dir
 from whoosh.fields import ID, NGRAM, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, NGRAMWORDS
 
 from .models import Post
 logger = logging.getLogger('engine')
+
+
+# Stop words.
+STOP = ['there', 'where', 'who'] + [w for w in STOP_WORDS]
+STOP = set(STOP)
 
 
 def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
@@ -18,9 +23,10 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
     Created inside of directory with the
     """
     # Create the schema
-    tokenizer = SpaceSeparatedTokenizer()
+    tokenizer = SpaceSeparatedTokenizer() | StopFilter(stoplist=STOP)
+
     schema = Schema(title=NGRAMWORDS(stored=True, tokenizer=tokenizer), url=ID(stored=True),
-                    content=NGRAMWORDS(stored=True, at='start', tokenizer=tokenizer),
+                    content=NGRAMWORDS(stored=True, tokenizer=tokenizer),
                     tags=KEYWORD(stored=True), is_toplevel=BOOLEAN(stored=True), author_uid=ID(stored=True),
                     rank=NUMERIC(stored=True, sortable=True), author=TEXT(stored=True),
                     author_url=ID(stored=True), uid=ID(stored=True))
