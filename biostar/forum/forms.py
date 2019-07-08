@@ -37,9 +37,9 @@ def check_spam(request, content):
     # Check API if post content being submitted is spam
 
     name, email = request.user.profile.name, request.user.email
-    post = CommentSpam(content=content, type='comment', author=akismet.Author(name=name, email=email))
+    post = CommentSpam(content=content, type='comment', author=akismet.Author(name=name))
 
-    # Returns a score with the likely hood of this content being spam
+    # Scores this content from 0-3, from not spam to defiantly spam
     spam_score = akismet.check(request=akismet.Request.from_django_request(request), comment=post)
 
     spam_staus = dict(ham=0, unknown=1, probable_spam=2, definite_spam=3)
