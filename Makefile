@@ -13,6 +13,9 @@ DJANGO_APP := biostar.engine
 # Database name
 DATABASE_NAME := database.db
 
+# Search index name
+INDEX_NAME := index
+
 all: engine serve
 
 accounts:
@@ -96,7 +99,8 @@ test_all:
 	coverage html --skip-covered
 
 index:
-	python manage.py index --settings ${DJANGO_SETTING_MODULE}
+	@echo INDEX_NAME=${INDEX_NAME}
+	python manage.py index --name ${INDEX_NAME} --settings ${DJANGO_SETTING_MODULE}
 
 
 projects:
@@ -129,7 +133,7 @@ pg_drop:
 
 transfer:
 	python manage.py migrate --settings conf.examples.pg.forum_settings
-	python manage.py transfer -n 300 --settings biostar.transfer.settings
+	python manage.py transfer -n 10000 --settings biostar.transfer.settings
 
 next:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}

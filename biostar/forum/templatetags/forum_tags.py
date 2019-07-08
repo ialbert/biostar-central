@@ -313,7 +313,7 @@ def search_bar():
 
 
 @register.inclusion_tag('widgets/feed_single.html')
-def single_post_feed(post):
+def single_feed(post):
     """
     Return feed populated with posts similar to the one given.
     """
@@ -324,9 +324,9 @@ def single_post_feed(post):
 
     # Get top level posts similar to this one.
     if not indexed_post.is_empty():
-        result_filter = search_query.Term('toplevel', True)
-        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT,
-                                                 filter=result_filter)
+        #result_filter = search_query.Term('toplevel', True)
+        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)#filter=result_filter)
+
     context = dict(results=results)
     return context
 

@@ -34,7 +34,7 @@ SIMILAR_FEED_COUNT = 30
 SESSION_UPDATE_SECONDS = 40
 
 # Search index name
-INDEX_NAME = "index"
+INDEX_NAME = os.environ.setdefault("INDEX_NAME", "index")
 INDEX_DIR = os.path.join(MEDIA_ROOT, '..', 'search')
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
