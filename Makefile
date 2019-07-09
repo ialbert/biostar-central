@@ -133,7 +133,7 @@ pg_drop:
 
 transfer:
 	python manage.py migrate --settings conf.examples.pg.forum_settings
-	python manage.py transfer -n 10000 --settings biostar.transfer.settings
+	python manage.py transfer -n 300 --settings biostar.transfer.settings
 
 next:
 	@echo DJANGO_SETTING_MODULE=${DJANGO_SETTING_MODULE}
