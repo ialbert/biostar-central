@@ -21,17 +21,17 @@
     {% endfor %}
 
 
-        <div class="ui form-wrap segment">
-
-            <div class="ui header">Add Your Answer</div>
-
-            {% if request.user.is_authenticated %}
-
-                <form method="post" class="ui form" action="{% url 'post_answer' post.uid %}">
+            {% if request.user.is_authenticated and post.is_open %}
+                {% form_errors form %}
+                <form method="post" class="ui form" action="{% url 'post_view' post.uid %}">
 
                     {{ form.media }}
 
                     {% csrf_token %}
+
+
+                <div class="ui form-wrap segment">
+                    <b>Add Your Answer</b>
 
                     <div class="ui info tablet message">
                         <p><b>Note:</b> Answers should be used only as a response to the original post seen the top of
@@ -44,18 +44,38 @@
                     </div>
                     <input type="hidden" name="{{ form.parent_uid.name }}" id="{{ form.parent_uid.id_for_label }}"
                            value={{ post.uid }}/>
-                    <div class="field">
-                        {{ form.content }}
-                    </div>
 
-                    <button type="submit" class="ui submit green button">
-                        <i class="check icon"></i>Submit
-                    </button>
+                    <div class="input field">
+                        <div class="wmd-wrapper" id="{{ form.content.id_for_label }}-wmd-wrapper">
+                            <div class="">
+                                <div id="{{ form.content.id_for_label }}_wmd_button_bar"></div>
+                                <textarea class=" wmd-input" cols="40" name="content" rows="10"
+                                          id="{{ form.content.id_for_label }}">{% if request.POST.content %}{{ request.POST.content }}{% endif %}</textarea>
+                            </div>
+                            <div class="top-padding">
+                                <button type="submit" class="ui submit green button">
+                                    <i class="check icon"></i>Submit
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui form-wrap segment">
+                    <div class="field">
+                        <label>HTML Preview</label>
+                        <div id="{{ form.content.id_for_label }}_wmd_preview" class="wmd-preview"></div>
+                    </div>
+                </div>
 
                 </form>
 
+            {% elif not post.is_open %}
+                <div class="ui warning message">
+                    This thread is not open. No new answers may be added
+                </div>
             {% else %}
-
                 <div class="ui info message">
                     <p><a class="ui small label" href="{% url 'login' %}">
                         <i class="sign in icon"></i>Login</a> before adding your answer.</p>
@@ -63,11 +83,8 @@
 
             {% endif %}
 
-        </div>
-
-
 {% endblock %}
 
 {% block sidebar %}
-    {% single_post_feed post=post %}
+    {% single_feed post=post %}
 {% endblock %}

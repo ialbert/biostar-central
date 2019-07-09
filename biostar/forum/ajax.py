@@ -1,14 +1,13 @@
 from functools import wraps, partial
 import logging
-from django.http import HttpResponse
-from django import template
-from django.http import JsonResponse
-from django.utils.decorators import available_attrs
-from django.db.models import F
 from ratelimit.decorators import ratelimit
 
-from biostar.accounts.models import Profile
-from . import auth, util, forms, tasks
+from django.template import loader
+from django.http import JsonResponse
+from django.utils.decorators import available_attrs
+
+from .const import *
+from . import auth, util, forms, tasks, search
 from .models import Post, Vote, Subscription
 
 
@@ -17,6 +16,7 @@ def ajax_msg(msg, status, **kwargs):
     payload.update(kwargs)
     return JsonResponse(payload)
 
+MAX_CHARS = 200
 
 logger = logging.getLevelName("biostar")
 ajax_success = partial(ajax_msg, status='success')
@@ -35,6 +35,7 @@ class ajax_error_wrapper:
 
         @wraps(func, assigned=available_attrs(func))
         def _ajax_view(request, *args, **kwargs):
+
             if request.method != self.method:
                 return ajax_error(f'{self.method} method must be used.')
             if not request.user.is_authenticated:
@@ -79,8 +80,9 @@ def ajax_vote(request):
     if post.author == user and vote_type == Vote.ACCEPT:
         return ajax_error("You can not accept your own post.")
 
-    if post.root.author != user and vote_type == Vote.ACCEPT:
-        return ajax_error("Only the person asking the question may accept this answer.")
+    not_moderator = user.is_authenticated and not user.profile.is_moderator
+    if post.root.author != user and not_moderator and vote_type == Vote.ACCEPT:
+        return ajax_error("Only moderators or the person asking the question may accept answers.")
 
     msg, vote, change = auth.apply_vote(post=post, user=user, vote_type=vote_type)
 
@@ -140,3 +142,21 @@ def ajax_edit(request):
     # Note: returns html instead of JSON on success.
     # Used to switch content inplace.
     return ajax_success(msg=post.html)
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+def ajax_search(request):
+
+    query = request.GET.get('query', '')
+    fields = ['content', 'tags', 'title']
+    if query:
+        results = search.search_index(query=query, fields=fields)
+        tmpl = loader.get_template("widgets/search_results.html")
+        context = dict(results=results)
+        results_html = tmpl.render(context)
+
+        return ajax_success(html=results_html, msg="success")
+
+    return ajax_success(html="", msg="success")
+

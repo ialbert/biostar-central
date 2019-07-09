@@ -1,0 +1,22 @@
+{% load forum_tags %}
+
+<div class="ui large biostar-feed">
+
+    <div class="event">
+        <div class="ui container">
+                <b> {{ title }} </b>
+                <div class="ui relaxed list" >
+                    {% for user in users %}
+                       <div class="item spaced" >
+                       <img class="ui centered circular image" src="{% gravatar user=user size=30 %}">
+                            <a href="{% url 'user_profile' user.profile.uid %}">
+                                {{user.profile.name }}
+                                {% user_icon user=user %}
+                            </a>
+                       </div>
+                    {% endfor %}
+                </div>
+        </div>
+    </div>
+
+</div>

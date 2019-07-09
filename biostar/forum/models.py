@@ -26,8 +26,8 @@ class Post(models.Model):
     "Represents a post in a forum"
 
     # Post statuses.
-    PENDING, OPEN, CLOSED, DELETED = range(4)
-    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
+    PENDING, OPEN, OFFTOPIC, DELETED = range(4)
+    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (OFFTOPIC, "Off topic"), (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
     QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
@@ -163,6 +163,10 @@ class Post(models.Model):
     def is_comment(self):
         return self.type == Post.COMMENT
 
+    @property
+    def is_answer(self):
+        return self.type == Post.ANSWER
+
     def get_absolute_url(self):
         url = reverse("post_view", kwargs=dict(uid=self.root.uid))
         return url if self.is_toplevel else "%s#%s" % (url, self.uid)
@@ -173,21 +177,16 @@ class Post(models.Model):
         from biostar.utils import markdown
 
         self.lastedit_user = self.lastedit_user or self.author
+
         self.creation_date = self.creation_date or util.now()
         self.lastedit_date = util.now()
         self.last_contributor = self.lastedit_user
+
         # Sanitize the post body.
         self.html = markdown.parse(self.content, post=self)
-
-        # Set the rank
-        self.rank = self.lastedit_date.timestamp()
-
         self.tag_val = self.tag_val.replace(' ', '')
-
-        self.creation_date = self.creation_date or util.now()
-
-        self.lastedit_date = self.lastedit_date or self.creation_date
-
+        # Default tags
+        self.tag_val = self.tag_val or "tag1,tag2"
         # Set the top level state of the post.
         self.is_toplevel = self.type in Post.TOP_LEVEL
 

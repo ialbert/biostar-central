@@ -17,14 +17,25 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
+# TODO: testing anti-spam API.
+AKISMET_API_KEY = 'spam-key'
+AKISMET_SITE_URL = BASE_URL
+# Do not hammer the API when testing
+AKISMET_TEST_MODE = False
+
+
 VOTE_FEED_COUNT = 10
 LOCATION_FEED_COUNT = 5
 AWARDS_FEED_COUNT = 10
 REPLIES_FEED_COUNT = 15
 
-SINGLE_FEED_COUNT = 40
+SIMILAR_FEED_COUNT = 30
 
 SESSION_UPDATE_SECONDS = 40
+
+# Search index name
+INDEX_NAME = os.environ.setdefault("INDEX_NAME", "index")
+INDEX_DIR = os.path.join(MEDIA_ROOT, '..', 'search')
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
@@ -38,8 +49,12 @@ SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
     'pagedown',
+    'antispam',
+    'antispam.akismet',
 
 ]
+
+# Akismet protection configuration (optional)
 
 # Additional middleware.
 MIDDLEWARE += [

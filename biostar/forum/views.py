@@ -52,14 +52,6 @@ ORDER_MAPPER = dict(
 )
 
 
-def authenticated(func):
-    def _wrapper_(request, **kwargs):
-        if request.user.is_anonymous:
-            messages.error(request, "You need to be logged in to view this page.")
-        return func(request, **kwargs)
-    return _wrapper_
-
-
 def post_exists(func):
     """
     Ensure uid passed to view function exists.
@@ -96,9 +88,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     elif topic == MYPOSTS and user.is_authenticated:
         query = Post.objects.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
-        votes = Vote.objects.filter(post__author=user).exclude(author=user)
-        # query = votes_query.values("post")
-        query = Post.objects.filter(votes__in=votes)
+        query = Post.objects.filter(votes__post__author=user)
     else:
         query = Post.objects.filter(is_toplevel=True)
 
@@ -130,7 +120,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
 
 @ensure_csrf_cookie
-def post_list(request, show=None):
+def post_list(request, show=None, extra_context=dict()):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
@@ -161,7 +151,7 @@ def post_list(request, show=None):
 
     # Fill in context.
     context = dict(posts=posts, tab=tab, tag=tag, order=order, limit=limit)
-
+    context.update(extra_context)
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
 
@@ -171,12 +161,29 @@ def latest(request):
     return post_list(request, show=show)
 
 
+def authenticated(func):
+    def _wrapper_(request, **kwargs):
+        if request.user.is_anonymous:
+            messages.error(request, "You need to be logged in to view this page.")
+        return func(request, **kwargs)
+    return _wrapper_
+
+
 @authenticated
 def myvotes(request):
     """
     Show posts by user that received votes
     """
-    return post_list(request, show=MYVOTES)
+    page = request.GET.get('page', 1)
+    votes = Vote.objects.filter(post__author=request.user).order_by("-date")
+    # Create the paginator
+    paginator = Paginator(votes, settings.POSTS_PER_PAGE)
+
+    # Apply the votes paging.
+    votes = paginator.get_page(votes)
+
+    context = dict(votes=votes, page=page, tab='myvotes')
+    return render(request, template_name="votes_list.html", context=context)
 
 
 @authenticated
@@ -261,11 +268,18 @@ def post_view(request, uid):
     # Get the post.
     post = Post.objects.filter(uid=uid).first()
 
-    # Redirect non-top level posts.
-    if not post.is_toplevel:
-        return redirect(post.get_absolute_url())
+    if request.method == "POST":
+        form = forms.PostShortForm(data=request.POST)
+        if form.is_valid():
+            author = request.user
+            content = form.cleaned_data.get("content")
+            # Create answer to root
+            answer = Post.objects.create(title=post.title, parent=post, author=author,
+                                         content=content, type=Post.ANSWER, root=post.root)
+            tasks.created_post.spool(pid=answer.id)
+            return redirect(answer.get_absolute_url())
 
-    # auth.update_post_views(post=obj, request=request)
+    auth.update_post_views(post=post, request=request)
 
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
@@ -273,31 +287,6 @@ def post_view(request, uid):
     context = dict(post=root, tree=comment_tree, form=form, answers=answers)
 
     return render(request, "post_view.html", context=context)
-
-
-@post_exists
-def new_answer(request, uid):
-    """
-    Process an answer with form
-    """
-    # Get the post.
-    root = Post.objects.filter(uid=uid).first()
-    url = root.get_absolute_url()
-    if request.method == "POST":
-        form = forms.PostShortForm(data=request.POST)
-        if form.is_valid():
-            author = request.user
-            content = form.cleaned_data.get("content")
-
-            # Create answer to root
-            answer = auth.create_post(title=root.title, parent=root, author=author,
-                                      content=content, post_type=Post.ANSWER, root=root)
-            tasks.created_post.spool(pid=answer.id)
-
-            # Anchor location to recently created answer
-            url = answer.get_absolute_url()
-
-    return redirect(url)
 
 
 def new_comment(request, uid):
@@ -308,7 +297,7 @@ def new_comment(request, uid):
         form = forms.PostShortForm(data=request.POST)
         if form.is_valid():
             content = form.cleaned_data['content']
-            comment = auth.create_post(parent=post, author=user, content=content, post_type=Post.COMMENT)
+            comment = Post.objects.create(parent=post, author=user, content=content, type=Post.COMMENT)
             return redirect(comment.get_absolute_url())
         messages.error(request, f"Error adding comment:{form.errors}")
     else:
@@ -327,31 +316,26 @@ def new_post(request):
     """
     form = forms.PostLongForm()
     author = request.user
-    # Map default tag values to not selected in dropdown
-    tags_opts = {}
 
     if request.method == "POST":
-        form = forms.PostLongForm(data=request.POST)
+        form = forms.PostLongForm(data=request.POST, request=request)
         if form.is_valid():
             # Create a new post by user
             title = form.cleaned_data.get('title')
             content = form.cleaned_data.get("content")
             post_type = form.cleaned_data.get('post_type')
             tag_val = form.cleaned_data.get('tag_val')
-            post = auth.create_post(title=title, content=content, post_type=post_type,
+            post = Post.objects.create(title=title, content=content, type=post_type,
                                     tag_val=tag_val, author=author)
+
             tasks.created_post.spool(pid=post.id)
 
             return redirect(post.get_absolute_url())
-        tags_opts = {val: True for val in request.POST.get('tag_val', '').split(",")}
 
     # Action url for the form is the current view
     action_url = reverse("post_create")
-    tags_opts = tags_opts.items()
-    selected = request.POST.get('tag_val', '')
     content = request.POST.get('content', '')
-    context = dict(form=form, tab="new", action_url=action_url, content=content, tags_opt=tags_opts,
-                   form_title="Create New Post", selected=selected)
+    context = dict(form=form, tab="new", action_url=action_url, content=content, form_title="Create New Post")
 
     return render(request, "new_post.html", context=context)
 
@@ -359,21 +343,25 @@ def new_post(request):
 @post_exists
 @login_required
 def post_moderate(request, uid):
+
+    """Used to make dispaly post moderate form given a post request."""
     user = request.user
     post = Post.objects.filter(uid=uid).first()
 
     if request.method == "POST":
-
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
 
         if form.is_valid():
-            action = form.cleaned_data["action"]
-            duplicate = form.cleaned_data["dupe"]
-            pid = form.cleaned_data.get("pid", "")
-            redir = auth.moderate_post(post=post, request=request, action=action, dupes=duplicate, pid=pid)
+            action = form.cleaned_data.get('action')
+            dupe = form.cleaned_data.get('dupe', '').split(",")
+            dupe_comment = form.cleaned_data.get('comment')
+            mod_uid = form.cleaned_data.get('pid')
+            offtopic = form.cleaned_data.get('offtopic')
+            redir = auth.moderate_post(post=post, request=request, action=action, comment=dupe_comment,
+                                       dupes=dupe, pid=mod_uid, offtopic=offtopic)
             return redirect(redir)
         else:
-            messages.error(request, "Invalid moderation error.")
+            messages.error(request, "Invalid action")
             return redirect(reverse("post_view", kwargs=dict(uid=uid)))
     else:
         form = forms.PostModForm(post=post, user=user, request=request)
@@ -391,28 +379,17 @@ def edit_post(request, uid):
     post = Post.objects.filter(uid=uid).first()
     action_url = reverse("post_edit", kwargs=dict(uid=post.uid))
     user = request.user
-    tags_opts = {val: True for val in post.tag_val.split(",")}
-    selected = post.tag_val
+    initial = dict(content=post.content, title=post.title, tag_val=post.tag_val, post_type=post.type)
 
-    if post.is_toplevel:
-        template, form_class = "new_post.html", forms.PostLongForm
-        initial = dict(content=post.content, title=post.title, tag_val=post.tag_val, post_type=post.type)
-    else:
-        template, form_class = "shortpost_edit.html", forms.PostShortForm
-        initial = dict(content=post.content)
+    form = forms.PostLongForm(post=post, initial=initial, user=user)
 
-    form = form_class(post=post, initial=initial, user=user)
     if request.method == "POST":
-        form = form_class(post=post, initial=initial, data=request.POST, user=user)
+        form = forms.PostLongForm(post=post, initial=initial, data=request.POST, user=user)
         if form.is_valid():
             form.edit()
             messages.success(request, f"Edited :{post.title}")
             return redirect(post.get_absolute_url())
-        tags_opts = {val: True for val in request.POST.get('tag_val', '').split(",")}
-        selected = request.POST.get('tag_val', '')
 
-    tags_opts = tags_opts.items()
-    context = dict(form=form, post=post, action_url=action_url, form_title="Edit post",
-                   tags_opt=tags_opts, selected=selected, content=post.content)
+    context = dict(form=form, post=post, action_url=action_url, form_title="Edit post", content=post.content)
 
-    return render(request, template, context)
+    return render(request, "new_post.html", context)

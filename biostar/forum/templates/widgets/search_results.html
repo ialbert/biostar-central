@@ -1,0 +1,23 @@
+{% load forum_tags %}
+
+{% if results %}
+    <div class="ui search-results segment">
+        <div class="ui relaxed divided list">
+            {% for result in results %}
+                <a class="item" href="{{ result.url }}">
+                    <b>{{ result.title }}</b>
+                    <div class="muted">
+                        {{ result|highlight:'content' }}
+                        {{ result.content|truncatechars:120 }}
+                        <div>by {{ result.author }}</div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+{% else %}
+    <div class="ui blue search message">
+        <i class="info icon"></i>
+        No results found.
+    </div>
+{% endif %}

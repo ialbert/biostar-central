@@ -1,0 +1,49 @@
+{% extends "forum_list.html" %}
+{% load forum_tags %}
+{% load accounts_tags %}
+
+{% block headtitle %}
+    Messages
+{% endblock %}
+
+{% block body %}
+
+<div class="center-text">
+{% pages objs=all_messages %}
+</div>
+
+<table class="ui very basic striped table">
+    <tbody>
+        {% for message in all_messages %}
+                <tr>
+                    <td class="{% if message.unread %} new-message {% endif %}">
+                      <div class="item">
+                        <div class="content">
+                            {{ message.sent_date|timesince }} ago <a href="{{message.sender.profile.get_absolute_url}}">{{message.sender.profile.name }}</a> wrote
+                            :{{ message.body.html|safe }}
+                        </div>
+                      </div>
+                    </td>
+                </tr>
+        {% empty %}
+        <div class="ui message">No messages</div>
+        {% endfor %}
+    </tbody>
+</table>
+
+{#  this will reset the user unread messages #}
+{% toggle_unread user=request.user %}
+
+<div class="center-text">
+{% pages objs=all_messages %}
+</div>
+
+
+{% endblock %}
+
+{% block sidebar %}
+
+    {% custom_feed feed_type='messages' objs=all_messages title='Messages by'%}
+
+
+{% endblock %}

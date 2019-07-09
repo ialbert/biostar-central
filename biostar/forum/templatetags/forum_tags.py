@@ -4,6 +4,7 @@ import logging
 import random
 from datetime import datetime
 from datetime import timedelta
+import whoosh.query as search_query
 
 import hashlib
 import urllib.parse
@@ -17,7 +18,7 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
 from biostar.accounts.models import Profile, Message
-from biostar.forum import const
+from biostar.forum import const, search
 from biostar.forum.models import Post, Vote, Award, Subscription
 
 User = get_user_model()
@@ -138,6 +139,7 @@ def user_icon(user):
     context = dict(user=user, score=score)
     return context
 
+
 @register.inclusion_tag('widgets/post_user_line.html')
 def post_user_line(post, avatar=False):
     return dict(post=post, avatar=avatar)
@@ -223,11 +225,27 @@ def follow_label(context, post):
     return label
 
 
+@register.simple_tag
+def get_tags(request, post=None):
+
+    # Get tags in requests before fetching ones in the post.
+    # This is done to accommodate populating tags in forms
+    tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
+    if post:
+        tags = tags or post.tag_val
+
+    tags_opt = {val: True for val in tags.split(",")}
+    context = dict(selected=tags, tags_opt=tags_opt.items())
+
+    return context
+
+
 @register.inclusion_tag('widgets/form_errors.html')
 def form_errors(form):
     """
     Turns form errors into a data structure
     """
+    print(form.errors, "errors")
 
     try:
         errorlist = [('', message) for message in form.non_field_errors()]
@@ -269,25 +287,54 @@ def get_last_login(user):
     return f"{time_ago(user.profile.date_joined)}"
 
 
-@register.inclusion_tag('widgets/single_feed.html')
-def single_post_feed(post):
-    """
-    Return single post feed populated with similar posts.
-    """
-    tags = post.tag_val.split(",")
+@register.filter
+def highlight(hit, field):
 
-    # Gather similar posts
-    posts = Post.objects.exclude(uid=post.uid).filter(tags__name__in=tags,
-                                                      type__in=Post.TOP_LEVEL)[:settings.SINGLE_FEED_COUNT]
-    posts = posts.select_related("author__profile")
-    context = dict(posts=posts)
+    return mark_safe(hit.highlights(field))
+
+
+@register.inclusion_tag('widgets/feed_custom.html')
+def custom_feed(objs, feed_type='', title=''):
+
+    users = ()
+    if feed_type == 'messages':
+        users = set(m.sender for m in objs)
+    if feed_type in ['following', 'bookmarks', 'votes']:
+        users = set(o.author for o in objs)
+
+    context = dict(users=users, title=title)
+    return context
+
+
+@register.inclusion_tag('widgets/search_bar.html')
+def search_bar():
+    context = dict()
+    return context
+
+
+@register.inclusion_tag('widgets/feed_single.html')
+def single_feed(post):
+    """
+    Return feed populated with posts similar to the one given.
+    """
+
+    results = []
+    # Retrieve this post from the search index.
+    indexed_post = search.search_index(query=post.uid, fields=['uid'])
+
+    # Get top level posts similar to this one.
+    if not indexed_post.is_empty():
+        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
+
+    context = dict(results=results)
     return context
 
 
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
-def list_posts(context, user):
+def list_posts(context, target):
     request = context["request"]
-    posts = Post.objects.filter(author=user)
+    user = request.user
+    posts = Post.objects.filter(author=target)
     page = request.GET.get('page', 1)
     posts = posts.prefetch_related("root", "author__profile",
                                    "lastedit_user__profile", "thread_users__profile")
@@ -304,8 +351,8 @@ def list_posts(context, user):
     return context
 
 
-@register.inclusion_tag('widgets/feed.html')
-def feed(user):
+@register.inclusion_tag('widgets/feed_default.html')
+def default_feed(user):
     recent_votes = Vote.objects.prefetch_related("post")
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
@@ -322,7 +369,6 @@ def feed(user):
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
                    user=user)
-
     return context
 
 
@@ -357,10 +403,10 @@ def get_wording(filtered, prefix="Sort by:", default=""):
 @register.simple_tag
 def relative_url(value, field_name, urlencode=None):
     """
-    Updates field_name parameters in url with value
+    Updates field_name parameters in url with new value
     """
     # Create query string with updated field_name, value pair.
-    url = '?{}={}'.format(field_name, value)
+    url = f'?{field_name}={value}'
     if urlencode:
         # Split query string
         querystring = urlencode.split('&')
@@ -370,7 +416,7 @@ def relative_url(value, field_name, urlencode=None):
         # Join the filtered string
         encoded_querystring = '&'.join(filtered_querystring)
         # Update query string
-        url = '{}&{}'.format(url, encoded_querystring)
+        url = f'{url}&{encoded_querystring}'
 
     return url
 
@@ -393,6 +439,7 @@ def get_thread_users(post, limit=5):
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
 def listing(context, posts=None):
     request = context["request"]
+
     return dict(posts=posts, request=request)
 
 

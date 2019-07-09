@@ -47,7 +47,7 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
     posts = []
     for ptype, title, content in initial:
         author = random.choice(users)
-        post = auth.create_post(title=title, author=author, content=content, post_type=ptype)
+        post = Post.objects.create(title=title, author=author, content=content, type=ptype)
         posts.append(post)
 
     # Drop one post from targets.
@@ -58,7 +58,7 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
         author = random.choice(users)
         parent = random.choice(targets)
         content = f"Answer number {count}"
-        answer = auth.create_post(post_type=Post.ANSWER, parent=parent, content=content, author=author)
+        answer = Post.objects.create(type=Post.ANSWER, parent=parent, content=content, author=author)
 
     # Generate comments
     for count in range(nposts):
@@ -67,7 +67,7 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
         parents= list(Post.objects.order_by("-id").exclude(pk=posts[0].pk))
         parent = random.choice(parents)
         content = f"Comment number {count}"
-        comment = auth.create_post(post_type=Post.COMMENT, parent=parent, content=content, author=author)
+        comment = Post.objects.create(type=Post.COMMENT, parent=parent, content=content, author=author)
 
 
 class Command(BaseCommand):

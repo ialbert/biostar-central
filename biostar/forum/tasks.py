@@ -19,51 +19,39 @@ def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-def create_award(targets, user, award):
-    from biostar.forum.models import Award, Post, Badge
-
-    for target in targets:
-        date = user.profile.last_login
-        post = target if isinstance(target, Post) else None
-        badge = Badge.objects.filter(name=award.name).first()
-        Award.objects.create(user=user, badge=badge, date=date, post=post)
-
-        logger.debug("award %s created for %s" % (badge.name, user.email))
-
-    return
-
-
 @spool(pass_arguments=True)
 def create_user_awards(user_id):
-    from biostar.accounts.models import Profile, User
-    from biostar.forum.models import Award
+    from biostar.accounts.models import User
+    from biostar.forum.models import Award, Badge, Post
     from biostar.forum.awards import ALL_AWARDS
 
     user = User.objects.filter(id=user_id).first()
-    if (user.profile.state == Profile.NEW) and (user.profile.score > 10):
-        user.profile.state = Profile.TRUSTED
-        user.save()
-    # The awards the user has won at this point
-    awards = dict()
-    for award in Award.objects.filter(user=user).select_related('badge'):
-        awards.setdefault(award.badge.name, []).append(award)
+
+    # debugging
+    #Award.objects.all().delete()
 
     for award in ALL_AWARDS:
-        # How many times has this award has already been given
-        seen = len(awards[award.name]) if award.name in awards else 0
+        # Valid award targets the user has earned
+        targets = award.validate(user)
 
-        # How many times the user earned this award
-        valid_targets = award.validate(user)
+        for target in targets:
+            date = user.profile.last_login
+            post = target if isinstance(target, Post) else None
+            badge = Badge.objects.filter(name=award.name).first()
 
-        # Keep targets have not been awarded
-        valid_targets = valid_targets[seen:]
+            # Do not award a post multiple times.
+            already_awarded = Award.objects.filter(user=user, badge=badge, post=post).exists()
+            if post and already_awarded:
+                continue
 
-        # Create an award for each target
-        create_award(targets=valid_targets, user=user, award=award)
+            # Create an award for each target.
+            Award.objects.create(user=user, badge=badge, date=date, post=post)
+
+            logger.debug("award %s created for %s" % (badge.name, user.email))
 
 
 @spool(pass_arguments=True)
-def notify_followers(post, author):
+def notify_followers(subs, author, extra_context={}):
     """
     Generate notification to users subscribed to a post, excluding author, a message/email.
     """
@@ -75,18 +63,12 @@ def notify_followers(post, author):
     # Template used to send emails with
     email_template = "messages/subscription_email.html"
 
-    # Everyone subscribed gets a local message.
-    subs = Subscription.objects.filter(post=post.root).exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=author))
-
     # Does the does not have subscriptions.
     if not subs:
         return
 
     # Select users that should be notified.
     users = [sub.user for sub in subs]
-
-    # Additional context for the message.
-    extra_context = dict(post=post)
 
     # Every subscribed user gets local messages with any subscription type.
     create_messages(template=local_template, extra_context=extra_context, rec_list=users, sender=author)

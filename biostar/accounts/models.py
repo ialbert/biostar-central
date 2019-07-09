@@ -136,7 +136,6 @@ class Profile(models.Model):
     def is_manager(self):
         return self.role == self.MANAGER
 
-    @property
     def get_absolute_url(self):
 
         return reverse('user_profile', kwargs=dict(uid=self.uid))

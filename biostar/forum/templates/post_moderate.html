@@ -1,40 +1,64 @@
-
 {% load forum_tags %}
 
-<div class="ui segment inputcolor">
 
+<div class="ui form-wrap segment" style="background-color: #f9f6f4">
     <b>Moderating {{ post.get_type_display }}: {{ post.title }}</b>
 
-
-    <form method="post" class="ui form" action="{%  url 'post_moderate' post.uid %}">
+    <form method="post" class="ui form" id="modform" action="{% url 'post_moderate' post.uid %}">
 
         {% csrf_token %}
 
-        <h3>Select moderation option</h3>
         <div class="ui divider"></div>
 
         <div class="ui segment">
-            <b>Select an action*</b>
-            {{form.action}}
-        </div>
-
-
-        <div class="ui segment">
-            <b>Duplicate link(s)</b>
-            {{form.dupe}}
-            <div class="ui muted">
-                One or more duplicated links, space or comma separated (required for duplicate closing).
+            <div class="field">
+                <label>Select an action</label>
+                {{ form.action }}
             </div>
         </div>
-        <div class="ui segment">
-            <b>Parent uid to move comment under</b>
-            {{form.pid}}
-            <div class="ui muted">
-                Parent uid of the parent to move current post under ( required to move comments ).
+        {% if form.offtopic %}
+            <div class="ui segment">
+                <div class="field">
+                    <label>Rationale for being off topic.</label>
+                    {{ form.offtopic }}
+                    <div class="ui muted">
+                        Reason why the post is not appropriate for this site.
+                    </div>
+                </div>
             </div>
-        </div>
+        {% endif %}
+        {% if form.dupe %}
+            <div class="ui segment">
+                <div class="field">
+                    <label>Duplicate link(s)</label>
+                    {{ form.dupe }}
+                    <div class="ui muted">
+                        One or more link, space or comma separated (required for duplicate closing).
+                    </div>
+                </div>
 
-        <button type="submit" class="ui blue button">
+                <div class="field">
+                    <label>Additional comment</label>
+                    {{ form.comment }}
+                    <div class="ui muted">
+                        Additional comment on why this post is duplicated.
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if form.pid %}
+            <div class="ui segment">
+                <div class="field">
+                    <label>Parent id to move this post under as a comment.</label>
+                    {{ form.pid }}
+                    <div class="ui muted">
+                        Parent id can be a comment, an answer, or the root post.
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <button type="submit" class="ui green enter button">
             <i class="check icon"></i>
             Submit
         </button>

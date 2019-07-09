@@ -16,7 +16,7 @@
 
         <div class="ui segment  no-shadow"></div>
 
-        <div class="ui basic compact segment no-shadow">
+        <div class="ui basic compact segment no-shadow" style="">
 
             <div class="ui medium header">{{ form_title }}
             </div>
@@ -45,15 +45,18 @@
                 <div class="ui form-wrap segment">
                     <div class="field">
                         <label>{{ form.tag_val.label }}</label>
-
+                        {% if post %}{% get_tags request=request post=post as tags %}
+                        {% else %}
+                            {% get_tags request=request as tags %}
+                        {% endif %}
                         <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}"
-                               value="{% if selected %} {{ selected }} {% endif %}">
+                               value="{% if selected %} {{ tags.selected }} {% endif %}">
 
                         <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu"
                                 field_id="{{ form.tag_val.id_for_label }}">
                             <option value="">Tags</option>
 
-                            {% for value, selected_tag in tags_opt %}
+                            {% for value, selected_tag in tags.tags_opt %}
                                 {% if selected_tag %}
                                     <option value="{{ value }}" selected="selected">{{ value }}</option>
                                 {% else %}

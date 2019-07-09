@@ -1,0 +1,48 @@
+{% extends "forum_list.html" %}
+{% load forum_tags %}
+{% load accounts_tags %}
+
+{% block headtitle %}
+    Votes
+{% endblock %}
+
+{% block body %}
+
+{% search_bar %}
+
+<div class="center-text">
+{% pages objs=votes %}
+</div>
+
+<table class="ui very basic striped table">
+    <tbody>
+        {% for vote in votes %}
+                <tr>
+                    <td>
+                      <div class="item">
+                        <div class="content">
+                            {{ vote.get_type_display }}, {{ vote.date|timesince }} for the {{ vote.post.get_type_display|lower }} post:
+                            <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title|truncatechars:80 }}</a>
+                        </div>
+                      </div>
+                    </td>
+                </tr>
+        {% empty %}
+        <div class="ui message">No votes found.</div>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="center-text">
+{% pages objs=votes %}
+</div>
+
+
+{% endblock %}
+
+{% block sidebar %}
+
+    {% custom_feed feed_type='votes' objs=votes title='People voting on your posts'%}
+
+
+{% endblock %}

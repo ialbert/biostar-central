@@ -15,8 +15,8 @@ class PostTest(TestCase):
         self.owner = User.objects.create(username=f"test", email="tested@tested.com", password="tested")
 
         # Create an existing tested post
-        self.post = auth.create_post(title="Test", author=self.owner, content="Test",
-                                     post_type=models.Post.QUESTION)
+        self.post = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                     type=models.Post.QUESTION)
         self.owner.save()
         pass
 
@@ -52,11 +52,11 @@ class PostTest(TestCase):
 
         # Create a couple of comments to traverse
 
-        comment = auth.create_post(title="Test", author=self.owner, content="Test",
-                                   post_type=models.Post.COMMENT, root=self.post,
+        comment = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                   type=models.Post.COMMENT, root=self.post,
                                    parent=self.post)
-        comment2 = auth.create_post(title="Test", author=self.owner, content="Test",
-                                   post_type=models.Post.COMMENT, root=self.post,
+        comment2 = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                   type=models.Post.COMMENT, root=self.post,
                                    parent=comment)
 
         url = reverse("post_view", kwargs=dict(uid=self.post.uid))
@@ -89,8 +89,8 @@ class PostTest(TestCase):
         # Create a different user to vote with
         user2 = User.objects.create(username="user", email="user@tested.com", password="tested")
 
-        answer = auth.create_post(title="answer", author=user2, content="tested foo bar too for",
-                                  post_type=models.Post.ANSWER, parent=self.post)
+        answer = models.Post.objects.create(title="answer", author=user2, content="tested foo bar too for",
+                                  type=models.Post.ANSWER, parent=self.post)
 
         self.preform_votes(post=answer, user=self.owner)
         self.preform_votes(post=self.post, user=self.owner)
@@ -104,36 +104,26 @@ class PostTest(TestCase):
         """
         url = reverse("post_edit", kwargs=dict(uid=self.post.uid))
 
-        # Create a child post to test short form edit
-        # Create an existing tested post
-        child = auth.create_post(title="Test", author=self.owner, content="Test",
-                                 post_type=models.Post.COMMENT, parent=self.post)
-
         title = "Test title for long test"
         tag_val = "foo,bar,foo"
         content = "Test the content with more things "
 
         longform_data = dict(title=title, tag_val=tag_val, content=content, post_type=models.Post.TUTORIAL)
-        shortform_data = dict(content=content, parent_uid=self.post.uid)
 
         longform_request = fake_request(url=url, data=longform_data, user=self.owner)
         longform_response = views.edit_post(request=longform_request, uid=self.post.uid)
         self.process_response(longform_response)
 
-        shortform_request = fake_request(url=url, data=shortform_data, user=self.owner)
-        shortform_response = views.edit_post(request=shortform_request, uid=child.uid)
-        self.process_response(shortform_response)
-
     def test_post_answer(self):
         """
         Test submitting answer through the post view
         """
-        url = reverse("post_answer", kwargs=dict(uid=self.post.uid))
+        url = reverse("post_view", kwargs=dict(uid=self.post.uid))
 
         # Get form data
         data = dict(content="testing answer", parent_uid=self.post.uid)
         request = fake_request(url=url, data=data, user=self.owner)
-        response = views.new_answer(request=request, uid=self.post.uid)
+        response = views.post_view(request=request, uid=self.post.uid)
         self.process_response(response)
         return
 

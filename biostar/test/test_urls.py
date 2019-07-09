@@ -15,7 +15,11 @@ urlpatterns = [
     url(r'^engine/', include(engine_urls)),
 
     # Include the accounts urls
-    url(r'^accounts/', include(accounts_urls)),
+    # Already included with above urls.
+    #url(r'^accounts/', include(accounts_urls)),
 
 ]
 
+    #print(p.url_patterns)
+
+#print(urlpatterns)

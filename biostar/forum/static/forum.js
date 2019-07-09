@@ -319,6 +319,53 @@ $(document).ready(function () {
 
     remove_trigger();
 
+    $('#search').keyup(function (event) {
+        var search_url='/ajax/search/';
+        var query = $(this).val();
+        var res = $('#results');
+        var container = $('#contain-search');
+
+        if (query.trim().length < 3) {
+            res.html('');
+            res.removeClass('ui message');
+            container.removeClass('loading search');
+            popup_message(res, "More than 3 characters please!", "error", 1000);
+            return
+        }
+
+        container.addClass('loading search');
+        res.addClass('ui search message');
+        res.html('Searching ...');
+
+        $.ajax(search_url, {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'query':query
+            },
+
+            success: function (data) {
+                if (data.status === 'error') {
+                    // Untoggle the button if there was an error
+                } else {
+                    // Success
+                    //alert(data.html);
+                    res.removeClass('ui message');
+                    res.html(data.html);
+                    container.removeClass('loading search');
+                }
+
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        });
+        //container.removeClass('loading search');
+
+
+    });
+
     $(".moderate-post").click(function (event) {
         event.preventDefault();
         var elem = $(this);

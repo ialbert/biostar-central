@@ -41,10 +41,10 @@
             <div class="content">
 
                 <div class="header">
-                    {% if post.type != post.QUESTION %}
-                        <span class="ui title header">
-                    {{ post.get_type_display }}:
-                    </span>
+                    {% if not post.is_open %}
+                        <span class="ui title header">{{ post.get_status_display }}:</span>
+                    {% elif post.type != post.QUESTION %}
+                        <span class="ui title header">{{ post.get_type_display }}:</span>
                     {% endif %}
 
                     <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{ post.uid }}{% endif %}"

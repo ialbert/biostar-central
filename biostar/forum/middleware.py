@@ -41,6 +41,10 @@ def forum_middleware(get_response):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
             logout(request)
 
+        if (user.profile.state == Profile.NEW) and (user.profile.score > 10):
+            user.profile.state = Profile.TRUSTED
+            user.save()
+
         ip = get_ip(request)
 
         tasks.info_task.spool(ip=ip, user_id=user.id)

@@ -26,8 +26,8 @@ class ForumNavigation(TestCase):
         self.owner.set_password("tested")
         self.badge = Badge.objects.first()
         # Create a tested post
-        self.post = auth.create_post(title="Test", author=self.owner, content="Test",
-                                     post_type=models.Post.QUESTION)
+        self.post = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                     type=models.Post.QUESTION)
         management.call_command('populate')
 
         self.owner.save()

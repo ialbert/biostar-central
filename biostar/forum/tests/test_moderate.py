@@ -20,16 +20,17 @@ class PostTest(TestCase):
                                          password="tested", is_superuser=True, is_staff=True)
 
         # Create an existing tested post
-        self.post = auth.create_post(title="Test", author=self.owner, content="Test",
-                                     post_type=models.Post.QUESTION)
+        self.post = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                     type=models.Post.QUESTION)
 
         self.owner.save()
         pass
 
-    def moderate(self, choices, post):
+    def moderate(self, choices, post, extra={}):
 
         for action in choices:
             data = {"action": action}
+            data.update(extra)
             url = reverse('post_moderate', kwargs=dict(uid=post.uid))
             request = fake_request(url=url, data=data, user=self.owner)
             response = views.post_moderate(request=request, uid=post.uid)
@@ -40,7 +41,7 @@ class PostTest(TestCase):
     def test_toplevel_moderation(self):
         "Test top level post moderation."
         # Test every moderation action
-        choices = [const.BUMP_POST, const.MOD_OPEN, const.DELETE]
+        choices = [const.BUMP_POST, const.OPEN_POST, const.DELETE]
 
         self.moderate(choices=choices, post=self.post)
 
@@ -48,11 +49,11 @@ class PostTest(TestCase):
 
     def test_answer_moderation(self):
         "Test answer moderation."
-        choices = [const.TOGGLE_ACCEPT, const.MOVE_TO_COMMENT, const.DELETE]
+        choices = [const.TOGGLE_ACCEPT, const.DELETE]
 
         # Create an answer to moderate
-        anwser = auth.create_post(title="Test", author=self.owner, content="Test",
-                                  post_type=models.Post.ANSWER, root=self.post,
+        anwser = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                  type=models.Post.ANSWER, root=self.post,
                                   parent=self.post)
 
         self.moderate(choices=choices, post=anwser)
@@ -61,14 +62,14 @@ class PostTest(TestCase):
 
     def test_comment_moderation(self):
         "Test comment moderation."
-        choices = [const.MOVE_TO_ANSWER, const.DELETE]
+        choices = [const.DELETE]
 
         # Create a comment to moderate
-        comment = auth.create_post(title="Test", author=self.owner, content="Test",
-                                   post_type=models.Post.COMMENT, root=self.post,
+        comment = models.Post.objects.create(title="Test", author=self.owner, content="Test",
+                                   type=models.Post.COMMENT, root=self.post,
                                    parent=self.post)
 
-        self.moderate(choices=choices, post=comment)
+        self.moderate(choices=choices, post=comment, extra={'pid': self.post.uid})
 
     def test_duplicate_post(self):
         "Test duplicate post moderation"

@@ -23,7 +23,6 @@ class Bunch(object):
         self.__dict__.update(kwargs)
 
 
-
 class SiteAdminTest(TestCase):
 
     def setUp(self):

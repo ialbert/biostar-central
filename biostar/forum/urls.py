@@ -1,5 +1,6 @@
 
 from django.conf import settings
+from django.contrib import admin
 from django.conf.urls.static import static
 from django.urls import include, path  # For django versions from 2.0 and up
 import debug_toolbar
@@ -11,6 +12,7 @@ urlpatterns = [
 
     # Main entry. Post listing.
     path('', views.latest, name='post_list'),
+
     path('votes/', views.myvotes, name='myvotes'),
     path('bookmarks/', views.bookmarks, name='bookmarks'),
     path('following/', views.following, name='following'),
@@ -19,21 +21,19 @@ urlpatterns = [
     path('p/<str:uid>/', views.post_view, name='post_view'),
 
     path('new/post/', views.new_post, name='post_create'),
-    path('new/answer/<str:uid>/', views.new_answer, name='post_answer'),
     path('new/comment/<str:uid>/', views.new_comment, name="create_comment"),
 
 
     path('b/list/', views.badge_list, name='badge_list'),
 
     path('b/view/<str:uid>/', views.badge_view, name='badge_view'),
-
-    #path(r'^sub/(?P<uid>[-\w]+)/$', views.subs_action, name='subs_action'),
     path('edit/post/<str:uid>/', views.edit_post, name='post_edit'),
 
     path('ajax/vote/', ajax.ajax_vote, name='vote'),
     path('ajax/test/', ajax.ajax_test, name='ajax_test'),
     path('ajax/subscribe/', ajax.ajax_subs, name='ajax_sub'),
     path('ajax/edit/', ajax.ajax_edit, name='ajax_edit'),
+    path('ajax/search/', ajax.ajax_search, name='ajax_search'),
 
     path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
 

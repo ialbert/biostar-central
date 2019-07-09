@@ -13,6 +13,9 @@ DJANGO_APP := biostar.engine
 # Database name
 DATABASE_NAME := database.db
 
+# Search index name
+INDEX_NAME := index
+
 all: engine serve
 
 accounts:
@@ -94,6 +97,11 @@ test_all:
 	python manage.py test --settings biostar.test.test_settings -v 2 --failfast
 	coverage run manage.py test --settings biostar.test.test_settings -v 2 --failfast
 	coverage html --skip-covered
+
+index:
+	@echo INDEX_NAME=${INDEX_NAME}
+	python manage.py index --name ${INDEX_NAME} --settings ${DJANGO_SETTING_MODULE}
+
 
 projects:
 	python manage.py project --pid test --name "Test Project" --public

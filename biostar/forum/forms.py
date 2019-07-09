@@ -6,7 +6,8 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from biostar.accounts.models import User
 from .models import Post
-from biostar.forum import models
+from biostar.forum import models, auth
+from antispam import akismet
 
 from .const import *
 
@@ -17,12 +18,34 @@ MIN_CHARS = 5
 MAX_CONTENT = 15000
 MIN_CONTENT = 10
 
-def english_only(text):
 
+class CommentSpam(akismet.Comment):
+    def as_params(self):
+        params = super(CommentSpam, self).as_params()
+        params['comment_date'] = self.created
+        return params
+
+
+def english_only(text):
     try:
         text.encode('ascii')
     except Exception:
-        raise ValidationError('Title may only contain plain text (ASCII) characters')
+        raise ValidationError('Text may only contain plain text (ASCII) characters')
+
+
+def check_spam(request, content):
+    # Check API if post content being submitted is spam
+
+    name, email = request.user.profile.name, request.user.email
+    post = CommentSpam(content=content, type='comment', author=akismet.Author(name=name))
+
+    # Scores this content from 0-3, from not spam to defiantly spam
+    spam_score = akismet.check(request=akismet.Request.from_django_request(request), comment=post)
+
+    spam_staus = dict(ham=0, unknown=1, probable_spam=2, definite_spam=3)
+
+    print(spam_score, f"spam score :{spam_staus.get(spam_score, 'unknown')}")
+    return
 
 
 def valid_title(text):
@@ -58,11 +81,12 @@ class PostLongForm(forms.Form):
                               """,
                               widget=forms.HiddenInput())
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
-                              min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content")
+                              min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content", strip=False)
 
-    def __init__(self, post=None, user=None, *args, **kwargs):
+    def __init__(self, post=None, user=None, request=None, *args, **kwargs):
         self.post = post
         self.user = user
+        self.request = request
         super(PostLongForm, self).__init__(*args, **kwargs)
 
     def edit(self):
@@ -80,11 +104,17 @@ class PostLongForm(forms.Form):
         self.post.save()
         return self.post
 
+    # def clean(self):
+    #     content = self.cleaned_data.get("content", '')
+    #     if self.request:
+    #         check_spam(request=self.request, content=content)
+    #     return self.cleaned_data
+
     def clean_tag_val(self):
         """
         Take out duplicates
         """
-        tag_val = self.cleaned_data["tag_val"]
+        tag_val = self.cleaned_data["tag_val"] or 'tag1,tag2'
         tags = set(tag_val.split(","))
         return ",".join(tags)
 
@@ -108,18 +138,6 @@ class PostShortForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['content'].strip = False
 
-    def edit(self):
-        data = self.cleaned_data
-
-        content = data.get("content")
-
-        if self.user != self.post.author and not self.user.profile.is_moderator:
-            raise forms.ValidationError("Only the author or a moderator can edit a post.")
-
-        self.post.content = content
-        self.post.save()
-        return self.post
-
 
 class CommentForm(forms.Form):
 
@@ -127,67 +145,74 @@ class CommentForm(forms.Form):
     content = forms.CharField( widget=forms.Textarea,min_length=2, max_length=5000)
 
 
-class PostModForm(forms.Form):
-
-    CHOICES = [
+def mod_choices(post):
+    choices = [
         (BUMP_POST, "Bump a post"),
-        (MOD_OPEN, "Open a closed or deleted post"),
-        (TOGGLE_ACCEPT, "Toggle accepted status"),
-        (MOVE_TO_ANSWER, "Move post to an answer"),
-        (DELETE, "Delete post"),
+        (OPEN_POST, "Open deleted or off topic post"),
+        (DELETE, "Delete post")
     ]
 
-    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action", required=False )
-    dupe = forms.CharField(required=False, max_length=200,
-                           help_text="""One or more duplicated link, 
-                                        comma separated (required for duplicate closing).
-                                       """,
-                           label="Duplicate Link(s)")
-    pid = forms.CharField(required=False, max_length=200,
-                           help_text=""" Parent uid to move comment under.
-                                     """,
-                           label="Duplicate Link(s)")
+    allowed = []
+
+    # Moderation options for top level posts
+    allowed += [BUMP_POST] if post.is_toplevel else []
+
+    # Open/Off topic moderation options
+    if post.status in [Post.DELETED, Post.OFFTOPIC]:
+        allowed += [OPEN_POST]
+
+    if post.status != Post.DELETED:
+        allowed += [DELETE]
+    # Filter the appropriate choices
+    choices = filter(lambda action: action[0] in allowed if allowed else True, choices)
+
+    return choices
+
+
+class PostModForm(forms.Form):
 
     def __init__(self, post, request, user, *args, **kwargs):
         self.post = post
         self.user = user
         self.request = request
+
         super(PostModForm, self).__init__(*args, **kwargs)
 
+        choices = mod_choices(post=self.post)
+
+        if self.post.is_toplevel:
+            self.fields['dupe'] = forms.CharField(required=False, max_length=200)
+            self.fields['comment'] = forms.CharField(required=False, max_length=200)
+            self.fields['offtopic'] = forms.CharField(required=False, max_length=200)
+        else:
+            self.fields['pid'] = forms.CharField(required=False, max_length=200, label="Parent id")
+
+        self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=False)
+
+    def clean_dupe(self):
+        dupe = self.cleaned_data.get("dupe")
+        dupes = dupe.split(",")[:5]
+        dupes = ','.join(dupes)
+        return dupes
+
     def clean(self):
-        cleaned_data = super(PostModForm, self).clean()
-        action = cleaned_data.get("action")
-        dupe = cleaned_data.get("dupe")
-        pid = cleaned_data.get("pid").strip()
-        cleaned_data["pid"] = pid
+        action = self.cleaned_data.get("action")
+        dupes = self.cleaned_data.get("dupe")
+        pid = self.cleaned_data.get("pid")
+        offtopic = self.cleaned_data.get("offtopic")
 
-        if (action is None) and not (dupe or pid):
-            raise forms.ValidationError("Select an action")
+        if (action is None) and not (dupes or pid or offtopic):
+            raise forms.ValidationError("Select an action.")
 
-        if not (self.user.profile.is_moderator or self.user.profile.is_manager):
-            raise forms.ValidationError("Only a moderator/manager may perform these actions")
-
-        if action in (DUPLICATE, BUMP_POST) and not self.post.is_toplevel:
-            raise forms.ValidationError("You can only perform these actions to a top-level post")
-        if action in (TOGGLE_ACCEPT, MOVE_TO_COMMENT) and self.post.type != Post.ANSWER:
-            raise forms.ValidationError("You can only perform these actions to an answer.")
-        if action == MOVE_TO_ANSWER and self.post.type != Post.COMMENT:
-            raise forms.ValidationError("You can only perform these actions to a comment.")
+        if action == BUMP_POST and not self.post.is_toplevel:
+            raise forms.ValidationError("You can only perform this action to a top-level post")
 
         parent = Post.objects.filter(uid=pid).first()
         if not parent and pid:
-            raise forms.ValidationError(f"Parent uid : {parent} does not exist.")
+            raise forms.ValidationError(f"Parent id: {pid} does not exist.")
 
         if parent and parent.root != self.post.root:
             raise forms.ValidationError(f"Parent does not share the same root.")
 
-        if dupe:
-            dupe = dupe.replace(",", " ")
-            dupes = dupe.split()[:5]
-            cleaned_data['dupe'] = dupes
-
-        return cleaned_data
-
-
-
+        return self.cleaned_data
 
