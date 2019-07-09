@@ -16,7 +16,6 @@ def ajax_msg(msg, status, **kwargs):
     payload.update(kwargs)
     return JsonResponse(payload)
 
-MAX_CHARS = 200
 
 logger = logging.getLevelName("biostar")
 ajax_success = partial(ajax_msg, status='success')
@@ -149,9 +148,9 @@ def ajax_edit(request):
 def ajax_search(request):
 
     query = request.GET.get('query', '')
-    fields = ['content', 'tags', 'title']
+    fields = ['content', 'tags', 'title', 'author']
     if query:
-        results = search.search_index(query=query, fields=fields)
+        results = search.query(q=query, fields=fields)
         tmpl = loader.get_template("widgets/search_results.html")
         context = dict(results=results)
         results_html = tmpl.render(context)

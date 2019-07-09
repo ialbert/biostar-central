@@ -20,3 +20,16 @@ except Exception as exc:
         # Gains an attribute called spool that
         # falls back to the same function
         return outer
+
+    # Create a synchronous version of the timer
+    def timer(secs, **kwargs):
+        def outer(func):
+            @functools.wraps(func)
+            def inner(*args, **kwargs):
+                result = func(*args, **kwargs)
+                return result
+            inner.timer = inner
+            return inner
+        # Gains an attribute called timer that
+        # falls back to the same function
+        return outer

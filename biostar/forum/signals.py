@@ -62,7 +62,7 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Title is inherited from top level.
         if not instance.is_toplevel:
-            instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
+            instance.title = "%s: %s" % (instance.get_type_display(), instance.root.title[:80])
 
         # Make the last editor first in the list of contributors
         # Done on post creation to avoid moderators being added for editing a post.

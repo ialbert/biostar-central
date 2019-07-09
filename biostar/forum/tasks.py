@@ -1,10 +1,10 @@
 import logging
-
-from django.db.models import Q
+from datetime import timedelta
+from django.conf import settings
 
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
-from biostar.utils.decorators import spool
+from biostar.utils.decorators import spool, timer
 
 logger = logging.getLogger("biostar")
 
@@ -17,6 +17,24 @@ def info_task(*args, **kwargs):
 @spool(pass_arguments=True)
 def created_post(pid):
     logger.info(f"Created post={pid}")
+
+
+@timer(secs=settings.INDEX_SECS_INTERVAL)
+def update_index():
+    """
+    Reindex posts in time intervals
+    """
+    from biostar.forum.models import Post
+    from biostar.forum import util, search
+
+    # Get posts that were recently created/updated.
+    delta = util.now() - timedelta(days=settings.INDEXING_DAYS)
+    posts = Post.objects.filter(lastedit_date__gte=delta)
+
+    # Update search index with recently edited posts.
+    search.update_index(posts=posts)
+
+    return
 
 
 @spool(pass_arguments=True)

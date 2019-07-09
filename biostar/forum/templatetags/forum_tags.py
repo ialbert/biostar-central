@@ -289,8 +289,8 @@ def get_last_login(user):
 
 @register.filter
 def highlight(hit, field):
-
-    return mark_safe(hit.highlights(field))
+    lit = hit.highlights(field, top=5)
+    return mark_safe(lit) if len(lit) else hit[field]
 
 
 @register.inclusion_tag('widgets/feed_custom.html')
@@ -320,7 +320,7 @@ def single_feed(post):
 
     results = []
     # Retrieve this post from the search index.
-    indexed_post = search.search_index(query=post.uid, fields=['uid'])
+    indexed_post = search.query(q=post.uid, fields=['uid'])
 
     # Get top level posts similar to this one.
     if not indexed_post.is_empty():

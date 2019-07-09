@@ -5,10 +5,13 @@
         <div class="ui relaxed divided list">
             {% for result in results %}
                 <a class="item" href="{{ result.url }}">
-                    <b>{{ result.title }}</b>
+                    {% if result.title %}
+                        <b>{{ result.title }}</b>
+                    {% else %}
+                        <b>{{ result.type }}</b>
+                    {% endif %}
                     <div class="muted">
                         {{ result|highlight:'content' }}
-                        {{ result.content|truncatechars:120 }}
                         <div>by {{ result.author }}</div>
                     </div>
                 </a>

@@ -23,6 +23,7 @@ class Command(BaseCommand):
         posts = Post.objects.all()
 
         #os.mkdir(index_dir)
+        #if not os.path.exists()
 
         index_dir = os.path.abspath(index_dir)
 

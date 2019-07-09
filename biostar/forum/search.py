@@ -15,19 +15,37 @@ STOP = ['there', 'where', 'who'] + [w for w in STOP_WORDS]
 STOP = set(STOP)
 
 
+def index(post, writer):
+    title = '' if not post.is_toplevel else post.title
+    writer.add_document(title=title, url=post.get_absolute_url(),
+                        type=post.get_type_display(),
+                        lastedit_date=post.lastedit_date.timestamp(),
+                        content=post.content, tags=post.tag_val,
+                        is_toplevel=post.is_toplevel,
+                        rank=post.rank, author=post.author.profile.name, uid=post.uid,
+                        author_uid=post.author.profile.uid,
+                        author_url=post.author.profile.get_absolute_url())
+
+
 def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
     """
-    Create search index of posts.
-    Created inside of directory with the
+    Create or update a search index of posts.
     """
     # Create the schema
     tokenizer = SpaceSeparatedTokenizer() | StopFilter(stoplist=STOP)
 
-    schema = Schema(title=NGRAMWORDS(stored=True, tokenizer=tokenizer), url=ID(stored=True),
+    schema = Schema(title=NGRAMWORDS(stored=True, tokenizer=tokenizer),
+                    url=ID(stored=True),
                     content=NGRAMWORDS(stored=True, tokenizer=tokenizer),
-                    tags=KEYWORD(stored=True), is_toplevel=BOOLEAN(stored=True), author_uid=ID(stored=True),
-                    rank=NUMERIC(stored=True, sortable=True), author=TEXT(stored=True),
-                    author_url=ID(stored=True), uid=ID(stored=True))
+                    tags=KEYWORD(stored=True),
+                    is_toplevel=BOOLEAN(stored=True),
+                    lastedit_date=NUMERIC(stored=True),
+                    author_uid=ID(stored=True),
+                    rank=NUMERIC(stored=True, sortable=True),
+                    author=TEXT(stored=True),
+                    author_url=ID(stored=True),
+                    uid=ID(stored=True),
+                    type=TEXT(stored=True))
 
     ix = create_in(index_dir, schema, indexname=index_name)
     # Exclude deleted posts from being indexed.
@@ -37,22 +55,42 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
     for post in posts:
         if not post.root:
             continue
-        writer.add_document(title=f"{post.title}", url=post.get_absolute_url(),
-                            content=post.content, tags=post.tag_val, is_toplevel=post.is_toplevel,
-                            rank=post.rank, author=post.author.profile.name, uid=post.uid,
-                            author_uid=post.author.profile.uid, author_url=post.author.profile.get_absolute_url())
+        index(post=post, writer=writer)
+
     writer.commit()
 
     logger.info(f"Created index with: dir={index_dir}, name={index_name}")
 
 
 def update_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
-    """Reindex data """
-    return
+    """Update indexed posts with the posts info"""
+
+    # Open the index file we are about to update
+    ix = open_dir(dirname=index_dir, indexname=index_name)
+
+    # Prepare the searcher and writer objects
+    searcher = ix.searcher()
+    writer = ix.writer()
+
+    for post in posts:
+        # Check to see if this post already has an index
+        parser = MultifieldParser(fieldnames=['uid'], schema=ix.schema).parse(post.uid)
+        indexed = searcher.search(parser)
+        # Delete already existing index
+        if not indexed.is_empty():
+            docnum = list(indexed.items())[0][0]
+            writer.delete_document(docnum=docnum)
+
+        # Reindex post
+        index(post=post, writer=writer)
+
+    writer.commit()
+    searcher.close()
+    logger.info(f"Updated index: updated posts={len(posts)} dir={index_dir}, name={index_name}")
 
 
-def search_index(query='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME,
-                 **kwargs):
+def query(q='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME,
+          **kwargs):
 
     ix = open_dir(dirname=index_dir, indexname=index_name)
 
@@ -73,8 +111,13 @@ def search_index(query='', fields=['content'], index_dir=settings.INDEX_DIR, ind
     #     return res
     searcher = ix.searcher()
 
-    q = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(query)
-    results = searcher.search(q, limit=settings.SIMILAR_FEED_COUNT, **kwargs)
+    parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)
+    results = searcher.search(parser, limit=settings.SIMILAR_FEED_COUNT, **kwargs)
+    # Allow larger fragments
+    results.fragmenter.maxchars = 300
+    # Show more context before and after
+    results.fragmenter.surround = 50
+
     #searcher.close()
 
     return results
