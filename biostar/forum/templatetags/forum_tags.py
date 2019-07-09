@@ -323,9 +323,8 @@ def single_feed(post):
     indexed_post = search.search_index(query=post.uid, fields=['uid'])
 
     # Get top level posts similar to this one.
-    if not indexed_post.is_empty():
-        #result_filter = search_query.Term('toplevel', True)
-        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)#filter=result_filter)
+    if len(indexed_post):
+        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
 
     context = dict(results=results)
     return context

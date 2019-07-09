@@ -1,10 +1,8 @@
-import os
-import copy
-import whoosh.query as search_query
 import logging
+import copy
 from django.conf import settings
-from whoosh.qparser import MultifieldParser, QueryParser, OrGroup
-from whoosh.analysis import SpaceSeparatedTokenizer, StandardAnalyzer, StopFilter, STOP_WORDS
+from whoosh.qparser import MultifieldParser, OrGroup
+from whoosh.analysis import SpaceSeparatedTokenizer, StopFilter, STOP_WORDS
 from whoosh.index import create_in, open_dir
 from whoosh.fields import ID, NGRAM, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, NGRAMWORDS
 
@@ -48,20 +46,32 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
     logger.info(f"Created index with: dir={index_dir}, name={index_name}")
 
 
-def search_index(query='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME, **kwargs):
+def search_index(query='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME,
+                 **kwargs):
 
     ix = open_dir(dirname=index_dir, indexname=index_name)
 
-    #with ix.searcher() as searcher:
+    # def get_results():
+    #     # TODO: trying to close the search stream and return results without raising ReaderClosed Exception
+    #     #  deep-copying results did not work.
+    #     print("foo")
+    #     searcher = ix.searcher()
+    #     def res():
+    #         nonlocal query
+    #         query = str(query)
+    #         #query = query.encode('latin1')
+    #         #print(query, type(query), query.encode("latin1"))
+    #         q = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(query)
+    #         results = searcher.search(q, limit=settings.SIMILAR_FEED_COUNT, **kwargs)
+    #         return results
+    #     searcher.close()
+    #     return res
     searcher = ix.searcher()
-    # Group each word with an OR clause.
-    # For example, the query 'foo bar' will be: 'foo OR bar'
-    og = OrGroup
-    query = MultifieldParser(fields, ix.schema, group=og).parse(query)
-    results = searcher.search(query, limit=settings.SIMILAR_FEED_COUNT, **kwargs)
+
+    q = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(query)
+    results = searcher.search(q, limit=settings.SIMILAR_FEED_COUNT, **kwargs)
     #searcher.close()
+
     return results
-
-
 
 
