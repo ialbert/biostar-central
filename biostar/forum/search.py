@@ -46,6 +46,11 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
     logger.info(f"Created index with: dir={index_dir}, name={index_name}")
 
 
+def update_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
+    """Reindex data """
+    return
+
+
 def search_index(query='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME,
                  **kwargs):
 
