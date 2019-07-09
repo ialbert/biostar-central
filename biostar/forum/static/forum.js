@@ -197,6 +197,16 @@ function edit_post(post_uid) {
 
 $(document).ready(function () {
 
+    $(this).click(function(event) {
+        //alert("ddddd");
+        var res = $('#results');
+        if (res.html().length > 0){
+            res.html('');
+            res.removeClass('ui message');
+            //container.removeClass('loading search');
+        }
+    });
+
     $('.ui.dropdown').dropdown();
 
     $('.tag-field').dropdown({
