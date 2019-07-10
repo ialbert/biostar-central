@@ -15,7 +15,7 @@ STOP = ['there', 'where', 'who'] + [w for w in STOP_WORDS]
 STOP = set(STOP)
 
 
-def index(post, writer):
+def add_index(post, writer):
     title = '' if not post.is_toplevel else post.title
     writer.add_document(title=title, url=post.get_absolute_url(),
                         type=post.get_type_display(),
@@ -25,6 +25,15 @@ def index(post, writer):
                         rank=post.rank, author=post.author.profile.name, uid=post.uid,
                         author_uid=post.author.profile.uid,
                         author_url=post.author.profile.get_absolute_url())
+
+
+def open_index(index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
+    try:
+        ix = open_dir(dirname=index_dir, indexname=index_name)
+    except Exception as exc:
+        logger.error(f"Error opening search index: {exc}")
+        ix = None
+    return ix
 
 
 def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
@@ -55,7 +64,7 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
     for post in posts:
         if not post.root:
             continue
-        index(post=post, writer=writer)
+        add_index(post=post, writer=writer)
 
     writer.commit()
 
@@ -64,9 +73,8 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
 
 def update_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
     """Update indexed posts with the posts info"""
-
     # Open the index file we are about to update
-    ix = open_dir(dirname=index_dir, indexname=index_name)
+    ix = open_index(index_dir=index_dir, index_name=index_name)
 
     # Prepare the searcher and writer objects
     searcher = ix.searcher()
@@ -82,7 +90,7 @@ def update_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
             writer.delete_document(docnum=docnum)
 
         # Reindex post
-        index(post=post, writer=writer)
+        add_index(post=post, writer=writer)
 
     writer.commit()
     searcher.close()
@@ -92,7 +100,7 @@ def update_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
 def query(q='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME,
           **kwargs):
 
-    ix = open_dir(dirname=index_dir, indexname=index_name)
+    ix = open_index(index_dir=index_dir, index_name=index_name)
 
     # def get_results():
     #     # TODO: trying to close the search stream and return results without raising ReaderClosed Exception
