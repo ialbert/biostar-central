@@ -16,7 +16,7 @@ DATABASE_NAME := database.db
 # Search index name
 INDEX_NAME := index
 
-# Clear existing search index
+# Start a fresh index
 NEW_INDEX := False
 
 all: engine serve

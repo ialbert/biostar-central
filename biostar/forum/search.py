@@ -138,6 +138,9 @@ def index_posts(posts, create_new=False, index_dir=settings.INDEX_DIR, index_nam
 
 def query(q='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME,
           **kwargs):
+    """
+    Query the indexed, looking for a match in the specified fields.
+    """
 
     ix = open_index(index_dir=index_dir, index_name=index_name)
 
