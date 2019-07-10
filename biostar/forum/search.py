@@ -78,7 +78,8 @@ def get_schema():
 
 
 def init_index():
-    # Initialize index or return already existing one.
+    # Initialize a new index or return an already existing one.
+
     if index_exists():
         ix = open_dir(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME)
     else:
@@ -92,6 +93,7 @@ def init_index():
 def delete_existing(ix, writer, uid):
     """
     Delete an existing post from the index.
+    Done before re-indexing.
     """
 
     searcher = ix.searcher()
@@ -129,8 +131,7 @@ def index_posts(posts, reindex=False):
 
     elapsed, progress = timer_func()
 
-    # Commit additions to index
-
+    # Commit to index
     if reindex:
         # Re-index posts when committing.
         writer.commit(mergetype=writing.CLEAR)

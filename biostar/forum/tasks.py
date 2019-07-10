@@ -19,18 +19,10 @@ def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-def index_interval():
-    # Retrieve the index interval settings directly from settings
-    # TODO: needs to change
-    from biostar.forum.settings import INDEX_SECS_INTERVAL
-
-    return INDEX_SECS_INTERVAL
-
-
-@timer(secs=index_interval())
+@timer(secs=300)
 def update_index(*args):
     """
-    Reindex posts in time intervals
+    Index posts every 5 minutes
     """
     from biostar.forum.models import Post
     from biostar.forum import search
