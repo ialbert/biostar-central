@@ -230,6 +230,10 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
     if action == DELETE:
         return delete_post(post=post, request=request)
 
+    if action == MOVE_ANSWER:
+        Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
+        return url
+
     if pid:
         parent = Post.objects.filter(uid=pid).first() or post.root
         Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)

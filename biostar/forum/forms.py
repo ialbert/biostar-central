@@ -146,8 +146,12 @@ class CommentForm(forms.Form):
 
 
 def mod_choices(post):
+    """
+    Return available moderation options for a post.
+    """
     choices = [
         (BUMP_POST, "Bump a post"),
+        (MOVE_ANSWER, "Move comment to answer."),
         (OPEN_POST, "Open deleted or off topic post"),
         (DELETE, "Delete post")
     ]
@@ -157,12 +161,17 @@ def mod_choices(post):
     # Moderation options for top level posts
     allowed += [BUMP_POST] if post.is_toplevel else []
 
-    # Open/Off topic moderation options
+    # Option to open deleted posts
     if post.status in [Post.DELETED, Post.OFFTOPIC]:
         allowed += [OPEN_POST]
 
+    # Option to deleted open posts
     if post.status != Post.DELETED:
         allowed += [DELETE]
+
+    if post.is_comment:
+        allowed += [MOVE_ANSWER]
+
     # Filter the appropriate choices
     choices = filter(lambda action: action[0] in allowed if allowed else True, choices)
 
@@ -203,9 +212,6 @@ class PostModForm(forms.Form):
 
         if (action is None) and not (dupes or pid or offtopic):
             raise forms.ValidationError("Select an action.")
-
-        if action == BUMP_POST and not self.post.is_toplevel:
-            raise forms.ValidationError("You can only perform this action to a top-level post")
 
         parent = Post.objects.filter(uid=pid).first()
         if not parent and pid:
