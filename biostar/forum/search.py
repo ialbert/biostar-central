@@ -40,6 +40,10 @@ def timer_func():
     return elapsed, progress
 
 
+def index_exists():
+    return exists_in(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME)
+
+
 def add_index(post, writer):
     title = '' if not post.is_toplevel else post.title
     writer.add_document(title=title, url=post.get_absolute_url(),
@@ -71,22 +75,14 @@ def get_schema():
     return schema
 
 
-def init_index(mode='w'):
-
-    os.makedirs(settings.INDEX_DIR, exist_ok=True)
-
-    # Initialize a fresh index.
-    if mode == 'w':
-        ix = create_in(dirname=settings.INDEX_DIR, schema=get_schema(), indexname=settings.INDEX_NAME)
-
-    index_exists = exists_in(dirname=settings.INDEX_DIR, indexname=settings.INDEX_DIR)
-
-    if index_exists:
-        # Open an existing index to update.
+def init_index():
+    # Initialize index or return already existing one.
+    if index_exists():
         ix = open_dir(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME)
     else:
-        ix = None
-        pass
+        # Ensure index directory exists.
+        os.makedirs(settings.INDEX_DIR, exist_ok=True)
+        ix = create_in(dirname=settings.INDEX_DIR, schema=get_schema(), indexname=settings.INDEX_NAME)
 
     return ix
 
@@ -105,16 +101,14 @@ def delete_existing(ix, writer, uid):
         docnum = list(indexed.items())[0][0]
         writer.delete_document(docnum=docnum)
 
-    return
-
 
 def index_posts(posts, ix=None):
     """
     Create or update a search index of posts.
     """
-
-    if ix is None:
-        ix = init_index()
+    # Indexes that already exist will to be updated
+    updating_index = index_exists()
+    ix = ix or init_index()
 
     # Exclude deleted posts from being indexed.
     posts = posts.exclude(status=Post.DELETED)
@@ -125,14 +119,10 @@ def index_posts(posts, ix=None):
 
     for i, post in stream:
         progress(i, msg="posts indexed")
-        # Skip posts without a root,
-        # happens when only transferring parts of the old biostar database.
-        if not post.root:
-            continue
-
         # Delete an existing post before reindexing it.
-        if updating:
+        if updating_index:
             delete_existing(ix=ix, writer=writer, uid=post.uid)
+
         # Index post
         add_index(post=post, writer=writer)
 
@@ -142,10 +132,11 @@ def index_posts(posts, ix=None):
     elapsed(f"Created/updated index for {len(posts)}")
 
 
-def query(ix, q='', fields=['content'], **kwargs):
+def query(q='', ix=None, fields=['content'], **kwargs):
     """
     Query the indexed, looking for a match in the specified fields.
     """
+    ix = ix or init_index()
     searcher = ix.searcher()
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)

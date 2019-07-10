@@ -41,7 +41,10 @@ SESSION_UPDATE_SECONDS = 40
 
 # Search index name
 INDEX_NAME = os.environ.setdefault("INDEX_NAME", "index")
-INDEX_DIR = os.path.join(MEDIA_ROOT, '..', 'search')
+# Relative search index directory
+INDEX_DIR = os.environ.setdefault("INDEX_DIR", "search")
+# Put search directory into media root.
+INDEX_DIR = os.path.join(MEDIA_ROOT, '..', INDEX_DIR)
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
