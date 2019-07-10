@@ -89,11 +89,11 @@ def index_posts(posts, create_new=False, index_dir=settings.INDEX_DIR, index_nam
 
     # Exclude deleted posts from being indexed.
     posts = posts.exclude(status=Post.DELETED)
-    
+
     writer = ix.writer()
     for post in posts:
         # Skip posts without a root,
-        # happens when only transferring parts of the biostar database.
+        # happens when only transferring parts of the old biostar database.
         if not post.root:
             continue
         # Delete an existing post before reindexing it.
