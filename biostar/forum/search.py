@@ -4,16 +4,18 @@ import os
 from itertools import count, islice
 
 from django.conf import settings
-from whoosh.qparser import MultifieldParser, OrGroup
+
+from whoosh import writing
+from whoosh.writing import AsyncWriter
+from whoosh.qparser import MultifieldParser
 from whoosh.analysis import SpaceSeparatedTokenizer, StopFilter, STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, NGRAM, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, NGRAMWORDS
 
-from .models import Post
 logger = logging.getLogger('engine')
 
 
-# Stop words.
+# Stop words ignored where searching.
 STOP = ['there', 'where', 'who'] + [w for w in STOP_WORDS]
 STOP = set(STOP)
 
@@ -32,7 +34,7 @@ def timer_func():
         last = now
         print(f"{msg} in {sec} seconds")
 
-    def progress(index, step=500, msg=""):
+    def progress(index, step=100, msg=""):
         nonlocal last
         if index % step == 0:
             elapsed(f"... {index} {msg}")
@@ -98,49 +100,58 @@ def delete_existing(ix, writer, uid):
 
     if not indexed.is_empty():
         # Delete the post from the index
-        docnum = list(indexed.items())[0][0]
-        writer.delete_document(docnum=docnum)
+        writer.delete_by_term('uid', uid, searcher=searcher)
 
 
-def index_posts(posts, ix=None):
+def index_posts(posts, reindex=False):
     """
     Create or update a search index of posts.
     """
     # Indexes that already exist will to be updated
+    # instead of starting from scratch.
     updating_index = index_exists()
-    ix = ix or init_index()
 
-    # Exclude deleted posts from being indexed.
-    posts = posts.exclude(status=Post.DELETED)
+    ix = init_index()
 
-    writer = ix.writer()
+    # The writer is asynchronous by default
+    writer = AsyncWriter(ix)
     elapsed, progress = timer_func()
     stream = islice(zip(count(1), posts), None)
 
+    # Loop through posts and add to index
     for i, post in stream:
         progress(i, msg="posts indexed")
         # Delete an existing post before reindexing it.
         if updating_index:
             delete_existing(ix=ix, writer=writer, uid=post.uid)
-
         # Index post
         add_index(post=post, writer=writer)
 
     elapsed, progress = timer_func()
-    # Commit changes to the index.
-    writer.commit()
-    elapsed(f"Created/updated index for {len(posts)}")
+
+    # Commit additions to index
+
+    if reindex:
+        # Re-index posts when committing.
+        writer.commit(mergetype=writing.CLEAR)
+    else:
+        writer.commit()
+
+    elapsed(f"Created/updated index for {len(posts)} posts.")
+
+    # Update indexed field on posts.
+    posts.update(indexed=True)
 
 
-def query(q='', ix=None, fields=['content'], **kwargs):
+def query(q='', fields=['content'], **kwargs):
     """
     Query the indexed, looking for a match in the specified fields.
     """
-    ix = ix or init_index()
+    ix = init_index()
     searcher = ix.searcher()
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)
-    results = searcher.search(parser, limit=settings.SIMILAR_FEED_COUNT, **kwargs)
+    results = searcher.search(parser, limit=settings.SEARCH_LIMIT, **kwargs)
     # Allow larger fragments
     results.fragmenter.maxchars = 300
     # Show more context before and after

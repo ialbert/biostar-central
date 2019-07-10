@@ -17,18 +17,11 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
-# TODO: testing anti-spam API.
-AKISMET_API_KEY = 'spam-key'
-AKISMET_SITE_URL = BASE_URL
-# Do not hammer the API when testing
-AKISMET_TEST_MODE = False
 
 # Indexing interval in seconds.
-INDEX_SECS_INTERVAL = 600
-
-# Index posts edited in the last X days.
-INDEXING_DAYS = 10
-
+INDEX_SECS_INTERVAL = 10
+# Number of results to limit searches to
+SEARCH_LIMIT = 100
 
 VOTE_FEED_COUNT = 10
 LOCATION_FEED_COUNT = 5

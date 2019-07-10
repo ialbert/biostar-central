@@ -98,6 +98,9 @@ def finalize_post(sender, instance, created, **kwargs):
         # Get all subscribed users when a new post is created
         subs = Subscription.objects.filter(post=instance.root)
 
+    # Ensure posts gets re-indexed after being edited.
+    Post.objects.filter(uid=instance.uid).update(indexed=False)
+
     # Exclude current authors from receiving messages from themselves
     subs = subs.exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=instance.author))
     extra_context = dict(post=instance)

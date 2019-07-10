@@ -245,7 +245,6 @@ def form_errors(form):
     """
     Turns form errors into a data structure
     """
-    print(form.errors, "errors")
 
     try:
         errorlist = [('', message) for message in form.non_field_errors()]

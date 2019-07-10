@@ -2,6 +2,7 @@ from functools import wraps, partial
 import logging
 from ratelimit.decorators import ratelimit
 
+from django.conf import settings
 from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs

@@ -19,20 +19,28 @@ def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-@timer(secs=settings.INDEX_SECS_INTERVAL)
-def update_index():
+def index_interval():
+    # Retrieve the index interval settings directly from settings
+    # TODO: needs to change
+    from biostar.forum.settings import INDEX_SECS_INTERVAL
+
+    return INDEX_SECS_INTERVAL
+
+
+@timer(secs=index_interval())
+def update_index(*args):
     """
     Reindex posts in time intervals
     """
     from biostar.forum.models import Post
-    from biostar.forum import util, search
+    from biostar.forum import search
 
-    # Get posts that were recently created/updated.
-    delta = util.now() - timedelta(days=settings.INDEXING_DAYS)
-    posts = Post.objects.filter(lastedit_date__gte=delta)
+    # Get un-indexed posts
+    posts = Post.objects.filter(indexed=False)
 
-    # Update search index with recently edited posts.
     search.index_posts(posts=posts)
+
+    logger.info(f"Updated search index with {len(posts)} posts.")
 
     return
 

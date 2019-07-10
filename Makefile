@@ -16,8 +16,6 @@ DATABASE_NAME := database.db
 # Search index name
 INDEX_NAME := index
 
-# Start a fresh index
-NEW_INDEX := False
 
 all: engine serve
 
@@ -103,7 +101,7 @@ test_all:
 
 index:
 	@echo INDEX_NAME=${INDEX_NAME}
-	python manage.py index --name ${INDEX_NAME} --new ${NEW_INDEX} --settings ${DJANGO_SETTING_MODULE}
+	python manage.py index --reindex --settings ${DJANGO_SETTING_MODULE}
 
 
 projects:
