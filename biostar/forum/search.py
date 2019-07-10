@@ -1,5 +1,6 @@
 import logging
 import time
+import os
 from itertools import count, islice
 
 from django.conf import settings
@@ -52,15 +53,6 @@ def add_index(post, writer):
                         author_url=post.author.profile.get_absolute_url())
 
 
-def open_index(index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
-    try:
-        ix = open_dir(dirname=index_dir, indexname=index_name)
-    except Exception as exc:
-        logger.error(f"Error opening search index: {exc}")
-        ix = None
-    return ix
-
-
 def get_schema():
     tokenizer = SpaceSeparatedTokenizer() | StopFilter(stoplist=STOP)
 
@@ -77,6 +69,26 @@ def get_schema():
                     uid=ID(stored=True),
                     type=TEXT(stored=True))
     return schema
+
+
+def init_index(mode='w'):
+
+    os.makedirs(settings.INDEX_DIR, exist_ok=True)
+
+    # Initialize a fresh index.
+    if mode == 'w':
+        ix = create_in(dirname=settings.INDEX_DIR, schema=get_schema(), indexname=settings.INDEX_NAME)
+
+    index_exists = exists_in(dirname=settings.INDEX_DIR, indexname=settings.INDEX_DIR)
+
+    if index_exists:
+        # Open an existing index to update.
+        ix = open_dir(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME)
+    else:
+        ix = None
+        pass
+
+    return ix
 
 
 def delete_existing(ix, writer, uid):
@@ -96,21 +108,13 @@ def delete_existing(ix, writer, uid):
     return
 
 
-def index_posts(posts, create_new=False, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
+def index_posts(posts, ix=None):
     """
     Create or update a search index of posts.
     """
 
-    index_exists = exists_in(dirname=index_dir, indexname=index_name)
-
-    if index_exists and not create_new:
-        updating = True
-        # Open an existing index to update.
-        ix = open_index(index_dir=index_dir, index_name=index_name)
-    else:
-        updating = False
-        # Create a brand new index to populate.
-        ix = create_in(dirname=index_dir, schema=get_schema(), indexname=index_name)
+    if ix is None:
+        ix = init_index()
 
     # Exclude deleted posts from being indexed.
     posts = posts.exclude(status=Post.DELETED)
@@ -125,6 +129,7 @@ def index_posts(posts, create_new=False, index_dir=settings.INDEX_DIR, index_nam
         # happens when only transferring parts of the old biostar database.
         if not post.root:
             continue
+
         # Delete an existing post before reindexing it.
         if updating:
             delete_existing(ix=ix, writer=writer, uid=post.uid)
@@ -137,14 +142,10 @@ def index_posts(posts, create_new=False, index_dir=settings.INDEX_DIR, index_nam
     elapsed(f"Created/updated index for {len(posts)}")
 
 
-def query(q='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME,
-          **kwargs):
+def query(ix, q='', fields=['content'], **kwargs):
     """
     Query the indexed, looking for a match in the specified fields.
     """
-
-    ix = open_index(index_dir=index_dir, index_name=index_name)
-
     searcher = ix.searcher()
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)
