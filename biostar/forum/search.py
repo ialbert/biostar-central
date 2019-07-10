@@ -46,7 +46,8 @@ def add_index(post, writer):
                         lastedit_date=post.lastedit_date.timestamp(),
                         content=post.content, tags=post.tag_val,
                         is_toplevel=post.is_toplevel,
-                        rank=post.rank, author=post.author.profile.name, uid=post.uid,
+                        rank=post.rank, uid=post.uid,
+                        author=post.author.profile.name,
                         author_uid=post.author.profile.uid,
                         author_url=post.author.profile.get_absolute_url())
 
