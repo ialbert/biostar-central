@@ -3,7 +3,7 @@ import copy
 from django.conf import settings
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.analysis import SpaceSeparatedTokenizer, StopFilter, STOP_WORDS
-from whoosh.index import create_in, open_dir
+from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, NGRAM, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, NGRAMWORDS
 
 from .models import Post
@@ -36,11 +36,7 @@ def open_index(index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
     return ix
 
 
-def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
-    """
-    Create or update a search index of posts.
-    """
-    # Create the schema
+def get_schema():
     tokenizer = SpaceSeparatedTokenizer() | StopFilter(stoplist=STOP)
 
     schema = Schema(title=NGRAMWORDS(stored=True, tokenizer=tokenizer),
@@ -55,46 +51,57 @@ def create_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_
                     author_url=ID(stored=True),
                     uid=ID(stored=True),
                     type=TEXT(stored=True))
+    return schema
 
-    ix = create_in(index_dir, schema, indexname=index_name)
+
+def delete_existing(ix, writer, uid):
+    """
+    Delete an existing post from the index.
+    """
+
+    searcher = ix.searcher()
+    parser = MultifieldParser(fieldnames=['uid'], schema=ix.schema).parse(uid)
+    indexed = searcher.search(parser)
+
+    if not indexed.is_empty():
+        # Delete the post from the index
+        docnum = list(indexed.items())[0][0]
+        writer.delete_document(docnum=docnum)
+
+    return
+
+
+def index_posts(posts, clear=False, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
+    """
+    Create or update a search index of posts.
+    """
+
+    index_exists = exists_in(dirname=index_dir, indexname=index_name)
+    if index_exists and not clear:
+        # Open an existing index
+        ix, updating = open_index(index_dir=index_dir, index_name=index_name), True
+    else:
+        # Create a brand new index
+        ix, updating = create_in(dirname=index_dir, schema=get_schema(), indexname=index_name), False
+
     # Exclude deleted posts from being indexed.
     posts = posts.exclude(status=Post.DELETED)
     writer = ix.writer()
-    # Add the post info to index and commit.
+
     for post in posts:
+        # Skip posts without a root,
+        # happens when only transferring parts of the biostar database.
         if not post.root:
             continue
+        # Delete an existing post before reindexing it.
+        if updating:
+            delete_existing(ix=ix, writer=writer, uid=post.uid)
+        # Index post
         add_index(post=post, writer=writer)
 
+    # Commit changes to the index.
     writer.commit()
-
     logger.info(f"Created index with: dir={index_dir}, name={index_name}")
-
-
-def update_index(posts, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
-    """Update indexed posts with the posts info"""
-    # Open the index file we are about to update
-    ix = open_index(index_dir=index_dir, index_name=index_name)
-
-    # Prepare the searcher and writer objects
-    searcher = ix.searcher()
-    writer = ix.writer()
-
-    for post in posts:
-        # Check to see if this post already has an index
-        parser = MultifieldParser(fieldnames=['uid'], schema=ix.schema).parse(post.uid)
-        indexed = searcher.search(parser)
-        # Delete already existing index
-        if not indexed.is_empty():
-            docnum = list(indexed.items())[0][0]
-            writer.delete_document(docnum=docnum)
-
-        # Reindex post
-        add_index(post=post, writer=writer)
-
-    writer.commit()
-    searcher.close()
-    logger.info(f"Updated index: updated posts={len(posts)} dir={index_dir}, name={index_name}")
 
 
 def query(q='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME,
@@ -102,21 +109,6 @@ def query(q='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=set
 
     ix = open_index(index_dir=index_dir, index_name=index_name)
 
-    # def get_results():
-    #     # TODO: trying to close the search stream and return results without raising ReaderClosed Exception
-    #     #  deep-copying results did not work.
-    #     print("foo")
-    #     searcher = ix.searcher()
-    #     def res():
-    #         nonlocal query
-    #         query = str(query)
-    #         #query = query.encode('latin1')
-    #         #print(query, type(query), query.encode("latin1"))
-    #         q = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(query)
-    #         results = searcher.search(q, limit=settings.SIMILAR_FEED_COUNT, **kwargs)
-    #         return results
-    #     searcher.close()
-    #     return res
     searcher = ix.searcher()
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)

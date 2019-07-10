@@ -32,7 +32,7 @@ def update_index():
     posts = Post.objects.filter(lastedit_date__gte=delta)
 
     # Update search index with recently edited posts.
-    search.update_index(posts=posts)
+    search.index_posts(posts=posts)
 
     return
 
