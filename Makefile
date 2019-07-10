@@ -17,7 +17,7 @@ DATABASE_NAME := database.db
 INDEX_NAME := index
 
 # Clear existing search index
-CLEAR_INDEX := False
+NEW_INDEX := False
 
 all: engine serve
 
@@ -103,7 +103,7 @@ test_all:
 
 index:
 	@echo INDEX_NAME=${INDEX_NAME}
-	python manage.py index --name ${INDEX_NAME} --clear ${CLEAR_INDEX} --settings ${DJANGO_SETTING_MODULE}
+	python manage.py index --name ${INDEX_NAME} --new ${NEW_INDEX} --settings ${DJANGO_SETTING_MODULE}
 
 
 projects:

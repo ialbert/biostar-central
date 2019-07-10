@@ -1,5 +1,7 @@
 import logging
-import copy
+import time
+from itertools import count, islice
+
 from django.conf import settings
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.analysis import SpaceSeparatedTokenizer, StopFilter, STOP_WORDS
@@ -13,6 +15,28 @@ logger = logging.getLogger('engine')
 # Stop words.
 STOP = ['there', 'where', 'who'] + [w for w in STOP_WORDS]
 STOP = set(STOP)
+
+
+def timer_func():
+    """
+    Prints progress on inserting elements.
+    """
+
+    last = time.time()
+
+    def elapsed(msg):
+        nonlocal last
+        now = time.time()
+        sec = round(now - last, 1)
+        last = now
+        print(f"{msg} in {sec} seconds")
+
+    def progress(index, step=500, msg=""):
+        nonlocal last
+        if index % step == 0:
+            elapsed(f"... {index} {msg}")
+
+    return elapsed, progress
 
 
 def add_index(post, writer):
@@ -91,7 +115,11 @@ def index_posts(posts, create_new=False, index_dir=settings.INDEX_DIR, index_nam
     posts = posts.exclude(status=Post.DELETED)
 
     writer = ix.writer()
-    for post in posts:
+    elapsed, progress = timer_func()
+    stream = islice(zip(count(1), posts), None)
+
+    for i, post in stream:
+        progress(i, msg="posts indexed")
         # Skip posts without a root,
         # happens when only transferring parts of the old biostar database.
         if not post.root:
@@ -102,9 +130,10 @@ def index_posts(posts, create_new=False, index_dir=settings.INDEX_DIR, index_nam
         # Index post
         add_index(post=post, writer=writer)
 
+    elapsed, progress = timer_func()
     # Commit changes to the index.
     writer.commit()
-    logger.info(f"Created/updated index: dir={index_dir}, name={index_name}")
+    elapsed(f"Created/updated index for {len(posts)}")
 
 
 def query(q='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME,
