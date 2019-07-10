@@ -71,23 +71,26 @@ def delete_existing(ix, writer, uid):
     return
 
 
-def index_posts(posts, clear=False, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
+def index_posts(posts, create_new=False, index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME):
     """
     Create or update a search index of posts.
     """
 
     index_exists = exists_in(dirname=index_dir, indexname=index_name)
-    if index_exists and not clear:
-        # Open an existing index
-        ix, updating = open_index(index_dir=index_dir, index_name=index_name), True
+
+    if index_exists and not create_new:
+        updating = True
+        # Open an existing index to update.
+        ix = open_index(index_dir=index_dir, index_name=index_name)
     else:
-        # Create a brand new index
-        ix, updating = create_in(dirname=index_dir, schema=get_schema(), indexname=index_name), False
+        updating = False
+        # Create a brand new index to populate.
+        ix = create_in(dirname=index_dir, schema=get_schema(), indexname=index_name)
 
     # Exclude deleted posts from being indexed.
     posts = posts.exclude(status=Post.DELETED)
+    
     writer = ix.writer()
-
     for post in posts:
         # Skip posts without a root,
         # happens when only transferring parts of the biostar database.
@@ -101,7 +104,7 @@ def index_posts(posts, clear=False, index_dir=settings.INDEX_DIR, index_name=set
 
     # Commit changes to the index.
     writer.commit()
-    logger.info(f"Created index with: dir={index_dir}, name={index_name}")
+    logger.info(f"Created/updated index: dir={index_dir}, name={index_name}")
 
 
 def query(q='', fields=['content'], index_dir=settings.INDEX_DIR, index_name=settings.INDEX_NAME,

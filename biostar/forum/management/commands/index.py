@@ -14,14 +14,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--dir', type=str, help="Directory to create/find index in.")
-        parser.add_argument('--clear', type=bool, default=False, help="Delete existing index and start a fresh one.")
+        parser.add_argument('--new', type=bool, default=False, help="Delete existing index and start a fresh one.")
         parser.add_argument('--name', type=str, help="Index name.")
 
     def handle(self, *args, **options):
 
         index_dir = options["dir"] or settings.INDEX_DIR
         index_name = options['name'] or settings.INDEX_NAME
-        clear = options['clear']
+        create_new = options['new']
 
         # Index all posts.
         posts = Post.objects.all()
@@ -34,4 +34,4 @@ class Command(BaseCommand):
         if not os.path.exists(index_dir):
             raise Exception("Index directory does not exist.")
 
-        index_posts(index_dir=index_dir, posts=posts, clear=clear, index_name=index_name)
+        index_posts(index_dir=index_dir, posts=posts, create_new=create_new, index_name=index_name)
