@@ -34,7 +34,7 @@ def timer_func():
         last = now
         print(f"{msg} in {sec} seconds")
 
-    def progress(index, step=100, msg=""):
+    def progress(index, step=500, msg=""):
         nonlocal last
         if index % step == 0:
             elapsed(f"... {index} {msg}")
@@ -103,6 +103,7 @@ def delete_existing(ix, writer, uid):
     if not indexed.is_empty():
         # Delete the post from the index
         writer.delete_by_term('uid', uid, searcher=searcher)
+        logger.info('Deleted id={post.uid} from index.')
 
 
 def index_posts(posts, reindex=False):
@@ -158,7 +159,7 @@ def query(q='', fields=['content'], **kwargs):
     # Allow larger fragments
     results.fragmenter.maxchars = 300
     # Show more context before and after
-    results.fragmenter.surround = 50
+    results.fragmenter.surround = 20
 
     #searcher.close()
 
