@@ -280,7 +280,6 @@ def post_view(request, uid):
             return redirect(answer.get_absolute_url())
 
     auth.update_post_views(post=post, request=request)
-
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 

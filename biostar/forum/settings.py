@@ -17,12 +17,11 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
-# TODO: testing anti-spam API.
-AKISMET_API_KEY = 'spam-key'
-AKISMET_SITE_URL = BASE_URL
-# Do not hammer the API when testing
-AKISMET_TEST_MODE = False
 
+# Indexing interval in seconds.
+INDEX_SECS_INTERVAL = 10
+# Number of results to limit searches to
+SEARCH_LIMIT = 100
 
 VOTE_FEED_COUNT = 10
 LOCATION_FEED_COUNT = 5
@@ -35,7 +34,10 @@ SESSION_UPDATE_SECONDS = 40
 
 # Search index name
 INDEX_NAME = os.environ.setdefault("INDEX_NAME", "index")
-INDEX_DIR = os.path.join(MEDIA_ROOT, '..', 'search')
+# Relative index directory
+INDEX_DIR = os.environ.setdefault("INDEX_DIR", "search")
+# Absolute path to index directory in export/
+INDEX_DIR = os.path.join(MEDIA_ROOT, '..', INDEX_DIR)
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
@@ -49,8 +51,6 @@ SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
     'pagedown',
-    'antispam',
-    'antispam.akismet',
 
 ]
 

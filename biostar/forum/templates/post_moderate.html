@@ -19,7 +19,7 @@
         {% if form.offtopic %}
             <div class="ui segment">
                 <div class="field">
-                    <label>Rationale for being off topic.</label>
+                    <label>Off topic post.</label>
                     {{ form.offtopic }}
                     <div class="ui muted">
                         Reason why the post is not appropriate for this site.
@@ -49,10 +49,10 @@
         {% if form.pid %}
             <div class="ui segment">
                 <div class="field">
-                    <label>Parent id to move this post under as a comment.</label>
+                    <label>Move this post to a comment.</label>
                     {{ form.pid }}
                     <div class="ui muted">
-                        Parent id can be a comment, an answer, or the root post.
+                        Parent id to move post under.
                     </div>
                 </div>
             </div>

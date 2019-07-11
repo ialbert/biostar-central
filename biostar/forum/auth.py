@@ -1,7 +1,6 @@
 import datetime
 import logging
 
-from antispam import akismet
 from django.template import loader
 from django.conf import settings
 from django.contrib import messages
@@ -230,6 +229,10 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
     if action == DELETE:
         return delete_post(post=post, request=request)
 
+    if action == MOVE_ANSWER:
+        Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
+        return url
+
     if pid:
         parent = Post.objects.filter(uid=pid).first() or post.root
         Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
@@ -245,7 +248,8 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
 
         Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
         # Load answer explaining post being off topic.
-        Post.objects.create(content=content, type=Post.ANSWER, parent=post, author=user)
+        post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, author=user)
+        url = post.get_absolute_url()
         messages.success(request, "Marked the post as off topic.")
 
         return url
@@ -257,7 +261,8 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         content = tmpl.render(context)
 
         Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
-        Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
+        post = Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
+        url = post.get_absolute_url()
         messages.success(request, "Closed duplicated post.")
 
         return url

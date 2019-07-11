@@ -71,6 +71,9 @@ class Post(models.Model):
     # Indicates the information value of the post.
     rank = models.FloatField(default=0, blank=True, db_index=True)
 
+    # This post has been indexed by the search engine.
+    indexed = models.BooleanField(default=False)
+
     # Show that post is top level
     is_toplevel = models.BooleanField(default=False, db_index=True)
 

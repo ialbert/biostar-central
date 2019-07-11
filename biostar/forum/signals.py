@@ -62,7 +62,7 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Title is inherited from top level.
         if not instance.is_toplevel:
-            instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
+            instance.title = "%s: %s" % (instance.get_type_display(), instance.root.title[:80])
 
         # Make the last editor first in the list of contributors
         # Done on post creation to avoid moderators being added for editing a post.
@@ -97,6 +97,9 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Get all subscribed users when a new post is created
         subs = Subscription.objects.filter(post=instance.root)
+
+    # Ensure posts get re-indexed after being edited.
+    Post.objects.filter(uid=instance.uid).update(indexed=False)
 
     # Exclude current authors from receiving messages from themselves
     subs = subs.exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=instance.author))

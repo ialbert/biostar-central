@@ -1,10 +1,10 @@
 import logging
-
-from django.db.models import Q
+from datetime import timedelta
+from django.conf import settings
 
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
-from biostar.utils.decorators import spool
+from biostar.utils.decorators import spool, timer
 
 logger = logging.getLogger("biostar")
 
@@ -17,6 +17,23 @@ def info_task(*args, **kwargs):
 @spool(pass_arguments=True)
 def created_post(pid):
     logger.info(f"Created post={pid}")
+
+
+@timer(secs=300)
+def update_index(*args):
+    """
+    Index posts every 5 minutes
+    """
+    from biostar.forum.models import Post
+    from biostar.forum import search
+
+    # Get un-indexed posts
+    posts = Post.objects.filter(indexed=False)
+
+    search.index_posts(posts=posts)
+
+    logger.info(f"Updated search index with {len(posts)} posts.")
+    return
 
 
 @spool(pass_arguments=True)
@@ -63,7 +80,7 @@ def notify_followers(subs, author, extra_context={}):
     # Template used to send emails with
     email_template = "messages/subscription_email.html"
 
-    # Does the does not have subscriptions.
+    # Does not have subscriptions.
     if not subs:
         return
 

@@ -7,7 +7,6 @@ from django.conf import settings
 from biostar.accounts.models import User
 from .models import Post
 from biostar.forum import models, auth
-from antispam import akismet
 
 from .const import *
 
@@ -19,33 +18,11 @@ MAX_CONTENT = 15000
 MIN_CONTENT = 10
 
 
-class CommentSpam(akismet.Comment):
-    def as_params(self):
-        params = super(CommentSpam, self).as_params()
-        params['comment_date'] = self.created
-        return params
-
-
 def english_only(text):
     try:
         text.encode('ascii')
     except Exception:
         raise ValidationError('Text may only contain plain text (ASCII) characters')
-
-
-def check_spam(request, content):
-    # Check API if post content being submitted is spam
-
-    name, email = request.user.profile.name, request.user.email
-    post = CommentSpam(content=content, type='comment', author=akismet.Author(name=name))
-
-    # Scores this content from 0-3, from not spam to defiantly spam
-    spam_score = akismet.check(request=akismet.Request.from_django_request(request), comment=post)
-
-    spam_staus = dict(ham=0, unknown=1, probable_spam=2, definite_spam=3)
-
-    print(spam_score, f"spam score :{spam_staus.get(spam_score, 'unknown')}")
-    return
 
 
 def valid_title(text):
@@ -146,8 +123,12 @@ class CommentForm(forms.Form):
 
 
 def mod_choices(post):
+    """
+    Return available moderation options for a post.
+    """
     choices = [
         (BUMP_POST, "Bump a post"),
+        (MOVE_ANSWER, "Move comment to answer."),
         (OPEN_POST, "Open deleted or off topic post"),
         (DELETE, "Delete post")
     ]
@@ -157,12 +138,17 @@ def mod_choices(post):
     # Moderation options for top level posts
     allowed += [BUMP_POST] if post.is_toplevel else []
 
-    # Open/Off topic moderation options
+    # Option to open deleted posts
     if post.status in [Post.DELETED, Post.OFFTOPIC]:
         allowed += [OPEN_POST]
 
+    # Option to deleted open posts
     if post.status != Post.DELETED:
         allowed += [DELETE]
+
+    if post.is_comment:
+        allowed += [MOVE_ANSWER]
+
     # Filter the appropriate choices
     choices = filter(lambda action: action[0] in allowed if allowed else True, choices)
 
@@ -203,9 +189,6 @@ class PostModForm(forms.Form):
 
         if (action is None) and not (dupes or pid or offtopic):
             raise forms.ValidationError("Select an action.")
-
-        if action == BUMP_POST and not self.post.is_toplevel:
-            raise forms.ValidationError("You can only perform this action to a top-level post")
 
         parent = Post.objects.filter(uid=pid).first()
         if not parent and pid:

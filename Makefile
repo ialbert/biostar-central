@@ -16,6 +16,7 @@ DATABASE_NAME := database.db
 # Search index name
 INDEX_NAME := index
 
+
 all: engine serve
 
 accounts:
@@ -100,7 +101,7 @@ test_all:
 
 index:
 	@echo INDEX_NAME=${INDEX_NAME}
-	python manage.py index --name ${INDEX_NAME} --settings ${DJANGO_SETTING_MODULE}
+	python manage.py index --reindex --settings ${DJANGO_SETTING_MODULE}
 
 
 projects:
