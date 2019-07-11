@@ -311,24 +311,6 @@ def search_bar():
     return context
 
 
-@register.inclusion_tag('widgets/feed_single.html')
-def single_feed(post):
-    """
-    Return feed populated with posts similar to the one given.
-    """
-
-    results = []
-    # Retrieve this post from the search index.
-    indexed_post = search.query(q=post.uid, fields=['uid'])
-
-    # Get top level posts similar to this one.
-    if not indexed_post.is_empty():
-        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
-
-    context = dict(results=results)
-    return context
-
-
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
 def list_posts(context, target):
     request = context["request"]

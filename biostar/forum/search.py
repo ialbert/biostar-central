@@ -4,6 +4,7 @@ import os
 from itertools import count, islice
 
 from django.conf import settings
+from django.template import loader
 
 from whoosh import writing
 from whoosh.writing import AsyncWriter
@@ -148,7 +149,13 @@ def index_posts(posts, reindex=False):
 def query(q='', fields=['content'], **kwargs):
     """
     Query the indexed, looking for a match in the specified fields.
+    Results a tuple of results and an open searcher object.
     """
+
+    # Do not preform any queries if the index does not exist.
+    if not index_exists():
+        return []
+
     ix = init_index()
     searcher = ix.searcher()
 
@@ -159,8 +166,21 @@ def query(q='', fields=['content'], **kwargs):
     # Show more context before and after
     results.fragmenter.surround = 20
 
-    #searcher.close()
-
     return results
 
+
+def load_results(template, q='', fields=['content'], **kwargs):
+    """
+    Load results into a template and safely close the searcher object
+    """
+    results, searcher = query(q=q, fields=fields)
+
+    context = dict(results=results)
+    tmpl = loader.get_template(template)
+    results_html = tmpl.render(context)
+
+    # Safely close the searcher object after loading template
+    searcher.close()
+
+    return results_html
 
