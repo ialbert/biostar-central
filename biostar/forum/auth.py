@@ -1,7 +1,6 @@
 import datetime
 import logging
 
-from antispam import akismet
 from django.template import loader
 from django.conf import settings
 from django.contrib import messages

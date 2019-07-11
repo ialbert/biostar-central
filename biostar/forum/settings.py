@@ -51,8 +51,6 @@ SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
     'pagedown',
-    'antispam',
-    'antispam.akismet',
 
 ]
 
