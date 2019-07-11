@@ -94,7 +94,6 @@ def delete_existing(ix, writer, uid):
     Delete an existing post from the index.
     Done before re-indexing.
     """
-
     searcher = ix.searcher()
     parser = MultifieldParser(fieldnames=['uid'], schema=ix.schema).parse(uid)
     indexed = searcher.search(parser)
@@ -102,7 +101,6 @@ def delete_existing(ix, writer, uid):
     if not indexed.is_empty():
         # Delete the post from the index
         writer.delete_by_term('uid', uid, searcher=searcher)
-        logger.info('Deleted id={post.uid} from index.')
 
 
 def index_posts(posts, reindex=False):
@@ -121,8 +119,8 @@ def index_posts(posts, reindex=False):
     stream = islice(zip(count(1), posts), None)
 
     # Loop through posts and add to index
-    for i, post in stream:
-        progress(i, msg="posts indexed")
+    for step, post in stream:
+        progress(step, msg="posts indexed")
 
         # Delete an existing post before reindexing it.
         if updating_index:
@@ -140,7 +138,8 @@ def index_posts(posts, reindex=False):
     else:
         writer.commit()
 
-    elapsed(f"Created/updated index for {len(posts)} posts.")
+    elapsed(f"""Indexed {len(posts)} posts: 
+            dir={settings.INDEX_DIR} name={settings.INDEX_NAME}.""")
 
     # Update indexed field on posts.
     posts.update(indexed=True)
@@ -162,25 +161,8 @@ def query(q='', fields=['content'], **kwargs):
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)
     results = searcher.search(parser, limit=settings.SEARCH_LIMIT, **kwargs)
     # Allow larger fragments
-    results.fragmenter.maxchars = 300
+    results.fragmenter.maxchars = 600
     # Show more context before and after
     results.fragmenter.surround = 20
 
     return results
-
-
-def load_results(template, q='', fields=['content'], **kwargs):
-    """
-    Load results into a template and safely close the searcher object
-    """
-    results, searcher = query(q=q, fields=fields)
-
-    context = dict(results=results)
-    tmpl = loader.get_template(template)
-    results_html = tmpl.render(context)
-
-    # Safely close the searcher object after loading template
-    searcher.close()
-
-    return results_html
-

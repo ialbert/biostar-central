@@ -16,6 +16,9 @@ DATABASE_NAME := database.db
 # Search index name
 INDEX_NAME := index
 
+# Search index directory
+INDEX_DIR := search
+
 
 all: engine serve
 
@@ -103,6 +106,8 @@ index:
 	@echo INDEX_NAME=${INDEX_NAME}
 	python manage.py index --reindex --settings ${DJANGO_SETTING_MODULE}
 
+delete_index:
+	rm -rf export/${INDEX_DIR}
 
 projects:
 	python manage.py project --pid test --name "Test Project" --public

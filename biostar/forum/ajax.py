@@ -6,7 +6,7 @@ from django.conf import settings
 from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
-
+from whoosh.searching import Results
 from .const import *
 from . import auth, util, forms, tasks, search
 from .models import Post, Vote, Subscription
@@ -155,7 +155,10 @@ def ajax_search(request):
         tmpl = loader.get_template("widgets/search_results.html")
         context = dict(results=results)
         results_html = tmpl.render(context)
-        results.searcher.close()
+        # Ensure the searcher object gets closed.
+        if isinstance(results, Results):
+            results.searcher.close()
+
         return ajax_success(html=results_html, msg="success")
 
     return ajax_success(html="", msg="success")
@@ -175,7 +178,8 @@ def ajax_feed(request):
     # Retrieve this post from the search index.
     indexed_post = search.query(q=post.uid, fields=['uid'])
 
-    if len(indexed_post):
+    if isinstance(results, Results) and not indexed_post.is_empty():
+
         results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
         # Filter results for toplevel posts.
         results = filter(lambda p: p['is_toplevel'] is True, results)
@@ -184,7 +188,8 @@ def ajax_feed(request):
     context = dict(results=results)
     results_html = tmpl.render(context)
 
-    if indexed_post:
-        indexed_post.searcher.close()
+    # Ensure the searcher object gets closed.
+    if isinstance(results, Results):
+        results.searcher.close()
 
     return ajax_success(html=results_html, msg="success")
