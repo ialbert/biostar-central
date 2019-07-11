@@ -163,8 +163,7 @@ def ajax_search(request):
 
 def ajax_feed(request):
     """
-    Return a feed populated with posts similar to
-    the one in the request.
+    Return a feed populated with posts similar to the one in the request.
     """
 
     uid = request.GET.get('uid')
@@ -176,12 +175,12 @@ def ajax_feed(request):
     # Retrieve this post from the search index.
     indexed_post = search.query(q=post.uid, fields=['uid'])
 
-    # Get top level posts similar to this one.
     if not indexed_post.is_empty():
         results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
 
-    print(results, indexed_post.is_empty(), "results")
-        
+        # Filter results for toplevel posts.
+        results = filter(lambda p: p['is_toplevel'] is True, results)
+
     tmpl = loader.get_template('widgets/feed_single.html')
     context = dict(results=results)
     results_html = tmpl.render(context)

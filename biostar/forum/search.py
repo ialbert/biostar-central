@@ -47,8 +47,7 @@ def index_exists():
 
 
 def add_index(post, writer):
-    title = '' if not post.is_toplevel else post.title
-    writer.add_document(title=title, url=post.get_absolute_url(),
+    writer.add_document(title=post.title, url=post.get_absolute_url(),
                         type=post.get_type_display(),
                         lastedit_date=post.lastedit_date.timestamp(),
                         content=post.content, tags=post.tag_val,
@@ -61,7 +60,6 @@ def add_index(post, writer):
 
 def get_schema():
     tokenizer = SpaceSeparatedTokenizer() | StopFilter(stoplist=STOP)
-
     schema = Schema(title=NGRAMWORDS(stored=True, tokenizer=tokenizer),
                     url=ID(stored=True),
                     content=NGRAMWORDS(stored=True, tokenizer=tokenizer),

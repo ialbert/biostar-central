@@ -224,7 +224,7 @@ $(document).ready(function () {
                     if (data.status === 'error') {
                         popup_message(elem, data.msg, data.status);
                     } else {
-                        // Replace current item with the select one.
+                        // Populate the feed.
                         elem.html(data.html)
                     }
                 },
