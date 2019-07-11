@@ -160,3 +160,30 @@ def ajax_search(request):
 
     return ajax_success(html="", msg="success")
 
+
+def ajax_feed(request):
+    """
+    Return a feed populated with posts similar to
+    the one in the request.
+    """
+
+    uid = request.GET.get('uid')
+    post = Post.objects.filter(uid=uid).first()
+    if not post:
+        ajax_error(msg='Post does not exist.')
+
+    results = []
+    # Retrieve this post from the search index.
+    indexed_post = search.query(q=post.uid, fields=['uid'])
+
+    # Get top level posts similar to this one.
+    if not indexed_post.is_empty():
+        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
+
+    print(results, indexed_post.is_empty(), "results")
+        
+    tmpl = loader.get_template('widgets/feed_single.html')
+    context = dict(results=results)
+    results_html = tmpl.render(context)
+
+    return ajax_success(html=results_html, msg="success")

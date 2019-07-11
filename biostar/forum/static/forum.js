@@ -202,8 +202,36 @@ $(document).ready(function () {
         if (res.html().length > 0){
             res.html('');
             res.removeClass('ui message');
-            //container.removeClass('loading search');
         }
+    });
+
+    $('#similar-feed').each(function () {
+        var elem = $(this);
+        //elem.html('asshole');
+        // Fetch feed from url url
+        var feed_url = '/ajax/feed/';
+        var uid = elem.attr('post_uid');
+
+        $.ajax(feed_url,
+            {
+                type: 'GET',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {
+                    'uid': uid
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message(elem, data.msg, data.status);
+                    } else {
+                        // Replace current item with the select one.
+                        elem.html(data.html)
+                    }
+                },
+                error: function (xhr, status, text) {
+                    error_message(elem, xhr, status, text)
+                }
+            })
     });
 
     $('.ui.dropdown').dropdown();
@@ -356,7 +384,7 @@ $(document).ready(function () {
 
             success: function (data) {
                 if (data.status === 'error') {
-                    // Untoggle the button if there was an error
+                    popup_message($(this), data.msg, data.status);
                 } else {
                     // Success
                     //alert(data.html);
