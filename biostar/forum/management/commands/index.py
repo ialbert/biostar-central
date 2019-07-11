@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        # Index all posts that have a root.
-        posts = Post.objects.exclude(root=None)
+        # Index all un-indexed posts that have a root.
+        posts = Post.objects.exclude(root=None, indexed=False)
         reindex = options['reindex']
         index_posts(posts=posts, reindex=reindex)

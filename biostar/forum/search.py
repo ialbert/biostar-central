@@ -109,23 +109,25 @@ def index_posts(posts, reindex=False):
     """
     Create or update a search index of posts.
     """
-    # Indexes that already exist will to be updated
-    # instead of starting from scratch.
+    # Indexes that already exist will to be updated instead of starting from scratch.
     updating_index = index_exists()
 
     ix = init_index()
 
     # The writer is asynchronous by default
     writer = AsyncWriter(ix)
+
     elapsed, progress = timer_func()
     stream = islice(zip(count(1), posts), None)
 
     # Loop through posts and add to index
     for i, post in stream:
         progress(i, msg="posts indexed")
+
         # Delete an existing post before reindexing it.
         if updating_index:
             delete_existing(ix=ix, writer=writer, uid=post.uid)
+
         # Index post
         add_index(post=post, writer=writer)
 
@@ -133,7 +135,7 @@ def index_posts(posts, reindex=False):
 
     # Commit to index
     if reindex:
-        # Re-index posts when committing.
+        # Re-index posts from scratch when committing.
         writer.commit(mergetype=writing.CLEAR)
     else:
         writer.commit()

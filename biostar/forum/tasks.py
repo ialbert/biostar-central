@@ -33,7 +33,6 @@ def update_index(*args):
     search.index_posts(posts=posts)
 
     logger.info(f"Updated search index with {len(posts)} posts.")
-
     return
 
 
@@ -81,7 +80,7 @@ def notify_followers(subs, author, extra_context={}):
     # Template used to send emails with
     email_template = "messages/subscription_email.html"
 
-    # Does the does not have subscriptions.
+    # Does not have subscriptions.
     if not subs:
         return
 
