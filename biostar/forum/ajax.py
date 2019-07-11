@@ -144,6 +144,12 @@ def ajax_edit(request):
     return ajax_success(msg=post.html)
 
 
+def close(r):
+    # Ensure the searcher object gets closed.
+    r.searcher.close() if isinstance(r, Results) else None
+    return
+
+
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 def ajax_search(request):
@@ -155,9 +161,8 @@ def ajax_search(request):
         tmpl = loader.get_template("widgets/search_results.html")
         context = dict(results=results)
         results_html = tmpl.render(context)
-        # Ensure the searcher object gets closed.
-        if isinstance(results, Results):
-            results.searcher.close()
+
+        close(results)
 
         return ajax_success(html=results_html, msg="success")
 
@@ -189,7 +194,6 @@ def ajax_feed(request):
     results_html = tmpl.render(context)
 
     # Ensure the searcher object gets closed.
-    if isinstance(results, Results):
-        results.searcher.close()
+    close(results)
 
     return ajax_success(html=results_html, msg="success")
