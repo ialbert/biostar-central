@@ -193,6 +193,6 @@ def ajax_feed(request):
     context = dict(results=results)
     results_html = tmpl.render(context)
     # Ensure the searcher object gets closed.
-    close(results)
+    close(indexed_post)
 
     return ajax_success(html=results_html, msg="success")
