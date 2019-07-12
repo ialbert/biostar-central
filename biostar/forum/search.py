@@ -48,15 +48,15 @@ def index_exists():
 
 
 def add_index(post, writer):
-    writer.add_document(title=post.title, url=post.get_absolute_url(),
-                        type=post.get_type_display(),
-                        lastedit_date=post.lastedit_date.timestamp(),
-                        content=post.content, tags=post.tag_val,
-                        is_toplevel=post.is_toplevel,
-                        rank=post.rank, uid=post.uid,
-                        author=post.author.profile.name,
-                        author_uid=post.author.profile.uid,
-                        author_url=post.author.profile.get_absolute_url())
+    writer.update_document(title=post.title, url=post.get_absolute_url(),
+                           type=post.get_type_display(),
+                           lastedit_date=post.lastedit_date.timestamp(),
+                           content=post.content, tags=post.tag_val,
+                           is_toplevel=post.is_toplevel,
+                           rank=post.rank, uid=post.uid,
+                           author=post.author.profile.name,
+                           author_uid=post.author.profile.uid,
+                           author_url=post.author.profile.get_absolute_url())
 
 
 def get_schema():
@@ -89,26 +89,11 @@ def init_index():
     return ix
 
 
-def delete_existing(ix, writer, uid):
-    """
-    Delete an existing post from the index.
-    Done before re-indexing.
-    """
-    searcher = ix.searcher()
-    parser = MultifieldParser(fieldnames=['uid'], schema=ix.schema).parse(uid)
-    indexed = searcher.search(parser)
-
-    if not indexed.is_empty():
-        # Delete the post from the index
-        writer.delete_by_term('uid', uid, searcher=searcher)
-
-
 def index_posts(posts, reindex=False):
     """
     Create or update a search index of posts.
     """
-    # Indexes that already exist will to be updated instead of starting from scratch.
-    updating_index = index_exists()
+
     ix = init_index()
     # The writer is asynchronous by default
     writer = AsyncWriter(ix)
@@ -119,10 +104,7 @@ def index_posts(posts, reindex=False):
     # Loop through posts and add to index
     for step, post in stream:
         progress(step, msg="posts indexed")
-        # Delete an existing post before reindexing it.
-        if updating_index:
-            delete_existing(ix=ix, writer=writer, uid=post.uid)
-        # Index post
+
         add_index(post=post, writer=writer)
 
     # Commit to index
