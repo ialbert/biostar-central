@@ -5,14 +5,10 @@
         <div class="ui relaxed divided list">
             {% for result in results %}
                 <a class="item" href="{{ result.url }}">
-                    {% if result.is_toplevel %}
-                        <b>{{ result.title }}</b>
-                    {% else %}
-                        <b>{{ result.type }}</b>
-                    {% endif %}
+                    {{ result.title }}
                     <div class="muted">
                         {{ result|highlight:'content' }}
-                        <div>by {{ result.author }}</div>
+                        <b>by {{ result.author }}</b>
                     </div>
                 </a>
             {% endfor %}

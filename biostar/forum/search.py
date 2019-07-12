@@ -67,9 +67,10 @@ def get_schema():
                     tags=KEYWORD(stored=True),
                     is_toplevel=BOOLEAN(stored=True),
                     lastedit_date=NUMERIC(stored=True),
-                    author_uid=ID(stored=True),
                     rank=NUMERIC(stored=True, sortable=True),
                     author=TEXT(stored=True),
+                    author_handle=TEXT(stored=True),
+                    author_uid=ID(stored=True),
                     author_url=ID(stored=True),
                     uid=ID(stored=True),
                     type=TEXT(stored=True))
@@ -116,9 +117,6 @@ def index_posts(posts, reindex=False):
 
     elapsed(f"""Indexed {len(posts)} posts: 
             dir={settings.INDEX_DIR} name={settings.INDEX_NAME}.""")
-
-    # Update indexed field on posts.
-    posts.update(indexed=True)
 
 
 def query(q='', fields=['content'], **kwargs):

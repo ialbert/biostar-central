@@ -10,16 +10,11 @@ logger = logging.getLogger("biostar")
 
 
 @spool(pass_arguments=True)
-def info_task(*args, **kwargs):
-    logger.info(f"info_task called with args={args} and kwargs={kwargs}")
-
-
-@spool(pass_arguments=True)
 def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-@timer(secs=300)
+@timer(secs=180)
 def update_index(*args):
     """
     Index posts every 5 minutes
@@ -27,10 +22,14 @@ def update_index(*args):
     from biostar.forum.models import Post
     from biostar.forum import search
 
-    # Get un-indexed posts
-    posts = Post.objects.filter(indexed=False)
+    # Get 1000 un-indexed posts
+    posts = Post.objects.filter(indexed=False)[:1000]
+    logger.info(f"Indexing {len(posts)} posts.")
 
     search.index_posts(posts=posts)
+
+    # Update indexed field on posts.
+    Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
 
     logger.info(f"Updated search index with {len(posts)} posts.")
     return
