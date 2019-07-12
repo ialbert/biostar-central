@@ -183,7 +183,7 @@ def ajax_feed(request):
     # Retrieve this post from the search index.
     indexed_post = search.query(q=post.uid, fields=['uid'])
 
-    if isinstance(results, Results) and not indexed_post.is_empty():
+    if isinstance(indexed_post, Results) and not indexed_post.is_empty():
 
         results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
         # Filter results for toplevel posts.
