@@ -161,7 +161,7 @@ def ajax_search(request):
         tmpl = loader.get_template("widgets/search_results.html")
         context = dict(results=results)
         results_html = tmpl.render(context)
-
+        # Ensure the searcher object gets closed.
         close(results)
 
         return ajax_success(html=results_html, msg="success")
@@ -192,7 +192,6 @@ def ajax_feed(request):
     tmpl = loader.get_template('widgets/feed_single.html')
     context = dict(results=results)
     results_html = tmpl.render(context)
-
     # Ensure the searcher object gets closed.
     close(results)
 

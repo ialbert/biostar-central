@@ -109,9 +109,7 @@ def index_posts(posts, reindex=False):
     """
     # Indexes that already exist will to be updated instead of starting from scratch.
     updating_index = index_exists()
-
     ix = init_index()
-
     # The writer is asynchronous by default
     writer = AsyncWriter(ix)
 
@@ -121,15 +119,11 @@ def index_posts(posts, reindex=False):
     # Loop through posts and add to index
     for step, post in stream:
         progress(step, msg="posts indexed")
-
         # Delete an existing post before reindexing it.
         if updating_index:
             delete_existing(ix=ix, writer=writer, uid=post.uid)
-
         # Index post
         add_index(post=post, writer=writer)
-
-    elapsed, progress = timer_func()
 
     # Commit to index
     if reindex:
