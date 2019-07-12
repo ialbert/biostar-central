@@ -5,7 +5,7 @@
         <div class="ui relaxed divided list">
             {% for result in results %}
                 <a class="item" href="{{ result.url }}">
-                    {% if result.title %}
+                    {% if result.is_toplevel %}
                         <b>{{ result.title }}</b>
                     {% else %}
                         <b>{{ result.type }}</b>

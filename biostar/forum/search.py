@@ -4,6 +4,7 @@ import os
 from itertools import count, islice
 
 from django.conf import settings
+from django.template import loader
 
 from whoosh import writing
 from whoosh.writing import AsyncWriter
@@ -47,21 +48,19 @@ def index_exists():
 
 
 def add_index(post, writer):
-    title = '' if not post.is_toplevel else post.title
-    writer.add_document(title=title, url=post.get_absolute_url(),
-                        type=post.get_type_display(),
-                        lastedit_date=post.lastedit_date.timestamp(),
-                        content=post.content, tags=post.tag_val,
-                        is_toplevel=post.is_toplevel,
-                        rank=post.rank, uid=post.uid,
-                        author=post.author.profile.name,
-                        author_uid=post.author.profile.uid,
-                        author_url=post.author.profile.get_absolute_url())
+    writer.update_document(title=post.title, url=post.get_absolute_url(),
+                           type=post.get_type_display(),
+                           lastedit_date=post.lastedit_date.timestamp(),
+                           content=post.content, tags=post.tag_val,
+                           is_toplevel=post.is_toplevel,
+                           rank=post.rank, uid=post.uid,
+                           author=post.author.profile.name,
+                           author_uid=post.author.profile.uid,
+                           author_url=post.author.profile.get_absolute_url())
 
 
 def get_schema():
     tokenizer = SpaceSeparatedTokenizer() | StopFilter(stoplist=STOP)
-
     schema = Schema(title=NGRAMWORDS(stored=True, tokenizer=tokenizer),
                     url=ID(stored=True),
                     content=NGRAMWORDS(stored=True, tokenizer=tokenizer),
@@ -90,31 +89,12 @@ def init_index():
     return ix
 
 
-def delete_existing(ix, writer, uid):
-    """
-    Delete an existing post from the index.
-    Done before re-indexing.
-    """
-
-    searcher = ix.searcher()
-    parser = MultifieldParser(fieldnames=['uid'], schema=ix.schema).parse(uid)
-    indexed = searcher.search(parser)
-
-    if not indexed.is_empty():
-        # Delete the post from the index
-        writer.delete_by_term('uid', uid, searcher=searcher)
-        logger.info('Deleted id={post.uid} from index.')
-
-
 def index_posts(posts, reindex=False):
     """
     Create or update a search index of posts.
     """
-    # Indexes that already exist will to be updated instead of starting from scratch.
-    updating_index = index_exists()
 
     ix = init_index()
-
     # The writer is asynchronous by default
     writer = AsyncWriter(ix)
 
@@ -122,17 +102,10 @@ def index_posts(posts, reindex=False):
     stream = islice(zip(count(1), posts), None)
 
     # Loop through posts and add to index
-    for i, post in stream:
-        progress(i, msg="posts indexed")
+    for step, post in stream:
+        progress(step, msg="posts indexed")
 
-        # Delete an existing post before reindexing it.
-        if updating_index:
-            delete_existing(ix=ix, writer=writer, uid=post.uid)
-
-        # Index post
         add_index(post=post, writer=writer)
-
-    elapsed, progress = timer_func()
 
     # Commit to index
     if reindex:
@@ -141,7 +114,8 @@ def index_posts(posts, reindex=False):
     else:
         writer.commit()
 
-    elapsed(f"Created/updated index for {len(posts)} posts.")
+    elapsed(f"""Indexed {len(posts)} posts: 
+            dir={settings.INDEX_DIR} name={settings.INDEX_NAME}.""")
 
     # Update indexed field on posts.
     posts.update(indexed=True)
@@ -150,19 +124,21 @@ def index_posts(posts, reindex=False):
 def query(q='', fields=['content'], **kwargs):
     """
     Query the indexed, looking for a match in the specified fields.
+    Results a tuple of results and an open searcher object.
     """
+
+    # Do not preform any queries if the index does not exist.
+    if not index_exists():
+        return []
+
     ix = init_index()
     searcher = ix.searcher()
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)
     results = searcher.search(parser, limit=settings.SEARCH_LIMIT, **kwargs)
     # Allow larger fragments
-    results.fragmenter.maxchars = 300
+    results.fragmenter.maxchars = 600
     # Show more context before and after
     results.fragmenter.surround = 20
 
-    #searcher.close()
-
     return results
-
-

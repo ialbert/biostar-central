@@ -6,7 +6,7 @@ from django.conf import settings
 from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
-
+from whoosh.searching import Results
 from .const import *
 from . import auth, util, forms, tasks, search
 from .models import Post, Vote, Subscription
@@ -144,6 +144,12 @@ def ajax_edit(request):
     return ajax_success(msg=post.html)
 
 
+def close(r):
+    # Ensure the searcher object gets closed.
+    r.searcher.close() if isinstance(r, Results) else None
+    return
+
+
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 def ajax_search(request):
@@ -155,8 +161,38 @@ def ajax_search(request):
         tmpl = loader.get_template("widgets/search_results.html")
         context = dict(results=results)
         results_html = tmpl.render(context)
+        # Ensure the searcher object gets closed.
+        close(results)
 
         return ajax_success(html=results_html, msg="success")
 
     return ajax_success(html="", msg="success")
 
+
+def ajax_feed(request):
+    """
+    Return a feed populated with posts similar to the one in the request.
+    """
+
+    uid = request.GET.get('uid')
+    post = Post.objects.filter(uid=uid).first()
+    if not post:
+        ajax_error(msg='Post does not exist.')
+
+    results = []
+    # Retrieve this post from the search index.
+    indexed_post = search.query(q=post.uid, fields=['uid'])
+
+    if isinstance(indexed_post, Results) and not indexed_post.is_empty():
+
+        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
+        # Filter results for toplevel posts.
+        results = filter(lambda p: p['is_toplevel'] is True, results)
+
+    tmpl = loader.get_template('widgets/feed_single.html')
+    context = dict(results=results)
+    results_html = tmpl.render(context)
+    # Ensure the searcher object gets closed.
+    close(indexed_post)
+
+    return ajax_success(html=results_html, msg="success")
