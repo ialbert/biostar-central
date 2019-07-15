@@ -172,7 +172,7 @@ VOTER = AwardDef(
     desc="voted more than 100 times",
     func=lambda user: wrap_qs(Vote.objects.filter(author=user).count() > 100, User, user.id),
     max=1,
-    icon="thumbs up outline"
+    icon="thumbs up outline icon"
 )
 
 SUPPORTER = AwardDef(
