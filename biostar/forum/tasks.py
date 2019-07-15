@@ -1,17 +1,12 @@
 import logging
 from datetime import timedelta
-from django.conf import settings
+
 
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from biostar.utils.decorators import spool, timer
 
 logger = logging.getLogger("biostar")
-
-
-@spool(pass_arguments=True)
-def info_task(*args, **kwargs):
-    logger.info(f"info_task called with args={args} and kwargs={kwargs}")
 
 
 @spool(pass_arguments=True)
@@ -22,17 +17,26 @@ def created_post(pid):
 @timer(secs=300)
 def update_index(*args):
     """
-    Index posts every 5 minutes
+    Index posts every 3 minutes
     """
     from biostar.forum.models import Post
     from biostar.forum import search
+    from django.conf import settings
 
     # Get un-indexed posts
-    posts = Post.objects.filter(indexed=False)
+    posts = Post.objects.filter(indexed=False)[:settings.BATCH_INDEXING_SIZE]
+    logger.info(f"Indexing {len(posts)} posts.")
 
-    search.index_posts(posts=posts)
+    # Update indexed field on posts.
+    Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
 
-    logger.info(f"Updated search index with {len(posts)} posts.")
+    try:
+        search.index_posts(posts=posts)
+        logger.info(f"Updated search index with {len(posts)} posts.")
+    except Exception as exc:
+        logger.error(f'Error updating index: {exc}')
+        Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
+
     return
 
 

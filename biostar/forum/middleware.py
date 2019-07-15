@@ -30,8 +30,6 @@ def forum_middleware(get_response):
 
         user, session = request.user, request.session
 
-        tasks.info_task.spool(data=1)
-
         # Anonymous users are not processed.
         if user.is_anonymous:
             return get_response(request)
@@ -46,8 +44,6 @@ def forum_middleware(get_response):
             user.save()
 
         ip = get_ip(request)
-
-        tasks.info_task.spool(ip=ip, user_id=user.id)
 
         detect_location.spool(ip=ip, user_id=user.id)
 

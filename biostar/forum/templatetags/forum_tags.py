@@ -134,8 +134,14 @@ def user_score(user):
 
 
 @register.inclusion_tag('widgets/user_icon.html')
-def user_icon(user):
-    score = user_score(user)
+def user_icon(user=None, user_uid=None):
+    try:
+        user = user or User.objects.filter(profile__uid=user_uid).first()
+        score = user_score(user)
+    except Exception as exc:
+        logger.info(exc)
+        user = score = None
+
     context = dict(user=user, score=score)
     return context
 

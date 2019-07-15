@@ -128,8 +128,6 @@ def post_list(request, show=None, extra_context=dict()):
     # The user performing the request.
     user = request.user
 
-    tasks.info_task.spool(data=2)
-
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
     tag = request.GET.get("tag", "")

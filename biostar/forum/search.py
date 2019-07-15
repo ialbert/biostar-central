@@ -7,6 +7,7 @@ from django.conf import settings
 from django.template import loader
 
 from whoosh import writing
+from whoosh.sorting import FieldFacet, ScoreFacet
 from whoosh.writing import AsyncWriter
 from whoosh.qparser import MultifieldParser
 from whoosh.analysis import SpaceSeparatedTokenizer, StopFilter, STOP_WORDS
@@ -49,30 +50,40 @@ def index_exists():
 
 def add_index(post, writer):
     writer.update_document(title=post.title, url=post.get_absolute_url(),
-                           type=post.get_type_display(),
+                           type_display=post.get_type_display(),
+                           type=post.type,
                            lastedit_date=post.lastedit_date.timestamp(),
                            content=post.content, tags=post.tag_val,
                            is_toplevel=post.is_toplevel,
                            rank=post.rank, uid=post.uid,
+                           author_handle=post.author.username,
                            author=post.author.profile.name,
+                           author_score=post.author.profile.score,
+                           thread_counts=post.thread_votecount,
+                           vote_count=post.vote_count,
                            author_uid=post.author.profile.uid,
                            author_url=post.author.profile.get_absolute_url())
 
 
 def get_schema():
     tokenizer = SpaceSeparatedTokenizer() | StopFilter(stoplist=STOP)
-    schema = Schema(title=NGRAMWORDS(stored=True, tokenizer=tokenizer),
+    schema = Schema(title=NGRAMWORDS(stored=True, tokenizer=tokenizer, sortable=True),
                     url=ID(stored=True),
+                    thread_votecount=NUMERIC(stored=True, sortable=True),
+                    vote_score=NUMERIC(stored=True, sortable=True),
                     content=NGRAMWORDS(stored=True, tokenizer=tokenizer),
                     tags=KEYWORD(stored=True),
                     is_toplevel=BOOLEAN(stored=True),
-                    lastedit_date=NUMERIC(stored=True),
-                    author_uid=ID(stored=True),
+                    lastedit_date=NUMERIC(stored=True, sortable=True),
                     rank=NUMERIC(stored=True, sortable=True),
                     author=TEXT(stored=True),
+                    author_score=NUMERIC(stored=True, sortable=True),
+                    author_handle=TEXT(stored=True),
+                    author_uid=ID(stored=True),
                     author_url=ID(stored=True),
                     uid=ID(stored=True),
-                    type=TEXT(stored=True))
+                    type=NUMERIC(stored=True, sortable=True),
+                    type_display=TEXT(stored=True),)
     return schema
 
 
@@ -117,9 +128,6 @@ def index_posts(posts, reindex=False):
     elapsed(f"""Indexed {len(posts)} posts: 
             dir={settings.INDEX_DIR} name={settings.INDEX_NAME}.""")
 
-    # Update indexed field on posts.
-    posts.update(indexed=True)
-
 
 def query(q='', fields=['content'], **kwargs):
     """
@@ -134,11 +142,20 @@ def query(q='', fields=['content'], **kwargs):
     ix = init_index()
     searcher = ix.searcher()
 
+    profile_score = FieldFacet("author_score", reverse=True)
+    post_type = FieldFacet("type")
+    rank = FieldFacet("rank", reverse=True)
+    default = ScoreFacet()
+
+    # Sort by: toplevel, match score, author reputation, post rank.
+    sort_by = [post_type,  profile_score, rank, default]
+
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)
-    results = searcher.search(parser, limit=settings.SEARCH_LIMIT, **kwargs)
+    results = searcher.search(parser, sortedby=sort_by, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
     # Allow larger fragments
-    results.fragmenter.maxchars = 600
+    results.fragmenter.maxchars = 100
+    #results.fragmenter.charlimit = None
     # Show more context before and after
-    results.fragmenter.surround = 20
+    results.fragmenter.surround = 100
 
     return results

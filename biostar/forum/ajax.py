@@ -155,7 +155,7 @@ def close(r):
 def ajax_search(request):
 
     query = request.GET.get('query', '')
-    fields = ['content', 'tags', 'title', 'author']
+    fields = ['content', 'tags', 'title', 'author', 'author_handle']
     if query:
         results = search.query(q=query, fields=fields)
         tmpl = loader.get_template("widgets/search_results.html")
