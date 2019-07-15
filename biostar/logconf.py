@@ -3,7 +3,10 @@ import os
 #
 # To see all log messages: export DJANGO_LOG_LEVEL=DEBUG
 #
-LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL') or 'WARNING'
+LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL') or 'INFO'
+
+DJANGO_LOG = 'WARNING'
+
 
 class RateLimitFilter(object):
     """
@@ -69,7 +72,7 @@ LOGGING = {
 
         'django': {
             'handlers': ['console'],
-            'level': LOG_LEVEL,
+            'level': DJANGO_LOG,
         },
 
         'engine': {

@@ -17,7 +17,7 @@ def created_post(pid):
 @timer(secs=300)
 def update_index(*args):
     """
-    Index posts every 3 minutes
+    Index posts every 5 minutes
     """
     from biostar.forum.models import Post
     from biostar.forum import search
