@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta
-from django.conf import settings
+
 
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
@@ -21,9 +21,10 @@ def update_index(*args):
     """
     from biostar.forum.models import Post
     from biostar.forum import search
+    from django.conf import settings
 
-    # Get 1000 un-indexed posts
-    posts = Post.objects.filter(indexed=False)[:1000]
+    # Get un-indexed posts
+    posts = Post.objects.filter(indexed=False)[:settings.BATCH_INDEXING_SIZE]
     logger.info(f"Indexing {len(posts)} posts.")
 
     search.index_posts(posts=posts)

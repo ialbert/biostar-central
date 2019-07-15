@@ -181,6 +181,8 @@ a:hover {
 .search-results{
     height: fit-content;
     overflow-y: auto;
+    background-color: #f9fff2 !important;
+    border: none !important;
     max-height: 500px
 }
 
