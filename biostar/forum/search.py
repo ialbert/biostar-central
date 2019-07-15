@@ -144,7 +144,7 @@ def query(q='', fields=['content'], **kwargs):
     default = ScoreFacet()
 
     # Sort by: toplevel, match score, author reputation, post rank.
-    sort_by = [post_type, default, profile_score, rank]
+    sort_by = [post_type,  profile_score, rank, default]
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)
     results = searcher.search(parser, sortedby=sort_by, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)

@@ -14,10 +14,10 @@ def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-@timer(secs=180)
+@timer(secs=300)
 def update_index(*args):
     """
-    Index posts every 5 minutes
+    Index posts every 3 minutes
     """
     from biostar.forum.models import Post
     from biostar.forum import search
@@ -27,12 +27,16 @@ def update_index(*args):
     posts = Post.objects.filter(indexed=False)[:settings.BATCH_INDEXING_SIZE]
     logger.info(f"Indexing {len(posts)} posts.")
 
-    search.index_posts(posts=posts)
-
     # Update indexed field on posts.
     Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
 
-    logger.info(f"Updated search index with {len(posts)} posts.")
+    try:
+        search.index_posts(posts=posts)
+        logger.info(f"Updated search index with {len(posts)} posts.")
+    except Exception as exc:
+        logger.error(f'Error updating: {exc}')
+        Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
+
     return
 
 
