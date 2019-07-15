@@ -5,6 +5,9 @@ import os
 #
 LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL') or 'INFO'
 
+DJANGO_LOG = 'WARNING'
+
+
 class RateLimitFilter(object):
     """
     Limits the number of error emails when errors get triggered.
@@ -69,7 +72,7 @@ LOGGING = {
 
         'django': {
             'handlers': ['console'],
-            'level': LOG_LEVEL,
+            'level': DJANGO_LOG,
         },
 
         'engine': {
