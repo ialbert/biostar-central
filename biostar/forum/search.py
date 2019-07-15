@@ -59,6 +59,8 @@ def add_index(post, writer):
                            author_handle=post.author.username,
                            author=post.author.profile.name,
                            author_score=post.author.profile.score,
+                           thread_counts=post.thread_votecount,
+                           vote_count=post.vote_count,
                            author_uid=post.author.profile.uid,
                            author_url=post.author.profile.get_absolute_url())
 
@@ -67,6 +69,8 @@ def get_schema():
     tokenizer = SpaceSeparatedTokenizer() | StopFilter(stoplist=STOP)
     schema = Schema(title=NGRAMWORDS(stored=True, tokenizer=tokenizer, sortable=True),
                     url=ID(stored=True),
+                    thread_votecount=NUMERIC(stored=True, sortable=True),
+                    vote_score=NUMERIC(stored=True, sortable=True),
                     content=NGRAMWORDS(stored=True, tokenizer=tokenizer),
                     tags=KEYWORD(stored=True),
                     is_toplevel=BOOLEAN(stored=True),

@@ -195,6 +195,43 @@ function edit_post(post_uid) {
         })
 }
 
+function  search(query, elem) {
+    var search_url = '/ajax/search/';
+    var res = $('#results');
+    var container = $('#contain-search');
+
+
+    container.addClass('loading search');
+    res.addClass('ui search message');
+    res.html('Searching ...');
+
+    $.ajax(search_url, {
+        type: 'GET',
+        dataType: 'json',
+        ContentType: 'application/json',
+        data: {
+            'query': query
+        },
+
+        success: function (data) {
+            if (data.status === 'error') {
+                popup_message($(this), data.msg, data.status);
+            } else {
+                // Success
+                //alert(data.html);
+                res.removeClass('ui message');
+                res.html(data.html);
+                container.removeClass('loading search');
+            }
+
+        },
+        error: function (xhr, status, text) {
+            error_message(elem, xhr, status, text)
+        }
+    });
+}
+
+
 $(document).ready(function () {
 
     $(this).click(function(event) {
@@ -357,7 +394,6 @@ $(document).ready(function () {
     remove_trigger();
 
     $('#search').keyup(function (event) {
-        var search_url='/ajax/search/';
         var query = $(this).val();
         var res = $('#results');
         var container = $('#contain-search');
@@ -370,35 +406,10 @@ $(document).ready(function () {
             return
         }
 
-        container.addClass('loading search');
-        res.addClass('ui search message');
-        res.html('Searching ...');
-
-        $.ajax(search_url, {
-            type: 'GET',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {
-                'query':query
-            },
-
-            success: function (data) {
-                if (data.status === 'error') {
-                    popup_message($(this), data.msg, data.status);
-                } else {
-                    // Success
-                    //alert(data.html);
-                    res.removeClass('ui message');
-                    res.html(data.html);
-                    container.removeClass('loading search');
-                }
-
-            },
-            error: function (xhr, status, text) {
-                error_message(elem, xhr, status, text)
-            }
-        });
-        //container.removeClass('loading search');
+        // Only preform searches when pressing ENTER
+        if (event.keyCode === 13){
+            search(query, $(this));
+        }
 
 
     });
