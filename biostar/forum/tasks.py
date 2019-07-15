@@ -34,7 +34,7 @@ def update_index(*args):
         search.index_posts(posts=posts)
         logger.info(f"Updated search index with {len(posts)} posts.")
     except Exception as exc:
-        logger.error(f'Error updating: {exc}')
+        logger.error(f'Error updating index: {exc}')
         Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
 
     return
