@@ -150,4 +150,4 @@ push:
 	git push
 
 deploy:
-	(cd conf/ansible && ansible-playbook -i hosts server_deploy.yml --ask-become-pass --extra-vars -v)
+	(cd conf/ansible && ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass --extra-vars -v)
