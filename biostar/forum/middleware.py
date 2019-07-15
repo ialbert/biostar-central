@@ -45,6 +45,7 @@ def forum_middleware(get_response):
 
         ip = get_ip(request)
 
+        # Detect user location if not set in the profile.
         detect_location.spool(ip=ip, user_id=user.id)
 
         elapsed = (now() - user.profile.last_login).total_seconds()

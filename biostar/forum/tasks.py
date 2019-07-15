@@ -14,10 +14,10 @@ def created_post(pid):
     logger.info(f"Created post={pid}")
 
 
-@timer(secs=300)
+@timer(secs=180)
 def update_index(*args):
     """
-    Index posts every 5 minutes
+    Index posts every 3 minutes
     """
     from biostar.forum.models import Post
     from biostar.forum import search

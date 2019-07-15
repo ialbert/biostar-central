@@ -7,6 +7,7 @@ from django.conf import settings
 from django.template import loader
 
 from whoosh import writing
+from whoosh.analysis import StemmingAnalyzer
 from whoosh.sorting import FieldFacet, ScoreFacet
 from whoosh.writing import AsyncWriter
 from whoosh.qparser import MultifieldParser
@@ -36,10 +37,11 @@ def timer_func():
         last = now
         print(f"{msg} in {sec} seconds")
 
-    def progress(index, step=500, msg=""):
+    def progress(index, step=500, total=0, msg=""):
         nonlocal last
         if index % step == 0:
-            elapsed(f"... {index} {msg}")
+            percent = int((index / total) * 100) if total > index else index
+            elapsed(f"... {percent}% ({index} out of {total}). {step} {msg}")
 
     return elapsed, progress
 
@@ -66,13 +68,13 @@ def add_index(post, writer):
 
 
 def get_schema():
-    tokenizer = SpaceSeparatedTokenizer() | StopFilter(stoplist=STOP)
-    schema = Schema(title=NGRAMWORDS(stored=True, tokenizer=tokenizer, sortable=True),
+    analyzer = StemmingAnalyzer(stoplist=STOP)
+    schema = Schema(title=TEXT(stored=True, analyzer=analyzer, sortable=True),
                     url=ID(stored=True),
                     thread_votecount=NUMERIC(stored=True, sortable=True),
                     vote_count=NUMERIC(stored=True, sortable=True),
-                    content=NGRAMWORDS(stored=True, tokenizer=tokenizer),
-                    tags=KEYWORD(stored=True),
+                    content=TEXT(stored=True, analyzer=analyzer, sortable=True),
+                    tags=KEYWORD(stored=True, commas=True),
                     is_toplevel=BOOLEAN(stored=True),
                     lastedit_date=NUMERIC(stored=True, sortable=True),
                     rank=NUMERIC(stored=True, sortable=True),
@@ -83,7 +85,7 @@ def get_schema():
                     author_url=ID(stored=True),
                     uid=ID(stored=True),
                     type=NUMERIC(stored=True, sortable=True),
-                    type_display=TEXT(stored=True),)
+                    type_display=TEXT(stored=True))
     return schema
 
 
@@ -110,12 +112,12 @@ def index_posts(posts, reindex=False):
     writer = AsyncWriter(ix)
 
     elapsed, progress = timer_func()
+    total_count = posts.count()
     stream = islice(zip(count(1), posts), None)
 
     # Loop through posts and add to index
     for step, post in stream:
-        progress(step, msg="posts indexed")
-
+        progress(step, total=total_count, msg="posts indexed")
         add_index(post=post, writer=writer)
 
     # Commit to index
@@ -149,6 +151,12 @@ def query(q='', fields=['content'], **kwargs):
 
     # Sort by: toplevel, match score, author reputation, post rank.
     sort_by = [post_type,  profile_score, rank, default]
+
+    #sorty_by = []
+
+    #sorty_by = []
+
+    #sorty_by = []
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)
     results = searcher.search(parser, sortedby=sort_by, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)

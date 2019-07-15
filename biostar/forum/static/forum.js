@@ -200,7 +200,6 @@ function  search(query, elem) {
     var res = $('#results');
     var container = $('#contain-search');
 
-
     container.addClass('loading search');
     res.addClass('ui search message');
     res.html('Searching ...');
@@ -395,16 +394,6 @@ $(document).ready(function () {
 
     $('#search').keyup(function (event) {
         var query = $(this).val();
-        var res = $('#results');
-        var container = $('#contain-search');
-
-        if (query.trim().length < 3) {
-            res.html('');
-            res.removeClass('ui message');
-            container.removeClass('loading search');
-            popup_message(res, "More than 3 characters please!", "error", 1000);
-            return
-        }
 
         // Only preform searches when pressing ENTER
         if (event.keyCode === 13){

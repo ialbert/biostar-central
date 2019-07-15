@@ -108,6 +108,7 @@ index:
 
 delete_index:
 	rm -rf export/${INDEX_DIR}
+	python manage.py index --delete --settings ${DJANGO_SETTING_MODULE}
 
 projects:
 	python manage.py project --pid test --name "Test Project" --public
