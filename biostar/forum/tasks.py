@@ -1,6 +1,4 @@
 import logging
-from datetime import timedelta
-
 
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
@@ -17,7 +15,7 @@ def created_post(pid):
 @timer(secs=180)
 def update_index(*args):
     """
-    Index posts every 3 minutes
+    Index 1000 posts every 3 minutes
     """
     from biostar.forum.models import Post
     from biostar.forum import search

@@ -109,11 +109,9 @@ def user_moderate(request, uid):
         form = forms.UserModerate(source=source, data=request.POST, target=target, request=request)
         if form.is_valid():
             state = form.cleaned_data.get("action", "")
-            Profile.objects.filter(user=target).update(state=state)
-            if Profile.BANNED == state:
-                # Delete posts of banned users
-                Profile.objects.filter(user=target).update(state=state)
-                #ban_user(user=target)
+            profile = Profile.objects.filter(user=target).first()
+            profile.state = state
+            profile.save()
             messages.success(request, "User moderation complete.")
         else:
             messages.error(request, "Invalid user moderation.")

@@ -21,7 +21,7 @@ TAGS_PER_PAGE = 50
 # Indexing interval in seconds.
 INDEX_SECS_INTERVAL = 10
 # Number of results to limit searches to
-SEARCH_LIMIT = 30
+SEARCH_LIMIT = 20
 
 BATCH_INDEXING_SIZE = 1000
 

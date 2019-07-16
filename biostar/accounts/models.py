@@ -144,6 +144,11 @@ class Profile(models.Model):
     def is_suspended(self):
         return self.state == self.SUSPENDED
 
+    @property
+    def is_banned(self):
+        return self.state == self.BANNED
+
+
 # Connects user to message bodies
 class MessageBody(models.Model):
     """

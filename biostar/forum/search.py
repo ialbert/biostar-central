@@ -10,7 +10,7 @@ from whoosh import writing
 from whoosh.analysis import StemmingAnalyzer
 from whoosh.sorting import FieldFacet, ScoreFacet
 from whoosh.writing import AsyncWriter
-from whoosh.qparser import MultifieldParser
+from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.analysis import SpaceSeparatedTokenizer, StopFilter, STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, NGRAM, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, NGRAMWORDS
@@ -53,6 +53,7 @@ def index_exists():
 def add_index(post, writer):
     writer.update_document(title=post.title, url=post.get_absolute_url(),
                            type_display=post.get_type_display(),
+                           content_length=len(post.content),
                            type=post.type,
                            lastedit_date=post.lastedit_date.timestamp(),
                            content=post.content, tags=post.tag_val,
@@ -71,6 +72,7 @@ def get_schema():
     analyzer = StemmingAnalyzer(stoplist=STOP)
     schema = Schema(title=TEXT(stored=True, analyzer=analyzer, sortable=True),
                     url=ID(stored=True),
+                    content_length=NUMERIC(stored=True, sortable=True),
                     thread_votecount=NUMERIC(stored=True, sortable=True),
                     vote_count=NUMERIC(stored=True, sortable=True),
                     content=TEXT(stored=True, analyzer=analyzer, sortable=True),
@@ -146,19 +148,31 @@ def query(q='', fields=['content'], **kwargs):
 
     profile_score = FieldFacet("author_score", reverse=True)
     post_type = FieldFacet("type")
+    thread = FieldFacet('thread_votecount')
+    content_length = FieldFacet("content_length", reverse=True)
     rank = FieldFacet("rank", reverse=True)
     default = ScoreFacet()
 
+    # Splits the query into words and applies
+    # and OR filter, eg. 'foo bar' == 'foo OR bar'
+    orgroup = OrGroup
+
     # Sort by: toplevel, match score, author reputation, post rank.
-    sort_by = [post_type,  profile_score, rank, default]
+    #sort_by = [post_type,  profile_score, rank, default]
 
-    #sorty_by = []
+    #sort_by = [post_type]
 
-    #sorty_by = []
+    #sort_by = [profile_score]
 
-    #sorty_by = []
+    #sort_by = [rank]
 
-    parser = MultifieldParser(fieldnames=fields, schema=ix.schema).parse(q)
+    #sort_by = [thread]
+
+    sort_by = [default, content_length]
+
+    #sort_by = [content_length]
+
+    parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(q)
     results = searcher.search(parser, sortedby=sort_by, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
     # Allow larger fragments
     results.fragmenter.maxchars = 100
