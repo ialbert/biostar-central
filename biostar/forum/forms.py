@@ -4,6 +4,8 @@ from django import forms
 
 from django.core.exceptions import ValidationError
 from django.conf import settings
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from biostar.accounts.models import User
 from .models import Post
 from biostar.forum import models, auth
@@ -60,11 +62,16 @@ class PostLongForm(forms.Form):
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
                               min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content", strip=False)
 
-    def __init__(self, post=None, user=None, request=None, *args, **kwargs):
+    def __init__(self, post=None, user=None, *args, **kwargs):
         self.post = post
         self.user = user
-        self.request = request
         super(PostLongForm, self).__init__(*args, **kwargs)
+
+        not_trusted = self.user.is_authenticated and (not self.user.profile.trusted)
+
+        # Untrusted users get a recaptcha field
+        if settings.RECAPTCHA_PRIVATE_KEY and not_trusted:
+            self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
 
     def edit(self):
         """
@@ -80,12 +87,6 @@ class PostLongForm(forms.Form):
         self.post.lastedit_user = self.user
         self.post.save()
         return self.post
-
-    # def clean(self):
-    #     content = self.cleaned_data.get("content", '')
-    #     if self.request:
-    #         check_spam(request=self.request, content=content)
-    #     return self.cleaned_data
 
     def clean_tag_val(self):
         """
@@ -109,11 +110,17 @@ class PostShortForm(forms.Form):
     content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
                               min_length=MIN_LEN, max_length=MAX_LEN)
 
-    def __init__(self, user=None, post=None, *args, **kwargs):
+    def __init__(self, user=None, post=None, recaptcha=True, *args, **kwargs):
         self.user = user
         self.post = post
         super().__init__(*args, **kwargs)
         self.fields['content'].strip = False
+
+        not_trusted = self.user.is_authenticated and (not self.user.profile.trusted)
+
+        # Untrusted users get a recaptcha field
+        if recaptcha and settings.RECAPTCHA_PRIVATE_KEY and not_trusted:
+            self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
 
 
 class CommentForm(forms.Form):

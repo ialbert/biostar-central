@@ -88,6 +88,13 @@
                                     <i class="undo icon"></i>Cancel
                                 </a>
                             </div>
+                            {% if form.captcha %}
+                                <div class="top-padding">
+                                <div class="required field">
+                                    {{ form.captcha }}
+                                </div>
+                                </div>
+                            {% endif %}
 
                         </div>
                     </div>

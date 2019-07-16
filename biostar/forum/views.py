@@ -260,14 +260,14 @@ def badge_view(request, uid):
 def post_view(request, uid):
     "Return a detailed view for specific post"
 
-    # Form used for answers
-    form = forms.PostShortForm()
-
     # Get the post.
     post = Post.objects.filter(uid=uid).first()
 
+    # Form used for answers
+    form = forms.PostShortForm(user=request.user, post=post)
+
     if request.method == "POST":
-        form = forms.PostShortForm(data=request.POST)
+        form = forms.PostShortForm(data=request.POST, user=request.user, post=post)
         if form.is_valid():
             author = request.user
             content = form.cleaned_data.get("content")
@@ -291,7 +291,7 @@ def new_comment(request, uid):
     post = Post.objects.filter(uid=uid).first()
 
     if request.method == "POST":
-        form = forms.PostShortForm(data=request.POST)
+        form = forms.PostShortForm(data=request.POST, recaptcha=False, user=user)
         if form.is_valid():
             content = form.cleaned_data['content']
             comment = Post.objects.create(parent=post, author=user, content=content, type=Post.COMMENT)
@@ -299,7 +299,7 @@ def new_comment(request, uid):
         messages.error(request, f"Error adding comment:{form.errors}")
     else:
         initial = dict(parent_uid=post.uid, content="")
-        form = forms.PostShortForm(initial=initial)
+        form = forms.PostShortForm(initial=initial, recaptcha=False, user=user)
 
     context = dict(post=post, form=form, user=user)
 
@@ -311,11 +311,11 @@ def new_post(request):
     """
     Creates a new post
     """
-    form = forms.PostLongForm()
+    form = forms.PostLongForm(user=request.user)
     author = request.user
 
     if request.method == "POST":
-        form = forms.PostLongForm(data=request.POST, request=request)
+        form = forms.PostLongForm(data=request.POST, user=request.user)
         if form.is_valid():
             # Create a new post by user
             title = form.cleaned_data.get('title')
@@ -323,7 +323,7 @@ def new_post(request):
             post_type = form.cleaned_data.get('post_type')
             tag_val = form.cleaned_data.get('tag_val')
             post = Post.objects.create(title=title, content=content, type=post_type,
-                                    tag_val=tag_val, author=author)
+                                       tag_val=tag_val, author=author)
 
             tasks.created_post.spool(pid=post.id)
 
