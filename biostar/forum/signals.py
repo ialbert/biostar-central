@@ -40,7 +40,9 @@ def ban_user(sender, instance, created, **kwargs):
         Award.objects.filter(user=instance.user).delete()
 
         # Take out any personal information user added.
-        Profile.objects.filter(uid=instance.uid).update(text='')
+        #Profile.objects.filter(uid=instance.uid).update(text='')
+
+        #TODO: get rid of messages
 
 
 @receiver(post_save, sender=Post)
