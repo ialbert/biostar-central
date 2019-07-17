@@ -20,7 +20,7 @@ INDEX_NAME := index
 INDEX_DIR := search
 
 
-all: engine serve
+all: recipes serve
 
 accounts:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.accounts.settings)
@@ -47,7 +47,7 @@ message:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 
-engine:
+recipes:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
@@ -114,7 +114,7 @@ reindex:
 
 projects:
 	python manage.py project --pid test --name "Test Project" --public
-	python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson
+	python manage.py recipe --pid test --rid hello --json biostar/recipes/recipes/hello-world.hjson
 
 populate:
 	python manage.py populate --settings ${DJANGO_SETTINGS_MODULE}
