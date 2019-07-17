@@ -57,6 +57,13 @@
                                     <i class="check icon"></i>Submit
                                 </button>
                             </div>
+                            {% if form.captcha %}
+                                <div class="top-padding">
+                                    <div class="required field">
+                                        {{ form.captcha }}
+                                    </div>
+                                </div>
+                            {% endif %}
 
                         </div>
                     </div>

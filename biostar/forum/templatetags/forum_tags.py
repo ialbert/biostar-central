@@ -101,10 +101,12 @@ def now():
 
 @register.simple_tag
 def gravatar(user, size=80):
+    email = user.email if user.is_authenticated else ''
+    email = email.encode('utf8')
 
-    if user.is_anonymous or user.profile.is_suspended:
+    if user.is_anonymous or user.profile.is_suspended or user.profile.is_banned:
         # Removes spammy images for suspended users
-        #email = 'suspended@biostars.org'.encode('utf8')
+        email = 'suspended@biostars.org'.encode('utf8')
         style = "monsterid"
     elif user.profile.is_moderator:
         style = "robohash"
@@ -115,7 +117,6 @@ def gravatar(user, size=80):
     else:
         style = "mp"
 
-    email = user.email.encode('utf8')
     hash = hashlib.md5(email).hexdigest()
 
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
@@ -343,7 +344,8 @@ def default_feed(user):
     recent_votes = Vote.objects.prefetch_related("post")
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
-    recent_locations = Profile.objects.exclude(location="").order_by('-last_login')
+    recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED, Profile.SUSPENDED]))
+    recent_locations = recent_locations.order_by('-last_login')
     recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")

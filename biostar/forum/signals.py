@@ -2,9 +2,11 @@ import logging
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from taggit.models import Tag
+from django.db.models import F, Q
+from biostar.accounts.models import Profile
 from .models import Post, Award, Subscription
 from . import tasks, auth, util
-from django.db.models import F, Q
+
 
 logger = logging.getLogger("biostar")
 
@@ -21,6 +23,26 @@ def send_award_message(sender, instance, created, **kwargs):
         tasks.create_messages(template=template, extra_context=context, rec_list=[instance.user])
 
     return
+
+
+@receiver(post_save, sender=Profile)
+def ban_user(sender, instance, created, **kwargs):
+    """
+    Delete all posts and awards belonging to a banned user.
+    """
+
+    if instance.state == Profile.BANNED:
+
+        # Delete all posts by this users
+        Post.objects.filter(author=instance.user).delete()
+
+        # Delete all awards by the user.
+        Award.objects.filter(user=instance.user).delete()
+
+        # Take out any personal information user added.
+        #Profile.objects.filter(uid=instance.uid).update(text='')
+
+        #TODO: get rid of messages
 
 
 @receiver(post_save, sender=Post)

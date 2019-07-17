@@ -13,10 +13,19 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--reindex', action='store_true', default=False, help="Re-index from scratch.")
+        parser.add_argument('--delete', action='store_true', default=False, help="Set posts to un-indexed.")
 
     def handle(self, *args, **options):
 
         # Index all un-indexed posts that have a root.
         posts = Post.objects.exclude(root=None, indexed=False)
         reindex = options['reindex']
-        index_posts(posts=posts, reindex=reindex)
+        delete = options['delete']
+
+        if delete:
+            total = posts.count()
+            logger.info(f"Settings {total} posts to un-indexed.")
+            posts.update(indexed=False)
+            logger.info(f"Un-indexed  {total} posts.")
+        else:
+            index_posts(posts=posts, reindex=reindex)
