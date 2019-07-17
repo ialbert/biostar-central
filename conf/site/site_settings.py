@@ -2,7 +2,7 @@ from biostar.settings import *
 
 # Enable the right settings.
 
-# from biostar.engine.settings import *
+# from biostar.recipes.settings import *
 # from biostar.forum.settings import *
 
 import logging

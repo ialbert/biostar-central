@@ -13,6 +13,6 @@ setup(
         "biostar.accounts",
         "biostar.forum",
         "biostar.publisher",
-        "biostar.engine",
+        "biostar.recipes",
     ],
 )
