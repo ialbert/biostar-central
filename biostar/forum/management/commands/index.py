@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
         if reindex:
             logger.info(f"Setting indexed field to false on all post.")
-            Post.objects.exclude(root=None, indexed=False).update(indexed=False)
+            Post.objects.filter(indexed=True).exclude(root=None).update(indexed=False)
 
         if overwrite:
             logger.info("Overwriting the index")
