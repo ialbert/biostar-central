@@ -124,7 +124,7 @@ def index_posts(posts, overwrite=False):
 
     # Commit to index
     if overwrite:
-        # Overwrite the old index.
+        logger.info("Overwriting the old index")
         writer.commit(mergetype=writing.CLEAR)
     else:
         writer.commit()
