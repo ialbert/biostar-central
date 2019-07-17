@@ -76,7 +76,6 @@ class FactoryTest(TestCase):
                 message = f"field generator for display={display_type} failed"
                 self.assertFalse(message)
 
-
     def test_dynamic_field(self):
         "Test data generator"
 
