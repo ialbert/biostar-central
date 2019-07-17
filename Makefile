@@ -5,10 +5,10 @@ DUMP_FILE=export/database/db.json
 BACKUP_DUMP_FILE=export/database/db.backup.`date +'%Y-%m-%d-%H%M'`.json
 
 # Default settings module.
-DJANGO_SETTINGS_MODULE := biostar.engine.settings
+DJANGO_SETTINGS_MODULE := biostar.recipes.settings
 
 # Default app.
-DJANGO_APP := biostar.engine
+DJANGO_APP := biostar.recipes
 
 # Database name
 DATABASE_NAME := database.db
@@ -48,8 +48,8 @@ message:
 	@echo DJANGO_APP=${DJANGO_APP}
 
 engine:
-	$(eval DJANGO_SETTINGS_MODULE := biostar.engine.settings)
-	$(eval DJANGO_APP := biostar.engine)
+	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
+	$(eval DJANGO_APP := biostar.recipes)
 	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
