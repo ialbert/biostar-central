@@ -35,7 +35,7 @@ def timer_func():
         now = time.time()
         sec = round(now - last, 1)
         last = now
-        print(f"{msg} in {sec} seconds")
+        logger.info(f"{msg} in {sec} seconds")
 
     def progress(index, step=500, total=0, msg=""):
         nonlocal last
@@ -104,7 +104,7 @@ def init_index():
     return ix
 
 
-def index_posts(posts, reindex=False):
+def index_posts(posts, overwrite=False):
     """
     Create or update a search index of posts.
     """
@@ -114,23 +114,22 @@ def index_posts(posts, reindex=False):
     writer = AsyncWriter(ix)
 
     elapsed, progress = timer_func()
-    total_count = posts.count()
+    total = posts.count()
     stream = islice(zip(count(1), posts), None)
 
     # Loop through posts and add to index
     for step, post in stream:
-        progress(step, total=total_count, msg="posts indexed")
+        progress(step, total=total, msg="posts indexed")
         add_index(post=post, writer=writer)
 
     # Commit to index
-    if reindex:
-        # Re-index posts from scratch when committing.
+    if overwrite:
+        # Overwrite the old index.
         writer.commit(mergetype=writing.CLEAR)
     else:
         writer.commit()
 
-    elapsed(f"""Indexed {len(posts)} posts: 
-            dir={settings.INDEX_DIR} name={settings.INDEX_NAME}.""")
+    elapsed(f"Indexed posts={total} dir={settings.INDEX_DIR} name={settings.INDEX_NAME}.")
 
 
 def query(q='', fields=['content'], **kwargs):

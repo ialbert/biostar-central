@@ -104,11 +104,10 @@ test_all:
 
 index:
 	@echo INDEX_NAME=${INDEX_NAME}
-	python manage.py index --reindex --settings ${DJANGO_SETTING_MODULE}
+	python manage.py index --settings ${DJANGO_SETTING_MODULE}
 
-delete_index:
-	rm -rf export/${INDEX_DIR}
-	#python manage.py index --delete --settings ${DJANGO_SETTING_MODULE}
+reindex:
+	python manage.py index --reindex --overwrite --settings ${DJANGO_SETTING_MODULE}
 
 projects:
 	python manage.py project --pid test --name "Test Project" --public

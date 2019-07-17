@@ -13,19 +13,28 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--reindex', action='store_true', default=False, help="Re-index from scratch.")
-        parser.add_argument('--delete', action='store_true', default=False, help="Set posts to un-indexed.")
+        parser.add_argument('--overwrite', action='store_true', default=False, help="Overtwrites exisiting index.")
+        parser.add_argument('--limit', type=int, default=1000, help="Limits the number of posts")
 
     def handle(self, *args, **options):
 
         # Index all un-indexed posts that have a root.
-        posts = Post.objects.exclude(root=None, indexed=False)
         reindex = options['reindex']
-        delete = options['delete']
+        overwrite = options['overwrite']
+        limit = options['limit']
 
-        if delete:
-            total = posts.count()
-            logger.info(f"Settings {total} posts to un-indexed.")
-            posts.update(indexed=False)
-            logger.info(f"Un-indexed  {total} posts.")
-        else:
-            index_posts(posts=posts, reindex=reindex)
+        if reindex:
+            logger.info(f"Setting indexed field to false on all post.")
+            Post.objects.exclude(root=None, indexed=False).update(indexed=False)
+
+        if overwrite:
+            logger.info("Overwriting the index")
+
+        # Index a limited number of posts
+        posts = Post.objects.exclude(root=None, indexed=False)[:limit]
+
+        # Add post to search index.
+        index_posts(posts=posts, overwrite=overwrite)
+
+        # Set the indexed field to true.
+        Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
