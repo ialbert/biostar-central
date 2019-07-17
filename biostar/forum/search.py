@@ -46,7 +46,6 @@ def timer_func():
     return elapsed, progress
 
 
-
 def index_exists():
     return exists_in(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME)
 
