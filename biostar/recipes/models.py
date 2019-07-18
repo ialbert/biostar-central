@@ -93,6 +93,9 @@ class Project(models.Model):
 
     objects = Manager()
 
+    class Meta:
+        db_table = 'engine_project'
+
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.date = self.date or now
@@ -187,6 +190,9 @@ class Access(models.Model):
     access = models.IntegerField(default=NO_ACCESS, choices=ACCESS_CHOICES, db_index=True)
     date = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        db_table = 'engine_access'
+
     def __str__(self):
         return f"{self.user} on {self.project.name}"
 
@@ -238,6 +244,9 @@ class Data(models.Model):
     uid = models.CharField(max_length=32, unique=True)
 
     objects = Manager()
+
+    class Meta:
+        db_table = 'engine_data'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -405,6 +414,9 @@ class Analysis(models.Model):
 
     objects = Manager()
 
+    class Meta:
+        db_table = 'engine_analysis'
+
     def __str__(self):
         return self.name
 
@@ -554,6 +566,9 @@ class Job(models.Model):
     path = models.FilePathField(default="")
 
     objects = Manager()
+
+    class Meta:
+        db_table = 'engine_job'
 
     def is_running(self):
         return self.state == Job.RUNNING
