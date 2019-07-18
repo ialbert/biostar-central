@@ -36,13 +36,15 @@ $(document).ready(function () {
 
     });
 
-    $('#search').keyup(function(){
+    $('#recipe-search').keyup(function(){
+
+        var query = $(this).val();
 
         $.ajax("/search/", {
             type: 'GET',
             dataType: 'html',
 
-            data: {'q': $('#search').val()},
+            data: {'q': query},
 
             success: function (data) {
             $('#search-results').html(data);

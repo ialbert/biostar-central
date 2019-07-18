@@ -110,7 +110,6 @@ def clear_clipboard(request, uid):
 def search_bar(request):
 
     results = search.search(request=request)
-
     # Indicate to users that minimum character needs to be met.
     query_lenth = len(request.GET.get("q", "").strip())
     min_length = query_lenth > settings.SEARCH_CHAR_MIN

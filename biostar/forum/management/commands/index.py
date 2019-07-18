@@ -3,7 +3,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 from biostar.forum.models import Post
-from biostar.forum.search import index_posts
+from biostar.forum.search import crawl
 
 logger = logging.getLogger('engine')
 
@@ -23,15 +23,5 @@ class Command(BaseCommand):
         overwrite = options['overwrite']
         limit = options['limit']
 
-        if reindex:
-            logger.info(f"Setting indexed field to false on all post.")
-            Post.objects.filter(indexed=True).exclude(root=None).update(indexed=False)
-
-        # Index a limited number of posts
-        posts = Post.objects.exclude(root=None, indexed=False)[:limit]
-
-        # Add post to search index.
-        index_posts(posts=posts, overwrite=overwrite)
-
-        # Set the indexed field to true.
-        Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
+        # Crawl through posts in batches and index
+        crawl(limit=limit, reindex=reindex, overwrite=overwrite)

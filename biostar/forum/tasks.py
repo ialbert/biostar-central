@@ -15,25 +15,13 @@ def created_post(pid):
 @timer(secs=180)
 def update_index(*args):
     """
-    Index 1000 posts every 3 minutes
+    Index posts every 3 minutes
     """
-    from biostar.forum.models import Post
     from biostar.forum import search
     from django.conf import settings
 
-    # Get un-indexed posts
-    posts = Post.objects.filter(indexed=False)[:settings.BATCH_INDEXING_SIZE]
-    logger.info(f"Indexing {len(posts)} posts.")
-
-    # Update indexed field on posts.
-    Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
-
-    try:
-        search.index_posts(posts=posts)
-        logger.info(f"Updated search index with {len(posts)} posts.")
-    except Exception as exc:
-        logger.error(f'Error updating index: {exc}')
-        Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
+    # Crawl through posts in batches and index
+    search.crawl(limit=settings.BATCH_INDEXING_SIZE)
 
     return
 

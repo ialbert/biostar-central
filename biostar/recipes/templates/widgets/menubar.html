@@ -23,12 +23,10 @@
             <div class="right menu" style="width:100%">
     {% if with_search or only_enable_forum %}
 
-
          {% csrf_token %}
           <div class="ui fluid icon input customsearch" >
-            <input type="text" id="search" name="search" placeholder="Search here ..." style="border:none; background: #f7f9fc;">
+            <input type="text" id="recipe-search" name="search" placeholder="Search here ..." style="border:none; background: #f7f9fc;">
             <i class="search icon"></i>
-
           </div>
 
     {% endif %}
