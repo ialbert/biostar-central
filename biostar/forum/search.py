@@ -138,7 +138,8 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     """
     Crawl through posts in batches and add them to index.
     """
-
+    #TODO: run a bulk update
+    
     if reindex:
         logger.info(f"Setting indexed field to false on all post.")
         Post.objects.filter(indexed=True).exclude(root=None).update(indexed=False)
@@ -153,7 +154,7 @@ def crawl(reindex=False, overwrite=False, limit=1000):
         logger.error(f'Error updating index: {exc}')
         Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
 
-    # Set the indexed field to true.
+    # Set the indexed field to true
     Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
 
     return
