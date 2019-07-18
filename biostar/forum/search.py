@@ -127,9 +127,9 @@ def index_posts(posts, overwrite=False):
     # Commit to index
     if overwrite:
         logger.info("Overwriting the old index")
-        writer.commit(mergetype=writing.CLEAR, optimize=True)
+        writer.commit(mergetype=writing.CLEAR)
     else:
-        writer.commit(optimize=True)
+        writer.commit()
 
     elapsed(f"Indexed posts={total} dir={settings.INDEX_DIR} name={settings.INDEX_NAME}.")
 
@@ -195,7 +195,7 @@ def query(q='', fields=['content'], **kwargs):
 
     #sort_by = [thread]
 
-    sort_by = [default, content_length]
+    sort_by = [post_type, default, content_length]
 
     #sort_by = [content_length]
 
