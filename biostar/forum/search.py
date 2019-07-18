@@ -52,31 +52,6 @@ def index_exists():
     return exists_in(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME)
 
 
-def crawl(reindex=False, overwrite=False, limit=1000):
-    """
-    Crawl through posts in batches and add them to index.
-    """
-
-    if reindex:
-        logger.info(f"Setting indexed field to false on all post.")
-        Post.objects.filter(indexed=True).exclude(root=None).update(indexed=False)
-
-    # Index a limited number of posts
-    posts = Post.objects.exclude(root=None, indexed=False)[:limit]
-
-    try:
-        # Add post to search index.
-        index_posts(posts=posts, overwrite=overwrite)
-    except Exception as exc:
-        logger.error(f'Error updating index: {exc}')
-        Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
-
-    # Set the indexed field to true.
-    Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
-
-    return
-
-
 def add_index(post, writer):
     writer.update_document(title=post.title, url=post.get_absolute_url(),
                            type_display=post.get_type_display(),
@@ -157,6 +132,31 @@ def index_posts(posts, overwrite=False):
         writer.commit(optimize=True)
 
     elapsed(f"Indexed posts={total} dir={settings.INDEX_DIR} name={settings.INDEX_NAME}.")
+
+
+def crawl(reindex=False, overwrite=False, limit=1000):
+    """
+    Crawl through posts in batches and add them to index.
+    """
+
+    if reindex:
+        logger.info(f"Setting indexed field to false on all post.")
+        Post.objects.filter(indexed=True).exclude(root=None).update(indexed=False)
+
+    # Index a limited number of posts
+    posts = Post.objects.exclude(root=None, indexed=False)[:limit]
+
+    try:
+        # Add post to search index.
+        index_posts(posts=posts, overwrite=overwrite)
+    except Exception as exc:
+        logger.error(f'Error updating index: {exc}')
+        Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
+
+    # Set the indexed field to true.
+    Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
+
+    return
 
 
 def query(q='', fields=['content'], **kwargs):
