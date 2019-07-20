@@ -100,7 +100,7 @@ class Project(models.Model):
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.owner
-        self.lastedit_date = now
+        self.lastedit_date = self.lastedit_date or now
 
         if not os.path.isdir(self.get_project_dir()):
             os.makedirs(self.get_project_dir())

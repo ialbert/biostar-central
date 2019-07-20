@@ -76,7 +76,7 @@ def init_users():
         user = User.objects.filter(email=email).first()
         if not user:
             user = User.objects.create(first_name=name, email=email, is_superuser=True, is_staff=True)
-
+            User.objects.filter(pk=user.pk).update(username=f'admin-{user.pk}')
             # Reload to update state that signals may change.
             user = User.objects.filter(pk=user.pk).first()
             user.set_password(settings.DEFAULT_ADMIN_PASSWORD)

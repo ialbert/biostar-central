@@ -34,6 +34,7 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
     for i in range(nusers):
         email = f"User{i}@lvh.me"
         user, flag = User.objects.get_or_create(email=email)
+        User.objects.filter(pk=user.pk).update(username=f'auto-{user.pk}')
         users.append(user)
 
     # Type, title, content
