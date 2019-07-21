@@ -74,10 +74,6 @@ init:
 	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
-fake_init:
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
-	python manage.py migrate --fake -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
 load:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}

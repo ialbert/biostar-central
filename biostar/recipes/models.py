@@ -251,7 +251,7 @@ class Data(models.Model):
         self.owner = self.owner or self.project.owner
         self.type = self.type.replace(" ", '')
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
-        self.lastedit_date = now
+        self.lastedit_date = self.lastedit_date or now
 
         # Build the data directory.
         data_dir = self.get_data_dir()
