@@ -18,7 +18,14 @@ def created_post(pid):
     message(f"Created post={pid}")
 
 
-@timer(secs=180)
+
+#
+# This timer leads to problems as described in
+#
+# https://github.com/unbit/uwsgi/issues/1369
+#
+
+#@timer(secs=180)
 def update_index(*args):
     """
     Index 1000 posts every 3 minutes
