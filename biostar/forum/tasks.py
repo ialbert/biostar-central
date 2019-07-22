@@ -18,7 +18,7 @@ def created_post(pid):
     message(f"Created post={pid}")
 
 
-@timer(secs=180)
+#@timer(secs=180)
 def update_index(*args):
     """
     Index 1000 posts every 3 minutes
@@ -29,6 +29,13 @@ def update_index(*args):
 
     # Get un-indexed posts
     posts = Post.objects.filter(indexed=False)[:settings.BATCH_INDEXING_SIZE]
+
+
+    # Nothing to be done.
+    if not posts:
+        message("No new posts found")
+        return
+
     message(f"Indexing {len(posts)} posts.")
 
     # Update indexed field on posts.

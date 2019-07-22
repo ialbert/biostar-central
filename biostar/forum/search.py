@@ -35,7 +35,7 @@ def timer_func():
         now = time.time()
         sec = round(now - last, 1)
         last = now
-        logger.info(f"{msg} in {sec} seconds")
+        print(f"{msg} in {sec} seconds")
 
     def progress(index, step=500, total=0, msg=""):
         nonlocal last
