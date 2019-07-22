@@ -244,7 +244,7 @@ class Data(models.Model):
 
     def save(self, *args, **kwargs):
         now = timezone.now()
-        self.name = self.name[-MAX_NAME_LEN:]
+        self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
@@ -448,7 +448,7 @@ class Analysis(models.Model):
         self.html = make_html(self.text)
         self.diff_author = self.diff_author or self.owner
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
-        self.lastedit_date = now
+        self.lastedit_date = self.lastedit_date or now
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
@@ -555,7 +555,6 @@ class Job(models.Model):
 
     objects = Manager()
 
-
     def is_running(self):
         return self.state == Job.RUNNING
 
@@ -620,7 +619,7 @@ class Job(models.Model):
         self.name = self.name or self.analysis.name
         self.path = self.make_path()
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
-        self.lastedit_date = now
+        self.lastedit_date = self.lastedit_date or now
 
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
