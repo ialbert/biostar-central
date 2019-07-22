@@ -281,7 +281,6 @@ class Command(BaseCommand):
         password = options['password']
 
         # Connect to the database.
-
         try:
             conn = psycopg2.connect(database=database, username=username, password=password)
         except Exception as exc:
