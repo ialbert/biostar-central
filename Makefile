@@ -19,6 +19,9 @@ INDEX_NAME := index
 # Search index directory
 INDEX_DIR := search
 
+# Recipes database to copy
+COPY_DATABASE := recipes.db
+
 
 all: recipes serve
 
@@ -91,6 +94,10 @@ delete:
 # Resets the site without removing jobs.
 reset: delete init
     # Initializes the test project.
+
+copy: reset
+	@echo COPY_DATABASE=${COPY_DATABASE}
+	python manage.py copy --db ${COPY_DATABASE} --settings ${DJANGO_SETTINGS_MODULE}
 
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
