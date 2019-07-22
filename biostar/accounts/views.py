@@ -139,7 +139,7 @@ def message_list(request):
     paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
     msgs = paginator.get_page(page)
 
-    counts = request.session.get("counts", {})
+    counts = request.session.get(COUNT_DATA_KEY, {})
     # Set message count back to 0
     counts["message_count"] = 0
     request.session.update(dict(counts=counts))

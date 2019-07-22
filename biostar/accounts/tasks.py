@@ -8,7 +8,15 @@ from django.template import loader
 
 from biostar.utils.decorators import spool
 
-logger = logging.getLogger('biostar')
+
+#
+# Do not use logging in tasks! Deadlocking may occur!
+#
+# https://github.com/unbit/uwsgi/issues/1369
+
+
+def message(msg, level=0):
+    print(f"{msg}")
 
 
 @spool(pass_arguments=True)
@@ -22,10 +30,10 @@ def detect_location(ip, user_id):
 
     # The lookup needs to be turned on.
     if not settings.LOCATION_LOOKUP:
-        logger.info(f"skip {msg}")
+        message(f"skip {msg}")
         return
 
-    logger.info(f"execute {msg}")
+    message(f"execute {msg}")
 
     # Get the profile for the user
     profile = Profile.objects.filter(user__id=user_id).first()
@@ -39,8 +47,8 @@ def detect_location(ip, user_id):
     if not profile.location:
         try:
             url = f"http://api.hostip.info/get_json.php?ip={ip}"
-            logger.info(url)
-            logger.debug(f"{ip}, {profile.user}, {url}")
+            message(url)
+            message(f"{ip}, {profile.user}, {url}")
             req = Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
             resp = urlopen(req, timeout=3).read()
             data = hjson.loads(resp)
@@ -52,12 +60,12 @@ def detect_location(ip, user_id):
             msg = f"location result for \tid={user_id}\tip={ip}\tloc={location}"
             if location:
                 Profile.objects.filter(user=profile.user).update(location=location)
-                logger.info(f"updated profile {msg}")
+                message(f"updated profile {msg}")
             else:
-                logger.info(f"empty location {msg}")
+                message(f"empty location {msg}")
 
         except Exception as exc:
-            logger.error(exc)
+            message(exc)
 
 
 @spool(pass_arguments=True)
