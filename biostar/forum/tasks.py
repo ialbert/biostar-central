@@ -18,7 +18,7 @@ def created_post(pid):
     message(f"Created post={pid}")
 
 
-#@timer(secs=180)
+@timer(secs=180)
 def update_index(*args):
     """
     Index 1000 posts every 3 minutes
