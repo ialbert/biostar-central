@@ -1,22 +1,19 @@
 import logging
-import time
 import os
+import time
 from itertools import count, islice
-
+from collections import defaultdict
 from django.conf import settings
-from django.template import loader
-
 from whoosh import writing
+from whoosh.analysis import STOP_WORDS
 from whoosh.analysis import StemmingAnalyzer
+from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC
+from whoosh.index import create_in, open_dir, exists_in
+from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.sorting import FieldFacet, ScoreFacet
 from whoosh.writing import AsyncWriter
-from whoosh.qparser import MultifieldParser, OrGroup
-from whoosh.analysis import SpaceSeparatedTokenizer, StopFilter, STOP_WORDS
-from whoosh.index import create_in, open_dir, exists_in
-from whoosh.fields import ID, NGRAM, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, NGRAMWORDS
 
 logger = logging.getLogger('engine')
-
 
 # Stop words ignored where searching.
 STOP = ['there', 'where', 'who'] + [w for w in STOP_WORDS]
@@ -104,6 +101,27 @@ def init_index():
     return ix
 
 
+def print_info():
+    """
+    Prints information on the index.
+    """
+    ix = init_index()
+    
+    counter = defaultdict(int)
+    for index, fields in enumerate(ix.searcher().all_stored_fields()):
+        key = fields['type_display']
+        counter[key] += 1
+
+    total = 0
+    print ('-' * 20)
+    for key, value in counter.items():
+        total += value
+        print (f"{value}\t{key}")
+    print ('-' * 20)
+    print (f"{total} total posts")
+
+
+
 def index_posts(posts, overwrite=False):
     """
     Create or update a search index of posts.
@@ -157,25 +175,25 @@ def query(q='', fields=['content'], **kwargs):
     orgroup = OrGroup
 
     # Sort by: toplevel, match score, author reputation, post rank.
-    #sort_by = [post_type,  profile_score, rank, default]
+    # sort_by = [post_type,  profile_score, rank, default]
 
-    #sort_by = [post_type]
+    # sort_by = [post_type]
 
-    #sort_by = [profile_score]
+    # sort_by = [profile_score]
 
-    #sort_by = [rank]
+    # sort_by = [rank]
 
-    #sort_by = [thread]
+    # sort_by = [thread]
 
     sort_by = [default, content_length]
 
-    #sort_by = [content_length]
+    # sort_by = [content_length]
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(q)
     results = searcher.search(parser, sortedby=sort_by, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
     # Allow larger fragments
     results.fragmenter.maxchars = 100
-    #results.fragmenter.charlimit = None
+    # results.fragmenter.charlimit = None
     # Show more context before and after
     results.fragmenter.surround = 100
 
