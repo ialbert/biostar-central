@@ -274,15 +274,17 @@ class Command(BaseCommand):
         parser.add_argument('--db',  type=str, required=True, help="Source postgres database name.")
         parser.add_argument('--username', type=str, help="Username to access source postgres database")
         parser.add_argument('--password', type=str, help="Password to access source postgres database.")
+        parser.add_argument('--host', type=str, help="Postgres database host.")
 
     def handle(self, *args, **options):
         database = options['db']
         username = options['username']
         password = options['password']
+        host = options['host']
 
         # Connect to the database.
         try:
-            conn = psycopg2.connect(database=database, username=username, password=password)
+            conn = psycopg2.connect(database=database, username=username, password=password, host=host)
         except Exception as exc:
             logger.error(f'Error connecting to postgres database: {exc}')
             return
