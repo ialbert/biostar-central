@@ -2,23 +2,20 @@ import hashlib
 import itertools
 import logging
 import random
+import urllib.parse
 from datetime import datetime
 from datetime import timedelta
-import whoosh.query as search_query
 
-import hashlib
-import urllib.parse
-
-from django.core.paginator import Paginator
 from django import template
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
 from biostar.accounts.models import Profile, Message
-from biostar.forum import const, search
+from biostar.forum import const
 from biostar.forum.models import Post, Vote, Award, Subscription
 
 User = get_user_model()
@@ -47,22 +44,31 @@ ICON_MAP = dict(
 )
 
 
+def get_count(request, key, default=0):
+    """
+    Returns a count stored in the session.
+    """
+    value = request.session.get(const.COUNT_DATA_KEY, {}).get(key, default)
+    return value
+
+
 @register.simple_tag(takes_context=True)
 def activate(context, state, target):
     label = "active" if state == target else ""
     request = context['request']
-    count = 0
+    value = 0
 
     # Special casing a few targets to generate an extra css class.
     if target == "messages":
-        count = request.session.get("counts", {}).get("message_count", 0)
+        value = get_count(request, "message_count")
     elif target == "votes":
-        count = request.session.get("counts", {}).get("vote_count", 0)
+        value = get_count(request, "vote_count")
 
     # Generate a broader css if necessary.
-    label = f"new {label}" if count else label
+    label = f"new {label}" if value else label
 
     return label
+
 
 @register.filter
 def bignum(number):
@@ -81,14 +87,13 @@ def bignum(number):
 @register.simple_tag(takes_context=True)
 def count_label(context, label):
     request = context['request']
-    count = request.session.get("counts", {}).get(label, 0)
+    count = get_count(request, label)
     label = f"({count})" if count else ""
     return label
 
 
 @register.inclusion_tag('widgets/inplace_form.html')
 def inplace_form(post, width='100%'):
-
     pad = 4 if post.type == Post.COMMENT else 7
     rows = len(post.content.split("\n")) + pad
     context = dict(post=post, width=width, rows=rows)
@@ -234,7 +239,6 @@ def follow_label(context, post):
 
 @register.simple_tag
 def get_tags(request, post=None):
-
     # Get tags in requests before fetching ones in the post.
     # This is done to accommodate populating tags in forms
     tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
@@ -301,7 +305,6 @@ def highlight(hit, field):
 
 @register.inclusion_tag('widgets/feed_custom.html')
 def custom_feed(objs, feed_type='', title=''):
-
     users = ()
     if feed_type == 'messages':
         users = set(m.sender for m in objs)
