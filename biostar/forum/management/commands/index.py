@@ -3,7 +3,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 from biostar.forum.models import Post
-from biostar.forum.search import index_posts
+from biostar.forum.search import crawl, init_index
 
 logger = logging.getLogger('engine')
 
@@ -15,23 +15,23 @@ class Command(BaseCommand):
         parser.add_argument('--reindex', action='store_true', default=False, help="Re-index from scratch.")
         parser.add_argument('--overwrite', action='store_true', default=False, help="Overtwrites exisiting index.")
         parser.add_argument('--limit', type=int, default=1000, help="Limits the number of posts")
+        parser.add_argument('-n', '--n_indexed', action='store_true', default=False,
+                            help="Return the number of documents already indexed.")
 
     def handle(self, *args, **options):
 
         # Index all un-indexed posts that have a root.
         reindex = options['reindex']
+        n_indexed = options['n_indexed']
         overwrite = options['overwrite']
         limit = options['limit']
 
-        if reindex:
-            logger.info(f"Setting indexed field to false on all post.")
-            Post.objects.filter(indexed=True).exclude(root=None).update(indexed=False)
+        if n_indexed:
+            ix = init_index()
+            length = sum(1 for _ in ix.searcher().documents())
+            #length = sum(map(lambda x: 1, ix.searcher().documents()))
+            logger.info(f"Documents={length}")
+            return
 
-        # Index a limited number of posts
-        posts = Post.objects.exclude(root=None, indexed=False)[:limit]
-
-        # Add post to search index.
-        index_posts(posts=posts, overwrite=overwrite)
-
-        # Set the indexed field to true.
-        Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
+        # Crawl through posts in batches and index
+        crawl(limit=limit, reindex=reindex, overwrite=overwrite)

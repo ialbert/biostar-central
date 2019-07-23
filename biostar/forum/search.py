@@ -13,7 +13,9 @@ from whoosh.writing import AsyncWriter
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.analysis import SpaceSeparatedTokenizer, StopFilter, STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
-from whoosh.fields import ID, NGRAM, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, NGRAMWORDS
+from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC
+
+from .models import Post
 
 logger = logging.getLogger('engine')
 
@@ -40,7 +42,7 @@ def timer_func():
     def progress(index, step=500, total=0, msg=""):
         nonlocal last
         if index % step == 0:
-            percent = int((index / total) * 100) if total > index else index
+            percent = int((index / total) * 100) if total >= index else index
             elapsed(f"... {percent}% ({index} out of {total}). {step} {msg}")
 
     return elapsed, progress
@@ -132,6 +134,32 @@ def index_posts(posts, overwrite=False):
     elapsed(f"Indexed posts={total} dir={settings.INDEX_DIR} name={settings.INDEX_NAME}.")
 
 
+def crawl(reindex=False, overwrite=False, limit=1000):
+    """
+    Crawl through posts in batches and add them to index.
+    """
+    #TODO: run a bulk update
+
+    if reindex:
+        logger.info(f"Setting indexed field to false on all post.")
+        Post.objects.filter(indexed=True).exclude(root=None).update(indexed=False)
+
+    # Index a limited number of posts
+    posts = Post.objects.exclude(root=None, indexed=False)[:limit]
+
+    try:
+        # Add post to search index.
+        index_posts(posts=posts, overwrite=overwrite)
+    except Exception as exc:
+        logger.error(f'Error updating index: {exc}')
+        Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
+
+    # Set the indexed field to true
+    Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
+
+    return
+
+
 def query(q='', fields=['content'], **kwargs):
     """
     Query the indexed, looking for a match in the specified fields.
@@ -167,7 +195,7 @@ def query(q='', fields=['content'], **kwargs):
 
     #sort_by = [thread]
 
-    sort_by = [default, content_length]
+    sort_by = [post_type, default, content_length]
 
     #sort_by = [content_length]
 

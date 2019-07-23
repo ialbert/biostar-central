@@ -71,7 +71,7 @@ def bulk_copy_users(limit):
             # Set the username to twitter id or a default
             # Extra prefix 'username' necessary in default to avoid duplicating
             # from already migrated/populated users: user-1, user-2
-            default_username = f'username-{user.id}'
+            default_username = f'user-{user.id}'
             username = user.profile.twitter_id or default_username
             # Create user
             new_user = User(username=username, email=user.email, password=user.password,

@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from taggit.models import Tag
 from django.db.models import F, Q
-from biostar.accounts.models import Profile
+from biostar.accounts.models import Profile, Message
 from .models import Post, Award, Subscription
 from . import tasks, auth, util
 
@@ -43,6 +43,9 @@ def ban_user(sender, instance, created, **kwargs):
         #Profile.objects.filter(uid=instance.uid).update(text='')
 
         #TODO: get rid of messages
+
+        # Delete all messages
+        Message.objects.filter(Q(sender=instance.user) | Q(recipient=instance.user)).delete()
 
 
 @receiver(post_save, sender=Post)
