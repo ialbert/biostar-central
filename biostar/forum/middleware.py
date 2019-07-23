@@ -1,18 +1,14 @@
 import logging
-from datetime import timedelta
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.conf import settings
 
 from biostar.accounts.models import Profile, Message
-from .util import now
-
-from . import auth
 from biostar.accounts.tasks import detect_location
-from . import tasks
-
-from .models import Post, Vote
-
+from . import auth, tasks, const
+from .models import Vote
+from .util import now
 
 logger = logging.getLevelName("biostar")
 
@@ -25,45 +21,55 @@ def get_ip(request):
 
 
 def forum_middleware(get_response):
-
     def middleware(request):
+        """
+        This function is called on every request.
 
+        It triggers actions for authenticated users.
+        """
         user, session = request.user, request.session
 
-        # Anonymous users are not processed.
+        # Views for anonymous users are not analzed further.
         if user.is_anonymous:
             return get_response(request)
 
-        # Banned and suspended users are not allowed
+        # Banned and suspended will be logged out.
         if auth.is_suspended(user=user):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
             logout(request)
 
+        # Update a new user into trusted after 10 votes.
+        # TODO: change to a separate function and a different policy.
         if (user.profile.state == Profile.NEW) and (user.profile.score > 10):
             user.profile.state = Profile.TRUSTED
             user.save()
 
+        # Parses the ip of the request.
         ip = get_ip(request)
 
-        # Detect user location if not set in the profile.
-        detect_location.spool(ip=ip, user_id=user.id)
-
+        # Find out the time since the last visit.
         elapsed = (now() - user.profile.last_login).total_seconds()
 
-        # Update count information inside session
+        # Update information since the last visit.
         if elapsed > settings.SESSION_UPDATE_SECONDS:
+            # Detect user location if not set in the profile.
+            detect_location.spool(ip=ip, user_id=user.id)
 
             # Set the last login time.
             Profile.objects.filter(user=user).update(last_login=now())
 
-            # Store the counts in the session.
+            # The number of new messages since last visit.
             message_count = Message.objects.filter(recipient=user, unread=True).count()
 
-            vote_count = Vote.objects.filter(post__author=user, date__gt=user.profile.last_login).exclude(author=user).count()
+            # The number of new votes since last visit.
+            vote_count = Vote.objects.filter(post__author=user, date__gt=user.profile.last_login).exclude(
+                author=user).count()
 
-            # Save the counts into the session.
+            # Store the counts into the session.
             counts = dict(message_count=message_count, vote_count=vote_count)
-            request.session["counts"] = counts
+
+            # Set the session.
+            request.session[const.COUNT_DATA_KEY] = counts
 
         response = get_response(request)
 

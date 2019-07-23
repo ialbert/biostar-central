@@ -1,27 +1,59 @@
-import logging
 
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from biostar.utils.decorators import spool, timer
 
-logger = logging.getLogger("biostar")
+#
+# Do not use logging in tasks! Deadlocking may occur!
+#
+# https://github.com/unbit/uwsgi/issues/1369
+
+
+def message(msg, level=0):
+    print(f"{msg}")
 
 
 @spool(pass_arguments=True)
 def created_post(pid):
-    logger.info(f"Created post={pid}")
+    message(f"Created post={pid}")
 
 
-@timer(secs=180)
+
+#
+# This timer leads to problems as described in
+#
+# https://github.com/unbit/uwsgi/issues/1369
+#
+
+#@timer(secs=180)
 def update_index(*args):
     """
-    Index posts every 3 minutes
+    Index 1000 posts every 3 minutes
     """
+    from biostar.forum.models import Post
     from biostar.forum import search
     from django.conf import settings
 
-    # Crawl through posts in batches and index
-    search.crawl(limit=settings.BATCH_INDEXING_SIZE)
+    # Get un-indexed posts
+    posts = Post.objects.filter(indexed=False)[:settings.BATCH_INDEXING_SIZE]
+
+
+    # Nothing to be done.
+    if not posts:
+        message("No new posts found")
+        return
+
+    message(f"Indexing {len(posts)} posts.")
+
+    # Update indexed field on posts.
+    Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
+
+    try:
+        search.index_posts(posts=posts)
+        message(f"Updated search index with {len(posts)} posts.")
+    except Exception as exc:
+        message(f'Error updating index: {exc}')
+        Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
 
     return
 
@@ -35,7 +67,7 @@ def create_user_awards(user_id):
     user = User.objects.filter(id=user_id).first()
 
     # debugging
-    #Award.objects.all().delete()
+    # Award.objects.all().delete()
 
     for award in ALL_AWARDS:
         # Valid award targets the user has earned
@@ -54,7 +86,7 @@ def create_user_awards(user_id):
             # Create an award for each target.
             Award.objects.create(user=user, badge=badge, date=date, post=post)
 
-            logger.debug("award %s created for %s" % (badge.name, user.email))
+            message("award %s created for %s" % (badge.name, user.email))
 
 
 @spool(pass_arguments=True)

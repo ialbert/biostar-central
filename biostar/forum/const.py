@@ -4,7 +4,8 @@ BUMP_POST, OPEN_POST, TOGGLE_ACCEPT, MOVE_ANSWER, DUPLICATE, OFFTOPIC, DELETE = 
 # Valid values for the order GET parameter.
 RANK, VIEWS, REPLIES = ("rank", "views", "replies")
 
-
+# The name of the session count data.
+COUNT_DATA_KEY = "COUNT_DATA"
 
 # Redirection field name.
 REDIRECT_FIELD_NAME = 'next'
