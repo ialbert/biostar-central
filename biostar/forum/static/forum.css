@@ -531,9 +531,26 @@ img {
 }
 
 .ui.divided.items > .post.item {
-    padding: 4px;
+    padding: 6px 4px 10px 4px;
 }
 
+.ui.divided.items>.item {
+    border-top: 1px solid #ECECEC;;
+    margin: 0;
+    padding: 1em 0;
+}
+
+.ui.attached.segment {
+    border: 1px solid #ECECEC;
+}
+
+.ui.attached.menu:not(.tabular) {
+    border: 1px solid #ECECEC;
+}
+
+.ui.vertical.segment {
+    border-bottom: 1px solid #ECECEC;
+}
 
 .ui.transparent.label {
     background: none #fff;
