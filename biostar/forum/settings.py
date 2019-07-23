@@ -39,7 +39,7 @@ INDEX_NAME = os.environ.setdefault("INDEX_NAME", "index")
 # Relative index directory
 INDEX_DIR = os.environ.setdefault("INDEX_DIR", "search")
 # Absolute path to index directory in export/
-INDEX_DIR = os.path.join(MEDIA_ROOT, '..', INDEX_DIR)
+INDEX_DIR = os.path.abspath(os.path.join(MEDIA_ROOT, '..', INDEX_DIR))
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False

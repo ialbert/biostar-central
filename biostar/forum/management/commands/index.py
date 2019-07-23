@@ -3,7 +3,10 @@ import logging
 
 from django.core.management.base import BaseCommand
 from biostar.forum.models import Post
+
 from biostar.forum import search
+
+from biostar.forum.search import crawl, init_index
 
 logger = logging.getLogger('engine')
 
@@ -21,6 +24,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Index all un-indexed posts that have a root.
+
         reset = options['reset']
         remove = options['remove']
         report = options['report']
@@ -33,14 +37,31 @@ class Command(BaseCommand):
 
         # Index a limited number yet unindexed posts
         if index:
-            posts = Post.objects.exclude(root=None, indexed=False)[:index]
+
+            # How many total posts can be indexed
+            start_count = Post.objects.filter(indexed=False).exclude(root=None).count()
+            logger.info(f"Starting with {start_count} unindexed posts")
+
+            posts = Post.objects.filter(indexed=False).exclude(root=None)[:index]
+            target_count = len(posts)
+
+            logger.info(f"Indexing {target_count} posts")
+
+            # The list of posts to update
+            ids = [ post.id for post in posts ]
 
             # Add post to search index.
             search.index_posts(posts=posts, overwrite=remove)
 
             # Set the indexed field to true.
-            Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
+            Post.objects.filter(id__in=ids).update(indexed=True)
+
+            count = Post.objects.filter(indexed=False).exclude(root=None).count()
+            logger.info(f"Finished with {count} unindexed posts remaining")
+
+
 
         # Report the contents of the index
         if report:
             search.print_info()
+

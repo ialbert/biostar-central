@@ -162,6 +162,7 @@ class MessageBody(models.Model):
         self.html = self.html or mistune.markdown(self.body)
         super(MessageBody, self).save(**kwargs)
 
+
 # Connects user to message bodies
 class Message(models.Model):
     """

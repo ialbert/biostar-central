@@ -1,0 +1,62 @@
+{% load engine_tags %}
+
+<div class="ui top attached menu">
+
+    <a class="item tablet" href="/">
+        <i class="home icon"></i>
+    </a>
+
+    {% if enable_forum %}
+    <a class="item" href="{% url 'post_list' %}">
+        <i class="newspaper icon"></i> <span class="tablet">Forum</span>
+    </a>
+    {% endif %}
+
+    {# Project urls not mounted #}
+    {% if only_enable_forum %}{% else %}
+        <a class="item" href="{% url 'project_list' %}">
+            <i class="database icon"></i> <span class="tablet">All Projects</span>
+        </a>
+
+
+    {% endif %}
+            <div class="right menu" style="width:100%">
+    {% if with_search or only_enable_forum %}
+
+         {% csrf_token %}
+          <div class="ui fluid icon input customsearch" >
+            <input type="text" id="recipe-search" name="search" placeholder="Search here ..." style="border:none; background: #f7f9fc;">
+            <i class="search icon"></i>
+          </div>
+
+    {% endif %}
+
+    {% if user.is_authenticated %}
+
+        {% if not only_enable_forum %}
+            <a class=" item" href="{% url 'recycle_bin' %}">
+                <i class="trash icon"></i>
+            </a>
+        {% endif %}
+
+        <a class="item" href="{% url "user_profile" user.profile.uid %}">
+            <i class="user icon"></i>
+            <span class="tablet">{{user.profile.name }}</span>
+        </a>
+
+        <a class="item" href="{% url 'logout' %}">
+            <i class="sign out icon"></i><span class="tablet">Logout</span>
+        </a>
+    {% else %}
+
+
+        <a class="item" href="{% url 'login' %}"><i class="sign in icon"></i>Login</a>
+
+
+    {% endif %}
+
+
+    </div>
+
+</div>
+

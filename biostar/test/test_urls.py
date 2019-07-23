@@ -3,7 +3,7 @@ from django.conf import settings
 from django.conf.urls import url, include
 
 import biostar.forum.urls as forum_urls
-import biostar.engine.urls as engine_urls
+import biostar.recipes.urls as engine_urls
 import biostar.accounts.urls as accounts_urls
 
 

@@ -5,10 +5,10 @@ DUMP_FILE=export/database/db.json
 BACKUP_DUMP_FILE=export/database/db.backup.`date +'%Y-%m-%d-%H%M'`.json
 
 # Default settings module.
-DJANGO_SETTINGS_MODULE := biostar.engine.settings
+DJANGO_SETTINGS_MODULE := biostar.recipes.settings
 
 # Default app.
-DJANGO_APP := biostar.engine
+DJANGO_APP := biostar.recipes
 
 # Database name
 DATABASE_NAME := database.db
@@ -19,8 +19,11 @@ INDEX_NAME := index
 # Search index directory
 INDEX_DIR := search
 
+# Recipes database to copy
+COPY_DATABASE := recipes.db
 
-all: engine serve
+
+all: recipes serve
 
 accounts:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.accounts.settings)
@@ -47,13 +50,14 @@ message:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 
-engine:
-	$(eval DJANGO_SETTINGS_MODULE := biostar.engine.settings)
-	$(eval DJANGO_APP := biostar.engine)
+recipes:
+	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
+	$(eval DJANGO_APP := biostar.recipes)
 	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
+	@echo DATABASE_NAME=${DATABASE_NAME}
 
 forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
@@ -73,6 +77,7 @@ init:
 	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
+
 load:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py loaddata --ignorenonexistent --settings ${DJANGO_SETTINGS_MODULE} $(DUMP_FILE)
@@ -90,10 +95,14 @@ delete:
 reset: delete init
     # Initializes the test project.
 
+copy: reset
+	@echo COPY_DATABASE=${COPY_DATABASE}
+	python manage.py copy --db ${COPY_DATABASE} --settings ${DJANGO_SETTINGS_MODULE}
+
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	python manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
+	#python manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
 	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
 	coverage html --skip-covered
 
@@ -114,7 +123,7 @@ reindex:
 
 projects:
 	python manage.py project --pid test --name "Test Project" --public
-	python manage.py recipe --pid test --rid hello --json biostar/engine/recipes/hello-world.hjson
+	python manage.py recipe --pid test --rid hello --json biostar/recipes/recipes/hello-world.hjson
 
 populate:
 	python manage.py populate --settings ${DJANGO_SETTINGS_MODULE}

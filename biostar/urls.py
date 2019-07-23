@@ -5,7 +5,7 @@ from django.conf import settings
 
 
 import biostar.accounts.urls as accounts_urls
-import biostar.engine.urls as engine_urls
+import biostar.recipes.urls as engine_urls
 import biostar.forum.urls as forum_urls
 
 if settings.ENGINE_AS_ROOT:
