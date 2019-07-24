@@ -17,7 +17,7 @@ The current main site is run from the `biostar2016` branch. We plan to switch ov
 
 Each web application may be deployed individually or in combination with all the others.
 
-Application that currently operational:
+Application that are currently feature complete:
 
 - `recipes` is an app that runs scripts via a web interface. See: [Bioinformatics Recipes][recipes]
 - `forum` is an app that runs a Q&A forum inspired by StackOverflow. See: [Biostars Q&A][biostars]
