@@ -1,9 +1,15 @@
 # Biostar Central
 
 
+---
+
 ### Note on July 22nd, 2019
-### We are migrating to an entirely new codebase!
-### The current main site is run from branch: biostar2016
+
+We are migrating to an entirely new codebase!
+
+The current main site is run from the `biostar2016` branch. We plan to switch over to the new codebase in the near future.
+
+---
 
 Software for better science.
 
@@ -13,14 +19,13 @@ Each web application may be deployed individually or in combination with all the
 
 Applications:
 
-- `forum` runs a Q&A forum inspired by StackOverflow see: [Biostars Q&A][biostars]
-- `recipes` is a webapp that can run command line scripts via a web interface see: [Bioinformatics Recipes][recipes]
+- `forum` is an app that runs a Q&A forum inspired by StackOverflow see: [Biostars Q&A][biostars]
+- `recipes` is an app that runs scripts via a web interface see: [Bioinformatics Recipes][recipes]
 
 In addition `biostar-central` includes applications that are not meant to be used independently but in conjunction with other apps.
 
-- `accounts` is a an application to manage user accounts (
-- `emailer` is an application for sending notificationa and emails
-
+- `accounts` is an app that manages user accounts
+- `emailer` is an app that can send emails
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
@@ -52,7 +57,9 @@ Users may use `virtualenv`, `pipenv`, `homebrew`, `apt-get` etc, or they may opt
     # Install server dependencies.
     pip install -r conf/pip_requirements.txt
 
-The installation is now complete. All server management commands run through `make`. We provide different initializations depending on each app. For example to run a demonstration version of the forum app execute:
+The installation is now complete.
+
+All server management commands run through `make`. We provide different initializations depending on each app. For example to run a demonstration version of the forum app execute:
 
     make forum init serve
 
@@ -60,23 +67,30 @@ or to run the demonstration version of the  `recipe` app execute:
 
     make recipes init serve
 
-In each case visit `localhost:8000` to view the site. To list all the additional commands that may be executed with
+In each case visit `localhost:8000` to view the site. The administrative username and password are set via
+the `ADMINS` and the `ADMIN_PASSWORD` settings in `biostar/accounts/settings.py`. By default both the admin login name and the default admin password are set to
 
+    admin@localhost
 
-    python manage.py help --settings biostar.forum.settings
+Make sure to override these on a publicly facing site!
 
-or for recipes:
-
-    python manage.py help --settings biostar.recipes.settings
-
-## Note
+## Important note
 
 The software follows the recommended practices for developing [Django web applications][django] .
 
 The [Django documentation][django] contains a wealth of information on the alternative ways to deploy the site on different infrasructure.
 
+DO NOT add your settings information into the public codebase! Create a custom settings file, within that import default settings then override the fields that you wish to customize:
 
-##  Additional confguration
+    # Import all default settings.
+    from biostar.recipes.settings import *
+
+    # Now override the settings you wish to customize.
+    ADMIN_PASSWORD = "foopass"
+
+Consult the The [Django documentation][django] for details.
+
+##  Additional configuration
 
 To run bioinformatics oriented recipes further configuration of your environment may be necessary. You may perform these via the following instructions:
 

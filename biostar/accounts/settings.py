@@ -9,19 +9,32 @@ DEBUG = True
 # Should the site allow signup.
 ALLOW_SIGNUP = False
 
-# Private key used to validate external logins
+# Private key used to validate external logins. Must be changed in production
 LOGIN_PRIVATE_KEY = "private-key"
+
+ADMINS = [
+    ("Admin User", "admin@localhost")
+]
+
+# The password for admin users. Must be changed in production.
+ADMIN_PASSWORD = "admin@localhost"
+
+# Shortcut to first admin information.
+ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
+
+# The default sender name on emails.
+DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
 
 # In MB
 MAX_UPLOAD_SIZE = 10
 
 MESSAGES_PER_PAGE = 5
-# The password for admin users. Must be changed in production.
-DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
+# Set RECAPTCH keys here.
 RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_PRIVATE_KEY = ""
 
+# Django allauth settings.
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True

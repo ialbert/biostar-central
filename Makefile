@@ -77,7 +77,6 @@ init:
 	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
-
 load:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py loaddata --ignorenonexistent --settings ${DJANGO_SETTINGS_MODULE} $(DUMP_FILE)

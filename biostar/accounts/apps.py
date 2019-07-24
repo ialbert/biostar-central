@@ -79,7 +79,7 @@ def init_users():
             User.objects.filter(pk=user.pk).update(username=f'admin-{user.pk}')
             # Reload to update state that signals may change.
             user = User.objects.filter(pk=user.pk).first()
-            user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
+            user.set_password(settings.ADMIN_PASSWORD)
 
             user.save()
 
@@ -88,7 +88,7 @@ def init_users():
             logger.info(f"Created admin user: {user.email}, {user.username}")
         else:
             # Reapply the default ADMIN password on migration.
-            user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
+            user.set_password(settings.ADMIN_PASSWORD)
             user.save()
             logger.info(f"Admin user: {user.email}, {user.username} exists.")
 
