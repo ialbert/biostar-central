@@ -1,0 +1,11 @@
+{% load forum_tags %}
+<div class="tags">
+    {% for tag in tags %}
+        <a class="ui small label tags" href="{% url 'post_list' %}?tag={{ tag }}">
+            {{ tag }}
+        </a>
+    {% endfor %}
+    {% if show_views %}
+        &bull; {{ post.root.view_count|bignum }} views
+    {% endif %}
+</div>

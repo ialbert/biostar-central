@@ -1,0 +1,155 @@
+{% extends "accounts/profile_base.html" %}
+{% load engine_tags %}
+{% load accounts_tags %}
+
+{% block headtitle %}{{ target.profile.name }}{% endblock %}
+
+{% block body %}
+
+
+<div class="ui stackable three column grid">
+
+    <div class="column">
+
+        <div class="ui center aligned  basic segment">
+            <img class="ui centered circular image" src="{% gravatar user=target size=150 %}">
+             <div class="ui centered header">
+                        {{ target.profile.name }}
+                        {% user_icon user=target %}
+            </div>
+        </div>
+
+        <div class="ui center aligned  basic segment">
+           {% if target == request.user and target.is_superuser %}
+                <a class="ui mini blue button"  href="{% url 'site_admin' %}">
+                    <i class="dashboard icon"></i> Site Admin
+                </a>
+            {% endif %}
+            {% if target == request.user %}
+                <a class="ui mini button" href="{% url 'edit_profile' %}">
+                    <i class="write icon"></i>Edit profile
+                </a>
+            {% endif %}
+
+            {% if can_moderate %}
+                <div class="ui mini button orange moderate-user" data-value="{{ target.profile.uid }}">
+                    <i class="hand paper icon"></i>
+                    Moderate
+                </div>
+            {% endif %}
+
+            {% if request.user.is_superuser and debugging %}
+                <a class="ui mini red button" href="{% url 'debug_user' %}?uid={{ target.profile.uid }}">
+                    <i class="sign in icon"></i> Log in
+                </a>
+            {% endif %}
+
+
+
+        </div>
+
+        <div id="moderate-insert-{{ target.profile.uid }}"></div>
+    </div>
+
+    <div class="column">
+
+
+        <div class="ui center aligned basic segment">
+
+
+
+            <table class="ui very basic table profile">
+                <tbody>
+
+
+
+                {% if target.profile.is_moderator %}
+                    <tr>
+                        <td>Role:</td>
+                        <td>{{ target.profile.get_role_display }}</td>
+                    </tr>
+                {% endif %}
+
+                <tr>
+                    <td>Status:</td>
+                    <td>{{ target.profile.get_state_display }}</td>
+                </tr>
+
+                <tr>
+                    <td>Handle:</td>
+                    <td> <code>@{{ target.username }}</code></td>
+                </tr>
+
+                <tr>
+                    <td>Status:</td>
+                    <td>{{ target.profile.get_state_display }}</td>
+                </tr>
+
+                <tr>
+                    <td>Reputation:</td>
+                    <td>{% user_score user=target %}</td>
+                </tr>
+
+                <tr>
+                    <td>Email:</td>
+                    <td>{{ target|show_email:request.user }}</td>
+                </tr>
+
+                <tr>
+                    <td>Joined:</td>
+                    <td>{{ target.profile.date_joined|time_ago }}</td>
+                </tr>
+
+                 {% if target.profile.twitter %}
+                    <tr>
+                        <td>Twitter:</td>
+                        <td>
+                            <a href="https://twitter.com/{{ target.profile.twitter }}"><i class="twitter icon"></i>{{ target.profile.twitter }}</a>
+                        </td>
+                    </tr>
+                {% endif %}
+
+                 {% if target.profile.scholar %}
+                    <tr>
+                        <td>Google Scholar:</td>
+                        <td>
+                            <a href="https://scholar.google.com/citations?user={{ target.profile.scholar }}"><i class="book icon"></i>{{ target.profile.scholar }}</a>
+                        </td>
+                    </tr>
+                {% endif %}
+
+
+                <tr>
+                    <td>Last seen:</td>
+                    <td>{{ target.profile.last_login |time_ago }}</td>
+                </tr>
+
+                <tr>
+                    <td>Location:</td>
+                    <td>{{ target.profile.location }}</td>
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+
+
+    </div>
+    <div class="column">
+        <div class="profile ui relaxed divided list profile">
+
+            <div class="item">
+                <div class="content">
+                    <p>{{ target.profile.html |safe }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="ui centered header"> Projects by {{ target.profile.name }}</div>
+    {# List the users posts #}
+    {% list_projects target=target %}
+
+{%  endblock %}

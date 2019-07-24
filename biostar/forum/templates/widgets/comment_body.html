@@ -1,0 +1,42 @@
+{% load forum_tags %}
+
+<a name="{{ post.uid }}"></a>
+
+<div class="post comment {{ post.css }}">
+
+    <div class="body">
+        {#  Comment anchor. #}
+
+        <div class="votebox">
+
+            <button class="ui icon mini button vote" data-value="{{ post.uid }}" data-type="upvote"
+                    data-position="right center" data-state="{{ post.has_upvote }}">
+                <i class="thumbs up icon "></i>
+            </button>
+
+            <div class="score" id="score-{{ post.uid }}">{{ post.vote_count }}</div>
+
+        </div>
+
+        <div class="content">
+
+            {% if post.is_editable %}
+                {% inplace_form post=post %}
+                <span class="pointer inplace" id="inplace-{{ post.uid }}" post_uid="{{ post.uid }}" >
+                    {{ post.html|safe }}
+                </span>
+            {% else %}
+                {{ post.html|safe }}
+            {% endif %}
+            {% post_actions post=post label="ADD REPLY" avatar=True %}
+
+        </div>
+
+    </div>
+
+    {# Insertion targets #}
+    <div id="moderate-insert-{{ post.uid }}"></div>
+    <div id="comment-insert-{{ post.uid }}"></div>
+
+</div>
+

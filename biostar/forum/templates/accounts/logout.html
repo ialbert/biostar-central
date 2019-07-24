@@ -1,0 +1,26 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+{% load accounts_tags %}
+
+{% block headtitle %} Biostar Forum {% endblock %}
+{% block title %} Log out {% endblock %}
+
+{% block content %}
+
+     <form method="post" action="{% url 'logout' %}" >
+
+        <div class="ui center aligned header">
+
+            <i class="sign out icon"></i>Do you want to log out?
+
+        </div>
+        <div class="ui centered card inputcolor">
+
+            <div class="ui basic segment">
+                    {% csrf_token %}
+                    <button class="ui primary button" type="submit"> <i class="sign out icon"></i> Log out</button>
+                    <a class="ui right floated  button" href="/"> <i class="home icon"></i>Home</a>
+            </div>
+        </div>
+ </form>
+{% endblock %}

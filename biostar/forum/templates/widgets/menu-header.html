@@ -1,0 +1,75 @@
+{% load forum_tags %}
+{% load staticfiles %}
+
+<div class="ui labeled icon attached pointing menu" id="menu-header" user-id="{{ request.user.id }}">
+
+    <div class="header item" id="logo">
+        <a href="/"><img class="ui image"  src="{% static "images/logo.svg" %}"></a>
+    </div>
+
+    <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
+        <i class="world icon"></i>
+        <span class="tablet">Community</span>
+    </a>
+
+    {% if user.is_anonymous %}
+
+        <a class="item disabled" href="#">
+            <i class="mail icon"> </i>
+            <span class="tablet">Messages</span>
+        </a>
+        <a class="item disabled" href="#">
+            <i class="heart icon"></i>
+            <span class="tablet">Votes</span>
+        </a>
+
+        <a class="item disabled" href="#">
+            <i class="comments icon"></i>
+            <span class="tablet">My Posts</span>
+        </a>
+
+        <a class="item disabled" href="#">
+            <i class="eye icon"></i>
+            <span class="tablet">Following</span>
+        </a>
+
+        <a class="item disabled" href="#">
+            <i class="book icon"></i>
+            <span class="tablet">Bookmarks</span>
+        </a>
+
+    {% else %}
+        <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
+            <i class="mail icon"> </i>
+            <span class="tablet">Messages {% count_label label="message_count" %} </span>
+        </a>
+        <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
+            <i class="heart icon centericon"></i>
+            <span class="tablet">Votes {%  count_label label="vote_count" %} </span>
+        </a>
+
+        <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
+            <i class="comments icon"></i>
+            <span class="tablet">My Posts</span>
+        </a>
+
+        <a class="item {% activate tab "following" %}" href="{% url 'following' %}">
+            <i class="eye icon"></i>
+            <span class="tablet">Following</span>
+        </a>
+
+        <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
+            <i class="book icon"></i>
+            <span class="tablet">Bookmarks</span>
+        </a>
+    {% endif %}
+    <div class="right menu">
+        <a class="item {% activate tab "new" %}" id="new" href="{% url 'post_create' %}"
+           data-content="Create New Posts">
+            <i class="edit icon"></i>
+            <span class="tablet">New Post</span>
+        </a>
+
+    </div>
+
+</div>

@@ -1,87 +1,60 @@
-## Biostar: Building Scientific Communities
+# The Biostar Engine
 
-[![Build Status][build-image]][build-url] 
-[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
+Software for better science.
 
-[build-image]: https://travis-ci.org/ialbert/biostar-central.svg?branch=4.0
-[build-url]: https://travis-ci.org/ialbert/biostar-central/builds
+The **Biostar Engine** is a [Python][python] and [Django][django] is a collection of web applications that support science education.
 
-BioStar is a [Python][python] and [Django][django] based Q&A software.
-It is a simple, generic, flexible and extensible Q&A framework.
+Each web application may be deployed individually or in combination with all the others.
 
-The site has been developed by **scientists and for scientists**. It aims
-to address the requirements and needs that scientific communities have.
-Biostar is used to run several science oriented Q&A sites:
+Specifically, the engine contains applications that support:
 
- * Biostars Bioinformatics Q&A at: https://www.biostars.org
- * Galaxy User Support: https://biostar.usegalaxy.org
- * Bioconductor User Support: https://support.bioconductor.org/
+- Sharing and demonstrating data analysis scripts, see [Bioinformatics Recipes][recipes] (completed and operatinal)
+- Community and social interactions via a Q&A (Question and Answer forum), see: [Biostars: Bioinformatics Explained][biostars] (in beta testing)
+- Publishing documentation, see [Biostar Handbook][handbook] (in alpha stage)
 
-The software is open source and free to use under the MIT License.
+[python]: https://www.python.org/
+[django]: https://www.djangoproject.com/
+[biostars]: https://www.biostars.org
+[recipes]: https://www.bioinformatics.recipes
+[handbook]: https://www.biostarhandbook.com
+[conda]: https://conda.io/docs/
 
-### Features
+## Installation
 
-* Q&A: questions, answers, comments, user moderation, voting, reputation, badges, threaded discussions
-* RSS Planet: feed aggregation from different sources
-* External authentication: authenticate users with a different web service
-* Email integration: import previous posts from mailing lists 
-* Low resource utilization and easy deployment. 
+The **Biostar Engine**  requires [Python 3.6][python] or above.
 
-Requirements: `Python 2.7`
+Our installation instructions rely on [conda][conda] though other alternatives are equally viable.  Users may use `virtualenv`, `pipenv`, `homebrew`, `apt-get` etc, or they may opt to not use environment management tools at all.
 
-### Documentation
+    # Create a virtual environment.
+    conda create -y --name engine python=3.6
+    
+    # Activate the python environment.
+    source activate engine
 
-The documentation:
+    # Clone the source server code and the recipe code.
+    git clone https://github.com/biostars/biostar-engine.git
 
-* [Install](docs/install.md)
-* [Manage](docs/manage.md)
-* [Deploy](docs/deploy.md)
-* [Customize](org/bioconductor/README.md)
+    # Switch to the biostar-engine directory.
+    cd biostar-engine
 
-The source for the documentation can be found in  the [docs](./docs) folder.
+    # Install server dependencies.
+    pip install -r conf/pip_requirements.txt
 
-### Quick Start
+The installation is now complete. All server management commands run through `make`. To initialize and run the test site use:
 
-From the biostar source directory:
+      make reset serve
 
-    # Install the requirements.
-    pip install --upgrade -r conf/requirements/base.txt
+Visit `localhost:8000` to view the site. List all the additional commands that may be executed with
 
-    # Initialize database, import test data, index for searching and run the server.
-    ./biostar.sh init import index run
+    python manage.py
 
-Visit `http://www.lvh.me:8080` to see the site loaded with demo data.
+To run bioinformatics oriented recipes further configuration of your environment may be necessary:
 
-The `www.lvh.me` domain resolves to `127.0.0.1` your local host 
-with a proper domain name. You may just as well use `http://localhost:8080` or `http://127.0.0.1`.
+    conda config --add channels r
+    conda config --add channels conda-forge
+    conda config --add channels bioconda
 
-In the demo site the user emails are built from the database ids like so: `1@lvh.me`, `2@lvh.me`.
-The demo user passwords are identical to the emails
-and you may use these to log into your test site as any of the users.
+    # Install the conda requirements.
+    conda install --file conf/conda_requirements.txt
 
-The user with the email `1@lvh.me` has staff level permissions and
-can also access the admin interface at `http://www.lvh.me:8080/admin/`.
-
-Enjoy.
-
-### Development
-
-Biostar versions and upgrade path: https://github.com/ialbert/biostar-central/issues/400
-
-### Support
-
-We may be able to provide support for organizations or institutions. 
-For more information contact **admin@biostars.org**
-
-[django]: http://www.djangoproject.com/
-[python]: http://www.python.org/
-
-### Citing
-
-* Parnell LD, Lindenbaum P, Shameer K, Dall'Olio GM, Swan DC, et al.
-  [2011 BioStar: An Online Question & Answer Resource for the Bioinformatics Community.] (http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002216)
-  PLoS Comput Biol 7(10): e1002216. doi:10.1371/journal.pcbi.1002216
-
-### Contributors
-
-List of contributors: https://github.com/ialbert/biostar-central/graphs/contributors
+More information on [Deploying the Biostar Engine](docs/engine-deploy.md)

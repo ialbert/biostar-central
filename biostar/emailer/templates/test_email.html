@@ -1,0 +1,43 @@
+
+{# This will be the subject of the email #}
+{%  block subject %}
+
+    [biostar-engine] {{subject}}
+
+{% endblock %}
+
+{# This will be the subject of the email #}
+
+{% block html %}
+    <p>
+        Hello,
+    </p>
+
+    <p>
+
+        This is an HTML email sent via the management command:
+    </p>
+
+    <p>
+        <b>python manage.py test_email</b>
+    </p>
+
+    <p>
+        {{ name }} Team<br>
+        {{ protocol }}://{{ domain }}{{port}}
+    </p>
+
+{% endblock %}
+
+{% block text %}
+
+    Hello,
+
+    This is a TEXT email sent via the management command:
+
+    python manage.py test_email
+
+    {{ name }} Team
+    {{ protocol }}://{{ domain }}{{port}}
+
+{% endblock %}

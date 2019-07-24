@@ -1,0 +1,57 @@
+{% load engine_tags %}
+
+{% form_errors form %}
+
+<form method="post" class="ui form" action=".">
+    {% csrf_token %}
+
+    <div class="ui relaxed divided large list">
+
+        <div class="item">
+            {% if path %}
+                <a href="{% url view_url uid=obj.uid %}?path={{ back }}"><i class="backward icon"></i>../</a>
+            {%  else %}
+                <a href="#"><i class="home icon"></i>../</a>
+            {% endif %}
+        </div>
+
+        {% for file in files %}
+            <div class="item">
+                <input type="checkbox" name="paths" value="{{ file.path }}">
+                {% if file.is_dir %}
+                    <a href="{% url view_url uid=obj.uid %}?path={{ file.path }}">
+                        <i class="folder icon"></i>{{ file.name }}
+                    </a>
+                {% else %}
+
+
+                    {% if file|is_qiime_archive %}
+                        {% url serve_url uid=obj.uid path=file.path as file_serve_url %}
+
+                        <a href="{% get_qiime2view_link file_serve_url %}" target="_blank">
+                        <span class="ui right floated tiny blue label">
+                            <i class="eye icon"></i>View</span>
+                        </a>
+
+                    {% endif %}
+
+                    <a href="{% url serve_url uid=obj.uid path=file.path %}">
+                        <i class="file text outline icon"></i>{{ file.name }}
+                        <span class="ui right floated small label">{{ file.size|filesizeformat }}</span>
+                    </a>
+
+
+                {% endif %}
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="ui center aligned basic segment">
+        <button type="submit" class="ui submit small button">
+            <i class="clone icon"></i>Copy selected files
+        </button>
+    </div>
+
+</form>

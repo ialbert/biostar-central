@@ -1,3 +1,1 @@
-from __future__ import absolute_import
-
-VERSION = "16.09"
+VERSION = '1.4'

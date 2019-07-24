@@ -1,0 +1,21 @@
+{% load forum_tags %}
+
+
+
+<form method="post" action="{% url 'subs_action' post.uid %}" class="ui tiny form">
+    {% csrf_token %}
+
+    {{ form.subtype}}
+    <button type="submit" class="ui basic green aligned tiny button">
+    {{ button }}
+    </button>
+
+</form>
+
+
+
+
+
+
+
+

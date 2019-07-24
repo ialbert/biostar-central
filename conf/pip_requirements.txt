@@ -1,0 +1,30 @@
+django >=2.2, <3
+django-ratelimit
+django-recaptcha==1.0.5
+django-compressor
+django-taggit
+whoosh
+hjson
+pytz
+html2text
+coverage
+commonmark
+bleach
+django-mailer
+mistune
+django-pagedown ==1.0.6
+django-webtest
+django-sendfile
+django-allauth
+django-debug-toolbar
+django-recaptcha2
+djangorestframework
+django-filter
+sparkpost
+pillow
+Pillow
+coverage
+pyftpdlib
+pandas
+requests
+pyopenssl

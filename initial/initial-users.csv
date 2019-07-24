@@ -1,0 +1,4 @@
+Name,Email,Handler
+Test Buddy, testbuddy@localhost, Testbuddy
+Reader Buddy, readerbuddy@localhost, Readerbuddy
+Writer Buddy, writerbuddy@localhost, Writerbuddy

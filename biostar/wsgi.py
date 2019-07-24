@@ -1,15 +1,16 @@
 """
-WSGI config for biostar project.
+WSGI config for website project.
+
+It exposes the WSGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/
 """
+
+import os
 
 from django.core.wsgi import get_wsgi_application
 
-# This is the default application
-application = get_wsgi_application()
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "biostar.settings")
 
-def white():
-    # This is an alternative WSGI app that wraps static content
-    from whitenoise.django import DjangoWhiteNoise
-    white = get_wsgi_application()
-    white = DjangoWhiteNoise(white)
-    return white
+application = get_wsgi_application()

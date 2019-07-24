@@ -1,0 +1,51 @@
+{% load humanize %}
+{% load forum_tags %}
+
+{% if post.author.id != post.lastedit_user.id %}
+
+    {{ post.creation_date|time_ago }}
+    <a href="{% url "user_profile"  post.author.profile.uid %}">
+        {% if avatar %}
+            <div class="ui avatar image">
+                <img class="ui centered image" src="{% gravatar user=post.author size=80 %}">
+            </div>
+        {% endif %}
+        {{ post.author.profile.name }}
+    </a>
+
+    {% user_icon user=post.author %}
+    &bull;
+    updated
+
+    {{ post.lastedit_date|time_ago }}
+    <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+        {% if avatar %}
+            <div class="ui avatar image">
+                <img class="ui centered image" src="{% gravatar user=post.lastedit_user size=80 %}">
+            </div>
+        {% endif %}
+        {{ post.lastedit_user.profile.name }}
+    </a>
+
+    {% user_icon user=post.lastedit_user %}
+
+{% else %}
+
+
+    {{ post.lastedit_date|time_ago }}
+    <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+        {% if avatar %}
+            <div class="ui avatar image">
+                <img class="ui centered image" src="{% gravatar user=post.lastedit_user size=80 %}">
+            </div>
+        {% endif %}
+        {{ post.lastedit_user.profile.name }}
+    </a>
+
+    {% user_icon user=post.lastedit_user %}
+
+{% endif %}
+
+
+
+

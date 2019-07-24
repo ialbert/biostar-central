@@ -1,0 +1,25 @@
+
+<div class="ui left aligned segment inputcolor">
+
+    <h5>Moderating: @{{target.username}}</h5>
+
+    <form method="post" class="ui form" action="{%  url 'user_moderate' target.profile.uid %}">
+
+        {% csrf_token %}
+
+        <div class="ui segment">
+            {{form.action}}
+        </div>
+
+        <button type="submit" class="ui blue mini button">
+            <i class="check icon"></i>
+            Submit
+        </button>
+
+        <a class="ui orange right floated mini button" onclick="javascript:obj=$('#modpanel').remove();">
+            <i class="cancel icon"></i>
+            Cancel
+        </a>
+    </form>
+
+</div>

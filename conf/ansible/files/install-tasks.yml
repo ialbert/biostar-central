@@ -1,0 +1,97 @@
+
+- name: Set up bash profile
+  get_url:
+    url: http://data.biostarhandbook.com/install/bash_profile.txt
+    dest: ~/.bash_profile
+    mode: 0440
+
+- name: Get bashrc from remote
+  get_url:
+    url: http://data.biostarhandbook.com/install/bashrc.txt
+    dest: ~/.handbookrc
+    mode: 0440
+
+- name: Apply the biostar bash customizations
+  lineinfile:
+    dest: ~/.bashrc
+    line: source ~/.handbookrc
+
+- name: Check if conda has already been installed
+  stat: path={{ conda_dir }}/bin/conda
+  register: bin_conda
+  changed_when: bin_conda.stat.exists == False
+
+- name: Download conda installer
+  get_url:
+    url={{ conda_url }}
+    dest=/tmp/conda.sh
+    mode=0755
+  register: conda_downloaded
+  when: bin_conda.stat.exists == False
+
+- name: Install conda
+  shell: "/tmp/conda.sh -b -p {{ conda_dir }} creates={{ conda_dir }} executable=/bin/bash"
+  register: conda_installed
+  when: conda_downloaded is success
+
+- name: Create environments
+  shell: "{{ conda_dir }}/bin/conda create --yes -q -n {{ item.name }} python={{ item.python_version }} creates={{ conda_dir }}/envs/{{ item.name }}"
+  when: conda_installed is success
+  with_items: "{{conda_environments}}"
+
+- name: Get the biostar-engine software
+  git:
+    repo: "{{ engine_git }}"
+    dest: "{{ engine_dir }}"
+    update: yes
+
+- name: Make the spooler directory
+  file:
+    path: "{{ engine_dir }}/export/spooler"
+    state: directory
+    mode: 0755
+
+- name: Initialize local secrets
+  copy:
+    content: ""
+    dest: "{{ engine_dir }}/conf/site/site_secrets.py"
+    force: no
+    mode: 0644
+
+- name: Initialize scripts
+  copy:
+    remote_src: true
+    force: no
+    src: "{{ engine_dir }}/conf/scripts/{{item}}"
+    dest: "{{ engine_dir }}/{{ item }}"
+    mode: u+rwx,g+rx,o+rx
+  with_items:
+    - server-migrate.sh
+    - server-reset.sh
+    - server-backup.sh
+
+- name: Copy settings file to runtime directories
+  copy:
+    remote_src: true
+    force: no
+    src: "{{ engine_dir }}/conf/site/{{item}}"
+    dest: "{{ engine_dir }}/conf/run/{{ item }}"
+  with_items:
+    - site_nginx.conf
+    - site_supervisor.conf
+    - site_settings.py
+    - site_wsgi.py
+    - site_uwsgi.ini
+
+- name: Install python requirements
+  shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+
+- name: Install conda requirements
+  shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}}  && conda install --file conf/conda_requirements.txt"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+

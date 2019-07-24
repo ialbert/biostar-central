@@ -1,0 +1,32 @@
+{% load engine_tags %}
+
+{#  Renders the non field errors #}
+{% form_errors form %}
+
+{# Renders the hidden fields. #}
+{% for hidden_field in form.hidden_fields %}
+    {{ hidden_field.errors }}
+    {{ hidden_field }}
+{% endfor %}
+
+{# Iterate over all form fields #}
+{% for field in form.visible_fields %}
+    {{ field.errors }}
+
+    <div class="field">
+        {% if field|is_checkbox %}
+        <div class="ui checkbox">
+            {{ field }} <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        </div>
+        {% else %}
+        {{ field.label_tag }}
+        {{ field }}
+        {% endif %}
+
+        <div class="muted">{{ field.help_text | safe }}</div>
+    </div>
+
+{% endfor %}
+
+
+

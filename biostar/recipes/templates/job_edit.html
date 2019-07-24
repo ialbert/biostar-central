@@ -1,0 +1,48 @@
+{% extends "engine_base.html" %}
+{% load engine_tags %}
+
+
+{% block headtitle %}
+   Editing {{ job.name }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui raised segment inputcolor">
+    {% form_errors form %}
+        <form method="post" class="ui form" action="{% url 'job_edit' job.uid %}" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="field segment">
+                <label>Result Name</label>
+                {{ form.name }}
+                <p class="muted">What do you want to call the result</p>
+            </div>
+             <div class="field">
+                 <label> Image {{ form.image.errors }}</label>
+                  {{ form.image }}
+                  <p class="muted">Optional image to recognize the result by (square image, no more than 500px)</p>
+             </div>
+
+            <div class="field segment">
+                <label>Result description</label>
+                {{ form.text }}
+                <p class="muted">A detailed explanation of what the result contains (markdown OK).</p>
+            </div>
+
+             <div class="ui center aligned basic segment">
+                <button type="submit" class="ui submit green left floated button">
+                    <i class="save icon"></i>Save
+                </button>
+
+                 <a class="ui right floated button test" href="{% url 'job_view' job.uid %}">
+                    <i class="undo icon"></i>Cancel
+                </a>
+             </div>
+
+
+        </form>
+    </div>
+
+{% endblock %}

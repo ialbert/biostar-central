@@ -1,0 +1,54 @@
+{% extends "accounts/profile_base.html" %}
+{% load engine_tags %}
+{% load socialaccount %}
+{% block headtitle %}Welcome{% endblock %}
+
+
+{% block body %}
+
+        {% show_messages messages %}
+
+        <form method="post" class="ui form attached fluid" action="{% url 'signup' %}">
+            <div class="ui segment inputcolor socialbox">
+
+                <div class="ui header logintext" >
+                     <i class="mail icon"></i>Sign up with Email
+                </div>
+
+                {% form_errors form %}
+                <div class="ui basic segment">
+
+                    {% csrf_token %}
+                     <div class="field">
+                          <label>Email</label>
+                          {{ form.email }}
+                     </div>
+
+                     <div class="field">
+                          <label>Password</label>
+                          {{ form.password1 }}
+                     </div>
+
+                     <div class="field">
+                          <label>Password Confirmation</label>
+                          {{ form.password2 }}
+                     </div>
+
+                    {% if form.captcha %}
+                        <div class="field">
+                            <label>Captcha</label>
+                            {{form.captcha}}
+                        </div>
+                    {% endif %}
+
+                    <button type="submit" class="ui primary button"><i class="check icon"></i>Sign up</button>
+                    <a class="ui right floated button" href="/"><i class="cancel icon"></i>Cancel</a>
+
+                </div>
+
+            </div>
+        </form>
+
+
+
+{% endblock %}

@@ -1,0 +1,98 @@
+{% load forum_tags %}
+
+{# Renders a single top level post or answer.  #}
+<div class="post {{ post.css }}">
+
+    {#  Show title on top level posts #}
+    {% if post.is_toplevel %}
+
+        <div class="title wrap-text">
+            {#  Page anchor. #}
+            <a name="{{ post.uid }}"></a>
+            {#  Post title. #}
+            {{ post.get_type_display }}: {{ post.title }}
+
+        </div>
+    {% endif %}
+
+    {#  Post body #}
+    <div class="body">
+
+        {#  Page anchor. #}
+        <a name="{{ post.uid }}"></a>
+
+        {#  Voting regions #}
+        <div class="votebox">
+
+            <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="upvote"
+                    data-position="right center" data-state="{{ post.has_upvote }}">
+                <i class="thumbs up icon "></i>
+            </button>
+
+            <div class="score" id="score-{{ post.uid }}">{{ post.vote_count }}</div>
+
+            <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="bookmark"
+                    data-position="right center" data-state="{{ post.has_bookmark }}">
+                <i class="bookmark icon "></i>
+            </button>
+
+            {% if post.can_accept %}
+            <div class="top-padding">
+                <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="accept"
+                        data-position="right center" data-state="{{ post.accept_count }}">
+                    <i class="check circle icon "></i>
+                </button>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div class="content wrap-text">
+
+            <div class="wrap">
+            {# Display post author. #}
+            {% post_user_box user=post.author post=post %}
+
+
+                {# Display post content. #}
+                {% if post.is_editable %}
+
+                    {% inplace_form post=post width="605px"%}
+
+                    <span class="pointer inplace" id="inplace-{{ post.uid }}" post_uid="{{ post.uid }}">
+                    {{ post.html|safe }}
+                    </span>
+
+                {% else %}
+                    {{ post.html|safe }}
+                {% endif %}
+
+
+            </div>
+
+            {# Show tags #}
+            {% if post.is_toplevel %}
+                {% post_tags post=post show_views=True %}
+            {% endif %}
+
+            {# Show the post actions #}
+            {% post_actions post=post %}
+
+            {#  Post moderation actions are inserted here #}
+            <div id="moderate-insert-{{ post.uid }}"></div>
+
+            {#  Comments form will be inserted here #}
+            <div id="comment-insert-{{ post.uid }}"></div>
+
+            {# Render all comments #}
+            {% render_comments tree=tree post=post %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+

@@ -1,0 +1,21 @@
+{% load engine_tags %}
+
+{% if data.items %}
+    <ul>
+        {% for key, obj in data.items %}
+            {% if obj.label %}
+                <li> {{ obj.label }}:
+                    {% if obj.name %}
+                        <b>{{ obj.name }}</b>
+                    {% else %}
+                        <b>{{ obj.value }}</b>
+                    {% endif %}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% else %}
+    <div>No user parameters were set.</div>
+{% endif %}
+
+

@@ -1,0 +1,62 @@
+{% extends "engine_base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Recycle Bin
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui center aligned basic vertical segment">
+        <div class="ui header">
+            <i class="trash icon"></i> Recycle Bin
+        </div>
+    </div>
+
+    <div class="ui small horizontal divider header">
+        <i class="database icon"></i>Deleted Projects</div>
+
+    {% list_view projects=projects %}
+
+    {% if not projects %}
+
+        <div class="ui warning message"><i class="ui warning circle icon"></i> No projects found.</div>
+
+    {% endif %}
+
+
+    <div class="ui small horizontal divider header">
+        <i class="file icon"></i>Deleted Data</div>
+
+    {% list_view data_list=data %}
+
+    {% if not data %}
+
+        <div class="ui warning message"><i class="ui warning circle icon"></i> No data found.</div>
+
+    {% endif %}
+
+    <div class="ui small horizontal divider header">
+        <i class="setting icon"></i>Deleted Recipes</div>
+
+    {% list_view recipe_list=recipes %}
+
+    {% if not recipes %}
+
+        <div class="ui warning message"><i class="ui warning circle icon"></i> No recipes found.</div>
+
+    {% endif %}
+
+
+    <div class="ui small horizontal divider header">
+        <i class="bar chart icon"></i>Deleted Jobs</div>
+
+    {% list_view job_list=jobs %}
+
+    {% if not jobs %}
+
+       <div class="ui warning message"><i class="ui warning circle icon"></i> No results found.</div>
+
+    {% endif %}
+
+{% endblock %}

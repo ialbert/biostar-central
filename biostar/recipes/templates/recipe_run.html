@@ -1,0 +1,52 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    {{ analysis.name }}
+{% endblock %}
+
+{% block title %}
+    Run {{ analysis.name }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="ui raised segment inputcolor">
+
+        <div class="ui center aligned header">
+            Executing Recipe: <a href="{% url 'recipe_view' analysis.uid %}"><i class="setting icon"></i>{{ analysis.name }}</a>
+        </div>
+
+
+        <div class="ui vertical segment">
+
+            {{ analysis.summary|markdown|safe }}
+
+            <form method="post" class="ui form" action="{% url 'recipe_run' analysis.uid %}">
+                <div class="ui form">
+
+                    {% csrf_token %}
+
+                    {% recipe_form form %}
+
+                    <div class="field">
+                        <button type="submit" class="ui green button">
+                            <i class="check icon"></i>Run
+                        </button>
+
+                        <a class="ui  button" href="{% url 'recipe_view' analysis.uid %}">
+                            <i class="redo icon"></i>Cancel
+                        </a>
+                    </div>
+
+                    <div class="field">
+                    {% security_label analysis %}
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+
+{% endblock %}

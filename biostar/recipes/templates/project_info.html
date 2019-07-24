@@ -1,0 +1,56 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Data List
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="ui large vertical segment">
+        <h3 class="ui header">Project Information</h3>
+        {{ project.html|safe }}
+    </div>
+
+
+    {% if write_access %}
+        <div class="ui large vertical segment">
+
+            <div class="ui four small buttons">
+                <a class="ui button" href="{% url 'data_upload' project.uid %}">
+                    <i class="plus icon"></i>Add Data
+                </a>
+
+                <a class="ui  button" href="{% url 'project_edit' project.uid %}">
+                    <i class="edit icon"></i>Edit Project
+                </a>
+
+                <a class="ui  button" href="{% url 'project_users' project.uid %}">
+                    <i class="users icon"></i>Manage Access
+                </a>
+
+                <a class="ui button tablet" href="{% url 'project_delete' project.uid %}">
+                    {% if project.deleted %}
+                        <i class="undo icon"></i> <span class="tablet">Restore</span>
+                    {% else %}
+                        <i class="trash icon"></i> <span class="tablet">Delete</span>
+                    {% endif %}
+                </a>
+
+            </div>
+        </div>
+    {% endif %}
+
+     <div class="ui large vertical segment">
+
+        <div class="item">
+
+            <div class="extra">
+                {% privacy_label project %}
+                {% created_by date=project.lastedit_date user=project.owner %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

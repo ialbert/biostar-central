@@ -1,0 +1,39 @@
+
+{%  block subject %}
+
+    [biostar-forum] Subscription
+
+{% endblock %}
+
+
+{% block html %}
+
+    <p>There is an addition to a post you are subscribed to: {{ post.root.title }}.</p>
+
+    <p>{{ post.lastedit_user }} wrote on {{ post.lastedit_date }}:</p>
+
+    {{ post.html|safe }}
+
+    <p>{{ protocol }}://{{ domain }}:{{port}}</p>
+
+    <p>Sincerely,</p>
+    <p>The Biostar Team</p>
+
+
+{% endblock %}
+
+{% block text %}
+
+    There is an addition to a post you are subscribed to: {{ post.root.title }}.
+
+    {{ post.lastedit_user }} wrote on {{ post.lastedit_date }}:
+
+    {{post.content}}
+
+    {{ protocol }}://{{ domain }}:{{port}}
+
+    Sincerely,
+    The Biostar Team
+
+{% endblock %}
+

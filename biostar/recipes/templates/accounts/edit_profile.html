@@ -1,0 +1,180 @@
+{% extends "accounts/profile_base.html" %}
+{% load engine_tags %}
+{% block headtitle %}Edit Profile{% endblock %}
+
+{% block body %}
+
+<form method="post" class="ui form" action="{% url 'edit_profile' %}">
+    {{ form.media }}
+      {% csrf_token %}
+     {% form_errors form %}
+
+    <div class="ui basic center aligned segment">
+    <span class="ui header">Update your profile</span>
+    |
+               <a class="ui blue label" href="{% url 'password_reset' %}">
+                <i class="undo icon"></i>Reset password
+            </a>
+    </div>
+<div class="ui divider"></div>
+
+
+        <div class="three fields">
+            <div class="field"></div>
+
+              <div class="field inputcolor">
+                  <b>Name *</b>
+                {{ form.name }}
+                  <div class="muted">
+                      The name displayed on the site (required)
+                  </div>
+            </div>
+            <div class="field"></div>
+        </div>
+
+
+    <div class="three fields">
+        <div class="field"></div>
+
+             <div class="field inputcolor">
+
+              <b>Email *</b>
+            {{ form.email }}
+               <div class="muted">
+                  Your email, it will not be visible to other users (required)
+              </div>
+
+            </div>
+        <div class="field"></div>
+    </div>
+
+    <div class="three fields">
+        <div class="field"></div>
+
+            <div class="field inputcolor">
+
+              <b>@Handler</b>
+            {{ form.username }}
+            <div class="muted">
+                  Unique handler used to reference you in posts
+              </div>
+            </div>
+        <div class="field"></div>
+
+    </div>
+
+        <div class="three fields">
+        <div class="field"></div>
+
+            <div class="field inputcolor">
+                <b>Website</b>
+            {{ form.website }}
+            <div class="muted">
+                  The URL to your website (optional)
+              </div>
+            </div>
+        <div class="field"></div>
+
+    </div>
+
+            <div class="three fields">
+        <div class="field"></div>
+
+            <div class="field inputcolor">
+
+                  <b>Location</b>
+                {{ form.location }}
+            <div class="muted">
+                  Country/City/Institution (recommended)
+              </div>
+            </div>
+        <div class="field"></div>
+
+    </div>
+
+
+    <div class="ui divider"></div>
+    <div class="ui basic segment">
+
+       <div class="two fields">
+
+      <div class="field inputcolor">
+
+          <b>Twitter id</b>
+        {{ form.twitter }}
+          <div class="muted">
+              Your twitter id (optional)
+          </div>
+
+      </div>
+                    <div class="field inputcolor">
+
+          <b>Scholar</b>
+        {{ form.scholar }}
+                                <div class="muted">
+              Your Google Scholar ID (optional)
+          </div>
+
+    </div>
+    </div>
+
+    </div>
+
+    <div class="ui divider"></div>
+<div class="ui basic segment ">
+
+        <div class="two fields">
+
+          <div class="field inputcolor">
+
+              <b>Email Digest</b>
+            {{ form.digest_prefs }}
+              <div class="muted">
+              {{ form.digest_prefs.help_text }}
+              </div>
+          </div>
+
+          <div class="field inputcolor">
+
+              <b>Notifications </b>
+            {{ form.message_prefs }}
+              <div class="muted">
+              {{ form.message_prefs.help_text  }}
+              </div>
+
+          </div>
+
+        </div>
+                 <div class="field inputcolor">
+
+              <b>My Tags</b>
+            {{ form.my_tags}}
+             <div class="muted">
+             {{ form.my_tags.help_text|safe }}
+             </div>
+
+
+          </div>
+</div>
+
+    <div class="ui divider"></div>
+
+   <div class="field inputcolor">
+       <b>Add some information about yourself</b>
+                {{ form.text }}
+            </div>
+
+<div class="ui divider"></div>
+     <button type="submit" class="ui submit green button">
+                <i class="save icon"></i>Submit
+            </button>
+
+            <a class="ui right floated button" href="{% url "user_profile" user.profile.uid %}">
+                 <i class="undo icon"></i>Cancel
+            </a>
+
+
+</form>
+
+
+{% endblock %}

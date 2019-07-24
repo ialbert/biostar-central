@@ -1,0 +1,21 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+{% load staticfiles %}
+
+{% block headtitle %}
+    {{ project.name }}
+{% endblock %}
+
+
+{% block content %}
+
+
+    {% if access %}
+        <div class="ui  center aligned segment">
+            Your access level:
+            <span class="ui green label">{{ access.get_access_display }}</span>
+        </div>
+    {% endif %}
+
+
+{% endblock %}

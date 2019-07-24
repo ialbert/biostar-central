@@ -1,0 +1,16 @@
+{% if errorlist %}
+
+    <div class="ui red message">
+        <div class="ui icons list">
+            {% for name, message in errorlist %}
+                <div class="item">
+                    <i class="warning circle icon"></i>
+                    <div class="content">
+                        {{ name }} {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endif %}

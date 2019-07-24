@@ -1,23 +1,60 @@
-*.pyc
-*~
-.DS_Store
-.idea/*
-/import/*
-/live/*
-/conf/*.env
-/docs/_build
+# Byte-compiled / optimized / DLL files
+.idea
+*.db
+export/static/*
+*.DS_Store
+__pycache__/
+*.py[cod]
+*$py.class
+*secrets*.py
 
-# Common machine-specific settings files.
-biostar/settings/local*.py
-biostar/settings/production*.py
-biostar/settings/staging*.py
-biostar/settings/test*.py
+# C extensions
+*.so
 
-# Common machine-specific requirements files.
-conf/requirements/local*.txt
-conf/requirements/production*.txt
-conf/requirements/staging*.txt
-conf/requirements/test*.txt
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Common machine-specific logger files.
-biostar/settings/logger_*.py
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py

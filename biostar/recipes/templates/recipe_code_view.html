@@ -1,0 +1,121 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+{% load staticfiles %}
+{% load compress %}
+
+{% block headtitle %}
+    {{ recipe.name }}
+{% endblock %}
+
+{% block js %}
+
+    {% compress css %}
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'engine.css' %}" rel="stylesheet">
+        <link href="{% static 'prism.css' %}" rel="stylesheet">
+    {% endcompress %}
+
+    {% compress js %}
+        <script src="{% static 'semantic.min.js' %}"></script>
+        <script src="{% static 'engine.js' %}"></script>
+        <script src="{% static 'prism.js' %}"></script>
+    {% endcompress %}
+
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="ui vertical segment">
+
+        <div class="ui divided link items">
+            <div class="item">
+                <div>
+                    <img class="ui tiny rounded fancy image" src="{% img recipe %}">
+                </div>
+                <div class="content">
+                    <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+                        <i class="setting icon"></i> {{ activate }}: {{ recipe.name }}
+                    </a>
+                    <div class="description">{{ recipe.summary }}</div>
+                    <div class="extra">
+                        {% created_by date=recipe.lastedit_date user=recipe.owner %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui vertical segment">
+
+        <div class="ui five small buttons">
+
+            <a class="ui button" onclick="window.history.back()">
+                <i class="angle double left icon"></i> <span class="fitme">Back</span>
+            </a>
+
+            <a class="ui button" href="{% url 'recipe_view' recipe.uid %}">
+                <i class="setting icon"></i> <span class="fitme">Recipe View</span>
+            </a>
+
+            <a class="ui button" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                <i class="bar chart icon"></i> <span class="fitme">Results ({{ rcount }})</span>
+            </a>
+
+            <a class="ui button" href="{% url 'recipe_run' recipe.uid %}">
+                <i class="spinner icon"></i> <span class="fitme">Run</span>
+            </a>
+
+            <div class="ui button">
+                <div class="ui simple dropdown item">
+                    <i class="angle double right icon"></i> <span class="fitme">More</span>
+                    <div class="menu">
+                        <a class="ui item"
+                           href="{% url "recipe_copy" recipe.uid %}?next={% url "recipe_view" recipe.uid %}">
+                            <i class="copy icon"></i> Copy
+                        </a>
+                        <div class="divider"></div>
+                        <a class="ui item" href="{% url "recipe_edit" recipe.uid %}">
+                            <i class="edit icon"></i>Edit
+                        </a>
+                        <div class="divider"></div>
+                        <a class="ui item" href="{% url 'recipe_code_edit' recipe.uid %}">
+                            <i class="keyboard icon"></i>Interface
+                        </a>
+                        <div class="divider"></div>
+                        <a class="ui item" href="{% url 'recipe_delete' recipe.uid %}">
+                            <i class="trash icon"></i>Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <div class="ui segment inputcolor">
+
+        <div class="ui center aligned header">
+            <p>Recipe Code</p>
+            <p>
+            <a href="{% url 'recipe_download' recipe.uid %}" class="ui large green label">
+                <i class="download icon"></i>Download Recipe
+            </a>
+            </p>
+        </div>
+
+        <div class="ui basic segment">
+            <pre><code class="language-bash line-numbers">{{ script }}</code></pre>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block script %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

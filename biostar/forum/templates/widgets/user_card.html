@@ -1,0 +1,28 @@
+{% load humanize %}
+{% load forum_tags %}
+
+<div class="user_card">
+
+    <div>
+        <a href="{% url "user_profile" user.profile.uid %}">
+            <img class="ui centered circular image" src="{% gravatar user=user size=100 %}">
+        </a>
+    </div>
+
+    <div class="muted">
+        <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name }}</a>
+         {% user_icon user=user %}<br>
+        visited {{ user.profile.last_login|time_ago }}<br>
+        {{ user.profile.location }}
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+

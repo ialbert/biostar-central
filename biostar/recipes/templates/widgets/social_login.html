@@ -1,0 +1,41 @@
+{% load socialaccount %}
+
+
+{% if social_login %}
+
+    <div class="ui basic segment">
+
+        <div class="ui segment socialbox">
+
+            <div class="ui header logintext">
+                <i class="angle double right icon"></i>Social Login
+                {% else %}<i class="add user icon"></i>Social Signup
+                {% endif %}
+            </div>
+
+            <div class="ui attached message">If you already have the email registered with us,
+                click <a href="{% url 'password_reset' %}"><i class="question circle icon"></i> Forgot your password?</a>
+                    to login.</div>
+
+    <div class="ui list">
+
+            {% for provider in social_login.iterator %}
+                <a class="item" href="{% provider_login_url provider.provider %}">
+                    <i class="{{provider.name|lower}} large icon"></i>{{provider.name|title}}
+                </a>
+            {% endfor %}
+
+    </div>
+
+        <div>
+
+        This is used for authentication only. We can't access your timeline, see your friends or post on your behalf.
+        </div>
+        {% if is_login %}
+
+            Do you need an account? <i class="right chevron icon"></i><a href="{% url 'signup' %}" class="ui blue large label">Sign Up here</a>
+        {% endif %}
+        </div>
+
+    </div>
+{% endif %}

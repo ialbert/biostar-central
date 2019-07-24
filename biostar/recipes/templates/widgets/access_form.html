@@ -1,0 +1,29 @@
+<div class="item">
+    <form method="post" action="{% url 'project_users' project.uid %}">
+
+        <input type="hidden" name="user_id" value="{{ user.id }}">
+        <input type="hidden" name="project_uid" value="{{ project.uid }}">
+
+        {% csrf_token %}
+        <div class="right floated content">
+            {{ form.access }}
+            <button type="submit" class="ui basic green center aligned button">
+                Submit
+            </button>
+        </div>
+
+            <div class="content">
+
+                <div class="subheader">
+                    <i class="user icon"></i>{{ user.profile.name }}
+                </div>
+
+                <div class="meta">
+                    <i class="at icon"></i>{{ user.username }}
+                </div>
+
+            </div>
+
+
+    </form>
+</div>

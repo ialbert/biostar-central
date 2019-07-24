@@ -1,0 +1,53 @@
+{% extends "engine_base.html" %}
+{% load engine_tags %}
+{% load staticfiles %}
+
+{% block headtitle %}
+    {{ project.name }}
+{% endblock %}
+
+{% block body %}
+
+    {% project_title project %}
+
+    <div class="ui vertical segment">
+
+        <div class="ui top attached tabular colored blue menu">
+
+            <a class="{% activate 'info' active %}  item" href="{% url 'project_info' project.uid %}">
+                <i class="info circle icon"></i><span class="phone">Info</span>
+            </a>
+
+            <a class="{% activate 'data' active %}  item" href="{% url 'data_list' project.uid %}">
+                <i class="file text icon"></i>{{ data_count }}&nbsp;<span class="phone"> Data</span>
+            </a>
+            <a class="{% activate 'recipes' active %}  item" href="{% url 'recipe_list' project.uid %}">
+                <i class="settings icon"></i> {{ recipe_count }}&nbsp;<span class="phone"> Recipes</span>
+            </a>
+
+            <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
+                <i class="bar chart icon"></i>{{ result_count }}<span class="phone">&nbsp;Results</span>
+            </a>
+
+            {% if activate %}
+                <div class="active item">
+                    <i class="angle double down icon"></i>  <span class="tablet">{{ activate }}</span>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <div class="ui bottom attached colored segment">
+
+            {% show_messages messages %}
+
+            <p>
+                {% block content %}
+                    Content
+                {% endblock %}
+            </p>
+        </div>
+
+    </div>
+
+{% endblock %}

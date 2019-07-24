@@ -1,0 +1,50 @@
+{% extends "base_content.html" %}
+{% load engine_tags %}
+{% block headtitle %}
+    Recipes
+{% endblock %}
+
+{% block content %}
+
+
+    {% paste project=project current=recipe_board %}
+
+    <div class="ui large vertical segment">
+        <div class="ui divided link items">
+            {% for recipe in recipe_list %}
+                <div class="item">
+                    <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
+                    <div class="content">
+
+                        <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+                            <i class="setting icon"></i> {{ recipe.name }}
+                        </a>
+
+                        <div class="meta">
+                            {{ recipe.summary }}
+                        </div>
+
+                        <div class="extra">
+                            <i class="bar chart icon"></i>Runs:<a
+                            href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+
+                                {{ recipe.job_count }}
+                                result{{ recipe.job_count|pluralize }}</a>
+
+                            {% created_by date=recipe.lastedit_date %}
+                        </div>
+
+                        <div id="copy-message-{{ recipe.uid }}"></div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="item">
+                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet contain
+                        recipes.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}

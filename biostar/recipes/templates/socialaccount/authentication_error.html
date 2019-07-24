@@ -1,0 +1,15 @@
+{% extends "accounts/profile_base.html" %}
+
+{% load engine_tags %}
+{% load forum_tags %}
+
+
+{% block headtitle %}Error Logging in{% endblock %}
+
+{% block body %}
+
+<div class="ui large error message">
+  <i class="info circle icon"></i>  Error logging in with provider, please choose another method.
+</div>
+
+{% endblock %}

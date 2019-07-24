@@ -1,0 +1,44 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+
+{% block headtitle %}
+    Badge List
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="ui horizontal segments no-shadow">
+
+        <div class="ui segment  no-shadow"></div>
+        <div class="ui segment  no-shadow">
+            <table class="ui  very basic table">
+                <thead>
+
+                <tr>
+                    <th>Name</th>
+                    <th>Times Awarded</th>
+                    <th class="right aligned">Description</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for badge in badges %}
+                    <tr>
+                        <td data-label="Name">
+                            <a href="{% url 'badge_view' badge.uid %}" style="opacity: unset;">
+                                <i class="{{ badge.icon }}"></i>
+                                {{ badge.name }}
+                            </a>
+                        </td>
+                        <td data-label="Age">{{ badge.count }}</td>
+                        <td data-label="Job" class="right aligned">{{ badge.desc }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="ui segment  no-shadow"></div>
+
+    </div>
+{% endblock %}
