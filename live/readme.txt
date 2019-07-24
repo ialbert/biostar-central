@@ -1,1 +1,0 @@
-# The directory that default deployment of biostar will be served out from
