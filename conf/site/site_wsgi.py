@@ -1,17 +1,17 @@
 import os, logging
 from django.core.wsgi import get_wsgi_application
+from django.core.management import call_command
 
 logger= logging.getLogger("biostar")
 
 # Override the DJANGO SETTINGS MODULE
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.run.site_settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.site.site_settings")
 
 application = get_wsgi_application()
 
 # Initialize recurring tasks.
 try:
     import uwsgidecorators
-    from django.core.management import call_command
 
     @uwsgidecorators.timer(30)
     def send_queued_mail(num):
@@ -23,5 +23,5 @@ try:
         """Save the data every hour"""
         pass
 
-except ImportError:
+except Exception as exc:
     logger.error("uwsgidecorators not found, timers are disabled!")
