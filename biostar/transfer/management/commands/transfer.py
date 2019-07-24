@@ -366,10 +366,10 @@ class Command(BaseCommand):
         # Copy everything
         bulk_copy_users(limit=limit)
 
-        #bulk_copy_posts(limit=limit)
+        bulk_copy_posts(limit=limit)
 
-        #bulk_copy_votes(limit=limit)
+        bulk_copy_votes(limit=limit)
 
-        #bulk_copy_subs(limit=limit)
+        bulk_copy_subs(limit=limit)
 
         return
