@@ -1,5 +1,4 @@
-
-# Biostar Central documentation
+# Biostar Central Documentation
 
 ### Important note
 
@@ -22,8 +21,28 @@ Consult the The [Django documentation][django] for details.
 
 ## How to set up the `recipes` app
 
+* [recipe-concepts.md](recipe-concepts.md)
 * [recipe-commands.md](recipe-commands.md)
-
+* [recipe-deploy.md](recipe-deploy.md)
+* [recipe-api.md](recipe-api.md)
 
 ## How to set up the `forum` app
 
+(TODO)
+
+## Django configuration
+
+The software follows the recommended practices for developing and deploying [Django web applications][django] .
+
+The [Django documentation][django] contains a wealth of information on the alternative ways to deploy the site on different infrastructure.
+
+## Infrastructure configuration
+
+To run bioinformatics oriented software via the recipes additional configuration of your environment may be necessary. For example we use:
+
+    conda config --add channels r
+    conda config --add channels conda-forge
+    conda config --add channels bioconda
+
+    # Install the conda requirements.
+    conda install --file conf/conda_requirements.txt

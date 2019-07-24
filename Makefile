@@ -43,12 +43,6 @@ pg:
 	$(eval DJANGO_SETTINGS_MODULE := conf.examples.pg.forum_settings)
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 
-message:
-	$(eval DJANGO_SETTINGS_MODULE := biostar.message.settings)
-	$(eval DJANGO_APP := biostar.message)
-
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	@echo DJANGO_APP=${DJANGO_APP}
 
 recipes:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
