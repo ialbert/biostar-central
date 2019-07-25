@@ -1,32 +1,18 @@
 ## Biostar Central
 
+### Software for better science.
 
----
+**Biostar Central** is a [Python][python] and [Django][django] based collection of web applications that support science education. Each web application may be deployed individually or in combination with all the others.
 
-> **Note, July 22nd, 2019**
->
-> *We are migrating to an entirely new codebase!*
->
-> *The current main site uses code from the `biostar2016` branch. We plan to switch over to the new codebase.*
-
----
-
-#### Software for better science.
-
-**Biostar Central** is a [Python][python] and [Django][django] based collection of web applications that support science education.
-
-Each web application may be deployed individually or in combination with all the others.
-
-Application that are currently feature complete:
+Applications that are currently feature complete:
 
 - `recipes` is an app that runs scripts via a web interface. See: [Bioinformatics Recipes][recipes]
 - `forum` is an app that runs a Q&A forum inspired by StackOverflow. See: [Biostars Q&A][biostars]
 
-In addition `biostar-central` includes applications that are not meant to be used independently but in conjunction with other apps.
+In addition `biostar-central` includes applications that provide generic utility.
 
 - `accounts` is an app that manages user accounts
 - `emailer` is an app that can send emails
-
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
@@ -37,7 +23,7 @@ In addition `biostar-central` includes applications that are not meant to be use
 
 ## Installation
 
-The **Biostar Central**  requires [Python 3.6][python] or above.
+The code in **Biostar Central**  requires [Python 3.6][python] or above.
 
 Our installation instructions rely on [conda][conda] though other alternatives for managing python environments are equally viable.
 
@@ -64,23 +50,32 @@ The installation is now complete. To test the code run:
 
 ## Run
 
-All server management commands run through `make`. We provide different initializations depending on each app. For example to run a demonstration version of the `forum` app execute:
+All server management commands run through `make`. We provide different initializations depending on each app. For example, to run a demonstration version of the `forum` app execute:
 
-    make forum init serve
+    make forum_demo
 
 To run the demonstration version of the `recipes` app execute:
 
-    make recipes init serve
+    make recipes_demo
 
 In each case visit `http://localhost:8000` to view the site.
 
-The admin username and password are set via the `ADMINS` and the `ADMIN_PASSWORD` settings in `biostar/accounts/settings.py`. By default both the admin login name and the default admin password are set to
+The Makefile has several tasks that demonstrate the main be chained together:
 
-    admin@localhost
+    make forum init serve
+    make recipes init serve
 
-**Note**: These settings must be changed on a publicly facing site!
 
 ## Documentation
+
+---
+
+> **Note**
+>
+> *The new version of the [Biostar Q&A][biostars] is in beta testing!*
+> *The public site currently runs the code in the `biostar2016` branch. We will switch to the new version once testing completes.*
+
+---
 
 Additional documentation in [docs/index.md](docs/index.md)
 
