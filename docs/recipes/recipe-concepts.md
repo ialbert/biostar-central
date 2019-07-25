@@ -54,7 +54,7 @@ When the recipe is run the template will be substituted according to the interfa
 
     echo 'Hello World!'
 
-[template]: https://docs.djangoproject.com/en/2.2/topics/templates/
+[templates]: https://docs.djangoproject.com/en/2.2/topics/templates/
 
 ## Results directory
 
