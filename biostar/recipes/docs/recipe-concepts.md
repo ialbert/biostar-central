@@ -1,38 +1,70 @@
-# `recipe` concepts
+# Understanding Recipes
 
 ## What is a recipe
 
-A recipe consists of a JSON definition file and a script template.
+A recipe consists of a "JSON definition file" and a "script template".
 
-Both files may be empty.
+The simplest JSON definition file is
+
+    {}
+
+A simple script template might contain just:
+
+    echo 'Hello World!'
 
 ## Recipe execution
 
-Before executing the recipe the script template is rendered with the JSON data.
+Before executing the recipe the script template is rendered with the JSON data and is filled into the template.
 
     template + JSON -> script
 
 The script is then executed at the command line.
 
-## JSON definition
+## Interface file definition
 
-The JSON definition file lists the paramters and allows the interface to be rendered. Here is an example JSON definition file:
+The JSON definition file lists the parameters and allows the interface to be rendered.
+Here is an example JSON definition file:
 
-    {
-        name: {
-        }
-    }
+```
+{
+  foo: {
+    label: Enter the name
+    help: The name to appear after the greeting
+    display: TEXTBOX
+    value: World!
+  }
+}
+```
 
+the parameter name is `foo`, the default value is `World!`. The `display` field specifies the type of the HTML widget, the `label` and  `help` fields describe the interface. The interface generated from this specification file looks like this:
+
+![Generated interface](interface1.png)
 
 ## Recipe template
 
-A recipe is a script that has template markers for filling in parameters. For example:
+A recipe is a script that has template markers for filling in parameters. In the case for the `foo` variable above, we can access its value via:
 
-    echo "Hello {{name}}"
+    echo 'Hello {{foo.value}}'
 
 Recipes are using [Django templates][templates] and may contain Django template specific constructs.
 
+## Recipe runtime
+
+When the recipe is run the template will be substituted according to the interface value entered by the user. If the default value is kept it will produce the script:
+
+    echo 'Hello World!'
+
 [template]: https://docs.djangoproject.com/en/2.2/topics/templates/
+
+## Results directory
+
+Once the recipe runs a results directory is created that contains the following:
+
+- the code for the recipe
+- the standard out and error stream content
+- all files created by the recipe
+
+The results directory is a snapshot of all files generated when the recipe has been run, including the recipe itself.
 
 ## Data representation
 
