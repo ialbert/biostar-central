@@ -77,6 +77,6 @@ The Makefile has several tasks that demonstrate the commands that may be chained
 
 ---
 
-Additional documentation in [docs/index.md](docs/index.md)
+Additional documentation in [docs/index.md](docs/README.md)
 
 
