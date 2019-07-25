@@ -21,7 +21,7 @@ In addition `biostar-central` includes applications that provide generic utility
 [handbook]: https://www.biostarhandbook.com
 [conda]: https://conda.io/docs/
 
-> **Note on July 25, 2019:** *The new version of the [Biostar Q&A][biostars] is in beta testing! The public site runs the code from the `biostar2016` branch. We will switch to the new version once testing completes.*
+> *Note (July 25, 2019): The new version of the [Biostar Q&A][biostars] is in beta testing! The public site runs the code from the `biostar2016` branch. We will switch to the new version once testing completes.*
 
 ## Installation
 
