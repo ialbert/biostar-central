@@ -3,11 +3,11 @@
 
 ---
 
-### Note on July 22nd, 2019
-
-We are migrating to an entirely new codebase!
-
-The current main site is run from the `biostar2016` branch. We plan to switch over to the new codebase in the near future.
+> **Note, July 22nd, 2019**
+>
+> *We are migrating to an entirely new codebase!*
+>
+> *The current main site uses code from the `biostar2016` branch. We plan to switch over to the new codebase.*
 
 ---
 
@@ -62,7 +62,7 @@ The installation is now complete. To test the code run:
     make forum test
     make recipe test
 
-## Execute
+## Run
 
 All server management commands run through `make`. We provide different initializations depending on each app. For example to run a demonstration version of the `forum` app execute:
 
