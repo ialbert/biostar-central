@@ -56,8 +56,6 @@ FORUM_APPS = [
 
 ]
 
-# Akismet protection configuration (optional)
-
 # Additional middleware.
 MIDDLEWARE += [
     'biostar.forum.middleware.forum_middleware',

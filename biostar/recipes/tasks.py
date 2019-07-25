@@ -79,6 +79,7 @@ try:
 except ModuleNotFoundError as exc:
     pass
 
+
 def execute(command, workdir="."):
     proc = subprocess.run(command, cwd=workdir, shell=True,
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
