@@ -29,8 +29,11 @@ class Profile(models.Model):
     STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
     state = models.IntegerField(default=NEW, choices=STATE_CHOICES, db_index=True)
 
-    READER, MODERATOR, MANAGER, BLOG = range(4)
-    ROLE_CHOICES = [(READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Admin"), (BLOG, "Blog User")]
+    READER, MODERATOR, MANAGER, BLOGGER, SPAMMER = range(5)
+    ROLE_CHOICES = [
+        (READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Admin"),
+        (BLOGGER, "Blog User"), (SPAMMER, "Spammer")
+    ]
 
     NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST,ALL_MESSAGES  = range(5)
 
