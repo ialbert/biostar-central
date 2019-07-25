@@ -5,8 +5,13 @@ from django.core.management import call_command
 logger= logging.getLogger("biostar")
 
 # Override the DJANGO SETTINGS MODULE
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.site.site_settings")
 
+dj = os.environ["DJANGO_SETTINGS_MODULE"]
+
+print(f"*** DJANGO_SETTINGS_MODULE={dj}")
+print('**** Mounting app ')
 application = get_wsgi_application()
 
 # Initialize recurring tasks.
@@ -24,4 +29,4 @@ try:
         pass
 
 except Exception as exc:
-    logger.error("uwsgidecorators not found, timers are disabled!")
+    logger.error(f"uwsgidecorators not enabled, {exc}")
