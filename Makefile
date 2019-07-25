@@ -150,9 +150,6 @@ next:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py job --next --settings ${DJANGO_SETTINGS_MODULE}
 
-push:
-	git commit -am "Update by `whoami` on `date` from `hostname`"
-	git push
 
 deploy:
 	(cd conf/ansible && ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass --extra-vars -v)
