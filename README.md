@@ -35,7 +35,7 @@ Our installation instructions rely on [conda][conda] though other alternatives f
     conda activate engine
 
     # Clone the source server code and the recipe code.
-    git clone git@github.com:ialbert/biostar-central.git
+    git clone https://github.com/ialbert/biostar-central.git
 
     # Switch to the biostar-engine directory.
     cd biostar-central
