@@ -21,6 +21,8 @@ In addition `biostar-central` includes applications that provide generic utility
 [handbook]: https://www.biostarhandbook.com
 [conda]: https://conda.io/docs/
 
+> **Note on July 25, 2019:** *The new version of the [Biostar Q&A][biostars] is in beta testing! The public site runs the code from the `biostar2016` branch. We will switch to the new version once testing completes.*
+
 ## Installation
 
 The code in **Biostar Central**  requires [Python 3.6][python] or above.
@@ -67,15 +69,6 @@ The Makefile has several tasks that demonstrate the commands that may be chained
 
 
 ## Documentation
-
----
-
-> **Note**
->
-> *The new version of the [Biostar Q&A][biostars] is in beta testing!*
-> *The public site currently runs the code in the `biostar2016` branch. We will switch to the new version once testing completes.*
-
----
 
 Additional documentation in [docs/index.md](docs/README.md)
 
