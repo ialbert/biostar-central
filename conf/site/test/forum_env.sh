@@ -1,0 +1,1 @@
+export DATABASE_NAME=forum.db
