@@ -63,13 +63,6 @@ class SignUpForm(forms.Form):
         user = User.objects.create(email=email, first_name=name)
         user.set_password(password)
 
-        username = name.split()[0] + str(user.profile.uid)
-        if User.objects.filter(username=username).exists():
-            username = util.get_uuid(6)
-
-        user.username = username
-        user.save()
-
         # Send
         auth.send_verification_email(user=user)
         logger.info(f"Signed up user.id={user.id}, user.email={user.email}")

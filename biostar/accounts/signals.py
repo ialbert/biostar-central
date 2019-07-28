@@ -10,6 +10,9 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
     if created:
         # Set the username to a simpler form.
         username = f"user-{instance.pk}"
+        if User.objects.filter(username=username).exists():
+            username = util.get_uuid(6)
+            
         User.objects.filter(pk=instance.pk).update(username=username)
 
         # Make sure staff users are also moderators.
