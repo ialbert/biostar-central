@@ -114,11 +114,15 @@ reindex:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py index --reindex --overwrite --settings ${DJANGO_SETTINGS_MODULE}
 
-projects:
+recipes_demo: recipes reset init load_recipes serve
+
+forum_demo: forum reset init load_forum serve
+
+load_recipes:
 	python manage.py project --pid test --name "Test Project" --public
 	python manage.py recipe --pid test --rid hello --json biostar/recipes/recipes/hello-world.hjson
 
-populate:
+load_forum:
 	python manage.py populate --settings ${DJANGO_SETTINGS_MODULE}
 
 hard_reset: delete

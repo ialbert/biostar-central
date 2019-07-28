@@ -1,6 +1,25 @@
 # Biostar Central Documentation
 
-### Important note
+## How to use the `recipes`?
+
+* [Recipe concepts](recipe-concepts.md)
+* [recipe-commands.md](recipe-commands.md)
+* [recipe-deploy.md](recipe-deploy.md)
+* [recipe-api.md](recipe-api.md)
+
+## How to customize the `forum`?
+
+(TODO)
+
+## What is the default admin password?
+
+The admin username and password are set via the `ADMINS` and the `ADMIN_PASSWORD` settings in `biostar/accounts/settings.py`. By default both the admin login name and the default admin password are set to
+
+    admin@localhost
+
+**Note**: These settings must be changed on a publicly facing site!
+
+## How to customize the settings?
 
 DO NOT add your custom settings into the public codebase!
 
@@ -19,24 +38,13 @@ Apply this settings file with
 
 Consult the The [Django documentation][django] for details.
 
-## How to set up the `recipes` app
-
-* [recipe-concepts.md](recipe-concepts.md)
-* [recipe-commands.md](recipe-commands.md)
-* [recipe-deploy.md](recipe-deploy.md)
-* [recipe-api.md](recipe-api.md)
-
-## How to set up the `forum` app
-
-(TODO)
-
-## Django configuration
+## How to configure Django?
 
 The software follows the recommended practices for developing and deploying [Django web applications][django] .
 
 The [Django documentation][django] contains a wealth of information on the alternative ways to deploy the site on different infrastructure.
 
-## Infrastructure configuration
+## How to configure the computer?
 
 To run bioinformatics oriented software via the recipes additional configuration of your environment may be necessary. For example we use:
 
