@@ -86,6 +86,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
+        'TEMPLAE_DIRS': [],
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
