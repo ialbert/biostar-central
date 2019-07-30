@@ -19,6 +19,8 @@ END_CATEGORIES = []
 # These are the tags that always show up in the tag recommendation dropdown.
 POST_TAG_LIST = NAVBAR_TAGS + ["software error"]
 
+HTTP_PROTOCOL = "http"
+
 # This will form the navbar
 CATEGORIES = START_CATEGORIES + NAVBAR_TAGS + END_CATEGORIES
 
@@ -30,13 +32,13 @@ TOP_BANNER = ""
 # Custom directory with bioconductor theme/
 CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, '..', 'themes', 'bioconductor'))
 
-STATICFILES_DIRS += [os.path.join(CUSTOM_THEME, 'static')]
+STATICFILES_DIRS = [os.path.join(CUSTOM_THEME, 'static')]
 
 # Template specific settings.
 TEMPLATES[0]['TEMPLATE_DIRS'] += [os.path.join(CUSTOM_THEME, 'templates')]
 
 # The site logo image on top navigation bar
-SITE_LOGO = "bioconductor_logo_rgb_small.jpg"
+SITE_LOGO = "bioconductor_logo.jpg"
 
 # How many recent objects to show in the feed.
 VOTE_FEED_COUNT = 5
@@ -49,6 +51,7 @@ WSGI_APPLICATION = 'biostar.wsgi.application'
 
 # These parameters will be inserted into the database automatically.
 SITE_NAME = "support.bioconductor.org"
+SITE_DOMAIN = "support.bioconductor.org"
 
 # What domain will handle the replies.
 EMAIL_REPLY_PATTERN = "reply+%s+code@bioconductor.org"
@@ -71,59 +74,18 @@ if not DEBUG:
         ),
     ]
 
-# Other settings
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[bioc] "
-ACCOUNT_PASSWORD_MIN_LENGHT = 6
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
-if ("ON_PRODUCTION" in os.environ and os.environ['ON_PRODUCTION'] == 'True'):
-    ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
-else:
-    ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
-
-# Google ReCaptcha No-Captcha settings
-# When set the captcha forms will be active.
-if "RECAPTCHA_PUBLIC_KEY" in os.environ:
-    RECAPTCHA_PUBLIC_KEY = os.environ['RECAPTCHA_PUBLIC_KEY']
-else:
-    RECAPTCHA_PUBLIC_KEY = ""
-if "RECAPTCHA_PRIVATE_KEY" in os.environ:
-    RECAPTCHA_PRIVATE_KEY = os.environ['RECAPTCHA_PRIVATE_KEY']
-else:
-    RECAPTCHA_PRIVATE_KEY = ""
-
-
-RECAPTCHA_USE_SSL = True  # Defaults to False
-NOCAPTCHA = True
-
-
-# Email
-if socket.gethostname() in ["gamay", "habu"] or ("EMAIL_HOST" in os.environ.keys() and (get_env("EMAIL_HOST") == "mailcatcher") \
-         or ("amazonaws.com" in get_env("EMAIL_HOST").lower())):
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # On deployed servers the following must be set.
-EMAIL_HOST = get_env("EMAIL_HOST")
-EMAIL_PORT = get_env("EMAIL_PORT", func=int)
-EMAIL_HOST_USER = get_env("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = get_env("EMAIL_HOST_PASSWORD")
+EMAIL_HOST = ""
+EMAIL_PORT = ""
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_TLS = False
-
-if ("EMAIL_USE_TLS" in os.environ.keys() and get_env("EMAIL_USE_TLS").lower() == "true"):
-
-    EMAIL_USE_TLS=True
 
 # Tries to load up secret settings from a predetermined module
 try:
     from conf.run.secrets import *
-
     print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
     print(f"Secrets module not imported: {exc}")

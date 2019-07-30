@@ -86,7 +86,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
-        'TEMPLAE_DIRS': [],
+        'TEMPLATE_DIRS': [],
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
@@ -162,7 +162,7 @@ STATIC_ROOT = join(BASE_DIR, 'export', 'static')
 
 # Global directories for static files.
 STATICFILES_DIRS = [
-    ("global", join(BASE_DIR, "biostar", "static")),
+    join(BASE_DIR, "biostar", "static"),
 ]
 
 # The media URL start.
