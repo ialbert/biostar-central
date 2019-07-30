@@ -1,0 +1,48 @@
+{% load forum_tags %}
+
+<div class="ui top attached text menu" id="menu-topics">
+
+    <a class="item {% activate tab "latest" %}" href="{% url 'post_list' %}">
+    <i class="list ol icon"></i> <span class="tablet">Latest</span>
+    </a>
+    <a class="item {% activate tab "open" %}" href="{% url 'post_list' %}?type=open">
+    <i class="question circle outline icon"></i> <span class="tablet">Open</span>
+    </a>
+    <a class="item phone {% activate tab "rna-seq" %}" href="{% url 'post_list' %}?tag=rna-seq">
+    <i class="tag icon"></i> <span class="tablet">RNA-Seq</span>
+    </a>
+    <a class="item phone {% activate tab "chip-seq" %}" href="{% url 'post_list' %}?tag=chip-seq">
+    <i class="tag icon"></i> <span class="tablet">ChIP-Seq</span>
+    </a>
+
+    <a class="item phone {% activate tab "SNP" %}" href="{% url 'post_list' %}?tag=SNP">
+    <i class="tag icon"></i> <span class="tablet">SNP</span>
+    </a>
+
+    <a class="item phone {% activate tab "tutorial" %}" href="{% url 'post_list' %}?type=tutorial">
+    <i class="tag icon"></i> <span class="tablet">Tutorials</span>
+    </a>
+
+    <a class="item phone {% activate tab "job" %}" href="{% url 'post_list' %}?type=job">
+    <i class="tag icon"></i> <span class="tablet">Jobs</span>
+    </a>
+
+    <a class="item phone {% activate tab "forum" %}" href="{% url 'post_list' %}?type=forum">
+    <i class="tag icon"></i> <span class="tablet">Forum</span>
+    </a>
+
+    <div class="right menu">
+        {% if user.is_authenticated %}
+            <a class="item {% activate tab "profile" %}" href="{% url 'user_profile' user.profile.uid %}">
+                {{ user.profile.name }}   {%  user_icon user %}
+            </a>
+            <a class="item {% activate tab "logout" %}" href="{% url 'logout' %}">
+        <i class="sign-out icon"></i> Logout
+            </a>
+        {% else %}
+        <a class="item {% activate tab "login" %}" href="{% url 'login' %}"><i class="sign-in icon"></i> <span class="tablet">Log In</span></a>
+        <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}"><i class="arrow circle up icon"></i><span class="tablet">Sign Up</span></a>
+        {% endif %}
+        <a class="item {% activate tab "about" %}"><i class="info circle icon"></i> <span class="tablet">About</span></a>
+    </div>
+</div>

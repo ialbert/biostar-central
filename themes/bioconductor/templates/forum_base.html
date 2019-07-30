@@ -1,0 +1,93 @@
+{% load staticfiles %}
+{% load compress %}
+{% load recaptcha2 %}
+{% load forum_tags %}
+{% load accounts_tags %}
+
+<html>
+<head>
+
+    <title>
+        {% block title %}{{ page_title }}{% endblock %}
+    </title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {# Set the favicon #}
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
+
+    {# Load JQuery. #}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    {# Load recaptcha #}
+    {% recaptcha_init %}
+
+    {#  CSS compression. #}
+    {% compress css %}
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'prism-syntax.css' %}" rel="stylesheet">
+        <link href="{% static 'bioconductor.css' %}{% randparam %}" rel="stylesheet">
+    {% endcompress %}
+
+    {# Javascript compression. #}
+    {% compress js %}
+        <script src="{% static 'semantic.min.js' %}"></script>
+        <script src="{% static 'prism-syntax.js' %}"></script>
+        <script src="{% static 'biostar.js' %}{% randparam %}">
+        </script>
+    {% endcompress %}
+
+     {# Extra header content that needs to be injected into the page. #}
+    {% block head %}
+
+    {% endblock %}
+
+    {# Extra javascript content that needs to be injected into the page. #}
+    {% block js %}
+
+    {% endblock %}
+
+</head>
+<body>
+
+<div class="ui container">
+
+    {% include "widgets/menu-topics.html" %}
+
+    {% include "widgets/menu-header.html" %}
+
+    <!-- <div class="ui attached menu">
+        <div class="ui category search item" id="search">
+            <div class="ui transparent icon input">
+                <input class="prompt" type="text" placeholder="Search posts...">
+                <i class="search link icon"></i>
+            </div>
+            <div class="results"></div>
+        </div>
+    </div>
+    -->
+
+    <div class="ui bottom attached  segment">
+
+        {% show_messages messages %}
+
+        {% block content %}
+
+            MAIN CONTENT
+        {% endblock %}
+
+    </div>
+
+    {% block footer %}
+        <div class="ui vertical center aligned basic segment">
+            <div class="smaller muted">
+                Powered by the <a href="https://github.com/biostars/biostar-engine" class="ui image">
+                <img src="{% static 'images/badge.svg' %}"></a> version {{ VERSION }}
+            </div>
+
+        </div>
+    {% endblock %}
+</div>
+
+</body>
+</html>

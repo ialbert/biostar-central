@@ -1,10 +1,5 @@
 from biostar.forum.settings import *
-import socket
 import os
-
-#
-# Override settings as needed
-#
 
 
 DEBUG = False
@@ -29,7 +24,7 @@ CATEGORIES = START_CATEGORIES + NAVBAR_TAGS + END_CATEGORIES
 TOP_BANNER = ""
 # TOP_BANNER = "bioc_banner.html"
 
-# Custom directory with bioconductor theme/
+# Custom directory with bioconductor theme
 CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, '..', 'themes', 'bioconductor'))
 
 STATICFILES_DIRS = [os.path.join(CUSTOM_THEME, 'static')]
@@ -73,8 +68,6 @@ if not DEBUG:
             )
         ),
     ]
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # On deployed servers the following must be set.
 EMAIL_HOST = ""
