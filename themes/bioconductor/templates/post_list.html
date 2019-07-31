@@ -36,9 +36,11 @@
                   <a class="item" href="{% url 'post_list' %}{% relative_url 'year' 'limit' params %}">
                       <i class="{% get_icon 'year' %}"></i>this year
                   </a>
-                <a class="item" href="{% url 'post_list' %}?type=open{% relative_url 'year' 'limit' params %}">
-                    unanswered
+                <div class="ui divider"></div>
+                <a class="item" href="{% url 'post_list' %}{% relative_url 'open' 'type' params %}">
+                    <i class="question circule icon"></i>Unanswered
                 </a>
+
             </div>
           </div>
         </div>
