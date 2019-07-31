@@ -2,36 +2,54 @@ from biostar.forum.settings import *
 import os
 
 
-DEBUG = False
+DEBUG = True
 
-# Define Categories in top banner
-START_CATEGORIES = ["Latest", "News", "Jobs", "Tutorials"]
+#NAVBAR_TAGS = []
 
-NAVBAR_TAGS = []
-
-END_CATEGORIES = []
+#END_CATEGORIES = []
 
 # These are the tags that always show up in the tag recommendation dropdown.
-POST_TAG_LIST = NAVBAR_TAGS + ["software error"]
+#POST_TAG_LIST = NAVBAR_TAGS + ["software error"]
 
 HTTP_PROTOCOL = "http"
 
-# This will form the navbar
-CATEGORIES = START_CATEGORIES + NAVBAR_TAGS + END_CATEGORIES
-
-# This will appear as a top banner.
-# It should point to a template that will be included.
-TOP_BANNER = ""
-# TOP_BANNER = "bioc_banner.html"
-
-# Custom directory with bioconductor theme
-CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, '..', 'themes', 'bioconductor'))
+CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
 STATICFILES_DIRS = [os.path.join(CUSTOM_THEME, 'static')]
 
-# Template specific settings.
-TEMPLATES[0]['TEMPLATE_DIRS'] += [os.path.join(CUSTOM_THEME, 'templates')]
+if DEBUG:
+    TEMPLATE_LOADERS = (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )
+else:
+    TEMPLATE_LOADERS = (
+        'django.template.loaders.cached.Loader',
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )
 
+
+# Template specific settings.
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(CUSTOM_THEME, 'templates'), ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'string_if_invalid': "**MISSING**",
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.template.context_processors.media',
+                'django.contrib.messages.context_processors.messages',
+                'biostar.context.main',
+            ],
+            #'loaders': [TEMPLATE_LOADERS]
+        },
+    },
+]
 # The site logo image on top navigation bar
 SITE_LOGO = "bioconductor_logo.jpg"
 
@@ -57,17 +75,6 @@ EMAIL_FROM_PATTERN = u'''"%s [bioc]" <%s>'''
 # The subject of the reply goes here
 EMAIL_REPLY_SUBJECT = u"[bioc] %s"
 
-# List of callables that know how to import templates from various sources.
-if not DEBUG:
-    TEMPLATES[0]['OPTIONS']['loaders'] = [
-        (
-            'django.template.loaders.cached.Loader',
-            (
-                'django.template.loaders.filesystem.Loader',
-                'django.template.loaders.app_directories.Loader',
-            )
-        ),
-    ]
 
 # On deployed servers the following must be set.
 EMAIL_HOST = ""

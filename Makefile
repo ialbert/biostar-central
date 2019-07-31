@@ -32,6 +32,16 @@ accounts:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 
+
+bioconductor:
+	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
+	$(eval DJANGO_APP := biostar.forum)
+	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
+
+	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	@echo DJANGO_APP=${DJANGO_APP}
+
+
 emailer:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.emailer.settings)
 	$(eval DJANGO_APP := biostar.emailer)
