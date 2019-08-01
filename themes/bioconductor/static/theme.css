@@ -6,6 +6,36 @@ body {
     background-color: #87B13F;
 }
 
+.add-comment.ui.label{
+    cursor: pointer;
+    color: white;
+    font-weight: bolder;
+    font-size: 95%;
+    background-color: #5cb85c;
+}
+
+.answer-form{
+    display: none;
+}
+
+#menu-topics{
+    background-color: #1881c2;
+    color: white;
+    font-size: small;
+}
+#menu-topics .item{
+    color: white;
+}
+
+#menu-topics .item.active{
+    color: #2a2b2b;
+}
+
+#menu-topics .item>i.icon{
+    color: white;
+}
+
+
 .ui.question.has_answers.label {
     background-color: #1881C2!important;
 }

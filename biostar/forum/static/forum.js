@@ -235,6 +235,9 @@ $(document).ready(function () {
 
     $(this).click(function(event) {
         var res = $('#results');
+        if(typeof res.html() === 'undefined'){
+            return
+        }
         if (res.html().length > 0){
             res.html('');
             res.removeClass('ui message');
