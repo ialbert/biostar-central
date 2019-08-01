@@ -151,6 +151,11 @@ def bulk_copy_votes(limit):
     elapsed(f"transferred {vcount} votes")
 
 
+def decode(s):
+
+    return s.replace('\x00', '').replace('\0', '').replace('\000', '')
+
+
 def bulk_copy_posts(limit):
     relations = {}
     all_users = User.objects.order_by("id")
@@ -191,12 +196,12 @@ def bulk_copy_posts(limit):
                 content = post.content
                 html = post.html
 
-            new_post = Post(uid=post.id, html=html, type=post.type, is_toplevel=is_toplevel,
+            new_post = Post(uid=post.id, html=decode(html), type=post.type, is_toplevel=is_toplevel,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
                             author=author, status=post.status, rank=rank, accept_count=int(post.has_accepted),
                             lastedit_date=post.lastedit_date, book_count=post.book_count,
-                            content=content, title=post.title, vote_count=post.vote_count,
-                            creation_date=post.creation_date, tag_val=post.tag_val,
+                            content=decode(content), title=decode(post.title), vote_count=post.vote_count,
+                            creation_date=post.creation_date, tag_val=decode(post.tag_val),
                             view_count=post.view_count)
 
             # Store parent and root for every post.
@@ -207,6 +212,7 @@ def bulk_copy_posts(limit):
         logger.info("Transferring tags")
         for post in Post.objects.all():
             tags = [Tag.objects.get_or_create(name=name)[0] for name in post.parse_tags()]
+            post.tags.remove(*tags)
             post.tags.add(*tags)
 
     def set_counts():

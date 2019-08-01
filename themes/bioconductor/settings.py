@@ -11,6 +11,20 @@ DEBUG = True
 # These are the tags that always show up in the tag recommendation dropdown.
 #POST_TAG_LIST = NAVBAR_TAGS + ["software error"]
 
+DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "biocon.db")
+
+DATABASES = {
+
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': DATABASE_NAME,
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+    },
+}
+
 HTTP_PROTOCOL = "http"
 
 CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
