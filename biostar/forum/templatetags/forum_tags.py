@@ -520,10 +520,11 @@ def boxclass(post):
         style = "forum"
     elif post.type == Post.NEWS:
         style = "news"
-    elif post.answer_count:
-        style = "has_answers"
     else:
         style = "question"
+
+    if post.answer_count:
+        style += " has_answers"
 
     if post.has_accepted:
         modifier = "accepted answer" if post.type == Post.QUESTION else "accepted"

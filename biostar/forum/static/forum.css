@@ -397,7 +397,6 @@ figure {
 }
 
 
-
 .ui.stat.label.job {
     background-color: #e9530f;
     color: #fff;
@@ -464,7 +463,7 @@ img {
     color: white;
 }
 
-.ui.has_answers.label {
+.ui.question.has_answers.label {
     background-color: #5b8c3e;
     color: white;
 }

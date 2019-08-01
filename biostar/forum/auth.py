@@ -155,8 +155,14 @@ def apply_vote(post, user, vote_type):
         # Author making the change
         change = 0
     else:
+        votes = list(Vote.objects.filter(post__author=post.author).exclude(author=post.author))
+        score = len(votes)
+        # Second query
+        bookcount = filter(lambda v: v.type == Vote.BOOKMARK, votes)
+
+
         # Update the various counts only if the user is different.
-        Profile.objects.filter(user=post.author).update(score=F('score') + change)
+        Profile.objects.filter(user=post.author).update(score=score)
 
         # Increment the post vote count.
         Post.objects.filter(uid=post.uid).update(vote_count=F('vote_count') + change)
@@ -166,7 +172,7 @@ def apply_vote(post, user, vote_type):
 
         # Increment the bookmark count.
         if vote_type == Vote.BOOKMARK:
-            Post.objects.filter(uid=post.uid).update(book_count=F('book_count') + change)
+            Post.objects.filter(uid=post.uid).update(book_count=bookcount)
 
         # Handle accepted vote.
         if vote_type == Vote.ACCEPT:

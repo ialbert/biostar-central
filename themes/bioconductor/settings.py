@@ -4,13 +4,6 @@ import os
 
 DEBUG = True
 
-#NAVBAR_TAGS = []
-
-#END_CATEGORIES = []
-
-# These are the tags that always show up in the tag recommendation dropdown.
-#POST_TAG_LIST = NAVBAR_TAGS + ["software error"]
-
 DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "biocon.db")
 
 DATABASES = {
@@ -64,8 +57,6 @@ TEMPLATES = [
         },
     },
 ]
-# The site logo image on top navigation bar
-SITE_LOGO = "bioconductor_logo.jpg"
 
 # How many recent objects to show in the feed.
 VOTE_FEED_COUNT = 5

@@ -20,6 +20,10 @@ def get_ip(request):
     return ip
 
 
+def benchmark():
+    return
+
+
 def forum_middleware(get_response):
     def middleware(request):
         """

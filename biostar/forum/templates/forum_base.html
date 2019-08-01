@@ -27,14 +27,15 @@
         <link href="{% static 'global/semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'global/prism-syntax.css' %}" rel="stylesheet">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
+        <link href="{% static 'theme.css' %}{% randparam %}" rel="stylesheet">
     {% endcompress %}
 
     {# Javascript compression. #}
     {% compress js %}
         <script src="{% static 'global/semantic.min.js' %}"></script>
         <script src="{% static 'global/prism-syntax.js' %}"></script>
-        <script src="{% static 'forum.js' %}{% randparam %}">
-        </script>
+        <script src="{% static 'forum.js' %}{% randparam %}"></script>
+        <script src="{% static 'theme.js' %}{% randparam %}"></script>
     {% endcompress %}
 
      {# Extra header content that needs to be injected into the page. #}

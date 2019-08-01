@@ -1,0 +1,52 @@
+body {
+    font-size: 13px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.ui.question.label {
+    background-color: #87B13F;
+}
+
+.ui.question.has_answers.label {
+    background-color: #1881C2!important;
+}
+
+.ui.tutorial.has_answers.label {
+    background-color: #1881C2!important;
+}
+
+.ui.stat.label.tutorial {
+    background-color: #87B13F;
+
+}
+
+.ui.small.label.tags:hover {
+    background-color: #bfbfbf;
+}
+
+.ui.small.label.tags {
+  background-color: #F5F5F5;
+  border-bottom: 1px solid #E5E5E5;
+  border-right: 1px solid #E5E5E5;
+  color: #1881C2;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
+
+.ui.stat.label.job {
+    background-color: #AAAAAA;
+
+}
+
+.ui.stat.label.news {
+    background-color: #555555;
+
+}
+
+.accepted.answer.label {
+    background-color: #1881C2!important;;
+    color: #FFFC20!important;;
+}
+
+

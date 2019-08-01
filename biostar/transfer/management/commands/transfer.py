@@ -152,7 +152,9 @@ def bulk_copy_votes(limit):
 
 
 def decode(s):
-
+    """
+    Replace null bytes in a string
+    """
     return s.replace('\x00', '').replace('\0', '').replace('\000', '')
 
 
