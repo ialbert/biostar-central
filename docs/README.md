@@ -2,10 +2,10 @@
 
 ## How to use the `recipes`?
 
-* [Recipe concepts](recipe-concepts.md)
-* [recipe-commands.md](recipe-commands.md)
-* [recipe-deploy.md](recipe-deploy.md)
-* [recipe-api.md](recipe-api.md)
+* [Recipe concepts](recipes/recipe-concepts.md)
+* [recipe-commands.md](recipes/recipe-commands.md)
+* [recipe-deploy.md](recipes/recipe-deploy.md)
+* [recipe-api.md](recipes/recipe-api.md)
 
 ## How to customize the `forum`?
 

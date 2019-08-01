@@ -6,13 +6,13 @@
 
 Applications that are currently feature complete:
 
-- `recipes` is an app that runs scripts via a web interface. See: [Bioinformatics Recipes][recipes]
-- `forum` is an app that runs a Q&A forum inspired by StackOverflow. See: [Biostars Q&A][biostars]
+- `recipes` a web app that runs scripts via a web interface, see: [Bioinformatics Recipes][recipes]
+- `forum` a web app that runs a Q&A forum inspired by StackOverflow, see: [Biostars Q&A][biostars]
 
 In addition `biostar-central` includes applications that provide generic utility.
 
-- `accounts` is an app that manages user accounts
-- `emailer` is an app that can send emails
+- `accounts` an app that manages user accounts
+- `emailer` an app that can send emails
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
@@ -20,6 +20,8 @@ In addition `biostar-central` includes applications that provide generic utility
 [recipes]: https://www.bioinformatics.recipes
 [handbook]: https://www.biostarhandbook.com
 [conda]: https://conda.io/docs/
+
+> *Note (July 25, 2019): The new version of the [Biostar Q&A][biostars] is in beta testing! The public site runs the code from the `biostar2016` branch. We will switch to the new version once testing completes.*
 
 ## Installation
 
@@ -46,7 +48,7 @@ Our installation instructions rely on [conda][conda] though other alternatives f
 The installation is now complete. To test the code run:
 
     make forum test
-    make recipe test
+    make recipes test
 
 ## Run
 
@@ -58,9 +60,9 @@ To run the demonstration version of the `recipes` app execute:
 
     make recipes_demo
 
-In each case visit `http://localhost:8000` to view the site.
+In each case visit <http://localhost:8000> to view the site.
 
-The Makefile has several tasks that demonstrate the main be chained together:
+The Makefile has several tasks that demonstrate the commands that may be chained together:
 
     make forum init serve
     make recipes init serve
@@ -68,15 +70,6 @@ The Makefile has several tasks that demonstrate the main be chained together:
 
 ## Documentation
 
----
-
-> **Note**
->
-> *The new version of the [Biostar Q&A][biostars] is in beta testing!*
-> *The public site currently runs the code in the `biostar2016` branch. We will switch to the new version once testing completes.*
-
----
-
-Additional documentation in [docs/index.md](docs/index.md)
+Additional documentation in [docs/index.md](docs/README.md)
 
 
