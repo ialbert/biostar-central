@@ -67,6 +67,11 @@ def post_exists(func):
     return _wrapper_
 
 
+def policy(request):
+    context = dict()
+    return render(request, template_name="widgets/policy.html", context=context)
+
+
 def get_posts(user, show="latest", tag="", order="rank", limit=None):
     """
     Generates a post list on a topic.
@@ -80,7 +85,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     if post_type:
         query = Post.objects.filter(type=post_type)
     elif topic == OPEN:
-        query = Post.objects.filter(type=Post.QUESTION, reply_count=0)
+        query = Post.objects.filter(type=Post.QUESTION, answer_count=0)
     elif topic == BOOKMARKS and user.is_authenticated:
         query = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
     elif topic == FOLLOWING and user.is_authenticated:

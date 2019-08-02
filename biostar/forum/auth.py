@@ -154,30 +154,38 @@ def apply_vote(post, user, vote_type):
     if post.author == user:
         # Author making the change
         change = 0
-    else:
-        votes = list(Vote.objects.filter(post__author=post.author).exclude(author=post.author))
-        score = len(votes)
-        # Second query
-        bookcount = filter(lambda v: v.type == Vote.BOOKMARK, votes)
+        return msg, vote, change
 
+    # Fetch user score
+    score = len(Vote.objects.filter(post__author=post.author).exclude(author=post.author))
+    # Update the user score.
+    Profile.objects.filter(user=post.author).update(score=score)
 
-        # Update the various counts only if the user is different.
-        Profile.objects.filter(user=post.author).update(score=score)
+    # Calculate counts for the current post
+    votes = list(Vote.objects.filter(post=post).exclude(author=post.author))
+    vote_count = len(votes)
+    bookcount = len(list(filter(lambda v: v.type == Vote.BOOKMARK, votes)))
+    accept_count = len(list(filter(lambda v: v.type == Vote.ACCEPT, votes)))
 
-        # Increment the post vote count.
-        Post.objects.filter(uid=post.uid).update(vote_count=F('vote_count') + change)
+    # Get votes for the root post
+    root_votes = list(Vote.objects.filter(post__root=post.root).exclude(author=post.author))
+    thread_votecount = len(root_votes)
+    root_accept = len(list(filter(lambda v: v.type == Vote.ACCEPT, root_votes)))
 
-        # The thread vote count represents all votes in a thread
-        Post.objects.filter(uid=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
+    # Increment the post vote count.
+    Post.objects.filter(uid=post.uid).update(vote_count=vote_count)
 
-        # Increment the bookmark count.
-        if vote_type == Vote.BOOKMARK:
-            Post.objects.filter(uid=post.uid).update(book_count=bookcount)
+    # The thread vote count represents all votes in a thread
+    Post.objects.filter(uid=post.root.uid).update(thread_votecount=thread_votecount)
 
-        # Handle accepted vote.
-        if vote_type == Vote.ACCEPT:
-            Post.objects.filter(uid=post.uid).update(accept_count=F('accept_count') + change)
-            Post.objects.filter(uid=post.root.uid).update(accept_count=F('accept_count') + change)
+    # Increment the bookmark count.
+    if vote_type == Vote.BOOKMARK:
+        Post.objects.filter(uid=post.uid).update(book_count=bookcount)
+
+    # Handle accepted vote.
+    if vote_type == Vote.ACCEPT:
+        Post.objects.filter(uid=post.uid).update(accept_count=accept_count)
+        Post.objects.filter(uid=post.root.uid).update(accept_count=root_accept)
 
     return msg, vote, change
 

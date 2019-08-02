@@ -20,6 +20,9 @@ DATABASES = {
 
 HTTP_PROTOCOL = "http"
 
+# Post types displayed when creating, empty list displays all types.
+ALLOWED_POST_TYPES = ["Question", "Job", "Tutorial", "News"]
+
 CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
 STATICFILES_DIRS = [os.path.join(CUSTOM_THEME, 'static')]

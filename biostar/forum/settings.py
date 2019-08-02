@@ -62,6 +62,9 @@ MIDDLEWARE += [
 
 ]
 
+# Post types displayed when creating, empty list displays all types.
+ALLOWED_POST_TYPES = []
+
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:
     FORUM_APPS.append('debug_toolbar')
