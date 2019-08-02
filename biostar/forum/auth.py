@@ -167,16 +167,11 @@ def apply_vote(post, user, vote_type):
     bookcount = len(list(filter(lambda v: v.type == Vote.BOOKMARK, votes)))
     accept_count = len(list(filter(lambda v: v.type == Vote.ACCEPT, votes)))
 
-    # Get votes for the root post
-    root_votes = list(Vote.objects.filter(post__root=post.root).exclude(author=post.author))
-    thread_votecount = len(root_votes)
-    root_accept = len(list(filter(lambda v: v.type == Vote.ACCEPT, root_votes)))
-
     # Increment the post vote count.
     Post.objects.filter(uid=post.uid).update(vote_count=vote_count)
 
     # The thread vote count represents all votes in a thread
-    Post.objects.filter(uid=post.root.uid).update(thread_votecount=thread_votecount)
+    Post.objects.filter(uid=post.root.uid).update(thread_votecount=F('thread_votecount') + change)
 
     # Increment the bookmark count.
     if vote_type == Vote.BOOKMARK:
@@ -185,7 +180,7 @@ def apply_vote(post, user, vote_type):
     # Handle accepted vote.
     if vote_type == Vote.ACCEPT:
         Post.objects.filter(uid=post.uid).update(accept_count=accept_count)
-        Post.objects.filter(uid=post.root.uid).update(accept_count=root_accept)
+        Post.objects.filter(uid=post.root.uid).update(accept_count=F('accept_count') + change)
 
     return msg, vote, change
 
