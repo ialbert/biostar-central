@@ -55,48 +55,40 @@ def uid_from_context(context):
 def bulk_copy_users(limit):
 
     current = dict()
-    existing = [u.username for u in User.objects.all()]
+    #existing = (u.username for u in User.objects.all())
+    old_users = UsersUser.objects.order_by("id")
 
     def gen_users():
-        nonlocal existing
+        #nonlocal existing
         logger.info(f"Transferring users")
-
-        users = UsersUser.objects.order_by("id")
-        # Only iterate over users that do not exist already
 
         elapsed, progress = timer_func()
 
         # Allow limiting the input
-        stream = islice(zip(count(1), users), limit)
+        stream = islice(zip(count(1), old_users), limit)
         for index, user in stream:
             progress(index=index,  msg="users")
-            # Set the username to twitter id or a default
-            # Extra prefix 'username' necessary in default to avoid duplicating
-            # from already migrated/populated users: user-1, user-2
-            default_username = f'user-{user.id}'
-            username = user.profile.twitter_id or default_username
-            if username in existing:
-                username = f'user-{util.get_uuid(limit=5)}'
+
+            username = f'user-{user.id}'
+            #if username in existing:
+            #    username = f'user-{util.get_uuid(limit=5)}'
 
             # Create user
             new_user = User(username=username, email=user.email, password=user.password,
                             is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
 
             current[user.email] = new_user
-            existing.append(username)
+            #existing.add(username)
 
             yield new_user
 
     def gen_profile():
         logger.info(f"Transferring profiles")
 
-        # Exclude existing users from source database.
-        users = UsersUser.objects.all().order_by("id")
-
         elapsed, progress = timer_func()
 
         # Allow limiting the input
-        stream = islice(zip(count(1), users), limit)
+        stream = islice(zip(count(1), old_users), limit)
         for index, user in stream:
             progress(index, msg="profiles")
             text = util.strip_tags(user.profile.info)
@@ -121,22 +113,27 @@ def bulk_copy_users(limit):
     pcount = Profile.objects.all().count()
     elapsed(f"transferred {pcount} profiles")
 
+    #old_users = UsersUser.objects.filter(id=2)
+    #new_users =
+
+
 
 def bulk_copy_votes(limit):
     posts = PostsVote.objects.all()
+    posts_map = {post.uid: post for post in Post.objects.all()}
+    users_map = {user.email: user for user in User.objects.all()}
 
     def gen_votes():
         logger.info("Transferring Votes")
-        posts_set = {post.uid: post for post in Post.objects.all()}
-        users_set = {user.profile.uid: user for user in User.objects.all()}
+
         stream = zip(count(1), posts)
         stream = islice(stream, limit)
 
         elapsed, progress = timer_func()
         for index, vote in stream:
             progress(index, msg="votes")
-            post = posts_set.get(str(vote.post_id))
-            author = users_set.get(str(vote.author_id))
+            post = posts_map.get(str(vote.post_id))
+            author = users_map.get(vote.author.email)
             # Skip existing votes and incomplete post/author information.
             if not (post and author) or not post.root:
                 continue
@@ -301,33 +298,40 @@ def bulk_copy_posts(limit):
 
 
 def bulk_copy_subs(limit):
+    seen = set()
+
     def generate():
         users = {user.profile.uid: user for user in User.objects.all()}
         posts = {post.uid: post for post in Post.objects.all()}
-        subs = PostsSubscription.objects.all()
+        subs = PostsSubscription.objects.order_by('-date')
 
         logger.info("Copying subscriptions")
         elapsed, progress = timer_func()
         stream = zip(count(1), subs)
         stream = islice(stream, limit)
+
         for index, sub in stream:
             progress(index, msg="subscriptions")
             user = users.get(str(sub.user_id))
             post = posts.get(str(sub.post_id))
+            sub_str = f'{sub.user_id}, {sub.post_id}'
 
-            # Skip incomplete data
-            if not (user and post):
+            # Skip incomplete data or subs already made
+            if not (user and post) or sub_str in seen:
                 continue
+
             sub = Subscription(uid=sub.id, type=sub.type, user=user, post=post, date=sub.date)
+            seen.add(sub_str)
 
             yield sub
 
     def update_counts():
         logger.info("Updating post subs_count")
         # Recompute subs_count for
-        posts_set = {post: post.subs.exclude(user=post.author).count() for post in Post.objects.all()}
-        for post in posts_set:
-            post.subs_count = posts_set[post]
+        posts_map = {post: post.subs.exclude(user=post.author).count() for post in Post.objects.all()}
+
+        for post, value in posts_map.items():
+            post.subs_count = value
             yield post
 
     elapsed, progress = timer_func()
@@ -337,6 +341,65 @@ def bulk_copy_subs(limit):
 
     Post.objects.bulk_update(objs=update_counts(), fields=["subs_count"], batch_size=1000)
     elapsed(f"Updated {scount} subscription counts")
+    return
+
+
+def test():
+    #bulk_copy_users(limit=10)
+    #bulk_copy_posts(limit=10)
+
+    #bulk_copy_subs(limit=10)
+    #return
+
+    # for user in UsersUser.objects.order_by('id')[:10]:
+    #     print(f"OLD : email={user.email}, id={user.id}")
+    #
+    #     u = User.objects.filter(profile__uid=user.id).first()
+    #     print(f"NEW : email={u.email}, uid={u.profile.uid}")
+    #     print('-'*10)
+    #
+    # u1 = UsersUser.objects.filter(id=2).first()
+    # u2 = User.objects.filter(profile__uid='2').first()
+    #
+    # print(u1.email, u2.email)
+
+    #return
+
+    #stream = foo()
+    #stream = islice(stream, 10)
+
+    #for p in stream:
+    #    print("-"*10)
+
+    #return
+
+    # for sub in Subscription.objects.all()[:100]:
+    #     s = PostsSubscription.objects.filter(id=sub.uid).first()
+    #     print(f"OLD : user_id={s.user.id}, email={sub.user.email}, post_id={s.post.id}, sub_id={s.id}, type={sub.type}, post_title ={s.post.title}")
+    #     print(f"NEW : user_uid={sub.user.profile.uid}, email={s.user.email}, post_uid={sub.post.uid}, sub_uid={sub.uid}, type={sub.type} post_title ={sub.post.title}")
+    #     print('-'*10)
+
+    subs = PostsSubscription.objects.filter(post_id=123260)
+
+    #new_subs = Subscription.objects.filter(post_id=121146)
+
+    for sub in subs:
+        print(sub.id, sub.post.author_id, sub.post.author.email, sub.post.title, sub.type)
+
+    return
+    #posts = Post.objects.filter(id=121146)
+    #print(posts)
+
+    #for post in posts:
+    #    print(post)
+    return
+
+    for post, subs in stream:
+        old_subs = PostsSubscription.objects.filter(post_id=int(post.uid)).count()
+        print(post, post.subs_count, old_subs)
+        for sub in subs:
+            print(sub, sub.get_type_display())
+        print('-' * 10)
     return
 
 
@@ -357,6 +420,9 @@ class Command(BaseCommand):
         load_votes = options["votes"]
         load_subs = options["subs"]
         limit = options.get("limit") or LIMIT
+
+        #test()
+        #return
 
         if load_posts:
             bulk_copy_posts(limit=limit)
