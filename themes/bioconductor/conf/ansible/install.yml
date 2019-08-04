@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  user: ubuntu
+  user: www
 
   environment:
     PATH: "{{ lookup('env','PATH') }}:/home/www/miniconda3/bin/python3"
@@ -11,7 +11,6 @@
 
   tasks:
     - include_vars: vars.yml
-    - import_tasks: config.yml
     - name: Set up bash profile
       get_url:
         url: http://data.biostarhandbook.com/install/bash_profile.txt
@@ -49,7 +48,7 @@
 
     - name: Create environments
       shell: "{{ conda_dir }}/bin/conda create --yes -q -n {{ item.name }} python={{ item.python_version }} creates={{ conda_dir }}/envs/{{ item.name }}"
-      when: conda_installed is success
+
       with_items: "{{conda_environments}}"
 
     - name: Get the biostar-engine software
@@ -67,7 +66,6 @@
         mode: 0755
 
     - name: Initialize local secrets
-      become: yes
       copy:
         content: ""
         dest: "{{ conf_dir }}/secrets.py"
@@ -75,6 +73,7 @@
         mode: 0644
 
     - name: Install python requirements
+      become_user: www
       become: yes
       shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
       args:
@@ -82,11 +81,13 @@
         chdir: "{{ engine_dir }}"
 
     - name: Install conda requirements
+      become_user: www
       become: yes
-      shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}}  && conda install --file conf/conda_requirements.txt"
+      shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}}  && echo 'y' | conda install --file conf/conda_requirements.txt"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"
+
 
 
 

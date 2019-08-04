@@ -39,6 +39,7 @@ bioconductor:
 	$(eval ANSIBLE_HOST := test.bioconductor.org)
 	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
 
+
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
     @echo UWSGI_INI=${UWSGI_INI}
@@ -168,8 +169,11 @@ next:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py job --next --settings ${DJANGO_SETTINGS_MODULE}
 
-remote_install:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} install.yml --extra-vars -v)
+install:
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} install.yml --ask-become-pass --extra-vars -v)
+
+config:
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} config.yml --extra-vars -v)
 
 deploy:
 	(cd conf/ansible && ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass --extra-vars -v)
