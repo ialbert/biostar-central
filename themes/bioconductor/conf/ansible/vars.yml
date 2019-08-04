@@ -3,6 +3,7 @@ engine_git: https://github.com/Natay/biostar-central.git
 engine_dir: "/export/www/biostar-central"
 
 scripts_dir: "/export/www/biostar-central/themes/bioconductor/conf/scripts"
+conf_dir : "/export/www/biostar-central/themes/bioconductor/conf"
 
 bin_dir: "/export/bin"
 src_dir: "/export/src"

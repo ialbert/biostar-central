@@ -22,12 +22,6 @@
     executable: /bin/bash
     chdir: "{{ scripts_dir }}"
 
-- name: server migrate
-  shell: "./migrate.sh"
-  args:
-    executable: /bin/bash
-    chdir: "{{ scripts_dir }}"
-
 - name: restart server
   become: yes
   shell: supervisorctl restart engine

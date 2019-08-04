@@ -25,13 +25,13 @@ TRANSFER_DATABASE=transfer.db
 LIMIT=1000
 
 # Drop the old database if exists.
-#dropdb --if-exists ${TRANSFER_DATABASE}
+dropdb --if-exists ${TRANSFER_DATABASE}
 
 # Create the database for the old biostar.
-#createdb ${TRANSFER_DATABASE}
+createdb ${TRANSFER_DATABASE}
 
 # Load the data into the old biostar.
-#cat ${DATABASE_SQL} | gunzip -c | psql -d ${TRANSFER_DATABASE}
+cat ${DATABASE_SQL} | gunzip -c | psql -d ${TRANSFER_DATABASE}
 
 # Transfer the data
 python manage.py transfer --limit $LIMIT --settings ${TRANSFER_SETTINGS_MODULE}
