@@ -156,8 +156,10 @@ def ajax_search(request):
 
     query = request.GET.get('query', '')
     fields = ['content', 'tags', 'title', 'author', 'author_handle']
+    sort_by = request.GET.get("sort_by", '')
+
     if query:
-        results = search.query(q=query, fields=fields)
+        results = search.query(q=query, fields=fields, sort_by=sort_by)
         tmpl = loader.get_template("widgets/search_results.html")
         context = dict(results=results)
         results_html = tmpl.render(context)

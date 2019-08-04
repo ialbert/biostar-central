@@ -4,7 +4,7 @@ import os
 
 DEBUG = True
 
-DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "biocon.db")
+DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "bioconductor.db")
 
 DATABASES = {
 
@@ -17,7 +17,7 @@ DATABASES = {
         'PORT': '',
     },
 }
-
+print(DATABASE_NAME, "DATABASE_NAME")
 HTTP_PROTOCOL = "http"
 
 # Post types displayed when creating, empty list displays all types.
@@ -83,6 +83,7 @@ EMAIL_FROM_PATTERN = u'''"%s [bioc]" <%s>'''
 # The subject of the reply goes here
 EMAIL_REPLY_SUBJECT = u"[bioc] %s"
 
+SEARCH_LIMIT = 80
 
 # On deployed servers the following must be set.
 EMAIL_HOST = ""
@@ -91,9 +92,11 @@ EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_TLS = False
 
+print(INDEX_DIR, INDEX_NAME, "INDEX")
+
 # Tries to load up secret settings from a predetermined module
 try:
-    from conf.run.secrets import *
-    print(f"Loaded secrets from: conf.run.secrets")
+    from themes.bioconductor.conf.secrets import *
+    print(f"Loaded secrets from: themes.bioconductor.conf.run.secrets")
 except Exception as exc:
     print(f"Secrets module not imported: {exc}")

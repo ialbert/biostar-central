@@ -55,11 +55,10 @@ def uid_from_context(context):
 def bulk_copy_users(limit):
 
     current = dict()
-    #existing = (u.username for u in User.objects.all())
     old_users = UsersUser.objects.order_by("id")
 
     def gen_users():
-        #nonlocal existing
+
         logger.info(f"Transferring users")
 
         elapsed, progress = timer_func()
@@ -70,15 +69,11 @@ def bulk_copy_users(limit):
             progress(index=index,  msg="users")
 
             username = f'user-{user.id}'
-            #if username in existing:
-            #    username = f'user-{util.get_uuid(limit=5)}'
-
             # Create user
             new_user = User(username=username, email=user.email, password=user.password,
                             is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
 
             current[user.email] = new_user
-            #existing.add(username)
 
             yield new_user
 
@@ -94,6 +89,7 @@ def bulk_copy_users(limit):
             text = util.strip_tags(user.profile.info)
 
             profile = Profile(uid=user.id, user=current.get(user.email), name=user.name,
+                              message_prefs=user.profile.message_prefs,
                               role=user.type, last_login=user.last_login, html=user.profile.info,
                               date_joined=user.profile.date_joined, location=user.profile.location,
                               website=user.profile.website, scholar=user.profile.scholar, text=text,
@@ -112,10 +108,6 @@ def bulk_copy_users(limit):
     Profile.objects.bulk_create(objs=gen_profile(), batch_size=10000)
     pcount = Profile.objects.all().count()
     elapsed(f"transferred {pcount} profiles")
-
-    #old_users = UsersUser.objects.filter(id=2)
-    #new_users =
-
 
 
 def bulk_copy_votes(limit):
@@ -328,9 +320,9 @@ def bulk_copy_subs(limit):
     def update_counts():
         logger.info("Updating post subs_count")
         # Recompute subs_count for
-        posts_map = {post: post.subs.exclude(user=post.author).count() for post in Post.objects.all()}
+        posts_map = ((post, len(post.subs.exclude(user=post.author))) for post in Post.objects.all())
 
-        for post, value in posts_map.items():
+        for post, value in posts_map:
             post.subs_count = value
             yield post
 
@@ -380,13 +372,28 @@ def test():
     #     print('-'*10)
 
     subs = PostsSubscription.objects.filter(post_id=123260)
-
+    seen = []
+    new_subs = Subscription.objects.filter(post__uid='123258')
     #new_subs = Subscription.objects.filter(post_id=121146)
+    print(len(subs))
 
     for sub in subs:
-        print(sub.id, sub.post.author_id, sub.post.author.email, sub.post.title, sub.type)
+        print(sub.id, sub.user.email, sub.user.profile.message_prefs, sub.user.is_staff, sub.post.author_id, sub.post.author.email, sub.post.title, sub.type)
+        seen.append(sub.user.email)
+    #return
+    print("-"*10)
 
-    return
+    for i in new_subs:
+        if i.user.email in seen:
+            print("---")
+            print("FUCK", i.user.email)
+            print("-"*10)
+            continue
+        print(i.uid, i.user.email, i.user.profile.message_prefs, i.user.is_staff, i.post.author.profile.uid, i.post.author.email, i.post.title, i.type)
+
+
+        #print(User.objects.filter(pk=Subscription.objects.filter(post=i.post).first().user.pk).email,
+        #                          i.post.author.pk, i.post.author.email, )
     #posts = Post.objects.filter(id=121146)
     #print(posts)
 
@@ -421,8 +428,8 @@ class Command(BaseCommand):
         load_subs = options["subs"]
         limit = options.get("limit") or LIMIT
 
-        #test()
-        #return
+        test()
+        return
 
         if load_posts:
             bulk_copy_posts(limit=limit)

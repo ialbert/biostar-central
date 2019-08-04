@@ -52,6 +52,12 @@ def get_count(request, key, default=0):
     return value
 
 
+@register.filter
+def date_from_timestamp(timestamp):
+    date = datetime.fromtimestamp(timestamp)
+    return date
+
+
 @register.simple_tag(takes_context=True)
 def activate(context, state, target):
     label = "active" if state == target else ""

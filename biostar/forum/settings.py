@@ -22,7 +22,7 @@ TIME_REQUESTS = True
 
 # Indexing interval in seconds.
 INDEX_SECS_INTERVAL = 10
-# Number of results to limit searches to
+# Number of results to display.
 SEARCH_LIMIT = 20
 
 BATCH_INDEXING_SIZE = 1000

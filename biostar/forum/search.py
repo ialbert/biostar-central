@@ -16,7 +16,7 @@ from whoosh.writing import AsyncWriter
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.analysis import SpaceSeparatedTokenizer, StopFilter, STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
-from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC
+from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
 from .models import Post
 
@@ -59,7 +59,7 @@ def add_index(post, writer):
                            type_display=post.get_type_display(),
                            content_length=len(post.content),
                            type=post.type,
-                           lastedit_date=post.lastedit_date.timestamp(),
+                           lastedit_date=post.lastedit_date,
                            content=post.content, tags=post.tag_val,
                            is_toplevel=post.is_toplevel,
                            rank=post.rank, uid=post.uid,
@@ -82,7 +82,7 @@ def get_schema():
                     content=TEXT(stored=True, analyzer=analyzer, sortable=True),
                     tags=KEYWORD(stored=True, commas=True),
                     is_toplevel=BOOLEAN(stored=True),
-                    lastedit_date=NUMERIC(stored=True, sortable=True),
+                    lastedit_date=DATETIME(stored=True, sortable=True),
                     rank=NUMERIC(stored=True, sortable=True),
                     author=TEXT(stored=True),
                     author_score=NUMERIC(stored=True, sortable=True),
@@ -126,7 +126,6 @@ def print_info():
         print (f"{value}\t{key}")
     print ('-' * 20)
     print (f"{total} total posts")
-
 
 
 def index_posts(posts, overwrite=False):
@@ -183,7 +182,7 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     return
 
 
-def query(q='', fields=['content'], **kwargs):
+def query(q='', sort_by='', fields=['content'], **kwargs):
     """
     Query the indexed, looking for a match in the specified fields.
     Results a tuple of results and an open searcher object.
@@ -199,7 +198,7 @@ def query(q='', fields=['content'], **kwargs):
     profile_score = FieldFacet("author_score", reverse=True)
     post_type = FieldFacet("type")
     thread = FieldFacet('thread_votecount')
-    content_length = FieldFacet("content_length", reverse=True)
+    #content_length = FieldFacet("content_length", reverse=True)
     rank = FieldFacet("rank", reverse=True)
     default = ScoreFacet()
 
@@ -207,20 +206,7 @@ def query(q='', fields=['content'], **kwargs):
     # and OR filter, eg. 'foo bar' == 'foo OR bar'
     orgroup = OrGroup
 
-    # Sort by: toplevel, match score, author reputation, post rank.
-    # sort_by = [post_type,  profile_score, rank, default]
-
-    # sort_by = [post_type]
-
-    # sort_by = [profile_score]
-
-    # sort_by = [rank]
-
-    # sort_by = [thread]
-
-    sort_by = [post_type, default, content_length]
-
-    # sort_by = [content_length]
+    sort_by = [post_type, rank, thread, default, profile_score]
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(q)
     results = searcher.search(parser, sortedby=sort_by, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
