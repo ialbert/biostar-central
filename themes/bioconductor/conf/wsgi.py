@@ -6,7 +6,7 @@ logger= logging.getLogger("biostar")
 
 # Override the DJANGO SETTINGS MODULE
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.site.site_settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "themes.bioconductor.settings")
 
 dj = os.environ["DJANGO_SETTINGS_MODULE"]
 
