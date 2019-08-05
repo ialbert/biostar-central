@@ -19,12 +19,7 @@
 
 - name: init sciprts
   become: yes
-  copy:
-    remote_src: true
-    force: no
-    src: "{{ engine_dir }}//themes/bioconductor/conf/scripts/{{item}}"
-    dest: "{{ engine_dir }}/{{ item }}"
-    mode: u+rwx,g+rx,o+rx
+  command: "scp {{ engine_dir }}//themes/bioconductor/conf/scripts/{{item}} {{ engine_dir }}/{{ item }}"
   with_items:
     - migrate.sh
     - reset.sh
