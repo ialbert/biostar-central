@@ -29,7 +29,7 @@
     - migrate.sh
     - reset.sh
     - backup.sh
-    -
+
 - name: update git
   become: yes
   git:
