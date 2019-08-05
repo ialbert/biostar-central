@@ -15,11 +15,11 @@ set -uex
 TRANSFER_SETTINGS_MODULE=biostar.transfer.settings
 
 # The database dump from old biostar (postgres sql dump).
-# rsync -avz www@biostars.org:~/data/biostar-database-2.3.0-hourly-00.sql.gz export/sql/
-DATABASE_SQL=export/sql/biostar-database-2.3.0-hourly-00.sql.gz
+# rsync -avz www@b165.227.81.177:~/sql/bioconductor.sql.gz export/sql/
+DATABASE_SQL=~/data/bioconductor.sql.gz
 
 # The database the old dump is loaded from.
-TRANSFER_DATABASE=transfer.db
+TRANSFER_DATABASE=target.db
 
 # How many posts to load
 LIMIT=1000
@@ -31,7 +31,7 @@ dropdb --if-exists ${TRANSFER_DATABASE}
 createdb ${TRANSFER_DATABASE}
 
 # Load the data into the old biostar.
-cat ${DATABASE_SQL} | gunzip -c | psql -d ${TRANSFER_DATABASE}
+#cat ${DATABASE_SQL} | gunzip -c | psql -d ${TRANSFER_DATABASE}
 
 # Transfer the data
 python manage.py transfer --limit $LIMIT --settings ${TRANSFER_SETTINGS_MODULE}

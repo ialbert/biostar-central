@@ -11,12 +11,14 @@
     state: stopped
 
 - name: server reset
+  become: yes
   shell: "./reset.sh"
   args:
     executable: /bin/bash
     chdir: "{{ scripts_dir }}"
 
 - name: server migrate
+  become: yes
   shell: "./migrate.sh"
   args:
     executable: /bin/bash
@@ -24,7 +26,7 @@
 
 - name: restart server
   become: yes
-  shell: supervisorctl restart engine
+  shell: supervisorctl restart forum
 
 - name: reload supervisor
   become: yes

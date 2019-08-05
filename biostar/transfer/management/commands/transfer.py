@@ -428,8 +428,8 @@ class Command(BaseCommand):
         load_subs = options["subs"]
         limit = options.get("limit") or LIMIT
 
-        test()
-        return
+        #test()
+        #return
 
         if load_posts:
             bulk_copy_posts(limit=limit)

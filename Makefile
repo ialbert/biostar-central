@@ -42,7 +42,7 @@ bioconductor:
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-    @echo UWSGI_INI=${UWSGI_INI}
+	@echo UWSGI_INI=${UWSGI_INI}
 	@echo ANSIBLE_HOST=${ANSIBLE_HOST}
 	@echo ANSIBLE_ROOT=${ANSIBLE_ROOT}
 
@@ -174,6 +174,12 @@ install:
 
 config:
 	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} config.yml --extra-vars -v)
+
+remote_transfer:
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} transfer.yml --ask-become-pass --extra-vars -v)
+
+theme_deploy:
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} deploy.yml --ask-become-pass --extra-vars -v)
 
 deploy:
 	(cd conf/ansible && ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass --extra-vars -v)

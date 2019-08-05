@@ -65,7 +65,35 @@
         state: directory
         mode: 0755
 
+    - name: Initialize scripts
+      become: yes
+      copy:
+        remote_src: true
+        force: no
+        src: "{{ engine_dir }}//themes/bioconductor/conf/scripts/{{item}}"
+        dest: "{{ engine_dir }}/{{ item }}"
+        mode: u+rwx,g+rx,o+rx
+      with_items:
+        - migrate.sh
+        - reset.sh
+        - backup.sh
+
+    - name: Copy settings file to runtime directories
+      become: yes
+      copy:
+        remote_src: true
+        force: no
+        src: "{{ engine_dir }}/themes/bioconductor/conf/{{item}}"
+        dest: "{{ engine_dir }}/conf/run/{{ item }}"
+      with_items:
+        - nginx.conf
+        - supervisor.conf
+        - "../settings.py"
+        - wsgi.py
+        - uwsgi.ini
+
     - name: Initialize local secrets
+      become: yes
       copy:
         content: ""
         dest: "{{ conf_dir }}/secrets.py"
@@ -73,21 +101,16 @@
         mode: 0644
 
     - name: Install python requirements
-      become_user: www
       become: yes
-      shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
+      shell: "source /home/www/miniconda3/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"
 
     - name: Install conda requirements
-      become_user: www
       become: yes
-      shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}}  && echo 'y' | conda install --file conf/conda_requirements.txt"
+      shell: "source /home/www/miniconda3/etc/profile.d/conda.sh && conda activate {{conda_env}}  && echo 'y' | conda install --file conf/conda_requirements.txt"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"
-
-
-
 
