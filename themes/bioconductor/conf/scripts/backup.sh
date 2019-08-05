@@ -13,6 +13,7 @@ set -ue
 
 # Set the configuration module.
 export DJANGO_SETTINGS_MODULE=themes.bioconductor.settings
+export DATABASE_NAME=bioconductor.db
 
 # Backup location
 mkdir -p export/backup

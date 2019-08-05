@@ -2,8 +2,14 @@
 
 # Default database reset script.
 
+# Stop on errors.
+set -ue
+
+# Load the conda commands.
+source ~/miniconda3/etc/profile.d/conda.sh
+
 # Activate the correct enviroment.
-source /home/www/miniconda3/envs/engine/bin/activate engine
+conda activate engine
 
 # Set the configuration module.
 export DJANGO_SETTINGS_MODULE=themes.bioconductor.settings

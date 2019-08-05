@@ -175,7 +175,7 @@ install:
 config:
 	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} config.yml --extra-vars -v)
 
-remote_transfer:
+theme_transfer:
 	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} transfer.yml --ask-become-pass --extra-vars -v)
 
 theme_deploy:
