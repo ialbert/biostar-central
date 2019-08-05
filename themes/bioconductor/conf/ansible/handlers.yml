@@ -1,5 +1,6 @@
 - name: server backup
   shell: "./backup.sh"
+  become: yes
   args:
     executable: /bin/bash
     chdir: "{{ scripts_dir }}"

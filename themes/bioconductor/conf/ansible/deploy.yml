@@ -8,10 +8,6 @@
 
   tasks:
     - include_vars: vars.yml
-    - name: Backup servers
-      shell: ls
-      notify:
-        - server backup
 
     - name: Update the biostar-engine
       become: yes
