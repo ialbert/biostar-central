@@ -3,7 +3,7 @@
   become: yes
   args:
     executable: /bin/bash
-    chdir: "{{ scripts_dir }}"
+    chdir: "{{ engine_dir }}"
 
 - name: stop supervisor
   become: yes
@@ -16,14 +16,14 @@
   shell: "./reset.sh"
   args:
     executable: /bin/bash
-    chdir: "{{ scripts_dir }}"
+    chdir: "{{ engine_dir }}"
 
 - name: server migrate
   become: yes
   shell: "./migrate.sh"
   args:
     executable: /bin/bash
-    chdir: "{{ scripts_dir }}"
+    chdir: "{{ engine_dir }}"
 
 - name: restart server
   become: yes

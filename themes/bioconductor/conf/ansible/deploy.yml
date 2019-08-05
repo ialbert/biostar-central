@@ -25,5 +25,6 @@
       notify:
         - reload supervisor
         - restart nginx
+        - restart server
       when: restart
 
