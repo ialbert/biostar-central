@@ -12,14 +12,32 @@
     state: stopped
 
 - name: server reset
-  become: yes
   shell: "./reset.sh"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
 
-- name: server migrate
+- name: init sciprts
   become: yes
+  copy:
+    remote_src: true
+    force: no
+    src: "{{ engine_dir }}//themes/bioconductor/conf/scripts/{{item}}"
+    dest: "{{ engine_dir }}/{{ item }}"
+    mode: u+rwx,g+rx,o+rx
+  with_items:
+    - migrate.sh
+    - reset.sh
+    - backup.sh
+    -
+- name: update git
+  become: yes
+  git:
+    repo: "{{ engine_git }}"
+    dest: "{{ engine_dir }}"
+    update: yes
+
+- name: server migrate
   shell: "./migrate.sh"
   args:
     executable: /bin/bash

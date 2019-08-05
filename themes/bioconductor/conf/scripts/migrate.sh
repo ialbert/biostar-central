@@ -12,6 +12,7 @@ conda activate engine
 set -ue
 
 export DJANGO_SETTINGS_MODULE=themes.bioconductor.settings
+export DATABASE_NAME=bioconductor.db
 
 # Migrate the server.
 python manage.py migrate

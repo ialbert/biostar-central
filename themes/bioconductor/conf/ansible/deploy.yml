@@ -10,11 +10,10 @@
     - include_vars: vars.yml
 
     - name: Update the biostar-engine
-      git:
-        repo: "{{ engine_git }}"
-        dest: "{{ engine_dir }}"
-        update: yes
+      shell: ls
       notify:
+        - update git
+        - init sciprts
         - server migrate
         - reload supervisor
         - restart nginx
