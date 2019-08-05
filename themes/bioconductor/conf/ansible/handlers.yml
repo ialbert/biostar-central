@@ -18,7 +18,7 @@
     chdir: "{{ engine_dir }}"
 
 - name: init sciprts
-  become: yes
+  become_user: www
   command: "scp {{ engine_dir }}//themes/bioconductor/conf/scripts/{{item}} {{ engine_dir }}/{{ item }}"
   with_items:
     - migrate.sh
@@ -26,7 +26,7 @@
     - backup.sh
 
 - name: update git
-  become: yes
+  become_user: www
   git:
     repo: "{{ engine_git }}"
     dest: "{{ engine_dir }}"
