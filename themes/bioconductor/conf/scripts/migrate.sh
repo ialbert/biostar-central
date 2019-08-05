@@ -14,6 +14,7 @@ set -ue
 export DJANGO_SETTINGS_MODULE=themes.bioconductor.settings
 export DATABASE_NAME=bioconductor.db
 
+echo "Test";
 # Migrate the server.
 python manage.py migrate
 
