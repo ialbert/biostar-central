@@ -11,6 +11,7 @@
 
     - name: Update the biostar-engine
       become: yes
+      become_user: www
       git:
         repo: "{{ engine_git }}"
         dest: "{{ engine_dir }}"
