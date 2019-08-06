@@ -26,7 +26,7 @@
     - backup.sh
 
 - name: update git
-  become_user: www
+  become: yes
   git:
     repo: "{{ engine_git }}"
     dest: "{{ engine_dir }}"
