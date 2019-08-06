@@ -372,25 +372,20 @@ def test():
     #     print('-'*10)
 
     subs = PostsSubscription.objects.filter(post_id=123260)
-    seen = []
-    new_subs = Subscription.objects.filter(post__uid='123258')
+    #seen = []
+    new_subs = Subscription.objects.filter(post__uid='123260')
     #new_subs = Subscription.objects.filter(post_id=121146)
     print(len(subs))
 
     for sub in subs:
-        print(sub.id, sub.user.email, sub.user.profile.message_prefs, sub.user.is_staff, sub.post.author_id, sub.post.author.email, sub.post.title, sub.type)
-        seen.append(sub.user.email)
+        print(sub.id,  sub.user.email, sub.user.profile.message_prefs, sub.user.is_staff, sub.post.author_id, sub.post.author.email, sub.post.title, sub.type)
+        print(f"TAGS- profile={sub.user.profile.my_tags or sub.user.profile.watched_tags} post={sub.post.tag_val} digest prefs={sub.user.profile.digest_prefs}")
     #return
-    print("-"*10)
+        print("-"*10)
 
-    for i in new_subs:
-        if i.user.email in seen:
-            print("---")
-            print("FUCK", i.user.email)
-            print("-"*10)
-            continue
-        print(i.uid, i.user.email, i.user.profile.message_prefs, i.user.is_staff, i.post.author.profile.uid, i.post.author.email, i.post.title, i.type)
-
+    #for i in new_subs:
+    #    print(i.uid, i.user.email,    i.user.profile.message_prefs, i.user.is_staff, i.post.author.profile.uid, i.post.author.email, i.post.title, i.type)
+    #    print(f"TAGS- profile={i.user.profile.my_tags}, post={i.post.tag_val}")
 
         #print(User.objects.filter(pk=Subscription.objects.filter(post=i.post).first().user.pk).email,
         #                          i.post.author.pk, i.post.author.email, )
@@ -428,8 +423,8 @@ class Command(BaseCommand):
         load_subs = options["subs"]
         limit = options.get("limit") or LIMIT
 
-        #test()
-        #return
+        test()
+        return
 
         if load_posts:
             bulk_copy_posts(limit=limit)
