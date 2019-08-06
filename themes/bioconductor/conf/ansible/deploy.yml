@@ -1,0 +1,27 @@
+---
+- hosts: all
+  user: www
+
+  handlers:
+    - import_tasks: handlers.yml
+      static: yes
+
+  tasks:
+    - include_vars: vars.yml
+
+    - name: Update the biostar-engine
+      shell: ls
+      notify:
+        - update git
+        - init sciprts
+        - server migrate
+        - reload supervisor
+        - restart nginx
+
+    - name: Restart servers
+      shell: ls
+      notify:
+        - reload supervisor
+        - restart nginx
+        - restart server
+

@@ -1,0 +1,103 @@
+---
+- hosts: all
+  user: ubuntu
+
+  tasks:
+    - include_vars: vars.yml
+    - name: Aptitude needs to be present.
+      become: yes
+      vars:
+         packages: [ 'aptitude' ]
+      apt:
+        name: "{{ packages }}"
+
+    - name: Update and upgrade packages.
+      become: yes
+      apt:
+        upgrade=yes
+        update_cache=yes
+        cache_valid_time=86400 # One day
+
+    - name: Add certbot repository
+      become: yes
+      apt_repository:
+        repo: 'ppa:certbot/certbot'
+        state: present
+
+    - name: Create the www group
+      become: yes
+      group:
+        name: www
+
+    - name: Create the www user
+      become: yes
+      user:
+        name: www
+        shell: /bin/bash
+        groups: www, sudo
+
+    - name: Set authorized key for copying it from current user
+      become: yes
+      authorized_key:
+        user: www
+        state: present
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
+    - name: Install required packages
+      become: yes
+      vars:
+         packages: [ 'nginx', 'postgresql', 'software-properties-common', 'python-certbot-nginx',
+          'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'supervisor', 'python-psycopg2' ]
+      apt:
+        name: "{{ packages }}"
+
+    - name: Allow SSH through the firewall
+      ufw: rule=allow port={{item}}
+      become: yes
+      with_items:
+       - ssh
+       - http
+       - https
+
+    - name: Enable firewall
+      become: yes
+      ufw: state=enabled policy=deny
+
+    - name: Create supporting directories
+      become: yes
+      file:
+        path: "{{item}}"
+        state: directory
+        owner: www
+        group: www
+        mode: 0755
+      with_items:
+        - "{{ src_dir }}"
+        - "{{ bin_dir }}"
+        - "{{ ref_dir }}"
+        - "{{ engine_dir }}"
+
+
+    - name: Allow write access to configuration directories
+      become: yes
+      file:
+        path: "{{ item }}"
+        owner: www
+        group: www
+        mode: 0755
+      with_items:
+        - /etc/nginx/sites-enabled
+        - /etc/supervisor/conf.d
+        - "{{ src_dir }}"
+        - "{{ bin_dir }}"
+        - "{{ ref_dir }}"
+        - "{{ engine_dir }}"
+
+    - name: Create postgresql database user
+      become: yes
+      become_user: postgres
+      postgresql_user:
+        name: biostar_user
+        password: md5437a687918743dac1889ef033bcb5bbd
+        role_attr_flags: CREATEDB,CREATEROLE
+

@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.conf import settings
 from django.contrib import messages
@@ -10,7 +11,7 @@ from . import auth, tasks, const
 from .models import Vote
 from .util import now
 
-logger = logging.getLevelName("biostar")
+logger = logging.getLogger("biostar")
 
 
 def get_ip(request):
@@ -20,7 +21,18 @@ def get_ip(request):
     return ip
 
 
+def benchmark(get_response, request):
+
+    start = time.time()
+    response = get_response(request)
+    delta = time.time() - start
+    logger.info(f'request: url={request.path} time={delta}')
+
+    return response
+
+
 def forum_middleware(get_response):
+
     def middleware(request):
         """
         This function is called on every request.
@@ -71,7 +83,10 @@ def forum_middleware(get_response):
             # Set the session.
             request.session[const.COUNT_DATA_KEY] = counts
 
-        response = get_response(request)
+        if settings.TIME_REQUESTS:
+            response = benchmark(get_response=get_response, request=request)
+        else:
+            response = get_response(request)
 
         tasks.create_user_awards.spool(user_id=user.id)
         # Can process response here after its been handled by the view

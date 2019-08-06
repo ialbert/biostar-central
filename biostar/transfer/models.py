@@ -153,7 +153,7 @@ class PostsVote(models.Model):
 
     @property
     def author(self):
-        return UsersUser.objects.filter(id=self.user_id).first()
+        return UsersUser.objects.filter(id=self.author_id).first()
 
     @property
     def post(self):

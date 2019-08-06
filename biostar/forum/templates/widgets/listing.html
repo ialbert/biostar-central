@@ -34,7 +34,9 @@
                     </div>
                     <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
                 </div>
-                {% subscription_label post.subs_count %}
+                {% if show_subs %}
+                    {% subscription_label post.subs_count %}
+                {% endif %}
             </div>
 
             <div class="content">

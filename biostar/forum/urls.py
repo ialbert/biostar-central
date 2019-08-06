@@ -13,6 +13,8 @@ urlpatterns = [
     # Main entry. Post listing.
     path('', views.latest, name='post_list'),
 
+    path('policy/', views.policy, name='policy'),
+
     path('votes/', views.myvotes, name='myvotes'),
     path('bookmarks/', views.bookmarks, name='bookmarks'),
     path('following/', views.following, name='following'),

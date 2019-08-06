@@ -17,10 +17,12 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
+# Log the time for each request
+TIME_REQUESTS = False
 
 # Indexing interval in seconds.
 INDEX_SECS_INTERVAL = 10
-# Number of results to limit searches to
+# Number of results to display.
 SEARCH_LIMIT = 20
 
 BATCH_INDEXING_SIZE = 1000
@@ -61,6 +63,9 @@ MIDDLEWARE += [
     'biostar.forum.middleware.forum_middleware',
 
 ]
+
+# Post types displayed when creating, empty list displays all types.
+ALLOWED_POST_TYPES = []
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:

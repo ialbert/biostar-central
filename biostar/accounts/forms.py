@@ -8,7 +8,7 @@ from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
 from django.conf import settings
 from .models import Profile
-from . import auth
+from . import auth, util
 
 
 logger = logging.getLogger("engine")
@@ -62,10 +62,6 @@ class SignUpForm(forms.Form):
         name = email.split("@")[0]
         user = User.objects.create(email=email, first_name=name)
         user.set_password(password)
-
-        # TODO: needs to change
-        user.username = name.split()[0] + str(user.profile.uid)
-        user.save()
 
         # Send
         auth.send_verification_email(user=user)

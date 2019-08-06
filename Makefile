@@ -22,7 +22,6 @@ INDEX_DIR := search
 # Recipes database to copy
 COPY_DATABASE := recipes.db
 
-
 all: recipes serve
 
 accounts:
@@ -31,6 +30,22 @@ accounts:
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
+
+
+bioconductor:
+	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
+	$(eval DJANGO_APP := biostar.forum)
+	$(eval UWSGI_INI := themes/bioconductor/conf/uwsgi.ini)
+	$(eval ANSIBLE_HOST := test.bioconductor.org)
+	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
+
+
+	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	@echo DJANGO_APP=${DJANGO_APP}
+	@echo UWSGI_INI=${UWSGI_INI}
+	@echo ANSIBLE_HOST=${ANSIBLE_HOST}
+	@echo ANSIBLE_ROOT=${ANSIBLE_ROOT}
+
 
 emailer:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.emailer.settings)
@@ -107,7 +122,7 @@ test_all:
 index:
 	@echo INDEX_NAME=${INDEX_NAME}
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	python manage.py index --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py index --settings ${DJANGO_SETTINGS_MODULE} --index 130000 --report
 
 reindex:
 	@echo INDEX_NAME=${INDEX_NAME}
@@ -154,9 +169,18 @@ next:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py job --next --settings ${DJANGO_SETTINGS_MODULE}
 
-push:
-	git commit -am "Update by `whoami` on `date` from `hostname`"
-	git push
+config:
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} config.yml --extra-vars -v)
+
+install:
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} install.yml --ask-become-pass --extra-vars -v)
+
+
+theme_transfer:
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} transfer.yml --ask-become-pass --extra-vars -v)
+
+theme_deploy:
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} deploy.yml --ask-become-pass --extra-vars -v)
 
 deploy:
 	(cd conf/ansible && ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass --extra-vars -v)

@@ -1,0 +1,115 @@
+---
+- hosts: all
+  user: www
+
+  environment:
+    PATH: "{{ lookup('env','PATH') }}:/home/www/miniconda3/bin/python3"
+
+  handlers:
+    - import_tasks: handlers.yml
+      static: yes
+
+  tasks:
+    - include_vars: vars.yml
+    - name: Set up bash profile
+      get_url:
+        url: http://data.biostarhandbook.com/install/bash_profile.txt
+        dest: ~/.bash_profile
+        mode: 0440
+
+    - name: Get bashrc from remote
+      get_url:
+        url: http://data.biostarhandbook.com/install/bashrc.txt
+        dest: ~/.handbookrc
+        mode: 0440
+
+    - name: Apply the biostar bash customizations
+      lineinfile:
+        dest: ~/.bashrc
+        line: source ~/.handbookrc
+
+    - name: Check if conda has already been installed
+      stat: path={{ conda_dir }}/bin/conda
+      register: bin_conda
+      changed_when: bin_conda.stat.exists == False
+
+    - name: Download conda installer
+      get_url:
+        url={{ conda_url }}
+        dest=/tmp/conda.sh
+        mode=0755
+      register: conda_downloaded
+      when: bin_conda.stat.exists == False
+
+    - name: Install conda
+      shell: "/tmp/conda.sh -b -p {{ conda_dir }} creates={{ conda_dir }} executable=/bin/bash"
+      register: conda_installed
+      when: conda_downloaded is success
+
+    - name: Create environments
+      shell: "{{ conda_dir }}/bin/conda create --yes -q -n {{ item.name }} python={{ item.python_version }} creates={{ conda_dir }}/envs/{{ item.name }}"
+
+      with_items: "{{conda_environments}}"
+
+    - name: Get the biostar-engine software
+      become: yes
+      git:
+        repo: "{{ engine_git }}"
+        dest: "{{ engine_dir }}"
+        update: yes
+
+    - name: Make the spooler directory
+      become: yes
+      file:
+        path: "{{ engine_dir }}/export/spooler"
+        state: directory
+        mode: 0755
+
+    - name: Initialize scripts
+      become: yes
+      copy:
+        remote_src: true
+        force: no
+        src: "{{ engine_dir }}//themes/bioconductor/conf/scripts/{{item}}"
+        dest: "{{ engine_dir }}/{{ item }}"
+        mode: u+rwx,g+rx,o+rx
+      with_items:
+        - migrate.sh
+        - reset.sh
+        - backup.sh
+
+    - name: Copy settings file to runtime directories
+      become: yes
+      copy:
+        remote_src: true
+        force: no
+        src: "{{ engine_dir }}/themes/bioconductor/conf/{{item}}"
+        dest: "{{ engine_dir }}/conf/run/{{ item }}"
+      with_items:
+        - nginx.conf
+        - supervisor.conf
+        - wsgi.py
+        - uwsgi.ini
+
+    - name: Initialize local secrets
+      become: yes
+      copy:
+        content: ""
+        dest: "{{ conf_dir }}/secrets.py"
+        force: no
+        mode: 0644
+
+    - name: Install python requirements
+      become: yes
+      shell: "source /home/www/miniconda3/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
+      args:
+        executable: /bin/bash
+        chdir: "{{ engine_dir }}"
+
+    - name: Install conda requirements
+      become: yes
+      shell: "source /home/www/miniconda3/etc/profile.d/conda.sh && conda activate {{conda_env}}  && echo 'y' | conda install --file conf/conda_requirements.txt"
+      args:
+        executable: /bin/bash
+        chdir: "{{ engine_dir }}"
+

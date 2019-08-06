@@ -47,7 +47,12 @@ def valid_tag(text):
 
 
 class PostLongForm(forms.Form):
-    choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
+
+    choices = [opt for opt in Post.TYPE_CHOICES]
+
+    choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES) if settings.ALLOWED_POST_TYPES else
+                                 (opt[0] in Post.TOP_LEVEL), choices)
+
     post_type = forms.IntegerField(label="Post Type",
                                    widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
                                    help_text="Select a post type.")

@@ -11,6 +11,8 @@ WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
 
 TRANSFER_DATABASE = os.environ.setdefault("TRANSFER_DATABASE", "transfer.db")
 
+print(f'DATABASE_NAME={DATABASE_NAME}, TRANSFER_NAME={TRANSFER_DATABASE}')
+
 DATABASES = {
 
     'default': {

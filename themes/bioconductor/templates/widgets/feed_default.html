@@ -1,0 +1,99 @@
+{% load forum_tags %}
+{% load accounts_tags %}
+
+<b>Recent ... </b>
+
+<div class="ui large wrap-text">
+
+    <div class="event">
+        <div class="ui container">
+                <div>Votes </div>
+                <div class="ui relaxed list" >
+                    {% for vote in recent_votes %}
+                       <div class="item spaced" >
+                            <a href="{% url 'post_view' vote.post.uid %}">{{ vote.post.title }}</a>
+                       </div>
+                    {% endfor %}
+                </div>
+        </div>
+    </div>
+
+<div class="ui divider"></div>
+
+    <div class="event">
+        <div class="ui container">
+                <span>Locations</span>
+                 <a href="{% url "community_list" %}">&bull;  All <i class="ui angle small double right icon"></i></a>
+
+                 <div class="ui relaxed list" >
+
+                    {% for profile in recent_locations %}
+                        <div class="item spaced" >
+                            <a href="{% url "user_profile"  profile.uid %}">
+                                <div class="ui avatar image">
+                                    <img class="ui centered image" src="{% gravatar user=profile.user size=50 %}">
+                                </div>
+                            </a>
+
+                            {{profile.location }}, <span class="muted">{{ profile.last_login|time_ago }}</span>
+                        </div>
+
+                    {% endfor %}
+                </div>
+        </div>
+    </div>
+
+<div class="ui divider"></div>
+
+    <div class="event">
+        <div class="ui container">
+            <span>Awards</span>
+            <a href="{% url 'badge_list' %}"> &bull;  All <i class="ui angle small double right icon"></i></a>
+
+                <div class="ui relaxed list" >
+                   {% for award in recent_awards %}
+
+                        <div class="item"  style="">
+                            <span>
+                                <a href="{% url 'badge_view' award.badge.uid %}">{{ award.badge.name }} <i class="{{ award.badge.icon }}"></i></a> to
+                                <a href="{% url "user_profile" award.user.profile.uid %}">
+                                    {{award.user.profile.name}}</a>
+                                <span>  {% user_icon user=award.user %}</span>
+                            </span>
+                        </div>
+
+                    {% endfor %}
+                </div>
+
+        </div>
+    </div>
+
+<div class="ui divider"></div>
+
+    <div class="event">
+        <div class="ui container">
+                <span>Replies </span>
+                <div class="ui relaxed list" >
+
+                    {% for replies in recent_replies %}
+
+                        <div class="item spaced">
+                            <a href="{% url "post_view" replies.uid %}"> {{ replies.title }}</a>
+                            by
+                            <a href="{% url "user_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}
+                            </a>
+
+                        <span>  {% user_icon user=replies.author %}</span>
+
+                        <div class="muted" style="">
+                            {{ replies.content |truncatechars:140 }}
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+        </div>
+    </div>
+
+</div>

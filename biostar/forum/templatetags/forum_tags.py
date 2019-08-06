@@ -52,6 +52,12 @@ def get_count(request, key, default=0):
     return value
 
 
+@register.filter
+def date_from_timestamp(timestamp):
+    date = datetime.fromtimestamp(timestamp)
+    return date
+
+
 @register.simple_tag(takes_context=True)
 def activate(context, state, target):
     label = "active" if state == target else ""
@@ -429,10 +435,10 @@ def get_thread_users(post, limit=5):
 
 
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
-def listing(context, posts=None):
+def listing(context, posts=None, show_subs=True):
     request = context["request"]
 
-    return dict(posts=posts, request=request)
+    return dict(posts=posts, request=request, show_subs=show_subs)
 
 
 @register.filter
@@ -520,10 +526,11 @@ def boxclass(post):
         style = "forum"
     elif post.type == Post.NEWS:
         style = "news"
-    elif post.answer_count:
-        style = "has_answers"
     else:
         style = "question"
+
+    if post.answer_count:
+        style += " has_answers"
 
     if post.has_accepted:
         modifier = "accepted answer" if post.type == Post.QUESTION else "accepted"

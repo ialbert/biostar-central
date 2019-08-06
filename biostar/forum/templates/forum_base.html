@@ -15,7 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     {# Set the favicon #}
-    <link rel="icon" href="{% static 'global/favicon.ico' %}" type="image/x-icon"/>
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
 
     {# Load JQuery. #}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -24,17 +24,18 @@
 
     {#  CSS compression. #}
     {% compress css %}
-        <link href="{% static 'global/semantic.min.css' %}" rel="stylesheet">
-        <link href="{% static 'global/prism-syntax.css' %}" rel="stylesheet">
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'prism.css' %}" rel="stylesheet">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
+        <link href="{% static 'theme.css' %}{% randparam %}" rel="stylesheet">
     {% endcompress %}
 
     {# Javascript compression. #}
     {% compress js %}
-        <script src="{% static 'global/semantic.min.js' %}"></script>
-        <script src="{% static 'global/prism-syntax.js' %}"></script>
-        <script src="{% static 'forum.js' %}{% randparam %}">
-        </script>
+        <script src="{% static 'semantic.min.js' %}"></script>
+        <script src="{% static 'prism.js' %}"></script>
+        <script src="{% static 'forum.js' %}{% randparam %}"></script>
+        <script src="{% static 'theme.js' %}{% randparam %}"></script>
     {% endcompress %}
 
      {# Extra header content that needs to be injected into the page. #}
@@ -56,17 +57,6 @@
 
     {% include "widgets/menu-header.html" %}
 
-    <!-- <div class="ui attached menu">
-        <div class="ui category search item" id="search">
-            <div class="ui transparent icon input">
-                <input class="prompt" type="text" placeholder="Search posts...">
-                <i class="search link icon"></i>
-            </div>
-            <div class="results"></div>
-        </div>
-    </div>
-    -->
-
     <div class="ui bottom attached  segment">
 
         {% show_messages messages %}
@@ -79,13 +69,7 @@
     </div>
 
     {% block footer %}
-        <div class="ui vertical center aligned basic segment">
-            <div class="smaller muted">
-                Powered by the <a href="https://github.com/ialbert/biostar-central" class="ui image">
-                <img src="{% static 'images/badge-forum.svg' %}"></a> version {{ VERSION }}
-            </div>
-
-        </div>
+        {% include 'widgets/footer.html' %}
     {% endblock %}
 </div>
 
