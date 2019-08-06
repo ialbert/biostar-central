@@ -68,7 +68,7 @@ AWARDS_FEED_COUNT = 5
 REPLIES_FEED_COUNT = 5
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'biostar.wsgi.application'
+WSGI_APPLICATION = "themes.bioconductor.conf.wsgi.application"
 
 # These parameters will be inserted into the database automatically.
 SITE_NAME = "support.bioconductor.org"
