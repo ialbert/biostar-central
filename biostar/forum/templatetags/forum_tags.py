@@ -60,7 +60,7 @@ def date_from_timestamp(timestamp):
     except Exception as exc:
         logger.error(f"Error converting date: {exc}")
         date = timestamp.date if hasattr(timestamp, 'date') else timestamp
-        
+
     return date
 
 
