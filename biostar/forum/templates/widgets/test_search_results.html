@@ -66,16 +66,15 @@
         <div class="ui relaxed divided list">
 
             {% for result in results %}
-                <a class="item" href="{{ result.url }}">
-                    <b>{{ result|highlight:'title' |truncatechars_html:100}}</b>
-                    <div class="muted">{{result.lastedit_date|date_from_timestamp}}</div>
-
+                <a class="item" href="{{ result.get_absolute_url }}">
+                    <b>{{ result.title|truncatechars:180|highlight:query|safe}}</b>
+                    <div class="muted">{{result.lastedit_date}}</div>
                     <div class="muted">
-                        {{ result|highlight:'content'|truncatechars_html:300}}
+                        {{ result.content|truncatechars:300|safe|truncatechars_html:300}}
                     </div>
                 </a>
-                    <a href="{{ result.author_url }}" style="">by {{ result.author }}
-                        {% user_icon user_uid=result.author_uid  %}
+                    <a href="{{ result.author.profile.get_absolute_url }}" style="">by {{ result.author.profile.name }}
+                        {% user_icon user_uid=result.author.profile.uid  %}
                     </a>
 
             {% endfor %}

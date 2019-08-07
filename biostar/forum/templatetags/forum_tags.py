@@ -305,18 +305,9 @@ def get_last_login(user):
 
 
 @register.filter
-def highlight(source, target):
-
-    # Look for case insensitive matches in the source
-    target = target.replace(" ", '')
-    highlighting = re.search(f"(?i){target}", source)
-
-    target = highlighting.group() if highlighting else target
-
-    # Highlight the target
-    highlighted = mark_safe(f"<span class='match'>{target}</span>")
-
-    return source.replace(target, highlighted)
+def highlight(hit, field):
+    lit = hit.highlights(field, top=5)
+    return mark_safe(lit) if len(lit) else hit[field]
 
 
 @register.inclusion_tag('widgets/feed_custom.html')
