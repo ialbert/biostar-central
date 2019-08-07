@@ -36,7 +36,7 @@ bioconductor:
 	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval UWSGI_INI := themes/bioconductor/conf/uwsgi.ini)
-	$(eval ANSIBLE_HOST := test.bioconductor.org)
+	$(eval ANSIBLE_HOST := supportupgrade.bioconductor.org)
 	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
 
 
