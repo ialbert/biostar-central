@@ -2,6 +2,7 @@ import hashlib
 import itertools
 import logging
 import random
+import re
 import urllib.parse
 from datetime import datetime
 from datetime import timedelta
@@ -304,9 +305,18 @@ def get_last_login(user):
 
 
 @register.filter
-def highlight(hit, field):
-    lit = hit.highlights(field, top=5)
-    return mark_safe(lit) if len(lit) else hit[field]
+def highlight(source, target):
+
+    # Look for case insensitive matches in the source
+    target = target.replace(" ", '')
+    highlighting = re.search(f"(?i){target}", source)
+
+    target = highlighting.group() if highlighting else target
+
+    # Highlight the target
+    highlighted = mark_safe(f"<span class='match'>{target}</span>")
+
+    return source.replace(target, highlighted)
 
 
 @register.inclusion_tag('widgets/feed_custom.html')
@@ -403,17 +413,17 @@ def relative_url(value, field_name, urlencode=None):
     """
     Updates field_name parameters in url with new value
     """
-    # Create query string with updated field_name, value pair.
+    # Create preform_search string with updated field_name, value pair.
     url = f'?{field_name}={value}'
     if urlencode:
-        # Split query string
+        # Split preform_search string
         querystring = urlencode.split('&')
-        # Exclude old value 'field_name' from query string
+        # Exclude old value 'field_name' from preform_search string
         filter_func = lambda p: p.split('=')[0] != field_name
         filtered_querystring = filter(filter_func, querystring)
         # Join the filtered string
         encoded_querystring = '&'.join(filtered_querystring)
-        # Update query string
+        # Update preform_search string
         url = f'{url}&{encoded_querystring}'
 
     return url

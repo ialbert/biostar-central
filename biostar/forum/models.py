@@ -65,7 +65,7 @@ class Post(models.Model):
     last_contributor = models.ForeignKey(User, related_name='contributor', null=True,
                                          on_delete=models.CASCADE)
 
-    # Store users contributing to the thread as "tags" to query later.
+    # Store users contributing to the thread as "tags" to preform_search later.
     thread_users = models.ManyToManyField(User, related_name="thread_users")
 
     # Indicates the information value of the post.

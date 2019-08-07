@@ -44,8 +44,8 @@ else:
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(CUSTOM_THEME, 'templates'), ],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(CUSTOM_THEME, 'templates'), os.path.join(BASE_DIR, 'biostar', 'forum', 'templates'),
+                 os.path.join(BASE_DIR, 'biostar', 'accounts', 'templates')],
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
@@ -56,7 +56,12 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'biostar.context.main',
             ],
-            #'loaders': [TEMPLATE_LOADERS]
+            'loaders': [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ]),
+            ]
         },
     },
 ]
@@ -83,7 +88,7 @@ EMAIL_FROM_PATTERN = u'''"%s [bioc]" <%s>'''
 # The subject of the reply goes here
 EMAIL_REPLY_SUBJECT = u"[bioc] %s"
 
-SEARCH_LIMIT = 80
+SEARCH_LIMIT = 60
 
 # On deployed servers the following must be set.
 EMAIL_HOST = ""

@@ -8,7 +8,9 @@
 
 {% block body %}
 
-{% search_bar %}
+{% block search %}
+    {% search_bar %}
+{% endblock %}
 
 {% with params=request.GET.urlencode %}
 <div class="ui horizontal basic top-menu segments">

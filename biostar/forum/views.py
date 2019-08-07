@@ -81,7 +81,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
-    # Determines how to start the query.
+    # Determines how to start the preform_search.
     if post_type:
         query = Post.objects.filter(type=post_type)
     elif topic == OPEN:
@@ -129,7 +129,6 @@ def post_list(request, show=None, extra_context=dict()):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
-
     # The user performing the request.
     user = request.user
 

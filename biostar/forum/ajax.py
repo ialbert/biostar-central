@@ -155,16 +155,20 @@ def close(r):
 def ajax_search(request):
 
     query = request.GET.get('query', '')
-    fields = ['content', 'tags', 'title', 'author', 'author_handle']
+    fields = ['content', 'tag_val', 'title', 'author__profile__uid', 'author__email',
+              'author__username', 'author__profile__name']
+
     sort_by = request.GET.get("sort_by", '')
+    #print(query)
+    #1/0
 
     if query:
-        results = search.query(q=query, fields=fields, sort_by=sort_by)
+        results = search.preform_query(query=query, fields=fields)
+
         tmpl = loader.get_template("widgets/search_results.html")
-        context = dict(results=results)
+        context = dict(results=results, query=query)
+
         results_html = tmpl.render(context)
-        # Ensure the searcher object gets closed.
-        close(results)
 
         return ajax_success(html=results_html, msg="success")
 
@@ -183,7 +187,7 @@ def ajax_feed(request):
 
     results = []
     # Retrieve this post from the search index.
-    indexed_post = search.query(q=post.uid, fields=['uid'])
+    indexed_post = search.preform_query(query=post.uid, fields=['uid'])
 
     if isinstance(indexed_post, Results) and not indexed_post.is_empty():
 
