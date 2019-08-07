@@ -1,39 +1,42 @@
 
 {%  block subject %}
 
-    [biostar-forum] Subscription
+    [Biostar] {{ post.title|truncatechars:60 }}
 
 {% endblock %}
 
-
 {% block html %}
 
-    <p>There is an addition to a post you are subscribed to: {{ post.root.title }}.</p>
+    Activity on a post you are following on <a href="http://{{ domain }}">Biostar support</a>
+    <p>
+        User <a href="http://{{ domain }}{{ post.author.profile.get_absolute_url }}">{{ post.author.profile.name }}</a> wrote
+        <a href="http://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>:
+    </p>
+    <p>
+        {{ post.html|safe }}
+    </p>
 
-    <p>{{ post.lastedit_user }} wrote on {{ post.lastedit_date }}:</p>
+    <hr>
+    <p style="color:#666666">
+        You may visit http://{{ domain }}{{ post.get_absolute_url }}
+    </p>
 
-    {{ post.html|safe }}
-
-    <p>{{ protocol }}://{{ domain }}:{{port}}</p>
-
-    <p>Sincerely,</p>
-    <p>The Biostar Team</p>
-
+    <p>The Biconductor Team</p>
 
 {% endblock %}
 
 {% block text %}
 
-    There is an addition to a post you are subscribed to: {{ post.root.title }}.
+    Activity on a post you are following on {{ domain }}
 
-    {{ post.lastedit_user }} wrote on {{ post.lastedit_date }}:
+    User {{ user.profile.name }} wrote {{ post.title }}:
 
-    {{post.content}}
+    {{ post.content }}
 
-    {{ protocol }}://{{ domain }}:{{port}}
+    You may visit http://{{ domain }}{{ post.get_absolute_url }}
 
-    Sincerely,
-    The Biostar Team
+    The Biconductor Team
+
 
 {% endblock %}
 

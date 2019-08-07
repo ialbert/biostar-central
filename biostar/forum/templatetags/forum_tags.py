@@ -4,7 +4,7 @@ import logging
 import random
 import re
 import urllib.parse
-from datetime import datetime
+import datetime
 from datetime import timedelta
 
 from django import template
@@ -55,11 +55,12 @@ def get_count(request, key, default=0):
 
 @register.filter
 def date_from_timestamp(timestamp):
+    timestamp = datetime.datetime.today()
     try:
         date = datetime.fromtimestamp(timestamp)
     except Exception as exc:
         logger.error(f"Error converting date: {exc}")
-        date = timestamp.date if hasattr(timestamp, 'date') else timestamp
+        date = f"{timestamp.date()}" if hasattr(timestamp, 'date') else timestamp
 
     return date
 
@@ -113,7 +114,7 @@ def inplace_form(post, width='100%'):
 
 
 def now():
-    return datetime.utcnow().replace(tzinfo=utc)
+    return datetime.datetime.utcnow().replace(tzinfo=utc)
 
 
 @register.simple_tag

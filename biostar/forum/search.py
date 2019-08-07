@@ -206,11 +206,6 @@ def sql_search(query, fields=['content']):
     return results
 
 
-def postgres_search(query, fields=['content']):
-
-    return
-
-
 def preform_query(query, fields=['content'], **kwargs):
     """
         Query the indexed, looking for a match in the specified fields.
