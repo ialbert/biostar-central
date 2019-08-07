@@ -5,12 +5,11 @@
 
 {% endblock %}
 
-
 {% block html %}
 
     Activity on a post you are following on <a href="http://{{ domain }}">Bioconductor support</a>
     <p>
-        User <a href="http://{{ domain }}{{ user.profile.get_absolute_url }}">{{ user.profile.name }}</a> wrote
+        User <a href="http://{{ domain }}{{ post.author.profile.get_absolute_url }}">{{ post.author.profile.name }}</a> wrote
         <a href="http://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>:
     </p>
     <p>
