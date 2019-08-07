@@ -184,7 +184,7 @@ LOGGER_NAME = "biostar"
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #EMAIL_BACKEND = 'sparkpost.django.email_backend.SparkPostEmailBackend'
 
-EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Session engine.
 SESSION_ENGINE = "django.contrib.sessions.backends.db"

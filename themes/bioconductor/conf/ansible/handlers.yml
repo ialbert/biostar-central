@@ -26,7 +26,6 @@
     - backup.sh
 
 - name: update git
-  become: yes
   git:
     repo: "{{ engine_git }}"
     dest: "{{ engine_dir }}"
