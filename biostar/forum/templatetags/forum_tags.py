@@ -55,7 +55,12 @@ def get_count(request, key, default=0):
 
 @register.filter
 def date_from_timestamp(timestamp):
-    date = datetime.fromtimestamp(timestamp)
+    try:
+        date = datetime.fromtimestamp(timestamp)
+    except Exception as exc:
+        logger.error(f"Error converting date: {exc}")
+        date = timestamp.date if hasattr(timestamp, 'date') else timestamp
+        
     return date
 
 
