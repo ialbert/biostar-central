@@ -11,6 +11,9 @@
             <a name="{{ post.uid }}"></a>
             {#  Post title. #}
             {{ post.get_type_display }}: {{ post.title }}
+        {% if post.is_editable %}
+            <a href="{% url 'post_edit' post.uid %}"><i class="edit icon"></i></a>
+        {% endif %}
 
         </div>
     {% endif %}
