@@ -324,6 +324,7 @@ $(document).ready(function () {
             tag_field.val(value);
     }
     });
+
     $('.tag-field >input.search').keydown(function(event) {
         // Prevent submitting form when adding tag by pressing ENTER.
         if (event.keyCode === 13){
@@ -404,7 +405,8 @@ $(document).ready(function () {
         edit_post(post_uid);
     });
 
-    $('.inplace-edit').click(function () {
+    var inplace_elem = $('.inplace-edit');
+    inplace_elem.click(function () {
         var post_uid = $(this).attr('post_uid');
         $('#inplace-' + post_uid).hide();
         $('#inplace-form-' + post_uid).show().focus();

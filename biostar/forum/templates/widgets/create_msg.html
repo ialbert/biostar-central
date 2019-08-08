@@ -1,3 +1,5 @@
+
+{% if answer %}
 <div class="ui info tablet message">
     <p><b>Note:</b> Answers should be used only as a response to the original post seen the top of the page!<br>
         Use the <span class="ui tiny label">ADD COMMENT</span> or <span
@@ -5,3 +7,9 @@
         embedded in each post to comment, to ask for clarifications, to request more details etc.
     </p>
 </div>
+
+{% else %}
+
+    Post Content
+
+{% endif %}

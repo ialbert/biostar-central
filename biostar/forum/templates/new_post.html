@@ -70,7 +70,7 @@
                 </div>
                 <div class="ui form-wrap segment">
                     <div class="required input field">
-                        <label>{{ form.content.label }}</label>
+                    {% include 'widgets/create_msg.html'%}
 
                         <div class="wmd-wrapper" id="{{ form.content.id_for_label }}-wmd-wrapper">
                             <div class="">
