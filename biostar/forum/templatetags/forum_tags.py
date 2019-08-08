@@ -55,7 +55,6 @@ def get_count(request, key, default=0):
 
 @register.filter
 def date_from_timestamp(timestamp):
-    timestamp = datetime.datetime.today()
     try:
         date = datetime.fromtimestamp(timestamp)
     except Exception as exc:
