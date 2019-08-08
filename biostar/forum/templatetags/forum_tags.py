@@ -101,6 +101,17 @@ def inplace_form(post, width='100%'):
     return context
 
 
+@register.inclusion_tag('widgets/post_user_line.html')
+def post_user_line(post, avatar=False):
+    return dict(post=post, avatar=avatar)
+
+
+@register.inclusion_tag('widgets/post_user_line.html')
+def post_search_line(post_uid, avatar=True):
+    post = Post.objects.filter(uid=post_uid).first()
+    return dict(post=post, avatar=avatar)
+
+
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
 
