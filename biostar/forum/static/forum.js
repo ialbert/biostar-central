@@ -195,6 +195,44 @@ function edit_post(post_uid) {
         })
 }
 
+
+function inplace_form(elem){
+
+    var inplace_url = '/ajax/inplace/';
+    var uid = elem.data("value");
+    var form_container = $('.inplace-'+ uid);
+
+    $.ajax(inplace_url,
+        {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'uid': uid,
+            },
+            success: function (data) {
+                if (data.status === 'error') {
+                    alert(data.status);
+                    alert(data.msg);
+                    popup_message(elem, data.msg, data.status, 3000);
+                } else {
+
+                    // Hide form
+                    //$('#inplace-form-' + post_uid).hide();
+                    elem.hide();
+                    form_container.html(data.inplace_form).show().focus();
+                    // Replace with edited data
+                    //$('#inplace-' + post_uid).html(data.msg).show().focus();
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        })
+}
+
+
+
 function  search(query, elem) {
     var search_url = '/ajax/search/';
     var res = $('#results');
@@ -301,14 +339,37 @@ $(document).ready(function () {
     });
 
     $('.inplace').click(function () {
-        // Hide content
+        if (event.metaKey) {
+            // Hide content
+            $(this).hide();
+            var post_uid = $(this).attr('post_uid');
+            // Exposes form
+            $('#inplace-form-' + post_uid).show().focus();
+        }
+
+    }).dblclick(function (event) {
+
         $(this).hide();
         var post_uid = $(this).attr('post_uid');
         // Exposes form
         $('#inplace-form-' + post_uid).show().focus();
+
     });
 
-    $('.inplace-form button.cancel').click(function (event) {
+
+    $('.editable').click(function (event) {
+
+         if (event.metaKey){
+             inplace_form($(this))
+         }
+
+    }).dblclick(function (event) {
+         // Hide content
+         inplace_form($(this))
+
+    });
+
+    $('.inplace-form .label.cancel').click(function (event) {
         event.preventDefault();
         var post_uid = $(this).closest('.inplace-form').attr('post_uid');
         // Hide form and show content
@@ -335,7 +396,8 @@ $(document).ready(function () {
 
     });
 
-    $('.inplace-form button.save').click(function () {
+    $('.inplace-form .label.save').click(function () {
+
         // Submit edit when clicking save
         event.preventDefault();
         var post_uid = $(this).closest('.inplace-form').attr('post_uid');

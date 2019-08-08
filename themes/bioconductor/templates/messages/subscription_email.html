@@ -1,13 +1,13 @@
 
 {%  block subject %}
 
-    [Biostar] {{ post.title|truncatechars:60 }}
+    [Biconductor] {{ post.title|truncatechars:60 }}
 
 {% endblock %}
 
 {% block html %}
 
-    Activity on a post you are following on <a href="http://{{ domain }}">Biostar support</a>
+    Activity on a post you are following on <a href="http://{{ domain }}">Bioconductor support</a>
     <p>
         User <a href="http://{{ domain }}{{ post.author.profile.get_absolute_url }}">{{ post.author.profile.name }}</a> wrote
         <a href="http://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>:

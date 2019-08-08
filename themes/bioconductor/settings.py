@@ -44,8 +44,8 @@ else:
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(CUSTOM_THEME, 'templates'), ],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(CUSTOM_THEME, 'templates')],
+        'APP_DIRS':True,
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
@@ -56,7 +56,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'biostar.context.main',
             ],
-            #'loaders': [TEMPLATE_LOADERS]
         },
     },
 ]
@@ -83,7 +82,7 @@ EMAIL_FROM_PATTERN = u'''"%s [bioc]" <%s>'''
 # The subject of the reply goes here
 EMAIL_REPLY_SUBJECT = u"[bioc] %s"
 
-SEARCH_LIMIT = 80
+SEARCH_LIMIT = 60
 
 # On deployed servers the following must be set.
 EMAIL_HOST = ""
@@ -91,6 +90,12 @@ EMAIL_PORT = ""
 EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_TLS = False
+
+AWS_ACCESS_KEY_ID = ''
+AWS_SECRET_ACCESS_KEY = ''
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 print(INDEX_DIR, INDEX_NAME, "INDEX")
 

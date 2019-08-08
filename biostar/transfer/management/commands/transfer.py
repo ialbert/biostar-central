@@ -68,7 +68,7 @@ def bulk_copy_users(limit):
         for index, user in stream:
             progress(index=index,  msg="users")
 
-            username = f'user-{user.id}'
+            username = f'{user.id}'
             # Create user
             new_user = User(username=username, email=user.email, password=user.password,
                             is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
@@ -335,76 +335,6 @@ def bulk_copy_subs(limit):
     elapsed(f"Updated {scount} subscription counts")
     return
 
-
-def test():
-    #bulk_copy_users(limit=10)
-    #bulk_copy_posts(limit=10)
-
-    #bulk_copy_subs(limit=10)
-    #return
-
-    # for user in UsersUser.objects.order_by('id')[:10]:
-    #     print(f"OLD : email={user.email}, id={user.id}")
-    #
-    #     u = User.objects.filter(profile__uid=user.id).first()
-    #     print(f"NEW : email={u.email}, uid={u.profile.uid}")
-    #     print('-'*10)
-    #
-    # u1 = UsersUser.objects.filter(id=2).first()
-    # u2 = User.objects.filter(profile__uid='2').first()
-    #
-    # print(u1.email, u2.email)
-
-    #return
-
-    #stream = foo()
-    #stream = islice(stream, 10)
-
-    #for p in stream:
-    #    print("-"*10)
-
-    #return
-
-    # for sub in Subscription.objects.all()[:100]:
-    #     s = PostsSubscription.objects.filter(id=sub.uid).first()
-    #     print(f"OLD : user_id={s.user.id}, email={sub.user.email}, post_id={s.post.id}, sub_id={s.id}, type={sub.type}, post_title ={s.post.title}")
-    #     print(f"NEW : user_uid={sub.user.profile.uid}, email={s.user.email}, post_uid={sub.post.uid}, sub_uid={sub.uid}, type={sub.type} post_title ={sub.post.title}")
-    #     print('-'*10)
-
-    subs = PostsSubscription.objects.filter(post_id=123260)
-    #seen = []
-    new_subs = Subscription.objects.filter(post__uid='123260')
-    #new_subs = Subscription.objects.filter(post_id=121146)
-    print(len(subs))
-
-    for sub in subs:
-        print(sub.id,  sub.user.email, sub.user.profile.message_prefs, sub.user.is_staff, sub.post.author_id, sub.post.author.email, sub.post.title, sub.type)
-        print(f"TAGS- profile={sub.user.profile.my_tags or sub.user.profile.watched_tags} post={sub.post.tag_val} digest prefs={sub.user.profile.digest_prefs}")
-    #return
-        print("-"*10)
-
-    #for i in new_subs:
-    #    print(i.uid, i.user.email,    i.user.profile.message_prefs, i.user.is_staff, i.post.author.profile.uid, i.post.author.email, i.post.title, i.type)
-    #    print(f"TAGS- profile={i.user.profile.my_tags}, post={i.post.tag_val}")
-
-        #print(User.objects.filter(pk=Subscription.objects.filter(post=i.post).first().user.pk).email,
-        #                          i.post.author.pk, i.post.author.email, )
-    #posts = Post.objects.filter(id=121146)
-    #print(posts)
-
-    #for post in posts:
-    #    print(post)
-    return
-
-    for post, subs in stream:
-        old_subs = PostsSubscription.objects.filter(post_id=int(post.uid)).count()
-        print(post, post.subs_count, old_subs)
-        for sub in subs:
-            print(sub, sub.get_type_display())
-        print('-' * 10)
-    return
-
-
 class Command(BaseCommand):
     help = "Migrate users from one database to another."
 
@@ -423,8 +353,8 @@ class Command(BaseCommand):
         load_subs = options["subs"]
         limit = options.get("limit") or LIMIT
 
-        test()
-        return
+        #test()
+        #return
 
         if load_posts:
             bulk_copy_posts(limit=limit)

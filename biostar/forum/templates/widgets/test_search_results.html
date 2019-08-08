@@ -1,22 +1,11 @@
-{% extends "forum_list.html" %}
 {% load forum_tags %}
-{% load humanize %}
-{% block headtitle %}
-    Biostar Forum
-{% endblock %}
 
-
-{% block body %}
-
-{% block search %}
-    {% search_bar %}
-{% endblock %}
+{% if results %}
+    <div class="ui search-results segment">
 
 {% with params=request.GET.urlencode %}
-<div class="ui horizontal basic top-menu segments">
 
-    <div class="ui first segment">
-        <div class="ui small compact menu no-shadow" >
+        <div class="ui small compact menu" >
           <div class="ui simple dropdown item">
             <i class="{% get_icon string=limit default='all' %}"></i>
             <span class="tablet">{% get_wording prefix="Limit to:" filtered=limit default="all" %}</span>
@@ -41,14 +30,10 @@
             </div>
           </div>
         </div>
-    </div>
 
-    <div class="ui page-bar segment">
-            {% pages objs=posts %}
-    </div>
 
-    <div class="ui third segment">
-        <div class="ui small compact menu no-shadow float-right">
+
+        <div class="ui small compact menu float-right">
               <div class="ui simple dropdown item">
 
                 <i class="{% get_icon string=order default='rank' %}"></i>
@@ -76,37 +61,28 @@
                 </div>
               </div>
         </div>
-    </div>
-</div>
 
-{% endwith %}
+    {% endwith %}
+        <div class="ui relaxed divided list">
 
-    {% if tag  %}
-        <div class="ui blue filter message">
-            Showing : <code>{{tag}}</code>  &bull; <a href="{% url 'post_list' %}">reset <i class="undo small icon"></i></a>
+            {% for result in results %}
+                <a class="item" href="{{ result.get_absolute_url }}">
+                    <b>{{ result.title|truncatechars:180}}</b>
+                    <div class="muted">{{result.lastedit_date}}</div>
+                    <div class="muted">
+                        {{ result.content|truncatechars:300|safe|truncatechars_html:300}}
+                    </div>
+                </a>
+                    <a href="{{ result.author.profile.get_absolute_url }}" style="">by {{ result.author.profile.name }}
+                        {% user_icon user_uid=result.author.profile.uid  %}
+                    </a>
+
+            {% endfor %}
         </div>
-    {% endif %}
-
-    {% listing posts=posts %}
-
-<div class="ui horizontal basic top-menu segments">
-    <div class="ui page-bar segment">
-
-    {% pages objs=posts %}
     </div>
-</div>
-
-
-{% endblock %}
-
-{%  block sidebar %}
-
-    {% if tab == 'following' %}
-        {% custom_feed feed_type=tab objs=posts title='People you are following'%}
-    {% elif tab == 'bookmarks' %}
-        {% custom_feed feed_type=tab objs=posts title='People you have bookmarked'%}
-    {% else %}
-        {%  default_feed user=request.user %}
-    {% endif %}
-{%  endblock %}
-
+{% else %}
+    <div class="ui blue search message">
+        <i class="info icon"></i>
+        No results found.
+    </div>
+{% endif %}

@@ -23,6 +23,10 @@ body {
     box-shadow: none!important;
 }
 
+.ui.pointing.menu .active.item:after {
+    background-color: #FBFDEB;
+}
+
 #menu-header .item:not(:first-child) {
 
 }
@@ -207,7 +211,9 @@ a:hover {
 .wrap {
     overflow: auto;
 }
-
+.editable-form{
+    width: 100%;
+}
 .inplace-form.comment{
     display:none;
     width: 100%;
@@ -433,7 +439,9 @@ img {
 .float-right {
     float: right;
 }
-
+.float-left {
+    float: left;
+}
 .accepted.label {
    color:#E1E818!important;
 

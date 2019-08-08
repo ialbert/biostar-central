@@ -35,6 +35,10 @@ body {
     color: white;
 }
 
+.match{
+    width: max-content;
+}
+
 
 .ui.question.has_answers.label {
     background-color: #1881C2!important;

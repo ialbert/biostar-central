@@ -53,7 +53,6 @@
             {# Display post author. #}
             {% post_user_box user=post.author post=post %}
 
-
                 {# Display post content. #}
                 {% if post.is_editable %}
 
@@ -62,6 +61,14 @@
                     <span class="pointer inplace" id="inplace-{{ post.uid }}" post_uid="{{ post.uid }}">
                     {{ post.html|safe }}
                     </span>
+
+{##}
+{#                    <div class="editable" data-value="{{ post.uid }}">#}
+{#                    {{ post.html|safe }}#}
+{#                    </div>#}
+{#                    <div>#}
+{#                    <div class="editable-form inplace-{{ post.uid }}"></div>#}
+{#                    </div>#}
 
                 {% else %}
                     {{ post.html|safe }}
