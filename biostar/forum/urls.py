@@ -37,7 +37,7 @@ urlpatterns = [
     path('ajax/edit/', ajax.ajax_edit, name='ajax_edit'),
     path('ajax/search/', ajax.ajax_search, name='ajax_search'),
     path('ajax/feed/', ajax.ajax_feed, name='ajax_feed'),
-
+    path('ajax/inplace/', ajax.ajax_inplace, name='ajax_inplace'),
     path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
 
     # Community urls

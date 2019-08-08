@@ -44,8 +44,8 @@ else:
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(CUSTOM_THEME, 'templates'), os.path.join(BASE_DIR, 'biostar', 'forum', 'templates'),
-                 os.path.join(BASE_DIR, 'biostar', 'accounts', 'templates')],
+        'DIRS': [os.path.join(CUSTOM_THEME, 'templates')],
+        'APP_DIRS':True,
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
@@ -56,12 +56,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'biostar.context.main',
             ],
-            'loaders': [
-                ('django.template.loaders.cached.Loader', [
-                    'django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader',
-                ]),
-            ]
         },
     },
 ]

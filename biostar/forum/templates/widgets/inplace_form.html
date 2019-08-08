@@ -5,8 +5,11 @@
     <div class="inline field">
         <textarea style="width:{{ width }}" rows="{{ rows }}">{{ post.content }}</textarea>
     </div>
-    <div class="top-padding">
-        <button class="ui small green save button"><i class="check icon"></i> Save</button>
-        <button class="ui small orange right floated cancel button"><i class="undo icon"></i> Cancel</button>
+    <div class="top-padding" style="text-align: center">
+
+        <a class="ui small tiny  float-left label save"><i class="check icon"></i> Save</a>
+        <span class="muted" style="font-size: small;">Markdown welcome. CTRL + ENTER submits form. </span>
+        <a class="ui small float-right tiny label cancel"><i class="undo icon"></i> Cancel</a>
+
     </div>
 </form>

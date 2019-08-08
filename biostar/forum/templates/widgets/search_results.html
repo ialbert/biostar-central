@@ -68,7 +68,7 @@
             {% for result in results %}
                 <a class="item" href="{{ result.url }}">
                     <b>{{ result|highlight:'title' |truncatechars_html:100}}</b>
-                    <div class="muted">{{result.lastedit_date|date_from_timestamp}}</div>
+                    <div class="muted">{{result.lastedit_date}}</div>
 
                     <div class="muted">
                         {{ result|highlight:'content'|truncatechars_html:300}}

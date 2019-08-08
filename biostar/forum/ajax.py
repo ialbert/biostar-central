@@ -144,6 +144,25 @@ def ajax_edit(request):
     return ajax_success(msg=post.html)
 
 
+@ajax_error_wrapper(method="GET")
+def ajax_inplace(request):
+
+    uid = request.GET.get("uid")
+    post = Post.objects.filter(uid=uid).first()
+
+    print(post,uid, type(uid), "WE ARE HERE")
+    if not post:
+        return ajax_error(msg="Post does not exist")
+
+    tmpl = loader.get_template("widgets/inplace_form.html")
+    # tmpl = loader.get_template("widgets/test_search_results.html")
+    context = dict(post=post)
+
+    inplace_form = tmpl.render(context)
+
+    return ajax_success(msg="success", inplace_form=inplace_form)
+
+
 def close(r):
     # Ensure the searcher object gets closed.
     r.searcher.close() if isinstance(r, Results) else None
@@ -163,13 +182,15 @@ def ajax_search(request):
     #1/0
 
     if query:
-        results = search.preform_query(query=query, fields=fields)
+
+        results = search.search(query=query, fields=fields)
 
         tmpl = loader.get_template("widgets/search_results.html")
+        #tmpl = loader.get_template("widgets/test_search_results.html")
         context = dict(results=results, query=query)
 
         results_html = tmpl.render(context)
-
+        logger.info("Finished rendering results.")
         return ajax_success(html=results_html, msg="success")
 
     return ajax_success(html="", msg="success")
@@ -187,7 +208,7 @@ def ajax_feed(request):
 
     results = []
     # Retrieve this post from the search index.
-    indexed_post = search.preform_query(query=post.uid, fields=['uid'])
+    indexed_post = search.preform_search(query=post.uid, fields=['uid'])
 
     if isinstance(indexed_post, Results) and not indexed_post.is_empty():
 

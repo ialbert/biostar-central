@@ -53,17 +53,6 @@ def get_count(request, key, default=0):
     return value
 
 
-@register.filter
-def date_from_timestamp(timestamp):
-    try:
-        date = datetime.fromtimestamp(timestamp)
-    except Exception as exc:
-        logger.error(f"Error converting date: {exc}")
-        date = f"{timestamp.date()}" if hasattr(timestamp, 'date') else timestamp
-
-    return date
-
-
 @register.simple_tag(takes_context=True)
 def activate(context, state, target):
     label = "active" if state == target else ""

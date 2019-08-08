@@ -191,14 +191,36 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     return
 
 
-def sql_search(query, fields=['content']):
+def sql_search(search_fields, query_string):
+    """search_fields example: ['name', 'category__name', '@description', '=id']
+    """
+
+    query_string = query_string.strip()
+
+    filters = []
+
+    query_list = [s for s in smart_split(query_string) if s not in STOP]
+    for bit in query_list:
+
+        queries = [Q(**{f"{field_name}__icontains": bit}) for field_name in search_fields]
+        filters.append(reduce(Q.__or__, queries))
+
+    filters = reduce(Q.__and__, filters) if len(filters) else Q(pk=None)
+
+    results = Post.objects.filter(filters)
+    logger.info("Finished filtering for posts.")
+    return results
+
+
+def postgres_search(query, fields=['content']):
     query_string = query.strip()
 
-    vector = SearchVector('title')
+    vector = SearchVector('title') + SearchVector('content')
 
     # List of Q() filters used to preform search
     filters = reduce(SearchQuery.__or__, [SearchQuery(s) for s in smart_split(query_string)])
 
+    print(filters, "filters", "*"*10)
     #vector = SearchVector('title') + SearchVector('content')
 
     results = Post.objects.annotate(search=vector).filter(search=filters)
@@ -206,7 +228,7 @@ def sql_search(query, fields=['content']):
     return results
 
 
-def preform_query(query, fields=['content'], **kwargs):
+def preform_search(query, fields=['content'], **kwargs):
     """
         Query the indexed, looking for a match in the specified fields.
         Results a tuple of results and an open searcher object.
@@ -239,11 +261,12 @@ def preform_query(query, fields=['content'], **kwargs):
     # results.fragmenter.charlimit = None
     # Show more context before and after
     results.fragmenter.surround = 100
+    logger.info("Preformed index search")
 
     return results
 
 
-def preform_search(query='', sort_by='', fields=['content'], **kwargs):
+def preform_query(query='', sort_by='', fields=['content'], **kwargs):
     """
     Query the indexed, looking for a match in the specified fields.
     Results a tuple of results and an open searcher object.
@@ -256,12 +279,18 @@ def preform_search(query='', sort_by='', fields=['content'], **kwargs):
     #if 'postgres' in settings.DATABASES['default']['ENGINE']:
     #    results = postgres_search(query=query)
     #else:
-    results = sql_search(query=query, fields=fields)
-
+    results = postgres_search(query=query, fields=fields)
+    #results = sql_search(search_fields=fields, query_string=query)
     results = results.order_by('type', '-rank')
     results = results[:settings.SEARCH_LIMIT]
 
     #print(results)
     #1/0
+    logger.info("Preformed db query")
+    return results
 
+
+def search(query, fields=['content']):
+    #results = preform_query(query=query, fields=fields)
+    results = preform_search(query=query, fields=fields)
     return results

@@ -67,7 +67,7 @@
 
             {% for result in results %}
                 <a class="item" href="{{ result.get_absolute_url }}">
-                    <b>{{ result.title|truncatechars:180|highlight:query|safe}}</b>
+                    <b>{{ result.title|truncatechars:180}}</b>
                     <div class="muted">{{result.lastedit_date}}</div>
                     <div class="muted">
                         {{ result.content|truncatechars:300|safe|truncatechars_html:300}}
