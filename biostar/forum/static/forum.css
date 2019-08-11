@@ -219,6 +219,7 @@ a:hover {
 .list-avatar:hover{
   /*border: 1px solid;*/
   box-shadow: 1px 4px 3px #888888;
+  color: red;
 }
 
 .clearfix::after {
