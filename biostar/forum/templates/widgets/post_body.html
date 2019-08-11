@@ -54,24 +54,23 @@
 
             <div class="wrap">
             {# Display post author. #}
-            {% post_user_box user=post.author post=post %}
-
+            <div class="actions-collapse-{{ post.uid }}">
+                {% post_user_box user=post.author post=post %}
+            </div>
                 {# Display post content. #}
                 {% if post.is_editable %}
 
-                    {% inplace_form post=post width="605px"%}
-
-                    <span class="pointer inplace" id="inplace-{{ post.uid }}" post_uid="{{ post.uid }}">
-                    {{ post.html|safe }}
-                    </span>
-
+{#                    {% inplace_form post=post width="605px"%}#}
 {##}
-{#                    <div class="editable" data-value="{{ post.uid }}">#}
+{#                    <span class="pointer inplace" id="inplace-{{ post.uid }}" post_uid="{{ post.uid }}">#}
 {#                    {{ post.html|safe }}#}
-{#                    </div>#}
-{#                    <div>#}
-{#                    <div class="editable-form inplace-{{ post.uid }}"></div>#}
-{#                    </div>#}
+{#                    </span>#}
+
+                    <div class="editable" id="content-{{ post.uid }}" data-value="{{ post.uid }}">
+                    {{ post.html|safe }}
+                    </div>
+                    <div class="editable-form" id="editing-{{ post.uid }}" data-value="{{ post.uid }}"></div>
+
 
                 {% else %}
                     {{ post.html|safe }}
@@ -79,7 +78,7 @@
 
 
             </div>
-
+        <div class="actions-collapse-{{ post.uid }}">
             {# Show tags #}
             {% if post.is_toplevel %}
                 {% post_tags post=post show_views=True %}
@@ -95,8 +94,9 @@
             <div id="comment-insert-{{ post.uid }}"></div>
 
             {# Render all comments #}
-            {% render_comments tree=tree post=post %}
+         </div>
 
+         {% render_comments tree=tree post=post %}
         </div>
 
     </div>

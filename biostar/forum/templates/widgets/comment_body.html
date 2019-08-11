@@ -21,15 +21,18 @@
         <div class="content">
 
             {% if post.is_editable %}
-                {% inplace_form post=post %}
-                <span class="pointer inplace" id="inplace-{{ post.uid }}" post_uid="{{ post.uid }}" >
+
+                    <div class="editable" id="content-{{ post.uid }}" data-value="{{ post.uid }}">
                     {{ post.html|safe }}
-                </span>
+                    </div>
+                    <div class="editable-form" id="editing-{{ post.uid }}" data-value="{{ post.uid }}"></div>
+
             {% else %}
                 {{ post.html|safe }}
             {% endif %}
+        <div class="actions-collapse-{{ post.uid }}">
             {% post_actions post=post label="ADD REPLY" avatar=True %}
-
+        </div>
         </div>
 
     </div>

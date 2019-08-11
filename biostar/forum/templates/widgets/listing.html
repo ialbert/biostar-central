@@ -58,7 +58,7 @@
                     {% for extra_user in extra_users %}
                         <a class="ui mini avatar list-avatar image"
                            href="{% url "user_profile" extra_user.profile.uid %}">
-                            <img src="{% gravatar user=extra_user size=50 %}">
+                            <img src="{% gravatar user=extra_user size=90 %}">
                         </a>
                     {% endfor %}
 

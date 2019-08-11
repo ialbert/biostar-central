@@ -252,10 +252,11 @@ def preform_search(query, fields=['content'], **kwargs):
     # and OR filter, eg. 'foo bar' == 'foo OR bar'
     orgroup = OrGroup
 
-    sort_by = [post_type, rank, thread, default, profile_score]
+    #sort_by = sort_by or [post_type, rank, thread, default, profile_score]
+    #sort_by = [lastedit_date]
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(query)
-    results = searcher.search(parser, sortedby=sort_by, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
+    results = searcher.search(parser, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
     # Allow larger fragments
     results.fragmenter.maxchars = 100
     # results.fragmenter.charlimit = None

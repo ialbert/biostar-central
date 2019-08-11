@@ -211,19 +211,15 @@ a:hover {
 .wrap {
     overflow: auto;
 }
-.editable-form{
-    width: 100%;
-}
-.inplace-form.comment{
-    display:none;
-    width: 100%;
+
+.edit-form{
+    padding-bottom: 10px;
 }
 
-.inplace-form.post{
-    display:none;
-    width: fit-content;
+.list-avatar:hover{
+  /*border: 1px solid;*/
+  box-shadow: 1px 10px 15px #888888;
 }
-
 
 .clearfix::after {
   content: "";

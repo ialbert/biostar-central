@@ -1,15 +1,29 @@
+{% load staticfiles %}
+{% load forum_tags %}
 
-<form class="ui compact form {% if post.type == post.COMMENT %}comment{%else %}post{% endif %} inplace-form"
-      post_uid="{{ post.uid }}" id="inplace-form-{{ post.uid }}">
 
-    <div class="inline field">
-        <textarea style="width:{{ width }}" rows="{{ rows }}">{{ post.content }}</textarea>
-    </div>
-    <div class="top-padding" style="text-align: center">
+    <form class="ui edit-form compact form" data-value="{{ post.uid }}" id="edit-form-{{ post.uid }}">
 
-        <a class="ui small float-left label save"><i class="check icon"></i> Save</a>
-        <span class="muted" style="font-size: small;">Markdown welcome. CTRL + ENTER submits form and ESC to escape. </span>
-        <a class="ui float-right small label cancel"><i class="undo icon"></i> Cancel</a>
+        <div id="content-{{ post.uid }}_wmd_button_bar"></div>
 
-    </div>
-</form>
+        <div class="inline field">
+            <textarea id="content-{{ post.uid }}" data-value="{{ post.uid }}" rows="{{ rows }}">{{ post.content }}</textarea>
+        </div>
+
+        <div class="ui segment" style="background-color: #fcfcfc">
+            <b style="font-size: 11px;">HTML Preview</b>
+            <div class="ui divider"></div>
+            <div id="html-preview-{{ post.uid }}">{{ post.html|safe }}</div>
+        </div>
+
+        <div class="top-padding" style="text-align: center">
+
+            <a class="ui float-left label save" data-value="{{ post.uid }}"><i class="check icon"></i> Save</a>
+            <span class="muted" style="font-size: small;">CTRL + ENTER submits form and ESC exits. </span>
+            <a class="ui float-right label cancel" data-value="{{ post.uid }}"><i class="undo icon"></i> Cancel</a>
+
+        </div>
+    </form>
+
+
+

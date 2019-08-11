@@ -27,11 +27,11 @@
 
                     {% for profile in recent_locations %}
                         <div class="item spaced" >
-                            <a href="{% url "user_profile"  profile.uid %}">
-                                <div class="ui avatar image">
-                                    <img class="ui centered image" src="{% gravatar user=profile.user size=50 %}">
-                                </div>
-                            </a>
+                        <span>
+                        <a class="ui mini avatar list-avatar image" href="{% url "user_profile" profile.uid %}">
+                            <img src="{% gravatar user=profile.user size=90 %}">
+                        </a>
+                        </span>
 
                             {{profile.location }}, <span class="muted">{{ profile.last_login|time_ago }}</span>
                         </div>

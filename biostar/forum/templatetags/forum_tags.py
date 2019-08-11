@@ -163,6 +163,11 @@ def user_icon(user=None, user_uid=None):
 def post_user_line(post, avatar=False):
     return dict(post=post, avatar=avatar)
 
+@register.inclusion_tag('widgets/post_user_line.html')
+def postuid_user_line(uid, avatar=True):
+    post = Post.objects.filter(uid=uid).first()
+    return dict(post=post, avatar=avatar)
+
 
 @register.inclusion_tag('widgets/user_card.html')
 def user_card(user):

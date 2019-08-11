@@ -17,7 +17,7 @@ DATABASES = {
         'PORT': '',
     },
 }
-print(DATABASE_NAME, "DATABASE_NAME")
+
 HTTP_PROTOCOL = "http"
 
 # Post types displayed when creating, empty list displays all types.
