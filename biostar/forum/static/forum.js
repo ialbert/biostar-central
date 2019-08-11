@@ -206,18 +206,15 @@ function edit_post(uid) {
 function cancel_inplace(uid){
 
     var form_container = $('#editing-' + uid);
-    var user_box_elem = $('.user-collapse-' + uid);
     var content = $('#content-' + uid);
     var actions_box =  $('.actions-collapse-' +uid);
 
     //Delete the form
     form_container.html("");
     // Hide the container
-    //form_container.transition('fade up');
     // Show original content
     content.show();
     //Show any blocked element
-    user_box_elem.show();
     actions_box.show()
 }
 
@@ -226,7 +223,6 @@ function inplace_form(elem){
     var inplace_url = '/ajax/inplace/';
     var uid = elem.data("value");
     var form_container = $('#editing-'+ uid);
-    var user_box_elem = $('.user-collapse-'+ uid);
     var actions_box =  $('.actions-collapse-' + uid);
 
     $.ajax(inplace_url,
@@ -243,20 +239,10 @@ function inplace_form(elem){
                     alert(data.msg);
                     popup_message(elem, data.msg, data.status, 3000);
                 } else {
-
-                    // Hide form
-                    //$('#inplace-form-' + post_uid).hide();
-
                     elem.hide();
-                    user_box_elem.hide();
                     actions_box.hide();
                     form_container.html(data.inplace_form);
                     form_container.show();
-
-                    //content_field.value = data.content).show().focus();
-
-                    // Replace with edited data
-                    //$('#inplace-' + post_uid).html(data.msg).show().focus();
                 }
             },
             error: function (xhr, status, text) {
