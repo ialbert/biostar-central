@@ -381,6 +381,12 @@ $(document).ready(function () {
          inplace_form($(this))
     });
 
+    $('.inplace-edit').click(function (event) {
+        var uid = $(this).data('value');
+        var elem = $('#content-' + uid);
+        inplace_form(elem)
+    });
+
     $(this).on('keyup', '.edit-form textarea', function (event) {
 
         var uid = $(this).data('value');
