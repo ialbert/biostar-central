@@ -179,7 +179,7 @@ def ajax_search(request):
     if query:
 
         results = search.search(query=query, fields=fields)
-        #results = sorted(results, key=lambda x: x['lastedit_date'], reverse=True)
+        results = sorted(results, key=lambda x: x['lastedit_date'], reverse=True)
 
         tmpl = loader.get_template("widgets/search_results.html")
         #tmpl = loader.get_template("widgets/test_search_results.html")
