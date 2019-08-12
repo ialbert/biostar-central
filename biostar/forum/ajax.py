@@ -207,7 +207,7 @@ def ajax_tags_search(request):
     if query:
         db_query = Q(name__in=query) | Q(name__contains=query)
 
-        results = Tag.objects.annotate(num_posts=Count('post')).order_by('-num_posts').filter(db_query)
+        results = Tag.objects.annotate(tagged=Count('post')).order_by('-tagged').filter(db_query)
         tmpl = loader.get_template("widgets/search_results.html")
         context = dict(results=results, query=query, tags=True)
         results_html = tmpl.render(context)
