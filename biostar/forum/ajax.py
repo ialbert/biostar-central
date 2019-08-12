@@ -174,12 +174,7 @@ def close(r):
 def ajax_search(request):
 
     query = request.GET.get('query', '')
-    fields = ['content', 'tag_val', 'title', 'author__profile__uid', 'author__email',
-              'author__username', 'author__profile__name']
-
-    sort_by = request.GET.get("sort_by", '')
-    #print(query)
-    #1/0
+    fields = ['content', 'tag_val', 'title', 'author', 'author_uid', 'author_handle']
 
     if query:
 
