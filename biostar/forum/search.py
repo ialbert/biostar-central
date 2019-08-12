@@ -97,7 +97,7 @@ def get_schema():
                     author=TEXT(stored=True),
                     author_score=NUMERIC(stored=True, sortable=True),
                     author_handle=TEXT(stored=True),
-                    author_emaill=TEXT(stored=True),
+                    author_email=TEXT(stored=True),
                     author_uid=ID(stored=True),
                     author_url=ID(stored=True),
                     uid=ID(stored=True),

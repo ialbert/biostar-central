@@ -314,7 +314,6 @@ def highlight(hit, field):
     lit = hit.highlights(field, top=5)
     return mark_safe(lit) if len(lit) else hit[field]
 
-
 @register.inclusion_tag('widgets/feed_custom.html')
 def custom_feed(objs, feed_type='', title=''):
     users = ()
