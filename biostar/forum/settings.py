@@ -27,6 +27,9 @@ INDEX_SECS_INTERVAL = 10
 # Number of results to display.
 SEARCH_LIMIT = 20
 
+# Minimum amount of characters to preform searches
+SEARCH_CHAR_MIN = 1
+
 BATCH_INDEXING_SIZE = 1000
 
 VOTE_FEED_COUNT = 10

@@ -3,12 +3,14 @@ import logging
 from ratelimit.decorators import ratelimit
 
 from django.conf import settings
+from django.db.models import Q, Count
 from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from whoosh.searching import Results
 from whoosh.sorting import FieldFacet, ScoreFacet
 from .const import *
+from taggit.models import Tag
 from . import auth, util, forms, tasks, search
 from .models import Post, Vote, Subscription
 
@@ -189,7 +191,29 @@ def ajax_search(request):
         close(results)
         return ajax_success(html=results_html, msg="success")
 
-    return ajax_success(html="", msg="success")
+    return ajax_success(msg="Empty query, Enter atleast", status="error")
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+def ajax_tags_search(request):
+
+    query = request.GET.get('query', '')
+    #fields = ['content', 'tag_val', 'title', 'author', 'author_uid', 'author_handle']
+
+    if len(query) < settings.SEARCH_CHAR_MIN:
+        return ajax_error(msg=f"Enter more than {settings.SEARCH_CHAR_MIN} characters")
+
+    if query:
+        db_query = Q(name__in=query) | Q(name__contains=query)
+
+        results = Tag.objects.annotate(num_posts=Count('post')).order_by('-num_posts').filter(db_query)
+        tmpl = loader.get_template("widgets/search_results.html")
+        context = dict(results=results, query=query, tags=True)
+        results_html = tmpl.render(context)
+        return ajax_success(html=results_html, msg="success")
+
+    return ajax_success(msg="")
 
 
 def ajax_feed(request):

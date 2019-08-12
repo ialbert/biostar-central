@@ -3,27 +3,93 @@
 {% load forum_tags %}
 
 {% block content %}
+    {% url 'ajax_tags_search' as search_url %}
 
+        {% search_bar search_url=search_url tags=True %}
+{% with params=request.GET.urlencode %}
+<div class="ui horizontal basic top-menu segments">
 
-<div class="tags">
-    <div class="center-text">
+    <div class="ui first segment">
+        <div class="ui small compact menu no-shadow" >
+          <div class="ui simple dropdown item">
+            <i class="{% get_icon string=limit default='all' %}"></i>
+            <span class="tablet">{% get_wording prefix="Limit to:" filtered=limit default="all" %}</span>
+            <i class="dropdown icon"></i>
+
+            <div class="menu">
+                  <a class="item" href="{% url 'tags_list' %}{% relative_url 'all' 'limit' params %}">
+                      <i class="{% get_icon 'all' %}"></i>all time
+                  </a>
+                  <a class="item" href="{% url 'tags_list' %}{% relative_url 'today' 'limit' params %}">
+                      <i class="{% get_icon 'today' %}"></i>today
+                  </a>
+                  <a class="item" href="{% url 'tags_list' %}{% relative_url 'week' 'limit' params %}">
+                      <i class="{% get_icon 'week' %}"></i>this week
+                  </a>
+                  <a class="item" href="{% url 'tags_list' %}{% relative_url 'month' 'limit' params %}">
+                      <i class="{% get_icon 'month' %}"></i>this month
+                  </a>
+                  <a class="item" href="{% url 'tags_list' %}{% relative_url 'year' 'limit' params %}">
+                      <i class="{% get_icon 'year' %}"></i>this year
+                  </a>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="ui page-bar segment">
             {% pages objs=tags %}
     </div>
 
-<div class="ui celled horizontal list">
+    <div class="ui third segment">
+        <div class="ui small compact menu no-shadow float-right">
+              <div class="ui simple dropdown item">
 
-    {% for tag in tags %}
-  <div class="item tags-list">
-        <a class="ui small label tags" href="{% url 'post_list' %}?tag={{ tag }}">
-            {{ tag }}
-        </a>
-      X {{ tag.num_posts }}
-  </div>
-    {% endfor %}
+                <i class="{% get_icon string=order default='tagged' %}"></i>
+                <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="tagged" %}</span>
+                <i class="dropdown icon"></i>
+
+                <div class="menu">
+
+                    <a class="item" href="{% url 'tags_list' %}{% relative_url 'views' 'order' params %}">
+                        <i class="{% get_icon 'views' %}"></i>Views
+                    </a>
+                    <a class="item" href="{% url 'tags_list' %}{% relative_url 'tagged' 'order' params %}">
+                        <i class="{% get_icon 'tagged' %}"></i>Tagged
+                    </a>
+                    <a class="item" href="{% url 'tags_list' %}{% relative_url 'replies' 'order' params %}">
+                        <i class="{% get_icon 'replies' %}"></i>Replies
+                    </a>
+
+                    <a class="item" href="{% url 'tags_list' %}{% relative_url 'votes' 'order' params %}">
+                        <i class="{% get_icon 'votes' %}"></i>Votes
+                    </a>
+
+                </div>
+              </div>
+        </div>
+    </div>
 </div>
-    <div class="center-text">
-            {% pages objs=tags %}
+{% endwith %}
+
+<div class="ui center basic  aligned segment">
+    <div class="ui four column internally celled grid" style="margin: 0px">
+        {% for tag in tags %}
+            <div class="column" style="padding: 3px">
+            <div class="item">
+                <a class="ui small label tags" href="{% url 'post_list' %}?tag={{ tag }}">
+                    {{ tag }}
+                </a>
+                <i class="ui small tags icon" style="margin: 0"></i> {{ tag.tagged }}
+
+            </div>
+            </div>
+
+        {% endfor %}
     </div>
+</div>
+<div class="ui basic center aligned segment">
+    {% pages objs=tags %}
 </div>
 
 {% endblock %}

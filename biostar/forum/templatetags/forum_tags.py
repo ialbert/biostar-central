@@ -11,6 +11,7 @@ from django import template
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
+from django.shortcuts import reverse
 from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
@@ -41,7 +42,8 @@ ICON_MAP = dict(
     activity='comment icon',
     rsent="sort numeric down icon",
     sent="sort numeric up icon",
-    rep="user outline icon"
+    rep="user outline icon",
+    tagged="tags icon"
 )
 
 
@@ -314,6 +316,7 @@ def highlight(hit, field):
     lit = hit.highlights(field, top=5)
     return mark_safe(lit) if len(lit) else hit[field]
 
+
 @register.inclusion_tag('widgets/feed_custom.html')
 def custom_feed(objs, feed_type='', title=''):
     users = ()
@@ -327,8 +330,12 @@ def custom_feed(objs, feed_type='', title=''):
 
 
 @register.inclusion_tag('widgets/search_bar.html')
-def search_bar():
-    context = dict()
+def search_bar(search_url='', tags=False):
+    search_url = search_url or reverse('ajax_search')
+    styling = '' if tags else "fluid"
+
+    context = dict(search_url=search_url, tags=tags, styling=styling)
+
     return context
 
 
@@ -388,11 +395,11 @@ def get_wording(filtered, prefix="Sort by:", default=""):
     """
 
     display = dict(all="all time", week="this week", month="this month",
-                   year="this year", rank="rank", views="views", today="today",
-                   replies="replies", votes="votes", visit="recent visit",
+                   year="this year", rank="Rank", views="Views", today="today",
+                   replies="replies", votes="Votes", visit="recent visit",
                    reputation="reputation", joined="date joined", activity="activity level",
                    rsent="oldest to newest ", sent="newest to oldest",
-                   rep="sender reputation")
+                   rep="sender reputation", tagged="tagged")
     if display.get(filtered):
         displayed = display[filtered]
     else:

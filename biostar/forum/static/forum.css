@@ -69,6 +69,8 @@ a:hover {
 .tags-list{
     padding-left: 20px !important;
     padding-right: 30px !important;
+    text-align: center !important;
+    margin-left: 80px !important;
 }
 
 .ui.small.label.tags:hover {

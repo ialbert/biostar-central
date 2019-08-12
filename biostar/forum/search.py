@@ -237,7 +237,7 @@ def preform_search(query, fields=['content'], **kwargs):
         """
 
     # Do not preform any queries if the index does not exist.
-    if not index_exists():
+    if not index_exists() or len(query) < settings.SEARCH_CHAR_MIN:
         return []
 
     ix = init_index()

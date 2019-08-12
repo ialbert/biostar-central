@@ -42,6 +42,7 @@ LIMIT_MAP = dict(
 # Valid order values value as they correspond to database ordering fields.
 ORDER_MAPPER = dict(
     rank="-rank",
+    tagged='-tagged',
     views="-view_count",
     replies="-reply_count",
     votes="-thread_votecount",
@@ -49,6 +50,7 @@ ORDER_MAPPER = dict(
     reputation='-profile__score',
     joined='-profile__date_joined',
     activity='-profile__date_joined'
+
 
 )
 
@@ -194,14 +196,32 @@ def tags_list(request):
     Show posts by user
     """
     page = request.GET.get('page', 1)
-    tags = Tag.objects.annotate(num_posts=Count('post'))
+    order = request.GET.get('order', '')
+    limit = request.GET.get('limit', 0)
+    mapper = dict(replies='post__reply_count',
+                  votes='post__thread_votecount',
+                  views='post__view_count',
+                  tagged='-tagged')
+    tags = Tag.objects.annotate(tagged=Count('post'))
+
+    if order:
+        ordering = mapper.get(order) or '-tagged'
+        print(ordering, order)
+        tags = tags.order_by(ordering)
+
+    days = LIMIT_MAP.get(limit, 0)
+    # Apply time limit if required.
+    if days:
+        delta = util.now() - timedelta(days=days)
+        tags = tags.filter(post__lastedit_date__gt=delta)
+
     # Create the paginator
-    paginator = Paginator(tags, settings.POSTS_PER_PAGE)
+    paginator = Paginator(tags, 150)
 
     # Apply the votes paging.
     tags = paginator.get_page(page)
 
-    context = dict(tags=tags)
+    context = dict(tags=tags, order=order, limit=limit)
 
     return render(request, 'tags_list.html', context=context)
 

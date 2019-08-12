@@ -34,7 +34,7 @@ def ban_user(sender, instance, created, **kwargs):
     if instance.state == Profile.BANNED:
 
         # Delete all posts by this users
-        Post.objects.filter(author=instance.user).delete()
+        #Post.objects.filter(author=instance.user).delete()
 
         # Delete all awards by the user.
         Award.objects.filter(user=instance.user).delete()

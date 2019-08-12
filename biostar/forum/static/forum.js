@@ -253,12 +253,12 @@ function inplace_form(elem){
 
 
 
-function  search(query, elem) {
-    var search_url = '/ajax/search/';
+function  search(query, elem, search_url) {
     var res = $('#results');
     var container = $('#contain-search');
 
     container.addClass('loading search');
+    res.width(container.width());
     res.addClass('ui search message');
     res.html('Searching ...');
 
@@ -465,10 +465,10 @@ $(document).ready(function () {
 
     $('#search').keyup(function (event) {
         var query = $(this).val();
-
+        var search_url = $(this).attr('url');
         // Only preform searches when pressing ENTER
         if (event.keyCode === 13){
-            search(query, $(this));
+            search(query, $(this), search_url);
         }
 
 
