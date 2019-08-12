@@ -520,6 +520,21 @@ img {
     width: 0px;
 }
 
+.hide {
+    display: none;
+}
+
+.segment.preview{
+    background-color: #fcfcfc;
+}
+
+
+.show-preview{
+    margin-top:7px;
+    margin-bottom: 7px;
+
+}
+
 .filter.message{
     padding: 8px;
     text-align: center;

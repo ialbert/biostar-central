@@ -10,10 +10,11 @@
             <textarea id="content-{{ post.uid }}" data-value="{{ post.uid }}" rows="{{ rows }}">{{ post.content }}</textarea>
         </div>
 
-        <div class="ui segment" style="background-color: #fcfcfc">
-            <b style="font-size: 11px;">HTML Preview</b>
-            <div class="ui divider"></div>
-            <div id="html-preview-{{ post.uid }}">{{ post.html|safe }}</div>
+        <a class="ui small label top-padding show-preview" data-value="{{ post.uid }}" style="margin-top:7px; margin-bottom: 7px">Show HTML preview <i class="eye icon"></i></a>
+        <div class="hide hide-{{ post.uid }}">
+        <div class="ui preview segment">
+            <div id="html-preview-{{ post.uid }}" style="border-radius: 15px">{{ post.html|safe }}</div>
+        </div>
         </div>
 
         <div class="top-padding" style="text-align: center">

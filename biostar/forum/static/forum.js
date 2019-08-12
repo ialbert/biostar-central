@@ -491,6 +491,15 @@ $(document).ready(function () {
 
     });
 
+    $('.list-avatar').click(function () {
+        $(this).transition('pulse');
+    });
+    $(this).on('click', '.show-preview', function() {
+        var uid = $(this).data('value');
+        var preview = $('.hide-'+uid);
+        preview.transition('slide down');
+    });
+
     $(".moderate-user").click(function (event) {
         event.preventDefault();
         var elem = $(this);
