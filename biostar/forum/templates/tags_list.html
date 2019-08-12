@@ -1,0 +1,29 @@
+{% extends "forum_base.html" %}
+
+{% load forum_tags %}
+
+{% block content %}
+
+
+<div class="tags">
+    <div class="center-text">
+            {% pages objs=tags %}
+    </div>
+
+<div class="ui celled horizontal list">
+
+    {% for tag in tags %}
+  <div class="item tags-list">
+        <a class="ui small label tags" href="{% url 'post_list' %}?tag={{ tag }}">
+            {{ tag }}
+        </a>
+      X {{ tag.num_posts }}
+  </div>
+    {% endfor %}
+</div>
+    <div class="center-text">
+            {% pages objs=tags %}
+    </div>
+</div>
+
+{% endblock %}

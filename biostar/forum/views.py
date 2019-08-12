@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.paginator import Paginator
 from django.db.models import Count
+from taggit.models import Tag
 from django.shortcuts import render, redirect, reverse
 
 from . import forms, auth, tasks, util
@@ -187,6 +188,22 @@ def myvotes(request):
     context = dict(votes=votes, page=page, tab='myvotes')
     return render(request, template_name="votes_list.html", context=context)
 
+
+def tags_list(request):
+    """
+    Show posts by user
+    """
+    page = request.GET.get('page', 1)
+    tags = Tag.objects.annotate(num_posts=Count('post'))
+    # Create the paginator
+    paginator = Paginator(tags, settings.POSTS_PER_PAGE)
+
+    # Apply the votes paging.
+    tags = paginator.get_page(page)
+
+    context = dict(tags=tags)
+
+    return render(request, 'tags_list.html', context=context)
 
 @authenticated
 def myposts(request):

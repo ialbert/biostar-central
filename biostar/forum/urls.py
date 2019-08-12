@@ -27,6 +27,7 @@ urlpatterns = [
 
 
     path('b/list/', views.badge_list, name='badge_list'),
+    path('t/list/', views.tags_list, name='tags_list'),
 
     path('b/view/<str:uid>/', views.badge_view, name='badge_view'),
     path('edit/post/<str:uid>/', views.edit_post, name='post_edit'),

@@ -66,6 +66,11 @@ a:hover {
     text-decoration: underline;
 }
 
+.tags-list{
+    padding-left: 20px !important;
+    padding-right: 30px !important;
+}
+
 .ui.small.label.tags:hover {
     color: white;
     background-color: #6B3E4A;
