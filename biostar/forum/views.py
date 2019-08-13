@@ -208,7 +208,8 @@ def tags_list(request):
         ordering = mapper.get(order) or '-tagged'
         print(ordering, order)
         tags = tags.order_by(ordering)
-
+    else:
+        tags = tags.order_by('-tagged')
     days = LIMIT_MAP.get(limit, 0)
     # Apply time limit if required.
     if days:

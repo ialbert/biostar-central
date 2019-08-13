@@ -571,6 +571,10 @@ img {
     border: 1px solid #ECECEC;
 }
 
+.ui.attached.profile.segment {
+    border:  1px solid #d4d4d5;
+}
+
 .ui.attached.menu:not(.tabular) {
     border: 1px solid #ECECEC;
 }
