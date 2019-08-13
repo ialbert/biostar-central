@@ -65,7 +65,9 @@ body {
 a:hover {
     text-decoration: underline;
 }
-
+.tag {
+    color: black;
+}
 .tags-list{
     padding-left: 20px !important;
     padding-right: 30px !important;

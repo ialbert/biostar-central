@@ -386,9 +386,10 @@ $(document).ready(function () {
         var html_preview = md.render(text);
         //var html_preview = Prism.highlight(md.render(text), Prism.languages.bash, 'language-bash');
         var html_container = $('#html-preview-'+ uid);
-        //html_preview.html().find('pre').addClass('language-bash');
-        //Prism.highlightAll();
         html_container.html(html_preview);
+        html_container.find('pre').addClass('language-bash');
+        html_container.find('code').addClass('language-bash');
+
 
     });
     $(this).keyup(function (event) {
@@ -499,6 +500,9 @@ $(document).ready(function () {
         var uid = $(this).data('value');
         var preview = $('.hide-'+uid);
         preview.transition('slide down', 500);
+        preview.find('pre').addClass('language-bash');
+        preview.find('code').addClass('language-bash');
+
     });
 
     $(".moderate-user").click(function (event) {
@@ -553,6 +557,7 @@ $(document).ready(function () {
 
 
     $('pre').addClass('language-bash');
+
     Prism.highlightAll()
 })
 ;
