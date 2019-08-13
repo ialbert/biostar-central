@@ -388,6 +388,21 @@ def get_icon(string, default=""):
     return icon
 
 
+@register.inclusion_tag('widgets/list_awards.html', takes_context=True)
+def list_awards(context, target):
+    request = context['request']
+    awards = Award.objects.filter(user=target).order_by("-date")
+    page = request.GET.get('page', 1)
+    # Create the paginator
+    paginator = Paginator(awards, 20)
+
+    # Apply the votes paging.
+    awards = paginator.get_page(page)
+
+    context = dict(awards=awards, request=request)
+    return context
+
+
 @register.simple_tag
 def get_wording(filtered, prefix="Sort by:", default=""):
     """

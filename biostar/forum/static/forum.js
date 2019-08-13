@@ -491,13 +491,14 @@ $(document).ready(function () {
 
     });
 
-    $('.list-avatar').click(function () {
-        $(this).transition('pulse');
+    $('a').click(function () {
+        $(this).transition('pulse', 395);
     });
+
     $(this).on('click', '.show-preview', function() {
         var uid = $(this).data('value');
         var preview = $('.hide-'+uid);
-        preview.transition('slide down');
+        preview.transition('slide down', 500);
     });
 
     $(".moderate-user").click(function (event) {
