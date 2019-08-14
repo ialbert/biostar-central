@@ -180,15 +180,16 @@ def ajax_search(request):
 
     if query:
 
-        results = search.search(query=query, fields=fields)
-        results = sorted(results, key=lambda x: x['lastedit_date'], reverse=True)
+        whoosh_results = search.search(query=query, fields=fields)
+        results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
 
         tmpl = loader.get_template("widgets/search_results.html")
         #tmpl = loader.get_template("widgets/test_search_results.html")
         context = dict(results=results, query=query)
 
         results_html = tmpl.render(context)
-        close(results)
+        # Ensure the whoosh reader is closed
+        close(whoosh_results)
         return ajax_success(html=results_html, msg="success")
 
     return ajax_success(msg="Empty query, Enter atleast", status="error")
@@ -208,6 +209,7 @@ def ajax_tags_search(request):
         db_query = Q(name__in=query) | Q(name__contains=query)
 
         results = Tag.objects.annotate(tagged=Count('post')).order_by('-tagged').filter(db_query)
+
         tmpl = loader.get_template("widgets/search_results.html")
         context = dict(results=results, query=query, tags=True)
         results_html = tmpl.render(context)

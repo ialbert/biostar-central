@@ -173,6 +173,7 @@ function edit_post(uid) {
     var form_container = $('#editing-' + uid);
     var user_box_elem = $('.user-collapse-' + uid);
     var actions_box =  $('.actions-collapse-' +uid);
+    var content_box = $('#content-' + uid);
 
     $.ajax(edit_url,
         {
@@ -193,7 +194,11 @@ function edit_post(uid) {
                     user_box_elem.show();
                     actions_box.show();
                     // Replace with edited data
-                    $('#content-' + uid).html(data.msg).show().focus();
+                    content_box.html(data.msg).show().focus();
+
+                    content_box.find('pre').addClass('language-bash');
+                    content_box.find('code').addClass('language-bash');
+                    Prism.highlightAll();
                 }
             },
             error: function (xhr, status, text) {
@@ -390,6 +395,7 @@ $(document).ready(function () {
         html_container.find('pre').addClass('language-bash');
         html_container.find('code').addClass('language-bash');
         Prism.highlightAll();
+
 
 
     });
