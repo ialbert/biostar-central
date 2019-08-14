@@ -389,6 +389,7 @@ $(document).ready(function () {
         html_container.html(html_preview);
         html_container.find('pre').addClass('language-bash');
         html_container.find('code').addClass('language-bash');
+        Prism.highlightAll();
 
 
     });
@@ -502,6 +503,7 @@ $(document).ready(function () {
         preview.transition('slide down', 500);
         preview.find('pre').addClass('language-bash');
         preview.find('code').addClass('language-bash');
+        Prism.highlightAll();
 
     });
 
