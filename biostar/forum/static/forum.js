@@ -386,12 +386,15 @@ $(document).ready(function () {
             edit_post(uid);
             return
         }
+
         var md = markdownit();
         var text = $(this).val();
         var html_preview = md.render(text);
         //var html_preview = Prism.highlight(md.render(text), Prism.languages.bash, 'language-bash');
         var html_container = $('#html-preview-'+ uid);
+
         html_container.html(html_preview);
+        //alert("test");
         html_container.find('pre').addClass('language-bash');
         html_container.find('code').addClass('language-bash');
         Prism.highlightAll();
@@ -500,13 +503,13 @@ $(document).ready(function () {
     });
 
     $('a').click(function () {
-        $(this).transition('pulse', 395);
+        $(this).transition('pulse', 295);
     });
 
     $(this).on('click', '.show-preview', function() {
         var uid = $(this).data('value');
         var preview = $('.hide-'+uid);
-        preview.transition('slide down', 500);
+        preview.transition('slide down', 400);
         preview.find('pre').addClass('language-bash');
         preview.find('code').addClass('language-bash');
         Prism.highlightAll();
