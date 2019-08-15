@@ -201,6 +201,7 @@ def ajax_tags_search(request):
 
     query = request.GET.get('query', '')
     #fields = ['content', 'tag_val', 'title', 'author', 'author_uid', 'author_handle']
+    count = Count('post', filter=Q(post__type__in=Post.TOP_LEVEL))
 
     if len(query) < settings.SEARCH_CHAR_MIN:
         return ajax_error(msg=f"Enter more than {settings.SEARCH_CHAR_MIN} characters")
@@ -208,7 +209,7 @@ def ajax_tags_search(request):
     if query:
         db_query = Q(name__in=query) | Q(name__contains=query)
 
-        results = Tag.objects.annotate(tagged=Count('post')).order_by('-tagged').filter(db_query)
+        results = Tag.objects.annotate(tagged=count).order_by('-tagged').filter(db_query)
 
         tmpl = loader.get_template("widgets/search_results.html")
         context = dict(results=results, query=query, tags=True)

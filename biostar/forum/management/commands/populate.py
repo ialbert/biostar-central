@@ -4,15 +4,15 @@ import random
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.auth import get_user_model
-
+from biostar.accounts.models import Message, MessageBody
 from biostar.forum import auth
-from biostar.forum.models import Post
+from biostar.forum.models import Post, Vote
 
 
 logger = logging.getLogger('engine')
 
-NUSERS = 5
-NPOSTS = 10
+NUSERS = 0
+NPOSTS = 0
 
 def init_post(nusers=NUSERS, nposts=NPOSTS):
 
@@ -71,11 +71,42 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
         comment = Post.objects.create(type=Post.COMMENT, parent=parent, content=content, author=author)
 
 
+def init_messages(msgs):
+    User = get_user_model()
+    rec = User.objects.filter(is_staff=True).first()
+    sender = User.objects.exclude(pk=rec.pk).filter(is_staff=True).first()
+
+    for m in range(msgs):
+        body = html = f"This is a test message {m}"
+        body = MessageBody.objects.create(body=body, html=html)
+        msg = Message.objects.create(sender=sender, recipient=rec, body=body)
+    return
+
+
+def init_votes(n_votes, uid, vtype=Vote.UP):
+
+    post = Post.objects.filter(uid=uid).first()
+    if not post:
+        logger.error(f"Post id: {uid} does not exist.")
+        return
+
+    # Only initialize when debugging
+    if not settings.DEBUG:
+        return
+
+    for v in range(n_votes):
+        print(v)
+    return
+
+
 class Command(BaseCommand):
     help = 'Initialize the forum app.'
 
     def add_arguments(self, parser):
         parser.add_argument('--n_users', type=int, default=NUSERS, help="Number of random users to initialize.")
+        parser.add_argument('--n_messages', type=int, default=NUSERS, help="Number of messages to initialize.")
+        parser.add_argument('--n_votes', type=int, default=NUSERS, help="Number of votes to initialize.")
+        parser.add_argument('--uid', type=str, default='', help="Post id to populate votes in to.")
         parser.add_argument('--n_posts', type=int, default=NPOSTS,
                             help="Number of random answers/comments to initialize.")
 
@@ -83,8 +114,16 @@ class Command(BaseCommand):
 
         nusers = options["n_users"]
         nposts = options['n_posts']
-
+        nmsgs = options['n_messages']
+        nvotes = options['n_votes']
+        uid = options['uid']
         logger.info("Populating")
-        init_post(nposts=nposts, nusers=nusers)
+
+        if nusers or nposts:
+            init_post(nposts=nposts, nusers=nusers)
+        if nmsgs:
+            init_messages(msgs=nmsgs)
+        if nvotes:
+            init_votes(n_votes=nvotes, uid=uid)
 
         return

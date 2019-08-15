@@ -138,7 +138,7 @@ load_recipes:
 	python manage.py recipe --pid test --rid hello --json biostar/recipes/recipes/hello-world.hjson
 
 load_forum:
-	python manage.py populate --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py populate --n_users 10 --n_posts 10 --settings ${DJANGO_SETTINGS_MODULE}
 
 hard_reset: delete
 	# Delete media and spooler.

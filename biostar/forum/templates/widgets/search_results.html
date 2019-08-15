@@ -3,16 +3,15 @@
 {% if results %}
     {% if tags %}
         <div class="ui search-results segment">
-            <div class="ui relaxed divided list">
+            <div class="ui divided list">
                 {% for tag in results %}
-                <div class="item">
-                    <a class="ui small label tags" href="{% url 'post_list' %}?tag={{ tag }}">
+                <a class="item" href="{% url 'post_list' %}?tag={{ tag }}">
+                    <div class="ui small label tags">
                         {{ tag }}
-                    </a>
+                    </div>
                    <div style="float: right">{{ tag.tagged }}
                    </div>
-                </div>
-
+                </a>
 
             {% endfor %}
             </div>
