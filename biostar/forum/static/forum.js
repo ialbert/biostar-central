@@ -508,7 +508,7 @@ $(document).ready(function () {
 
     $(this).on('click', '.show-preview', function() {
         var uid = $(this).data('value');
-        var preview = $('.hide-'+uid);
+        var preview = $('.preview-'+uid);
         preview.transition('slide down', 400);
         preview.find('pre').addClass('language-bash');
         preview.find('code').addClass('language-bash');

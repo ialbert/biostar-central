@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Count, Q
 from taggit.models import Tag
 from django.shortcuts import render, redirect, reverse
 
@@ -196,35 +196,20 @@ def tags_list(request):
     Show posts by user
     """
     page = request.GET.get('page', 1)
-    order = request.GET.get('order', '')
-    limit = request.GET.get('limit', 0)
-    mapper = dict(replies='post__reply_count',
-                  votes='post__thread_votecount',
-                  views='post__view_count',
-                  tagged='-tagged')
-    tags = Tag.objects.annotate(tagged=Count('post'))
 
-    if order:
-        ordering = mapper.get(order) or '-tagged'
-        print(ordering, order)
-        tags = tags.order_by(ordering)
-    else:
-        tags = tags.order_by('-tagged')
-    days = LIMIT_MAP.get(limit, 0)
-    # Apply time limit if required.
-    if days:
-        delta = util.now() - timedelta(days=days)
-        tags = tags.filter(post__lastedit_date__gt=delta)
-
+    count = Count('post', filter=Q(post__type__in=Post.TOP_LEVEL))
+    tags = Tag.objects.annotate(nitems=count)
+    tags = tags.order_by('-nitems')
     # Create the paginator
     paginator = Paginator(tags, 150)
 
     # Apply the votes paging.
     tags = paginator.get_page(page)
 
-    context = dict(tags=tags, tab='tags', order=order, limit=limit)
+    context = dict(tags=tags, tab='tags')
 
     return render(request, 'tags_list.html', context=context)
+
 
 @authenticated
 def myposts(request):

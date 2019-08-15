@@ -16,7 +16,7 @@
         </a>
     </div>
 
-    <div class="hide hide-{{ post.uid }}">
+    <div class="hide preview-{{ post.uid }}">
         <div class="ui preview segment">
             <div id="html-preview-{{ post.uid }}">{{ post.html|safe }}</div>
         </div>
@@ -25,7 +25,7 @@
     <div class="top-padding center-text">
         <a class="ui float-left label save" data-value="{{ post.uid }}"><i class="check icon"></i> Save</a>
 
-        <span class="muted" style="font-size: small;">Double click to edit. CTRL + ENTER to enter. ESC to exit. </span>
+        <span class="muted" style="font-size: small;">Double Click to edit. CTRL + ENTER to enter. ESC to exit. </span>
         <a class="ui float-right label cancel" data-value="{{ post.uid }}"><i class="undo icon"></i> Cancel</a>
 
     </div>
