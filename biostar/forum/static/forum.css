@@ -227,7 +227,7 @@ a:hover {
 
 .list-avatar:hover{
   /*border: 1px solid;*/
-  box-shadow: 1px 4px 3px #888888;
+  box-shadow: 1px 1px 1px #888888;
 }
 
 .clearfix::after {

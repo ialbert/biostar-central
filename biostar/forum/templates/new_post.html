@@ -6,7 +6,6 @@
     New Post
 {% endblock %}
 
-
 {% block content %}
 
     {% form_errors form %}
@@ -70,7 +69,7 @@
                 </div>
                 <div class="ui form-wrap segment">
                     <div class="required input field">
-                    {% include 'widgets/create_msg.html'%}
+                        {% include 'widgets/create_msg.html' %}
 
                         <div class="wmd-wrapper" id="{{ form.content.id_for_label }}-wmd-wrapper">
                             <div class="">
@@ -79,34 +78,34 @@
                                           id="{{ form.content.id_for_label }}">{{ content }}</textarea>
                             </div>
 
-                            <div class="top-padding">
-                                <button type="submit" class="ui submit green button">
-                                    <i class="check icon"></i>Submit
-                                </button>
-
-                                <a class="ui right floated button" onclick="window.history.back()">
-                                    <i class="undo icon"></i>Cancel
-                                </a>
-                            </div>
-                            {% if form.captcha %}
-                                <div class="top-padding">
-                                <div class="required field">
-                                    {{ form.captcha }}
-                                </div>
-                                </div>
-                            {% endif %}
-
                         </div>
                     </div>
+
                 </div>
 
                 <div class="ui form-wrap segment">
                     <div class="field">
-                        <label>HTML Preview</label>
+                        <label>Preview</label>
                         <div id="{{ form.content.id_for_label }}_wmd_preview" class="wmd-preview"></div>
                     </div>
                 </div>
+                {% if form.captcha %}
+                    <div class="top-padding">
+                        <div class="required field">
+                            {{ form.captcha }}
+                        </div>
+                    </div>
+                {% endif %}
 
+                <div class="top-padding">
+                    <button type="submit" class="ui submit green button">
+                        <i class="check icon"></i>Submit
+                    </button>
+
+                    <a class="ui right floated button" onclick="window.history.back()">
+                        <i class="undo icon"></i>Cancel
+                    </a>
+                </div>
 
             </form>
 

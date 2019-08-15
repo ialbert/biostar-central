@@ -1,19 +1,20 @@
 {% load staticfiles %}
 {% load forum_tags %}
 
-
 <form class="ui edit-form compact form" data-value="{{ post.uid }}" id="edit-form-{{ post.uid }}">
 
     <div id="content-{{ post.uid }}_wmd_button_bar"></div>
-    <div id="wmd-button-bar"></div>
 
     <div class="inline field">
         <textarea id="content-{{ post.uid }}" data-value="{{ post.uid }}" rows="{{ rows }}">{{ post.content }}</textarea>
     </div>
 
-    <a class="ui small label top-padding show-preview" data-value="{{ post.uid }}" style="margin-top:7px; margin-bottom: 7px">
-        Show HTML preview <i class="eye icon"></i>
-    </a>
+    <div class="center-text">
+        <a class="ui small label top-padding show-preview" data-value="{{ post.uid }}"
+           style="margin-top:7px; margin-bottom: 7px">
+            <i class="eye icon"></i> Preview
+        </a>
+    </div>
 
     <div class="hide hide-{{ post.uid }}">
         <div class="ui preview segment">
@@ -23,7 +24,8 @@
 
     <div class="top-padding center-text">
         <a class="ui float-left label save" data-value="{{ post.uid }}"><i class="check icon"></i> Save</a>
-        <span class="muted" style="font-size: small;">CTRL + ENTER submits form and ESC exits. </span>
+
+        <span class="muted" style="font-size: small;">Double click to edit. CTRL + ENTER to enter. ESC to exit. </span>
         <a class="ui float-right label cancel" data-value="{{ post.uid }}"><i class="undo icon"></i> Cancel</a>
 
     </div>
