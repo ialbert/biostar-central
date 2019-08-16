@@ -225,6 +225,10 @@ a:hover {
     padding-bottom: 10px;
 }
 
+.answer-form{
+    display: none;
+}
+
 .list-avatar:hover{
   /*border: 1px solid;*/
   box-shadow: 1px 1px 1px #888888;

@@ -1,20 +1,8 @@
 
-{% if answer %}
-    <div class="ui info tablet message">
-        <p>If you want to provide a solution to the original question, click <a
-                class="ui blue display-answer tiny label">ADD ANSWER</a>.<br>
-            Use the <span class="ui tiny label">ADD COMMENT</span> or <span
-                    class="ui tiny label">ADD REPLY</span> buttons
-            embedded in each post to comment, to ask for clarifications, to request more details, or respond to a
-            previous answer or comment.
-        </p>
-    </div>
+<div style="padding: 5px; font-size: small"> <b>Enter your post below.<br>
+    See <a href="http://bioconductor.org/help/support/posting-guide/#composing">
+    Posting Guide</a> for guidance on creating a post.<br>
+    This site uses markdown. See <a href="{% url 'post_view' tutorial_post %}">tutorial post</a>
+        for advise on post formatting.</b>
+</div>
 
-{% else %}
-    <div style="padding: 5px; font-size: small"> <b>Enter your post below.<br>
-        See <a href="http://bioconductor.org/help/support/posting-guide/#composing">
-        Posting Guide</a> for guidance on creating a post.<br>
-        This site uses markdown. See <a href="{% url 'post_view' tutorial_post %}">tutorial post</a>
-            for advise on post formatting.</b>
-    </div>
-{% endif %}

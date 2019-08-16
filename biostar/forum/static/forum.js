@@ -564,6 +564,9 @@ $(document).ready(function () {
         field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
     });
 
+    $('.display-answer').click(function() {
+        $('.answer-form').show();
+    });
 
     $('pre').addClass('language-bash');
 

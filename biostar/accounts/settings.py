@@ -17,7 +17,7 @@ ADMINS = [
 ]
 
 # The password for admin users. Must be changed in production.
-ADMIN_PASSWORD = "admin@localhost"
+DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
 # Shortcut to first admin information.
 ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
