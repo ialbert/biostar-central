@@ -362,7 +362,7 @@ def list_posts(context, target):
 
 @register.inclusion_tag('widgets/feed_default.html')
 def default_feed(user):
-    recent_votes = Vote.objects.prefetch_related("post")
+    recent_votes = Vote.objects.prefetch_related("post").exculde(post__status=Post.DELETED)
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
     recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED, Profile.SUSPENDED]))
@@ -370,9 +370,10 @@ def default_feed(user):
     recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
+    recent_awards = recent_awards.exculde(user__profile__state__in=[Profile.BANNED, Profile.SUSPENDED])
     recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
 
-    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER])
+    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER]).exculde(status=Post.DELETED)
     recent_replies = recent_replies.select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 
