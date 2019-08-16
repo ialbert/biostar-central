@@ -88,7 +88,7 @@ def forum_middleware(get_response):
         else:
             response = get_response(request)
 
-        tasks.create_user_awards.spool(user_id=user.id)
+        #tasks.create_user_awards.spool(user_id=user.id)
         # Can process response here after its been handled by the view
 
         return response
