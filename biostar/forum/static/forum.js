@@ -171,7 +171,6 @@ function edit_post(uid) {
     var form_elem = $('#edit-form-' + uid);
     var edited = form_elem.find('textarea').val();
     var form_container = $('#editing-' + uid);
-    var user_box_elem = $('.user-collapse-' + uid);
     var actions_box =  $('.actions-collapse-' +uid);
     var content_box = $('#content-' + uid);
 
@@ -191,7 +190,6 @@ function edit_post(uid) {
                     // Hide form
                     form_elem.html('');
                     form_container.hide();
-                    user_box_elem.show();
                     actions_box.show();
                     // Replace with edited data
                     content_box.html(data.msg).show().focus();
@@ -220,7 +218,7 @@ function cancel_inplace(uid){
     // Show original content
     content.show();
     //Show any blocked element
-    actions_box.show()
+    actions_box.show();
 }
 
 function inplace_form(elem){
