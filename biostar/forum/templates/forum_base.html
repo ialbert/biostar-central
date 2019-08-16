@@ -34,6 +34,7 @@
     {% compress js %}
         <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'prism.js' %}"></script>
+        <script src="{% static 'markdown-it/markdown-it.js' %}"></script>
         <script src="{% static 'forum.js' %}{% randparam %}"></script>
         <script src="{% static 'theme.js' %}{% randparam %}"></script>
     {% endcompress %}

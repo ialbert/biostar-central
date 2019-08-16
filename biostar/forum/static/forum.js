@@ -166,17 +166,21 @@ function remove_trigger() {
     });
 }
 
-function edit_post(post_uid) {
+function edit_post(uid) {
     var edit_url = '/ajax/edit/';
-    var form_elem = $('#inplace-form-' + post_uid);
+    var form_elem = $('#edit-form-' + uid);
     var edited = form_elem.find('textarea').val();
+    var form_container = $('#editing-' + uid);
+    var actions_box =  $('.actions-collapse-' +uid);
+    var content_box = $('#content-' + uid);
+
     $.ajax(edit_url,
         {
             type: 'POST',
             dataType: 'json',
             ContentType: 'application/json',
             data: {
-                'post_uid': post_uid,
+                'post_uid': uid,
                 'content': edited
             },
             success: function (data) {
@@ -184,23 +188,45 @@ function edit_post(post_uid) {
                     popup_message(form_elem, data.msg, data.status, 3000);
                 } else {
                     // Hide form
-                    $('#inplace-form-' + post_uid).hide();
+                    form_elem.html('');
+                    form_container.hide();
+                    actions_box.show();
                     // Replace with edited data
-                    $('#inplace-' + post_uid).html(data.msg).show().focus();
+                    content_box.html(data.msg).show().focus();
+
+                    content_box.find('pre').addClass('language-bash');
+                    content_box.find('code').addClass('language-bash');
+                    Prism.highlightAll();
                 }
             },
             error: function (xhr, status, text) {
-                error_message(elem, xhr, status, text)
+                error_message(form_elem, xhr, status, text)
             }
         })
 }
 
 
+function cancel_inplace(uid){
+
+    var form_container = $('#editing-' + uid);
+    var content = $('#content-' + uid);
+    var actions_box =  $('.actions-collapse-' +uid);
+
+    //Delete the form
+    form_container.html("");
+    // Hide the container
+    // Show original content
+    content.show();
+    //Show any blocked element
+    actions_box.show();
+}
+
 function inplace_form(elem){
 
     var inplace_url = '/ajax/inplace/';
     var uid = elem.data("value");
-    var form_container = $('.inplace-'+ uid);
+    var form_container = $('#editing-'+ uid);
+    var actions_box =  $('.actions-collapse-' + uid);
 
     $.ajax(inplace_url,
         {
@@ -216,13 +242,10 @@ function inplace_form(elem){
                     alert(data.msg);
                     popup_message(elem, data.msg, data.status, 3000);
                 } else {
-
-                    // Hide form
-                    //$('#inplace-form-' + post_uid).hide();
                     elem.hide();
-                    form_container.html(data.inplace_form).show().focus();
-                    // Replace with edited data
-                    //$('#inplace-' + post_uid).html(data.msg).show().focus();
+                    actions_box.hide();
+                    form_container.html(data.inplace_form);
+                    form_container.show();
                 }
             },
             error: function (xhr, status, text) {
@@ -233,12 +256,12 @@ function inplace_form(elem){
 
 
 
-function  search(query, elem) {
-    var search_url = '/ajax/search/';
+function  search(query, elem, search_url) {
     var res = $('#results');
     var container = $('#contain-search');
 
     container.addClass('loading search');
+    res.width(container.width());
     res.addClass('ui search message');
     res.html('Searching ...');
 
@@ -324,6 +347,7 @@ $(document).ready(function () {
             tag_field.val(value);
     }
     });
+
     $('.tag-field >input.search').keydown(function(event) {
         // Prevent submitting form when adding tag by pressing ENTER.
         if (event.keyCode === 13){
@@ -338,77 +362,68 @@ $(document).ready(function () {
 
     });
 
-    $('.inplace').click(function () {
-        if (event.metaKey) {
-            // Hide content
-            $(this).hide();
-            var post_uid = $(this).attr('post_uid');
-            // Exposes form
-            $('#inplace-form-' + post_uid).show().focus();
-        }
-
-    }).dblclick(function (event) {
-
-        $(this).hide();
-        var post_uid = $(this).attr('post_uid');
-        // Exposes form
-        $('#inplace-form-' + post_uid).show().focus();
-
-    });
-
-
     $('.editable').click(function (event) {
-
-         if (event.metaKey){
+         if (event.metaKey || event.ctrlKey){
              inplace_form($(this))
          }
-
     }).dblclick(function (event) {
-         // Hide content
          inplace_form($(this))
-
     });
 
-    $('.inplace-form .label.cancel').click(function (event) {
-        event.preventDefault();
-        var post_uid = $(this).closest('.inplace-form').attr('post_uid');
-        // Hide form and show content
-        $('#inplace-form-' + post_uid).hide();
-        $('#inplace-' + post_uid).show().focus();
+    $('.inplace-edit').click(function (event) {
+        var uid = $(this).data('value');
+        var elem = $('#content-' + uid);
+        inplace_form(elem)
     });
 
-    $('.inplace-form textarea').keyup(function (event) {
-        var post_uid = $(this).closest('.inplace-form').attr('post_uid');
+    $(this).on('keyup', '.edit-form textarea', function (event) {
 
-        // Submit edit when pressing CTRL-ENTER
-        if ((event.ctrlKey || event.metaKey) && (event.keyCode === 13 || event.keyCode === 10)) {
-            event.preventDefault();
-            edit_post(post_uid);
-            return;
+        var uid = $(this).data('value');
+        // Submit form with CTRL-ENTER
+        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
+            edit_post(uid);
+            return
         }
-        // Leave when pressing ESC
+
+        var md = markdownit();
+        var text = $(this).val();
+        var html_preview = md.render(text);
+        //var html_preview = Prism.highlight(md.render(text), Prism.languages.bash, 'language-bash');
+        var html_container = $('#html-preview-'+ uid);
+
+        html_container.html(html_preview);
+        //alert("test");
+        html_container.find('pre').addClass('language-bash');
+        html_container.find('code').addClass('language-bash');
+        Prism.highlightAll();
+
+
+
+    });
+    $(this).keyup(function (event) {
+
         if (event.keyCode === 27){
-            // Hide form and show content
-            $('#inplace-form-' + post_uid).hide();
-            $('#inplace-' + post_uid).show().focus();
-
+            $('.edit-form').each(function () {
+                event.preventDefault();
+                var uid = $(this).data("value");
+                cancel_inplace(uid);
+            });
         }
 
     });
 
-    $('.inplace-form .label.save').click(function () {
-
-        // Submit edit when clicking save
+    $(this).on('click', '.edit-form .cancel', function(){
         event.preventDefault();
-        var post_uid = $(this).closest('.inplace-form').attr('post_uid');
-        edit_post(post_uid);
-    });
+        var uid = $(this).data("value");
+        cancel_inplace(uid);
+     });
 
-    $('.inplace-edit').click(function () {
-        var post_uid = $(this).attr('post_uid');
-        $('#inplace-' + post_uid).hide();
-        $('#inplace-form-' + post_uid).show().focus();
-    });
+    $(this).on('click', '.edit-form .save', function(){
+        var uid = $(this).data("value");
+        event.preventDefault();
+        edit_post(uid);
+     });
+
 
     $('#subscribe')
         .dropdown({
@@ -459,10 +474,10 @@ $(document).ready(function () {
 
     $('#search').keyup(function (event) {
         var query = $(this).val();
-
+        var search_url = $(this).attr('url');
         // Only preform searches when pressing ENTER
         if (event.keyCode === 13){
-            search(query, $(this));
+            search(query, $(this), search_url);
         }
 
 
@@ -482,6 +497,20 @@ $(document).ready(function () {
 
         var page = $('<div id="modpanel"></div>').load(mod_url);
         container.after(page)
+
+    });
+
+    $('a').click(function () {
+        $(this).transition('pulse', 295);
+    });
+
+    $(this).on('click', '.show-preview', function() {
+        var uid = $(this).data('value');
+        var preview = $('.preview-'+uid);
+        preview.transition('slide down', 400);
+        preview.find('pre').addClass('language-bash');
+        preview.find('code').addClass('language-bash');
+        Prism.highlightAll();
 
     });
 
@@ -537,7 +566,7 @@ $(document).ready(function () {
 
 
     $('pre').addClass('language-bash');
-        Prism.highlightAll();
 
+    Prism.highlightAll()
 })
 ;

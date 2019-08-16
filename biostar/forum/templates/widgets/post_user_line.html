@@ -29,7 +29,7 @@
 
     {% user_icon user=post.lastedit_user %}
 
-{% else %}
+{% elif post %}
 
 
     {{ post.lastedit_date|time_ago }}

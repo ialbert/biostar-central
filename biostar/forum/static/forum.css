@@ -65,6 +65,15 @@ body {
 a:hover {
     text-decoration: underline;
 }
+.tag {
+    color: black;
+}
+.tags-list{
+    padding-left: 20px !important;
+    padding-right: 30px !important;
+    text-align: center !important;
+    margin-left: 80px !important;
+}
 
 .ui.small.label.tags:hover {
     color: white;
@@ -211,25 +220,21 @@ a:hover {
 .wrap {
     overflow: auto;
 }
-.editable-form{
-    width: 100%;
-}
-.inplace-form.comment{
-    display:none;
-    width: 100%;
+
+.edit-form{
+    padding-bottom: 10px;
 }
 
-.inplace-form.post{
-    display:none;
-    width: fit-content;
+.list-avatar:hover{
+  /*border: 1px solid;*/
+  box-shadow: 1px 1px 1px #888888;
 }
-
 
 .clearfix::after {
   content: "";
   clear: both;
   display: table;
-    color: red;
+  color: red;
 }
 
 .pointer{
@@ -524,6 +529,21 @@ img {
     width: 0px;
 }
 
+.hide {
+    display: none;
+}
+
+.segment.preview{
+    background-color: #fcfcfc;
+}
+
+
+.show-preview{
+    margin-top:7px;
+    margin-bottom: 7px;
+
+}
+
 .filter.message{
     padding: 8px;
     text-align: center;
@@ -549,6 +569,10 @@ img {
 
 .ui.attached.segment {
     border: 1px solid #ECECEC;
+}
+
+.ui.attached.profile.segment {
+    border:  1px solid #d4d4d5;
 }
 
 .ui.attached.menu:not(.tabular) {

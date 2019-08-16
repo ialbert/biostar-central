@@ -4,22 +4,18 @@ import random
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.auth import get_user_model
-
+from biostar.accounts.models import Message, MessageBody
 from biostar.forum import auth
-from biostar.forum.models import Post
+from biostar.forum.models import Post, Vote
 
 
 logger = logging.getLogger('engine')
 
-NUSERS = 5
-NPOSTS = 10
+NUSERS = 0
+NPOSTS = 0
+User = get_user_model()
 
 def init_post(nusers=NUSERS, nposts=NPOSTS):
-
-    # Only initialize when debugging
-    if not settings.DEBUG:
-        return
-    User = get_user_model()
 
     name, email = settings.ADMINS[0]
     user = User.objects.filter(email=email).first()
@@ -71,11 +67,45 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
         comment = Post.objects.create(type=Post.COMMENT, parent=parent, content=content, author=author)
 
 
+def init_messages(nmsgs):
+    # Fetch target user to receive messages
+    target = User.objects.filter(email=settings.ADMIN_EMAIL).first()
+    # Any staff user is used as a source to send messages
+    source = User.objects.exclude(pk=target.pk).filter(is_staff=True).first()
+
+    for m in range(nmsgs):
+        body = html = f"This is a test message {m}"
+        body = MessageBody.objects.create(body=body, html=html)
+        Message.objects.create(sender=source, recipient=target, body=body)
+
+    logger.info(f"Finished initializing messages {nmsgs} messages from:{source} to:{target}")
+    return
+
+
+def init_votes(nvotes):
+    # Fetch a post by the target user
+    target = User.objects.filter(email=settings.ADMIN_EMAIL).first()
+    post = Post.objects.filter(author=target).first()
+    if not post:
+        post = Post.objects.create(title="Question post", author=target,
+                                   content="This is a question post", type=Post.QUESTION)
+
+    # Have source user upvote posts by target user.
+    source = User.objects.exclude(pk=target.pk).filter(is_staff=True).first()
+    for v in range(nvotes):
+        Vote.objects.create(author=source, post=post, type=Vote.UP)
+
+    logger.info(f"Finished initializing {nvotes} up votes from:{source} to:{target} post-uid:{post.uid}")
+    return
+
+
 class Command(BaseCommand):
     help = 'Initialize the forum app.'
 
     def add_arguments(self, parser):
         parser.add_argument('--n_users', type=int, default=NUSERS, help="Number of random users to initialize.")
+        parser.add_argument('--n_messages', type=int, default=NUSERS, help="Number of messages to initialize.")
+        parser.add_argument('--n_votes', type=int, default=NUSERS, help="Number of votes to initialize.")
         parser.add_argument('--n_posts', type=int, default=NPOSTS,
                             help="Number of random answers/comments to initialize.")
 
@@ -83,8 +113,20 @@ class Command(BaseCommand):
 
         nusers = options["n_users"]
         nposts = options['n_posts']
+        nmsgs = options['n_messages']
+        nvotes = options['n_votes']
+
+        # Only initialize when debugging
+        if not settings.DEBUG:
+            logger.info("Can not initialize when DEBUG=False")
+            return
 
         logger.info("Populating")
-        init_post(nposts=nposts, nusers=nusers)
+        if nusers or nposts:
+            init_post(nposts=nposts, nusers=nusers)
+        if nmsgs:
+            init_messages(nmsgs=nmsgs)
+        if nvotes:
+            init_votes(nvotes=nvotes)
 
         return

@@ -1,9 +1,24 @@
 
-<div class="ui segment slim">
 
-    <div class="ui fluid icon input" id="contain-search">
-        <i class="search icon"></i>
-        <input type="text" id="search" name="search" placeholder="Search and press ENTER . . .">
-    </div>
+<div class="ui segment slim">
+    {% if tags %}
+        <div class="center-text">
+            <div class='ui icon input' id="contain-search" style="display: inline-block;">
+                <i class="search icon"></i>
+                <input type="text" id="search" url="{{ search_url }}" style="width: 500px;" name="search" placeholder="Search tags and press ENTER . . .">
+                <div id="results" style="text-align: initial"></div>
+            </div>
+
+        </div>
+    {% else %}
+
+        <div class='ui fluid icon input' id="contain-search">
+            <i class="search icon"></i>
+            <input type="text" id="search" url="{{ search_url }}" name="search" placeholder="Search and press ENTER . . .">
+
+        </div>
+
+    {% endif %}
+
     <div id="results"></div>
 </div>

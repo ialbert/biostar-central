@@ -17,7 +17,7 @@ DATABASES = {
         'PORT': '',
     },
 }
-print(DATABASE_NAME, "DATABASE_NAME")
+
 HTTP_PROTOCOL = "http"
 
 # Post types displayed when creating, empty list displays all types.
@@ -65,6 +65,9 @@ VOTE_FEED_COUNT = 5
 LOCATION_FEED_COUNT = 5
 AWARDS_FEED_COUNT = 5
 REPLIES_FEED_COUNT = 5
+
+
+TUTORIAL_POST = '117436'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = "themes.bioconductor.conf.wsgi.application"

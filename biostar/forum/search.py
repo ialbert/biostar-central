@@ -74,6 +74,7 @@ def add_index(post, writer):
                            rank=post.rank, uid=post.uid,
                            author_handle=post.author.username,
                            author=post.author.profile.name,
+                           author_email=post.author.email,
                            author_score=post.author.profile.score,
                            thread_votecount=post.thread_votecount,
                            vote_count=post.vote_count,
@@ -96,6 +97,7 @@ def get_schema():
                     author=TEXT(stored=True),
                     author_score=NUMERIC(stored=True, sortable=True),
                     author_handle=TEXT(stored=True),
+                    author_email=TEXT(stored=True),
                     author_uid=ID(stored=True),
                     author_url=ID(stored=True),
                     uid=ID(stored=True),
@@ -235,7 +237,7 @@ def preform_search(query, fields=['content'], **kwargs):
         """
 
     # Do not preform any queries if the index does not exist.
-    if not index_exists():
+    if not index_exists() or len(query) < settings.SEARCH_CHAR_MIN:
         return []
 
     ix = init_index()
@@ -252,10 +254,11 @@ def preform_search(query, fields=['content'], **kwargs):
     # and OR filter, eg. 'foo bar' == 'foo OR bar'
     orgroup = OrGroup
 
-    sort_by = [post_type, rank, thread, default, profile_score]
+    #sort_by = sort_by or [post_type, rank, thread, default, profile_score]
+    #sort_by = [lastedit_date]
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(query)
-    results = searcher.search(parser, sortedby=sort_by, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
+    results = searcher.search(parser, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
     # Allow larger fragments
     results.fragmenter.maxchars = 100
     # results.fragmenter.charlimit = None

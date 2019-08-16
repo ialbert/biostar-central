@@ -127,7 +127,7 @@ index:
 reindex:
 	@echo INDEX_NAME=${INDEX_NAME}
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	python manage.py index --reindex --overwrite --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py index --remove --reset --index 130000 --settings ${DJANGO_SETTINGS_MODULE}
 
 recipes_demo: recipes reset init load_recipes serve
 
@@ -138,7 +138,7 @@ load_recipes:
 	python manage.py recipe --pid test --rid hello --json biostar/recipes/recipes/hello-world.hjson
 
 load_forum:
-	python manage.py populate --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py populate --n_users 10 --n_posts 10 --settings ${DJANGO_SETTINGS_MODULE}
 
 hard_reset: delete
 	# Delete media and spooler.

@@ -11,11 +11,10 @@
                     {% for post in results %}
                         <div class="item spaced">
                             <a href="{{ post.url }}"> {{ post.title }}</a>
-                            by
-                            <a href="{{ post.author_url }}">{{ post.author }}
-                            </a>
-                            {% user_icon user_uid=post.author_uid  %}
-
+                            &bull;
+                            <div class="muted">
+                            {% postuid_user_line post.uid avatar=False %}
+                            </div>
                         <div class="muted top-padding">
                             {{ post.content |truncatechars:140 }}
                             </div>

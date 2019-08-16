@@ -17,6 +17,8 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
+TUTORIAL_POST = '1'
+
 # Log the time for each request
 TIME_REQUESTS = True
 
@@ -24,6 +26,9 @@ TIME_REQUESTS = True
 INDEX_SECS_INTERVAL = 10
 # Number of results to display.
 SEARCH_LIMIT = 20
+
+# Minimum amount of characters to preform searches
+SEARCH_CHAR_MIN = 1
 
 BATCH_INDEXING_SIZE = 1000
 

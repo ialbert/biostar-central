@@ -141,8 +141,26 @@
         </div>
     </div>
 
-    <div class="ui centered header"> Posts by {{ target.profile.name }}</div>
-    {# List the users posts #}
-    {% list_posts target=target %}
+        <div class="ui vertical segment">
+
+        <div class="ui top attached tabular  menu">
+
+            <a class="{% activate 'posts' active %}  item" href="{% url 'user_profile' target.profile.uid %}?active=posts">
+                <i class="list alternate outline icon"></i><span class="phone"> Posts</span>
+            </a>
+
+            <a class="{% activate 'awards' active %}  item" href="{% url 'user_profile' target.profile.uid %}?active=awards">
+                <i class="star outline icon"></i><span class="phone">Awards</span>
+            </a>
+
+        </div>
+         <div class="ui bottom attached profile segment">
+        {% if active == 'posts' %}
+            {% list_posts target=target %}
+        {% else %}
+            {% list_awards target=target %}
+        {% endif %}
+         </div>
+    </div>
 
 {% endblock %}

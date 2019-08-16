@@ -8,7 +8,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Count, Q
+from taggit.models import Tag
 from django.shortcuts import render, redirect, reverse
 
 from . import forms, auth, tasks, util
@@ -41,6 +42,7 @@ LIMIT_MAP = dict(
 # Valid order values value as they correspond to database ordering fields.
 ORDER_MAPPER = dict(
     rank="-rank",
+    tagged='-tagged',
     views="-view_count",
     replies="-reply_count",
     votes="-thread_votecount",
@@ -48,6 +50,7 @@ ORDER_MAPPER = dict(
     reputation='-profile__score',
     joined='-profile__date_joined',
     activity='-profile__date_joined'
+
 
 )
 
@@ -186,6 +189,26 @@ def myvotes(request):
 
     context = dict(votes=votes, page=page, tab='myvotes')
     return render(request, template_name="votes_list.html", context=context)
+
+
+def tags_list(request):
+    """
+    Show posts by user
+    """
+    page = request.GET.get('page', 1)
+
+    count = Count('post', filter=Q(post__type__in=Post.TOP_LEVEL))
+    tags = Tag.objects.annotate(nitems=count)
+    tags = tags.order_by('-nitems')
+    # Create the paginator
+    paginator = Paginator(tags, 150)
+
+    # Apply the votes paging.
+    tags = paginator.get_page(page)
+
+    context = dict(tags=tags, tab='tags')
+
+    return render(request, 'tags_list.html', context=context)
 
 
 @authenticated
@@ -336,7 +359,8 @@ def new_post(request):
     # Action url for the form is the current view
     action_url = reverse("post_create")
     content = request.POST.get('content', '')
-    context = dict(form=form, tab="new", action_url=action_url, content=content, form_title="Create New Post")
+    context = dict(form=form, tab="new", action_url=action_url, tutorial_post=settings.TUTORIAL_POST,
+                   content=content, form_title="Create New Post")
 
     return render(request, "new_post.html", context=context)
 

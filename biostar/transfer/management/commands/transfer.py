@@ -335,6 +335,22 @@ def bulk_copy_subs(limit):
     elapsed(f"Updated {scount} subscription counts")
     return
 
+
+
+def test():
+    subs = PostsSubscription.objects.filter(post_id=123260)
+
+    # new_subs = Subscription.objects.filter(post_id=121146)
+
+    for sub in subs:
+        print(sub.id, sub.post.author_id, sub.post.author.email, sub.post.title, sub.type)
+        print('-'*100)
+
+
+    return
+
+
+
 class Command(BaseCommand):
     help = "Migrate users from one database to another."
 

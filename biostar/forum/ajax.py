@@ -3,11 +3,14 @@ import logging
 from ratelimit.decorators import ratelimit
 
 from django.conf import settings
+from django.db.models import Q, Count
 from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from whoosh.searching import Results
+from whoosh.sorting import FieldFacet, ScoreFacet
 from .const import *
+from taggit.models import Tag
 from . import auth, util, forms, tasks, search
 from .models import Post, Vote, Subscription
 
@@ -150,17 +153,16 @@ def ajax_inplace(request):
     uid = request.GET.get("uid")
     post = Post.objects.filter(uid=uid).first()
 
-    print(post,uid, type(uid), "WE ARE HERE")
     if not post:
         return ajax_error(msg="Post does not exist")
-
+    rows = len(post.content.split("\n")) + 2
     tmpl = loader.get_template("widgets/inplace_form.html")
     # tmpl = loader.get_template("widgets/test_search_results.html")
-    context = dict(post=post)
+    context = dict(post=post, rows=rows)
 
     inplace_form = tmpl.render(context)
 
-    return ajax_success(msg="success", inplace_form=inplace_form)
+    return ajax_success(msg="success", content=post.content, inplace_form=inplace_form)
 
 
 def close(r):
@@ -174,26 +176,47 @@ def close(r):
 def ajax_search(request):
 
     query = request.GET.get('query', '')
-    fields = ['content', 'tag_val', 'title', 'author__profile__uid', 'author__email',
-              'author__username', 'author__profile__name']
-
-    sort_by = request.GET.get("sort_by", '')
-    #print(query)
-    #1/0
+    fields = ['content', 'tag_val', 'title', 'author', 'author_uid', 'author_handle']
 
     if query:
 
-        results = search.search(query=query, fields=fields)
+        whoosh_results = search.search(query=query, fields=fields)
+        results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
 
         tmpl = loader.get_template("widgets/search_results.html")
         #tmpl = loader.get_template("widgets/test_search_results.html")
         context = dict(results=results, query=query)
 
         results_html = tmpl.render(context)
-        logger.info("Finished rendering results.")
+        # Ensure the whoosh reader is closed
+        close(whoosh_results)
         return ajax_success(html=results_html, msg="success")
 
-    return ajax_success(html="", msg="success")
+    return ajax_success(msg="Empty query, Enter atleast", status="error")
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+def ajax_tags_search(request):
+
+    query = request.GET.get('query', '')
+    #fields = ['content', 'tag_val', 'title', 'author', 'author_uid', 'author_handle']
+    count = Count('post', filter=Q(post__type__in=Post.TOP_LEVEL))
+
+    if len(query) < settings.SEARCH_CHAR_MIN:
+        return ajax_error(msg=f"Enter more than {settings.SEARCH_CHAR_MIN} characters")
+
+    if query:
+        db_query = Q(name__in=query) | Q(name__contains=query)
+
+        results = Tag.objects.annotate(tagged=count).order_by('-tagged').filter(db_query)
+
+        tmpl = loader.get_template("widgets/search_results.html")
+        context = dict(results=results, query=query, tags=True)
+        results_html = tmpl.render(context)
+        return ajax_success(html=results_html, msg="success")
+
+    return ajax_success(msg="")
 
 
 def ajax_feed(request):
@@ -215,6 +238,8 @@ def ajax_feed(request):
         results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
         # Filter results for toplevel posts.
         results = filter(lambda p: p['is_toplevel'] is True, results)
+        # Sort by lastedit_date
+        results = sorted(results, key=lambda x: x['lastedit_date'], reverse=True)
 
     tmpl = loader.get_template('widgets/feed_single.html')
     context = dict(results=results)

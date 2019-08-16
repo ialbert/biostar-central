@@ -11,6 +11,7 @@ from django import template
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
+from django.shortcuts import reverse
 from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
@@ -41,7 +42,8 @@ ICON_MAP = dict(
     activity='comment icon',
     rsent="sort numeric down icon",
     sent="sort numeric up icon",
-    rep="user outline icon"
+    rep="user outline icon",
+    tagged="tags icon"
 )
 
 
@@ -161,6 +163,11 @@ def user_icon(user=None, user_uid=None):
 
 @register.inclusion_tag('widgets/post_user_line.html')
 def post_user_line(post, avatar=False):
+    return dict(post=post, avatar=avatar)
+
+@register.inclusion_tag('widgets/post_user_line.html')
+def postuid_user_line(uid, avatar=True):
+    post = Post.objects.filter(uid=uid).first()
     return dict(post=post, avatar=avatar)
 
 
@@ -323,8 +330,12 @@ def custom_feed(objs, feed_type='', title=''):
 
 
 @register.inclusion_tag('widgets/search_bar.html')
-def search_bar():
-    context = dict()
+def search_bar(search_url='', tags=False):
+    search_url = search_url or reverse('ajax_search')
+    styling = '' if tags else "fluid"
+
+    context = dict(search_url=search_url, tags=tags, styling=styling)
+
     return context
 
 
@@ -377,6 +388,21 @@ def get_icon(string, default=""):
     return icon
 
 
+@register.inclusion_tag('widgets/list_awards.html', takes_context=True)
+def list_awards(context, target):
+    request = context['request']
+    awards = Award.objects.filter(user=target).order_by("-date")
+    page = request.GET.get('page', 1)
+    # Create the paginator
+    paginator = Paginator(awards, 20)
+
+    # Apply the votes paging.
+    awards = paginator.get_page(page)
+
+    context = dict(awards=awards, request=request)
+    return context
+
+
 @register.simple_tag
 def get_wording(filtered, prefix="Sort by:", default=""):
     """
@@ -384,11 +410,11 @@ def get_wording(filtered, prefix="Sort by:", default=""):
     """
 
     display = dict(all="all time", week="this week", month="this month",
-                   year="this year", rank="rank", views="views", today="today",
-                   replies="replies", votes="votes", visit="recent visit",
+                   year="this year", rank="Rank", views="Views", today="today",
+                   replies="replies", votes="Votes", visit="recent visit",
                    reputation="reputation", joined="date joined", activity="activity level",
                    rsent="oldest to newest ", sent="newest to oldest",
-                   rep="sender reputation")
+                   rep="sender reputation", tagged="tagged")
     if display.get(filtered):
         displayed = display[filtered]
     else:

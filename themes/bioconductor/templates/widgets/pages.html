@@ -1,0 +1,32 @@
+{% load forum_tags %}
+{% load humanize %}
+
+{% if objs.has_previous %}
+    <a class="ui small basic button no-shadow" href="{{ url }}{% relative_url objs.previous_page_number 'page' request.GET.urlencode %}">
+            <i class="ui angle  double left icon"> </i>
+    </a>
+{% else %}
+
+{% endif %}
+
+
+    <span class="phone">{{objs.paginator.count|intcomma}}
+    result{{objs.paginator.count|pluralize}}
+    &bull;
+
+        Page </span> {{ objs.number }} of {{ objs.paginator.num_pages }}
+
+
+
+
+{% if objs.has_next %}
+
+<a class="ui small basic button no-shadow" href="{{ url }}{% relative_url objs.next_page_number 'page' request.GET.urlencode %}">
+
+        <i class="ui angle  double right icon"></i>
+</a>
+
+{% else %}
+
+
+{% endif %}
