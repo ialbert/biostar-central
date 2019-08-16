@@ -13,13 +13,9 @@ logger = logging.getLogger('engine')
 
 NUSERS = 0
 NPOSTS = 0
+User = get_user_model()
 
 def init_post(nusers=NUSERS, nposts=NPOSTS):
-
-    # Only initialize when debugging
-    if not settings.DEBUG:
-        return
-    User = get_user_model()
 
     name, email = settings.ADMINS[0]
     user = User.objects.filter(email=email).first()
@@ -71,31 +67,35 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
         comment = Post.objects.create(type=Post.COMMENT, parent=parent, content=content, author=author)
 
 
-def init_messages(msgs):
-    User = get_user_model()
-    rec = User.objects.filter(is_staff=True).first()
-    sender = User.objects.exclude(pk=rec.pk).filter(is_staff=True).first()
+def init_messages(nmsgs):
+    # Fetch target user to receive messages
+    target = User.objects.filter(email=settings.ADMIN_EMAIL).first()
+    # Any staff user is used as a source to send messages
+    source = User.objects.exclude(pk=target.pk).filter(is_staff=True).first()
 
-    for m in range(msgs):
+    for m in range(nmsgs):
         body = html = f"This is a test message {m}"
         body = MessageBody.objects.create(body=body, html=html)
-        msg = Message.objects.create(sender=sender, recipient=rec, body=body)
+        Message.objects.create(sender=source, recipient=target, body=body)
+
+    logger.info(f"Finished initializing messages {nmsgs} messages from:{source} to:{target}")
     return
 
 
-def init_votes(n_votes, uid, vtype=Vote.UP):
-
-    post = Post.objects.filter(uid=uid).first()
+def init_votes(nvotes):
+    # Fetch a post by the target user
+    target = User.objects.filter(email=settings.ADMIN_EMAIL).first()
+    post = Post.objects.filter(author=target).first()
     if not post:
-        logger.error(f"Post id: {uid} does not exist.")
-        return
+        post = Post.objects.create(title="Question post", author=target,
+                                   content="This is a question post", type=Post.QUESTION)
 
-    # Only initialize when debugging
-    if not settings.DEBUG:
-        return
+    # Have source user upvote posts by target user.
+    source = User.objects.exclude(pk=target.pk).filter(is_staff=True).first()
+    for v in range(nvotes):
+        Vote.objects.create(author=source, post=post, type=Vote.UP)
 
-    for v in range(n_votes):
-        print(v)
+    logger.info(f"Finished initializing {nvotes} up votes from:{source} to:{target} post-uid:{post.uid}")
     return
 
 
@@ -106,7 +106,6 @@ class Command(BaseCommand):
         parser.add_argument('--n_users', type=int, default=NUSERS, help="Number of random users to initialize.")
         parser.add_argument('--n_messages', type=int, default=NUSERS, help="Number of messages to initialize.")
         parser.add_argument('--n_votes', type=int, default=NUSERS, help="Number of votes to initialize.")
-        parser.add_argument('--uid', type=str, default='', help="Post id to populate votes in to.")
         parser.add_argument('--n_posts', type=int, default=NPOSTS,
                             help="Number of random answers/comments to initialize.")
 
@@ -116,14 +115,18 @@ class Command(BaseCommand):
         nposts = options['n_posts']
         nmsgs = options['n_messages']
         nvotes = options['n_votes']
-        uid = options['uid']
-        logger.info("Populating")
 
+        # Only initialize when debugging
+        if not settings.DEBUG:
+            logger.info("Can not initialize when DEBUG=False")
+            return
+
+        logger.info("Populating")
         if nusers or nposts:
             init_post(nposts=nposts, nusers=nusers)
         if nmsgs:
-            init_messages(msgs=nmsgs)
+            init_messages(nmsgs=nmsgs)
         if nvotes:
-            init_votes(n_votes=nvotes, uid=uid)
+            init_votes(nvotes=nvotes)
 
         return
