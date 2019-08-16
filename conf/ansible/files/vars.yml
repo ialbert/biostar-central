@@ -1,5 +1,5 @@
 
-engine_git: https://github.com/biostars/biostar-engine.git
+engine_git: https://github.com/ialbert/biostar-central.git
 engine_dir: "/export/www/biostar-engine"
 
 bin_dir: "/export/bin"
