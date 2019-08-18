@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from biostar.accounts.models import User, Profile
 from biostar.forum import util
-from biostar.forum.models import Post, Vote, Subscription, Badge, Award
+from biostar.forum.models import Post, Vote, Subscription, Badge, Award, Digest
 from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesAward
 
 from biostar.utils import markdown
@@ -201,7 +201,7 @@ def bulk_copy_posts(limit):
 
     def add_tags():
         logger.info("Transferring tags")
-        for post in Post.objects.all():
+        for post in Post.objects.iterator():
             tags = [Tag.objects.get_or_create(name=name)[0] for name in post.parse_tags()]
             post.tags.remove(*tags)
             post.tags.add(*tags)
@@ -290,13 +290,12 @@ def bulk_copy_posts(limit):
 
 
 def bulk_copy_subs(limit):
-    seen = set()
+
+    users = {user.profile.uid: user for user in User.objects.all()}
+    posts = {post.uid: post for post in Post.objects.all()}
 
     def generate():
-        users = {user.profile.uid: user for user in User.objects.all()}
-        posts = {post.uid: post for post in Post.objects.all()}
         subs = PostsSubscription.objects.order_by('-date')
-
         logger.info("Copying subscriptions")
         elapsed, progress = timer_func()
         stream = zip(count(1), subs)
@@ -306,16 +305,41 @@ def bulk_copy_subs(limit):
             progress(index, msg="subscriptions")
             user = users.get(str(sub.user_id))
             post = posts.get(str(sub.post_id))
-            sub_str = f'{sub.user_id}, {sub.post_id}'
 
             # Skip incomplete data or subs already made
-            if not (user and post) or sub_str in seen:
+            if not (user and post):
                 continue
 
+            # Skip users that are not contributors but have a digest
+            #
+            #if user.profile.digest_prefs != Profile.NO_DIGEST:
+            #    continue
+
+
             sub = Subscription(uid=sub.id, type=sub.type, user=user, post=post, date=sub.date)
-            seen.add(sub_str)
 
             yield sub
+
+    def gen_digests():
+        subs = Subscription.objects.iterator()
+        logger.info("Creating digests")
+
+        elapsed, progress = timer_func()
+        stream = zip(count(1), subs)
+        stream = islice(stream, limit)
+
+        for index, sub in stream:
+            progress(index, msg="digests")
+            user, post = sub.user, sub.post
+
+            # Skip subscribed users without a digest
+            if user.profile.digest_prefs == Profile.NO_DIGEST:
+                continue
+
+            # Create digests for user
+            digest = Digest(user=user, post=post)
+
+            yield digest
 
     def update_counts():
         logger.info("Updating post subs_count")
@@ -327,28 +351,37 @@ def bulk_copy_subs(limit):
             yield post
 
     elapsed, progress = timer_func()
-    Subscription.objects.bulk_create(objs=generate(), batch_size=1000)
+    Subscription.objects.bulk_create(objs=generate(), batch_size=10000)
     scount = Subscription.objects.all().count()
     elapsed(f"transferred {scount} subscriptions")
 
-    Post.objects.bulk_update(objs=update_counts(), fields=["subs_count"], batch_size=1000)
+    Post.objects.bulk_update(objs=update_counts(), fields=["subs_count"], batch_size=10000)
     elapsed(f"Updated {scount} subscription counts")
-    return
 
+    #dcount = Digest.objects.all().count()
+    #Digest.objects.bulk_create(objs=gen_digests(), batch_size=10000)
+    #elapsed(f"Updated {dcount} user digests")
+
+    return
 
 
 def test():
-    subs = PostsSubscription.objects.filter(post_id=123260)
-
+    subs = PostsSubscription.objects.filter(post_id=123258)
+    #1/0
     # new_subs = Subscription.objects.filter(post_id=121146)
-
+    seen = []
+    print(len(subs))
     for sub in subs:
-        print(sub.id, sub.post.author_id, sub.post.author.email, sub.post.title, sub.type)
-        print('-'*100)
+        print(sub.post.author.profile.digest_prefs)
+        print(sub.id, sub.user.email, sub.user.profile.digest_prefs, sub.post.author.email, sub.post.title, sub.type)
 
+        #if sub.user.email in seen:
+        #    print(f"Already subbed {sub.user.email}")
 
+        #seen.append(sub.user.email)
+
+        print('-' * 100)
     return
-
 
 
 class Command(BaseCommand):
@@ -369,8 +402,8 @@ class Command(BaseCommand):
         load_subs = options["subs"]
         limit = options.get("limit") or LIMIT
 
-        #test()
-        #return
+        test()
+        return
 
         if load_posts:
             bulk_copy_posts(limit=limit)

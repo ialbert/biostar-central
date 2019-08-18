@@ -41,6 +41,8 @@ class Profile(models.Model):
                       (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly'),
                       (ALL_MESSAGES, "Email for every new thread (mailing list mode)")
                       ]
+    # Subscription to daily and weekly digests.
+    digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=NO_DIGEST)
 
     LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES = range(4)
     MESSAGING_TYPE_CHOICES = [
@@ -50,6 +52,8 @@ class Profile(models.Model):
         (NO_MESSAGES, "No messages"),
 
     ]
+    # Default subscriptions inherit from this
+    message_prefs = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=DEFAULT_MESSAGES)
 
     # Connection to the user.
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -104,12 +108,6 @@ class Profile(models.Model):
 
     # Automatic notification
     notify = models.BooleanField(default=False)
-
-    # Default subscriptions inherit from this
-    message_prefs = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=DEFAULT_MESSAGES)
-
-    # Subscription to daily and weekly digests.
-    digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=WEEKLY_DIGEST)
 
     # Opt-in to all messages from the site
     opt_in = models.BooleanField(default=False)

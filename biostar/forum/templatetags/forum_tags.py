@@ -18,7 +18,7 @@ from django.utils.timezone import utc
 
 from biostar.accounts.models import Profile, Message
 from biostar.forum import const
-from biostar.forum.models import Post, Vote, Award, Subscription
+from biostar.forum.models import Post, Vote, Award, Subscription, Digest
 
 User = get_user_model()
 
@@ -184,7 +184,9 @@ def post_user_box(user, post):
 @register.inclusion_tag('widgets/post_actions.html', takes_context=True)
 def post_actions(context, post, label="ADD COMMENT", avatar=False):
     request = context["request"]
-    return dict(post=post, label=label, request=request, avatar=avatar)
+
+    return dict(post=post, user=request.user,
+                label=label, request=request, avatar=avatar)
 
 
 @register.inclusion_tag('widgets/post_tags.html')
@@ -225,6 +227,30 @@ def unread(message, user):
 def toggle_unread(user):
     Message.objects.filter(recipient=user, unread=True).update(unread=False)
     return ''
+
+
+@register.simple_tag(takes_context=True)
+def digest_label(context, post):
+
+    user = context['request'].user
+    no_digest = 'no digest'
+
+    label_map = {
+        Digest.WEEKLY_DIGEST: "weekly digest",
+        Digest.MONTHLY_DIGEST: "monthly digest",
+        Digest.DAILY_DIGEST: 'daily digest',
+        Digest.NO_DIGEST: no_digest
+    }
+    if user.is_anonymous:
+        return no_digest
+
+    # Get the current user digest
+    digest = Digest.objects.filter(post=post.root, user=user).first()
+    digest = digest or Digest(post=post, user=user, pref=Digest.NO_DIGEST)
+
+    label = label_map.get(digest.pref, no_digest)
+
+    return label
 
 
 @register.simple_tag(takes_context=True)
@@ -362,7 +388,7 @@ def list_posts(context, target):
 
 @register.inclusion_tag('widgets/feed_default.html')
 def default_feed(user):
-    recent_votes = Vote.objects.prefetch_related("post").exculde(post__status=Post.DELETED)
+    recent_votes = Vote.objects.prefetch_related("post").exclude(post__status=Post.DELETED)
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
     recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED, Profile.SUSPENDED]))
@@ -370,10 +396,10 @@ def default_feed(user):
     recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
-    recent_awards = recent_awards.exculde(user__profile__state__in=[Profile.BANNED, Profile.SUSPENDED])
+    recent_awards = recent_awards.exclude(user__profile__state__in=[Profile.BANNED, Profile.SUSPENDED])
     recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
 
-    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER]).exculde(status=Post.DELETED)
+    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER]).exclude(status=Post.DELETED)
     recent_replies = recent_replies.select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 

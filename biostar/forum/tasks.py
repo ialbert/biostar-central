@@ -2,7 +2,7 @@
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from biostar.utils.decorators import spool, timer
-
+from django.db.models import Q
 #
 # Do not use logging in tasks! Deadlocking may occur!
 #
@@ -87,6 +87,29 @@ def create_user_awards(user_id):
             Award.objects.create(user=user, badge=badge, date=date, post=post)
 
             message("award %s created for %s" % (badge.name, user.email))
+
+
+@spool(pass_arguments=True)
+def create_digests(post):
+    """
+    Creates a digest for users to a specific post.
+    """
+    # Create a digest objects for post.
+    from biostar.forum.models import Digest
+    from biostar.accounts.models import Profile, User
+
+    # Get all users that have chosen a digest option in their profile.
+    users = User.objects.exclude(profile__digest_prefs=Profile.NO_DIGEST)
+    root = post.root
+
+    for user in users:
+        # Check if a digest already exists between user and post.
+        digest = Digest.objects.filter(post=root, user=user)
+        if digest:
+            continue
+
+        # Create digest object for post and user.
+        Digest.objects.create(post=root, user=user)
 
 
 @spool(pass_arguments=True)

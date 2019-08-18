@@ -309,8 +309,9 @@ $(document).ready(function () {
         var elem = $(this);
         //elem.html('asshole');
         // Fetch feed from url url
-        var feed_url = '/ajax/feed/';
         var uid = elem.attr('post_uid');
+        var feed_url = '/similar/posts/' + uid + '/';
+
 
         $.ajax(feed_url,
             {
@@ -370,6 +371,14 @@ $(document).ready(function () {
          inplace_form($(this))
     });
 
+    $('.more').click(function (event) {
+        var uid = $(this).data('value');
+        var actions = $('.actions-' + uid);
+        actions.transition('fade right');
+        //$(this).hide();
+        //inplace_form(elem)
+    });
+
     $('.inplace-edit').click(function (event) {
         var uid = $(this).data('value');
         var elem = $('#content-' + uid);
@@ -424,6 +433,43 @@ $(document).ready(function () {
         edit_post(uid);
      });
 
+    $('#digest').dropdown({
+          action:'hide',
+          onChange: function (value, text, $item) {
+          var elem = $(this);
+
+          console.log(elem.id);
+
+          // Get the root id
+          var uid = elem.data("uid");
+          // Currently selected item
+          var active = $('#active');
+          // Subscription url
+          var digest_url = '/ajax/digest/' + uid + '/';
+          $.ajax(digest_url,
+              {
+                  type: 'POST',
+                  dataType: 'json',
+                  ContentType: 'application/json',
+                  data: {
+                      'pref': value
+                  },
+                  success: function (data) {
+                      if (data.status === 'error') {
+                          popup_message(elem, data.msg, data.status);
+                      } else {
+                          // Replace current item with the select one.
+                          active.text($item.text());
+                      }
+
+                      },
+                  error: function (xhr, status, text) {
+                    error_message(elem, xhr, status, text)
+                  }
+              })
+          }
+        });
+
 
     $('#subscribe')
         .dropdown({
@@ -439,6 +485,7 @@ $(document).ready(function () {
           var active = $('#active');
           // Subscription url
           var subs_url = '/ajax/subscribe/';
+          alert("subs_url");
           $.ajax(subs_url,
               {
                   type: 'POST',
@@ -565,7 +612,7 @@ $(document).ready(function () {
     });
 
     $('.display-answer').click(function() {
-        $('.answer-form').show();
+        $('.answer-form').transition('slide down');
     });
 
     $('pre').addClass('language-bash');

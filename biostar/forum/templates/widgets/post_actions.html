@@ -2,28 +2,27 @@
 {% load forum_tags %}
 
 {#  Post action bar. #}
+
+
 <div class="actions">
 
     <a class="add-comment ui tiny label" data-value="{{ post.uid }}">{{ label }}</a>
 
+
     &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
 
-    {% if post.is_editable %}
-        &bull; <a class="inplace-edit pointer" data-value="{{ post.uid }}">edit</a>
-    {% endif %}
+        {% if post.is_editable %}
+            &bull; <a class="inplace-edit pointer" data-value="{{ post.uid }}">edit</a>
+        {% endif %}
 
-    {% if post.can_moderate %}
-        &bull; <a class="moderate-post" href="#" data-value="{{ post.uid }}">moderate</a>
-    {% endif %}
+        {% if post.can_moderate %}
+            &bull; <a class="moderate-post" href="#" data-value="{{ post.uid }}">moderate</a>
+        {% endif %}
 
-    <span class="status muted">
-        {% post_user_line post=post avatar=avatar %}
-    </span>
-
-    {#  Show title on top level posts #}
-    {% if post.is_toplevel %}
-        &bull;
-        <div class="ui bottom pointing dropdown" id="subscribe" data-uid="{{ post.uid }}">
+        {#  Show title on top level posts #}
+        {% if post.is_toplevel and user.is_authenticated %}
+            &bull;
+            <div class="ui bottom pointing dropdown" id="subscribe" data-uid="{{ post.uid }}">
             <div class="text" id="active">{% follow_label post=post %}</div>
             <i class="caret up icon"></i>
             <div class="menu">
@@ -32,7 +31,22 @@
                 <div class="item" data-value="unfollow"><i class="close icon"></i> stop following</div>
             </div>
         </div>
-    {% endif %}
+
+            <div class="ui bottom pointing dropdown" id="digest" data-uid="{{ post.uid }}">
+            <div class="text" id="active">{% digest_label post=post %}</div>
+            <i class="caret up icon"></i>
+            <div class="menu">
+                <div class="item" data-value="daily"><i class="envelope icon"></i>daily digest </div>
+                <div class="item" data-value="monthly"><i class="envelope outline icon"></i>monthly digest</div>
+                <div class="item" data-value="weekly"><i class="close icon"></i>weekly digest</div>
+                <div class="item" data-value="no digest"><i class="close icon"></i>no digest</div>
+            </div>
+        </div>
+        {% endif %}
+
+    <span class="status muted">
+        {% post_user_line post=post avatar=avatar %}
+    </span>
 
 </div>
 

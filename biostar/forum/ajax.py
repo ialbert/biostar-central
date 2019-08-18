@@ -99,7 +99,7 @@ def ajax_subs(request):
     was_limited = getattr(request, 'limited', False)
 
     if was_limited:
-        return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     type_map = dict(messages=Subscription.LOCAL_MESSAGE, email=Subscription.EMAIL_MESSAGE,
                     unfollow=Subscription.NO_MESSAGES)
@@ -116,6 +116,25 @@ def ajax_subs(request):
     auth.create_subscription(post=root, user=user, sub_type=sub_type)
 
     return ajax_success(msg="Changed subscription.")
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def ajax_digest(request, uid):
+    was_limited = getattr(request, 'limited', False)
+
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
+
+    # Get the post and digest preference.
+    diget_pref = request.POST.get('pref')
+    post = Post.objects.filter(uid=uid).first()
+
+    print(post)
+    1/0
+
+    return
 
 
 @ratelimit(key='ip', rate='50/h')
@@ -219,12 +238,11 @@ def ajax_tags_search(request):
     return ajax_success(msg="")
 
 
-def ajax_feed(request):
+def similar_posts(request, uid):
     """
     Return a feed populated with posts similar to the one in the request.
     """
 
-    uid = request.GET.get('uid')
     post = Post.objects.filter(uid=uid).first()
     if not post:
         ajax_error(msg='Post does not exist.')
@@ -241,7 +259,7 @@ def ajax_feed(request):
         # Sort by lastedit_date
         results = sorted(results, key=lambda x: x['lastedit_date'], reverse=True)
 
-    tmpl = loader.get_template('widgets/feed_single.html')
+    tmpl = loader.get_template('widgets/similar_posts.html')
     context = dict(results=results)
     results_html = tmpl.render(context)
     # Ensure the searcher object gets closed.

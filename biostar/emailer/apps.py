@@ -26,7 +26,7 @@ def init(sender, **kwargs):
         group, flag = EmailGroup.objects.get_or_create(name=name, text=name, html=name)
 
     for num in range(1, 20):
-        uid = get_uuid(4)
+        uid = get_uuid(8)
         name, email = f"Name-{num}", f"email-{uid}j@nomail.for.me"
         address, flag = EmailAddress.objects.get_or_create(name=name, email=email)
 

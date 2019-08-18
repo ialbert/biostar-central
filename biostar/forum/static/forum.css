@@ -225,6 +225,10 @@ a:hover {
     padding-bottom: 10px;
 }
 
+.extra{
+    display: none;
+}
+
 .answer-form{
     display: none;
 }
