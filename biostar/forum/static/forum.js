@@ -443,7 +443,7 @@ $(document).ready(function () {
           // Get the root id
           var uid = elem.data("uid");
           // Currently selected item
-          var active = $('#active');
+          var active = $('#digest-active');
           // Subscription url
           var digest_url = '/ajax/digest/' + uid + '/';
           $.ajax(digest_url,
@@ -482,7 +482,7 @@ $(document).ready(function () {
           // Get the root id
           var post_id = elem.attr("data-uid");
           // Currently selected item
-          var active = $('#active');
+          var active = $('#sub-active');
           // Subscription url
           var subs_url = '/ajax/subscribe/';
           alert("subs_url");

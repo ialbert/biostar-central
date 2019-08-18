@@ -279,7 +279,7 @@ class Digest(models.Model):
 
         # Set the default digest preference from the use profile.
         self.uid = self.uid or util.get_uuid(limit=16)
-        self.prefs = self.prefs or self.user.profile.digest_prefs
+        self.pref = self.pref or self.user.profile.digest_prefs
         
         super(Digest, self).save(*args, **kwargs)
 

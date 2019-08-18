@@ -12,7 +12,7 @@ from whoosh.sorting import FieldFacet, ScoreFacet
 from .const import *
 from taggit.models import Tag
 from . import auth, util, forms, tasks, search
-from .models import Post, Vote, Subscription
+from .models import Post, Vote, Subscription, Digest
 
 
 def ajax_msg(msg, status, **kwargs):
@@ -126,16 +126,17 @@ def ajax_digest(request, uid):
 
     if was_limited:
         return ajax_error(msg="Too many request from same IP address. Temporary ban.")
+    type_map = dict(daily=Digest.DAILY_DIGEST, weekly=Digest.WEEKLY_DIGEST,
+                    monthly=Digest.MONTHLY_DIGEST)
 
     # Get the post and digest preference.
     pref = request.POST.get('pref')
+    pref = type_map.get(pref, Digest.NO_DIGEST)
+
     post = Post.objects.filter(uid=uid).first()
     user = request.user
 
     auth.create_digest(user=user, post=post, pref=pref)
-
-    print(post)
-    1/0
 
     return ajax_success(msg="Changed digest options.")
 

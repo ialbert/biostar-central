@@ -23,7 +23,7 @@
         {% if post.is_toplevel and user.is_authenticated %}
             &bull;
             <div class="ui bottom pointing dropdown" id="subscribe" data-uid="{{ post.uid }}">
-            <div class="text" id="active">{% follow_label post=post %}</div>
+            <div class="text" id="sub-active">{% follow_label post=post %}</div>
             <i class="caret up icon"></i>
             <div class="menu">
                 <div class="item" data-value="messages"><i class="envelope icon"></i>follow via messages </div>
@@ -33,13 +33,13 @@
         </div>
 
             <div class="ui bottom pointing dropdown" id="digest" data-uid="{{ post.uid }}">
-            <div class="text" id="active">{% digest_label post=post %}</div>
+            <div class="text" id="digest-active">{% digest_label post=post %}</div>
             <i class="caret up icon"></i>
             <div class="menu">
                 <div class="item" data-value="daily"><i class="clock icon"></i>daily digest </div>
                 <div class="item" data-value="weekly"><i class="hourglass icon"></i>weekly digest</div>
                 <div class="item" data-value="monthly"><i class="calendar icon"></i>monthly digest</div>
-                <div class="item" data-value="no digest"><i class="bell slash icon"></i>no digest</div>
+                <div class="item" data-value="none"><i class="bell slash icon"></i>no digest</div>
             </div>
         </div>
         {% endif %}
