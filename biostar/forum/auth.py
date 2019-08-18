@@ -12,7 +12,7 @@ from django.utils.timezone import utc
 from biostar.accounts.models import Profile
 from . import util
 from .const import *
-from .models import Post, Vote, PostView, Subscription
+from .models import Post, Vote, PostView, Subscription, Digest
 
 User = get_user_model()
 
@@ -33,6 +33,19 @@ def get_votes(user, root):
             store.setdefault(vote_type, set()).add(post_id)
 
     return store
+
+
+def create_digest(post, user, pref=None):
+    """Create a digest between one user and one post."""
+
+    root = post.root
+    pref = pref or user.profile.digest_prefs
+    # Check if a digest already exists.
+    digest, created = Digest.objects.get_or_create(post=root, user=user)
+
+    Digest.objects.filter(pk=digest.pk).update(pref=pref)
+
+    return
 
 
 def create_subscription(post, user, sub_type=None, delete_exisiting=True):

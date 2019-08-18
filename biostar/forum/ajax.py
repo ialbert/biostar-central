@@ -128,13 +128,16 @@ def ajax_digest(request, uid):
         return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     # Get the post and digest preference.
-    diget_pref = request.POST.get('pref')
+    pref = request.POST.get('pref')
     post = Post.objects.filter(uid=uid).first()
+    user = request.user
+
+    auth.create_digest(user=user, post=post, pref=pref)
 
     print(post)
     1/0
 
-    return
+    return ajax_success(msg="Changed digest options.")
 
 
 @ratelimit(key='ip', rate='50/h')

@@ -90,26 +90,20 @@ def create_user_awards(user_id):
 
 
 @spool(pass_arguments=True)
-def create_digests(post):
+def user_digests(post):
     """
-    Creates a digest for users to a specific post.
+    Creates a digest for multiple users to a specific post.
     """
     # Create a digest objects for post.
-    from biostar.forum.models import Digest
-    from biostar.accounts.models import Profile, User
+    from biostar.forum import auth
+    from biostar.accounts.models import User, Profile
 
     # Get all users that have chosen a digest option in their profile.
     users = User.objects.exclude(profile__digest_prefs=Profile.NO_DIGEST)
-    root = post.root
 
     for user in users:
-        # Check if a digest already exists between user and post.
-        digest = Digest.objects.filter(post=root, user=user)
-        if digest:
-            continue
-
-        # Create digest object for post and user.
-        Digest.objects.create(post=root, user=user)
+        # Create digest for a single user.
+        auth.create_digest(post=post, user=user)
 
 
 @spool(pass_arguments=True)
