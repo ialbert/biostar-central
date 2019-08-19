@@ -1,20 +1,34 @@
 {% load staticfiles %}
 {% load forum_tags %}
 
-<form class="ui edit-form compact form" data-value="{{ post.uid }}" id="edit-form-{{ post.uid }}">
+<div class="ui inputcolor basic segment">
+<form class="ui edit-form  compact form" data-value="{{ post.uid }}" id="edit-form-{{ post.uid }}">
 
     <div id="content-{{ post.uid }}_wmd_button_bar"></div>
 
-    <div class="inline field">
-        <textarea id="content-{{ post.uid }}" data-value="{{ post.uid }}" rows="{{ rows }}">{{ post.content }}</textarea>
+
+    <div class="field">
+        <textarea id="content-{{ post.uid }}" data-value="{{ post.uid }}"
+                  rows="{{ rows }}">{{ post.content }}</textarea>
     </div>
 
-    <div class="center-text">
-        <a class="ui small label top-padding show-preview" data-value="{{ post.uid }}"
-           style="margin-top:7px; margin-bottom: 7px">
+
+    <div class="field">
+
+        <a class="ui green label save" data-value="{{ post.uid }}"><i class="check icon"></i>Save</a>
+
+        <a class="ui label show-preview" data-value="{{ post.uid }}">
             <i class="eye icon"></i> Preview
         </a>
+
+        <a class="ui label cancel" data-value="{{ post.uid }}"><i class="undo icon"></i> Cancel</a>
+
     </div>
+
+    <p class="muted"
+       style="font-size: smaller;">Tips: CTRL+ENTER to submit the form. ESC to
+        cancel. Double-click to edit post. Markdown accepted.
+    </p>
 
     <div class="hide preview-{{ post.uid }}">
         <div class="ui preview segment">
@@ -22,14 +36,7 @@
         </div>
     </div>
 
-    <div class="top-padding center-text">
-        <a class="ui float-left label save" data-value="{{ post.uid }}"><i class="check icon"></i> Save</a>
-
-        <span class="muted" style="font-size: small;">Double Click to edit. CTRL + ENTER to enter. ESC to exit. </span>
-        <a class="ui float-right label cancel" data-value="{{ post.uid }}"><i class="undo icon"></i> Cancel</a>
-
-    </div>
 </form>
 
-
+</div>
 

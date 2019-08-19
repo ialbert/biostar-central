@@ -8,22 +8,23 @@
     {% if  social_login %}
         <div class="ui segment inputcolor socialbox">
             <div class="ui header">
-                <i class="google icon"></i>Social Login
+                <i class="universal access icon"></i> Automatic Login
             </div>
 
             <p>
                 Click the link below to log in or sign up automatically:
             </p>
 
-            <div class="ui large list">
+           <div class="ui large relaxed icon list">
                 {% for provider in social_login.iterator %}
                     <a class="item" href="{% provider_login_url provider.provider %}">
                         <i class="{{ provider.name|lower }} large icon"></i>
-                        {{ provider.name|title }}
+                        <div class="middle aligned content"> {{ provider.name|title }}</div>
 
                     </a>
                 {% endfor %}
             </div>
+
             <p>
                 Social login is used for authentication only.
             </p>
@@ -35,7 +36,7 @@
         <div class="ui segment inputcolor socialbox">
 
             <div class="ui header">
-                <i class="user icon"></i>Email Login
+                <i class="user icon"></i> Email Login
             </div>
 
             {% csrf_token %}

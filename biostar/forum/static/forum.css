@@ -62,8 +62,10 @@ body {
     width: max-content;
 }
 
+
+
 a:hover {
-    text-decoration: underline;
+    //text-decoration: underline;
 }
 .tag {
     color: black;
@@ -221,9 +223,6 @@ a:hover {
     overflow: auto;
 }
 
-.edit-form{
-    padding-bottom: 10px;
-}
 
 .list-avatar:hover{
   /*border: 1px solid;*/
