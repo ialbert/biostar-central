@@ -366,26 +366,32 @@ def bulk_copy_subs(limit):
 
 
 def test():
-    subs = PostsSubscription.objects.filter(post_id=123258)
-    #1/0
-    # new_subs = Subscription.objects.filter(post_id=121146)
+    post_ids = [123258, 123260]
     seen = []
+    for p in post_ids:
+        subs = PostsSubscription.objects.filter(post_id=p)
+        #1/0
+        # new_subs = Subscription.objects.filter(post_id=121146)
 
-    print(len(UsersProfile.objects.filter(digest_prefs__in=[Profile.WEEKLY_DIGEST, Profile.DAILY_DIGEST,
-                                                            Profile.MONTHLY_DIGEST])),
-          len(UsersProfile.objects.all()))
-    return
-    print(len(subs))
-    for sub in subs:
-        print(sub.post.author.profile.digest_prefs)
-        print(sub.id, sub.user.id, sub.user.email, sub.user.profile.digest_prefs, sub.post.author.email, sub.post.title, sub.type)
+        #print(len(UsersProfile.objects.filter(digest_prefs__in=[Profile.WEEKLY_DIGEST, Profile.DAILY_DIGEST,
+        #                                                        Profile.MONTHLY_DIGEST])),
+        #      len(UsersProfile.objects.all()))
+        #return
+        print(len(subs), p)
+        for sub in subs:
+            print(sub.post.author.profile.digest_prefs)
+            print(sub.id, sub.user.id, sub.user.email, sub.user.profile.digest_prefs, sub.post.author.email, sub.post.title,
+                  sub.user.profile.message_prefs, sub.type)
 
-        #if sub.user.email in seen:
-        #    print(f"Already subbed {sub.user.email}")
+            if sub.user.id in seen:
+                print(f"Already subbed to post={p}, {sub.user.email}")
+                continue
 
-        #seen.append(sub.user.email)
+            seen.append(sub.user.id)
 
-        print('-' * 100)
+            print('-' * 100)
+    print(seen)
+    print(len(seen))
     return
 
 
@@ -407,8 +413,8 @@ class Command(BaseCommand):
         load_subs = options["subs"]
         limit = options.get("limit") or LIMIT
 
-        #test()
-        #return
+        test()
+        return
 
         if load_posts:
             bulk_copy_posts(limit=limit)

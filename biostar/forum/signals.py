@@ -91,7 +91,7 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Create user digests
         if instance.is_toplevel:
-            tasks.user_digests(post=instance)
+            tasks.user_digests(post=instance.root)
 
         # Make the last editor first in the list of contributors
         # Done on post creation to avoid moderators being added for editing a post.
