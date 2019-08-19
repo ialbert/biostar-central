@@ -1,6 +1,6 @@
 {% load forum_tags %}
 
-<div class="ui top attached text menu" id="menu-topics">
+<div class="ui top attached borderless menu" id="menu-topics">
 
     {% if user.is_anonymous %}
 
@@ -52,10 +52,25 @@
             <i class="book icon"></i>
             <span class="tablet">Bookmarks</span>
         </a>
+
+        <div class="item">
+        <div class="ui top pointing dropdown" id="digest">
+            <i class="{% get_digest_icon user %}" id="digest-icon"></i>
+            <div class="text" id="digest-active">{% digest_label post=post %}</div>
+            <i class="caret down icon"></i>
+
+            <div class="menu">
+                <div class="item" data-value="daily" data-icon="clock icon"><i class="clock icon" ></i>Daily digest</div>
+                <div class="item" data-value="weekly" data-icon="hourglass icon"><i class="hourglass icon"></i>Weekly digest</div>
+                <div class="item" data-value="monthly" data-icon="calendar icon"><i class="calendar icon"></i>Monthly digest</div>
+                <div class="item" data-value="none"  data-icon="bell slash icon"><i class="bell slash icon"></i>No digest</div>
+            </div>
+        </div>
+        </div>
     {% endif %}
 
 
-    <div class="right menu">
+    <div class="right menu" id="login-opts">
         {% if user.is_authenticated %}
             <a class="item {% activate tab "profile" %}" href="{% url 'user_profile' user.profile.uid %}">
                 {{ user.profile.name }}   {%  user_icon user %}

@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from biostar.accounts.models import User, Profile
 from biostar.forum import util
-from biostar.forum.models import Post, Vote, Subscription, Badge, Award, Digest
+from biostar.forum.models import Post, Vote, Subscription, Badge, Award
 from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesAward, UsersProfile
 
 from biostar.utils import markdown
@@ -320,27 +320,6 @@ def bulk_copy_subs(limit):
 
             yield sub
 
-    def gen_digests():
-        subs = Subscription.objects.iterator()
-        logger.info("Creating digests")
-
-        elapsed, progress = timer_func()
-        stream = zip(count(1), subs)
-        stream = islice(stream, limit)
-
-        for index, sub in stream:
-            progress(index, msg="digests")
-            user, post = sub.user, sub.post
-
-            # Skip subscribed users without a digest
-            if user.profile.digest_prefs == Profile.NO_DIGEST:
-                continue
-
-            # Create digests for user
-            digest = Digest(user=user, post=post)
-
-            yield digest
-
     def update_counts():
         logger.info("Updating post subs_count")
         # Recompute subs_count for
@@ -413,8 +392,8 @@ class Command(BaseCommand):
         load_subs = options["subs"]
         limit = options.get("limit") or LIMIT
 
-        test()
-        return
+        #test()
+        #return
 
         if load_posts:
             bulk_copy_posts(limit=limit)
@@ -436,6 +415,6 @@ class Command(BaseCommand):
 
         bulk_copy_votes(limit=limit)
 
-        bulk_copy_subs(limit=limit)
+        #bulk_copy_subs(limit=limit)
 
         return

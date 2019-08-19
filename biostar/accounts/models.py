@@ -42,7 +42,7 @@ class Profile(models.Model):
                       (ALL_MESSAGES, "Email for every new thread (mailing list mode)")
                       ]
     # Subscription to daily and weekly digests.
-    digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=NO_DIGEST)
+    digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=WEEKLY_DIGEST)
 
     LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES = range(4)
     MESSAGING_TYPE_CHOICES = [

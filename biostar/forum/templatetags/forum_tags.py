@@ -18,7 +18,7 @@ from django.utils.timezone import utc
 
 from biostar.accounts.models import Profile, Message
 from biostar.forum import const
-from biostar.forum.models import Post, Vote, Award, Subscription, Digest
+from biostar.forum.models import Post, Vote, Award, Subscription
 
 User = get_user_model()
 
@@ -43,7 +43,7 @@ ICON_MAP = dict(
     rsent="sort numeric down icon",
     sent="sort numeric up icon",
     rep="user outline icon",
-    tagged="tags icon"
+    tagged="tags icon",
 )
 
 
@@ -233,22 +233,18 @@ def toggle_unread(user):
 def digest_label(context, post):
 
     user = context['request'].user
-    no_digest = 'no digest'
+    no_digest = 'No digest'
 
     label_map = {
-        Digest.WEEKLY_DIGEST: "weekly digest",
-        Digest.MONTHLY_DIGEST: "monthly digest",
-        Digest.DAILY_DIGEST: 'daily digest',
-        Digest.NO_DIGEST: no_digest
+        Profile.WEEKLY_DIGEST: "Weekly digest",
+        Profile.MONTHLY_DIGEST: "Monthly digest",
+        Profile.DAILY_DIGEST: 'Daily digest',
+        Profile.NO_DIGEST: no_digest
     }
     if user.is_anonymous:
         return no_digest
 
-    # Get the current user digest
-    digest = Digest.objects.filter(post=post.root, user=user).first()
-    digest = digest or Digest(post=post, user=user, pref=Digest.NO_DIGEST)
-
-    label = label_map.get(digest.pref, no_digest)
+    label = label_map.get(user.profile.digest_prefs, no_digest)
 
     return label
 
@@ -412,6 +408,17 @@ def default_feed(user):
 @register.simple_tag
 def get_icon(string, default=""):
     icon = ICON_MAP.get(string) or ICON_MAP.get(default)
+    return icon
+
+
+@register.simple_tag
+def get_digest_icon(user):
+    no_digest = 'bell slash icon'
+
+    icon_map = {Profile.WEEKLY_DIGEST: 'hourglass icon', Profile.MONTHLY_DIGEST: 'calendar icon',
+                Profile.DAILY_DIGEST: 'clock icon', Profile.NO_DIGEST: no_digest}
+
+    icon = icon_map.get(user.profile.digest_prefs) or no_digest
     return icon
 
 

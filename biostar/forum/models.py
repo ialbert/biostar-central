@@ -258,32 +258,6 @@ class PostView(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
 
-class Digest(models.Model):
-    """
-    Represents user digest for a specific post
-    """
-
-    NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST, ALL_MESSAGES = range(5)
-
-    DIGEST_CHOICES = [(NO_DIGEST, 'Never'), (DAILY_DIGEST, 'Daily'),
-                      (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly'),
-                      (ALL_MESSAGES, "Email for every new thread (mailing list mode)")
-                      ]
-
-    pref = models.IntegerField(choices=DIGEST_CHOICES, default=NO_DIGEST)
-    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, null=True, on_delete=models.CASCADE)
-    uid = models.CharField(max_length=32, unique=True)
-
-    def save(self, *args, **kwargs):
-
-        # Set the default digest preference from the use profile.
-        self.uid = self.uid or util.get_uuid(limit=16)
-        self.pref = self.pref or self.user.profile.digest_prefs
-        
-        super(Digest, self).save(*args, **kwargs)
-
-
 class Subscription(models.Model):
     "Connects a post to a user"
     LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES = range(3)

@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from taggit.models import Tag
 from django.db.models import F, Q
 from biostar.accounts.models import Profile, Message
-from .models import Post, Award, Subscription, Digest
+from .models import Post, Award, Subscription
 from . import tasks, auth, util
 
 
@@ -88,10 +88,6 @@ def finalize_post(sender, instance, created, **kwargs):
         # Title is inherited from top level.
         if not instance.is_toplevel:
             instance.title = "%s: %s" % (instance.get_type_display(), instance.root.title[:80])
-
-        # Create user digests
-        if instance.is_toplevel:
-            tasks.user_digests(post=instance.root)
 
         # Make the last editor first in the list of contributors
         # Done on post creation to avoid moderators being added for editing a post.

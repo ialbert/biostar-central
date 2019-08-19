@@ -444,6 +444,8 @@ $(document).ready(function () {
           var uid = elem.data("uid");
           // Currently selected item
           var active = $('#digest-active');
+          var icon_container = $('#digest-icon');
+          var icon_str = $item.data('icon');
           // Subscription url
           var digest_url = '/ajax/digest/' + uid + '/';
           $.ajax(digest_url,
@@ -460,8 +462,9 @@ $(document).ready(function () {
                       } else {
                           // Replace current item with the select one.
                           active.text($item.text());
+                          icon_container.removeClass();
+                          icon_container.addClass(icon_str);
                       }
-
                       },
                   error: function (xhr, status, text) {
                     error_message(elem, xhr, status, text)
