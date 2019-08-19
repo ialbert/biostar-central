@@ -21,24 +21,32 @@ def get_ip(request):
     return ip
 
 
-def benchmark(get_response, request):
-
-    start = time.time()
-    response = get_response(request)
-    delta = time.time() - start
-    logger.info(f'request: url={request.path} time={delta}')
-
-    return response
-
-
-def forum_middleware(get_response):
+def benchmark(get_response):
+    """
+    Benchmarking each request.
+    """
 
     def middleware(request):
-        """
-        This function is called on every request.
+        start = time.time()
 
-        It triggers actions for authenticated users.
-        """
+        response = get_response(request)
+
+        delta = (time.time() - start)*1000
+
+        logger.info(f'time={delta:.0f}ms path={request.path}')
+
+        return response
+
+    return middleware
+
+
+def user_tasks(get_response):
+    """
+    Tasks run for authenticated users.
+    """
+
+    def middleware(request):
+
         user, session = request.user, request.session
 
         # Views for anonymous users are not analzed further.
@@ -83,13 +91,10 @@ def forum_middleware(get_response):
             # Set the session.
             request.session[const.COUNT_DATA_KEY] = counts
 
-        if settings.TIME_REQUESTS:
-            response = benchmark(get_response=get_response, request=request)
-        else:
-            response = get_response(request)
+            tasks.create_user_awards.spool(user_id=user.id)
+            # Can process response here after its been handled by the view
 
-        tasks.create_user_awards.spool(user_id=user.id)
-        # Can process response here after its been handled by the view
+        response = get_response(request)
 
         return response
 

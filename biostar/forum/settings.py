@@ -65,8 +65,8 @@ FORUM_APPS = [
 
 # Additional middleware.
 MIDDLEWARE += [
-    'biostar.forum.middleware.forum_middleware',
-
+    'biostar.forum.middleware.user_tasks',
+    'biostar.forum.middleware.benchmark',
 ]
 
 # Post types displayed when creating, empty list displays all types.
