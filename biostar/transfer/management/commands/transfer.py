@@ -294,19 +294,19 @@ def bulk_copy_posts(limit):
 def bulk_copy_subs(limit):
 
     users = {user.profile.uid: user for user in User.objects.all()}
-    posts = {post.uid: post for post in Post.objects.all()}
+    posts = Post.objects.iterator()
 
     def generate():
-        subs = PostsSubscription.objects.order_by('-date')
+        #subs = PostsSubscription.objects.order_by('-date')
         logger.info("Copying subscriptions")
         elapsed, progress = timer_func()
-        stream = zip(count(1), subs)
+        stream = zip(count(1), posts)
         stream = islice(stream, limit)
 
-        for index, sub in stream:
+        for index, post in stream:
             progress(index, msg="subscriptions")
-            user = users.get(str(sub.user_id))
-            post = posts.get(str(sub.post_id))
+            #user = users.get(str(sub.user_id))
+            #post = posts.get(str(sub.post_id))
 
             # Skip incomplete data or subs already made
             if not (user and post):

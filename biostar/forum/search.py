@@ -7,9 +7,12 @@ from collections import defaultdict
 
 from django.db.models.functions import Concat
 from django.db.models import TextField, Value as V
-from django.contrib.postgres.aggregates import StringAgg
 
-from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+# TODO: These need the psycopg to be installed. That should not be so by default.
+# Postgres specific queries should go into separate module.
+#from django.contrib.postgres.aggregates import StringAgg
+#from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+
 from django.conf import settings
 from django.utils.text import smart_split
 from django.db.models import Q

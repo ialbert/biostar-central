@@ -1,0 +1,42 @@
+{% load staticfiles %}
+{% load forum_tags %}
+
+<div class="ui inplace inputcolor basic segment">
+<form class="ui inplace edit-form compact form" data-value="{{ post.uid }}" id="edit-form-{{ post.uid }}">
+
+    <div id="content-{{ post.uid }}_wmd_button_bar"></div>
+
+
+    <div class="field">
+        <textarea id="content-{{ post.uid }}" data-value="{{ post.uid }}"
+                  rows="{{ rows }}">{{ post.content }}</textarea>
+    </div>
+
+
+    <div class="field">
+
+        <a class="ui green label save" data-value="{{ post.uid }}"><i class="check icon"></i>Save</a>
+
+        <a class="ui label show-preview" data-value="{{ post.uid }}">
+            <i class="eye icon"></i> Preview
+        </a>
+
+        <a class="ui label cancel" data-value="{{ post.uid }}"><i class="undo icon"></i> Cancel</a>
+
+    </div>
+
+    <p class="muted"
+       style="font-size: smaller;">Tips: CTRL+ENTER to submit the form. ESC to
+        cancel. Double-click to edit post. Markdown accepted.
+    </p>
+
+    <div class="hide preview-{{ post.uid }}">
+        <div class="ui preview segment">
+            <div id="html-preview-{{ post.uid }}">{{ post.html|safe }}</div>
+        </div>
+    </div>
+
+</form>
+
+</div>
+

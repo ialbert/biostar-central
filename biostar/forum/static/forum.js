@@ -166,11 +166,50 @@ function remove_trigger() {
     });
 }
 
-function edit_post(uid) {
-    var edit_url = '/ajax/edit/';
+
+function edit_title(uid) {
+    var edit_url = '/edit/title/' + uid + '/';
+    var form_elem = $('#edit-title-' + uid);
+    var title = form_elem.find('textarea').val();
+    var collapse = $('.inplace-collapse');
+    var form_container = $('inplace-title[data-value="'+ uid +'"]');
+    var title_box = $('#title-' + uid);
+
+    $.ajax(edit_url,
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'title': title
+            },
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(form_elem, data.msg, data.status, 3000);
+                } else {
+                    // Hide form
+                    form_elem.html('');
+                    form_container.hide();
+                    collapse.show();
+                    // Replace with edited data
+                    title_box.html(data.title).show().focus();
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(form_elem, xhr, status, text)
+            }
+        })
+
+
+}
+
+
+function edit_content(uid) {
+    var edit_url = '/edit/content/' + uid + '/';
     var form_elem = $('#edit-form-' + uid);
     var edited = form_elem.find('textarea').val();
-    var form_container = $('#editing-' + uid);
+
+    var form_container = $('inplace-content[data-value="'+ uid +'"]');
     var actions_box =  $('.actions-collapse-' +uid);
     var content_box = $('#content-' + uid);
 
@@ -180,7 +219,6 @@ function edit_post(uid) {
             dataType: 'json',
             ContentType: 'application/json',
             data: {
-                'post_uid': uid,
                 'content': edited
             },
             success: function (data) {
@@ -205,15 +243,15 @@ function edit_post(uid) {
         })
 }
 
+function cancel_inplace_content(uid) {
+    var inplace_content = $('inplace-content[data-value="'+ uid +'"]');
 
-function cancel_inplace(uid){
-
-    var form_container = $('#editing-' + uid);
-    var content = $('#content-' + uid);
+    var content = $('.editable-content[data-value="'+ uid +'"]');
+    //var content = $('#content-' + uid);
     var actions_box =  $('.actions-collapse-' +uid);
 
     //Delete the form
-    form_container.html("");
+    inplace_content.html("");
     // Hide the container
     // Show original content
     content.show();
@@ -221,21 +259,89 @@ function cancel_inplace(uid){
     actions_box.show();
 }
 
-function inplace_form(elem){
+function cancel_inplace_title(uid) {
+    var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
 
-    var inplace_url = '/ajax/inplace/';
+    var title = $('.editable-title[data-value="'+ uid +'"]');
+    //var content = $('#content-' + uid);
+    var title_display =  $('.inplace-collapse');
+
+    //Delete the form
+    inplace_title.html("");
+    // Hide the container
+    // Show original content
+    title.show();
+    //Show any blocked element
+    title_display.show();
+}
+
+function cancel_inplace(uid){
+
+    var inplace_content = $('inplace-content[data-value="'+ uid +'"]');
+    var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
+
+    var title = $('.editable-title[data-value="'+ uid +'"]');
+    var content = $('.editable-content[data-value="'+ uid +'"]');
+    //var content = $('#content-' + uid);
+    var actions_box =  $('.actions-collapse-' +uid);
+    var title_display =  $('.inplace-collapse');
+
+    //Delete the form
+    inplace_content.html("");
+    inplace_title.html("");
+    // Hide the container
+    // Show original content
+    title.show();
+    content.show();
+    //Show any blocked element
+    actions_box.show();
+    title_display.show();
+
+}
+
+function inplace_title(elem){
+
     var uid = elem.data("value");
-    var form_container = $('#editing-'+ uid);
-    var actions_box =  $('.actions-collapse-' + uid);
+    var collapse = $('.inplace-collapse');
+    var form_container = $('inplace-title[data-value="'+ uid +'"]');
+    var url = '/inplace/title/' + uid +'/';
 
-    $.ajax(inplace_url,
+    $.ajax(url,
         {
             type: 'GET',
             dataType: 'json',
             ContentType: 'application/json',
-            data: {
-                'uid': uid,
+            success: function (data) {
+                if (data.status === 'error') {
+                    //alert(data.status);
+                    //alert(data.msg);
+                    popup_message(elem, data.msg, data.status, 3000);
+                } else {
+                    elem.hide();
+                    collapse.hide();
+                    form_container.html(data.inplace_form);
+                    form_container.show();
+                }
             },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        })
+}
+
+function inplace_content(elem){
+
+    var uid = elem.data("value");
+    var actions_box =  $('.actions-collapse-' + uid);
+    var form_container = $('inplace-content[data-value="'+ uid +'"]');
+    var url = '/inplace/content/' + uid +'/';
+    //alert(form_container.html());
+
+    $.ajax(url,
+        {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
             success: function (data) {
                 if (data.status === 'error') {
                     alert(data.status);
@@ -253,7 +359,6 @@ function inplace_form(elem){
             }
         })
 }
-
 
 
 function  search(query, elem, search_url) {
@@ -363,26 +468,26 @@ $(document).ready(function () {
 
     });
 
-    $('.editable').click(function (event) {
+    $('.editable-title').click(function (event) {
          if (event.metaKey || event.ctrlKey){
-             inplace_form($(this))
+             inplace_title($(this))
          }
     }).dblclick(function (event) {
-         inplace_form($(this))
+         inplace_title($(this))
     });
 
-    $('.more').click(function (event) {
-        var uid = $(this).data('value');
-        var actions = $('.actions-' + uid);
-        actions.transition('fade right');
-        //$(this).hide();
-        //inplace_form(elem)
+    $('.editable-content').click(function (event) {
+         if (event.metaKey || event.ctrlKey){
+             inplace_content($(this))
+         }
+    }).dblclick(function (event) {
+         inplace_content($(this))
     });
 
     $('.inplace-edit').click(function (event) {
         var uid = $(this).data('value');
         var elem = $('#content-' + uid);
-        inplace_form(elem)
+        inplace_content(elem)
     });
 
     $(this).on('keyup', '.edit-form textarea', function (event) {
@@ -390,7 +495,7 @@ $(document).ready(function () {
         var uid = $(this).data('value');
         // Submit form with CTRL-ENTER
         if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
-            edit_post(uid);
+            edit_content(uid);
             return
         }
 
@@ -409,10 +514,18 @@ $(document).ready(function () {
 
 
     });
-    $(this).keyup(function (event) {
+    $(this).on('keyup', '.edit-title textarea', function (event) {
 
+        var uid = $(this).data('value');
+        // Submit form with CTRL-ENTER
+        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
+            edit_title(uid);
+        }
+    });
+
+    $(this).keyup(function (event) {
         if (event.keyCode === 27){
-            $('.edit-form').each(function () {
+            $('.inplace').each(function () {
                 event.preventDefault();
                 var uid = $(this).data("value");
                 cancel_inplace(uid);
@@ -424,13 +537,25 @@ $(document).ready(function () {
     $(this).on('click', '.edit-form .cancel', function(){
         event.preventDefault();
         var uid = $(this).data("value");
-        cancel_inplace(uid);
+        cancel_inplace_content(uid);
+     });
+
+    $(this).on('click', '.edit-title .cancel', function(){
+        event.preventDefault();
+        var uid = $(this).data("value");
+        cancel_inplace_title(uid);
      });
 
     $(this).on('click', '.edit-form .save', function(){
         var uid = $(this).data("value");
         event.preventDefault();
-        edit_post(uid);
+        edit_content(uid);
+     });
+
+    $(this).on('click', '.edit-title .save', function(){
+        var uid = $(this).data("value");
+        event.preventDefault();
+        edit_title(uid);
      });
 
     $('#digest').dropdown({

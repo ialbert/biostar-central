@@ -62,8 +62,10 @@ body {
     width: max-content;
 }
 
+
+
 a:hover {
-    text-decoration: underline;
+    //text-decoration: underline;
 }
 .tag {
     color: black;
@@ -221,9 +223,6 @@ a:hover {
     overflow: auto;
 }
 
-.edit-form{
-    padding-bottom: 10px;
-}
 
 .extra{
     display: none;
@@ -236,6 +235,11 @@ a:hover {
 .list-avatar:hover{
   /*border: 1px solid;*/
   box-shadow: 1px 1px 1px #888888;
+}
+
+.inplace{
+    margin: 0px !important;
+    padding:3px !important;
 }
 
 .clearfix::after {

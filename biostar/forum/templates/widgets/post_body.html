@@ -10,10 +10,14 @@
             {#  Page anchor. #}
             <a name="{{ post.uid }}"></a>
             {#  Post title. #}
-            {{ post.get_type_display }}: {{ post.title }}
-        {% if post.is_editable %}
-            <a href="{% url 'post_edit' post.uid %}"><i class="edit icon"></i></a>
-        {% endif %}
+         {% if post.is_editable and post.is_toplevel %}
+             <span class="inplace-collapse">{{ post.get_type_display }}:</span>
+             <span class="editable-title" data-value="{{ post.uid }}" id="title-{{ post.uid }}">{{ post.title }}</span>
+             <inplace-title data-value="{{ post.uid }}"></inplace-title>
+
+         {% else %}
+             {{ post.get_type_display }}: {{ post.title }}
+         {% endif %}
 
         </div>
     {% endif %}
@@ -59,12 +63,11 @@
             </div>
                 {# Display post content. #}
                 {% if post.is_editable %}
-                    
 
-                    <div class="editable" id="content-{{ post.uid }}" data-value="{{ post.uid }}">
+                    <div class="editable-content" id="content-{{ post.uid }}" data-value="{{ post.uid }}">
                     {{ post.html|safe }}
                     </div>
-                    <div class="editable-form" id="editing-{{ post.uid }}" data-value="{{ post.uid }}"></div>
+                    <inplace-content data-value="{{ post.uid }}"></inplace-content>
 
 
                 {% else %}
@@ -72,12 +75,14 @@
                 {% endif %}
 
 
+
             </div>
-        <div class="actions-collapse-{{ post.uid }}">
-            {# Show tags #}
             {% if post.is_toplevel %}
                 {% post_tags post=post show_views=True %}
             {% endif %}
+
+        <div class="actions-collapse-{{ post.uid }}">
+            {# Show tags #}
 
             {# Show the post actions #}
             {% post_actions post=post %}

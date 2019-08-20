@@ -143,13 +143,15 @@ def ajax_digest(request, uid):
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
-def ajax_edit(request):
+def edit_content(request, uid):
     """
     Edit post content using ajax.
     """
-    uid = request.POST.get("post_uid")
-    post = Post.objects.filter(uid=uid).first()
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
+    post = Post.objects.filter(uid=uid).first()
     if not post:
         return ajax_error(msg="Post does not exist")
     content = request.POST.get("content", post.content)
@@ -169,16 +171,58 @@ def ajax_edit(request):
     return ajax_success(msg=post.html)
 
 
-@ajax_error_wrapper(method="GET")
-def ajax_inplace(request):
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def edit_title(request, uid):
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
-    uid = request.GET.get("uid")
+    post = Post.objects.filter(uid=uid).first()
+    if not post:
+        return ajax_error(msg="Post does not exist")
+
+    title = request.POST.get('title', post.title)
+    length = len(title.replace(" ", ''))
+
+    if length < forms.MIN_CONTENT:
+        return ajax_error(msg=f"Too short, please add more than add more {forms.MIN_CONTENT} characters.")
+    if length > forms.MAX_CONTENT:
+        return ajax_error(msg=f"Too long, please add less than {forms.MAX_CONTENT} characters.")
+
+    post.lastedit_user = request.user
+    post.title = title
+    post.save()
+    return ajax_success(msg="success", title=post.title)
+
+
+@ajax_error_wrapper(method="GET")
+def inplace_title(request, uid):
+
+    post = Post.objects.filter(uid=uid).first()
+
+    if not post:
+        return ajax_error(msg="Post does not exist")
+
+    tmpl = loader.get_template("widgets/inplace_title.html")
+
+    # tmpl = loader.get_template("widgets/test_search_results.html")
+    context = dict(post=post)
+    inplace_form = tmpl.render(context)
+
+    return ajax_success(msg="success", content=post.content, inplace_form=inplace_form)
+
+
+@ajax_error_wrapper(method="GET")
+def inplace_content(request, uid):
+
     post = Post.objects.filter(uid=uid).first()
 
     if not post:
         return ajax_error(msg="Post does not exist")
     rows = len(post.content.split("\n")) + 2
-    tmpl = loader.get_template("widgets/inplace_form.html")
+    tmpl = loader.get_template("widgets/inplace_content.html")
     # tmpl = loader.get_template("widgets/test_search_results.html")
     context = dict(post=post, rows=rows)
 

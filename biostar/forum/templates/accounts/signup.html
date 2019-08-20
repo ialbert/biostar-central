@@ -9,11 +9,36 @@
 
         {% show_messages messages %}
 
+     {% if  social_login %}
+        <div class="ui segment inputcolor socialbox">
+            <div class="ui header">
+                <i class="universal access icon"></i> Automated Signup
+            </div>
+
+            <p>
+                Select one of the providers to sign up automatically:
+            </p>
+
+            <div class="ui large relaxed icon list">
+                {% for provider in social_login.iterator %}
+                    <a class="item" href="{% provider_login_url provider.provider %}">
+                        <i class="{{ provider.name|lower }} large icon"></i>
+                        <div class="middle aligned content"> {{ provider.name|title }}</div>
+
+                    </a>
+                {% endfor %}
+            </div>
+            <p>
+                Social login is used for authentication only.
+            </p>
+        </div>
+    {% endif %}
+
         <form method="post" class="ui form attached fluid" action="{% url 'signup' %}">
             <div class="ui segment inputcolor socialbox">
 
-                <div class="ui header logintext" >
-                     <i class="mail icon"></i>Sign up with Email
+                <div class="ui header" >
+                     <i class="mail icon"></i> Email Signup
                 </div>
 
                 {% form_errors form %}
