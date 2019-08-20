@@ -566,13 +566,12 @@ $(document).ready(function () {
           console.log(elem.id);
 
           // Get the root id
-          var uid = elem.data("uid");
           // Currently selected item
           var active = $('#digest-active');
           var icon_container = $('#digest-icon');
           var icon_str = $item.data('icon');
           // Subscription url
-          var digest_url = '/ajax/digest/' + uid + '/';
+          var digest_url = '/ajax/digest/';
           $.ajax(digest_url,
               {
                   type: 'POST',

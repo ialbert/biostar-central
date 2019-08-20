@@ -122,7 +122,7 @@ def ajax_subs(request):
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
-def ajax_digest(request, uid):
+def ajax_digest(request):
     was_limited = getattr(request, 'limited', False)
     user = request.user
     if was_limited:
