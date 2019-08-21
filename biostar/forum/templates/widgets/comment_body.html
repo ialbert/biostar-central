@@ -22,10 +22,8 @@
 
             {% if post.is_editable %}
 
-                    <div class="editable" id="content-{{ post.uid }}" data-value="{{ post.uid }}">
-                    {{ post.html|safe }}
-                    </div>
-                    <div class="editable-form" id="editing-{{ post.uid }}" data-value="{{ post.uid }}"></div>
+                <div class="editable" data-value="{{ post.uid }}">{{ post.html|safe }}</div>
+                <inplace data-value="{{ post.uid }}"></inplace>
 
             {% else %}
                 {{ post.html|safe }}

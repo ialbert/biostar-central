@@ -34,7 +34,6 @@ def edit_profile(request):
     if request.user.is_anonymous:
         messages.error(request, "Must be logged in to edit profile")
         return redirect("/")
-
     user = request.user
     initial = dict(username=user.username, email=user.email, name=user.profile.name,location=user.profile.location,
                    website=user.profile.website, twitter=user.profile.twitter, scholar=user.profile.scholar,

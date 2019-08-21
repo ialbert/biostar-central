@@ -2,7 +2,7 @@
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from biostar.utils.decorators import spool, timer
-
+from django.db.models import Q
 #
 # Do not use logging in tasks! Deadlocking may occur!
 #
@@ -87,6 +87,8 @@ def create_user_awards(user_id):
             Award.objects.create(user=user, badge=badge, date=date, post=post)
 
             message("award %s created for %s" % (badge.name, user.email))
+
+
 
 
 @spool(pass_arguments=True)

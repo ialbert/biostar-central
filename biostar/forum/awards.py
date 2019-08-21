@@ -245,7 +245,7 @@ GOLD_STANDARD = AwardDef(
 APPRECIATED = AwardDef(
     name="Appreciated",
     desc="created a post with more than 5 votes",
-    func=lambda user: Post.objects.filter(author=user, vote_count__gt=4),
+    func=lambda user: Post.objects.filter(author=user, vote_count__gt=5),
     icon="heart icon",
     type=Badge.SILVER,
 )

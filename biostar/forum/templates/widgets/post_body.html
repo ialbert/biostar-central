@@ -10,10 +10,9 @@
             {#  Page anchor. #}
             <a name="{{ post.uid }}"></a>
             {#  Post title. #}
-            {{ post.get_type_display }}: {{ post.title }}
-        {% if post.is_editable %}
-            <a href="{% url 'post_edit' post.uid %}"><i class="edit icon"></i></a>
-        {% endif %}
+         {% if post.is_toplevel %}
+            <span class="hide-on-edit post-title" data-value="{{ post.uid }}">{{ post.get_type_display }}: {{ post.title }}</span>
+         {% endif %}
 
         </div>
     {% endif %}
@@ -25,7 +24,7 @@
         <a name="{{ post.uid }}"></a>
 
         {#  Voting regions #}
-        <div class="votebox">
+        <div class="votebox hide-on-edit" data-value="{{ post.uid }}">
 
             <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="upvote"
                     data-position="right center" data-state="{{ post.has_upvote }}">
@@ -54,30 +53,27 @@
 
             <div class="wrap">
             {# Display post author. #}
-            <div class="actions-collapse-{{ post.uid }}">
+            <div class="hide-on-edit" data-value="{{ post.uid }}">
                 {% post_user_box user=post.author post=post %}
             </div>
                 {# Display post content. #}
                 {% if post.is_editable %}
-                    
-
-                    <div class="editable" id="content-{{ post.uid }}" data-value="{{ post.uid }}">
-                    {{ post.html|safe }}
-                    </div>
-                    <div class="editable-form" id="editing-{{ post.uid }}" data-value="{{ post.uid }}"></div>
-
-
+                    <div class="editable" data-value="{{ post.uid }}">{{ post.html|safe }}</div>
+                    <inplace data-value="{{ post.uid }}"></inplace>
                 {% else %}
                     {{ post.html|safe }}
                 {% endif %}
 
-
             </div>
-        <div class="actions-collapse-{{ post.uid }}">
+
+
+        <div class="hide-on-edit" data-value="{{ post.uid }}">
             {# Show tags #}
-            {% if post.is_toplevel %}
-                {% post_tags post=post show_views=True %}
-            {% endif %}
+                {% if post.is_toplevel %}
+                    <span class="post-tags" data-value="{{ post.uid }}">
+                    {% post_tags post=post show_views=True %}
+                    </span>
+                {% endif %}
 
             {# Show the post actions #}
             {% post_actions post=post %}

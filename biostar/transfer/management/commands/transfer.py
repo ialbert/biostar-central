@@ -10,7 +10,7 @@ from django.conf import settings
 from biostar.accounts.models import User, Profile
 from biostar.forum import util
 from biostar.forum.models import Post, Vote, Subscription, Badge, Award
-from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesAward
+from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesAward, UsersProfile
 
 from biostar.utils import markdown
 logger = logging.getLogger("engine")
@@ -88,6 +88,8 @@ def bulk_copy_users(limit):
             progress(index, msg="profiles")
             text = util.strip_tags(user.profile.info)
 
+            # The incoming users have weekly digest prefs as a default.
+            #digest_prefs = Profile.NO_DIGEST if user.profile.digest_prefs == Profile.WEEKLY_DIGEST else user.profile.digest_prefs
             profile = Profile(uid=user.id, user=current.get(user.email), name=user.name,
                               message_prefs=user.profile.message_prefs,
                               role=user.type, last_login=user.last_login, html=user.profile.info,
@@ -201,7 +203,7 @@ def bulk_copy_posts(limit):
 
     def add_tags():
         logger.info("Transferring tags")
-        for post in Post.objects.all():
+        for post in Post.objects.iterator():
             tags = [Tag.objects.get_or_create(name=name)[0] for name in post.parse_tags()]
             post.tags.remove(*tags)
             post.tags.add(*tags)
@@ -290,30 +292,31 @@ def bulk_copy_posts(limit):
 
 
 def bulk_copy_subs(limit):
-    seen = set()
+
+    users = {user.profile.uid: user for user in User.objects.all()}
+    posts = Post.objects.iterator()
 
     def generate():
-        users = {user.profile.uid: user for user in User.objects.all()}
-        posts = {post.uid: post for post in Post.objects.all()}
-        subs = PostsSubscription.objects.order_by('-date')
-
+        #subs = PostsSubscription.objects.order_by('-date')
         logger.info("Copying subscriptions")
         elapsed, progress = timer_func()
-        stream = zip(count(1), subs)
+        stream = zip(count(1), posts)
         stream = islice(stream, limit)
 
-        for index, sub in stream:
+        for index, post in stream:
             progress(index, msg="subscriptions")
-            user = users.get(str(sub.user_id))
-            post = posts.get(str(sub.post_id))
-            sub_str = f'{sub.user_id}, {sub.post_id}'
+            #user = users.get(str(sub.user_id))
+            #post = posts.get(str(sub.post_id))
 
             # Skip incomplete data or subs already made
-            if not (user and post) or sub_str in seen:
+            if not (user and post):
+                continue
+
+            # Skip users that have a digest
+            if user.profile.digest_prefs != Profile.NO_DIGEST:
                 continue
 
             sub = Subscription(uid=sub.id, type=sub.type, user=user, post=post, date=sub.date)
-            seen.add(sub_str)
 
             yield sub
 
@@ -327,28 +330,48 @@ def bulk_copy_subs(limit):
             yield post
 
     elapsed, progress = timer_func()
-    Subscription.objects.bulk_create(objs=generate(), batch_size=1000)
+    Subscription.objects.bulk_create(objs=generate(), batch_size=10000)
     scount = Subscription.objects.all().count()
     elapsed(f"transferred {scount} subscriptions")
 
-    Post.objects.bulk_update(objs=update_counts(), fields=["subs_count"], batch_size=1000)
+    Post.objects.bulk_update(objs=update_counts(), fields=["subs_count"], batch_size=10000)
     elapsed(f"Updated {scount} subscription counts")
-    return
 
+    #dcount = Digest.objects.all().count()
+    #Digest.objects.bulk_create(objs=gen_digests(), batch_size=10000)
+    #elapsed(f"Updated {dcount} user digests")
+
+    return
 
 
 def test():
-    subs = PostsSubscription.objects.filter(post_id=123260)
+    post_ids = [123258, 123260]
+    seen = []
+    for p in post_ids:
+        subs = PostsSubscription.objects.filter(post_id=p)
+        #1/0
+        # new_subs = Subscription.objects.filter(post_id=121146)
 
-    # new_subs = Subscription.objects.filter(post_id=121146)
+        #print(len(UsersProfile.objects.filter(digest_prefs__in=[Profile.WEEKLY_DIGEST, Profile.DAILY_DIGEST,
+        #                                                        Profile.MONTHLY_DIGEST])),
+        #      len(UsersProfile.objects.all()))
+        #return
+        print(len(subs), p)
+        for sub in subs:
+            print(sub.post.author.profile.digest_prefs)
+            print(sub.id, sub.user.id, sub.user.email, sub.user.profile.digest_prefs, sub.post.author.email, sub.post.title,
+                  sub.user.profile.message_prefs, sub.type)
 
-    for sub in subs:
-        print(sub.id, sub.post.author_id, sub.post.author.email, sub.post.title, sub.type)
-        print('-'*100)
+            if sub.user.id in seen:
+                print(f"Already subbed to post={p}, {sub.user.email}")
+                continue
 
+            seen.append(sub.user.id)
 
+            print('-' * 100)
+    print(seen)
+    print(len(seen))
     return
-
 
 
 class Command(BaseCommand):
@@ -392,6 +415,6 @@ class Command(BaseCommand):
 
         bulk_copy_votes(limit=limit)
 
-        bulk_copy_subs(limit=limit)
+        #bulk_copy_subs(limit=limit)
 
         return

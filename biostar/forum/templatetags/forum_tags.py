@@ -7,7 +7,8 @@ import urllib.parse
 import datetime
 from datetime import timedelta
 
-from django import template
+
+from django import template, forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
@@ -43,7 +44,7 @@ ICON_MAP = dict(
     rsent="sort numeric down icon",
     sent="sort numeric up icon",
     rep="user outline icon",
-    tagged="tags icon"
+    tagged="tags icon",
 )
 
 
@@ -184,7 +185,9 @@ def post_user_box(user, post):
 @register.inclusion_tag('widgets/post_actions.html', takes_context=True)
 def post_actions(context, post, label="ADD COMMENT", avatar=False):
     request = context["request"]
-    return dict(post=post, label=label, request=request, avatar=avatar)
+
+    return dict(post=post, user=request.user,
+                label=label, request=request, avatar=avatar)
 
 
 @register.inclusion_tag('widgets/post_tags.html')
@@ -228,6 +231,26 @@ def toggle_unread(user):
 
 
 @register.simple_tag(takes_context=True)
+def digest_label(context, post):
+
+    user = context['request'].user
+    no_digest = 'No digest'
+
+    label_map = {
+        Profile.WEEKLY_DIGEST: "Weekly digest",
+        Profile.MONTHLY_DIGEST: "Monthly digest",
+        Profile.DAILY_DIGEST: 'Daily digest',
+        Profile.NO_DIGEST: no_digest
+    }
+    if user.is_anonymous:
+        return no_digest
+
+    label = label_map.get(user.profile.digest_prefs, no_digest)
+
+    return label
+
+
+@register.simple_tag(takes_context=True)
 def follow_label(context, post):
     user = context["request"].user
 
@@ -252,12 +275,31 @@ def follow_label(context, post):
 
 
 @register.simple_tag
-def get_tags(request, post=None):
+def inplace_type_field(post):
+    choices = [opt for opt in Post.TYPE_CHOICES]
+
+    choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES) if settings.ALLOWED_POST_TYPES else
+                                 (opt[0] in Post.TOP_LEVEL), choices)
+
+    post_type = forms.IntegerField(label="Post Type",
+                                   widget=forms.Select(choices=choices, attrs={'class': "ui fluid dropdown",
+                                                                               'id': 'inplace-type'}),
+                                   help_text="Select a post type.")
+
+    value = post.type
+    post_type = post_type.widget.render('post_type', value)
+
+    return mark_safe(post_type)
+
+
+@register.simple_tag
+def get_tags(request=None, post=None):
     # Get tags in requests before fetching ones in the post.
     # This is done to accommodate populating tags in forms
-    tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
-    if post:
-        tags = tags or post.tag_val
+    if request:
+        tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
+    else:
+        tags = post.tag_val if post else ''
 
     tags_opt = {val: True for val in tags.split(",")}
     context = dict(selected=tags, tags_opt=tags_opt.items())
@@ -362,7 +404,7 @@ def list_posts(context, target):
 
 @register.inclusion_tag('widgets/feed_default.html')
 def default_feed(user):
-    recent_votes = Vote.objects.prefetch_related("post")
+    recent_votes = Vote.objects.prefetch_related("post").exclude(post__status=Post.DELETED)
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
     recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED, Profile.SUSPENDED]))
@@ -370,9 +412,10 @@ def default_feed(user):
     recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
+    recent_awards = recent_awards.exclude(user__profile__state__in=[Profile.BANNED, Profile.SUSPENDED])
     recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
 
-    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER])
+    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER]).exclude(status=Post.DELETED)
     recent_replies = recent_replies.select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 
@@ -385,6 +428,17 @@ def default_feed(user):
 @register.simple_tag
 def get_icon(string, default=""):
     icon = ICON_MAP.get(string) or ICON_MAP.get(default)
+    return icon
+
+
+@register.simple_tag
+def get_digest_icon(user):
+    no_digest = 'bell slash icon'
+
+    icon_map = {Profile.WEEKLY_DIGEST: 'hourglass icon', Profile.MONTHLY_DIGEST: 'calendar icon',
+                Profile.DAILY_DIGEST: 'clock icon', Profile.NO_DIGEST: no_digest}
+
+    icon = icon_map.get(user.profile.digest_prefs) or no_digest
     return icon
 
 

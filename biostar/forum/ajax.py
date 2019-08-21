@@ -11,6 +11,7 @@ from whoosh.searching import Results
 from whoosh.sorting import FieldFacet, ScoreFacet
 from .const import *
 from taggit.models import Tag
+from biostar.accounts.models import Profile
 from . import auth, util, forms, tasks, search
 from .models import Post, Vote, Subscription
 
@@ -24,6 +25,10 @@ def ajax_msg(msg, status, **kwargs):
 logger = logging.getLogger("biostar")
 ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
+
+
+MIN_TITLE_CHARS = 10
+MAX_TITLE_CHARS = 5000
 
 
 class ajax_error_wrapper:
@@ -99,7 +104,7 @@ def ajax_subs(request):
     was_limited = getattr(request, 'limited', False)
 
     if was_limited:
-        return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     type_map = dict(messages=Subscription.LOCAL_MESSAGE, email=Subscription.EMAIL_MESSAGE,
                     unfollow=Subscription.NO_MESSAGES)
@@ -121,48 +126,112 @@ def ajax_subs(request):
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
-def ajax_edit(request):
+def ajax_digest(request):
+    was_limited = getattr(request, 'limited', False)
+    user = request.user
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
+    type_map = dict(daily=Profile.DAILY_DIGEST, weekly=Profile.WEEKLY_DIGEST,
+                    monthly=Profile.MONTHLY_DIGEST)
+    if user.is_anonymous:
+        return ajax_error(msg="You need to be logged in to edit your profile.")
+
+    # Get the post and digest preference.
+    pref = request.POST.get('pref')
+    pref = type_map.get(pref, Profile.NO_DIGEST)
+    Profile.objects.filter(user=user).update(digest_prefs=pref)
+
+    return ajax_success(msg="Changed digest options.")
+
+
+def validate_length(field, min_len, max_len):
+
+    length = len(field.replace(" ", ''))
+
+    if length < min_len:
+        msg = f"Too short, please add more than add more {forms.MIN_CONTENT} characters."
+        return False, msg
+    if length > max_len:
+        msg = f"Too long, please add less than {forms.MAX_CONTENT} characters."
+        return False, msg
+
+    return True, ''
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def ajax_edit(request, uid):
     """
     Edit post content using ajax.
     """
-    uid = request.POST.get("post_uid")
-    post = Post.objects.filter(uid=uid).first()
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
+    post = Post.objects.filter(uid=uid).first()
     if not post:
         return ajax_error(msg="Post does not exist")
-    content = request.POST.get("content", post.content)
-    length = len(content.replace(" ", ''))
 
-    if length < forms.MIN_CONTENT:
-        return ajax_error(msg=f"Too short, please add more than add more {forms.MIN_CONTENT} characters.")
-    if length > forms.MAX_CONTENT:
-        return ajax_error(msg=f"Too long, please add less than {forms.MAX_CONTENT} characters.")
+    content = request.POST.get("content", post.content)
+    title = request.POST.get("title", post.title)
+    post_type = int(request.POST.get("type", post.type))
+    tag_val = request.POST.getlist("tag_val", post.tag_val.split(','))
+    tag_val = ','.join(tag_val)
+
+    #tag_val = tag_val.split(",")
+    content_length = len(content.replace(" ", ''))
+    title_length = len(title.replace(' ', ''))
+
+    allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
+    #TODO: refactor out nested clauses
+    if content_length <= forms.MIN_CONTENT:
+        return ajax_error(msg=f"Content too short, please add more than add more {forms.MIN_CONTENT} characters.")
+    elif content_length > forms.MAX_CONTENT:
+        return ajax_error(msg=f"Content too long, please add less than {forms.MAX_CONTENT} characters.")
+
+    if post.is_toplevel:
+        if title_length <= MIN_TITLE_CHARS:
+            return ajax_error(msg=f"Title too short, please add more than add more {MIN_TITLE_CHARS} characters.")
+        elif title_length > MAX_TITLE_CHARS:
+            return ajax_error(msg=f"Title too long, please add more than add more {MAX_TITLE_CHARS} characters.")
+        if post_type not in allowed_types:
+            return ajax_error(msg=f"Not a valid post type.")
+
+        post.title = title
+        post.type = post_type
+        post.tag_val = tag_val
 
     post.lastedit_user = request.user
     post.content = content
     post.save()
 
+    tags = post.tag_val.split(",")
+    context = dict(post=post, tags=tags, show_views=True)
+    tmpl = loader.get_template('widgets/post_tags.html')
+
+    tag_html = tmpl.render(context)
+
     # Note: returns html instead of JSON on success.
     # Used to switch content inplace.
-    return ajax_success(msg=post.html)
+    new_title = f'{post.get_type_display()}: {post.title}'
+    return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
 
 
-@ajax_error_wrapper(method="GET")
-def ajax_inplace(request):
-
-    uid = request.GET.get("uid")
+def inplace_edit(request, uid):
     post = Post.objects.filter(uid=uid).first()
 
     if not post:
         return ajax_error(msg="Post does not exist")
     rows = len(post.content.split("\n")) + 2
-    tmpl = loader.get_template("widgets/inplace_form.html")
+    tmpl = loader.get_template("widgets/inplace_edit.html")
+
     # tmpl = loader.get_template("widgets/test_search_results.html")
     context = dict(post=post, rows=rows)
 
     inplace_form = tmpl.render(context)
 
-    return ajax_success(msg="success", content=post.content, inplace_form=inplace_form)
+    return ajax_success(msg="success", inplace_form=inplace_form)
 
 
 def close(r):
@@ -219,12 +288,11 @@ def ajax_tags_search(request):
     return ajax_success(msg="")
 
 
-def ajax_feed(request):
+def similar_posts(request, uid):
     """
     Return a feed populated with posts similar to the one in the request.
     """
 
-    uid = request.GET.get('uid')
     post = Post.objects.filter(uid=uid).first()
     if not post:
         ajax_error(msg='Post does not exist.')
@@ -241,7 +309,7 @@ def ajax_feed(request):
         # Sort by lastedit_date
         results = sorted(results, key=lambda x: x['lastedit_date'], reverse=True)
 
-    tmpl = loader.get_template('widgets/feed_single.html')
+    tmpl = loader.get_template('widgets/similar_posts.html')
     context = dict(results=results)
     results_html = tmpl.render(context)
     # Ensure the searcher object gets closed.

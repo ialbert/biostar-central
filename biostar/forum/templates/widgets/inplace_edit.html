@@ -1,0 +1,93 @@
+{% load staticfiles %}
+{% load forum_tags %}
+
+<div class="ui inplace inputcolor basic segment" style="padding-bottom: 5px;">
+    <form class="ui inplace edit-form compact form" data-value="{{ post.uid }}">
+        {% if post.is_toplevel %}
+            <div style="display:-webkit-box;">
+
+                <div class="three wide field" style="width: 20%; padding-right: 5px">
+                    {% inplace_type_field post=post %}
+                </div>
+
+                <div class="field" style="width: 80%;">
+                <textarea class="title" data-value="{{ post.uid }}" rows="1" style="padding: .6em;">{{ post.title }}</textarea>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="field">
+            <textarea class="content" data-value="{{ post.uid }}" rows="{{ rows }}">{{ post.content }}</textarea>
+        </div>
+
+        {% if post.is_toplevel %}
+            <div class="field">
+                {% get_tags post=post as tags %}
+
+                <input type="hidden" name="tag_val" id="tag_val_id"
+                       value="{{ tags.selected }}">
+
+                <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu" field_id="tag_val_id">
+
+                    {% for value, selected_tag in tags.tags_opt %}
+                        {% if selected_tag %}
+                            <option value="{{ value }}" selected="selected">{{ value }}</option>
+                        {% else %}
+                            <option value="{{ value }}">{{ value }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+        <div class="field">
+
+            <a class="ui green label save" data-value="{{ post.uid }}"><i class="check icon"></i>Save</a>
+                <a class="ui label show-preview" data-value="{{ post.uid }}">
+                    <i class="eye icon"></i> Preview
+                </a>
+            <a class="ui label cancel" data-value="{{ post.uid }}"><i class="undo icon"></i> Cancel</a>
+
+        </div>
+
+        <p class="muted"
+           style="font-size: smaller;">Tips: CTRL+ENTER to submit the form. ESC to
+            cancel. Double-click to edit post. Markdown accepted.
+        </p>
+        <div class="hide preview-{{ post.uid }}">
+            <div class="ui preview segment">
+                <div id="html-preview-{{ post.uid }}">{{ post.html|safe }}</div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+    $('.ui.dropdown').dropdown();
+    $('.tag-field').dropdown({
+        allowAdditions: true,
+        onChange: function (value, text, $selectedItem) {
+            // Get form field to add to
+            var tagid = $("#tag-menu").attr('field_id');
+            var tag_field = $('#{0}'.f(tagid));
+            // Add selected tag to field
+            //alert(value);
+            tag_field.val(value);
+        }
+    });
+
+    $('.tag-field >input.search').keydown(function (event) {
+        // Prevent submitting form when adding tag by pressing ENTER.
+        if (event.keyCode === 13) {
+            event.preventDefault();
+        }
+        // Set value with SPACE bar
+        if (event.keyCode === 32) {
+            event.preventDefault();
+            $("#tag-menu").dropdown('set selected', $(this).val().trim());
+            $(this).val('')
+        }
+
+    });
+</script>

@@ -224,9 +224,26 @@ a:hover {
 }
 
 
+.extra{
+    display: none;
+}
+
+.answer-form{
+    display: none;
+}
+
 .list-avatar:hover{
   /*border: 1px solid;*/
   box-shadow: 1px 1px 1px #888888;
+}
+
+.inplace{
+    margin: 0px !important;
+    padding:3px !important;
+}
+
+.no-margin{
+    margin:0px !important;
 }
 
 .clearfix::after {

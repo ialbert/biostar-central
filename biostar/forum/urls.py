@@ -32,14 +32,22 @@ urlpatterns = [
     path('b/view/<str:uid>/', views.badge_view, name='badge_view'),
     path('edit/post/<str:uid>/', views.edit_post, name='post_edit'),
 
+    path('ajax/digest/', ajax.ajax_digest, name='ajax_digest'),
     path('ajax/vote/', ajax.ajax_vote, name='vote'),
     path('ajax/test/', ajax.ajax_test, name='ajax_test'),
-    path('ajax/subscribe/', ajax.ajax_subs, name='ajax_sub'),
-    path('ajax/edit/', ajax.ajax_edit, name='ajax_edit'),
     path('ajax/search/', ajax.ajax_search, name='ajax_search'),
     path('ajax/tags/search/', ajax.ajax_tags_search, name='ajax_tags_search'),
-    path('ajax/feed/', ajax.ajax_feed, name='ajax_feed'),
-    path('ajax/inplace/', ajax.ajax_inplace, name='ajax_inplace'),
+    path('ajax/subscribe/', ajax.ajax_subs, name='ajax_sub'),
+
+    path('ajax/edit/<str:uid>/', ajax.ajax_edit, name='ajax_edit'),
+    path('ajax/tags/search/', ajax.ajax_tags_search, name='ajax_tags_search'),
+    path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
+    path('ajax/digest/<str:uid>/', ajax.ajax_digest, name='ajax_digest'),
+    path('inplace/post/<str:uid>/', ajax.inplace_edit, name='inplace_content'),
+    path('ajax/search/', ajax.ajax_search, name='ajax_search'),
+
+    path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
+
     path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
 
     # Community urls

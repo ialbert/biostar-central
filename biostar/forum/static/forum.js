@@ -166,36 +166,71 @@ function remove_trigger() {
     });
 }
 
+
 function edit_post(uid) {
-    var edit_url = '/ajax/edit/';
-    var form_elem = $('#edit-form-' + uid);
-    var edited = form_elem.find('textarea').val();
-    var form_container = $('#editing-' + uid);
-    var actions_box =  $('.actions-collapse-' +uid);
-    var content_box = $('#content-' + uid);
+
+    var edit_url = '/ajax/edit/' + uid + '/';
+    // Rendered form element
+    var form_elem = $('.edit-form[data-value="'+ uid +'"]');
+    // Inplace form container
+    var form_container = $('inplace[data-value="'+ uid +'"]');
+    // Hidden elements
+    var hidden =  $('.hide-on-edit[data-value="'+ uid +'"]');
+
+    // Post title inside of the form
+    var title = $('.title[data-value="'+ uid +'"]');
+    var content = $('.content[data-value="'+ uid +'"]');
+    var post_type = $('#inplace-type').dropdown('get value');
+    var tag_val = $('.tag-field').dropdown('get value');
+
+    // Current post content and title to replace
+    // with returned values.
+    var post_content = $('.editable[data-value="'+ uid +'"]');
+    var post_title = $('.post-title[data-value="'+ uid +'"]');
+    var post_tags = $('.post-tags[data-value="'+ uid +'"]');
+
+    //alert(content.val());
+    // Title is null and type are null
+    // meaning current post is not top level.
+    if (title.val() == null){
+        title.val('')
+    }
+    if (!($.isNumeric(post_type))){
+        post_type = -1
+    }
 
     $.ajax(edit_url,
         {
             type: 'POST',
             dataType: 'json',
             ContentType: 'application/json',
+            traditional: true,
             data: {
-                'post_uid': uid,
-                'content': edited
+                'content': content.val(),
+                'title':title.val(),
+                'type':post_type,
+                'tag_val':tag_val,
+
             },
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(form_elem, data.msg, data.status, 3000);
                 } else {
-                    // Hide form
+                    // Clear and hide inplace form
                     form_elem.html('');
                     form_container.hide();
-                    actions_box.show();
-                    // Replace with edited data
-                    content_box.html(data.msg).show().focus();
 
-                    content_box.find('pre').addClass('language-bash');
-                    content_box.find('code').addClass('language-bash');
+                    // Show hidden items
+                    hidden.show();
+
+                    // Replace current post info with edited data
+                    post_content.html(data.html).show().focus();
+                    post_title.html(data.title).show();
+                    post_tags.html(data.tag_html).show();
+
+                    // Highlight the markdown in content
+                    post_content.find('pre').addClass('language-bash');
+                    post_content.find('code').addClass('language-bash');
                     Prism.highlightAll();
                 }
             },
@@ -205,37 +240,39 @@ function edit_post(uid) {
         })
 }
 
-
 function cancel_inplace(uid){
 
-    var form_container = $('#editing-' + uid);
-    var content = $('#content-' + uid);
-    var actions_box =  $('.actions-collapse-' +uid);
+    var inplace_content = $('inplace[data-value="'+ uid +'"]');
+    //var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
 
+    //var title = $('.editable-title[data-value="'+ uid +'"]');
+    var content = $('.editable[data-value="'+ uid +'"]');
+    //var content = $('#content-' + uid);
+    var hidden = $('.hide-on-edit[data-value="'+ uid +'"]');
     //Delete the form
-    form_container.html("");
+    inplace_content.html("");
+    //inplace_title.html("");
     // Hide the container
     // Show original content
     content.show();
     //Show any blocked element
-    actions_box.show();
+    hidden.show();
+
 }
 
-function inplace_form(elem){
 
-    var inplace_url = '/ajax/inplace/';
+function inplace_post(elem){
+
     var uid = elem.data("value");
-    var form_container = $('#editing-'+ uid);
-    var actions_box =  $('.actions-collapse-' + uid);
+    var hidden =  $('.hide-on-edit[data-value="'+ uid +'"]');
+    var form_container = $('inplace[data-value="'+ uid +'"]');
+    var url = '/inplace/post/' + uid +'/';
 
-    $.ajax(inplace_url,
+    $.ajax(url,
         {
             type: 'GET',
             dataType: 'json',
             ContentType: 'application/json',
-            data: {
-                'uid': uid,
-            },
             success: function (data) {
                 if (data.status === 'error') {
                     alert(data.status);
@@ -243,9 +280,9 @@ function inplace_form(elem){
                     popup_message(elem, data.msg, data.status, 3000);
                 } else {
                     elem.hide();
-                    actions_box.hide();
+                    hidden.hide();
                     form_container.html(data.inplace_form);
-                    form_container.show();
+                    form_container.show().find('textarea').focus();
                 }
             },
             error: function (xhr, status, text) {
@@ -253,7 +290,6 @@ function inplace_form(elem){
             }
         })
 }
-
 
 
 function  search(query, elem, search_url) {
@@ -309,8 +345,9 @@ $(document).ready(function () {
         var elem = $(this);
         //elem.html('asshole');
         // Fetch feed from url url
-        var feed_url = '/ajax/feed/';
         var uid = elem.attr('post_uid');
+        var feed_url = '/similar/posts/' + uid + '/';
+
 
         $.ajax(feed_url,
             {
@@ -364,16 +401,16 @@ $(document).ready(function () {
 
     $('.editable').click(function (event) {
          if (event.metaKey || event.ctrlKey){
-             inplace_form($(this))
+             inplace_post($(this))
          }
     }).dblclick(function (event) {
-         inplace_form($(this))
+         inplace_post($(this))
     });
 
-    $('.inplace-edit').click(function (event) {
+    $('.inplace-click').click(function (event) {
         var uid = $(this).data('value');
-        var elem = $('#content-' + uid);
-        inplace_form(elem)
+        var elem = $('.editable[data-value="'+ uid +'"]');
+        inplace_post(elem);
     });
 
     $(this).on('keyup', '.edit-form textarea', function (event) {
@@ -400,10 +437,10 @@ $(document).ready(function () {
 
 
     });
-    $(this).keyup(function (event) {
 
+    $(this).keyup(function (event) {
         if (event.keyCode === 27){
-            $('.edit-form').each(function () {
+            $('.inplace').each(function () {
                 event.preventDefault();
                 var uid = $(this).data("value");
                 cancel_inplace(uid);
@@ -425,6 +462,45 @@ $(document).ready(function () {
      });
 
 
+    $('#digest').dropdown({
+          action:'hide',
+          onChange: function (value, text, $item) {
+          var elem = $(this);
+
+          console.log(elem.id);
+
+          // Get the root id
+          // Currently selected item
+          var active = $('#digest-active');
+          var icon_container = $('#digest-icon');
+          var icon_str = $item.data('icon');
+          // Subscription url
+          var digest_url = '/ajax/digest/';
+          $.ajax(digest_url,
+              {
+                  type: 'POST',
+                  dataType: 'json',
+                  ContentType: 'application/json',
+                  data: {
+                      'pref': value
+                  },
+                  success: function (data) {
+                      if (data.status === 'error') {
+                          popup_message(elem, data.msg, data.status);
+                      } else {
+                          // Replace current item with the select one.
+                          active.text($item.text());
+                          icon_container.removeClass();
+                          icon_container.addClass(icon_str);
+                      }
+                      },
+                  error: function (xhr, status, text) {
+                    error_message(elem, xhr, status, text)
+                  }
+              })
+          }
+        });
+
     $('#subscribe')
         .dropdown({
           action:'hide',
@@ -436,9 +512,10 @@ $(document).ready(function () {
           // Get the root id
           var post_id = elem.attr("data-uid");
           // Currently selected item
-          var active = $('#active');
+          var active = $('#sub-active');
           // Subscription url
           var subs_url = '/ajax/subscribe/';
+
           $.ajax(subs_url,
               {
                   type: 'POST',
@@ -479,8 +556,6 @@ $(document).ready(function () {
         if (event.keyCode === 13){
             search(query, $(this), search_url);
         }
-
-
     });
 
     $(".moderate-post").click(function (event) {
@@ -564,9 +639,12 @@ $(document).ready(function () {
         field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
     });
 
+    $('.display-answer').click(function() {
+        $('.answer-form').transition('slide down');
+    });
 
     $('pre').addClass('language-bash');
-
+    $('code').addClass('language-bash');
     Prism.highlightAll()
 })
 ;

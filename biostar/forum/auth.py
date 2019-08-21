@@ -35,6 +35,7 @@ def get_votes(user, root):
     return store
 
 
+
 def create_subscription(post, user, sub_type=None, delete_exisiting=True):
     """
     Creates subscription to a post. Returns a list of subscriptions.
