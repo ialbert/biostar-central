@@ -518,10 +518,11 @@ img {
     text-transform:capitalize;
 }
 
-.create-form{
-    padding:7px;
-    border-radius: 10px;
-    background: #f9f6f4;
+#insert-form{
+    display: none;
+    z-index: 1001;
+    position: absolute;
+    width: 73%;
 }
 
 

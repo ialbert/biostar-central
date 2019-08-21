@@ -44,6 +44,9 @@ urlpatterns = [
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
     path('ajax/digest/<str:uid>/', ajax.ajax_digest, name='ajax_digest'),
     path('inplace/post/<str:uid>/', ajax.inplace_edit, name='inplace_content'),
+    path('ajax/create/', ajax.ajax_create, name='ajax_create'),
+    path('inplace/create/', ajax.inplace_create, name='inplace_create'),
+
     path('ajax/search/', ajax.ajax_search, name='ajax_search'),
 
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),

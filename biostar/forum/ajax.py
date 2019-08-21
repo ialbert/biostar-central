@@ -30,6 +30,7 @@ ajax_error = partial(ajax_msg, status='error')
 MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 5000
 
+MAX_TAGS = 5
 
 class ajax_error_wrapper:
     """
@@ -176,10 +177,11 @@ def ajax_edit(request, uid):
     content = request.POST.get("content", post.content)
     title = request.POST.get("title", post.title)
     post_type = int(request.POST.get("type", post.type))
-    tag_val = request.POST.getlist("tag_val", post.tag_val.split(','))
-    tag_val = ','.join(tag_val)
 
-    #tag_val = tag_val.split(",")
+    tag_list = set(request.POST.getlist("tag_val", []))
+    tag_str = ','.join(tag_list)
+
+    tag_length = len(tag_list)
     content_length = len(content.replace(" ", ''))
     title_length = len(title.replace(' ', ''))
 
@@ -198,9 +200,12 @@ def ajax_edit(request, uid):
         if post_type not in allowed_types:
             return ajax_error(msg=f"Not a valid post type.")
 
+        if tag_length > MAX_TAGS:
+            return ajax_error(msg=f"Too many tags, maximum of {MAX_TAGS} tags allowed.")
+
         post.title = title
         post.type = post_type
-        post.tag_val = tag_val
+        post.tag_val = tag_str
 
     post.lastedit_user = request.user
     post.content = content
@@ -218,16 +223,79 @@ def ajax_edit(request, uid):
     return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
 
 
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def ajax_create(request):
+
+    # Get form fields from POST request
+    user = request.user
+    content = request.POST.get("content", '')
+    title = request.POST.get("title", '')
+    post_type = int(request.POST.get('type', 0))
+
+    content_length = len(content.replace(" ", ''))
+    title_length = len(title.replace(' ', ''))
+    allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
+
+    tag_list = set(request.POST.getlist("tag_val", []))
+    tag_str = ','.join(tag_list)
+    tag_length = len(tag_list)
+    # Validate the form fields.
+    #TODO: refactor if clauses
+    if content_length <= forms.MIN_CONTENT:
+        return ajax_error(msg=f"Content too short, please add more than add more {forms.MIN_CONTENT} characters.")
+    elif content_length > forms.MAX_CONTENT:
+        return ajax_error(msg=f"Content too long, please add less than {forms.MAX_CONTENT} characters.")
+
+    if title_length <= MIN_TITLE_CHARS:
+        return ajax_error(msg=f"Title too short, please add more than add more {MIN_TITLE_CHARS} characters.")
+    elif title_length > MAX_TITLE_CHARS:
+        return ajax_error(msg=f"Title too long, please add more than add more {MAX_TITLE_CHARS} characters.")
+
+    if post_type not in allowed_types:
+        return ajax_error(msg=f"Not a valid post type.")
+
+    if tag_length > MAX_TAGS:
+        return ajax_error(msg=f"Too many tags, please add less than {MAX_TAGS}")
+
+    post = Post.objects.create(title=title, tag_val=tag_str, type=post_type,
+                               content=content, author=user)
+
+    return ajax_success(msg='Created a post', redirect=post.get_absolute_url())
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="GET")
 def inplace_edit(request, uid):
     post = Post.objects.filter(uid=uid).first()
 
     if not post:
         return ajax_error(msg="Post does not exist")
+    min_rows = 10
     rows = len(post.content.split("\n")) + 2
+    rows = rows if rows >= min_rows else min_rows
     tmpl = loader.get_template("widgets/inplace_edit.html")
 
     # tmpl = loader.get_template("widgets/test_search_results.html")
     context = dict(post=post, rows=rows)
+
+    inplace_form = tmpl.render(context)
+
+    return ajax_success(msg="success", inplace_form=inplace_form)
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def inplace_create(request):
+
+    if request.user.is_anonymous:
+        return ajax_error(msg="You need to be logged in to create a new post")
+
+    tmpl = loader.get_template("widgets/inplace_create.html")
+    context = dict()
 
     inplace_form = tmpl.render(context)
 

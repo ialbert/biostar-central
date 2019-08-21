@@ -240,6 +240,14 @@ function edit_post(uid) {
         })
 }
 
+
+function cancel_create() {
+
+    var form_container = $('#insert-form');
+    form_container.transition('slide down', 250);
+    $('#new-post').removeClass('active');
+}
+
 function cancel_inplace(uid){
 
     var inplace_content = $('inplace[data-value="'+ uid +'"]');
@@ -261,7 +269,46 @@ function cancel_inplace(uid){
 }
 
 
-function inplace_post(elem){
+function create_post(){
+
+    var create_url = '/ajax/create/';
+    // Get the fields to submit
+    var title = $('#new-title');
+    var form_elem = $('#create');
+    var content = $('#new-content');
+    var post_type = $('#new-type').dropdown('get value');
+    var tag_val = $('#new-tags').dropdown('get value');
+
+    $.ajax(create_url,
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            traditional: true,
+            data: {
+                'content': content.val(),
+                'title': title.val(),
+                'type': post_type,
+                'tag_val': tag_val,
+
+            },
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(form_elem, data.msg, data.status, 3000);
+                } else {
+                    //alert(data.redirect);
+                    // Redirect user to the new post view.
+                    window.location.replace(data.redirect);
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(form_elem, xhr, status, text)
+            }
+        })
+}
+
+
+function inplace_post_edit(elem){
 
     var uid = elem.data("value");
     var hidden =  $('.hide-on-edit[data-value="'+ uid +'"]');
@@ -275,8 +322,6 @@ function inplace_post(elem){
             ContentType: 'application/json',
             success: function (data) {
                 if (data.status === 'error') {
-                    alert(data.status);
-                    alert(data.msg);
                     popup_message(elem, data.msg, data.status, 3000);
                 } else {
                     elem.hide();
@@ -401,16 +446,16 @@ $(document).ready(function () {
 
     $('.editable').click(function (event) {
          if (event.metaKey || event.ctrlKey){
-             inplace_post($(this))
+             inplace_post_edit($(this))
          }
     }).dblclick(function (event) {
-         inplace_post($(this))
+         inplace_post_edit($(this))
     });
 
     $('.inplace-click').click(function (event) {
         var uid = $(this).data('value');
         var elem = $('.editable[data-value="'+ uid +'"]');
-        inplace_post(elem);
+        inplace_post_edit(elem);
     });
 
     $(this).on('keyup', '.edit-form textarea', function (event) {
@@ -434,6 +479,27 @@ $(document).ready(function () {
         html_container.find('code').addClass('language-bash');
         Prism.highlightAll();
 
+    });
+    $(this).on('keyup', '#new-content', function (event) {
+
+        // Submit form with CTRL-ENTER
+        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
+            create_post();
+            return
+        }
+
+        var md = markdownit();
+        var text = $(this).val();
+        var html_preview = md.render(text);
+        //var html_preview = Prism.highlight(md.render(text), Prism.languages.bash, 'language-bash');
+        var html_container = $('#html-preview');
+
+        html_container.html(html_preview);
+        //alert("test");
+        html_container.find('pre').addClass('language-bash');
+        html_container.find('code').addClass('language-bash');
+        Prism.highlightAll();
+
 
 
     });
@@ -444,6 +510,7 @@ $(document).ready(function () {
                 event.preventDefault();
                 var uid = $(this).data("value");
                 cancel_inplace(uid);
+                //cancel_create();
             });
         }
 
@@ -454,11 +521,20 @@ $(document).ready(function () {
         var uid = $(this).data("value");
         cancel_inplace(uid);
      });
+    $(this).on('click', '.create-form .cancel', function(){
+        event.preventDefault();
+        cancel_create();
+     });
 
     $(this).on('click', '.edit-form .save', function(){
         var uid = $(this).data("value");
         event.preventDefault();
         edit_post(uid);
+     });
+
+    $(this).on('click', '.create-form .save', function(){
+        event.preventDefault();
+        create_post();
      });
 
 
@@ -558,6 +634,48 @@ $(document).ready(function () {
         }
     });
 
+    $('#new-post').click(function () {
+        var create_url = '/inplace/create/';
+        var form_container = $('#insert-form');
+
+        var form_is_visible = $('#insert-form.visible').val() != null;
+
+        // Avoid hitting the server when the form is already visible.
+        if (form_is_visible){
+            // Make the form invisible
+            form_container.transition('slide down');
+            // Remove active class from menu topic
+            $('#new-post').removeClass('active');
+            return
+        }
+
+        $.ajax(create_url,
+            {
+                type: 'POST',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message($('#error'), data.msg, data.status);
+                    } else {
+                        $('#menu-header > .item').each(function () {
+                            $(this).removeClass('active');
+                        });
+                        $('#new-post').addClass('active');
+
+                        form_container.html(data.inplace_form);
+                        form_container.transition('slide down', 250);
+                    }
+
+                },
+                error: function (xhr, status, text) {
+                    error_message($(this), xhr, status, text)
+                }
+            })
+    });
+
     $(".moderate-post").click(function (event) {
         event.preventDefault();
         var elem = $(this);
@@ -586,6 +704,15 @@ $(document).ready(function () {
         preview.find('pre').addClass('language-bash');
         preview.find('code').addClass('language-bash');
         Prism.highlightAll();
+
+    });
+    $(this).on('click', '.create-preview', function() {
+        var preview = $('.preview');
+        preview.transition('slide down', 400);
+        preview.find('pre').addClass('language-bash');
+        preview.find('code').addClass('language-bash');
+        Prism.highlightAll();
+        preview.show();
 
     });
 
