@@ -12,7 +12,7 @@
     &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
 
         {% if post.is_editable %}
-            &bull; <a class="inplace-edit pointer" data-value="{{ post.uid }}">edit</a>
+            &bull; <a class="inplace-click pointer" data-value="{{ post.uid }}">edit</a>
         {% endif %}
 
         {% if post.can_moderate %}

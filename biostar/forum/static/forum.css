@@ -242,6 +242,10 @@ a:hover {
     padding:3px !important;
 }
 
+.no-margin{
+    margin:0px !important;
+}
+
 .clearfix::after {
   content: "";
   clear: both;

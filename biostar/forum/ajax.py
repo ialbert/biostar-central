@@ -27,6 +27,10 @@ ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
 
 
+MIN_TITLE_CHARS = 10
+MAX_TITLE_CHARS = 5000
+
+
 class ajax_error_wrapper:
     """
     Used as decorator to trap/display  errors in the ajax calls
@@ -140,10 +144,24 @@ def ajax_digest(request, uid):
     return ajax_success(msg="Changed digest options.")
 
 
+def validate_length(field, min_len, max_len):
+
+    length = len(field.replace(" ", ''))
+
+    if length < min_len:
+        msg = f"Too short, please add more than add more {forms.MIN_CONTENT} characters."
+        return False, msg
+    if length > max_len:
+        msg = f"Too long, please add less than {forms.MAX_CONTENT} characters."
+        return False, msg
+
+    return True, ''
+
+
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
-def edit_content(request, uid):
+def ajax_edit(request, uid):
     """
     Edit post content using ajax.
     """
@@ -154,81 +172,66 @@ def edit_content(request, uid):
     post = Post.objects.filter(uid=uid).first()
     if not post:
         return ajax_error(msg="Post does not exist")
-    content = request.POST.get("content", post.content)
-    length = len(content.replace(" ", ''))
 
-    if length < forms.MIN_CONTENT:
-        return ajax_error(msg=f"Too short, please add more than add more {forms.MIN_CONTENT} characters.")
-    if length > forms.MAX_CONTENT:
-        return ajax_error(msg=f"Too long, please add less than {forms.MAX_CONTENT} characters.")
+    content = request.POST.get("content", post.content)
+    title = request.POST.get("title", post.title)
+    post_type = int(request.POST.get("type", post.type))
+    tag_val = request.POST.getlist("tag_val", post.tag_val.split(','))
+    tag_val = ','.join(tag_val)
+
+    #tag_val = tag_val.split(",")
+    content_length = len(content.replace(" ", ''))
+    title_length = len(title.replace(' ', ''))
+
+    allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
+    #TODO: refactor out nested clauses
+    if content_length <= forms.MIN_CONTENT:
+        return ajax_error(msg=f"Content too short, please add more than add more {forms.MIN_CONTENT} characters.")
+    elif content_length > forms.MAX_CONTENT:
+        return ajax_error(msg=f"Content too long, please add less than {forms.MAX_CONTENT} characters.")
+
+    if post.is_toplevel:
+        if title_length <= MIN_TITLE_CHARS:
+            return ajax_error(msg=f"Title too short, please add more than add more {MIN_TITLE_CHARS} characters.")
+        elif title_length > MAX_TITLE_CHARS:
+            return ajax_error(msg=f"Title too long, please add more than add more {MAX_TITLE_CHARS} characters.")
+        if post_type not in allowed_types:
+            return ajax_error(msg=f"Not a valid post type.")
+
+        post.title = title
+        post.type = post_type
+        post.tag_val = tag_val
 
     post.lastedit_user = request.user
     post.content = content
     post.save()
 
+    tags = post.tag_val.split(",")
+    context = dict(post=post, tags=tags, show_views=True)
+    tmpl = loader.get_template('widgets/post_tags.html')
+
+    tag_html = tmpl.render(context)
+
     # Note: returns html instead of JSON on success.
     # Used to switch content inplace.
-    return ajax_success(msg=post.html)
+    new_title = f'{post.get_type_display()}: {post.title}'
+    return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
-def edit_title(request, uid):
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
-
-    post = Post.objects.filter(uid=uid).first()
-    if not post:
-        return ajax_error(msg="Post does not exist")
-
-    title = request.POST.get('title', post.title)
-    length = len(title.replace(" ", ''))
-
-    if length < forms.MIN_CONTENT:
-        return ajax_error(msg=f"Too short, please add more than add more {forms.MIN_CONTENT} characters.")
-    if length > forms.MAX_CONTENT:
-        return ajax_error(msg=f"Too long, please add less than {forms.MAX_CONTENT} characters.")
-
-    post.lastedit_user = request.user
-    post.title = title
-    post.save()
-    return ajax_success(msg="success", title=post.title)
-
-
-@ajax_error_wrapper(method="GET")
-def inplace_title(request, uid):
-
-    post = Post.objects.filter(uid=uid).first()
-
-    if not post:
-        return ajax_error(msg="Post does not exist")
-
-    tmpl = loader.get_template("widgets/inplace_title.html")
-
-    # tmpl = loader.get_template("widgets/test_search_results.html")
-    context = dict(post=post)
-    inplace_form = tmpl.render(context)
-
-    return ajax_success(msg="success", content=post.content, inplace_form=inplace_form)
-
-
-@ajax_error_wrapper(method="GET")
-def inplace_content(request, uid):
-
+def inplace_edit(request, uid):
     post = Post.objects.filter(uid=uid).first()
 
     if not post:
         return ajax_error(msg="Post does not exist")
     rows = len(post.content.split("\n")) + 2
-    tmpl = loader.get_template("widgets/inplace_content.html")
+    tmpl = loader.get_template("widgets/inplace_edit.html")
+
     # tmpl = loader.get_template("widgets/test_search_results.html")
     context = dict(post=post, rows=rows)
 
     inplace_form = tmpl.render(context)
 
-    return ajax_success(msg="success", content=post.content, inplace_form=inplace_form)
+    return ajax_success(msg="success", inplace_form=inplace_form)
 
 
 def close(r):

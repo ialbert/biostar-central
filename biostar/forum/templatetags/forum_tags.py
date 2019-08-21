@@ -7,7 +7,8 @@ import urllib.parse
 import datetime
 from datetime import timedelta
 
-from django import template
+
+from django import template, forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
@@ -274,12 +275,31 @@ def follow_label(context, post):
 
 
 @register.simple_tag
-def get_tags(request, post=None):
+def inplace_type_field(post):
+    choices = [opt for opt in Post.TYPE_CHOICES]
+
+    choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES) if settings.ALLOWED_POST_TYPES else
+                                 (opt[0] in Post.TOP_LEVEL), choices)
+
+    post_type = forms.IntegerField(label="Post Type",
+                                   widget=forms.Select(choices=choices, attrs={'class': "ui fluid dropdown",
+                                                                               'id': 'inplace-type'}),
+                                   help_text="Select a post type.")
+
+    value = post.type
+    post_type = post_type.widget.render('post_type', value)
+
+    return mark_safe(post_type)
+
+
+@register.simple_tag
+def get_tags(request=None, post=None):
     # Get tags in requests before fetching ones in the post.
     # This is done to accommodate populating tags in forms
-    tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
-    if post:
-        tags = tags or post.tag_val
+    if request:
+        tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
+    else:
+        tags = post.tag_val if post else ''
 
     tags_opt = {val: True for val in tags.split(",")}
     context = dict(selected=tags, tags_opt=tags_opt.items())

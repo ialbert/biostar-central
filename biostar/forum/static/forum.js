@@ -167,73 +167,70 @@ function remove_trigger() {
 }
 
 
-function edit_title(uid) {
-    var edit_url = '/edit/title/' + uid + '/';
-    var form_elem = $('#edit-title-' + uid);
-    var title = form_elem.find('textarea').val();
-    var collapse = $('.inplace-collapse');
-    var form_container = $('inplace-title[data-value="'+ uid +'"]');
-    var title_box = $('#title-' + uid);
+function edit_post(uid) {
+
+    var edit_url = '/ajax/edit/' + uid + '/';
+    // Rendered form element
+    var form_elem = $('.edit-form[data-value="'+ uid +'"]');
+    // Inplace form container
+    var form_container = $('inplace[data-value="'+ uid +'"]');
+    // Hidden elements
+    var hidden =  $('.hide-on-edit[data-value="'+ uid +'"]');
+
+    // Post title inside of the form
+    var title = $('.title[data-value="'+ uid +'"]');
+    var content = $('.content[data-value="'+ uid +'"]');
+    var post_type = $('#inplace-type').dropdown('get value');
+    var tag_val = $('.tag-field').dropdown('get value');
+
+    // Current post content and title to replace
+    // with returned values.
+    var post_content = $('.editable[data-value="'+ uid +'"]');
+    var post_title = $('.post-title[data-value="'+ uid +'"]');
+    var post_tags = $('.post-tags[data-value="'+ uid +'"]');
+
+    //alert(content.val());
+    // Title is null and type are null
+    // meaning current post is not top level.
+    if (title.val() == null){
+        title.val('')
+    }
+    if (!($.isNumeric(post_type))){
+        post_type = -1
+    }
 
     $.ajax(edit_url,
         {
             type: 'POST',
             dataType: 'json',
             ContentType: 'application/json',
+            traditional: true,
             data: {
-                'title': title
+                'content': content.val(),
+                'title':title.val(),
+                'type':post_type,
+                'tag_val':tag_val,
+
             },
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(form_elem, data.msg, data.status, 3000);
                 } else {
-                    // Hide form
+                    // Clear and hide inplace form
                     form_elem.html('');
                     form_container.hide();
-                    collapse.show();
-                    // Replace with edited data
-                    title_box.html(data.title).show().focus();
-                }
-            },
-            error: function (xhr, status, text) {
-                error_message(form_elem, xhr, status, text)
-            }
-        })
 
+                    // Show hidden items
+                    hidden.show();
 
-}
+                    // Replace current post info with edited data
+                    post_content.html(data.html).show().focus();
+                    post_title.html(data.title).show();
+                    post_tags.html(data.tag_html).show();
 
-
-function edit_content(uid) {
-    var edit_url = '/edit/content/' + uid + '/';
-    var form_elem = $('#edit-form-' + uid);
-    var edited = form_elem.find('textarea').val();
-
-    var form_container = $('inplace-content[data-value="'+ uid +'"]');
-    var actions_box =  $('.actions-collapse-' +uid);
-    var content_box = $('#content-' + uid);
-
-    $.ajax(edit_url,
-        {
-            type: 'POST',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {
-                'content': edited
-            },
-            success: function (data) {
-                if (data.status === 'error') {
-                    popup_message(form_elem, data.msg, data.status, 3000);
-                } else {
-                    // Hide form
-                    form_elem.html('');
-                    form_container.hide();
-                    actions_box.show();
-                    // Replace with edited data
-                    content_box.html(data.msg).show().focus();
-
-                    content_box.find('pre').addClass('language-bash');
-                    content_box.find('code').addClass('language-bash');
+                    // Highlight the markdown in content
+                    post_content.find('pre').addClass('language-bash');
+                    post_content.find('code').addClass('language-bash');
                     Prism.highlightAll();
                 }
             },
@@ -243,99 +240,33 @@ function edit_content(uid) {
         })
 }
 
-function cancel_inplace_content(uid) {
-    var inplace_content = $('inplace-content[data-value="'+ uid +'"]');
-
-    var content = $('.editable-content[data-value="'+ uid +'"]');
-    //var content = $('#content-' + uid);
-    var actions_box =  $('.actions-collapse-' +uid);
-
-    //Delete the form
-    inplace_content.html("");
-    // Hide the container
-    // Show original content
-    content.show();
-    //Show any blocked element
-    actions_box.show();
-}
-
-function cancel_inplace_title(uid) {
-    var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
-
-    var title = $('.editable-title[data-value="'+ uid +'"]');
-    //var content = $('#content-' + uid);
-    var title_display =  $('.inplace-collapse');
-
-    //Delete the form
-    inplace_title.html("");
-    // Hide the container
-    // Show original content
-    title.show();
-    //Show any blocked element
-    title_display.show();
-}
-
 function cancel_inplace(uid){
 
-    var inplace_content = $('inplace-content[data-value="'+ uid +'"]');
-    var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
+    var inplace_content = $('inplace[data-value="'+ uid +'"]');
+    //var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
 
-    var title = $('.editable-title[data-value="'+ uid +'"]');
-    var content = $('.editable-content[data-value="'+ uid +'"]');
+    //var title = $('.editable-title[data-value="'+ uid +'"]');
+    var content = $('.editable[data-value="'+ uid +'"]');
     //var content = $('#content-' + uid);
-    var actions_box =  $('.actions-collapse-' +uid);
-    var title_display =  $('.inplace-collapse');
-
+    var hidden = $('.hide-on-edit[data-value="'+ uid +'"]');
     //Delete the form
     inplace_content.html("");
-    inplace_title.html("");
+    //inplace_title.html("");
     // Hide the container
     // Show original content
-    title.show();
     content.show();
     //Show any blocked element
-    actions_box.show();
-    title_display.show();
+    hidden.show();
 
 }
 
-function inplace_title(elem){
+
+function inplace_post(elem){
 
     var uid = elem.data("value");
-    var collapse = $('.inplace-collapse');
-    var form_container = $('inplace-title[data-value="'+ uid +'"]');
-    var url = '/inplace/title/' + uid +'/';
-
-    $.ajax(url,
-        {
-            type: 'GET',
-            dataType: 'json',
-            ContentType: 'application/json',
-            success: function (data) {
-                if (data.status === 'error') {
-                    //alert(data.status);
-                    //alert(data.msg);
-                    popup_message(elem, data.msg, data.status, 3000);
-                } else {
-                    elem.hide();
-                    collapse.hide();
-                    form_container.html(data.inplace_form);
-                    form_container.show();
-                }
-            },
-            error: function (xhr, status, text) {
-                error_message(elem, xhr, status, text)
-            }
-        })
-}
-
-function inplace_content(elem){
-
-    var uid = elem.data("value");
-    var actions_box =  $('.actions-collapse-' + uid);
-    var form_container = $('inplace-content[data-value="'+ uid +'"]');
-    var url = '/inplace/content/' + uid +'/';
-    //alert(form_container.html());
+    var hidden =  $('.hide-on-edit[data-value="'+ uid +'"]');
+    var form_container = $('inplace[data-value="'+ uid +'"]');
+    var url = '/inplace/post/' + uid +'/';
 
     $.ajax(url,
         {
@@ -349,9 +280,9 @@ function inplace_content(elem){
                     popup_message(elem, data.msg, data.status, 3000);
                 } else {
                     elem.hide();
-                    actions_box.hide();
+                    hidden.hide();
                     form_container.html(data.inplace_form);
-                    form_container.show();
+                    form_container.show().find('textarea').focus();
                 }
             },
             error: function (xhr, status, text) {
@@ -468,26 +399,18 @@ $(document).ready(function () {
 
     });
 
-    $('.editable-title').click(function (event) {
+    $('.editable').click(function (event) {
          if (event.metaKey || event.ctrlKey){
-             inplace_title($(this))
+             inplace_post($(this))
          }
     }).dblclick(function (event) {
-         inplace_title($(this))
+         inplace_post($(this))
     });
 
-    $('.editable-content').click(function (event) {
-         if (event.metaKey || event.ctrlKey){
-             inplace_content($(this))
-         }
-    }).dblclick(function (event) {
-         inplace_content($(this))
-    });
-
-    $('.inplace-edit').click(function (event) {
+    $('.inplace-click').click(function (event) {
         var uid = $(this).data('value');
-        var elem = $('#content-' + uid);
-        inplace_content(elem)
+        var elem = $('.editable[data-value="'+ uid +'"]');
+        inplace_post(elem);
     });
 
     $(this).on('keyup', '.edit-form textarea', function (event) {
@@ -495,7 +418,7 @@ $(document).ready(function () {
         var uid = $(this).data('value');
         // Submit form with CTRL-ENTER
         if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
-            edit_content(uid);
+            edit_post(uid);
             return
         }
 
@@ -514,14 +437,6 @@ $(document).ready(function () {
 
 
     });
-    $(this).on('keyup', '.edit-title textarea', function (event) {
-
-        var uid = $(this).data('value');
-        // Submit form with CTRL-ENTER
-        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
-            edit_title(uid);
-        }
-    });
 
     $(this).keyup(function (event) {
         if (event.keyCode === 27){
@@ -537,26 +452,15 @@ $(document).ready(function () {
     $(this).on('click', '.edit-form .cancel', function(){
         event.preventDefault();
         var uid = $(this).data("value");
-        cancel_inplace_content(uid);
-     });
-
-    $(this).on('click', '.edit-title .cancel', function(){
-        event.preventDefault();
-        var uid = $(this).data("value");
-        cancel_inplace_title(uid);
+        cancel_inplace(uid);
      });
 
     $(this).on('click', '.edit-form .save', function(){
         var uid = $(this).data("value");
         event.preventDefault();
-        edit_content(uid);
+        edit_post(uid);
      });
 
-    $(this).on('click', '.edit-title .save', function(){
-        var uid = $(this).data("value");
-        event.preventDefault();
-        edit_title(uid);
-     });
 
     $('#digest').dropdown({
           action:'hide',
@@ -598,7 +502,6 @@ $(document).ready(function () {
           }
         });
 
-
     $('#subscribe')
         .dropdown({
           action:'hide',
@@ -613,7 +516,7 @@ $(document).ready(function () {
           var active = $('#sub-active');
           // Subscription url
           var subs_url = '/ajax/subscribe/';
-          alert("subs_url");
+
           $.ajax(subs_url,
               {
                   type: 'POST',
@@ -654,8 +557,6 @@ $(document).ready(function () {
         if (event.keyCode === 13){
             search(query, $(this), search_url);
         }
-
-
     });
 
     $(".moderate-post").click(function (event) {
@@ -744,7 +645,7 @@ $(document).ready(function () {
     });
 
     $('pre').addClass('language-bash');
-
+    $('code').addClass('language-bash');
     Prism.highlightAll()
 })
 ;
