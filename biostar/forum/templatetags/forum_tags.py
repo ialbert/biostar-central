@@ -7,6 +7,8 @@ import urllib.parse
 import datetime
 from datetime import timedelta
 
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 
 from django import template, forms
 from django.conf import settings

@@ -1,7 +1,9 @@
 {% load staticfiles %}
-{% load forum_tags %}
 
-<div class="ui inplace inputcolor basic segment" style="padding-bottom: 5px; border-radius: 6px;">
+{% load forum_tags %}
+<script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
+
+<div class="ui inplace post-form basic segment" style="padding-bottom: 5px; border-radius: 6px;">
 
     <form class="ui inplace create-form compact form" id="create">
         <div style="display:-webkit-box;">
@@ -38,6 +40,10 @@
             </select>
         </div>
 
+        <div class="required field">
+            <div id="captcha"></div>
+        </div>
+
         <div class="field">
 
             <a class="ui green label save"><i class="check icon"></i>Save</a>
@@ -62,7 +68,60 @@
 
 </div>
 
+{# Load recaptcha #}
 <script>
+$(document).ready(function () {
+
+    var captchaWidgetId = grecaptcha.render( 'captcha', {
+        'sitekey' : '{{ captcha_key }}',
+        'theme' : 'light'
+    });
+
+    function create_post(){
+        //alert(captchaWidgetId);
+        var create_url = '/ajax/create/';
+        // Get the fields to submit
+        var title = $('#new-title');
+        var form_elem = $('#create');
+        var content = $('#new-content');
+        var post_type = $('#new-type').dropdown('get value');
+        var tag_val = $('#new-tags').dropdown('get value');
+        var cap_response = grecaptcha.getResponse(captchaWidgetId);
+
+        $.ajax(create_url,
+            {
+                type: 'POST',
+                dataType: 'json',
+                ContentType: 'html',
+                traditional: true,
+                data: {
+                    'content': content.val(),
+                    'title': title.val(),
+                    'type': post_type,
+                    'tag_val': tag_val,
+                    'recaptcha_response': cap_response,
+
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message(form_elem, data.msg, data.status, 3000);
+                    } else {
+                        //alert(data.redirect);
+                        // Redirect user to the new post view.
+                        window.location.replace(data.redirect);
+                    }
+                },
+                error: function (xhr, status, text) {
+                    error_message(form_elem, xhr, status, text)
+                }
+            })
+    }
+
+    $('.create-form .save').click(function(){
+        event.preventDefault();
+        create_post();
+     });
+
     $('.ui.dropdown').dropdown();
     $('.tag-field').dropdown({
         allowAdditions: true,
@@ -89,4 +148,7 @@
         }
 
     });
+    })
+;
+
 </script>

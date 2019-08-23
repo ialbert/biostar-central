@@ -525,6 +525,12 @@ img {
     width: 73%;
 }
 
+.post-form{
+    box-shadow: none;
+    background: #f9f6f4 !important;
+    overflow-wrap: break-word;
+}
+
 
 
 .wmd-preview{

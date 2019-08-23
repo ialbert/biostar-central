@@ -269,44 +269,6 @@ function cancel_inplace(uid){
 }
 
 
-function create_post(){
-
-    var create_url = '/ajax/create/';
-    // Get the fields to submit
-    var title = $('#new-title');
-    var form_elem = $('#create');
-    var content = $('#new-content');
-    var post_type = $('#new-type').dropdown('get value');
-    var tag_val = $('#new-tags').dropdown('get value');
-
-    $.ajax(create_url,
-        {
-            type: 'POST',
-            dataType: 'json',
-            ContentType: 'application/json',
-            traditional: true,
-            data: {
-                'content': content.val(),
-                'title': title.val(),
-                'type': post_type,
-                'tag_val': tag_val,
-
-            },
-            success: function (data) {
-                if (data.status === 'error') {
-                    popup_message(form_elem, data.msg, data.status, 3000);
-                } else {
-                    //alert(data.redirect);
-                    // Redirect user to the new post view.
-                    window.location.replace(data.redirect);
-                }
-            },
-            error: function (xhr, status, text) {
-                error_message(form_elem, xhr, status, text)
-            }
-        })
-}
-
 
 function inplace_post_edit(elem){
 
@@ -532,10 +494,6 @@ $(document).ready(function () {
         edit_post(uid);
      });
 
-    $(this).on('click', '.create-form .save', function(){
-        event.preventDefault();
-        create_post();
-     });
 
 
     $('#digest').dropdown({

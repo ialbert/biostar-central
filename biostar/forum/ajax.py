@@ -1,6 +1,10 @@
 from functools import wraps, partial
 import logging
+import json
 from ratelimit.decorators import ratelimit
+from urllib import request as builtin_request
+#import requests
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.db.models import Q, Count
@@ -223,6 +227,25 @@ def ajax_edit(request, uid):
     return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
 
 
+def validate_recaptcha(token):
+    """
+    Send recaptcha response to API to check if user is valid or not
+    """
+    url = 'https://www.google.com/recaptcha/api/siteverify'
+    values = {
+        'secret': settings.RECAPTCHA_PRIVATE_KEY,
+        'response': token
+    }
+    data = urlencode(values).encode("utf-8")
+    response = builtin_request.urlopen(url, data)
+    result = json.load(response)
+
+    if result['success']:
+        return True
+
+    return False
+
+
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
@@ -241,6 +264,15 @@ def ajax_create(request):
     tag_list = set(request.POST.getlist("tag_val", []))
     tag_str = ','.join(tag_list)
     tag_length = len(tag_list)
+
+    recaptcha_token = request.POST.get("recaptcha_response")
+
+    valid = validate_recaptcha(recaptcha_token)
+    if not valid:
+        return ajax_error(msg='Invalid reCAPTCHA. Please try again.')
+
+    # Validate the captcha field
+
     # Validate the form fields.
     #TODO: refactor if clauses
     if content_length <= forms.MIN_CONTENT:
@@ -290,12 +322,14 @@ def inplace_edit(request, uid):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def inplace_create(request):
+    user = request.user
+    not_trusted = True #user.is_authenticated and (not user.profile.trusted)
 
     if request.user.is_anonymous:
         return ajax_error(msg="You need to be logged in to create a new post")
 
     tmpl = loader.get_template("widgets/inplace_create.html")
-    context = dict()
+    context = dict(user=request.user, captcha_key=settings.RECAPTCHA_PUBLIC_KEY)
 
     inplace_form = tmpl.render(context)
 
