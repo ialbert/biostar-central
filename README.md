@@ -2,7 +2,7 @@
 
 ### Software for better science.
 
-**Biostar Central** is a [Python][python] and [Django][django] based collection of web applications that support science education. Each web application may be deployed individually or in combination with all the others.
+**Biostar Central** is a [Python][python] and [Django][django] based collection of web applications that support scientific practice and education. Each web application may be deployed individually or in combination with all the others.
 
 The goal of the project is to produce software with straigtforward installation, and minimal dependencies that works on any computing platform that supports Python.
 
@@ -22,6 +22,9 @@ Future plans include adding applications such as:
 
 - `publisher` a web app that allows publishing static webpages with various group level access rights, see [Biostar Handbook][handbook]
 - `courses` a web app that allows for publishing training materials, courses, quizzes over the web, see the courses in the [Biostar Handbook][handbook]
+- `archive` a web application that allows publishing scientific works.
+
+In each case the driving philopsphy is that of decentralization. We write code that allows others to recreate the same services that we run.
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
