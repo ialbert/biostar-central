@@ -58,8 +58,11 @@ Our installation instructions rely on [conda][conda] though other alternatives f
 
 The installation is now complete. To test the code run:
 
-    make forum test
+    # Test the recipes app.
     make recipes test
+
+    # Test the forum app.
+    make forum test
 
 ## Run
 
@@ -71,16 +74,22 @@ To run the demonstration version of the `recipes` app execute:
 
     make recipes_demo
 
-In each case visit <http://localhost:8000> to view the site.
+In each case visit <http://127.0.0.1:8000/> to view the site.
 
 The Makefile has several tasks that demonstrate the commands that may be chained together:
 
-    make forum init serve
+
+    # Initialize and run an empty recipes app.
     make recipes init serve
 
+    # Initialize and run an empty forum app.
+    make forum init serve
 
 ## Documentation
 
-Additional documentation in [docs/index.md](docs/README.md)
+Additional documentation for:
+
+* [Recipes app][docs/recipes-index.md]
+* [Forum app][docs/forum-index.md]
 
 

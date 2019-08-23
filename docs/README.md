@@ -13,7 +13,9 @@
 
 ## What is the default admin password?
 
-The admin username and password are set via the `ADMINS` and the `ADMIN_PASSWORD` settings in `biostar/accounts/settings.py`. By default both the admin login name and the default admin password are set to
+The admin username and password are set via the `ADMINS` and the `ADMIN_PASSWORD` settings in `biostar/accounts/settings.py`.
+
+By default both the admin login name and the default admin password are set to
 
     admin@localhost
 

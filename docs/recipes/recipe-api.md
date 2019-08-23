@@ -1,6 +1,5 @@
 # API Methods and Commands
 
-
 # Commands 
 
 Pull API:
