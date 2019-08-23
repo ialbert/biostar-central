@@ -89,7 +89,7 @@ The Makefile has several tasks that demonstrate the commands that may be chained
 
 Additional documentation for:
 
-* [Recipes app][docs/recipes-index.md]
-* [Forum app][docs/forum-index.md]
+* [Recipes app](docs/recipes-index.md)
+* [Forum app](docs/forum-index.md)
 
 
