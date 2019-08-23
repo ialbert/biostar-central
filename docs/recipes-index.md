@@ -1,20 +1,18 @@
-# Documentation for Bioinformatics Recipes
+## Documentation for Bioinformatics Recipes
 
-## What is the default admin login?
+### What is the default admin login?
 
-When the site initializes the admin username and password are using the `ADMINS` and the `ADMIN_PASSWORD` settings in `biostar/forum/settings.py`.
-
-By default both the admin login name and the default admin password are set to
+When the site initializes the admin username and password are using the `ADMINS` and the `ADMIN_PASSWORD` settings in `biostar/forum/settings.py`. By default both the admin login name and the default admin password are set to
 
     admin@localhost
 
 **Note**: These settings must be changed on a publicly accessible site!
 
-## How to access the Django Admin interface?
+### How to access the Django Admin interface?
 
 * http://127.0.0.1:8000/accounts/admin/
 
-## How to customize the settings?
+### How to customize the settings?
 
 DO NOT add your custom settings into the public codebase!
 
@@ -35,7 +33,7 @@ Consult the The [Django documentation][django] for details.
 
 [django]: https://www.djangoproject.com/
 
-## How do I deploy the site?
+### How do I deploy the site?
 
 The software follows the recommended practices for developing and deploying [Django web applications][django] .
 
@@ -45,7 +43,7 @@ Within this setup we recommend the [uwsgi][uwsgi] based deployment.
 
 [uwsgi]:https://uwsgi-docs.readthedocs.io/en/latest/
 
-## How does the site work?
+### How does the site work?
 
 The site is project based. Each project is a collection of data, recipes and results.
 
@@ -57,7 +55,7 @@ Thus each project has three distinct sections:
 
 The **Results** are created by applying a **Recipe** on **Data**.
 
-## What is a recipe?
+### What is a recipe?
 
 Each recipe is built from two ingredients:
 
@@ -73,37 +71,37 @@ The interface + template will generate a script that the site can execute.
 
 The software will generate an web interface for each parameter specified in the interface. It is this interface where users are able to select the values that their recipe needs to operate.
 
-## Where can I see tutorial recipes?
+### Where can I see tutorial recipes?
 
-Visit:
+See the url below for a number of recipes of increasing complexity:
 
 * https://www.bioinformatics.recipes/recipe/list/tutorials/
 
-## Recipe example: Empty Recipe
+### Recipe example: Empty Recipe
 
 The simplest recipe is empty for both the **template** and the **data**.
 
 * https://www.bioinformatics.recipes/recipe/view/empty-recipe/
 
-Even though it performs no action it is a valid and working recipe! It demonstrates what takes place when a recipe is run. The results of running the empty recipe are here:
+Even though it performs no action it is a valid and working recipe. Its purpose is to demonstrate what takes place when a recipe is run. The results of running the empty recipe are here:
 
 * https://www.bioinformatics.recipes/job/view/a53f6057/
 
-**Note**: To run a recipe you need to have the EXECUTE permission on the project. Admin users automatically have this permission on every project.  If you don't have this permission you
+**Note**: To run a recipe you need to have the **EXECUTE** permission on the project. Admin users automatically have this permission on every project.  If you don't have this permission you
 can still see the results that this recipe produces but you would not be able to run the recipe.
 
-Note how even an empty recipe produces a number of outputs. These are files named as follows:
+Note how even an empty recipe produces outputs. These are files named as follows:
 
-- `run.sh` is the script that executed after being genereated from the template.
-- `run.sh.json` contains the data that was used in the template.
-- `run.sh.stdout.log` contains the output messages that the recipe produced.
-- `run.sh.stderr.log` contains the error messages that the recipe produced.
+- `recipe.sh` file is the script that executed after being generated from the template.
+- `runlog/input.json` file contains the data that was used in the template.
+- `runlog/stdout.txt` file contains the output messages that the recipe produced.
+- `runlog/stderr.txt` file contains the error messages that the recipe produced.
 
-The log information is also visible on the result page.
+The contents of `stdout.txt` and `stderr.txt` are also visible on the result page.
 
 ### Recipe example: Hello World
 
-Let's develop our recipe a little more.
+Let's write a recipe that prints "Hello World" to the screen.
 
 * https://www.bioinformatics.recipes/recipe/view/hello-world/
 
@@ -113,68 +111,95 @@ In this recipe the template contains the following:
 
     echo 'Hello World!'
 
-The recipe takes no input and when run simply prints "Hello World". The results of running this recipe can be seen here:
+The recipe is a bash script that prints "Hello World" to the screen. The results of running this recipe can be seen here:
 
 * https://www.bioinformatics.recipes/job/view/3e365b2c/
 
-Note that the words "Hello World" appear on the "Output Messages" tab and are also contained in the file called `stdout.txt`
+Note that the words "Hello World" also appear on the "Output Messages" tab and are contained in the file called `stdout.txt`
 
 * https://www.bioinformatics.recipes/job/serve/3e365b2c/runlog/stdout.txt
 
-
 Make a new recipe and add the following into it:
 
-## The interface
+### Recipe example: Download FASTQ data by SRA number
 
-Let's add some parameters to the recipe. Enter the following:
+Suppose we wish to create a recipe that downloads and unpacks FASTQ data from the short read archive.
+The code we wish to deploy is:
+
+    # The SRR run number.
+    SRA=SRR519926
+
+    # Download 1000 reads from SRA.
+    fastq-dump --split-files -X 1000 $SRA
+
+but we want to make the selection of the SRA number controllable by the user.
+
+We start by copying over any other existing recipe. Start with the "empty recipe" for example.
+
+Find the "Interface link"  it is in `More -> Interface` then paste the code above into the template section. Click "Preview" to see what the code will look like, in this case since the code does not have any modifiable region it will look the same after the preview.
+
+Save this recipe. You have recipe that works on one specific SRA number. If that is all you wanted you would be done with the recipe.
+
+To make the input overrideable we need to add the following to the Interface JSON section (this might be already filled out to some default settings. Replace all that with:
 
     {
-        foo: {
-            value: 100
+        settings: {
+
         }
 
-        bar: {
-            value: 200
+        sra: {
+            value: SRR519926
         }
     }
 
-[hjson]: https://hjson.org/
-[json]: https://en.wikipedia.org/wiki/JSON
+All data objects are dictionaries. The `settings` key is internal. The `sra` key is a parameter to the script. To access this parameter from the script change the template to
 
-The syntax follows the so called JSON notation. We are using
-a variant of JSON that is better suited for human input
-called [HJSON][hjson] (Human JSON). The HJSON variant
+    # The SRR run number.
+    SRA={{ sra.value }}
+
+    # Download 1000 reads from SRA.
+    fastq-dump --split-files -X 1000 $SRA
+
+Note here that we access the value of the parameter `sra` with ``{{sra.value}}``.
+
+If you preview your recipe again you will see that it produces the same output as before. The value is filled into the script automatically.
+
+But the interface is still empty as the site does not yet know how to render a graphical widget to the parameter. To tell the site how to render the parameter expand the interface JSON to look like this:
+
+
+    {
+        settings: {
+
+        }
+
+        sra: {
+            display: TEXTBOX
+            value: SRR519926
+            help: An SRA run number
+            regex: \w{1,9}$
+        }
+    }
+
+When you press the "Preview" again you will see the following interface:
+
+![A simple interface](recipes/interface-1.png)
+
+With have instructed the site to display the parameter as a `TEXTBOX` that only accepts a single maximum 9 letter word as input. It also renders a small help under the textbox to inform the user of the purpose of the input.
+
+And that's it! Save the recipe, and now you have just written a simple recipe that others may run and reuse.
+
+![A simple interface](recipes/interface-2.png)
+
+### What format is the interface in?
+
+The JSON syntax follows  a variant of JSON that is better suited for human input
+called [HJSON][hjson] (Human JSON). HJSON
 is an extension of [JSON][json] that is fully compatible
 with JSON so you may use the original [JSON][json] notation
 if you so desire.
 
-All data objects are dictionaries. The outer (root) dictionary `{}` is keyed with `foo` and `bar`.
-In our nomenclature `foo` and `bar` will be the *parameters* to the template.
-Each parameter holds another dictionary `{}` and parameter has  a `value` key in this dictionary.
+### Where can I see more code examples for interface and scripts?
 
-#### The template
+Visit the recipes website and see the various example recipes:
 
-[template]: https://docs.djangoproject.com/en/1.11/ref/templates/language/
-
-The templates follow the [Django Templating Language Syntax][django] but you would only need
-to study that syntax if you need advanced functionality. The most commonly used
-functionality that of parameter substitution is  quite straitforward as it substitutes
-the value of a parameter if it is enclosed with the `{{ }}` symbols.
-
-Add the following to the template:
-
-    echo FOO={{foo.value}}
-    echo BAR={{bar.value}}
-
-Press the **Preview** button and your generated script then will produce
-
-     echo FOO=100
-     echo BAR=200
-
-Note how our interface does not have entires for `foo` and `bar`. This
-is because it does not understand how to generate a widget for `foo` and `bar`. In the
-next tutorial we will show you that.
-
-For now go ahead, **Save** the recipe then go and run it. Once the run
-completes evaluate the results. What do you see?
-
+* https://www.bioinformatics.recipes/
