@@ -4,15 +4,24 @@
 
 **Biostar Central** is a [Python][python] and [Django][django] based collection of web applications that support science education. Each web application may be deployed individually or in combination with all the others.
 
+The goal of the project is to produce software with straigtforward installation, and minimal dependencies that works on any computing platform that supports Python.
+
 Applications that are currently feature complete:
 
 - `recipes` a web app that runs scripts via a web interface, see: [Bioinformatics Recipes][recipes]
 - `forum` a web app that runs a Q&A forum inspired by StackOverflow, see: [Biostars Q&A][biostars]
 
-In addition `biostar-central` includes applications that provide generic utility.
+Note (July 25, 2019): The public site runs the code from the `biostar2016` branch. The version in the master branch is the development version that we plan to release later.
+
+In addition the `biostar-central` code repository includes applications that provide generic utility.
 
 - `accounts` an app that manages user accounts
 - `emailer` an app that can send emails
+
+Future plans include adding applications such as:
+
+- `publisher` a web app that allows publishing static webpages with various group level access rights, see [Biostar Handbook][handbook]
+- `courses` a web app that allows for publishing training materials, courses, quizzes over the web, see the courses in the [Biostar Handbook][handbook]
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
@@ -21,7 +30,6 @@ In addition `biostar-central` includes applications that provide generic utility
 [handbook]: https://www.biostarhandbook.com
 [conda]: https://conda.io/docs/
 
-> *Note (July 25, 2019): The new version of the [Biostar Q&A][biostars] is in beta testing! The public site runs the code from the `biostar2016` branch. We will switch to the new version once testing completes.*
 
 ## Installation
 
