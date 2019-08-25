@@ -50,10 +50,10 @@ function add_comment(elem) {
 
     var post_uid = elem.attr('data-value');
     var container = $("#comment-insert-" + post_uid);
-    var url = "/new/comment/" + post_uid + "/"
+    var url = "/new/comment/" + post_uid + "/";
 
     // Check for existing comment.
-    var comment = $("#new-comment")
+    var comment = $("#new-comment");
 
     if (comment.length) {
         // Remove comment if exists.
@@ -241,24 +241,29 @@ function edit_post(uid) {
 }
 
 
+
 function cancel_create() {
 
     var form_container = $('#insert-form');
-    form_container.transition('slide down', 250);
+
+    form_container.html('');
     $('#new-post').removeClass('active');
+
+
+
 }
 
-function cancel_inplace(uid){
+function cancel_inplace(){
 
-    var inplace_content = $('inplace[data-value="'+ uid +'"]');
+    var inplace_content = $('#new-edit');
     //var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
 
     //var title = $('.editable-title[data-value="'+ uid +'"]');
-    var content = $('.editable[data-value="'+ uid +'"]');
+    var content = $('.editable');
     //var content = $('#content-' + uid);
-    var hidden = $('.hide-on-edit[data-value="'+ uid +'"]');
+    var hidden = $('.hide-on-edit');
     //Delete the form
-    inplace_content.html("");
+    inplace_content.remove();
     //inplace_title.html("");
     // Hide the container
     // Show original content
@@ -269,27 +274,43 @@ function cancel_inplace(uid){
 }
 
 
-
 function inplace_post_edit(elem){
 
     var uid = elem.data("value");
     var hidden =  $('.hide-on-edit[data-value="'+ uid +'"]');
     var form_container = $('inplace[data-value="'+ uid +'"]');
-    var url = '/inplace/post/' + uid +'/';
+    var url = '/inplace/form/';
+
+    // Check if other posts are being edited.
+    var editing = $("#new-edit");
+
+    if (editing.length) {
+        // Remove exiting edits
+        $('.hide-on-edit').show();
+        $('.editable').show();
+        editing.remove();
+    } else {
+        // Create a new edit
+        editing = $('<div id="new-edit"></div>')
+    }
+    form_container.after(editing);
 
     $.ajax(url,
         {
             type: 'GET',
             dataType: 'json',
             ContentType: 'application/json',
+            data:{
+                'uid': uid,
+            },
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(elem, data.msg, data.status, 3000);
                 } else {
                     elem.hide();
                     hidden.hide();
-                    form_container.html(data.inplace_form);
-                    form_container.show().find('textarea').focus();
+                    editing.html(data.inplace_form);
+                    editing.show().find('textarea').focus();
                 }
             },
             error: function (xhr, status, text) {
@@ -472,7 +493,8 @@ $(document).ready(function () {
                 event.preventDefault();
                 var uid = $(this).data("value");
                 cancel_inplace(uid);
-                //cancel_create();
+                cancel_create();
+                $('#new-comment').remove();
             });
         }
 
@@ -480,8 +502,7 @@ $(document).ready(function () {
 
     $(this).on('click', '.edit-form .cancel', function(){
         event.preventDefault();
-        var uid = $(this).data("value");
-        cancel_inplace(uid);
+        cancel_inplace();
      });
     $(this).on('click', '.create-form .cancel', function(){
         event.preventDefault();
@@ -577,9 +598,51 @@ $(document).ready(function () {
 
     $(".add-comment").click(function (event) {
         event.preventDefault();
-        add_comment($(this));
-    });
 
+        var create_url = '/inplace/form/';
+        var parent_uid = $(this).data('value');
+
+        //var container = $("#comment-insert-" + parent_uid);
+        var container = $("#comment-insert-" + parent_uid);
+        //var url = "/new/comment/" + post_uid + "/";
+        cancel_inplace();
+        // Check for existing comment.
+        var comment = $("#new-comment");
+
+        if (comment.length) {
+            // Remove comment if exists.
+            comment.remove();
+        } else {
+            // Create a new comment.
+            comment = $('<div id="new-comment"></div>')
+        }
+        container.after(comment);
+
+        //alert(container.length);
+
+        $.ajax(create_url,
+            {
+                type: 'GET',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {
+                    'top':0,
+                    'parent': parent_uid
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message($('#error'), data.msg, data.status);
+                    } else {
+                        comment.html(data.inplace_form);
+                        //container.transition('slide down', 250);
+                        comment.find('#content').focus();
+                    }
+                },
+                error: function (xhr, status, text) {
+                    error_message($(this), xhr, status, text)
+                }
+            })
+    });
 
     remove_trigger();
 
@@ -593,15 +656,17 @@ $(document).ready(function () {
     });
 
     $('#new-post').click(function () {
-        var create_url = '/inplace/create/';
+        var create_url = '/inplace/form/';
         var form_container = $('#insert-form');
-
         var form_is_visible = $('#insert-form.visible').val() != null;
+
+        cancel_inplace();
+        $('#new-comment').remove();
 
         // Avoid hitting the server when the form is already visible.
         if (form_is_visible){
             // Make the form invisible
-            form_container.transition('slide down');
+            form_container.html('');
             // Remove active class from menu topic
             $('#new-post').removeClass('active');
             return
@@ -609,7 +674,7 @@ $(document).ready(function () {
 
         $.ajax(create_url,
             {
-                type: 'POST',
+                type: 'GET',
                 dataType: 'json',
                 ContentType: 'application/json',
                 data: {
@@ -624,7 +689,8 @@ $(document).ready(function () {
                         $('#new-post').addClass('active');
 
                         form_container.html(data.inplace_form);
-                        form_container.transition('slide down', 250);
+                        form_container.show();
+                        form_container.find('#title').focus();
                     }
 
                 },
@@ -722,6 +788,13 @@ $(document).ready(function () {
         field.closest(".field").addClass("error");
         // Insert the error message
         field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
+    });
+
+    $(this).on('click', '#cancel', function () {
+        $('#new-comment').remove();
+        $('#insert-form').html('');
+        $('#new-post').removeClass('active');
+        cancel_inplace();
     });
 
     $('.display-answer').click(function() {
