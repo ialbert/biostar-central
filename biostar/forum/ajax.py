@@ -188,10 +188,10 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
     # Validate fields found in top level posts
     if is_toplevel:
         if title_length <= MIN_TITLE_CHARS:
-            msg = f"Title too short, please add more than add more {MIN_TITLE_CHARS} characters."
+            msg = f"Title too short, please add more than {MIN_TITLE_CHARS} characters."
             return False, msg
         if title_length > MAX_TITLE_CHARS:
-            msg = f"Title too long, please add more than add more {MAX_TITLE_CHARS} characters."
+            msg = f"Title too long, please add less than {MAX_TITLE_CHARS} characters."
             return False, msg
 
         if post_type not in allowed_types:
