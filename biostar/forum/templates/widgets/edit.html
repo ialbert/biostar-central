@@ -20,13 +20,11 @@
             <div id="wmd-button-bar"></div>
             <textarea id="wmd-input" rows="{{ rows }}">{{ content }}</textarea>
         </div>
-
         {% if not_trusted %}
             <div class="required field">
                 <div id="captcha"></div>
             </div>
         {% endif %}
-
         <div class="field">
 
             <a class="ui green label save" id="save"><i class="check icon"></i>Save</a>
@@ -64,7 +62,6 @@
     var preview =  $('#wmd-preview');
     preview.find('pre').addClass('language-bash');
     preview.find('code').addClass('language-bash');
-
 
     $('#wmd-button-bar').click(function () {
         setTimeout(function() {

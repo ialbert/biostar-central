@@ -30,7 +30,7 @@
 
         <div class="field">
         {% if not post %}
-            {% include 'widgets/create_msg.html' %}
+            {% include 'widgets/posting_msg.html' %}
         {% endif %}
         <div id="wmd-button-bar"></div>
             <textarea id="wmd-input" class="wmd-input" rows="{{ rows }}">{{ content }}</textarea>
