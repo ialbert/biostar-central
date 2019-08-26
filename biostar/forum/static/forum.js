@@ -45,65 +45,6 @@ $.ajaxSetup({
 });
 
 
-// Adds a comment to the post
-function add_comment(elem) {
-
-    var post_uid = elem.attr('data-value');
-    var container = $("#comment-insert-" + post_uid);
-    var url = "/new/comment/" + post_uid + "/";
-
-    // Check for existing comment.
-    var comment = $("#new-comment");
-
-    if (comment.length) {
-        // Remove comment if exists.
-        comment.remove();
-    } else {
-        // Create a new comment.
-        comment = $('<div id="new-comment"></div>')
-    }
-
-    // Insert into the page.
-    container.after(comment);
-
-    // Checks the size of the comment.
-    function textarea_size_check() {
-        var input = $("#comment-input");
-        var size = input.val().length;
-        if (size < 10) {
-            popup_message(input, "More than 10 characters please!", "error");
-        } else {
-            //new_comment(post_uid, content);
-            $("#comment-form").submit()
-        }
-    }
-
-    // Submit form with CTRL-ENTER
-    comment.keydown(function (e) {
-        if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
-            textarea_size_check()
-        };
-    });
-
-    // Replace comment form from server
-    comment.load(url, function (response, status, xhr) {
-        if (status === 'success') {
-            // Focus on the input
-            $("#comment-input").focus();
-            // Apply size check to submit button.
-            $("#comment-submit").click(function (e) {
-                e.preventDefault();
-                textarea_size_check()
-            });
-        } else {
-            error_message(elem, xhr, status, "")
-            comment.remove()
-        }
-    });
-
-};
-
-
 function popup_message(elem, msg, cls, timeout) {
     timeout = typeof timeout !== 'undefined' ? timeout : 1000;
     var text = '<div></div>'
@@ -400,32 +341,6 @@ $(document).ready(function () {
     });
 
     $('.ui.dropdown').dropdown();
-
-    $('.tag-field').dropdown({
-        allowAdditions: true,
-        onChange: function(value, text, $selectedItem) {
-            // Get form field to add to
-            var tagid = $("#tag-menu").attr('field_id');
-            var tag_field = $('#{0}'.f(tagid));
-            // Add selected tag to field
-            //alert(value);
-            tag_field.val(value);
-    }
-    });
-
-    $('.tag-field >input.search').keydown(function(event) {
-        // Prevent submitting form when adding tag by pressing ENTER.
-        if (event.keyCode === 13){
-            event.preventDefault();
-        }
-        // Set value with SPACE bar
-        if (event.keyCode === 32){
-            event.preventDefault();
-            $("#tag-menu").dropdown('set selected', $(this).val().trim());
-            $(this).val('')
-        }
-
-    });
 
     $('.editable').click(function (event) {
          if (event.metaKey || event.ctrlKey){
