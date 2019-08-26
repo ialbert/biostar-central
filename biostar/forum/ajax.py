@@ -149,7 +149,6 @@ def ajax_digest(request):
     return ajax_success(msg="Changed digest options.")
 
 
-
 def validate_recaptcha(token):
     """
     Send recaptcha token to API to check if user response is valid

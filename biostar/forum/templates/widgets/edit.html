@@ -9,12 +9,6 @@
             <textarea id="content" rows="{{ rows }}">{{ content }}</textarea>
         </div>
 
-        {% if not_trusted %}
-            <div class="required field">
-                <div id="captcha"></div>
-            </div>
-        {% endif %}
-
         <div class="field">
 
             <a class="ui green label save" id="save"><i class="check icon"></i>Save</a>
