@@ -518,12 +518,35 @@ img {
     text-transform:capitalize;
 }
 
-.create-form{
-    padding:7px;
-    border-radius: 10px;
-    background: #f9f6f4;
+#insert-form{
+    display: none;
+    z-index: 1001;
+    position: absolute;
+    width: 73%;
 }
 
+.post-form{
+    box-shadow: none;
+    background: #f9f6f4 !important;
+    overflow-wrap: break-word;
+}
+
+.type-field{
+    width: 20%;
+    padding-right: 5px;
+}
+
+.title-field textarea{
+    padding: .65em !important;
+}
+
+.title-field{
+    width: 80%;
+}
+
+.inplace-fields{
+    display:-webkit-box;
+}
 
 
 .wmd-preview{

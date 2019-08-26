@@ -46,6 +46,19 @@ def valid_tag(text):
         raise ValidationError('You have too many tags (5 allowed)')
 
 
+class CaptchaForm(forms.Form):
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(CaptchaForm, self).__init__(*args, **kwargs)
+
+        not_trusted = True #self.user.is_authenticated and (not self.user.profile.trusted)
+
+        # Untrusted users get a recaptcha field
+        if settings.RECAPTCHA_PRIVATE_KEY and not_trusted:
+            self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
+
+
 class PostLongForm(forms.Form):
 
     choices = [opt for opt in Post.TYPE_CHOICES]

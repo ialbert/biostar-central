@@ -7,6 +7,8 @@ import urllib.parse
 import datetime
 from datetime import timedelta
 
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 
 from django import template, forms
 from django.conf import settings
@@ -275,7 +277,7 @@ def follow_label(context, post):
 
 
 @register.simple_tag
-def inplace_type_field(post):
+def inplace_type_field(post=None, field_id='type'):
     choices = [opt for opt in Post.TYPE_CHOICES]
 
     choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES) if settings.ALLOWED_POST_TYPES else
@@ -283,10 +285,10 @@ def inplace_type_field(post):
 
     post_type = forms.IntegerField(label="Post Type",
                                    widget=forms.Select(choices=choices, attrs={'class': "ui fluid dropdown",
-                                                                               'id': 'inplace-type'}),
+                                                                               'id': field_id}),
                                    help_text="Select a post type.")
 
-    value = post.type
+    value = post.type if post else Post.QUESTION
     post_type = post_type.widget.render('post_type', value)
 
     return mark_safe(post_type)
@@ -299,7 +301,7 @@ def get_tags(request=None, post=None):
     if request:
         tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
     else:
-        tags = post.tag_val if post else ''
+        tags = post.tag_val if isinstance(post, Post) else ''
 
     tags_opt = {val: True for val in tags.split(",")}
     context = dict(selected=tags, tags_opt=tags_opt.items())

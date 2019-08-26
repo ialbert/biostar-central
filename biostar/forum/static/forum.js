@@ -45,65 +45,6 @@ $.ajaxSetup({
 });
 
 
-// Adds a comment to the post
-function add_comment(elem) {
-
-    var post_uid = elem.attr('data-value');
-    var container = $("#comment-insert-" + post_uid);
-    var url = "/new/comment/" + post_uid + "/"
-
-    // Check for existing comment.
-    var comment = $("#new-comment")
-
-    if (comment.length) {
-        // Remove comment if exists.
-        comment.remove();
-    } else {
-        // Create a new comment.
-        comment = $('<div id="new-comment"></div>')
-    }
-
-    // Insert into the page.
-    container.after(comment);
-
-    // Checks the size of the comment.
-    function textarea_size_check() {
-        var input = $("#comment-input");
-        var size = input.val().length;
-        if (size < 10) {
-            popup_message(input, "More than 10 characters please!", "error");
-        } else {
-            //new_comment(post_uid, content);
-            $("#comment-form").submit()
-        }
-    }
-
-    // Submit form with CTRL-ENTER
-    comment.keydown(function (e) {
-        if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
-            textarea_size_check()
-        };
-    });
-
-    // Replace comment form from server
-    comment.load(url, function (response, status, xhr) {
-        if (status === 'success') {
-            // Focus on the input
-            $("#comment-input").focus();
-            // Apply size check to submit button.
-            $("#comment-submit").click(function (e) {
-                e.preventDefault();
-                textarea_size_check()
-            });
-        } else {
-            error_message(elem, xhr, status, "")
-            comment.remove()
-        }
-    });
-
-};
-
-
 function popup_message(elem, msg, cls, timeout) {
     timeout = typeof timeout !== 'undefined' ? timeout : 1000;
     var text = '<div></div>'
@@ -171,17 +112,17 @@ function edit_post(uid) {
 
     var edit_url = '/ajax/edit/' + uid + '/';
     // Rendered form element
-    var form_elem = $('.edit-form[data-value="'+ uid +'"]');
+    var form_elem = $('#post-form');
     // Inplace form container
-    var form_container = $('inplace[data-value="'+ uid +'"]');
+    var form_container = $('#new-edit');
     // Hidden elements
-    var hidden =  $('.hide-on-edit[data-value="'+ uid +'"]');
+    var hidden =  $('.hide-on-edit');
 
     // Post title inside of the form
-    var title = $('.title[data-value="'+ uid +'"]');
-    var content = $('.content[data-value="'+ uid +'"]');
-    var post_type = $('#inplace-type').dropdown('get value');
-    var tag_val = $('.tag-field').dropdown('get value');
+    var title = $('#title');
+    var content = $('#content');
+    var post_type = $('#type').dropdown('get value');
+    var tag_val = $('#tags').dropdown('get value');
 
     // Current post content and title to replace
     // with returned values.
@@ -210,12 +151,12 @@ function edit_post(uid) {
                 'title':title.val(),
                 'type':post_type,
                 'tag_val':tag_val,
-
             },
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(form_elem, data.msg, data.status, 3000);
                 } else {
+
                     // Clear and hide inplace form
                     form_elem.html('');
                     form_container.hide();
@@ -240,17 +181,27 @@ function edit_post(uid) {
         })
 }
 
-function cancel_inplace(uid){
 
-    var inplace_content = $('inplace[data-value="'+ uid +'"]');
+
+function cancel_create() {
+
+    var form_container = $('#insert-form');
+    form_container.html('');
+    $('#new-post').removeClass('active');
+
+}
+
+function cancel_inplace(){
+
+    var inplace_content = $('#new-edit');
     //var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
 
     //var title = $('.editable-title[data-value="'+ uid +'"]');
-    var content = $('.editable[data-value="'+ uid +'"]');
+    var content = $('.editable');
     //var content = $('#content-' + uid);
-    var hidden = $('.hide-on-edit[data-value="'+ uid +'"]');
+    var hidden = $('.hide-on-edit');
     //Delete the form
-    inplace_content.html("");
+    inplace_content.remove();
     //inplace_title.html("");
     // Hide the container
     // Show original content
@@ -261,28 +212,46 @@ function cancel_inplace(uid){
 }
 
 
-function inplace_post(elem){
+function inplace_post_edit(elem){
 
     var uid = elem.data("value");
     var hidden =  $('.hide-on-edit[data-value="'+ uid +'"]');
     var form_container = $('inplace[data-value="'+ uid +'"]');
-    var url = '/inplace/post/' + uid +'/';
+    var url = '/inplace/form/';
+
+    // Check if other posts are being edited.
+    var editing = $("#new-edit");
+    $('#new-comment').remove();
+    $('#add-answer').html('');
+    cancel_create();
+
+    if (editing.length) {
+        // Remove exiting edits
+        $('.hide-on-edit').show();
+        $('.editable').show();
+        editing.remove();
+    } else {
+        // Create a new edit
+        editing = $('<div id="new-edit"></div>')
+    }
+    form_container.after(editing);
 
     $.ajax(url,
         {
             type: 'GET',
             dataType: 'json',
             ContentType: 'application/json',
+            data:{
+                'uid': uid,
+            },
             success: function (data) {
                 if (data.status === 'error') {
-                    alert(data.status);
-                    alert(data.msg);
                     popup_message(elem, data.msg, data.status, 3000);
                 } else {
                     elem.hide();
                     hidden.hide();
-                    form_container.html(data.inplace_form);
-                    form_container.show().find('textarea').focus();
+                    editing.html(data.inplace_form);
+                    editing.show().find('textarea').focus();
                 }
             },
             error: function (xhr, status, text) {
@@ -373,68 +342,33 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
 
-    $('.tag-field').dropdown({
-        allowAdditions: true,
-        onChange: function(value, text, $selectedItem) {
-            // Get form field to add to
-            var tagid = $("#tag-menu").attr('field_id');
-            var tag_field = $('#{0}'.f(tagid));
-            // Add selected tag to field
-            //alert(value);
-            tag_field.val(value);
-    }
-    });
-
-    $('.tag-field >input.search').keydown(function(event) {
-        // Prevent submitting form when adding tag by pressing ENTER.
-        if (event.keyCode === 13){
-            event.preventDefault();
-        }
-        // Set value with SPACE bar
-        if (event.keyCode === 32){
-            event.preventDefault();
-            $("#tag-menu").dropdown('set selected', $(this).val().trim());
-            $(this).val('')
-        }
-
-    });
-
     $('.editable').click(function (event) {
          if (event.metaKey || event.ctrlKey){
-             inplace_post($(this))
+             inplace_post_edit($(this))
          }
     }).dblclick(function (event) {
-         inplace_post($(this))
+         inplace_post_edit($(this))
     });
 
     $('.inplace-click').click(function (event) {
         var uid = $(this).data('value');
         var elem = $('.editable[data-value="'+ uid +'"]');
-        inplace_post(elem);
+        inplace_post_edit(elem);
     });
 
-    $(this).on('keyup', '.edit-form textarea', function (event) {
-
-        var uid = $(this).data('value');
-        // Submit form with CTRL-ENTER
-        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
-            edit_post(uid);
-            return
-        }
+    $(this).on('keyup', '#content', function (event) {
 
         var md = markdownit();
         var text = $(this).val();
         var html_preview = md.render(text);
         //var html_preview = Prism.highlight(md.render(text), Prism.languages.bash, 'language-bash');
-        var html_container = $('#html-preview-'+ uid);
+        var html_container = $('#html-preview');
 
         html_container.html(html_preview);
         //alert("test");
         html_container.find('pre').addClass('language-bash');
         html_container.find('code').addClass('language-bash');
         Prism.highlightAll();
-
-
 
     });
 
@@ -444,22 +378,13 @@ $(document).ready(function () {
                 event.preventDefault();
                 var uid = $(this).data("value");
                 cancel_inplace(uid);
+                cancel_create();
+                $('#new-comment').remove();
+                $('#add-answer').html('');
             });
         }
 
     });
-
-    $(this).on('click', '.edit-form .cancel', function(){
-        event.preventDefault();
-        var uid = $(this).data("value");
-        cancel_inplace(uid);
-     });
-
-    $(this).on('click', '.edit-form .save', function(){
-        var uid = $(this).data("value");
-        event.preventDefault();
-        edit_post(uid);
-     });
 
 
     $('#digest').dropdown({
@@ -543,9 +468,57 @@ $(document).ready(function () {
 
     $(".add-comment").click(function (event) {
         event.preventDefault();
-        add_comment($(this));
-    });
 
+        var create_url = '/inplace/form/';
+        var parent_uid = $(this).data('value');
+
+        //var container = $("#comment-insert-" + parent_uid);
+        var container = $("#comment-insert-" + parent_uid);
+        //var url = "/new/comment/" + post_uid + "/";
+        cancel_inplace();
+        $('#insert-form').html('');
+        $('#new-post').removeClass('active');
+        $('#add-answer').html('');
+
+        // Check for existing comment.
+        var comment = $("#new-comment");
+
+        if (comment.length) {
+            // Remove comment if exists.
+            comment.remove();
+        } else {
+            // Create a new comment.
+            comment = $('<div id="new-comment"></div>')
+        }
+        container.after(comment);
+
+        //alert(container.length);
+
+        $.ajax(create_url,
+            {
+                type: 'GET',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {
+                    'parent': parent_uid,
+                    'comment': 1,
+                    'top': 0,
+                    'rows':6,
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message($('#error'), data.msg, data.status);
+                    } else {
+                        comment.html(data.inplace_form);
+                        //container.transition('slide down', 250);
+                        comment.find('#content').focus();
+                    }
+                },
+                error: function (xhr, status, text) {
+                    error_message($(this), xhr, status, text)
+                }
+            })
+    });
 
     remove_trigger();
 
@@ -556,6 +529,53 @@ $(document).ready(function () {
         if (event.keyCode === 13){
             search(query, $(this), search_url);
         }
+    });
+
+    $('#new-post').click(function () {
+        var create_url = '/inplace/form/';
+        var form_container = $('#insert-form');
+        var form_is_visible = $('#insert-form.visible').val() != null;
+
+        cancel_inplace();
+        $('#new-comment').remove();
+        $('#add-answer').html('');
+
+        // Avoid hitting the server when the form is already visible.
+        if (form_is_visible){
+            // Make the form invisible
+            form_container.html('');
+            // Remove active class from menu topic
+            $('#new-post').removeClass('active');
+            return
+        }
+
+        $.ajax(create_url,
+            {
+                type: 'GET',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {
+                    'rows':13,
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message($('#error'), data.msg, data.status);
+                    } else {
+                        $('#menu-header > .item').each(function () {
+                            $(this).removeClass('active');
+                        });
+                        $('#new-post').addClass('active');
+
+                        form_container.html(data.inplace_form);
+                        form_container.show();
+                        form_container.find('#title').focus();
+                    }
+
+                },
+                error: function (xhr, status, text) {
+                    error_message($(this), xhr, status, text)
+                }
+            })
     });
 
     $(".moderate-post").click(function (event) {
@@ -580,8 +600,7 @@ $(document).ready(function () {
     });
 
     $(this).on('click', '.show-preview', function() {
-        var uid = $(this).data('value');
-        var preview = $('.preview-'+uid);
+        var preview = $('#preview');
         preview.transition('slide down', 400);
         preview.find('pre').addClass('language-bash');
         preview.find('code').addClass('language-bash');
@@ -639,8 +658,48 @@ $(document).ready(function () {
         field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
     });
 
+    $(this).on('click', '#cancel', function () {
+        $('#new-comment').remove();
+        cancel_create();
+        cancel_inplace();
+        $('#add-answer').html('');
+    });
+
     $('.display-answer').click(function() {
-        $('.answer-form').transition('slide down');
+        var create_url = '/inplace/form/';
+        var form_container = $('#add-answer');
+        var parent_uid = form_container.data('value');
+        //var form_is_visible = $('#insert-form.visible').val() != null;
+
+        $('#new-comment').remove();
+        cancel_inplace();
+        cancel_create();
+        // Avoid hitting the server when the form is already visible.
+
+        $.ajax(create_url,
+            {
+                type: 'GET',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {
+                    'rows': 15,
+                    'parent': parent_uid,
+                    'top':0,
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message($('#error'), data.msg, data.status);
+                    } else {
+                        form_container.html(data.inplace_form);
+                        form_container.show();
+                        form_container.find('#content').focus();
+                    }
+
+                },
+                error: function (xhr, status, text) {
+                    error_message($(this), xhr, status, text)
+                }
+            })
     });
 
     $('pre').addClass('language-bash');

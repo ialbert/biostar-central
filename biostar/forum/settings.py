@@ -17,7 +17,6 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
-TUTORIAL_POST = '1'
 
 # Log the time for each request
 TIME_REQUESTS = True

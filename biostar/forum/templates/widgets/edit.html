@@ -1,0 +1,93 @@
+{% load forum_tags %}
+
+<div class="ui inplace post-form basic segment">
+
+    <form class="ui inplace edit-form compact form" id="post-form">
+        <input type="hidden" name="toplevel" id="is_toplevel" value="0">
+
+        <div class="field">
+            <textarea id="content" rows="{{ rows }}">{{ content }}</textarea>
+        </div>
+
+        <div class="field">
+
+            <a class="ui green label save" id="save"><i class="check icon"></i>Save</a>
+
+            <a class="ui label show-preview">
+                <i class="eye icon"></i> Preview
+            </a>
+
+            <a class="ui label cancel" id="cancel"> <i class="undo icon"></i> Cancel</a>
+
+        </div>
+
+        <p class="muted" style="font-size: smaller;">Tips: CTRL+ENTER to submit the form. ESC to
+            cancel. Double-click to edit post. Markdown accepted.
+        </p>
+
+        <div class="hide" id="preview">
+            <div class="ui preview segment">
+                <div id="html-preview">{{ html|safe }}</div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+    var form_elem = $('#post-form');
+    var content = $('#content');
+
+    function create_post(){
+
+        var create_url = '/ajax/create/';
+        // Get the fields to submit
+        $.ajax(create_url,
+            {
+                type: 'POST',
+                dataType: 'json',
+                ContentType: 'html',
+                traditional: true,
+                data: {
+                    'content': content.val(),
+                    'parent': '{{ parent_uid }}',
+                    'comment':'{{ is_comment }}',
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message(form_elem, data.msg, data.status, 3000);
+                    } else {
+                        //alert(data.redirect);
+                        // Redirect user to the new post view.
+                        window.location.replace(data.redirect);
+                        window.location.reload();
+                    }
+                },
+                error: function (xhr, status, text) {
+                    error_message(form_elem, xhr, status, text)
+                }
+            })
+    }
+
+    $('#post-form .save').click(function(){
+        event.preventDefault();
+        {% if post %}
+            edit_post("{{ post.uid }}");
+        {% else %}
+            create_post();
+        {% endif %}
+     });
+
+    content.keyup(function (event) {
+        // Submit form with CTRL-ENTER
+        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
+            {% if post %}
+                edit_post("{{ post.uid }}");
+            {% else %}
+                create_post();
+            {% endif %}
+        }
+    })
+
+</script>
