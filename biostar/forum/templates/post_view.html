@@ -21,74 +21,30 @@
     {% endfor %}
 
 
-            {% if request.user.is_authenticated and post.is_open %}
-                {% form_errors form %}
-                <div class="ui info tablet message">
-                    <p>If you want to provide a solution to the original question, click <a
-                            class="ui blue display-answer tiny label">ADD ANSWER</a>.<br>
-                        Use the <span class="ui tiny label">ADD COMMENT</span> or <span
-                                class="ui tiny label">ADD REPLY</span> buttons
-                        embedded in each post to comment, to ask for clarifications, to request more details, or respond
-                        to a
-                        previous answer or comment.
-                    </p>
-                </div>
-                <form method="post" class="ui answer-form form" action="{% url 'post_view' post.uid %}">
+    {% if request.user.is_authenticated and post.is_open %}
+        <div class="ui info tablet message">
+            <p>If you want to provide a solution to the original question, click <a
+                    class="ui blue display-answer tiny label">ADD ANSWER</a>.<br>
+                Use the <span class="ui tiny label">ADD COMMENT</span> or <span
+                        class="ui tiny label">ADD REPLY</span> buttons
+                embedded in each post to comment, to ask for clarifications, to request more details, or respond
+                to a
+                previous answer or comment.
+            </p>
+        </div>
+        <div id="add-answer" data-value="{{ post.uid }}"></div>
 
-                    {{ form.media }}
+    {% elif not post.is_open %}
+        <div class="ui warning message">
+            This thread is not open. No new answers may be added
+        </div>
+    {% else %}
+        <div class="ui info message">
+            <p><a class="ui small label" href="{% url 'login' %}">
+                <i class="sign in icon"></i>Login</a> before adding your answer.</p>
+        </div>
 
-                    {% csrf_token %}
-
-                <div class="ui form-wrap segment">
-                    <b>Add Your Answer</b>
-
-                    <input type="hidden" name="{{ form.parent_uid.name }}" id="{{ form.parent_uid.id_for_label }}"
-                           value={{ post.uid }}/>
-
-                    <div class="input field">
-                        <div class="wmd-wrapper" id="{{ form.content.id_for_label }}-wmd-wrapper">
-                            <div class="">
-                                <div id="{{ form.content.id_for_label }}_wmd_button_bar"></div>
-                                <textarea class=" wmd-input" cols="40" name="content" rows="10"
-                                          id="{{ form.content.id_for_label }}">{% if request.POST.content %}{{ request.POST.content }}{% endif %}</textarea>
-                            </div>
-                            <div class="top-padding">
-                                <button type="submit" class="ui submit green button">
-                                    <i class="check icon"></i>Submit
-                                </button>
-                            </div>
-                            {% if form.captcha %}
-                                <div class="top-padding">
-                                    <div class="required field">
-                                        {{ form.captcha }}
-                                    </div>
-                                </div>
-                            {% endif %}
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ui form-wrap segment">
-                    <div class="field">
-                        <label>HTML Preview</label>
-                        <div id="{{ form.content.id_for_label }}_wmd_preview" class="wmd-preview"></div>
-                    </div>
-                </div>
-
-                </form>
-
-            {% elif not post.is_open %}
-                <div class="ui warning message">
-                    This thread is not open. No new answers may be added
-                </div>
-            {% else %}
-                <div class="ui info message">
-                    <p><a class="ui small label" href="{% url 'login' %}">
-                        <i class="sign in icon"></i>Login</a> before adding your answer.</p>
-                </div>
-
-            {% endif %}
+    {% endif %}
 
 {% endblock %}
 

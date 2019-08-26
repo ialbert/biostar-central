@@ -22,8 +22,6 @@ MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 logger = logging.getLogger("engine")
 
 
-
-
 class Post(models.Model):
     "Represents a post in a forum"
 

@@ -1,11 +1,12 @@
 {% load forum_tags %}
 
-<script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
+{% if not_trusted %}
+    <script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
+{% endif %}
 
 <div class="ui inplace post-form basic segment">
 
     <form class="ui inplace edit-form compact form" id="post-form">
-        <input type="hidden" name="parent_uid" id="parent_uid" value="{{ parent_uid }}">
         <input type="hidden" name="toplevel" id="is_toplevel" value="1">
 
         <div style="display:-webkit-box;">
@@ -23,7 +24,7 @@
         {% endif %}
 
         <div class="field">
-            <textarea id="content">{{ content }}</textarea>
+            <textarea id="content" rows="{{ rows }}">{{ content }}</textarea>
         </div>
 
         <div class="field">
@@ -63,9 +64,9 @@
             cancel. Double-click to edit post. Markdown accepted.
         </p>
 
-        <div class="hide preview-{{ post.uid }}">
+        <div class="hide" id="preview">
             <div class="ui preview segment">
-                <div id="html-preview-{{ post.uid }}">{{ post.html|safe }}</div>
+                <div id="html-preview">{{ html|safe }}</div>
             </div>
         </div>
 
@@ -76,13 +77,14 @@
 <script>
 
     $('.ui.dropdown').dropdown();
-    var captchaWidgetId = grecaptcha.render( 'captcha', {
-        'sitekey' : '{{ captcha_key }}',
-        'theme' : 'light'
-    });
+    {% if not_trusted %}
+        var captchaWidgetId = grecaptcha.render( 'captcha', {
+            'sitekey' : '{{ captcha_key }}',
+            'theme' : 'light'
+        });
+    {% endif %}
 
-    function create_post(){
-
+    function create_toplevel(){
         var create_url = '/ajax/create/';
         // Get the fields to submit
         var title = $('#title');
@@ -90,8 +92,11 @@
         var content = $('#content');
         var post_type = $('#type').dropdown('get value');
         var tag_val = $('#tags').dropdown('get value');
-        var parent = $('#parent_uid').val();
-        var cap_response = grecaptcha.getResponse(captchaWidgetId);
+        {% if not_trusted %}
+            var cap_response = grecaptcha.getResponse(captchaWidgetId);
+        {% else %}
+            var cap_response = '';
+        {% endif %}
 
         $.ajax(create_url,
             {
@@ -105,7 +110,7 @@
                     'type': post_type,
                     'tag_val': tag_val,
                     'recaptcha_response': cap_response,
-                    'parent': parent,
+                    'top_level':1,
 
                 },
                 success: function (data) {
@@ -126,14 +131,11 @@
     $('#post-form .save').click(function(){
         event.preventDefault();
         {% if post %}
-            edit_post();
+            edit_post("{{ post.uid }}");
         {% else %}
-            alert("ffff");
-            create_post();
+            create_toplevel();
         {% endif %}
      });
-
-    //var $()
 
     $('.tag-field').dropdown({
         allowAdditions: true,
@@ -163,4 +165,15 @@
         }
 
     });
+
+    $('#content').keyup(function (event) {
+        // Submit form with CTRL-ENTER
+        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
+            {% if post %}
+                edit_post("{{ post.uid }}");
+            {% else %}
+                create_toplevel();
+            {% endif %}
+        }
+    })
 </script>

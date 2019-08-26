@@ -171,17 +171,17 @@ function edit_post(uid) {
 
     var edit_url = '/ajax/edit/' + uid + '/';
     // Rendered form element
-    var form_elem = $('.edit-form[data-value="'+ uid +'"]');
+    var form_elem = $('#post-form');
     // Inplace form container
-    var form_container = $('inplace[data-value="'+ uid +'"]');
+    var form_container = $('#new-edit');
     // Hidden elements
-    var hidden =  $('.hide-on-edit[data-value="'+ uid +'"]');
+    var hidden =  $('.hide-on-edit');
 
     // Post title inside of the form
-    var title = $('.title[data-value="'+ uid +'"]');
-    var content = $('.content[data-value="'+ uid +'"]');
-    var post_type = $('#inplace-type').dropdown('get value');
-    var tag_val = $('.tag-field').dropdown('get value');
+    var title = $('#title');
+    var content = $('#content');
+    var post_type = $('#type').dropdown('get value');
+    var tag_val = $('#tags').dropdown('get value');
 
     // Current post content and title to replace
     // with returned values.
@@ -210,12 +210,12 @@ function edit_post(uid) {
                 'title':title.val(),
                 'type':post_type,
                 'tag_val':tag_val,
-
             },
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(form_elem, data.msg, data.status, 3000);
                 } else {
+
                     // Clear and hide inplace form
                     form_elem.html('');
                     form_container.hide();
@@ -245,11 +245,8 @@ function edit_post(uid) {
 function cancel_create() {
 
     var form_container = $('#insert-form');
-
     form_container.html('');
     $('#new-post').removeClass('active');
-
-
 
 }
 
@@ -283,6 +280,9 @@ function inplace_post_edit(elem){
 
     // Check if other posts are being edited.
     var editing = $("#new-edit");
+    $('#new-comment').remove();
+    $('#add-answer').html('');
+    cancel_create();
 
     if (editing.length) {
         // Remove exiting edits
@@ -441,35 +441,7 @@ $(document).ready(function () {
         inplace_post_edit(elem);
     });
 
-    $(this).on('keyup', '.edit-form textarea', function (event) {
-
-        var uid = $(this).data('value');
-        // Submit form with CTRL-ENTER
-        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
-            edit_post(uid);
-            return
-        }
-
-        var md = markdownit();
-        var text = $(this).val();
-        var html_preview = md.render(text);
-        //var html_preview = Prism.highlight(md.render(text), Prism.languages.bash, 'language-bash');
-        var html_container = $('#html-preview-'+ uid);
-
-        html_container.html(html_preview);
-        //alert("test");
-        html_container.find('pre').addClass('language-bash');
-        html_container.find('code').addClass('language-bash');
-        Prism.highlightAll();
-
-    });
-    $(this).on('keyup', '#new-content', function (event) {
-
-        // Submit form with CTRL-ENTER
-        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
-            create_post();
-            return
-        }
+    $(this).on('keyup', '#content', function (event) {
 
         var md = markdownit();
         var text = $(this).val();
@@ -483,8 +455,6 @@ $(document).ready(function () {
         html_container.find('code').addClass('language-bash');
         Prism.highlightAll();
 
-
-
     });
 
     $(this).keyup(function (event) {
@@ -495,26 +465,11 @@ $(document).ready(function () {
                 cancel_inplace(uid);
                 cancel_create();
                 $('#new-comment').remove();
+                $('#add-answer').html('');
             });
         }
 
     });
-
-    $(this).on('click', '.edit-form .cancel', function(){
-        event.preventDefault();
-        cancel_inplace();
-     });
-    $(this).on('click', '.create-form .cancel', function(){
-        event.preventDefault();
-        cancel_create();
-     });
-
-    $(this).on('click', '.edit-form .save', function(){
-        var uid = $(this).data("value");
-        event.preventDefault();
-        edit_post(uid);
-     });
-
 
 
     $('#digest').dropdown({
@@ -606,6 +561,10 @@ $(document).ready(function () {
         var container = $("#comment-insert-" + parent_uid);
         //var url = "/new/comment/" + post_uid + "/";
         cancel_inplace();
+        $('#insert-form').html('');
+        $('#new-post').removeClass('active');
+        $('#add-answer').html('');
+
         // Check for existing comment.
         var comment = $("#new-comment");
 
@@ -626,8 +585,9 @@ $(document).ready(function () {
                 dataType: 'json',
                 ContentType: 'application/json',
                 data: {
-                    'top':0,
-                    'parent': parent_uid
+                    'parent': parent_uid,
+                    'comment': 1,
+                    'top': 0,
                 },
                 success: function (data) {
                     if (data.status === 'error') {
@@ -662,6 +622,7 @@ $(document).ready(function () {
 
         cancel_inplace();
         $('#new-comment').remove();
+        $('#add-answer').html('');
 
         // Avoid hitting the server when the form is already visible.
         if (form_is_visible){
@@ -722,21 +683,11 @@ $(document).ready(function () {
     });
 
     $(this).on('click', '.show-preview', function() {
-        var uid = $(this).data('value');
-        var preview = $('.preview-'+uid);
+        var preview = $('#preview');
         preview.transition('slide down', 400);
         preview.find('pre').addClass('language-bash');
         preview.find('code').addClass('language-bash');
         Prism.highlightAll();
-
-    });
-    $(this).on('click', '.create-preview', function() {
-        var preview = $('.preview');
-        preview.transition('slide down', 400);
-        preview.find('pre').addClass('language-bash');
-        preview.find('code').addClass('language-bash');
-        Prism.highlightAll();
-        preview.show();
 
     });
 
@@ -792,13 +743,46 @@ $(document).ready(function () {
 
     $(this).on('click', '#cancel', function () {
         $('#new-comment').remove();
-        $('#insert-form').html('');
-        $('#new-post').removeClass('active');
+        cancel_create();
         cancel_inplace();
+        $('#add-answer').html('');
     });
 
     $('.display-answer').click(function() {
-        $('.answer-form').transition('slide down');
+        var create_url = '/inplace/form/';
+        var form_container = $('#add-answer');
+        var parent_uid = form_container.data('value');
+        //var form_is_visible = $('#insert-form.visible').val() != null;
+
+        $('#new-comment').remove();
+        cancel_inplace();
+        cancel_create();
+        // Avoid hitting the server when the form is already visible.
+
+        $.ajax(create_url,
+            {
+                type: 'GET',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {
+                    'rows': 15,
+                    'parent': parent_uid,
+                    'top':0,
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message($('#error'), data.msg, data.status);
+                    } else {
+                        form_container.html(data.inplace_form);
+                        form_container.show();
+                        form_container.find('#content').focus();
+                    }
+
+                },
+                error: function (xhr, status, text) {
+                    error_message($(this), xhr, status, text)
+                }
+            })
     });
 
     $('pre').addClass('language-bash');

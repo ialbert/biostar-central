@@ -149,83 +149,6 @@ def ajax_digest(request):
     return ajax_success(msg="Changed digest options.")
 
 
-def validate_length(field, min_len, max_len):
-
-    length = len(field.replace(" ", ''))
-
-    if length < min_len:
-        msg = f"Too short, please add more than add more {forms.MIN_CONTENT} characters."
-        return False, msg
-    if length > max_len:
-        msg = f"Too long, please add less than {forms.MAX_CONTENT} characters."
-        return False, msg
-
-    return True, ''
-
-
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
-def ajax_edit(request, uid):
-    """
-    Edit post content using ajax.
-    """
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
-
-    post = Post.objects.filter(uid=uid).first()
-    if not post:
-        return ajax_error(msg="Post does not exist")
-
-    content = request.POST.get("content", post.content)
-    title = request.POST.get("title", post.title)
-    post_type = int(request.POST.get("type", post.type))
-
-    tag_list = set(request.POST.getlist("tag_val", []))
-    tag_str = ','.join(tag_list)
-
-    tag_length = len(tag_list)
-    content_length = len(content.replace(" ", ''))
-    title_length = len(title.replace(' ', ''))
-
-    allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
-    #TODO: refactor out nested clauses
-    if content_length <= forms.MIN_CONTENT:
-        return ajax_error(msg=f"Content too short, please add more than add more {forms.MIN_CONTENT} characters.")
-    elif content_length > forms.MAX_CONTENT:
-        return ajax_error(msg=f"Content too long, please add less than {forms.MAX_CONTENT} characters.")
-
-    if post.is_toplevel:
-        if title_length <= MIN_TITLE_CHARS:
-            return ajax_error(msg=f"Title too short, please add more than add more {MIN_TITLE_CHARS} characters.")
-        elif title_length > MAX_TITLE_CHARS:
-            return ajax_error(msg=f"Title too long, please add more than add more {MAX_TITLE_CHARS} characters.")
-        if post_type not in allowed_types:
-            return ajax_error(msg=f"Not a valid post type.")
-
-        if tag_length > MAX_TAGS:
-            return ajax_error(msg=f"Too many tags, maximum of {MAX_TAGS} tags allowed.")
-
-        post.title = title
-        post.type = post_type
-        post.tag_val = tag_str
-
-    post.lastedit_user = request.user
-    post.content = content
-    post.save()
-
-    tags = post.tag_val.split(",")
-    context = dict(post=post, tags=tags, show_views=True)
-    tmpl = loader.get_template('widgets/post_tags.html')
-
-    tag_html = tmpl.render(context)
-
-    # Note: returns html instead of JSON on success.
-    # Used to switch content inplace.
-    new_title = f'{post.get_type_display()}: {post.title}'
-    return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
-
 
 def validate_recaptcha(token):
     """
@@ -272,11 +195,11 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
             msg = f"Title too long, please add more than add more {MAX_TITLE_CHARS} characters."
             return False, msg
 
-        if is_toplevel and post_type not in allowed_types:
+        if post_type not in allowed_types:
             msg = "Not a valid post type."
             return False, msg
 
-        if is_toplevel and tag_length > MAX_TAGS:
+        if tag_length > MAX_TAGS:
             msg = f"Too many tags, please add less than {MAX_TAGS}"
             return False, msg
 
@@ -286,34 +209,96 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
+def ajax_edit(request, uid):
+    """
+    Edit post content using ajax.
+    """
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
+
+    post = Post.objects.filter(uid=uid).first()
+    if not post:
+        return ajax_error(msg="Post does not exist")
+
+    content = request.POST.get("content", post.content)
+    title = request.POST.get("title", post.title)
+    post_type = int(request.POST.get("type", post.type))
+    tag_list = set(request.POST.getlist("tag_val", []))
+    tag_str = ','.join(tag_list)
+
+    # Validate fields in request.POST
+    valid, msg = validate_post(content=content, title=title, tags_list=tag_list,
+                               post_type=post_type, is_toplevel=post.is_toplevel)
+    if not valid:
+        return ajax_error(msg=msg)
+
+    if post.is_toplevel:
+        post.title = title
+        post.type = post_type
+        post.tag_val = tag_str
+
+    post.lastedit_user = request.user
+    post.content = content
+    post.save()
+
+    tags = post.tag_val.split(",")
+    context = dict(post=post, tags=tags, show_views=True)
+
+    tmpl = loader.get_template('widgets/post_tags.html')
+    tag_html = tmpl.render(context)
+    new_title = f'{post.get_type_display()}: {post.title}'
+
+    return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
 def ajax_create(request):
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     # Get form fields from POST request
     user = request.user
     content = request.POST.get("content", '')
     title = request.POST.get("title", '')
-    post_type = int(request.POST.get('type', 0))
+    tag_list = set(request.POST.getlist("tag_val", []))
+    tag_str = ','.join(tag_list)
+    recaptcha_token = request.POST.get("recaptcha_response")
 
+    # Get the post type
+    post_type = request.POST.get('type', '0')
+    post_type = int(post_type) if post_type.isdigit() else 0
+
+    # Find out if we are currently creating a comment
+    is_comment = request.POST.get('comment', '0')
+    is_comment = int(is_comment) if is_comment.isdigit() else 0
+
+    # Resolve the parent post
     parent_uid = request.POST.get("parent", '')
     parent = Post.objects.filter(uid=parent_uid).first()
 
-    tag_list = set(request.POST.getlist("tag_val", []))
-    tag_str = ','.join(tag_list)
-
-    recaptcha_token = request.POST.get("recaptcha_response")
-
     # Validate fields in request.POST
-    valid, msg = validate_post(content=content, title=title, recaptcha_token=recaptcha_token,
-                               tags_list=tag_list, post_type=post_type)
+    valid, msg = validate_post(content=content, title=title, recaptcha_token=recaptcha_token, tags_list=tag_list,
+                               post_type=post_type)
     if not valid:
         return ajax_error(msg=msg)
 
     if parent_uid and not parent:
         return ajax_error(msg='Parent post does not exist.')
 
-    # Validate the captcha field
-    post = Post.objects.create(title=title, tag_val=tag_str, type=post_type,
-                               content=content, author=user, parent=parent)
+    # We are creating an answer.
+    if parent and parent.is_toplevel and not is_comment:
+        post_type = Post.ANSWER
+    # Creating a comment
+    elif is_comment:
+        post_type = Post.COMMENT
+
+    # Create the post.
+    post = Post.objects.create(title=title, tag_val=tag_str, type=post_type, content=content,
+                               author=user, parent=parent)
 
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
@@ -343,14 +328,16 @@ def inplace_form(request):
 
     title = post.title if post else ''
     content = post.content if post else ''
-    rows = len(post.content.split("\n")) if post else 10
+    rows = len(post.content.split("\n")) if post else request.GET.get('rows', 10)
+    is_comment = request.GET.get('comment', 0)
+    html = post.html if post else ''
 
     # Untrusted users get a reCAPTCHA field added to the form
     not_trusted = user.is_authenticated and (not user.profile.trusted)
     # Load the content and form template
     tmpl = loader.get_template(template_name=template)
-    context = dict(user=user, post=post, content=content, rows=rows,
-                   parent_uid=parent_uid, captcha_key=settings.RECAPTCHA_PUBLIC_KEY,
+    context = dict(user=user, post=post, content=content, rows=rows, is_comment=is_comment,
+                   parent_uid=parent_uid, captcha_key=settings.RECAPTCHA_PUBLIC_KEY, html=html,
                    not_trusted=not_trusted, title=title)
 
     form = tmpl.render(context)
