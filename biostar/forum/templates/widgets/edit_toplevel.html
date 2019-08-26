@@ -22,11 +22,12 @@
         </div>
 
 
+
+
+        <div class="field">
         {% if not post %}
             {% include 'widgets/create_msg.html' %}
         {% endif %}
-
-        <div class="field">
             <textarea id="content" rows="{{ rows }}">{{ content }}</textarea>
         </div>
 
