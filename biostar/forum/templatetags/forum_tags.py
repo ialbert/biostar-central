@@ -277,7 +277,7 @@ def follow_label(context, post):
 
 
 @register.simple_tag
-def inplace_type_field(post=None, field_id='inplace-type'):
+def inplace_type_field(post=None, field_id='type'):
     choices = [opt for opt in Post.TYPE_CHOICES]
 
     choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES) if settings.ALLOWED_POST_TYPES else

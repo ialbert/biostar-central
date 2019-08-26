@@ -1,35 +1,37 @@
-{% load staticfiles %}
-
 {% load forum_tags %}
-<script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
 
-<div class="ui inplace post-form basic segment" style="padding-bottom: 5px; border-radius: 6px;">
+{% if not_trusted %}
+    <script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
+{% endif %}
 
-    <form class="ui inplace create-form compact form" id="create">
+<div class="ui inplace post-form basic segment">
+
+    <form class="ui inplace edit-form compact form" id="post-form">
+        <input type="hidden" name="toplevel" id="is_toplevel" value="1">
+
         <div style="display:-webkit-box;">
             <div class="three wide field" style="width: 20%; padding-right: 5px">
-                <b>Type</b>
-                {% inplace_type_field field_id='new-type' %}
+                {% inplace_type_field post=post %}
             </div>
             <div class="field" style="width: 80%;">
-                <b>Title</b>
-                <textarea id="new-title" rows="1" style="padding: .69em;"></textarea>
+            <textarea id="title" rows="1" style="padding: .6em;">{{ title }}</textarea>
             </div>
         </div>
 
+
+        {% if not post %}
+            {% include 'widgets/create_msg.html' %}
+        {% endif %}
+
         <div class="field">
-            <b>Content</b>
-            <textarea id="new-content" rows="10"></textarea>
+            <textarea id="content" rows="{{ rows }}">{{ content }}</textarea>
         </div>
 
         <div class="field">
             {% get_tags post=post as tags %}
+            <input type="hidden" name="tag_val" id="tag_val_id" value="{{ tags.selected }}">
 
-            <input type="hidden" name="tag_val" id="new-tag_val_id" value="{{ tags.selected }}" placeholder="Tags">
-            <b>Tags</b>
-            <select multiple="multiple" class="ui search selection dropdown tag-field" id="new-tags"
-                    field_id="new-tag_val_id">
-
+            <select multiple="multiple" class="ui search selection dropdown tag-field" id="tags" field_id="tag_val_id">
                 {% for value, selected_tag in tags.tags_opt %}
                     {% if selected_tag %}
                         <option value="{{ value }}" selected="selected">{{ value }}</option>
@@ -40,27 +42,31 @@
             </select>
         </div>
 
-        <div class="required field">
-            <div id="captcha"></div>
-        </div>
+        {% if not_trusted %}
+            <div class="required field">
+                <div id="captcha"></div>
+            </div>
+        {% endif %}
 
         <div class="field">
 
-            <a class="ui green label save"><i class="check icon"></i>Save</a>
-            <a class="ui label create-preview">
+            <a class="ui green label save" id="save"><i class="check icon"></i>Save</a>
+
+            <a class="ui label show-preview">
                 <i class="eye icon"></i> Preview
             </a>
-            <a class="ui label cancel"><i class="undo icon"></i> Cancel</a>
+
+            <a class="ui label cancel" id="cancel"><i class="undo icon"></i> Cancel</a>
 
         </div>
 
-        <p class="muted"
-           style="font-size: smaller;">Tips: CTRL+ENTER to submit the form. ESC to
+        <p class="muted" style="font-size: smaller;">Tips: CTRL+ENTER to submit the form. ESC to
             cancel. Double-click to edit post. Markdown accepted.
         </p>
-        <div class="preview">
+
+        <div class="hide" id="preview">
             <div class="ui preview segment">
-                <div id="html-preview"></div>
+                <div id="html-preview">{{ html|safe }}</div>
             </div>
         </div>
 
@@ -68,25 +74,29 @@
 
 </div>
 
-{# Load recaptcha #}
 <script>
-$(document).ready(function () {
 
-    var captchaWidgetId = grecaptcha.render( 'captcha', {
-        'sitekey' : '{{ captcha_key }}',
-        'theme' : 'light'
-    });
+    $('.ui.dropdown').dropdown();
+    {% if not_trusted %}
+        var captchaWidgetId = grecaptcha.render( 'captcha', {
+            'sitekey' : '{{ captcha_key }}',
+            'theme' : 'light'
+        });
+    {% endif %}
 
-    function create_post(){
-        //alert(captchaWidgetId);
+    function create_toplevel(){
         var create_url = '/ajax/create/';
         // Get the fields to submit
-        var title = $('#new-title');
-        var form_elem = $('#create');
-        var content = $('#new-content');
-        var post_type = $('#new-type').dropdown('get value');
-        var tag_val = $('#new-tags').dropdown('get value');
-        var cap_response = grecaptcha.getResponse(captchaWidgetId);
+        var title = $('#title');
+        var form_elem = $('#post-form');
+        var content = $('#content');
+        var post_type = $('#type').dropdown('get value');
+        var tag_val = $('#tags').dropdown('get value');
+        {% if not_trusted %}
+            var cap_response = grecaptcha.getResponse(captchaWidgetId);
+        {% else %}
+            var cap_response = '';
+        {% endif %}
 
         $.ajax(create_url,
             {
@@ -100,6 +110,7 @@ $(document).ready(function () {
                     'type': post_type,
                     'tag_val': tag_val,
                     'recaptcha_response': cap_response,
+                    'top_level':1,
 
                 },
                 success: function (data) {
@@ -117,17 +128,20 @@ $(document).ready(function () {
             })
     }
 
-    $('.create-form .save').click(function(){
+    $('#post-form .save').click(function(){
         event.preventDefault();
-        create_post();
+        {% if post %}
+            edit_post("{{ post.uid }}");
+        {% else %}
+            create_toplevel();
+        {% endif %}
      });
 
-    $('.ui.dropdown').dropdown();
     $('.tag-field').dropdown({
         allowAdditions: true,
         onChange: function (value, text, $selectedItem) {
             // Get form field to add to
-            var tagid = $("#new-tags").attr('field_id');
+            var tagid = $("#tags").attr('field_id');
             var tag_field = $('#{0}'.f(tagid));
             // Add selected tag to field
             //alert(value);
@@ -136,19 +150,30 @@ $(document).ready(function () {
     });
 
     $('.tag-field >input.search').keydown(function (event) {
+        //event.stopPropagation();
         // Prevent submitting form when adding tag by pressing ENTER.
         if (event.keyCode === 13) {
             event.preventDefault();
+            //event.stopPropagation();
         }
         // Set value with SPACE bar
         if (event.keyCode === 32) {
             event.preventDefault();
-            $("#new-tags").dropdown('set selected', $(this).val().trim());
+            //event.stopPropagation();
+            $("#tags").dropdown('set selected', $(this).val().trim());
             $(this).val('')
         }
 
     });
-    })
-;
 
+    $('#content').keyup(function (event) {
+        // Submit form with CTRL-ENTER
+        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
+            {% if post %}
+                edit_post("{{ post.uid }}");
+            {% else %}
+                create_toplevel();
+            {% endif %}
+        }
+    })
 </script>

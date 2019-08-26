@@ -39,13 +39,14 @@ urlpatterns = [
     path('ajax/tags/search/', ajax.ajax_tags_search, name='ajax_tags_search'),
     path('ajax/subscribe/', ajax.ajax_subs, name='ajax_sub'),
 
-    path('ajax/edit/<str:uid>/', ajax.ajax_edit, name='ajax_edit'),
+
     path('ajax/tags/search/', ajax.ajax_tags_search, name='ajax_tags_search'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
     path('ajax/digest/<str:uid>/', ajax.ajax_digest, name='ajax_digest'),
-    path('inplace/post/<str:uid>/', ajax.inplace_edit, name='inplace_content'),
+
+    path('ajax/edit/<str:uid>/', ajax.ajax_edit, name='ajax_edit'),
     path('ajax/create/', ajax.ajax_create, name='ajax_create'),
-    path('inplace/create/', ajax.inplace_create, name='inplace_create'),
+    path('inplace/form/', ajax.inplace_form, name='inplace_form'),
 
     path('ajax/search/', ajax.ajax_search, name='ajax_search'),
 
