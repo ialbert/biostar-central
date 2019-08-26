@@ -7,14 +7,17 @@
 <div class="ui inplace post-form basic segment">
 
     <form class="ui inplace edit-form compact form" id="post-form">
-        <input type="hidden" name="toplevel" id="is_toplevel" value="1">
 
-        <div style="display:-webkit-box;">
-            <div class="three wide field" style="width: 20%; padding-right: 5px">
+        <div class="inplace-fields">
+
+            <div class="three wide field type-field">
+                {% if not post %}<label>Type</label> {% endif %}
                 {% inplace_type_field post=post %}
             </div>
-            <div class="field" style="width: 80%;">
-            <textarea id="title" rows="1" style="padding: .6em;">{{ title }}</textarea>
+
+            <div class="field title-field">
+            {% if not post %}<label>Title</label> {% endif %}
+            <textarea id="title" rows="1">{{ title }}</textarea>
             </div>
         </div>
 
@@ -28,6 +31,7 @@
         </div>
 
         <div class="field">
+        {% if not post %}<label>Tags</label> {% endif %}
             {% get_tags post=post as tags %}
             <input type="hidden" name="tag_val" id="tag_val_id" value="{{ tags.selected }}">
 

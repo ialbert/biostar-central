@@ -359,8 +359,7 @@ def new_post(request):
     # Action url for the form is the current view
     action_url = reverse("post_create")
     content = request.POST.get('content', '')
-    context = dict(form=form, tab="new", action_url=action_url, tutorial_post=settings.TUTORIAL_POST,
-                   content=content, form_title="Create New Post")
+    context = dict(form=form, tab="new", action_url=action_url, content=content)
 
     return render(request, "new_post.html", context=context)
 

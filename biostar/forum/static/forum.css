@@ -531,6 +531,22 @@ img {
     overflow-wrap: break-word;
 }
 
+.type-field{
+    width: 20%;
+    padding-right: 5px;
+}
+
+.title-field textarea{
+    padding: .65em !important;
+}
+
+.title-field{
+    width: 80%;
+}
+
+.inplace-fields{
+    display:-webkit-box;
+}
 
 
 .wmd-preview{

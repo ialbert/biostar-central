@@ -200,7 +200,7 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
             return False, msg
 
         if tag_length > MAX_TAGS:
-            msg = f"Too many tags, please add less than {MAX_TAGS}"
+            msg = f"Too many tags, maximum of {MAX_TAGS} tags allowed."
             return False, msg
 
     return True, ""

@@ -503,6 +503,7 @@ $(document).ready(function () {
                     'parent': parent_uid,
                     'comment': 1,
                     'top': 0,
+                    'rows':6,
                 },
                 success: function (data) {
                     if (data.status === 'error') {
@@ -554,6 +555,7 @@ $(document).ready(function () {
                 dataType: 'json',
                 ContentType: 'application/json',
                 data: {
+                    'rows':13,
                 },
                 success: function (data) {
                     if (data.status === 'error') {
