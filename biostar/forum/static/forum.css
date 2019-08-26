@@ -536,6 +536,19 @@ img {
     padding-right: 5px;
 }
 
+
+.wmd-panel {
+     margin-left: 0 !important;
+     margin-right: 0 !important;
+     width: 100% !important;
+
+}
+
+.wmd-preview {
+     background:#fcfcfc !important;
+     padding: 0px !important;
+}
+
 .title-field textarea{
     padding: .65em !important;
 }
@@ -548,11 +561,6 @@ img {
     display:-webkit-box;
 }
 
-
-.wmd-preview{
-    background-color: #FFFFFF !important;
-    padding: 10px;
-}
 
 .ui.segment.form-wrap{
     box-shadow: none;
