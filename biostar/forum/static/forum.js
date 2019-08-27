@@ -120,7 +120,7 @@ function edit_post(uid) {
 
     // Post title inside of the form
     var title = $('#title');
-    var content = $('#content');
+    var content = $('#wmd-input');
     var post_type = $('#type').dropdown('get value');
     var tag_val = $('#tags').dropdown('get value');
 
@@ -198,7 +198,7 @@ function cancel_inplace(){
 
     //var title = $('.editable-title[data-value="'+ uid +'"]');
     var content = $('.editable');
-    //var content = $('#content-' + uid);
+    //var content = $('#wmd-input-' + uid);
     var hidden = $('.hide-on-edit');
     //Delete the form
     inplace_content.remove();
@@ -356,15 +356,9 @@ $(document).ready(function () {
         inplace_post_edit(elem);
     });
 
-    $(this).on('keyup', '#content', function (event) {
 
-        var md = markdownit();
-        var text = $(this).val();
-        var html_preview = md.render(text);
-        //var html_preview = Prism.highlight(md.render(text), Prism.languages.bash, 'language-bash');
-        var html_container = $('#html-preview');
-
-        html_container.html(html_preview);
+    $(this).on('keyup', '#wmd-input', function (event) {
+        var html_container = $('#wmd-preview');
         //alert("test");
         html_container.find('pre').addClass('language-bash');
         html_container.find('code').addClass('language-bash');
@@ -511,7 +505,7 @@ $(document).ready(function () {
                     } else {
                         comment.html(data.inplace_form);
                         //container.transition('slide down', 250);
-                        comment.find('#content').focus();
+                        comment.find('#wmd-input').focus();
                     }
                 },
                 error: function (xhr, status, text) {
@@ -692,7 +686,7 @@ $(document).ready(function () {
                     } else {
                         form_container.html(data.inplace_form);
                         form_container.show();
-                        form_container.find('#content').focus();
+                        form_container.find('#wmd-input').focus();
                     }
 
                 },

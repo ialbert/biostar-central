@@ -1,8 +1,15 @@
 {% load forum_tags %}
+{% load staticfiles %}
 
 {% if not_trusted %}
     <script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
 {% endif %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}" />
+<script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+<script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+<script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+
 
 <div class="ui inplace post-form basic segment">
 
@@ -21,13 +28,14 @@
             </div>
         </div>
 
-
         <div class="field">
         {% if not post %}
-            {% include 'widgets/create_msg.html' %}
+            {% include 'widgets/posting_msg.html' %}
         {% endif %}
-            <textarea id="content" rows="{{ rows }}">{{ content }}</textarea>
+        <div id="wmd-button-bar"></div>
+            <textarea id="wmd-input" class="wmd-input" rows="{{ rows }}">{{ content }}</textarea>
         </div>
+
 
         <div class="field">
         {% if not post %}<label>Tags</label> {% endif %}
@@ -69,7 +77,7 @@
 
         <div class="hide" id="preview">
             <div class="ui preview segment">
-                <div id="html-preview">{{ html|safe }}</div>
+                <div id="wmd-preview" class="wmd-panel wmd-preview">{{ content }}</div>
             </div>
         </div>
 
@@ -78,6 +86,26 @@
 </div>
 
 <script>
+
+    var converter = Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
+
+    var preview =  $('#wmd-preview');
+    preview.find('pre').addClass('language-bash');
+    preview.find('code').addClass('language-bash');
+
+
+    $('#wmd-button-bar').click(function () {
+        setTimeout(function() {
+                    var container = $('#wmd-preview');
+                    //alert('ffffff');
+                    container.find('pre').addClass('language-bash');
+                    container.find('code').addClass('language-bash');
+                    Prism.highlightAll();
+        }, 10)
+
+    });
 
     $('.ui.dropdown').dropdown();
     {% if not_trusted %}
@@ -92,7 +120,7 @@
         // Get the fields to submit
         var title = $('#title');
         var form_elem = $('#post-form');
-        var content = $('#content');
+        var content = $('#wmd-input');
         var post_type = $('#type').dropdown('get value');
         var tag_val = $('#tags').dropdown('get value');
         {% if not_trusted %}
@@ -112,8 +140,8 @@
                     'title': title.val(),
                     'type': post_type,
                     'tag_val': tag_val,
-                    'recaptcha_response': cap_response,
                     'top_level':1,
+                    'recaptcha_response': cap_response,
 
                 },
                 success: function (data) {
@@ -131,13 +159,17 @@
             })
     }
 
-    $('#post-form .save').click(function(){
-        event.preventDefault();
+    function create_or_edit(){
         {% if post %}
             edit_post("{{ post.uid }}");
         {% else %}
             create_toplevel();
         {% endif %}
+    }
+
+    $('#post-form .save').click(function(){
+        event.preventDefault();
+        create_or_edit();
      });
 
     $('.tag-field').dropdown({
@@ -169,14 +201,10 @@
 
     });
 
-    $('#content').keyup(function (event) {
+    $('#wmd-input').keyup(function (event) {
         // Submit form with CTRL-ENTER
         if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
-            {% if post %}
-                edit_post("{{ post.uid }}");
-            {% else %}
-                create_toplevel();
-            {% endif %}
+            create_or_edit()
         }
     })
 </script>

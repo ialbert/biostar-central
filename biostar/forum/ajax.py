@@ -168,14 +168,16 @@ def validate_recaptcha(token):
     return False, "Invalid reCAPTCHA. Please try again."
 
 
-def validate_post(content, title, tags_list, post_type, is_toplevel=False, recaptcha_token=None):
+def validate_post(content, title, tags_list, post_type, is_toplevel=False, recaptcha_token='', check_captcha=False):
     content_length = len(content.replace(" ", ''))
     title_length = len(title.replace(' ', ''))
     allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
     tag_length = len(tags_list)
 
-    if recaptcha_token:
-        return validate_recaptcha(recaptcha_token)
+    if check_captcha:
+        valid_captcha, msg = validate_recaptcha(recaptcha_token)
+        if not valid_captcha:
+            return False, msg
 
     # Validate fields common to all posts.
     if content_length <= forms.MIN_CONTENT:
@@ -203,6 +205,13 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
             return False, msg
 
     return True, ""
+
+
+def is_trusted(user):
+
+    # Moderators and users with scores above threshold are trusted.
+    trusted = user.is_authenticated and (user.profile.trusted or user.profile.score > 15)
+    return trusted
 
 
 @ratelimit(key='ip', rate='50/h')
@@ -279,9 +288,13 @@ def ajax_create(request):
     parent_uid = request.POST.get("parent", '')
     parent = Post.objects.filter(uid=parent_uid).first()
 
+    # reCAPTCHA field required when an untrusted user creates any post.
+    check_captcha = not is_trusted(user=user)
+
     # Validate fields in request.POST
     valid, msg = validate_post(content=content, title=title, recaptcha_token=recaptcha_token, tags_list=tag_list,
-                               post_type=post_type)
+                               post_type=post_type, check_captcha=check_captcha)
+
     if not valid:
         return ajax_error(msg=msg)
 
@@ -328,11 +341,14 @@ def inplace_form(request):
     title = post.title if post else ''
     content = post.content if post else ''
     rows = len(post.content.split("\n")) if post else request.GET.get('rows', 10)
+    rows = rows if 25 > int(rows) >= 10 else 10
     is_comment = request.GET.get('comment', 0)
     html = post.html if post else ''
 
-    # Untrusted users get a reCAPTCHA field added to the form
-    not_trusted = user.is_authenticated and (not user.profile.trusted)
+    # Untrusted users get a reCAPTCHA field added when creating posts.
+    creating = post is None
+    not_trusted = not is_trusted(user=user) if creating else False
+
     # Load the content and form template
     tmpl = loader.get_template(template_name=template)
     context = dict(user=user, post=post, content=content, rows=rows, is_comment=is_comment,
