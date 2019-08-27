@@ -370,7 +370,7 @@ def close(r):
 def ajax_search(request):
 
     query = request.GET.get('query', '')
-    fields = ['content', 'tag_val', 'title', 'author', 'author_uid', 'author_handle']
+    fields = ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
 
     if query:
 
