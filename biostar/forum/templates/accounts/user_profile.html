@@ -134,7 +134,11 @@
 
                 <div class="item">
                     <div class="content">
-                        <p>{{ target.profile.html |safe }}</p>
+                        {% if target.profile.is_banned or target.profile.is_suspended %}
+                            No profile information.
+                        {% else %}
+                            <p>{{ target.profile.html |safe }}</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

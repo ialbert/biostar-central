@@ -34,15 +34,14 @@ def ban_user(sender, instance, created, **kwargs):
     if instance.state == Profile.BANNED:
 
         # Delete all posts by this users
-        #Post.objects.filter(author=instance.user).delete()
+        Post.objects.filter(author=instance.user).delete()
 
         # Delete all awards by the user.
         Award.objects.filter(user=instance.user).delete()
 
+        Subscription.objects.filter(user=instance.user).delete()
         # Take out any personal information user added.
         #Profile.objects.filter(uid=instance.uid).update(text='')
-
-        #TODO: get rid of messages
 
         # Delete all messages
         Message.objects.filter(Q(sender=instance.user) | Q(recipient=instance.user)).delete()
