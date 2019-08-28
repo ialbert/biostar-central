@@ -50,6 +50,10 @@ body {
     width: 200px;
 }
 
+.hide-preview {
+    display: inline;
+}
+
 #login-opts .item>i.icon{
     color: white;
 }
