@@ -158,5 +158,5 @@ class UserModerate(forms.Form):
         if not self.source.profile.is_moderator:
             forms.ValidationError("You need to be a moderator to perform that action")
 
-        if action == Profile.BANNED and not self.source.is_admin:
+        if action == Profile.BANNED and not self.source.is_superuser:
             forms.ValidationError("You need to be an admin to ban users.")
