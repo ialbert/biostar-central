@@ -342,7 +342,7 @@ def inplace_form(request):
     content = post.content if post else ''
     rows = len(post.content.split("\n")) if post else request.GET.get('rows', 10)
     rows = rows if 25 > int(rows) >= 10 else 10
-    is_comment = request.GET.get('comment', 0)
+    is_comment = request.GET.get('comment', 0) if not post else post.is_comment
     html = post.html if post else ''
 
     # Untrusted users get a reCAPTCHA field added when creating posts.

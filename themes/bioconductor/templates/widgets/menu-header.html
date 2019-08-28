@@ -9,32 +9,30 @@
         </div>
     {% endblock %}
 
-    <a class="item {% activate tab "new" %}" id="new-post">
-        <i class="edit icon"></i>
-        <span class="tablet">Ask a question</span>
+    <a class="item {% activate tab "new" %} format" id="new-post">
+        <span class="">Ask a question</span>
     </a>
 
-    <a class="item {% activate tab "latest" %}" href="{% url 'post_list' %}">
-    <i class="list icon"></i> <span class="tablet">Latest</span>
+    <a class="item {% activate tab "latest" %} format" href="{% url 'post_list' %}">
+    <span class="">Latest</span>
     </a>
-    <a class="item {% activate tab "news" %}" href="{% url 'post_list' %}?type=news">
-    <i class="newspaper icon"></i> <span class="tablet">News</span>
+    <a class="item {% activate tab "news" %} format" href="{% url 'post_list' %}?type=news">
+    <span class="">News</span>
     </a>
-    <a class="item phone {% activate tab "job" %}" href="{% url 'post_list' %}?type=job">
-    <i class="briefcase icon"></i> <span class="tablet">Jobs</span>
-    </a>
-
-    <a class="item phone {% activate tab "tutorial" %}" href="{% url 'post_list' %}?type=tutorial">
-    <i class="info circle icon"></i> <span class="tablet">Tutorials</span>
+    <a class="item phone {% activate tab "job" %} format" href="{% url 'post_list' %}?type=job">
+    <span class="">Jobs</span>
     </a>
 
-    <a class="item phone {% activate tab "tags" %}" href="{% url 'tags_list' %}">
-        <i class="tag icon"></i> <span class="tablet">Tags</span>
+    <a class="item phone {% activate tab "tutorial" %} format" href="{% url 'post_list' %}?type=tutorial">
+    <span class="">Tutorials</span>
     </a>
 
-    <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
-        <i class="world icon"></i>
-        <span class="tablet">Users</span>
+    <a class="item phone {% activate tab "tags" %} format" href="{% url 'tags_list' %}">
+        <span class="">Tags</span>
+    </a>
+
+    <a class="item {% activate tab "community" %} format" href="{% url 'community_list' %}">
+        <span class="">Users</span>
     </a>
 
 </div>

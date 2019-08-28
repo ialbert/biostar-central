@@ -75,34 +75,12 @@ def listing(request):
     context = dict(users=users)
     return render(request, "accounts/listing.html", context=context)
 
-# def ban_user(user):
-#
-#     # Delete the posts, votes, awards, messages, and subs
-#     Post.objects.filter(author=user).delete()
-#     Message.objects.filter(sender=user).delete()
-#     Subscription.objects.filter(user=user).delete()
-#     Award.objects.filter(user=user).delete()
-#     Vote.objects.filter(author=user).delete()
-#
-#     User.objects.filter(pk=user.id).update(email=f"banned-{user.id}@nomail.com", username=f"banned-{user.id}")
-#     Profile.objects.filter(user=user).update(name="banned", text="", html="")
-#     edited_posts = Post.objects.filter(lastedit_user=user)
-#
-#     def gen():
-#         for post in edited_posts:
-#             post.lastedit_user = post.author
-#             yield post
-#
-#     Post.objects.bulk_update(objs=gen(), fields=["lastedit_user"], batch_size=10)
-#     #User.objects.filter(pk=user.id).first().delete()
-#     return
-
 
 @login_required
 def user_moderate(request, uid):
     source = request.user
     target = User.objects.filter(profile__uid=uid).first()
-
+    form = forms.UserModerate(source=source, target=target, request=request)
     if request.method == "POST":
 
         form = forms.UserModerate(source=source, data=request.POST, target=target, request=request)
@@ -113,11 +91,9 @@ def user_moderate(request, uid):
             profile.save()
             messages.success(request, "User moderation complete.")
         else:
-            messages.error(request, "Invalid user moderation.")
+            errs = ','.join([err for err in form.non_field_errors()])
+            messages.error(request, errs)
         return redirect(reverse("user_profile", kwargs=dict(uid=uid)))
-
-    else:
-        form = forms.UserModerate(source=source, target=target, request=request)
 
     context = dict(form=form, target=target)
     return render(request, "accounts/user_moderate.html", context)
@@ -158,7 +134,7 @@ def user_profile(request, uid):
     active = request.GET.get("active", "posts")
 
     # User viewing profile is a moderator
-    can_moderate = request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser)
+    can_moderate = request.user.is_authenticated and request.user.profile.is_moderator and request.user != profile.user
     context = dict(target=profile.user, active=active, debugging=settings.DEBUG,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate)
 

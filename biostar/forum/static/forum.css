@@ -576,7 +576,7 @@ img {
     width: 0px;
 }
 
-.hide {
+.hide-preview {
     display: none;
 }
 
@@ -584,6 +584,12 @@ img {
     background-color: #fcfcfc;
 }
 
+.inplace-buttons{
+    padding-top: 8px;
+}
+#save{
+    opacity: 0.6 !important;
+}
 
 .show-preview{
     margin-top:7px;
