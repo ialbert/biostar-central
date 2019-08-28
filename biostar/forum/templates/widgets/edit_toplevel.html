@@ -59,26 +59,31 @@
             </div>
         {% endif %}
 
-        <div class="field">
-
-            <a class="ui green label save" id="save"><i class="check icon"></i>Save</a>
-
-            <a class="ui label show-preview">
-                <i class="eye icon"></i> Preview
-            </a>
-
-            <a class="ui label cancel" id="cancel"><i class="undo icon"></i> Cancel</a>
-
-        </div>
-
         <p class="muted" style="font-size: smaller;">Tips: CTRL+ENTER to submit the form. ESC to
             cancel. Double-click to edit post. Markdown accepted.
         </p>
 
-        <div class="hide" id="preview">
+        <div id="preview">
             <div class="ui preview segment">
                 <div id="wmd-preview" class="wmd-panel wmd-preview">{{ content }}</div>
             </div>
+        </div>
+            <div class="field inplace-buttons">
+
+            <a class="ui green label save" id="save"><i class="check icon"></i>
+                {% if post %}
+                Save
+                {% else %}
+                Create
+                {% endif %}
+            </a>
+
+            <a class="ui label show-preview">
+                <i class="code icon"></i>Toggle preview
+            </a>
+
+            <a class="ui label cancel" id="cancel"><i class="undo icon"></i> Cancel</a>
+
         </div>
 
     </form>

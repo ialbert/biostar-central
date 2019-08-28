@@ -200,6 +200,7 @@ function cancel_inplace(){
     var content = $('.editable');
     //var content = $('#wmd-input-' + uid);
     var hidden = $('.hide-on-edit');
+    $('.hide-on-comment').show();
     //Delete the form
     inplace_content.remove();
     //inplace_title.html("");
@@ -217,6 +218,7 @@ function inplace_post_edit(elem){
     var uid = elem.data("value");
     var hidden =  $('.hide-on-edit[data-value="'+ uid +'"]');
     var form_container = $('inplace[data-value="'+ uid +'"]');
+    var dim_elem = $('.dimm-on-edit[data-value="'+ uid +'"]');
     var url = '/inplace/form/';
 
     // Check if other posts are being edited.
@@ -224,6 +226,7 @@ function inplace_post_edit(elem){
     $('#new-comment').remove();
     $('#add-answer').html('');
     cancel_create();
+    dim_elem.dimmer('show');
 
     if (editing.length) {
         // Remove exiting edits
@@ -235,6 +238,7 @@ function inplace_post_edit(elem){
         editing = $('<div id="new-edit"></div>')
     }
     form_container.after(editing);
+    editing.html('');
 
     $.ajax(url,
         {
@@ -250,6 +254,7 @@ function inplace_post_edit(elem){
                 } else {
                     elem.hide();
                     hidden.hide();
+                    dim_elem.dimmer('hide');
                     editing.html(data.inplace_form);
                     editing.show().find('textarea').focus();
                 }
@@ -374,6 +379,7 @@ $(document).ready(function () {
                 cancel_inplace(uid);
                 cancel_create();
                 $('#new-comment').remove();
+
                 $('#add-answer').html('');
             });
         }
@@ -469,6 +475,7 @@ $(document).ready(function () {
         //var container = $("#comment-insert-" + parent_uid);
         var container = $("#comment-insert-" + parent_uid);
         //var url = "/new/comment/" + post_uid + "/";
+        var post_actions = $('.hide-on-comment[data-value="'+ parent_uid +'"]');
         cancel_inplace();
         $('#insert-form').html('');
         $('#new-post').removeClass('active');
@@ -485,7 +492,7 @@ $(document).ready(function () {
             comment = $('<div id="new-comment"></div>')
         }
         container.after(comment);
-
+        comment.html('');
         //alert(container.length);
 
         $.ajax(create_url,
@@ -503,6 +510,8 @@ $(document).ready(function () {
                     if (data.status === 'error') {
                         popup_message($('#error'), data.msg, data.status);
                     } else {
+                        post_actions.hide();
+                        comment.css({'padding-top': '5px', 'padding-bottom':'5px'});
                         comment.html(data.inplace_form);
                         //container.transition('slide down', 250);
                         comment.find('#wmd-input').focus();

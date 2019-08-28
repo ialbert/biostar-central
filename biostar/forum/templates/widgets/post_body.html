@@ -10,9 +10,10 @@
             {#  Page anchor. #}
             <a name="{{ post.uid }}"></a>
             {#  Post title. #}
-         {% if post.is_toplevel %}
-            <span class="hide-on-edit post-title" data-value="{{ post.uid }}">{{ post.get_type_display }}: {{ post.title }}</span>
-         {% endif %}
+            {% if post.is_toplevel %}
+                <span class="hide-on-edit post-title"
+                      data-value="{{ post.uid }}">{{ post.get_type_display }}: {{ post.title }}</span>
+            {% endif %}
 
         </div>
     {% endif %}
@@ -39,55 +40,68 @@
             </button>
 
             {% if post.can_accept %}
-            <div class="top-padding">
-                <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="accept"
-                        data-position="right center" data-state="{{ post.accept_count }}">
-                    <i class="check circle icon "></i>
-                </button>
-            </div>
+                <div class="top-padding">
+                    <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="accept"
+                            data-position="right center" data-state="{{ post.accept_count }}">
+                        <i class="check circle icon "></i>
+                    </button>
+                </div>
             {% endif %}
 
         </div>
 
+
         <div class="content wrap-text">
 
-            <div class="wrap">
-            {# Display post author. #}
-            <div class="hide-on-edit" data-value="{{ post.uid }}">
-                {% post_user_box user=post.author post=post %}
-            </div>
-                {# Display post content. #}
-                {% if post.is_editable %}
-                    <div class="editable" data-value="{{ post.uid }}">{{ post.html|safe }}</div>
-                    <inplace data-value="{{ post.uid }}"></inplace>
-                {% else %}
-                    {{ post.html|safe }}
-                {% endif %}
+            <div class="dimm-on-edit" data-value="{{ post.uid }}">
 
-            </div>
+                <div class="ui inverted dimmer">
+
+                    <div class="ui text loader">
+                        <div class="muted">Entering edit mode</div>
+                    </div>
+
+                </div>
+
+                <div class="wrap">
+                    {# Display post author. #}
+                    <div class="hide-on-edit" data-value="{{ post.uid }}">
+                        {% post_user_box user=post.author post=post %}
+                    </div>
+                    {# Display post content. #}
+                    {% if post.is_editable %}
+                        <div class="editable" data-value="{{ post.uid }}">{{ post.html|safe }}</div>
+                        <inplace data-value="{{ post.uid }}"></inplace>
+                    {% else %}
+                        {{ post.html|safe }}
+                    {% endif %}
+
+                </div>
 
 
-        <div class="hide-on-edit" data-value="{{ post.uid }}">
-            {# Show tags #}
-                {% if post.is_toplevel %}
-                    <span class="post-tags" data-value="{{ post.uid }}">
+                <div class="hide-on-edit" data-value="{{ post.uid }}">
+                    {# Show tags #}
+                    {% if post.is_toplevel %}
+                        <span class="post-tags" data-value="{{ post.uid }}">
                     {% post_tags post=post show_views=True %}
                     </span>
-                {% endif %}
+                    {% endif %}
 
-            {# Show the post actions #}
-            {% post_actions post=post %}
+                    {# Show the post actions #}
+                    <div class="hide-on-comment" data-value="{{ post.uid }}">
+                        {% post_actions post=post %}
+                    </div>
 
-            {#  Post moderation actions are inserted here #}
-            <div id="moderate-insert-{{ post.uid }}"></div>
+                    {#  Post moderation actions are inserted here #}
+                    <div id="moderate-insert-{{ post.uid }}"></div>
 
-            {#  Comments form will be inserted here #}
-            <div id="comment-insert-{{ post.uid }}"></div>
+                    {#  Comments form will be inserted here #}
+                    <div id="comment-insert-{{ post.uid }}"></div>
 
-            {# Render all comments #}
-         </div>
-
-         {% render_comments tree=tree post=post %}
+                    {# Render all comments #}
+                </div>
+            </div>
+            {% render_comments tree=tree post=post %}
         </div>
 
     </div>
