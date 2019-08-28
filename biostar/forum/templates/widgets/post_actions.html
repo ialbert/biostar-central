@@ -4,7 +4,7 @@
 {#  Post action bar. #}
 
 
-<div class="actions">
+<div class="actions" style="padding-bottom: 17px">
 
     <a class="add-comment ui tiny label" data-value="{{ post.uid }}">{{ label }}</a>
 
@@ -21,7 +21,7 @@
         {#  Show title on top level posts #}
         {% if post.is_toplevel and user.is_authenticated %}
                         &bull;
-            <div class="ui bottom pointing dropdown" id="subscribe" data-uid="{{ post.uid }}">
+            <div class="ui bottom pointing dropdown" id="subscribe" data-uid="{{ post.uid }}" style="overflow: visible">
             <div class="text" id="sub-active">{% follow_label post=post %}</div>
             <i class="caret up icon"></i>
             <div class="menu">
@@ -32,7 +32,7 @@
         </div>
         {% endif %}
 
-    <span class="status muted">
+    <span class="status muted" >
         {% post_user_line post=post avatar=avatar %}
     </span>
 
