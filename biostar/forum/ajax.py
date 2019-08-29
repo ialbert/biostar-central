@@ -169,8 +169,8 @@ def validate_recaptcha(token):
 
 
 def validate_post(content, title, tags_list, post_type, is_toplevel=False, recaptcha_token='', check_captcha=False):
-    content_length = len(content)
-    title_length = len(title)
+    content_length = len(content.replace(' ', ''))
+    title_length = len(title.replace(' ', ''))
     allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
     tag_length = len(tags_list)
 
@@ -302,6 +302,7 @@ def ajax_create(request):
     if parent_uid and not parent:
         return ajax_error(msg='Parent post does not exist.')
 
+    print(">>>>>>")
     # We are creating an answer.
     if parent and parent.is_toplevel and not is_comment:
         post_type = Post.ANSWER

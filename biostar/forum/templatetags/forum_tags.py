@@ -503,7 +503,7 @@ def relative_url(value, field_name, urlencode=None):
 
 
 @register.simple_tag
-def get_thread_users(post, limit=5):
+def get_thread_users(post, limit=2):
     thread_users = post.thread_users.all()
     stream = itertools.islice(thread_users, limit)
 

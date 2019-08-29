@@ -9,7 +9,6 @@
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
-<script type="text/javascript" src="{% static 'markdown-it.js' %}"></script>
 
 <div class="ui inplace post-form basic segment">
 
@@ -63,7 +62,7 @@
             cancel. Double-click to edit post. Markdown accepted.
         </p>
 
-        <div id="preview">
+        <div class="hide-preview" id="html-preview">
             <div class="ui preview segment">
                 <div id="preview" class="">{{ html|safe }}</div>
             </div>
@@ -134,8 +133,10 @@
                 },
                 success: function (data) {
                     if (data.status === 'error') {
+                        //alert("fffff");
                         popup_message(form_elem, data.msg, data.status, 3000);
                     } else {
+                        //alert(">>>");
                         //alert(data.redirect);
                         // Redirect user to the new post view.
                         window.location.replace(data.redirect);

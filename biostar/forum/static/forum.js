@@ -257,6 +257,11 @@ function inplace_post_edit(elem){
                     dim_elem.dimmer('hide');
                     editing.html(data.inplace_form);
                     editing.show().find('textarea').focus();
+                    var preview = $('#preview');
+                    preview.find('pre').addClass('language-bash');
+                    preview.find('code').addClass('language-bash');
+                    Prism.highlightAll();
+
                 }
             },
             error: function (xhr, status, text) {
@@ -619,7 +624,7 @@ $(document).ready(function () {
     });
 
     $(this).on('click', '.show-preview', function() {
-        var preview = $('#preview');
+        var preview = $('#html-preview');
         preview.transition('slide down', 400);
         preview.find('pre').addClass('language-bash');
         preview.find('code').addClass('language-bash');

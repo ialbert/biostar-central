@@ -29,9 +29,9 @@
             cancel. Double-click to edit post. Markdown accepted.
         </p>
 
-        <div class="{% if is_comment %}hide-preview{% endif %}" id="preview">
+        <div class="{% if is_comment %}hide-preview{% endif %}" id="html-preview">
             <div class="ui preview segment">
-                <div id="wmd-preview" class="wmd-panel wmd-preview">{{ content }}</div>
+                <div id="preview" class="">{{ html|safe }}</div>
             </div>
         </div>
 
@@ -62,7 +62,7 @@
     var converter = Markdown.getSanitizingConverter();
     var editor = new Markdown.Editor(converter);
     editor.run();
-
+    var content = $('#wmd-input');
     {% if not_trusted %}
         var captchaWidgetId = grecaptcha.render( 'captcha', {
             'sitekey' : '{{ captcha_key }}',
@@ -71,7 +71,7 @@
     {% endif %}
 
     function create_post(){
-
+        var form_elem = $('#post-form');
         var create_url = '/ajax/create/';
         {% if not_trusted %}
             var cap_response = grecaptcha.getResponse(captchaWidgetId);
