@@ -302,6 +302,18 @@ function  search(query, elem, search_url) {
 }
 
 
+function highlight(text){
+    //var text = $(this).val();
+    var con = markdownit();
+    var res = con.render(text);
+    var preview = $('#preview');
+    preview.html(res);
+    preview.find('pre').addClass('language-bash');
+    preview.find('code').addClass('language-bash');
+    Prism.highlightAll();
+}
+
+
 $(document).ready(function () {
 
     $(this).click(function(event) {
@@ -361,13 +373,17 @@ $(document).ready(function () {
         inplace_post_edit(elem);
     });
 
-
     $(this).on('keyup', '#wmd-input', function (event) {
-        var html_container = $('#wmd-preview');
-        //alert("test");
-        html_container.find('pre').addClass('language-bash');
-        html_container.find('code').addClass('language-bash');
-        Prism.highlightAll();
+        var text = $(this).val();
+        highlight(text);
+
+    });
+
+    $(this).on('click', '#wmd-button-bar', function (event) {
+        setTimeout(function () {
+            var text = $('#wmd-input').val();
+            highlight(text);
+        }, 10);
 
     });
 

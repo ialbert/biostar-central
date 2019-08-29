@@ -32,7 +32,7 @@ ajax_error = partial(ajax_msg, status='error')
 
 
 MIN_TITLE_CHARS = 10
-MAX_TITLE_CHARS = 5000
+MAX_TITLE_CHARS = 180
 
 MAX_TAGS = 5
 
@@ -169,8 +169,8 @@ def validate_recaptcha(token):
 
 
 def validate_post(content, title, tags_list, post_type, is_toplevel=False, recaptcha_token='', check_captcha=False):
-    content_length = len(content.replace(" ", ''))
-    title_length = len(title.replace(' ', ''))
+    content_length = len(content)
+    title_length = len(title)
     allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
     tag_length = len(tags_list)
 
@@ -275,6 +275,7 @@ def ajax_create(request):
     tag_list = set(request.POST.getlist("tag_val", []))
     tag_str = ','.join(tag_list)
     recaptcha_token = request.POST.get("recaptcha_response")
+    is_toplevel = bool(int(request.POST.get('top', 0)))
 
     # Get the post type
     post_type = request.POST.get('type', '0')
@@ -293,7 +294,7 @@ def ajax_create(request):
 
     # Validate fields in request.POST
     valid, msg = validate_post(content=content, title=title, recaptcha_token=recaptcha_token, tags_list=tag_list,
-                               post_type=post_type, check_captcha=check_captcha)
+                               post_type=post_type, check_captcha=check_captcha, is_toplevel=is_toplevel)
 
     if not valid:
         return ajax_error(msg=msg)

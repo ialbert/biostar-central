@@ -9,7 +9,7 @@
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
-
+<script type="text/javascript" src="{% static 'markdown-it.js' %}"></script>
 
 <div class="ui inplace post-form basic segment">
 
@@ -65,7 +65,7 @@
 
         <div id="preview">
             <div class="ui preview segment">
-                <div id="wmd-preview" class="wmd-panel wmd-preview">{{ content }}</div>
+                <div id="preview" class="">{{ html|safe }}</div>
             </div>
         </div>
             <div class="field inplace-buttons">
@@ -91,26 +91,9 @@
 </div>
 
 <script>
-
     var converter = Markdown.getSanitizingConverter();
     var editor = new Markdown.Editor(converter);
     editor.run();
-
-    var preview =  $('#wmd-preview');
-    preview.find('pre').addClass('language-bash');
-    preview.find('code').addClass('language-bash');
-
-
-    $('#wmd-button-bar').click(function () {
-        setTimeout(function() {
-                    var container = $('#wmd-preview');
-                    //alert('ffffff');
-                    container.find('pre').addClass('language-bash');
-                    container.find('code').addClass('language-bash');
-                    Prism.highlightAll();
-        }, 10)
-
-    });
 
     $('.ui.dropdown').dropdown();
     {% if not_trusted %}
@@ -145,7 +128,7 @@
                     'title': title.val(),
                     'type': post_type,
                     'tag_val': tag_val,
-                    'top_level':1,
+                    'top':1,
                     'recaptcha_response': cap_response,
 
                 },

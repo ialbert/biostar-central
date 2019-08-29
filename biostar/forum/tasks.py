@@ -90,7 +90,6 @@ def create_user_awards(user_id):
 
 
 
-
 @spool(pass_arguments=True)
 def notify_followers(subs, author, extra_context={}):
     """
