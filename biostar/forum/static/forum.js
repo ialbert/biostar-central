@@ -258,9 +258,10 @@ function inplace_post_edit(elem){
                     editing.html(data.inplace_form);
                     editing.show().find('textarea').focus();
                     var preview = $('#preview');
-                    preview.find('pre').addClass('language-bash');
-                    preview.find('code').addClass('language-bash');
-                    Prism.highlightAll();
+                    preview.find('pre').addClass(' language-python');
+                    preview.find('code').addClass('  language-bash language-python');
+                    //preview.find('code').removeClass('lang-python');
+                    //Prism.highlightAll();
 
                 }
             },
@@ -308,19 +309,18 @@ function  search(query, elem, search_url) {
 
 
 function highlight(text){
-    //var text = $(this).val();
+
     var con = markdownit();
     var res = con.render(text);
     var preview = $('#preview');
     preview.html(res);
     preview.find('pre').addClass('language-bash');
     preview.find('code').addClass('language-bash');
-    Prism.highlightAll();
+    //Prism.highlightAll()
 }
 
 
 $(document).ready(function () {
-
     $(this).click(function(event) {
         var res = $('#results');
         if(typeof res.html() === 'undefined'){
@@ -400,7 +400,6 @@ $(document).ready(function () {
                 cancel_inplace(uid);
                 cancel_create();
                 $('#new-comment').remove();
-
                 $('#add-answer').html('');
             });
         }
@@ -624,11 +623,13 @@ $(document).ready(function () {
     });
 
     $(this).on('click', '.show-preview', function() {
-        var preview = $('#html-preview');
-        preview.transition('slide down', 400);
+        var contain = $('#html-preview');
+        var preview = $('#preview');
+        contain.transition('slide down', 400);
         preview.find('pre').addClass('language-bash');
         preview.find('code').addClass('language-bash');
-        Prism.highlightAll();
+        //Prism.highlightAll();
+        //Prism.highlightAll(preview.find('code'));
 
     });
 
@@ -726,8 +727,8 @@ $(document).ready(function () {
             })
     });
 
-    $('pre').addClass('language-bash');
-    $('code').addClass('language-bash');
+    $('pre code').addClass('language-bash');
+    //$('code').addClass('language-bash');
     Prism.highlightAll()
 })
 ;

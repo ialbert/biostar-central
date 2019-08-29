@@ -63,6 +63,7 @@
     var editor = new Markdown.Editor(converter);
     editor.run();
     var content = $('#wmd-input');
+
     {% if not_trusted %}
         var captchaWidgetId = grecaptcha.render( 'captcha', {
             'sitekey' : '{{ captcha_key }}',
