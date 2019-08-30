@@ -56,7 +56,7 @@ SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 # Biostar patterns
 PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
 
-USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/accounts/profile/(?P<uid>[\w_.-]+)(/)?$")
+USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/accounts/profile/(?P<uid>[\w_.-]+)(/)?")
 POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/(?P<uid>(\w+))(/)?$")
 POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
 # Match any alphanumeric characters after the @.
