@@ -56,7 +56,7 @@ SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 # Biostar patterns
 PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
 
-USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/accounts/profile/(?P<uid>(\w+))(/)?$")
+USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/accounts/profile/(?P<uid>[\w_.-]+)(/)?$")
 POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/(?P<uid>(\w+))(/)?$")
 POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/\w+//\#(?P<uid>(\w+))(/)?$")
 # Match any alphanumeric characters after the @.
@@ -175,6 +175,7 @@ class BiostarInlineLexer(MonkeyPatch):
         link = m.group(0)
         profile = Profile.objects.filter(uid=uid).first()
         name = profile.name if profile else f"Invalid user uid: {uid}"
+
         return f'<a href="{link}">USER: {name}</a>'
 
     def enable_youtube_link1(self):
