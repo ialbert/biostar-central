@@ -4,7 +4,7 @@
 {#  Post action bar. #}
 
 
-<div class="actions" style="{% if post.is_toplevel %}padding-bottom: 17px{% endif %}">
+<div class="actions {% if post.is_toplevel %}top-level{% endif %}">
 
     <a class="add-comment ui tiny label" data-value="{{ post.uid }}">{{ label }}</a>
 

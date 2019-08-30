@@ -266,6 +266,14 @@ a:hover {
     padding: .5rem 0em 0.5rem 0em;
 }
 
+.post .actions.top-level{
+    padding-bottom: 17px;
+}
+
+.thread-users{
+    opacity: .65;
+}
+
 .post.Deleted {
     background-color: #f7e4de;
     opacity: 0.6;
