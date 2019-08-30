@@ -727,8 +727,8 @@ $(document).ready(function () {
             })
     });
 
-    $('pre code').addClass('language-bash');
-    //$('code').addClass('language-bash');
+    $('pre').addClass('language-bash');
+    $('code').addClass('language-bash');
     Prism.highlightAll()
 })
 ;
