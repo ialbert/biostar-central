@@ -201,6 +201,8 @@ function cancel_inplace(){
     //var content = $('#wmd-input-' + uid);
     var hidden = $('.hide-on-edit');
     $('.hide-on-comment').show();
+
+    $('.dim-on-create').dimmer('hide');
     //Delete the form
     inplace_content.remove();
     //inplace_title.html("");
@@ -320,7 +322,60 @@ function highlight(text){
 }
 
 
+function get_recent(uid){
+    var recent_posts = '/ajax/recent/';
+    var elem =  $('#recent');
+    var msg = $("#msg");
+
+    var comment = $("#new-comment");
+
+        if (comment.length) {
+            // Remove comment if exists.
+            msg.remove();
+        } else {
+            // Create a new comment.
+            msg = $("<div id='msg'></div>");
+        }
+    elem.after(msg);
+    msg.css({'position': 'fixed', 'left':'auto', 'right': 'auto', 'z-index':'10000'});
+    $.ajax(recent_posts,
+            {
+                type: 'GET',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {
+                    'uid': uid
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message(elem, data.msg, data.status);
+                    } else {
+                        // Populate the feed.
+
+                        if (data.nposts === undefined || data.nposts === null){
+                            return
+                        }
+                        //var contain = "<div class='ui message'>{0}, most recent: {1}</div>".f(data.nposts, data.most_recent_url);
+                        msg.html(contain)
+                    }
+                },
+                error: function (xhr, status, text) {
+                    error_message(elem, xhr, status, text)
+                }
+            })
+}
+
 $(document).ready(function () {
+     // setInterval(function(){
+     //     var recent_popup = $('#recent');
+     //     var uid = recent_popup.data("value");
+     //     if (uid === undefined || uid === null){
+     //         uid = '';
+     //     }
+     //     alert('333');
+     //     get_recent(uid)
+     //   },50000);
+
     $(this).click(function(event) {
         var res = $('#results');
         if(typeof res.html() === 'undefined'){
@@ -499,6 +554,7 @@ $(document).ready(function () {
         cancel_inplace();
         $('#insert-form').html('');
         $('#new-post').removeClass('active');
+
         $('#add-answer').html('');
 
         // Check for existing comment.
@@ -557,21 +613,11 @@ $(document).ready(function () {
     $('#new-post').click(function () {
         var create_url = '/inplace/form/';
         var form_container = $('#insert-form');
-        var form_is_visible = $('#insert-form.visible').val() != null;
 
         cancel_inplace();
         $('#new-comment').remove();
         $('#add-answer').html('');
-
-        // Avoid hitting the server when the form is already visible.
-        if (form_is_visible){
-            // Make the form invisible
-            form_container.html('');
-            // Remove active class from menu topic
-            $('#new-post').removeClass('active');
-            return
-        }
-
+        $('.dim-on-create').dimmer('hide');
         $.ajax(create_url,
             {
                 type: 'GET',
@@ -592,6 +638,7 @@ $(document).ready(function () {
                         form_container.html(data.inplace_form);
                         form_container.show();
                         form_container.find('#title').focus();
+                        $('.dim-on-create').dimmer('show');
                     }
 
                 },
@@ -689,6 +736,8 @@ $(document).ready(function () {
         cancel_inplace();
         $('#add-answer').html('');
     });
+    $('.ui.sticky').sticky()
+    ;
 
     $('.display-answer').click(function() {
         var create_url = '/inplace/form/';
@@ -729,6 +778,6 @@ $(document).ready(function () {
 
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
-    Prism.highlightAll()
+    Prism.highlightAll();
 })
 ;

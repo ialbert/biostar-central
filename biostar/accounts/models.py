@@ -70,6 +70,9 @@ class Profile(models.Model):
     # The role of the user.
     role = models.IntegerField(default=READER, choices=ROLE_CHOICES)
 
+    # Last date the digest was sent
+    last_digest = models.DateTimeField(null=True, max_length=255, db_index=True)
+
     # The date the user last logged in.
     last_login = models.DateTimeField(null=True, max_length=255, db_index=True)
 

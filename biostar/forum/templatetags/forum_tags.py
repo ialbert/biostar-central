@@ -9,8 +9,9 @@ from datetime import timedelta
 
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
-
+from taggit.models import Tag
 from django import template, forms
+from django.db.models import Count
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
@@ -165,13 +166,13 @@ def user_icon(user=None, user_uid=None):
 
 
 @register.inclusion_tag('widgets/post_user_line.html')
-def post_user_line(post, avatar=False):
-    return dict(post=post, avatar=avatar)
+def post_user_line(post, avatar=False, user_info=True):
+    return dict(post=post, avatar=avatar, user_info=user_info)
 
 @register.inclusion_tag('widgets/post_user_line.html')
-def postuid_user_line(uid, avatar=True):
+def postuid_user_line(uid, avatar=True, user_info=True):
     post = Post.objects.filter(uid=uid).first()
-    return dict(post=post, avatar=avatar)
+    return dict(post=post, avatar=avatar, user_info=user_info)
 
 
 @register.inclusion_tag('widgets/user_card.html')
@@ -303,8 +304,16 @@ def get_tags(request=None, post=None):
     else:
         tags = post.tag_val if isinstance(post, Post) else ''
 
-    tags_opt = {val: True for val in tags.split(",")}
-    context = dict(selected=tags, tags_opt=tags_opt.items())
+    query = Count('post')
+    tags_query = Tag.objects.annotate(count=query).order_by('-count')[:800]
+    tags_opt = ((tag.name.strip(), False) for tag in tags_query if tag.name.strip() not in tags.split(","))
+
+    selected_tags_opt = ((val, True) for val in tags.split(","))
+
+    #tags_opt.update(selected_tags_opt)
+    tags_opt = itertools.chain(selected_tags_opt, tags_opt)
+
+    context = dict(selected=tags, tags_opt=tags_opt)
 
     return context
 
@@ -508,11 +517,13 @@ def get_thread_users(post, limit=2):
     stream = itertools.islice(thread_users, limit)
 
     # Author is shown first
-    users = [post.author]
+    users = {post.author, post.lastedit_user}
     for user in stream:
+        if len(users) >= limit:
+            break
         if user in users:
             continue
-        users.append(user)
+        users.add(user)
 
     return users
 

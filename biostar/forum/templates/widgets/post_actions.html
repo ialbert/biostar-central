@@ -6,9 +6,13 @@
 
 <div class="actions {% if post.is_toplevel %}top-level{% endif %}">
 
-    <a class="add-comment ui tiny label" data-value="{{ post.uid }}">{{ label }}</a>
+    <a class="add-comment ui tiny green label" data-value="{{ post.uid }}">{{ label }}</a>
+ &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
+{#    {% if post.is_toplevel %}#}
+{#        &bull;#}
+{#    <span class="muted"><i class="plus icon"></i></span>#}
+{#    {% endif %}#}
 
-    &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
 
         {% if post.is_editable %}
             &bull; <a class="inplace-click pointer" data-value="{{ post.uid }}">edit</a>

@@ -58,13 +58,17 @@
 
     {% include "widgets/menu-topics.html" %}
 
+
     {% include "widgets/menu-header.html" %}
 
-    <div class="ui bottom attached  segment">
+    <div class="ui bottom attached  segment dim-on-create">
+
+            <div class="ui inverted dimmer"></div>
 
         {% show_messages messages %}
-        <span id="insert-form"></span>
+        <span class="fit" id="insert-form"></span>
         <div id="error"></div>
+        <div id="recent" {% if post %}data-value="{{ post.uid }}"{% endif %}></div>
         {% block content %}
 
             MAIN CONTENT

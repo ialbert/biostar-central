@@ -5,6 +5,7 @@ from ratelimit.decorators import ratelimit
 from urllib import request as builtin_request
 #import requests
 from urllib.parse import urlencode
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db.models import Q, Count
@@ -260,6 +261,32 @@ def ajax_edit(request, uid):
     return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
 
 
+@ajax_error_wrapper(method="GET")
+def ajax_recent(request):
+
+    uid = request.GET.get('uid', '')
+    # Return recent posts made in past 5000 seconds.
+    seconds = 500000
+    delta = util.now() - timedelta(seconds=seconds)
+    if uid:
+        root = Post.objects.filter(uid=uid).first().root
+        new_posts = Post.objects.filter(root=root, lastedit_date__gt=delta).exclude(uid=uid)
+    else:
+        new_posts = Post.objects.filter(type__in=Post.TOP_LEVEL, lastedit_date__gt=delta)
+
+    if not new_posts:
+        return ajax_success(msg='No new posts in the past 5000 seconds.', data='')
+
+    nposts = len(new_posts)
+    context = dict(nposts=nposts)
+    tmpl = loader.get_template('widgets/ajax_recent.html')
+    template = tmpl.render(context=context)
+    most_recent = new_posts.order_by('-pk').first()
+    most_recent_url = most_recent.get_absolute_url() if most_recent is not None else ''
+
+    return ajax_success(msg="New posts", template=template)
+
+
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
@@ -272,7 +299,8 @@ def ajax_create(request):
     user = request.user
     content = request.POST.get("content", '')
     title = request.POST.get("title", '')
-    tag_list = set(request.POST.getlist("tag_val", []))
+    tag_list = {x.strip() for x in request.POST.getlist("tag_val", [])}
+    #print(tag_list, "TAGS")
     tag_str = ','.join(tag_list)
     recaptcha_token = request.POST.get("recaptcha_response")
     is_toplevel = bool(int(request.POST.get('top', 0)))
@@ -302,7 +330,6 @@ def ajax_create(request):
     if parent_uid and not parent:
         return ajax_error(msg='Parent post does not exist.')
 
-    print(">>>>>>")
     # We are creating an answer.
     if parent and parent.is_toplevel and not is_comment:
         post_type = Post.ANSWER
@@ -313,7 +340,7 @@ def ajax_create(request):
     # Create the post.
     post = Post.objects.create(title=title, tag_val=tag_str, type=post_type, content=content,
                                author=user, parent=parent)
-
+    print(post.get_absolute_url())
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
 
@@ -335,15 +362,12 @@ def inplace_form(request):
         return ajax_error(msg="Post does not exist.")
 
     is_toplevel = post.is_toplevel if post else int(request.GET.get('top', 1))
-    if is_toplevel:
-        template = "widgets/edit_toplevel.html"
-    else:
-        template = "widgets/edit.html"
+    template = "widgets/inplace_form.html"
 
     title = post.title if post else ''
     content = post.content if post else ''
     rows = len(post.content.split("\n")) if post else request.GET.get('rows', 10)
-    rows = rows if 25 > int(rows) >= 10 else 10
+    rows = rows if 25 > int(rows) >= 2 else 4
     is_comment = request.GET.get('comment', 0) if not post else post.is_comment
     html = post.html if post else ''
 
@@ -353,7 +377,7 @@ def inplace_form(request):
 
     # Load the content and form template
     tmpl = loader.get_template(template_name=template)
-    context = dict(user=user, post=post, content=content, rows=rows, is_comment=is_comment,
+    context = dict(user=user, post=post, content=content, rows=rows, is_comment=is_comment, is_toplevel=is_toplevel,
                    parent_uid=parent_uid, captcha_key=settings.RECAPTCHA_PUBLIC_KEY, html=html,
                    not_trusted=not_trusted, title=title)
 

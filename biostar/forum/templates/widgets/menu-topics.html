@@ -1,7 +1,7 @@
 {% load forum_tags %}
 
-<div class="ui top attached text menu" id="menu-topics">
-
+<div class="ui top attached text menu dim-on-create" id="menu-topics">
+    <div class="ui inverted dimmer"></div>
     {% if user.is_authenticated %}
 
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
@@ -31,7 +31,7 @@
         <div class="item">
         <div class="ui top pointing dropdown" id="digest">
             <i class="{% get_digest_icon user %}" id="digest-icon"></i>
-            <div class="text" id="digest-active">{% digest_label post=post %}</div>
+            <div class="text tablet" id="digest-active">{% digest_label post=post %}</div>
             <i class="caret down icon"></i>
 
             <div class="menu">

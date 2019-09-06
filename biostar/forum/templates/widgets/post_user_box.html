@@ -5,17 +5,18 @@
 <div class="user_box right">
 
     <div>
-        <a href="{% url "user_profile" user.profile.uid %}">
-            <img class="ui centered circular image" src="{% gravatar user=user size=100 %}">
+        <a class="" href="{% url "user_profile" user.profile.uid %}">
+            <img class="ui centered circular thread-users image" src="{% gravatar user=user size=60 %}">
         </a>
     </div>
-    <div class="muted">
+    <div class="muted" style="font-size: small">
         {{ post.lastedit_date|time_ago }}<br>
 
         <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name }}</a>
         {% user_icon user=user %}<br>
 
-        {{ user.profile.location }}
+   {{ user.profile.location }}
+
     </div>
 
 </div>
