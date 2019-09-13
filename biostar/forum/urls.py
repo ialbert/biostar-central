@@ -32,6 +32,7 @@ urlpatterns = [
     path('b/view/<str:uid>/', views.badge_view, name='badge_view'),
     path('edit/post/<str:uid>/', views.edit_post, name='post_edit'),
 
+    path('ajax/chat/list/', ajax.chat_list, name='chat_list'),
     path('ajax/digest/', ajax.ajax_digest, name='ajax_digest'),
     path('ajax/recent/', ajax.ajax_recent, name='ajax_recent'),
     path('ajax/vote/', ajax.ajax_vote, name='vote'),

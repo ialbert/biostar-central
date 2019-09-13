@@ -16,7 +16,7 @@ from whoosh.searching import Results
 from whoosh.sorting import FieldFacet, ScoreFacet
 from .const import *
 from taggit.models import Tag
-from biostar.accounts.models import Profile
+from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search
 from .models import Post, Vote, Subscription
 
@@ -388,6 +388,107 @@ def inplace_form(request):
 def close(r):
     # Ensure the searcher object gets closed.
     r.searcher.close() if isinstance(r, Results) else None
+    return
+
+
+def create_chat_room(request):
+    # Create a top level post as a chat, representing a chat room.
+
+    user = request.user
+
+    tags = request.POST.get('tags', '')
+    title = request.POST.get('title', '')
+    content = request.POST.get('content', '')
+
+    # Start up a chat room, by creating a top level posts.
+    chat_room = Post.objects.create(author=user, title=title, tag_val=tags, content=content, type=Post.CHAT)
+
+    # Render new chat room template.
+    chat_room_template = 'chat_view.html'
+
+    tmpl = loader.get_template(chat_room_template)
+    # tmpl = loader.get_template("widgets/test_search_results.html")
+
+    context = dict(chat_room=chat_room)
+    chat_room = tmpl.render(context)
+
+    # Return a 'chat view' of newly created chat room
+    return ajax_success(msg='success', html=chat_room)
+
+
+def send_chat(request):
+    # Send a chat message within a chat room from one user to another
+    chat_uid = request.POST.get('uid', '')
+    user = request.user
+    # Get the root post to add to.
+    root_chat = Post.objects.filter(uid=chat_uid).first()
+
+    if not root_chat:
+        return ajax_error(msg='Chat room does not exist.')
+    # Create a post object between one
+
+    return
+
+
+def add_to_chat_room(request):
+    # Add a user to a chat channel.
+
+    user = request.user
+    target_uid = request.POST.get('target', '')
+    chat_uid = request.POST.get('uid', '')
+
+    target_user = User.objects.filter(profile__uid=target_uid).first()
+
+    if not target_user:
+        return ajax_error(msg='Target user does not exist.')
+
+    root_chat = Post.objects.filter(uid=chat_uid).first()
+
+    # Add target user to thread users of the root post.
+    if not root_chat:
+        return ajax_error(msg='Chat does not exist.')
+
+    # Add target user to the chat.
+    root_chat.thread_users.remove(user)
+    root_chat.thread_users.add(user)
+
+    print(root_chat, "ADDED USER TO CHAT")
+    return
+
+
+def chat_list(request):
+    # Display list of chat rooms a user is actively involved in.
+
+    user = request.user
+
+    #chats = "" Post.objects.filter(type=Post.CHAT, thread_users__in)
+
+    print(chats)
+    #if chats is None
+    # Get the template and render chat list.
+    chat_list = 'chat_list.html'
+
+    tmpl = loader.get_template(chat_list)
+    # tmpl = loader.get_template("widgets/test_search_results.html")
+
+    context = dict(chat_list=chats)
+    chat_list_html = tmpl.render(context)
+
+    print(chat_list_html, "LISTING HTML")
+
+    return ajax_success(msg="success", html=chat_list_html)
+
+
+def chat_view(request):
+    uid = request.POST.get('uid', '')
+    chat_room = Post.objects.filter(uid=uid, type=Post.CHAT).first()
+
+    if chat_room is None:
+        return ajax_error(msg='Chat does not exist')
+
+    # Show the chat stack
+
+    print(chat_room.children)
     return
 
 
