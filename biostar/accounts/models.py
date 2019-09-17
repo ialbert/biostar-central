@@ -124,7 +124,8 @@ class Profile(models.Model):
         self.max_upload_size = self.max_upload_size or settings.MAX_UPLOAD_SIZE
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         self.date_joined = self.date_joined or now()
-        self.last_login = self.last_login or now() - timedelta(days=1)
+        self.last_login = self.last_login or now() #- timedelta(days=1)
+        self.last_digest = self.last_digest or now()
         super(Profile, self).save(*args, **kwargs)
 
     @property

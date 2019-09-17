@@ -1,0 +1,25 @@
+
+{%  block subject %}
+
+    [Biostar] {{ subject }}
+
+{% endblock %}
+
+{% block html %}
+
+    Here is a list of posts included in your digest:
+    {% for post in posts %}
+        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+    {% endfor %}
+
+{% endblock %}
+
+{% block text %}
+
+    Here is a list of posts included in your digest:
+    {% for post in posts %}
+        {{ post.title }}
+    {% endfor %}
+
+{% endblock %}
+
