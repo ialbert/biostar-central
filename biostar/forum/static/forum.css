@@ -32,7 +32,6 @@ body {
     padding: 0 !important;
     padding-bottom: 5px !important;
     border: none !important;
-    box-shadow: none!important;
 }
 
 .ui.pointing.menu .active.item:after {
@@ -51,7 +50,7 @@ body {
 #menu-header .item:not(.header) {
            padding-left: 35px;
     padding-right: 35px;
-    text-transform: uppercase;
+    //text-transform: uppercase;
 }
 
 .dark{
