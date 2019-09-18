@@ -19,5 +19,5 @@
 @monthly  python digest.py --monthly
 
 
-# Add posts to search index every 3 mintes
+# Add posts to search index every 3 minutes
 */3 * * * *  python index.py
