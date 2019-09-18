@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    <div class="ui stackable grid">
+    <div class="ui stackable grid {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
 
         <div class="fit twelve wide content column">
             {% block body %}

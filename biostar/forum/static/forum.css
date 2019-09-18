@@ -13,8 +13,13 @@ body {
     //text-transform: uppercase;
 }
 
+.ui.button.vote{
+    background: none;
+    padding: 5px;
+}
+
 #menu-header .item .icon {
-    font-size: 15px !important;
+    font-size: 14px !important;
         padding-bottom: 18px;
 }
 
@@ -36,6 +41,26 @@ body {
 
 #menu-header .item:not(:first-child) {
 
+
+}
+
+.dark .ui.small.label.tags{
+    opacity: .50;
+}
+
+#menu-header .item:not(.header) {
+           padding-left: 35px;
+    padding-right: 35px;
+    text-transform: uppercase;
+}
+
+.dark{
+    background: #5e5d5d !important;
+    color: white !important;
+}
+
+.dark p {
+    color: white;
 }
 
 #menu-header .item.active {
@@ -62,7 +87,7 @@ body {
 }
 
 .post.item > .content .ui.label {
-    margin: 0;
+    margin: 0 4px;
 }
 
 .ui.items > .post.item > .image:not(.ui) {
@@ -88,16 +113,22 @@ a:hover {
     color: white;
     background-color: #6B3E4A;
 }
-
+.ui.tag.label.tags:before, .ui.tag.labels .label.tags:before {
+    width: 1em;
+    height: 1em;
+}
 .ui.small.label.tags {
     background-color: #ececec;
     border: none;
-    border-bottom: 1px solid #bbbbbb;
-    border-right: 1px solid #bbbbbb;
     color: #6b3e4a;
     font-weight: inherit;
     font-size: inherit;
-    padding: .2em .5em;
+    padding: .2em 9px;
+}
+
+.spaced-tags{
+    padding-bottom: 10px;
+    padding-top:10px;
 }
 
 .ui.segment, .ui.segments .segment {
@@ -117,11 +148,7 @@ a:hover {
     overflow: hidden;
 }
 
-.ui.tiny.label.add-comment{
-    //font-size: 80%;
-    box-shadow: 1px 1px 2px grey;
-    opacity: 0.75;
-}
+
 .user_card {
     text-align: center;
     overflow: hidden;
@@ -330,6 +357,19 @@ a:hover {
     //height: fit-content;
     //display: inline-flex;
 }
+
+.dark .statbox{
+    opacity: .6;
+}
+
+.dark .title.header{
+    color:#e0e0e0 !important;
+}
+
+
+.dark .deleted .title.header{
+    color:#595959 !important;
+}
 .comment-list {
 
 }
@@ -355,14 +395,17 @@ a:hover {
 }
 .post.comment .score {
     font-size: 100%;
-    padding-bottom: 0.5rem;
+    //padding-bottom: 0.5rem;
     padding-top: 0.5rem;
 }
 
+.magnify{
+    font-size: 108%;
+}
 
 .votebox > .score {
-    font-size: 240%;
-    padding-bottom: 0.5rem;
+    font-size: 180%;
+    padding-bottom: 0.0rem;
     font-weight: bold;
     opacity: 0.9;
 }
@@ -553,6 +596,10 @@ img {
     z-index: 1000;
     position: absolute;
     width: 73%;
+}
+
+.ui.items>.item>.content>.header.post-title{
+    font-size: 135%;
 }
 
 

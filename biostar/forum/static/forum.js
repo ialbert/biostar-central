@@ -117,7 +117,7 @@ function edit_post(uid) {
     var form_container = $('#new-edit');
     // Hidden elements
     var hidden =  $('.hide-on-edit');
-
+    alert(uid);
     // Post title inside of the form
     var title = $('#title');
     var content = $('#wmd-input');
@@ -139,6 +139,7 @@ function edit_post(uid) {
     if (!($.isNumeric(post_type))){
         post_type = -1
     }
+    alert("FFFFf");
 
     $.ajax(edit_url,
         {

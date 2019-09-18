@@ -23,8 +23,6 @@
 
     {% if request.user.is_authenticated and post.is_open %}
         <div class="ui info tablet message">
-            <p>If you want to provide a solution to the original question, click <a
-                    class="ui blue display-answer tiny label">ADD ANSWER</a>.<br>
                 Use the <span class="ui tiny label">ADD COMMENT</span> or <span
                         class="ui tiny label">ADD REPLY</span> buttons
                 embedded in each post to comment, to ask for clarifications, to request more details, or respond
@@ -32,7 +30,10 @@
                 previous answer or comment.
             </p>
         </div>
-        <div id="add-answer" data-value="{{ post.uid }}"></div>
+        <div id="add-answer" data-value="{{ post.uid }}">
+        <div class="ui small header">Add your answer</div>
+            {% include 'widgets/inplace_form.html' with is_toplevel=0 parent_uid=post.root.uid is_comment=0 content="" html="" %}
+        </div>
 
     {% elif not post.is_open %}
         <div class="ui warning message">

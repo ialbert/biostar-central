@@ -187,7 +187,6 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
     if content_length > forms.MAX_CONTENT:
         msg = f"Content too long, please add less than {forms.MAX_CONTENT} characters."
         return False, msg
-
     # Validate fields found in top level posts
     if is_toplevel:
         if title_length <= MIN_TITLE_CHARS:
@@ -304,7 +303,7 @@ def ajax_create(request):
     tag_str = ','.join(tag_list)
     recaptcha_token = request.POST.get("recaptcha_response")
     is_toplevel = bool(int(request.POST.get('top', 0)))
-
+    print(is_toplevel, int(request.POST.get('top', 0)), f"{request.POST.get('top')} ;;;;;")
     # Get the post type
     post_type = request.POST.get('type', '0')
     post_type = int(post_type) if post_type.isdigit() else 0

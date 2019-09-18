@@ -68,26 +68,18 @@
             cancel. Double-click to edit post. Markdown accepted.
         </p>
 
-        <div class="hide-preview" id="html-preview">
+        <div id="html-preview">
             <div class="ui preview segment">
                 <div id="preview" class="">{{ html|safe }}</div>
             </div>
         </div>
             <div class="field inplace-buttons">
 
-            <a class="ui green label save" id="save"><i class="check icon"></i>
-                {% if post %}
-                Save
-                {% else %}
-                Create
-                {% endif %}
+            <a class="ui green button save" id="save"><i class="check icon"></i>
+                Submit
             </a>
 
-            <a class="ui label show-preview">
-                <i class="code icon"></i>Toggle preview
-            </a>
-
-            <a class="ui label cancel" id="cancel"><i class="undo icon"></i> Cancel</a>
+            <a class="ui button cancel" id="cancel"><i class="undo icon"></i> Cancel</a>
 
         </div>
 
@@ -126,14 +118,17 @@
             'theme' : 'light'
         });
     {% endif %}
+    //alert({{ is_toplevel }});
 
     function create_post(){
+
         var create_url = '/ajax/create/';
         // Get the fields to submit
         var title = $('#title');
         var form_elem = $('#post-form');
         var content = $('#wmd-input');
         var post_type = $('#type').dropdown('get value');
+        //alert(post_type);
         var tag_val = $('#tags').dropdown('get value');
 
         {% if not_trusted %}

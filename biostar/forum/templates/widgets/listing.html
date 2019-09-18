@@ -41,7 +41,7 @@
 
             <div class="content">
 
-                <div class="header">
+                <div class="post-title header">
                     {% if not post.is_open %}
                         <span class="ui title header">{{ post.get_status_display }}:</span>
                     {% elif post.type != post.QUESTION %}
@@ -67,7 +67,7 @@
                 <div class="extra right floated">
 
                     <div class="left floated">
-                        {% post_tags post %}
+                        {% post_tags post spaced=False %}
                     </div>
 
                     <div class="right floated">

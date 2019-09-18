@@ -25,8 +25,8 @@ MAX_FIELD_LEN = 1024
 
 
 class Profile(models.Model):
-    NEW, TRUSTED, SUSPENDED, BANNED = range(4)
-    STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
+    NEW, TRUSTED, SUSPENDED, BANNED, DEACTIVATED = range(5)
+    STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (DEACTIVATED, "Inactive"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
     state = models.IntegerField(default=NEW, choices=STATE_CHOICES, db_index=True)
 
     READER, MODERATOR, MANAGER, BLOGGER, SPAMMER = range(5)
@@ -35,7 +35,7 @@ class Profile(models.Model):
         (BLOGGER, "Blog User"), (SPAMMER, "Spammer")
     ]
 
-    NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST,ALL_MESSAGES  = range(5)
+    NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST, ALL_MESSAGES = range(5)
 
     DIGEST_CHOICES = [(NO_DIGEST, 'Never'), (DAILY_DIGEST, 'Daily'),
                       (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly'),
@@ -106,6 +106,9 @@ class Profile(models.Model):
     # The html version of the user information.
     html = models.TextField(null=True, max_length=MAX_TEXT_LEN, blank=True)
 
+    # View the site in dark mode
+    dark_mode = models.BooleanField(default=False)
+
     # The state of the user email verfication.
     email_verified = models.BooleanField(default=False)
 
@@ -127,6 +130,14 @@ class Profile(models.Model):
         self.last_login = self.last_login or now() #- timedelta(days=1)
         self.last_digest = self.last_digest or now()
         super(Profile, self).save(*args, **kwargs)
+
+    @property
+    def is_active(self):
+        return self.state != Profile.DEACTIVATED
+
+    @property
+    def css(self):
+        return 'dark' if self.dark_mode else ''
 
     @property
     def is_moderator(self):

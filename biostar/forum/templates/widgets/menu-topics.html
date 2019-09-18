@@ -1,34 +1,34 @@
 {% load forum_tags %}
 
-<div class="ui top attached text menu dim-on-create" id="menu-topics">
+<div class="ui top attached text menu dim-on-create  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}" id="menu-topics">
     <div class="ui inverted dimmer"></div>
     {% if user.is_authenticated %}
 
-        <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
+        <a class="item {{ user.profile.css }} {% activate tab "messages" %}" href="{% url 'inbox' %}">
             <i class="mail icon"> </i>
             <span class="tablet">Messages {% count_label label="message_count" %} </span>
         </a>
-        <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
+        <a class="item  {{ user.profile.css }} {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
             <i class="heart icon centericon"></i>
             <span class="tablet">Votes {%  count_label label="vote_count" %} </span>
         </a>
 
-        <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
+        <a class="item {{ user.profile.css }} {% activate tab "myposts" %}" href="{% url 'myposts' %}">
             <i class="comments icon"></i>
             <span class="tablet">My Posts</span>
         </a>
 
-        <a class="item {% activate tab "following" %}" href="{% url 'following' %}">
+        <a class="item  {{ user.profile.css }} {% activate tab "following" %}" href="{% url 'following' %}">
             <i class="eye icon"></i>
             <span class="tablet">Following</span>
         </a>
 
-        <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
+        <a class="item {{ user.profile.css }} {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
             <i class="book icon"></i>
             <span class="tablet">Bookmarks</span>
         </a>
 
-        <div class="item">
+        <div class="item {{ user.profile.css }}">
         <div class="ui top pointing dropdown" id="digest">
             <i class="{% get_digest_icon user %}" id="digest-icon"></i>
             <div class="text tablet" id="digest-active">{% digest_label post=post %}</div>
@@ -50,6 +50,7 @@
 {#            <a class="item {% activate tab "chat" %}" id="chat" data-value="{{ user.profile.uid }}">#}
 {#                <i class="wechat icon"></i> Chat#}
 {#            </a>#}
+
             <a class="item {% activate tab "profile" %}" href="{% url 'user_profile' user.profile.uid %}">
                 {{ user.profile.name }} {% user_icon user %}
             </a>

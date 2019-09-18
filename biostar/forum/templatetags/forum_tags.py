@@ -194,9 +194,9 @@ def post_actions(context, post, label="ADD COMMENT", avatar=False):
 
 
 @register.inclusion_tag('widgets/post_tags.html')
-def post_tags(post, show_views=False):
+def post_tags(post, show_views=False, spaced=True):
     tags = post.tag_val.split(",")
-    return dict(post=post, tags=tags, show_views=show_views)
+    return dict(post=post, tags=tags, show_views=show_views, spaced=spaced)
 
 
 @register.inclusion_tag('widgets/pages.html', takes_context=True)
@@ -382,12 +382,13 @@ def custom_feed(objs, feed_type='', title=''):
     return context
 
 
-@register.inclusion_tag('widgets/search_bar.html')
-def search_bar(search_url='', tags=False):
+@register.inclusion_tag(takes_context=True,filename='widgets/search_bar.html')
+def search_bar(context, search_url='', tags=False):
     search_url = search_url or reverse('ajax_search')
     styling = '' if tags else "fluid"
-
-    context = dict(search_url=search_url, tags=tags, styling=styling)
+    user = context['request'].user
+    dark_mode = user.profile.css if user.is_authenticated else ''
+    context = dict(search_url=search_url, tags=tags, styling=styling, dark_mode=dark_mode)
 
     return context
 
@@ -649,7 +650,7 @@ def traverse_comments(request, post, tree, template_name):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(template_name)
-
+    dark_mode = request.user.profile.css if not request.user.is_anonymous else ''
     seen = set()
 
     def traverse(node, collect=[]):
@@ -657,7 +658,7 @@ def traverse_comments(request, post, tree, template_name):
         cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
 
-        collect.append(f'<div class="indent"><div class="comment">{html}</div>')
+        collect.append(f'<div class="indent {dark_mode}"><div class="comment">{html}</div>')
 
         for child in tree.get(node.id, []):
             if child in seen:

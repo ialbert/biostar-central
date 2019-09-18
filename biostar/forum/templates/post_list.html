@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% with params=request.GET.urlencode %}
-<div class="ui horizontal basic top-menu segments">
+<div class="ui horizontal basic top-menu segments  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
 
     <div class="ui first segment">
         <div class="ui small compact menu no-shadow" >
