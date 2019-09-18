@@ -373,6 +373,11 @@ a:hover {
 .comment-list {
 
 }
+.ui.tag.label:after, .ui.tag.labels .label:after {
+    background: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none;
+}
 
 .content.column{
     width: 100% !important;
