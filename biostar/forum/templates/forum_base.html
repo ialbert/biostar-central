@@ -50,9 +50,9 @@
     {% endblock %}
 
 </head>
-<body>
+<body class="{% if user.is_authenticated and user.profile.dark_mode%}dark-body{% endif %}">
 
-<div class="ui inverted container" style="width: 1167px;">
+<div class="ui inverted container">
 
     {% include 'widgets/top_banner.html' %}
 
@@ -61,7 +61,7 @@
 
     {% include "widgets/menu-header.html" %}
 
-    <div class="ui bottom attached segment dim-on-create">
+    <div class="ui bottom attached segment dim-on-create  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
 
             <div class="ui inverted dimmer"></div>
 

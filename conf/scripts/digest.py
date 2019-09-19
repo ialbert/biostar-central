@@ -17,9 +17,6 @@ def send_digests(days=1, subject=""):
     digest_prefs = prefs_map.get(days, Profile.DAILY_DIGEST)
     users = Profile.objects.filter(digest_prefs=digest_prefs)
 
-    # Filter for users whose last digest sent is greater than or equal to the amount of days given.
-    users = users.filter(last_digest__gte=delta)
-
     # Fetch posts within the last x amount of days
     posts = Post.objects.filter(lastedit_date__gt=delta)
 

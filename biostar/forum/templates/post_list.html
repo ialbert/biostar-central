@@ -16,8 +16,8 @@
 <div class="ui horizontal basic top-menu segments  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
 
     <div class="ui first segment">
-        <div class="ui small compact menu no-shadow" >
-          <div class="ui simple dropdown item">
+        <div class="ui small compact menu no-shadow {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}" >
+          <div class="ui simple dropdown item {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
             <i class="{% get_icon string=limit default='all' %}"></i>
             <span class="tablet">{% get_wording prefix="Limit to:" filtered=limit default="all" %}</span>
             <i class="dropdown icon"></i>
@@ -48,8 +48,8 @@
     </div>
 
     <div class="ui third segment">
-        <div class="ui small compact menu no-shadow float-right">
-              <div class="ui simple dropdown item">
+        <div class="ui small compact menu no-shadow float-right {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+              <div class="ui simple dropdown item {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
 
                 <i class="{% get_icon string=order default='rank' %}"></i>
                 <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="rank" %}</span>
@@ -90,7 +90,7 @@
     {% listing posts=posts %}
 
 <div class="ui horizontal basic top-menu segments">
-    <div class="ui page-bar segment">
+    <div class="ui page-bar segment {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
 
     {% pages objs=posts %}
     </div>

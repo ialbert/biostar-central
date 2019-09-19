@@ -22,6 +22,7 @@
 
 
     {% if request.user.is_authenticated and post.is_open %}
+        {% block new_answer %}
         <div class="ui info tablet message">
                 Use the <span class="ui tiny label">ADD COMMENT</span> or <span
                         class="ui tiny label">ADD REPLY</span> buttons
@@ -34,6 +35,7 @@
         <div class="ui small header">Add your answer</div>
             {% include 'widgets/inplace_form.html' with is_toplevel=0 parent_uid=post.root.uid is_comment=0 content="" html="" %}
         </div>
+        {% endblock %}
 
     {% elif not post.is_open %}
         <div class="ui warning message">

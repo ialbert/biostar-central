@@ -9,13 +9,13 @@
  # └───────────────────────── min (0 - 59)
 
 
-# Send daily digests at 5am
+# Send digests first minute of every day
 @daily python digest.py --daily
 
-# Send weekly digests
+# Send digests first minute of every week
 @weekly python digest.py --weekly
 
-# Send monthly digest
+# Send digests first minute of every month
 @monthly  python digest.py --monthly
 
 

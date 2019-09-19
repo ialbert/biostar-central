@@ -6,12 +6,16 @@ body {
 #logo {
     padding: 10px;
     width: 220px;
+    //background: white;
 }
 
 #menu-header .item {
     color: #333333;
     //text-transform: uppercase;
+
 }
+
+
 
 .ui.button.vote{
     background: none;
@@ -27,6 +31,12 @@ body {
     background: none;
 }
 
+#menu-header{
+    background:none;
+}
+svg{
+    background: red;
+}
 .slim{
     margin: 0 !important;
     padding: 0 !important;
@@ -51,6 +61,7 @@ body {
            padding-left: 35px;
     padding-right: 35px;
     //text-transform: uppercase;
+    background: none;
 }
 
 .dark{
@@ -64,6 +75,25 @@ body {
 
 #menu-header .item.active {
     background-color: #fbfdef;
+}
+
+#menu-header .dark.item.active{
+    background: #fbfdef !important;
+    color: black !important;
+}
+.ui.attached.menu.dark:not(.tabular) {
+    border: 0px;
+}
+.dark-body{
+    background-color: #757575 !important;
+}
+
+.dark .post.comment{
+    background: #bfbfbf;
+}
+
+.dark .comment{
+    background: #bfbfbf;
 }
 
 #menu-topics .item.active {
@@ -109,8 +139,8 @@ a:hover {
 }
 
 .ui.small.label.tags:hover {
-    color: white;
-    background-color: #6B3E4A;
+    //color: white;
+    //background-color: #6B3E4A;
 }
 .ui.tag.label.tags:before, .ui.tag.labels .label.tags:before {
     width: 1em;
@@ -119,7 +149,7 @@ a:hover {
 .ui.small.label.tags {
     background-color: #ececec;
     border: none;
-    color: #6b3e4a;
+    //color: #6b3e4a;
     font-weight: inherit;
     font-size: inherit;
     padding: .2em 9px;

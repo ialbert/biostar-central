@@ -70,8 +70,7 @@
                         {% post_tags post spaced=False %}
                     </div>
 
-                    <div class="right floated">
-
+                    <div class="right floated {% if request.user.is_authenticated %}{{ request.user.profile.css }}{% endif %}">
                         {% post_user_line post %}
                     </div>
 
