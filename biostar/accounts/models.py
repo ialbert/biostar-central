@@ -104,7 +104,7 @@ class Profile(models.Model):
     html = models.TextField(null=True, max_length=MAX_TEXT_LEN, blank=True)
 
     # View the site in dark mode
-    dark_mode = models.BooleanField(default=False)
+    #dark_mode = models.BooleanField(default=False)
 
     # The state of the user email verfication.
     email_verified = models.BooleanField(default=False)
@@ -131,9 +131,6 @@ class Profile(models.Model):
     def is_active(self):
         return self.state != Profile.DEACTIVATED
 
-    @property
-    def css(self):
-        return 'dark' if self.dark_mode else ''
 
     @property
     def is_moderator(self):

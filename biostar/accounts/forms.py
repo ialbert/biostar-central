@@ -91,10 +91,7 @@ class EditProfile(forms.Form):
     website = forms.URLField(label="Website", max_length=225, required=False)
     twitter = forms.CharField(label="Twitter Id", max_length=100, required=False)
     scholar = forms.CharField(label="Scholar", max_length=100, required=False)
-    appearance = forms.BooleanField(label="Appearance", widget=forms.Select(choices=[(True, 'Enable dark mode'),
-                                                                                     (False, 'Diable dark mode')],
-                                                                            attrs={'class': "ui dropdown"}),
-                                    required=False)
+
     text = forms.CharField(widget=forms.Textarea(),min_length=2, max_length=5000, required=False,
                            help_text="Extra information about you to personalize your profile.")
 
