@@ -290,6 +290,10 @@ def post_view(request, uid):
     # Get the post.
     post = Post.objects.filter(uid=uid).first()
 
+    auth.update_post_views(post=post, request=request)
+    if not post.is_toplevel:
+        return redirect(post.get_absolute_url())
+
     # Form used for answers
     form = forms.PostShortForm(user=request.user, post=post)
 
@@ -303,8 +307,6 @@ def post_view(request, uid):
                                          content=content, type=Post.ANSWER, root=post.root)
             tasks.created_post.spool(pid=answer.id)
             return redirect(answer.get_absolute_url())
-
-    auth.update_post_views(post=post, request=request)
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 

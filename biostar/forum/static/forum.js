@@ -136,7 +136,7 @@ function edit_post(uid) {
     if (title.val() == null){
         title.val('')
     }
-    if (!($.isNumeric(post_type))){
+    if (!($.isNumeric(post_type))) {
         post_type = -1
     }
 
@@ -201,6 +201,8 @@ function cancel_inplace(){
     //var content = $('#wmd-input-' + uid);
     var hidden = $('.hide-on-edit');
     $('.hide-on-comment').show();
+
+    $('.dim-on-create').dimmer('hide');
     //Delete the form
     inplace_content.remove();
     //inplace_title.html("");
@@ -257,6 +259,12 @@ function inplace_post_edit(elem){
                     dim_elem.dimmer('hide');
                     editing.html(data.inplace_form);
                     editing.show().find('textarea').focus();
+                    var preview = $('#preview');
+                    preview.find('pre').addClass(' language-python');
+                    preview.find('code').addClass('  language-bash language-python');
+                    //preview.find('code').removeClass('lang-python');
+                    //Prism.highlightAll();
+
                 }
             },
             error: function (xhr, status, text) {
@@ -302,7 +310,105 @@ function  search(query, elem, search_url) {
 }
 
 
+function highlight(text){
+
+    var con = markdownit();
+    var res = con.render(text);
+    var preview = $('#preview');
+    preview.html(res);
+    preview.find('pre').addClass('language-bash');
+    preview.find('code').addClass('language-bash');
+    //Prism.highlightAll()
+}
+
+
+function get_recent(uid){
+    var recent_posts = '/ajax/recent/';
+    var elem =  $('#recent');
+    var msg = $("#msg");
+
+    var comment = $("#new-comment");
+
+        if (comment.length) {
+            // Remove comment if exists.
+            msg.remove();
+        } else {
+            // Create a new comment.
+            msg = $("<div id='msg'></div>");
+        }
+    elem.after(msg);
+    msg.css({'position': 'fixed', 'left':'auto', 'right': 'auto', 'z-index':'10000'});
+    $.ajax(recent_posts,
+            {
+                type: 'GET',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {
+                    'uid': uid
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message(elem, data.msg, data.status);
+                    } else {
+                        // Populate the feed.
+
+                        if (data.nposts === undefined || data.nposts === null){
+                            return
+                        }
+                        //var contain = "<div class='ui message'>{0}, most recent: {1}</div>".f(data.nposts, data.most_recent_url);
+                        msg.html(contain)
+                    }
+                },
+                error: function (xhr, status, text) {
+                    error_message(elem, xhr, status, text)
+                }
+            })
+}
+
+function chat_list(user_uid){
+    // Show list of active chats a user has
+    var chat_list_url = '/ajax/chat/list/';
+    var container = $('#contain-chat');
+
+    $.ajax(chat_list_url,
+        {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'uid': user_uid
+            },
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(container, data.msg, data.status);
+                } else {
+                    //var contain = "<div class='ui message'>{0}, most recent: {1}</div>".f(data.nposts, data.most_recent_url);
+                    container.html(data.html)
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(container, xhr, status, text)
+            }
+        })
+
+}
+
+
 $(document).ready(function () {
+     // setInterval(function(){
+     //     var recent_popup = $('#recent');
+     //     var uid = recent_popup.data("value");
+     //     if (uid === undefined || uid === null){
+     //         uid = '';
+     //     }
+     //     alert('333');
+     //     get_recent(uid)
+     //   },50000);
+
+    $('#chat').click(function () {
+        var user_uid = $(this).data('value');
+        chat_list(user_uid);
+    });
 
     $(this).click(function(event) {
         var res = $('#results');
@@ -361,13 +467,17 @@ $(document).ready(function () {
         inplace_post_edit(elem);
     });
 
-
     $(this).on('keyup', '#wmd-input', function (event) {
-        var html_container = $('#wmd-preview');
-        //alert("test");
-        html_container.find('pre').addClass('language-bash');
-        html_container.find('code').addClass('language-bash');
-        Prism.highlightAll();
+        var text = $(this).val();
+        highlight(text);
+
+    });
+
+    $(this).on('click', '#wmd-button-bar', function (event) {
+        setTimeout(function () {
+            var text = $('#wmd-input').val();
+            highlight(text);
+        }, 10);
 
     });
 
@@ -379,7 +489,6 @@ $(document).ready(function () {
                 cancel_inplace(uid);
                 cancel_create();
                 $('#new-comment').remove();
-
                 $('#add-answer').html('');
             });
         }
@@ -479,6 +588,7 @@ $(document).ready(function () {
         cancel_inplace();
         $('#insert-form').html('');
         $('#new-post').removeClass('active');
+
         $('#add-answer').html('');
 
         // Check for existing comment.
@@ -537,21 +647,11 @@ $(document).ready(function () {
     $('#new-post').click(function () {
         var create_url = '/inplace/form/';
         var form_container = $('#insert-form');
-        var form_is_visible = $('#insert-form.visible').val() != null;
 
         cancel_inplace();
         $('#new-comment').remove();
         $('#add-answer').html('');
-
-        // Avoid hitting the server when the form is already visible.
-        if (form_is_visible){
-            // Make the form invisible
-            form_container.html('');
-            // Remove active class from menu topic
-            $('#new-post').removeClass('active');
-            return
-        }
-
+        $('.dim-on-create').dimmer('hide');
         $.ajax(create_url,
             {
                 type: 'GET',
@@ -572,6 +672,7 @@ $(document).ready(function () {
                         form_container.html(data.inplace_form);
                         form_container.show();
                         form_container.find('#title').focus();
+                        $('.dim-on-create').dimmer('show');
                     }
 
                 },
@@ -603,11 +704,13 @@ $(document).ready(function () {
     });
 
     $(this).on('click', '.show-preview', function() {
+        var contain = $('#html-preview');
         var preview = $('#preview');
-        preview.transition('slide down', 400);
+        contain.transition('slide down', 400);
         preview.find('pre').addClass('language-bash');
         preview.find('code').addClass('language-bash');
-        Prism.highlightAll();
+        //Prism.highlightAll();
+        //Prism.highlightAll(preview.find('code'));
 
     });
 
@@ -667,6 +770,8 @@ $(document).ready(function () {
         cancel_inplace();
         $('#add-answer').html('');
     });
+    $('.ui.sticky').sticky()
+    ;
 
     $('.display-answer').click(function() {
         var create_url = '/inplace/form/';
@@ -705,8 +810,25 @@ $(document).ready(function () {
             })
     });
 
+    //$('#chat-drop')
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
-    Prism.highlightAll()
+    Prism.highlightAll();
+    var preview = $('#id_content_wmd_preview');
+
+    $('#id_content').keyup(function () {
+        preview.find('code').addClass('language-bash');
+        preview.find('pre').addClass('language-bash');
+    }).keydown(function () {
+        preview.find('code').addClass('language-bash');
+        preview.find('pre').addClass('language-bash');
+    });
+
+    $('#id_content_wmd_button_bar').click(function () {
+        setTimeout(function () {
+            preview.find('code').addClass('language-bash');
+            preview.find('pre').addClass('language-bash');
+        }, 10)
+    })
 })
 ;

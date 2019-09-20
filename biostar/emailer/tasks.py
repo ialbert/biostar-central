@@ -7,6 +7,7 @@ from biostar.emailer import sender
 
 logger = logging.getLogger("biostar")
 
+
 def send_all():
     """
     Needed when the email backend is django-mailer to send queued emails.
@@ -24,6 +25,7 @@ def send_all():
             engine.send_all()
         except Exception as exc:
             logger.error(f"send_all() error: {exc}")
+
 
 def send_email(template_name, recipient_list, extra_context={}, from_email=None):
     """

@@ -103,7 +103,6 @@
 {% endblock %}
 
 {%  block sidebar %}
-
     {% if tab == 'following' %}
         {% custom_feed feed_type=tab objs=posts title='People you are following'%}
     {% elif tab == 'bookmarks' %}

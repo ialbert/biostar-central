@@ -1,40 +1,39 @@
 {% load forum_tags %}
 {% load staticfiles %}
 
-<div class="ui labeled icon attached pointing menu" id="menu-header" user-id="{{ request.user.id }}">
-
+<div class="ui labeled icon attached pointing menu  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %} " id="menu-header" user-id="{{ request.user.id }}">
+<div class="ui inverted dimmer"></div>
     {% block headimg %}
         <div class="header item" id="logo">
-            <a href="/"><img class="ui image"  src="{% static "images/logo.svg" %}"></a>
+            <a href="/"><img class="ui image"  src="{% static "images/logo.png" %}"></a>
         </div>
     {% endblock %}
 
-    <a class="item {% activate tab "latest" %}" href="{% url 'post_list' %}">
-    <i class="list icon"></i> <span class="tablet">Latest</span>
+    <a class="item  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %} {% activate tab "latest" %} " href="{% url 'post_list' %}">
+    <i class=" list icon"></i> Latest
     </a>
-    <a class="item {% activate tab "news" %}" href="{% url 'post_list' %}?type=news">
-    <i class="newspaper icon"></i> <span class="tablet">News</span>
+    <a class="item tablet  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %} {% activate tab "news" %} " href="{% url 'post_list' %}?type=news">
+    <i class=" newspaper icon"></i> News
     </a>
-    <a class="item phone {% activate tab "job" %}" href="{% url 'post_list' %}?type=job">
-    <i class="briefcase icon"></i> <span class="tablet">Jobs</span>
-    </a>
-
-    <a class="item phone {% activate tab "tutorial" %}" href="{% url 'post_list' %}?type=tutorial">
-    <i class="info circle icon"></i> <span class="tablet">Tutorials</span>
+    <a class="item tablet  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %} {% activate tab "job" %} " href="{% url 'post_list' %}?type=job">
+    <i class=" briefcase icon"></i> Jobs
     </a>
 
-    <a class="item phone {% activate tab "tags" %}" href="{% url 'tags_list' %}">
-        <i class="tag icon"></i> <span class="tablet">Tags</span>
+    <a class="item tablet  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %} {% activate tab "tutorial" %} " href="{% url 'post_list' %}?type=tutorial">
+    <i class=" info circle icon"></i> Tutorials
     </a>
 
-    <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
-        <i class="world icon"></i>
-        <span class="tablet">Users</span>
+    <a class="item tablet  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %} {% activate tab "tags" %} " href="{% url 'tags_list' %}">
+        <i class="tag icon"></i>Tags
     </a>
 
-     <a class="item {% activate tab "new" %}" id="new-post">
-        <i class="edit icon"></i>
-        <span class="tablet">New Post</span>
+    <a class="item tablet  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %} {% activate tab "community" %}" href="{% url 'community_list' %}">
+        <i class=" world icon"></i>
+        Users
+    </a>
+
+     <a class="item  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %} {% activate tab "new" %}" id="new-post">
+        <i class=" edit icon"></i>New Post
      </a>
 
 

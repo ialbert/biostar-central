@@ -89,8 +89,6 @@ def create_user_awards(user_id):
             message("award %s created for %s" % (badge.name, user.email))
 
 
-
-
 @spool(pass_arguments=True)
 def notify_followers(subs, author, extra_context={}):
     """
@@ -109,7 +107,7 @@ def notify_followers(subs, author, extra_context={}):
         return
 
     # Select users that should be notified.
-    users = [sub.user for sub in subs]
+    users = [sub.user for sub in subs if sub.user.profile.is_active]
 
     # Every subscribed user gets local messages with any subscription type.
     create_messages(template=local_template, extra_context=extra_context, rec_list=users, sender=author)
@@ -121,6 +119,6 @@ def notify_followers(subs, author, extra_context={}):
     if not email_subs:
         return
 
-    recipient_list = [sub.user.email for sub in subs]
+    recipient_list = [sub.user.email for sub in email_subs if sub.user.profile.is_active]
 
     send_email(template_name=email_template, extra_context=extra_context, recipient_list=recipient_list)

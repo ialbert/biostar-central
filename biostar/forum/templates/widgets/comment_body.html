@@ -2,7 +2,7 @@
 
 <a name="{{ post.uid }}"></a>
 
-<div class="dimm-on-edit" data-value="{{ post.uid }}">
+<div class="dimm-on-edit " data-value="{{ post.uid }}">
 
     <div class="ui inverted dimmer">
         <div class="ui text loader">
@@ -28,7 +28,7 @@
 
             <div class="content">
 
-
+<span class="magnify">
                 {% if post.is_editable %}
 
                     <div class="editable" data-value="{{ post.uid }}">{{ post.html|safe }}</div>
@@ -37,7 +37,7 @@
                 {% else %}
                     {{ post.html|safe }}
                 {% endif %}
-
+</span>
 
                 <div class="hide-on-edit hide-on-comment" data-value="{{ post.uid }}">
                     {% post_actions post=post label="ADD REPLY" avatar=True %}

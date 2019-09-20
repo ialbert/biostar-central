@@ -9,8 +9,9 @@ from datetime import timedelta
 
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
-
+from taggit.models import Tag
 from django import template, forms
+from django.db.models import Count
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
@@ -165,13 +166,13 @@ def user_icon(user=None, user_uid=None):
 
 
 @register.inclusion_tag('widgets/post_user_line.html')
-def post_user_line(post, avatar=False):
-    return dict(post=post, avatar=avatar)
+def post_user_line(post, avatar=False, user_info=True):
+    return dict(post=post, avatar=avatar, user_info=user_info)
 
 @register.inclusion_tag('widgets/post_user_line.html')
-def postuid_user_line(uid, avatar=True):
+def postuid_user_line(uid, avatar=True, user_info=True):
     post = Post.objects.filter(uid=uid).first()
-    return dict(post=post, avatar=avatar)
+    return dict(post=post, avatar=avatar, user_info=user_info)
 
 
 @register.inclusion_tag('widgets/user_card.html')
@@ -193,9 +194,9 @@ def post_actions(context, post, label="ADD COMMENT", avatar=False):
 
 
 @register.inclusion_tag('widgets/post_tags.html')
-def post_tags(post, show_views=False):
+def post_tags(post, show_views=False, spaced=True):
     tags = post.tag_val.split(",")
-    return dict(post=post, tags=tags, show_views=show_views)
+    return dict(post=post, tags=tags, show_views=show_views, spaced=spaced)
 
 
 @register.inclusion_tag('widgets/pages.html', takes_context=True)
@@ -303,8 +304,16 @@ def get_tags(request=None, post=None):
     else:
         tags = post.tag_val if isinstance(post, Post) else ''
 
-    tags_opt = {val: True for val in tags.split(",")}
-    context = dict(selected=tags, tags_opt=tags_opt.items())
+    query = Count('post')
+    tags_query = Tag.objects.annotate(count=query).order_by('-count')[:800]
+    tags_opt = ((tag.name.strip(), False) for tag in tags_query if tag.name.strip() not in tags.split(","))
+
+    selected_tags_opt = ((val, True) for val in tags.split(","))
+
+    #tags_opt.update(selected_tags_opt)
+    tags_opt = itertools.chain(selected_tags_opt, tags_opt)
+
+    context = dict(selected=tags, tags_opt=tags_opt)
 
     return context
 
@@ -373,11 +382,11 @@ def custom_feed(objs, feed_type='', title=''):
     return context
 
 
-@register.inclusion_tag('widgets/search_bar.html')
-def search_bar(search_url='', tags=False):
+@register.inclusion_tag(takes_context=True,filename='widgets/search_bar.html')
+def search_bar(context, search_url='', tags=False):
     search_url = search_url or reverse('ajax_search')
     styling = '' if tags else "fluid"
-
+    user = context['request'].user
     context = dict(search_url=search_url, tags=tags, styling=styling)
 
     return context
@@ -503,16 +512,18 @@ def relative_url(value, field_name, urlencode=None):
 
 
 @register.simple_tag
-def get_thread_users(post, limit=5):
+def get_thread_users(post, limit=2):
     thread_users = post.thread_users.all()
     stream = itertools.islice(thread_users, limit)
 
     # Author is shown first
-    users = [post.author]
+    users = {post.author, post.lastedit_user}
     for user in stream:
+        if len(users) >= limit:
+            break
         if user in users:
             continue
-        users.append(user)
+        users.add(user)
 
     return users
 
@@ -638,7 +649,6 @@ def traverse_comments(request, post, tree, template_name):
     "Traverses the tree and generates the page"
 
     body = template.loader.get_template(template_name)
-
     seen = set()
 
     def traverse(node, collect=[]):
@@ -646,7 +656,7 @@ def traverse_comments(request, post, tree, template_name):
         cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
 
-        collect.append(f'<div class="indent"><div class="comment">{html}</div>')
+        collect.append(f'<div class="indent "><div class="comment">{html}</div>')
 
         for child in tree.get(node.id, []):
             if child in seen:

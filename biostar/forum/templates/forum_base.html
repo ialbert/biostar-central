@@ -19,6 +19,7 @@
 
     {# Load JQuery. #}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{% static 'markdown-it.js' %}"></script>
     {# Load recaptcha #}
     {% recaptcha_init %}
 
@@ -51,19 +52,23 @@
 </head>
 <body>
 
-<div class="ui container">
+<div class="ui inverted container">
 
     {% include 'widgets/top_banner.html' %}
 
     {% include "widgets/menu-topics.html" %}
 
+
     {% include "widgets/menu-header.html" %}
 
-    <div class="ui bottom attached  segment">
+    <div class="ui bottom attached segment dim-on-create  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+
+            <div class="ui inverted dimmer"></div>
 
         {% show_messages messages %}
-        <span id="insert-form"></span>
+        <span class="fit" id="insert-form"></span>
         <div id="error"></div>
+        <div id="recent" {% if post %}data-value="{{ post.uid }}"{% endif %}></div>
         {% block content %}
 
             MAIN CONTENT

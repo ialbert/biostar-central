@@ -5,6 +5,7 @@ from ratelimit.decorators import ratelimit
 from urllib import request as builtin_request
 #import requests
 from urllib.parse import urlencode
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db.models import Q, Count
@@ -15,7 +16,7 @@ from whoosh.searching import Results
 from whoosh.sorting import FieldFacet, ScoreFacet
 from .const import *
 from taggit.models import Tag
-from biostar.accounts.models import Profile
+from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search
 from .models import Post, Vote, Subscription
 
@@ -32,7 +33,7 @@ ajax_error = partial(ajax_msg, status='error')
 
 
 MIN_TITLE_CHARS = 10
-MAX_TITLE_CHARS = 5000
+MAX_TITLE_CHARS = 180
 
 MAX_TAGS = 5
 
@@ -169,7 +170,7 @@ def validate_recaptcha(token):
 
 
 def validate_post(content, title, tags_list, post_type, is_toplevel=False, recaptcha_token='', check_captcha=False):
-    content_length = len(content.replace(" ", ''))
+    content_length = len(content.replace(' ', ''))
     title_length = len(title.replace(' ', ''))
     allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
     tag_length = len(tags_list)
@@ -186,7 +187,6 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
     if content_length > forms.MAX_CONTENT:
         msg = f"Content too long, please add less than {forms.MAX_CONTENT} characters."
         return False, msg
-
     # Validate fields found in top level posts
     if is_toplevel:
         if title_length <= MIN_TITLE_CHARS:
@@ -260,6 +260,32 @@ def ajax_edit(request, uid):
     return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
 
 
+@ajax_error_wrapper(method="GET")
+def ajax_recent(request):
+
+    uid = request.GET.get('uid', '')
+    # Return recent posts made in past 5000 seconds.
+    seconds = 500000
+    delta = util.now() - timedelta(seconds=seconds)
+    if uid:
+        root = Post.objects.filter(uid=uid).first().root
+        new_posts = Post.objects.filter(root=root, lastedit_date__gt=delta).exclude(uid=uid)
+    else:
+        new_posts = Post.objects.filter(type__in=Post.TOP_LEVEL, lastedit_date__gt=delta)
+
+    if not new_posts:
+        return ajax_success(msg='No new posts in the past 5000 seconds.', data='')
+
+    nposts = len(new_posts)
+    context = dict(nposts=nposts)
+    tmpl = loader.get_template('widgets/ajax_recent.html')
+    template = tmpl.render(context=context)
+    most_recent = new_posts.order_by('-pk').first()
+    most_recent_url = most_recent.get_absolute_url() if most_recent is not None else ''
+
+    return ajax_success(msg="New posts", template=template)
+
+
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
@@ -272,10 +298,12 @@ def ajax_create(request):
     user = request.user
     content = request.POST.get("content", '')
     title = request.POST.get("title", '')
-    tag_list = set(request.POST.getlist("tag_val", []))
+    tag_list = {x.strip() for x in request.POST.getlist("tag_val", [])}
+    #print(tag_list, "TAGS")
     tag_str = ','.join(tag_list)
     recaptcha_token = request.POST.get("recaptcha_response")
-
+    is_toplevel = bool(int(request.POST.get('top', 0)))
+    print(is_toplevel, int(request.POST.get('top', 0)), f"{request.POST.get('top')} ;;;;;")
     # Get the post type
     post_type = request.POST.get('type', '0')
     post_type = int(post_type) if post_type.isdigit() else 0
@@ -293,7 +321,7 @@ def ajax_create(request):
 
     # Validate fields in request.POST
     valid, msg = validate_post(content=content, title=title, recaptcha_token=recaptcha_token, tags_list=tag_list,
-                               post_type=post_type, check_captcha=check_captcha)
+                               post_type=post_type, check_captcha=check_captcha, is_toplevel=is_toplevel)
 
     if not valid:
         return ajax_error(msg=msg)
@@ -311,7 +339,7 @@ def ajax_create(request):
     # Create the post.
     post = Post.objects.create(title=title, tag_val=tag_str, type=post_type, content=content,
                                author=user, parent=parent)
-
+    print(post.get_absolute_url())
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
 
@@ -333,15 +361,12 @@ def inplace_form(request):
         return ajax_error(msg="Post does not exist.")
 
     is_toplevel = post.is_toplevel if post else int(request.GET.get('top', 1))
-    if is_toplevel:
-        template = "widgets/edit_toplevel.html"
-    else:
-        template = "widgets/edit.html"
+    template = "widgets/inplace_form.html"
 
     title = post.title if post else ''
     content = post.content if post else ''
     rows = len(post.content.split("\n")) if post else request.GET.get('rows', 10)
-    rows = rows if 25 > int(rows) >= 10 else 10
+    rows = rows if 25 > int(rows) >= 2 else 4
     is_comment = request.GET.get('comment', 0) if not post else post.is_comment
     html = post.html if post else ''
 
@@ -351,7 +376,7 @@ def inplace_form(request):
 
     # Load the content and form template
     tmpl = loader.get_template(template_name=template)
-    context = dict(user=user, post=post, content=content, rows=rows, is_comment=is_comment,
+    context = dict(user=user, post=post, content=content, rows=rows, is_comment=is_comment, is_toplevel=is_toplevel,
                    parent_uid=parent_uid, captcha_key=settings.RECAPTCHA_PUBLIC_KEY, html=html,
                    not_trusted=not_trusted, title=title)
 
@@ -362,6 +387,111 @@ def inplace_form(request):
 def close(r):
     # Ensure the searcher object gets closed.
     r.searcher.close() if isinstance(r, Results) else None
+    return
+
+
+def new_chat_room_form(request):
+    return
+
+
+def create_chat_room(request):
+    # Create a top level post as a chat, representing a chat room.
+
+    user = request.user
+
+    tags = request.POST.get('tags', '')
+    title = request.POST.get('title', '')
+    content = request.POST.get('content', '')
+
+    # Start up a chat room, by creating a top level posts.
+    chat_room = Post.objects.create(author=user, title=title, tag_val=tags, content=content, type=Post.CHAT)
+
+    # Render new chat room template.
+    chat_room_template = 'chat_view.html'
+
+    tmpl = loader.get_template(chat_room_template)
+    # tmpl = loader.get_template("widgets/test_search_results.html")
+
+    context = dict(chat_room=chat_room)
+    chat_room = tmpl.render(context)
+
+    # Return a 'chat view' of newly created chat room
+    return ajax_success(msg='success', html=chat_room)
+
+
+def send_chat(request):
+    # Send a chat message within a chat room from one user to another
+    chat_uid = request.POST.get('uid', '')
+    user = request.user
+    # Get the root post to add to.
+    root_chat = Post.objects.filter(uid=chat_uid).first()
+
+    if not root_chat:
+        return ajax_error(msg='Chat room does not exist.')
+    # Create a post object between one
+
+    return
+
+
+def add_to_chat_room(request):
+    # Add a user to a chat channel.
+
+    user = request.user
+    target_uid = request.POST.get('target', '')
+    chat_uid = request.POST.get('uid', '')
+
+    target_user = User.objects.filter(profile__uid=target_uid).first()
+
+    if not target_user:
+        return ajax_error(msg='Target user does not exist.')
+
+    root_chat = Post.objects.filter(uid=chat_uid).first()
+
+    # Add target user to thread users of the root post.
+    if not root_chat:
+        return ajax_error(msg='Chat does not exist.')
+
+    # Add target user to the chat.
+    root_chat.thread_users.remove(user)
+    root_chat.thread_users.add(user)
+
+    print(root_chat, "ADDED USER TO CHAT")
+    return
+
+
+def chat_list(request):
+    # Display list of chat rooms a user is actively involved in.
+
+    user = request.user
+
+    chats = Post.objects.filter(type=Post.CHAT, author=user)
+
+    print(chats)
+    #if chats is None
+    # Get the template and render chat list.
+    chat_list = 'chat_list.html'
+
+    tmpl = loader.get_template(chat_list)
+    # tmpl = loader.get_template("widgets/test_search_results.html")
+
+    context = dict(chat_list=chats)
+    chat_list_html = tmpl.render(context)
+
+    print(chat_list_html, "LISTING HTML")
+
+    return ajax_success(msg="success", html=chat_list_html)
+
+
+def chat_view(request):
+    uid = request.POST.get('uid', '')
+    chat_room = Post.objects.filter(uid=uid, type=Post.CHAT).first()
+
+    if chat_room is None:
+        return ajax_error(msg='Chat does not exist')
+
+    # Show the chat stack
+
+    print(chat_room.children)
     return
 
 

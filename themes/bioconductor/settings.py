@@ -3,8 +3,11 @@ import os
 
 
 DEBUG = True
+print(DATABASE_NAME, "Database")
 
 DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "bioconductor.db")
+
+print(DATABASE_NAME, "Database")
 
 DATABASES = {
 

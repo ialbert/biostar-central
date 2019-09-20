@@ -18,6 +18,8 @@ MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
 
+ENABLE_DIGESTS = False
+
 # Log the time for each request
 TIME_REQUESTS = True
 
