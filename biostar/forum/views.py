@@ -307,7 +307,7 @@ def post_view(request, uid):
                                          content=content, type=Post.ANSWER, root=post.root)
             tasks.created_post.spool(pid=answer.id)
             return redirect(answer.get_absolute_url())
-
+        print(form.errors)
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
