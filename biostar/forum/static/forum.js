@@ -117,7 +117,7 @@ function edit_post(uid) {
     var form_container = $('#new-edit');
     // Hidden elements
     var hidden =  $('.hide-on-edit');
-    alert(uid);
+
     // Post title inside of the form
     var title = $('#title');
     var content = $('#wmd-input');
@@ -136,10 +136,9 @@ function edit_post(uid) {
     if (title.val() == null){
         title.val('')
     }
-    if (!($.isNumeric(post_type))){
+    if (!($.isNumeric(post_type))) {
         post_type = -1
     }
-    alert("FFFFf");
 
     $.ajax(edit_url,
         {
@@ -811,8 +810,25 @@ $(document).ready(function () {
             })
     });
 
+    //$('#chat-drop')
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();
+    var preview = $('#id_content_wmd_preview');
+
+    $('#id_content').keyup(function () {
+        preview.find('code').addClass('language-bash');
+        preview.find('pre').addClass('language-bash');
+    }).keydown(function () {
+        preview.find('code').addClass('language-bash');
+        preview.find('pre').addClass('language-bash');
+    });
+
+    $('#id_content_wmd_button_bar').click(function () {
+        setTimeout(function () {
+            preview.find('code').addClass('language-bash');
+            preview.find('pre').addClass('language-bash');
+        }, 10)
+    })
 })
 ;

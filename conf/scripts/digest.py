@@ -55,10 +55,13 @@ if __name__ == '__main__':
     parser.add_argument('--weekly', dest='weekly', action='store_true', help='Send weekly digests.')
     parser.add_argument('--monthly', dest='monthly', action='store_true', help='Send monthly digests.')
 
-    test()
-    pass
+    #test()
+    #pass
 
     args = parser.parse_args()
+
+    p = Profile.objects.all()
+    p.update(digest_prefs=Profile.NO_DIGEST)
 
     if args.daily:
         send_digests(days=1, subject="Daily digest")

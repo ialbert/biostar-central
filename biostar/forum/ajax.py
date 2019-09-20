@@ -460,7 +460,7 @@ def chat_list(request):
 
     user = request.user
 
-    #chats = "" Post.objects.filter(type=Post.CHAT, thread_users__in)
+    chats = Post.objects.filter(type=Post.CHAT, author=user)
 
     print(chats)
     #if chats is None

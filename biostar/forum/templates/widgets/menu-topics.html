@@ -47,9 +47,17 @@
     <div class="right menu" id="login-opts">
 
         {% if user.is_authenticated %}
-{#            <a class="item {% activate tab "chat" %}" id="chat" data-value="{{ user.profile.uid }}">#}
-{#                <i class="wechat icon"></i> Chat#}
-{#            </a>#}
+            <a class="item {% activate tab "chat" %}"data-value="{{ user.profile.uid }}">
+            </a>
+            <div class="ui fluid selection dropdown" id="chat">
+                <i class="dropdown icon"></i>
+                <i class="wechat icon"></i> Chat
+                <div class="menu chat-drop">
+                    <div class="item" id="contain-chat">
+
+                    </div>
+                </div>
+            </div>
 
             <a class="item {{ user.profile.css }} {% activate tab "profile" %}" href="{% url 'user_profile' user.profile.uid %}">
                 {{ user.profile.name }} {% user_icon user %}

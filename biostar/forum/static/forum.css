@@ -146,6 +146,12 @@ a:hover {
     width: 1em;
     height: 1em;
 }
+
+.chat-drop{
+    width: 377% !important;
+    height: 300% !important;
+    overflow: scroll;
+}
 .ui.small.label.tags {
     background-color: #ececec;
     border: none;
