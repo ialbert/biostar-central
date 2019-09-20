@@ -390,6 +390,10 @@ def close(r):
     return
 
 
+def new_chat_room_form(request):
+    return
+
+
 def create_chat_room(request):
     # Create a top level post as a chat, representing a chat room.
 
