@@ -304,16 +304,19 @@ def get_tags(request=None, post=None):
     else:
         tags = post.tag_val if isinstance(post, Post) else ''
 
-    query = Count('post')
-    tags_query = Tag.objects.annotate(count=query).order_by('-count')[:800]
-    tags_opt = ((tag.name.strip(), False) for tag in tags_query if tag.name.strip() not in tags.split(","))
+    # Prepare the tags options
+    if settings.TAGS_OPTIONS_FILE:
+        tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()
+        tags_opts = [(x, False) if x not in tags.split(",") else (x, True) for x in tags_opts]
+    else:
 
-    selected_tags_opt = ((val, True) for val in tags.split(","))
+        query = Count('post')
+        tags_query = Tag.objects.annotate(count=query).order_by('-count').exclude(name__in=tags.split(','))[:50]
+        tags_opt = ((tag.name.strip(), False) for tag in tags_query)
+        selected_tags_opt = ((val, True) for val in tags.split(","))
+        tags_opts = itertools.chain(selected_tags_opt, tags_opt)
 
-    #tags_opt.update(selected_tags_opt)
-    tags_opt = itertools.chain(selected_tags_opt, tags_opt)
-
-    context = dict(selected=tags, tags_opt=tags_opt)
+    context = dict(selected=tags, tags_opt=tags_opts)
 
     return context
 

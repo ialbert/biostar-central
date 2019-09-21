@@ -17,6 +17,9 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
+# Full file path to tags.
+# Each line is a list of comma separated tags.
+TAGS_OPTIONS_FILE = ''
 
 ENABLE_DIGESTS = False
 

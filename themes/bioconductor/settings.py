@@ -20,13 +20,17 @@ DATABASES = {
         'PORT': '',
     },
 }
+CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
 HTTP_PROTOCOL = "http"
+
+# Full file path to tags.
+# Each line is a list of comma separated tags.
+TAGS_OPTIONS_FILE = os.path.join(CUSTOM_THEME, 'tags.txt')
 
 # Post types displayed when creating, empty list displays all types.
 ALLOWED_POST_TYPES = ["Question", "Job", "Tutorial", "News"]
 
-CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
 STATICFILES_DIRS = [os.path.join(CUSTOM_THEME, 'static')]
 
