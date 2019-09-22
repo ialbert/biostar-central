@@ -167,6 +167,7 @@ class UserModerate(forms.Form):
         (Profile.NEW, "Reinstate as new user"),
         (Profile.TRUSTED, "Reinstate as trusted user"),
         (Profile.BANNED, "Ban user"),
+        (Profile.DEACTIVATED, "Deactivate user"),
         (Profile.SUSPENDED, "Suspend user")
     ]
 
@@ -188,7 +189,7 @@ class UserModerate(forms.Form):
             raise forms.ValidationError("You need to be an admin to ban users.")
 
         if self.target.profile.is_moderator and not self.source.is_superuser:
-            raise forms.ValidationError("You need to be an admin to moderator moderators.")
+            raise forms.ValidationError("You need to be an admin to moderator other moderators.")
 
         if self.target == self.source:
             raise forms.ValidationError("You can not moderate yourself.")
