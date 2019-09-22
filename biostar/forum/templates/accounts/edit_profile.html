@@ -132,6 +132,54 @@
 
             </div>
 
+        <div class="fields">
+            <div class="field">
+                <div class="ui form-wrap segment" style="display: grid">
+                    {% get_tags user=user as tags  %}
+                    <label><i class="tags icon"></i>My Tags </label>
+                    <input type="hidden" name="my_tags" id="my_tags_id" value="{{ tags.selected }}">
+                    <select multiple="multiple" class="ui search selection dropdown tag-field" field_id="my_tags_id" id="tags">
+                        {% for value, selected_tag in tags.tags_opt %}
+                            {% if selected_tag %}
+                                <option value="{{ value }}" selected="selected">{{ value }}</option>
+                            {% else %}
+
+                                <option value="{{ value }}">{{ value }}</option>
+                            {% endif %}
+                        {% endfor %}
+                        <option value="">Search most used tags</option>
+                    </select>
+                    <div class="muted">
+                        Post with tags listed here will show up in the My Tags tab.
+                        Example: <code>galaxy</code>, <code>bed</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fields">
+            <div class="field">
+                <div class="ui form-wrap segment" style="display: grid">
+                    {% get_tags user=user watched=True as tags  %}
+                    <label><i class="tags icon"></i>Watched Tags </label>
+                    <input type="hidden" name="watched_tags" id="watched_tags_id" value="{{ tags.selected }}">
+                    <select multiple="multiple" class="ui search selection dropdown watched-tag-field" field_id="watched_tags_id" id="watched-tags">
+                        {% for value, selected_tag in tags.tags_opt %}
+                            {% if selected_tag %}
+                                <option value="{{ value }}" selected="selected">{{ value }}</option>
+                            {% else %}
+                                <option value="{{ value }}">{{ value }}</option>
+                            {% endif %}
+                        {% endfor %}
+                        <option value="">Search most used tags</option>
+                    </select>
+                    <div class="muted">
+                        Get email when a post matching the tag is posted.
+                        Example: <code>minia</code>, <code>bedops</code>, <code>breakdancer</code>, <code>music</code>.
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="fields">
 

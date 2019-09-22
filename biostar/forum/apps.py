@@ -1,5 +1,6 @@
 import logging
 from django.db.models.signals import post_migrate
+from django.conf import settings
 from django.apps import AppConfig
 
 logger = logging.getLogger('engine')
@@ -12,6 +13,16 @@ class ForumConfig(AppConfig):
         from . import signals
         # Triggered upon app initialization.
         post_migrate.connect(init_awards, sender=self)
+        post_migrate.connect(init_digest, sender=self)
+
+
+def init_digest(sender, **kwargs):
+    from biostar.accounts.models import Profile
+
+    # Ensure digest emails are not sent when debugging
+    if settings.DEBUG:
+        profiles = Profile.objects.all()
+        Profile.objects.filter(id__in=profiles).update(digest_prefs=Profile.NO_DIGEST)
 
 
 def init_awards(sender, **kwargs):

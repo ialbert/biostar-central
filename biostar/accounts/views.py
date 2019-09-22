@@ -38,27 +38,31 @@ def edit_profile(request):
     initial = dict(username=user.username, email=user.email, name=user.profile.name,location=user.profile.location,
                    website=user.profile.website, twitter=user.profile.twitter, scholar=user.profile.scholar,
                    text=user.profile.text, my_tags=user.profile.my_tags, message_prefs=user.profile.message_prefs,
-                   email_verified=user.profile.email_verified )
+                   email_verified=user.profile.email_verified, watched_tags=user.profile.watched_tags)
 
     form = forms.EditProfile(user=user, initial=initial)
 
     if request.method == "POST":
         form = forms.EditProfile(data=request.POST, user=user, initial=initial, files=request.FILES)
+        #print(request.POST)
         if form.is_valid():
             # Update the email and username of User object.
             email = form.cleaned_data['email']
             username = form.cleaned_data["username"]
             User.objects.filter(pk=user.pk).update(username=username, email=email)
+            print(form.cleaned_data['my_tags'], form.cleaned_data['my_tags'])
 
             # Change verification if email has been edited.
             email_verified = False if user.email != initial["email"] else user.profile.email_verified
             # Update user information in Profile object.
             Profile.objects.filter(user=user).update(name=form.cleaned_data['name'],
+                                                     watched_tags=form.cleaned_data['watched_tags'],
                                                      location=form.cleaned_data['location'],
                                                      website=form.cleaned_data['website'],
                                                      twitter=form.cleaned_data['twitter'],
                                                      scholar=form.cleaned_data['scholar'],
                                                      text=form.cleaned_data["text"],
+                                                     my_tags=form.cleaned_data['my_tags'],
                                                      message_prefs=form.cleaned_data["message_prefs"],
                                                      html=markdown(form.cleaned_data["text"]),
                                                      email_verified=email_verified)

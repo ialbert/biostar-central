@@ -207,6 +207,16 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
     return True, ""
 
 
+def user_search(request):
+
+    query = request.GET.get('q', '')
+
+    users = User.objects.filter(profile__name__contains=query, email__contains=query, username__contains=query,
+                                )
+    print(users)
+    return
+
+
 def is_trusted(user):
 
     # Moderators and users with scores above threshold are trusted.

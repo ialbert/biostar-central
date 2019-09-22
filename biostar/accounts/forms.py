@@ -13,6 +13,7 @@ from . import auth, util
 
 logger = logging.getLogger("engine")
 
+MAX_TAGS = 50
 
 
 class SignUpForm(forms.Form):
@@ -83,6 +84,13 @@ class LogoutForm(forms.Form):
     pass
 
 
+def validate_tags(tags):
+    my_tags = tags.split(',')
+    if len(my_tags) > MAX_TAGS:
+        return forms.ValidationError("Maximum number of tags reached.")
+    return tags
+
+
 class EditProfile(forms.Form):
     email = forms.CharField(label='Email', max_length=100)
     name = forms.CharField(label='Name', max_length=100)
@@ -98,6 +106,14 @@ class EditProfile(forms.Form):
     message_prefs = forms.ChoiceField(required=True, label="Notifications", choices=Profile.MESSAGING_TYPE_CHOICES,
                                       widget=forms.Select(attrs={'class': "ui dropdown"}),
                                       help_text="""Default mode sends notifications using local messages.""")
+    my_tags = forms.CharField(label="My tags", max_length=500, required=False,
+                              help_text="""
+                              Add a tag by typing a word then adding a comma or press ENTER or SPACE.
+                              """, widget=forms.HiddenInput())
+    watched_tags = forms.CharField(label="Watched tags", max_length=50, required=False,
+                              help_text="""
+                              Add a tag by typing a word then adding a comma or press ENTER or SPACE.
+                              """, widget=forms.HiddenInput())
 
     def __init__(self, user,  *args, **kwargs):
 
@@ -126,6 +142,16 @@ class EditProfile(forms.Form):
             raise forms.ValidationError("This handler is already being used.")
 
         return data
+
+    def clean_my_tags(self):
+        my_tags = self.cleaned_data['my_tags']
+        my_tags = ','.join(list(set(my_tags.split(","))))
+        return validate_tags(tags=my_tags)
+
+    def clean_watched_tags(self):
+        watched_tags = self.cleaned_data['watched_tags']
+        watched_tags = ','.join(list(set(watched_tags.split(","))))
+        return validate_tags(tags=watched_tags)
 
 
 class LoginForm(forms.Form):

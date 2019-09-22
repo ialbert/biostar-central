@@ -97,6 +97,9 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         query = Post.objects.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
         query = Post.objects.filter(votes__post__author=user)
+    elif topic == MYTAGS and user.is_authenticated:
+        tags = user.profile.my_tags.split(",")
+        query = Post.objects.filter(tags__name__in=tags)
     else:
         query = Post.objects.filter(is_toplevel=True)
 
@@ -233,6 +236,12 @@ def bookmarks(request):
     Show posts bookmarked by user
     """
     return post_list(request, show=BOOKMARKS)
+
+
+@authenticated
+def mytags(request):
+
+    return post_list(request=request, show=MYTAGS)
 
 
 def community_list(request):

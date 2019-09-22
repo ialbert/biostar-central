@@ -296,25 +296,32 @@ def inplace_type_field(post=None, field_id='type'):
 
 
 @register.simple_tag
-def get_tags(request=None, post=None):
+def get_tags(request=None, post=None, user=None, watched=False):
     # Get tags in requests before fetching ones in the post.
     # This is done to accommodate populating tags in forms
+    #Profile.objects.filter(user=user).update(my_tags='', watched_tags='')
     if request:
         tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
     else:
+        #tags = user.my_tags if user else
         tags = post.tag_val if isinstance(post, Post) else ''
+        tags = user.profile.my_tags if user else tags
+        #print(type(user.profile.my_tags), type(user.profile.watched_tags))
+        tags = user.profile.watched_tags if watched else tags
+        print(tags, watched)
 
-    # Prepare the tags options
+    # Prepare the tags options in the dropdown from a file
     if settings.TAGS_OPTIONS_FILE:
         tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()
         tags_opts = [(x, False) if x not in tags.split(",") else (x, True) for x in tags_opts]
+    # Prepare dropdown options from database.
     else:
-
         query = Count('post')
         tags_query = Tag.objects.annotate(count=query).order_by('-count').exclude(name__in=tags.split(','))[:50]
-        tags_opt = ((tag.name.strip(), False) for tag in tags_query)
-        selected_tags_opt = ((val, True) for val in tags.split(","))
-        tags_opts = itertools.chain(selected_tags_opt, tags_opt)
+        tags_opts = ((tag.name.strip(), False) for tag in tags_query)
+
+    selected_tags_opt = ((val, True) for val in tags.split(","))
+    tags_opts = itertools.chain(selected_tags_opt, tags_opts)
 
     context = dict(selected=tags, tags_opt=tags_opts)
 
