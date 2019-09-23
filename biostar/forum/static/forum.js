@@ -829,6 +829,70 @@ $(document).ready(function () {
             preview.find('code').addClass('language-bash');
             preview.find('pre').addClass('language-bash');
         }, 10)
-    })
+    });
+
+    $('.tag-field').dropdown({
+
+        allowAdditions: true,
+        // Get form field to add to
+        onChange: function (value, text, $selectedItem) {
+            // Get form field to add to
+            var tagid = $("#tags").attr('field_id');
+            var tag_field = $('#{0}'.f(tagid));
+            // Add selected tag to field
+            //alert(value);
+            tag_field.val(value);
+        }
+        });
+
+    $('.tag-field >input.search').keydown(function (event) {
+
+        //event.stopPropagation();
+        // Prevent submitting form when adding tag by pressing ENTER.
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            //alert($('#my_tags_id').val());
+            //event.stopPropagation();
+        }
+        // Set value with SPACE bar
+        if (event.keyCode === 32) {
+            event.preventDefault();
+            //event.stopPropagation();
+            $("#tags").dropdown('set selected', $(this).val().trim());
+            $(this).val('');
+            //alert($('#my_tags_id').val());
+        }
+
+    });
+
+    $('.watched-tag-field').dropdown({
+        allowAdditions: true,
+        onChange: function (value, text, $selectedItem) {
+            // Get form field to add to
+            var tagid = $("#watched-tags").attr('field_id');
+            var tag_field = $('#{0}'.f(tagid));
+            // Add selected tag to field
+            //alert(value);
+            tag_field.val(value);
+        }
+    });
+
+    $('.watched-tag-field >input.search').keydown(function (event) {
+        //event.stopPropagation();
+        // Prevent submitting form when adding tag by pressing ENTER.
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            //event.stopPropagation();
+        }
+        // Set value with SPACE bar
+        if (event.keyCode === 32) {
+            event.preventDefault();
+            //event.stopPropagation();
+            $("#watched-tags").dropdown('set selected', $(this).val().trim());
+            $(this).val('')
+
+        }
+
+    });
 })
 ;

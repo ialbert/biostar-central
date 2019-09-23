@@ -19,7 +19,7 @@ urlpatterns = [
     path('bookmarks/', views.bookmarks, name='bookmarks'),
     path('following/', views.following, name='following'),
     path('myposts/', views.myposts, name='myposts'),
-
+    path('mytags/', views.mytags, name='mytags'),
     path('p/<str:uid>/', views.post_view, name='post_view'),
 
     path('new/post/', views.new_post, name='post_create'),

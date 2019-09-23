@@ -95,7 +95,8 @@ def bulk_copy_users(limit):
                               role=user.type, last_login=user.last_login, html=user.profile.info,
                               date_joined=user.profile.date_joined, location=user.profile.location,
                               website=user.profile.website, scholar=user.profile.scholar, text=text,
-                              score=user.score, twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
+                              watched_tags=user.profile.watched_tags,score=user.score,
+                              twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
                               digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
 
             yield profile
