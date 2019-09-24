@@ -6,9 +6,11 @@ from urllib import request as builtin_request
 #import requests
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 from django.conf import settings
 from django.db.models import Q, Count
+from django.shortcuts import reverse
 from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
@@ -17,7 +19,7 @@ from whoosh.sorting import FieldFacet, ScoreFacet
 from .const import *
 from taggit.models import Tag
 from biostar.accounts.models import Profile, User
-from . import auth, util, forms, tasks, search
+from . import auth, util, forms, tasks, search, views
 from .models import Post, Vote, Subscription
 
 
@@ -532,9 +534,11 @@ def ajax_search(request):
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 def ajax_tags_search(request):
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     query = request.GET.get('query', '')
-    #fields = ['content', 'tag_val', 'title', 'author', 'author_uid', 'author_handle']
     count = Count('post', filter=Q(post__type__in=Post.TOP_LEVEL))
 
     if len(query) < settings.SEARCH_CHAR_MIN:
@@ -551,6 +555,22 @@ def ajax_tags_search(request):
         return ajax_success(html=results_html, msg="success")
 
     return ajax_success(msg="")
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+def ajax_users_search(request):
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
+
+    query = request.GET.get('query', '')
+    if len(query) < settings.SEARCH_CHAR_MIN:
+        return ajax_error(msg=f"Enter more than {settings.SEARCH_CHAR_MIN} characters")
+    redir = reverse('community_list')
+    redir = redir + "?query=" + quote(query)
+
+    return ajax_success(redir=redir, msg="success")
 
 
 def similar_posts(request, uid):

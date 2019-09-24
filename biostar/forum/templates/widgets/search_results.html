@@ -16,6 +16,19 @@
             {% endfor %}
             </div>
         </div>
+    {% elif users %}
+        <div class="ui search-results segment">
+            <div class="ui divided list">
+                {% for user in results %}
+
+                <a class="item" href="{% url "user_profile" user.profile.uid %}">
+                        {{ user.profile.name }} , {{ user.username }}
+                </a>
+                    <a class="ui mini avatar list-avatar image"><img src="{% gravatar user=user size=90 %}"></a>
+
+            {% endfor %}
+            </div>
+        </div>
     {% else %}
         <div class="ui search-results segment">
             <div class="ui relaxed divided list">

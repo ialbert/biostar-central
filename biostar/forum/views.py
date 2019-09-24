@@ -249,11 +249,18 @@ def community_list(request):
     page = request.GET.get("page", 1)
     ordering = request.GET.get("order", "visit")
     limit_to = request.GET.get("limit", "time")
+    query = request.GET.get('query', '')
     days = LIMIT_MAP.get(limit_to, 0)
 
     if days:
         delta = util.now() - timedelta(days=days)
         users = users.filter(profile__last_login__gt=delta)
+
+    if query and len(query) > 2:
+        db_query = Q(email__in=query) | Q(profile__name__contains=query) | Q(profile__uid__contains=query) | \
+                   Q(username__contains=query) | Q(profile__name__in=query) | Q(email=query) |Q(email__contains=query) |\
+                   Q(profile__uid__contains=query)
+        users = users.filter(db_query)
 
     order = ORDER_MAPPER.get(ordering, "visit")
     users = users.order_by(order)

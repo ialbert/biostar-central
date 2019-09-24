@@ -392,13 +392,10 @@ def custom_feed(objs, feed_type='', title=''):
     return context
 
 
-@register.inclusion_tag(takes_context=True,filename='widgets/search_bar.html')
-def search_bar(context, search_url='', tags=False):
+@register.inclusion_tag(takes_context=True, filename='widgets/search_bar.html')
+def search_bar(context, search_url='', tags=False, users=False):
     search_url = search_url or reverse('ajax_search')
-    styling = '' if tags else "fluid"
-    user = context['request'].user
-    context = dict(search_url=search_url, tags=tags, styling=styling)
-
+    context = dict(search_url=search_url, tags=tags, users=users)
     return context
 
 

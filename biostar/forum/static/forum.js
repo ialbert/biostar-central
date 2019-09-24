@@ -298,6 +298,10 @@ function  search(query, elem, search_url) {
                 // Success
                 //alert(data.html);
                 res.removeClass('ui message');
+                res.html('');
+                if (data.html === null || data.html === undefined){
+                    window.location.href = data.redir
+                }
                 res.html(data.html);
                 container.removeClass('loading search');
             }
