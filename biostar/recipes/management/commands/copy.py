@@ -284,7 +284,7 @@ class Command(BaseCommand):
 
         # Connect to the database.
         try:
-            conn = psycopg2.connect(database=database, username=username, password=password, host=host)
+            conn = psycopg2.connect(database=database, user=username, password=password, host=host)
         except Exception as exc:
             logger.error(f'Error connecting to postgres database: {exc}')
             return
