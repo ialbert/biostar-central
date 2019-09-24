@@ -9,3 +9,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.test.test_settings")
 
 application = get_wsgi_application()
 
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.recipes.settings")
+
+dj = os.environ["DJANGO_SETTINGS_MODULE"]
+
+print(f"*** DJANGO_SETTINGS_MODULE={dj}")
+print('**** Mounting app ')
+
+

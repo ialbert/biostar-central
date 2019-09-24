@@ -51,11 +51,14 @@ def send_watched_tags():
     # Fetch users with the watched tags
     #TODO: this will probably need to be done in a for loop.
     users = users.filter(watched_tags__icontains=tags)
-    
+
     print(users)
 
     return
 
+import os
+
+os.getenv()
 
 def test():
     # Testing the cron tasks
