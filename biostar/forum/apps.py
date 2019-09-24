@@ -31,8 +31,6 @@ def init_awards(sender, **kwargs):
     from biostar.forum.awards import ALL_AWARDS
     from biostar.accounts.models import Profile
 
-    #Profile.objects.update(digest_prefs=Profile.NO_DIGEST)
-
     for obj in ALL_AWARDS:
         badge = Badge.objects.filter(name=obj.name)
         if badge:
