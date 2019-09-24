@@ -5,9 +5,11 @@ import logging
 
 logger = logging.getLogger("engine")
 
+SITE_DOMAIN = 'test.bioinformatics.recipes'
+
 WSGI_APPLICATION = 'conf.recipes.wsgi.application'
 
-ALLOWED_HOSTS += ['test.bioinformatics.recipes']
+ALLOWED_HOSTS += [SITE_DOMAIN]
 
 HTTP_PORT = ''
 PROTOCOL = 'https'
