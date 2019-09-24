@@ -33,6 +33,7 @@ urlpatterns = [
     path('edit/post/<str:uid>/', views.edit_post, name='post_edit'),
 
     path('ajax/chat/list/', ajax.chat_list, name='chat_list'),
+    path('ajax/users/search/', ajax.ajax_users_search, name='ajax_users_search'),
     path('ajax/digest/', ajax.ajax_digest, name='ajax_digest'),
     path('ajax/recent/', ajax.ajax_recent, name='ajax_recent'),
     path('ajax/vote/', ajax.ajax_vote, name='vote'),

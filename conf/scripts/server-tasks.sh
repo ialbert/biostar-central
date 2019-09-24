@@ -10,14 +10,16 @@
 
 
 # Send digests first minute of every day
-@daily python digest.py --daily
+@daily python ../manage.py digest.py --daily
 
 # Send digests first minute of every week
-@weekly python digest.py --weekly
+@weekly python ../manage.py digest.py --weekly
 
 # Send digests first minute of every month
-@monthly  python digest.py --monthly
+@monthly  python ../manage.py digest.py --monthly
 
+# Send watched tags emails first minute of every week
+@weekly python ../manage.py digest.py --tags
 
 # Add posts to search index every 3 minutes
-*/3 * * * *  python index.py
+*/3 * * * *  python ../manage.py index.py
