@@ -63,8 +63,8 @@ recipes:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
-    $(eval ANSIBLE_HOST := www.bioinformatics.recipes)
-	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
+	$(eval ANSIBLE_HOST := hosts/www.bioinformatics.recipes)
+	$(eval ANSIBLE_ROOT := conf/ansible)
 	$(eval SUPERVISOR_NAME := recipes)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -75,7 +75,7 @@ forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval UWSGI_INI := conf/uwsgi/forum_uwsgi.ini)
-    $(eval ANSIBLE_HOST := test.biostars.org)
+	$(eval ANSIBLE_HOST := hosts/test.biostars.org)
 	$(eval ANSIBLE_ROOT := conf/ansible)
 	$(eval SUPERVISOR_NAME := engine)
 
@@ -182,4 +182,4 @@ install:
 	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} install.yml --ask-become-pass --extra-vars -v)
 
 deploy:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME}"  -v)
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME} restart=True"  -v)
