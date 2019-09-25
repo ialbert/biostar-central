@@ -69,15 +69,13 @@
 
     {% block footer %}
         <div class="ui vertical center aligned segment">
-            <p class="muted">
-                <a href="https://github.com/biostars/biostar-engine" class="ui image">
-                    <img src="{% static 'images/badge-engine.svg' %}"></a>
-                and
-                <a href="https://github.com/biostars/biostar-recipes" class="ui image">
-                    <img src="{% static 'images/badge-recipe.svg' %}"></a>
+            <p class="muted smaller">
+                Powered by the <a href="https://github.com/ialbert/biostar-central" class="ui image">
+                <img src="{% static 'images/badge-recipe.svg' %}"> </a> release {{ VERSION }}
             </p>
-            <p class="muted smaller">Software version: {{ VERSION }}</p>
+
         </div>
+
     {% endblock %}
 </div>
 

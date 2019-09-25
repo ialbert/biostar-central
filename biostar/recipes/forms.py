@@ -410,7 +410,7 @@ class RecipeInterface(forms.Form):
     # The name of results when running the recipe.
     # name = forms.CharField(max_length=256, label="Name", help_text="This is how you can identify the run.")
 
-    def __init__(self, request, analysis, json_data, *args, **kwargs):
+    def __init__(self, request, analysis, json_data, add_captcha=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # The json data determines what fields does the form have.
@@ -432,7 +432,8 @@ class RecipeInterface(forms.Form):
             if field:
                 self.fields[name] = field
 
-        add_captcha_field(request=request, fields=self.fields)
+        if add_captcha:
+            add_captcha_field(request=request, fields=self.fields)
 
     def clean(self):
 

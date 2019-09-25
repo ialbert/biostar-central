@@ -737,7 +737,7 @@ def recipe_code_edit(request, uid):
 
     # Bind the JSON to the form.
     recipe = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
-                                   initial=dict(name=name))
+                                   initial=dict(name=name), add_captcha=False)
 
     # This generates a "fake" unsaved job.
     # Needs to fill in a few runtime only settings.
