@@ -1,6 +1,6 @@
 
 engine_git: https://github.com/Natay/biostar-central.git
-engine_dir: "/export/www/biostar-central"
+engine_dir:  "{{ engine_dir | default('/export/www/biostar-central') }}"
 
 bin_dir: "/export/bin"
 src_dir: "/export/src"

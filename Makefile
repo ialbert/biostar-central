@@ -32,21 +32,6 @@ accounts:
 	@echo DJANGO_APP=${DJANGO_APP}
 
 
-bioconductor:
-	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
-	$(eval DJANGO_APP := biostar.forum)
-	$(eval UWSGI_INI := themes/bioconductor/conf/uwsgi.ini)
-	$(eval ANSIBLE_HOST := supportupgrade.bioconductor.org)
-	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
-
-
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	@echo DJANGO_APP=${DJANGO_APP}
-	@echo UWSGI_INI=${UWSGI_INI}
-	@echo ANSIBLE_HOST=${ANSIBLE_HOST}
-	@echo ANSIBLE_ROOT=${ANSIBLE_ROOT}
-
-
 emailer:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.emailer.settings)
 	$(eval DJANGO_APP := biostar.emailer)
@@ -66,6 +51,7 @@ recipes:
 	$(eval ANSIBLE_HOST := hosts/www.bioinformatics.recipes)
 	$(eval ANSIBLE_ROOT := conf/ansible)
 	$(eval SUPERVISOR_NAME := recipes)
+	$(eval ENGINE_DIR := /export/www/biostar-central)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -78,6 +64,7 @@ forum:
 	$(eval ANSIBLE_HOST := hosts/test.biostars.org)
 	$(eval ANSIBLE_ROOT := conf/ansible)
 	$(eval SUPERVISOR_NAME := engine)
+	$(eval ENGINE_DIR := /export/www/biostar-engine)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -182,4 +169,4 @@ install:
 	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} install.yml --ask-become-pass --extra-vars -v)
 
 deploy:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME} restart=True"  -v)
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME} restart=True engine_dir=${ENGINE_DIR}"  -v)
