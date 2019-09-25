@@ -9,7 +9,7 @@ from biostar.accounts import util, tasks
 def create_profile(sender, instance, created, raw, using, **kwargs):
     if created:
         # Set the username to a simpler form.
-        username = f"user-{instance.pk}"
+        username = f"{instance.first_name}-{instance.pk}" if instance.first_name else f'user-{instance.pk}'
         if User.objects.filter(username=username).exists():
             username = util.get_uuid(6)
 

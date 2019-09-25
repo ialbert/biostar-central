@@ -34,7 +34,7 @@
 
 - name: restart server
   become: yes
-  shell: supervisorctl restart engine
+  shell: supervisorctl restart "{{ supervisor_program | default('engine') }}"
 
 - name: reload supervisor
   become: yes
