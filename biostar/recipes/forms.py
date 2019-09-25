@@ -564,8 +564,9 @@ class EditCode(forms.Form):
 
         # Templates.
         template = self.cleaned_data['template']
+        json_text = self.cleaned_data['json']
 
-        self.recipe.json_text = self.cleaned_data['json']
+        self.recipe.json_text = json_text
 
         # Changes to template will require a review ( only when saving ).
         if auth.template_changed(analysis=self.recipe, template=template) and commit:
@@ -581,7 +582,7 @@ class EditCode(forms.Form):
 
         # Only the SAVE action commits the changes on the analysis.
         if commit:
-            self.recipe.lastedit_date = now
+            self.recipe.lastedit_date = now()
             self.recipe.lastedit_user = self.user
             Project.objects.get_all(uid=self.project.uid).update(lastedit_date=now(),
                                                                  lastedit_user=self.user)

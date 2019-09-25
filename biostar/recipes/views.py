@@ -722,11 +722,12 @@ def recipe_code_edit(request, uid):
 
     if request.method == "POST":
         form = forms.EditCode(user=user, project=project, data=request.POST, recipe=analysis)
-
+        #1/0
         if form.is_valid():
             # Preview action will let the form cascade through.
             commit = form.cleaned_data['action'] == 'SAVE'
             analysis = form.save(commit=commit)
+
             if commit:
                 messages.info(request, "The recipe has been updated.")
                 return redirect(reverse("recipe_view",  kwargs=dict(uid=analysis.uid)))
