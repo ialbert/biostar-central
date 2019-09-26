@@ -23,15 +23,15 @@
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'engine.css' %}" rel="stylesheet">
-        <link rel="stylesheet" href="{% static 'lib/codemirror.css' %}">
+        <link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
     {% endcompress %}
 
     {% compress js %}
         <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'engine.js' %}"></script>
-        <script src="{% static 'lib/codemirror.js' %}"></script>
-        <script src="{% static 'lib/mode/simple.js' %}"></script>
-        <script src="{% static 'lib/mode/engine.js' %}"></script>
+        <script src="{% static 'codemirror/codemirror.js' %}"></script>
+        <script src="{% static 'codemirror/mode/simple.js' %}"></script>
+        <script src="{% static 'codemirror/mode/engine.js' %}"></script>
     {% endcompress %}
 
 </head>

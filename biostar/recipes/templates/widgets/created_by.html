@@ -5,7 +5,6 @@
 {% if user %}
     by <a href="{% url 'user_profile'  user.profile.uid %}" >
         {{ user.profile.name }}
-        <div class="ui mini avatar image"><img class="ui centered image" src="{% gravatar user=user size=80 %}"></div>
     </a>
 
 {% endif %}
