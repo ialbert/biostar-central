@@ -1,12 +1,12 @@
 
 engine_git: https://github.com/ialbert/biostar-central.git
-engine_dir: "/export/www/biostar-engine"
+engine_dir:  "{{ engine_dir | default('/export/www/biostar-central') }}"
 
 bin_dir: "/export/bin"
 src_dir: "/export/src"
 ref_dir: "/export/refs"
 
-django_settings_module: "conf.site.defaults"
+django_settings_module: "conf.run.site_settings"
 
 # Installs recipe dependencies.
 install: False

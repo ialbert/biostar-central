@@ -23,15 +23,15 @@
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'engine.css' %}" rel="stylesheet">
-        <link rel="stylesheet" href="{% static 'lib/codemirror.css' %}">
+        <link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
     {% endcompress %}
 
     {% compress js %}
         <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'engine.js' %}"></script>
-        <script src="{% static 'lib/codemirror.js' %}"></script>
-        <script src="{% static 'lib/mode/simple.js' %}"></script>
-        <script src="{% static 'lib/mode/engine.js' %}"></script>
+        <script src="{% static 'codemirror/codemirror.js' %}"></script>
+        <script src="{% static 'codemirror/mode/simple.js' %}"></script>
+        <script src="{% static 'codemirror/mode/engine.js' %}"></script>
     {% endcompress %}
 
 </head>
@@ -69,15 +69,13 @@
 
     {% block footer %}
         <div class="ui vertical center aligned segment">
-            <p class="muted">
-                <a href="https://github.com/biostars/biostar-engine" class="ui image">
-                    <img src="{% static 'images/badge-engine.svg' %}"></a>
-                and
-                <a href="https://github.com/biostars/biostar-recipes" class="ui image">
-                    <img src="{% static 'images/badge-recipe.svg' %}"></a>
+            <p class="muted smaller">
+                Powered by the <a href="https://github.com/ialbert/biostar-central" class="ui image">
+                <img src="{% static 'images/badge-recipe.svg' %}"> </a> release {{ VERSION }}
             </p>
-            <p class="muted smaller">Software version: {{ VERSION }}</p>
+
         </div>
+
     {% endblock %}
 </div>
 

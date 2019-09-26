@@ -145,7 +145,8 @@ def highlight(source, target):
 
 @register.simple_tag
 def get_qiime2view_link(file_serve_url):
-    site = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
+    port = f':{settings.HTTP_PORT}' if settings.HTTP_PORT else ''
+    site = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}{port}"
 
     full_url = site + file_serve_url
 

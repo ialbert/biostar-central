@@ -81,10 +81,7 @@
 
                     <div class="ui  segment ">
 
-
                         <div class="ui form">
-
-
                             {% recipe_form recipe %}
 
                             <div class="field">
@@ -92,11 +89,10 @@
                                     <i class="check icon"></i>Run
                                 </button>
 
-                                <button class="ui right floated disabled button">
+                                <button class="ui floated disabled button">
                                     <i class="chevron left icon"></i>Back
                                 </button>
                             </div>
-
                         </div>
 
                     </div>
@@ -106,13 +102,15 @@
             </div>
 
             <div class="eight wide column">
-
-                <div class="ui basic segment">
-                    <div class="ui center aligned header">
-                        Generated Script
+                <form class="ui form">
+                    <div class="ui basic segment">
+                        <div class="ui center aligned header">
+                            Generated Script
+                        </div>
+                        <textarea id="script">{{ script }}</textarea>
                     </div>
-                    <textarea id="script">{{ script }}</textarea>
-                </div>
+                </form>
+
             </div>
 
         </div>

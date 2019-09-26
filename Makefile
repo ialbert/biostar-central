@@ -32,21 +32,6 @@ accounts:
 	@echo DJANGO_APP=${DJANGO_APP}
 
 
-bioconductor:
-	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
-	$(eval DJANGO_APP := biostar.forum)
-	$(eval UWSGI_INI := themes/bioconductor/conf/uwsgi.ini)
-	$(eval ANSIBLE_HOST := supportupgrade.bioconductor.org)
-	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
-
-
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	@echo DJANGO_APP=${DJANGO_APP}
-	@echo UWSGI_INI=${UWSGI_INI}
-	@echo ANSIBLE_HOST=${ANSIBLE_HOST}
-	@echo ANSIBLE_ROOT=${ANSIBLE_ROOT}
-
-
 emailer:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.emailer.settings)
 	$(eval DJANGO_APP := biostar.emailer)
@@ -63,6 +48,10 @@ recipes:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
+	$(eval ANSIBLE_HOST := hosts/www.bioinformatics.recipes)
+	$(eval ANSIBLE_ROOT := conf/ansible)
+	$(eval SUPERVISOR_NAME := recipes)
+	$(eval ENGINE_DIR := /export/www/biostar-central)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -72,6 +61,10 @@ forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval UWSGI_INI := conf/uwsgi/forum_uwsgi.ini)
+	$(eval ANSIBLE_HOST := hosts/test.biostars.org)
+	$(eval ANSIBLE_ROOT := conf/ansible)
+	$(eval SUPERVISOR_NAME := engine)
+	$(eval ENGINE_DIR := /export/www/biostar-engine)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -175,12 +168,5 @@ config:
 install:
 	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} install.yml --ask-become-pass --extra-vars -v)
 
-
-theme_transfer:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} transfer.yml --ask-become-pass --extra-vars -v)
-
-theme_deploy:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} deploy.yml --ask-become-pass --extra-vars -v)
-
 deploy:
-	(cd conf/ansible && ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass --extra-vars -v)
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME} restart=True engine_dir=${ENGINE_DIR}"  -v)
