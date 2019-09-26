@@ -21,6 +21,13 @@ TAGS_PER_PAGE = 50
 # Each line is a list of comma separated tags.
 TAGS_OPTIONS_FILE = ''
 
+
+# Add list of contributors to the post list.
+ADD_THREAD_USERS = True
+
+# The gravatar image used for users, applied to all users.
+GRAVATAR_ICON = ''
+
 ENABLE_DIGESTS = False
 
 # Log the time for each request

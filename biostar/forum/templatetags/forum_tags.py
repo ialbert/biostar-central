@@ -125,15 +125,15 @@ def gravatar(user, size=80):
     if user.is_anonymous or user.profile.is_suspended or user.profile.is_banned:
         # Removes spammy images for suspended users
         email = 'suspended@biostars.org'.encode('utf8')
-        style = "monsterid"
+        style = settings.GRAVATAR_ICON or "monsterid"
     elif user.profile.is_moderator:
-        style = "robohash"
+        style = settings.GRAVATAR_ICON or "robohash"
     elif user.profile.score > 100:
-        style = "retro"
+        style = settings.GRAVATAR_ICON or "retro"
     elif user.profile.score > 0:
-        style = "identicon"
+        style = settings.GRAVATAR_ICON or "identicon"
     else:
-        style = "mp"
+        style = settings.GRAVATAR_ICON or "mp"
 
     hash = hashlib.md5(email).hexdigest()
 
@@ -498,6 +498,15 @@ def get_wording(filtered, prefix="Sort by:", default=""):
 
 
 @register.simple_tag
+def activate_check_mark(filter, active):
+
+    if filter == active:
+        return 'check icon'
+
+    return ''
+
+
+@register.simple_tag
 def relative_url(value, field_name, urlencode=None):
     """
     Updates field_name parameters in url with new value
@@ -522,6 +531,9 @@ def relative_url(value, field_name, urlencode=None):
 def get_thread_users(post, limit=2):
     thread_users = post.thread_users.all()
     stream = itertools.islice(thread_users, limit)
+
+    if not settings.ADD_THREAD_USERS:
+        return []
 
     # Author is shown first
     users = {post.author, post.lastedit_user}

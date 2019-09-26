@@ -158,7 +158,7 @@ def post_list(request, show=None, extra_context=dict()):
     tab = tag or show or "latest"
 
     # Fill in context.
-    context = dict(posts=posts, tab=tab, tag=tag, order=order, limit=limit)
+    context = dict(posts=posts, tab=tab, tag=tag, order=order, type=show, limit=limit)
     context.update(extra_context)
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
