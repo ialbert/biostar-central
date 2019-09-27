@@ -27,11 +27,11 @@ Once miniconda has been installed, create a virtual enviroment called `engine`.
 
     $ conda create -n engine python=3.7
     
-Start the virtual enviorment by entering the command.
+Start the virtual enviorment by entering the command:
 
     $ conda activate engine
     
-Clone or pull the most recent version of the forum. 
+Clone or pull the most recent version of the forum by executing:
 
       git clone https://github.com/ialbert/biostar-central.git  # Clone a new branch
       
