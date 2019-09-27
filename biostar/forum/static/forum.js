@@ -898,7 +898,7 @@ $(document).ready(function () {
         }
 
     });
-    
+
     $('#show-answer').click(function () {
         $('.hidden-answer').show()
     });
