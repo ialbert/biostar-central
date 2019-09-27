@@ -64,6 +64,11 @@ body {
     background-color: #dbdbdb;
 }
 
+
+.hidden-answer{
+    display: none;
+}
+
 #logo {
     padding: 0px;
     margin: 3px;
