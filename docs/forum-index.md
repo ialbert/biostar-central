@@ -46,12 +46,11 @@ Activate the `engine` virtual enviorment.
 
 Enter the `biostar-central` directory to install dependencies and requirements into the virtual enviorment.
 
-Execute `pip install -r conf/pip_requirements.txt ` to install all python requirements. 
-
-Execute `conda install -f conf/conda_requirements.txt` to install all anaconda requirements.
+Execute the following to install python requirements: 
 
     (engine) user:~/biostar-central$ pip install -r conf/pip_requirements.txt      # Install python requirements.
     
+Execute the following to install all anaconda requirements:
     
     (engine) user:~/biostar-central$ conda install -f conf/conda_requirements.txt  # Install conda requirements.
     
@@ -63,15 +62,23 @@ Activate the `engine` virtual enviorment.
 
     $ conda activate engine
     
-Execute the command `make forum init` to migrate and collect static files. 
- 
-    (engine) user:~/biostar-central$ make forum init    # Migrate and collect static files. 
+Migrate the site using:
 
-A local database has now been created and the collected static files can be found in `biostar-central/export/static/`
+	python manage.py migrate
 
-To ensure the installation/migration was successful, run a test by executing the command `make forum test`. 
+Collect static files using:
 
-    (engine) user:~/biostar-central$ make forum test    # Run tests. 
+    python manage.py collectstatic --noinput -v 0
+
+There is a `Makefile` command that migrates and collects static files. 
+
+    make forum init  # Migrate and collect static files. 
+
+A database has now been created and the static files can be found in `biostar-central/export/static/`
+
+To ensure installation and migration was successful, run a test by executing the command: 
+
+    make forum test  # Run tests. 
     
 ### 4. Start a local server 
 
@@ -84,10 +91,4 @@ Enter the command `make forum serve` to start a local server.
     (engine) user:~/biostar-central$ make forum serve    # Start local server
 
 The site is now available at http://127.0.0.1:8000/. 
-
-
-
-
-
  
-
