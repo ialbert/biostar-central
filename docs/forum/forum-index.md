@@ -59,7 +59,7 @@ Add the following conda channels:
 
 Execute the following to install all anaconda requirements:
     
-    conda install -f conf/conda_requirements.txt  # Install conda requirements.
+    conda install --file conf/conda_requirements.txt  # Install conda requirements.
     
  After dependencies have been installed, a migration needs to be made to create the database collect static files.
  
