@@ -50,6 +50,13 @@ Execute the following to install python requirements:
 
     pip install -r conf/pip_requirements.txt      # Install python requirements.
     
+    
+Add the following conda channels:
+
+    conda config --add channels r
+    conda config --add channels conda-forge
+    conda config --add channels bioconda
+
 Execute the following to install all anaconda requirements:
     
     conda install -f conf/conda_requirements.txt  # Install conda requirements.
