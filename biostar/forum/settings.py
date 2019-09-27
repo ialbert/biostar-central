@@ -6,6 +6,8 @@ from biostar.accounts.settings import *
 # Django debug flag.
 DEBUG = True
 
+SITE_NAME = 'Biostar Forum'
+
 # Show debug toolbar
 DEBUG_TOOLBAR = False
 
