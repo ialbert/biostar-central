@@ -46,9 +46,9 @@ Activate the `engine` virtual enviorment.
 
 Enter the `biostar-central` directory to install dependencies and requirements into the virtual enviorment.
 
-Run `pip install -r conf/pip_requirements.txt ` to install all python requirements. 
+Execute `pip install -r conf/pip_requirements.txt ` to install all python requirements. 
 
-Run `conda install -f conf/conda_requirements.txt` to install all anaconda requirements.
+Execute `conda install -f conf/conda_requirements.txt` to install all anaconda requirements.
 
     (engine) user:~/biostar-central$ pip install -r conf/pip_requirements.txt      # Install python requirements.
     
@@ -63,13 +63,13 @@ Activate the `engine` virtual enviorment.
 
     $ conda activate engine
     
-Run the command `make forum init` inside of the `biostar-central` directory to migrate and collect static files. 
+Execute the command `make forum init` within the `biostar-central` directory to migrate and collect static files. 
  
     (engine) user:~/biostar-central$ make forum init    # Migrate and collect static files. 
 
 A local database has now been created and the collected static files can be found in `biostar-central/export/static/`
 
-Tests are run using : `make forum test`. 
+To ensure the installation process was successful, run a test by executing the command `make forum test`. 
 
     (engine) user:~/biostar-central$ make forum test    # Run tests. 
     
