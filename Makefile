@@ -8,7 +8,7 @@ BACKUP_DUMP_FILE=export/database/db.backup.`date +'%Y-%m-%d-%H%M'`.json
 DJANGO_SETTINGS_MODULE := biostar.recipes.settings
 
 # Default app.
-DJANGO_APP := biostar.recipes
+DJANGO_APP := biostar.forum
 
 # Database name
 DATABASE_NAME := database.db
