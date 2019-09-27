@@ -1,3 +1,3 @@
-# Customize the forum 
+# Documentation for Customizing the Biostars Forum
 
 
