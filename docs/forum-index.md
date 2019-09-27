@@ -19,7 +19,7 @@ Here are steps to running and deploying the forum from scratch.
 
 Create a virtual environment by first downloading miniconda at https://docs.conda.io/en/latest/miniconda.html. 
 
-After downloading the installation file, run the command : 
+After downloading the installation file, run the command ( replace installation_file.sh with your installation file ) : 
 
     $ bash installation_file.sh      
 
