@@ -15,6 +15,11 @@ body {
 }
 
 
+.ui.text.menu .item.padded{
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
 .answer-form{
     display: none;
 }
@@ -23,7 +28,19 @@ body {
     background-color: #1881c2;
     color: white;
     font-size: small;
+    min-height: 0;
 }
+
+.no-box-shadow{
+        box-shadow: none !important;
+    -webkit-box-shadow: none;
+}
+
+.sorting{
+    min-height: 0 !important;
+    height: 32px;
+}
+
 #menu-topics .item{
     color: white;
 }
@@ -41,6 +58,15 @@ body {
     text-align: center;
     color: #337ab7;
     text-transform: uppercase;
+}
+
+#menu-header .item:hover{
+    background-color: #dbdbdb;
+}
+
+
+.hidden-answer{
+    display: none;
 }
 
 #logo {
@@ -108,5 +134,49 @@ body {
 }
 
 
+@media all and (max-width: 999px) {
+
+    .tablet {
+        display: none !important;
+    }
+
+    .fit{
+        width:133% !important;
+    }
+
+    .statbox {
+
+        padding-bottom: 8px;
+    }
+    .ui.grid>[class*="twelve wide"].column.content {
+        width: 100%!important;
+    }
+    .ui.text.menu .item.padded{
+    padding-right: 5px;
+    padding-left: 5px;
+}
+    .ui.text.menu .item{
+        font-size: small;
+}
+
+}
+
+@media all and (max-width: 500px) {
+
+    .phone {
+        display: none !important;
+    }
+
+        .ui.text.menu .item.padded{
+    padding-right: 3px;
+    padding-left: 3px;
+}
+    .ui.text.menu .item{
+        font-size: small;
+}
+
+
+
+}
 
 

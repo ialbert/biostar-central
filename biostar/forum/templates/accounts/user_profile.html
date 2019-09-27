@@ -110,6 +110,12 @@
                             </td>
                         </tr>
                     {% endif %}
+                    {% if target == request.user %}
+                    <tr>
+                        <td>Notifications:</td>
+                        <td>{{ target.profile.get_message_prefs_display }}</td>
+                    </tr>
+                    {% endif %}
 
                     <tr>
                         <td>Last seen:</td>

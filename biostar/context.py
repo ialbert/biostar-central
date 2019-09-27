@@ -1,5 +1,5 @@
 from biostar import VERSION
-
+from django.conf import settings
 
 def main(request):
     '''
@@ -8,6 +8,6 @@ def main(request):
     The site will not load up without it.
     '''
 
-    params = dict(user=request.user, VERSION=VERSION, request=request)
+    params = dict(user=request.user, VERSION=VERSION, site_name=settings.SITE_NAME, request=request)
 
     return params

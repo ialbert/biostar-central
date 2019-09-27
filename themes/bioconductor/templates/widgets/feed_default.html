@@ -4,7 +4,32 @@
 <b>Recent ... </b>
 
 <div class="ui large wrap-text">
+    <div class="event">
+        <div class="ui container">
+                <span>Replies </span>
+                <div class="ui relaxed list" >
 
+                    {% for replies in recent_replies %}
+
+                        <div class="item spaced">
+                            <a href="{% url "post_view" replies.uid %}"> {{ replies.title }}</a>
+                            by
+                            <a href="{% url "user_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}
+                            </a>
+
+                        <span>  {% user_icon user=replies.author %}</span>
+
+                        <div class="muted" style="">
+                            {{ replies.content |truncatechars:140 }}
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+        </div>
+    </div>
+<div class="ui divider"></div>
     <div class="event">
         <div class="ui container">
                 <div>Votes </div>
@@ -13,31 +38,6 @@
                        <div class="item spaced" >
                             <a href="{% url 'post_view' vote.post.uid %}">{{ vote.post.title }}</a>
                        </div>
-                    {% endfor %}
-                </div>
-        </div>
-    </div>
-
-<div class="ui divider"></div>
-
-    <div class="event">
-        <div class="ui container">
-                <span>Locations</span>
-                 <a href="{% url "community_list" %}">&bull;  All <i class="ui angle small double right icon"></i></a>
-
-                 <div class="ui relaxed list" >
-
-                    {% for profile in recent_locations %}
-                        <div class="item spaced" >
-                        <span>
-                        <a class="ui mini avatar thread-users  list-avatar image" href="{% url "user_profile" profile.uid %}">
-                            <img src="{% gravatar user=profile.user size=90 %}">
-                        </a>
-                        </span>
-
-                            {{profile.location }}, <span class="muted">{{ profile.last_login|time_ago }}</span>
-                        </div>
-
                     {% endfor %}
                 </div>
         </div>
@@ -69,31 +69,29 @@
     </div>
 
 <div class="ui divider"></div>
-
     <div class="event">
         <div class="ui container">
-                <span>Replies </span>
-                <div class="ui relaxed list" >
+                <span>Locations</span>
+                 <a href="{% url "community_list" %}">&bull;  All <i class="ui angle small double right icon"></i></a>
 
-                    {% for replies in recent_replies %}
+                 <div class="ui relaxed list" >
 
-                        <div class="item spaced">
-                            <a href="{% url "post_view" replies.uid %}"> {{ replies.title }}</a>
-                            by
-                            <a href="{% url "user_profile"  replies.author.profile.uid %}">{{ replies.author.profile.name }}
-                            </a>
+                    {% for profile in recent_locations %}
+                        <div class="item spaced" >
+                        <span>
+                        <a class="ui mini avatar thread-users  list-avatar image" href="{% url "user_profile" profile.uid %}">
+                            <img src="{% gravatar user=profile.user size=90 %}">
+                        </a>
+                        </span>
 
-                        <span>  {% user_icon user=replies.author %}</span>
-
-                        <div class="muted" style="">
-                            {{ replies.content |truncatechars:140 }}
-                            </div>
+                            {{profile.location }}, <span class="muted">{{ profile.last_login|time_ago }}</span>
                         </div>
 
                     {% endfor %}
-
                 </div>
         </div>
     </div>
+
+
 
 </div>

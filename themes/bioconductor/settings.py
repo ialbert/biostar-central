@@ -77,8 +77,12 @@ REPLIES_FEED_COUNT = 5
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = "themes.bioconductor.conf.wsgi.application"
 
+ADD_THREAD_USERS = False
+GRAVATAR_ICON = 'identicon'
+
 # These parameters will be inserted into the database automatically.
-SITE_NAME = "support.bioconductor.org"
+SITE_NAME = "Bioconductor Support Forum"
+
 SITE_DOMAIN = "support.bioconductor.org"
 
 # What domain will handle the replies.

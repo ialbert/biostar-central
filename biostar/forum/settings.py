@@ -6,6 +6,8 @@ from biostar.accounts.settings import *
 # Django debug flag.
 DEBUG = True
 
+SITE_NAME = 'Biostar Forum'
+
 # Show debug toolbar
 DEBUG_TOOLBAR = False
 
@@ -20,6 +22,13 @@ TAGS_PER_PAGE = 50
 # Full file path to tags.
 # Each line is a list of comma separated tags.
 TAGS_OPTIONS_FILE = ''
+
+
+# Add list of contributors to the post list.
+ADD_THREAD_USERS = True
+
+# The gravatar image used for users, applied to all users.
+GRAVATAR_ICON = ''
 
 ENABLE_DIGESTS = False
 
