@@ -63,7 +63,7 @@ Activate the `engine` virtual enviorment.
 
     $ conda activate engine
     
-Execute the command `make forum init` within the `biostar-central` directory to migrate and collect static files. 
+Execute the command `make forum init` to migrate and collect static files. 
  
     (engine) user:~/biostar-central$ make forum init    # Migrate and collect static files. 
 
@@ -79,11 +79,11 @@ Activate the `engine` virtual enviorment.
 
     $ conda activate engine
     
-Enter the `biostar-central` directory and enter the command `make forum serve` to start a local server 
+Enter the command `make forum serve` to start a local server.
 
     (engine) user:~/biostar-central$ make forum serve    # Start local server
 
-The site is available at http://127.0.0.1:8000/. 
+The site is now available at http://127.0.0.1:8000/. 
 
 
 
