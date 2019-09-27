@@ -1,4 +1,4 @@
-## Documentation for Biostars Forum 
+# Documentation for Biostars Forum 
 
 Here are steps to running and deploying the forum from scratch.
 
@@ -15,7 +15,7 @@ Here are steps to running and deploying the forum from scratch.
 4. Start a local server. 
 
 
-### 1. Create a virtual environment and clone the repo.
+## 1. Create a virtual environment and clone the repo.
 
 Create a virtual environment by first downloading miniconda at https://docs.conda.io/en/latest/miniconda.html. 
 
@@ -33,12 +33,12 @@ Start the virtual enviorment by entering the command.
     
 Clone or pull the most recent version of the forum. 
 
-      (engine) $ git clone https://github.com/ialbert/biostar-central.git  # Clone a new branch
+      git clone https://github.com/ialbert/biostar-central.git  # Clone a new branch
       
-      (engine) $ git pull https://github.com/ialbert/biostar-central.git   # Pull into an exisiting 
+      git pull https://github.com/ialbert/biostar-central.git   # Pull into an exisiting 
       
       
-### 2. Install dependencies. 
+## 2. Install dependencies. 
 
 Activate the `engine` virtual enviorment.
 
@@ -48,29 +48,30 @@ Enter the `biostar-central` directory to install dependencies and requirements i
 
 Execute the following to install python requirements: 
 
-    (engine) user:~/biostar-central$ pip install -r conf/pip_requirements.txt      # Install python requirements.
+    pip install -r conf/pip_requirements.txt      # Install python requirements.
     
 Execute the following to install all anaconda requirements:
     
-    (engine) user:~/biostar-central$ conda install -f conf/conda_requirements.txt  # Install conda requirements.
+    conda install -f conf/conda_requirements.txt  # Install conda requirements.
     
  After dependencies have been installed, a migration needs to be made to create the database collect static files.
  
- ### 3. Run migrations and tests. 
+ 
+ ## 3. Run migrations and tests. 
  
 Activate the `engine` virtual enviorment.
 
-    $ conda activate engine
+    conda activate engine
     
-Migrate the site using:
+Migrate the forum app by executing the command:
 
-	python manage.py migrate
+    python manage.py migrate --settings biostar.forum.settings
 
-Collect static files using:
+Collect static files for the forum app by executing the command:
 
-    python manage.py collectstatic --noinput -v 0
+    python manage.py collectstatic --noinput -v 0 --settings biostar.forum.settings
 
-There is a `Makefile` command that migrates and collects static files. 
+There is a `Makefile` command that migrates and collects static files in one shot. 
 
     make forum init  # Migrate and collect static files. 
 
@@ -80,7 +81,8 @@ To ensure installation and migration was successful, run a test by executing the
 
     make forum test  # Run tests. 
     
-### 4. Start a local server 
+    
+## 4. Start a local server 
 
 Activate the `engine` virtual enviorment.
 
@@ -88,7 +90,7 @@ Activate the `engine` virtual enviorment.
     
 Enter the command `make forum serve` to start a local server.
 
-    (engine) user:~/biostar-central$ make forum serve    # Start local server
+    make forum serve    # Start local server
 
 The site is now available at http://127.0.0.1:8000/. 
  
