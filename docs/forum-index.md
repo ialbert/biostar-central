@@ -69,7 +69,7 @@ Execute the command `make forum init` within the `biostar-central` directory to 
 
 A local database has now been created and the collected static files can be found in `biostar-central/export/static/`
 
-To ensure the installation process was successful, run a test by executing the command `make forum test`. 
+To ensure the installation/migration was successful, run a test by executing the command `make forum test`. 
 
     (engine) user:~/biostar-central$ make forum test    # Run tests. 
     
