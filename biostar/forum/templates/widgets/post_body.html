@@ -27,21 +27,21 @@
         {#  Voting regions #}
         <div class="votebox hide-on-edit" data-value="{{ post.uid }}">
 
-            <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="upvote"
+            <button class="ui icon button vote upvote" data-value="{{ post.uid }}" data-type="upvote"
                     data-position="right center" data-state="{{ post.has_upvote }}">
                 <i class="thumbs up icon "></i>
             </button>
 
             <div class="score" id="score-{{ post.uid }}">{{ post.vote_count }}</div>
 
-            <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="bookmark"
+            <button class="ui icon button vote bookmark" data-value="{{ post.uid }}" data-type="bookmark"
                     data-position="right center" data-state="{{ post.has_bookmark }}">
                 <i class="bookmark icon "></i>
             </button>
 
             {% if post.can_accept %}
                 <div class="top-padding">
-                    <button class="ui icon button vote" data-value="{{ post.uid }}" data-type="accept"
+                    <button class="ui icon button vote accept" data-value="{{ post.uid }}" data-type="accept"
                             data-position="right center" data-state="{{ post.accept_count }}">
                         <i class="check circle icon "></i>
                     </button>

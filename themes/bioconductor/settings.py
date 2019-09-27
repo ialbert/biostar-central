@@ -5,21 +5,21 @@ import os
 DEBUG = True
 print(DATABASE_NAME, "Database")
 
-DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "bioconductor.db")
-
-print(DATABASE_NAME, "Database")
-
-DATABASES = {
-
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': DATABASE_NAME,
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    },
-}
+# #DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "bioconductor.db")
+#
+# #print(DATABASE_NAME, "Database")
+#
+# DATABASES = {
+#
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': DATABASE_NAME,
+#         'USER': '',
+#         'PASSWORD': '',
+#         'HOST': '',
+#         'PORT': '',
+#     },
+# }
 CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
 HTTP_PROTOCOL = "http"
