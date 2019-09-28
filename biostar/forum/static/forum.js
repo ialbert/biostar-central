@@ -841,7 +841,7 @@ $(document).ready(function () {
         // Get form field to add to
         onChange: function (value, text, $selectedItem) {
             // Get form field to add to
-            var tagid = $("#tags").attr('field_id');
+            var tagid = $("#tag-menu").attr('field_id');
             var tag_field = $('#{0}'.f(tagid));
             // Add selected tag to field
             //alert(value);
@@ -862,7 +862,7 @@ $(document).ready(function () {
         if (event.keyCode === 32) {
             event.preventDefault();
             //event.stopPropagation();
-            $("#tags").dropdown('set selected', $(this).val().trim());
+            $("#tag-menu").dropdown('set selected', $(this).val().trim());
             $(this).val('');
             //alert($('#my_tags_id').val());
         }
@@ -902,5 +902,9 @@ $(document).ready(function () {
     $('#show-answer').click(function () {
         $('.hidden-answer').show()
     });
+
+    $('.vote').popup({
+        on:'hover'
+    })
 })
 ;

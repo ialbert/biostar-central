@@ -367,6 +367,7 @@ def new_post(request):
             content = form.cleaned_data.get("content")
             post_type = form.cleaned_data.get('post_type')
             tag_val = form.cleaned_data.get('tag_val')
+            #print(tag_val)
             post = Post.objects.create(title=title, content=content, type=post_type,
                                        tag_val=tag_val, author=author)
 

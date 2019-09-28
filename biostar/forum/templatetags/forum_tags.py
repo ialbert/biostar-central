@@ -299,16 +299,13 @@ def inplace_type_field(post=None, field_id='type'):
 def get_tags(request=None, post=None, user=None, watched=False):
     # Get tags in requests before fetching ones in the post.
     # This is done to accommodate populating tags in forms
-    #Profile.objects.filter(user=user).update(my_tags='', watched_tags='')
+
     if request:
         tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
     else:
-        #tags = user.my_tags if user else
         tags = post.tag_val if isinstance(post, Post) else ''
         tags = user.profile.my_tags if user else tags
-        #print(type(user.profile.my_tags), type(user.profile.watched_tags))
         tags = user.profile.watched_tags if watched else tags
-        print(tags, watched)
 
     # Prepare the tags options in the dropdown from a file
     if settings.TAGS_OPTIONS_FILE:
@@ -629,23 +626,23 @@ def bignum(number):
 def boxclass(post):
     # Create the css class for each row
 
-    if post.type == Post.JOB:
+    if post.root.type == Post.JOB:
         style = "job"
-    elif post.type == Post.TUTORIAL:
+    elif post.root.type == Post.TUTORIAL:
         style = "tutorial"
-    elif post.type == Post.TOOL:
+    elif post.root.type == Post.TOOL:
         style = "tool"
-    elif post.type == Post.FORUM:
+    elif post.root.type == Post.FORUM:
         style = "forum"
-    elif post.type == Post.NEWS:
+    elif post.root.type == Post.NEWS:
         style = "news"
     else:
         style = "question"
 
-    if post.answer_count:
+    if post.root.answer_count:
         style += " has_answers"
 
-    if post.has_accepted:
+    if post.root.has_accepted:
         modifier = "accepted answer" if post.type == Post.QUESTION else "accepted"
     else:
         modifier = "open"
