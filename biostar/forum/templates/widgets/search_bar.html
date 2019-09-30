@@ -1,10 +1,9 @@
 
 
-
 <div class="ui basic segment slim">
 
     <div class="center-text ">
-        <div class='ui {{ extra_css }} icon input' id="contain-search" data-redir="{% if redir %} 1 {% else %} 0 {% endif %}">
+        <div class='ui {{ extra_css }} icon input' id="contain-search" data-redir="{{ redir }}">
             <i class="search icon"></i>
 
             <input type="text" id="search" url="{{ search_url }}" name="search" placeholder="Search and press ENTER . . .">

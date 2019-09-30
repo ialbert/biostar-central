@@ -509,7 +509,9 @@ def ajax_search(request):
 
     fields = ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
 
+
     if redir:
+        print(int(request.GET.get('redir', 0)), bool(int(request.GET.get('redir', 0))))
         redit_url = reverse('post_search') + '?query=' + query
         return ajax_success(redir=redit_url, msg="success")
 

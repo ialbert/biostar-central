@@ -302,6 +302,7 @@ function  search(query, elem, search_url) {
                 //alert(data.html);
                 res.removeClass('ui message');
                 res.html('');
+
                 if (data.html === null || data.html === undefined){
                     window.location.href = data.redir
                 }

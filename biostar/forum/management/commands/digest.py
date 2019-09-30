@@ -56,9 +56,6 @@ def send_watched_tags():
 
     return
 
-import os
-
-os.getenv()
 
 def test():
     # Testing the cron tasks
