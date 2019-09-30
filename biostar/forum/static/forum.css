@@ -20,6 +20,7 @@ body {
 .ui.button.vote{
     background: none;
     padding: 5px;
+    opacity: .6;
 }
 
 #menu-header .item .icon {
@@ -437,7 +438,11 @@ a:hover {
 .post.comment .score {
     font-size: 100%;
     //padding-bottom: 0.5rem;
-    padding-top: 0.5rem;
+    //padding-top: 0.5rem;
+}
+
+.medium_search{
+    width: 700px;
 }
 
 .magnify{

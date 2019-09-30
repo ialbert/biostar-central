@@ -3,23 +3,7 @@ import os
 
 
 DEBUG = True
-print(DATABASE_NAME, "Database")
 
-# #DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "bioconductor.db")
-#
-# #print(DATABASE_NAME, "Database")
-#
-# DATABASES = {
-#
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': DATABASE_NAME,
-#         'USER': '',
-#         'PASSWORD': '',
-#         'HOST': '',
-#         'PORT': '',
-#     },
-# }
 CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
 HTTP_PROTOCOL = "http"
@@ -109,7 +93,7 @@ AWS_SECRET_ACCESS_KEY = ''
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-print(INDEX_DIR, INDEX_NAME, "INDEX")
+#print(INDEX_DIR, INDEX_NAME, "INDEX")
 
 # Tries to load up secret settings from a predetermined module
 try:

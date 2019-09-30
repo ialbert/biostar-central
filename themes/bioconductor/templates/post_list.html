@@ -9,14 +9,17 @@
 {% block body %}
 
 
-
 {% with params=request.GET.urlencode %}
 <div class="ui horizontal basic top-menu segments">
 <div style="padding-right: 19px;">
         <div class="ui small compact menu sorting no-box-shadow" >
           <div class="ui simple dropdown item">
             Limit
+                <i class="dropdown icon"></i>
+
             <div class="menu">
+
+
                   <a class="item" href="{% url 'post_list' %}{% relative_url 'all' 'limit' params %}">
                       <i class="{% activate_check_mark limit 'all' %}"></i>all time
                   </a>
@@ -48,6 +51,8 @@
         <div class="ui small compact menu sorting no-box-shadow">
               <div class="ui simple dropdown item">
                 Sort
+                    <i class="dropdown icon"></i>
+
                 <div class="menu">
 
                       <a class="item" href="{% url 'post_list' %}{% relative_url 'rank' 'order' params %}">

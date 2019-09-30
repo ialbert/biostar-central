@@ -24,6 +24,10 @@
 
                 <div class="score" id="score-{{ post.uid }}">{{ post.vote_count }}</div>
 
+                <button class="ui icon mini button vote bookmark" data-value="{{ post.uid }}" data-type="bookmark"
+                        data-position="right center" data-state="{{ post.has_bookmark }}" data-content="Bookmark">
+                    <i class="bookmark icon "></i>
+                </button>
             </div>
 
             <div class="content">
