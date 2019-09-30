@@ -17,7 +17,7 @@
 
         <div class="ui basic compact segment no-shadow" style="">
 
-            <div class="ui medium header">{{ form_title }}
+            <div class="ui medium header">Create a new post
             </div>
             <div class="ui divider"></div>
 
@@ -42,14 +42,15 @@
                 </div>
 
                 <div class="ui form-wrap segment">
-                    <div class="field">
+                    <div class="required field">
                         <label>{{ form.tag_val.label }}</label>
                         {% if post %}{% get_tags request=request post=post as tags %}
                         {% else %}
                             {% get_tags request=request as tags %}
                         {% endif %}
+
                         <input type="hidden" name="{{ form.tag_val.name }}" id="{{ form.tag_val.id_for_label }}"
-                               value="{% if selected %} {{ tags.selected }} {% endif %}">
+                               value="{% if tags.selected %}{{ tags.selected }}{% endif %}">
 
                         <select multiple="multiple" class="ui search selection dropdown tag-field" id="tag-menu"
                                 field_id="{{ form.tag_val.id_for_label }}">

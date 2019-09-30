@@ -20,6 +20,7 @@ body {
 .ui.button.vote{
     background: none;
     padding: 5px;
+    opacity: .6;
 }
 
 #menu-header .item .icon {
@@ -261,6 +262,7 @@ a:hover {
 #search{
     background-color: #f0f0f0;
     border: none;
+    width: 500px;
 }
 
 .search.message{
@@ -436,7 +438,11 @@ a:hover {
 .post.comment .score {
     font-size: 100%;
     //padding-bottom: 0.5rem;
-    padding-top: 0.5rem;
+    //padding-top: 0.5rem;
+}
+
+.medium_search{
+    width: 700px;
 }
 
 .magnify{
@@ -569,6 +575,9 @@ img {
     border: none !important;
     -webkit-box-shadow: none;
 }
+
+
+
 
 .float-right {
     float: right;
@@ -775,6 +784,18 @@ img {
 
 .ui.forum.container {
     width: 1230px;
+}
+
+
+.small_search{
+    width: 500px !important;
+    display: inline-block !important;
+}
+
+
+
+#contain-search .results{
+    text-align: initial
 }
 
 

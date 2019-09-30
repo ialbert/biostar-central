@@ -276,7 +276,9 @@ function inplace_post_edit(elem){
 
 function  search(query, elem, search_url) {
     var res = $('#results');
+
     var container = $('#contain-search');
+    var redir = container.data('redir');
 
     container.addClass('loading search');
     res.width(container.width());
@@ -288,7 +290,8 @@ function  search(query, elem, search_url) {
         dataType: 'json',
         ContentType: 'application/json',
         data: {
-            'query': query
+            'query': query,
+            'redir':redir,
         },
 
         success: function (data) {
@@ -299,6 +302,7 @@ function  search(query, elem, search_url) {
                 //alert(data.html);
                 res.removeClass('ui message');
                 res.html('');
+
                 if (data.html === null || data.html === undefined){
                     window.location.href = data.redir
                 }
@@ -841,7 +845,7 @@ $(document).ready(function () {
         // Get form field to add to
         onChange: function (value, text, $selectedItem) {
             // Get form field to add to
-            var tagid = $("#tags").attr('field_id');
+            var tagid = $("#tag-menu").attr('field_id');
             var tag_field = $('#{0}'.f(tagid));
             // Add selected tag to field
             //alert(value);
@@ -862,7 +866,7 @@ $(document).ready(function () {
         if (event.keyCode === 32) {
             event.preventDefault();
             //event.stopPropagation();
-            $("#tags").dropdown('set selected', $(this).val().trim());
+            $("#tag-menu").dropdown('set selected', $(this).val().trim());
             $(this).val('');
             //alert($('#my_tags_id').val());
         }
@@ -902,5 +906,9 @@ $(document).ready(function () {
     $('#show-answer').click(function () {
         $('.hidden-answer').show()
     });
+
+    $('.vote').popup({
+        on:'hover'
+    })
 })
 ;

@@ -9,8 +9,9 @@
 {% block body %}
 
 {% block search %}
-    {% search_bar %}
+    {% search_bar extra_css='fluid' %}
 {% endblock %}
+
 
 {% with params=request.GET.urlencode %}
 <div class="ui horizontal basic top-menu segments  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">

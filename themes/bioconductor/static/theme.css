@@ -106,6 +106,12 @@ body {
     background-color: #bfbfbf;
 }
 
+
+#menu-header .add-question:hover{
+    background-color: #87B13F;
+    color: white;
+}
+
 .ui.small.label.tags {
   background-color: #F5F5F5;
   border:none;

@@ -209,16 +209,6 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
     return True, ""
 
 
-def user_search(request):
-
-    query = request.GET.get('q', '')
-
-    users = User.objects.filter(profile__name__contains=query, email__contains=query, username__contains=query,
-                                )
-    print(users)
-    return
-
-
 def is_trusted(user):
 
     # Moderators and users with scores above threshold are trusted.
@@ -512,23 +502,33 @@ def chat_view(request):
 def ajax_search(request):
 
     query = request.GET.get('query', '')
+    try:
+        redir = bool(int(request.GET.get('redir', 0)))
+    except Exception as exc:
+        redir = 0
+
     fields = ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
 
-    if query:
 
-        whoosh_results = search.search(query=query, fields=fields)
-        results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
+    if redir:
+        print(int(request.GET.get('redir', 0)), bool(int(request.GET.get('redir', 0))))
+        redit_url = reverse('post_search') + '?query=' + query
+        return ajax_success(redir=redit_url, msg="success")
 
-        tmpl = loader.get_template("widgets/search_results.html")
-        #tmpl = loader.get_template("widgets/test_search_results.html")
-        context = dict(results=results, query=query)
+    if not query:
+        return ajax_success(msg="Empty query", status="error")
 
-        results_html = tmpl.render(context)
-        # Ensure the whoosh reader is closed
-        close(whoosh_results)
-        return ajax_success(html=results_html, msg="success")
+    whoosh_results = search.search(query=query, fields=fields)
+    results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
 
-    return ajax_success(msg="Empty query, Enter atleast", status="error")
+    tmpl = loader.get_template("widgets/search_results.html")
+
+    context = dict(results=results, query=query)
+
+    results_html = tmpl.render(context)
+    # Ensure the whoosh reader is closed
+    close(whoosh_results)
+    return ajax_success(html=results_html, msg="success")
 
 
 @ratelimit(key='ip', rate='50/h')
