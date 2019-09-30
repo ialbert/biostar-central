@@ -11,7 +11,7 @@
 {% block content %}
 
 {% url 'ajax_users_search' as search_url %}
-{% search_bar search_url=search_url users=True %}
+{% search_bar search_url=search_url users=True extra_css='small_search' %}
 
 {% with params=request.GET.urlencode %}
 <div class="ui horizontal basic top-menu segments">

@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 from functools import wraps
 
+from whoosh.searching import Results
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -12,7 +13,8 @@ from django.db.models import Count, Q
 from taggit.models import Tag
 from django.shortcuts import render, redirect, reverse
 
-from . import forms, auth, tasks, util
+from biostar.accounts.models import Profile
+from . import forms, auth, tasks, util, search
 from .const import *
 from .models import Post, Vote, Badge
 
@@ -128,6 +130,23 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
 
     return query
+
+
+def post_search(request):
+
+    query = request.GET.get('query', '')
+    fields = ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
+
+    if not query:
+        return redirect(reverse('post_list'))
+
+    whoosh_results = search.search(query=query, fields=fields)
+    results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
+
+    context = dict(results=results, query=query)
+    whoosh_results.searcher.close() if isinstance(whoosh_results, Results) else None
+
+    return render(request, template_name="widgets/post_results.html", context=context)
 
 
 @ensure_csrf_cookie
@@ -263,6 +282,7 @@ def community_list(request):
         users = users.filter(db_query)
 
     order = ORDER_MAPPER.get(ordering, "visit")
+    users = users.exclude(profile__state__in=[Profile.SUSPENDED, Profile.BANNED])
     users = users.order_by(order)
 
     paginator = Paginator(users, settings.USERS_PER_PAGE)
@@ -367,6 +387,7 @@ def new_post(request):
             content = form.cleaned_data.get("content")
             post_type = form.cleaned_data.get('post_type')
             tag_val = form.cleaned_data.get('tag_val')
+            #print(tag_val)
             post = Post.objects.create(title=title, content=content, type=post_type,
                                        tag_val=tag_val, author=author)
 
