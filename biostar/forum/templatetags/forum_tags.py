@@ -540,9 +540,11 @@ def get_thread_users(post, limit=2):
     for user in stream:
         if len(users) >= limit:
             break
-        if user in users or (user.profile.is_banned or user.profile.is_suspended):
+        if user in users:
             continue
         users.add(user)
+
+    users = filter(lambda u: not (u.profile.is_banned or u.profile.is_suspended), users)
 
     return users
 

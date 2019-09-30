@@ -1,7 +1,8 @@
 {% load forum_tags %}
 <div class="{% if spaced %}spaced-tags{% else %}{% endif %}" style="padding-left: 5px">
     {% for tag in tags %}
-        {% if tags %}
+        {% if tag %}
+
         <a class="ui small tag label tags" href="{% url 'post_list' %}?tag={{ tag }}">
             {{ tag }}
         </a>
