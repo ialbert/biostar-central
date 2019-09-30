@@ -13,6 +13,7 @@ from django.db.models import Count, Q
 from taggit.models import Tag
 from django.shortcuts import render, redirect, reverse
 
+from biostar.accounts.models import Profile
 from . import forms, auth, tasks, util, search
 from .const import *
 from .models import Post, Vote, Badge
@@ -281,6 +282,7 @@ def community_list(request):
         users = users.filter(db_query)
 
     order = ORDER_MAPPER.get(ordering, "visit")
+    users = users.exclude(profile__state__in=[Profile.SUSPENDED, Profile.BANNED])
     users = users.order_by(order)
 
     paginator = Paginator(users, settings.USERS_PER_PAGE)
