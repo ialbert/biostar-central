@@ -21,6 +21,7 @@ urlpatterns = [
     path('myposts/', views.myposts, name='myposts'),
     path('mytags/', views.mytags, name='mytags'),
     path('p/<str:uid>/', views.post_view, name='post_view'),
+    path('post/search/', views.post_search, name='post_search'),
 
     path('new/post/', views.new_post, name='post_create'),
     path('new/comment/<str:uid>/', views.new_comment, name="create_comment"),

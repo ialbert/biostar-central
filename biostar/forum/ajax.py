@@ -502,22 +502,31 @@ def chat_view(request):
 def ajax_search(request):
 
     query = request.GET.get('query', '')
+    try:
+        redir = bool(int(request.GET.get('redir', 0)))
+    except Exception as exc:
+        redir = 0
+
     fields = ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
 
-    if query:
+    if redir:
+        redit_url = reverse('post_search') + '?query=' + query
+        return ajax_success(redir=redit_url, msg="success")
 
-        whoosh_results = search.search(query=query, fields=fields)
-        results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
+    if not query:
+        return ajax_success(msg="Empty query", status="error")
 
-        tmpl = loader.get_template("widgets/search_results.html")
-        context = dict(results=results, query=query)
+    whoosh_results = search.search(query=query, fields=fields)
+    results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
 
-        results_html = tmpl.render(context)
-        # Ensure the whoosh reader is closed
-        close(whoosh_results)
-        return ajax_success(html=results_html, msg="success")
+    tmpl = loader.get_template("widgets/search_results.html")
 
-    return ajax_success(msg="Empty query, Enter atleast", status="error")
+    context = dict(results=results, query=query)
+
+    results_html = tmpl.render(context)
+    # Ensure the whoosh reader is closed
+    close(whoosh_results)
+    return ajax_success(html=results_html, msg="success")
 
 
 @ratelimit(key='ip', rate='50/h')

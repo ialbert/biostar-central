@@ -5,7 +5,7 @@
 {% block content %}
     {% url 'ajax_tags_search' as search_url %}
 
-    {% search_bar search_url=search_url tags=True %}
+    {% search_bar search_url=search_url tags=True extra_css='small_search'%}
     <div class="center-text">
         {% pages objs=tags %}
     </div>

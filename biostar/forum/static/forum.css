@@ -261,6 +261,7 @@ a:hover {
 #search{
     background-color: #f0f0f0;
     border: none;
+    width: 500px;
 }
 
 .search.message{
@@ -570,6 +571,9 @@ img {
     -webkit-box-shadow: none;
 }
 
+
+
+
 .float-right {
     float: right;
 }
@@ -775,6 +779,18 @@ img {
 
 .ui.forum.container {
     width: 1230px;
+}
+
+
+.small_search{
+    width: 500px !important;
+    display: inline-block !important;
+}
+
+
+
+#contain-search .results{
+    text-align: initial
 }
 
 

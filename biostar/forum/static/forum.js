@@ -276,7 +276,9 @@ function inplace_post_edit(elem){
 
 function  search(query, elem, search_url) {
     var res = $('#results');
+
     var container = $('#contain-search');
+    var redir = container.data('redir');
 
     container.addClass('loading search');
     res.width(container.width());
@@ -288,7 +290,8 @@ function  search(query, elem, search_url) {
         dataType: 'json',
         ContentType: 'application/json',
         data: {
-            'query': query
+            'query': query,
+            'redir':redir,
         },
 
         success: function (data) {

@@ -390,9 +390,12 @@ def custom_feed(objs, feed_type='', title=''):
 
 
 @register.inclusion_tag(takes_context=True, filename='widgets/search_bar.html')
-def search_bar(context, search_url='', tags=False, users=False):
+def search_bar(context, search_url='', tags=False, users=False, ajax_results=True, extra_css='', redir=False):
     search_url = search_url or reverse('ajax_search')
-    context = dict(search_url=search_url, tags=tags, users=users)
+    redir = '1' if redir else '0'
+    context = dict(search_url=search_url, tags=tags, users=users, extra_css=extra_css,
+                   ajax_results=ajax_results, redir=redir)
+
     return context
 
 

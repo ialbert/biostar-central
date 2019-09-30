@@ -1,0 +1,30 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+{% load accounts_tags %}
+{% load humanize %}
+
+{% block headtitle %}
+    Community
+{% endblock %}
+
+
+{% block content %}
+
+
+        <div class="ui relaxed divided list">
+
+            {% for result in results %}
+                <a class="item" href="{{ result.url }}">
+                    <b>{{ result|highlight:'title' |truncatechars_html:100 }}</b>
+
+                    <div class="muted">
+                        {{ result|highlight:'content'|truncatechars_html:300 }}
+                    </div>
+                </a>
+                <div class="muted">
+                    {% post_search_line post_uid=result.uid %}
+                </div>
+            {% endfor %}
+        </div>
+
+{% endblock %}
