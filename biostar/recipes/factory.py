@@ -66,7 +66,6 @@ def radioselect_field(obj):
 
 def db_connect(database_name=''):
 
-
     database_name = database_name or settings.DATABASE_NAME
     try:
         conn = psycopg2.connect(database=database_name)
@@ -77,11 +76,7 @@ def db_connect(database_name=''):
     return conn
 
 
-def fetch_from_db(columns, table, where, database_name):
-
-    # Join fields using AND and SIMILAR TO when using a string ( works like __contains in django)
-    # looks like: id = 1 AND type SIMILAR TO %FASTA|DATA%
-    where_clause = f' AND '.join([f"{k} SIMILAR TO '%{v}%'" if isinstance(v, str) else f"{k} = {v}" for k,v in where.items()])
+def fetch_from_db(columns, table, where_clause, database_name):
 
     # Final query string to execute
     query_str = f'SELECT {columns} FROM {table} WHERE {where_clause};'
@@ -99,8 +94,8 @@ def fetch_from_db(columns, table, where, database_name):
         colnames = [col[0] for col in cursor.description]
         rows = cursor.fetchall()
         mapped = [{col_name: val for val, col_name in zip(row, colnames)} for row in rows]
-
-        return cursor, rows
+        db.close()
+        return mapped
 
     return
 
@@ -118,41 +113,21 @@ def sql_field(obj, project=None):
     # Database to connect to, selects default database otherwise.
     database_name = obj.get('database_name', '')
     return_value = obj.get('return_value', 'file')
-    #value = obj.get('value', '')
 
     display_value = obj.get('display_value', 'name')
     label = obj.get("label", 'sql field')
     help_text = obj.get("help", 'Pick an option.')
 
     # Final query string.
+    query_list = fetch_from_db(columns=columns, table=table, where_clause=where, database_name=database_name)
 
-    where_clause = f' AND '.join([f"{k} SIMILAR TO '%{v}%'" if isinstance(v, str) else f"{k} = {v}" for k,v in where.items()])
-    query_str = f'SELECT {columns} FROM {table} WHERE {where_clause};'
-    try:
-        # connect to the database.
-        db = db_connect(database_name=database_name)
-        cursor = db.cursor()
-        cursor.execute(query_str)
-
-    except Exception as exec:
-        logger.error(f"Error with database: {exec}")
+    if not query_list:
         return
 
-    if cursor.rowcount:
-        colnames = [col[0] for col in cursor.description]
-        rows = cursor.fetchall()
-        mapped = [{col_name: val for val, col_name in zip(row, colnames)} for row in rows ]
+    # The columns we want to pick and "Return".
+    # These values will populate the template.
+    choices = [(val.get(return_value), val.get(display_value)) for val in query_list]
 
-        # The columns we want to pick and "Return"
-        choices = [(val.get(return_value), val.get(display_value)) for val in mapped]
-
-        #inital = [(val.get(value) for val in mapped)]
-        widget = forms.Select(choices=choices, attrs={"class": "ui dropdown"})
-
-        field = forms.CharField(widget=widget, label=label, help_text=help_text)
-        return field
-
-    choices = [(0, f"Returned an empty set.")]
     widget = forms.Select(choices=choices, attrs={"class": "ui dropdown"})
 
     field = forms.CharField(widget=widget, label=label, help_text=help_text)
