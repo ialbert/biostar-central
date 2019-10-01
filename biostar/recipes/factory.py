@@ -77,6 +77,43 @@ def db_connect(database_name=''):
     return conn
 
 
+def fetch_from_db(columns, table, where, database_name, return_value, display_value, **kwargs):
+
+    label = kwargs.get('label', "")
+    help_text = kwargs.get('help_text', '')
+    # Join fields using AND and SIMILAR TO when using a string ( works like __contains in django)
+    # looks like: id = 1 AND type SIMILAR TO %FASTA|DATA%
+    where_clause = f' AND '.join([f"{k} SIMILAR TO '%{v}%'" if isinstance(v, str) else f"{k} = {v}" for k,v in where.items()])
+
+    # Final query string to execute
+    query_str = f'SELECT {columns} FROM {table} WHERE {where_clause};'
+    try:
+        # connect to the database.
+        db = db_connect(database_name=database_name)
+        cursor = db.cursor()
+        cursor.execute(query_str)
+
+    except Exception as exec:
+        logger.error(f"Error with database: {exec}")
+        return
+
+    if cursor.rowcount:
+        colnames = [col[0] for col in cursor.description]
+        rows = cursor.fetchall()
+        mapped = [{col_name: val for val, col_name in zip(row, colnames)} for row in rows ]
+
+        # The columns we want to pick and "Return"
+        choices = [(val.get(return_value), val.get(display_value)) for val in mapped]
+
+        #inital = [(val.get(value) for val in mapped)]
+        widget = forms.Select(choices=choices, attrs={"class": "ui dropdown"})
+
+        field = forms.CharField(widget=widget, label=label, help_text=help_text)
+        return field
+
+    return
+
+
 def sql_field(obj, project=None):
 
     # White list of allowed tables
@@ -124,14 +161,12 @@ def sql_field(obj, project=None):
         field = forms.CharField(widget=widget, label=label, help_text=help_text)
         return field
 
-    else:
-        choices = [(0, f"Query string: 'SELECT {columns} FROM {table} WHERE {where_clause};' returned an empty set.")]
-        widget = forms.Select(choices=choices, attrs={"class": "ui dropdown"})
+    choices = [(0, f"Returned an empty set.")]
+    widget = forms.Select(choices=choices, attrs={"class": "ui dropdown"})
 
-        field = forms.CharField(widget=widget, label=label, help_text=help_text)
-        return field
+    field = forms.CharField(widget=widget, label=label, help_text=help_text)
+    return field
 
-    return
 
 
 def number_field(data):
