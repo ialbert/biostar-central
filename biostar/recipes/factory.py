@@ -1,5 +1,7 @@
 from django import forms
-
+from django.conf import settings
+import psycopg2
+import sqlite3
 from biostar.recipes import const
 from . import models
 
@@ -62,6 +64,76 @@ def radioselect_field(obj):
     return field
 
 
+def db_connect(database_name=''):
+
+
+    database_name = database_name or settings.DATABASE_NAME
+    try:
+        conn = psycopg2.connect(database=database_name)
+    except Exception as exc:
+        logger.error(f'Error connecting to postgres database: {exc}')
+        conn = sqlite3.connect(database_name)
+
+    return conn
+
+
+def sql_field(obj, project=None):
+
+    # White list of allowed tables
+    allowed_tables = ['data']
+
+    # Dictionary to construct query from
+    where = obj.get("where", {})
+    table = obj.get("table", 'recipes_data')
+    columns = obj.get("columns", '*')
+
+    # Database to connect to, selects default database otherwise.
+    database_name = obj.get('database_name', '')
+    return_value = obj.get('return_value', 'file')
+    #value = obj.get('value', '')
+
+    display_value = obj.get('display_value', 'name')
+    label = obj.get("label", 'sql field')
+    help_text = obj.get("help", 'Pick an option.')
+
+    # Final query string.
+
+    where_clause = f' AND '.join([f"{k} SIMILAR TO '%{v}%'" if isinstance(v, str) else f"{k} = {v}" for k,v in where.items()])
+    query_str = f'SELECT {columns} FROM {table} WHERE {where_clause};'
+    try:
+        # connect to the database.
+        db = db_connect(database_name=database_name)
+        cursor = db.cursor()
+        cursor.execute(query_str)
+
+    except Exception as exec:
+        logger.error(f"Error with database: {exec}")
+        return
+
+    if cursor.rowcount:
+        colnames = [col[0] for col in cursor.description]
+        rows = cursor.fetchall()
+        mapped = [{col_name: val for val, col_name in zip(row, colnames)} for row in rows ]
+
+        # The columns we want to pick and "Return"
+        choices = [(val.get(return_value), val.get(display_value)) for val in mapped]
+
+        #inital = [(val.get(value) for val in mapped)]
+        widget = forms.Select(choices=choices, attrs={"class": "ui dropdown"})
+
+        field = forms.CharField(widget=widget, label=label, help_text=help_text)
+        return field
+
+    else:
+        choices = [(0, f"Query string: 'SELECT {columns} FROM {table} WHERE {where_clause};' returned an empty set.")]
+        widget = forms.Select(choices=choices, attrs={"class": "ui dropdown"})
+
+        field = forms.CharField(widget=widget, label=label, help_text=help_text)
+        return field
+
+    return
+
+
 def number_field(data):
     numrange = data.get("range", [0, 1])
     min_value, max_value = min(numrange), max(numrange)
@@ -120,7 +192,7 @@ def dynamic_field(data, project=None):
     """
 
     # Get the known field types.
-    field_types = get_field_types()
+    field_types = get_field_types(project=project)
 
     if not hasattr(data, 'get'):
         # Not a "dictionary-like" data
@@ -133,7 +205,7 @@ def dynamic_field(data, project=None):
     if not display_type:
         return None
 
-    # Data should be selected from a project.
+    # Data should be selected from a project or directrly from database.
     from_project = (data.get("source") == "PROJECT")
     extras = data.get("extras", [])
     if from_project and project:
@@ -156,11 +228,12 @@ def dynamic_field(data, project=None):
     return field
 
 
-def get_field_types():
+def get_field_types(project=None):
     """
     Maps strings constants to field types.
     """
 
+    sqlfield = lambda obj: sql_field(project=project, obj=obj)
     field_types = {
         const.RADIO: radioselect_field,
         const.DROPDOWN: select_field,
@@ -168,6 +241,7 @@ def get_field_types():
         const.TEXTBOX: char_field,
         const.FLOAT: float_field,
         const.CHECKBOX: checkbox_field,
+        const.SQL: sqlfield
     }
 
     return field_types
