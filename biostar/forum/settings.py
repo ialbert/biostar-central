@@ -118,5 +118,3 @@ try:
 except Exception as exc:
     print(f"Secrets module not imported: {exc}")
 
-
-print(DATABASE_NAME)
