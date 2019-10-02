@@ -76,10 +76,10 @@ def db_connect(database_name=''):
     return conn
 
 
-def fetch_from_db(columns, table, where_clause, database_name):
+def fetch_from_db(columns, table, database_name):
 
     # Final query string to execute
-    query_str = f'SELECT {columns} FROM {table} WHERE {where_clause};'
+    query_str = f'SELECT {columns} FROM {table}'
     try:
         # connect to the database.
         db = db_connect(database_name=database_name)
@@ -106,7 +106,6 @@ def sql_field(obj, project=None):
     allowed_tables = ['data']
 
     # Dictionary to construct query from
-    where = obj.get("where", {})
     table = obj.get("table", 'recipes_data')
     columns = obj.get("columns", '*')
 
@@ -119,7 +118,7 @@ def sql_field(obj, project=None):
     help_text = obj.get("help", 'Pick an option.')
 
     # Final query string.
-    query_list = fetch_from_db(columns=columns, table=table, where_clause=where, database_name=database_name)
+    query_list = fetch_from_db(columns=columns, table=table, database_name=database_name)
 
     if not query_list:
         return
@@ -132,7 +131,6 @@ def sql_field(obj, project=None):
 
     field = forms.CharField(widget=widget, label=label, help_text=help_text)
     return field
-
 
 
 def number_field(data):
