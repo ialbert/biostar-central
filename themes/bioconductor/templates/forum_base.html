@@ -1,0 +1,85 @@
+{% load staticfiles %}
+{% load compress %}
+{% load recaptcha2 %}
+{% load forum_tags %}
+{% load accounts_tags %}
+
+<html>
+<head>
+
+    <title>
+        {% block title %}{{ site_name }}{% endblock %}
+    </title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {# Set the favicon #}
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
+
+    {# Load JQuery. #}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{% static 'markdown-it.js' %}"></script>
+    {# Load recaptcha #}
+    {% recaptcha_init %}
+
+    {#  CSS compression. #}
+    {% compress css %}
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'prism.css' %}" rel="stylesheet">
+        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
+        <link href="{% static 'theme.css' %}{% randparam %}" rel="stylesheet">
+    {% endcompress %}
+
+    {# Javascript compression. #}
+    {% compress js %}
+        <script src="{% static 'semantic.min.js' %}"></script>
+        <script src="{% static 'prism.js' %}"></script>
+        <script src="{% static 'forum.js' %}{% randparam %}"></script>
+        <script src="{% static 'theme.js' %}{% randparam %}"></script>
+    {% endcompress %}
+
+     {# Extra header content that needs to be injected into the page. #}
+    {% block head %}
+
+    {% endblock %}
+
+    {# Extra javascript content that needs to be injected into the page. #}
+    {% block js %}
+
+    {% endblock %}
+
+</head>
+<body>
+
+<div class="ui inverted container widen">
+
+    {% include 'widgets/top_banner.html' %}
+
+    {% include "widgets/menu-topics.html" %}
+
+
+    {% include "widgets/menu-header.html" %}
+
+    <div class="ui bottom attached segment dim-on-create  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+
+            <div class="ui inverted dimmer"></div>
+
+        {% show_messages messages %}
+        <span class="fit" id="insert-form"></span>
+        <div id="error"></div>
+        <div id="recent" {% if post %}data-value="{{ post.uid }}"{% endif %}></div>
+        {% block content %}
+
+            MAIN CONTENT
+        {% endblock %}
+
+    </div>
+
+    {% block footer %}
+        {% include 'widgets/footer.html' %}
+    {% endblock %}
+</div>
+
+</body>
+</html>

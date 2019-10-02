@@ -146,6 +146,10 @@ body {
         display: none !important;
     }
 
+    .widen {
+	width: fit-content !important;
+    }
+
     .fit{
         width:133% !important;
     }
@@ -173,6 +177,10 @@ body {
         display: none !important;
     }
 
+    .widen {
+	width: fit-content !important;
+    }
+
         .ui.text.menu .item.padded{
     padding-right: 3px;
     padding-left: 3px;
@@ -185,4 +193,7 @@ body {
 
 }
 
+.widen {
+    width: fit-content !important;
+}
 
