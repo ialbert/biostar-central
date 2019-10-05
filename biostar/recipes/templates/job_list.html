@@ -29,7 +29,7 @@
 
             {% for job in job_list %}
 
-                <div class="item ">
+                <div class="item job-item-{{ job.uid }}">
 
                         <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
 
@@ -42,8 +42,9 @@
 
                         <div class="meta">{{ job.analysis.summary }}</div>
 
-                        <div class="extra">{% job_minutes job %}
+                        <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job %}</span>
                             {% created_by date=job.lastedit_date %}
+
                         </div>
 
 

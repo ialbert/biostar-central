@@ -1,5 +1,36 @@
+function check_job() {
 
 
+    //var job_uid = $(this).data('value');
+    $('.check_back').each(function () {
+    var job_uid = $(this).data('value');
+    var state = $(this).data('state');
+    if (job_uid === null || job_uid === undefined) {
+        return
+    }
+
+    //alert('goo');
+    $.ajax('/ajax/check/job/' + job_uid + '/',{
+            type: 'GET',
+            dataType: 'json',
+            data:{'state': state},
+            ContentType: 'application/json',
+            success: function (data) {
+                //alert($('.job-container-'+  job_uid).html());
+                if (data.state_changed){
+                    $('.job-container-' + job_uid).html(data.html);
+                    var job_item = $('.job-item-' + job_uid);
+                    job_item.transition('flash');
+                }
+
+            },
+            error: function () {
+            }
+    })
+    });
+
+
+}
 
 $(document).ready(function () {
 
@@ -14,6 +45,7 @@ $(document).ready(function () {
 //            window.location = obj.attr("href");
 //       }
 //    });
+    setInterval(check_job, 20000);
 
     $(".copy-data").click(function (event) {
 

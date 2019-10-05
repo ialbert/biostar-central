@@ -305,7 +305,7 @@ def ajax_create(request):
     tag_str = ','.join(tag_list)
     recaptcha_token = request.POST.get("recaptcha_response")
     is_toplevel = bool(int(request.POST.get('top', 0)))
-    print(is_toplevel, int(request.POST.get('top', 0)), f"{request.POST.get('top')} ;;;;;")
+    #print(is_toplevel, int(request.POST.get('top', 0)), f"{request.POST.get('top')} ;;;;;")
     # Get the post type
     post_type = request.POST.get('type', '0')
     post_type = int(post_type) if post_type.isdigit() else 0
