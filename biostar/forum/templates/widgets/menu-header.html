@@ -1,7 +1,6 @@
 {% load forum_tags %}
 {% load staticfiles %}
 
-width={{ width }}
 <div class="ui labeled icon attached pointing menu   " id="menu-header" user-id="{{ request.user.id }}">
 <div class="ui inverted dimmer"></div>
     {% block headimg %}
@@ -38,9 +37,9 @@ width={{ width }}
      </a>
 
   <div class="ui right dropdown item header-menu" style="display: none; margin-left: 0 !important;">
-<i class="info circle icon"></i>
 
-    <i class="dropdown icon"></i>More
+    <i class="plus icon"></i><i class="dropdown icon"></i>More
+
     <div class="menu">
             <a class="item  menu-tablet_xsmall {% activate tab "latest" %} " href="{% url 'post_list' %}">
     <i class=" list icon"></i> Latest
