@@ -40,15 +40,6 @@
             </div>
 <div class="content">
 
-            <div class="responsive statbox">
-                <div class="ui label stat mini {% boxclass post %}">
-                    <div class="number-stat">
-                        {{ post.reply_count }}
-                    </div>
-                    <div class="detail-stat">Repl{{ post.reply_count|pluralize:"y,ies" }}</div>
-                </div>
-            </div>
-
                 <div class="post-title header">
                     {% if not post.is_open %}
                         <span class="ui title header">{{ post.get_status_display }}:</span>

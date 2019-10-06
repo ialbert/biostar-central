@@ -45,7 +45,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.template.context_processors.media',
                 'django.contrib.messages.context_processors.messages',
-                'biostar.context.main',
+                'biostar.forum.context.forum',
             ],
         },
     },

@@ -1,16 +1,15 @@
 {% load forum_tags %}
-
 <div class="ui top attached text menu dim-on-create  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}" id="menu-topics">
     <div class="ui inverted dimmer"></div>
     {% if user.is_authenticated %}
-          <div class="ui left dropdown item header-menu" style="display: none">
+          <div class="ui left dropdown item header-menu" style="display: none; margin-right: 0!important;">
     <i class="plus icon"></i>More
     <div class="menu">
 
          <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
             Messages {% count_label label="message_count" %}
         </a>
-        <a class="item   menu-tablet_small {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
+        <a class="item   menu-tablet_medsmall {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
            Votes {%  count_label label="vote_count" %}
         </a>
 
@@ -29,11 +28,11 @@
 
         </a>
 <span class="menu-tablet "> &bull;</span>
-        <a class="item   menu-tablet_small {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
+        <a class="item   menu-tablet_medsmall {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
            Votes {%  count_label label="vote_count" %}
 
         </a>
-<span class="menu-tablet_small "> &bull;</span>
+<span class="menu-tablet_medsmall "> &bull;</span>
        <a class="item menu-tablet_medsmall {% activate tab "myposts" %}" href="{% url 'myposts' %}">
             My Posts
 
@@ -84,12 +83,14 @@
             <a class="item {{ user.profile.css }} {% activate tab "logout" %}" href="{% url 'logout' %}">
           Logout
             </a>
+            &bull;
         {% else %}
         <a class="item {% activate tab "login" %}" href="{% url 'login' %}"> Log In</a>
-            <div class="tablet">&bull;</div>
+            &bull;
         <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}">Sign Up</a>
-            <div class="tablet">&bull;</div>
+            &bull;
         {% endif %}
-        <a class="item {{ user.profile.css }} {% activate tab "about" %}"> About</a>
+
+        <a class="item {{ user.profile.css }} {% activate tab "about" %}"> <i class="info icon"></i></a>
     </div>
 </div>

@@ -1,4 +1,5 @@
-
+from biostar import VERSION
+from django.conf import settings
 def forum(request):
     '''
     Additional context applied to each request.
@@ -10,6 +11,7 @@ def forum(request):
     res = request.COOKIES.get('resolution', 'x')
     width, height = res.split('x')
 
-    params = dict(user=request.user, width=width, height=height)
+    params = dict(user=request.user, width=width, height=height,
+                  VERSION=VERSION, request=request, site_name=settings.SITE_NAME, )
 
     return params
