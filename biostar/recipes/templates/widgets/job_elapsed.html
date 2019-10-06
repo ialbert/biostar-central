@@ -2,8 +2,14 @@
 {% load engine_tags %}
 
 
+    <div class="ui {% job_color job %} label {{ check_back }}" data-value="{{ job.uid }}" data-state="{{ job.state }}">
+        {% if job.state == job.SPOOLED or job.state == job.RUNNING %}
 
-    <div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
+            <i class="loading circle notch icon"></i>
+
+        {% endif %}
+    {{ job.get_state_display }}
+    </div>
     {% if job.elapsed %}
         Runtime {{ job.elapsed }}
     {% endif %}

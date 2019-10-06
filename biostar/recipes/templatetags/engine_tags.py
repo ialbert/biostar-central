@@ -305,7 +305,10 @@ def access_form(project, user, form):
 
 @register.inclusion_tag('widgets/job_elapsed.html')
 def job_minutes(job):
-    return dict(job=job)
+
+    check_back = 'check_back' if job.state in [Job.SPOOLED, Job.RUNNING] else ''
+
+    return dict(job=job, check_back=check_back)
 
 
 @register.simple_tag

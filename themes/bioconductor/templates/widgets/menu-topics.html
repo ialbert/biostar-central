@@ -3,32 +3,59 @@
 <div class="ui top attached text menu dim-on-create  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}" id="menu-topics">
     <div class="ui inverted dimmer"></div>
     {% if user.is_authenticated %}
+          <div class="ui left dropdown item header-menu" style="display: none; margin-right: 0!important;">
+    <i class="plus icon"></i>More
+    <div class="menu">
 
-        <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
+         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
             Messages {% count_label label="message_count" %}
         </a>
-        &bull;
-        <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-            Votes {%  count_label label="vote_count" %}
+        <a class="item   menu-tablet_medsmall {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
+           Votes {%  count_label label="vote_count" %}
         </a>
-&bull;
-        <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
+
+        <a class="item menu-tablet_medsmall {% activate tab "myposts" %}" href="{% url 'myposts' %}">
             My Posts
         </a>
-        <div class="tablet">&bull;</div>
-        <a class="item {% activate tab "mytags" %}" href="{% url 'mytags' %}">
-            <div class="tablet">My Tags</div>
+
+                <a class="item menu-tablet_med_xsmall {% activate tab "mytags" %}" href="{% url 'mytags' %}">
+            My Tags
         </a>
-        <div class="tablet">&bull;</div>
-        <a class="item {% activate tab "following" %}" href="{% url 'following' %}">
-            <div class="tablet">Following</div>
+    </div>
+  </div>
+
+        <a class="item menu-tablet {% activate tab "messages" %}" href="{% url 'inbox' %}">
+            Messages {% count_label label="message_count" %}
+
         </a>
-        <div class="tablet">&bull;</div>
+<span class="menu-tablet "> &bull;</span>
+        <a class="item   menu-tablet_medsmall {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
+           Votes {%  count_label label="vote_count" %}
+
+        </a>
+<span class="menu-tablet_medsmall "> &bull;</span>
+       <a class="item menu-tablet_medsmall {% activate tab "myposts" %}" href="{% url 'myposts' %}">
+            My Posts
+
+        </a>
+        <span class="menu-tablet_medsmall">&bull;</span>
+
+                <a class="item menu-tablet_med_xsmall {% activate tab "mytags" %}" href="{% url 'mytags' %}">
+            My Tags
+
+        </a>
+        <span class="menu-tablet_med_xsmall">&bull;</span>
+
+                <a class="item  {% activate tab "following" %}" href="{% url 'following' %}">
+            Following
+
+        </a>
+&bull;
         <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
-            <div class="tablet">Bookmarks</div>
+            Bookmarks
         </a>
-        <div class="tablet">&bull;</div>
-        <div class="item {{ user.profile.css }}">
+
+        <div class="item">
 
         <div class="ui top pointing dropdown" id="digest">
             <i class="{% get_digest_icon user %}" id="digest-icon"></i>
@@ -57,12 +84,14 @@
             <a class="item {{ user.profile.css }} {% activate tab "logout" %}" href="{% url 'logout' %}">
           Logout
             </a>
+            &bull;
         {% else %}
-        <a class="item {% activate tab "login" %}" href="{% url 'login' %}"> <span class="tablet">Log In</span></a>
-            <div class="tablet">&bull;</div>
-        <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}"><span class="tablet">Sign Up</span></a>
-            <div class="tablet">&bull;</div>
+        <a class="item {% activate tab "login" %}" href="{% url 'login' %}"> Log In</a>
+            &bull;
+        <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}">Sign Up</a>
+            &bull;
         {% endif %}
-        <a class="item {{ user.profile.css }} {% activate tab "about" %}"> <span class="tablet">About</span></a>
+
+        <a class="item {{ user.profile.css }} {% activate tab "about" %}"> <i class="info icon"></i></a>
     </div>
 </div>

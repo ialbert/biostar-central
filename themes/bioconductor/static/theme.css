@@ -146,6 +146,10 @@ body {
         display: none !important;
     }
 
+    .widen {
+	width: fit-content !important;
+    }
+
     .fit{
         width:133% !important;
     }
@@ -173,6 +177,10 @@ body {
         display: none !important;
     }
 
+    .widen {
+	width: fit-content !important;
+    }
+
         .ui.text.menu .item.padded{
     padding-right: 3px;
     padding-left: 3px;
@@ -182,6 +190,89 @@ body {
 }
 
 
+
+}
+@media all and (max-width: 765px) {
+
+    .menu-tablet_medsmall {
+        display: none !important;
+    }
+        .ui.menu:not(.vertical) .left.item{
+             display: inline !important;
+        margin-right: 0 !important;
+    }
+    .header-menu{
+        display: inline !important;
+        margin-right: 0 !important;
+    }
+
+    .header-menu .menu-tablet_medsmall{
+        display: block !important;
+    }
+
+}
+
+
+@media all and (max-width: 1200px) {
+
+    .menu-tablet {
+        display: inline !important;
+    }
+    .header-menu {
+        display: none !important;
+    }
+    .ui.menu:not(.vertical) .left.item.header-menu{
+        display: none !important;
+    }
+
+}
+
+
+@media all and (max-width: 999px) {
+
+ .menu-tablet {
+        display: none !important;
+    }
+    .ui.menu:not(.vertical) .left.item.header-menu{
+             display: inline !important;
+        margin-right: 0 !important;
+    }
+    .header-menu{
+        display: inline !important;
+        margin-right: 0 !important;
+    }
+    .header-menu .menu-tablet_small{
+        display: none !important;
+    }
+        .header-menu .menu-tablet_bicon_small {
+        display: none !important;
+    }
+
+}
+
+
+.widen {
+    width: fit-content !important;
+}
+
+
+@media all and (max-width: 840px) {
+
+.menu-tablet_bicon_small {
+    display: none !important;
+}
+    .ui.menu:not(.vertical) .left.item.header-menu{
+         display: inline !important;
+    margin-right: 0 !important;
+}
+.header-menu{
+    display: inline !important;
+    margin-right: 0 !important;
+}
+
+.header-menu .menu-tablet_bicon_small{
+    display: block !important;
+}
 
 }
 

@@ -4,7 +4,7 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 import biostar.accounts.urls as account_patterns
-from biostar.recipes import views, api
+from biostar.recipes import views, api, ajax
 
 urlpatterns = [
     # The django generated admin site.
@@ -14,6 +14,10 @@ urlpatterns = [
     # Site
     path(r'site/admin/', views.site_admin, name='site_admin'),
     path(r'site/bin/', views.recycle_bin, name='recycle_bin'),
+
+
+    # Ajax calls
+    path(r'ajax/check/job/<str:uid>/', ajax.check_job, name='ajax_check_job'),
 
     # Project
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),
