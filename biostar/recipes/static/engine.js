@@ -65,7 +65,7 @@ $(document).ready(function () {
 //    });
 
     // Check and update 'Running' and 'Spooled' jobs every 30 seconds.
-    setInterval(check_job, 3000 );
+    setInterval(check_job, 20000 );
 
     $(".copy-data").click(function (event) {
 
