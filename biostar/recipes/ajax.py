@@ -10,6 +10,7 @@ from biostar.recipes.models import Job
 
 logger = logging.getLogger("engine")
 
+
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
     payload.update(kwargs)
@@ -24,6 +25,7 @@ MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 180
 
 MAX_TAGS = 5
+
 
 class ajax_error_wrapper:
     """
@@ -64,3 +66,5 @@ def check_job(request, uid):
     template = tmpl.render(context=context)
 
     return ajax_success(msg='success', html=template, state=job.get_state_display(), state_changed=state_changed)
+
+

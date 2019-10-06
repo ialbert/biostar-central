@@ -45,6 +45,11 @@ SEARCH_CHAR_MIN = 1
 
 BATCH_INDEXING_SIZE = 1000
 
+# Add another context processor to first template.
+TEMPLATES[0]['OPTIONS']['context_processors'] += [
+    'biostar.forum.context.forum'
+]
+
 VOTE_FEED_COUNT = 10
 LOCATION_FEED_COUNT = 5
 AWARDS_FEED_COUNT = 10

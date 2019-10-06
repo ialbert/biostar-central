@@ -1,32 +1,50 @@
+
+function popup_message(elem, msg, cls, timeout) {
+    timeout = typeof timeout !== 'undefined' ? timeout : 1000;
+    var text = '<div></div>'
+    var tag = $(text).insertBefore(elem)
+    tag.addClass('popover ' + cls)
+    tag.text(msg)
+    tag.delay(timeout).fadeOut(500, function () {
+        $(this).remove()
+    });
+}
+
+// Triggered on network errors.
+function error_message(elem, xhr, status, text) {
+    popup_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
+}
+
+
 function check_job() {
 
-
-    //var job_uid = $(this).data('value');
+    // Look at each job with a 'check_back' tag
     $('.check_back').each(function () {
-    var job_uid = $(this).data('value');
-    var state = $(this).data('state');
-    if (job_uid === null || job_uid === undefined) {
-        return
-    }
-
-    //alert('goo');
-    $.ajax('/ajax/check/job/' + job_uid + '/',{
+        // Get the uid and state
+        var job_uid = $(this).data('value');
+        var state = $(this).data('state');
+        // Bail out when a job uid is not provided.
+        if (job_uid === null || job_uid === undefined) {
+            return
+        }
+        // Ajax request checking state change and replace appropriate element.
+        $.ajax('/ajax/check/job/' + job_uid + '/', {
             type: 'GET',
             dataType: 'json',
-            data:{'state': state},
+            data: {'state': state},
             ContentType: 'application/json',
             success: function (data) {
-                //alert($('.job-container-'+  job_uid).html());
-                if (data.state_changed){
+                // Only replace and activate effects when the state has actually changed.
+                if (data.state_changed) {
                     $('.job-container-' + job_uid).html(data.html);
                     var job_item = $('.job-item-' + job_uid);
                     job_item.transition('flash');
                 }
-
             },
-            error: function () {
-            }
-    })
+            error: function (xhr, status, text) {
+            error_message($(this), xhr, status, text)
+        }
+        })
     });
 
 
@@ -45,7 +63,9 @@ $(document).ready(function () {
 //            window.location = obj.attr("href");
 //       }
 //    });
-    setInterval(check_job, 20000);
+
+    // Check and update 'Running' and 'Spooled' jobs every 30 seconds.
+    setInterval(check_job, 1000 * 30);
 
     $(".copy-data").click(function (event) {
 

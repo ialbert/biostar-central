@@ -14,26 +14,56 @@
         <span class="">Ask a question</span>
     </a>
 
-    <a class="item {% activate tab "latest" %} format " href="{% url 'post_list' %}">
+    <a class="item menu-tablet_xsmall {% activate tab "latest" %} format " href="{% url 'post_list' %}">
     <span class="">Latest</span>
     </a>
-    <a class="tablet item {% activate tab "news" %} format" href="{% url 'post_list' %}?type=news">
+    <a class=" item menu-tablet_medsmall {% activate tab "news" %} format" href="{% url 'post_list' %}?type=news">
     <span class="">News</span>
     </a>
-    <a class="tablet item phone {% activate tab "job" %} format " href="{% url 'post_list' %}?type=job">
+    <a class=" item menu-tablet_small {% activate tab "job" %} format " href="{% url 'post_list' %}?type=job">
     <span class="">Jobs</span>
     </a>
 
-    <a class="tablet item phone {% activate tab "tutorial" %} format " href="{% url 'post_list' %}?type=tutorial">
+    <a class=" item menu-tablet_small {% activate tab "tutorial" %} format " href="{% url 'post_list' %}?type=tutorial">
     <span class="">Tutorials</span>
     </a>
 
-    <a class="tablet item phone {% activate tab "tags" %} format " href="{% url 'tags_list' %}">
+    <a class=" item   menu-tablet{% activate tab "tags" %} format " href="{% url 'tags_list' %}">
         <span class="">Tags</span>
     </a>
 
-    <a class="tablet item {% activate tab "community" %} format " href="{% url 'community_list' %}">
+    <a class=" item  menu-tablet{% activate tab "community" %} format " href="{% url 'community_list' %}">
         <span class="">Users</span>
     </a>
+
+  <div class="ui right dropdown item header-menu format" style="display: none; margin-left: 0px !important;">
+
+    <i class="dropdown icon"></i>More
+    <div class="menu">
+
+    <a class="item menu-tablet_xsmall {% activate tab "latest" %} format " href="{% url 'post_list' %}">
+    <span class="">Latest</span>
+    </a>
+    <a class=" item menu-tablet_medsmall {% activate tab "news" %} format" href="{% url 'post_list' %}?type=news">
+    <span class="">News</span>
+    </a>
+    <a class=" item menu-tablet_small {% activate tab "job" %} format " href="{% url 'post_list' %}?type=job">
+    <span class="">Jobs</span>
+    </a>
+
+    <a class="tablet item menu-tablet_small {% activate tab "tutorial" %} format " href="{% url 'post_list' %}?type=tutorial">
+    <span class="">Tutorials</span>
+    </a>
+
+    <a class=" item {% activate tab "tags" %} format " href="{% url 'tags_list' %}">
+        <span class="">Tags</span>
+    </a>
+
+    <a class="item {% activate tab "community" %} format " href="{% url 'community_list' %}">
+        <span class="">Users</span>
+    </a>
+
+    </div>
+  </div>
 
 </div>
