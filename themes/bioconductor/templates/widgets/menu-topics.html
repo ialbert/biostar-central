@@ -1,4 +1,5 @@
 {% load forum_tags %}
+
 <div class="ui top attached text menu dim-on-create  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}" id="menu-topics">
     <div class="ui inverted dimmer"></div>
     {% if user.is_authenticated %}

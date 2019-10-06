@@ -911,6 +911,9 @@ pre {
     }
 
 
+    .header-menu .menu-tablet_bicon_small {
+        display: none !important;
+    }
 
 }
 
@@ -944,8 +947,13 @@ pre {
     }
 
 
+    .header-menu .menu-tablet_bicon_small {
+        display: none !important;
+    }
+
 
 }
+
 
 
 @media all and (max-width: 700px) {
