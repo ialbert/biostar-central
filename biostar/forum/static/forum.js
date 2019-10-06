@@ -416,14 +416,14 @@ $(document).ready(function () {
     //document.body.style.backgroundColor = 'rgb(6, 23, 37)';
 
     //document.cookie = 'foo' + '=' + "res,foo";
-    document.cookie = 'resolution' + '=' + '{0}x{1}'.format($(window).width(), $(window).height());
+    //document.cookie = 'resolution' + '=' + '{0}x{1}'.format($(window).width(), $(window).height());
 
-    $(window).resize(function() {
+    //$(window).resize(function() {
       // This will execute whenever the window is resized
 
-      document.cookie = 'resolution' + '=' + '{0}x{1}'.format($(window).width(), $(window).height());
+     // document.cookie = 'resolution' + '=' + '{0}x{1}'.format($(window).width(), $(window).height());
 
-    });
+    //});
 
     $('#chat').click(function () {
         var user_uid = $(this).data('value');
