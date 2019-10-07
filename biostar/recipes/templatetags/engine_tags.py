@@ -5,6 +5,7 @@ import re
 from textwrap import dedent
 import hashlib
 import urllib.parse
+import random
 
 from datetime import timedelta, datetime
 from django.contrib import messages
@@ -33,6 +34,10 @@ DATA_COLORS = {
     Data.PENDING: "teal", Data.READY: "green", Data.ERROR: "red"
 }
 
+@register.simple_tag
+def randparam():
+    "Append to URL to bypass server caching of CSS or JS files"
+    return f"?randval={random.randint(1, 10000000)}" if settings.DEBUG else ""
 
 @register.filter
 def time_ago(date):
