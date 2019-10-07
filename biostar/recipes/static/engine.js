@@ -27,6 +27,7 @@ function check_job() {
         if (job_uid === null || job_uid === undefined) {
             return
         }
+
         // Ajax request checking state change and replace appropriate element.
         $.ajax('/ajax/check/job/' + job_uid + '/', {
             type: 'GET',
@@ -38,7 +39,7 @@ function check_job() {
                 if (data.state_changed) {
                     $('.job-container-' + job_uid).html(data.html);
                     var job_item = $('.job-item-' + job_uid);
-                    job_item.transition('flash');
+                    job_item.transition('pulse');
                 }
             },
             error: function (xhr, status, text) {
@@ -64,8 +65,8 @@ $(document).ready(function () {
 //       }
 //    });
 
-    // Check and update 'Running' and 'Spooled' jobs every 30 seconds.
-    setInterval(check_job, 20000 );
+    // Check and update 'Running' and 'Spooled' jobs every 20 seconds.
+    setInterval(check_job, 5000 );
 
     $(".copy-data").click(function (event) {
 
