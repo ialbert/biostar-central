@@ -2,7 +2,7 @@
 
 <a name="{{ post.uid }}"></a>
 
-<div class="dimm-on-edit " data-value="{{ post.uid }}">
+<div class="dimm-on-edit " data-value="{{ post.uid }}" draggable="true" id="{{ post.uid }}" ondragstart="drag(event, '{{ post.uid }}');">
 
     <div class="ui inverted dimmer">
         <div class="ui text loader">
@@ -10,7 +10,7 @@
         </div>
     </div>
 
-    <div class="post comment {{ post.css }}">
+    <div class="post comment {{ post.css }} ">
 
         <div class="body">
             {#  Comment anchor. #}
@@ -56,4 +56,5 @@
         <div id="comment-insert-{{ post.uid }}"></div>
 
     </div>
+
 </div>

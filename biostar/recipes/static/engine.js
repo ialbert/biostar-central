@@ -48,7 +48,6 @@ function check_job() {
         })
     });
 
-
 }
 
 $(document).ready(function () {

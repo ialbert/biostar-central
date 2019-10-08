@@ -329,48 +329,22 @@ function highlight(text){
     //Prism.highlightAll()
 }
 
+function allowDrop(ev) {
+  ev.preventDefault();
+}
 
-function get_recent(uid){
-    var recent_posts = '/ajax/recent/';
-    var elem =  $('#recent');
-    var msg = $("#msg");
+function drag(ev, elem_id) {
+    //ev.preventDefault();
+  ev.dataTransfer.setData("text", elem_id);
 
-    var comment = $("#new-comment");
+}
 
-        if (comment.length) {
-            // Remove comment if exists.
-            msg.remove();
-        } else {
-            // Create a new comment.
-            msg = $("<div id='msg'></div>");
-        }
-    elem.after(msg);
-    msg.css({'position': 'fixed', 'left':'auto', 'right': 'auto', 'z-index':'10000'});
-    $.ajax(recent_posts,
-            {
-                type: 'GET',
-                dataType: 'json',
-                ContentType: 'application/json',
-                data: {
-                    'uid': uid
-                },
-                success: function (data) {
-                    if (data.status === 'error') {
-                        popup_message(elem, data.msg, data.status);
-                    } else {
-                        // Populate the feed.
-
-                        if (data.nposts === undefined || data.nposts === null){
-                            return
-                        }
-                        //var contain = "<div class='ui message'>{0}, most recent: {1}</div>".f(data.nposts, data.most_recent_url);
-                        msg.html(contain)
-                    }
-                },
-                error: function (xhr, status, text) {
-                    error_message(elem, xhr, status, text)
-                }
-            })
+function drop(ev) {
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  //var indent = $('<div class="indent" ondragover="allowDrop({0});" ondrop="drop({1})"></div>'.format(ev, ));'
+    //alert(ev.target.parentElement.attr('id'));
+  ev.target.parentElement.parentElement.append(document.getElementById(data));
 }
 
 function chat_list(user_uid){
@@ -440,6 +414,7 @@ $(document).ready(function () {
             res.removeClass('ui message');
         }
     });
+
 
     $('#similar-feed').each(function () {
         var elem = $(this);
