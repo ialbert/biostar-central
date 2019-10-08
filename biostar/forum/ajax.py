@@ -105,6 +105,15 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
+def drag_and_drop(request):
+
+    source = request.POST.get("source")
+    target = request.POST.get("target")
+
+
+    return
+
+
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")

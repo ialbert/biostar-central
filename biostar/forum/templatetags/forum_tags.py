@@ -676,8 +676,9 @@ def traverse_comments(request, post, tree, template_name):
 
         cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
-
-        collect.append(f'<div class="indent " id="indent-{node.uid}" ondragover="allowDrop(event);" ondrop="drop(event)"><div class="comment">{html}</div>')
+        drop = f"indent-{node.uid}"
+        d2 = f"'{node.uid}'"
+        collect.append(f'<div class="indent droptarget " id="{drop}" ondragover="allowDrop(event);" ondrop="drop(event, {d2})"><div class="comment">{html}</div>')
 
         for child in tree.get(node.id, []):
             if child in seen:

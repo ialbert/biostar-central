@@ -335,16 +335,37 @@ function allowDrop(ev) {
 
 function drag(ev, elem_id) {
     //ev.preventDefault();
-  ev.dataTransfer.setData("text", elem_id);
+  ev.dataTransfer.setData("text",elem_id);
+  ev.target.style.opacity = "0.4";
+  ev.target.style.cursor = 'grabbing';
+  //$(this).css('cursor', )
 
 }
 
-function drop(ev) {
+function drag_enter(ev, elem_id) {
+
+   $('#indent-'+elem_id).css('background-color', 'red');
+   alert(elem_id)
+}
+
+function drop(ev, elem_id) {
   ev.preventDefault();
   var data = ev.dataTransfer.getData("text");
   //var indent = $('<div class="indent" ondragover="allowDrop({0});" ondrop="drop({1})"></div>'.format(ev, ));'
     //alert(ev.target.parentElement.attr('id'));
-  ev.target.parentElement.parentElement.append(document.getElementById('indent-'+data));
+    //alert($('#'+data).html());
+    $('#'+data).css('opacity', '1');
+    //$('#'+data).css('border', '');
+    let elem = ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+    ev.target.style.border = "";
+    elem.append(document.getElementById('indent-'+data));
+
+    elem.style.backgroundColor = "green";
+    //alert(elem.id);
+alert(elem_id);
+
+  //alert($('#indent-'+elem_id).html());
+  alert(data);
 }
 
 function chat_list(user_uid){
@@ -378,26 +399,6 @@ function chat_list(user_uid){
 
 $(document).ready(function () {
 
-     // setInterval(function(){
-     //     var recent_popup = $('#recent');
-     //     var uid = recent_popup.data("value");
-     //     if (uid === undefined || uid === null){
-     //         uid = '';
-     //     }
-     //     alert('333');
-     //     get_recent(uid)
-     //   },50000);
-    //document.body.style.backgroundColor = 'rgb(6, 23, 37)';
-
-    //document.cookie = 'foo' + '=' + "res,foo";
-    //document.cookie = 'resolution' + '=' + '{0}x{1}'.format($(window).width(), $(window).height());
-
-    //$(window).resize(function() {
-      // This will execute whenever the window is resized
-
-     // document.cookie = 'resolution' + '=' + '{0}x{1}'.format($(window).width(), $(window).height());
-
-    //});
 
     $('#chat').click(function () {
         var user_uid = $(this).data('value');
@@ -415,6 +416,16 @@ $(document).ready(function () {
         }
     });
 
+    document.addEventListener("dragenter", function(event) {
+        //alert(event.target.className);
+      if ( ~event.target.className.indexOf("comment") &&  ~event.target.className.indexOf("droptarget") ) {
+        event.target.style.border = "3px dotted red";
+      }
+    });
+
+    $('.post.comment').mousedown(function () {
+       $(this).css('cursor', 'grabbing')
+    })
 
     $('#similar-feed').each(function () {
         var elem = $(this);
