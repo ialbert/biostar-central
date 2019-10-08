@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-import psycopg2
+
 import sqlite3
 from biostar.recipes import const
 from . import models
@@ -65,7 +65,7 @@ def radioselect_field(obj):
 
 
 def db_connect(database_name=''):
-
+    import psycopg2
     database_name = database_name or settings.DATABASE_NAME
     try:
         conn = psycopg2.connect(database=database_name)
