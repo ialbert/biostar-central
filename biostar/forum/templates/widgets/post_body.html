@@ -65,7 +65,7 @@
 
                 <div class="wrap magnify">
                     {# Display post author. #}
-                    <div class="hide-on-edit" data-value="{{ post.uid }}">
+                    <div class="hide-on-edit menu-tablet" data-value="{{ post.uid }}">
                         {% post_user_box user=post.author post=post %}
                     </div>
                     {# Display post content. #}
@@ -88,7 +88,7 @@
                     {% endif %}
 
                     {# Show the post actions #}
-                    <div class="hide-on-comment" data-value="{{ post.uid }}">
+                    <div class="hide-on-comment" data-value="{{ post.uid }}" style="display: flow-root">
                         {% post_actions post=post %}
                     </div>
 

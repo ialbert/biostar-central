@@ -344,7 +344,7 @@ function drop(ev) {
   var data = ev.dataTransfer.getData("text");
   //var indent = $('<div class="indent" ondragover="allowDrop({0});" ondrop="drop({1})"></div>'.format(ev, ));'
     //alert(ev.target.parentElement.attr('id'));
-  ev.target.parentElement.parentElement.append(document.getElementById(data));
+  ev.target.parentElement.parentElement.append(document.getElementById('indent-'+data));
 }
 
 function chat_list(user_uid){
