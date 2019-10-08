@@ -337,35 +337,55 @@ function drag(ev, elem_id) {
     //ev.preventDefault();
   ev.dataTransfer.setData("text",elem_id);
   ev.target.style.opacity = "0.4";
-  ev.target.style.cursor = 'grabbing';
-  //$(this).css('cursor', )
 
 }
 
-function drag_enter(ev, elem_id) {
-
-   $('#indent-'+elem_id).css('background-color', 'red');
-   alert(elem_id)
-}
 
 function drop(ev, elem_id) {
+
   ev.preventDefault();
-  var data = ev.dataTransfer.getData("text");
-  //var indent = $('<div class="indent" ondragover="allowDrop({0});" ondrop="drop({1})"></div>'.format(ev, ));'
-    //alert(ev.target.parentElement.attr('id'));
-    //alert($('#'+data).html());
-    $('#'+data).css('opacity', '1');
-    //$('#'+data).css('border', '');
-    let elem = ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
-    ev.target.style.border = "";
-    elem.append(document.getElementById('indent-'+data));
+  var uid = ev.dataTransfer.getData("text");
 
-    elem.style.backgroundColor = "green";
-    //alert(elem.id);
-alert(elem_id);
+    $('#'+uid).css('opacity', '1');
+    let elem = ev.target.parentElement.parentElement.parentElement.parentElement.parentElement;
+    elem.parentElement.style.backgroundColor = "white";
+    elem.parentElement.style.paddingRight = "0";
+    //ev.target.style.border = "red";
+    elem.parentElement.append(document.getElementById('indent-'+uid));
 
-  //alert($('#indent-'+elem_id).html());
-  alert(data);
+    console.log(elem_id, 'give');
+     console.log(elem.id, 'extracted');
+     console.log(elem.parentElement.id, 'extracted2');
+    console.log(uid);
+    console.log(elem_id);
+
+    if (elem.id === 'indent-'+ elem_id || elem.parentElement.id === 'indent-'+ elem_id
+        ||elem.id === elem_id || elem.parentElement.id === elem_id  ){
+        $.ajax('/drag/and/drop/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'uid': uid,
+                'parent':elem_id,
+
+            },
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(elem, data.msg, data.status);
+                } else {
+                    //alert(data.redir)
+                    window.location.href = data.redir;
+                    popup_message($('#'+uid), "Moved Post", 'success', 1000);
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        })
+    }
+
 }
 
 function chat_list(user_uid){
@@ -415,13 +435,9 @@ $(document).ready(function () {
             res.removeClass('ui message');
         }
     });
-
-    document.addEventListener("dragenter", function(event) {
-        //alert(event.target.className);
-      if ( ~event.target.className.indexOf("comment") &&  ~event.target.className.indexOf("droptarget") ) {
-        event.target.style.border = "3px dotted red";
-      }
-    });
+function allowDrop(ev) {
+  ev.preventDefault();
+}
 
     $('.post.comment').mousedown(function () {
        $(this).css('cursor', 'grabbing')

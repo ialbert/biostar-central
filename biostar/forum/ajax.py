@@ -14,6 +14,7 @@ from django.shortcuts import reverse
 from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
+from django.db.models import F
 from whoosh.searching import Results
 from whoosh.sorting import FieldFacet, ScoreFacet
 from .const import *
@@ -107,11 +108,23 @@ def ajax_vote(request):
 
 def drag_and_drop(request):
 
-    source = request.POST.get("source")
-    target = request.POST.get("target")
+    parent = request.POST.get("parent", '')
+    uid = request.POST.get("uid", '')
 
+    parent = Post.objects.filter(uid=parent).first()
+    post = Post.objects.filter(uid=uid).first()
 
-    return
+    if not uid or not parent:
+        return ajax_error(msg="Parent and Uid need to be provided. ")
+
+    Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
+    Post.objects.filter(uid=post.root.uid).update(reply_count=F("answer_count") - 1)
+
+    redir = post.get_absolute_url()
+    print(parent.uid, uid)
+    #1/0
+
+    return ajax_success(msg="success", redir=redir)
 
 
 @ratelimit(key='ip', rate='50/h')

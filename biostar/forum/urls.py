@@ -42,7 +42,7 @@ urlpatterns = [
     path('ajax/search/', ajax.ajax_search, name='ajax_search'),
     path('ajax/tags/search/', ajax.ajax_tags_search, name='ajax_tags_search'),
     path('ajax/subscribe/', ajax.ajax_subs, name='ajax_sub'),
-
+    path('drag/and/drop/', ajax.drag_and_drop, name='drag_and_drop'),
 
     path('ajax/tags/search/', ajax.ajax_tags_search, name='ajax_tags_search'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
