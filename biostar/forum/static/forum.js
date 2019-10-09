@@ -340,6 +340,36 @@ function drag(ev, elem_id) {
 
 }
 
+function drag_leave(ev){
+    ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = '';
+     ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = '';
+    //alert('kkkk')
+}
+
+function drag_end(ev){
+    alert('foo');
+    ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = 'red';
+     ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = '';
+}
+
+function drag_over(ev, pid){
+    ev.preventDefault();
+    let elem_id = ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.id;
+    //let data = ev.dataTransfer.getData("text");
+
+    if (pid === elem_id){
+           console.log(ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.id);
+
+    console.log(pid);
+    //console.log(data);
+    console.log("------")
+        ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = 'dotted';
+    ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = '#c2ffc2';
+    }
+
+    //alert(ev.target);
+}
+
 
 function drop(ev, elem_id) {
 
@@ -353,11 +383,11 @@ function drop(ev, elem_id) {
     //ev.target.style.border = "red";
     elem.parentElement.append(document.getElementById('indent-'+uid));
 
-    console.log(elem_id, 'give');
-     console.log(elem.id, 'extracted');
-     console.log(elem.parentElement.id, 'extracted2');
-    console.log(uid);
-    console.log(elem_id);
+    // console.log(elem_id, 'give');
+    //  console.log(elem.id, 'extracted');
+    //  console.log(elem.parentElement.id, 'extracted2');
+    // console.log(uid);
+    // console.log(elem_id);
 
     if (elem.id === 'indent-'+ elem_id || elem.parentElement.id === 'indent-'+ elem_id
         ||elem.id === elem_id || elem.parentElement.id === elem_id  ){

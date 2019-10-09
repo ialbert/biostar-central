@@ -304,6 +304,8 @@ class DataEditForm(forms.ModelForm):
 class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)
     uid = forms.CharField(max_length=32, required=False)
+    json_text = forms.CharField(max_length=MAX_TEXT_LEN, required=False)
+    template = forms.CharField(max_length=MAX_TEXT_LEN, required=False)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -314,11 +316,27 @@ class RecipeForm(forms.ModelForm):
         fields = ["name", "image", "rank", "text", "uid"]
 
     def save(self, commit=True):
+        # Templates.
+        template = self.cleaned_data['template']
+        json_text = self.cleaned_data['json']
 
-        self.instance.lastedit_date = now()
-        self.instance.lastedit_user = self.user
-        Project.objects.get_all(uid=self.instance.project.uid).update(lastedit_date=now(),
-                                                                      lastedit_user=self.user)
+        self.instance.json_text = json_text
+
+        template_change = auth.text_diff(text1=self.instace.template, text2=template)
+        json_change = auth.text_diff(text1=self.instace.json, text2=json_text)
+
+        # Recipes edited by non staff members need to be authorized.
+        if (template_change or json_change) and not self.user.is_superuser:
+            self.instance.security = Analysis.UNDER_REVIEW
+
+        # Changes to template will require a review ( only when saving ).
+        if template_change:
+            self.instance.diff_author = self.user
+            self.instance.diff_date = now()
+
+        # Set the new template.
+        self.instance.template = template
+
         return super(RecipeForm, self).save(commit)
 
     def clean_image(self):
@@ -569,7 +587,7 @@ class EditCode(forms.Form):
         self.recipe.json_text = json_text
 
         # Changes to template will require a review ( only when saving ).
-        if auth.template_changed(analysis=self.recipe, template=template) and commit:
+        if auth.text_diff(text1=self.recipe.template, text2=template) and commit:
             self.recipe.diff_author = self.user
             self.recipe.diff_date = now()
 

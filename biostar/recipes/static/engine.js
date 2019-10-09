@@ -52,7 +52,7 @@ function check_job() {
 
 $(document).ready(function () {
 
-
+    $('.ui.dropdown').dropdown();
      $('select')
         .dropdown()
     ;

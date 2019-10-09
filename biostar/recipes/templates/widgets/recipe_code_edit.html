@@ -1,0 +1,63 @@
+
+<div class="ui raised segment">
+
+            <form class="ui form" action="{% url 'recipe_edit' recipe.uid %}" method="POST">
+            <div class="ui grid inputcolor">
+
+                {% csrf_token %}
+
+                <div class="sixteen wide center aligned column">
+                    The web interface is generated from the JSON file. The JSON file with the script template
+                    are used to produce the final script.
+                </div>
+
+                <div class="eight wide column">
+                    <div class="ui basic segment">
+                        <div class="ui center aligned header">
+                            Interface JSON
+                        </div>
+
+                        <textarea class="code" rows="30" cols="55" name="json"
+                                  id="json">{{ form.json_text.value }}</textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="eight wide column column">
+                    <div class="ui basic segment">
+                        <div class="ui center aligned header">
+                            Script Template
+                        </div>
+                        <textarea class="code" rows="30" cols="55" name="template"
+                                  id="template">{{ form.template.value }}</textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="sixteen wide column">
+                    <div class="ui center aligned basic segment">
+
+                        <div class="ui top pointing dropdown" >
+                            <a class="ui blue button"> <i class="caret down icon"></i> Preview </a>
+                            <div class="menu">
+                                <a class="item" ><i class="edit icon" ></i>Preview interface</a>
+                                <a class="item" ><i class="code icon" ></i>Preview code</a>
+                                <a class="item" ><i class="settings icon" ></i>Preview both</a>
+                            </div>
+                        </div>
+
+                        <button type="submit" name="action" value="SAVE" class="ui green button">
+                            <i class="save icon"></i>Save Changes
+                        </button>
+
+                        <a class="ui  button" href="{% url 'recipe_view' recipe.uid %}">
+                            <i class="setting icon"></i>View Recipe
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+</div>

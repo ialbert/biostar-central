@@ -456,6 +456,8 @@ class Analysis(models.Model):
         if self.security == self.AUTHORIZED:
             self.last_valid = self.template
 
+        Project.objects.get_all(uid=self.project.uid).update(lastedit_date=now(),
+                                                             lastedit_user=self.lastedit_user)
         super(Analysis, self).save(*args, **kwargs)
 
     def get_project_dir(self):
