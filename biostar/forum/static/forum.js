@@ -376,7 +376,7 @@ function drop(ev, elem_id) {
                     popup_message(elem, data.msg, data.status);
                 } else {
                     //alert(data.redir)
-                    window.location.href = data.redir;
+                    //window.location.href = data.redir;
                     popup_message($('#'+uid), "Moved Post", 'success', 1000);
                 }
             },
