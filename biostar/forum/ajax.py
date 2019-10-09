@@ -106,7 +106,13 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
 def drag_and_drop(request):
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     parent = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
@@ -121,8 +127,6 @@ def drag_and_drop(request):
     Post.objects.filter(uid=post.root.uid).update(reply_count=F("answer_count") - 1)
 
     redir = post.get_absolute_url()
-    print(parent.uid, uid)
-    #1/0
 
     return ajax_success(msg="success", redir=redir)
 
