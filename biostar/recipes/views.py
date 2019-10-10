@@ -1,23 +1,21 @@
 import logging
 import os
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Q, Count
 from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
 from django.template import Template, Context
-from django.db.models import Count
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 from sendfile import sendfile
-from django.http import HttpResponse
-from django.conf import settings
-from django.db.models import Q, Count
 
 from biostar.accounts.models import User
-from . import tasks, auth, forms, const, util, search
+from . import tasks, auth, forms, const, search
 from .decorators import read_access, write_access
 from .models import (Project, Data, Analysis, Job, Access)
 
@@ -80,7 +78,6 @@ def recycle_bin(request):
 
 @write_access(type=Project, fallback_view="project_view")
 def project_delete(request, uid):
-
     project = Project.objects.get_all(uid=uid).first()
     project.deleted = not project.deleted
     project.save()
@@ -108,7 +105,6 @@ def clear_clipboard(request, uid):
 
 
 def search_bar(request):
-
     results = search.search(request=request)
     # Indicate to users that minimum character needs to be met.
     query_lenth = len(request.GET.get("q", "").strip())
@@ -172,7 +168,6 @@ def project_users(request, uid):
 
 @read_access(obj_type=Project)
 def project_info(request, uid):
-
     user = request.user
 
     project = Project.objects.get_all(uid=uid).first()
@@ -230,7 +225,6 @@ def project_list_public(request):
 
 
 def project_list(request):
-
     if request.user.is_authenticated:
         # Return private projects when user is logged in.
         return project_list_private(request)
@@ -398,7 +392,6 @@ def job_copy(request, uid):
 
 @read_access(obj_type=Data)
 def data_file_copy(request, uid, path):
-
     # Get the root data where the file exists
     data = Data.objects.get_all(uid=uid).first()
     fullpath = os.path.join(data.get_data_dir(), path)
@@ -409,7 +402,6 @@ def data_file_copy(request, uid, path):
 
 @read_access(obj_type=Job)
 def job_file_copy(request, uid, path):
-
     # Get the root data where the file exists
     job = Job.objects.get_all(uid=uid).first()
     fullpath = os.path.join(job.get_data_dir(), path)
@@ -492,7 +484,6 @@ def data_paste(request, uid):
 
 @write_access(type=Project, fallback_view="data_list")
 def file_paste(request, uid):
-
     project = Project.objects.get_all(uid=uid).first()
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
     file_clipboard = clipboard.get(const.FILES_CLIPBOARD, [])
@@ -729,7 +720,7 @@ def recipe_code_edit(request, uid):
 
             if commit:
                 messages.info(request, "The recipe has been updated.")
-                return redirect(reverse("recipe_view",  kwargs=dict(uid=analysis.uid)))
+                return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
     else:
         # This gets triggered on a GET request.
         initial = dict(template=analysis.template, json=analysis.json_text)
@@ -756,29 +747,28 @@ def recipe_code_edit(request, uid):
 
 @write_access(type=Analysis, fallback_view='recipe_view')
 def recipe_edit(request, uid):
-    "Edit meta-data associated with a recipe."
+    """
+    Edit meta-data associated with a recipe.
+    """
 
+    # The recipe that needs to be edited.
     recipe = Analysis.objects.get_all(uid=uid).first()
-    active = request.GET.get('active')
-    active = active if active in ['edit_code', 'edit_info'] else 'edit_code'
-    active = {active: 'active'}
+
+    # The project that recipe belongs to.
     project = recipe.project
 
-    action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
-    #initial = dict(template=recipe.template, json_text=recipe.json_text)
-    initial = dict(name=recipe.name, json_text=recipe.json_text, template=recipe.template, rank=recipe.rank)
-    form = forms.RecipeForm(instance=recipe, user=recipe.owner, initial=initial)
-
     if request.method == "POST":
-        form = forms.RecipeForm(data=request.POST, files=request.FILES, instance=recipe, user=request.user,
-                                initial=initial)
+        # Form has been submitted
+        form = forms.RecipeForm(data=request.POST, instance=recipe, user=request.user)
         if form.is_valid():
             recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
-    context = dict(recipe=recipe, project=project, form=form, action_url=action_url, name=recipe.name)
-    context.update(active)
+    else:
+        # Initial form loading via a GET request.
+        form = forms.RecipeForm(instance=recipe, user=request.user)
 
+    context = dict(recipe=recipe, project=project, form=form, name=recipe.name)
     return render(request, 'recipe_edit.html', context)
 
 
