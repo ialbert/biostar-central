@@ -123,6 +123,8 @@ def drag_and_drop(request):
     if not uid or not parent:
         return ajax_error(msg="Parent and Uid need to be provided. ")
 
+    if not request.user.profile.is_moderator:
+        return ajax_error(msg="Only moderators can move comments.")
     Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
     Post.objects.filter(uid=post.root.uid).update(reply_count=F("answer_count") - 1)
 

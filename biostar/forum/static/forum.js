@@ -405,6 +405,7 @@ function drop(ev, elem_id) {
                     //alert(data.redir)
                     //window.location.href = data.redir;
                     popup_message($('#'+uid), "Moved Post", 'success', 1000);
+                    $('#'+uid).transition('pulse');
                 }
             },
             error: function (xhr, status, text) {
