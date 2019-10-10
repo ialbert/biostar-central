@@ -306,6 +306,9 @@ class RecipeForm(forms.ModelForm):
     uid = forms.CharField(max_length=32, required=False)
     json_text = forms.CharField(max_length=MAX_TEXT_LEN, required=False)
     template = forms.CharField(max_length=MAX_TEXT_LEN, required=False)
+    name = forms.CharField(max_length=MAX_NAME_LEN, required=False)
+    rank = forms.FloatField(required=False)
+    text = forms.FloatField(required=False)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -315,15 +318,25 @@ class RecipeForm(forms.ModelForm):
         model = Analysis
         fields = ["name", "image", "rank", "text", "uid"]
 
+    def clean(self):
+        cleaned_data = super(RecipeForm, self).clean()
+        template = cleaned_data['template']
+        json_text = cleaned_data['json_text']
+
+        if not self.user.is_superuser and (json_text != self.instance.json_text or template != self.instance.template):
+            raise forms.ValidationError("Admins are the only ones allowed to change the json or template.")
+
+        return cleaned_data
+
     def save(self, commit=True):
         # Templates.
         template = self.cleaned_data['template']
-        json_text = self.cleaned_data['json']
+        json_text = self.cleaned_data['json_text']
 
         self.instance.json_text = json_text
 
-        template_change = auth.text_diff(text1=self.instace.template, text2=template)
-        json_change = auth.text_diff(text1=self.instace.json, text2=json_text)
+        template_change = auth.text_diff(text1=self.instance.template, text2=template)
+        json_change = auth.text_diff(text1=self.instance.json_text, text2=json_text)
 
         # Recipes edited by non staff members need to be authorized.
         if (template_change or json_change) and not self.user.is_superuser:
@@ -336,7 +349,6 @@ class RecipeForm(forms.ModelForm):
 
         # Set the new template.
         self.instance.template = template
-
         return super(RecipeForm, self).save(commit)
 
     def clean_image(self):
@@ -353,7 +365,9 @@ class RecipeForm(forms.ModelForm):
         if uid and not (uid.isalnum() or "-" in uid):
             msg = "Only alphanumeric characters allowed, no spaces."
             raise forms.ValidationError(msg)
-
+        if not uid:
+            msg = "Uid is required."
+            raise forms.ValidationError(msg)
         return uid
 
 

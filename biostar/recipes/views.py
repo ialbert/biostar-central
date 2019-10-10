@@ -765,11 +765,13 @@ def recipe_edit(request, uid):
     project = recipe.project
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
-    initial = dict(template=recipe.template, json_text=recipe.json_text)
+    #initial = dict(template=recipe.template, json_text=recipe.json_text)
+    initial = dict(name=recipe.name, json_text=recipe.json_text, template=recipe.template, rank=recipe.rank)
     form = forms.RecipeForm(instance=recipe, user=recipe.owner, initial=initial)
 
     if request.method == "POST":
-        form = forms.RecipeForm(data=request.POST, files=request.FILES, instance=recipe, user=request.user)
+        form = forms.RecipeForm(data=request.POST, files=request.FILES, instance=recipe, user=request.user,
+                                initial=initial)
         if form.is_valid():
             recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))

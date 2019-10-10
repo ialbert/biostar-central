@@ -1,7 +1,16 @@
+{% load static %}
 
-<div class="ui raised segment">
 
-            <form class="ui form" action="{% url 'recipe_edit' recipe.uid %}" method="POST">
+<link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
+
+        <script src="{% static 'codemirror/codemirror.js' %}"></script>
+        <script src="{% static 'codemirror/mode/simple.js' %}"></script>
+        <script src="{% static 'codemirror/mode/engine.js' %}"></script>
+
+
+<div class="ui raised inputcolor segment">
+
+            <form class="ui form" action="." method="POST">
             <div class="ui grid inputcolor">
 
                 {% csrf_token %}
@@ -17,7 +26,7 @@
                             Interface JSON
                         </div>
 
-                        <textarea class="code" rows="30" cols="55" name="json"
+                        <textarea class="code" rows="40" cols="55" name="json"
                                   id="json">{{ form.json_text.value }}</textarea>
 
                     </div>
@@ -29,7 +38,7 @@
                         <div class="ui center aligned header">
                             Script Template
                         </div>
-                        <textarea class="code" rows="30" cols="55" name="template"
+                        <textarea class="code" rows="40" cols="55" name="template"
                                   id="template">{{ form.template.value }}</textarea>
 
                     </div>
@@ -61,3 +70,27 @@
             </div>
         </form>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var json_edit = CodeMirror.fromTextArea(
+            document.getElementById("json"), {
+                lineNumbers: true,
+                mode: "engine",
+
+
+            }
+        );
+        var template_edit = CodeMirror.fromTextArea(
+            document.getElementById("template"),
+            {
+                lineNumbers: true,
+                mode: "engine"
+            }
+        );
+
+
+    });
+
+</script>

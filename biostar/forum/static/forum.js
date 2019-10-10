@@ -346,23 +346,18 @@ function drag_leave(ev){
     //alert('kkkk')
 }
 
-function drag_end(ev){
-    alert('foo');
-    ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = 'red';
-     ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = '';
-}
 
 function drag_over(ev, pid){
-    ev.preventDefault();
+    //ev.preventDefault();
     let elem_id = ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.id;
     //let data = ev.dataTransfer.getData("text");
 
     if (pid === elem_id){
-           console.log(ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.id);
+           //console.log(ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.id);
 
-    console.log(pid);
+    //console.log(pid);
     //console.log(data);
-    console.log("------")
+    //console.log("------");
         ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = 'dotted';
     ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = '#c2ffc2';
     }
@@ -380,6 +375,8 @@ function drop(ev, elem_id) {
     let elem = ev.target.parentElement.parentElement.parentElement.parentElement.parentElement;
     elem.parentElement.style.backgroundColor = "white";
     elem.parentElement.style.paddingRight = "0";
+     ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = '';
+     ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = '';
     //ev.target.style.border = "red";
     elem.parentElement.append(document.getElementById('indent-'+uid));
 
