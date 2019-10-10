@@ -306,9 +306,6 @@ class RecipeForm(forms.ModelForm):
     uid = forms.CharField(max_length=32, required=False)
     json_text = forms.CharField(max_length=MAX_TEXT_LEN, required=False)
     template = forms.CharField(max_length=MAX_TEXT_LEN, required=False)
-    name = forms.CharField(max_length=MAX_NAME_LEN, required=False)
-    rank = forms.FloatField(required=False)
-    text = forms.FloatField(required=False)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -316,7 +313,7 @@ class RecipeForm(forms.ModelForm):
 
     class Meta:
         model = Analysis
-        fields = ["name", "image", "rank", "text", "uid"]
+        fields = ["name", "image", "rank", "text", "uid", 'json_text', 'template']
 
     def clean(self):
         cleaned_data = super(RecipeForm, self).clean()

@@ -56,6 +56,22 @@ $(document).ready(function () {
      $('select')
         .dropdown()
     ;
+     $('.ui.sticky')
+  .sticky()
+;
+
+
+     $('#preview').click(function (event) {
+
+
+
+     });
+      $('#json_preview').click(function (event) {
+         let recipe_uid = $(this).data('value');
+         alert(recipe_uid)
+
+
+     });
 
 //    $(".items > .item").click(function (event) {
 //        var obj = $(this).find("a:first");

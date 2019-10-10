@@ -1,5 +1,12 @@
 {% extends "engine_base.html" %}
 {%  load engine_tags %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
+
+        <script src="{% static 'codemirror/codemirror.js' %}"></script>
+        <script src="{% static 'codemirror/mode/simple.js' %}"></script>
+        <script src="{% static 'codemirror/mode/engine.js' %}"></script>
 
 
 {% block headtitle %}
@@ -9,26 +16,28 @@
 {% block body %}
 
 
-    <div class="ui top attached blue colored tabular menu">
-      <a class="{{ edit_code }} item" href="{% url 'recipe_edit' recipe.uid %}?active=edit_code">
-      <i class="code icon"></i><span class="phone">Edit Code</span>
-  </a>
-  <a class=" {{ edit_info }} item" href="{% url 'recipe_edit' recipe.uid %}?active=edit_info">
-    <i class="edit icon"></i><span class="phone">Edit Information</span>
-  </a>
-
-</div>
-
-<div class="ui bottom attached colored segment">
 {% form_errors form %}
-{% if edit_info %}
+
+    <div class="ui sticky compact  menu" style="float: right">
+  <a class=" item" href="#edit_info">
+      Information
+  </a>
+      <a class=" item" href="#interface">
+      Interface
+  </a>
+          <a class=" item" href="#edit_code">
+      Code
+  </a>
+    </div>
+
+<div class="ui header" id="edit_info">Edit Information</div>
+
+        <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
 
 <div class="ui centered card" style="width: 700px;">
 
     <div class="ui raised segment inputcolor">
     {% form_errors form %}
-
-        <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
 
             {% csrf_token %}
 
@@ -68,16 +77,100 @@
                  <i class="undo icon"></i> Cancel
             </a>
 
-        </form>
     </div>
 </div>
 
+            <div class="ui header" id="interface">Edit Interface</div>
+            <div class="muted">
+                The web interface is generated from the JSON file. The JSON file with the script template
+                are used to produce the final script.
+            </div>
+            <div class="ui centered card" style="width: 700px;">
 
+                <div class="ui raised inputcolor segment">
 
-{% else %}
-    {% include 'widgets/recipe_code_edit.html' with form=form recipe=recipe %}
-{% endif %}
+                    <div class="ui basic segment">
+                        <div class="ui center aligned header">
+                            Interface JSON
+                        </div>
 
-</div>
+                        <textarea class="code" rows="40" cols="5" name="json_text"
+                                  id="id_json_text">{{ form.json_text.value }}</textarea>
+                         <div style="padding-top: 9px; text-align: center">
+                            <button type="submit" class="ui left floated green button">
+                                <i class="save icon"></i>Save
+                            </button>
+                            <a class="ui button" href="#" data-value="{{ recipe.uid }}" id="json_preview">
+                                <i class="eye icon"></i> Preview
+                            </a>
+                            <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
+                                <i class="undo icon"></i> Cancel
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+                        <div class="ui header" id="edit_code">Edit Code</div>
+            <div class="muted">
+                The script template used to produce the final script.
+            </div>
+
+                <div class="ui centered card" style="width: 700px;">
+
+                <div class="ui raised inputcolor segment">
+
+                    <div class="ui basic segment">
+                        <div class="ui center aligned header">
+                            Recipe code
+                        </div>
+
+                        <textarea class="code" rows="40" cols="5" name="template"
+                                  id="id_template" >{{ form.template.value }}</textarea>
+
+                        <div style="padding-top: 9px; text-align: center">
+                            <button type="submit" class="ui left floated green button">
+                                <i class="save icon"></i>Save
+                            </button>
+                            <a class="ui button" href="#" id="preview">
+                                <i class="eye icon"></i> Preview
+                            </a>
+                            <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
+                                <i class="undo icon"></i> Cancel
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
 
 {% endblock %}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var json_edit = CodeMirror.fromTextArea(
+            document.getElementById("id_json_text"), {
+                lineNumbers: true,
+                mode: "engine",
+
+
+            }
+        );
+        var template_edit = CodeMirror.fromTextArea(
+            document.getElementById("template"),
+            {
+                lineNumbers: true,
+                mode: "engine"
+            }
+        );
+
+
+    });
+
+</script>
