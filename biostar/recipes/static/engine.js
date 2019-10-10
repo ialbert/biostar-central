@@ -1,3 +1,45 @@
+String.prototype.format = String.prototype.f = function () {
+    var s = this,
+        i = arguments.length;
+
+    while (i--) {
+        s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
+    }
+    return s;
+};
+
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+csrftoken = getCookie('csrftoken');
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+$.ajaxSetup({
+    crossDomain: false, // obviates need for sameOrigin test
+    beforeSend: function (xhr, settings) {
+        if (!csrfSafeMethod(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
 
 function popup_message(elem, msg, cls, timeout) {
     timeout = typeof timeout !== 'undefined' ? timeout : 1000;
@@ -53,12 +95,8 @@ function check_job() {
 $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
-     $('select')
-        .dropdown()
-    ;
-     $('.ui.sticky')
-  .sticky()
-;
+     $('select').dropdown();
+     $('.ui.sticky').sticky();
 
 
      $('#preview').click(function (event) {
@@ -67,8 +105,30 @@ $(document).ready(function () {
 
      });
       $('#json_preview').click(function (event) {
+          event.preventDefault();
          let recipe_uid = $(this).data('value');
-         alert(recipe_uid)
+         let recipe_json = $('#id_json_text').val();
+
+         $.ajax('/preview/json/',
+             {
+             type: 'GET',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {'uid': recipe_uid,
+                        'json_text': recipe_json},
+
+                success: function (data) {
+                 //alert(data.html);
+                 //data.html
+                 $('#json_preview_cont').html(data.html).children().addClass('inputcolor');
+                 $('#json_preview_cont').transition('fly down');
+                //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
+                },
+                error: function (xhr, status, text) {
+                 error_message( $('#json_preview_cont'), xhr, status, text)
+                }
+
+                });
 
 
      });
