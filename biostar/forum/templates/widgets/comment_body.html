@@ -2,7 +2,8 @@
 
 <a name="{{ post.uid }}"></a>
 
-<div class="dimm-on-edit " data-value="{{ post.uid }}">
+<div class="dimm-on-edit droptarget" id='drag-{{ post.uid }}' data-value="{{ post.uid }}"
+     ondragover="drag_over(event, '{{ post.uid }}')" ondragleave="drag_leave(event)">
 
     <div class="ui inverted dimmer">
         <div class="ui text loader">
@@ -10,7 +11,8 @@
         </div>
     </div>
 
-    <div class="post comment {{ post.css }}">
+    <div class="post comment {{ post.css }} " draggable="true" id="{{ post.uid }}"
+          ondragstart="drag(event, '{{ post.uid }}');">
 
         <div class="body">
             {#  Comment anchor. #}
@@ -56,4 +58,5 @@
         <div id="comment-insert-{{ post.uid }}"></div>
 
     </div>
+
 </div>

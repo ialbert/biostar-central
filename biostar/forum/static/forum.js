@@ -329,48 +329,91 @@ function highlight(text){
     //Prism.highlightAll()
 }
 
+function allowDrop(ev) {
+  ev.preventDefault();
+}
 
-function get_recent(uid){
-    var recent_posts = '/ajax/recent/';
-    var elem =  $('#recent');
-    var msg = $("#msg");
+function drag(ev, elem_id) {
+    //ev.preventDefault();
+  ev.dataTransfer.setData("text",elem_id);
+  ev.target.style.opacity = "0.4";
 
-    var comment = $("#new-comment");
+}
 
-        if (comment.length) {
-            // Remove comment if exists.
-            msg.remove();
-        } else {
-            // Create a new comment.
-            msg = $("<div id='msg'></div>");
-        }
-    elem.after(msg);
-    msg.css({'position': 'fixed', 'left':'auto', 'right': 'auto', 'z-index':'10000'});
-    $.ajax(recent_posts,
-            {
-                type: 'GET',
-                dataType: 'json',
-                ContentType: 'application/json',
-                data: {
-                    'uid': uid
-                },
-                success: function (data) {
-                    if (data.status === 'error') {
-                        popup_message(elem, data.msg, data.status);
-                    } else {
-                        // Populate the feed.
+function drag_leave(ev){
+    ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = '';
+     ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = '';
+    //alert('kkkk')
+}
 
-                        if (data.nposts === undefined || data.nposts === null){
-                            return
-                        }
-                        //var contain = "<div class='ui message'>{0}, most recent: {1}</div>".f(data.nposts, data.most_recent_url);
-                        msg.html(contain)
-                    }
-                },
-                error: function (xhr, status, text) {
-                    error_message(elem, xhr, status, text)
+
+function drag_over(ev, pid){
+    //ev.preventDefault();
+    let elem_id = ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.id;
+    //let data = ev.dataTransfer.getData("text");
+
+    if (pid === elem_id){
+           //console.log(ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.id);
+
+    //console.log(pid);
+    //console.log(data);
+    //console.log("------");
+        ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = 'dotted';
+    ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = '#c2ffc2';
+    }
+
+    //alert(ev.target);
+}
+
+
+function drop(ev, elem_id) {
+
+  ev.preventDefault();
+  var uid = ev.dataTransfer.getData("text");
+
+    $('#'+uid).css('opacity', '1');
+    let elem = ev.target.parentElement.parentElement.parentElement.parentElement.parentElement;
+    elem.parentElement.style.backgroundColor = "white";
+    elem.parentElement.style.paddingRight = "0";
+     ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = '';
+     ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = '';
+    //ev.target.style.border = "red";
+    elem.parentElement.append(document.getElementById('indent-'+uid));
+
+    // console.log(elem_id, 'give');
+    //  console.log(elem.id, 'extracted');
+    //  console.log(elem.parentElement.id, 'extracted2');
+    // console.log(uid);
+    // console.log(elem_id);
+
+    if (elem.id === 'indent-'+ elem_id || elem.parentElement.id === 'indent-'+ elem_id
+        ||elem.id === elem_id || elem.parentElement.id === elem_id  ){
+        $.ajax('/drag/and/drop/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'uid': uid,
+                'parent':elem_id,
+
+            },
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(elem, data.msg, data.status);
+                } else {
+                    //alert(data.redir)
+                    //window.location.href = data.redir;
+                    popup_message($('#'+uid), "Moved Post", 'success', 1000);
+                    $('#'+uid).transition('pulse');
                 }
-            })
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        })
+    }
+
 }
 
 function chat_list(user_uid){
@@ -404,26 +447,6 @@ function chat_list(user_uid){
 
 $(document).ready(function () {
 
-     // setInterval(function(){
-     //     var recent_popup = $('#recent');
-     //     var uid = recent_popup.data("value");
-     //     if (uid === undefined || uid === null){
-     //         uid = '';
-     //     }
-     //     alert('333');
-     //     get_recent(uid)
-     //   },50000);
-    //document.body.style.backgroundColor = 'rgb(6, 23, 37)';
-
-    //document.cookie = 'foo' + '=' + "res,foo";
-    //document.cookie = 'resolution' + '=' + '{0}x{1}'.format($(window).width(), $(window).height());
-
-    //$(window).resize(function() {
-      // This will execute whenever the window is resized
-
-     // document.cookie = 'resolution' + '=' + '{0}x{1}'.format($(window).width(), $(window).height());
-
-    //});
 
     $('#chat').click(function () {
         var user_uid = $(this).data('value');
@@ -440,6 +463,13 @@ $(document).ready(function () {
             res.removeClass('ui message');
         }
     });
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+    $('.post.comment').mousedown(function () {
+       $(this).css('cursor', 'grabbing')
+    })
 
     $('#similar-feed').each(function () {
         var elem = $(this);

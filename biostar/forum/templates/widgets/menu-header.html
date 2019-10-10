@@ -3,16 +3,18 @@
 
 <div class="ui labeled icon attached pointing menu   " id="menu-header" user-id="{{ request.user.id }}">
 <div class="ui inverted dimmer"></div>
+
+<div class="  menu-tablet_small ">
     {% block headimg %}
         <div class="header item" id="logo">
             <a href="/"><img class="ui image"  src="{% static "images/logo.png" %}"></a>
         </div>
     {% endblock %}
-
-    <a class="item  menu-tablet_xsmall {% activate tab "latest" %} " href="{% url 'post_list' %}">
+</div>
+    <a class="item  {% activate tab "latest" %} " href="{% url 'post_list' %}">
     <i class=" list icon"></i> Latest
     </a>
-    <a class="item  menu-tablet_medsmall {% activate tab "news" %} " href="{% url 'post_list' %}?type=news">
+    <a class="item  {% activate tab "news" %} " href="{% url 'post_list' %}?type=news">
     <i class=" newspaper icon"></i> News
     </a>
     <a class="item menu-tablet_small {% activate tab "job" %} " href="{% url 'post_list' %}?type=job">
@@ -36,15 +38,13 @@
         <i class=" edit icon"></i>New Post
      </a>
 
+    {# Side menu that shows when things collapse #}
   <div class="ui right dropdown item header-menu" style="display: none; margin-left: 0 !important;">
 
     <i class="plus icon"></i><i class="dropdown icon"></i>More
 
     <div class="menu">
-            <a class="item  menu-tablet_xsmall {% activate tab "latest" %} " href="{% url 'post_list' %}">
-    <i class=" list icon"></i> Latest
-    </a>
-    <a class="item  menu-tablet_medsmall {% activate tab "news" %} " href="{% url 'post_list' %}?type=news">
+    <a class="item  {% activate tab "news" %} " href="{% url 'post_list' %}?type=news">
     <i class=" newspaper icon"></i> News
     </a>
         <a class="item menu-tablet_small {% activate tab "job" %} " href="{% url 'post_list' %}?type=job">

@@ -155,13 +155,10 @@ def generate_script(job):
     return json_data, script
 
 
-def template_changed(analysis, template):
-    """
-    Detects a change in the template.
-    """
+def text_diff(text1, text2):
     # Empty template is seen as no change ( False)
-    text1 = template.splitlines(keepends=True)
-    text2 = analysis.template.splitlines(keepends=True)
+    text1 = text1.splitlines(keepends=True)
+    text2 = text2.splitlines(keepends=True)
 
     change = list(difflib.unified_diff(text1, text2))
 

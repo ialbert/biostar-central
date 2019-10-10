@@ -304,6 +304,11 @@ class DataEditForm(forms.ModelForm):
 class RecipeForm(forms.ModelForm):
     image = forms.ImageField(required=False)
     uid = forms.CharField(max_length=32, required=False)
+    json_text = forms.CharField(max_length=MAX_TEXT_LEN, required=False)
+    template = forms.CharField(max_length=MAX_TEXT_LEN, required=False)
+    name = forms.CharField(max_length=MAX_NAME_LEN, required=False)
+    rank = forms.FloatField(required=False)
+    text = forms.FloatField(required=False)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -313,12 +318,37 @@ class RecipeForm(forms.ModelForm):
         model = Analysis
         fields = ["name", "image", "rank", "text", "uid"]
 
-    def save(self, commit=True):
+    def clean(self):
+        cleaned_data = super(RecipeForm, self).clean()
+        template = cleaned_data['template']
+        json_text = cleaned_data['json_text']
 
-        self.instance.lastedit_date = now()
-        self.instance.lastedit_user = self.user
-        Project.objects.get_all(uid=self.instance.project.uid).update(lastedit_date=now(),
-                                                                      lastedit_user=self.user)
+        if not self.user.is_superuser and (json_text != self.instance.json_text or template != self.instance.template):
+            raise forms.ValidationError("Admins are the only ones allowed to change the json or template.")
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        # Templates.
+        template = self.cleaned_data['template']
+        json_text = self.cleaned_data['json_text']
+
+        self.instance.json_text = json_text
+
+        template_change = auth.text_diff(text1=self.instance.template, text2=template)
+        json_change = auth.text_diff(text1=self.instance.json_text, text2=json_text)
+
+        # Recipes edited by non staff members need to be authorized.
+        if (template_change or json_change) and not self.user.is_superuser:
+            self.instance.security = Analysis.UNDER_REVIEW
+
+        # Changes to template will require a review ( only when saving ).
+        if template_change:
+            self.instance.diff_author = self.user
+            self.instance.diff_date = now()
+
+        # Set the new template.
+        self.instance.template = template
         return super(RecipeForm, self).save(commit)
 
     def clean_image(self):
@@ -335,7 +365,9 @@ class RecipeForm(forms.ModelForm):
         if uid and not (uid.isalnum() or "-" in uid):
             msg = "Only alphanumeric characters allowed, no spaces."
             raise forms.ValidationError(msg)
-
+        if not uid:
+            msg = "Uid is required."
+            raise forms.ValidationError(msg)
         return uid
 
 
@@ -569,7 +601,7 @@ class EditCode(forms.Form):
         self.recipe.json_text = json_text
 
         # Changes to template will require a review ( only when saving ).
-        if auth.template_changed(analysis=self.recipe, template=template) and commit:
+        if auth.text_diff(text1=self.recipe.template, text2=template) and commit:
             self.recipe.diff_author = self.user
             self.recipe.diff_date = now()
 

@@ -14,6 +14,7 @@ from django.shortcuts import reverse
 from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
+from django.db.models import F
 from whoosh.searching import Results
 from whoosh.sorting import FieldFacet, ScoreFacet
 from .const import *
@@ -103,6 +104,33 @@ def ajax_vote(request):
     msg, vote, change = auth.apply_vote(post=post, user=user, vote_type=vote_type)
 
     return ajax_success(msg=msg, change=change)
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def drag_and_drop(request):
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
+
+    parent = request.POST.get("parent", '')
+    uid = request.POST.get("uid", '')
+
+    parent = Post.objects.filter(uid=parent).first()
+    post = Post.objects.filter(uid=uid).first()
+
+    if not uid or not parent:
+        return ajax_error(msg="Parent and Uid need to be provided. ")
+
+    if not request.user.profile.is_moderator:
+        return ajax_error(msg="Only moderators can move comments.")
+    Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
+    Post.objects.filter(uid=post.root.uid).update(reply_count=F("answer_count") - 1)
+
+    redir = post.get_absolute_url()
+
+    return ajax_success(msg="success", redir=redir)
 
 
 @ratelimit(key='ip', rate='50/h')

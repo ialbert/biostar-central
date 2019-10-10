@@ -8,6 +8,23 @@
 
 {% block body %}
 
+
+    <div class="ui top attached blue colored tabular menu">
+      <a class="{{ edit_code }} item" href="{% url 'recipe_edit' recipe.uid %}?active=edit_code">
+      <i class="code icon"></i><span class="phone">Edit Code</span>
+  </a>
+  <a class=" {{ edit_info }} item" href="{% url 'recipe_edit' recipe.uid %}?active=edit_info">
+    <i class="edit icon"></i><span class="phone">Edit Information</span>
+  </a>
+
+</div>
+
+<div class="ui bottom attached colored segment">
+{% form_errors form %}
+{% if edit_info %}
+
+<div class="ui centered card" style="width: 700px;">
+
     <div class="ui raised segment inputcolor">
     {% form_errors form %}
 
@@ -47,11 +64,20 @@
             <button type="submit" class="ui green button">
                 <i class="save icon"></i>Save
             </button>
-            <a class="ui right floated button" href="{% url 'recipe_list' project.uid %}">
+            <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
                  <i class="undo icon"></i> Cancel
             </a>
 
         </form>
     </div>
+</div>
+
+
+
+{% else %}
+    {% include 'widgets/recipe_code_edit.html' with form=form recipe=recipe %}
+{% endif %}
+
+</div>
 
 {% endblock %}

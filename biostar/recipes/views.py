@@ -722,7 +722,6 @@ def recipe_code_edit(request, uid):
 
     if request.method == "POST":
         form = forms.EditCode(user=user, project=project, data=request.POST, recipe=analysis)
-        #1/0
         if form.is_valid():
             # Preview action will let the form cascade through.
             commit = form.cleaned_data['action'] == 'SAVE'
@@ -760,19 +759,25 @@ def recipe_edit(request, uid):
     "Edit meta-data associated with a recipe."
 
     recipe = Analysis.objects.get_all(uid=uid).first()
+    active = request.GET.get('active')
+    active = active if active in ['edit_code', 'edit_info'] else 'edit_code'
+    active = {active: 'active'}
     project = recipe.project
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=recipe.uid))
-    form = forms.RecipeForm(instance=recipe, user=request.user)
+    #initial = dict(template=recipe.template, json_text=recipe.json_text)
+    initial = dict(name=recipe.name, json_text=recipe.json_text, template=recipe.template, rank=recipe.rank)
+    form = forms.RecipeForm(instance=recipe, user=recipe.owner, initial=initial)
 
     if request.method == "POST":
-        form = forms.RecipeForm(data=request.POST, files=request.FILES, instance=recipe, user=request.user)
+        form = forms.RecipeForm(data=request.POST, files=request.FILES, instance=recipe, user=request.user,
+                                initial=initial)
         if form.is_valid():
             recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
-    context = dict(analysis=recipe, project=project, form=form, action_url=action_url,
-                   name=recipe.name)
+    context = dict(recipe=recipe, project=project, form=form, action_url=action_url, name=recipe.name)
+    context.update(active)
 
     return render(request, 'recipe_edit.html', context)
 
