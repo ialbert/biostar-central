@@ -1,5 +1,5 @@
 {% load engine_tags %}
-
+<div class="ui centered card" style="width: 700px; margin-bottom: 0px; padding: 10px">
 {#  Renders the non field errors #}
 {% form_errors form %}
 
@@ -27,6 +27,19 @@
     </div>
 
 {% endfor %}
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.ui.dropdown').dropdown();
+     $('select').dropdown();
+     $('.ui.sticky').sticky();
+
+
+
+    });
+
+</script>
 
 
 

@@ -188,7 +188,7 @@ figure { display: block; margin: 0; }
 }
 
 .CodeMirror {
-    height: 30em !important;
+    //height: 30em !important;
 }
 
 .page > h1 {
