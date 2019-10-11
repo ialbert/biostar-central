@@ -45,8 +45,7 @@ urlpatterns = [
     path(r'recipe/view/<str:uid>/', views.recipe_view, name='recipe_view'),
     path(r'recipe/run/<str:uid>/', views.recipe_run, name='recipe_run'),
     path(r'recipe/edit/<str:uid>/', views.recipe_edit, name='recipe_edit'),
-    #path(r'^recipe/code/view/(?P<uid>[-\w]+)/$', views.recipe_code_view, name='recipe_code_view'),
-    path(r'recipe/code/edit/<str:uid>/', views.recipe_code_edit, name='recipe_code_edit'),
+
     path(r'recipe/paste/<str:uid>/', views.recipe_paste, name='recipe_paste'),
     path(r'recipe/delete/<str:uid>/', views.recipe_delete, name='recipe_delete'),
     path(r'recipe/code/download/<str:uid>/', views.recipe_code_download, name='recipe_download'),

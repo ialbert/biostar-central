@@ -1,180 +1,169 @@
 {% extends "engine_base.html" %}
-{%  load engine_tags %}
-{% load static %}
+{% load staticfiles %}
+{% load engine_tags %}
 
-<link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
-
-        <script src="{% static 'codemirror/codemirror.js' %}"></script>
-        <script src="{% static 'codemirror/mode/simple.js' %}"></script>
-        <script src="{% static 'codemirror/mode/engine.js' %}"></script>
-
+{% block js %}
+    <link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
+    <script src="{% static 'codemirror/codemirror.js' %}"></script>
+    <script src="{% static 'codemirror/mode/simple.js' %}"></script>
+    <script src="{% static 'codemirror/mode/engine.js' %}"></script>
+{% endblock %}
 
 {% block headtitle %}
     Editing: {{ name }}
 {% endblock %}
 
 {% block body %}
+    <form method="post" class="ui form" action="{% url 'recipe_edit' recipe.uid %}" enctype='multipart/form-data'>
 
 
-{% form_errors form %}
+        <div class="narrow">
+            <div class="ui raised segment inputcolor">
+                {% form_errors form %}
 
-    <div class="ui sticky compact  menu" style="float: right">
-  <a class=" item" href="#edit_info">
-      Information
-  </a>
-      <a class=" item" href="#interface">
-      Interface
-  </a>
-          <a class=" item" href="#edit_code">
-      Code
-  </a>
-    </div>
 
-<div class="ui header" id="edit_info">Edit Information</div>
+                {% csrf_token %}
 
-        <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
-
-<div class="ui centered card" style="width: 700px;">
-
-    <div class="ui raised segment inputcolor">
-    {% form_errors form %}
-
-            {% csrf_token %}
-
-            <div class="field segment">
-                <label>Recipe Name</label>
-                {{ form.name }}
-                <p class="muted">What do you want to call the recipe</p>
-            </div>
-
-             <div class="field">
-                  <label>Unique Identifier ( uid )</label>
-                  {{form.uid}}
-                  <p class="muted">Unique identifier for this recipe. Leaving box empty will be make the uid random.</p>
-             </div>
-
-             <div class="field">
-                  <label> Image {{ form.image.errors }}</label>
-                  {{ form.image }}
-                  <p class="muted">Optional image to recognize the recipe by (square image, no more than 500px)</p>
-             </div>
-
-             <div class="field">
-                  <label>Recipe rank</label>
-                  {{form.rank}}
-                  <p class="muted">Used for ordering recipes on the recipe list.</p>
-             </div>
-
-            <div class="field segment">
-                <label>Recipe description</label>
-                {{ form.text }}
-                <p class="muted">A detailed explanation of what the recipe does (markdown OK).</p>
-            </div>
-            <button type="submit" class="ui green button">
-                <i class="save icon"></i>Save
-            </button>
-            <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
-                 <i class="undo icon"></i> Cancel
-            </a>
-
-    </div>
-</div>
-
-            <div class="ui header" id="interface">Edit Interface</div>
-            <div class="muted">
-                The web interface is generated from the JSON file. The JSON file with the script template
-                are used to produce the final script.
-            </div>
-            <div class="ui centered card" style="width: 700px;">
-
-                <div class="ui raised inputcolor segment">
-
-                    <div class="ui basic segment">
-                        <div class="ui center aligned header">
-                            Interface JSON
-                        </div>
-
-                        <textarea class="code" rows="40" cols="5" name="json_text"
-                                  id="id_json_text">{{ form.json_text.value }}</textarea>
-                         <div style="padding-top: 9px; text-align: center">
-                            <button type="submit" class="ui left floated green button">
-                                <i class="save icon"></i>Save
-                            </button>
-                            <a class="ui button" href="#" data-value="{{ recipe.uid }}" id="json_preview">
-                                <i class="eye icon"></i> Preview
-                            </a>
-                            <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
-                                <i class="undo icon"></i> Cancel
-                            </a>
-                        </div>
-                    </div>
-
+                <div class="field">
+                    <div class="ui header">Recipe Metadata</div>
                 </div>
 
-            </div>
-            <div class="ui tiny header" style="text-align: center"> Interface Preview</div>
-
-            <div id="json_preview_cont" style="margin-bottom: 0px;border: none"></div>
-
-
-                        <div class="ui header" id="edit_code">Edit Code</div>
-            <div class="muted">
-                The script template used to produce the final script.
-            </div>
-
-                <div class="ui centered card" style="width: 700px;">
-
-                <div class="ui raised inputcolor segment">
-
-                    <div class="ui basic segment">
-                        <div class="ui center aligned header">
-                            Recipe code
-                        </div>
-
-                        <textarea class="code" rows="40" cols="5" name="template"
-                                  id="id_template" >{{ form.template.value }}</textarea>
-
-                        <div style="padding-top: 9px; text-align: center">
-                            <button type="submit" class="ui left floated green button">
-                                <i class="save icon"></i>Save
-                            </button>
-                            <a class="ui button" href="#" id="preview">
-                                <i class="eye icon"></i> Preview
-                            </a>
-                            <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
-                                <i class="undo icon"></i> Cancel
-                            </a>
-                        </div>
-                    </div>
-
+                <div class="field">
+                    The information that is displayed when the recipe is viewed.
                 </div>
 
+                <div class="field">
+                    <label>Recipe Name</label>
+                    {{ form.name }}
+                    <p class="muted">What do you want to call the recipe</p>
+                </div>
+
+                <div class="field">
+                    <label>Unique Identifier ( uid )</label>
+                    {{ form.uid }}
+                    <p class="muted">Unique identifier for this recipe. Leaving box empty will be make the uid
+                        random.</p>
+                </div>
+
+                <div class="field">
+                    <label> Image {{ form.image.errors }}</label>
+                    {{ form.image }}
+                    <p class="muted">Optional image to recognize the recipe by (square image, no more than 500px)</p>
+                </div>
+
+                <div class="field">
+                    <label>Recipe rank</label>
+                    {{ form.rank }}
+                    <p class="muted">Used for ordering recipes on the recipe list.</p>
+                </div>
+
+                <div class="field segment">
+                    <label>Recipe description</label>
+                    {{ form.text }}
+                    <p class="muted">A detailed explanation of what the recipe does (markdown OK).</p>
+                </div>
+                <button type="submit" class="ui green button">
+                    <i class="save icon"></i>Save Metadata
+                </button>
+                <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
+                    <i class="undo icon"></i> Cancel
+                </a>
+
+
             </div>
 
-        </form>
+
+            <div class="ui raised segment inputcolor">
+
+                {% csrf_token %}
+
+                <div class="field">
+                    <div class="ui header">Recipe Interface</div>
+                </div>
+
+                <div class="field">
+                    The JSON data that specifies the web interface. <a href="#">JSON specification</a>.
+                </div>
+
+                <div class="field">
+                    <textarea class="code" rows="40" cols="55" name="json_text"
+                              id="json">{{ form.json_text.value }}</textarea>
+                </div>
+
+                <div class="field">
+
+                    <button type="submit" class="ui purple button">
+                        <i class="eye icon"></i>Preview Interface
+                    </button>
+                    <button type="submit" class="ui green button">
+                        <i class="save icon"></i>Save Interface
+                    </button>
+
+                    <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
+                        <i class="undo icon"></i> Back
+                    </a>
+                </div>
+
+
+            </div>
+
+            <div class="ui raised segment inputcolor">
+
+                {% csrf_token %}
+
+                <div class="field">
+                    <div class="ui header">Recipe Code</div>
+                </div>
+
+                <div class="field">
+                    The code that gets executed when the recipe is run. <a href="#">Code specification</a>.
+                </div>
+
+                <div class="field">
+                    <textarea class="code" rows="40" cols="55" name="template"
+                              id="template">{{ form.template.value }}</textarea>
+                </div>
+
+                <div class="field">
+
+                    <button type="submit" class="ui purple button">
+                        <i class="eye icon"></i>Preview Code
+                    </button>
+
+                    <button type="submit" class="ui green button">
+                        <i class="save icon"></i>Save Code
+                    </button>
+
+                    <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
+                        <i class="undo icon"></i> Back
+                    </a>
+                </div>
+
+
+            </div>
+
+        </div>
+    </form>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var json_edit = CodeMirror.fromTextArea(
+                document.getElementById("json"), {
+                    lineNumbers: true,
+                    mode: "engine",
+
+
+                }
+            );
+            var template_edit = CodeMirror.fromTextArea(
+                document.getElementById("template"),
+                {
+                    lineNumbers: true,
+                    mode: "engine"
+                }
+            );
+        });
+
+    </script>
 
 {% endblock %}
-
-<script type="text/javascript">
-    $(document).ready(function () {
-
-        var json_edit = CodeMirror.fromTextArea(
-            document.getElementById("id_json_text"), {
-                lineNumbers: true,
-                mode: "engine",
-
-
-            }
-        );
-        var template_edit = CodeMirror.fromTextArea(
-            document.getElementById("template"),
-            {
-                lineNumbers: true,
-                mode: "engine"
-            }
-        );
-
-
-    });
-
-</script>

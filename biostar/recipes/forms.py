@@ -11,6 +11,8 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from django.contrib import messages
 from django.urls import reverse
+from django.core.validators import validate_slug
+
 from django.conf import settings
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
@@ -302,10 +304,16 @@ class DataEditForm(forms.ModelForm):
 
 
 class RecipeForm(forms.ModelForm):
+    """
+    Fields that are not submitted are set to existing values.
+    """
     image = forms.ImageField(required=False)
-    uid = forms.CharField(max_length=32, required=False)
-    json_text = forms.CharField(max_length=MAX_TEXT_LEN, required=False)
-    template = forms.CharField(max_length=MAX_TEXT_LEN, required=False)
+    uid = forms.CharField(max_length=32, validators=[validate_slug], required=True)
+    json_text = forms.CharField(max_length=MAX_TEXT_LEN, initial="{}", required=True)
+    template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# Code goes here", required=True)
+    name = forms.CharField(max_length=MAX_NAME_LEN, required=True)
+    rank = forms.FloatField(required=True, initial=1000)
+    text = forms.CharField(initial="Recipe description", widget=forms.TextInput, required=True)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -313,40 +321,42 @@ class RecipeForm(forms.ModelForm):
 
     class Meta:
         model = Analysis
-        fields = ["name", "image", "rank", "text", "uid", 'json_text', 'template']
+        fields = ["name", "image", "rank", "text", "uid", "json_text", "template"]
+
+    def get_initial(self):
+        """
+        Returns the initial data to use for forms on this view.
+        """
+        initial = super(RecipeForm, self).get_initial()
+        for field in self.Meta.fields:
+            initial['field'] = getattr(self.instance, field)
+
+        return initial
 
     def clean(self):
+        """
+        Applies security measures to recipe editing.
+        """
         cleaned_data = super(RecipeForm, self).clean()
-        template = cleaned_data['template']
-        json_text = cleaned_data['json_text']
 
-        if not self.user.is_superuser and (json_text != self.instance.json_text or template != self.instance.template):
-            raise forms.ValidationError("Admins are the only ones allowed to change the json or template.")
+        # Fill in not submitted fields.
+        for field in self.Meta.fields:
+            cleaned_data['field'] = getattr(self.instance, field)
+
+        template = cleaned_data.get('template') or self.instance.template
+        json_text = cleaned_data.get('json_text') or self.instance.json_text
+
+        # Shortcuts to security conditions.
+        template_changed = (template != self.instance.template)
+        json_changed = (json_text != self.instance.json_text)
+
+        not_superuser = not self.user.is_superuser
+
+        # Only superusers may change templates or interfaces.
+        if (json_changed or template_changed) and not_superuser:
+            raise forms.ValidationError("Only administrators may change the json or template of a recipe.")
 
         return cleaned_data
-
-    def save(self, commit=True):
-        # Templates.
-        template = self.cleaned_data['template']
-        json_text = self.cleaned_data['json_text']
-
-        self.instance.json_text = json_text
-
-        template_change = auth.text_diff(text1=self.instance.template, text2=template)
-        json_change = auth.text_diff(text1=self.instance.json_text, text2=json_text)
-
-        # Recipes edited by non staff members need to be authorized.
-        if (template_change or json_change) and not self.user.is_superuser:
-            self.instance.security = Analysis.UNDER_REVIEW
-
-        # Changes to template will require a review ( only when saving ).
-        if template_change:
-            self.instance.diff_author = self.user
-            self.instance.diff_date = now()
-
-        # Set the new template.
-        self.instance.template = template
-        return super(RecipeForm, self).save(commit)
 
     def clean_image(self):
         cleaned_data = super(RecipeForm, self).clean()
@@ -355,17 +365,6 @@ class RecipeForm(forms.ModelForm):
 
         return image
 
-    def clean_uid(self):
-        cleaned_data = super(RecipeForm, self).clean()
-        uid = cleaned_data.get('uid')
-        # TODO: change second cond with a regex pattern
-        if uid and not (uid.isalnum() or "-" in uid):
-            msg = "Only alphanumeric characters allowed, no spaces."
-            raise forms.ValidationError(msg)
-        if not uid:
-            msg = "Uid is required."
-            raise forms.ValidationError(msg)
-        return uid
 
 
 class JobEditForm(forms.ModelForm):

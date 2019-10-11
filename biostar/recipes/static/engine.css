@@ -8,6 +8,11 @@ body {
 
 }
 
+.narrow {
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
 .ui.menu {
     font-size: 1.1rem;
 }
