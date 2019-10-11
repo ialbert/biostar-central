@@ -1,6 +1,6 @@
 django >=2.2, <3
 django-ratelimit
-django-recaptcha==1.0.5
+django-recaptcha
 django-compressor
 django-taggit
 whoosh
@@ -12,7 +12,7 @@ commonmark
 bleach
 django-mailer
 mistune
-django-pagedown ==1.0.6
+django-pagedown
 django-webtest
 django-sendfile
 django-allauth
