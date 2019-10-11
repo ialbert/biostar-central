@@ -86,7 +86,6 @@ def preview_json(request):
     if not recipe:
         return ajax_error(msg="Recipe does not exist.")
 
-    #print(recipe.json_data)
     json_text = request.GET.get('json_text', recipe.json_text)
     json_data = hjson.loads(json_text)
     # Render the recipe interface

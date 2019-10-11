@@ -107,7 +107,7 @@ $(document).ready(function () {
       $('#json_preview').click(function (event) {
           event.preventDefault();
          let recipe_uid = $(this).data('value');
-         let recipe_json = $('#id_json_text').val();
+         let recipe_json = $('#json').val();
 
          $.ajax('/preview/json/',
              {
@@ -115,17 +115,18 @@ $(document).ready(function () {
                 dataType: 'json',
                 ContentType: 'application/json',
                 data: {'uid': recipe_uid,
-                        'json_text': recipe_json},
+                       'json_text': recipe_json},
 
                 success: function (data) {
-                 //alert(data.html);
-                 //data.html
-                 $('#json_preview_cont').html(data.html).children().addClass('inputcolor');
-                 $('#json_preview_cont').transition('fly down');
+
+                 //alert(recipe_json);
+                 $('#json_preview_cont').transition('pulse');
+                 $('#json_preview_cont').html(data.html);
+
                 //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
                 },
                 error: function (xhr, status, text) {
-                 error_message( $('#json_preview_cont'), xhr, status, text)
+                 error_message( $(this), xhr, status, text)
                 }
 
                 });
