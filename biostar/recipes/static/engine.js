@@ -257,7 +257,8 @@ $(document).ready(function () {
                    //alert(data.json_text);
                    //alert("ffffff")
                    $('#template').val(data.code);
-                   $('#template_field').html(data.html)
+                   $('#template_field').html(data.html);
+                   $('#code_preview').html(data.code).show();
                    //$('#search-results').html(data);
                },
                error: function () {
@@ -285,7 +286,8 @@ $(document).ready(function () {
                    //alert(data.json_text);
                    //alert("ffffff")
                    $('#json').val(data.json_text);
-                   $('#json_field').html(data.html)
+                   $('#json_field').html(data.html);
+
                    //$('#search-results').html(data);
                },
                error: function () {
