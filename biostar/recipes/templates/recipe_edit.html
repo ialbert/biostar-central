@@ -125,17 +125,23 @@
                 </div>
 
                 <div class="field">
-                    The code that gets executed when the recipe is run. <a href="#">Code specification</a>.
+                    The code that gets executed when the recipe is run.
+                    <div class="ui top pointing dropdown" id="code_add">
+                       <a>Code specification</a>
+                        <i class="caret down icon"></i>
+                        {% code_options %}
+                    </div>
+
+
+                </div>
+
+                <div class="field" id="template_field">
+                    {% template_field form.template.value %}
                 </div>
 
                 <div class="field">
-                    <textarea class="code" rows="40" cols="55" name="template"
-                              id="template">{{ form.template.value }}</textarea>
-                </div>
 
-                <div class="field">
-
-                    <button type="submit" class="ui purple button">
+                    <button type="submit" class="ui purple button" id="preview_code">
                         <i class="eye icon"></i>Preview Code
                     </button>
 
@@ -147,24 +153,10 @@
                         <i class="undo icon"></i> Back
                     </a>
                 </div>
-
+                <div id="code_preview"></div>
 
             </div>
 
         </div>
     </form>
-    <script type="text/javascript">
-        $(document).ready(function () {
-
-            var template_edit = CodeMirror.fromTextArea(
-                document.getElementById("template"),
-                {
-                    lineNumbers: true,
-                    mode: "engine"
-                }
-            );
-        });
-
-    </script>
-
 {% endblock %}

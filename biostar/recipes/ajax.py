@@ -1,6 +1,6 @@
 from functools import wraps, partial
 import logging
-import hjson
+import hjson, json
 from ratelimit.decorators import ratelimit
 
 from django.template import loader
@@ -76,6 +76,45 @@ def check_job(request, uid):
 
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def recipe_code(request):
+
+    command = request.POST.get('command', '')
+    current_code = request.POST.get('template', '')
+    kraken1 = '# Run the kraken classifier. \n kraken2 --report-zero-counts -db db  --report out/{/.}-report.txt --output out/{/.}-output.txt  {} 2'
+    centrifuge = '# Build the index. \n centrifuge-build -p $N --conversion-table $TABLE --taxonomy-tree $NODES  --name-table $NAMES  $REFERENCE $INDEX'
+
+    qiime2 = "# Convert taxonomy file to qiime 2 artifact. \n qiime tools import --input-path $REF_FASTA --output-path $REFERENCE --type 'FeatureData[Sequence]'"
+
+    # Map of commands users can add.
+    # Value is a tuple with ( command, True/ False to indicate this command goes on top )
+    command_map = dict(cmd_1=('# Print all executed commands. \n set -uexo pipefail', True),
+                       cmd_2=('# Set graphics device to PNG. \n png(file)', False),
+                       cmd_3=('# Generate a sample. \n sample(1:3, size=1000, prob=c(.30,.60,.10))', False),
+                       cmd_4=('# Generate a barplot. \n barplot( data )', False),
+                       cmd_5=('% Open a file in read mode.% \n fopen(filename,'r')', False),
+                       cmd_6=('# Add file to the database. \n kraken2-build --add-to-library fish-accession.fa -db db 2', False),
+                       cmd_7=('# Build the database. \n kraken2-build --build --db db 2', False),
+                       cmd_8=(kraken1, False),
+                       cmd_9=(centrifuge, False),
+                       cmd_10=(qiime2, False))
+
+    if not command_map.get(command):
+        return ajax_error(msg='Command not found.')
+
+    cmd, begining = command_map.get(command, ('', False))
+
+    code = cmd + '\n' + current_code if begining else current_code + '\n' + cmd
+
+    tmpl = loader.get_template('widgets/template_field.html')
+    context = dict(template=code)
+    template_field = tmpl.render(context=context)
+
+    return ajax_success(code=code, msg="Rendered the template", html=template_field)
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="GET")
 def preview_json(request):
 
@@ -127,12 +166,12 @@ def recipe_field(request):
     display_map = dict(
         radio=(RADIO, None, [(1, 'Option 1'), (2, 'Option 2')], 2, 'Radio Field Label'),
         data=('', 'PROJECT', [], '', 'Data Field Label'),
-        dropdown=(DROPDOWN, None, [('Choices 1', 'Choices 1'), ('Choices 2', 'Choices 2')], 'Choices 1',
-                  'Dropdown Field Label'),
         integer=(INTEGER, None, [], 100, 'Integer Field Label'),
         textbox=(TEXTBOX, None, [], "Sample text", 'Text box Field Label'),
         float=(FLOAT, None, [], 0.5, 'Float Field Label'),
         checkbox=(CHECKBOX, None, [], True, 'Checkbox Field Label'),
+        dropdown=(DROPDOWN, None, [('Choices 1', 'Choices 1'), ('Choices 2', 'Choices 2')], 'Choices 1',
+                  'Dropdown Field Label'),
     )
     display, source, choices, value, label = display_map.get(display_type, ('textbox', []))
     #print(display, choices)

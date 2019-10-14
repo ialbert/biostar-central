@@ -97,20 +97,36 @@ $(document).ready(function () {
 
 
     $('.ui.dropdown').dropdown({});
-     $('select').dropdown();
-     $('#json_add').dropdown({onHide:function (){
-         return false
-     }});
+    $('select').dropdown();
+    $('');
+    $('#json_add').dropdown({
+        onHide: function () {
+            return false
+        }
+    });
 
-$('#json_add').click(function () {
-    $(this).dropdown({onHide:function (){return false}});
-});
+    $('#code_add').dropdown({
+        onHide: function () {
+            return false
+        }
+    });
 
+    $('#json_add').click(function () {
+        $(this).dropdown({
+            onHide: function () {
+                return false
+            }
+        });
+    });
+    $('#code_add').click(function () {
+        $(this).dropdown({
+            onHide: function () {
+                return false
+            }
+        });
+    });
      $('.ui.sticky').sticky();
 
-     $('#json_add').click(function () {
-        $('#json_add_menu').removeClass('specs_hide');
-     });
      $('#preview').click(function (event) {
 
 
@@ -200,12 +216,58 @@ $('#json_add').click(function () {
         on:'hover'
     });
 
+    $('#code_add_menu .item').popup({
+        on:'hover'
+    });
+
     $('.close_opts').click(function () {
         $('#json_add').dropdown({onShow:false});
     });
 
-    $('.add_to_interface').click(function () {
 
+    $('.close_codes').click(function () {
+        $('#code_add').dropdown({
+            onShow: function () {
+                return false
+            }
+        })
+    });
+
+    $('#template').keyup(function () {
+        alert($(this).val());
+
+    });
+
+    $('.cmd-value').click(function () {
+
+        let command = $(this).attr('id');
+        let template = $('#template').val();
+        //alert(template);
+
+        $.ajax('/recipe/code/', {
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                      'command': command,
+                      'template':template,
+               },
+
+               success: function (data) {
+                   // Inject the fields into the
+                   //alert(data.json_text);
+                   //alert("ffffff")
+                   $('#template').val(data.code);
+                   $('#template_field').html(data.html)
+                   //$('#search-results').html(data);
+               },
+               error: function () {
+               }
+           });
+
+    });
+
+    $('.add_to_interface').click(function (event) {
+        event.preventDefault()
        let json_text = $('#json').val();
        let display_type = $(this).attr('id');
 

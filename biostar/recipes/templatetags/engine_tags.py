@@ -298,10 +298,22 @@ def interface_options():
     return dict()
 
 
+@register.inclusion_tag('widgets/code_options.html')
+def code_options():
+    return dict()
+
+
 @register.inclusion_tag('widgets/json_field.html')
 def json_field(json_text):
 
     context = dict(json_text=json_text)
+    return context
+
+
+@register.inclusion_tag('widgets/template_field.html')
+def template_field(tmpl):
+
+    context = dict(template=tmpl)
     return context
 
 

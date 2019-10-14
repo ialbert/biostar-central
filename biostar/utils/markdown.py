@@ -114,6 +114,8 @@ class BiostarInlineGrammer(InlineGrammar):
     Mistune has a rule 'text' that sees '@' symbol as part of a regular string.
     This excludes characters around the '@' symbol from being seen by other rules.
     This subclass overrides the 'text' rule to contain `@` as a stop element in the lookahead assertion
+
+    Also the '_' character not considered special.
     """
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[*`~@]|https?://| {2,}\n|$)')
 

@@ -20,6 +20,8 @@ urlpatterns = [
     path(r'ajax/check/job/<str:uid>/', ajax.check_job, name='ajax_check_job'),
     path(r'preview/json/', ajax.preview_json, name="preview_json"),
     path(r'recipe/fields/', ajax.recipe_field, name="recipe_fields"),
+    path(r'recipe/code/', ajax.recipe_code, name="recipe_code"),
+
     # Project
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),
     path(r'project/create/', views.project_create, name='project_create'),

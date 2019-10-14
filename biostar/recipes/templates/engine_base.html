@@ -26,6 +26,7 @@
 
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'engine.css' %}{% randparam %}" rel="stylesheet">
+        <link href="{% static 'prism.css' %}{% randparam %}" rel="stylesheet">
 
     {% endcompress %}
 
@@ -34,6 +35,9 @@
         </script>
         <script src="{% static 'engine.js' %}{% randparam %}">
         </script>
+           <script src="{% static 'prism.js' %}">
+        </script>
+
     {% endcompress %}
 
     {% block js %}
