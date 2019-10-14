@@ -201,7 +201,7 @@ $('#json_add').click(function () {
     $('.close_opts').click(function () {
         $('#json_add').dropdown({onShow:false});
     });
-    
+
     $('.add_to_interface').click(function () {
 
        let json_text = $('#json').val();
