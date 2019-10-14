@@ -1,0 +1,16 @@
+
+<textarea class="code" rows="40" cols="55" name="json_text" id="json">{{ json_text }}</textarea>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var json_edit = CodeMirror.fromTextArea(
+                document.getElementById("json"), {
+                    lineNumbers: true,
+                    mode: "engine",
+
+
+                }
+            )});
+    </script>

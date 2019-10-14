@@ -7,6 +7,7 @@ from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.template import loader
+from .const import *
 from biostar.recipes.models import Job, Analysis
 from biostar.recipes.forms import RecipeInterface
 
@@ -97,3 +98,61 @@ def preview_json(request):
     template = tmpl.render(context=context)
 
     return ajax_success(msg="Recipe json", html=template)
+
+
+def field_specs(display_type='', source=None, choices='', value='', label="label"):
+
+    opts = dict(label=label or f'{display_type.lower()}')
+    if display_type:
+        opts.update(dict(display=display_type))
+    if choices:
+        opts.update(dict(choices=choices))
+    if source:
+        opts.update(dict(source=source))
+    if value:
+        opts.update(dict(value=value))
+
+    return opts
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def recipe_field(request):
+    # Returns a recipe interface field json
+
+    display_type = request.POST.get('display_types', '')
+    json_text = request.POST.get('json_text', '')
+
+    display_map = dict(
+        radio=(RADIO, None, [(1, 'Option 1'), (2, 'Option 2')], 2, 'Radio Field Label'),
+        data=('', 'PROJECT', [], '', 'Data Field Label'),
+        dropdown=(DROPDOWN, None, [('Choices 1', 'Choices 1'), ('Choices 2', 'Choices 2')], 'Choices 1',
+                  'Dropdown Field Label'),
+        integer=(INTEGER, None, [], 100, 'Integer Field Label'),
+        textbox=(TEXTBOX, None, [], "Sample text", 'Text box Field Label'),
+        float=(FLOAT, None, [], 0.5, 'Float Field Label'),
+        checkbox=(CHECKBOX, None, [], True, 'Checkbox Field Label'),
+    )
+    display, source, choices, value, label = display_map.get(display_type, ('textbox', []))
+    #print(display, choices)
+    # Return the field specs
+    specs = field_specs(display_type=display, source=source, choices=choices, value=value, label=label)
+
+    json_data = hjson.loads(json_text)
+    field_name = display_type
+    count = 0
+    # Check if the field name exists
+    while field_name in json_data:
+        field_name = display_type + f'{count}'
+        count += 1
+
+    new_field = {field_name: specs}
+    new_field.update(json_data)
+    new_json = hjson.dumps(new_field)
+
+    tmpl = loader.get_template('widgets/json_field.html')
+    context = dict(json_text=new_json)
+    json_field = tmpl.render(context=context)
+
+    return ajax_success(html=json_field, json_text=new_json, msg="Rendered json")

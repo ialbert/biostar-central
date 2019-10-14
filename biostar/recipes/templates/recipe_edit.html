@@ -82,12 +82,16 @@
                 </div>
 
                 <div class="field">
-                    The JSON data that specifies the web interface. <a href="#">JSON specification</a>.
-                </div>
+                    The JSON data that specifies the web interface.
 
-                <div class="field">
-                    <textarea class="code" rows="40" cols="55" name="json_text"
-                              id="json">{{ form.json_text.value }}</textarea>
+                    <div class="ui top pointing dropdown" id="json_add">
+                        <a>JSON specification</a>
+                        <i class="caret down icon"></i>
+                        {% interface_options %}
+                    </div>
+                </div>
+                <div class="field" id="json_field">
+                    {% json_field form.json_text.value %}
                 </div>
 
                 <div class="field">
@@ -103,7 +107,12 @@
                         <i class="undo icon"></i> Back
                     </a>
                 </div>
-                <div id="json_preview_cont"></div>
+
+                <div class="ui tiny inputcolor modal" style="padding:20px;width: 48%;" id="json_modal">
+
+                       <div id="json_preview_cont"><form class="ui form"></form></div>
+
+                </div>
 
             </div>
 
@@ -147,14 +156,6 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
-            var json_edit = CodeMirror.fromTextArea(
-                document.getElementById("json"), {
-                    lineNumbers: true,
-                    mode: "engine",
-
-
-                }
-            );
             var template_edit = CodeMirror.fromTextArea(
                 document.getElementById("template"),
                 {

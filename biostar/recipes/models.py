@@ -450,6 +450,8 @@ class Analysis(models.Model):
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
 
+        # Clean json text of the 'settings' key unless it has the 'run' field.
+
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
 
@@ -483,22 +485,6 @@ class Analysis(models.Model):
         lines = self.text.splitlines() or ['']
         first = lines[0]
         return first
-
-
-@receiver(post_save, sender=Analysis)
-def sync_json(sender, instance, created, raw, update_fields, **kwargs):
-    # Sync the json["settings"] with the recipe.text and name.
-
-    current_json = instance.json_data
-
-    data = current_json.get("settings") or {}
-
-    data["name"] = instance.name
-    data["help"] = instance.text
-
-    current_json["settings"] = data
-
-    Analysis.objects.get_all(uid=instance.uid).update(json_text=hjson.dumps(current_json))
 
 
 class Job(models.Model):

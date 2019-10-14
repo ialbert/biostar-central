@@ -191,6 +191,59 @@ figure { display: block; margin: 0; }
     //height: 30em !important;
 }
 
+#json_add_menu{
+    width: 260%;
+}
+
+#json_add_menu > .ui.divider{
+    margin: 0px;
+}
+
+.ui.dropdown #json_add_menu .item>.image.floated, .ui.dropdown .menu .item>img.floated > img{
+    max-height:none !important;
+    margin-left: 27px !important;
+}
+
+#radio{
+    height: 65px;
+    padding-bottom: 25px !important;
+}
+
+#dropdown{
+    height: 65px;
+    padding-bottom: 75px !important;
+}
+
+#checkbox{
+    padding-bottom: 25px !important;
+}
+
+#data{
+    padding-bottom: 50px !important;
+}
+
+#textbox{
+    padding-bottom: 50px !important;
+}
+
+#integer{
+    padding-bottom: 45px !important;
+}
+
+#float{
+    padding-bottom: 45px !important;
+}
+
+.visible.transition.specs_hide{
+    display: none !important;
+    visibility: hidden !important;
+}
+
+.specs_hide{
+    display: none !important;
+    visibility: hidden !important;
+}
+
 .page > h1 {
     font-size: 1.28em !important;
     border-bottom: 1px solid #EEEEEE;
