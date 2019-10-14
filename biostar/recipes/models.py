@@ -451,21 +451,22 @@ class Analysis(models.Model):
         self.lastedit_date = self.lastedit_date or now
 
         # Clean json text of the 'settings' key unless it has the 'run' field.
-        try:
-            local_json = hjson.loads(self.json_text)
-        except Exception as exep:
-            logger.error(f'Error loading json text: {exep}')
-            local_json = hjson.loads(self.last_valid)
-
-        run_settings = local_json.get('settings', {}).get('execute', {})
-        if local_json.get('settings'):
-            if run_settings:
-                # Leave run settings alone.
-                local_json['settings'] = dict(execute=run_settings)
-            else:
-                del local_json['settings']
-
-        self.json_text = hjson.dumps(local_json)
+        #TODO: still testing out.
+        # try:
+        #     local_json = hjson.loads(self.json_text)
+        # except Exception as exep:
+        #     logger.error(f'Error loading json text: {exep}')
+        #     local_json = hjson.loads(self.last_valid)
+        #
+        # run_settings = local_json.get('settings', {}).get('execute', {})
+        # if local_json.get('settings'):
+        #     if run_settings:
+        #         # Leave run settings alone.
+        #         local_json['settings'] = dict(execute=run_settings)
+        #     else:
+        #         del local_json['settings']
+        #
+        # self.json_text = hjson.dumps(local_json)
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
