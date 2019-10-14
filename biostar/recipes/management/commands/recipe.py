@@ -74,5 +74,5 @@ class Command(BaseCommand):
         if update:
             print(f"*** Updated recipe uid={rec.uid} name={rec.name}")
         else:
-            print (f"*** Created recipe uid={rec.uid} name={rec.name}")
+            print(f"*** Created recipe uid={rec.uid} name={rec.name}")
 
