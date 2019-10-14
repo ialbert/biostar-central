@@ -94,13 +94,24 @@ function check_job() {
 
 $(document).ready(function () {
 
-    $('.ui.dropdown').dropdown();
+
+
+    $('.ui.dropdown').dropdown({});
      $('select').dropdown();
+     $('#json_add').dropdown({onHide:function (){
+         return false
+     }});
+
+$('#json_add').click(function () {
+    $(this).dropdown({onHide:function (){return false}});
+});
+
      $('.ui.sticky').sticky();
 
-
+     $('#json_add').click(function () {
+        $('#json_add_menu').removeClass('specs_hide');
+     });
      $('#preview').click(function (event) {
-
 
 
      });
@@ -121,7 +132,16 @@ $(document).ready(function () {
 
                  //alert(recipe_json);
                  $('#json_preview_cont').transition('pulse');
-                 $('#json_preview_cont').html(data.html);
+                 $('#json_preview_cont').html('<form class="ui inputcolor form">'+data.html+'<div class="field">\n' +
+                     '                        <button type="submit" class="ui green disabled button">\n' +
+                     '                            <i class="check icon"></i>Run\n' +
+                     '                        </button>\n' +
+                     '\n' +
+                     '                        <a class="ui disabled button">\n' +
+                     '                            <i class="redo icon"></i>Cancel\n' +
+                     '                        </a>\n' +
+                     '                    </div></form>'.format(data.html));
+                 $('#json_modal').modal('show');
 
                 //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
                 },
@@ -134,12 +154,6 @@ $(document).ready(function () {
 
      });
 
-//    $(".items > .item").click(function (event) {
-//        var obj = $(this).find("a:first");
-//        if (typeof obj !== 'undefined') {
-//            window.location = obj.attr("href");
-//       }
-//    });
 
     // Check and update 'Running' and 'Spooled' jobs every 20 seconds.
     setInterval(check_job, 5000 );
@@ -160,9 +174,7 @@ $(document).ready(function () {
                 },
                 error: function () {
                 }
-
                 });
-
     });
 
     $('#recipe-search').keyup(function(){
@@ -182,6 +194,41 @@ $(document).ready(function () {
             }
             });
 
+    });
+
+    $('#json_add_menu .item').popup({
+        on:'hover'
+    });
+
+    $('.close_opts').click(function () {
+        $('#json_add').dropdown({onShow:false});
+    });
+
+    $('.add_to_interface').click(function () {
+
+       let json_text = $('#json').val();
+       let display_type = $(this).attr('id');
+
+       $.ajax('/recipe/fields/', {
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                      'display_types': display_type,
+                      'json_text': json_text,
+               },
+
+               success: function (data) {
+
+                   // Inject the fields into the
+                   //alert(data.json_text);
+                   //alert("ffffff")
+                   $('#json').val(data.json_text);
+                   $('#json_field').html(data.html)
+                   //$('#search-results').html(data);
+               },
+               error: function () {
+               }
+           });
     });
 
 });

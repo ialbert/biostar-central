@@ -379,7 +379,8 @@ function drop(ev, elem_id) {
      ev.target.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = '';
     //ev.target.style.border = "red";
     elem.parentElement.append(document.getElementById('indent-'+uid));
-
+    console.log(elem.parentElement.className);
+    console.log(elem.className);
     // console.log(elem_id, 'give');
     //  console.log(elem.id, 'extracted');
     //  console.log(elem.parentElement.id, 'extracted2');

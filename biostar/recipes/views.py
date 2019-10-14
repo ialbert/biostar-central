@@ -768,6 +768,7 @@ def recipe_edit(request, uid):
         # Initial form loading via a GET request.
         form = forms.RecipeForm(instance=recipe, user=request.user)
 
+    #print(recipe.json_text)
     context = dict(recipe=recipe, project=project, form=form, name=recipe.name)
     return render(request, 'recipe_edit.html', context)
 

@@ -1,9 +1,9 @@
 django >=2.2, <3
 django-ratelimit
-django-recaptcha
 django-compressor
 django-taggit
 whoosh
+psycopg2
 hjson
 pytz
 html2text

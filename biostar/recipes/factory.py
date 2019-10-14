@@ -198,7 +198,7 @@ def dynamic_field(data, project=None):
         return None
 
     # Find out the display type.
-    display_type = data.get("display")
+    display_type = data.get("display") or data.get('source')
 
     # Fields with no display type are not visible.
     if not display_type:
@@ -217,7 +217,7 @@ def dynamic_field(data, project=None):
         field = data_field_generator(data, project=project, type=data_type, extras=extras)
 
     else:
-        # In all other cases we generate a field from the tupe.
+        # In all other cases we generate a field from the tuple.
         func = field_types.get(display_type)
         if not func:
             logger.error(f"Invalid display type={display_type}")

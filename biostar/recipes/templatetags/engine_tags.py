@@ -292,6 +292,19 @@ def recipe_form(form):
     """
     return dict(form=form)
 
+
+@register.inclusion_tag('widgets/interface_options.html')
+def interface_options():
+    return dict()
+
+
+@register.inclusion_tag('widgets/json_field.html')
+def json_field(json_text):
+
+    context = dict(json_text=json_text)
+    return context
+
+
 @register.inclusion_tag('widgets/created_by.html')
 def created_by(date, user=None):
     """
