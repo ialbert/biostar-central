@@ -451,6 +451,10 @@ class Analysis(models.Model):
         self.lastedit_date = self.lastedit_date or now
 
         # Clean json text of the 'settings' key unless it has the 'run' field.
+        local_json = hjson.loads(self.json_text)
+
+        if local_json.get('settings'):
+            del local_json['settings']
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
