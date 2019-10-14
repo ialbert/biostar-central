@@ -98,7 +98,9 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown({});
      $('select').dropdown();
-     $('#json_add').dropdown({onHide:function (){return false}});
+     $('#json_add').dropdown({onHide:function (){
+         return false
+     }});
 
 $('#json_add').click(function () {
     $(this).dropdown({onHide:function (){return false}});
