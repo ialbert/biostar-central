@@ -83,7 +83,6 @@ def recipe_code(request):
     current_code = request.POST.get('template', '')
     kraken1 = '# Run the kraken classifier. \n kraken2 --report-zero-counts -db db  --report out/{/.}-report.txt --output out/{/.}-output.txt  {} 2'
     centrifuge = '# Build the index. \n centrifuge-build -p $N --conversion-table $TABLE --taxonomy-tree $NODES  --name-table $NAMES  $REFERENCE $INDEX'
-
     qiime2 = "# Convert taxonomy file to qiime 2 artifact. \n qiime tools import --input-path $REF_FASTA --output-path $REFERENCE --type 'FeatureData[Sequence]'"
 
     # Map of commands users can add.
@@ -195,3 +194,22 @@ def recipe_field(request):
     json_field = tmpl.render(context=context)
 
     return ajax_success(html=json_field, json_text=new_json, msg="Rendered json")
+
+
+def add_variables(request):
+
+    json_text = request.POST.get('json_text', '')
+    template = request.POST.get('template', '')
+
+    vars = hjson.loads(json_text).keys()
+    vars = ["{{ " + f"{v}.value" + "}}" for v in vars]
+
+    vars = '\n'.join(vars)
+
+    new_template = vars + "\n" + template
+
+    tmpl = loader.get_template('widgets/template_field.html')
+    context = dict(template=new_template)
+    template_field = tmpl.render(context=context)
+
+    return ajax_success(msg="Added variables to template", html=template_field, code=new_template)

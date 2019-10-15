@@ -117,6 +117,11 @@ $(document).ready(function () {
                 return false
             }
         });
+        $('#code_add').dropdown({
+            onShow: function () {
+                return false
+            }
+        })
     });
     $('#code_add').click(function () {
         $(this).dropdown({
@@ -235,6 +240,36 @@ $(document).ready(function () {
 
     $('#template').keyup(function () {
         alert($(this).val());
+
+    });
+
+    $('#add_vars').click(function () {
+
+        let json_text = $('#json').val();
+        let template = $('#template').val();
+
+        $.ajax('/add/vars/',{
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                      'json_text': json_text,
+                      'template':template,
+               },
+
+               success: function (data) {
+
+                   $('#template').val(data.code);
+                   $('#template_field').html(data.html);
+                   $('#code_preview').html(data.code).show();
+
+               },
+               error: function () {
+               }
+           }
+
+
+
+        )
 
     });
 
