@@ -43,7 +43,7 @@ $.ajaxSetup({
 
 function popup_message(elem, msg, cls, timeout) {
     timeout = typeof timeout !== 'undefined' ? timeout : 1000;
-    var text = '<div></div>'
+    var text = '<div></div>';
     var tag = $(text).insertBefore(elem)
     tag.addClass('popover ' + cls)
     tag.text(msg)
@@ -55,6 +55,68 @@ function popup_message(elem, msg, cls, timeout) {
 // Triggered on network errors.
 function error_message(elem, xhr, status, text) {
     popup_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
+}
+
+
+function command_form(is_top, type_uid, type_name){
+
+    $.ajax('/command/form/',{
+            type: 'POST',
+               dataType: 'json',
+               data: {
+                    'is_top':is_top,
+                    'type_uid': type_uid,
+                    'type_name':type_name,
+               },
+               success: function (data) {
+
+                   $('#cmd_form').html(data.html);
+
+                    $('#cmd_modal').modal('show');
+                   //$('#search-results').html(data);
+
+               },
+               error: function (xhr, status, text) {
+                   error_message($(this), xhr, status, text)
+               }
+
+            }
+
+        );
+
+}
+
+
+function add_to_template(elem){
+
+    let command = elem.attr('id');
+    let template = $('#template').val();
+    //alert(command);
+
+    $.ajax('/recipe/code/', {
+           type: 'POST',
+           dataType: 'json',
+           data: {
+                  'command': command,
+                  'template':template,
+           },
+
+           success: function (data) {
+               // Inject the fields into the
+               //alert(data.json_text);
+               //alert("ffffff")
+               if (data.status === 'error') {
+                   popup_message($('#template'), data.msg, data.status);
+               }
+               $('#template').val(data.code);
+               $('#template_field').html(data.html);
+               $('#code_preview').html(data.code).show();
+               //$('#search-results').html(data);
+           },
+           error: function () {
+               error_message($(this), xhr, status, text)
+           }
+       });
 }
 
 
@@ -152,7 +214,6 @@ $(document).ready(function () {
                 success: function (data) {
 
                  //alert(recipe_json);
-                 $('#json_preview_cont').transition('pulse');
                  $('#json_preview_cont').html('<form class="ui inputcolor form">'+data.html+'<div class="field">\n' +
                      '                        <button type="submit" class="ui green disabled button">\n' +
                      '                            <i class="check icon"></i>Run\n' +
@@ -267,43 +328,25 @@ $(document).ready(function () {
                }
            }
 
-
-
         )
 
     });
 
-    $('.cmd-value').click(function () {
-
-        let command = $(this).attr('id');
-        let template = $('#template').val();
-        //alert(template);
-
-        $.ajax('/recipe/code/', {
-               type: 'POST',
-               dataType: 'json',
-               data: {
-                      'command': command,
-                      'template':template,
-               },
-
-               success: function (data) {
-                   // Inject the fields into the
-                   //alert(data.json_text);
-                   //alert("ffffff")
-                   $('#template').val(data.code);
-                   $('#template_field').html(data.html);
-                   $('#code_preview').html(data.code).show();
-                   //$('#search-results').html(data);
-               },
-               error: function () {
-               }
-           });
+    $('.cmd-value').click(function (event) {
+        event.preventDefault();
+        add_to_template($(this))
 
     });
 
+    $(this).on('click', '.cmd-value', function() {
+        event.preventDefault();
+        add_to_template($(this))
+    });
+
+
+
     $('.add_to_interface').click(function (event) {
-        event.preventDefault()
+        event.preventDefault();
        let json_text = $('#json').val();
        let display_type = $(this).attr('id');
 
@@ -323,11 +366,108 @@ $(document).ready(function () {
                    $('#json').val(data.json_text);
                    $('#json_field').html(data.html);
 
+
                    //$('#search-results').html(data);
                },
-               error: function () {
+               error: function (xhr, status, text) {
+                   error_message($(this), xhr, status, text)
                }
            });
     });
+
+    $(this).on('click', '#save_command', function() {
+
+       let type = $(this).data('type');
+       let command = $('#command').val();
+       let help_text = $('#help').val();
+       //alert(command);
+        $.ajax('/create/command/',{
+
+            type: 'POST',
+               dataType: 'json',
+               data: {
+                    'command': command,
+                    'help_text': help_text,
+                    'type_uid':type
+               },
+
+               success: function (data) {
+
+                   // Inject the fields into the
+                   //alert(data.json_text);
+                   //alert("ffffff")
+                   //$('#json').val(data.json_text);
+                   //$('#json_field').html(data.html);
+                   //popup_message($('#command'), data.msg, data.status)
+                   if (data.status === 'success'){
+                       $('.holder-'+ type).after(data.html);
+                        $('#cmd_modal').modal('hide');
+
+                   }else{
+                       //alert()
+                       popup_message($('#command'), data.msg, data.status, 1000)
+                   }
+
+                   //$('#search-results').html(data);
+               },
+               error: function (xhr, status, text) {
+                   error_message($(this), xhr, status, text)
+               }
+            }
+        )
+
+
+
+    });
+
+    $('#template_preview').click(function (event) {
+        //alert("fooo");
+          event.preventDefault();
+         let recipe_uid = $(this).data('value');
+         let template = $('#template').val();
+         let json_text = $('#json').val();
+
+         $.ajax('/preview/template/',
+             {
+             type: 'POST',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {'uid': recipe_uid,
+                       'template': template,
+                       'json_text': json_text,
+                },
+
+                success: function (data) {
+
+                 //alert(recipe_json);
+                 if (data.status === 'success'){
+                     $('#template_preview_cont').html('<pre><code class=" language-bash line-numbers ">' + data.script + '</code></pre>');
+                     $('#template_modal').modal('show');
+                     return
+                 }
+
+                popup_message($("#template"), data.msg, data.status );
+                },
+                error: function (xhr, status, text) {
+                 error_message( $(this), xhr, status, text)
+                }
+
+                });
+
+
+     });
+
+    $('.add-cmd-with-type').click(function () {
+        let type_name = $(this).data('type_name');
+        let type_uid = $(this).data('type_uid');
+        command_form(false, type_uid, type_name);
+    });
+
+    // $('.add-cmd-without-type').click(function () {
+    //     let type_name = $(this).data('type_name');
+    //     let type_uid = $(this).data('type_uid');
+    //     command_form(false, type_uid, type_name);
+    // });
+
 
 });

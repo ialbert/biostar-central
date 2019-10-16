@@ -18,7 +18,7 @@ from django.template import defaultfilters
 from django.utils.safestring import mark_safe
 
 from biostar.recipes import auth, util, const
-from biostar.recipes.models import Job, make_html, Project, Data, Analysis, Access
+from biostar.recipes.models import Job, make_html, Project, Data, Analysis, Access, CommandType, Command
 
 
 logger = logging.getLogger("engine")
@@ -298,9 +298,13 @@ def interface_options():
     return dict()
 
 
-@register.inclusion_tag('widgets/code_options.html')
-def code_options():
-    return dict()
+@register.inclusion_tag('widgets/code_options.html', takes_context=True)
+def code_options(context):
+
+    command_types = CommandType.objects.all()
+    extra_context = dict(command_types=command_types)
+    context.update(extra_context)
+    return context
 
 
 @register.inclusion_tag('widgets/json_field.html')

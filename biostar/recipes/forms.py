@@ -323,7 +323,7 @@ class RecipeForm(forms.ModelForm):
 
     class Meta:
         model = Analysis
-        fields = ["name", "image", "rank", "text", "uid", "json_text", "template"]
+        fields = ["name",  "rank", "text", "uid", "json_text", "template"]
 
     def get_initial(self):
         """

@@ -1,0 +1,15 @@
+id, name, label, command
+1, bash, Print all executed commands., set -uexo pipefail
+2, r, Set graphics device to PNG., png( file )
+3, r, Generate a sample., sample(1:3, size=1000, prob=c(.30,.60,.10))
+4, r, Generate a barplot., barplot( data )
+5, Matlab, Open a file in read mode., fopen(filename,'r')
+6, kraken, Add file to the database., kraken2-build --add-to-library fish-accession.fa -db db 2
+7, kraken, Build the database., kraken2-build --build --db db 2
+8, kraken, Run the kraken classifier., kraken2 --report-zero-counts -db db  --report out/{/.}-report.txt --output out/{/.}-output.txt  {} 2
+9, centrifuge, Build the index., centrifuge-build -p $N --conversion-table $TABLE --taxonomy-tree $NODES  --name-table $NAMES  $REFERENCE $INDEX
+10, qiime, Convert taxonomy file to qiime 2 artifact., qiime tools import --input-path $REF_FASTA --output-path $REFERENCE --type 'FeatureData[Sequence]'
+
+
+
+

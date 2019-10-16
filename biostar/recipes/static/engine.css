@@ -191,6 +191,35 @@ figure { display: block; margin: 0; }
     //height: 30em !important;
 }
 
+#cmd_form > .ui.form> .field > .CodeMirror {
+    height: 3em !important;
+}
+
+
+.popover {
+    position: absolute;
+    color: #3c763d;
+    padding: 15px;
+    //margin-top: 4ex;
+
+    border-radius: .28571429rem;
+    z-index: 100;
+    opacity: 0.9;
+}
+
+.popover.error {
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+}
+
+.popover.success {
+    background-color: #fcfff5;
+    color: #2c662d;
+    box-shadow: 0 0 0 1px #a3c293 inset, 0 0 0 0 transparent;
+    border-color: #ebccd1;
+}
+
 #json_add_menu{
     width: 260%;
 }
@@ -233,6 +262,7 @@ figure { display: block; margin: 0; }
 #float{
     padding-bottom: 45px !important;
 }
+
 
 .visible.transition.specs_hide{
     display: none !important;

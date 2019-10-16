@@ -5,151 +5,69 @@
     <div class="ui divider" style="margin: 0"></div>
 
     <a class="item" style="background-color: #f1fff0" id="add_vars" data-content="Add variables from JSON interface to this template.">
-        <i class="code icon"></i>
-Call variables
+        <i class="code icon"></i>Call variables
     </a>
 
     <div class="ui divider" style="margin: 0"></div>
 
-    <div class="item">
-
-        <img class="ui mini image" style="height: 17px; width:17px;" src="{% static 'images/bashicon.png' %}">
-
-        <a href="#">
-            Bash
-        </a>
-
-    <i class="dropdown icon"></i>
-    <div class="menu">
-      <a class="item cmd-value" id="cmd_1"><i class="plus icon"></i>
-           Print all executed commands.<br>
-          <p></p>
-          <code class="language-bash">set -uexo pipefail</code>
-      </a>
-
-    </div>
-
-    </div>
-
-    <div class="ui divider" style="margin: 0"></div>
-
-    <div class="item" >
-        <img class="ui mini image" style="height: 17px; width:17px ;" src="{% static 'images/r_icon.png' %}">
-        <a href="#">
-            R
-        </a>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-
-          <a class="item cmd-value" id="cmd_2"><i class="plus icon"></i>
-             Set graphics device to PNG.<br>
-          <p></p>
-          <code class="language-r">png( file )</code>
-          </a>
-          <a class="item cmd-value" id="cmd_3" ><i class="plus icon"></i>
-              Generate a sample.<br>
-          <p></p>
-          <code class="language-r">sample(1:3, size=1000, prob=c(.30,.60,.10))</code>
-
-          </a>
-            <a class="item cmd-value" id="cmd_4"> <i class="plus icon"></i>
-                Generate a barplot.<br>
-          <p></p>
-          <code class="language-r">barplot( data )</code>
-
+    {% for type in command_types %}
+        <div class="item">
+            <img class="ui mini image" style="height: 17px; width:17px;" src="/media/{{ type.image.name }}">
+            <a href="#">
+                {{ type.name|capfirst }}
             </a>
-        </div>
-    </div>
-
-    <div class="ui divider" style="margin: 0"></div>
-
-    <div class="item ">
-        <img class="ui mini image" style="height: 17px; width:17px;" src="{% static 'images/matlab.png' %}">
-        <a href="#">
-            MatLab
-        </a>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-          <a class="item cmd-value" id="cmd_5"><i class="plus icon"></i>
-              Open a file in read mode. <br>
-          <p></p>
-          <code class="language-r">fopen(filename,'r')</code>
-
-          </a>
-        </div>
-    </div>
-
-<div class="ui divider" style="margin: 0"></div>
-
-        <div class="item ">
-            <img class="ui mini image" style="height: 17px; width:17px;" src="{% static 'images/kraken.png' %}">
-        <a href="#">
-            Kraken
-        </a>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-          <a class="item cmd-value" id="cmd_6" ><i class="plus icon"></i>
-              Add file to the database. <br>
-          <p></p>
-          <code class="language-bash">kraken2-build --add-to-library ...</code>
-          </a>
-
-          <a class="item cmd-value" id="cmd_7"><i class="plus icon"></i>
-              Build the database.<br>
-          <p></p>
-          <code class="language-bash">kraken2-build --build ...</code>
-          </a>
-
-          <a class="item cmd-value" id="cmd_8"><i class="plus icon"></i>
-            Run the kraken classifier.<br>
-          <p></p>
-          <code class="language-bash">kraken2 --report-zero-counts ...</code>
-          </a>
-        </div>
-    </div>
-
-<div class="ui divider" style="margin: 0"></div>
-
-        <div class="item " >
-            <img class="ui mini image" style="height: 17px; width:17px;" src="{% static 'images/centrifuge.png' %}">
-        <a href="#">
-            Centrifuge
-        </a>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-            <a class="item cmd-value" id="cmd_9" ><i class="plus icon"></i>
-                Build the index.<br>
-          <p></p>
-          <code class="language-bash">centrifuge-build -p ...</code>
-
-            </a>
-        </div>
-    </div>
-
-<div class="ui divider" style="margin: 0"></div>
-
-            <div class="item ">
-                <img class="ui mini image" style="height: 17px; width:17px;" src="{% static 'images/qiime2.png' %}">
-        <a href="#">
-            Qiime
-        </a>
             <i class="dropdown icon"></i>
-        <div class="menu">
-          <a class="item cmd-value" id="cmd_10" ><i class="plus icon"></i>
-              Convert taxonomy file to qiime 2 artifact.<br>
-          <p></p>
-          <code class="language-bash">qiime tools import --input-path ...</code>
+            <div class="menu" id="{{ type.uid }}">
 
-          </a>
+            {% if request.user.is_superuser %}
+
+
+              <a class="item add-cmd-with-type" data-type_uid="{{ type.uid }}" data-type_name="{{ type.name }}"><i class="plus icon"></i>
+
+                        Add {{ type.name|capfirst }} command.
+
+                    </a>
+                <div class="ui divider" style="margin: 0"></div>
+            {% endif %}
+
+            <div class="holder-{{ type.uid }}"></div>
+
+                {% for cmd in type.command_set.all %}
+                    <a class="item cmd-value" id="{{ cmd.uid }}"><i class="plus icon"></i>
+                        {{ cmd.help_text }}<br>
+                        <p></p>
+                        <code class="language-bash">{{ cmd.command |truncatechars_html:'35' }}</code>
+                    </a>
+                {% endfor %}
+
+
+
+            </div>
+
         </div>
-    </div>
+
+        <div class="ui divider" style="margin: 0"></div>
+
+    {% endfor %}
+
+    {% if request.user.is_superuser %}
+    <a class="item add-cmd-without-type" style="text-align: center;">
+            <i class="plus icon"></i>Add
+    </a>
+    {% endif %}
 
 <div class="ui divider" style="margin: 0"></div>
-
     <a class="item close_codes" style="text-align: center;">
-        <div class="ui basic segment">
             <i class="undo icon"></i>Close
-        </div>
     </a>
 
 </div>
+
+
+
+<div class="ui tiny inputcolor modal" style="padding:20px;width: 33%;" id="cmd_modal">
+
+   <div id="cmd_form"><form class="ui form"></form></div>
+
+</div>
+

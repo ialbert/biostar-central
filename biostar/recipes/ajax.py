@@ -4,11 +4,12 @@ import hjson, json
 from ratelimit.decorators import ratelimit
 
 from django.template import loader
+from django.template import Template, Context
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.template import loader
 from .const import *
-from biostar.recipes.models import Job, Analysis
+from biostar.recipes.models import Job, Analysis, Command, CommandType, MAX_TEXT_LEN
 from biostar.recipes.forms import RecipeInterface
 
 logger = logging.getLogger("engine")
@@ -79,37 +80,102 @@ def check_job(request, uid):
 @ajax_error_wrapper(method="POST")
 def recipe_code(request):
 
-    command = request.POST.get('command', '')
+    command_uid = request.POST.get('command', '')
     current_code = request.POST.get('template', '')
-    kraken1 = '# Run the kraken classifier. \n kraken2 --report-zero-counts -db db  --report out/{/.}-report.txt --output out/{/.}-output.txt  {} 2'
-    centrifuge = '# Build the index. \n centrifuge-build -p $N --conversion-table $TABLE --taxonomy-tree $NODES  --name-table $NAMES  $REFERENCE $INDEX'
-    qiime2 = "# Convert taxonomy file to qiime 2 artifact. \n qiime tools import --input-path $REF_FASTA --output-path $REFERENCE --type 'FeatureData[Sequence]'"
 
-    # Map of commands users can add.
-    # Value is a tuple with ( command, True/ False to indicate this command goes on top )
-    command_map = dict(cmd_1=('# Print all executed commands. \n set -uexo pipefail', True),
-                       cmd_2=('# Set graphics device to PNG. \n png(file)', False),
-                       cmd_3=('# Generate a sample. \n sample(1:3, size=1000, prob=c(.30,.60,.10))', False),
-                       cmd_4=('# Generate a barplot. \n barplot( data )', False),
-                       cmd_5=('% Open a file in read mode.% \n fopen(filename,'r')', False),
-                       cmd_6=('# Add file to the database. \n kraken2-build --add-to-library fish-accession.fa -db db 2', False),
-                       cmd_7=('# Build the database. \n kraken2-build --build --db db 2', False),
-                       cmd_8=(kraken1, False),
-                       cmd_9=(centrifuge, False),
-                       cmd_10=(qiime2, False))
+    cmd = Command.objects.filter(uid=command_uid).first()
 
-    if not command_map.get(command):
+    if not cmd:
         return ajax_error(msg='Command not found.')
 
-    cmd, begining = command_map.get(command, ('', False))
-
-    code = cmd + '\n' + current_code if begining else current_code + '\n' + cmd
+    command = cmd.command
+    comment = f'# { cmd.help_text }' if cmd.help_text else ' '
+    code = current_code + '\n' + comment + '\n' + command
 
     tmpl = loader.get_template('widgets/template_field.html')
     context = dict(template=code)
     template_field = tmpl.render(context=context)
 
     return ajax_success(code=code, msg="Rendered the template", html=template_field)
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def command_form(request):
+
+    is_top = request.POST.get("is_top", False)
+    #cmd_type = request.POST.get('type')
+    type_name = request.POST.get('type_name')
+    type_uid = request.POST.get('type_uid')
+
+    tmpl = loader.get_template('widgets/command_form.html')
+    context = dict(is_top=is_top, type_name=type_name, type_uid=type_uid)
+    cmd_form = tmpl.render(context=context)
+
+    return ajax_success(html=cmd_form, msg="Rendered form")
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def create_command(request):
+
+    command = request.POST.get('command', '')
+    help_text = request.POST.get('help_text', '')
+    type_uid = request.POST.get('type_uid')
+
+    if not (help_text and command):
+        return ajax_error(msg="Command and help text are required.")
+
+    # Get the type of code this this: Bash, r, Matlab, etc...
+    cmd_type = CommandType.objects.filter(uid=type_uid).first()
+    if not cmd_type:
+        return ajax_error(msg=f"Command does not have a valid type:{cmd_type}")
+
+    cmd = Command.objects.filter(command=command, type=cmd_type).first()
+
+    if cmd:
+        return ajax_error(msg=f"Command for {cmd_type.name} already exists: {command}.")
+
+    if len(command) >= MAX_TEXT_LEN or len(help_text) >= MAX_TEXT_LEN:
+        msg = "Command" if len(command) >= MAX_TEXT_LEN else "Help Text"
+        return ajax_error(msg= msg + " input is too long")
+
+    # Create the command.
+    cmd = Command.objects.create(command=command, type=cmd_type, help_text=help_text,
+                                 owner=request.user)
+
+    tmpl = loader.get_template('widgets/command_item.html')
+    context = dict(command=cmd)
+    created_form = tmpl.render(context=context)
+
+    return ajax_success(msg="Created snippet", html=created_form)
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def preview_template(request):
+
+    # Get the recipe
+    recipe_uid = request.POST.get('uid')
+
+    recipe = Analysis.objects.filter(uid=recipe_uid).first()
+
+    if not recipe:
+
+        return ajax_error(msg="Recipe does not exist.")
+
+    source_template = request.POST.get('template', recipe.template)
+    source_json = request.POST.get('json_text', recipe.json_text)
+    source_json = hjson.loads(source_json)
+
+    context = Context(source_json)
+    script_template = Template(source_template)
+    script = script_template.render(context)
+
+    return ajax_success(script=script, msg="Rendered script")
 
 
 @ratelimit(key='ip', rate='50/h')
