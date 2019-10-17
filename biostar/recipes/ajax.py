@@ -243,7 +243,7 @@ def delete_snippet(request):
 
     if request.user != snippet.owner:
         return ajax_error(msg="Only owners or superusers can delete their code snippets.")
-    
+
 
 
 

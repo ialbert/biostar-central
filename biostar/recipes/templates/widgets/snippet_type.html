@@ -9,7 +9,7 @@
     <i class="dropdown icon"></i>
     <div class="menu" id="{{ type.uid }}">
 
-            <div class="item " style="padding-right: 4px !important;">
+            <div class="item " >
                 <a class=" add-cmd-with-type" data-type_uid="{{ type.uid }}" data-type_name="{{ type.name }}">
                 <i class="plus icon"></i>
                     </a>
@@ -18,7 +18,7 @@
                 </span>
 
                 {% if type.owner == request.user %}
-                <a class="delete-snippet" data-content="Delete all snippets" style="float: right; padding-left: 25px; color:red">
+                <a class="delete-snippet" data-content="Delete all snippets" >
                     <i class="minus icon"></i>
                 </a>
                 {% endif %}

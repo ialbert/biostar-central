@@ -195,7 +195,40 @@ figure { display: block; margin: 0; }
     height: 3em !important;
 }
 
+.add-cmd-with-type{
+    opacity: .6;
+}
 
+.cmd-value{
+    opacity: .6;
+}
+
+.edit-snippet{
+    opacity: .6;
+}
+
+.edit-snippet:hover{
+    opacity: 1;
+}
+.delete-snippet{
+    float: right;
+    color:red;
+    opacity: .6;
+}
+
+.delete-snippet:hover{
+    float: right;
+    color:red;
+    opacity: 1;
+}
+
+
+.cmd-value:hover{
+    opacity: 1;
+}
+.add-cmd-with-type:hover{
+    opacity: 1;
+}
 .popover {
     position: absolute;
     color: #3c763d;
