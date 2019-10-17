@@ -1,0 +1,20 @@
+ <textarea class="code" rows="40" cols="55" name="template" id="template">{{ template }}</textarea>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var template_edit = CodeMirror.fromTextArea(
+                document.getElementById("template"),
+                {
+                    lineNumbers: true,
+                    mode: "engine"
+                }
+            );
+
+            $('#template_preview').click(function () {
+               template_edit.save()
+            });
+        });
+
+    </script>

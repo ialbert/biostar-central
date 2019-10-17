@@ -9,7 +9,8 @@ import random
 
 from datetime import timedelta, datetime
 from django.contrib import messages
-from django import template
+from django import template, forms
+
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator
@@ -18,7 +19,7 @@ from django.template import defaultfilters
 from django.utils.safestring import mark_safe
 
 from biostar.recipes import auth, util, const
-from biostar.recipes.models import Job, make_html, Project, Data, Analysis, Access
+from biostar.recipes.models import Job, make_html, Project, Data, Analysis, Access, SnippetType, Snippet
 
 
 logger = logging.getLogger("engine")
@@ -298,10 +299,65 @@ def interface_options():
     return dict()
 
 
+@register.simple_tag
+def image_field(default=''):
+    if default:
+        image_field = forms.ImageField(required=False, default=default)
+    else:
+        image_field = forms.ImageField(required=False)
+    image_field.widget.attrs.update({'id': 'image'})
+    placeholder = os.path.join(settings.STATIC_ROOT, 'images', 'placeholder.png')
+    image_widget = image_field.widget.render('image', value=placeholder)
+
+    return mark_safe(image_widget)
+
+
+@register.inclusion_tag('widgets/snippet_list.html', takes_context=True)
+def snippet_list(context):
+
+    user = context['request'].user
+    command_types = SnippetType.objects.filter(Q(owner=user) | Q(default=True)).order_by('-pk')
+    extra_context = dict(command_types=command_types)
+    context.update(extra_context)
+    return context
+
+
+@register.inclusion_tag('widgets/snippet.html', takes_context=True)
+def snippet_item(context, snippet):
+
+    extra_context = dict(snippet=snippet)
+    context.update(extra_context)
+    return context
+
+
+@register.inclusion_tag('widgets/snippet_type.html', takes_context=True)
+def snippet_type(context, snip_type):
+    extra_context = dict(type=snip_type)
+    context.update(extra_context)
+    return context
+
+
+@register.simple_tag
+def get_snippets(user, snip_type):
+    if user.is_authenticated:
+        snippets = snip_type.snippet_set.filter(Q(owner=user) | Q(default=True))
+    else:
+        snippets = snip_type.snippet_set.filter(default=True)
+    return snippets
+
+
+
 @register.inclusion_tag('widgets/json_field.html')
 def json_field(json_text):
 
     context = dict(json_text=json_text)
+    return context
+
+
+@register.inclusion_tag('widgets/template_field.html')
+def template_field(tmpl):
+
+    context = dict(template=tmpl)
     return context
 
 

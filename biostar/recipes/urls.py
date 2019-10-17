@@ -18,8 +18,15 @@ urlpatterns = [
 
     # Ajax calls
     path(r'ajax/check/job/<str:uid>/', ajax.check_job, name='ajax_check_job'),
-    path(r'preview/json/', ajax.preview_json, name="preview_json"),
     path(r'recipe/fields/', ajax.recipe_field, name="recipe_fields"),
+    path(r'recipe/code/', ajax.recipe_code, name="recipe_code"),
+    path(r'add/vars/', ajax.add_variables, name="add_vars"),
+    path(r'snippet/form/', ajax.snippet_form, name="snippet_form"),
+    path(r'create/snippet/', ajax.create_snippet, name="create_snippet"),
+    path(r'preview/template/', ajax.preview_template, name="preview_json"),
+    path(r'preview/json/', ajax.preview_json, name="preview_json"),
+    path(r'create/snippet/type/', ajax.create_snippet_type, name="create_snippet_type"),
+
     # Project
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),
     path(r'project/create/', views.project_create, name='project_create'),

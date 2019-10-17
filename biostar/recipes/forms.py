@@ -319,9 +319,11 @@ class RecipeForm(forms.ModelForm):
         self.user = user
         super().__init__(*args, **kwargs)
 
+        #self.fields['json_text']
+
     class Meta:
         model = Analysis
-        fields = ["name", "image", "rank", "text", "uid", "json_text", "template"]
+        fields = ["name",  "rank", "text", "uid", "json_text", "template"]
 
     def get_initial(self):
         """

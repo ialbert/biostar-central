@@ -47,6 +47,19 @@ def image_path(instance, filename):
     return imgpath
 
 
+def snippet_images(instance, filename):
+    # Name the data by the filename.
+    name, ext = os.path.splitext(filename)
+    uid = instance.uid or util.get_uuid(6)
+    imgname = f"images/image-{uid}{ext}"
+
+    # Uploads need to go relative to media directory.
+    path = os.path.relpath('export/media/snippets/images/', settings.MEDIA_ROOT)
+    imgpath = os.path.join(path, imgname)
+
+    return imgpath
+
+
 class Manager(models.Manager):
 
     def get_queryset(self):
@@ -64,6 +77,39 @@ class Manager(models.Manager):
         "Return everything"
         return super().get_queryset().filter(**kwargs).select_related("owner", "owner__profile", "lastedit_user",
                                                                       "lastedit_user__profile")
+
+
+class SnippetType(models.Model):
+    image = models.ImageField(default=None, blank=True, upload_to=snippet_images, max_length=MAX_FIELD_LEN)
+    uid = models.CharField(max_length=MAX_TEXT_LEN, unique=True)
+    # The name referring to this
+    name = models.CharField(max_length=MAX_NAME_LEN)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # Appears to all uses
+    default = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or util.get_uuid(6)
+        super(SnippetType, self).save(*args, **kwargs)
+
+
+class Snippet(models.Model):
+    help_text = models.CharField(max_length=MAX_TEXT_LEN)
+    uid = models.CharField(max_length=MAX_TEXT_LEN, unique=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    command = models.CharField(max_length=MAX_TEXT_LEN, null=True)
+    # Link a command to one type
+    type = models.ForeignKey(SnippetType, on_delete=models.CASCADE)
+
+    # Appears to all uses
+    default = models.BooleanField(default=False)
+
+
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or util.get_uuid(6)
+        self.owner = self.owner or self.type.owner
+        super(Snippet, self).save(*args, **kwargs)
 
 
 class Project(models.Model):
@@ -452,21 +498,21 @@ class Analysis(models.Model):
 
         # Clean json text of the 'settings' key unless it has the 'run' field.
         #TODO: still testing out.
-        # try:
-        #     local_json = hjson.loads(self.json_text)
-        # except Exception as exep:
-        #     logger.error(f'Error loading json text: {exep}')
-        #     local_json = hjson.loads(self.last_valid)
-        #
-        # run_settings = local_json.get('settings', {}).get('execute', {})
-        # if local_json.get('settings'):
-        #     if run_settings:
-        #         # Leave run settings alone.
-        #         local_json['settings'] = dict(execute=run_settings)
-        #     else:
-        #         del local_json['settings']
-        #
-        # self.json_text = hjson.dumps(local_json)
+        try:
+            local_json = hjson.loads(self.json_text)
+        except Exception as exep:
+            logger.error(f'Error loading json text: {exep}')
+            local_json = hjson.loads(self.last_valid)
+
+        run_settings = local_json.get('settings', {}).get('execute', {})
+        if local_json.get('settings'):
+            if run_settings:
+                # Leave run settings alone.
+                local_json['settings'] = dict(execute=run_settings)
+            else:
+                del local_json['settings']
+
+        self.json_text = hjson.dumps(local_json)
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""

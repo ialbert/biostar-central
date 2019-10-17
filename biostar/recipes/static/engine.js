@@ -43,7 +43,7 @@ $.ajaxSetup({
 
 function popup_message(elem, msg, cls, timeout) {
     timeout = typeof timeout !== 'undefined' ? timeout : 1000;
-    var text = '<div></div>'
+    var text = '<div></div>';
     var tag = $(text).insertBefore(elem)
     tag.addClass('popover ' + cls)
     tag.text(msg)
@@ -55,6 +55,77 @@ function popup_message(elem, msg, cls, timeout) {
 // Triggered on network errors.
 function error_message(elem, xhr, status, text) {
     popup_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
+}
+
+
+function snippet_form(elem, is_top){
+    let type_name = elem.data('type_name');
+    let type_uid = elem.data('type_uid');
+    let snippet_uid = elem.data('snippet_uid');
+    let snippet = elem.data('snippet');
+
+    let help_text = elem.data('help_text');
+
+    $.ajax('/snippet/form/',{
+            type: 'POST',
+               dataType: 'json',
+               data: {
+                    'is_top':is_top,
+                    'type_uid': type_uid,
+                    'type_name':type_name,
+                    'snippet': snippet,
+                    'help_text': help_text,
+                    'snippet_uid':snippet_uid
+               },
+               success: function (data) {
+
+                   $('#cmd_form').html(data.html);
+
+                    $('#cmd_modal').modal('show');
+                   //$('#search-results').html(data);
+
+               },
+               error: function (xhr, status, text) {
+                   error_message($(this), xhr, status, text)
+               }
+
+            }
+
+        );
+
+}
+
+
+function add_to_template(elem){
+
+    let snippet = elem.attr('id');
+    let template = $('#template').val();
+    //alert(snippet);
+
+    $.ajax('/recipe/code/', {
+           type: 'POST',
+           dataType: 'json',
+           data: {
+                  'command': snippet,
+                  'template':template,
+           },
+
+           success: function (data) {
+               // Inject the fields into the
+               //alert(data.json_text);
+               //alert("ffffff")
+               if (data.status === 'error') {
+                   popup_message($('#template'), data.msg, data.status);
+               }
+               $('#template').val(data.code);
+               $('#template_field').html(data.html);
+               $('#code_preview').html(data.code).show();
+               //$('#search-results').html(data);
+           },
+           error: function () {
+               error_message($(this), xhr, status, text)
+           }
+       });
 }
 
 
@@ -92,25 +163,86 @@ function check_job() {
 
 }
 
+
+function create_snippet(elem){
+    let type = elem.data('type');
+    let snippet_uid = elem.data('snippet_uid');
+    let snippet = $('#snippet').val();
+    let help_text = $('#help').val();
+
+    $.ajax('/create/snippet/', {
+
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'snippet': snippet,
+                'help_text': help_text,
+                'type_uid': type,
+                'snippet_uid': snippet_uid
+            },
+            success: function (data) {
+                if (data.status === 'success') {
+
+                    if (snippet_uid.length){
+                        $('#item-' + snippet_uid).html(data.html);
+                    }else {
+                        $('.holder-' + type).after(data.html);
+                    }
+                    $('#cmd_modal').modal('hide');
+
+                } else {
+
+                    popup_message($('#snippet'), data.msg, data.status, 1000)
+                }
+
+            },
+            error: function (xhr, status, text) {
+                error_message($(this), xhr, status, text)
+            }
+        }
+    )
+}
+
 $(document).ready(function () {
 
 
 
     $('.ui.dropdown').dropdown({});
-     $('select').dropdown();
-     $('#json_add').dropdown({onHide:function (){
-         return false
-     }});
+    $('select').dropdown();
+    $('');
+    $('#json_add').dropdown({
+        onHide: function () {
+            return false
+        }
+    });
 
-$('#json_add').click(function () {
-    $(this).dropdown({onHide:function (){return false}});
-});
+    $('#code_add').dropdown({
+        onHide: function () {
+            return false
+        }
+    });
 
+    $('#json_add').click(function () {
+        $(this).dropdown({
+            onHide: function () {
+                return false
+            }
+        });
+        $('#code_add').dropdown({
+            onShow: function () {
+                return false
+            }
+        })
+    });
+    $('#code_add').click(function () {
+        $(this).dropdown({
+            onHide: function () {
+                return false
+            }
+        });
+    });
      $('.ui.sticky').sticky();
 
-     $('#json_add').click(function () {
-        $('#json_add_menu').removeClass('specs_hide');
-     });
      $('#preview').click(function (event) {
 
 
@@ -131,7 +263,6 @@ $('#json_add').click(function () {
                 success: function (data) {
 
                  //alert(recipe_json);
-                 $('#json_preview_cont').transition('pulse');
                  $('#json_preview_cont').html('<form class="ui inputcolor form">'+data.html+'<div class="field">\n' +
                      '                        <button type="submit" class="ui green disabled button">\n' +
                      '                            <i class="check icon"></i>Run\n' +
@@ -199,13 +330,83 @@ $('#json_add').click(function () {
     $('#json_add_menu .item').popup({
         on:'hover'
     });
+    $('.delete-snippet').popup({
+        on:'hover',
+    });
+    $('.edit-snippet').popup({
+        on:'hover',
+    });
+
+
+    $('.cmd-value').popup({
+        on:'hover'
+    });
+
+    $('#code_add_menu .item').popup({
+        on:'hover'
+    });
 
     $('.close_opts').click(function () {
         $('#json_add').dropdown({onShow:false});
     });
 
-    $('.add_to_interface').click(function () {
 
+    $('.close_codes').click(function () {
+        $('#code_add').dropdown({
+            onShow: function () {
+                return false
+            }
+        })
+    });
+
+    $('#template').keyup(function () {
+        alert($(this).val());
+
+    });
+
+    $('#add_vars').click(function () {
+
+        let json_text = $('#json').val();
+        let template = $('#template').val();
+
+        $.ajax('/add/vars/',{
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                      'json_text': json_text,
+                      'template':template,
+               },
+
+               success: function (data) {
+
+                   $('#template').val(data.code);
+                   $('#template_field').html(data.html);
+                   $('#code_preview').html(data.code).show();
+
+               },
+               error: function () {
+               }
+           }
+
+        )
+
+    });
+
+    $('.cmd-value').click(function (event) {
+        event.preventDefault();
+        add_to_template($(this))
+
+    });
+
+    $(this).on('click', '.cmd-value', function() {
+        event.preventDefault();
+        add_to_template($(this))
+    });
+
+
+
+    $('.add_to_interface').click(function (event) {
+        event.preventDefault();
        let json_text = $('#json').val();
        let display_type = $(this).attr('id');
 
@@ -218,17 +419,98 @@ $('#json_add').click(function () {
                },
 
                success: function (data) {
-
-                   // Inject the fields into the
-                   //alert(data.json_text);
-                   //alert("ffffff")
                    $('#json').val(data.json_text);
-                   $('#json_field').html(data.html)
+                   $('#json_field').html(data.html);
+
+
                    //$('#search-results').html(data);
                },
-               error: function () {
+               error: function (xhr, status, text) {
+                   error_message($(this), xhr, status, text)
                }
            });
     });
+    $(this).on('click', '#save_snippet_type', function() {
 
+        var form_data = new FormData($('#snippet_form').get(0));
+        //alert(form_data.get('help'));
+
+        $.ajax('/create/snippet/type/',{
+            type: 'POST',
+               dataType: 'json',
+               data: form_data,
+               processData: false,
+               contentType: false,
+               success: function (data) {
+                   if (data.status === 'success'){
+                       $('#new-type-holder').after(data.html);
+                       $('#cmd_modal').modal('hide');
+                   }else{
+
+                       popup_message($('#snippet'), data.msg, data.status, 1000)
+                   }
+
+               },
+               error: function (xhr, status, text) {
+                   error_message($(this), xhr, status, text)
+               }
+            }
+        )
+
+    });
+
+    $(this).on('click', '#save_command', function() {
+        create_snippet($(this));
+
+    });
+
+    $('#template_preview').click(function (event) {
+        //alert("fooo");
+          event.preventDefault();
+         let recipe_uid = $(this).data('value');
+         let template = $('#template').val();
+         let json_text = $('#json').val();
+
+         $.ajax('/preview/template/',
+             {
+             type: 'POST',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {'uid': recipe_uid,
+                       'template': template,
+                       'json_text': json_text,
+                },
+
+                success: function (data) {
+
+                 //alert(recipe_json);
+                 if (data.status === 'success'){
+                     $('#template_preview_cont').html('<pre><code class=" language-bash line-numbers ">' + data.script + '</code></pre>');
+                     $('#template_modal').modal('show');
+                     return
+                 }
+
+                popup_message($("#template"), data.msg, data.status );
+                },
+                error: function (xhr, status, text) {
+                 error_message( $(this), xhr, status, text)
+                }
+
+                });
+
+
+     });
+
+
+    $(this).on('click', '.add-cmd-with-type', function () {
+        snippet_form($(this), false);
+    });
+
+    $(this).on('click', '.edit-snippet', function () {
+        snippet_form($(this), false);
+    });
+
+    $('.add-cmd-without-type').click(function () {
+        snippet_form($(this), true);
+    });
 });

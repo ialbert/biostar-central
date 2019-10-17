@@ -32,29 +32,34 @@
                     The information that is displayed when the recipe is viewed.
                 </div>
 
-                <div class="field">
+                <div class="two fields ">
+                    <div class="field">
                     <label>Recipe Name</label>
                     {{ form.name }}
                     <p class="muted">What do you want to call the recipe</p>
-                </div>
+                    </div>
 
-                <div class="field">
+                                    <div class="field">
                     <label>Unique Identifier ( uid )</label>
                     {{ form.uid }}
                     <p class="muted">Unique identifier for this recipe. Leaving box empty will be make the uid
                         random.</p>
                 </div>
+                </div>
 
-                <div class="field">
+                <div class=" two fields ">
+                    <div class="field">
+                    <label>Recipe rank</label>
+                    {{ form.rank }}
+                    <p class="muted">Used for ordering recipes on the recipe list.</p>
+                    </div>
+
+                                    <div class="field">
                     <label> Image {{ form.image.errors }}</label>
                     {{ form.image }}
                     <p class="muted">Optional image to recognize the recipe by (square image, no more than 500px)</p>
                 </div>
 
-                <div class="field">
-                    <label>Recipe rank</label>
-                    {{ form.rank }}
-                    <p class="muted">Used for ordering recipes on the recipe list.</p>
                 </div>
 
                 <div class="field segment">
@@ -109,9 +114,7 @@
                 </div>
 
                 <div class="ui tiny inputcolor modal" style="padding:20px;width: 48%;" id="json_modal">
-
                        <div id="json_preview_cont"><form class="ui form"></form></div>
-
                 </div>
 
             </div>
@@ -125,17 +128,23 @@
                 </div>
 
                 <div class="field">
-                    The code that gets executed when the recipe is run. <a href="#">Code specification</a>.
+                    The code that gets executed when the recipe runs.
+                    <div class="ui top pointing dropdown" id="code_add">
+                       <a>Code specification</a>
+                        <i class="caret down icon"></i>
+                        {% snippet_list %}
+                    </div>
+
+
+                </div>
+
+                <div class="field" id="template_field">
+                    {% template_field form.template.value %}
                 </div>
 
                 <div class="field">
-                    <textarea class="code" rows="40" cols="55" name="template"
-                              id="template">{{ form.template.value }}</textarea>
-                </div>
 
-                <div class="field">
-
-                    <button type="submit" class="ui purple button">
+                    <button class="ui purple button" data-value="{{ recipe.uid }}" id="template_preview">
                         <i class="eye icon"></i>Preview Code
                     </button>
 
@@ -147,24 +156,11 @@
                         <i class="undo icon"></i> Back
                     </a>
                 </div>
-
-
+                <div class="ui tiny inputcolor modal" style="padding:8px;width: 58%;" id="template_modal">
+                       <div id="template_preview_cont"></div>
+                </div>
             </div>
 
         </div>
     </form>
-    <script type="text/javascript">
-        $(document).ready(function () {
-
-            var template_edit = CodeMirror.fromTextArea(
-                document.getElementById("template"),
-                {
-                    lineNumbers: true,
-                    mode: "engine"
-                }
-            );
-        });
-
-    </script>
-
 {% endblock %}

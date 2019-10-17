@@ -1,0 +1,8 @@
+snippet_uid,category_uid,category_name,image,label,command
+bash-1, bash, bash,bashicon.png,Print all executed commands.,"set -uexo pipefail"
+bash-2, bash, bash, , Print hello.,"echo 'Hello World'"
+r-1,r,r, r_icon.png, Generate a sample.,"sample(1:3, size=1000, prob=c(.30,.60,.10))"
+matlab-3,matlab,matlab,matlab.png, Open a file in read mode.,"fopen(filename,'r')"
+kraken-1,kraken,kraken,kraken.png, Add file to the database.,"kraken2-build --add-to-library fish-accession.fa -db db 2"
+centrifuge-1,centrifuge,centrifuge, centrifuge.png, Build the index.,"centrifuge-build -p $N --conversion-table $TABLE --taxonomy-tree $NODES  --name-table $NAMES  $REFERENCE $INDEX"
+qiime-1,qiime,qiime, qiime2.png, Convert taxonomy file to qiime 2 artifact.,"qiime tools import --input-path $REF_FASTA --output-path $REFERENCE --type 'FeatureData[Sequence]'"
