@@ -102,17 +102,28 @@ def authorize_run(user, recipe):
     Returns runnable.
     """
 
+    # A superuser can run any recipe.
+    if user.is_superuser:
+        return True
+
+    # An anonymous user cannot run recipes.
     if user.is_anonymous:
         return False
 
+    # A trusted user can run recipes.
     if user.profile.trusted:
         return True
 
     # Only users with write access can run recipes
-    entry = Access.objects.filter(project=recipe.project, user=user, access=Access.WRITE_ACCESS).first()
+    readable = Access.objects.filter(project=recipe.project, user=user, access=Access.READ_ACCESS).first()
+    if not readable:
+        return False
 
-    if entry:
-        return recipe.runnable()
+    if not user.profile.trusted:
+        return False
+
+    if recipe.runnable():
+        return True
 
     return False
 
@@ -226,7 +237,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
-                    name='', text='', stream=None, security=Analysis.UNDER_REVIEW, update=False):
+                    name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False):
     owner = user or project.owner
 
     analysis = Analysis.objects.get_all(uid=uid)

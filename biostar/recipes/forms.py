@@ -605,7 +605,7 @@ class EditCode(forms.Form):
 
         # Recipes edited by non staff members need to be authorized.
         if not self.user.is_staff:
-            self.recipe.security = Analysis.UNDER_REVIEW
+            self.recipe.security = Analysis.NOT_AUTHORIZED
 
         # Set the new template.
         self.recipe.template = template
