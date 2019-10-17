@@ -237,16 +237,11 @@ def create_snippet(request):
 def delete_snippet(request):
 
     snippet_uid = request.POST.get('snippet_uid', '')
-
     # Get the snippet
     snippet = Snippet.objects.filter(uid=snippet_uid).first()
 
     if request.user != snippet.owner:
         return ajax_error(msg="Only owners or superusers can delete their code snippets.")
-
-
-
-
 
     return
 
@@ -278,18 +273,18 @@ def preview_template(request):
 
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="GET")
+@ajax_error_wrapper(method="POST")
 def preview_json(request):
 
     # Get the recipe
-    recipe_uid = request.GET.get('uid')
+    recipe_uid = request.POST.get('uid')
 
     recipe = Analysis.objects.filter(uid=recipe_uid).first()
 
     if not recipe:
         return ajax_error(msg="Recipe does not exist.")
 
-    json_text = request.GET.get('json_text', recipe.json_text)
+    json_text = request.POST.get('json_text', recipe.json_text)
     json_data = hjson.loads(json_text)
     # Render the recipe interface
     interface = RecipeInterface(request=request, analysis=recipe, json_data=json_data,

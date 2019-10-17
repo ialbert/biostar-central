@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-
+from django.db import connection
 import sqlite3
 from biostar.recipes import const
 from . import models
@@ -82,8 +82,8 @@ def fetch_from_db(columns, table, database_name):
     query_str = f'SELECT {columns} FROM {table}'
     try:
         # connect to the database.
-        db = db_connect(database_name=database_name)
-        cursor = db.cursor()
+        conn = db_connect(database_name=database_name)
+        cursor = conn.cursor()
         cursor.execute(query_str)
 
     except Exception as exec:
@@ -94,16 +94,14 @@ def fetch_from_db(columns, table, database_name):
         colnames = [col[0] for col in cursor.description]
         rows = cursor.fetchall()
         mapped = [{col_name: val for val, col_name in zip(row, colnames)} for row in rows]
-        db.close()
+        cursor.close()
+        conn.close()
         return mapped
 
     return
 
 
 def sql_field(obj, project=None):
-
-    # White list of allowed tables
-    allowed_tables = ['data']
 
     # Dictionary to construct query from
     table = obj.get("table", 'recipes_data')

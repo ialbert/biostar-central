@@ -254,7 +254,7 @@ $(document).ready(function () {
 
          $.ajax('/preview/json/',
              {
-             type: 'GET',
+             type: 'POST',
                 dataType: 'json',
                 ContentType: 'application/json',
                 data: {'uid': recipe_uid,
