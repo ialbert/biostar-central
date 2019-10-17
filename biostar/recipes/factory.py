@@ -65,9 +65,9 @@ def radioselect_field(obj):
 
 
 def db_connect(database_name=''):
-    import psycopg2
     database_name = database_name or settings.DATABASE_NAME
     try:
+        import psycopg2
         conn = psycopg2.connect(database=database_name)
     except Exception as exc:
         logger.error(f'Error connecting to postgres database: {exc}')
