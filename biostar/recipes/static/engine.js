@@ -58,15 +58,24 @@ function error_message(elem, xhr, status, text) {
 }
 
 
-function command_form(is_top, type_uid, type_name){
+function snippet_form(elem, is_top){
+    let type_name = elem.data('type_name');
+    let type_uid = elem.data('type_uid');
+    let snippet_uid = elem.data('snippet_uid');
+    let snippet = elem.data('snippet');
 
-    $.ajax('/command/form/',{
+    let help_text = elem.data('help_text');
+
+    $.ajax('/snippet/form/',{
             type: 'POST',
                dataType: 'json',
                data: {
                     'is_top':is_top,
                     'type_uid': type_uid,
                     'type_name':type_name,
+                    'snippet': snippet,
+                    'help_text': help_text,
+                    'snippet_uid':snippet_uid
                },
                success: function (data) {
 
@@ -89,15 +98,15 @@ function command_form(is_top, type_uid, type_name){
 
 function add_to_template(elem){
 
-    let command = elem.attr('id');
+    let snippet = elem.attr('id');
     let template = $('#template').val();
-    //alert(command);
+    //alert(snippet);
 
     $.ajax('/recipe/code/', {
            type: 'POST',
            dataType: 'json',
            data: {
-                  'command': command,
+                  'command': snippet,
                   'template':template,
            },
 
@@ -152,6 +161,46 @@ function check_job() {
         })
     });
 
+}
+
+
+function create_snippet(elem){
+    let type = elem.data('type');
+    let snippet_uid = elem.data('snippet_uid');
+    let snippet = $('#snippet').val();
+    let help_text = $('#help').val();
+
+    $.ajax('/create/snippet/', {
+
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'snippet': snippet,
+                'help_text': help_text,
+                'type_uid': type,
+                'snippet_uid': snippet_uid
+            },
+            success: function (data) {
+                if (data.status === 'success') {
+
+                    if (snippet_uid.length){
+                        $('#item-' + snippet_uid).html(data.html);
+                    }else {
+                        $('.holder-' + type).after(data.html);
+                    }
+                    $('#cmd_modal').modal('hide');
+
+                } else {
+
+                    popup_message($('#snippet'), data.msg, data.status, 1000)
+                }
+
+            },
+            error: function (xhr, status, text) {
+                error_message($(this), xhr, status, text)
+            }
+        }
+    )
 }
 
 $(document).ready(function () {
@@ -281,6 +330,17 @@ $(document).ready(function () {
     $('#json_add_menu .item').popup({
         on:'hover'
     });
+    $('.delete-snippet').popup({
+        on:'hover',
+    });
+    $('.edit-snippet').popup({
+        on:'hover',
+    });
+
+
+    $('.cmd-value').popup({
+        on:'hover'
+    });
 
     $('#code_add_menu .item').popup({
         on:'hover'
@@ -359,10 +419,6 @@ $(document).ready(function () {
                },
 
                success: function (data) {
-
-                   // Inject the fields into the
-                   //alert(data.json_text);
-                   //alert("ffffff")
                    $('#json').val(data.json_text);
                    $('#json_field').html(data.html);
 
@@ -374,41 +430,26 @@ $(document).ready(function () {
                }
            });
     });
+    $(this).on('click', '#save_snippet_type', function() {
 
-    $(this).on('click', '#save_command', function() {
+        var form_data = new FormData($('#snippet_form').get(0));
+        //alert(form_data.get('help'));
 
-       let type = $(this).data('type');
-       let command = $('#command').val();
-       let help_text = $('#help').val();
-       //alert(command);
-        $.ajax('/create/command/',{
-
+        $.ajax('/create/snippet/type/',{
             type: 'POST',
                dataType: 'json',
-               data: {
-                    'command': command,
-                    'help_text': help_text,
-                    'type_uid':type
-               },
-
+               data: form_data,
+               processData: false,
+               contentType: false,
                success: function (data) {
-
-                   // Inject the fields into the
-                   //alert(data.json_text);
-                   //alert("ffffff")
-                   //$('#json').val(data.json_text);
-                   //$('#json_field').html(data.html);
-                   //popup_message($('#command'), data.msg, data.status)
                    if (data.status === 'success'){
-                       $('.holder-'+ type).after(data.html);
-                        $('#cmd_modal').modal('hide');
-
+                       $('#new-type-holder').after(data.html);
+                       $('#cmd_modal').modal('hide');
                    }else{
-                       //alert()
-                       popup_message($('#command'), data.msg, data.status, 1000)
+
+                       popup_message($('#snippet'), data.msg, data.status, 1000)
                    }
 
-                   //$('#search-results').html(data);
                },
                error: function (xhr, status, text) {
                    error_message($(this), xhr, status, text)
@@ -416,7 +457,10 @@ $(document).ready(function () {
             }
         )
 
+    });
 
+    $(this).on('click', '#save_command', function() {
+        create_snippet($(this));
 
     });
 
@@ -457,17 +501,16 @@ $(document).ready(function () {
 
      });
 
-    $('.add-cmd-with-type').click(function () {
-        let type_name = $(this).data('type_name');
-        let type_uid = $(this).data('type_uid');
-        command_form(false, type_uid, type_name);
+
+    $(this).on('click', '.add-cmd-with-type', function () {
+        snippet_form($(this), false);
     });
 
-    // $('.add-cmd-without-type').click(function () {
-    //     let type_name = $(this).data('type_name');
-    //     let type_uid = $(this).data('type_uid');
-    //     command_form(false, type_uid, type_name);
-    // });
+    $(this).on('click', '.edit-snippet', function () {
+        snippet_form($(this), false);
+    });
 
-
+    $('.add-cmd-without-type').click(function () {
+        snippet_form($(this), true);
+    });
 });

@@ -9,10 +9,11 @@ from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.template import loader
 from .const import *
-from biostar.recipes.models import Job, Analysis, Command, CommandType, MAX_TEXT_LEN
+from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, MAX_TEXT_LEN
 from biostar.recipes.forms import RecipeInterface
 
 logger = logging.getLogger("engine")
+
 
 
 def ajax_msg(msg, status, **kwargs):
@@ -27,6 +28,10 @@ ajax_error = partial(ajax_msg, status='error')
 
 MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 180
+MAX_SNIPPET = 180
+MAX_HELP = 180
+MAX_SNIPPETS_CATEGORIES = 10
+MAX_SNIPPETS_PER_CATEGORY = 30
 
 MAX_TAGS = 5
 
@@ -83,7 +88,7 @@ def recipe_code(request):
     command_uid = request.POST.get('command', '')
     current_code = request.POST.get('template', '')
 
-    cmd = Command.objects.filter(uid=command_uid).first()
+    cmd = Snippet.objects.filter(uid=command_uid).first()
 
     if not cmd:
         return ajax_error(msg='Command not found.')
@@ -102,55 +107,148 @@ def recipe_code(request):
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
-def command_form(request):
+def snippet_form(request):
 
-    is_top = request.POST.get("is_top", False)
-    #cmd_type = request.POST.get('type')
+    is_top = request.POST.get("is_top", "false")
+
+    is_top = True if is_top == 'true' else False
     type_name = request.POST.get('type_name')
     type_uid = request.POST.get('type_uid')
+    snippet_uid = request.POST.get('snippet_uid', '')
+    snippet = request.POST.get('snippet', '')
+    help_text = request.POST.get('help_text', '')
 
-    tmpl = loader.get_template('widgets/command_form.html')
-    context = dict(is_top=is_top, type_name=type_name, type_uid=type_uid)
+    tmpl = loader.get_template('widgets/snippet_form.html')
+
+    context = dict(is_top=is_top, type_name=type_name, snippet=snippet, help_text=help_text,
+                   type_uid=type_uid, snippet_uid=snippet_uid)
     cmd_form = tmpl.render(context=context)
 
     return ajax_success(html=cmd_form, msg="Rendered form")
 
 
+def check_size(fobj, maxsize=0.3):
+    # maxsize in megabytes!
+
+    try:
+        if fobj and fobj.size > maxsize * 1024 * 1024.0:
+            curr_size = fobj.size / 1024 / 1024.0
+            msg = f"File too large: {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
+            return msg, False
+    except Exception as exc:
+        return f"File size validation error: {exc}", False
+
+    return "Valid", True
+
+
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
-def create_command(request):
+def create_snippet_type(request):
+    snippet = request.POST.get('snippet', '')
+    name = request.POST.get('name', '')
+    help_text = request.POST.get('help', '')
+    image = request.FILES.get('image', '')
 
-    command = request.POST.get('command', '')
-    help_text = request.POST.get('help_text', '')
-    type_uid = request.POST.get('type_uid')
+    if not (help_text and snippet and name):
+        return ajax_error(msg="Snippet, help text, and name are required.")
 
-    if not (help_text and command):
-        return ajax_error(msg="Command and help text are required.")
+    cmd_type = SnippetType.objects.create(owner=request.user)
+
+    if cmd_type.count() >= MAX_SNIPPETS_CATEGORIES and not request.user.is_superuser:
+        return ajax_error(msg="Maximum amount of snippets reached.")
 
     # Get the type of code this this: Bash, r, Matlab, etc...
-    cmd_type = CommandType.objects.filter(uid=type_uid).first()
+    cmd_type = SnippetType.objects.create(name=name, owner=request.user)
+
+    if image:
+        msg, valid = check_size(fobj=image)
+        if not valid:
+            return ajax_error(msg=msg)
+
+        cmd_type.image = image
+        cmd_type.save()
+
+    # Create the first snippet for this type.
+    Snippet.objects.create(command=snippet, help_text=help_text, type=cmd_type, owner=request.user)
+
+    tmpl = loader.get_template('widgets/snippet_type.html')
+    context = dict(type=cmd_type, request=request)
+    new_type = tmpl.render(context=context)
+
+    return ajax_success(msg="Created snippet", html=new_type)
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def create_snippet(request):
+
+    snippet = request.POST.get('snippet', '')
+    help_text = request.POST.get('help_text', '')
+    type_uid = request.POST.get('type_uid')
+    snippet_uid = request.POST.get('snippet_uid', '')
+
+    if not (help_text and snippet):
+        return ajax_error(msg="Snippet and help text are required.")
+
+    # Get the type of code this this: Bash, r, Matlab, etc...
+    cmd_type = SnippetType.objects.filter(uid=type_uid).first()
     if not cmd_type:
-        return ajax_error(msg=f"Command does not have a valid type:{cmd_type}")
+        return ajax_error(msg=f"Snippet does not have a valid type:{cmd_type}")
 
-    cmd = Command.objects.filter(command=command, type=cmd_type).first()
+    snippets = Snippet.objects.filter(type__owner=request.user, type=cmd_type)
 
-    if cmd:
-        return ajax_error(msg=f"Command for {cmd_type.name} already exists: {command}.")
+    if snippets.count() >= MAX_SNIPPETS_PER_CATEGORY:
+        return ajax_error(msg="Maximum number of snippets reached.")
 
-    if len(command) >= MAX_TEXT_LEN or len(help_text) >= MAX_TEXT_LEN:
-        msg = "Command" if len(command) >= MAX_TEXT_LEN else "Help Text"
-        return ajax_error(msg= msg + " input is too long")
+    cmd = snippets.filter(command=snippet).first()
+    # Avoid duplicates commands being created
+    if cmd and not snippet_uid:
+        return ajax_error(msg=f"Similar snippet for {cmd_type.name} already exists: {snippet}.")
 
-    # Create the command.
-    cmd = Command.objects.create(command=command, type=cmd_type, help_text=help_text,
-                                 owner=request.user)
+    if len(snippet) >= MAX_SNIPPET or len(help_text) >= MAX_HELP:
+        msg = "Snippet" if len(snippet) >= MAX_TEXT_LEN else "Help Text"
+        return ajax_error(msg=msg + " input is too long")
 
-    tmpl = loader.get_template('widgets/command_item.html')
-    context = dict(command=cmd)
+    # Get existing snippet for edit
+    if snippet_uid:
+        snippet_obj = Snippet.objects.filter(uid=snippet_uid).first()
+        if not snippet:
+            return ajax_error(msg=f"Editing error: snippet id does not exist {snippet_uid}.")
+        # Update the snippet and help_text
+        Snippet.objects.filter(uid=snippet_obj.uid).update(help_text=help_text, command=snippet)
+        # Re-fetch the snippet after the edit.
+        snippet = Snippet.objects.filter(uid=snippet_obj.uid).first()
+    else:
+        snippet = Snippet.objects.create(command=snippet, type=cmd_type, help_text=help_text, owner=request.user)
+
+    # Load snippet into template
+    tmpl = loader.get_template('widgets/snippet.html')
+    context = dict(snippet=snippet)
     created_form = tmpl.render(context=context)
 
     return ajax_success(msg="Created snippet", html=created_form)
+
+
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST")
+def delete_snippet(request):
+
+    snippet_uid = request.POST.get('snippet_uid', '')
+
+    # Get the snippet
+    snippet = Snippet.objects.filter(uid=snippet_uid).first()
+
+    if request.user != snippet.owner:
+        return ajax_error(msg="Only owners or superusers can delete their code snippets.")
+    
+
+
+
+
+    return
 
 
 @ratelimit(key='ip', rate='50/h')

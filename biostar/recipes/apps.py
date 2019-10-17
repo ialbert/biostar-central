@@ -1,8 +1,10 @@
 import os
+import csv
 from django.db.models.signals import post_migrate
 from django.core.files import File
 from django.apps import AppConfig
 from django.conf import settings
+from biostar.accounts.apps import init_app
 
 
 class EngineConfig(AppConfig):
@@ -10,38 +12,49 @@ class EngineConfig(AppConfig):
 
     def ready(self):
         # Triggered upon app initialization.
-        post_migrate.connect(init_commands, sender=self)
+        post_migrate.connect(init_app, sender=self)
+        post_migrate.connect(init_snippets, sender=self)
         pass
 
 
-def init_commands(sender, **kwargs):
-    from biostar.recipes.models import CommandType, Command
+def init_snippets(sender, **kwargs):
+    from biostar.recipes.models import SnippetType, Snippet
     from biostar.accounts.models import User
 
-    image_root = os.path.join(settings.BASE_DIR, 'initial')
+    data_root = os.path.join(settings.BASE_DIR, 'initial')
 
-    inital_cmds = (('bash', 'bashicon.png', dict(label='Print all executed commands.', command='set -uexo pipefail')),
-                   ('bash', '', dict(label='Print hello.', command='echo HELLO', image='bashicon.png')),
-                   ('r', 'r_icon.png', dict(label='Generate a sample.', command='sample(1:3, size=1000, prob=c(.30,.60,.10))')),
-                   ('matlab', 'matlab.png', dict(label=' Open a file in read mode.', command='fopen(filename,"r")')),
-                   ('kraken', 'kraken.png', dict(label=' Add file to the database.', command='kraken2-build --add-to-library fish-accession.fa -db db 2')),
-                   ('centrifuge', 'centrifuge.png', dict(label='Build the index.', command='centrifuge-build -p $N --conversion-table $TABLE --taxonomy-tree $NODES  --name-table $NAMES  $REFERENCE $INDEX')),
-                   ('qiime', 'qiime2.png', dict(label='Convert taxonomy file to qiime 2 artifact.', command=" qiime tools import --input-path $REF_FASTA --output-path $REFERENCE --type 'FeatureData[Sequence]'"))
-                   )
+    # Get csv file with initial code snippets.
+    default_snippets = os.path.join(data_root, 'initial-snippets.csv')
+
+    # Get the owner of these snippets to be a superuser.
     owner = User.objects.filter(is_superuser=True).first()
-    for name, image, data in inital_cmds:
 
-        cmd_type = CommandType.objects.filter(name=name).first()
+    stream = open(default_snippets, 'rU')
 
+    for row in csv.DictReader(stream):
+        # Parse row content
+        uid = row.get("category_uid", '').strip()
+        snippet_uid = row.get("snippet_uid", '').strip()
+        name = row.get("category_name", '').strip()
+        image = row.get("image", '').strip()
+        label = row.get('label', '').strip()
+        command = row.get('command', '').strip()
+
+        # Check if this default snippet type already exists.
+        cmd_type = SnippetType.objects.filter(uid=uid).first()
         if cmd_type is None:
-            cmd_type = CommandType.objects.create(name=name)
+            # Create the default snippet type
+            cmd_type = SnippetType.objects.create(name=name, uid=uid, owner=owner, default=True)
             if image:
-                image = File(open(os.path.join(image_root, image), 'rb'))
-                cmd_type.image = image
+                stream = File(open(os.path.join(data_root, image), 'rb'))
+                cmd_type.image = stream
                 cmd_type.save()
 
-        help_text, command = data['label'], data['command']
+        # Check if the actual code snippet already exists
+        snippet = Snippet.objects.filter(uid=snippet_uid).first()
+        if snippet:
+            continue
 
-        Command.objects.create(help_text=help_text, command=command,
-                               type=cmd_type, owner=owner)
-
+        # Create code snippet.
+        Snippet.objects.create(help_text=label, uid=snippet_uid, default=True,
+                               command=command, type=cmd_type, owner=owner)

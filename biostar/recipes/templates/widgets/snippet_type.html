@@ -1,0 +1,39 @@
+{% load engine_tags %}
+
+<div class="item">
+
+    <img class="ui mini image" style="height: 17px; width:17px;" src="/media/{{ type.image.name }}">
+    <a>
+        {{ type.name|capfirst|truncatechars:'10' }}
+    </a>
+    <i class="dropdown icon"></i>
+    <div class="menu" id="{{ type.uid }}">
+
+            <div class="item " style="padding-right: 4px !important;">
+                <a class=" add-cmd-with-type" data-type_uid="{{ type.uid }}" data-type_name="{{ type.name }}">
+                <i class="plus icon"></i>
+                    </a>
+                <span>
+                    Add {{ type.name|capfirst|truncatechars:'80' }} snippet.
+                </span>
+
+                {% if type.owner == request.user %}
+                <a class="delete-snippet" data-content="Delete all snippets" style="float: right; padding-left: 25px; color:red">
+                    <i class="minus icon"></i>
+                </a>
+                {% endif %}
+
+            </div>
+
+            <div class="ui divider" style="margin: 0"></div>
+
+        <div class="holder-{{ type.uid }}"></div>
+
+        {% get_snippets user=request.user snip_type=type as snippets%}
+        {% for snippet in snippets %}
+            {% snippet_item snippet %}
+        {% endfor %}
+
+    </div>
+
+</div>

@@ -47,14 +47,14 @@ def image_path(instance, filename):
     return imgpath
 
 
-def images(instance, filename):
+def snippet_images(instance, filename):
     # Name the data by the filename.
     name, ext = os.path.splitext(filename)
     uid = instance.uid or util.get_uuid(6)
     imgname = f"images/image-{uid}{ext}"
 
     # Uploads need to go relative to media directory.
-    path = os.path.relpath('export/media/extra', settings.MEDIA_ROOT)
+    path = os.path.relpath('export/media/snippets/images/', settings.MEDIA_ROOT)
     imgpath = os.path.join(path, imgname)
 
     return imgpath
@@ -79,28 +79,37 @@ class Manager(models.Manager):
                                                                       "lastedit_user__profile")
 
 
-class CommandType(models.Model):
-    image = models.ImageField(default=None, blank=True, upload_to=images, max_length=MAX_FIELD_LEN)
+class SnippetType(models.Model):
+    image = models.ImageField(default=None, blank=True, upload_to=snippet_images, max_length=MAX_FIELD_LEN)
     uid = models.CharField(max_length=MAX_TEXT_LEN, unique=True)
-    # The language or package name
-    name = models.CharField(max_length=MAX_NAME_LEN, unique=True)
+    # The name referring to this
+    name = models.CharField(max_length=MAX_NAME_LEN)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # Appears to all uses
+    default = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(6)
-        super(CommandType, self).save(*args, **kwargs)
+        super(SnippetType, self).save(*args, **kwargs)
 
 
-class Command(models.Model):
+class Snippet(models.Model):
     help_text = models.CharField(max_length=MAX_TEXT_LEN)
     uid = models.CharField(max_length=MAX_TEXT_LEN, unique=True)
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    command = models.CharField(max_length=MAX_TEXT_LEN, unique=True, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    command = models.CharField(max_length=MAX_TEXT_LEN, null=True)
     # Link a command to one type
-    type = models.ForeignKey(CommandType, on_delete=models.CASCADE)
+    type = models.ForeignKey(SnippetType, on_delete=models.CASCADE)
+
+    # Appears to all uses
+    default = models.BooleanField(default=False)
+
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(6)
-        super(Command, self).save(*args, **kwargs)
+        self.owner = self.owner or self.type.owner
+        super(Snippet, self).save(*args, **kwargs)
 
 
 class Project(models.Model):
