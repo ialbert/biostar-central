@@ -153,12 +153,12 @@ def create_snippet_type(request):
     if not (help_text and snippet and name):
         return ajax_error(msg="Snippet, help text, and name are required.")
 
-    cmd_type = SnippetType.objects.create(owner=request.user)
+    user_types = SnippetType.objects.filter(owner=request.user)
 
-    if cmd_type.count() >= MAX_SNIPPETS_CATEGORIES and not request.user.is_superuser:
+    if user_types.count() >= MAX_SNIPPETS_CATEGORIES and not request.user.is_superuser:
         return ajax_error(msg="Maximum amount of snippets reached.")
 
-    # Get the type of code this this: Bash, r, Matlab, etc...
+    # Get the type of code this is: Bash, r, Matlab, etc...
     cmd_type = SnippetType.objects.create(name=name, owner=request.user)
 
     if image:
