@@ -415,16 +415,19 @@ class Data(models.Model):
 
 
 class Analysis(models.Model):
-    AUTHORIZED, UNDER_REVIEW = 1, 2
+    AUTHORIZED, NOT_AUTHORIZED = 1, 2
 
-    AUTH_CHOICES = [(AUTHORIZED, "All users may run recipe"), (UNDER_REVIEW, "Only moderators may run recipe")]
+    SECURITY_STATES = [
+        (AUTHORIZED, "Trusted users may run the recipe"),
+        (NOT_AUTHORIZED, "Only administrators may run the recipe")
+    ]
 
-    security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
+    security = models.IntegerField(default=NOT_AUTHORIZED, choices=SECURITY_STATES)
 
     deleted = models.BooleanField(default=False)
     uid = models.CharField(max_length=32, unique=True)
 
-    name = models.CharField(max_length=MAX_NAME_LEN, default="My Recipe")
+    name = models.CharField(max_length=MAX_NAME_LEN, default="New Recipe")
     text = models.TextField(default='This is the recipe description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
