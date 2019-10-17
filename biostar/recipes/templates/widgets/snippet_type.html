@@ -1,8 +1,11 @@
 {% load engine_tags %}
-
+{% load static %}
 <div class="item">
-
+    {% if type.image %}
     <img class="ui mini image" style="height: 17px; width:17px;" src="/media/{{ type.image.name }}">
+{% else %}
+        <img class="ui mini image" style="height: 17px; width:17px;" src="{% static 'images/placeholder.png' %}">
+{% endif %}
     <a>
         {{ type.name|capfirst|truncatechars:'10' }}
     </a>

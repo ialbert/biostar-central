@@ -253,9 +253,6 @@ figure { display: block; margin: 0; }
     border-color: #ebccd1;
 }
 
-#json_add_menu{
-    width: 260%;
-}
 
 #json_add_menu > .ui.divider{
     margin: 0px;

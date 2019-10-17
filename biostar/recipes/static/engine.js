@@ -223,16 +223,26 @@ $(document).ready(function () {
     });
 
     $('#json_add').click(function () {
+        //$('#code_add_menu').css({'display':'none', 'visibility':'hidden'});
         $(this).dropdown({
             onHide: function () {
                 return false
             }
         });
-        $('#code_add').dropdown({
+
+        if ($(this).hasClass('visible')){
+            //alert('foo');
+            $(this).dropdown({
             onShow: function () {
                 return false
             }
         })
+        }
+
+        if ($('#code_add').hasClass('visible')) {
+            $('#code_add_menu').removeClass('visible');
+        }
+
     });
     $('#code_add').click(function () {
         $(this).dropdown({
@@ -240,6 +250,7 @@ $(document).ready(function () {
                 return false
             }
         });
+
     });
      $('.ui.sticky').sticky();
 
@@ -381,7 +392,6 @@ $(document).ready(function () {
 
                    $('#template').val(data.code);
                    $('#template_field').html(data.html);
-                   $('#code_preview').html(data.code).show();
 
                },
                error: function () {
@@ -447,7 +457,7 @@ $(document).ready(function () {
                        $('#cmd_modal').modal('hide');
                    }else{
 
-                       popup_message($('#snippet'), data.msg, data.status, 1000)
+                       popup_message($('#cmd_form'), data.msg, data.status, 1000)
                    }
 
                },
@@ -465,7 +475,6 @@ $(document).ready(function () {
     });
 
     $('#template_preview').click(function (event) {
-        //alert("fooo");
           event.preventDefault();
          let recipe_uid = $(this).data('value');
          let template = $('#template').val();
@@ -476,17 +485,28 @@ $(document).ready(function () {
              type: 'POST',
                 dataType: 'json',
                 ContentType: 'application/json',
-                data: {'uid': recipe_uid,
+                data: {
+                       'uid': recipe_uid,
                        'template': template,
-                       'json_text': json_text,
+                       'json_text': json_text
                 },
-
                 success: function (data) {
 
                  //alert(recipe_json);
                  if (data.status === 'success'){
-                     $('#template_preview_cont').html('<pre><code class=" language-bash line-numbers ">' + data.script + '</code></pre>');
+                     $('#template_preview_cont').html('     <h4 class="ui center aligned header">\n' +
+                         '            <p>\n' +
+                         '                <i class="keyboard icon"></i>Recipe Code |\n' +
+                         '                <a href="#view"><i class="setting icon"></i>Recipe Description</a></p>\n' +
+                         '            <p>\n' +
+                         '            <a href="/recipe/code/download/'+ recipe_uid + '/" class="ui green label">\n' +
+                         '                <i class="download icon"></i>Download Recipe\n' +
+                         '            </a>\n' +
+                         '            </p>\n' +
+                         '        </h4> <pre><code class=" language-bash line-numbers ">' +
+                         data.script + '</code></pre>');
                      $('#template_modal').modal('show');
+                     Prism.highlightAll();
                      return
                  }
 
@@ -500,7 +520,6 @@ $(document).ready(function () {
 
 
      });
-
 
     $(this).on('click', '.add-cmd-with-type', function () {
         snippet_form($(this), false);

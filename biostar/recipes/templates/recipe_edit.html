@@ -89,9 +89,10 @@
                 <div class="field">
                     The JSON data that specifies the web interface.
 
-                    <div class="ui top pointing dropdown" id="json_add">
-                        <a>JSON specification</a>
+                    <div class="ui top pointing dropdown" id="json_add" style="float: right">
                         <i class="caret down icon"></i>
+                        <a>JSON specification</a>
+                        <i class="setting icon"> </i>
                         {% interface_options %}
                     </div>
                 </div>
@@ -129,9 +130,11 @@
 
                 <div class="field">
                     The code that gets executed when the recipe runs.
-                    <div class="ui top pointing dropdown" id="code_add">
-                       <a>Code specification</a>
+                    <div class="ui top pointing dropdown" id="code_add" style="float: right">
                         <i class="caret down icon"></i>
+                       <a>Code specification</a>
+                        <i class="setting icon"> </i>
+
                         {% snippet_list %}
                     </div>
 
@@ -156,7 +159,7 @@
                         <i class="undo icon"></i> Back
                     </a>
                 </div>
-                <div class="ui tiny inputcolor modal" style="padding:8px;width: 58%;" id="template_modal">
+                <div class="ui tiny inputcolor modal" style="padding:8px;width: 65%;" id="template_modal">
                        <div id="template_preview_cont"></div>
                 </div>
             </div>
