@@ -16,102 +16,87 @@
     </div>
 
     {% show_messages messages %}
-    <div class="ui top attached tabular colored menu">
 
-        <a class="ui active blue item">
-            <i class="home icon"></i><span class="tablet">Home Page</span>
-        </a>
 
-        <a class="ui blue item" href="{% url 'project_list_public' %}">
-            <i class="list icon"></i><span class="tablet">Public Projects</span>
-        </a>
-        <a class="ui blue item" href="{% url 'project_list_private' %}">
-            <i class="briefcase icon"></i> <span class="tablet">Private Projects</span>
-        </a>
-    </div>
-    <div class="ui bottom attached colored segment">
+    <div class="ui large vertical segment">
 
-        <div class="ui vertical large segment">
+        <div class="ui grid">
+            <div class="ten wide column">
+                <div class="ui relaxed divided list questions">
 
-            <div class="ui grid">
-                <div class="ten wide column">
-                    <div class="ui relaxed divided list questions">
-
-                        <div class="item padme">
-                            <div class="subheader">What is a recipe?</div>
-                            <div class="description">
-                                A "bioinformatics recipe" is a collection of commands used to perform a
-                                bioinformatics data analysis task. A recipe can be thought
-                                of as a <em>bioinformatics workflow</em> or a <em>bioinformatics pipeline</em>.
-                            </div>
+                    <div class="item padme">
+                        <div class="subheader">What is a recipe?</div>
+                        <div class="description">
+                            A "bioinformatics recipe" is a collection of commands used to perform a
+                            bioinformatics data analysis task. A recipe can be thought
+                            of as a <em>bioinformatics workflow</em> or a <em>bioinformatics pipeline</em>.
                         </div>
+                    </div>
 
-                        <div class="item padme">
-                            <div class="subheader">What types recipes can I find here?</div>
-                            <div class="description">
-                                Most recipes demonstrate typical use cases for various bioinformatics tools.
-                                Many recipes have been developed to support bioinformatics education.
-                            </div>
+                    <div class="item padme">
+                        <div class="subheader">What types recipes can I find here?</div>
+                        <div class="description">
+                            Most recipes demonstrate typical use cases for various bioinformatics tools.
+                            Many recipes have been developed to support bioinformatics education.
                         </div>
+                    </div>
 
-                        <div class="item padme">
-                            <div class="subheader">How are recipes organized?</div>
-                            <div class="description">
-                                The website is project based. Each project is a collection of recipes
-                                and results. Use the search box on top to find what you are looking for.
-                            </div>
+                    <div class="item padme">
+                        <div class="subheader">How are recipes organized?</div>
+                        <div class="description">
+                            The website is project based. Each project is a collection of recipes
+                            and results. Use the search box on top to find what you are looking for.
                         </div>
+                    </div>
 
-                        <div class="item padme ">
-                            <div class="subheader">Can I run recipes on my computer?</div>
-                            <div class="description">
-                                Yes! All recipes can be run at the command line on your system. Newcomers to bioinformatics
-                                might want to consult the <a href="https://www.biostarhandbook.com"><i class="book icon"></i>Biostar
-                                Handbook</a> for more details.
-                            </div>
+                    <div class="item padme ">
+                        <div class="subheader">Can I run recipes on my computer?</div>
+                        <div class="description">
+                            Yes! All recipes can be run at the command line on your system. Newcomers to bioinformatics
+                            might want to consult the <a href="https://www.biostarhandbook.com"><i
+                        class="book icon"></i>Biostar
+                            Handbook</a> for more details.
                         </div>
+                    </div>
 
+
+                </div>
+            </div>
+
+            <div class="six wide center column">
+                <div class="ui basic segment">
+                    <div class="ui header"> &nbsp;</div>
+                    <div class="ui center aligned grid">
+                        <div class="ui row">
+
+                            <img class="ui mytiny rounded fancy image"
+                                 src="{% static 'images/icons/13.jpg' %}">
+                            <img class="ui mytiny rounded fancy image"
+                                 src="{% static 'images/icons/12.jpg' %}">
+                            <img class="ui mytiny rounded fancy image"
+                                 src="{% static 'images/icons/15.png' %}">
+                            <br>
+                            <img class="ui mytiny rounded fancy image"
+                                 src="{% static 'images/icons/10.jpg' %}">
+                            <img class="ui mytiny rounded fancy image"
+                                 src="{% static 'images/icons/11.jpg' %}">
+                            <img class="ui mytiny rounded fancy image"
+                                 src="{% static 'images/icons/5.jpg' %}">
+
+                            <br>
+                            <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/2.jpg' %}">
+                            <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/3.jpg' %}">
+                            <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/4.jpg' %}">
+
+                        </div>
 
                     </div>
                 </div>
-
-                <div class="six wide center column">
-                    <div class="ui basic segment">
-                        <div class="ui header"> &nbsp; </div>
-                        <div class="ui center aligned grid">
-                            <div class="ui row">
-
-                                    <img class="ui mytiny rounded fancy image"
-                                         src="{% static 'images/icons/13.jpg' %}">
-                                    <img class="ui mytiny rounded fancy image"
-                                         src="{% static 'images/icons/12.jpg' %}">
-                                    <img class="ui mytiny rounded fancy image"
-                                         src="{% static 'images/icons/15.png' %}">
-                                    <br>
-                                    <img class="ui mytiny rounded fancy image"
-                                         src="{% static 'images/icons/10.jpg' %}">
-                                    <img class="ui mytiny rounded fancy image"
-                                         src="{% static 'images/icons/11.jpg' %}">
-                                    <img class="ui mytiny rounded fancy image"
-                                         src="{% static 'images/icons/5.jpg' %}">
-
-                                    <br>
-                                    <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/2.jpg' %}">
-                                    <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/3.jpg' %}">
-                                    <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/4.jpg' %}">
-
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
         </div>
 
     </div>
 
-    </div>
 
 {% endblock %}

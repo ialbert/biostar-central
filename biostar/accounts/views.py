@@ -139,7 +139,7 @@ def user_profile(request, uid):
 
     # User viewing profile is a moderator
     can_moderate = request.user.is_authenticated and request.user.profile.is_moderator and request.user != profile.user
-    context = dict(target=profile.user, active=active, debugging=settings.DEBUG,
+    context = dict(target=profile.user, active="profile", debugging=settings.DEBUG,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate)
 
     return render(request, "accounts/user_profile.html", context)
@@ -227,7 +227,7 @@ def user_logout(request):
 
     form = forms.LogoutForm()
 
-    context = dict(form=form)
+    context = dict(form=form, active="logout")
 
     return render(request, "accounts/logout.html", context=context)
 
@@ -256,7 +256,7 @@ def user_login(request):
 
         messages.error(request, mark_safe(form.errors))
 
-    context = dict(form=form, social_login=SocialApp.objects.all())
+    context = dict(form=form, active="login", social_login=SocialApp.objects.all())
     return render(request, "accounts/login.html", context=context)
 
 

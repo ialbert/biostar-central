@@ -37,7 +37,7 @@ def valid_path(path):
 
 
 def index(request):
-    context = dict()
+    context = dict(active="home")
     return render(request, 'index.html', context)
 
 
@@ -71,7 +71,7 @@ def recycle_bin(request):
     recipes = Analysis.objects.get_deleted(**query_dict).order_by("date")
     jobs = Job.objects.get_deleted(**query_dict).order_by("date")
 
-    context = dict(jobs=jobs, data=data, recipes=recipes, projects=projects)
+    context = dict(jobs=jobs, data=data, recipes=recipes, projects=projects, active="bin")
 
     return render(request, 'recycle_bin.html', context=context)
 
@@ -205,7 +205,7 @@ def project_list_private(request):
         projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
         projects = annotate_projects(projects)
 
-    context = dict(projects=projects, msg=empty_msg)
+    context = dict(projects=projects, msg=empty_msg, active="projects")
 
     return render(request, "project_list_private.html", context)
 
@@ -219,7 +219,7 @@ def project_list_public(request):
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
     projects = annotate_projects(projects)
 
-    context = dict(projects=projects)
+    context = dict(projects=projects, active="projects")
 
     return render(request, "project_list_public.html", context)
 
