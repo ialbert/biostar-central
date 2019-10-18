@@ -1,43 +1,43 @@
 {% load engine_tags %}
 
-<div class="ui small header">  Add a snippet </div>
+
 <form class="ui form" enctype="multipart/form-data" id="snippet_form">
 
-{% if is_top %}
-    <div class="field">
+    {% if is_top %}
+        <div class="ui small header"> Add a category </div>
+        <div class="field">
 
-        <label>Name *</label>
-        <input type="text" name="name" id="name" value="{% if name %}{{ name }}{% endif %}">
-        <div class="muted"> Name of this category of snippets.</div>
-    </div>
-
-
-{% endif %}
+            <label>Name *</label>
+            <input type="text" name="name" id="name" value="{% if name %}{{ name }}{% endif %}">
+            <div class="muted"> Name of this category of snippets.</div>
+        </div>
 
 
-{% if is_top %}
+        <div class="field">
 
-    <div class="field">
+            <label>Image *</label>
+            {% image_field %}
+            <div class="muted"> Image to display for this category of snippets.</div>
+        </div>
 
-        <label>Image *</label>
-        {% image_field %}
-        <div class="muted"> Image to display for this category of snippets.</div>
-    </div>
-{% endif %}
+    {% else %}
+        <div class="ui small header"> Add a snippet</div>
+        <div class="field">
+
+            <label> {% if type_name %}  <code>{{ type_name|capfirst }} </code> {% endif %} code *</label>
+            <input type="text" name="snippet" id="snippet" value="{% if snippet %}{{ snippet }}{% endif %}">
+            <div class="muted"> Small code snippet.</div>
+        </div>
 
 
-    <div class="field">
+        <div class="field">
+            <label>Help text * </label>
+            <input type="text" name="help" id="help" value="{% if help_text %}{{ help_text }}{% endif %}">
+            <div class="muted"> Description of the code snippet.</div>
+        </div>
+    {% endif %}
 
-        <label>Snippet {% if type_name %}  <code>{{ type_name|capfirst }} </code> {% endif %}*</label>
-        <input type="text" name="snippet" id="snippet"  value="{% if snippet %}{{ snippet }}{% endif %}">
-        <div class="muted"> Small code snippet.</div>
-    </div>
 
-    <div class="field">
-        <label>Help text * </label>
-        <input type="text" name="help" id="help" value="{% if help_text %}{{ help_text }}{% endif %}">
-        <div class="muted"> Description of the code snippet.</div>
-    </div>
     <div>
         <div class="ui green button" id="{% if is_top %}save_snippet_type{% else %}save_command{% endif %}"
              data-type="{{ type_uid }}" data-snippet_uid="{% if snippet_uid %}{{ snippet_uid }}{% endif %}">
@@ -51,23 +51,24 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-
-            var json_edit = CodeMirror.fromTextArea(
-                document.getElementById("snippet"), {
-                    lineNumbers: true,
-                    mode: "engine",
-                }
-            );
-            $('#save_command').click(function () {
-                json_edit.save()
-            });
-            $('#save_snippet_type').click(function () {
-                json_edit.save()
-            });
-
             $('#cancel-modal').click(function () {
                 $('#cmd_modal').modal('hide')
-            })
+            });
+            {% if not is_top %}
+                var json_edit = CodeMirror.fromTextArea(
+                    document.getElementById("snippet"), {
+                        lineNumbers: true,
+                        mode: "engine",
+                    }
+                );
+                $('#save_command').click(function () {
+                    json_edit.save()
+                });
+                $('#save_snippet_type').click(function () {
+                    json_edit.save()
+                });
+            {% endif %}
+
 
         }
     );

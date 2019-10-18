@@ -145,13 +145,11 @@ def check_size(fobj, maxsize=0.3):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def create_snippet_type(request):
-    snippet = request.POST.get('snippet', '')
     name = request.POST.get('name', '')
-    help_text = request.POST.get('help', '')
     image = request.FILES.get('image', '')
 
-    if not (help_text and snippet and name):
-        return ajax_error(msg="Snippet, help text, and name are required.")
+    if not name:
+        return ajax_error(msg="Name is required.")
 
     user_types = SnippetType.objects.filter(owner=request.user)
 
@@ -165,12 +163,8 @@ def create_snippet_type(request):
         msg, valid = check_size(fobj=image)
         if not valid:
             return ajax_error(msg=msg)
-
         cmd_type.image = image
         cmd_type.save()
-
-    # Create the first snippet for this type.
-    Snippet.objects.create(command=snippet, help_text=help_text, type=cmd_type, owner=request.user)
 
     tmpl = loader.get_template('widgets/snippet_type.html')
     context = dict(type=cmd_type, request=request)
@@ -237,13 +231,11 @@ def create_snippet(request):
 def delete_snippet(request):
 
     snippet_uid = request.POST.get('snippet_uid', '')
-
     # Get the snippet
     snippet = Snippet.objects.filter(uid=snippet_uid).first()
 
     if request.user != snippet.owner:
         return ajax_error(msg="Only owners or superusers can delete their code snippets.")
-
 
     return
 
@@ -275,18 +267,18 @@ def preview_template(request):
 
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="GET")
+@ajax_error_wrapper(method="POST")
 def preview_json(request):
 
     # Get the recipe
-    recipe_uid = request.GET.get('uid')
+    recipe_uid = request.POST.get('uid')
 
     recipe = Analysis.objects.filter(uid=recipe_uid).first()
 
     if not recipe:
         return ajax_error(msg="Recipe does not exist.")
 
-    json_text = request.GET.get('json_text', recipe.json_text)
+    json_text = request.POST.get('json_text', recipe.json_text)
     json_data = hjson.loads(json_text)
     # Render the recipe interface
     interface = RecipeInterface(request=request, analysis=recipe, json_data=json_data,

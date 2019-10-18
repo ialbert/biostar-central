@@ -313,7 +313,7 @@ class RecipeForm(forms.ModelForm):
     template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# Code goes here", required=True)
     name = forms.CharField(max_length=MAX_NAME_LEN, required=True)
     rank = forms.FloatField(required=True, initial=1000)
-    text = forms.CharField(initial="Recipe description", widget=forms.TextInput, required=True)
+    text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=True)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user

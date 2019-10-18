@@ -763,7 +763,8 @@ def recipe_edit(request, uid):
         if form.is_valid():
             recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
-
+        print(form.errors)
+        1/0
     else:
         # Initial form loading via a GET request.
         form = forms.RecipeForm(instance=recipe, user=request.user)
