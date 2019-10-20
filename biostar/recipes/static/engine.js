@@ -119,7 +119,6 @@ function add_to_template(elem){
                }
                $('#template').val(data.code);
                $('#template_field').html(data.html);
-               $('#code_preview').html(data.code).show();
                //$('#search-results').html(data);
            },
            error: function () {
