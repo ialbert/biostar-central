@@ -279,7 +279,13 @@ def preview_json(request):
         return ajax_error(msg="Recipe does not exist.")
 
     json_text = request.POST.get('json_text', recipe.json_text)
-    json_data = hjson.loads(json_text)
+    try:
+        json_data = hjson.loads(json_text)
+    except Exception as exc:
+        return ajax_error(msg=f"{exc}")
+
+        #json_data = hjson.loads(recipe.json_text)
+
     # Render the recipe interface
     interface = RecipeInterface(request=request, analysis=recipe, json_data=json_data,
                                 initial=dict(name=recipe.name), add_captcha=False)

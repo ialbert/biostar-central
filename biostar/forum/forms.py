@@ -77,7 +77,7 @@ class PostLongForm(forms.Form):
                               Create a new tag by typing a word then adding a comma or press ENTER or SPACE.
                               """,
                               widget=forms.HiddenInput())
-    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"), validators=[english_only],
+    content = forms.CharField(widget=PagedownWidget(), validators=[english_only],
                               min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content", strip=False)
 
     def __init__(self, post=None, user=None, *args, **kwargs):
@@ -125,7 +125,7 @@ class PostLongForm(forms.Form):
 class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=32)
-    content = forms.CharField(widget=PagedownWidget(template="widgets/pagedown.html"),
+    content = forms.CharField(widget=PagedownWidget(),
                               min_length=MIN_LEN, max_length=MAX_LEN)
 
     def __init__(self, user=None, post=None, recaptcha=True, *args, **kwargs):

@@ -223,7 +223,7 @@ $(document).ready(function () {
     });
 
     $('#json_add').click(function () {
-        //$('#code_add_menu').css({'display':'none', 'visibility':'hidden'});
+
         $(this).dropdown({
             onHide: function () {
                 return false
@@ -231,17 +231,16 @@ $(document).ready(function () {
         });
 
         if ($(this).hasClass('visible')){
-            //alert('foo');
             $(this).dropdown({
             onShow: function () {
                 return false
             }
-        })
+        });
         }
-
-        if ($('#code_add').hasClass('visible')) {
-            $('#code_add_menu').removeClass('visible');
-        }
+        // if ($('#code_add').hasClass('visible')){
+        //      //$('#code_add').removeClass('visible');
+        //     alert('foooo')
+        // }
 
     });
     $('#code_add').click(function () {
@@ -251,18 +250,23 @@ $(document).ready(function () {
             }
         });
 
+        if ($(this).hasClass('visible')){
+            $(this).dropdown({
+            onShow: function () {
+                return false
+            }
+        });
+
+        }
+
     });
      $('.ui.sticky').sticky();
 
-     $('#preview').click(function (event) {
 
-
-     });
       $('#json_preview').click(function (event) {
           event.preventDefault();
          let recipe_uid = $(this).data('value');
          let recipe_json = $('#json').val();
-
          $.ajax('/preview/json/',
              {
              type: 'POST',
@@ -273,7 +277,11 @@ $(document).ready(function () {
 
                 success: function (data) {
 
-                 //alert(recipe_json);
+                 if (data.status === 'error'){
+                     popup_message($("#json_field"), data.msg, data.status, 5000 );
+                     return
+                 }
+
                  $('#json_preview_cont').html('<form class="ui inputcolor form">'+data.html+'<div class="field">\n' +
                      '                        <button type="submit" class="ui green disabled button">\n' +
                      '                            <i class="check icon"></i>Run\n' +
@@ -287,6 +295,7 @@ $(document).ready(function () {
 
                 //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
                 },
+
                 error: function (xhr, status, text) {
                  error_message( $(this), xhr, status, text)
                 }
