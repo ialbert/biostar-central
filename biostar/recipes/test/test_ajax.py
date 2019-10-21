@@ -190,7 +190,7 @@ class AjaxTest(TestCase):
             request = util.fake_request(url=url, data=data, user=self.owner)
             json_response = ajax.add_recipe_field(request=request)
             self.process_response(json_response)
-            print(json_text)
+
 
     def process_response(self, response):
         "Check the response on POST request is redirected"

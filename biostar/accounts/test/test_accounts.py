@@ -142,16 +142,23 @@ class SignUpTest(TestCase):
 
         valid = {"email": self.email, "password1":self.password, "password2": self.password, 'code':302}
         invalid = {"email": self.email, "password1": self.password, "password2": "Fail", 'code':200}
-        url = reverse("signup")
+        signup_url = reverse("signup")
 
         for test in (valid, invalid):
             code = test['code']
             del test['code']
 
             c = Client()
-            resp = c.post(url, data=test)
+            resp = c.post(signup_url, data=test)
             self.assertEqual(resp.status_code, code)
 
+        # Test logging in after signup
+        login_url = reverse("login")
+        login_data = {"email": self.email, "password": self.password}
+        resp = c.post(login_url, data=login_data)
+        self.assertEqual(resp.status_code, 302)
+
+        #views.user_login()
 
 
 class ProfileTest(TestCase):

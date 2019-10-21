@@ -318,7 +318,6 @@ def add_recipe_field(request):
     json_text = request.POST.get('json_text', '')
 
     display_dict = get_display_dict(display_type=display_type)
-    print(json_text, 'JSON')
 
     json_data = hjson.loads(json_text)
     field_name = display_type
