@@ -3,13 +3,14 @@ import logging
 import hjson, json
 from ratelimit.decorators import ratelimit
 
+from django.shortcuts import reverse
 from django.template import loader
 from django.template import Template, Context
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.template import loader
 from .const import *
-from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, MAX_TEXT_LEN
+from biostar.recipes.models import Job, Analysis, Snippet, SnippetType,Project, MAX_TEXT_LEN
 from biostar.recipes.forms import RecipeInterface
 
 logger = logging.getLogger("engine")
@@ -245,24 +246,26 @@ def delete_snippet(request):
 @ajax_error_wrapper(method="POST")
 def preview_template(request):
 
-    # Get the recipe
+    source_template = request.POST.get('template', '# Code goes here')
+    source_json = request.POST.get('json_text', '{}')
+    name = request.POST.get('name', 'Name')
     recipe_uid = request.POST.get('uid')
-
-    recipe = Analysis.objects.filter(uid=recipe_uid).first()
-
-    if not recipe:
-
-        return ajax_error(msg="Recipe does not exist.")
-
-    source_template = request.POST.get('template', recipe.template)
-    source_json = request.POST.get('json_text', recipe.json_text)
     source_json = hjson.loads(source_json)
 
+    # Load the recipe JSON into the template
     context = Context(source_json)
     script_template = Template(source_template)
     script = script_template.render(context)
 
-    return ajax_success(script=script, msg="Rendered script")
+    recipe = Analysis.objects.filter(uid=recipe_uid).first()
+    download_url = reverse('recipe_download', kwargs=dict(uid=recipe_uid)) if recipe else '#template_field'
+
+    # Load the html containing the script
+    tmpl = loader.get_template('widgets/preview_download.html')
+    context = dict(script=script, name=name, download_url=download_url)
+    template = tmpl.render(context=context)
+
+    return ajax_success(html=template, msg="Rendered script")
 
 
 @ratelimit(key='ip', rate='50/h')
@@ -271,24 +274,22 @@ def preview_template(request):
 def preview_json(request):
 
     # Get the recipe
-    recipe_uid = request.POST.get('uid')
+    recipe_name = request.POST.get('name')
+    project_uid = request.POST.get('project_uid')
 
-    recipe = Analysis.objects.filter(uid=recipe_uid).first()
-
-    if not recipe:
-        return ajax_error(msg="Recipe does not exist.")
-
-    json_text = request.POST.get('json_text', recipe.json_text)
+    json_text = request.POST.get('json_text', '{}')
     try:
         json_data = hjson.loads(json_text)
     except Exception as exc:
         return ajax_error(msg=f"{exc}")
 
-        #json_data = hjson.loads(recipe.json_text)
+    project = Project.objects.filter(uid=project_uid).first()
+    if not project:
+        return ajax_error(msg=f"Project does not exist")
 
     # Render the recipe interface
-    interface = RecipeInterface(request=request, analysis=recipe, json_data=json_data,
-                                initial=dict(name=recipe.name), add_captcha=False)
+    interface = RecipeInterface(request=request, json_data=json_data, project=project,
+                                initial=dict(name=recipe_name), add_captcha=False)
 
     tmpl = loader.get_template('widgets/recipe_form.html')
     context = dict(form=interface)
@@ -305,7 +306,7 @@ def field_specs(display_type='', source=None, choices='', value='', label="label
     if choices:
         opts.update(dict(choices=choices))
     if source:
-        opts.update(dict(source=source))
+        opts.update(dict(source=source, type="DATA"))
     if value:
         opts.update(dict(value=value))
 

@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block body %}
-    <form method="post" class="ui form" action="{% url 'recipe_edit' recipe.uid %}" enctype='multipart/form-data'>
+    <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
 
 
         <div class="narrow">
@@ -102,7 +102,7 @@
 
                 <div class="field">
 
-                    <button href="#" class="ui purple button" data-value="{{ recipe.uid }}" id="json_preview">
+                    <button href="#" class="ui purple button" data-value="{{ project.uid }}" id="json_preview">
                         <i class="eye icon"></i>Preview Interface
                     </button>
                     <button type="submit" class="ui green button">
@@ -159,7 +159,7 @@
                         <i class="undo icon"></i> Back
                     </a>
                 </div>
-                <div class="ui tiny inputcolor modal" style="padding:8px;width: 65%;" id="template_modal">
+                <div class="ui tiny inputcolor modal" id="template_modal">
                        <div id="template_preview_cont"></div>
                 </div>
             </div>

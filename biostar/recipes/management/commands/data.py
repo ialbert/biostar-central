@@ -44,7 +44,7 @@ class Command(BaseCommand):
         name = options['name']
         type = options['type']
 
-        data = Data.objects.get_all(uid=did).first()
+        data = Data.objects.filter(uid=did).first()
 
         # Work with existing data.
         if data:

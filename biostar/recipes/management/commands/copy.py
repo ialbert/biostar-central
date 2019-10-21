@@ -68,7 +68,7 @@ def get_project(cursor, project_id):
     row = cursor.fetchone()
     project_dict = column_names(row=row, colnames=colnames)
 
-    project = Project.objects.get_all(uid=project_dict['uid']).first()
+    project = Project.objects.filter(uid=project_dict['uid']).first()
 
     return project
 
@@ -82,7 +82,7 @@ def get_recipe(cursor, recipe_id):
     row = cursor.fetchone()
     recipe_dict = column_names(row=row, colnames=colnames)
 
-    recipe = Analysis.objects.get_all(uid=recipe_dict['uid']).first()
+    recipe = Analysis.objects.filter(uid=recipe_dict['uid']).first()
 
     return recipe
 

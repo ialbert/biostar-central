@@ -194,9 +194,9 @@ def get_project_list(user, include_public=True, include_deleted=False):
                                                                                                    Access.WRITE_ACCESS])
     # Generate the query.
     if include_deleted:
-        query = Project.objects.get_all().filter(cond).distinct()
-    else:
         query = Project.objects.filter(cond).distinct()
+    else:
+        query = Project.objects.filter(cond, deleted=False).distinct()
 
     return query
 
@@ -208,7 +208,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
     uid = uid or util.get_uuid(8)
 
     # Attempts to select the project.
-    project = Project.objects.get_all(uid=uid)
+    project = Project.objects.filter(uid=uid)
 
     # If it is not an update request return the project unchanged.
     if project and not update:
@@ -240,7 +240,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
                     name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False):
     owner = user or project.owner
 
-    analysis = Analysis.objects.get_all(uid=uid)
+    analysis = Analysis.objects.filter(uid=uid)
 
     # Only update when there is a flag
     if analysis and update:
@@ -260,12 +260,12 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
                                            owner=owner, name=name, text=text, security=security,
                                            template=template)
 
-        analysis.uid = f"recipe-{analysis.id}{util.get_uuid(3)}" if not uid else uid
+        analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(3)}" if not uid else uid
         analysis.save()
 
         # Update the projects lastedit user when a recipe is created
-        Project.objects.get_all(uid=analysis.project.uid).update(lastedit_user=user,
-                                                                 lastedit_date=now())
+        Project.objects.filter(uid=analysis.project.uid).update(lastedit_user=user,
+                                                                lastedit_date=now())
 
         logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
@@ -327,8 +327,8 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
         job.save()
 
         # Update the projects lastedit user when a job is created
-        Project.objects.get_all(uid=project.uid).update(lastedit_user=owner,
-                                                        lastedit_date=now())
+        Project.objects.filter(uid=project.uid).update(lastedit_user=owner,
+                                                       lastedit_date=now())
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
@@ -500,8 +500,8 @@ def create_data(project, user=None, stream=None, path='', name='',
     data.save()
 
     # Update the projects lastedit user when a data is uploaded
-    Project.objects.get_all(uid=data.project.uid).update(lastedit_user=user,
-                                                         lastedit_date=now())
+    Project.objects.filter(uid=data.project.uid).update(lastedit_user=user,
+                                                        lastedit_date=now())
 
     # Set log for data creation.
     logger.info(f"Added data type={data.type} name={data.name} pk={data.pk}")

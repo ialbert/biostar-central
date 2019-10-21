@@ -264,14 +264,14 @@ $(document).ready(function () {
 
       $('#json_preview').click(function (event) {
           event.preventDefault();
-         let recipe_uid = $(this).data('value');
+         let project_uid = $(this).data('value');
          let recipe_json = $('#json').val();
          $.ajax('/preview/json/',
              {
              type: 'POST',
                 dataType: 'json',
                 ContentType: 'application/json',
-                data: {'uid': recipe_uid,
+                data: {'project_uid': project_uid,
                        'json_text': recipe_json},
 
                 success: function (data) {
@@ -483,10 +483,11 @@ $(document).ready(function () {
     });
 
     $('#template_preview').click(function (event) {
-          event.preventDefault();
-         let recipe_uid = $(this).data('value');
+         event.preventDefault();
+         let uid = $(this).data('value');
          let template = $('#template').val();
          let json_text = $('#json').val();
+         let name = $('#id_name').val();
 
          $.ajax('/preview/template/',
              {
@@ -494,25 +495,16 @@ $(document).ready(function () {
                 dataType: 'json',
                 ContentType: 'application/json',
                 data: {
-                       'uid': recipe_uid,
                        'template': template,
-                       'json_text': json_text
+                       'json_text': json_text,
+                       'name' : name,
+                       'uid' : uid,
                 },
                 success: function (data) {
 
                  //alert(recipe_json);
                  if (data.status === 'success'){
-                     $('#template_preview_cont').html('     <h4 class="ui center aligned header">\n' +
-                         '            <p>\n' +
-                         '                <i class="keyboard icon"></i>Recipe Code |\n' +
-                         '                <a href="#view"><i class="setting icon"></i>Recipe Description</a></p>\n' +
-                         '            <p>\n' +
-                         '            <a href="/recipe/code/download/'+ recipe_uid + '/" class="ui green label">\n' +
-                         '                <i class="download icon"></i>Download Recipe\n' +
-                         '            </a>\n' +
-                         '            </p>\n' +
-                         '        </h4> <pre><code class=" language-bash line-numbers ">' +
-                         data.script + '</code></pre>');
+                     $('#template_preview_cont').html(data.html);
                      $('#template_modal').modal('show');
                      Prism.highlightAll();
                      return

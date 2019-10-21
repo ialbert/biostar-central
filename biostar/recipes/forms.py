@@ -137,7 +137,7 @@ class ProjectForm(forms.ModelForm):
         cleaned_data = super(ProjectForm, self).clean()
 
         user = self.request.user
-        projects = Project.objects.get_all(owner=user)
+        projects = Project.objects.filter(owner=user)
         privacy = cleaned_data.get("privacy") or 0
 
         # Trusted users are allowed everything.
@@ -220,7 +220,7 @@ class DataUploadForm(forms.ModelForm):
             if not cleaned_data.get("data_name"):
                 raise forms.ValidationError("Name is required with text inputs.")
 
-        total_count = Data.objects.get_all(owner=self.user).count()
+        total_count = Data.objects.filter(owner=self.user).count()
         if total_count >= settings.MAX_DATA:
             raise forms.ValidationError(f"Exceeded maximum amount of data:{settings.MAX_DATA}.")
         return cleaned_data
@@ -276,9 +276,9 @@ class DataEditForm(forms.ModelForm):
 
         self.instance.lastedit_user = self.user
         self.instance.lasedit_date = now()
-        Project.objects.get_all(uid=self.instance.project.uid).update(lastedit_user=self.user,
-                                                                      lastedit_date=now()
-                                                                      )
+        Project.objects.filter(uid=self.instance.project.uid).update(lastedit_user=self.user,
+                                                                     lastedit_date=now()
+                                                                     )
 
         return super(DataEditForm, self).save(commit)
 
@@ -315,11 +315,10 @@ class RecipeForm(forms.ModelForm):
     rank = forms.FloatField(required=True, initial=1000)
     text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=True)
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, creating=False, *args, **kwargs):
+        self.creating = creating
         self.user = user
         super().__init__(*args, **kwargs)
-
-        #self.fields['json_text']
 
     class Meta:
         model = Analysis
@@ -354,9 +353,10 @@ class RecipeForm(forms.ModelForm):
 
         not_superuser = not self.user.is_superuser
 
-        # Only superusers may change templates or interfaces.
+        # Update the recipe security when template or JSON have been
+        # touched by non admin users.
         if (json_changed or template_changed) and not_superuser:
-            raise forms.ValidationError("Only administrators may change the json or template of a recipe.")
+            Analysis.objects.filter(uid=self.instance.uid).update(security=Analysis.NOT_AUTHORIZED)
 
         return cleaned_data
 
@@ -367,6 +367,28 @@ class RecipeForm(forms.ModelForm):
 
         return image
 
+    def clean_json_text(self):
+        cleaned_data = super(RecipeForm, self).clean()
+        json_text = cleaned_data.get('json_text')
+
+        # Ensure correct JSON syntax.
+        try:
+            hjson.loads(json_text)
+        except Exception as exc:
+            raise forms.ValidationError(f'Error with recipe JSON:{exc}')
+
+        return json_text
+
+    def clean_uid(self):
+        cleaned_data = super(RecipeForm, self).clean()
+        uid = cleaned_data.get('uid')
+
+        if self.creating:
+            # Check if uid already exists when creating a recipe.
+            recipe = Analysis.objects.filter(uid=uid).first()
+            if recipe:
+                raise forms.ValidationError("Recipe uid already exists.")
+        return uid
 
 
 class JobEditForm(forms.ModelForm):
@@ -383,8 +405,8 @@ class JobEditForm(forms.ModelForm):
 
         self.instance.lastedit_date = now()
         self.instance.lastedit_user = self.user
-        Project.objects.get_all(uid=self.instance.project.uid).update(lastedit_date=now(),
-                                                                      lastedit_user=self.user)
+        Project.objects.filter(uid=self.instance.project.uid).update(lastedit_date=now(),
+                                                                     lastedit_user=self.user)
         return super().save(commit)
 
 
@@ -440,7 +462,7 @@ class RecipeInterface(forms.Form):
     # The name of results when running the recipe.
     # name = forms.CharField(max_length=256, label="Name", help_text="This is how you can identify the run.")
 
-    def __init__(self, request, analysis, json_data, add_captcha=True, *args, **kwargs):
+    def __init__(self, request, json_data, analysis=None, project=None, add_captcha=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # The json data determines what fields does the form have.
@@ -448,7 +470,7 @@ class RecipeInterface(forms.Form):
 
         # The project is required to select data from.
         self.analysis = analysis
-        self.project = analysis.project
+        self.project = analysis.project if analysis else project
 
         # Get request specific information
         self.request = request
@@ -457,7 +479,6 @@ class RecipeInterface(forms.Form):
         # Create the dynamic field from each key in the data.
         for name, data in self.json_data.items():
             field = factory.dynamic_field(data, self.project)
-
             # Insert only valid fields.
             if field:
                 self.fields[name] = field
@@ -614,8 +635,8 @@ class EditCode(forms.Form):
         if commit:
             self.recipe.lastedit_date = now()
             self.recipe.lastedit_user = self.user
-            Project.objects.get_all(uid=self.project.uid).update(lastedit_date=now(),
-                                                                 lastedit_user=self.user)
+            Project.objects.filter(uid=self.project.uid).update(lastedit_date=now(),
+                                                                lastedit_user=self.user)
             self.recipe.save()
 
         return self.recipe

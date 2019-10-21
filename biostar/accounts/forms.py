@@ -63,6 +63,7 @@ class SignUpForm(forms.Form):
         name = email.split("@")[0]
         user = User.objects.create(email=email, first_name=name)
         user.set_password(password)
+        user.save()
 
         # Send
         auth.send_verification_email(user=user)

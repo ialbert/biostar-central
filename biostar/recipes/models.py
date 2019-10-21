@@ -64,20 +64,14 @@ class Manager(models.Manager):
 
     def get_queryset(self):
         "Regular queries exclude deleted stuff"
-        return super().get_queryset().filter(deleted=False).select_related("owner", "owner__profile", "lastedit_user",
-                                                                           "lastedit_user__profile")
+        return super().get_queryset().select_related("owner", "owner__profile", "lastedit_user",
+                                                     "lastedit_user__profile")
 
     def get_deleted(self, **kwargs):
         "Only show deleted things"
         return super().get_queryset().filter(deleted=True, **kwargs).select_related("owner", "owner__profile",
                                                                                     "lastedit_user",
                                                                                     "lastedit_user__profile")
-
-    def get_all(self, **kwargs):
-        "Return everything"
-        return super().get_queryset().filter(**kwargs).select_related("owner", "owner__profile", "lastedit_user",
-                                                                      "lastedit_user__profile")
-
 
 class SnippetType(models.Model):
     image = models.ImageField(default=None, blank=True, upload_to=snippet_images, max_length=MAX_FIELD_LEN)
@@ -500,19 +494,22 @@ class Analysis(models.Model):
         self.lastedit_date = self.lastedit_date or now
 
         # Clean json text of the 'settings' key unless it has the 'run' field.
-        #TODO: still testing out.
         try:
             local_json = hjson.loads(self.json_text)
         except Exception as exep:
             logger.error(f'Error loading json text: {exep}')
             local_json = hjson.loads(self.last_valid)
 
-        run_settings = local_json.get('settings', {}).get('execute', {})
+        # Look into JSON settings
         if local_json.get('settings'):
+            run_settings = local_json.get('settings', {}).get('execute', {})
+
+            # Check to see for an 'execute' parameter
             if run_settings:
                 # Leave run settings alone.
                 local_json['settings'] = dict(execute=run_settings)
             else:
+                # Delete settings parameter
                 del local_json['settings']
 
         self.json_text = hjson.dumps(local_json)
@@ -523,8 +520,8 @@ class Analysis(models.Model):
         if self.security == self.AUTHORIZED:
             self.last_valid = self.template
 
-        Project.objects.get_all(uid=self.project.uid).update(lastedit_date=now,
-                                                             lastedit_user=self.lastedit_user)
+        Project.objects.filter(uid=self.project.uid).update(lastedit_date=now,
+                                                            lastedit_user=self.lastedit_user)
         super(Analysis, self).save(*args, **kwargs)
 
     def get_project_dir(self):

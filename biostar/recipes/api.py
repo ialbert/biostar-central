@@ -32,7 +32,7 @@ def change_image(obj, file_object=None):
 
 def tabular_list():
     output = []
-    projects = Project.objects.get_all()
+    projects = Project.objects.all()
     for project in projects:
         for recipe in project.analysis_set.all():
             line = f"{project.uid}\t{project.name}\t{recipe.uid}\t{recipe.name}\t{project.get_privacy_display()}"
@@ -55,7 +55,7 @@ def project_info(request, uid):
     PUT request : change project info using json data
     """
 
-    project = Project.objects.get_all(uid=uid).first()
+    project = Project.objects.filter(uid=uid).first()
 
     if request.method == "PUT":
         file_object = request.data.get("file", "")
