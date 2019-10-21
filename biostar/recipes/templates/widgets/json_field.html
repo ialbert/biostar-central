@@ -4,13 +4,19 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+            
 
             var json_edit = CodeMirror.fromTextArea(
                 document.getElementById("json"), {
                     lineNumbers: true,
                     mode: "engine",
-
-
                 }
-            )});
+            );
+
+            function updateJson() {
+                json_edit.save();
+            }
+
+            json_edit.on('change', updateJson)
+        });
     </script>

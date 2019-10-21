@@ -164,9 +164,6 @@ def toggle_notify(request):
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_signup(request):
-    #if not settings.ALLOW_SIGNUP:
-    #    messages.error(request, "Signups are not yet enabled on this site.")
-    #    return redirect(reverse("login"))
 
     if request.method == 'POST':
 

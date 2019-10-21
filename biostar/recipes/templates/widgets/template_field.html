@@ -11,10 +11,11 @@
                     mode: "engine"
                 }
             );
+            function updateTemplate() {
+                template_edit.save();
+            }
 
-            $('#template_preview').click(function () {
-               template_edit.save()
-            });
+            template_edit.on('change', updateTemplate);
         });
 
     </script>

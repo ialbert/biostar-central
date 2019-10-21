@@ -34,7 +34,7 @@ class read_access:
             user = request.user
 
             # Fetches the object that will be checked for permissions.
-            instance = self.type.objects.get_all(uid=uid).first()
+            instance = self.type.objects.filter(uid=uid).first()
 
             # Object does not exist.
             if not instance:
@@ -91,7 +91,7 @@ class write_access:
             user = request.user
 
             # Fetches the object that will be checked for permissions.
-            instance = self.type.objects.get_all(uid=uid).first()
+            instance = self.type.objects.filter(uid=uid).first()
             if not instance:
                 messages.error(request, f"Object id {uid} does not exist.")
                 return redirect(reverse("project_list"))
@@ -148,7 +148,7 @@ class require_api_key:
 
             # Get the Recipe uid
             uid = kwargs.get("uid")
-            obj = self.type.objects.get_all(uid=uid).first()
+            obj = self.type.objects.filter(uid=uid).first()
 
             if not obj:
                 msg = dict(error="Object does not exist.")

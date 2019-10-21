@@ -130,7 +130,7 @@ def create_recipe(json_file, root_dir, job=False):
     source = os.path.abspath(os.path.join(root_dir, json_file))
     json_data = hjson.loads(open(source, "r").read())
     rid, url, image, template = parse_recipe(json_data)
-    recipe = Analysis.objects.get_all(uid=rid).first()
+    recipe = Analysis.objects.filter(uid=rid).first()
 
     if not recipe:
         # Get an existing project uid
@@ -157,7 +157,7 @@ def create_project(json_file, root_dir):
     json_data = hjson.loads(open(source, "r").read())
     pid, _, privacy, image = parse_project(json_data)
 
-    project = Project.objects.get_all(uid=pid).first()
+    project = Project.objects.filter(uid=pid).first()
 
     if not project:
         image_stream = open(os.path.abspath(os.path.join(root_dir, image)), "rb")
@@ -178,7 +178,7 @@ def create_data(root_dir, data_list):
         pid = data.get("project_uid", None)
         # Get data path relative to root_dir
         path = data.get("value", "")
-        project = Project.objects.get_all(uid=pid).first()
+        project = Project.objects.filter(uid=pid).first()
         dtype = data.get("type")
         text = data.get("help")
         name = data.get("name")
@@ -319,7 +319,7 @@ def pull_recipe(rid, url=None, api_key=""):
     """
     # Get the recipes uid list from API or database.
     get = lambda view: get_response(root_url=url, uid=rid, api_key=api_key, view=view)
-    recipe = Analysis.objects.get_all(uid=rid).first()
+    recipe = Analysis.objects.filter(uid=rid).first()
     imgpath = recipe.image.path if recipe and recipe.image else get_thumbnail()
     image = open(imgpath, "rb").read()
 
@@ -338,7 +338,7 @@ def pull_project(pid, url=None, api_key=""):
     """
     Dump project from remote host or local database into root_dir
     """
-    project = Project.objects.get_all(uid=pid).first()
+    project = Project.objects.filter(uid=pid).first()
     imgpath = project.image.path if project and project.image else get_thumbnail()
     image = open(imgpath, "rb").read()
 

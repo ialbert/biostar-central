@@ -262,6 +262,10 @@ figure {
     border-color: #ebccd1;
 }
 
+#template_modal{
+    padding:8px;
+    width: 56%;
+}
 
 #json_add_menu > .ui.divider {
     margin: 0px;
