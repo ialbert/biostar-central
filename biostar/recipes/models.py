@@ -67,11 +67,6 @@ class Manager(models.Manager):
         return super().get_queryset().select_related("owner", "owner__profile", "lastedit_user",
                                                      "lastedit_user__profile")
 
-    def get_deleted(self, **kwargs):
-        "Only show deleted things"
-        return super().get_queryset().filter(deleted=True, **kwargs).select_related("owner", "owner__profile",
-                                                                                    "lastedit_user",
-                                                                                    "lastedit_user__profile")
 
 class SnippetType(models.Model):
     image = models.ImageField(default=None, blank=True, upload_to=snippet_images, max_length=MAX_FIELD_LEN)

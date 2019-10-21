@@ -18,10 +18,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        data = Data.objects.get_deleted()
-        jobs = Job.objects.get_deleted()
-        recipes = Analysis.objects.get_deleted()
-        projects = Project.objects.get_deleted()
+        data = Data.objects.filter(deleted=True)
+        jobs = Job.objects.filter(deleted=True)
+        recipes = Analysis.objects.filter(deleted=True)
+        projects = Project.objects.filter(deleted=True)
 
         root_dir = os.path.abspath(settings.MEDIA_ROOT)
 
