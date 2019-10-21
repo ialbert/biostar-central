@@ -102,7 +102,7 @@ function add_to_template(elem){
     let template = $('#template').val();
     //alert(snippet);
 
-    $.ajax('/recipe/code/', {
+    $.ajax('/snippet/code/', {
            type: 'POST',
            dataType: 'json',
            data: {

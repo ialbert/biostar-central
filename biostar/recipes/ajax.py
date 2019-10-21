@@ -16,7 +16,6 @@ from biostar.recipes.forms import RecipeInterface
 logger = logging.getLogger("engine")
 
 
-
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
     payload.update(kwargs)
@@ -51,13 +50,9 @@ class ajax_error_wrapper:
         def _ajax_view(request, *args, **kwargs):
 
             if request.method != self.method:
-                #1/0
                 return ajax_error(f'{self.method} method must be used.')
-            #1/0
             if not request.user.is_authenticated:
-                #1/0
                 return ajax_error('You must be logged in.')
-            #1/0
             return func(request, *args, **kwargs)
 
         return _ajax_view
@@ -81,10 +76,10 @@ def check_job(request, uid):
     return ajax_success(msg='success', html=template, state=job.get_state_display(), state_changed=state_changed)
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+#@ratelimit(key='ip', rate='50/h')
+#@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
-def recipe_code(request):
+def snippet_code(request):
 
     command_uid = request.POST.get('command', '')
     current_code = request.POST.get('template', '')
@@ -105,8 +100,8 @@ def recipe_code(request):
     return ajax_success(code=code, msg="Rendered the template", html=template_field)
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+#@ratelimit(key='ip', rate='50/h')
+#@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def snippet_form(request):
 
@@ -204,7 +199,7 @@ def create_snippet(request):
 
     if len(snippet) >= MAX_SNIPPET or len(help_text) >= MAX_HELP:
         msg = "Snippet" if len(snippet) >= MAX_TEXT_LEN else "Help Text"
-        return ajax_error(msg=msg + " input is too long")
+        return ajax_error(msg=msg + " input is too long.")
 
     # Get existing snippet for edit
     if snippet_uid:
@@ -333,7 +328,6 @@ def recipe_field(request):
                   'Dropdown Field Label'),
     )
     display, source, choices, value, label = display_map.get(display_type, ('textbox', []))
-    #print(display, choices)
     # Return the field specs
     specs = field_specs(display_type=display, source=source, choices=choices, value=value, label=label)
 
