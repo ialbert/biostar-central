@@ -105,9 +105,9 @@ def snippet_code(request):
 @ajax_error_wrapper(method="POST")
 def snippet_form(request):
 
-    is_top = request.POST.get("is_top", "false")
+    is_category = request.POST.get("is_category", 0)
+    is_category = bool(int(is_category))
 
-    is_top = True if is_top == 'true' else False
     type_name = request.POST.get('type_name')
     type_uid = request.POST.get('type_uid')
     snippet_uid = request.POST.get('snippet_uid', '')
@@ -116,7 +116,7 @@ def snippet_form(request):
 
     tmpl = loader.get_template('widgets/snippet_form.html')
 
-    context = dict(is_top=is_top, type_name=type_name, snippet=snippet, help_text=help_text,
+    context = dict(is_category=is_category, type_name=type_name, snippet=snippet, help_text=help_text,
                    type_uid=type_uid, snippet_uid=snippet_uid)
     cmd_form = tmpl.render(context=context)
 
@@ -137,8 +137,8 @@ def check_size(fobj, maxsize=0.3):
     return "Valid", True
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+#@ratelimit(key='ip', rate='50/h')
+#@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def create_snippet_type(request):
     name = request.POST.get('name', '')
@@ -169,8 +169,8 @@ def create_snippet_type(request):
     return ajax_success(msg="Created snippet", html=new_type)
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+#@ratelimit(key='ip', rate='50/h')
+#@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def create_snippet(request):
 
@@ -191,11 +191,6 @@ def create_snippet(request):
 
     if snippets.count() >= MAX_SNIPPETS_PER_CATEGORY:
         return ajax_error(msg="Maximum number of snippets reached.")
-
-    cmd = snippets.filter(command=snippet).first()
-    # Avoid duplicates commands being created
-    if cmd and not snippet_uid:
-        return ajax_error(msg=f"Similar snippet for {cmd_type.name} already exists: {snippet}.")
 
     if len(snippet) >= MAX_SNIPPET or len(help_text) >= MAX_HELP:
         msg = "Snippet" if len(snippet) >= MAX_TEXT_LEN else "Help Text"
@@ -236,8 +231,7 @@ def delete_snippet(request):
     return
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+
 @ajax_error_wrapper(method="POST")
 def preview_template(request):
 
@@ -256,15 +250,14 @@ def preview_template(request):
     download_url = reverse('recipe_download', kwargs=dict(uid=recipe_uid)) if recipe else '#template_field'
 
     # Load the html containing the script
-    tmpl = loader.get_template('widgets/preview_download.html')
+    tmpl = loader.get_template('widgets/preview_script.html')
     context = dict(script=script, name=name, download_url=download_url)
     template = tmpl.render(context=context)
 
     return ajax_success(html=template, msg="Rendered script")
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+
 @ajax_error_wrapper(method="POST")
 def preview_json(request):
 
@@ -293,43 +286,39 @@ def preview_json(request):
     return ajax_success(msg="Recipe json", html=template)
 
 
-def field_specs(display_type='', source=None, choices='', value='', label="label"):
+def get_display_dict(display_type):
+    mapping = dict(radio=RADIO, integer=INTEGER, textbox=TEXTBOX,
+                   float=FLOAT, checkbox=CHECKBOX, dropdown=DROPDOWN)
+    display = mapping.get(display_type)
 
-    opts = dict(label=label or f'{display_type.lower()}')
-    if display_type:
-        opts.update(dict(display=display_type))
-    if choices:
-        opts.update(dict(choices=choices))
-    if source:
-        opts.update(dict(source=source, type="DATA"))
-    if value:
-        opts.update(dict(value=value))
+    if display_type == 'data':
+        return dict(label='Data Field Label', source='PROJECT', type="DATA")
+    if display == RADIO:
+        return dict(label='Radio Field Label', display=RADIO, choices=[(1, 'Option 1'), (2, 'Option 2')], value=2)
+    if display == INTEGER:
+        return dict(label='Integer Field Label', display=INTEGER, value=100)
+    if display == TEXTBOX:
+        return dict(label='Text box Field Label', display=TEXTBOX, value='Sample text')
+    if display == FLOAT:
+        return dict(label='Float Field Label', display=FLOAT, value=0.5)
+    if display == CHECKBOX:
+        return dict(label='Checkbox Field Label', display=CHECKBOX, value=True)
+    if display == DROPDOWN:
+        return dict(label='Dropdown Field Label', display=DROPDOWN,
+                    choices=[('1', 'Choices 1'), ('2', 'Choices 2')],
+                    value='1')
+    return dict()
 
-    return opts
 
-
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
-def recipe_field(request):
+def add_recipe_field(request):
     # Returns a recipe interface field json
 
     display_type = request.POST.get('display_types', '')
     json_text = request.POST.get('json_text', '')
 
-    display_map = dict(
-        radio=(RADIO, None, [(1, 'Option 1'), (2, 'Option 2')], 2, 'Radio Field Label'),
-        data=('', 'PROJECT', [], '', 'Data Field Label'),
-        integer=(INTEGER, None, [], 100, 'Integer Field Label'),
-        textbox=(TEXTBOX, None, [], "Sample text", 'Text box Field Label'),
-        float=(FLOAT, None, [], 0.5, 'Float Field Label'),
-        checkbox=(CHECKBOX, None, [], True, 'Checkbox Field Label'),
-        dropdown=(DROPDOWN, None, [('Choices 1', 'Choices 1'), ('Choices 2', 'Choices 2')], 'Choices 1',
-                  'Dropdown Field Label'),
-    )
-    display, source, choices, value, label = display_map.get(display_type, ('textbox', []))
-    # Return the field specs
-    specs = field_specs(display_type=display, source=source, choices=choices, value=value, label=label)
+    display_dict = get_display_dict(display_type=display_type)
+    print(json_text, 'JSON')
 
     json_data = hjson.loads(json_text)
     field_name = display_type
@@ -339,7 +328,7 @@ def recipe_field(request):
         field_name = display_type + f'{count}'
         count += 1
 
-    new_field = {field_name: specs}
+    new_field = {field_name: display_dict}
     new_field.update(json_data)
     new_json = hjson.dumps(new_field)
 

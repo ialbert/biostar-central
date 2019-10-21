@@ -51,10 +51,12 @@ def snippet_images(instance, filename):
     # Name the data by the filename.
     name, ext = os.path.splitext(filename)
     uid = instance.uid or util.get_uuid(6)
-    imgname = f"images/image-{uid}{ext}"
+    imgname = f"image-{uid}{ext}"
+
+    dirpath = os.path.abspath(os.path.join(settings.MEDIA_ROOT, 'snippets', 'images'))
 
     # Uploads need to go relative to media directory.
-    path = os.path.relpath('export/media/snippets/images/', settings.MEDIA_ROOT)
+    path = os.path.relpath(dirpath, settings.MEDIA_ROOT)
     imgpath = os.path.join(path, imgname)
 
     return imgpath

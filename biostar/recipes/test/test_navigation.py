@@ -61,9 +61,6 @@ class SiteNavigation(TestCase):
 
         ajax_urls = [
             reverse('add_vars'),
-            reverse('recipe_fields', kwargs=self.analysis_params),
-            reverse('preview_template'),
-            reverse('preview_json')
         ]
 
         api_urls = [
