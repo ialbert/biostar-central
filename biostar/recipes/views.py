@@ -15,9 +15,9 @@ from ratelimit.decorators import ratelimit
 from sendfile import sendfile
 
 from biostar.accounts.models import User
-from . import tasks, auth, forms, const, search
-from .decorators import read_access, write_access
-from .models import (Project, Data, Analysis, Job, Access)
+from biostar.recipes import tasks, auth, forms, const, search, util
+from biostar.recipes.decorators import read_access, write_access
+from biostar.recipes.models import Project, Data, Analysis, Job, Access
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -782,7 +782,8 @@ def recipe_create(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
     # Prepare the form
-    form = forms.RecipeForm(user=request.user)
+    initial = dict(name="Recipe Name", uid=util.get_uuid(7))
+    form = forms.RecipeForm(user=request.user, initial=initial)
 
     if request.method == "POST":
         form = forms.RecipeForm(data=request.POST, creating=True, files=request.FILES, user=request.user)
