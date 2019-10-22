@@ -410,11 +410,6 @@ $(document).ready(function () {
 
     });
 
-    $('.cmd-value').click(function (event) {
-        event.preventDefault();
-        add_to_template($(this))
-
-    });
 
     $(this).on('click', '.cmd-value', function() {
         event.preventDefault();
