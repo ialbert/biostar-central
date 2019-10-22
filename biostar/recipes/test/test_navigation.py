@@ -59,6 +59,10 @@ class SiteNavigation(TestCase):
     def test_public_pages(self):
         "Checking public pages"
 
+        ajax_urls = [
+            reverse('add_vars'),
+        ]
+
         api_urls = [
 
             reverse('api_list'),
@@ -100,6 +104,7 @@ class SiteNavigation(TestCase):
 
         self.visit_urls(urls=urls, codes=[200])
         self.visit_urls(urls=api_urls, codes=[200])
+        self.visit_urls(urls=ajax_urls, codes=[200])
         self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
 
     def test_page_redirect(self):

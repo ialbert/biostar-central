@@ -58,7 +58,7 @@ function error_message(elem, xhr, status, text) {
 }
 
 
-function snippet_form(elem, is_top){
+function snippet_form(elem, is_category){
     let type_name = elem.data('type_name');
     let type_uid = elem.data('type_uid');
     let snippet_uid = elem.data('snippet_uid');
@@ -70,7 +70,7 @@ function snippet_form(elem, is_top){
             type: 'POST',
                dataType: 'json',
                data: {
-                    'is_top':is_top,
+                    'is_category':is_category,
                     'type_uid': type_uid,
                     'type_name':type_name,
                     'snippet': snippet,
@@ -102,7 +102,7 @@ function add_to_template(elem){
     let template = $('#template').val();
     //alert(snippet);
 
-    $.ajax('/recipe/code/', {
+    $.ajax('/snippet/code/', {
            type: 'POST',
            dataType: 'json',
            data: {
@@ -410,11 +410,6 @@ $(document).ready(function () {
 
     });
 
-    $('.cmd-value').click(function (event) {
-        event.preventDefault();
-        add_to_template($(this))
-
-    });
 
     $(this).on('click', '.cmd-value', function() {
         event.preventDefault();
@@ -428,7 +423,7 @@ $(document).ready(function () {
        let json_text = $('#json').val();
        let display_type = $(this).attr('id');
 
-       $.ajax('/recipe/fields/', {
+       $.ajax('/add/recipe/fields/', {
                type: 'POST',
                dataType: 'json',
                data: {
@@ -451,7 +446,7 @@ $(document).ready(function () {
     $(this).on('click', '#save_snippet_type', function() {
 
         var form_data = new FormData($('#snippet_form').get(0));
-        //alert(form_data.get('help'));
+        alert(form_data.get('help'));
 
         $.ajax('/create/snippet/type/',{
             type: 'POST',
@@ -522,14 +517,14 @@ $(document).ready(function () {
      });
 
     $(this).on('click', '.add-cmd-with-type', function () {
-        snippet_form($(this), false);
+        snippet_form($(this), 0);
     });
 
     $(this).on('click', '.edit-snippet', function () {
-        snippet_form($(this), false);
+        snippet_form($(this), 0);
     });
 
     $('.add-cmd-without-type').click(function () {
-        snippet_form($(this), true);
+        snippet_form($(this), 1);
     });
 });

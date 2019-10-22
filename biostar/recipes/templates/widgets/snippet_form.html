@@ -3,7 +3,7 @@
 
 <form class="ui form" enctype="multipart/form-data" id="snippet_form">
 
-    {% if is_top %}
+    {% if is_category %}
         <div class="ui small header"> Add a category </div>
         <div class="field">
 
@@ -39,10 +39,11 @@
 
 
     <div>
-        <div class="ui green button" id="{% if is_top %}save_snippet_type{% else %}save_command{% endif %}"
+        <div class="ui green button" id="{% if is_category %}save_snippet_type{% else %}save_command{% endif %}"
              data-type="{{ type_uid }}" data-snippet_uid="{% if snippet_uid %}{{ snippet_uid }}{% endif %}">
             <i class="save icon"></i> Save
         </div>
+
         <div class="ui right floated button" id="cancel-modal">
             <i class="undo icon"></i> Cancel
         </div>
@@ -54,7 +55,7 @@
             $('#cancel-modal').click(function () {
                 $('#cmd_modal').modal('hide')
             });
-            {% if not is_top %}
+             {% if not is_category %}
                 var json_edit = CodeMirror.fromTextArea(
                     document.getElementById("snippet"), {
                         lineNumbers: true,

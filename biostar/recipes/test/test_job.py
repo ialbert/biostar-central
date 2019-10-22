@@ -62,7 +62,6 @@ class JobViewTest(TestCase):
 
         board = request.session.get(settings.CLIPBOARD_NAME, {}).get(const.RESULTS_CLIPBOARD, [])
         success = len(board) == 1 and board[0] == self.job.uid
-        print(board)
 
         self.assertTrue(success, "Job uid not copied to clipboard")
         return
