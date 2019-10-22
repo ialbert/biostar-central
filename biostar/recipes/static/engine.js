@@ -14,7 +14,7 @@ function getCookie(name) {
     if (document.cookie && document.cookie != '') {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
+            var cookie = cookies[i].trim();
             // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) == (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -63,7 +63,6 @@ function snippet_form(elem, is_category){
     let type_uid = elem.data('type_uid');
     let snippet_uid = elem.data('snippet_uid');
     let snippet = elem.data('snippet');
-
     let help_text = elem.data('help_text');
 
     $.ajax('/snippet/form/',{
@@ -358,6 +357,12 @@ function create_snippet(elem){
         }
     )
 }
+function remove_trigger() {
+    // Makes site messages dissapear.
+    $('.remove').delay(1000).slideUp(800, function () {
+        $(this).remove();
+    });
+}
 
 $(document).ready(function () {
 
@@ -423,6 +428,7 @@ $(document).ready(function () {
 
      });
 
+     remove_trigger();
 
     // Check and update 'Running' and 'Spooled' jobs every 20 seconds.
     setInterval(check_job, 5000 );

@@ -11,6 +11,7 @@ class EngineConfig(AppConfig):
     name = 'biostar.recipes'
 
     def ready(self):
+        from . import signals
         # Triggered upon app initialization.
         post_migrate.connect(init_app, sender=self)
         post_migrate.connect(init_snippets, sender=self)

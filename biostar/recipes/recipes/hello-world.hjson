@@ -1,30 +1,9 @@
 {
-  sample2:
+  integer:
   {
-    label: from a diffrent database
-    display: SQL
-    table: metabarcoding_sample
-    database_name: metabarcoding.db
-    return_value: id
-    display_value: sample_id
-    where:
-    {
-      type: ENV
-    }
-  }
-  sample:
-  {
-    label: sample sql
-    display: SQL
-    table: recipes_data
-    value:
-    {
-      name: coho.jpg
-    }
-    where:
-    {
-      type: FASTA|DATA
-    }
+    label: Example Integer field
+    display: INTEGER
+    value:100
   }
   settings:
   {

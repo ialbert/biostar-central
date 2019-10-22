@@ -21,8 +21,7 @@ def init_digest(sender, **kwargs):
 
     # Ensure digest emails are not sent when debugging
     if settings.DEBUG:
-        profiles = Profile.objects.all()
-        Profile.objects.filter(id__in=profiles).update(digest_prefs=Profile.NO_DIGEST)
+        Profile.objects.all().update(digest_prefs=Profile.NO_DIGEST)
 
 
 def init_awards(sender, **kwargs):
