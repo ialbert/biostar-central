@@ -191,14 +191,13 @@ class AjaxTest(TestCase):
             json_response = ajax.add_recipe_field(request=request)
             self.process_response(json_response)
 
-
     def process_response(self, response):
         "Check the response on POST request is redirected"
 
         response_data = response.content
         response_data = json.loads(response_data)
 
-        self.assertEqual(response_data['status'], 'success', f'Error adding snippet:{response_data["msg"]}')
+        self.assertEqual(response_data['status'], 'success', f'Error :{response_data["msg"]}')
 
 
 

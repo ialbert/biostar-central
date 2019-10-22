@@ -67,37 +67,6 @@ class PostTest(TestCase):
 
         self.assertTrue(response.status_code == 200, 'Error rendering comments')
 
-    def test_ajax_subs(self):
-
-        for stype in ["unfollow", "messages", "email", "all", "default"]:
-
-            data = {"sub_type": stype, "root_uid": self.post.uid}
-            request = fake_request(url=reverse('vote'), data=data, user=self.owner)
-            response = ajax.ajax_subs(request)
-            self.assertEqual(response.status_code, 200, f"Could not preform subscription action:{stype}.")
-
-    def preform_votes(self, post, user):
-        for vtype in ["upvote", "bookmark", "accept"]:
-
-            data = {"vote_type": vtype, "post_uid": post.uid}
-            request = fake_request(url=reverse('vote'), data=data, user=user)
-            response = ajax.ajax_vote(request)
-            self.assertEqual(response.status_code, 200, f"Could not preform vote:{vtype}.")
-
-    def test_ajax_vote(self):
-        """Test the ajax voting using POST request """
-        # Create a different user to vote with
-        user2 = User.objects.create(username="user", email="user@tested.com", password="tested")
-
-        answer = models.Post.objects.create(title="answer", author=user2, content="tested foo bar too for",
-                                  type=models.Post.ANSWER, parent=self.post)
-
-        self.preform_votes(post=answer, user=self.owner)
-        self.preform_votes(post=self.post, user=self.owner)
-        self.preform_votes(post=self.post, user=user2)
-
-        return
-
     def test_edit_post(self):
         """
         Test post edit for root and descendants

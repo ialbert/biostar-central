@@ -125,8 +125,9 @@ def drag_and_drop(request):
 
     if not request.user.profile.is_moderator:
         return ajax_error(msg="Only moderators can move comments.")
+
     Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
-    Post.objects.filter(uid=post.root.uid).update(reply_count=F("answer_count") - 1)
+    #Post.objects.filter(uid=post.root.uid).update(reply_count=F("answer_count") - 1)
 
     redir = post.get_absolute_url()
 
@@ -290,30 +291,30 @@ def ajax_edit(request, uid):
     return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
 
 
-@ajax_error_wrapper(method="GET")
-def ajax_recent(request):
-
-    uid = request.GET.get('uid', '')
-    # Return recent posts made in past 5000 seconds.
-    seconds = 500000
-    delta = util.now() - timedelta(seconds=seconds)
-    if uid:
-        root = Post.objects.filter(uid=uid).first().root
-        new_posts = Post.objects.filter(root=root, lastedit_date__gt=delta).exclude(uid=uid)
-    else:
-        new_posts = Post.objects.filter(type__in=Post.TOP_LEVEL, lastedit_date__gt=delta)
-
-    if not new_posts:
-        return ajax_success(msg='No new posts in the past 5000 seconds.', data='')
-
-    nposts = len(new_posts)
-    context = dict(nposts=nposts)
-    tmpl = loader.get_template('widgets/ajax_recent.html')
-    template = tmpl.render(context=context)
-    most_recent = new_posts.order_by('-pk').first()
-    most_recent_url = most_recent.get_absolute_url() if most_recent is not None else ''
-
-    return ajax_success(msg="New posts", template=template)
+# @ajax_error_wrapper(method="GET")
+# def ajax_recent(request):
+#
+#     uid = request.GET.get('uid', '')
+#     # Return recent posts made in past 5000 seconds.
+#     seconds = 500000
+#     delta = util.now() - timedelta(seconds=seconds)
+#     if uid:
+#         root = Post.objects.filter(uid=uid).first().root
+#         new_posts = Post.objects.filter(root=root, lastedit_date__gt=delta).exclude(uid=uid)
+#     else:
+#         new_posts = Post.objects.filter(type__in=Post.TOP_LEVEL, lastedit_date__gt=delta)
+#
+#     if not new_posts:
+#         return ajax_success(msg='No new posts in the past 5000 seconds.', data='')
+#
+#     nposts = len(new_posts)
+#     context = dict(nposts=nposts)
+#     tmpl = loader.get_template('widgets/ajax_recent.html')
+#     template = tmpl.render(context=context)
+#     most_recent = new_posts.order_by('-pk').first()
+#     most_recent_url = most_recent.get_absolute_url() if most_recent is not None else ''
+#
+#     return ajax_success(msg="New posts", template=template)
 
 
 @ratelimit(key='ip', rate='50/h')
@@ -329,11 +330,10 @@ def ajax_create(request):
     content = request.POST.get("content", '')
     title = request.POST.get("title", '')
     tag_list = {x.strip() for x in request.POST.getlist("tag_val", [])}
-    #print(tag_list, "TAGS")
+
     tag_str = ','.join(tag_list)
     recaptcha_token = request.POST.get("recaptcha_response")
     is_toplevel = bool(int(request.POST.get('top', 0)))
-    #print(is_toplevel, int(request.POST.get('top', 0)), f"{request.POST.get('top')} ;;;;;")
     # Get the post type
     post_type = request.POST.get('type', '0')
     post_type = int(post_type) if post_type.isdigit() else 0
@@ -369,7 +369,6 @@ def ajax_create(request):
     # Create the post.
     post = Post.objects.create(title=title, tag_val=tag_str, type=post_type, content=content,
                                author=user, parent=parent)
-    print(post.get_absolute_url())
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
 
@@ -391,14 +390,14 @@ def inplace_form(request):
         return ajax_error(msg="Post does not exist.")
 
     is_toplevel = post.is_toplevel if post else int(request.GET.get('top', 1))
-    template = "widgets/inplace_form.html"
-
+    is_comment = request.GET.get('comment', 0) if not post else post.is_comment
     title = post.title if post else ''
     content = post.content if post else ''
     rows = len(post.content.split("\n")) if post else request.GET.get('rows', 10)
     rows = rows if 25 > int(rows) >= 2 else 4
-    is_comment = request.GET.get('comment', 0) if not post else post.is_comment
     html = post.html if post else ''
+
+    template = "widgets/inplace_form.html"
 
     # Untrusted users get a reCAPTCHA field added when creating posts.
     creating = post is None
@@ -420,111 +419,6 @@ def close(r):
     return
 
 
-def new_chat_room_form(request):
-    return
-
-
-def create_chat_room(request):
-    # Create a top level post as a chat, representing a chat room.
-
-    user = request.user
-
-    tags = request.POST.get('tags', '')
-    title = request.POST.get('title', '')
-    content = request.POST.get('content', '')
-
-    # Start up a chat room, by creating a top level posts.
-    chat_room = Post.objects.create(author=user, title=title, tag_val=tags, content=content, type=Post.CHAT)
-
-    # Render new chat room template.
-    chat_room_template = 'chat_view.html'
-
-    tmpl = loader.get_template(chat_room_template)
-    # tmpl = loader.get_template("widgets/test_search_results.html")
-
-    context = dict(chat_room=chat_room)
-    chat_room = tmpl.render(context)
-
-    # Return a 'chat view' of newly created chat room
-    return ajax_success(msg='success', html=chat_room)
-
-
-def send_chat(request):
-    # Send a chat message within a chat room from one user to another
-    chat_uid = request.POST.get('uid', '')
-    user = request.user
-    # Get the root post to add to.
-    root_chat = Post.objects.filter(uid=chat_uid).first()
-
-    if not root_chat:
-        return ajax_error(msg='Chat room does not exist.')
-    # Create a post object between one
-
-    return
-
-
-def add_to_chat_room(request):
-    # Add a user to a chat channel.
-
-    user = request.user
-    target_uid = request.POST.get('target', '')
-    chat_uid = request.POST.get('uid', '')
-
-    target_user = User.objects.filter(profile__uid=target_uid).first()
-
-    if not target_user:
-        return ajax_error(msg='Target user does not exist.')
-
-    root_chat = Post.objects.filter(uid=chat_uid).first()
-
-    # Add target user to thread users of the root post.
-    if not root_chat:
-        return ajax_error(msg='Chat does not exist.')
-
-    # Add target user to the chat.
-    root_chat.thread_users.remove(user)
-    root_chat.thread_users.add(user)
-
-    print(root_chat, "ADDED USER TO CHAT")
-    return
-
-
-def chat_list(request):
-    # Display list of chat rooms a user is actively involved in.
-
-    user = request.user
-
-    chats = Post.objects.filter(type=Post.CHAT, author=user)
-
-    print(chats)
-    #if chats is None
-    # Get the template and render chat list.
-    chat_list = 'chat_list.html'
-
-    tmpl = loader.get_template(chat_list)
-    # tmpl = loader.get_template("widgets/test_search_results.html")
-
-    context = dict(chat_list=chats)
-    chat_list_html = tmpl.render(context)
-
-    print(chat_list_html, "LISTING HTML")
-
-    return ajax_success(msg="success", html=chat_list_html)
-
-
-def chat_view(request):
-    uid = request.POST.get('uid', '')
-    chat_room = Post.objects.filter(uid=uid, type=Post.CHAT).first()
-
-    if chat_room is None:
-        return ajax_error(msg='Chat does not exist')
-
-    # Show the chat stack
-
-    print(chat_room.children)
-    return
-
-
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 def ajax_search(request):
@@ -533,10 +427,9 @@ def ajax_search(request):
     try:
         redir = bool(int(request.GET.get('redir', 0)))
     except Exception as exc:
-        redir = 0
+        redir = False
 
     fields = ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
-
 
     if redir:
         print(int(request.GET.get('redir', 0)), bool(int(request.GET.get('redir', 0))))
@@ -582,7 +475,7 @@ def ajax_tags_search(request):
         results_html = tmpl.render(context)
         return ajax_success(html=results_html, msg="success")
 
-    return ajax_success(msg="")
+    return ajax_success(msg="success")
 
 
 @ratelimit(key='ip', rate='50/h')
