@@ -17,50 +17,50 @@
         </div>
     </div>
     <div class="centerform">
-    <div class="manage_users">
-    <div class="ui segment inputcolor">
+        <div class="manage_users">
+            <div class="ui segment inputcolor">
 
-        <div class="ui search">
-        <form method="get" action="{% url 'project_users' project.uid %} ">
-            <div class="ui fluid input">
+                <div class="ui search">
+                    <form method="get" action="{% url 'project_users' project.uid %} ">
+                        <div class="ui fluid input">
 
-                <input type="text" name="q" value="{{q}}" placeholder="Search for users">
+                            <input type="text" name="q" value="{{ q }}" placeholder="Search for users">
 
-                <button class="ui large basic icon button" type="submit" formmethod="get">
-                    <i class="small search icon"></i>
-                </button>
+                            <button class="ui large basic icon button" type="submit" formmethod="get">
+                                <i class="small search icon"></i>
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+                {% if q %}
+                    <div class="ui success message">
+                        Filtering for : <b>{{ q }}</b>
+                        &bull; <a href="{% url 'project_users' project.uid %}"><i class="undo icon"></i>Clear</a>
+                    </div>
+
+
+                    <div class="ui vertical segment">
+                        <div class="ui relaxed divided list">
+                            {% for user, form in results %}
+                                {% access_form project user form %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
 
-        </form>
+            {% if current %}
+                <div class="ui vertical segment">
+                    <div class="ui relaxed divided list">
+                        {% for user, form in current %}
+                            {% access_form project user form %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
         </div>
-
-    {% if q %}
-        <div class="ui success message">
-         Filtering for :  <b>{{q}}</b>
-            &bull; <a href="{% url 'project_users' project.uid %}"><i class="undo icon"></i>Clear</a>
-        </div>
-
-
-        <div class="ui vertical segment">
-            <div class="ui relaxed divided list">
-                {% for user, form in results %}
-                        {% access_form project user form %}
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
-    </div>
-
-    {% if current %}
-        <div class="ui vertical segment">
-            <div class="ui relaxed divided list">
-                {% for user, form in current %}
-                    {% access_form project user form %}
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
-    </div>
     </div>
 
 {% endblock %}
