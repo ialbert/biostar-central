@@ -16,15 +16,15 @@
             Manage Access
         </div>
     </div>
-
+    <div style="text-align: -webkit-center;">
+    <div style="width: 70%;text-align: initial;">
     <div class="ui segment inputcolor">
 
-        <div class="ui tiny header">Search for users to manage</div>
         <div class="ui search">
         <form method="get" action="{% url 'project_users' project.uid %} ">
             <div class="ui fluid input">
 
-                <input type="text" name="q" value="{{q}}" placeholder="Search">
+                <input type="text" name="q" value="{{q}}" placeholder="Search for users">
 
                 <button class="ui large basic icon button" type="submit" formmethod="get">
                     <i class="small search icon"></i>
@@ -32,15 +32,14 @@
             </div>
 
         </form>
-
         </div>
 
-    {% if q%}
+    {% if q %}
         <div class="ui success message">
          Filtering for :  <b>{{q}}</b>
             &bull; <a href="{% url 'project_users' project.uid %}"><i class="undo icon"></i>Clear</a>
         </div>
-    {% endif %}
+
 
         <div class="ui vertical segment">
             <div class="ui relaxed divided list">
@@ -49,14 +48,19 @@
                 {% endfor %}
             </div>
         </div>
+    {% endif %}
     </div>
 
-    <div class="ui vertical segment">
-        <div class="ui relaxed divided list">
-            {% for user, form in current %}
+    {% if current %}
+        <div class="ui vertical segment">
+            <div class="ui relaxed divided list">
+                {% for user, form in current %}
                     {% access_form project user form %}
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
+    {% endif %}
+    </div>
     </div>
 
 {% endblock %}

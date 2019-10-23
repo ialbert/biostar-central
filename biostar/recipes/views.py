@@ -127,7 +127,7 @@ def get_access(request, project):
     user_access = user_access or Access(access=Access.NO_ACCESS)
 
     # Users already with access to current project
-    user_list = [a.user for a in project.access_set.all() if a.access > Access.NO_ACCESS]
+    user_list = [a.user for a in project.access_set.all() if a.access != Access.NO_ACCESS]
 
     return user_access, user_list
 
@@ -138,27 +138,33 @@ def project_users(request, uid):
     Manage project users
     """
     project = Project.objects.filter(uid=uid).first()
-    user_access, user_list = get_access(request, project)
-    label = lambda x: f"<span class='ui green tiny label'>{x}</span>"
 
-    # Search query separate for users.
+    # Get users that already have access to project.
+    user_access, user_list = get_access(request, project)
+
+    # Search query for users.
     q = request.GET.get("q", "")
     form = forms.ChangeUserAccess()
 
     if request.method == "POST":
         form = forms.ChangeUserAccess(data=request.POST)
 
-        # User needs to be authenticated and have admin access to make any changes.
-        if form.is_valid() and request.user.is_authenticated:
+        if form.is_valid():
             user, access = form.save()
-            msg = f"Changed <b>{user.first_name}</b>'s access to {label(access.get_access_display())}"
-            messages.success(request, mark_safe(msg))
+            msg = f"Changed {user.profile.name}'s access to : {access.get_access_display()}"
+            messages.success(request, msg)
             return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
 
-    # Users that have been searched for.
-    targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q)) if q else []
-    current = forms.access_forms(users=user_list, project=project, exclude=[request.user])
-    results = forms.access_forms(users=targets, project=project, exclude=[request.user])
+    if q:
+        targets = User.objects.filter(Q(email__contains=q) | Q(profile__name__contains=q)| Q(username__contains=q)|
+                                      Q(profile__uid__contains=q))
+    else:
+        targets = []
+
+    # Gather access forms for users who currently have access
+    current = forms.access_forms(users=user_list, project=project, request=request)
+    # Gather access forms for users in query
+    results = forms.access_forms(users=targets, project=project, exclude=user_list, request=request)
     context = dict(current=current, project=project, results=results, form=form, activate='User Management',
                    q=q, user_access=user_access)
     counts = get_counts(project)

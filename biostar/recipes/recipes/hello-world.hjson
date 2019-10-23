@@ -3,7 +3,8 @@
   {
     label: Example Integer field
     display: INTEGER
-    value:100
+    value:10
+    range:[0, 100]
   }
   settings:
   {

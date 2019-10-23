@@ -359,7 +359,7 @@ function create_snippet(elem){
 }
 function remove_trigger() {
     // Makes site messages dissapear.
-    $('.remove').delay(1000).slideUp(800, function () {
+    $('.remove').delay(2000).slideUp(800, function () {
         $(this).remove();
     });
 }
@@ -370,7 +370,7 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown({});
     $('select').dropdown();
-    $('');
+
     $('#json_add').dropdown({
         onHide: function () {
             return false

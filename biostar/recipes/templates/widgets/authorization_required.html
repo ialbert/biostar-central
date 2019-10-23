@@ -1,7 +1,10 @@
 
-
 {% if not user.profile.trusted and not recipe.runnable %}
     <div class="ui message">
         <i class="warning circle icon"></i>This recipe may only be run by <b>trusted</b> users.
+    </div>
+{% elif user.is_superuser %}
+    <div class="ui message">
+        <i class="info circle icon"></i>You are running this recipe as an <b>admin</b>.
     </div>
 {% endif %}
