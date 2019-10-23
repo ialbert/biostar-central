@@ -36,7 +36,7 @@ class JobAdmin(admin.ModelAdmin):
     list_filter = ("state", "security", "project__name", "deleted")
 
     fieldsets = (("Job Metadata",
-                  {'fields': ("name", "owner", 'project', ("uid", "rank"),
+                  {'fields': ("name", "owner", 'project', ("uid"),
                               ("state", "security"), "image"),
                    "classes": ('extrapretty')}
                   ),
