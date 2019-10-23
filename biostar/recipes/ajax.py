@@ -9,9 +9,10 @@ from django.template import Template, Context
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.template import loader
-from .const import *
-from biostar.recipes.models import Job, Analysis, Snippet, SnippetType,Project, MAX_TEXT_LEN
+from biostar.recipes.const import *
+from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, Project, MAX_TEXT_LEN
 from biostar.recipes.forms import RecipeInterface
+from biostar.recipes import  auth
 
 logger = logging.getLogger("engine")
 
@@ -41,8 +42,9 @@ class ajax_error_wrapper:
     Used as decorator to trap/display  errors in the ajax calls
     """
 
-    def __init__(self, method):
+    def __init__(self, method, login_required=True):
         self.method = method
+        self.login_required = login_required
 
     def __call__(self, func, *args, **kwargs):
 
@@ -51,7 +53,7 @@ class ajax_error_wrapper:
 
             if request.method != self.method:
                 return ajax_error(f'{self.method} method must be used.')
-            if not request.user.is_authenticated:
+            if request.user.is_anonymous and self.login_required:
                 return ajax_error('You must be logged in.')
             return func(request, *args, **kwargs)
 
@@ -76,9 +78,7 @@ def check_job(request, uid):
     return ajax_success(msg='success', html=template, state=job.get_state_display(), state_changed=state_changed)
 
 
-#@ratelimit(key='ip', rate='50/h')
-#@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
+@ajax_error_wrapper(method="POST", login_required=False)
 def snippet_code(request):
 
     command_uid = request.POST.get('command', '')
@@ -94,7 +94,7 @@ def snippet_code(request):
     code = current_code + '\n' + comment + '\n' + command
 
     tmpl = loader.get_template('widgets/template_field.html')
-    context = dict(template=code)
+    context = dict(template=code, scroll_to_bottom=True)
     template_field = tmpl.render(context=context)
 
     return ajax_success(code=code, msg="Rendered the template", html=template_field)
@@ -102,7 +102,7 @@ def snippet_code(request):
 
 #@ratelimit(key='ip', rate='50/h')
 #@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
+@ajax_error_wrapper(method="POST", login_required=False)
 def snippet_form(request):
 
     is_category = request.POST.get("is_category", 0)
@@ -231,34 +231,35 @@ def delete_snippet(request):
     return
 
 
-
-@ajax_error_wrapper(method="POST")
+@ajax_error_wrapper(method="POST", login_required=False)
 def preview_template(request):
 
     source_template = request.POST.get('template', '# Code goes here')
     source_json = request.POST.get('json_text', '{}')
     name = request.POST.get('name', 'Name')
-    recipe_uid = request.POST.get('uid')
-    source_json = hjson.loads(source_json)
+    project_uid = request.POST.get('project_uid')
+    project = Project.objects.filter(uid=project_uid).first()
 
-    # Load the recipe JSON into the template
-    context = Context(source_json)
-    script_template = Template(source_template)
-    script = script_template.render(context)
-
-    recipe = Analysis.objects.filter(uid=recipe_uid).first()
-    download_url = reverse('recipe_download', kwargs=dict(uid=recipe_uid)) if recipe else '#template_field'
+    try:
+        # Fill in the script with json data.
+        source_json = hjson.loads(source_json)
+        source_json = auth.fill_data_by_name(project=project, json_data=source_json)
+        # Load the recipe JSON into the template
+        context = Context(source_json)
+        script_template = Template(source_template)
+        script = script_template.render(context)
+    except Exception as exc:
+        return ajax_error(f"Error rendering code: {exc}")
 
     # Load the html containing the script
-    tmpl = loader.get_template('widgets/preview_script.html')
-    context = dict(script=script, name=name, download_url=download_url)
+    tmpl = loader.get_template('widgets/preview_template.html')
+    context = dict(script=script, name=name)
     template = tmpl.render(context=context)
 
     return ajax_success(html=template, msg="Rendered script")
 
 
-
-@ajax_error_wrapper(method="POST")
+@ajax_error_wrapper(method="POST", login_required=False)
 def preview_json(request):
 
     # Get the recipe
@@ -280,7 +281,7 @@ def preview_json(request):
                                 initial=dict(name=recipe_name), add_captcha=False)
 
     tmpl = loader.get_template('widgets/recipe_form.html')
-    context = dict(form=interface)
+    context = dict(form=interface, focus=True)
     template = tmpl.render(context=context)
 
     return ajax_success(msg="Recipe json", html=template)
@@ -312,8 +313,8 @@ def get_display_dict(display_type):
     return dict()
 
 
-@ajax_error_wrapper(method="POST")
-def add_recipe_field(request):
+@ajax_error_wrapper(method="POST", login_required=False)
+def add_to_interface(request):
     # Returns a recipe interface field json
 
     display_type = request.POST.get('display_types', '')
@@ -330,11 +331,11 @@ def add_recipe_field(request):
         count += 1
 
     new_field = {field_name: display_dict}
-    new_field.update(json_data)
-    new_json = hjson.dumps(new_field)
+    json_data.update(new_field)
+    new_json = hjson.dumps(json_data)
 
     tmpl = loader.get_template('widgets/json_field.html')
-    context = dict(json_text=new_json)
+    context = dict(json_text=new_json, focus=True)
     json_field = tmpl.render(context=context)
 
     return ajax_success(html=json_field, json_text=new_json, msg="Rendered json")
@@ -345,15 +346,20 @@ def add_variables(request):
     json_text = request.POST.get('json_text', '')
     template = request.POST.get('template', '')
 
-    vars = hjson.loads(json_text).keys()
-    vars = ["{{ " + f"{v}.value" + "}}" for v in vars]
+    json_data = hjson.loads(json_text)
 
-    vars = '\n'.join(vars)
+    is_data_field = lambda k: json_data.get(k, {}).get('source') == 'PROJECT'
+    get_data_var = lambda k: "{{ " + f"{k}.file_list" + "}}"
+    get_var = lambda k: "{{ " + f"{k}.value" + "}}"
 
-    new_template = vars + "\n" + template
+    all_vars = {get_data_var(v) if is_data_field(v) else get_var(v) for v in json_data.keys()}
+
+    all_vars = '\n'.join(all_vars)
+
+    new_template = all_vars + "\n" + template
 
     tmpl = loader.get_template('widgets/template_field.html')
-    context = dict(template=new_template)
+    context = dict(template=new_template, scroll_to_bottom=False, focus=True)
     template_field = tmpl.render(context=context)
 
     return ajax_success(msg="Added variables to template", html=template_field, code=new_template)

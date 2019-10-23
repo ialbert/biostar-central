@@ -172,7 +172,7 @@ def project_users(request, uid):
     return render(request, "project_users.html", context=context)
 
 
-@read_access(obj_type=Project)
+@read_access(type=Project)
 def project_info(request, uid):
     user = request.user
 
@@ -182,7 +182,7 @@ def project_info(request, uid):
     counts = get_counts(project)
 
     # Who has write access
-    write_access = auth.has_write_access(user=user, project=project)
+    write_access = auth.is_writable(user=user, project=project)
 
     context = dict(project=project, active="info", write_access=write_access)
     context.update(counts)
@@ -238,7 +238,7 @@ def project_list(request):
         return project_list_public(request)
 
 
-@read_access(obj_type=Project)
+@read_access(type=Project)
 def data_list(request, uid):
     """
     Returns the list of data for a project uid.
@@ -248,7 +248,7 @@ def data_list(request, uid):
                         active='data', show_summary=True)
 
 
-@read_access(obj_type=Project)
+@read_access(type=Project)
 def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
@@ -276,7 +276,7 @@ def get_counts(project):
     )
 
 
-@read_access(obj_type=Project)
+@read_access(type=Project)
 def project_view(request, uid, template_name="project_info.html", active='info', show_summary=None,
                  extra_context={}):
     """
@@ -310,7 +310,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     job_list = job_list.select_related("analysis")
 
     # Who has write access
-    write_access = auth.has_write_access(user=user, project=project)
+    write_access = auth.is_writable(user=user, project=project)
 
     # Build the context for the project.
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
@@ -366,7 +366,7 @@ def project_create(request):
     return render(request, "project_create.html", context=context)
 
 
-@read_access(obj_type=Data)
+@read_access(type=Data)
 def data_copy(request, uid):
     data = Data.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
@@ -376,7 +376,7 @@ def data_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(obj_type=Analysis)
+@read_access(type=Analysis)
 def recipe_copy(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
@@ -386,7 +386,7 @@ def recipe_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(obj_type=Job)
+@read_access(type=Job)
 def job_copy(request, uid):
     job = Job.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
@@ -396,7 +396,7 @@ def job_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(obj_type=Data)
+@read_access(type=Data)
 def data_file_copy(request, uid, path):
     # Get the root data where the file exists
     data = Data.objects.filter(uid=uid).first()
@@ -406,7 +406,7 @@ def data_file_copy(request, uid, path):
     return redirect(reverse("data_view", kwargs=dict(uid=uid)))
 
 
-@read_access(obj_type=Job)
+@read_access(type=Job)
 def job_file_copy(request, uid, path):
     # Get the root data where the file exists
     job = Job.objects.filter(uid=uid).first()
@@ -503,7 +503,7 @@ def file_paste(request, uid):
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
-@read_access(obj_type=Data)
+@read_access(type=Data)
 def data_view(request, uid):
     "Show information specific to each data."
 
@@ -570,7 +570,7 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@read_access(obj_type=Analysis)
+@read_access(type=Analysis)
 def recipe_view(request, uid):
     """
     Returns a recipe view based on its id.
@@ -598,7 +598,7 @@ def recipe_view(request, uid):
     return render(request, "recipe_view.html", context)
 
 
-@read_access(obj_type=Analysis)
+@read_access(type=Analysis)
 def recipe_code_download(request, uid):
     """
     Download the raw recipe template as a file
@@ -653,7 +653,7 @@ def recipe_code_download(request, uid):
 #     return render(request, "recipe_code_view.html", context)
 
 
-@read_access(obj_type=Analysis)
+@read_access(type=Analysis)
 @ratelimit(key='ip', rate='10/h', block=True, method=ratelimit.UNSAFE)
 def recipe_run(request, uid):
     """
@@ -751,7 +751,7 @@ def recipe_run(request, uid):
 #     return render(request, 'recipe_edit_code.html', context)
 
 
-@write_access(type=Analysis, fallback_view='recipe_view')
+@read_access(type=Analysis)
 def recipe_edit(request, uid):
     """
     Edit meta-data associated with a recipe.
@@ -777,7 +777,10 @@ def recipe_edit(request, uid):
         form = forms.RecipeForm(instance=recipe, user=request.user)
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
-    context = dict(recipe=recipe, project=project, form=form, name=recipe.name, action_url=action_url)
+    context = dict(recipe=recipe, project=project, form=form, name=recipe.name, activate='Edit Recipe',
+                   action_url=action_url)
+    counts = get_counts(project)
+    context.update(counts)
     return render(request, 'recipe_edit.html', context)
 
 
@@ -807,7 +810,9 @@ def recipe_create(request, uid):
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
     action_url = reverse('recipe_create', kwargs=dict(uid=uid))
-    context = dict(project=project, form=form, action_url=action_url)
+    context = dict(project=project, form=form, action_url=action_url, activate='Create Recipe')
+    counts = get_counts(project)
+    context.update(counts)
     return render(request, 'recipe_edit.html', context)
 
 
@@ -861,7 +866,7 @@ def data_delete(request, uid):
     return redirect(reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
 
-@read_access(obj_type=Job)
+@read_access(type=Job)
 def job_view(request, uid):
     '''
     Views the state of a single job.
@@ -915,7 +920,7 @@ def file_serve(request, path, obj):
     return data
 
 
-@read_access(obj_type=Data)
+@read_access(type=Data)
 def data_serve(request, uid, path):
     """
     Serves files from a data directory.

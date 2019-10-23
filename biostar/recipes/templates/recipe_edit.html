@@ -1,4 +1,4 @@
-{% extends "engine_base.html" %}
+{% extends "base_content.html" %}
 {% load staticfiles %}
 {% load engine_tags %}
 
@@ -13,7 +13,7 @@
     Editing: {{ name }}
 {% endblock %}
 
-{% block body %}
+{% block content %}
     <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
 
 
@@ -77,7 +77,6 @@
 
             </div>
 
-
             <div class="ui raised segment inputcolor">
 
                 {% csrf_token %}
@@ -92,7 +91,6 @@
                     <div class="ui top pointing dropdown" id="json_add" style="float: right">
                         <i class="caret down icon"></i>
                         <a>JSON specification</a>
-                        <i class="setting icon"> </i>
                         {% interface_options %}
                     </div>
                 </div>
@@ -133,11 +131,8 @@
                     <div class="ui top pointing dropdown" id="code_add" style="float: right">
                         <i class="caret down icon"></i>
                        <a>Code specification</a>
-                        <i class="setting icon"> </i>
-
                         {% snippet_list %}
                     </div>
-
 
                 </div>
 
@@ -147,7 +142,8 @@
 
                 <div class="field">
 
-                    <button class="ui purple button" data-value="{{ recipe.uid }}" id="template_preview">
+                    <button class="ui purple button" data-project_uid={{ recipe.project.uid }}
+                            id="template_preview">
                         <i class="eye icon"></i>Preview Code
                     </button>
 

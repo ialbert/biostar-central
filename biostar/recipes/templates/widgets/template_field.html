@@ -16,6 +16,12 @@
             }
 
             template_edit.on('change', updateTemplate);
+            {% if focus %}
+                 template_edit.focus();
+            {% endif %}
+            {% if scroll_to_bottom %}
+                template_edit.setCursor(template_edit.lineCount(), 0);
+            {% endif %}
         });
 
     </script>

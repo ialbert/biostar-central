@@ -30,13 +30,13 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
     if created and not instance.analysis_set.exists():
         # Add starter hello world recipe to project.
 
-        json_text = open(join(DATA_DIR, 'hello-world.hjson'), 'r').read()
-        template = open(join(DATA_DIR, 'hello-world.sh'), 'r').read()
+        json_text = open(join(DATA_DIR, 'starter.hjson'), 'r').read()
+        template = open(join(DATA_DIR, 'starter.sh'), 'r').read()
 
-        name = 'Hello World'
-        text = "This recipe prints **Hello World!** to the console."
+        name = 'Starter Recipe'
+        text = "This starter recipe prints **Hello World!** to the console."
 
-        image = os.path.join(DATA_DIR, 'hello-world.png')
+        image = os.path.join(DATA_DIR, 'starter.png')
         image_stream = open(image, 'rb')
         # Create starter recipe.
         auth.create_analysis(project=instance, json_text=json_text, template=template,
