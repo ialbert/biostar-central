@@ -21,6 +21,16 @@ body {
 
 }
 
+
+.centerform{
+    text-align: -webkit-center;
+}
+
+.manage_users{
+    width: 70%;
+    text-align: initial;
+}
+
 .ui.list.questions > .item > {
 
 }

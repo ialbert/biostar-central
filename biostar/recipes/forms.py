@@ -423,24 +423,32 @@ class ChangeUserAccess(forms.Form):
         project_uid = self.cleaned_data["project_uid"]
         user = User.objects.filter(id=user_id).first()
         project = Project.objects.filter(uid=project_uid).first()
+
         current = Access.objects.filter(user=user, project=project)
+        default = current.first().access if current.first() else Access.NO_ACCESS
+        access = self.cleaned_data.get("access", default)
 
         if current:
-            current.update(access=self.cleaned_data.get("access", current.first().access))
+            current.update(access=access)
             return user, current.first()
-        new_access = Access(user=user, project=project,
-                            access=self.cleaned_data.get("access", Access.NO_ACCESS))
-        new_access.save()
+
+        new_access = Access.objects.create(user=user, project=project, access=access)
 
         return user, new_access
 
 
-def access_forms(users, project, exclude=()):
+def access_forms(users, project, request, exclude=()):
     """Generate a list of forms for a given user list
     Param exclude: a list of users to exclude"""
 
     forms = []
     for user in users:
+        # Users can not change their own access.
+        if user == request.user:
+            continue
+        # Owners can not have access changed.
+        if user == project.owner:
+            continue
         if user in exclude:
             continue
         access = Access.objects.filter(user=user, project=project).first()

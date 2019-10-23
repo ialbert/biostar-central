@@ -14,7 +14,7 @@ function getCookie(name) {
     if (document.cookie && document.cookie != '') {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
+            var cookie = cookies[i].trim();
             // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) == (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -63,7 +63,6 @@ function snippet_form(elem, is_category){
     let type_uid = elem.data('type_uid');
     let snippet_uid = elem.data('snippet_uid');
     let snippet = elem.data('snippet');
-
     let help_text = elem.data('help_text');
 
     $.ajax('/snippet/form/',{
@@ -163,6 +162,163 @@ function check_job() {
 }
 
 
+function preview_template(uid){
+         let template = $('#template').val();
+         let json_text = $('#json').val();
+         let name = $('#id_name').val();
+
+         $.ajax('/preview/template/',
+             {
+             type: 'POST',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {
+                       'template': template,
+                       'json_text': json_text,
+                       'name' : name,
+                       'uid' : uid,
+                },
+                success: function (data) {
+
+                 if (data.status === 'success'){
+                     $('#template_preview_cont').html(data.html);
+                     $('#template_modal').modal('show');
+                     Prism.highlightAll();
+                     return
+                 }
+
+                popup_message($("#template"), data.msg, data.status );
+                },
+                error: function (xhr, status, text) {
+                 error_message( $(this), xhr, status, text)
+                }
+
+                });
+}
+
+function save_snippet_category(){
+        var form_data = new FormData($('#snippet_form').get(0));
+
+        $.ajax('/create/snippet/type/',{
+            type: 'POST',
+               dataType: 'json',
+               data: form_data,
+               processData: false,
+               contentType: false,
+               success: function (data) {
+                   if (data.status === 'success'){
+                       $('#new-type-holder').after(data.html);
+                       $('#cmd_modal').modal('hide');
+                   }else{
+
+                       popup_message($('#cmd_form'), data.msg, data.status, 1000)
+                   }
+
+               },
+               error: function (xhr, status, text) {
+                   error_message($(this), xhr, status, text)
+               }
+            }
+        )
+
+
+}
+
+function add_to_interface(display_type){
+
+       let json_text = $('#json').val();
+       //let display_type = $(this).attr('id');
+
+       $.ajax('/add/recipe/fields/', {
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                      'display_types': display_type,
+                      'json_text': json_text,
+               },
+
+               success: function (data) {
+                   $('#json').val(data.json_text);
+                   $('#json_field').html(data.html);
+
+
+                   //$('#search-results').html(data);
+               },
+               error: function (xhr, status, text) {
+                   error_message($(this), xhr, status, text)
+               }
+           });
+
+
+}
+
+
+function add_vars(){
+        let json_text = $('#json').val();
+        let template = $('#template').val();
+
+        $.ajax('/add/vars/',{
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                      'json_text': json_text,
+                      'template':template,
+               },
+
+               success: function (data) {
+
+                   $('#template').val(data.code);
+                   $('#template_field').html(data.html);
+
+               },
+               error: function () {
+               }
+           }
+
+        )
+}
+
+
+
+function json_preview(project_uid){
+         //let project_uid = $(this).data('value');
+         let recipe_json = $('#json').val();
+         $.ajax('/preview/json/',
+             {
+             type: 'POST',
+                dataType: 'json',
+                ContentType: 'application/json',
+                data: {'project_uid': project_uid,
+                       'json_text': recipe_json},
+
+                success: function (data) {
+
+                 if (data.status === 'error'){
+                     popup_message($("#json_field"), data.msg, data.status, 5000 );
+                     return
+                 }
+
+                 $('#json_preview_cont').html('<form class="ui inputcolor form">'+data.html+'<div class="field">\n' +
+                     '                        <button type="submit" class="ui green disabled button">\n' +
+                     '                            <i class="check icon"></i>Run\n' +
+                     '                        </button>\n' +
+                     '\n' +
+                     '                        <a class="ui disabled button">\n' +
+                     '                            <i class="redo icon"></i>Cancel\n' +
+                     '                        </a>\n' +
+                     '                    </div></form>'.format(data.html));
+                 $('#json_modal').modal('show');
+
+                //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
+                },
+
+                error: function (xhr, status, text) {
+                 error_message( $(this), xhr, status, text)
+                }
+
+                });
+}
+
 function create_snippet(elem){
     let type = elem.data('type');
     let snippet_uid = elem.data('snippet_uid');
@@ -201,6 +357,12 @@ function create_snippet(elem){
         }
     )
 }
+function remove_trigger() {
+    // Makes site messages dissapear.
+    $('.remove').delay(2000).slideUp(800, function () {
+        $(this).remove();
+    });
+}
 
 $(document).ready(function () {
 
@@ -208,7 +370,7 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown({});
     $('select').dropdown();
-    $('');
+
     $('#json_add').dropdown({
         onHide: function () {
             return false
@@ -236,10 +398,6 @@ $(document).ready(function () {
             }
         });
         }
-        // if ($('#code_add').hasClass('visible')){
-        //      //$('#code_add').removeClass('visible');
-        //     alert('foooo')
-        // }
 
     });
     $('#code_add').click(function () {
@@ -265,45 +423,12 @@ $(document).ready(function () {
       $('#json_preview').click(function (event) {
           event.preventDefault();
          let project_uid = $(this).data('value');
-         let recipe_json = $('#json').val();
-         $.ajax('/preview/json/',
-             {
-             type: 'POST',
-                dataType: 'json',
-                ContentType: 'application/json',
-                data: {'project_uid': project_uid,
-                       'json_text': recipe_json},
-
-                success: function (data) {
-
-                 if (data.status === 'error'){
-                     popup_message($("#json_field"), data.msg, data.status, 5000 );
-                     return
-                 }
-
-                 $('#json_preview_cont').html('<form class="ui inputcolor form">'+data.html+'<div class="field">\n' +
-                     '                        <button type="submit" class="ui green disabled button">\n' +
-                     '                            <i class="check icon"></i>Run\n' +
-                     '                        </button>\n' +
-                     '\n' +
-                     '                        <a class="ui disabled button">\n' +
-                     '                            <i class="redo icon"></i>Cancel\n' +
-                     '                        </a>\n' +
-                     '                    </div></form>'.format(data.html));
-                 $('#json_modal').modal('show');
-
-                //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
-                },
-
-                error: function (xhr, status, text) {
-                 error_message( $(this), xhr, status, text)
-                }
-
-                });
+         json_preview(project_uid);
 
 
      });
 
+     remove_trigger();
 
     // Check and update 'Running' and 'Spooled' jobs every 20 seconds.
     setInterval(check_job, 5000 );
@@ -369,7 +494,6 @@ $(document).ready(function () {
         $('#json_add').dropdown({onShow:false});
     });
 
-
     $('.close_codes').click(function () {
         $('#code_add').dropdown({
             onShow: function () {
@@ -378,97 +502,24 @@ $(document).ready(function () {
         })
     });
 
-    $('#template').keyup(function () {
-        alert($(this).val());
-
+    $(this).on('click', '#add_vars', function() {
+        add_vars()
     });
-
-    $('#add_vars').click(function () {
-
-        let json_text = $('#json').val();
-        let template = $('#template').val();
-
-        $.ajax('/add/vars/',{
-               type: 'POST',
-               dataType: 'json',
-               data: {
-                      'json_text': json_text,
-                      'template':template,
-               },
-
-               success: function (data) {
-
-                   $('#template').val(data.code);
-                   $('#template_field').html(data.html);
-
-               },
-               error: function () {
-               }
-           }
-
-        )
-
-    });
-
 
     $(this).on('click', '.cmd-value', function() {
         event.preventDefault();
         add_to_template($(this))
     });
 
-
-
-    $('.add_to_interface').click(function (event) {
+    $(this).on('click', '.add_to_interface', function () {
         event.preventDefault();
-       let json_text = $('#json').val();
-       let display_type = $(this).attr('id');
+        let display_type = $(this).attr('id');
+        add_to_interface(display_type)
 
-       $.ajax('/add/recipe/fields/', {
-               type: 'POST',
-               dataType: 'json',
-               data: {
-                      'display_types': display_type,
-                      'json_text': json_text,
-               },
-
-               success: function (data) {
-                   $('#json').val(data.json_text);
-                   $('#json_field').html(data.html);
-
-
-                   //$('#search-results').html(data);
-               },
-               error: function (xhr, status, text) {
-                   error_message($(this), xhr, status, text)
-               }
-           });
     });
+
     $(this).on('click', '#save_snippet_type', function() {
-
-        var form_data = new FormData($('#snippet_form').get(0));
-        alert(form_data.get('help'));
-
-        $.ajax('/create/snippet/type/',{
-            type: 'POST',
-               dataType: 'json',
-               data: form_data,
-               processData: false,
-               contentType: false,
-               success: function (data) {
-                   if (data.status === 'success'){
-                       $('#new-type-holder').after(data.html);
-                       $('#cmd_modal').modal('hide');
-                   }else{
-
-                       popup_message($('#cmd_form'), data.msg, data.status, 1000)
-                   }
-
-               },
-               error: function (xhr, status, text) {
-                   error_message($(this), xhr, status, text)
-               }
-            }
-        )
+        save_snippet_category()
 
     });
 
@@ -477,46 +528,14 @@ $(document).ready(function () {
 
     });
 
-    $('#template_preview').click(function (event) {
+    $(this).on('click', '#template_preview', function () {
          event.preventDefault();
          let uid = $(this).data('value');
-         let template = $('#template').val();
-         let json_text = $('#json').val();
-         let name = $('#id_name').val();
+         preview_template(uid)
 
-         $.ajax('/preview/template/',
-             {
-             type: 'POST',
-                dataType: 'json',
-                ContentType: 'application/json',
-                data: {
-                       'template': template,
-                       'json_text': json_text,
-                       'name' : name,
-                       'uid' : uid,
-                },
-                success: function (data) {
+    });
 
-                 //alert(recipe_json);
-                 if (data.status === 'success'){
-                     $('#template_preview_cont').html(data.html);
-                     $('#template_modal').modal('show');
-                     Prism.highlightAll();
-                     return
-                 }
-
-                popup_message($("#template"), data.msg, data.status );
-                },
-                error: function (xhr, status, text) {
-                 error_message( $(this), xhr, status, text)
-                }
-
-                });
-
-
-     });
-
-    $(this).on('click', '.add-cmd-with-type', function () {
+    $(this).on('click', '.add-snippet', function () {
         snippet_form($(this), 0);
     });
 
@@ -524,7 +543,8 @@ $(document).ready(function () {
         snippet_form($(this), 0);
     });
 
-    $('.add-cmd-without-type').click(function () {
+    $(this).on('click', '.add-category', function () {
         snippet_form($(this), 1);
     });
+
 });

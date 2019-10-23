@@ -292,19 +292,21 @@ def get_display_dict(display_type):
     display = mapping.get(display_type)
 
     if display_type == 'data':
-        return dict(label='Data Field Label', source='PROJECT', type="DATA")
+        return dict(label='Data Field Label', source='PROJECT', help='Pick data from this project to analyze',
+                    type="DATA")
     if display == RADIO:
-        return dict(label='Radio Field Label', display=RADIO, choices=[(1, 'Option 1'), (2, 'Option 2')], value=2)
+        return dict(label='Radio Field Label', display=RADIO, help='Choose an option.',
+                    choices=[(1, 'Option 1'), (2, 'Option 2')], value=2)
     if display == INTEGER:
-        return dict(label='Integer Field Label', display=INTEGER, value=100)
+        return dict(label='Integer Field Label', display=INTEGER, help='Enter an integer.', range=[-100, 100], value=0)
     if display == TEXTBOX:
-        return dict(label='Text box Field Label', display=TEXTBOX, value='Sample text')
+        return dict(label='Text box Field Label', display=TEXTBOX, help='Enter plain text.', value='Sample text')
     if display == FLOAT:
-        return dict(label='Float Field Label', display=FLOAT, value=0.5)
+        return dict(label='Float Field Label', help='Enter a float ( decimal number).', display=FLOAT, value=0.5)
     if display == CHECKBOX:
-        return dict(label='Checkbox Field Label', display=CHECKBOX, value=True)
+        return dict(label='Checkbox Field Label', help="Check the box for 'yes'. ", display=CHECKBOX, value=True)
     if display == DROPDOWN:
-        return dict(label='Dropdown Field Label', display=DROPDOWN,
+        return dict(label='Dropdown Field Label', display=DROPDOWN, help="Pick an option from a dropdown.",
                     choices=[('1', 'Choices 1'), ('2', 'Choices 2')],
                     value='1')
     return dict()

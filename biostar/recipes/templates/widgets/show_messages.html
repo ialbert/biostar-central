@@ -1,10 +1,12 @@
 {% if messages %}
-    <div class="ui vertical segment">
-        {% for message in messages %}
-            <div class="ui {{ message.tags }} message">
-                <p>{{ message }}</p>
-            </div>
-        {% endfor %}
+    <div class="padded remove">
+        <div class="ui vertical segment">
+            {% for message in messages %}
+                <div class="ui {{ message.tags }} message">
+                    <p>{{ message }}</p>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endif %}
 
