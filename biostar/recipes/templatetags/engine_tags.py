@@ -316,7 +316,11 @@ def image_field(default=''):
 def snippet_list(context):
 
     user = context['request'].user
-    command_types = SnippetType.objects.filter(Q(owner=user) | Q(default=True)).order_by('-pk')
+    if user.is_anonymous:
+        command_types = SnippetType.objects.filter(default=True).order_by('-pk')
+    else:
+        command_types = SnippetType.objects.filter(Q(owner=user) | Q(default=True)).order_by('-pk')
+
     extra_context = dict(command_types=command_types)
     context.update(extra_context)
     return context

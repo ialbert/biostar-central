@@ -111,8 +111,8 @@ def authorize_run(user, recipe):
         return False
 
     # Only users with access can run recipes
-    readable = Access.objects.filter(Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS),
-                                     project=recipe.project, user=user).first()
+    readable = is_readable(user=user, project=recipe.project)
+
     if not readable:
         return False
 
@@ -344,27 +344,6 @@ def delete_object(obj, request):
     return obj.deleted
 
 
-def has_write_access(user, project):
-    """
-    Returns True if a user has write access to an instance
-    """
-
-    # Anonymous user may not have write access.
-    if user.is_anonymous:
-        return False
-
-    # Users that may access a project.
-    cond1 = (user == project.owner) or user.is_staff
-
-    # User has been given write access to the project
-    cond2 = models.Access.objects.filter(user=user, project=project,
-                                         access=models.Access.WRITE_ACCESS).first()
-
-    # One of the conditions has to be true.
-    access = cond1 or cond2
-
-    return access
-
 
 def guess_mimetype(fname):
     "Return mimetype for a known text filename"
@@ -410,6 +389,40 @@ def link_file(path, data):
     return dest
 
 
+def is_readable(user, project):
+
+    # Public projects are readable by all users.
+    if project.is_public:
+        return True
+
+    readable = Access.objects.filter(Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS),
+                                     project=project, user=user)
+
+    return readable.exists()
+
+
+def is_writable(user, project):
+    """
+    Returns True if a user has write access to an instance
+    """
+
+    # Anonymous user may not have write access.
+    if user.is_anonymous:
+        return False
+
+    # Users that may access a project.
+    cond1 = (user == project.owner) or user.is_staff
+
+    # User has been given write access to the project
+    cond2 = models.Access.objects.filter(user=user, project=project,
+                                         access=models.Access.WRITE_ACCESS).first()
+
+    # One of the conditions has to be true.
+    access = cond1 or cond2
+
+    return access
+
+
 def fill_data_by_name(project, json_data):
     """
     Fills json information by name. Used when filling in
@@ -430,6 +443,8 @@ def fill_data_by_name(project, json_data):
                 data.fill_dict(item)
             else:
                 item['toc'] = "FILE-LIST"
+                item['file_list'] = "FILE-LIST"
+
     return json_data
 
 

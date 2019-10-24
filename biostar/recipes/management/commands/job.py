@@ -180,8 +180,9 @@ def run(job, options={}):
 
     # Collect the output.
     if proc:
-        stdout_log.extend(force_text(proc.stdout).splitlines())
-        stderr_log.extend(force_text(proc.stderr).splitlines())
+        #, errors="backslashreplace"
+        stdout_log.extend(force_text(proc.stdout, errors="backslashreplace").splitlines())
+        stderr_log.extend(force_text(proc.stderr, errors="backslashreplace").splitlines())
 
     # Save the logs and end time
     Job.objects.filter(pk=job.pk).update(end_date=timezone.now(),

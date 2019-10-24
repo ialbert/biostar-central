@@ -162,11 +162,10 @@ function check_job() {
 }
 
 
-function preview_template(uid){
+function preview_template(uid, project_uid){
          let template = $('#template').val();
          let json_text = $('#json').val();
          let name = $('#id_name').val();
-
          $.ajax('/preview/template/',
              {
              type: 'POST',
@@ -177,6 +176,7 @@ function preview_template(uid){
                        'json_text': json_text,
                        'name' : name,
                        'uid' : uid,
+                       'project_uid': project_uid
                 },
                 success: function (data) {
 
@@ -371,52 +371,10 @@ $(document).ready(function () {
     $('.ui.dropdown').dropdown({});
     $('select').dropdown();
 
-    $('#json_add').dropdown({
-        onHide: function () {
-            return false
-        }
-    });
+    $('#json_add').dropdown();
 
-    $('#code_add').dropdown({
-        onHide: function () {
-            return false
-        }
-    });
+    $('#code_add').dropdown();
 
-    $('#json_add').click(function () {
-
-        $(this).dropdown({
-            onHide: function () {
-                return false
-            }
-        });
-
-        if ($(this).hasClass('visible')){
-            $(this).dropdown({
-            onShow: function () {
-                return false
-            }
-        });
-        }
-
-    });
-    $('#code_add').click(function () {
-        $(this).dropdown({
-            onHide: function () {
-                return false
-            }
-        });
-
-        if ($(this).hasClass('visible')){
-            $(this).dropdown({
-            onShow: function () {
-                return false
-            }
-        });
-
-        }
-
-    });
      $('.ui.sticky').sticky();
 
 
@@ -428,7 +386,7 @@ $(document).ready(function () {
 
      });
 
-     remove_trigger();
+    remove_trigger();
 
     // Check and update 'Running' and 'Spooled' jobs every 20 seconds.
     setInterval(check_job, 5000 );
@@ -531,7 +489,8 @@ $(document).ready(function () {
     $(this).on('click', '#template_preview', function () {
          event.preventDefault();
          let uid = $(this).data('value');
-         preview_template(uid)
+         let project_uid = $(this).data('project_uid');
+         preview_template(uid, project_uid)
 
     });
 

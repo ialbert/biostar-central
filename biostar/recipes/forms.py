@@ -340,6 +340,9 @@ class RecipeForm(forms.ModelForm):
         """
         cleaned_data = super(RecipeForm, self).clean()
 
+        if self.user.is_anonymous:
+            raise forms.ValidationError('You need to be logged in.')
+
         # Fill in not submitted fields.
         for field in self.Meta.fields:
             cleaned_data['field'] = getattr(self.instance, field)

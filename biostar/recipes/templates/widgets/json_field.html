@@ -17,6 +17,11 @@
                 json_edit.save();
             }
 
-            json_edit.on('change', updateJson)
+            json_edit.on('change', updateJson);
+            {% if focus %}
+                json_edit.focus();
+                json_edit.setCursor(json_edit.lineCount(), 0);
+            {% endif %}
+
         });
     </script>

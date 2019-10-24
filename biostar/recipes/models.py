@@ -388,6 +388,7 @@ class Data(models.Model):
 
         obj['files'] = fnames
         obj['toc'] = self.get_path()
+        obj['file_list'] = self.get_path()
         obj['id'] = self.id
         obj['name'] = self.name
         obj['uid'] = self.uid

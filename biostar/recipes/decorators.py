@@ -18,8 +18,8 @@ class read_access:
     Controls READ level access to urls.
     """
 
-    def __init__(self, obj_type):
-        self.type = obj_type
+    def __init__(self, type):
+        self.type = type
         self.fallback_url = lambda : reverse("project_list")
 
     def __call__(self, function, *args, **kwargs):
@@ -54,11 +54,10 @@ class read_access:
                 return redirect(self.fallback_url())
 
             # Check the presence of READ or WRITE access
-            read_or_write = [models.Access.READ_ACCESS, models.Access.WRITE_ACCESS]
-            access = models.Access.objects.filter(user=user, project=project, access__in=read_or_write).first()
+            readable = auth.is_readable(user=user, project=project)
 
             # Project owners may read their project.
-            if access or project.owner == user:
+            if readable or project.owner == user:
                 return function(request, *args, **kwargs)
 
             # Deny access by default.
@@ -106,7 +105,7 @@ class write_access:
             project = instance.project
 
             # Check write to an object.
-            access = auth.has_write_access(user=user, project=project)
+            access = auth.is_writable(user=user, project=project)
 
             # Project owners may write their project.
             if access:
