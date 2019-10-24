@@ -4,64 +4,68 @@
     Recipes
 {% endblock %}
 
+{% block rightmenu %}
+    <div class="right menu">
+        <a class="ui {% activate 'recipe_create' active %}   active item" href="{% url 'recipe_create' project.uid %}">
+            <i class="add circle icon"></i>New Recipe
+        </a>
+    </div>
+
+{% endblock %}
+
 {% block contain %}
-        <div class="ui bottom attached segment">
 
-            {% show_messages messages %}
 
-            <p></p>
-                {% block content %}
+    <div class="ui bottom attached segment">
 
-    {% paste project=project current=recipe_board %}
+        {% show_messages messages %}
 
-    <div class="ui large basic segment">
+        <p></p>
+        {% block content %}
 
-        <div class="ui divided link items">
-            {% for recipe in recipe_list %}
-                <div class="item">
-                    <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
-                    <div class="content">
+            {% paste project=project current=recipe_board %}
 
-                        <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                            <i class="setting icon"></i> {{ recipe.name }}
-                        </a>
+            <div class="ui large basic segment">
 
-                        <div class="meta">
-                            {{ recipe.summary |markdown}}
+                <div class="ui divided link items">
+                    {% for recipe in recipe_list %}
+                        <div class="item">
+                            <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
+                            <div class="content">
+
+                                <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+                                    <i class="setting icon"></i> {{ recipe.name }}
+                                </a>
+
+                                <div class="meta">
+                                    {{ recipe.summary |markdown }}
+                                </div>
+
+                                <div class="extra">
+                                    <i class="bar chart icon"></i>Runs:<a
+                                        href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+
+                                    {{ recipe.job_count }}
+                                    result{{ recipe.job_count|pluralize }}</a>
+
+                                    {% created_by date=recipe.lastedit_date %}
+                                </div>
+
+                                <div id="copy-message-{{ recipe.uid }}"></div>
+                            </div>
                         </div>
-
-                        <div class="extra">
-                            <i class="bar chart icon"></i>Runs:<a
-                            href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-
-                                {{ recipe.job_count }}
-                                result{{ recipe.job_count|pluralize }}</a>
-
-                            {% created_by date=recipe.lastedit_date %}
+                    {% empty %}
+                        <div class="item">
+                            <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
+                                contain
+                                recipes.
+                            </div>
                         </div>
+                    {% endfor %}
+                </div>
 
-                        <div id="copy-message-{{ recipe.uid }}"></div>
-                    </div>
-                </div>
-            {% empty %}
-                <div class="item">
-                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet contain
-                        recipes.
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+            </div>
+        {% endblock %}
 
     </div>
-                {% endblock %}
-
-        </div>
-       {% if user.is_authenticated %}
-            <div class="ui center aligned vertical segment">
-                <a class="ui button" href="{% url 'recipe_create' project.uid %}">
-                    <i class="add circle icon"></i>Create Recipe
-                </a>
-            </div>
-        {% endif %}
-
 {% endblock %}

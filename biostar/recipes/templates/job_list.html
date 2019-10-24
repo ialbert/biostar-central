@@ -12,7 +12,6 @@
         <div class="ui center aligned large vertical segment ">
             <div class="ui success message">
 
-
                 Showing results from recipe: <a href="{% url 'recipe_view' recipe_filter.uid %}"><i
             class="settings icon"></i> {{ recipe_filter.name }}</a> &bull;
                 <a href="#" onclick="window.history.back()">
@@ -51,7 +50,12 @@
                         <div id="copy-message-{{ job.uid }}"></div>
                     </div>
 
+                    <a class="ui right floated label rerun" href="{% url "job_rerun" job.uid %}?next={% url 'job_list' job.project.uid %}">
+                        <i class="redo icon"></i>Rerun
+                    </a>
+
                 </div>
+
             {% empty %}
                 <div class="item ">
                     <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet contain results.</div>

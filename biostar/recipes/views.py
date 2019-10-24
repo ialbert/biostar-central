@@ -707,7 +707,7 @@ def job_rerun(request, uid):
 
     # Get the job.
     job = Job.objects.filter(uid=uid).first()
-
+    next = request.GET.get('next')
     # Get the recipe
     recipe = job.analysis
     # Get the job JSON
@@ -718,7 +718,8 @@ def job_rerun(request, uid):
 
     if not valid:
         messages.error(request, msg)
-        return redirect(reverse('job_view', kwargs=dict(uid=job.uid)))
+        redir = next or reverse('job_view', kwargs=dict(uid=job.uid))
+        return redirect(redir)
 
     # Create a new job
     job = auth.create_job(analysis=recipe, user=request.user, json_data=json_data)
