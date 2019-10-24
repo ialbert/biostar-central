@@ -177,6 +177,7 @@ def user_signup(request):
             messages.info(request, msg)
 
             return redirect("/")
+
     else:
         form = forms.SignUpWithCaptcha()
 

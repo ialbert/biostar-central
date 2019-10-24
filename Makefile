@@ -112,6 +112,11 @@ test_all:
 	coverage run manage.py test --settings biostar.test.test_settings -v 2 --failfast
 	coverage html --skip-covered
 
+test_pg:
+	#python manage.py test --settings biostar.test.pg_test_settings -v 2 --failfast
+	coverage run manage.py test --settings biostar.test.pg_test_settings -v 2 --failfast
+	coverage html --skip-covered
+
 index:
 	@echo INDEX_NAME=${INDEX_NAME}
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
