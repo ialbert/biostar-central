@@ -702,6 +702,40 @@ def recipe_run(request, uid):
     return render(request, 'recipe_run.html', context)
 
 
+@read_access(type=Job)
+def job_rerun(request, uid):
+
+    # Get the job.
+    job = Job.objects.filter(uid=uid).first()
+
+    # Get the recipe
+    recipe = job.analysis
+    # Get the job JSON
+    json_data = job.json_data
+
+    # Validate users can run the recipe.
+    valid, msg = auth.validate_recipe_run(user=request.user, recipe=recipe)
+
+    if not valid:
+        messages.error(request, msg)
+        return redirect(reverse('job_view', kwargs=dict(uid=job.uid)))
+
+    # Create a new job
+    job = auth.create_job(analysis=recipe, user=request.user, json_data=json_data)
+
+    # Spool the job right away if UWSGI exists.
+    if tasks.HAS_UWSGI:
+        # Update the job state.
+        Job.objects.filter(id=job.id).update(state=Job.SPOOLED)
+
+        # Spool via UWSGI.
+        tasks.execute_job.spool(job_id=job.id)
+
+    messages.success(request, "Rerunning job")
+    return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
+
+
+
 # @read_access(obj_type=Analysis)
 # def recipe_code_edit(request, uid):
 #     """

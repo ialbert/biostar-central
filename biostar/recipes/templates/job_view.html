@@ -29,13 +29,12 @@
                 </div>
             </div>
 
-
         </div>
     </div>
 
     <div class="ui large vertical segment">
 
-        <div class="ui five buttons">
+        <div class="ui six buttons">
 
             <a class="ui button" onclick="window.history.back()">
                 <i class="angle double left icon"></i> <span class="fitme">Back</span>
@@ -49,9 +48,13 @@
                 <i class="keyboard icon"></i> <span class="fitme">Recipe Code</span>
             </a>
 
-         <a class="ui button" href="{% url "job_edit" job.uid %}">
-                            <i class="edit icon"></i> <span class="fitme">Edit</span>
-                        </a>
+            <a class="ui button" href="{% url "job_edit" job.uid %}">
+                <i class="edit icon"></i> <span class="fitme">Edit</span>
+            </a>
+
+            <a class="ui button" href="{% url "job_rerun" job.uid %}">
+                <i class="spinner icon"></i> <span class="fitme">Rerun</span>
+            </a>
 
             <div class="ui button">
                 <div class="ui simple dropdown item">
