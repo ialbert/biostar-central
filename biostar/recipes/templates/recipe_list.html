@@ -4,14 +4,17 @@
     Recipes
 {% endblock %}
 
-{% block rightmenu %}
-    <div class="right menu">
-        <a class="ui {% activate 'recipe_create' active %}   active item" href="{% url 'recipe_create' project.uid %}">
-            <i class="add circle icon"></i>New Recipe
-        </a>
-    </div>
 
-{% endblock %}
+    {% block rightmenu %}
+        {% if user.is_authenticated %}
+        <div class="right menu">
+            <a class="ui {% activate 'recipe_create' active %}   active item" href="{% url 'recipe_create' project.uid %}">
+                <i class="add circle icon"></i>New Recipe
+            </a>
+        </div>
+        {% endif %}
+    {% endblock %}
+
 
 {% block contain %}
 

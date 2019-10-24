@@ -5,14 +5,20 @@
     Data List
 {% endblock %}
 
-{% block rightmenu %}
-    <div class="right menu">
-        <a class="ui {% activate 'recipe_create' active %}   active item" href="{% url 'data_upload' project.uid %}">
-            <i class="add circle icon"></i>New Data
-        </a>
-    </div>
 
+
+
+{% block rightmenu %}
+    {% if user.is_authenticated %}
+        <div class="right menu">
+            <a class="ui {% activate 'recipe_create' active %}   active item"
+               href="{% url 'data_upload' project.uid %}">
+                <i class="add circle icon"></i>New Data
+            </a>
+        </div>
+    {% endif %}
 {% endblock %}
+
 
 {% block contain %}
 
