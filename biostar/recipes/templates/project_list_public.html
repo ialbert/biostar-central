@@ -24,6 +24,15 @@
         <a class="ui blue item" href="{% url 'project_list_private' %}">
             <i class="briefcase icon"></i><span class="tablet">Private Projects</span>
         </a>
+
+            {% if user.is_authenticated %}
+            <div class="right menu">
+                <a class="ui {% activate 'recipe_create' active %}  active item" href="{% url 'project_create' %}">
+                    <i class="add circle icon"></i>New Project
+                </a>
+            </div>
+        {% endif %}
+
     </div>
     <div class="ui bottom attached large segment">
         {% list_view projects=projects %}

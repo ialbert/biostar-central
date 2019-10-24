@@ -303,6 +303,31 @@ def make_job_title(recipe, data):
     return name
 
 
+def validate_recipe_run(user, recipe):
+    """
+    Validate that a user can run a given recipe.
+    """
+    if user.is_anonymous:
+        msg = "You must be logged in."
+        return False, msg
+
+    if not authorize_run(user=user, recipe=recipe):
+        msg = "Insufficient permission to execute recipe."
+        return False, msg
+
+    if recipe.deleted:
+        msg = "Can not run a deleted recipe."
+        return False, msg
+
+    # Not trusted users have job limits.
+    running_jobs = Job.objects.filter(owner=user, state=Job.RUNNING)
+    if not user.profile.trusted and running_jobs.count() >= settings.MAX_RUNNING_JOBS:
+        msg = "Exceeded maximum amount of running jobs allowed. Please wait until some finish."
+        return False, msg
+
+    return True, ""
+
+
 def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=Job.QUEUED, uid=None, save=True):
     state = state or Job.QUEUED
     owner = user or analysis.project.owner

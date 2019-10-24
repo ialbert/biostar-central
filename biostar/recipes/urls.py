@@ -70,6 +70,7 @@ urlpatterns = [
     path(r'job/edit/<str:uid>/', views.job_edit, name='job_edit'),
     re_path(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_serve, name='job_serve'),
     path(r'job/delete/<str:uid>/', views.job_delete, name='job_delete'),
+    path(r'job/rerun/<str:uid>/', views.job_rerun, name='job_rerun'),
 
     # Api calls
     path(r'api/list/', api.api_list, name='api_list'),

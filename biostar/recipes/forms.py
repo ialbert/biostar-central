@@ -501,23 +501,8 @@ class RecipeInterface(forms.Form):
 
         # Validate default fields.
         super(RecipeInterface, self).clean()
-
-        if self.user.is_anonymous:
-            msg = "You must be logged in."
-            raise forms.ValidationError(msg)
-
-        if not auth.authorize_run(user=self.user, recipe=self.analysis):
-            msg = "Insufficient permission to execute recipe."
-            raise forms.ValidationError(msg)
-
-        if self.analysis.deleted:
-            msg = "Can not run a deleted recipe."
-            raise forms.ValidationError(msg)
-
-        # Non-staff users have job limits.
-        running_jobs = Job.objects.filter(owner=self.user, state=Job.RUNNING)
-        if (not self.user.is_staff) and running_jobs.count() >= settings.MAX_RUNNING_JOBS:
-            msg = "Exceeded maximum amount of running jobs allowed. Please wait until some finish."
+        valid, msg = auth.validate_recipe_run(user=self.user, recipe=self.analysis)
+        if not valid:
             raise forms.ValidationError(msg)
 
         self.validate_text_fields()

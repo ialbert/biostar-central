@@ -6,8 +6,24 @@
 {% endblock %}
 
 
-{% block content %}
 
+
+{% block rightmenu %}
+    {% if user.is_authenticated %}
+        <div class="right menu">
+            <a class="ui {% activate 'recipe_create' active %}   active item"
+               href="{% url 'data_upload' project.uid %}">
+                <i class="add circle icon"></i>New Data
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+{% block contain %}
+
+ <div class="ui bottom attached segment">
+    {% show_messages messages %}
     {% paste project=project current=data_board %}
 
     {% paste project=project current=results_board %}
@@ -52,7 +68,7 @@
 
         </div>
     </div>
-
+ </div>
 
 
 {% endblock %}

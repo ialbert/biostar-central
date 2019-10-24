@@ -22,6 +22,12 @@ body {
 }
 
 
+.rerun{
+    height: fit-content;
+
+}
+
+
 .centerform{
     text-align: -webkit-center;
 }
