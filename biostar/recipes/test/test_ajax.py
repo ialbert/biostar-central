@@ -151,7 +151,7 @@ class AjaxTest(TestCase):
         """
 
         data = {'template': '# recipe code', 'json_text': '{}', 'name': self.recipe.name,
-                'uid': self.recipe.uid}
+                'uid': self.recipe.uid, 'project_uid': self.recipe.project.uid}
 
         url = reverse('preview_template')
         request = util.fake_request(url=url, data=data, user=self.owner)
