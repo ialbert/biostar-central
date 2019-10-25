@@ -180,7 +180,6 @@ def run(job, options={}):
 
     # Collect the output.
     if proc:
-        #, errors="backslashreplace"
         stdout_log.extend(force_text(proc.stdout, errors="backslashreplace").splitlines())
         stderr_log.extend(force_text(proc.stderr, errors="backslashreplace").splitlines())
 
