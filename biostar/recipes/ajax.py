@@ -307,7 +307,9 @@ def get_display_dict(display_type):
                     help='Enter plain text smaller than 10 characters, no spaces.',
                     value='text')
     if display == FLOAT:
-        return dict(label='Float Field Label', help='Enter a float ( decimal number).', display=FLOAT, value=0.5)
+        return dict(label='Float Field Label', help='Enter a float, decimal number, between -100.0 and 100.0.',
+                    display=FLOAT, range=[-100.0, 100.0],
+                    value=0.5)
     if display == CHECKBOX:
         return dict(label='Checkbox Field Label', help="Check the box for 'yes'. ", display=CHECKBOX, value=True)
     if display == DROPDOWN:
