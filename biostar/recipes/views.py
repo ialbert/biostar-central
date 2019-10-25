@@ -797,7 +797,7 @@ def recipe_edit(request, uid):
 
     # The project that recipe belongs to.
     project = recipe.project
-
+    user = request.user
     if request.method == "POST":
         # Form has been submitted
         form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=request.user)
@@ -805,7 +805,12 @@ def recipe_edit(request, uid):
             recipe = form.save()
             image = form.cleaned_data['image']
             recipe.image = image or recipe.image
+            recipe.lastedit_user = user
+            recipe.lastedit_date = util.now()
             recipe.save()
+            # Update the projects lastedit user.
+            Project.objects.filter(uid=recipe.project.uid).update(lastedit_user=user,
+                                                                  lastedit_date=util.now())
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
         # Initial form loading via a GET request.
@@ -827,7 +832,7 @@ def recipe_create(request, uid):
 
     # Prepare the form
 
-    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(7)}')
+    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(3)}')
     form = forms.RecipeForm(user=request.user, initial=initial)
 
     if request.method == "POST":
@@ -840,7 +845,7 @@ def recipe_create(request, uid):
             template = form.cleaned_data['template']
             recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name,
                                           json_text=json_text, template=template,
-                                          project=project)
+                                          project=project, user=request.user)
 
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 

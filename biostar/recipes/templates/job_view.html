@@ -24,7 +24,7 @@
                     <div class="description">{{ job.analysis.summary }}</div>
 
                     <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job %}</span>
-                    {%  created_by date=job.lastedit_date user=job.owner %}
+                    {%  created_by date=job.lastedit_date user=job.lastedit_user %}
                     </div>
                 </div>
             </div>

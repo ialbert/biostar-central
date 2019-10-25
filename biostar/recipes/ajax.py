@@ -290,6 +290,7 @@ def preview_json(request):
 def get_display_dict(display_type):
     mapping = dict(radio=RADIO, integer=INTEGER, textbox=TEXTBOX,
                    float=FLOAT, checkbox=CHECKBOX, dropdown=DROPDOWN)
+
     display = mapping.get(display_type)
 
     if display_type == 'data':
@@ -299,9 +300,12 @@ def get_display_dict(display_type):
         return dict(label='Radio Field Label', display=RADIO, help='Choose an option.',
                     choices=[(1, 'Option 1'), (2, 'Option 2')], value=2)
     if display == INTEGER:
-        return dict(label='Integer Field Label', display=INTEGER, help='Enter an integer.', range=[-100, 100], value=0)
+        return dict(label='Integer Field Label', display=INTEGER, help='Enter an integer between -100 and 100.',
+                    range=[-100, 100], value=0)
     if display == TEXTBOX:
-        return dict(label='Text box Field Label', display=TEXTBOX, help='Enter plain text.', value='Sample text')
+        return dict(label='Text box Field Label', display=TEXTBOX,
+                    help='Enter plain text smaller than 10 characters, no spaces.',
+                    value='text')
     if display == FLOAT:
         return dict(label='Float Field Label', help='Enter a float ( decimal number).', display=FLOAT, value=0.5)
     if display == CHECKBOX:
