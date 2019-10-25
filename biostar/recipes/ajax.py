@@ -294,8 +294,7 @@ def get_display_dict(display_type):
     display = mapping.get(display_type)
 
     if display_type == 'data':
-        return dict(label='Data Field Label', source='PROJECT', help='Pick data from this project to analyze',
-                    type="DATA")
+        return dict(label='Data Field Label', source='PROJECT', help='Pick data from this project to analyze')
     if display == RADIO:
         return dict(label='Radio Field Label', display=RADIO, help='Choose an option.',
                     choices=[(1, 'Option 1'), (2, 'Option 2')], value=2)
