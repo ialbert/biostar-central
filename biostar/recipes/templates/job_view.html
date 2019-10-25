@@ -34,26 +34,22 @@
 
     <div class="ui large vertical segment">
 
-        <div class="ui six buttons">
+        <div class="ui five buttons">
 
             <a class="ui button" onclick="window.history.back()">
                 <i class="angle double left icon"></i> <span class="fitme">Back</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}">
-                <i class="setting icon"></i> <span class="fitme">Recipe View</span>
-            </a>
-
-            <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}#code">
-                <i class="keyboard icon"></i> <span class="fitme">Recipe Code</span>
-            </a>
-
-            <a class="ui button" href="{% url "job_edit" job.uid %}">
-                <i class="edit icon"></i> <span class="fitme">Edit</span>
+                <i class="setting icon"></i> <span class="fitme">Recipe</span>
             </a>
 
             <a class="ui button" href="{% url "job_rerun" job.uid %}">
                 <i class="redo icon"></i> <span class="fitme">Rerun</span>
+            </a>
+
+            <a class="ui button" href="{% url "job_edit" job.uid %}">
+                <i class="edit icon"></i> <span class="fitme">Edit</span>
             </a>
 
             <div class="ui button">

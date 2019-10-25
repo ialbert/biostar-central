@@ -285,7 +285,7 @@ function json_preview(project_uid){
          let recipe_json = $('#json').val();
          $.ajax('/preview/json/',
              {
-             type: 'POST',
+                type: 'POST',
                 dataType: 'json',
                 ContentType: 'application/json',
                 data: {'project_uid': project_uid,
@@ -307,7 +307,12 @@ function json_preview(project_uid){
                      '                            <i class="redo icon"></i>Cancel\n' +
                      '                        </a>\n' +
                      '                    </div></form>'.format(data.html));
-                 $('#json_modal').modal('show');
+
+                 //$('#json_preview_cont').children('.ui.dropdown').css("color", 'red !important');
+                //$('#json_modal').show();
+                 //$('#id_dropdown').dropdown({ showOnFocus:false });
+                 //$('#id_dropdown').hide()
+                $('#json_modal').modal({autofocus:false}).modal('show')
 
                 //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
                 },
@@ -367,8 +372,7 @@ function remove_trigger() {
 $(document).ready(function () {
 
 
-
-    $('.ui.dropdown').dropdown({});
+    $('.ui.dropdown').dropdown();
     $('select').dropdown();
 
     $('#json_add').dropdown();
@@ -377,14 +381,15 @@ $(document).ready(function () {
 
      $('.ui.sticky').sticky();
 
-
-      $('#json_preview').click(function (event) {
+     $(this).on('click', '#json_preview', function () {
           event.preventDefault();
          let project_uid = $(this).data('value');
+
          json_preview(project_uid);
+         $('.ui.dropdown').dropdown();
+          $('select').dropdown();
 
-
-     });
+    });
 
     remove_trigger();
 

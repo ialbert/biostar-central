@@ -294,7 +294,7 @@ def get_display_dict(display_type):
     display = mapping.get(display_type)
 
     if display_type == 'data':
-        return dict(label='Data Field Label', source='PROJECT', help='Pick data from this project to analyze')
+        return dict(label='Data Field Label', source='PROJECT', help='Pick data from this project to analyze.')
     if display == RADIO:
         return dict(label='Radio Field Label', display=RADIO, help='Choose an option.',
                     choices=[(1, 'Option 1'), (2, 'Option 2')], value=2)
@@ -303,7 +303,7 @@ def get_display_dict(display_type):
                     range=[-100, 100], value=0)
     if display == TEXTBOX:
         return dict(label='Text box Field Label', display=TEXTBOX,
-                    help='Enter plain text smaller than 10 characters, no spaces.',
+                    help='Enter text.',
                     value='text')
     if display == FLOAT:
         return dict(label='Float Field Label', help='Enter a float, decimal number, between -100.0 and 100.0.',
