@@ -268,6 +268,21 @@ figure {
     width: fit-content;
 }
 
+#add_vars{
+    background-color: #f1fff0;
+    padding-top: 25px !important;
+    padding-bottom: 25px !important;
+}
+
+.snippet.divider{
+    margin: 0 !important;
+}
+
+#cmd_modal{
+    padding:20px;
+    width: 33%;
+}
+
 .popover.error {
     background-color: #f2dede;
     border-color: #ebccd1;
