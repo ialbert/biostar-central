@@ -24,7 +24,7 @@
                     <div class="description">{{ job.analysis.summary }}</div>
 
                     <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job %}</span>
-                    {%  created_by date=job.lastedit_date user=job.owner %}
+                    {%  created_by date=job.lastedit_date user=job.lastedit_user %}
                     </div>
                 </div>
             </div>
@@ -34,26 +34,22 @@
 
     <div class="ui large vertical segment">
 
-        <div class="ui six buttons">
+        <div class="ui five buttons">
 
             <a class="ui button" onclick="window.history.back()">
                 <i class="angle double left icon"></i> <span class="fitme">Back</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}">
-                <i class="setting icon"></i> <span class="fitme">Recipe View</span>
+                <i class="setting icon"></i> <span class="fitme">Recipe</span>
             </a>
 
-            <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}#code">
-                <i class="keyboard icon"></i> <span class="fitme">Recipe Code</span>
+            <a class="ui button" href="{% url "job_rerun" job.uid %}">
+                <i class="redo icon"></i> <span class="fitme">Rerun</span>
             </a>
 
             <a class="ui button" href="{% url "job_edit" job.uid %}">
                 <i class="edit icon"></i> <span class="fitme">Edit</span>
-            </a>
-
-            <a class="ui button" href="{% url "job_rerun" job.uid %}">
-                <i class="spinner icon"></i> <span class="fitme">Rerun</span>
             </a>
 
             <div class="ui button">

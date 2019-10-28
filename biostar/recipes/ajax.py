@@ -290,20 +290,25 @@ def preview_json(request):
 def get_display_dict(display_type):
     mapping = dict(radio=RADIO, integer=INTEGER, textbox=TEXTBOX,
                    float=FLOAT, checkbox=CHECKBOX, dropdown=DROPDOWN)
+
     display = mapping.get(display_type)
 
     if display_type == 'data':
-        return dict(label='Data Field Label', source='PROJECT', help='Pick data from this project to analyze',
-                    type="DATA")
+        return dict(label='Data Field Label', source='PROJECT', help='Pick data from this project to analyze.')
     if display == RADIO:
         return dict(label='Radio Field Label', display=RADIO, help='Choose an option.',
                     choices=[(1, 'Option 1'), (2, 'Option 2')], value=2)
     if display == INTEGER:
-        return dict(label='Integer Field Label', display=INTEGER, help='Enter an integer.', range=[-100, 100], value=0)
+        return dict(label='Integer Field Label', display=INTEGER, help='Enter an integer between -100 and 100.',
+                    range=[-100, 100], value=0)
     if display == TEXTBOX:
-        return dict(label='Text box Field Label', display=TEXTBOX, help='Enter plain text.', value='Sample text')
+        return dict(label='Text box Field Label', display=TEXTBOX,
+                    help='Enter text.',
+                    value='text')
     if display == FLOAT:
-        return dict(label='Float Field Label', help='Enter a float ( decimal number).', display=FLOAT, value=0.5)
+        return dict(label='Float Field Label', help='Enter a float, decimal number, between -100.0 and 100.0.',
+                    display=FLOAT, range=[-100.0, 100.0],
+                    value=0.5)
     if display == CHECKBOX:
         return dict(label='Checkbox Field Label', help="Check the box for 'yes'. ", display=CHECKBOX, value=True)
     if display == DROPDOWN:

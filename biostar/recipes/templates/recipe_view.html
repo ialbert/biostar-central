@@ -43,7 +43,7 @@
                     </div>
 
                     <div class="extra">
-                        {% created_by date=recipe.lastedit_date user=recipe.owner %}
+                        {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
                     </div>
                 </div>
             </div>
@@ -79,7 +79,7 @@
 
 
             <a class="ui button" href="{% url "recipe_edit" recipe.uid %}">
-                 <i class="setting icon"></i><span class="fitme">Configure</span>
+                 <i class="edit icon"></i><span class="fitme">Edit</span>
             </a>
 
             <div class="ui button">
