@@ -494,7 +494,7 @@ class RecipeInterface(forms.Form):
             if field:
                 self.fields[name] = field
 
-        if add_captcha:
+        if 0:
             add_captcha_field(request=request, fields=self.fields)
 
     def clean(self):

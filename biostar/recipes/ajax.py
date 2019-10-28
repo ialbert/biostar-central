@@ -296,6 +296,7 @@ def get_display_dict(display_type):
     if display_type == 'data':
         return dict(label='Data Field Label',
                     source='PROJECT',
+                    type='DATA',
                     help='Pick data from this project to analyze.')
     if display == RADIO:
         return dict(label='Radio Field Label',
@@ -413,21 +414,13 @@ def add_variables(request):
 
     json_data = hjson.loads(json_text)
 
-    # Determine if the field is a data or not.
-    is_data_field = lambda k: json_data.get(k, {}).get('source') == 'PROJECT'
-
-    # Data variables values are called with a .file_list
-    get_data_var = lambda k: "{{ " + f"{k}.file_list" + "}}"
-
-    # Regular variables are called with a .value
-    get_var = lambda k: "{{ " + f"{k}.value" + "}}"
-
     # Create a set with all template variables
-    all_vars = {get_data_var(v) if is_data_field(v) else get_var(v) for v in json_data.keys()}
+    all_vars = {"{{ " + f"{v}.value" + "}}" for v in json_data.keys()}
+
     all_vars = '\n'.join(all_vars)
 
     # Insert variables at the beginning of the template
-    new_template = all_vars + "\n" + template
+    new_template = template + '\n' + all_vars
 
     tmpl = loader.get_template('widgets/template_field.html')
     context = dict(template=new_template, scroll_to_bottom=False, focus=True)

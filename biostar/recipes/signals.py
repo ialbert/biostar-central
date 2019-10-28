@@ -44,8 +44,8 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
             template = "echo 'Hello World'"
             image_stream = None
 
-        name = 'Starter Recipe'
-        text = "Use this recipe to create new recipes."
+        name = 'First recipe'
+        text = "This recipe was created automatically."
 
         # Create starter recipe.
         auth.create_analysis(project=instance, json_text=json_text, template=template,

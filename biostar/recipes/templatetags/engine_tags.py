@@ -399,14 +399,17 @@ def size_label(data):
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
 
 
-def file_listing(root):
+def file_listing(root, limit=None):
     # This will collect the valid filepaths.
     paths = []
+    count = 0
     try:
         # Walk the filesystem and collect all files.
         for fpath, fdirs, fnames in os.walk(root, followlinks=True):
             paths.extend([join(fpath, fname) for fname in fnames])
-            #print(fpath, fnames)
+            count += 1
+            if limit and count >= limit:
+                break
 
         # Image extension types.
         IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
@@ -439,11 +442,13 @@ def file_listing(root):
 
 @register.inclusion_tag('widgets/files_list.html', takes_context=True)
 def files_list(context, root):
+    # Limit to the first 100 files.
+    limit = 500
+    paths = file_listing(root=root, limit=limit)
 
-    paths = file_listing(root=root)
-
+    reached_limit = len(paths) >= limit
     user = context['request'].user
-    return dict(paths=paths, user=user, root=root)
+    return dict(paths=paths, user=user, root=root, reached_limit=reached_limit, limit=limit)
 
 
 @register.inclusion_tag('widgets/directory_list.html', takes_context=True)

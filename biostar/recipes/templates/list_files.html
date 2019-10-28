@@ -41,13 +41,11 @@
     </div>
 
     <div class="ui bottom attached large segment">
+<div class="ui basic segment">List of directories designated for import.</div>
 
-        <div class="ui right labeled left icon input" style="width: 80%">
+        <div class="ui left icon input" style="width: 80%">
             <i class="folder open outline icon"></i>
             <input type="text" placeholder="Enter source directory" value="{{ root }}" id="current_source">
-            <a class="ui label" id="set_source">
-                View Directory
-            </a>
         </div>
 
         {% files_list root=root %}

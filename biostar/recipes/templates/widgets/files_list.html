@@ -1,6 +1,9 @@
 {% load engine_tags %}
 
 {% if paths %}
+    {% if reached_limit %}
+        <div class="ui compact warning message"> There are too many files in this directory, returning the top <b>{{ limit }}</b>.</div>
+    {% endif %}
     <div class="ui relaxed divided large list">
         {% for  rel_path, dir_names, last_name, tstamp, size, is_image in paths %}
 

@@ -372,7 +372,10 @@ function remove_trigger() {
 
 function set_source_dir() {
     let current_source = $('#current_source');
-
+    if (!current_source.val().length) {
+        popup_message(current_source, 'Source directory need to be set.', 'error', 2000)
+        return
+    }
     $.ajax('/set/source/dir/', {
             type: 'POST',
             dataType: 'json',
@@ -563,12 +566,14 @@ $(document).ready(function () {
         snippet_form($(this), 1);
     });
 
+    $(this).on('keyup', '#current_source', function (event) {
+        // Submit when pressing enter
+         if (event.keyCode === 13) {
+             set_source_dir()
+         }
+    });
+
     $(this).on('click', '#set_source', function () {
-        let current_source = $('#current_source');
-        if (!current_source.val().length){
-            popup_message(current_source, 'Source directory need to be set.', 'error', 2000)
-            return
-        }
         set_source_dir()
 
     });

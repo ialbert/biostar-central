@@ -609,7 +609,8 @@ def recipe_code_download(request, uid):
 
     try:
         # Fill in the script with json data.
-        context = Context(recipe.json_data)
+        json_data = auth.fill_data_by_name(project=recipe.project, json_data=recipe.json_data)
+        context = Context(json_data)
         script_template = Template(recipe.template)
         script = script_template.render(context)
     except Exception as exc:
