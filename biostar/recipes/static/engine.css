@@ -62,6 +62,10 @@ body {
     color: #4183c4;
 }
 
+#json_modal{
+    padding:20px;
+    width: 48%;
+}
 
 ol {
     line-height: 3ex;
