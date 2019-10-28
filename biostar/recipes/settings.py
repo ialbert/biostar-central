@@ -10,7 +10,10 @@ LOGIN_PRIVATE_KEY = SECRET_KEY
 RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_PRIVATE_KEY = ""
 
-MENU_BAR = "widgets/menubar.html"
+#MENU_BAR = "widgets/menubar.html"
+
+# Default file list path.
+DEFAULT_FILE_PATH = ''
 
 SEARCH_CHAR_MIN = 2
 

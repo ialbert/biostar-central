@@ -21,7 +21,9 @@ body {
 
 }
 
-
+.file.item:hover{
+    background-color: #f2f2f2;
+}
 .rerun{
     height: fit-content;
 
@@ -263,6 +265,7 @@ figure {
     border-radius: .28571429rem;
     z-index: 100;
     opacity: 0.9;
+    width: fit-content;
 }
 
 .popover.error {

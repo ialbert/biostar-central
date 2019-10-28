@@ -59,14 +59,11 @@ def copy_file(request, fullpath):
     board_items = clipboard.get(FILES_CLIPBOARD, [])
     board_items.append(fullpath)
     # No duplicates in clipboard
-
-    clipboard[FILES_CLIPBOARD] = list(set(board_items))
+    items = list(set(board_items))
+    clipboard[FILES_CLIPBOARD] = items
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-
-    messages.success(request, f"Copied file(s), clipboard contains {len(set(board_items))}.")
-
-    return
+    return items
 
 
 def copy_uid(request, instance, board):

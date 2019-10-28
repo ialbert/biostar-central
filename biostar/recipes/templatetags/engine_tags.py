@@ -399,25 +399,15 @@ def size_label(data):
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
 
 
-@register.inclusion_tag('widgets/directory_list.html', takes_context=True)
-def directory_list(context, obj):
-    """
-    Generates an HTML listing for files in a directory.
-    """
-
-    # Starting location.
-    root = obj.get_data_dir()
-
-    # The serve url depends on data type..
-    serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
-    copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"
-
-    # This will collet the valid filepaths.
+def file_listing(root):
+    # This will collect the valid filepaths.
     paths = []
     try:
         # Walk the filesystem and collect all files.
         for fpath, fdirs, fnames in os.walk(root, followlinks=True):
             paths.extend([join(fpath, fname) for fname in fnames])
+            #print(fpath, fnames)
+
         # Image extension types.
         IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
 
@@ -443,6 +433,33 @@ def directory_list(context, obj):
     except Exception as exc:
         logging.error(exc)
         paths = []
+
+    return paths
+
+
+@register.inclusion_tag('widgets/files_list.html', takes_context=True)
+def files_list(context, root):
+
+    paths = file_listing(root=root)
+
+    user = context['request'].user
+    return dict(paths=paths, user=user, root=root)
+
+
+@register.inclusion_tag('widgets/directory_list.html', takes_context=True)
+def directory_list(context, obj):
+    """
+    Generates an HTML listing for files in a directory.
+    """
+
+    # Starting location.
+    root = obj.get_data_dir()
+
+    # The serve url depends on data type..
+    serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
+    copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"
+
+    paths = file_listing(root=root)
 
     return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url, user=context["request"].user)
 

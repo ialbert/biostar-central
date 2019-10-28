@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.template import loader
 from biostar.recipes.const import *
-from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, Project, MAX_TEXT_LEN
+from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, Project, MAX_TEXT_LEN, FileList
 from biostar.recipes.forms import RecipeInterface
 from biostar.recipes import  auth
 
@@ -339,6 +339,55 @@ def add_to_interface(request):
     json_field = tmpl.render(context=context)
 
     return ajax_success(html=json_field, json_text=new_json, msg="Rendered json")
+
+
+@ajax_error_wrapper(method="POST")
+def set_source_dir(request):
+    """
+    Set source directory to list
+    """
+    user = request.user
+
+    if not user.is_superuser:
+        return ajax_error(msg="You need to be an admin")
+
+    source_dir = request.POST.get('source_dir')
+
+    if not source_dir:
+        return ajax_error(msg="Source directory not set.")
+
+    file_obj = FileList.objects.order_by('-pk').first()
+    if not file_obj:
+        FileList.objects.create(path=source_dir)
+    else:
+        file_obj.path = source_dir
+        file_obj.save()
+
+    redir_url = reverse('file_list')
+    return ajax_success(msg='Changed source directory', redir=redir_url)
+
+
+@ajax_error_wrapper(method="POST")
+def file_copy(request):
+    """
+    Add file into clipboard.
+    """
+    root = request.POST.get('root')
+    path = request.POST.get('path')
+
+    if not root:
+        return ajax_error(msg="Root directory does not exist.")
+    if not path:
+        return ajax_error(msg="Path does not exist.")
+
+    fullpath = os.path.join(root, path)
+
+    if not os.path.exists(fullpath):
+        return ajax_error(msg="File path does not exist.")
+
+    copied = auth.copy_file(request=request, fullpath=fullpath)
+
+    return ajax_success(msg=f"{len(copied)} files copied.")
 
 
 def add_variables(request):

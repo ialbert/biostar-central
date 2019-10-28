@@ -17,7 +17,7 @@ from sendfile import sendfile
 from biostar.accounts.models import User
 from biostar.recipes import tasks, auth, forms, const, search, util
 from biostar.recipes.decorators import read_access, write_access
-from biostar.recipes.models import Project, Data, Analysis, Job, Access
+from biostar.recipes.models import Project, Data, Analysis, Job, Access, FileList
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -401,7 +401,8 @@ def data_file_copy(request, uid, path):
     # Get the root data where the file exists
     data = Data.objects.filter(uid=uid).first()
     fullpath = os.path.join(data.get_data_dir(), path)
-    auth.copy_file(request=request, fullpath=fullpath)
+    copied = auth.copy_file(request=request, fullpath=fullpath)
+    messages.success(request, f"Copied file(s). Clipboard contains {len(copied)} files.")
 
     return redirect(reverse("data_view", kwargs=dict(uid=uid)))
 
@@ -412,8 +413,8 @@ def job_file_copy(request, uid, path):
     job = Job.objects.filter(uid=uid).first()
     fullpath = os.path.join(job.get_data_dir(), path)
 
-    auth.copy_file(request=request, fullpath=fullpath)
-
+    copied = auth.copy_file(request=request, fullpath=fullpath)
+    messages.success(request, f"Copied file(s). Clipboard contains {len(copied)} files.")
     return redirect(reverse("job_view", kwargs=dict(uid=uid)))
 
 
@@ -975,3 +976,19 @@ def job_serve(request, uid, path):
     else:
         messages.error(request, "Object does not exist")
         return redirect("/")
+
+
+def list_files(request):
+
+    user = request.user
+
+    if not user.is_superuser:
+        messages.error(request, 'You need to be an admin.')
+        return redirect(reverse('project_list'))
+
+    # Get most recent path
+    file_obj = FileList.objects.order_by('-pk').first()
+    root = file_obj.path if file_obj else ''
+    context = dict(root=root)
+
+    return render(request, 'list_files.html', context=context)

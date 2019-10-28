@@ -364,6 +364,58 @@ function remove_trigger() {
     });
 }
 
+
+function set_source_dir() {
+    let current_source = $('#current_source');
+
+    $.ajax('/set/source/dir/', {
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'source_dir': current_source.val()
+            },
+
+            success: function (data) {
+                if (data.status ==='success'){
+                    window.location.href = data.redir;
+                    return
+                }
+                popup_message(current_source, data.msg, data.status, 2000)
+
+            },
+            error: function () {
+            }
+        }
+    )
+}
+
+
+
+function copy_file(root, path){
+    let elem = $('.copy_msg[data-path="'+ path +'"]');
+
+    $.ajax('/file/copy/', {
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'root':root,
+                'path':path
+            },
+
+            success: function (data) {
+                if (data.status ==='success'){
+
+                    popup_message(elem, data.msg, data.status, 500);
+                }
+                popup_message(elem, data.msg, data.status, 2000)
+
+            },
+            error: function () {
+            }
+        }
+    )
+}
+
 $(document).ready(function () {
 
 
@@ -403,7 +455,7 @@ $(document).ready(function () {
                 ContentType: 'application/json',
                 data: {data_uid: data_uid},
                 success: function (data) {
-                pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
+                popup_message($("#copy-message-"+ data_uid), data.msg, data.status );
                 },
                 error: function () {
                 }
@@ -505,5 +557,23 @@ $(document).ready(function () {
     $(this).on('click', '.add-category', function () {
         snippet_form($(this), 1);
     });
+
+    $(this).on('click', '#set_source', function () {
+        let current_source = $('#current_source');
+        if (!current_source.val().length){
+            popup_message(current_source, 'Source directory need to be set.', 'error', 2000)
+            return
+        }
+        set_source_dir()
+
+    });
+
+
+    $(this).on('click', '.copy_file', function () {
+        let root = $(this).data('root');
+        let path = $(this).data('path');
+        copy_file(root, path)
+    });
+
 
 });
