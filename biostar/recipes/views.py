@@ -17,7 +17,7 @@ from sendfile import sendfile
 from biostar.accounts.models import User
 from biostar.recipes import tasks, auth, forms, const, search, util
 from biostar.recipes.decorators import read_access, write_access
-from biostar.recipes.models import Project, Data, Analysis, Job, Access
+from biostar.recipes.models import Project, Data, Analysis, Job, Access, FileList
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -401,7 +401,8 @@ def data_file_copy(request, uid, path):
     # Get the root data where the file exists
     data = Data.objects.filter(uid=uid).first()
     fullpath = os.path.join(data.get_data_dir(), path)
-    auth.copy_file(request=request, fullpath=fullpath)
+    copied = auth.copy_file(request=request, fullpath=fullpath)
+    messages.success(request, f"Copied file(s). Clipboard contains {len(copied)} files.")
 
     return redirect(reverse("data_view", kwargs=dict(uid=uid)))
 
@@ -412,8 +413,8 @@ def job_file_copy(request, uid, path):
     job = Job.objects.filter(uid=uid).first()
     fullpath = os.path.join(job.get_data_dir(), path)
 
-    auth.copy_file(request=request, fullpath=fullpath)
-
+    copied = auth.copy_file(request=request, fullpath=fullpath)
+    messages.success(request, f"Copied file(s). Clipboard contains {len(copied)} files.")
     return redirect(reverse("job_view", kwargs=dict(uid=uid)))
 
 
@@ -608,7 +609,8 @@ def recipe_code_download(request, uid):
 
     try:
         # Fill in the script with json data.
-        context = Context(recipe.json_data)
+        json_data = auth.fill_data_by_name(project=recipe.project, json_data=recipe.json_data)
+        context = Context(json_data)
         script_template = Template(recipe.template)
         script = script_template.render(context)
     except Exception as exc:
@@ -797,7 +799,7 @@ def recipe_edit(request, uid):
 
     # The project that recipe belongs to.
     project = recipe.project
-
+    user = request.user
     if request.method == "POST":
         # Form has been submitted
         form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=request.user)
@@ -805,7 +807,12 @@ def recipe_edit(request, uid):
             recipe = form.save()
             image = form.cleaned_data['image']
             recipe.image = image or recipe.image
+            recipe.lastedit_user = user
+            recipe.lastedit_date = util.now()
             recipe.save()
+            # Update the projects lastedit user.
+            Project.objects.filter(uid=recipe.project.uid).update(lastedit_user=user,
+                                                                  lastedit_date=util.now())
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
         # Initial form loading via a GET request.
@@ -827,7 +834,7 @@ def recipe_create(request, uid):
 
     # Prepare the form
 
-    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(7)}')
+    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(3)}')
     form = forms.RecipeForm(user=request.user, initial=initial)
 
     if request.method == "POST":
@@ -840,7 +847,7 @@ def recipe_create(request, uid):
             template = form.cleaned_data['template']
             recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name,
                                           json_text=json_text, template=template,
-                                          project=project)
+                                          project=project, user=request.user)
 
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
@@ -975,3 +982,19 @@ def job_serve(request, uid, path):
     else:
         messages.error(request, "Object does not exist")
         return redirect("/")
+
+
+def list_files(request):
+
+    user = request.user
+
+    if not user.is_superuser:
+        messages.error(request, 'You need to be an admin.')
+        return redirect(reverse('project_list'))
+
+    # Get most recent path
+    file_obj = FileList.objects.order_by('-pk').first()
+    root = file_obj.path if file_obj else ''
+    context = dict(root=root)
+
+    return render(request, 'list_files.html', context=context)

@@ -8,19 +8,19 @@
 
 {% block content %}
 
-    <div class="ui large vertical segment">
+
         <h3 class="ui header">Project Information</h3>
         {{ project.html|safe }}
-    </div>
+                <div class="extra">
+                {% privacy_label project %}
+                {% created_by date=project.lastedit_date user=project.lastedit_user %}
+            </div>
 
+<div class="ui  divider"></div>
 
     {% if write_access %}
-        <div class="ui large vertical segment">
 
-            <div class="ui four small buttons">
-                <a class="ui button" href="{% url 'data_upload' project.uid %}">
-                    <i class="plus icon"></i>Add Data
-                </a>
+            <div class="ui three small buttons">
 
                 <a class="ui  button" href="{% url 'project_edit' project.uid %}">
                     <i class="edit icon"></i>Edit Project
@@ -32,25 +32,14 @@
 
                 <a class="ui button tablet" href="{% url 'project_delete' project.uid %}">
                     {% if project.deleted %}
-                        <i class="undo icon"></i> <span class="tablet">Restore</span>
+                        <i class="undo icon"></i> <span class="tablet">Restore Project</span>
                     {% else %}
-                        <i class="trash icon"></i> <span class="tablet">Delete</span>
+                        <i class="trash icon"></i> <span class="tablet">Delete Project</span>
                     {% endif %}
                 </a>
 
             </div>
-        </div>
+
     {% endif %}
 
-     <div class="ui large vertical segment">
-
-        <div class="item">
-
-            <div class="extra">
-                {% privacy_label project %}
-                {% created_by date=project.lastedit_date user=project.owner %}
-            </div>
-
-        </div>
-    </div>
 {% endblock %}

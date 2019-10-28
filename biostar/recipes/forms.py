@@ -494,7 +494,7 @@ class RecipeInterface(forms.Form):
             if field:
                 self.fields[name] = field
 
-        if add_captcha:
+        if 0:
             add_captcha_field(request=request, fields=self.fields)
 
     def clean(self):
@@ -511,7 +511,7 @@ class RecipeInterface(forms.Form):
         """Validate Character fields """
 
         # Default pattern matches any alphanumeric string with a given length
-        default_pattern = r"^\w{1,10}$"
+        default_pattern = r"^\w{1,20}$"
 
         for field in self.json_data:
             val = self.cleaned_data.get(field)

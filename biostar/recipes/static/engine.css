@@ -21,7 +21,9 @@ body {
 
 }
 
-
+.file.item:hover{
+    background-color: #f2f2f2;
+}
 .rerun{
     height: fit-content;
 
@@ -60,6 +62,10 @@ body {
     color: #4183c4;
 }
 
+#json_modal{
+    padding:20px;
+    width: 48%;
+}
 
 ol {
     line-height: 3ex;
@@ -263,6 +269,22 @@ figure {
     border-radius: .28571429rem;
     z-index: 100;
     opacity: 0.9;
+    width: fit-content;
+}
+
+#add_vars{
+    background-color: #f1fff0;
+    padding-top: 25px !important;
+    padding-bottom: 25px !important;
+}
+
+.snippet.divider{
+    margin: 0 !important;
+}
+
+#cmd_modal{
+    padding:20px;
+    width: 33%;
 }
 
 .popover.error {

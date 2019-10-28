@@ -1,33 +1,29 @@
 {% load engine_tags %}
 
 {% if paths %}
+    {% if reached_limit %}
+        <div class="ui compact warning message"> There are too many files in this directory, returning the top <b>{{ limit }}</b>.</div>
+    {% endif %}
     <div class="ui relaxed divided large list">
         {% for  rel_path, dir_names, last_name, tstamp, size, is_image in paths %}
 
-            <div class="item">
-
-
-                <a href="{% url serve_url uid=obj.uid path=rel_path %}">
-
-                    {% if is_image %}
-                        <img class="ui small middle aligned image" src="{% url serve_url  uid=obj.uid path=rel_path %}">
-                    {% endif %}
+            <div class="file item">
+                <span href="">
                     {% for dname in dir_names %}
                         <span class="dirname">{{ dname }}</span> /
                     {% endfor %}
-                    {{ last_name }}</a>
+                    {{ last_name }}</span>
 
                 {% if user.is_authenticated %}
-                    <a href="{% url copy_url uid=obj.uid path=rel_path %}" class="ui small right floated label"> COPY</a>
-                {% endif %}
 
-                {% if rel_path|is_qiime_archive %}
-                    {% url serve_url  uid=obj.uid path=rel_path as file_serve_url %}
-                    <a href="{% get_qiime2view_link file_serve_url %}" class="ui small right floated blue label">VIEW</a>
+                    <a data-root="{{ root }}" data-path="{{ rel_path }}"
+                       class="ui small right floated label copy_file"> COPY
+                        <span class="copy_msg" data-path="{{ rel_path }}"></span>
+                    </a>
+
                 {% endif %}
 
                 <span class="ui right floated small label">{{ size|filesizeformat }}</span>
-
 
             </div>
         {% endfor %}

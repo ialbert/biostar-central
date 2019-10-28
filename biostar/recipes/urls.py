@@ -58,7 +58,11 @@ urlpatterns = [
     path(r'recipe/delete/<str:uid>/', views.recipe_delete, name='recipe_delete'),
     path(r'recipe/code/download/<str:uid>/', views.recipe_code_download, name='recipe_download'),
     path(r'recipe/create/<str:uid>/', views.recipe_create, name='recipe_create'),
-    #path(r'recipe/download/', views.preview_download, name='preview_download'),
+
+    # File listings
+    path(r'file/list/', views.list_files, name='file_list'),
+    path(r'set/source/dir/', ajax.set_source_dir, name='set_source_dir'),
+    path(r'file/copy/', ajax.file_copy, name='file_copy'),
 
     # Actions
     path(r'action/clear/<str:uid>/', views.clear_clipboard, name='clear_clipboard'),
@@ -81,6 +85,7 @@ urlpatterns = [
     path(r'api/project/<str:uid>/', api.project_info, name='project_api_info'),
     path(r'api/project/image/<str:uid>/', api.project_image, name='project_api_image'),
 
+    # Copy and paste actions
     path(r'data/copy/<str:uid>/', views.data_copy, name='data_copy'),
     path(r'result/copy/<str:uid>/', views.job_copy, name='job_copy'),
     path(r'recipe/copy/<str:uid>/', views.recipe_copy, name='recipe_copy'),

@@ -399,25 +399,18 @@ def size_label(data):
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
 
 
-@register.inclusion_tag('widgets/directory_list.html', takes_context=True)
-def directory_list(context, obj):
-    """
-    Generates an HTML listing for files in a directory.
-    """
-
-    # Starting location.
-    root = obj.get_data_dir()
-
-    # The serve url depends on data type..
-    serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
-    copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"
-
-    # This will collet the valid filepaths.
+def file_listing(root, limit=None):
+    # This will collect the valid filepaths.
     paths = []
+    count = 0
     try:
         # Walk the filesystem and collect all files.
         for fpath, fdirs, fnames in os.walk(root, followlinks=True):
             paths.extend([join(fpath, fname) for fname in fnames])
+            count += 1
+            if limit and count >= limit:
+                break
+
         # Image extension types.
         IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
 
@@ -443,6 +436,35 @@ def directory_list(context, obj):
     except Exception as exc:
         logging.error(exc)
         paths = []
+
+    return paths
+
+
+@register.inclusion_tag('widgets/files_list.html', takes_context=True)
+def files_list(context, root):
+    # Limit to the first 100 files.
+    limit = 500
+    paths = file_listing(root=root, limit=limit)
+
+    reached_limit = len(paths) >= limit
+    user = context['request'].user
+    return dict(paths=paths, user=user, root=root, reached_limit=reached_limit, limit=limit)
+
+
+@register.inclusion_tag('widgets/directory_list.html', takes_context=True)
+def directory_list(context, obj):
+    """
+    Generates an HTML listing for files in a directory.
+    """
+
+    # Starting location.
+    root = obj.get_data_dir()
+
+    # The serve url depends on data type..
+    serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
+    copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"
+
+    paths = file_listing(root=root)
 
     return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url, user=context["request"].user)
 

@@ -42,8 +42,7 @@
                                     <div class="field">
                     <label>Unique Identifier ( uid )</label>
                     {{ form.uid }}
-                    <p class="muted">Unique identifier for this recipe.
-                        random.</p>
+                    <p class="muted">Unique identifier, change if needed.</p>
                 </div>
                 </div>
 
@@ -51,7 +50,7 @@
                     <div class="field">
                     <label>Recipe rank</label>
                     {{ form.rank }}
-                    <p class="muted">Used for ordering recipes on the recipe list.</p>
+                    <p class="muted">Used to order recipes (optional).</p>
                     </div>
 
                                     <div class="field">
@@ -82,15 +81,15 @@
                 {% csrf_token %}
 
                 <div class="field">
-                    <div class="ui header">Recipe Interface</div>
+                    <div class="ui header">Build Interface</div>
                 </div>
 
                 <div class="field">
-                    The JSON data that specifies the web interface.
+                    The data that specifies the web interface.
 
                     <div class="ui top pointing dropdown" id="json_add" style="float: right">
                         <i class="caret down icon"></i>
-                        <a>JSON specification</a>
+                        <a>Interface Builder</a>
                         {% interface_options %}
                     </div>
                 </div>
@@ -100,7 +99,7 @@
 
                 <div class="field">
 
-                    <button href="#" class="ui purple button" data-value="{{ project.uid }}" id="json_preview">
+                    <button class="ui purple button" data-value="{{ project.uid }}" id="json_preview">
                         <i class="eye icon"></i>Preview Interface
                     </button>
                     <button type="submit" class="ui green button">
@@ -112,8 +111,8 @@
                     </a>
                 </div>
 
-                <div class="ui tiny inputcolor modal" style="padding:20px;width: 48%;" id="json_modal">
-                       <div id="json_preview_cont"><form class="ui form"></form></div>
+                <div class="ui tiny inputcolor modal" id="json_modal">
+                      <div id="json_preview_cont"></div>
                 </div>
 
             </div>
@@ -123,14 +122,14 @@
                 {% csrf_token %}
 
                 <div class="field">
-                    <div class="ui header">Recipe Code</div>
+                    <div class="ui header">Build code</div>
                 </div>
 
                 <div class="field">
                     The code that gets executed when the recipe runs.
                     <div class="ui top pointing dropdown" id="code_add" style="float: right">
                         <i class="caret down icon"></i>
-                       <a>Code specification</a>
+                       <a>Code Builder</a>
                         {% snippet_list %}
                     </div>
 

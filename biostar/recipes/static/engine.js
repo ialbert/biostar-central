@@ -285,7 +285,7 @@ function json_preview(project_uid){
          let recipe_json = $('#json').val();
          $.ajax('/preview/json/',
              {
-             type: 'POST',
+                type: 'POST',
                 dataType: 'json',
                 ContentType: 'application/json',
                 data: {'project_uid': project_uid,
@@ -307,7 +307,12 @@ function json_preview(project_uid){
                      '                            <i class="redo icon"></i>Cancel\n' +
                      '                        </a>\n' +
                      '                    </div></form>'.format(data.html));
-                 $('#json_modal').modal('show');
+
+                 //$('#json_preview_cont').children('.ui.dropdown').css("color", 'red !important');
+                //$('#json_modal').show();
+                 //$('#id_dropdown').dropdown({ showOnFocus:false });
+                 //$('#id_dropdown').hide()
+                $('#json_modal').modal({autofocus:false}).modal('show')
 
                 //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
                 },
@@ -364,11 +369,65 @@ function remove_trigger() {
     });
 }
 
+
+function set_source_dir() {
+    let current_source = $('#current_source');
+    if (!current_source.val().length) {
+        popup_message(current_source, 'Source directory need to be set.', 'error', 2000)
+        return
+    }
+    $.ajax('/set/source/dir/', {
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'source_dir': current_source.val()
+            },
+
+            success: function (data) {
+                if (data.status ==='success'){
+                    window.location.href = data.redir;
+                    return
+                }
+                popup_message(current_source, data.msg, data.status, 2000)
+
+            },
+            error: function () {
+            }
+        }
+    )
+}
+
+
+
+function copy_file(root, path){
+    let elem = $('.copy_msg[data-path="'+ path +'"]');
+
+    $.ajax('/file/copy/', {
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'root':root,
+                'path':path
+            },
+
+            success: function (data) {
+                if (data.status ==='success'){
+
+                    popup_message(elem, data.msg, data.status, 500);
+                }
+                popup_message(elem, data.msg, data.status, 2000)
+
+            },
+            error: function () {
+            }
+        }
+    )
+}
+
 $(document).ready(function () {
 
 
-
-    $('.ui.dropdown').dropdown({});
+    $('.ui.dropdown').dropdown();
     $('select').dropdown();
 
     $('#json_add').dropdown();
@@ -377,14 +436,15 @@ $(document).ready(function () {
 
      $('.ui.sticky').sticky();
 
-
-      $('#json_preview').click(function (event) {
+     $(this).on('click', '#json_preview', function () {
           event.preventDefault();
          let project_uid = $(this).data('value');
+
          json_preview(project_uid);
+         $('.ui.dropdown').dropdown();
+          $('select').dropdown();
 
-
-     });
+    });
 
     remove_trigger();
 
@@ -403,7 +463,7 @@ $(document).ready(function () {
                 ContentType: 'application/json',
                 data: {data_uid: data_uid},
                 success: function (data) {
-                pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
+                popup_message($("#copy-message-"+ data_uid), data.msg, data.status );
                 },
                 error: function () {
                 }
@@ -505,5 +565,25 @@ $(document).ready(function () {
     $(this).on('click', '.add-category', function () {
         snippet_form($(this), 1);
     });
+
+    $(this).on('keyup', '#current_source', function (event) {
+        // Submit when pressing enter
+         if (event.keyCode === 13) {
+             set_source_dir()
+         }
+    });
+
+    $(this).on('click', '#set_source', function () {
+        set_source_dir()
+
+    });
+
+
+    $(this).on('click', '.copy_file', function () {
+        let root = $(this).data('root');
+        let path = $(this).data('path');
+        copy_file(root, path)
+    });
+
 
 });

@@ -59,14 +59,11 @@ def copy_file(request, fullpath):
     board_items = clipboard.get(FILES_CLIPBOARD, [])
     board_items.append(fullpath)
     # No duplicates in clipboard
-
-    clipboard[FILES_CLIPBOARD] = list(set(board_items))
+    items = list(set(board_items))
+    clipboard[FILES_CLIPBOARD] = items
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-
-    messages.success(request, f"Copied file(s), clipboard contains {len(set(board_items))}.")
-
-    return
+    return items
 
 
 def copy_uid(request, instance, board):
@@ -450,25 +447,27 @@ def is_writable(user, project):
 
 def fill_data_by_name(project, json_data):
     """
-    Fills json information by name. Used when filling in
-    demonstration data and not user selection.
+    Fills json information by name.
+    Used when filling in demonstration data and not user selection.
     """
 
     json_data = copy.deepcopy(json_data)
     # A mapping of data by name
-    store = dict((data.name, data) for data in project.data_set.all())
+    #store = dict((data.name, data) for data in project.data_set.all())
 
     for field, item in json_data.items():
         # If the field is a data field then fill in more information.
+        val = item.get("value", '')
         if item.get("source") == "PROJECT":
             name = item.get("value")
-            data = store.get(name)
-            if data:
-                # This mutates the `item` dictionary!
-                data.fill_dict(item)
-            else:
-                item['toc'] = "FILE-LIST"
-                item['file_list'] = "FILE-LIST"
+            item['toc'] = "FILE-LIST"
+            item['file_list'] = "FILE-LIST"
+            item['value'] = name or 'FILENAME'
+            continue
+
+        # Give a placeholder so templates do not have **MISSING**.
+        if not val:
+            item['value'] = f'{str(field).upper()}-VALUE'
 
     return json_data
 
