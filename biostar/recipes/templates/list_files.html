@@ -10,7 +10,7 @@
 
     <div class="ui center aligned basic vertical segment">
         <div class="ui large header">
-            <i class="folder open icon"></i> Files
+            <i class="share square icon"></i> Import Data
         </div>
 
     </div>
@@ -27,7 +27,7 @@
 
         {% if user.is_superuser %}
             <a class="ui active item" href="{% url 'root_list' %}">
-                <i class="folder open icon"></i><span class="tablet">Files</span>
+                <i class="share square icon"></i><span class="tablet">Import Data</span>
             </a>
         {% endif %}
 
