@@ -379,7 +379,7 @@ def set_source_dir(request):
         file_obj.path = source_dir
         file_obj.save()
 
-    redir_url = reverse('file_list')
+    redir_url = reverse('root_list')
     return ajax_success(msg='Changed source directory', redir=redir_url)
 
 
@@ -388,20 +388,17 @@ def file_copy(request):
     """
     Add file into clipboard.
     """
-    root = request.POST.get('root')
     path = request.POST.get('path')
 
-    if not root:
+    if not path:
         return ajax_error(msg="Root directory does not exist.")
     if not path:
         return ajax_error(msg="Path does not exist.")
 
-    fullpath = os.path.join(root, path)
-
-    if not os.path.exists(fullpath):
+    if not os.path.exists(path):
         return ajax_error(msg="File path does not exist.")
 
-    copied = auth.copy_file(request=request, fullpath=fullpath)
+    copied = auth.copy_file(request=request, fullpath=path)
 
     return ajax_success(msg=f"{len(copied)} files copied.")
 

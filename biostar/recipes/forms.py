@@ -312,7 +312,7 @@ class RecipeForm(forms.ModelForm):
     json_text = forms.CharField(max_length=MAX_TEXT_LEN, initial="{}", required=True)
     template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# Code goes here", required=True)
     name = forms.CharField(max_length=MAX_NAME_LEN, required=True)
-    rank = forms.FloatField(required=True, initial=1000)
+    rank = forms.FloatField(required=True, initial=100)
     text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=True)
 
     def __init__(self, user, creating=False, *args, **kwargs):

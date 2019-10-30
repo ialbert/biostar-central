@@ -41,8 +41,10 @@
 
                         <div class="meta">{{ job.analysis.summary }}</div>
 
-                        <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job %}</span>
-                            {% created_by date=job.lastedit_date %}
+                        <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job %}
+                        </span>
+                            &bull;
+                            {% created_by date=job.lastedit_date user=job.lastedit_user %}
 
                         </div>
 

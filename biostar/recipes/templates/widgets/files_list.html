@@ -1,24 +1,26 @@
 {% load engine_tags %}
 
 {% if paths %}
-    {% if reached_limit %}
-        <div class="ui compact warning message"> There are too many files in this directory, returning the top <b>{{ limit }}</b>.</div>
-    {% endif %}
+
+
     <div class="ui relaxed divided large list">
-        {% for  rel_path, dir_names, last_name, tstamp, size, is_image in paths %}
+        {% for   rel_path, tstamp, size, is_dir, full_path in paths %}
 
             <div class="file item">
-                <span href="">
-                    {% for dname in dir_names %}
-                        <span class="dirname">{{ dname }}</span> /
-                    {% endfor %}
-                    {{ last_name }}</span>
+                <span >
+
+                {% if is_dir %}
+                    <a href="{% url 'file_list' full_path %}">{{ rel_path }}/</a>
+                {% else %}
+                    {{ rel_path }}
+                {% endif %}
+
+                </span>
 
                 {% if user.is_authenticated %}
 
-                    <a data-root="{{ root }}" data-path="{{ rel_path }}"
-                       class="ui small right floated label copy_file"> COPY
-                        <span class="copy_msg" data-path="{{ rel_path }}"></span>
+                    <a data-path="{{ full_path }}" class="ui small right floated label copy_file"> LINK
+                        <span class="copy_msg" data-path="{{ full_path }}"></span>
                     </a>
 
                 {% endif %}

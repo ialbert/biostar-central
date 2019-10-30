@@ -399,14 +399,13 @@ function set_source_dir() {
 
 
 
-function copy_file(root, path){
+function copy_file(path){
     let elem = $('.copy_msg[data-path="'+ path +'"]');
 
     $.ajax('/file/copy/', {
             type: 'POST',
             dataType: 'json',
             data: {
-                'root':root,
                 'path':path
             },
 
@@ -580,9 +579,8 @@ $(document).ready(function () {
 
 
     $(this).on('click', '.copy_file', function () {
-        let root = $(this).data('root');
         let path = $(this).data('path');
-        copy_file(root, path)
+        copy_file(path)
     });
 
 

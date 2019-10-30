@@ -1,6 +1,6 @@
 import logging
 import os
-
+import time
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -191,9 +191,9 @@ def project_info(request, uid):
 
 
 def annotate_projects(projects):
-    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(deleted=False)),
-                                 job_count=Count('job', distinct=True, filter=Q(deleted=False)),
-                                 recipe_count=Count('analysis', distinct=True, filter=Q(deleted=False)),
+    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(data__deleted=False)),
+                                 job_count=Count('job', distinct=True, filter=Q(job__deleted=False)),
+                                 recipe_count=Count('analysis', distinct=True, filter=Q(analysis__deleted=False)),
                                  )
     return projects
 
@@ -265,9 +265,9 @@ def job_list(request, uid):
 
 
 def get_counts(project):
-    data_count = project.data_set.count()
-    recipe_count = project.analysis_set.count()
-    result_count = project.job_set.count()
+    data_count = project.data_set.filter(deleted=False).count()
+    recipe_count = project.analysis_set.filter(deleted=False).count()
+    result_count = project.job_set.filter(deleted=False).count()
     discussion_count = 0
 
     return dict(
@@ -581,7 +581,7 @@ def recipe_view(request, uid):
     context = dict(recipe=recipe, project=project, activate='Recipe View')
 
     # How many results for this recipe
-    rcount = Job.objects.filter(analysis=recipe).count()
+    rcount = Job.objects.filter(analysis=recipe, deleted=False).count()
     counts = get_counts(project)
 
     try:
@@ -686,6 +686,7 @@ def recipe_run(request, uid):
 
             # Spool the job right away if UWSGI exists.
             if tasks.HAS_UWSGI:
+
                 # Update the job state.
                 Job.objects.filter(id=job.id).update(state=Job.SPOOLED)
 
@@ -834,7 +835,7 @@ def recipe_create(request, uid):
 
     # Prepare the form
 
-    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(3)}')
+    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(5)}')
     form = forms.RecipeForm(user=request.user, initial=initial)
 
     if request.method == "POST":
@@ -984,7 +985,7 @@ def job_serve(request, uid, path):
         return redirect("/")
 
 
-def list_files(request):
+def list_files(request, path=''):
 
     user = request.user
 
@@ -995,6 +996,8 @@ def list_files(request):
     # Get most recent path
     file_obj = FileList.objects.order_by('-pk').first()
     root = file_obj.path if file_obj else ''
+
+    root = os.path.abspath(os.path.join(root, path))
     context = dict(root=root)
 
     return render(request, 'list_files.html', context=context)

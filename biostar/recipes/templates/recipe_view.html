@@ -61,6 +61,10 @@
         <div class="ui six buttons">
 
 
+            <a class="ui button" href="{% url "recipe_edit" recipe.uid %}">
+                <i class="edit icon"></i><span class="fitme">Edit</span>
+            </a>
+
             <a class="ui button" href="#code">
                 <i class="keyboard icon"></i> <span class="fitme">Code</span>
             </a>
@@ -75,9 +79,6 @@
             </a>
 
 
-            <a class="ui button" href="{% url "recipe_edit" recipe.uid %}">
-                <i class="edit icon"></i><span class="fitme">Edit</span>
-            </a>
 
             <a class="ui button"
                href="{% url "recipe_copy" recipe.uid %}?next={% url "recipe_view" recipe.uid %}">

@@ -440,15 +440,37 @@ def file_listing(root, limit=None):
     return paths
 
 
+def listing(root):
+    paths = []
+
+    try:
+        paths = os.listdir(root)
+
+        def transform(path):
+            path = os.path.join(root, path)
+            tstamp = os.stat(path).st_mtime
+            size = os.stat(path).st_size
+            rel_path = os.path.relpath(path, root)
+            is_dir = os.path.isdir(path)
+            full_path = os.path.abspath(os.path.join(root, path))
+            return rel_path, tstamp, size, is_dir, full_path
+
+        paths = map(transform, paths)
+        # Sort files by timestamps
+        paths = sorted(paths, key=lambda x: x[1], reverse=True)
+
+    except Exception as exc:
+        logging.error(exc)
+
+    return paths
+
+
 @register.inclusion_tag('widgets/files_list.html', takes_context=True)
 def files_list(context, root):
     # Limit to the first 100 files.
-    limit = 500
-    paths = file_listing(root=root, limit=limit)
-
-    reached_limit = len(paths) >= limit
+    paths = listing(root=root)
     user = context['request'].user
-    return dict(paths=paths, user=user, root=root, reached_limit=reached_limit, limit=limit)
+    return dict(paths=paths, user=user, root=root)
 
 
 @register.inclusion_tag('widgets/directory_list.html', takes_context=True)

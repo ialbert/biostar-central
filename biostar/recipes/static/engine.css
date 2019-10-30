@@ -26,6 +26,7 @@ body {
 }
 .rerun{
     height: fit-content;
+    display: inline-flex !important;
 
 }
 

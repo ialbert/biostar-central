@@ -60,7 +60,8 @@ urlpatterns = [
     path(r'recipe/create/<str:uid>/', views.recipe_create, name='recipe_create'),
 
     # File listings
-    path(r'file/list/', views.list_files, name='file_list'),
+    re_path(r'file/list/(?P<path>.+)$', views.list_files, name='file_list'),
+    path(r'root/list/', views.list_files, name='root_list'),
     path(r'set/source/dir/', ajax.set_source_dir, name='set_source_dir'),
     path(r'file/copy/', ajax.file_copy, name='file_copy'),
 
