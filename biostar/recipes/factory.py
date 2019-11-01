@@ -32,8 +32,7 @@ def upload_field(data):
     label = data.get("label", "")
     help_text = data.get("help", "")
 
-    field = forms.FileField(initial=initial, label=label, help_text=help_text,
-                            widget=forms.FileInput(attrs={'multiple': 'true'}), required=False)
+    field = forms.FileField(initial=initial, label=label, help_text=help_text)
 
     return field
 

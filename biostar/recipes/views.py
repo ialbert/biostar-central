@@ -674,7 +674,7 @@ def recipe_run(request, uid):
     if request.method == "POST":
 
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
-                                     data=request.POST)
+                                     data=request.POST, files=request.FILES)
 
         # The form validation will authorize the job.
         if form.is_valid():

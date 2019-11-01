@@ -187,16 +187,9 @@ def add_file(target_dir, stream):
 
     # Check if a file with the same name exists.
     fname = stream.name
-    exists = lambda f: os.path.exists(os.path.abspath(os.path.join(dest, f)))
-    count = 0
-    # Check if file already exists.
-    while exists(fname):
-        name, ext = os.path.splitext(stream.name)
-        fname = f"{name}-{count}{ext}"
-        count += 1
 
     path = os.path.abspath(os.path.join(dest, fname))
-    # Write the stream into
+    # Write the stream into file.
     util.write_stream(stream=stream, dest=path)
     return path
 

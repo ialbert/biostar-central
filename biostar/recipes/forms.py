@@ -573,7 +573,7 @@ class RecipeInterface(forms.Form):
                     # Add uploaded file to job directory.
                     stream = self.request.FILES.get(field)
                     if not stream:
-                        item['value'] = None
+                        item['value'] = ''
                         continue
                     # Add files to the job directory
                     path = auth.add_file(target_dir=job.get_data_dir(), stream=stream)
