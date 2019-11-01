@@ -33,22 +33,23 @@
         </div>
     </div>
 
-    <div class="ui large vertical segment">
+    <div class="ui large vertical {% job_color job %}  segment" style="padding: 3px">
 
-        <div class="ui five buttons">
+        <div class="ui six buttons">
            <a class="ui button" href="{% url "job_edit" job.uid %}">
                 <i class="edit icon"></i> <span class="fitme">Edit</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}">
-                <i class="setting icon"></i> <span class="fitme">Recipe</span>
+                <i class="setting icon"></i> <span class="fitme">View Recipe</span>
             </a>
 
+            <a class="ui button" href="{% url 'recipe_edit' job.analysis.uid %}">
+                <i class="settings icon"></i> <span class="fitme">Edit Recipe</span>
+            </a>
             <a class="ui button" href="{% url "job_rerun" job.uid %}">
                 <i class="redo icon"></i> <span class="fitme">Rerun</span>
             </a>
-
-
             <a class="ui button" href="{% url "job_copy" job.uid %}?next={% url "job_view" job.uid %}">
                 <i class="copy icon"></i>Copy
             </a>

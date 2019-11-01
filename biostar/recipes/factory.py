@@ -24,6 +24,20 @@ def float_field(data):
     return field
 
 
+def upload_field(data):
+    """
+    Widget used to upload files.
+    """
+    initial = data.get("value", "")
+    label = data.get("label", "")
+    help_text = data.get("help", "")
+
+    field = forms.FileField(initial=initial, label=label, help_text=help_text,
+                            widget=forms.FileInput(attrs={'multiple': 'true'}), required=False)
+
+    return field
+
+
 def select_field(data, choicefunc=None):
     if choicefunc:
         choices = choicefunc() or []
@@ -238,7 +252,8 @@ def get_field_types(project=None):
         const.TEXTBOX: char_field,
         const.FLOAT: float_field,
         const.CHECKBOX: checkbox_field,
-        const.SQL: sqlfield
+        const.SQL: sqlfield,
+        const.UPLOAD: upload_field
     }
 
     return field_types

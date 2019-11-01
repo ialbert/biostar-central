@@ -289,7 +289,8 @@ def preview_json(request):
 
 def get_display_dict(display_type):
     mapping = dict(radio=RADIO, integer=INTEGER, textbox=TEXTBOX,
-                   float=FLOAT, checkbox=CHECKBOX, dropdown=DROPDOWN)
+                   float=FLOAT, checkbox=CHECKBOX, dropdown=DROPDOWN,
+                   upload=UPLOAD)
 
     display = mapping.get(display_type)
 
@@ -326,6 +327,11 @@ def get_display_dict(display_type):
                     help="Pick an option from a dropdown.",
                     choices=[('1', 'Choices 1'), ('2', 'Choices 2')],
                     value='1')
+    if display == UPLOAD:
+        return dict(label='Upload a file',
+                    display=UPLOAD,
+                    help="Upload a file to analyze")
+
     return dict()
 
 
@@ -412,6 +418,7 @@ def add_variables(request):
     json_data = hjson.loads(json_text)
 
     # Create a set with all template variables
+    #vars = filter(lambda x: x != 'settings', json_data.keys())
     all_vars = {"{{ " + f"{v}.value" + "}}" for v in json_data.keys()}
 
     all_vars = '\n'.join(all_vars)

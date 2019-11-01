@@ -1,19 +1,13 @@
-{% extends "engine_base.html" %}
+{% extends "base_content.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
-    Edit Project: {{ project.name }}
+    Edit Project
 {% endblock %}
 
 
-{% block body %}
-        <div class="ui center aligned basic vertical segment">
-        <div class="ui large header">
-            <i class="edit icon"></i>Edit Project
-        </div>
-
-    </div>
-
+{% block content %}
+<div class="narrow">
     <div class="ui raised segment inputcolor">
     {% form_errors form %}
 
@@ -61,4 +55,5 @@
 
         </form>
     </div>
+</div>
 {% endblock %}

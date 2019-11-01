@@ -13,6 +13,37 @@ body {
     margin-right: 15%;
 }
 
+.completed{
+    background-color: #21ba45!important;
+    border-color: #21ba45!important;
+    color: white !important;
+}
+
+.spooled{
+    background-color: #6435c9!important;
+    border-color: #6435c9!important;
+    color: white !important;
+}
+
+
+.errored{
+    background-color: #db2828!important;
+    border-color: #db2828!important;
+    color: white !important;
+}
+
+.running{
+    background-color: #f2711c!important;
+    border-color: #f2711c!important;
+    color: white !important;
+}
+
+
+.queued{
+    background-color: #00b5ad!important;
+    border-color: #00b5ad!important;
+    color: white !important;
+}
 
 .ui.attached.colored.segment {
     border-bottom: 1px solid #2185d0 !important;

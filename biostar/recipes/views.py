@@ -1,6 +1,6 @@
 import logging
 import os
-import time
+import hjson
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -341,7 +341,9 @@ def project_edit(request, uid):
             Project.objects.filter(uid=uid).update(lastedit_user=request.user)
             return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
-    context = dict(project=project, form=form)
+    context = dict(project=project, form=form, activate='Edit Project')
+
+    context.update(get_counts(project))
     return render(request, "project_edit.html", context=context)
 
 
@@ -532,7 +534,9 @@ def data_edit(request, uid):
         if form.is_valid():
             form.save()
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
-    context = dict(data=data, form=form)
+    context = dict(data=data, form=form, activate='Edit Data', project=data.project)
+
+    context.update(get_counts(data.project))
     return render(request, 'data_edit.html', context)
 
 
@@ -675,14 +679,17 @@ def recipe_run(request, uid):
         # The form validation will authorize the job.
         if form.is_valid():
 
-            # The desired name of for the results.
-            name = form.cleaned_data.get("name")
-
-            # Generates the JSON data from the bound form field.
-            json_data = form.fill_json_data()
-
             # Create the job from the recipe and incoming json data.
-            job = auth.create_job(analysis=analysis, user=request.user, json_data=json_data, name=name)
+            job = auth.create_job(analysis=analysis, user=request.user)
+
+            # Fill the json data.
+            json_data = form.fill_json_data(job=job)
+            # Generate a meaningful job title.
+            name = auth.make_job_title(recipe=analysis, data=json_data)
+            # Update the json_text and name
+            job.json_text = hjson.dumps(json_data)
+            job.name = name
+            job.save()
 
             # Spool the job right away if UWSGI exists.
             if tasks.HAS_UWSGI:
@@ -873,7 +880,9 @@ def job_edit(request, uid):
             form.save()
             return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
 
-    context = dict(job=job, project=project, form=form)
+    context = dict(job=job, project=project, form=form, activate='Edit Result')
+
+    context.update(get_counts(project))
     return render(request, 'job_edit.html', context)
 
 

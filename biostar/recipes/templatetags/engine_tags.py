@@ -25,20 +25,30 @@ from biostar.recipes.models import Job, make_html, Project, Data, Analysis, Acce
 logger = logging.getLogger("engine")
 register = template.Library()
 
-JOB_COLORS = {
-    Job.SPOOLED: "violet",
-    Job.ERROR: "red", Job.QUEUED: "teal",
-    Job.RUNNING: "orange", Job.COMPLETED: "green"
-}
-
+JOB_COLORS = {Job.SPOOLED: "spooled",
+              Job.ERROR: "errored", Job.QUEUED: "queued",
+              Job.RUNNING: "running", Job.COMPLETED: "completed"
+              }
 DATA_COLORS = {
     Data.PENDING: "teal", Data.READY: "green", Data.ERROR: "red"
 }
+
 
 @register.simple_tag
 def randparam():
     "Append to URL to bypass server caching of CSS or JS files"
     return f"?randval={random.randint(1, 10000000)}" if settings.DEBUG else ""
+
+
+@register.filter
+def mask_path(val='', obj={}):
+
+    is_path = obj.get('display') == const.UPLOAD
+    if is_path:
+        return os.path.basename(str(val)) if val else ''
+
+    return val
+
 
 @register.filter
 def time_ago(date):

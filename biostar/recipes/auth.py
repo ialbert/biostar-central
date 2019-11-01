@@ -174,6 +174,33 @@ def text_diff(text1, text2):
     return change
 
 
+def add_file(target_dir, stream):
+    """
+    Deposit file stream into a target directory.
+    """
+
+    # Get the absolute path
+    dest = os.path.abspath(target_dir)
+
+    # Create the directory
+    os.makedirs(dest, exist_ok=True)
+
+    # Check if a file with the same name exists.
+    fname = stream.name
+    exists = lambda f: os.path.exists(os.path.abspath(os.path.join(dest, f)))
+    count = 0
+    # Check if file already exists.
+    while exists(fname):
+        name, ext = os.path.splitext(stream.name)
+        fname = f"{name}-{count}{ext}"
+        count += 1
+
+    path = os.path.abspath(os.path.join(dest, fname))
+    # Write the stream into
+    util.write_stream(stream=stream, dest=path)
+    return path
+
+
 def get_project_list(user, include_public=True, include_deleted=False):
     """
     Return projects visible to a user.
@@ -285,6 +312,8 @@ def make_job_title(recipe, data):
             return None
         if param.get("source"):
             return param.get("name")
+        if param.get('display') == UPLOAD:
+            return os.path.basename(param.get('value')) if param.get('value') else None
         return param.get("value")
 
     vals = map(extract, params)
@@ -466,8 +495,8 @@ def fill_data_by_name(project, json_data):
             continue
 
         # Give a placeholder so templates do not have **MISSING**.
-        if not val:
-            item['value'] = f'{str(field).upper()}-VALUE'
+        if val is None or len(str(val)) == 0:
+            item['value'] = f'{str(field).upper()}'
 
     return json_data
 

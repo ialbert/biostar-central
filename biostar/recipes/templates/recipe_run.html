@@ -18,15 +18,15 @@
             | <a href="{% url 'recipe_edit' analysis.uid %}"> <i class="edit icon"></i> Edit </a>
         </div>
 
-
         <div class="ui vertical segment">
 
             {{ analysis.summary|markdown|safe }}
 
-            <form method="post" class="ui form" action="{% url 'recipe_run' analysis.uid %}">
+            <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'recipe_run' analysis.uid %}">
                 <div class="ui form">
 
                     {% csrf_token %}
+                    {{ form.media }}
 
                     {% recipe_form form %}
 

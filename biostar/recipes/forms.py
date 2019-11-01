@@ -31,16 +31,20 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-def check_size(fobj, maxsize=0.3):
+def check_size(fobj, maxsize=0.3, field=None):
     # maxsize in megabytes!
-
+    error_msg = ''
     try:
         if fobj and fobj.size > maxsize * 1024 * 1024.0:
             curr_size = fobj.size / 1024 / 1024.0
-            msg = f"File too large: {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
-            raise forms.ValidationError(msg)
+            prefix = f'{field} field : '.capitalize() if field else ''
+            error_msg = prefix + f"file too large, {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
+
     except Exception as exc:
-        raise forms.ValidationError(f"File size validation error: {exc}")
+        error_msg = f"File size validation error: {exc}"
+
+    if error_msg:
+        raise forms.ValidationError(error_msg)
 
     return fobj
 
@@ -490,6 +494,7 @@ class RecipeInterface(forms.Form):
         # Create the dynamic field from each key in the data.
         for name, data in self.json_data.items():
             field = factory.dynamic_field(data, self.project)
+
             # Insert only valid fields.
             if field:
                 self.fields[name] = field
@@ -504,6 +509,14 @@ class RecipeInterface(forms.Form):
         valid, msg = auth.validate_recipe_run(user=self.user, recipe=self.analysis)
         if not valid:
             raise forms.ValidationError(msg)
+
+        for field, item in self.json_data.items():
+            if field in self.cleaned_data and item['display'] == UPLOAD:
+                stream = self.request.FILES.get(field)
+                if not stream:
+                    continue
+                # Validate the file size.
+                check_size(stream, field=field, maxsize=settings.MAX_FILE_SIZE_MB)
 
         self.validate_text_fields()
 
@@ -527,7 +540,7 @@ class RecipeInterface(forms.Form):
                 msg = f"{field} : contains invalid patterns. Valid pattern:{regex_pattern}."
                 raise forms.ValidationError(msg)
 
-    def fill_json_data(self):
+    def fill_json_data(self, job=None):
         """
         Produces a filled in JSON data based on user input.
         Should be called after the form has been filled and is valid.
@@ -555,6 +568,16 @@ class RecipeInterface(forms.Form):
                 value = self.cleaned_data[field]
                 # Clean the textbox value
                 item["value"] = value if item['display'] != TEXTBOX else clean_text(value)
+
+                if item['display'] == UPLOAD:
+                    # Add uploaded file to job directory.
+                    stream = self.request.FILES.get(field)
+                    if not stream:
+                        item['value'] = None
+                        continue
+                    # Add files to the job directory
+                    path = auth.add_file(target_dir=job.get_data_dir(), stream=stream)
+                    item['value'] = path
 
         return json_data
 
