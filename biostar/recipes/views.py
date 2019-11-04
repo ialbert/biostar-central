@@ -1,6 +1,6 @@
 import logging
 import os
-
+import hjson
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -17,7 +17,7 @@ from sendfile import sendfile
 from biostar.accounts.models import User
 from biostar.recipes import tasks, auth, forms, const, search, util
 from biostar.recipes.decorators import read_access, write_access
-from biostar.recipes.models import Project, Data, Analysis, Job, Access, FileList
+from biostar.recipes.models import Project, Data, Analysis, Job, Access
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -191,9 +191,9 @@ def project_info(request, uid):
 
 
 def annotate_projects(projects):
-    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(deleted=False)),
-                                 job_count=Count('job', distinct=True, filter=Q(deleted=False)),
-                                 recipe_count=Count('analysis', distinct=True, filter=Q(deleted=False)),
+    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(data__deleted=False)),
+                                 job_count=Count('job', distinct=True, filter=Q(job__deleted=False)),
+                                 recipe_count=Count('analysis', distinct=True, filter=Q(analysis__deleted=False)),
                                  )
     return projects
 
@@ -265,9 +265,9 @@ def job_list(request, uid):
 
 
 def get_counts(project):
-    data_count = project.data_set.count()
-    recipe_count = project.analysis_set.count()
-    result_count = project.job_set.count()
+    data_count = project.data_set.filter(deleted=False).count()
+    recipe_count = project.analysis_set.filter(deleted=False).count()
+    result_count = project.job_set.filter(deleted=False).count()
     discussion_count = 0
 
     return dict(
@@ -341,7 +341,9 @@ def project_edit(request, uid):
             Project.objects.filter(uid=uid).update(lastedit_user=request.user)
             return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
-    context = dict(project=project, form=form)
+    context = dict(project=project, form=form, activate='Edit Project')
+
+    context.update(get_counts(project))
     return render(request, "project_edit.html", context=context)
 
 
@@ -532,7 +534,9 @@ def data_edit(request, uid):
         if form.is_valid():
             form.save()
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
-    context = dict(data=data, form=form)
+    context = dict(data=data, form=form, activate='Edit Data', project=data.project)
+
+    context.update(get_counts(data.project))
     return render(request, 'data_edit.html', context)
 
 
@@ -581,7 +585,7 @@ def recipe_view(request, uid):
     context = dict(recipe=recipe, project=project, activate='Recipe View')
 
     # How many results for this recipe
-    rcount = Job.objects.filter(analysis=recipe).count()
+    rcount = Job.objects.filter(analysis=recipe, deleted=False).count()
     counts = get_counts(project)
 
     try:
@@ -670,24 +674,16 @@ def recipe_run(request, uid):
     if request.method == "POST":
 
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
-                                     data=request.POST)
+                                     data=request.POST, files=request.FILES)
 
         # The form validation will authorize the job.
         if form.is_valid():
 
-            # The desired name of for the results.
-            name = form.cleaned_data.get("name")
-
-            # Generates the JSON data from the bound form field.
-            json_data = form.fill_json_data()
-
             # Create the job from the recipe and incoming json data.
-            job = auth.create_job(analysis=analysis, user=request.user, json_data=json_data, name=name)
+            job = auth.create_job(analysis=analysis, user=request.user, fill_with=form.cleaned_data)
 
             # Spool the job right away if UWSGI exists.
             if tasks.HAS_UWSGI:
-                # Update the job state.
-                Job.objects.filter(id=job.id).update(state=Job.SPOOLED)
 
                 # Spool via UWSGI.
                 tasks.execute_job.spool(job_id=job.id)
@@ -728,8 +724,6 @@ def job_rerun(request, uid):
 
     # Spool the job right away if UWSGI exists.
     if tasks.HAS_UWSGI:
-        # Update the job state.
-        Job.objects.filter(id=job.id).update(state=Job.SPOOLED)
 
         # Spool via UWSGI.
         tasks.execute_job.spool(job_id=job.id)
@@ -834,7 +828,7 @@ def recipe_create(request, uid):
 
     # Prepare the form
 
-    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(3)}')
+    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(5)}')
     form = forms.RecipeForm(user=request.user, initial=initial)
 
     if request.method == "POST":
@@ -872,7 +866,9 @@ def job_edit(request, uid):
             form.save()
             return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
 
-    context = dict(job=job, project=project, form=form)
+    context = dict(job=job, project=project, form=form, activate='Edit Result')
+
+    context.update(get_counts(project))
     return render(request, 'job_edit.html', context)
 
 
@@ -984,17 +980,26 @@ def job_serve(request, uid, path):
         return redirect("/")
 
 
-def list_files(request):
-
+def import_files(request, path=''):
+    """
+    Import files mounted on IMPORT_ROOT_DIR in settings
+    """
     user = request.user
 
     if not user.is_superuser:
         messages.error(request, 'You need to be an admin.')
         return redirect(reverse('project_list'))
 
-    # Get most recent path
-    file_obj = FileList.objects.order_by('-pk').first()
-    root = file_obj.path if file_obj else ''
-    context = dict(root=root)
+    current_path = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
 
-    return render(request, 'list_files.html', context=context)
+    if not current_path.startswith(settings.IMPORT_ROOT_DIR):
+        messages.error(request, 'Outside root directory')
+        rel_path = ''
+    elif current_path == settings.IMPORT_ROOT_DIR:
+        rel_path = ''
+    else:
+        rel_path = os.path.relpath(current_path, settings.IMPORT_ROOT_DIR)
+
+    context = dict(rel_path=rel_path)
+
+    return render(request, 'import_files.html', context=context)

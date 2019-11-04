@@ -5,6 +5,7 @@ import os
 import quopri
 import tarfile
 import uuid
+import shlex
 from itertools import islice
 from urllib.parse import quote
 from datetime import datetime
@@ -90,6 +91,9 @@ def write_stream(stream, dest):
             chunk = stream.read(CHUNK)
     return dest
 
+
+def clean_text(textbox):
+    return shlex.quote(textbox)
 
 def qiime2view_link(file_url):
     template = "https://view.qiime2.org/visualization/?type=html&src="

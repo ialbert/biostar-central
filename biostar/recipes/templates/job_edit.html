@@ -1,4 +1,4 @@
-{% extends "engine_base.html" %}
+{% extends "base_content.html" %}
 {% load engine_tags %}
 
 
@@ -6,7 +6,9 @@
    Editing {{ job.name }}
 {% endblock %}
 
-{% block body %}
+{% block content %}
+<div class="narrow">
+
 
     <div class="ui raised segment inputcolor">
     {% form_errors form %}
@@ -44,5 +46,6 @@
 
         </form>
     </div>
+</div>
 
 {% endblock %}

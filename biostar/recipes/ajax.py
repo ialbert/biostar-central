@@ -9,13 +9,18 @@ from django.template import Template, Context
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.template import loader
+from django.conf import settings
 from biostar.recipes.const import *
-from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, Project, MAX_TEXT_LEN, FileList
+from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, Project, MAX_TEXT_LEN
 from biostar.recipes.forms import RecipeInterface
-from biostar.recipes import  auth
+from biostar.recipes import auth
 
 logger = logging.getLogger("engine")
 
+JOB_COLORS = {Job.SPOOLED: "spooled",
+              Job.ERROR: "errored", Job.QUEUED: "queued",
+              Job.RUNNING: "running", Job.COMPLETED: "completed"
+              }
 
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
@@ -289,7 +294,8 @@ def preview_json(request):
 
 def get_display_dict(display_type):
     mapping = dict(radio=RADIO, integer=INTEGER, textbox=TEXTBOX,
-                   float=FLOAT, checkbox=CHECKBOX, dropdown=DROPDOWN)
+                   float=FLOAT, checkbox=CHECKBOX, dropdown=DROPDOWN,
+                   upload=UPLOAD)
 
     display = mapping.get(display_type)
 
@@ -326,6 +332,11 @@ def get_display_dict(display_type):
                     help="Pick an option from a dropdown.",
                     choices=[('1', 'Choices 1'), ('2', 'Choices 2')],
                     value='1')
+    if display == UPLOAD:
+        return dict(label='Upload a file',
+                    display=UPLOAD,
+                    help="Upload a file to analyze")
+
     return dict()
 
 
@@ -358,45 +369,14 @@ def add_to_interface(request):
 
 
 @ajax_error_wrapper(method="POST")
-def set_source_dir(request):
-    """
-    Set source directory to list
-    """
-    user = request.user
-
-    if not user.is_superuser:
-        return ajax_error(msg="You need to be an admin")
-
-    source_dir = request.POST.get('source_dir')
-
-    if not source_dir:
-        return ajax_error(msg="Source directory not set.")
-
-    file_obj = FileList.objects.order_by('-pk').first()
-    if not file_obj:
-        FileList.objects.create(path=source_dir)
-    else:
-        file_obj.path = source_dir
-        file_obj.save()
-
-    redir_url = reverse('file_list')
-    return ajax_success(msg='Changed source directory', redir=redir_url)
-
-
-@ajax_error_wrapper(method="POST")
 def file_copy(request):
     """
     Add file into clipboard.
     """
-    root = request.POST.get('root')
     path = request.POST.get('path')
-
-    if not root:
-        return ajax_error(msg="Root directory does not exist.")
+    fullpath = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
     if not path:
-        return ajax_error(msg="Path does not exist.")
-
-    fullpath = os.path.join(root, path)
+        return ajax_error(msg="Root directory does not exist.")
 
     if not os.path.exists(fullpath):
         return ajax_error(msg="File path does not exist.")
@@ -415,6 +395,7 @@ def add_variables(request):
     json_data = hjson.loads(json_text)
 
     # Create a set with all template variables
+    #vars = filter(lambda x: x != 'settings', json_data.keys())
     all_vars = {"{{ " + f"{v}.value" + "}}" for v in json_data.keys()}
 
     all_vars = '\n'.join(all_vars)

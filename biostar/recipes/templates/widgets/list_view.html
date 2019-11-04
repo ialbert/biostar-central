@@ -11,7 +11,7 @@
                     <div class="item">
                         <img class="ui mytiny circular fancy image" src="{% img project %}"/>
                         <div class="content">
-                            <a class="subheader" href="{% url 'recipe_list' project.uid %}">
+                            <a class="subheader" href="{% url 'project_info' project.uid %}">
                                 <i class="database icon"></i>{{ project.name }}
                             </a>
 
@@ -31,9 +31,7 @@
                             href="{% url 'job_list' project.uid %}">
                             <i class="bar chart icon"></i>{{project.job_count}} result{{ project.job_count|pluralize }}</a>
 
-                            {% created_by date=project.lastedit_date %}
-
-
+                            {% created_by date=project.lastedit_date user=project.lastedit_user %}
 
                             </div>
 

@@ -37,20 +37,16 @@
     <div class="ui large vertical segment">
 
         <div class="six ui small buttons">
-
-            <button class="ui button" onclick="window.history.back()">
-                <i class="chevron left icon"></i>Back
-            </button>
-
-            <a class="ui button" href="{% url "data_copy" data.uid %}?next={% url "data_view" data.uid %}">
-                <i class="copy icon"></i>Copy Data
-            </a>
             <a class="ui button" href="{% url 'data_edit' data.uid %}">
                 <i class="edit icon"></i> <span class="tablet">Edit Data</span>
             </a>
 
+            <a class="ui button" href="{% url "data_copy" data.uid %}?next={% url "data_view" data.uid %}">
+                <i class="copy icon"></i>Copy Data
+            </a>
+
             <a class="ui button tablet" href="{% url 'data_delete' data.uid %}">
-                <i class="trash icon"></i> <span class="tablet">Delete</span>
+                <i class="trash icon"></i> <span class="tablet">Delete Data</span>
             </a>
 
 

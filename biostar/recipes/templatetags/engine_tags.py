@@ -25,20 +25,30 @@ from biostar.recipes.models import Job, make_html, Project, Data, Analysis, Acce
 logger = logging.getLogger("engine")
 register = template.Library()
 
-JOB_COLORS = {
-    Job.SPOOLED: "violet",
-    Job.ERROR: "red", Job.QUEUED: "teal",
-    Job.RUNNING: "orange", Job.COMPLETED: "green"
-}
-
+JOB_COLORS = {Job.SPOOLED: "spooled",
+              Job.ERROR: "errored", Job.QUEUED: "queued",
+              Job.RUNNING: "running", Job.COMPLETED: "completed"
+              }
 DATA_COLORS = {
     Data.PENDING: "teal", Data.READY: "green", Data.ERROR: "red"
 }
+
 
 @register.simple_tag
 def randparam():
     "Append to URL to bypass server caching of CSS or JS files"
     return f"?randval={random.randint(1, 10000000)}" if settings.DEBUG else ""
+
+
+@register.filter
+def mask_path(val='', obj={}):
+
+    is_path = obj.get('display') == const.UPLOAD
+    if is_path:
+        return os.path.basename(str(val)) if val else ''
+
+    return val
+
 
 @register.filter
 def time_ago(date):
@@ -221,8 +231,11 @@ def job_color(job):
     """
     Returns a color based on job status.
     """
-    return JOB_COLORS.get(job.state, "")
-
+    try:
+        return JOB_COLORS.get(job.state, "")
+    except Exception as exc:
+        logger.error(exc)
+        return ''
 
 @register.simple_tag
 def activate(value1, value2):
@@ -384,7 +397,10 @@ def access_form(project, user, form):
 @register.inclusion_tag('widgets/job_elapsed.html')
 def job_minutes(job):
 
-    check_back = 'check_back' if job.state in [Job.SPOOLED, Job.RUNNING] else ''
+    check_back = ''
+    # Add a tag to check a state change every ~5 seconds and update tag
+    if job.state in [Job.SPOOLED, Job.RUNNING, Job.QUEUED]:
+        check_back = 'check_back'
 
     return dict(job=job, check_back=check_back)
 
@@ -440,15 +456,38 @@ def file_listing(root, limit=None):
     return paths
 
 
-@register.inclusion_tag('widgets/files_list.html', takes_context=True)
-def files_list(context, root):
-    # Limit to the first 100 files.
-    limit = 500
-    paths = file_listing(root=root, limit=limit)
+def listing(root):
+    paths = []
 
-    reached_limit = len(paths) >= limit
+    try:
+        paths = os.listdir(root)
+
+        def transform(path):
+            path = os.path.join(root, path)
+            tstamp = os.stat(path).st_mtime
+            size = os.stat(path).st_size
+            rel_path = os.path.relpath(path, settings.IMPORT_ROOT_DIR)
+            is_dir = os.path.isdir(path)
+            basename = os.path.basename(path)
+            return rel_path, tstamp, size, is_dir, basename
+
+        paths = map(transform, paths)
+        # Sort files by timestamps
+        paths = sorted(paths, key=lambda x: x[1], reverse=True)
+
+    except Exception as exc:
+        logging.error(exc)
+
+    return paths
+
+
+@register.inclusion_tag('widgets/files_list.html', takes_context=True)
+def files_list(context, rel_path):
+    # Limit to the first 100 files.
+    root = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, rel_path))
+    paths = listing(root=root)
     user = context['request'].user
-    return dict(paths=paths, user=user, root=root, reached_limit=reached_limit, limit=limit)
+    return dict(paths=paths, user=user, root=root)
 
 
 @register.inclusion_tag('widgets/directory_list.html', takes_context=True)

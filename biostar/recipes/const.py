@@ -62,7 +62,6 @@ EXT_TO_TYPE = dict(
                 )
 
 
-
 RADIO = "RADIO"
 DROPDOWN = "DROPDOWN"
 INTEGER = "INTEGER"

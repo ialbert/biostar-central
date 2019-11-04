@@ -25,8 +25,8 @@
             <i class="briefcase icon"></i><span class="tablet">Private Projects</span>
         </a>
         {% if user.is_superuser %}
-            <a class="ui blue item" href="{% url 'file_list' %}">
-                <i class="folder open icon"></i><span class="tablet">Files</span>
+            <a class="ui blue item" href="{% url 'root_list' %}">
+                <i class="share square icon"></i><span class="tablet">Import</span>
             </a>
         {% endif %}
             {% if user.is_authenticated %}

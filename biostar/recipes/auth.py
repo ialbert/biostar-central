@@ -174,6 +174,50 @@ def text_diff(text1, text2):
     return change
 
 
+def link_file(source, target_dir):
+
+    base, filename = os.path.split(source)
+    target = os.path.join(target_dir, filename)
+
+    # Link the file if it do
+    if not os.path.exists(target):
+        # Ensure base dir exists in target
+        os.makedirs(target_dir, exist_ok=True)
+        os.symlink(source, target)
+
+    return target
+
+
+def add_file(target_dir, source):
+    """
+    Deposit file stream into a target directory.
+    """
+
+    # Link an existing file
+    if isinstance(source, str) and os.path.exists(source):
+        return link_file(source=source, target_dir=target_dir)
+
+    # Write a stream to a new file
+    if hasattr(source, 'read'):
+
+        # Get the absolute path
+        dest = os.path.abspath(target_dir)
+
+        # Create the directory
+        os.makedirs(dest, exist_ok=True)
+
+        # Get the name
+        fname = source.name
+
+        path = os.path.abspath(os.path.join(dest, fname))
+        # Write the stream into file.
+        util.write_stream(stream=source, dest=path)
+
+        return path
+
+    return
+
+
 def get_project_list(user, include_public=True, include_deleted=False):
     """
     Return projects visible to a user.
@@ -285,6 +329,8 @@ def make_job_title(recipe, data):
             return None
         if param.get("source"):
             return param.get("name")
+        if param.get('display') == UPLOAD:
+            return os.path.basename(param.get('value')) if param.get('value') else None
         return param.get("value")
 
     vals = map(extract, params)
@@ -325,7 +371,57 @@ def validate_recipe_run(user, recipe):
     return True, ""
 
 
-def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=Job.QUEUED, uid=None, save=True):
+def fill_json_data(project, job=None, source_data={}, fill_with={}):
+    """
+    Produces a filled in JSON data based on user input.
+    """
+
+    # Creates a data.id to data mapping.
+    store = dict((data.id, data) for data in project.data_set.all())
+
+    # Make a copy of the original json data used to render the form.
+    json_data = copy.deepcopy(source_data)
+
+    # Get default dictionary to fill with from json data 'value'
+    default = {field: item.get('value', '') for field, item in json_data.items()}
+    fill_with = fill_with or default
+
+    # Alter the json data and fill in the extra information.
+    for field, item in json_data.items():
+
+        # If the field is a data field then fill in more information.
+        if item.get("source") == "PROJECT" and fill_with.get(field, '').isalnum():
+            data_id = int(fill_with.get(field))
+            data = store.get(data_id)
+            # This mutates the `item` dictionary!
+            data.fill_dict(item)
+            continue
+
+        # The JSON value will be overwritten with the selected field value.
+        if field in fill_with:
+            value = fill_with[field]
+            # Clean the textbox value
+            item["value"] = value if item.get('display') != TEXTBOX else util.clean_text(value)
+
+            if item.get('display') == UPLOAD:
+                # Add uploaded file to job directory.
+                upload_value = fill_with.get(field)
+                if not upload_value:
+                    item['value'] = ''
+                    continue
+
+                # Link or write the stream located in the fill_with
+                path = add_file(target_dir=job.get_data_dir(), source=upload_value)
+                item['value'] = path
+
+    return json_data
+
+
+def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=Job.QUEUED, uid=None, save=True,
+               fill_with={}):
+    """
+    Note: Parameter 'fill_with' needs to be a flat key:value dictionary.
+    """
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
     project = analysis.project
@@ -340,11 +436,21 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     # Generate a meaningful job title.
     name = make_job_title(recipe=analysis, data=json_data)
+    uid = uid or util.get_uuid(8)
 
     # Create the job instance.
     job = Job(name=name, state=state, json_text=json_text,
               security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
               template=analysis.template, uid=uid)
+
+    # Fill the json data.
+    json_data = fill_json_data(job=job, source_data=json_data, project=project, fill_with=fill_with)
+
+    # Generate a meaningful job title.
+    name = make_job_title(recipe=analysis, data=json_data)
+    # Update the json_text and name
+    job.json_text = hjson.dumps(json_data)
+    job.name = name
 
     if save:
         job.save()
@@ -402,7 +508,7 @@ def create_path(fname, data):
     return path
 
 
-def link_file(path, data):
+def link_data(path, data):
     dest = create_path(fname=path, data=data)
 
     if not os.path.exists(dest):
@@ -466,8 +572,8 @@ def fill_data_by_name(project, json_data):
             continue
 
         # Give a placeholder so templates do not have **MISSING**.
-        if not val:
-            item['value'] = f'{str(field).upper()}-VALUE'
+        if val is None or len(str(val)) == 0:
+            item['value'] = f'{str(field).upper()}'
 
     return json_data
 
@@ -508,14 +614,14 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # The data is a single file on a path.
     if isfile:
-        link_file(path=path, data=data)
+        link_data(path=path, data=data)
         logger.info(f"Linked file: {path}")
 
     # The data is a directory.
     # Link each file of the directory into the storage directory.
     if isdir:
         for p in os.scandir(path):
-            link_file(path=p.path, data=data)
+            link_data(path=p.path, data=data)
             logger.info(f"Linked file: {p}")
 
     # Invalid paths and empty streams still create the data

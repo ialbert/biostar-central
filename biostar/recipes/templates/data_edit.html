@@ -1,11 +1,14 @@
-{% extends "engine_base.html" %}
+{% extends "base_content.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
     Edit Data: {{ data.name }}
 {% endblock %}
 
-{% block body %}
+
+{% block content %}
+<div class="narrow">
+
     <div class="ui raised segment inputcolor">
     {% form_errors form %}
         <form method="post" class="ui form" action="{% url 'data_edit' data.uid %}" enctype="multipart/form-data">

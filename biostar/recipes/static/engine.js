@@ -373,40 +373,21 @@ function remove_trigger() {
 function set_source_dir() {
     let current_source = $('#current_source');
     if (!current_source.val().length) {
-        popup_message(current_source, 'Source directory need to be set.', 'error', 2000)
+        window.location.href = '/root/list/';
         return
     }
-    $.ajax('/set/source/dir/', {
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'source_dir': current_source.val()
-            },
-
-            success: function (data) {
-                if (data.status ==='success'){
-                    window.location.href = data.redir;
-                    return
-                }
-                popup_message(current_source, data.msg, data.status, 2000)
-
-            },
-            error: function () {
-            }
-        }
-    )
+    window.location.href = '/file/list/' + current_source.val();
 }
 
 
 
-function copy_file(root, path){
+function copy_file(path){
     let elem = $('.copy_msg[data-path="'+ path +'"]');
 
     $.ajax('/file/copy/', {
             type: 'POST',
             dataType: 'json',
             data: {
-                'root':root,
                 'path':path
             },
 
@@ -580,9 +561,8 @@ $(document).ready(function () {
 
 
     $(this).on('click', '.copy_file', function () {
-        let root = $(this).data('root');
         let path = $(this).data('path');
-        copy_file(root, path)
+        copy_file(path)
     });
 
 

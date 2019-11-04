@@ -30,8 +30,9 @@ try:
             from mailer.engine import send_all
             send_all()
             logger.info("send_all()")
-        except exc as Exception:
-            logger.error(exc)
+
+        except Exception as exce:
+            logger.error(exce)
 
     @timer(30)
     def scheduler(args):
@@ -74,6 +75,15 @@ try:
         Execute job in spooler.
         """
         logger.info(f"Executing spooled job id={job_id}")
+        from biostar.recipes.models import Job
+
+        # Spend 3 seconds in queued state
+        # For debugging purposes.
+        time.sleep(3)
+        Job.objects.filter(id=job_id).update(state=Job.SPOOLED)
+        # Spend 3 seconds in spooled state
+        time.sleep(3)
+
         management.call_command('job', id=job_id)
 
 except ModuleNotFoundError as exc:

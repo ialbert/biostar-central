@@ -50,8 +50,8 @@
 
                                     {{ recipe.job_count }}
                                     result{{ recipe.job_count|pluralize }}</a>
-
-                                    {% created_by date=recipe.lastedit_date %}
+                                    &bull;
+                                    {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
                                 </div>
 
                                 <div id="copy-message-{{ recipe.uid }}"></div>

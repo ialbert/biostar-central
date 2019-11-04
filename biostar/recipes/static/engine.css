@@ -13,6 +13,69 @@ body {
     margin-right: 15%;
 }
 
+.completed{
+    border-color: #21ba45 !important;
+}
+
+.completed.label{
+    border-bottom: 1px solid #21ba45!important;
+    background-color: #21ba45 !important;
+    color: white;
+}
+.completed.item{
+    color: #21ba45!important;
+}
+
+
+.spooled{
+    border-color: #6435c9!important;
+}
+
+.spooled.label{
+    border-bottom: 1px solid #6435c9!important;
+    background-color: #6435c9!important;
+    color: white;
+}
+.spooled.item{
+    color: #6435c9!important;
+}
+
+
+.errored{
+    border-color: #db2828!important;
+}
+.errored.label{
+    border-bottom: 1px solid #db2828!important;
+    background-color: #db2828!important;
+    color: white;
+}
+.errored.item{
+    color: #db2828!important;
+}
+
+.running{
+    border-color: #f2711c!important;
+}
+.running.label{
+    border-bottom: 1px solid #f2711c!important;
+    background-color: #f2711c!important;
+    color: white;
+}
+.running.item{
+    color: #f2711c!important;
+}
+
+.queued{
+    border-color: #00b5ad!important;
+}
+.queued.label{
+    border-bottom: 1px solid #00b5ad!important;
+    background-color: #00b5ad!important;
+    color: white;
+}
+.queued.item{
+    color: #00b5ad!important;
+}
 
 .ui.attached.colored.segment {
     border-bottom: 1px solid #2185d0 !important;
@@ -26,6 +89,7 @@ body {
 }
 .rerun{
     height: fit-content;
+    display: inline-flex !important;
 
 }
 

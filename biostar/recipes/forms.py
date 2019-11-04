@@ -26,21 +26,28 @@ logger = models.logger
 
 TEXT_UPLOAD_MAX = 10000
 
+# Maximum file size that can be uploaded to recipe in megabytes.
+MAX_RECIPE_FILE_MB = 5
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-def check_size(fobj, maxsize=0.3):
+def check_size(fobj, maxsize=0.3, field=None):
     # maxsize in megabytes!
-
+    error_msg = ''
     try:
         if fobj and fobj.size > maxsize * 1024 * 1024.0:
             curr_size = fobj.size / 1024 / 1024.0
-            msg = f"File too large: {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
-            raise forms.ValidationError(msg)
+            prefix = f'{field} field : '.capitalize() if field else ''
+            error_msg = prefix + f"file too large, {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
+
     except Exception as exc:
-        raise forms.ValidationError(f"File size validation error: {exc}")
+        error_msg = f"File size validation error: {exc}"
+
+    if error_msg:
+        raise forms.ValidationError(error_msg)
 
     return fobj
 
@@ -312,7 +319,7 @@ class RecipeForm(forms.ModelForm):
     json_text = forms.CharField(max_length=MAX_TEXT_LEN, initial="{}", required=True)
     template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# Code goes here", required=True)
     name = forms.CharField(max_length=MAX_NAME_LEN, required=True)
-    rank = forms.FloatField(required=True, initial=1000)
+    rank = forms.FloatField(required=True, initial=100)
     text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=True)
 
     def __init__(self, user, creating=False, *args, **kwargs):
@@ -490,6 +497,7 @@ class RecipeInterface(forms.Form):
         # Create the dynamic field from each key in the data.
         for name, data in self.json_data.items():
             field = factory.dynamic_field(data, self.project)
+
             # Insert only valid fields.
             if field:
                 self.fields[name] = field
@@ -504,6 +512,15 @@ class RecipeInterface(forms.Form):
         valid, msg = auth.validate_recipe_run(user=self.user, recipe=self.analysis)
         if not valid:
             raise forms.ValidationError(msg)
+
+        for field, item in self.json_data.items():
+
+            if field in self.cleaned_data and item.get('display') == UPLOAD:
+                stream = self.request.FILES.get(field)
+                if not stream:
+                    continue
+                # Validate the file size.
+                check_size(stream, field=field, maxsize=MAX_RECIPE_FILE_MB)
 
         self.validate_text_fields()
 
@@ -526,37 +543,6 @@ class RecipeInterface(forms.Form):
             if re.fullmatch(regex_pattern, val) is None:
                 msg = f"{field} : contains invalid patterns. Valid pattern:{regex_pattern}."
                 raise forms.ValidationError(msg)
-
-    def fill_json_data(self):
-        """
-        Produces a filled in JSON data based on user input.
-        Should be called after the form has been filled and is valid.
-        """
-
-        # Creates a data.id to data mapping.
-        store = dict((data.id, data) for data in self.project.data_set.all())
-
-        # Make a copy of the original json data used to render the form.
-        json_data = copy.deepcopy(self.json_data)
-
-        # Alter the json data and fill in the extra information.
-        for field, item in json_data.items():
-
-            # If the field is a data field then fill in more information.
-            if item.get("source") == "PROJECT":
-                data_id = int(self.cleaned_data.get(field))
-                data = store.get(data_id)
-                # This mutates the `item` dictionary!
-                data.fill_dict(item)
-                continue
-
-            # The JSON value will be overwritten with the selected field value.
-            if field in self.cleaned_data:
-                value = self.cleaned_data[field]
-                # Clean the textbox value
-                item["value"] = value if item['display'] != TEXTBOX else clean_text(value)
-
-        return json_data
 
 
 class EditCode(forms.Form):
