@@ -17,7 +17,7 @@ from sendfile import sendfile
 from biostar.accounts.models import User
 from biostar.recipes import tasks, auth, forms, const, search, util
 from biostar.recipes.decorators import read_access, write_access
-from biostar.recipes.models import Project, Data, Analysis, Job, Access, FileList
+from biostar.recipes.models import Project, Data, Analysis, Job, Access
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -680,22 +680,10 @@ def recipe_run(request, uid):
         if form.is_valid():
 
             # Create the job from the recipe and incoming json data.
-            job = auth.create_job(analysis=analysis, user=request.user)
-
-            # Fill the json data.
-            json_data = form.fill_json_data(job=job)
-            # Generate a meaningful job title.
-            name = auth.make_job_title(recipe=analysis, data=json_data)
-            # Update the json_text and name
-            job.json_text = hjson.dumps(json_data)
-            job.name = name
-            job.save()
+            job = auth.create_job(analysis=analysis, user=request.user, fill_with=form.cleaned_data)
 
             # Spool the job right away if UWSGI exists.
             if tasks.HAS_UWSGI:
-
-                # Update the job state.
-                Job.objects.filter(id=job.id).update(state=Job.SPOOLED)
 
                 # Spool via UWSGI.
                 tasks.execute_job.spool(job_id=job.id)
@@ -736,8 +724,6 @@ def job_rerun(request, uid):
 
     # Spool the job right away if UWSGI exists.
     if tasks.HAS_UWSGI:
-        # Update the job state.
-        Job.objects.filter(id=job.id).update(state=Job.SPOOLED)
 
         # Spool via UWSGI.
         tasks.execute_job.spool(job_id=job.id)
@@ -994,19 +980,26 @@ def job_serve(request, uid, path):
         return redirect("/")
 
 
-def list_files(request, path=''):
-
+def import_files(request, path=''):
+    """
+    Import files mounted on IMPORT_ROOT_DIR in settings
+    """
     user = request.user
 
     if not user.is_superuser:
         messages.error(request, 'You need to be an admin.')
         return redirect(reverse('project_list'))
 
-    # Get most recent path
-    file_obj = FileList.objects.order_by('-pk').first()
-    root = file_obj.path if file_obj else ''
+    current_path = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
 
-    root = os.path.abspath(os.path.join(root, path))
-    context = dict(root=root)
+    if not current_path.startswith(settings.IMPORT_ROOT_DIR):
+        messages.error(request, 'Outside root directory')
+        rel_path = ''
+    elif current_path == settings.IMPORT_ROOT_DIR:
+        rel_path = ''
+    else:
+        rel_path = os.path.relpath(current_path, settings.IMPORT_ROOT_DIR)
 
-    return render(request, 'list_files.html', context=context)
+    context = dict(rel_path=rel_path)
+
+    return render(request, 'import_files.html', context=context)

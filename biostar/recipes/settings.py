@@ -12,9 +12,6 @@ RECAPTCHA_PRIVATE_KEY = ""
 
 #MENU_BAR = "widgets/menubar.html"
 
-# Default file list path.
-DEFAULT_FILE_PATH = ''
-
 SEARCH_CHAR_MIN = 2
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
@@ -94,6 +91,8 @@ LOCAL_ROOT = join(BASE_DIR, 'export', 'local')
 
 # The location for the table of contents.
 TOC_ROOT = join(MEDIA_ROOT, 'tocs')
+
+IMPORT_ROOT_DIR = join(BASE_DIR, 'export', 'local')
 
 # Configure language detection
 LANGUAGE_DETECTION = ['en']

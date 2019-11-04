@@ -231,8 +231,11 @@ def job_color(job):
     """
     Returns a color based on job status.
     """
-    return JOB_COLORS.get(job.state, "")
-
+    try:
+        return JOB_COLORS.get(job.state, "")
+    except Exception as exc:
+        logger.error(exc)
+        return ''
 
 @register.simple_tag
 def activate(value1, value2):
@@ -394,7 +397,10 @@ def access_form(project, user, form):
 @register.inclusion_tag('widgets/job_elapsed.html')
 def job_minutes(job):
 
-    check_back = 'check_back' if job.state in [Job.SPOOLED, Job.RUNNING] else ''
+    check_back = ''
+    # Add a tag to check a state change every ~5 seconds and update tag
+    if job.state in [Job.SPOOLED, Job.RUNNING, Job.QUEUED]:
+        check_back = 'check_back'
 
     return dict(job=job, check_back=check_back)
 
@@ -460,10 +466,10 @@ def listing(root):
             path = os.path.join(root, path)
             tstamp = os.stat(path).st_mtime
             size = os.stat(path).st_size
-            rel_path = os.path.relpath(path, root)
+            rel_path = os.path.relpath(path, settings.IMPORT_ROOT_DIR)
             is_dir = os.path.isdir(path)
-            full_path = os.path.abspath(os.path.join(root, path))
-            return rel_path, tstamp, size, is_dir, full_path
+            basename = os.path.basename(path)
+            return rel_path, tstamp, size, is_dir, basename
 
         paths = map(transform, paths)
         # Sort files by timestamps
@@ -476,8 +482,9 @@ def listing(root):
 
 
 @register.inclusion_tag('widgets/files_list.html', takes_context=True)
-def files_list(context, root):
+def files_list(context, rel_path):
     # Limit to the first 100 files.
+    root = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, rel_path))
     paths = listing(root=root)
     user = context['request'].user
     return dict(paths=paths, user=user, root=root)

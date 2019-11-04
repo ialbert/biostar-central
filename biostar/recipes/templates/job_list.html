@@ -51,11 +51,11 @@
 
                         <div id="copy-message-{{ job.uid }}"></div>
                     </div>
-
+                    {% if user.is_authenticated %}
                     <a class="ui right floated label rerun" href="{% url "job_rerun" job.uid %}?next={% url 'job_list' job.project.uid %}">
                         <i class="redo icon"></i>Rerun
                     </a>
-
+                    {% endif %}
                 </div>
 
             {% empty %}

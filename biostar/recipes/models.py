@@ -406,22 +406,6 @@ class Data(models.Model):
         return first
 
 
-class FileList(models.Model):
-
-    # File path for the listing
-    path = models.FilePathField(default='')
-
-    # Descriptive title of files found in path
-    label = models.CharField(max_length=MAX_TEXT_LEN)
-
-    uid = models.CharField(max_length=32, unique=True)
-
-    def save(self, *args, **kwargs):
-        self.uid = self.uid or util.get_uuid(5)
-        self.label = self.label or "Files"
-        super(FileList, self).save(*args, **kwargs)
-
-
 class Analysis(models.Model):
     AUTHORIZED, NOT_AUTHORIZED = 1, 2
 

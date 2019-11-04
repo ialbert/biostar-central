@@ -45,10 +45,11 @@
 
         <div class="ui left icon input" style="width: 80%">
             <i class="folder open outline icon"></i>
-            <input type="text" placeholder="Enter source directory" value="{{ root }}" id="current_source">
+
+            <input type="text" placeholder="Enter source directory" value="{{ rel_path }}" id="current_source">
         </div>
 
-        {% files_list root=root %}
+        {% files_list rel_path=rel_path %}
     </div>
 
 

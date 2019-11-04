@@ -28,9 +28,9 @@ def upload_field(data):
     """
     Widget used to upload files.
     """
-    initial = data.get("value", "")
-    label = data.get("label", "")
-    help_text = data.get("help", "")
+    initial = str(data.get("value", ""))
+    label = str(data.get("label", ""))
+    help_text = str(data.get("help", ""))
 
     field = forms.FileField(initial=initial, label=label, help_text=help_text)
 

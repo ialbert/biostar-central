@@ -373,28 +373,10 @@ function remove_trigger() {
 function set_source_dir() {
     let current_source = $('#current_source');
     if (!current_source.val().length) {
-        popup_message(current_source, 'Source directory need to be set.', 'error', 2000)
+        window.location.href = '/root/list/';
         return
     }
-    $.ajax('/set/source/dir/', {
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'source_dir': current_source.val()
-            },
-
-            success: function (data) {
-                if (data.status ==='success'){
-                    window.location.href = data.redir;
-                    return
-                }
-                popup_message(current_source, data.msg, data.status, 2000)
-
-            },
-            error: function () {
-            }
-        }
-    )
+    window.location.href = '/file/list/' + current_source.val();
 }
 
 

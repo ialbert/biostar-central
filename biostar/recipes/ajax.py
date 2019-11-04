@@ -9,13 +9,18 @@ from django.template import Template, Context
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.template import loader
+from django.conf import settings
 from biostar.recipes.const import *
-from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, Project, MAX_TEXT_LEN, FileList
+from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, Project, MAX_TEXT_LEN
 from biostar.recipes.forms import RecipeInterface
-from biostar.recipes import  auth
+from biostar.recipes import auth
 
 logger = logging.getLogger("engine")
 
+JOB_COLORS = {Job.SPOOLED: "spooled",
+              Job.ERROR: "errored", Job.QUEUED: "queued",
+              Job.RUNNING: "running", Job.COMPLETED: "completed"
+              }
 
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
@@ -364,47 +369,19 @@ def add_to_interface(request):
 
 
 @ajax_error_wrapper(method="POST")
-def set_source_dir(request):
-    """
-    Set source directory to list
-    """
-    user = request.user
-
-    if not user.is_superuser:
-        return ajax_error(msg="You need to be an admin")
-
-    source_dir = request.POST.get('source_dir')
-
-    if not source_dir:
-        return ajax_error(msg="Source directory not set.")
-
-    file_obj = FileList.objects.order_by('-pk').first()
-    if not file_obj:
-        FileList.objects.create(path=source_dir)
-    else:
-        file_obj.path = source_dir
-        file_obj.save()
-
-    redir_url = reverse('root_list')
-    return ajax_success(msg='Changed source directory', redir=redir_url)
-
-
-@ajax_error_wrapper(method="POST")
 def file_copy(request):
     """
     Add file into clipboard.
     """
     path = request.POST.get('path')
-
+    fullpath = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
     if not path:
         return ajax_error(msg="Root directory does not exist.")
-    if not path:
-        return ajax_error(msg="Path does not exist.")
 
-    if not os.path.exists(path):
+    if not os.path.exists(fullpath):
         return ajax_error(msg="File path does not exist.")
 
-    copied = auth.copy_file(request=request, fullpath=path)
+    copied = auth.copy_file(request=request, fullpath=fullpath)
 
     return ajax_success(msg=f"{len(copied)} files copied.")
 

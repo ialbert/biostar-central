@@ -14,35 +14,67 @@ body {
 }
 
 .completed{
-    background-color: #21ba45!important;
-    border-color: #21ba45!important;
-    color: white !important;
+    border-color: #21ba45 !important;
 }
 
+.completed.label{
+    border-bottom: 1px solid #21ba45!important;
+    background-color: #21ba45 !important;
+    color: white;
+}
+.completed.item{
+    color: #21ba45!important;
+}
+
+
 .spooled{
-    background-color: #6435c9!important;
     border-color: #6435c9!important;
-    color: white !important;
+}
+
+.spooled.label{
+    border-bottom: 1px solid #6435c9!important;
+    background-color: #6435c9!important;
+    color: white;
+}
+.spooled.item{
+    color: #6435c9!important;
 }
 
 
 .errored{
-    background-color: #db2828!important;
     border-color: #db2828!important;
-    color: white !important;
+}
+.errored.label{
+    border-bottom: 1px solid #db2828!important;
+    background-color: #db2828!important;
+    color: white;
+}
+.errored.item{
+    color: #db2828!important;
 }
 
 .running{
-    background-color: #f2711c!important;
     border-color: #f2711c!important;
-    color: white !important;
+}
+.running.label{
+    border-bottom: 1px solid #f2711c!important;
+    background-color: #f2711c!important;
+    color: white;
+}
+.running.item{
+    color: #f2711c!important;
 }
 
-
 .queued{
-    background-color: #00b5ad!important;
     border-color: #00b5ad!important;
-    color: white !important;
+}
+.queued.label{
+    border-bottom: 1px solid #00b5ad!important;
+    background-color: #00b5ad!important;
+    color: white;
+}
+.queued.item{
+    color: #00b5ad!important;
 }
 
 .ui.attached.colored.segment {

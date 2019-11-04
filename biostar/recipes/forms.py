@@ -26,6 +26,9 @@ logger = models.logger
 
 TEXT_UPLOAD_MAX = 10000
 
+# Maximum file size that can be uploaded to recipe in megabytes.
+MAX_RECIPE_FILE_MB = 5
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -511,12 +514,13 @@ class RecipeInterface(forms.Form):
             raise forms.ValidationError(msg)
 
         for field, item in self.json_data.items():
-            if field in self.cleaned_data and item['display'] == UPLOAD:
+
+            if field in self.cleaned_data and item.get('display') == UPLOAD:
                 stream = self.request.FILES.get(field)
                 if not stream:
                     continue
                 # Validate the file size.
-                check_size(stream, field=field, maxsize=settings.MAX_FILE_SIZE_MB)
+                check_size(stream, field=field, maxsize=MAX_RECIPE_FILE_MB)
 
         self.validate_text_fields()
 
@@ -539,47 +543,6 @@ class RecipeInterface(forms.Form):
             if re.fullmatch(regex_pattern, val) is None:
                 msg = f"{field} : contains invalid patterns. Valid pattern:{regex_pattern}."
                 raise forms.ValidationError(msg)
-
-    def fill_json_data(self, job=None):
-        """
-        Produces a filled in JSON data based on user input.
-        Should be called after the form has been filled and is valid.
-        """
-
-        # Creates a data.id to data mapping.
-        store = dict((data.id, data) for data in self.project.data_set.all())
-
-        # Make a copy of the original json data used to render the form.
-        json_data = copy.deepcopy(self.json_data)
-
-        # Alter the json data and fill in the extra information.
-        for field, item in json_data.items():
-
-            # If the field is a data field then fill in more information.
-            if item.get("source") == "PROJECT":
-                data_id = int(self.cleaned_data.get(field))
-                data = store.get(data_id)
-                # This mutates the `item` dictionary!
-                data.fill_dict(item)
-                continue
-
-            # The JSON value will be overwritten with the selected field value.
-            if field in self.cleaned_data:
-                value = self.cleaned_data[field]
-                # Clean the textbox value
-                item["value"] = value if item['display'] != TEXTBOX else clean_text(value)
-
-                if item['display'] == UPLOAD:
-                    # Add uploaded file to job directory.
-                    stream = self.request.FILES.get(field)
-                    if not stream:
-                        item['value'] = ''
-                        continue
-                    # Add files to the job directory
-                    path = auth.add_file(target_dir=job.get_data_dir(), stream=stream)
-                    item['value'] = path
-
-        return json_data
 
 
 class EditCode(forms.Form):

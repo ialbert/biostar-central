@@ -1,4 +1,5 @@
 import hjson
+import time
 import os, logging, subprocess, pprint
 
 from django.conf import settings
@@ -37,6 +38,7 @@ def run(job, options={}):
 
     stdout_log = []
     stderr_log = []
+
     try:
         # Find the json and the template.
         json_data = hjson.loads(job.json_text)
