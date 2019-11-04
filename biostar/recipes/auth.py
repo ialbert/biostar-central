@@ -382,8 +382,8 @@ def fill_json_data(project, job=None, source_data={}, fill_with={}):
     # Make a copy of the original json data used to render the form.
     json_data = copy.deepcopy(source_data)
 
-    # Get default values to from json data 'value'
-    default = {field: item.get('value', '') for field,item in json_data.items()}
+    # Get default dictionary to fill with from json data 'value'
+    default = {field: item.get('value', '') for field, item in json_data.items()}
     fill_with = fill_with or default
 
     # Alter the json data and fill in the extra information.
@@ -409,7 +409,7 @@ def fill_json_data(project, job=None, source_data={}, fill_with={}):
                 if not upload_value:
                     item['value'] = ''
                     continue
-                print(upload_value)
+
                 # Link or write the stream located in the fill_with
                 path = add_file(target_dir=job.get_data_dir(), source=upload_value)
                 item['value'] = path
@@ -445,8 +445,6 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     # Fill the json data.
     json_data = fill_json_data(job=job, source_data=json_data, project=project, fill_with=fill_with)
-
-    print(json_data)
 
     # Generate a meaningful job title.
     name = make_job_title(recipe=analysis, data=json_data)
