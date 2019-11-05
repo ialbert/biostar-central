@@ -227,12 +227,20 @@ def security_label(context, analysis):
 
 
 @register.simple_tag
+def full_url():
+    if settings.HTTP_PORT:
+        return f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}"
+    else:
+        return f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}"
+
+@register.simple_tag
 def job_color(job):
     """
     Returns a color based on job status.
     """
     try:
-        return JOB_COLORS.get(job.state, "")
+        if isinstance(job, Job):
+            return JOB_COLORS.get(job.state, "")
     except Exception as exc:
         logger.error(exc)
         return ''

@@ -1,6 +1,7 @@
 import logging
 import os
 import hjson
+import hashlib
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -183,8 +184,10 @@ def project_info(request, uid):
 
     # Who has write access
     write_access = auth.is_writable(user=user, project=project)
+    access = Access.objects.filter(user=user, project=project).first()
+    access = access or Access(access=Access.NO_ACCESS)
 
-    context = dict(project=project, active="info", write_access=write_access)
+    context = dict(project=project, active="info", write_access=write_access, access=access)
     context.update(counts)
 
     return render(request, "project_info.html", context)
@@ -211,9 +214,10 @@ def project_list_private(request):
         projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
         projects = annotate_projects(projects)
 
-    context = dict(projects=projects, msg=empty_msg, active="projects")
+    context = dict(projects=projects, empty_msg=empty_msg, active="projects", icon='briefcase', title='Private Projects',
+                   private='active')
 
-    return render(request, "project_list_private.html", context)
+    return render(request, "project_list.html", context)
 
 
 def project_list_public(request):
@@ -221,13 +225,33 @@ def project_list_public(request):
 
     projects = auth.get_project_list(user=request.user)
     # Exclude private projects
-    projects = projects.exclude(privacy=Project.PRIVATE)
+    projects = projects.exclude(privacy__in=[Project.PRIVATE, Project.SHAREABLE])
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
     projects = annotate_projects(projects)
 
-    context = dict(projects=projects, active="projects")
+    context = dict(projects=projects, active="projects", icon='list', title='Public Projects',
+                   public='active', empty_msg = "No projects found.")
 
-    return render(request, "project_list_public.html", context)
+    return render(request, "project_list.html", context)
+
+
+def project_list_shared(request):
+    empty_msg = "No projects found."
+    if request.user.is_anonymous:
+        projects = []
+        empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
+    else:
+        projects = auth.get_project_list(user=request.user)
+        # Exclude private projects
+        projects = projects.exclude(privacy=Project.PRIVATE)
+        # Get projects shared with you
+        projects = projects.filter(privacy=Project.SHAREABLE, access__access=Access.SHARE_ACCESS,
+                                   access__user=request.user)
+        projects = annotate_projects(projects)
+    context = dict(projects=projects, active="projects", icon='share square', title='Shared Projects',
+                   shared='active', empty_msg=empty_msg)
+
+    return render(request, "project_list.html", context)
 
 
 def project_list(request):
@@ -781,7 +805,6 @@ def job_rerun(request, uid):
 #     context = dict(project=project, analysis=analysis, form=form, script=script, recipe=recipe)
 #     return render(request, 'recipe_edit_code.html', context)
 
-
 @read_access(type=Analysis)
 def recipe_edit(request, uid):
     """
@@ -820,7 +843,7 @@ def recipe_edit(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@write_access(type=Project, fallback_view="project_view")
+@read_access(type=Project)
 def recipe_create(request, uid):
 
     # Get the project
@@ -978,6 +1001,32 @@ def job_serve(request, uid, path):
     else:
         messages.error(request, "Object does not exist")
         return redirect("/")
+
+
+@login_required
+def project_share(request, token):
+
+    # Get the project by the it's unique share token.
+    project = Project.objects.filter(sharable_token=token).first()
+    user = request.user
+
+    if not project.is_shareable:
+        messages.error(request, "Project is not sharable.")
+        return redirect(reverse('project_list'))
+
+    access = Access.objects.filter(user=user, project=project).first()
+    # Give user Share access.
+
+    # Create access
+    if access is None:
+        Access.objects.create(user=user, project=project, access=Access.SHARE_ACCESS)
+
+    # Update existing No Access to Share
+    elif access.access == Access.NO_ACCESS:
+        Access.objects.filter(id=access.id).update(access=Access.SHARE_ACCESS)
+
+    messages.success(request, "Granted share access")
+    return redirect(reverse('project_view', kwargs=dict(uid=project.uid)))
 
 
 def import_files(request, path=''):

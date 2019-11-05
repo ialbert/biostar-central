@@ -8,6 +8,11 @@
 
 {% block content %}
 <div class="narrow">
+    {% if project.is_shareable %}
+        Sharable link : <code><a href="{% url 'project_share' project.sharable_token %}">
+        {% full_url %}{% url 'project_share' project.sharable_token %}</a>
+        </code>
+    {% endif %}
     <div class="ui raised segment inputcolor">
     {% form_errors form %}
 

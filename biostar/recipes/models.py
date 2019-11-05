@@ -8,7 +8,7 @@ from django.dispatch import receiver
 from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
-
+from django.contrib.auth import hashers
 from django.conf import settings
 from biostar.accounts.models import User
 from . import util
@@ -96,7 +96,6 @@ class Snippet(models.Model):
     # Appears to all uses
     default = models.BooleanField(default=False)
 
-
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(6)
         self.owner = self.owner or self.type.owner
@@ -105,7 +104,7 @@ class Snippet(models.Model):
 
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
-    PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
+    PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shared"), (PUBLIC, "Public")]
 
     # Rank in a project list.
     rank = models.FloatField(default=100)
@@ -128,11 +127,14 @@ class Project(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     uid = models.CharField(max_length=32, unique=True)
 
+    sharable_token = models.CharField(max_length=32, null=True, unique=True)
+
     objects = Manager()
 
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.date = self.date or now
+        self.sharable_token = self.sharable_token or util.get_uuid(30)
         self.html = make_html(self.text)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
@@ -204,16 +206,29 @@ class Project(models.Model):
         first = lines[0]
         return first
 
+    @property
+    def is_shareable(self):
+        return self.privacy == self.SHAREABLE
+
+    def get_sharable_link(self):
+
+        # Return a sharable link if the project is shareable
+        if self.is_shareable:
+            return reverse('project_share', kwargs=dict(token=self.sharable_token))
+
+        return '/'
+
 
 class Access(models.Model):
     """
     Allows access of users to Projects.
     """
-    NO_ACCESS, READ_ACCESS, WRITE_ACCESS, = 1, 2, 3
+    NO_ACCESS, READ_ACCESS, WRITE_ACCESS, SHARE_ACCESS = 1, 2, 3, 4
     ACCESS_CHOICES = [
         (NO_ACCESS, "No Access"),
         (READ_ACCESS, "Read Access"),
         (WRITE_ACCESS, "Write Access"),
+        (SHARE_ACCESS, "Share Access"),
     ]
 
     ACCESS_MAP = dict(ACCESS_CHOICES)

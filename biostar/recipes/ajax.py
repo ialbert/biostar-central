@@ -375,8 +375,6 @@ def file_copy(request):
     """
     path = request.POST.get('path')
     fullpath = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
-    if not path:
-        return ajax_error(msg="Root directory does not exist.")
 
     if not os.path.exists(fullpath):
         return ajax_error(msg="File path does not exist.")

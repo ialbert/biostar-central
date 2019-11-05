@@ -233,7 +233,11 @@ def get_project_list(user, include_public=True, include_deleted=False):
         # Authenticated users see public projects and private projects with access rights.
         cond = Q(owner=user, privacy=Project.PRIVATE) | Q(privacy=privacy) | Q(access__user=user,
                                                                                access__access__in=[Access.READ_ACCESS,
-                                                                                                   Access.WRITE_ACCESS])
+                                                                                                   Access.WRITE_ACCESS,
+                                                                                                  ])
+        # Show sharable projects if the user has share access.
+        cond = cond | Q(access__access=Access.SHARE_ACCESS) & Q(privacy=Project.SHAREABLE)
+
     # Generate the query.
     if include_deleted:
         query = Project.objects.filter(cond).distinct()
@@ -409,7 +413,6 @@ def fill_json_data(project, job=None, source_data={}, fill_with={}):
                 if not upload_value:
                     item['value'] = ''
                     continue
-                print(upload_value)
                 # Link or write the stream located in the fill_with
                 path = add_file(target_dir=job.get_data_dir(), source=upload_value)
                 item['value'] = path
@@ -445,8 +448,6 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     # Fill the json data.
     json_data = fill_json_data(job=job, source_data=json_data, project=project, fill_with=fill_with)
-
-    print(json_data)
 
     # Generate a meaningful job title.
     name = make_job_title(recipe=analysis, data=json_data)
@@ -521,12 +522,13 @@ def link_data(path, data):
 
 def is_readable(user, project):
 
-    # Public projects are readable by all users.
-    if project.is_public:
-        return True
+    # Shareable projects can get to see the
+    if project.is_shareable:
+        query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS) | Q(access=Access.SHARE_ACCESS)
+    else:
+        query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS)
 
-    readable = Access.objects.filter(Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS),
-                                     project=project, user=user)
+    readable = Access.objects.filter(query, project=project, user=user)
 
     return readable.exists()
 

@@ -21,7 +21,28 @@ class AccessAdmin(admin.ModelAdmin):
 
 @admin.register(Data)
 class DataAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        TextField: {'widget': Textarea(attrs={'rows': 20, 'cols': 100})},
+    }
+    search_fields = ('name', 'owner__first_name', 'owner__email', 'state', "project__name",
+                     "project__owner__first_name", "project__owner__email")
+    list_display = ("name",  "project", "lastedit_date", "date", 'size', 'type')
+    list_filter = ("project__name", "deleted")
+
+    fieldsets = (("Data Metadata",
+                  {'fields': ("name", "owner",  "image", "deleted", 'type'),
+                              #"file"),
+                   "classes": ('extrapretty')}
+                  ),
+
+                 ("Optional Text Inputs",
+                  {'fields': (("text", "html")),
+                   "classes": ("collapse", 'extrapretty')}
+                  ),
+                 )
+
     pass
+
 
 
 @admin.register(Job)
@@ -29,7 +50,6 @@ class JobAdmin(admin.ModelAdmin):
     formfield_overrides = {
         TextField: {'widget': Textarea(attrs={'rows': 20, 'cols': 100})},
     }
-
     search_fields = ('name', 'owner__first_name', 'owner__email', 'state', "project__name",
                      "project__owner__first_name", "project__owner__email")
     list_display = ("name", "state", "start_date", "security", "date")
@@ -88,13 +108,13 @@ class ProjectAdmin(admin.ModelAdmin):
         TextField: {'widget': Textarea(attrs={'rows': 20, 'cols': 100})},
     }
 
-    search_fields = ('name', 'text', 'owner__first_name', 'owner__email')
-    list_display = ("name", "date", "deleted")
-    list_filter = ("name", "deleted")
+    search_fields = ('name', 'text', 'owner__first_name', 'owner__email', 'owner__username')
+    list_display = ("name", "date", "deleted", 'privacy', 'owner')
+    list_filter = ("deleted", 'privacy')
 
-    fieldsets = (("Analysis Metadata",
+    fieldsets = (("Project Metadata",
                   {'fields': ("name", "owner", ("uid", "rank"),
-                              "deleted", "image", "privacy"),
+                              "deleted", "image", "privacy", 'sharable_token'),
                    "classes": ('extrapretty')}
                   ),
 
