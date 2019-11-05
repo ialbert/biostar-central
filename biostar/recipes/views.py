@@ -1,6 +1,7 @@
 import logging
 import os
 import hjson
+import hashlib
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -183,8 +184,14 @@ def project_info(request, uid):
 
     # Who has write access
     write_access = auth.is_writable(user=user, project=project)
+    if user.is_authenticated:
+        access = Access.objects.filter(user=user, project=project).first()
+    else:
+        access = Access(access=Access.NO_ACCESS)
 
-    context = dict(project=project, active="info", write_access=write_access)
+    access = access or Access(access=Access.NO_ACCESS)
+
+    context = dict(project=project, active="info", write_access=write_access, access=access)
     context.update(counts)
 
     return render(request, "project_info.html", context)
@@ -209,11 +216,13 @@ def project_list_private(request):
         empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
     else:
         projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
+
         projects = annotate_projects(projects)
 
-    context = dict(projects=projects, msg=empty_msg, active="projects")
+    context = dict(projects=projects, empty_msg=empty_msg, active="projects", icon='briefcase', title='Private Projects',
+                   private='active')
 
-    return render(request, "project_list_private.html", context)
+    return render(request, "project_list.html", context)
 
 
 def project_list_public(request):
@@ -221,13 +230,14 @@ def project_list_public(request):
 
     projects = auth.get_project_list(user=request.user)
     # Exclude private projects
-    projects = projects.exclude(privacy=Project.PRIVATE)
+    projects = projects.exclude(privacy__in=[Project.PRIVATE, Project.SHAREABLE])
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
     projects = annotate_projects(projects)
 
-    context = dict(projects=projects, active="projects")
+    context = dict(projects=projects, active="projects", icon='list', title='Public Projects',
+                   public='active', empty_msg = "No projects found.")
 
-    return render(request, "project_list_public.html", context)
+    return render(request, "project_list.html", context)
 
 
 def project_list(request):
@@ -781,7 +791,6 @@ def job_rerun(request, uid):
 #     context = dict(project=project, analysis=analysis, form=form, script=script, recipe=recipe)
 #     return render(request, 'recipe_edit_code.html', context)
 
-
 @read_access(type=Analysis)
 def recipe_edit(request, uid):
     """
@@ -796,7 +805,8 @@ def recipe_edit(request, uid):
     user = request.user
     if request.method == "POST":
         # Form has been submitted
-        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=request.user)
+        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=request.user,
+                                project=project)
         if form.is_valid():
             recipe = form.save()
             image = form.cleaned_data['image']
@@ -810,7 +820,7 @@ def recipe_edit(request, uid):
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
         # Initial form loading via a GET request.
-        form = forms.RecipeForm(instance=recipe, user=request.user)
+        form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
     context = dict(recipe=recipe, project=project, form=form, name=recipe.name, activate='Edit Recipe',
@@ -820,7 +830,7 @@ def recipe_edit(request, uid):
     return render(request, 'recipe_edit.html', context)
 
 
-@write_access(type=Project, fallback_view="project_view")
+@read_access(type=Project)
 def recipe_create(request, uid):
 
     # Get the project
@@ -829,10 +839,10 @@ def recipe_create(request, uid):
     # Prepare the form
 
     initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(5)}')
-    form = forms.RecipeForm(user=request.user, initial=initial)
+    form = forms.RecipeForm(user=request.user, initial=initial, project=project)
 
     if request.method == "POST":
-        form = forms.RecipeForm(data=request.POST, creating=True, files=request.FILES, user=request.user)
+        form = forms.RecipeForm(data=request.POST, creating=True, project=project, files=request.FILES, user=request.user)
         if form.is_valid():
             image = form.cleaned_data['image']
             recipe_uid = form.cleaned_data['uid']
@@ -978,6 +988,32 @@ def job_serve(request, uid, path):
     else:
         messages.error(request, "Object does not exist")
         return redirect("/")
+
+
+@login_required
+def project_share(request, token):
+
+    # Get the project by the it's unique share token.
+    project = Project.objects.filter(sharable_token=token).first()
+    user = request.user
+
+    if not project.is_shareable:
+        messages.error(request, "Project is not sharable.")
+        return redirect(reverse('project_list'))
+
+    access = Access.objects.filter(user=user, project=project).first()
+    # Give user Share access.
+
+    # Create access
+    if access is None:
+        Access.objects.create(user=user, project=project, access=Access.SHARE_ACCESS)
+
+    # Update existing No Access to Share
+    elif access.access == Access.NO_ACCESS:
+        Access.objects.filter(id=access.id).update(access=Access.SHARE_ACCESS)
+
+    messages.success(request, "Granted share access")
+    return redirect(reverse('project_view', kwargs=dict(uid=project.uid)))
 
 
 def import_files(request, path=''):

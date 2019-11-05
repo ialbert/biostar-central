@@ -38,6 +38,7 @@ urlpatterns = [
     path(r'project/list/public/', views.project_list_public, name='project_list_public'),
     path(r'project/list/', views.project_list, name='project_list'),
     path(r'project/delete/<str:uid>/', views.project_delete, name='project_delete'),
+    re_path(r'project/share/(?P<token>[-\w]+)/', views.project_share, name='project_share'),
 
     # Data
     path(r'data/list/<str:uid>/', views.data_list, name='data_list'),

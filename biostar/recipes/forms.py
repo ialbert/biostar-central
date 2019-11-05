@@ -124,9 +124,10 @@ class ProjectForm(forms.ModelForm):
         self.request = request
         self.create = create
 
-        choices = filter(lambda pri: pri[0] != Project.SHAREABLE, Project.PRIVACY_CHOICES)
+        #choices = filter(lambda pri: pri[0] != Project.SHAREABLE, Project.PRIVACY_CHOICES)
 
-        self.fields["privacy"] = forms.CharField(widget=forms.Select(choices=choices), initial=self.instance.privacy,
+        self.fields["privacy"] = forms.CharField(widget=forms.Select(choices=Project.PRIVACY_CHOICES),
+                                                 initial=self.instance.privacy,
                                                  required=False)
 
     class Meta:
@@ -322,9 +323,10 @@ class RecipeForm(forms.ModelForm):
     rank = forms.FloatField(required=True, initial=100)
     text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=True)
 
-    def __init__(self, user, creating=False, *args, **kwargs):
+    def __init__(self, user, creating=False, project=None, *args, **kwargs):
         self.creating = creating
         self.user = user
+        self.project = project
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -349,6 +351,16 @@ class RecipeForm(forms.ModelForm):
 
         if self.user.is_anonymous:
             raise forms.ValidationError('You need to be logged in.')
+
+        # Check if this user has read access when creating a recipe.
+        is_readable = auth.is_readable(user=self.user, project=self.project)
+        if not is_readable and self.creating:
+            raise forms.ValidationError('You need read access to create a recipe.')
+
+        # Check if user has write object when editing a recipe
+        is_writable = auth.is_writable(user=self.user, project=self.project)
+        if not self.creating and (self.instance.owner != self.user and not is_writable):
+            raise forms.ValidationError('You need write access to edit the recipe.')
 
         # Fill in not submitted fields.
         for field in self.Meta.fields:
@@ -423,6 +435,7 @@ class JobEditForm(forms.ModelForm):
 class ChangeUserAccess(forms.Form):
     user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
     project_uid = forms.CharField(required=True, widget=forms.HiddenInput())
+
     access = forms.IntegerField(initial=Access.NO_ACCESS,
                                 widget=forms.Select(choices=Access.ACCESS_CHOICES))
 
@@ -526,19 +539,19 @@ class RecipeInterface(forms.Form):
 
     def validate_text_fields(self):
         """Validate Character fields """
-
+        bool_map = {'false': False, 'true': True}
         # Default pattern matches any alphanumeric string with a given length
         default_pattern = r"^\w{1,20}$"
 
-        for field in self.json_data:
+        for field, item in self.json_data.items():
             val = self.cleaned_data.get(field)
 
             # Validate text fields
-            if (val is None) or (self.json_data[field].get("display") != TEXTBOX):
+            if (val is None) or (item.get("display") != TEXTBOX):
                 continue
 
             # Acceptable regex pattern
-            regex_pattern = self.json_data[field].get("regex", default_pattern)
+            regex_pattern = item.get("regex", default_pattern)
 
             if re.fullmatch(regex_pattern, val) is None:
                 msg = f"{field} : contains invalid patterns. Valid pattern:{regex_pattern}."

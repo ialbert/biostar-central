@@ -233,7 +233,8 @@ def get_project_list(user, include_public=True, include_deleted=False):
         # Authenticated users see public projects and private projects with access rights.
         cond = Q(owner=user, privacy=Project.PRIVATE) | Q(privacy=privacy) | Q(access__user=user,
                                                                                access__access__in=[Access.READ_ACCESS,
-                                                                                                   Access.WRITE_ACCESS])
+                                                                                                   Access.WRITE_ACCESS,
+                                                                                                  Access.SHARE_ACCESS])
     # Generate the query.
     if include_deleted:
         query = Project.objects.filter(cond).distinct()
@@ -409,7 +410,6 @@ def fill_json_data(project, job=None, source_data={}, fill_with={}):
                 if not upload_value:
                     item['value'] = ''
                     continue
-
                 # Link or write the stream located in the fill_with
                 path = add_file(target_dir=job.get_data_dir(), source=upload_value)
                 item['value'] = path
@@ -519,12 +519,11 @@ def link_data(path, data):
 
 def is_readable(user, project):
 
-    # Public projects are readable by all users.
-    if project.is_public:
-        return True
+    # Shareable projects can get to see the
 
-    readable = Access.objects.filter(Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS),
-                                     project=project, user=user)
+    query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS) | Q(access=Access.SHARE_ACCESS)
+
+    readable = Access.objects.filter(query, project=project, user=user)
 
     return readable.exists()
 

@@ -8,37 +8,48 @@
 
 {% block content %}
 
+<a class="ui {%  get_access_color access project user %} ribbon label">
+    {%  get_access_label access project user %}
+</a>
 
-        <h3 class="ui header">Project Information</h3>
-        {{ project.html|safe }}
-                <div class="extra">
-                {% privacy_label project %}
-                {% created_by date=project.lastedit_date user=project.lastedit_user %}
-            </div>
+    <h3 class="ui header">Project Information</h3>
+    {{ project.html|safe }}
+    <div class="extra">
+        {% privacy_label project %}
+        {% created_by date=project.lastedit_date user=project.lastedit_user %}
+    </div>
 
-<div class="ui  divider"></div>
+    {% if project.is_shareable and project.owner == request.user %}
+        <div class="ui divider"></div>
+
+        Sharable link : <code><a href="{% url 'project_share' project.sharable_token %}">
+        {% full_url %}{% url 'project_share' project.sharable_token %}</a>
+        </code>
+    {% endif %}
+
+    <div class="ui  divider"></div>
 
     {% if write_access %}
 
-            <div class="ui three small buttons">
+        <div class="ui three small buttons">
 
-                <a class="ui  button" href="{% url 'project_edit' project.uid %}">
-                    <i class="edit icon"></i>Edit Project
-                </a>
+            <a class="ui  button" href="{% url 'project_edit' project.uid %}">
+                <i class="edit icon"></i>Edit Project
+            </a>
 
-                <a class="ui  button" href="{% url 'project_users' project.uid %}">
-                    <i class="users icon"></i>Manage Access
-                </a>
+            <a class="ui  button" href="{% url 'project_users' project.uid %}">
+                <i class="users icon"></i>Manage Access
+            </a>
 
-                <a class="ui button tablet" href="{% url 'project_delete' project.uid %}">
-                    {% if project.deleted %}
-                        <i class="undo icon"></i> <span class="tablet">Restore Project</span>
-                    {% else %}
-                        <i class="trash icon"></i> <span class="tablet">Delete Project</span>
-                    {% endif %}
-                </a>
+            <a class="ui button tablet" href="{% url 'project_delete' project.uid %}">
+                {% if project.deleted %}
+                    <i class="undo icon"></i> <span class="tablet">Restore Project</span>
+                {% else %}
+                    <i class="trash icon"></i> <span class="tablet">Delete Project</span>
+                {% endif %}
+            </a>
 
-            </div>
+        </div>
 
     {% endif %}
 

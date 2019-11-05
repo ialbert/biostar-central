@@ -227,12 +227,20 @@ def security_label(context, analysis):
 
 
 @register.simple_tag
+def full_url():
+    if settings.HTTP_PORT:
+        return f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}"
+    else:
+        return f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}"
+
+@register.simple_tag
 def job_color(job):
     """
     Returns a color based on job status.
     """
     try:
-        return JOB_COLORS.get(job.state, "")
+        if isinstance(job, Job):
+            return JOB_COLORS.get(job.state, "")
     except Exception as exc:
         logger.error(exc)
         return ''
@@ -413,6 +421,47 @@ def size_label(data):
 
     size = f"{defaultfilters.filesizeformat(data.size)}"
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
+
+
+@register.simple_tag
+def get_access_label(access, project, user):
+
+    access_map = {Access.WRITE_ACCESS: 'Write Access',
+                  Access.READ_ACCESS: 'Read Access',
+                  Access.SHARE_ACCESS: 'Share Access'
+                  }
+    if project.owner.id == user.id:
+        return 'Owner'
+
+    access_str = access_map.get(access.access)
+
+    # If the access is not read, write, or share
+    # and the project is public, then it is seen as 'Readable'
+    if not access_str and project.is_public:
+        return 'Read access'
+
+    access_str = access_str or 'No access'
+
+    return access_str
+
+
+@register.simple_tag
+def get_access_color(access, project, user):
+
+    color_map = {Access.WRITE_ACCESS: 'blue',
+                  Access.READ_ACCESS: 'teal',
+                  Access.SHARE_ACCESS: 'pink'
+                  }
+
+    if project.owner.id == user.id:
+        return 'green'
+
+    access_color = color_map.get(access.access)
+
+    if not access_color and project.is_public:
+        return 'teal'
+
+    return access_color
 
 
 def file_listing(root, limit=None):
