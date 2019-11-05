@@ -240,25 +240,6 @@ def project_list_public(request):
     return render(request, "project_list.html", context)
 
 
-def project_list_shared(request):
-    empty_msg = "No projects found."
-    if request.user.is_anonymous:
-        projects = []
-        empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
-    else:
-        projects = auth.get_project_list(user=request.user)
-        # Exclude private projects
-        projects = projects.exclude(privacy=Project.PRIVATE)
-        # Get projects shared with you
-        projects = projects.filter(privacy=Project.SHAREABLE, access__access=Access.SHARE_ACCESS,
-                                   access__user=request.user)
-        projects = annotate_projects(projects)
-    context = dict(projects=projects, active="projects", icon='share square', title='Shared Projects',
-                   shared='active', empty_msg=empty_msg)
-
-    return render(request, "project_list.html", context)
-
-
 def project_list(request):
     if request.user.is_authenticated:
         # Return private projects when user is logged in.
