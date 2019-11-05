@@ -8,6 +8,9 @@
 
 {% block content %}
 
+<a class="ui {%  get_access_color access project user %} ribbon label">
+    {%  get_access_label access project user %}
+</a>
 
     <h3 class="ui header">Project Information</h3>
     {{ project.html|safe }}

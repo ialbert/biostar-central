@@ -16,6 +16,7 @@
 
             <a class="{% activate 'info' active %}  item" href="{% url 'project_info' project.uid %}">
                 <i class="info circle icon"></i><span class="phone">Project</span>
+
             </a>
 
             <a class="{% activate 'data' active %}  item" href="{% url 'data_list' project.uid %}">
@@ -37,19 +38,21 @@
             {% endif %}
 
             {% block rightmenu %}
+
             {% endblock %}
 
         </div>
     {% block contain %}
         <div class="ui bottom attached {% job_color job %} segment">
 
+
             {% show_messages messages %}
 
-            <p>
+
                 {% block content %}
                     Content
                 {% endblock %}
-            </p>
+
         </div>
     {% endblock %}
 

@@ -3,136 +3,142 @@
 
 {% if projects %}
 
-     <div class="ui vertical large segment">
+    <div class="ui vertical large segment">
 
-            <div class="ui divided items">
-                {% for project in projects %}
+        <div class="ui divided items">
+            {% for project in projects %}
 
-                    <div class="item">
-                        <img class="ui mytiny circular fancy image" src="{% img project %}"/>
-                        <div class="content">
-                            <a class="subheader" href="{% url 'project_info' project.uid %}">
-                                <i class="database icon"></i>{{ project.name }}
-                            </a>
+                <div class="item">
 
-                            <div class="meta">{{ project.summary|markdown|safe }}</div>
-                            <div class="extra">
+                    <img class="ui mytiny circular fancy image" src="{% img project %}"/>
+                    <div class="content">
+
+                        <a class="subheader" href="{% url 'project_info' project.uid %}">
+                            <i class="database icon"></i>{{ project.name }}
+
+                        </a>
+
+                        <div class="meta">{{ project.summary|markdown|safe }}</div>
+                        <div class="extra">
+
                             {% privacy_label project %}
 
                             <a
-                            href="{% url 'data_list' project.uid %}">
-                                <i class="file text icon"></i>{{project.data_count}} data</a>&bull;
+                                    href="{% url 'data_list' project.uid %}">
+                                <i class="file text icon"></i>{{ project.data_count }} data</a>&bull;
 
                             <a
-                            href="{% url 'recipe_list' project.uid %}">
-                            <i class="setting icon"></i>{{project.recipe_count}} recipe{{ project.recipe_count|pluralize }}</a>&bull;
+                                    href="{% url 'recipe_list' project.uid %}">
+                                <i class="setting icon"></i>{{ project.recipe_count }}
+                                recipe{{ project.recipe_count|pluralize }}</a>&bull;
 
                             <a
-                            href="{% url 'job_list' project.uid %}">
-                            <i class="bar chart icon"></i>{{project.job_count}} result{{ project.job_count|pluralize }}</a>
+                                    href="{% url 'job_list' project.uid %}">
+                                <i class="bar chart icon"></i>{{ project.job_count }}
+                                result{{ project.job_count|pluralize }}</a>
 
                             {% created_by date=project.lastedit_date user=project.lastedit_user %}
 
-                            </div>
-
                         </div>
+
                     </div>
+                </div>
 
-                {% endfor %}
-            </div>
+            {% endfor %}
+        </div>
 
-     </div>
+    </div>
 
 {% elif data_list %}
 
-{# Used to list in recycle bin #}
+    {# Used to list in recycle bin #}
 
-<div class="ui divided items">
-{% for data in data_list %}
+    <div class="ui divided items">
+        {% for data in data_list %}
 
-                <div class="item">
-                    <div class="content">
+            <div class="item">
+                <div class="content">
 
-                        {% if request.user.is_authenticated %}
-                            <a class="ui right floated label" href="{% url 'data_delete' data.uid %}">
-                              <i class="undo icon"></i> <span class="tablet">Restore</span>
-                            </a>
-                        {% endif %}
-
-                        <a class="subheader" href="{% url 'data_view' data.uid %}">
-                            <i class="file icon"></i>{{ data.name }}
+                    {% if request.user.is_authenticated %}
+                        <a class="ui right floated label" href="{% url 'data_delete' data.uid %}">
+                            <i class="undo icon"></i> <span class="tablet">Restore</span>
                         </a>
-                        <div class="meta">
-                            <div class="ui small labels">
-                                {% size_label data %}
-                                {% type_label data %}
-                                {% state_label data error_only=True %}
-                            </div>
-                        </div>
-                        <div class="meta">{{ data.summary|safe }}</div>
-                        <div id="copy-message-{{ data.uid }}"></div>
-                    </div>
-                </div>
+                    {% endif %}
 
-            {% endfor %}
-</div>
+                    <a class="subheader" href="{% url 'data_view' data.uid %}">
+                        <i class="file icon"></i>{{ data.name }}
+                    </a>
+                    <div class="meta">
+                        <div class="ui small labels">
+                            {% size_label data %}
+                            {% type_label data %}
+                            {% state_label data error_only=True %}
+                        </div>
+                    </div>
+                    <div class="meta">{{ data.summary|safe }}</div>
+                    <div id="copy-message-{{ data.uid }}"></div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
 {% elif recipe_list %}
 
-{# Used to list in recycle bin #}
+    {# Used to list in recycle bin #}
 
     <div class="ui divided link items">
-            {% for recipe in recipe_list %}
-                <div class="item">
-                    <div class="">
-                        <img class="ui tiny image imgpad" src="{% img recipe %}">
-                    </div>
-                    <div class="content">
-                        {% if request.user.is_authenticated %}
-                             <a class="ui right floated label" href="{% url 'recipe_delete' recipe.uid %}">
-                              <i class="undo icon"></i> <span class="tablet">Restore</span>
-                            </a>
-                        {% endif %}
-                        <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                            <i class="setting icon"></i> {{ recipe.name }}
-                        </a>
-                        <div class="description">{{ recipe.summary|markdown|safe }}</div>
-                        <div id="copy-message-{{ recipe.uid }}"></div>
-
-                    </div>
+        {% for recipe in recipe_list %}
+            <div class="item">
+                <div class="">
+                    <img class="ui tiny image imgpad" src="{% img recipe %}">
                 </div>
+                <div class="content">
+                    {% if request.user.is_authenticated %}
+                        <a class="ui right floated label" href="{% url 'recipe_delete' recipe.uid %}">
+                            <i class="undo icon"></i> <span class="tablet">Restore</span>
+                        </a>
+                    {% endif %}
+                    <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+                        <i class="setting icon"></i> {{ recipe.name }}
+                    </a>
+                    <div class="description">{{ recipe.summary|markdown|safe }}</div>
+                    <div id="copy-message-{{ recipe.uid }}"></div>
 
-            {% endfor %}
-        </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
 {% elif job_list %}
 
-{# Used to list in recycle bin #}
+    {# Used to list in recycle bin #}
 
-       <div class="ui divided link items">
+    <div class="ui divided link items">
 
-            {% for job in job_list %}
+        {% for job in job_list %}
 
-                <div class="item ">
-                    <div class="">
-                        <img class="ui tiny image imgpad" src="{% img job.analysis %}">
-                    </div>
-
-                    <div class="content">
-                        {% if request.user.is_authenticated %}
-                             <a class="ui right floated label" href="{% url 'job_delete' job.uid %}">
-                              <i class="undo icon"></i> <span class="tablet">Restore</span>
-                            </a>
-                        {% endif %}
-
-                        <a class="subheader" href="{% url 'job_view' job.uid %}">
-                            <i class="bar chart icon"></i>{{ job.name }}
-                        </a>
-
-                        <div class="meta">{% job_minutes job %}</div>
-                        <div id="copy-message-{{ job.uid }}"></div>
-                    </div>
+            <div class="item ">
+                <div class="">
+                    <img class="ui tiny image imgpad" src="{% img job.analysis %}">
                 </div>
 
-            {% endfor %}
+                <div class="content">
+                    {% if request.user.is_authenticated %}
+                        <a class="ui right floated label" href="{% url 'job_delete' job.uid %}">
+                            <i class="undo icon"></i> <span class="tablet">Restore</span>
+                        </a>
+                    {% endif %}
 
-        </div>
+                    <a class="subheader" href="{% url 'job_view' job.uid %}">
+                        <i class="bar chart icon"></i>{{ job.name }}
+                    </a>
+
+                    <div class="meta">{% job_minutes job %}</div>
+                    <div id="copy-message-{{ job.uid }}"></div>
+                </div>
+            </div>
+
+        {% endfor %}
+
+    </div>
 {% endif %}

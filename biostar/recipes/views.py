@@ -216,6 +216,7 @@ def project_list_private(request):
         empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
     else:
         projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
+
         projects = annotate_projects(projects)
 
     context = dict(projects=projects, empty_msg=empty_msg, active="projects", icon='briefcase', title='Private Projects',

@@ -58,7 +58,7 @@ class SiteNavigation(TestCase):
 
     def test_public_pages(self):
         "Checking public pages"
-        
+
         ajax_urls = [
             reverse('add_vars'),
         ]

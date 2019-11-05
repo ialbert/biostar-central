@@ -234,10 +234,7 @@ def get_project_list(user, include_public=True, include_deleted=False):
         cond = Q(owner=user, privacy=Project.PRIVATE) | Q(privacy=privacy) | Q(access__user=user,
                                                                                access__access__in=[Access.READ_ACCESS,
                                                                                                    Access.WRITE_ACCESS,
-                                                                                                  ])
-        # Show sharable projects if the user has share access.
-        cond = cond | Q(access__access=Access.SHARE_ACCESS) & Q(privacy=Project.SHAREABLE)
-
+                                                                                                  Access.SHARE_ACCESS])
     # Generate the query.
     if include_deleted:
         query = Project.objects.filter(cond).distinct()
@@ -523,10 +520,8 @@ def link_data(path, data):
 def is_readable(user, project):
 
     # Shareable projects can get to see the
-    if project.is_shareable:
-        query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS) | Q(access=Access.SHARE_ACCESS)
-    else:
-        query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS)
+
+    query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS) | Q(access=Access.SHARE_ACCESS)
 
     readable = Access.objects.filter(query, project=project, user=user)
 
