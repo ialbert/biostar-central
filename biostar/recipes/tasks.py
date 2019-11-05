@@ -78,10 +78,11 @@ try:
         from biostar.recipes.models import Job
 
         # Spend 3 seconds in queued state
-        time.sleep(7)
+        # For debugging purposes.
+        time.sleep(3)
         Job.objects.filter(id=job_id).update(state=Job.SPOOLED)
-        # Spend 2 seconds in spooled state
-        time.sleep(7)
+        # Spend 3 seconds in spooled state
+        time.sleep(3)
 
         management.call_command('job', id=job_id)
 

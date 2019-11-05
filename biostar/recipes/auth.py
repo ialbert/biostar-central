@@ -386,8 +386,8 @@ def fill_json_data(project, job=None, source_data={}, fill_with={}):
     # Make a copy of the original json data used to render the form.
     json_data = copy.deepcopy(source_data)
 
-    # Get default values to from json data 'value'
-    default = {field: item.get('value', '') for field,item in json_data.items()}
+    # Get default dictionary to fill with from json data 'value'
+    default = {field: item.get('value', '') for field, item in json_data.items()}
     fill_with = fill_with or default
 
     # Alter the json data and fill in the extra information.
