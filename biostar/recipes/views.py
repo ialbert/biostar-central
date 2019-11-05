@@ -184,7 +184,11 @@ def project_info(request, uid):
 
     # Who has write access
     write_access = auth.is_writable(user=user, project=project)
-    access = Access.objects.filter(user=user, project=project).first()
+    if user.is_authenticated:
+        access = Access.objects.filter(user=user, project=project).first()
+    else:
+        access = Access(access=Access.NO_ACCESS)
+
     access = access or Access(access=Access.NO_ACCESS)
 
     context = dict(project=project, active="info", write_access=write_access, access=access)
@@ -819,7 +823,8 @@ def recipe_edit(request, uid):
     user = request.user
     if request.method == "POST":
         # Form has been submitted
-        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=request.user)
+        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=request.user,
+                                project=project)
         if form.is_valid():
             recipe = form.save()
             image = form.cleaned_data['image']
@@ -833,7 +838,7 @@ def recipe_edit(request, uid):
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
         # Initial form loading via a GET request.
-        form = forms.RecipeForm(instance=recipe, user=request.user)
+        form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
     context = dict(recipe=recipe, project=project, form=form, name=recipe.name, activate='Edit Recipe',
@@ -852,10 +857,10 @@ def recipe_create(request, uid):
     # Prepare the form
 
     initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(5)}')
-    form = forms.RecipeForm(user=request.user, initial=initial)
+    form = forms.RecipeForm(user=request.user, initial=initial, project=project)
 
     if request.method == "POST":
-        form = forms.RecipeForm(data=request.POST, creating=True, files=request.FILES, user=request.user)
+        form = forms.RecipeForm(data=request.POST, creating=True, project=project, files=request.FILES, user=request.user)
         if form.is_valid():
             image = form.cleaned_data['image']
             recipe_uid = form.cleaned_data['uid']

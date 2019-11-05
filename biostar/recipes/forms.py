@@ -326,6 +326,7 @@ class RecipeForm(forms.ModelForm):
     def __init__(self, user, creating=False, project=None, *args, **kwargs):
         self.creating = creating
         self.user = user
+        self.project = project
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -356,7 +357,7 @@ class RecipeForm(forms.ModelForm):
         # Check write to an object.
         is_writable = auth.is_writable(user=self.user, project=self.project)
 
-        if not is_writable:
+        if not self.creating and (self.instance.owner != self.user and not is_writable):
             raise forms.ValidationError('You need write access to edit the recipe.')
 
         # Fill in not submitted fields.
