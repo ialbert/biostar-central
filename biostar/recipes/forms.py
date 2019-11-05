@@ -352,11 +352,9 @@ class RecipeForm(forms.ModelForm):
         if self.user.is_anonymous:
             raise forms.ValidationError('You need to be logged in.')
 
-        # Check if this user has write access.
-
-        # Check write to an object.
         is_writable = auth.is_writable(user=self.user, project=self.project)
 
+        # Only users with write access and owners can edit recipes.
         if not self.creating and (self.instance.owner != self.user and not is_writable):
             raise forms.ValidationError('You need write access to edit the recipe.')
 
