@@ -100,11 +100,6 @@ body {
 }
 
 
-#reveal_delete{
-    position: absolute;
-    margin-left: .1em;
-}
-
 .file.item:hover{
     background-color: #f2f2f2;
 }
