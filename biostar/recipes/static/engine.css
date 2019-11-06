@@ -84,6 +84,22 @@ body {
 
 }
 
+.listing.ribbon.label{
+    position: absolute;
+    margin-left: 2px;
+
+
+}
+
+
+.viewing.ribbon.label{
+    position: absolute;
+    left: calc(100% + 1.2em);
+
+
+}
+
+
 .file.item:hover{
     background-color: #f2f2f2;
 }

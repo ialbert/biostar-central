@@ -837,7 +837,6 @@ def recipe_create(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
     # Prepare the form
-
     initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(5)}')
     form = forms.RecipeForm(user=request.user, initial=initial, project=project)
 

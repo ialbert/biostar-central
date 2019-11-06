@@ -400,9 +400,10 @@ def fill_json_data(project, job=None, source_data={}, fill_with={}):
 
         # The JSON value will be overwritten with the selected field value.
         if field in fill_with:
-            value = fill_with[field]
+            item["value"] = fill_with[field]
             # Clean the textbox value
-            item["value"] = value if item.get('display') != TEXTBOX else util.clean_text(value)
+            if item.get('display') == TEXTBOX:
+                item["value"] = util.clean_text(fill_with[field])
 
             if item.get('display') == UPLOAD:
                 # Add uploaded file to job directory.

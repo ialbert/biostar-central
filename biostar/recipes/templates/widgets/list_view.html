@@ -11,14 +11,21 @@
                 <div class="item">
 
                     <img class="ui mytiny circular fancy image" src="{% img project %}"/>
+
                     <div class="content">
 
                         <a class="subheader" href="{% url 'project_info' project.uid %}">
                             <i class="database icon"></i>{{ project.name }}
                         </a>
-
-                        <div class="meta">{{ project.summary|markdown|safe }}</div>
+                        {% if user.is_authenticated %}
+                            <div class="ui right ribbon label listing">
+                                {% get_access_label project user %}
+                            </div>
+                        {% endif %}
+                        <div class="meta">{{ project.summary|markdown|safe }}
+                        </div>
                         <div class="extra">
+
 
                             {% privacy_label project %}
 
@@ -42,6 +49,7 @@
 
                     </div>
                 </div>
+
 
             {% endfor %}
         </div>

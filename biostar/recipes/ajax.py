@@ -384,6 +384,7 @@ def file_copy(request):
     return ajax_success(msg=f"{len(copied)} files copied.")
 
 
+
 def add_variables(request):
 
     # Get the most recent template and json.

@@ -13,7 +13,7 @@
             <div class="ui success message">
 
                 Showing results from recipe: <a href="{% url 'recipe_view' recipe_filter.uid %}"><i
-            class="settings icon"></i> {{ recipe_filter.name }}</a> &bull;
+                    class="settings icon"></i> {{ recipe_filter.name }}</a> &bull;
                 <a href="#" onclick="window.history.back()">
                     <i class="angle double left icon icon"></i> <span class="fitme">Go Back</span>
                 </a>
@@ -22,19 +22,19 @@
         </div>
     {% endif %}
 
-
     <div class="ui large vertical segment">
-        <div class="ui divided link items">
+
+        <div class="ui divided link items" id="job_list">
 
             {% for job in job_list %}
 
                 <div class="item job-item-{{ job.uid }}">
 
-                        <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
+
+                    <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
 
 
                     <div class="content">
-
                         <a class="subheader" href="{% url 'job_view' job.uid %}">
                             <i class="bar chart icon"></i>{{ job.name }}
                         </a>
@@ -52,15 +52,28 @@
                         <div id="copy-message-{{ job.uid }}"></div>
                     </div>
                     {% if user.is_authenticated %}
-                    <a class="ui right floated label rerun" href="{% url "job_rerun" job.uid %}?next={% url 'job_list' job.project.uid %}">
-                        <i class="redo icon"></i>Rerun
-                    </a>
+                        <div class="ui tiny buttons">
+                            <a class="ui right button rerun"
+                               href="{% url "job_rerun" job.uid %}?next={% url 'job_list' job.project.uid %}">
+                                <i class="redo icon"></i>Rerun
+                            </a>
+                            <div class="or"></div>
+                            <a class="ui right button rerun" href="{% url "job_delete" job.uid %}">
+
+                                <i class="trash icon"></i> <span class="fitme">Delete</span>
+
+                            </a>
+
+                        </div>
+
                     {% endif %}
                 </div>
 
             {% empty %}
                 <div class="item ">
-                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet contain results.</div>
+                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet contain
+                        results.
+                    </div>
                 </div>
             {% endfor %}
 
