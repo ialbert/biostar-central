@@ -52,6 +52,13 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
+def about(request):
+    """
+    Added an about page with the
+    """
+    context = dict()
+    return render(request, 'about.html', context=context)
+
 @login_required
 def recycle_bin(request):
     "Recycle bin view for a user"

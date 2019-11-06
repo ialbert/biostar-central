@@ -19,6 +19,9 @@
     </div>
 
     <div class="right menu">
+            <a class="{% activate "login" active %} item" href="{% url 'about' %}">
+                <i class="question circle icon"></i> About
+            </a>
 
         {% if user.is_authenticated %}
 
@@ -43,6 +46,8 @@
             </a>
 
         {% endif %}
+
+
 
     </div>
 
