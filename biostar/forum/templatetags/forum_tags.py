@@ -553,8 +553,6 @@ def get_thread_users(post, limit=2):
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
 def listing(context, posts=None, show_subs=True):
     request = context["request"]
-    if posts:
-        posts = posts.exclude(Q(root=None) | Q(parent=None))
     return dict(posts=posts, request=request, show_subs=show_subs)
 
 
