@@ -36,20 +36,21 @@
     <div class="ui large vertical segment">
 
         <div class="ui six buttons">
-           <a class="ui button" href="{% url "job_edit" job.uid %}">
-                <i class="edit icon"></i> <span class="fitme">Edit</span>
+            <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}#code">
+                <i class="setting icon"></i> <span class="fitme">Recipe Code</span>
             </a>
-
-            <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}">
-                <i class="setting icon"></i> <span class="fitme">View Recipe</span>
+            <a class="ui button" href="{% url "job_rerun" job.uid %}">
+                <i class="redo icon"></i> <span class="fitme">Rerun Recipe</span>
             </a>
 
             <a class="ui button" href="{% url 'recipe_edit' job.analysis.uid %}">
                 <i class="settings icon"></i> <span class="fitme">Edit Recipe</span>
             </a>
-            <a class="ui button" href="{% url "job_rerun" job.uid %}">
-                <i class="redo icon"></i> <span class="fitme">Rerun</span>
+            <a class="ui button" href="{% url "job_edit" job.uid %}">
+                <i class="edit icon"></i> <span class="fitme">Edit Results</span>
             </a>
+
+
             <a class="ui button" href="{% url "job_copy" job.uid %}?next={% url "job_view" job.uid %}">
                 <i class="copy icon"></i>Copy
             </a>
@@ -69,13 +70,13 @@
 
     </div>
 
-    <div class="ui vertical segment">
+    <div class="ui vertical large segment">
         <div class="ui aligned header">Run Parameters</div>
         <div>Parameters used during the run:</div>
         {{ job.summary|safe }}
     </div>
 
-    <div class="ui vertical segment">
+    <div class="ui vertical large segment">
         <div class="ui aligned header">File List</div>
         <div>Files created by the recipe run:</div>
         {% directory_list job %}

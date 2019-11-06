@@ -14,7 +14,7 @@ urlpatterns = [
     # Site
     path(r'site/admin/', views.site_admin, name='site_admin'),
     path(r'site/bin/', views.recycle_bin, name='recycle_bin'),
-
+    path(r'about/', views.about, name='about'),
 
     # Ajax calls
     path(r'ajax/check/job/<str:uid>/', ajax.check_job, name='ajax_check_job'),

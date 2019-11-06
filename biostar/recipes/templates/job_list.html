@@ -53,12 +53,13 @@
                     </div>
                     {% if user.is_authenticated %}
                         <div class="ui tiny buttons">
-                            <a class="ui right button rerun"
+                            <a class="ui right button rerun" style="font-size: x-small;"
                                href="{% url "job_rerun" job.uid %}?next={% url 'job_list' job.project.uid %}">
                                 <i class="redo icon"></i>Rerun
                             </a>
-                            <div class="or"></div>
-                            <a class="ui right button rerun" href="{% url "job_delete" job.uid %}">
+                            <div class="or" style="font-size: x-small;"></div>
+
+                            <a class="ui right button rerun" href="{% url "job_delete" job.uid %}" style="font-size: x-small;">
 
                                 <i class="trash icon"></i> <span class="fitme">Delete</span>
 

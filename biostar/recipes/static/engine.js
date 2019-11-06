@@ -581,7 +581,7 @@ $(document).ready(function () {
     $('.checkbox').checkbox();
 
     $('pre').addClass('language-bash');
-    $('code').addClass('language-bash line-numbers').css('padding', '0');
+    $('code').addClass('language-bash').css('padding', '0');
     Prism.highlightAll();
 
     $(this).on('click', '.copy_file', function () {
