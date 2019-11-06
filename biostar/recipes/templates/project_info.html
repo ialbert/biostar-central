@@ -45,11 +45,11 @@
             <a class="ui  button" href="{% url 'project_edit' project.uid %}">
                 <i class="edit icon"></i>Edit Project
             </a>
-        {% if project.owner == request.user or request.user.is_superuser %}
+
             <a class="ui  button" href="{% url 'project_users' project.uid %}">
                 <i class="users icon"></i>Manage Access
             </a>
-        {% endif %}
+        
 
             <a class="ui button tablet" href="{% url 'project_delete' project.uid %}">
                 {% if project.deleted %}
