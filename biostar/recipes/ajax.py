@@ -384,28 +384,6 @@ def file_copy(request):
     return ajax_success(msg=f"{len(copied)} files copied.")
 
 
-@ajax_error_wrapper(method="POST", login_required=True)
-def ajax_job_delete(request):
-
-    uids = request.POST.getlist('uids[]', [])
-    project_uid = request.POST.get('project_uid', '')
-
-    project = Project.objects.filter(uid=project_uid).first()
-    if not project:
-        return ajax_error("Project does not exist.")
-
-    user = request.user
-
-    is_writeable = auth.is_writable(user=user, project=project)
-
-    if is_writeable:
-        Job.objects.filter(uid__in=uids, project=project).update(deleted=True)
-
-        return ajax_success(redir=reverse('job_list', kwargs=dict(uid=project.uid)),
-                            msg=f"Deleted {len(uids)} jobs.")
-
-    return ajax_error("You need write access to deleted results")
-
 
 def add_variables(request):
 

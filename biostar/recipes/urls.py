@@ -26,7 +26,6 @@ urlpatterns = [
     path(r'preview/template/', ajax.preview_template, name="preview_template"),
     path(r'preview/json/', ajax.preview_json, name="preview_json"),
     path(r'create/snippet/type/', ajax.create_snippet_type, name="create_snippet_type"),
-    path(r'ajax/job/delete/', ajax.ajax_job_delete, name='ajax_job_delete'),
 
     # Project
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),
