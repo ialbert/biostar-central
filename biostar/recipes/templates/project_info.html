@@ -8,11 +8,11 @@
 
 {% block content %}
     <div>
-       {% if user.is_authenticated %}
-    <div class="ui right ribbon {%  get_access_color project user %} viewing label">
-       {%  get_access_label project user %}
-    </div>
-    {% endif %}
+        {% if user.is_authenticated %}
+            <div class="ui right ribbon viewing label">
+                {% get_access_label project user %}
+            </div>
+        {% endif %}
 
     <h3 class="ui header">Project Information</h3>
     {{ project.html|safe }}

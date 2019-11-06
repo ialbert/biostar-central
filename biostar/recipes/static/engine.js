@@ -404,35 +404,6 @@ function copy_file(path) {
     )
 }
 
-function delete_jobs(uid_list, project_uid) {
-
-    $.ajax('/ajax/job/delete/',
-        {
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'uids': uid_list,
-                'project_uid': project_uid
-            },
-
-            success: function (data) {
-                if (data.status === 'success') {
-
-
-                    window.location.href = data.redir;
-                    popup_message($('.msg'), data.msg, data.status, 1500);
-                }
-                popup_message($('.msg'), data.msg, data.status, 2000)
-
-            },
-            error: function () {
-            }
-        }
-    )
-
-
-}
-
 $(document).ready(function () {
 
 
@@ -505,6 +476,10 @@ $(document).ready(function () {
         on: 'hover',
     });
     $('.edit-snippet').popup({
+        on: 'hover',
+    });
+
+    $('.listing').popup({
         on: 'hover',
     });
 
@@ -603,37 +578,6 @@ $(document).ready(function () {
         set_source_dir()
 
     });
-    $(this).on('click', '#reveal_delete', function () {
-        $(this).children('.outer').hide();
-        $(this).children('.inner').show().click(function () {
-            $('.delete-checkbox').each(function () {
-                $(this).transition('swing left');
-            });
-
-            $('#reveal_delete').html('<i class="minus icon"></i>Delete Selected Jobs');
-            $('#reveal_delete').removeClass('blue').addClass('red');
-            $('#reveal_delete').addClass('delete-selected')
-        });
-
-
-    });
-    $(this).on('click', '.delete-selected', function () {
-        let to_delete = [];
-        let project_uid = $(this).data('project');
-        $('.delete-checkbox').each(function () {
-            if ($(this).checkbox('is checked')) {
-                let value = $(this).children('input').val();
-                to_delete.push(value);
-            }
-        });
-        delete_jobs(to_delete, project_uid);
-
-        $(this).html('<i class="plus icon"></i>Select Jobs');
-        $(this).removeClass('red').addClass('blue');
-        $(this).removeClass('delete-selected')
-
-    });
-
     $('.checkbox').checkbox();
 
     $('pre').addClass('language-bash');

@@ -429,42 +429,21 @@ def get_access_label(project, user):
 
     if project.owner.id == user.id:
         return 'Owner Access'
-    if user.is_anonymous and project.is_public:
-        return 'General Access'
+
+    # Need to check  anonymous users before access
+    if user.is_anonymous:
+        return 'Public Access'
 
     access = Access.objects.filter(project=project, user=user).first()
 
     # If the access is not read, write, or share
     # and the project is public, then it is seen as 'Readable'
     if not access and project.is_public:
-        return 'General Access'
+        return 'Public Access'
 
-    access_str = access.get_access_display() if access else 'General Access'
+    access_str = access.get_access_display() if access else 'No Access'
 
     return access_str
-
-
-@register.simple_tag
-def get_access_color(project, user):
-
-    color_map = {Access.WRITE_ACCESS: 'blue',
-                  Access.READ_ACCESS: 'teal',
-                  Access.SHARE_ACCESS: 'purple'
-                  }
-
-    if project.owner.id == user.id:
-        return 'green'
-    if user.is_anonymous and project.is_public:
-        return 'grey'
-
-    access = Access.objects.filter(project=project, user=user).first()
-
-    if not access and project.is_public:
-        return 'grey'
-
-    access_color = color_map.get(access.access) if access else 'teal'
-
-    return access_color
 
 
 def file_listing(root, limit=None):

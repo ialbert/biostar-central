@@ -87,7 +87,7 @@ body {
 .listing.ribbon.label{
     position: absolute;
     margin-left: 2px;
-    opacity: .6;
+
 
 }
 
@@ -95,13 +95,14 @@ body {
 .viewing.ribbon.label{
     position: absolute;
     left: calc(100% + 1.2em);
-    opacity: .6;
+
 
 }
 
 
 #reveal_delete{
     position: absolute;
+    margin-left: .1em;
 }
 
 .file.item:hover{
