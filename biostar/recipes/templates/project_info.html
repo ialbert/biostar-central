@@ -7,21 +7,33 @@
 
 
 {% block content %}
-
+    <div>
+       {% if user.is_authenticated %}
+    <div class="ui right ribbon {%  get_access_color project user %} viewing label">
+       {%  get_access_label project user %}
+    </div>
+    {% endif %}
 
     <h3 class="ui header">Project Information</h3>
     {{ project.html|safe }}
     <div class="extra">
+
         {% privacy_label project %}
         {% created_by date=project.lastedit_date user=project.lastedit_user %}
+
+
     </div>
 
     {% if project.is_shareable and project.owner == request.user %}
         <div class="ui divider"></div>
 
-        Sharable link : <code><a href="{% url 'project_share' project.sharable_token %}">
+        <div class="ui compact message"><i class="warning icon"></i>Any user with this link gains <b>Share Access</b> to this project.</div>
+        <div>
+        <code><a href="{% url 'project_share' project.sharable_token %}">
         {% full_url %}{% url 'project_share' project.sharable_token %}</a>
         </code>
+        </div>
+
     {% endif %}
 
     <div class="ui  divider"></div>
@@ -33,10 +45,11 @@
             <a class="ui  button" href="{% url 'project_edit' project.uid %}">
                 <i class="edit icon"></i>Edit Project
             </a>
-
+        {% if project.owner == request.user or request.user.is_superuser %}
             <a class="ui  button" href="{% url 'project_users' project.uid %}">
                 <i class="users icon"></i>Manage Access
             </a>
+        {% endif %}
 
             <a class="ui button tablet" href="{% url 'project_delete' project.uid %}">
                 {% if project.deleted %}
@@ -49,5 +62,5 @@
         </div>
 
     {% endif %}
-
+    </div>
 {% endblock %}

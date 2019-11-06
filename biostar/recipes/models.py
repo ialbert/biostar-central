@@ -8,7 +8,6 @@ from django.dispatch import receiver
 from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib.auth import hashers
 from django.conf import settings
 from biostar.accounts.models import User
 from . import util

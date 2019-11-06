@@ -6,6 +6,14 @@
     Result List
 {% endblock %}
 
+{% block rightmenu %}
+{% if write_access and job_list %}
+<a class="ui right ribbon basic large blue label" data-project="{{ project.uid }}" id="reveal_delete">
+      <i class="plus icon outer"></i><div class="inner" style="display: none"><i class="plus icon"></i> Select Jobs</div>
+    </a>
+    <div class="msg"></div>
+{% endif %}
+{% endblock %}
 {% block content %}
 
     {% if recipe_filter %}
@@ -22,20 +30,23 @@
         </div>
     {% endif %}
 
-
     <div class="ui large vertical segment">
-        <div class="ui divided link items">
+
+        <div class="ui divided link items" id="job_list">
 
             {% for job in job_list %}
 
                 <div class="item job-item-{{ job.uid }}">
 
+<div class="ui checked checkbox delete-checkbox" style="display: none">
+  <input type="checkbox" checked="" value="{{ job.uid }}">
+</div>
+
                         <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
 
 
                     <div class="content">
-
-                        <a class="subheader" href="{% url 'job_view' job.uid %}">
+                <a class="subheader" href="{% url 'job_view' job.uid %}">
                             <i class="bar chart icon"></i>{{ job.name }}
                         </a>
 

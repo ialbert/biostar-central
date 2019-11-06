@@ -26,6 +26,7 @@ urlpatterns = [
     path(r'preview/template/', ajax.preview_template, name="preview_template"),
     path(r'preview/json/', ajax.preview_json, name="preview_json"),
     path(r'create/snippet/type/', ajax.create_snippet_type, name="create_snippet_type"),
+    path(r'ajax/job/delete/', ajax.ajax_job_delete, name='ajax_job_delete'),
 
     # Project
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),
@@ -36,7 +37,6 @@ urlpatterns = [
     path(r'project/info/<str:uid>/', views.project_info, name='project_info'),
     path(r'project/list/private/', views.project_list_private, name='project_list_private'),
     path(r'project/list/public/', views.project_list_public, name='project_list_public'),
-    path(r'project/list/shared/', views.project_list_shared, name='project_list_shared'),
     path(r'project/list/', views.project_list, name='project_list'),
     path(r'project/delete/<str:uid>/', views.project_delete, name='project_delete'),
     re_path(r'project/share/(?P<token>[-\w]+)/', views.project_share, name='project_share'),
@@ -77,6 +77,7 @@ urlpatterns = [
     re_path(r'^job/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.job_serve, name='job_serve'),
     path(r'job/delete/<str:uid>/', views.job_delete, name='job_delete'),
     path(r'job/rerun/<str:uid>/', views.job_rerun, name='job_rerun'),
+
 
     # Api calls
     path(r'api/list/', api.api_list, name='api_list'),

@@ -84,6 +84,26 @@ body {
 
 }
 
+.listing.ribbon.label{
+    position: absolute;
+    margin-left: 2px;
+    opacity: .6;
+
+}
+
+
+.viewing.ribbon.label{
+    position: absolute;
+    left: calc(100% + 1.2em);
+    opacity: .6;
+
+}
+
+
+#reveal_delete{
+    position: absolute;
+}
+
 .file.item:hover{
     background-color: #f2f2f2;
 }

@@ -409,8 +409,9 @@ def list_posts(context, target):
                                    "lastedit_user__profile", "thread_users__profile")
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
-        posts = posts.exclude(status=Post.DELETED)
+        posts = posts.exclude(Q(status=Post.DELETED))
     posts = posts.order_by("-rank")
+    posts = posts.exclude(Q(root=None) | Q(parent=None))
     # Create the paginator and apply post paging
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     posts = paginator.get_page(page)
@@ -552,7 +553,8 @@ def get_thread_users(post, limit=2):
 @register.inclusion_tag('widgets/listing.html', takes_context=True)
 def listing(context, posts=None, show_subs=True):
     request = context["request"]
-
+    if posts:
+        posts = posts.exclude(Q(root=None) | Q(parent=None))
     return dict(posts=posts, request=request, show_subs=show_subs)
 
 

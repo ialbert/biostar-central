@@ -107,6 +107,7 @@ def user_icon(user):
 def list_projects(context, target):
 
     user = context["request"].user
+    request = context["request"]
     projects = auth.get_project_list(user=target)
 
     # Don't show private projects non owners
@@ -119,7 +120,7 @@ def list_projects(context, target):
                                  )
     projects = projects.order_by("-rank", "-lastedit_date")
 
-    return dict(projects=projects)
+    return dict(projects=projects, user=target)
 
 
 @register.simple_tag
@@ -174,8 +175,8 @@ def get_qiime2view_link(file_serve_url):
 @register.inclusion_tag('widgets/list_view.html', takes_context=True)
 def list_view(context, projects=None, data_list=None, recipe_list=None, job_list=None):
     request = context["request"]
-
-    return dict(projects=projects, data_list=data_list, recipe_list=recipe_list,
+    user = request.user
+    return dict(projects=projects, user=user, data_list=data_list, recipe_list=recipe_list,
                 job_list=job_list, request=request)
 
 
@@ -421,6 +422,49 @@ def size_label(data):
 
     size = f"{defaultfilters.filesizeformat(data.size)}"
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
+
+
+@register.simple_tag
+def get_access_label(project, user):
+
+    if project.owner.id == user.id:
+        return 'Owner Access'
+    if user.is_anonymous and project.is_public:
+        return 'General Access'
+
+    access = Access.objects.filter(project=project, user=user).first()
+
+    # If the access is not read, write, or share
+    # and the project is public, then it is seen as 'Readable'
+    if not access and project.is_public:
+        return 'General Access'
+
+    access_str = access.get_access_display() if access else 'General Access'
+
+    return access_str
+
+
+@register.simple_tag
+def get_access_color(project, user):
+
+    color_map = {Access.WRITE_ACCESS: 'blue',
+                  Access.READ_ACCESS: 'teal',
+                  Access.SHARE_ACCESS: 'purple'
+                  }
+
+    if project.owner.id == user.id:
+        return 'green'
+    if user.is_anonymous and project.is_public:
+        return 'grey'
+
+    access = Access.objects.filter(project=project, user=user).first()
+
+    if not access and project.is_public:
+        return 'grey'
+
+    access_color = color_map.get(access.access) if access else 'teal'
+
+    return access_color
 
 
 def file_listing(root, limit=None):
