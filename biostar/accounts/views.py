@@ -318,6 +318,10 @@ def external_login(request):
 
 
 def password_reset(request):
+    if settings.HTTP_PORT:
+        full_url = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}"
+    else:
+        full_url = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}"
     context = dict()
 
     return PasswordResetView.as_view(extra_context=context,

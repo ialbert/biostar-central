@@ -92,8 +92,12 @@ def write_stream(stream, dest):
     return dest
 
 
-def clean_text(textbox):
-    return shlex.quote(textbox)
+def clean_text(value):
+    #TODO: investigate more,
+    # shoule be applied only to bash scripts.
+    return value
+    #return shlex.quote(textbox)
+
 
 def qiime2view_link(file_url):
     template = "https://view.qiime2.org/visualization/?type=html&src="
