@@ -47,7 +47,7 @@ def send_email(template_name, recipient_list, extra_context={}, from_email=None,
 
         # Default context added to each template.
         context = dict(domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
-                       port=settings.HTTP_PORT, name=settings.SITE_NAME, subject="")
+                       port=settings.HTTP_PORT, name=settings.SITE_NAME, subject=subject)
 
         # Additional context added to the template.
         context.update(extra_context)
