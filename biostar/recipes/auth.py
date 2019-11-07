@@ -403,6 +403,7 @@ def fill_json_data(project, job=None, source_data={}, fill_with={}):
             item["value"] = fill_with[field]
             # Clean the textbox value
             if item.get('display') == TEXTBOX:
+
                 item["value"] = util.clean_text(fill_with[field])
 
             if item.get('display') == UPLOAD:
@@ -559,16 +560,23 @@ def fill_data_by_name(project, json_data):
 
     json_data = copy.deepcopy(json_data)
     # A mapping of data by name
-    #store = dict((data.name, data) for data in project.data_set.all())
 
     for field, item in json_data.items():
         # If the field is a data field then fill in more information.
         val = item.get("value", '')
         if item.get("source") == "PROJECT":
             name = item.get("value")
+
             item['toc'] = "FILE-LIST"
             item['file_list'] = "FILE-LIST"
             item['value'] = name or 'FILENAME'
+            item['data_dir'] = "DATA_DIR"
+            item['id'] = "DATA_ID"
+            item['name'] = "DATA_NAME"
+            item['uid'] = "DATA_UID"
+            item['project_dir'] = project.get_data_dir()
+            item['data_url'] = "/"
+
             continue
 
         # Give a placeholder so templates do not have **MISSING**.
