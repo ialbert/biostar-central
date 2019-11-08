@@ -388,11 +388,11 @@ def template_field(tmpl):
 
 
 @register.inclusion_tag('widgets/created_by.html')
-def created_by(date, user=None):
+def created_by(date, user=None, prefix="updated"):
     """
     Renders a created by link
     """
-    return dict(date=date, user=user)
+    return dict(date=date, user=user, prefix=prefix)
 
 @register.inclusion_tag('widgets/access_form.html')
 def access_form(project, user, form):

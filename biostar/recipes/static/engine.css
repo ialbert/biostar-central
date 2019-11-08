@@ -84,6 +84,14 @@ body {
 
 }
 
+.job.transition.hidden{
+    display: none !important;
+}
+
+.ui.items>.job.item:first-child{
+
+}
+
 .listing.ribbon.label{
     position: absolute;
     margin-left: 2px;

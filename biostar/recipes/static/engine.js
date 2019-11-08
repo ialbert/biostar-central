@@ -404,6 +404,41 @@ function copy_file(path) {
     )
 }
 
+
+function toggle_delete(job_uid) {
+
+
+    // Get the job container
+    let container = $('.job-item-' + job_uid);
+    let counts = $('#job_count');
+
+    $.ajax('/toggle/delete/', {
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'job_uid': job_uid
+            },
+
+            success: function (data) {
+                if (data.status === 'success') {
+                    // Give message
+                    container.transition('zoom');
+                    // Update counts on tabular menu
+                    counts.html(data.counts);
+                    return
+                }
+
+                popup_message(container.before(), data.msg, data.status, 2000)
+
+            },
+            error: function () {
+            }
+        }
+    )
+
+
+}
+
 $(document).ready(function () {
 
 
@@ -571,6 +606,14 @@ $(document).ready(function () {
 
         var page = $('<div id="modpanel"></div>').load(mod_url);
         container.after(page)
+    });
+
+    $(this).on('click', '.toggle_delete', function (event) {
+        //alert("foo");
+        event.preventDefault();
+        let job_uid = $(this).data("value");
+        toggle_delete(job_uid);
+
     });
 
 

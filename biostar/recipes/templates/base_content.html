@@ -27,7 +27,7 @@
             </a>
 
             <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
-                <i class="bar chart icon"></i>{{ result_count }}<span class="phone">&nbsp;Results</span>
+                <i class="bar chart icon"></i><span id="job_count">{{ result_count }}</span><span class="phone">&nbsp;Results</span>
             </a>
 
             {% if activate %}

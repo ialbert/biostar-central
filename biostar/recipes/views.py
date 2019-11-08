@@ -307,8 +307,8 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     project = Project.objects.filter(uid=uid, deleted=False).first()
 
     # Select all the data in the project.
-    data_list = project.data_set.filter(deleted=False).order_by("-rank", "-date").all()
-    recipe_list = project.analysis_set.filter(deleted=False).order_by("-rank", "-date").all()
+    data_list = project.data_set.filter(deleted=False).order_by("rank", "-date").all()
+    recipe_list = project.analysis_set.filter(deleted=False).order_by("rank", "-date").all()
 
     # Annotate each recipe with the number of jobs it has.
     recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
@@ -745,7 +745,7 @@ def job_rerun(request, uid):
         # Spool via UWSGI.
         tasks.execute_job.spool(job_id=job.id)
 
-    messages.success(request, "Rerunning job")
+    #messages.success(request, "Rerunning job")
     return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
 
 
@@ -893,6 +893,8 @@ def recipe_delete(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
 
     auth.delete_object(obj=recipe, request=request)
+    msg = f"Deleted <b>{recipe.name}</b>." if recipe.deleted else f"Restored <b>{recipe.name}</b>."
+    messages.success(request, mark_safe(msg))
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
@@ -908,6 +910,9 @@ def job_delete(request, uid):
         return redirect(job.url())
 
     auth.delete_object(obj=job, request=request)
+    msg = f"Deleted <b>{job.name}</b>." if job.deleted else f"Restored <b>{job.name}</b>."
+    messages.success(request, mark_safe(msg))
+
     return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
 
@@ -916,6 +921,8 @@ def data_delete(request, uid):
     data = Data.objects.filter(uid=uid).first()
 
     auth.delete_object(obj=data, request=request)
+    msg = f"Deleted <b>{data.name}</b>." if data.deleted else f"Restored <b>{data.name}</b>."
+    messages.success(request, mark_safe(msg))
 
     return redirect(reverse("data_list", kwargs=dict(uid=data.project.uid)))
 

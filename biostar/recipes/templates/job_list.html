@@ -28,7 +28,7 @@
 
             {% for job in job_list %}
 
-                <div class="item job-item-{{ job.uid }}">
+                <div class="item job job-item-{{ job.uid }}">
 
 
                     <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
@@ -51,6 +51,7 @@
 
                         <div id="copy-message-{{ job.uid }}"></div>
                     </div>
+
                     {% if user.is_authenticated %}
                         <div class="ui tiny buttons">
                             <a class="ui right button rerun" style="font-size: x-small;"
@@ -59,7 +60,7 @@
                             </a>
                             <div class="or" style="font-size: x-small;"></div>
 
-                            <a class="ui right button rerun" href="{% url "job_delete" job.uid %}" style="font-size: x-small;">
+                            <a class="ui right button rerun toggle_delete" data-value="{{ job.uid }}" style="font-size: x-small;">
 
                                 <i class="trash icon"></i> <span class="fitme">Delete</span>
 

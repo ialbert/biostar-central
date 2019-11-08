@@ -466,10 +466,13 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
 
 def delete_object(obj, request):
-    obj.deleted = not obj.deleted
-    obj.save()
-    msg = f"Deleted <b>{obj.name}</b>." if obj.deleted else f"Restored <b>{obj.name}</b>."
-    messages.success(request, mark_safe(msg))
+
+    access = is_writable(user=request.user, project=obj.project)
+
+    # Toggle the delete state if the user has write access
+    if access:
+        obj.deleted = not obj.deleted
+        obj.save()
 
     return obj.deleted
 

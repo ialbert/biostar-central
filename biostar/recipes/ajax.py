@@ -384,6 +384,28 @@ def file_copy(request):
     return ajax_success(msg=f"{len(copied)} files copied.")
 
 
+@ajax_error_wrapper(method="POST", login_required=True)
+def toggle_delete(request):
+    """
+    Delete a job
+    """
+    job_uid = request.POST.get('job_uid', "")
+    job = Job.objects.filter(uid=job_uid).first()
+
+    if not job:
+        return ajax_error("Job does not exists.")
+
+    access = auth.is_writable(user=request.user, project=job.project)
+
+    # Toggle the delete state if the user has write access
+    if access:
+        deleted = auth.delete_object(obj=job, request=request)
+        msg_prefix = "Deleted" if deleted else "Restored"
+        counts = Job.objects.filter(project=job.project, deleted=False).count()
+        return ajax_success(f"{msg_prefix} {job.name}", counts=counts)
+
+    return ajax_error("Invalid action")
+
 
 def add_variables(request):
 
@@ -394,7 +416,6 @@ def add_variables(request):
     json_data = hjson.loads(json_text)
 
     # Create a set with all template variables
-    #vars = filter(lambda x: x != 'settings', json_data.keys())
     all_vars = {"{{ " + f"{v}.value" + "}}" for v in json_data.keys()}
 
     all_vars = '\n'.join(all_vars)
