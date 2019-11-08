@@ -1,5 +1,6 @@
 {% extends "engine_base.html" %}
 {% load engine_tags %}
+{% load static %}
 
 {% block headtitle %}
     About
@@ -8,19 +9,307 @@
 
 
 {% block body %}
-  <h2 class="ui header">
-  <div class="content">
 
-      About this page
-  </div>
+    <div class="ui basic segment">
+        <div>
+            <div class="ui large header"> About</div>
+
+            <p>
+            <p>
+                This website has been developed to provide bioinformatics support to metabarcoding analyses at the <i>US
+                Fish and Wildlife Northeast
+                Fisheries Center</i> and has been in operation for over a year.
+            </p>
+            <p>
+                We found that this website is well suited for environments where bioinformaticians interact and
+                collaborate
+                with scientists from diverse backgrounds, and when consistent types of analyses need to be applied to
+                varying datasets.
+            </p>
+            <p>In addition, we have found that the recipe approach integrates well into bioinformatics education.
+            </p>
+            <p>We have made use of the bioinformatics recipes website while delivering graduate level classes over
+                several semesters at <i>Penn State</i>
+                and found the approach to be well received by students.
+            </p>
+            <p>
+                Using recipes allowed us to demonstrate the use of bioinformatics software
+                in a manner that closely resembles their original command line usage.
+            </p>
+            <p>
+                The code and documentation are released with an open source license and may be accessed at:
+<a href="https://github.com/ialbert/biostar-central">https://github.com/ialbert/biostar-central</a>.
+            </p>
+            </p>
 
 
-</h2>
+            <div class="ui large header"> How does the site work?</div>
+
+            <div>
+
+                <p>
+                <p>
+                    The site is project based. Each project is a collection of data, recipes and results.
+                </p>
+                <p>
+                    Thus each project has three distinct sections:
+                </p>
+                <li>The data.</li>
+                <li>The recipes</li>
+                <li> The results</li>
+                </p>
+                The <b>Results</b> are created by applying a <b>Recipe</b> on <b>Data</b>.
+
+                <div class="ui large header">What is a recipe?</div>
+                <p>
+                <p>
+                    Each recipe is built from two ingredients:
+                <li>
+                    The interface specification file.
+
+                </li>
+                <li>The template specification file.</li>
+
+                </p>
+                <p>
+                    The <b>interface</b> will specify the value of the parameters that get substituted into the <b>template</b>.
+                </p>
+                <p>
+                    The <b>template</b> contains the commands that need to be executed. The <b>template</b> will have
+                    placeholders for the parameter values that the user will need to enter in the interface.
+                </p>
+                <p>
+                    The interface + template will generate a script that the site can execute.
+                <p>
+                    The software will generate an web interface for each parameter specified in the interface. It is
+                    this
+                    interface where users are able to select the values that their recipe needs to operate.
+                </p>
+                </p>
+            </div>
+
+            <div class="ui large header"> Where can I see tutorial recipes?</div>
+            <div>
+                <p>
+                    See the url below for a number of recipes of increasing complexity:
+                </p>
+                <p>
+                    <a href="https://www.bioinformatics.recipes/recipe/list/tutorials/">
+                        https://www.bioinformatics.recipes/recipe/list/tutorials/
+                    </a>
+                </p>
+                <p>
+                    <b style="color: red;">Note: To run a recipe you need to be a trusted user.</b>
+                    Admin users automatically
+                    have
+                    this permission on every project.
+                </p>
+                <p>
+                    If you don't have this permission you
+                    can still see the results that this recipe produces but you would not be able to run the recipe.
+                </p>
+
+                <div class="ui large header"> Example recipes</div>
+
+                <div class="ui  header">Empty Recipe</div>
+                <p>
+                    The simplest recipe is empty for both the <b>template</b> and the <b>data</b>. For example:
+                    <a href="https://www.bioinformatics.recipes/recipe/view/empty-recipe/">
+                        https://www.bioinformatics.recipes/recipe/view/empty-recipe/
+                    </a>
+                </p>
+                <p>
+
+                </p>
+                <p>
+                    Even though it performs no action it is a valid and working recipe. Its purpose is to demonstrate
+                    what takes
+                    place
+
+                    when a recipe is run. </p>
+                <p> The results of running the empty recipe are here:
+                    <a href="https://www.bioinformatics.recipes/job/view/a53f6057/">https://www.bioinformatics.recipes/job/view/a53f6057/</a>
+                </p>
+
+                <p>
+                <p>
+                    Note how even an empty recipe produces outputs. These are files named as follows:
+                </p>
+                <p>
+                <li><code>recipe.sh</code> file is the script that executed after being generated from the template.
+                </li>
+                <li><code> runlog/input.json</code> file contains the data that was used in the template.</li>
+                <li><code>runlog/stdout.txt</code> file contains the output messages that the recipe produced.</li>
+                <li><code>runlog/stderr.txt</code> file contains the error messages that the recipe produced.</li>
+                </p>
+                <p>
+                    The contents of `stdout.txt` and `stderr.txt` are also visible on the result page.
+                </p>
+
+                <div class="ui  header">Hello World</div>
+                <p>
+                    Let's write a recipe that prints "Hello World" to the screen: <a
+                        href="https://www.bioinformatics.recipes/recipe/view/hello-world/">https://www.bioinformatics.recipes/recipe/view/hello-world/</a>
+                </p>
+                <p>
+                    In this recipe the template contains the following:
+                </p>
+<pre><code>
+# This is a regular bash script.
+
+echo 'Hello World!'
+</code>
+</pre>
+                <p>
+                    The recipe is a bash script that prints <code>Hello World</code> to the screen.
+                </p>
+                <p>
+                    The results of running this recipe can be seen here <a
+                        href="https://www.bioinformatics.recipes/job/view/3e365b2c/">https://www.bioinformatics.recipes/job/view/3e365b2c/</a>
+                </p>
 
 
+                <p>
 
-    Coming Soon
+                    Note that the words "Hello World" also appear on the "Output Messages" tab and are contained in the
+                    file called <code>stdout.txt</code> :
+                <p>
+                    <a href="https://www.bioinformatics.recipes/job/serve/3e365b2c/runlog/stdout.txt">https://www.bioinformatics.recipes/job/serve/3e365b2c/runlog/stdout.txt</a>
+                </p>
+
+                </p>
+                <div class="ui  header"> Download FASTQ data by SRA number</div>
+
+                <p>
+                    Suppose we wish to create a recipe that downloads and unpacks FASTQ data from the short read
+                    archive.
+                </p>
+                The code we wish to deploy is:
+                <pre>
+    <code># The SRR run number.
+SRA=SRR519926
+
+# Download 1000 reads from SRA.
+fastq-dump --split-files -X 1000 $SRA</code>
+
+</pre>
+
+                <p>
+                but we want to make the selection of the SRA number controllable by the user.
+                </p>
+                <p>
+                    We start by copying over any other existing recipe. Start with the <b>empty recipe</b> for example.
+                </p>
+                <p>
+                Find the <b>Edit</b> link then paste the code above into the template section.
+                </p>
+                <p>
+                Click <b>Preview</b> to see what the code will look like, in this case since the code does not have any
+                modifiable region it will look the same after the preview.
+                </p>
+                <p>
+                Save this recipe and you now have a recipe that works on one specific SRA number. If that is all you wanted
+                you would be  done  with the recipe.
+                </p>
+<p>
+                To make the input overrideable we need to add the following to the Interface JSON section (this
+                might be already
+    filled out to some default settings. Replace all that with:</p>
+<pre>
+<code>{
+settings: {
+
+    }
+
+sra: {
+    value: SRR519926
+    }
+}</code>
+</pre>
+<p>
+All data objects are dictionaries. The `settings` key is internal. The `sra` key is a parameter to
+the script.
+                <p>To access this parameter from the script change the template to : </p>
+<pre>
+<code># The SRR run number.
+SRA=sra.value
+
+# Download 1000 reads from SRA.
+fastq-dump --split-files -X 1000 $SRA</code>
+</pre>
+                <p>
+                Note here that we access the value of the parameter `sra` with <code>sra.value</code>.
+                </p>
+                <p>
+If you preview your recipe again you will see that it produces the same output as before. The value
+is filled
+into
+the script automatically.
+                </p>
+                <p>
+But the interface is still empty as the site does not yet know how to render a graphical widget to
+the
+                    parameter. </p>
+                <p>
+                    To
+tell the site how to render the parameter expand the interface JSON to look like this:
+                </p>
+</p>
+    <pre>
+<code>{
+settings: {
+
+    }
+sra: {
+    display: TEXTBOX
+    value: SRR519926
+    help: An SRA run number
+    regex: \w{1,9}$
+    }
+}</code>
+                </pre>
+                <p></p>
+                 <p></p>
+                <p>
+                When you press the "Preview" again you will see the following interface:
+                </p>
+                <div style="text-align: center">
+                <img   style="width: 800px;" src="{% static 'images/interface-1.png' %}">
+                </div>
+                <p></p>
+                <p>
+
+                    With have instructed the site to display the parameter as a <code>TEXTBOX</code> that only accepts a single
+                maximum 9
+                letter
+                word as input.
+                </p>
+                <p>
+                    It also renders a small help under the textbox to inform the user of the purpose of
+                the input.
+                </p>
+                <p>
+                And that's it! Save the recipe, and now you have just written a simple recipe that others may run
+                and reuse.
+                </p>
 
 
+<div class="ui large header"> What format is the interface in?</div>
+                <p>
+                The JSON syntax follows a variant of JSON that is better suited for human input
+                    called <a href="https://hjson.org/">HJSON (Human JSON). </a></p>
+                    <p>HJSON  is an extension of [JSON][json] that is fully compatible
+                with JSON so you may use the original [JSON][json] notation
+                        if you so desire.</p>
+            </div>
+        </div>
+        <div class="ui large header">List of contributors</div>
+
+        <li>Istvan Albert</li>
+        <li>Aswathy Sebastian</li>
+        <li>Natay Aberra</li>
+
+
+    </div>
 
 {% endblock %}
