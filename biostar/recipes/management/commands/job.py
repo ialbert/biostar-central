@@ -20,6 +20,10 @@ logger.setLevel(logging.DEBUG)
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
+def format_mothur():
+    return
+
+
 def run(job, options={}):
     """
     Runs a job
