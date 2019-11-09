@@ -5,7 +5,7 @@ import os
 #
 LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL') or 'INFO'
 
-DJANGO_LOG = 'WARNING'
+DJANGO_LOG = 'INFO'
 
 
 class RateLimitFilter(object):

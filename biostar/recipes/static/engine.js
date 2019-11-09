@@ -451,6 +451,10 @@ $(document).ready(function () {
 
     $('.ui.sticky').sticky();
 
+
+    $('#foo').click(function () {
+        $('.clipboard').show()
+    });
     $(this).on('click', '#json_preview', function () {
         event.preventDefault();
         let project_uid = $(this).data('value');

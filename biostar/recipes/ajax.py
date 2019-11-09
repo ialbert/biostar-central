@@ -407,6 +407,24 @@ def toggle_delete(request):
     return ajax_error("Invalid action")
 
 
+@ajax_error_wrapper(method="POST", login_required=True)
+def copy_object(request):
+    """
+    Add object uid or file path to sessions clibboard.
+    """
+
+    object_uid = request.POST.get('uid', '')
+    clipboard = request.POST.get('clipboard')
+
+    # Return copied uids
+    copied_uids = auth.copy_uid(request=request, uid=object_uid, board=clipboard)
+
+
+    return
+
+
+
+
 def add_variables(request):
 
     # Get the most recent template and json.

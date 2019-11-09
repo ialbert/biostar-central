@@ -20,6 +20,12 @@ ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
+
+# Allowed CORES websites
+CORS_ORIGIN_WHITELIST = [
+    'https://view.qiime2.org',
+]
+
 # Shortcut to first admin information.
 ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
 

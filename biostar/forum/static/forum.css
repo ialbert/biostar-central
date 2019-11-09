@@ -15,7 +15,9 @@ body {
 
 }
 
-
+.fit-create{
+    min-height: 800px;
+}
 
 .ui.button.vote{
     background: none;

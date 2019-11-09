@@ -2,6 +2,7 @@ import logging
 import os
 import hjson
 import hashlib
+import mistune
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -56,6 +57,7 @@ def about(request):
     """
     Added an about page with the
     """
+    html = mistune
     context = dict()
     return render(request, 'about.html', context=context)
 
@@ -390,7 +392,7 @@ def data_copy(request, uid):
     data = Data.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
-    auth.copy_uid(request=request, instance=data, board=const.DATA_CLIPBOARD)
+    auth.copy_uid(request=request, uid=data.uid, board=const.DATA_CLIPBOARD)
 
     return redirect(next_url)
 
@@ -400,7 +402,7 @@ def recipe_copy(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
-    auth.copy_uid(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD)
+    auth.copy_uid(request=request, uid=recipe.uid, board=const.RECIPE_CLIPBOARD)
 
     return redirect(next_url)
 
@@ -410,7 +412,7 @@ def job_copy(request, uid):
     job = Job.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
-    auth.copy_uid(request=request, instance=job, board=const.RESULTS_CLIPBOARD)
+    auth.copy_uid(request=request, uid=job.uid, board=const.RESULTS_CLIPBOARD)
 
     return redirect(next_url)
 
@@ -981,7 +983,7 @@ def file_serve(request, path, obj):
     return data
 
 
-@read_access(type=Data)
+@read_access(type=Data, allowed_cors='view.qiime2.org')
 def data_serve(request, uid, path):
     """
     Serves files from a data directory.

@@ -698,11 +698,11 @@ function allowDrop(ev) {
     $('#new-post').click(function () {
         var create_url = '/inplace/form/';
         var form_container = $('#insert-form');
-
         cancel_inplace();
         $('#new-comment').remove();
         $('#add-answer').html('');
-        $('.dim-on-create').dimmer('hide');
+        $('.dim-on-create').dimmer('hide').addClass('fit-create');
+
         $.ajax(create_url,
             {
                 type: 'GET',
@@ -714,6 +714,7 @@ function allowDrop(ev) {
                 success: function (data) {
                     if (data.status === 'error') {
                         popup_message($('#error'), data.msg, data.status);
+                        popup_message($('.error-msg'), data.msg, data.status);
                     } else {
                         $('#menu-header > .item').each(function () {
                             $(this).removeClass('active');
@@ -724,6 +725,7 @@ function allowDrop(ev) {
                         form_container.show();
                         form_container.find('#title').focus();
                         $('.dim-on-create').dimmer('show');
+
                     }
 
                 },

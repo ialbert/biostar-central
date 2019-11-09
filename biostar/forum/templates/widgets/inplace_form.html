@@ -73,6 +73,7 @@
                 <div id="preview" class="">{{ html|safe }}</div>
             </div>
         </div>
+        <div class="error-msg"></div>
             <div class="field inplace-buttons">
 
             <a class="ui green button save" id="save"><i class="check icon"></i>
@@ -157,6 +158,7 @@
                 },
                 success: function (data) {
                     if (data.status === 'error') {
+                        popup_message($('.error-msg'), data.msg, data.status, 3000);
                         popup_message(form_elem, data.msg, data.status, 3000);
                     } else {
                         // Redirect user to the new post view.
