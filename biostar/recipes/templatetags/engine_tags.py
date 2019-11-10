@@ -195,7 +195,8 @@ def resolve_clipboard_urls(board, project_uid):
 
 
 def annotate_values(board, vals):
-    obj_map = {const.DATA_CLIPBOARD: (Data, 'file icon'), const.RESULTS_CLIPBOARD: (Job, 'chart bar icon'),
+    obj_map = {const.DATA_CLIPBOARD: (Data, 'file icon'),
+               const.RESULTS_CLIPBOARD: (Job, 'chart bar icon'),
                const.RECIPE_CLIPBOARD: (Analysis, 'setting icon')}
 
     named_vals = []
@@ -207,8 +208,8 @@ def annotate_values(board, vals):
             icon = 'folder icon'
         else:
             obj = obj_model.objects.filter(uid=val).first()
-            name = obj.name
-            url = obj.url()
+            name = obj.name if obj else ""
+            url = obj.url() if obj else ""
 
         named_vals.append((val, name, url, icon))
 
