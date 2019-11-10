@@ -380,6 +380,40 @@ function set_source_dir() {
 }
 
 
+function copy_object(uid, project_uid, clipboard) {
+    let container = $('#item-' + uid);
+
+    $.ajax('/copy/object/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'project_uid': project_uid,
+                'uid': uid,
+                'clipboard': clipboard
+            },
+
+            success: function (data) {
+                if (data.status === 'success') {
+                    // Get the item container
+                    container.transition({
+                        animation: 'pulse', onComplete: function () {
+                            container.addClass('copied')
+                        }
+                    });
+                    return
+                }
+                popup_message(container, data.msg, data.status, 2000)
+
+            },
+            error: function () {
+            }
+
+
+        }
+    )
+}
+
 function copy_file(path) {
     let elem = $('.copy_msg[data-path="' + path + '"]');
 
@@ -620,13 +654,27 @@ $(document).ready(function () {
 
     });
 
-
     $(this).on('click', '#set_source', function () {
         set_source_dir()
-
     });
+
     $('.checkbox').checkbox();
 
+    $(this).on('click', '.copy-object', function () {
+        let uid = $(this).data('value');
+        let project_uid = $(this).data('project');
+        let clipboard = $(this).data('clipboard');
+        copy_object(uid, project_uid, clipboard);
+
+    });
+
+    $(this).on('click', '.expand', function (event) {
+        event.preventDefault();
+        let board = $(this).data('value');
+        $('.expand-'+board).transition('fade down')
+
+
+    });
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');
     Prism.highlightAll();

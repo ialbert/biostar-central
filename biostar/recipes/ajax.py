@@ -414,15 +414,26 @@ def copy_object(request):
     """
 
     object_uid = request.POST.get('uid', '')
+    project_uid = request.POST.get('project_uid', '')
     clipboard = request.POST.get('clipboard')
 
-    # Return copied uids
+    project = Project.objects.filter(uid=project_uid).first()
+    if not project:
+
+        return ajax_error("Project does not exist.")
+
+    is_readable = auth.is_readable(user=request.user, project=project)
+
+    if not is_readable:
+        return ajax_error('You do not have access to copy this object.')
+
+    # Return current clipboard contents
     copied_uids = auth.copy_uid(request=request, uid=object_uid, board=clipboard)
+    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
 
+    print(clipboard)
 
-    return
-
-
+    return ajax_success(f"Copied. Clipboard contains :{len(copied_uids)} objects.")
 
 
 def add_variables(request):

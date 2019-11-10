@@ -83,8 +83,6 @@ def copy_uid(request, uid, board):
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
-    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
-
     return board_items
 
 

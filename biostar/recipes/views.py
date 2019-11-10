@@ -392,8 +392,8 @@ def data_copy(request, uid):
     data = Data.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
-    auth.copy_uid(request=request, uid=data.uid, board=const.DATA_CLIPBOARD)
-
+    board_items = auth.copy_uid(request=request, uid=data.uid, board=const.DATA_CLIPBOARD)
+    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
 
@@ -402,8 +402,8 @@ def recipe_copy(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
-    auth.copy_uid(request=request, uid=recipe.uid, board=const.RECIPE_CLIPBOARD)
-
+    board_items = auth.copy_uid(request=request, uid=recipe.uid, board=const.RECIPE_CLIPBOARD)
+    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
 
@@ -412,8 +412,8 @@ def job_copy(request, uid):
     job = Job.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
-    auth.copy_uid(request=request, uid=job.uid, board=const.RESULTS_CLIPBOARD)
-
+    board_items = auth.copy_uid(request=request, uid=job.uid, board=const.RESULTS_CLIPBOARD)
+    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
 
@@ -506,7 +506,7 @@ def data_paste(request, uid):
 
     clipboard[board] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-    messages.success(request, "Pasted data in clipboard")
+    #messages.success(request, "Pasted data in clipboard")
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
