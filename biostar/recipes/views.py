@@ -57,8 +57,17 @@ def about(request):
     """
     Added an about page with the
     """
-    html = mistune
-    context = dict()
+
+    # Get the docs
+    try:
+        recipe_docs = os.path.join(settings.DOCS_ROOT, 'recipes-index.md')
+        recipe_docs = open(recipe_docs, 'r').read()
+        html = mistune.markdown(recipe_docs, escape=False)
+    except Exception as exc:
+        logger.error(f'Error loading about page: {exc}')
+        html = "About page"
+    html = mark_safe(html)
+    context = dict(html=html)
     return render(request, 'about.html', context=context)
 
 @login_required

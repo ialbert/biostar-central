@@ -203,7 +203,7 @@ def annotate_values(board, vals):
     for val in vals:
         obj_model,icon = obj_map.get(board, (None, ''))
         if not obj_model:
-            name = os.path.join(os.path.basename(os.path.dirname(val)), os.path.basename(val))
+            name = os.path.basename(val)
             url = ''
             icon = 'folder icon'
         else:

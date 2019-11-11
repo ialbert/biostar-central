@@ -176,6 +176,8 @@ MEDIA_URL = '/media/'
 # The media root directory.
 MEDIA_ROOT = join(BASE_DIR, 'export', 'media')
 
+# The root for all docs
+DOCS_ROOT = join(BASE_DIR, 'docs')
 
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',

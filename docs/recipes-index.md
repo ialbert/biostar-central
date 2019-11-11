@@ -2,7 +2,9 @@
 
 ### What is the default admin login?
 
-When the site initializes the admin username and password are using the `ADMINS` and the `ADMIN_PASSWORD` settings in `biostar/forum/settings.py`. By default both the admin login name and the default admin password are set to
+When the site initializes the admin username and password are using the `ADMINS` and the `ADMIN_PASSWORD` settings in `biostar/acccounts/settings.py`.
+ 
+ By default both the admin login name and the default admin password are set to
 
     admin@localhost
 
@@ -29,7 +31,7 @@ Apply this settings file with
 
     python manage.py runserver --settings my_settings.py
 
-Consult the The [Django documentation][django] for details.
+Consult the [Django documentation][django] for details.
 
 [django]: https://www.djangoproject.com/
 
@@ -87,7 +89,7 @@ Even though it performs no action it is a valid and working recipe. Its purpose 
 
 * https://www.bioinformatics.recipes/job/view/a53f6057/
 
-**Note**: To run a recipe you need to have the **EXECUTE** permission on the project. Admin users automatically have this permission on every project.  If you don't have this permission you
+**Note: You need to be a trusted user to run a recipe**. Admin users automatically have this permission on every project.  If you don't have this permission you
 can still see the results that this recipe produces but you would not be able to run the recipe.
 
 Note how even an empty recipe produces outputs. These are files named as follows:
@@ -182,13 +184,15 @@ But the interface is still empty as the site does not yet know how to render a g
 
 When you press the "Preview" again you will see the following interface:
 
-![A simple interface](recipes/interface-1.png)
+
+<img src="https://raw.githubusercontent.com/ialbert/biostar-central/master/docs/recipes/interface-1.png" width="600">
 
 With have instructed the site to display the parameter as a `TEXTBOX` that only accepts a single maximum 9 letter word as input. It also renders a small help under the textbox to inform the user of the purpose of the input.
 
 And that's it! Save the recipe, and now you have just written a simple recipe that others may run and reuse.
 
-![A simple interface](recipes/interface-2.png)
+<img src="https://raw.githubusercontent.com/ialbert/biostar-central/master/docs/recipes/interface-2.png" width="600">
+
 
 ### What format is the interface in?
 
