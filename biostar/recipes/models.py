@@ -287,7 +287,7 @@ class Data(models.Model):
     file = models.FilePathField(max_length=MAX_FIELD_LEN, path='')
 
     # Get the file count from the toc file.
-    file_count = models.BigIntegerField(default=0)
+    file_count = models.IntegerField(default=0)
 
     uid = models.CharField(max_length=32, unique=True)
 
