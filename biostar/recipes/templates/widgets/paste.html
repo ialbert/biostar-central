@@ -9,7 +9,7 @@
             {% for item,values in clipboard %}
                 {% if values.count %}
                     <div class="item">
-                        <p style="display: contents;">
+                        <p class="copied-item">
                             <a href="#" class="expand" data-value="{{ item }}"><i class="expand icon"></i>Contains
                                 <b>{{ values.count }} </b> {{ values.label }}.
                             </a>
