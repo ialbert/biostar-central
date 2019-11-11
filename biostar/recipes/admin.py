@@ -27,7 +27,7 @@ class DataAdmin(admin.ModelAdmin):
     search_fields = ('name', 'owner__first_name', 'owner__email', 'state', "project__name",
                      "project__owner__first_name", "project__owner__email", "id", "uid")
 
-    list_display = ("name",  "project", "lastedit_date", "rank", "date", 'size', 'type')
+    list_display = ("name",  "project", "lastedit_date", "date", 'size', 'type')
     list_filter = ("project__name", "deleted")
 
     fieldsets = (("Data Metadata",
