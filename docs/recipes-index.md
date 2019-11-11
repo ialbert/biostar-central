@@ -182,17 +182,6 @@ But the interface is still empty as the site does not yet know how to render a g
         }
     }
 
-When you press the "Preview" again you will see the following interface:
-
-
-<img src="https://raw.githubusercontent.com/ialbert/biostar-central/master/docs/recipes/interface-1.png" width="600">
-
-With have instructed the site to display the parameter as a `TEXTBOX` that only accepts a single maximum 9 letter word as input. It also renders a small help under the textbox to inform the user of the purpose of the input.
-
-And that's it! Save the recipe, and now you have just written a simple recipe that others may run and reuse.
-
-<img src="https://raw.githubusercontent.com/ialbert/biostar-central/master/docs/recipes/interface-2.png" width="600">
-
 
 ### What format is the interface in?
 
