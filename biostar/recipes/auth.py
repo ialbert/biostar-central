@@ -66,15 +66,10 @@ def copy_file(request, fullpath):
     return items
 
 
-def copy_uid(request, instance, board):
+def copy_uid(request, uid, board):
     """
     Used to append instance.uid into request.session[board]
     """
-
-    if instance is None:
-        messages.error(request, "Object does not exist.")
-        return []
-
     if request.user.is_anonymous:
         messages.error(request, "You need to be logged in.")
         return []
@@ -82,14 +77,11 @@ def copy_uid(request, instance, board):
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
 
     board_items = clipboard.get(board, [])
-    board_items.append(instance.uid)
+    board_items.append(uid)
     # No duplicates in clipboard
-
     clipboard[board] = list(set(board_items))
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-
-    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
 
     return board_items
 
@@ -162,6 +154,16 @@ def generate_script(job):
     script = template.render(context)
 
     return json_data, script
+
+
+def detect_cores(request):
+
+    # Check if the Origin in the request is allowed
+    origin = request.headers.get('Origin', '')
+    if origin in settings.CORS_ORIGIN_WHITELIST:
+        return origin
+
+    return ''
 
 
 def text_diff(text1, text2):
@@ -466,10 +468,13 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
 
 def delete_object(obj, request):
-    obj.deleted = not obj.deleted
-    obj.save()
-    msg = f"Deleted <b>{obj.name}</b>." if obj.deleted else f"Restored <b>{obj.name}</b>."
-    messages.success(request, mark_safe(msg))
+
+    access = is_writable(user=request.user, project=obj.project)
+
+    # Toggle the delete state if the user has write access
+    if access:
+        obj.deleted = not obj.deleted
+        obj.save()
 
     return obj.deleted
 

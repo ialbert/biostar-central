@@ -177,7 +177,7 @@ def data_field_generator(field, project, type="", extras=[]):
     are of a certain type.
     """
 
-    query = models.Data.objects.filter(project=project)
+    query = models.Data.objects.filter(project=project).exclude(deleted=True)
     if type:
         type = type.replace(" ", '')
         query = query.filter(type__iregex=type)

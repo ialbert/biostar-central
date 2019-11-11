@@ -84,6 +84,14 @@ body {
 
 }
 
+.job.transition.hidden{
+    display: none !important;
+}
+
+.ui.items>.job.item:first-child{
+
+}
+
 .listing.ribbon.label{
     position: absolute;
     margin-left: 2px;
@@ -91,14 +99,36 @@ body {
 
 }
 
+.paste.list{
+    text-align: left
+}
+.paste.buttons{
+    text-align: center;
+    float: right;
+    opacity: 0.8;
+    padding-left: 5px
+}
+
+.paste.segment{
+    padding: 0;
+    margin: 0;
+}
 
 .viewing.ribbon.label{
     position: absolute;
     left: calc(100% + 1.2em);
-
-
 }
 
+.copied.item{
+
+    transition: background-color 400ms linear !important;
+    background-color: #fbfff0 !important;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12), 0 .01em .001em  0 rgba(34,36,38,.15) !important;
+}
+
+.empty-clipboard{
+    display: none;
+}
 
 .file.item:hover{
     background-color: #f2f2f2;

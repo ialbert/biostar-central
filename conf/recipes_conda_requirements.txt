@@ -13,3 +13,4 @@ subread
 kallisto
 trimmomatic
 salmon
+mothur

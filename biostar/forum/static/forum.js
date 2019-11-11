@@ -188,6 +188,7 @@ function cancel_create() {
     var form_container = $('#insert-form');
     form_container.html('');
     $('#new-post').removeClass('active');
+    $('.dim-on-create').removeClass('fit-create');
 
 }
 
@@ -202,7 +203,7 @@ function cancel_inplace(){
     var hidden = $('.hide-on-edit');
     $('.hide-on-comment').show();
 
-    $('.dim-on-create').dimmer('hide');
+    $('.dim-on-create').dimmer('hide').removeClass('fit-create');;
     //Delete the form
     inplace_content.remove();
     //inplace_title.html("");
@@ -698,11 +699,11 @@ function allowDrop(ev) {
     $('#new-post').click(function () {
         var create_url = '/inplace/form/';
         var form_container = $('#insert-form');
-
         cancel_inplace();
         $('#new-comment').remove();
         $('#add-answer').html('');
-        $('.dim-on-create').dimmer('hide');
+        $('.dim-on-create').dimmer('hide')
+
         $.ajax(create_url,
             {
                 type: 'GET',
@@ -714,6 +715,7 @@ function allowDrop(ev) {
                 success: function (data) {
                     if (data.status === 'error') {
                         popup_message($('#error'), data.msg, data.status);
+
                     } else {
                         $('#menu-header > .item').each(function () {
                             $(this).removeClass('active');
@@ -723,7 +725,8 @@ function allowDrop(ev) {
                         form_container.html(data.inplace_form);
                         form_container.show();
                         form_container.find('#title').focus();
-                        $('.dim-on-create').dimmer('show');
+                        $('.dim-on-create').dimmer('show').addClass('fit-create');
+
                     }
 
                 },

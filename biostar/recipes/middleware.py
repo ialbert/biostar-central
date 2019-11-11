@@ -1,7 +1,8 @@
 from django.contrib.auth import logout
 from django.contrib import messages
+from django.conf import settings
 from biostar.accounts.models import Profile
-
+from biostar.recipes.auth import detect_cores
 
 def recipes_middleware(get_response):
 
@@ -15,10 +16,10 @@ def recipes_middleware(get_response):
             logout(request)
 
         response = get_response(request)
-        # Can process response here after its been handled by the view
 
-        # Turn CORS on.
-        response["Access-Control-Allow-Origin"] = "*"
+        origin = detect_cores(request)
+        if origin:
+            response["Access-Control-Allow-Origin"] = origin
 
         return response
 

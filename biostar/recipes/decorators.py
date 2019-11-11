@@ -18,14 +18,20 @@ class read_access:
     Controls READ level access to urls.
     """
 
-    def __init__(self, type):
+    def __init__(self, type, allowed_cors=None):
         self.type = type
+        self.allowed_cors = allowed_cors
         self.fallback_url = lambda : reverse("project_list")
 
     def __call__(self, function, *args, **kwargs):
         # Pass function attributes to the wrapper
         @wraps(function, assigned=available_attrs(function))
         def wrapper(request, *args, **kwargs):
+
+            # Allow read access for the allowed CORS website.
+            origin = auth.detect_cores(request)
+            if self.allowed_cors and self.allowed_cors in origin:
+                return function(request, *args, **kwargs)
 
             # Each wrapped view must take an alphanumeric uid as parameter.
             uid = kwargs.get('uid')

@@ -20,6 +20,12 @@ ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
+
+# Allowed CORES websites
+CORS_ORIGIN_WHITELIST = [
+    'https://view.qiime2.org',
+]
+
 # Shortcut to first admin information.
 ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
 
@@ -170,6 +176,8 @@ MEDIA_URL = '/media/'
 # The media root directory.
 MEDIA_ROOT = join(BASE_DIR, 'export', 'media')
 
+# The root for all docs
+DOCS_ROOT = join(BASE_DIR, 'docs')
 
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',

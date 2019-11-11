@@ -380,6 +380,40 @@ function set_source_dir() {
 }
 
 
+function copy_object(uid, project_uid, clipboard) {
+    let container = $('#item-' + uid);
+
+    $.ajax('/copy/object/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'project_uid': project_uid,
+                'uid': uid,
+                'clipboard': clipboard
+            },
+
+            success: function (data) {
+                if (data.status === 'success') {
+                    // Get the item container
+                    container.transition({
+                        animation: 'pulse', onComplete: function () {
+                            container.addClass('copied')
+                        }
+                    });
+                    return
+                }
+                popup_message(container, data.msg, data.status, 2000)
+
+            },
+            error: function () {
+            }
+
+
+        }
+    )
+}
+
 function copy_file(path) {
     let elem = $('.copy_msg[data-path="' + path + '"]');
 
@@ -404,6 +438,41 @@ function copy_file(path) {
     )
 }
 
+
+function toggle_delete(job_uid) {
+
+
+    // Get the job container
+    let container = $('.job-item-' + job_uid);
+    let counts = $('#job_count');
+
+    $.ajax('/toggle/delete/', {
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'job_uid': job_uid
+            },
+
+            success: function (data) {
+                if (data.status === 'success') {
+                    // Give message
+                    container.transition('zoom');
+                    // Update counts on tabular menu
+                    counts.html(data.counts);
+                    return
+                }
+
+                popup_message(container.before(), data.msg, data.status, 2000)
+
+            },
+            error: function () {
+            }
+        }
+    )
+
+
+}
+
 $(document).ready(function () {
 
 
@@ -416,6 +485,10 @@ $(document).ready(function () {
 
     $('.ui.sticky').sticky();
 
+
+    $('#foo').click(function () {
+        $('.clipboard').show()
+    });
     $(this).on('click', '#json_preview', function () {
         event.preventDefault();
         let project_uid = $(this).data('value');
@@ -573,13 +646,35 @@ $(document).ready(function () {
         container.after(page)
     });
 
+    $(this).on('click', '.toggle_delete', function (event) {
+        //alert("foo");
+        event.preventDefault();
+        let job_uid = $(this).data("value");
+        toggle_delete(job_uid);
+
+    });
 
     $(this).on('click', '#set_source', function () {
         set_source_dir()
-
     });
+
     $('.checkbox').checkbox();
 
+    $(this).on('click', '.copy-object', function () {
+        let uid = $(this).data('value');
+        let project_uid = $(this).data('project');
+        let clipboard = $(this).data('clipboard');
+        copy_object(uid, project_uid, clipboard);
+
+    });
+
+    $(this).on('click', '.expand', function (event) {
+        event.preventDefault();
+        let board = $(this).data('value');
+        $('.expand-'+board).transition('fade down')
+
+
+    });
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');
     Prism.highlightAll();

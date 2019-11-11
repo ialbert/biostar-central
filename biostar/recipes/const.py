@@ -32,6 +32,10 @@ RESULTS_CLIPBOARD = "results"
 RECIPE_CLIPBOARD = "recipes"
 FILES_CLIPBOARD = "files"
 
+# All destined to be pasted as data
+DATA_SPECIFIC_CLIPBOARD = ','.join([DATA_CLIPBOARD, RESULTS_CLIPBOARD, FILES_CLIPBOARD])
+
+
 KNOWN_TEXT_EXTENSIONS = set(KNOWN_TEXT_EXTENSIONS)
 
 # The maximum length in characters for a typical name and text field.

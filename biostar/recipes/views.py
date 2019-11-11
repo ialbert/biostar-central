@@ -2,6 +2,7 @@ import logging
 import os
 import hjson
 import hashlib
+import mistune
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -56,7 +57,17 @@ def about(request):
     """
     Added an about page with the
     """
-    context = dict()
+
+    # Get the docs
+    try:
+        recipe_docs = os.path.join(settings.DOCS_ROOT, 'recipes-index.md')
+        recipe_docs = open(recipe_docs, 'r').read()
+        html = mistune.markdown(recipe_docs, escape=False)
+    except Exception as exc:
+        logger.error(f'Error loading about page: {exc}')
+        html = "About page"
+    html = mark_safe(html)
+    context = dict(html=html)
     return render(request, 'about.html', context=context)
 
 @login_required
@@ -307,8 +318,8 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     project = Project.objects.filter(uid=uid, deleted=False).first()
 
     # Select all the data in the project.
-    data_list = project.data_set.filter(deleted=False).order_by("-rank", "-date").all()
-    recipe_list = project.analysis_set.filter(deleted=False).order_by("-rank", "-date").all()
+    data_list = project.data_set.filter(deleted=False).order_by("rank", "-date").all()
+    recipe_list = project.analysis_set.filter(deleted=False).order_by("rank", "-date").all()
 
     # Annotate each recipe with the number of jobs it has.
     recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
@@ -390,8 +401,8 @@ def data_copy(request, uid):
     data = Data.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
-    auth.copy_uid(request=request, instance=data, board=const.DATA_CLIPBOARD)
-
+    board_items = auth.copy_uid(request=request, uid=data.uid, board=const.DATA_CLIPBOARD)
+    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
 
@@ -400,8 +411,8 @@ def recipe_copy(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
-    auth.copy_uid(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD)
-
+    board_items = auth.copy_uid(request=request, uid=recipe.uid, board=const.RECIPE_CLIPBOARD)
+    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
 
@@ -410,8 +421,8 @@ def job_copy(request, uid):
     job = Job.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
-    auth.copy_uid(request=request, instance=job, board=const.RESULTS_CLIPBOARD)
-
+    board_items = auth.copy_uid(request=request, uid=job.uid, board=const.RESULTS_CLIPBOARD)
+    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
 
@@ -504,7 +515,7 @@ def data_paste(request, uid):
 
     clipboard[board] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-    messages.success(request, "Pasted data in clipboard")
+    #messages.success(request, "Pasted data in clipboard")
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
@@ -745,7 +756,7 @@ def job_rerun(request, uid):
         # Spool via UWSGI.
         tasks.execute_job.spool(job_id=job.id)
 
-    messages.success(request, "Rerunning job")
+    #messages.success(request, "Rerunning job")
     return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
 
 
@@ -893,6 +904,8 @@ def recipe_delete(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
 
     auth.delete_object(obj=recipe, request=request)
+    msg = f"Deleted <b>{recipe.name}</b>." if recipe.deleted else f"Restored <b>{recipe.name}</b>."
+    messages.success(request, mark_safe(msg))
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
@@ -908,6 +921,9 @@ def job_delete(request, uid):
         return redirect(job.url())
 
     auth.delete_object(obj=job, request=request)
+    msg = f"Deleted <b>{job.name}</b>." if job.deleted else f"Restored <b>{job.name}</b>."
+    messages.success(request, mark_safe(msg))
+
     return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
 
@@ -916,6 +932,8 @@ def data_delete(request, uid):
     data = Data.objects.filter(uid=uid).first()
 
     auth.delete_object(obj=data, request=request)
+    msg = f"Deleted <b>{data.name}</b>." if data.deleted else f"Restored <b>{data.name}</b>."
+    messages.success(request, mark_safe(msg))
 
     return redirect(reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
@@ -974,7 +992,7 @@ def file_serve(request, path, obj):
     return data
 
 
-@read_access(type=Data)
+@read_access(type=Data, allowed_cors='view.qiime2.org')
 def data_serve(request, uid, path):
     """
     Serves files from a data directory.

@@ -23,23 +23,21 @@
 {% block contain %}
 
  <div class="ui bottom attached segment">
+    {% paste project=project current=data_specific %}
+
     {% show_messages messages %}
-    {% paste project=project current=data_board %}
-
-    {% paste project=project current=results_board %}
-
-    {% paste project=project current=file_board %}
 
     <div class="ui large vertical segment">
         <div class="ui divided items">
 
             {% for data in data_list %}
 
-                <div class="item">
+                <div class="item" id="item-{{ data.uid }}">
                     <div class="content">
 
                         {% if request.user.is_authenticated %}
-                            <a class="ui right floated label" href="{% url "data_copy" data.uid %}?next={% url "data_list" data.project.uid %}">
+                            <a class="ui right floated label copy-object" data-value="{{ data.uid }}"
+                               data-project="{{ data.project.uid }}" data-clipboard="{{ data_board }}">
                                 <i class="copy icon"></i>Copy
                             </a>
                         {% endif %}
@@ -52,7 +50,7 @@
                                 {% size_label data %}
                                 {% type_label data %}
                                 {% state_label data error_only=True %}
-                                {% created_by date=data.lastedit_date user=data.owner %}
+                                {% created_by date=data.lastedit_date user=data.owner prefix='created' %}
                             </div>
                         </div>
                         <div class="meta">{{ data.summary|safe }}</div>

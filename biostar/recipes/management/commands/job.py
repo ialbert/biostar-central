@@ -20,6 +20,7 @@ logger.setLevel(logging.DEBUG)
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
+
 def run(job, options={}):
     """
     Runs a job
@@ -94,7 +95,7 @@ def run(job, options={}):
         execute = settings_dict.get('execute', {})
 
         # The name of the file that contain the commands.
-        script_name = execute.get("filename", "recipe.sh")
+        script_name = execute.get("script_name", "recipe.sh")
 
         # Make the log directory that stores sdout, stderr.
         LOG_DIR = 'runlog'
@@ -108,7 +109,7 @@ def run(job, options={}):
         stderr_fname = f"{log_dir}/stderr.txt"
 
         # Build the command line
-        command = execute.get("command", "bash recipe.sh")
+        command = execute.get("command", f"bash {script_name}")
 
         # The commands can be substituted as well.
         context = Context(json_data)

@@ -25,18 +25,20 @@ class DataAdmin(admin.ModelAdmin):
         TextField: {'widget': Textarea(attrs={'rows': 20, 'cols': 100})},
     }
     search_fields = ('name', 'owner__first_name', 'owner__email', 'state', "project__name",
-                     "project__owner__first_name", "project__owner__email")
+                     "project__owner__first_name", "project__owner__email", "id", "uid")
+
     list_display = ("name",  "project", "lastedit_date", "date", 'size', 'type')
     list_filter = ("project__name", "deleted")
 
     fieldsets = (("Data Metadata",
-                  {'fields': ("name", "owner",  "image", "deleted", 'type'),
+                  {'fields': ("name", "owner",  "image", "deleted", 'type',
+                              'rank'),
                               #"file"),
                    "classes": ('extrapretty')}
                   ),
 
                  ("Optional Text Inputs",
-                  {'fields': (("text", "html")),
+                  {'fields': (("text", )),
                    "classes": ("collapse", 'extrapretty')}
                   ),
                  )
@@ -51,7 +53,8 @@ class JobAdmin(admin.ModelAdmin):
         TextField: {'widget': Textarea(attrs={'rows': 20, 'cols': 100})},
     }
     search_fields = ('name', 'owner__first_name', 'owner__email', 'state', "project__name",
-                     "project__owner__first_name", "project__owner__email")
+                     "project__owner__first_name", "project__owner__email", "id", "uid")
+
     list_display = ("name", "state", "start_date", "security", "date")
     list_filter = ("state", "security", "project__name", "deleted")
 
@@ -80,7 +83,7 @@ class AnalysisAdmin(admin.ModelAdmin):
     }
 
     search_fields = ('name', 'text', 'owner__first_name', 'owner__email', "project__name",
-                     "project__owner__first_name", "project__owner__email")
+                     "project__owner__first_name", "project__owner__email", "id", "uid")
     list_display = ("name", "date", "security")
     list_filter = ("security", "project__name", "deleted")
 
@@ -108,7 +111,7 @@ class ProjectAdmin(admin.ModelAdmin):
         TextField: {'widget': Textarea(attrs={'rows': 20, 'cols': 100})},
     }
 
-    search_fields = ('name', 'text', 'owner__first_name', 'owner__email', 'owner__username')
+    search_fields = ('name', 'text', 'owner__first_name', 'owner__email', 'owner__username', "id", "uid")
     list_display = ("name", "date", "deleted", 'privacy', 'owner')
     list_filter = ("deleted", 'privacy')
 

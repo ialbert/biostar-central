@@ -20,13 +20,13 @@
 
 
     <div class="ui bottom attached segment">
+        {% paste project=project current=recipe_board %}
 
         {% show_messages messages %}
 
-        <p></p>
+
         {% block content %}
 
-            {% paste project=project current=recipe_board %}
 
             <div class="ui large basic segment">
 

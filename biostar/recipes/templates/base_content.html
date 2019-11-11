@@ -10,7 +10,7 @@
 
     {% project_title project %}
 
-    <div class="ui vertical segment">
+    <div class="ui vertical segment" id="clipboard_anchor">
 
         <div class="ui top attached large tabular  {% job_color job %} menu">
 
@@ -27,7 +27,7 @@
             </a>
 
             <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
-                <i class="bar chart icon"></i>{{ result_count }}<span class="phone">&nbsp;Results</span>
+                <i class="bar chart icon"></i><span id="job_count">{{ result_count }}</span><span class="phone">&nbsp;Results</span>
             </a>
 
             {% if activate %}
@@ -42,13 +42,12 @@
             {% endblock %}
 
         </div>
+
     {% block contain %}
         <div class="ui bottom attached {% job_color job %} large segment">
 
 
             {% show_messages messages %}
-
-
                 {% block content %}
                     Content
                 {% endblock %}
