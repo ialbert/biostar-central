@@ -84,6 +84,9 @@ body {
 
 }
 
+.copied-item{
+    display: contents;
+}
 .job.transition.hidden{
     display: none !important;
 }

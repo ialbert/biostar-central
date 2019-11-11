@@ -286,6 +286,9 @@ class Data(models.Model):
     # FilePathField points to an existing file
     file = models.FilePathField(max_length=MAX_FIELD_LEN, path='')
 
+    # Get the file count from the toc file.
+    file_count = models.IntegerField(default=0)
+
     uid = models.CharField(max_length=32, unique=True)
 
     objects = Manager()
@@ -303,7 +306,6 @@ class Data(models.Model):
         self.type = self.type.replace(" ", '')
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
-
         # Build the data directory.
         data_dir = self.get_data_dir()
         if not os.path.isdir(data_dir):
@@ -371,6 +373,7 @@ class Data(models.Model):
 
         self.size = size
         self.file = tocname
+        self.file_count = len(collect)
 
         return tocname
 
@@ -440,6 +443,9 @@ class Analysis(models.Model):
 
     # The rank in a recipe list.
     rank = models.FloatField(default=100)
+
+    # Root recipe this recipe has been copied from
+    root = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
 
     # The user that edited the object most recently.
     lastedit_user = models.ForeignKey(User, related_name='analysis_editor', null=True, on_delete=models.CASCADE)
