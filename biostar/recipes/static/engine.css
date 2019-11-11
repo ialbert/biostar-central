@@ -99,6 +99,20 @@ body {
 
 }
 
+.paste.list{
+    text-align: left
+}
+.paste.buttons{
+    text-align: center;
+    float: right;
+    opacity: 0.8;
+    padding-left: 5px
+}
+
+.paste.segment{
+    padding: 0;
+    margin: 0;
+}
 
 .viewing.ribbon.label{
     position: absolute;

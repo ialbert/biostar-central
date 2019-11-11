@@ -1,10 +1,10 @@
 {% load engine_tags %}
 
-<div class="ui center aligned basic segment {{ empty_css }}" style="padding: 0;margin: 0;">
+<div class="ui center aligned basic segment paste {{ empty_css }}">
     <div class="ui  compact large message">
 
 
-        <div class="ui relaxed divided list" style="text-align: left">
+        <div class="ui relaxed divided paste list" >
 
             {% for item,values in clipboard %}
                 {% if values.count %}
@@ -14,8 +14,7 @@
                                 <b>{{ values.count }} </b> {{ values.label }}.
                             </a>
 
-                            <span style="float: right; padding-left: 5px">
-                              <div class="ui mini buttons" style="text-align: center; float: right; opacity: 0.8">
+                              <div class="ui mini paste buttons">
                                 <a class="ui green  button" href="{{ values.paste_url }}?board={{ item }}">
                                     <i class="sticky note icon"></i> Paste
                                 </a>
@@ -26,7 +25,7 @@
                                 </a>
                             </div>
 
-                            </span>
+
                         </p>
 
 
