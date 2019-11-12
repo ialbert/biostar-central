@@ -401,17 +401,18 @@ def data_copy(request, uid):
     data = Data.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
-    board_items = auth.copy_uid(request=request, uid=data.uid, board=const.DATA_CLIPBOARD)
+    board_items = auth.copy_uid(request=request, uid=data.uid, board=const.DATA_BOARD)
     messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
 
 @read_access(type=Analysis)
 def recipe_copy(request, uid):
+    board = request.GET.get('board', const.RECIPE_BOARD)
     recipe = Analysis.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
-    board_items = auth.copy_uid(request=request, uid=recipe.uid, board=const.RECIPE_CLIPBOARD)
+    board_items = auth.copy_uid(request=request, uid=recipe.uid, board=board)
     messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
@@ -421,7 +422,7 @@ def job_copy(request, uid):
     job = Job.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
-    board_items = auth.copy_uid(request=request, uid=job.uid, board=const.RESULTS_CLIPBOARD)
+    board_items = auth.copy_uid(request=request, uid=job.uid, board=const.RESULTS_BOARD)
     messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
@@ -462,7 +463,7 @@ def recipe_paste(request, uid):
 
     # Contains the uids for the recipes that are to be copied.
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-    recipe_uids = clipboard.get(const.RECIPE_CLIPBOARD, [])
+    recipe_uids = clipboard.get(const.RECIPE_BOARD, [])
 
     # Select valid recipe uids.
     recipes = [Analysis.objects.filter(uid=uid).first() for uid in recipe_uids]
@@ -482,7 +483,7 @@ def recipe_paste(request, uid):
     new_recipes = list(map(copy, recipes))
 
     # Reset the session.
-    clipboard[const.RECIPE_CLIPBOARD] = []
+    clipboard[const.RECIPE_BOARD] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
     # Notification after paste.
@@ -502,7 +503,7 @@ def data_paste(request, uid):
 
     for datauid in data_clipboard:
 
-        if board == const.DATA_CLIPBOARD:
+        if board == const.DATA_BOARD:
             obj = Data.objects.filter(uid=datauid).first()
             dtype = obj.type
         else:
@@ -523,13 +524,13 @@ def data_paste(request, uid):
 def file_paste(request, uid):
     project = Project.objects.filter(uid=uid).first()
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-    file_clipboard = clipboard.get(const.FILES_CLIPBOARD, [])
+    file_clipboard = clipboard.get(const.FILES_BOARD, [])
 
     for single_file in file_clipboard:
         if os.path.exists(single_file):
             auth.create_data(project=project, path=single_file, user=request.user)
 
-    clipboard[const.FILES_CLIPBOARD] = []
+    clipboard[const.FILES_BOARD] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 

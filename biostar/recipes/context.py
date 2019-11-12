@@ -11,9 +11,10 @@ def engine(request):
     '''
 
     params = dict(user=request.user, VERSION=VERSION, request=request,
-                data_board=DATA_CLIPBOARD, data_specific=DATA_SPECIFIC_CLIPBOARD,
-                  recipe_board=RECIPE_CLIPBOARD, file_board=FILES_CLIPBOARD,
-                results_board=RESULTS_CLIPBOARD,
-    )
+                  data_board=DATA_BOARD, data_specific=DATA_SPECIFIC_BOARD,
+                  recipe_board=RECIPE_BOARD, file_board=FILES_BOARD,
+                  recipe_link=LINKED_RECIPES, results_board=RESULTS_BOARD,
+                  recipe_specific=RECIPE_SPECIFIC_BOARD,
+                  )
 
     return params

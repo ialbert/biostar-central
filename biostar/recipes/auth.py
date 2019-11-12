@@ -56,11 +56,11 @@ def copy_file(request, fullpath):
 
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
 
-    board_items = clipboard.get(FILES_CLIPBOARD, [])
+    board_items = clipboard.get(FILES_BOARD, [])
     board_items.append(fullpath)
     # No duplicates in clipboard
     items = list(set(board_items))
-    clipboard[FILES_CLIPBOARD] = items
+    clipboard[FILES_BOARD] = items
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
     return items
@@ -282,7 +282,8 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
-                    name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False):
+                    name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
+                    root=None):
     owner = user or project.owner
 
     analysis = Analysis.objects.filter(uid=uid)
@@ -303,7 +304,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         uid = None if analysis else uid
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
-                                           template=template)
+                                           template=template, root=root)
 
         analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(3)}" if not uid else uid
         analysis.save()

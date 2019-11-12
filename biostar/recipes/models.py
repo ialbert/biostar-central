@@ -190,7 +190,8 @@ class Project(models.Model):
                 help=self.text,
                 url=settings.BASE_URL,
                 project_uid=self.uid,
-                id=self.pk
+                id=self.pk,
+
                 ),
             recipes=[recipe.uid for recipe in self.analysis_set.all()])
 
@@ -493,7 +494,8 @@ class Analysis(models.Model):
         current_settings["uid"] = self.uid
         current_settings["help"] = self.text
         current_settings["url"] = settings.BASE_URL
-
+        current_settings['root_id'] = self.root.id if self.root else ""
+        current_settings['root_uid'] = self.root.uid if self.root else ""
         # Put them back into settings.
         json_data["settings"] = current_settings
 
