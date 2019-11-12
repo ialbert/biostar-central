@@ -178,10 +178,11 @@ def list_view(context, projects=None, data_list=None, recipe_list=None, job_list
 
 
 def resolve_clipboard_urls(board, project_uid):
-    view_map = {const.DATA_CLIPBOARD: ('data_paste', 'data_list'),
-                const.RECIPE_CLIPBOARD: ('recipe_paste', 'recipe_list'),
-                const.FILES_CLIPBOARD: ('file_paste', 'file_paste'),
-                const.RESULTS_CLIPBOARD: ('data_paste', 'data_list')
+    view_map = {const.DATA_BOARD: ('data_paste', 'data_list'),
+                const.RECIPE_BOARD: ('recipe_paste', 'recipe_list'),
+                const.FILES_BOARD: ('file_paste', 'file_paste'),
+                const.RESULTS_BOARD: ('data_paste', 'data_list'),
+                const.LINKED_RECIPES: ('recipe_link', 'recipe_list'),
                 }
 
     paste_view, next_view = view_map.get(board, '')
@@ -195,9 +196,10 @@ def resolve_clipboard_urls(board, project_uid):
 
 
 def annotate_values(board, vals):
-    obj_map = {const.DATA_CLIPBOARD: (Data, 'file icon'),
-               const.RESULTS_CLIPBOARD: (Job, 'chart bar icon'),
-               const.RECIPE_CLIPBOARD: (Analysis, 'setting icon')}
+    obj_map = {const.DATA_BOARD: (Data, 'file icon'),
+               const.RESULTS_BOARD: (Job, 'chart bar icon'),
+               const.RECIPE_BOARD: (Analysis, 'setting icon'),
+               const.LINKED_RECIPES: (Analysis, 'setting icon')}
 
     named_vals = []
     for val in vals:
@@ -237,7 +239,6 @@ def paste(context, project, current=","):
             items_to_paste.setdefault(board_key, content)
 
     board_count = len(items_to_paste)
-
     empty_css = "empty-clipboard" if board_count == 0 else ""
     extra_context = dict(project=project, current=','.join(current), board_count=board_count,
                          clipboard=items_to_paste.items(), context=context, empty_css=empty_css)
