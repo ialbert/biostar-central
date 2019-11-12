@@ -527,7 +527,7 @@ class Analysis(models.Model):
                 # Leave run settings alone.
                 local_json['settings'] = dict(execute=run_settings)
             else:
-                # Delete settings parameter
+                # Delete settings from json text
                 del local_json['settings']
 
         self.json_text = hjson.dumps(local_json)
@@ -536,6 +536,7 @@ class Analysis(models.Model):
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
 
         if self.security == self.AUTHORIZED:
+            # TODO: remove 
             self.last_valid = self.template
 
         Project.objects.filter(uid=self.project.uid).update(lastedit_date=now,
