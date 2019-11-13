@@ -23,7 +23,7 @@
 {% block contain %}
 
  <div class="ui bottom attached segment">
-    {% paste project=project current=data_specific %}
+    {% paste project=project current=data_paste_targets %}
 
     {% show_messages messages %}
 
@@ -37,7 +37,7 @@
 
                         {% if request.user.is_authenticated %}
                             <a class="ui right floated label copy-object" data-value="{{ data.uid }}"
-                               data-project="{{ data.project.uid }}" data-clipboard="{{ data_board }}">
+                               data-project="{{ data.project.uid }}" data-clipboard="{{ copied_data }}">
                                 <i class="copy icon"></i>Copy
                             </a>
                         {% endif %}

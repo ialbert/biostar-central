@@ -423,7 +423,6 @@ class Data(models.Model):
         first = lines[0]
         return first
 
-
 class Analysis(models.Model):
     AUTHORIZED, NOT_AUTHORIZED = 1, 2
 
@@ -452,6 +451,7 @@ class Analysis(models.Model):
     lastedit_user = models.ForeignKey(User, related_name='analysis_editor', null=True, on_delete=models.CASCADE)
     lastedit_date = models.DateTimeField(default=timezone.now)
 
+    #TODO: remove diff fields
     diff_author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="diff_author", null=True)
     diff_date = models.DateField(blank=True, auto_now_add=True)
 
@@ -505,41 +505,16 @@ class Analysis(models.Model):
         now = timezone.now()
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
-        self.diff_date = self.diff_date or now
         self.text = self.text or "Recipe description"
         self.name = self.name[:MAX_NAME_LEN] or "New Recipe"
         self.html = make_html(self.text)
-        self.diff_author = self.diff_author or self.owner
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
 
         # Clean json text of the 'settings' key unless it has the 'run' field.
-        try:
-            local_json = hjson.loads(self.json_text)
-        except Exception as exep:
-            logger.error(f'Error loading json text: {exep}')
-            local_json = hjson.loads(self.last_valid)
-
-        # Look into JSON settings
-        if local_json.get('settings'):
-            run_settings = local_json.get('settings', {}).get('execute', {})
-
-            # Check to see for an 'execute' parameter
-            if run_settings:
-                # Leave run settings alone.
-                local_json['settings'] = dict(execute=run_settings)
-            else:
-                # Delete settings from json text
-                del local_json['settings']
-
-        self.json_text = hjson.dumps(local_json)
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
-
-        if self.security == self.AUTHORIZED:
-            # TODO: remove 
-            self.last_valid = self.template
 
         Project.objects.filter(uid=self.project.uid).update(lastedit_date=now,
                                                             lastedit_user=self.lastedit_user)
@@ -547,6 +522,55 @@ class Analysis(models.Model):
 
     def get_project_dir(self):
         return self.project.get_project_dir()
+
+    @property
+    def is_cloned(self):
+        """
+        Return True if recipe is a clone ( linked ).
+        """
+        return self.root is not None
+
+    @property
+    def is_root(self):
+        """
+        Return True if recipe is a root.
+        """
+        return self.root is None
+
+    def merge(self, target, save=False):
+        """
+        Merge this recipe with a target recipe.
+        """
+        self.json_text = target.json_text
+        self.template = target.template
+
+        self.name = target.name
+        self.lastedit_date = target.lastedit_date
+        self.lastedit_user = target.lastedit_user
+
+        self.text = target.text
+        self.html = target.html
+
+        self.image = target.image
+        if save:
+            self.save()
+
+    def update_children(self):
+        """
+        Update information for children belonging to this root.
+        """
+        # Get all children of this root
+        children = Analysis.objects.filter(root=self)
+
+        # Update all children information
+        children.update(json_text=self.json_text,
+                        template=self.template,
+                        name=self.name,
+                        lastedit_date=self.lastedit_date,
+                        lastedit_user=self.lastedit_user,
+                        text=self.text,
+                        html=self.html,
+                        image=self.image)
 
     def url(self):
         assert self.uid, "Sanity check. UID should always be set."

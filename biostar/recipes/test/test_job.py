@@ -60,7 +60,7 @@ class JobViewTest(TestCase):
         response = views.job_copy(request=request, uid=self.job.uid)
         self.process_response(response, data={})
 
-        board = request.session.get(settings.CLIPBOARD_NAME, {}).get(const.RESULTS_BOARD, [])
+        board = request.session.get(settings.CLIPBOARD_NAME, {}).get(const.COPIED_RESULTS, [])
         success = len(board) == 1 and board[0] == self.job.uid
 
         self.assertTrue(success, "Job uid not copied to clipboard")
@@ -80,7 +80,7 @@ class JobViewTest(TestCase):
     def test_job_file_copy(self):
         "Test the job file copying interface"
 
-        data = {settings.CLIPBOARD_NAME: const.FILES_BOARD, 'path': self.job.get_data_dir()}
+        data = {settings.CLIPBOARD_NAME: const.COPIED_FILES, 'path': self.job.get_data_dir()}
         copy_url = reverse("job_file_copy", kwargs=dict(uid=self.job.uid, path=self.job.get_data_dir()))
         copy_request = util.fake_request(url=copy_url, data=data, user=self.owner)
         copy_response = views.job_file_copy(request=copy_request, uid=self.job.uid, path=self.job.get_data_dir())

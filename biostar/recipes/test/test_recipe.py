@@ -137,7 +137,7 @@ class RecipeViewTest(TestCase):
 
         request = util.fake_request(url=url, data={}, user=self.owner)
 
-        request.session[settings.CLIPBOARD_NAME] = {const.RECIPE_BOARD: self.recipe.uid}
+        request.session[settings.CLIPBOARD_NAME] = {const.COPIED_RECIPES: self.recipe.uid}
 
         response = views.recipe_paste(request=request, uid=self.recipe.project.uid)
 

@@ -9,7 +9,6 @@ from biostar.recipes import util, auth
 
 logger = logging.getLogger("engine")
 
-
 __CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 DATA_DIR = os.path.join(__CURRENT_DIR, 'recipes')
@@ -27,9 +26,35 @@ def update_access(sender, instance, created, raw, update_fields, **kwargs):
         entry = Access.objects.create(user=instance.owner, project=instance, access=Access.WRITE_ACCESS)
 
 
+def strip_json(json_text):
+    """
+    Strip settings parameter in json_text to only contain execute options
+    Deletes the 'settings' parameter if there are no execute options.
+    """
+    try:
+        local_json = hjson.loads(json_text)
+    except Exception as exep:
+        logger.error(f'Error loading json text: {exep}')
+        return
+
+    # Fetch the execute options
+    execute_options = local_json.get('settings', {}).get('execute', {})
+
+    # Check to see if it is present
+    if execute_options:
+        # Strip run settings of every thing but execute options
+        local_json['settings'] = dict(execute=execute_options)
+    else:
+        # NOTE: Delete 'settings' from json text
+        local_json['settings'] = ''
+        del local_json['settings']
+
+    new_json = hjson.dumps(local_json)
+    return new_json
+
+
 @receiver(post_save, sender=Project)
 def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
-
     # Ensure a project has at least one recipe on creation.
     if created and not instance.analysis_set.exists():
         # Add starter hello world recipe to project.
@@ -50,3 +75,24 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
         # Create starter recipe.
         auth.create_analysis(project=instance, json_text=json_text, template=template,
                              name=name, text=text, stream=image_stream)
+
+
+@receiver(post_save, sender=Analysis)
+def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
+
+    # Strip json of 'settings' parameter
+    instance.json_text = strip_json(instance.json_text)
+    root_is_writable = auth.writeable_recipe(user=instance.lastedit_user, source=instance, project=instance.project)
+
+    if instance.is_cloned:
+        root = instance.root
+        # Final check to see the clone's last edit user
+        # has write access to the root
+        if root_is_writable:
+            # Update root with instance data.
+            root.merge(instance, save=True)
+        return
+
+    if instance.is_root:
+        # Update information of all children belonging to this root.
+        instance.update_children()

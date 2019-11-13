@@ -27,14 +27,19 @@
 
     <div class="ui large vertical segment" id="view">
 
-        <div class="ui divided link items">
+        <div class="ui divided link items" style="margin-bottom: 0">
             <div class="item">
                 <div>
                     <img class="ui tiny rounded fancy image" src="{% img recipe %}">
                 </div>
                 <div class="content ">
                     <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                        <i class="setting icon"></i>{{ recipe.name }}
+                        {% if recipe.root %}
+                            <i class="linkify icon"></i>
+                        {% else %}
+                            <i class="setting icon"></i>
+                        {% endif %}
+                        {{ recipe.name }}
                     </a>
                     <div class="meta">
 
@@ -48,17 +53,28 @@
                 </div>
             </div>
         </div>
+        {% if recipe.root and user.is_authenticated %}
+            <div class="ui positive message">
+                <div class="header">
+                    This recipe is a clone.
+                </div>
+                <p>Changes to the <b><a href="{{ recipe.root.url }}">original recipe</a></b> are also reflected here.
+
+                </p>
+            </div>
+        {% endif %}
+
 
     </div>
-
+    {% get_clone_count recipe as clone_count %}
+    {% if clone_count %}
+        <div class="ui vertical segment" style="opacity: .8">
+            <p><i class="clone icon"></i>This recipe has been cloned <b>{{clone_count}} time{{ clone_count|pluralize }}.</b></p>
+        </div>
+    {% endif %}
     <div class="ui large vertical segment">
 
-        {% form_errors form %}
-
-        {% csrf_token %}
-
-
-        <div class="ui six buttons">
+        <div class="ui seven buttons">
 
 
             <a class="ui button" href="#code">
@@ -83,8 +99,8 @@
                 <i class="copy icon"></i> Copy
             </a>
             <a class="ui button"
-               href="{% url "recipe_copy" recipe.uid %}?board={{ recipe_link }}&next={% url "recipe_view" recipe.uid %}">
-                <i class="copy icon"></i> Link
+               href="{% url "recipe_clone" recipe.uid %}?next={% url "recipe_view" recipe.uid %}">
+                <i class="clone outline icon"></i> Clone
             </a>
 
             <a class="ui button" href="{% url 'recipe_delete' recipe.uid %}">
