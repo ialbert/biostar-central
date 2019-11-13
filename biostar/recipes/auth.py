@@ -243,8 +243,10 @@ def get_project_list(user, include_public=True, include_deleted=False):
 
 
 def get_recipe_list(user, project):
+
     if user and user.is_authenticated:
-        recipes = project.analysis_set.filter(Q(root__project__access__user=user)|
+        recipes = project.analysis_set.filter(Q(root__project__privacy__in=[Project.PUBLIC, Project.PRIVATE, Project.SHAREABLE]) |
+                                              Q(root__project__access__user=user)|
                                               Q(root__project__access__in=[Access.READ_ACCESS,
                                                                            Access.WRITE_ACCESS,
                                                                            Access.SHARE_ACCESS]) |
@@ -578,6 +580,8 @@ def readable_recipe(user, source, project=None):
     else:
         project = project or source.project
 
+    if project.is_public:
+        return True
     access = is_readable(user=user, project=project)
     return access
 

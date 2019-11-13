@@ -220,6 +220,7 @@ def annotate_projects(projects, user):
     if user.is_authenticated:
         recipe_count = Count('analysis', distinct=True,
                              filter=Q(analysis__deleted=False) &
+                                    Q(analysis__root__project__privacy__in=[Project.PUBLIC, Project.PRIVATE, Project.SHAREABLE]) |
                                     Q(analysis__root__project__access__user=user) |
                                     Q(analysis__root__project__access__in=[Access.READ_ACCESS,
                                                                            Access.WRITE_ACCESS,
