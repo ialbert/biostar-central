@@ -218,22 +218,20 @@ def project_info(request, uid):
 
 def annotate_projects(projects, user):
     if user.is_authenticated:
-        projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(data__deleted=False)),
-                                     job_count=Count('job', distinct=True, filter=Q(job__deleted=False)),
-                                     recipe_count=Count('analysis', distinct=True,
-                                                        filter=Q(analysis__deleted=False) &
-                                                               Q(analysis__root__project__access__user=user) |
-                                                               Q(analysis__root__project__access__in=[Access.READ_ACCESS,
-                                                                                            Access.WRITE_ACCESS,
-                                                                                            Access.SHARE_ACCESS]) |
-                                                               Q(analysis__root=None)),
-                                     )
+        recipe_count = Count('analysis', distinct=True,
+                             filter=Q(analysis__deleted=False) &
+                                    Q(analysis__root__project__access__user=user) |
+                                    Q(analysis__root__project__access__in=[Access.READ_ACCESS,
+                                                                           Access.WRITE_ACCESS,
+                                                                           Access.SHARE_ACCESS]) |
+                                    Q(analysis__root=None))
     else:
-        projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(data__deleted=False)),
-                                     job_count=Count('job', distinct=True, filter=Q(job__deleted=False)),
-                                     recipe_count=Count('analysis', distinct=True, filter=Q(analysis__deleted=False) )
+        recipe_count = Count('analysis', distinct=True, filter=Q(analysis__deleted=False))
 
-                                     )
+    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(data__deleted=False)),
+                                 job_count=Count('job', distinct=True, filter=Q(job__deleted=False)),
+                                 recipe_count=recipe_count)
+
     return projects
 
 
