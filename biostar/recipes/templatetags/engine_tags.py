@@ -178,13 +178,14 @@ def list_view(context, projects=None, data_list=None, recipe_list=None, job_list
 
 
 def resolve_clipboard_urls(board, project_uid):
-    view_map = {const.DATA_CLIPBOARD: ('data_paste', 'data_list'),
-                const.RECIPE_CLIPBOARD: ('recipe_paste', 'recipe_list'),
-                const.FILES_CLIPBOARD: ('file_paste', 'file_paste'),
-                const.RESULTS_CLIPBOARD: ('data_paste', 'data_list')
+    view_map = {const.COPIED_DATA: ('data_paste', 'data_list'),
+                const.COPIED_RECIPES: ('recipe_paste', 'recipe_list'),
+                const.COPIED_FILES: ('file_paste', 'file_paste'),
+                const.COPIED_RESULTS: ('data_paste', 'data_list'),
                 }
 
-    paste_view, next_view = view_map.get(board, '')
+    paste_view, next_view = view_map.get(board, ('', ''))
+
     if paste_view:
         url_resolover = lambda v: reverse(v, kwargs=dict(uid=project_uid))
         paste_url, next_url = url_resolover(paste_view), url_resolover(next_view)
@@ -195,13 +196,13 @@ def resolve_clipboard_urls(board, project_uid):
 
 
 def annotate_values(board, vals):
-    obj_map = {const.DATA_CLIPBOARD: (Data, 'file icon'),
-               const.RESULTS_CLIPBOARD: (Job, 'chart bar icon'),
-               const.RECIPE_CLIPBOARD: (Analysis, 'setting icon')}
-
+    obj_map = {const.COPIED_DATA: (Data, 'file icon'),
+               const.COPIED_RESULTS: (Job, 'chart bar icon'),
+               const.COPIED_RECIPES: (Analysis, 'setting icon')
+               }
     named_vals = []
     for val in vals:
-        obj_model,icon = obj_map.get(board, (None, ''))
+        obj_model, icon = obj_map.get(board, (None, ''))
         if not obj_model:
             name = os.path.basename(val)
             url = ''
@@ -216,6 +217,17 @@ def annotate_values(board, vals):
     return named_vals
 
 
+def get_label(board):
+    label_map = {const.COPIED_DATA: 'copied data',
+                 const.COPIED_RECIPES: 'recipes',
+                 const.COPIED_FILES: 'copied files',
+                 const.COPIED_RESULTS: 'copied results',
+                 }
+
+    label = label_map.get(board, '')
+    return label
+
+
 @register.inclusion_tag('widgets/paste.html', takes_context=True)
 def paste(context, project, current=","):
     request = context["request"]
@@ -225,21 +237,27 @@ def paste(context, project, current=","):
     # Get the content to paste from the clipboard.
     paste_from = current.split(',')
 
-    for board_key in paste_from:
+    # Paste from a white list of allowed clipboard contents.
+    paste_from = filter(lambda t: t in const.CLIPBOARD_CONTENTS, paste_from)
+
+    for target in paste_from:
         # Get the paste and next url.
-        paste_url, next_url = resolve_clipboard_urls(board=board_key, project_uid=project.uid)
-        vals = items_in_board.get(board_key, [])
-        vals = annotate_values(board=board_key, vals=vals)
+        paste_url, next_url = resolve_clipboard_urls(board=target, project_uid=project.uid)
+        vals = items_in_board.get(target, [])
+        vals = annotate_values(board=target, vals=vals)
+        label = get_label(board=target)
         count = len(vals)
-        content = dict(vals=vals, paste_url=paste_url, next_url=next_url, label=board_key, count=count)
+        # Current target is going to be cloned.
+        to_clone = target == const.COPIED_RECIPES
+        print(to_clone)
+        content = dict(vals=vals, paste_url=paste_url, next_url=next_url, label=label, count=count,
+                       to_clone=to_clone)
         # Clean the clipboard of empty values
         if count:
-            items_to_paste.setdefault(board_key, content)
+            items_to_paste.setdefault(target, content)
 
-    board_count = len(items_to_paste)
-
-    empty_css = "empty-clipboard" if board_count == 0 else ""
-    extra_context = dict(project=project, current=','.join(current), board_count=board_count,
+    empty_css = "empty-clipboard" if not items_to_paste else ""
+    extra_context = dict(project=project, current=','.join(current),board_count=len(items_to_paste),
                          clipboard=items_to_paste.items(), context=context, empty_css=empty_css)
 
     context.update(extra_context)
@@ -437,7 +455,7 @@ def template_field(tmpl):
 
 
 @register.inclusion_tag('widgets/created_by.html')
-def created_by(date, user=None, prefix="updated"):
+def created_by(date, user=None, prefix="Updated"):
     """
     Renders a created by link
     """

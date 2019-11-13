@@ -5,22 +5,23 @@
 {% endblock %}
 
 
-    {% block rightmenu %}
-        {% if user.is_authenticated %}
+{% block rightmenu %}
+    {% if user.is_authenticated %}
         <div class="right menu">
-            <a class="ui {% activate 'recipe_create' active %}   active item" href="{% url 'recipe_create' project.uid %}">
+            <a class="ui {% activate 'recipe_create' active %}   active item"
+               href="{% url 'recipe_create' project.uid %}">
                 <i class="add circle icon"></i>New Recipe
             </a>
         </div>
-        {% endif %}
-    {% endblock %}
+    {% endif %}
+{% endblock %}
 
 
 {% block contain %}
 
 
     <div class="ui bottom attached segment">
-        {% paste project=project current=recipe_board %}
+        {% paste project=project current=recipe_paste_targets %}
 
         {% show_messages messages %}
 
@@ -37,7 +38,12 @@
                             <div class="content">
 
                                 <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                                    <i class="setting icon"></i> {{ recipe.name }}
+                                    {% if recipe.is_cloned %}
+                                        <i class="linkify icon"></i>
+                                    {% else %}
+                                        <i class="setting icon"></i>
+                                    {% endif %}
+                                    {{ recipe.name }}
                                 </a>
 
                                 <div class="meta">

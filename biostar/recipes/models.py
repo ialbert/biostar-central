@@ -190,7 +190,8 @@ class Project(models.Model):
                 help=self.text,
                 url=settings.BASE_URL,
                 project_uid=self.uid,
-                id=self.pk
+                id=self.pk,
+
                 ),
             recipes=[recipe.uid for recipe in self.analysis_set.all()])
 
@@ -422,7 +423,6 @@ class Data(models.Model):
         first = lines[0]
         return first
 
-
 class Analysis(models.Model):
     AUTHORIZED, NOT_AUTHORIZED = 1, 2
 
@@ -451,6 +451,7 @@ class Analysis(models.Model):
     lastedit_user = models.ForeignKey(User, related_name='analysis_editor', null=True, on_delete=models.CASCADE)
     lastedit_date = models.DateTimeField(default=timezone.now)
 
+    #TODO: remove diff fields
     diff_author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="diff_author", null=True)
     diff_date = models.DateField(blank=True, auto_now_add=True)
 
@@ -493,7 +494,8 @@ class Analysis(models.Model):
         current_settings["uid"] = self.uid
         current_settings["help"] = self.text
         current_settings["url"] = settings.BASE_URL
-
+        current_settings['root_id'] = self.root.id if self.root else ""
+        current_settings['root_uid'] = self.root.uid if self.root else ""
         # Put them back into settings.
         json_data["settings"] = current_settings
 
@@ -503,40 +505,16 @@ class Analysis(models.Model):
         now = timezone.now()
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
-        self.diff_date = self.diff_date or now
         self.text = self.text or "Recipe description"
         self.name = self.name[:MAX_NAME_LEN] or "New Recipe"
         self.html = make_html(self.text)
-        self.diff_author = self.diff_author or self.owner
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
 
         # Clean json text of the 'settings' key unless it has the 'run' field.
-        try:
-            local_json = hjson.loads(self.json_text)
-        except Exception as exep:
-            logger.error(f'Error loading json text: {exep}')
-            local_json = hjson.loads(self.last_valid)
-
-        # Look into JSON settings
-        if local_json.get('settings'):
-            run_settings = local_json.get('settings', {}).get('execute', {})
-
-            # Check to see for an 'execute' parameter
-            if run_settings:
-                # Leave run settings alone.
-                local_json['settings'] = dict(execute=run_settings)
-            else:
-                # Delete settings parameter
-                del local_json['settings']
-
-        self.json_text = hjson.dumps(local_json)
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
-
-        if self.security == self.AUTHORIZED:
-            self.last_valid = self.template
 
         Project.objects.filter(uid=self.project.uid).update(lastedit_date=now,
                                                             lastedit_user=self.lastedit_user)
@@ -545,12 +523,54 @@ class Analysis(models.Model):
     def get_project_dir(self):
         return self.project.get_project_dir()
 
+    @property
+    def is_cloned(self):
+        """
+        Return True if recipe is a clone ( linked ).
+        """
+        return self.root is not None
+
+    @property
+    def is_root(self):
+        """
+        Return True if recipe is a root.
+        """
+        return self.root is None
+
+    def update_children(self):
+        """
+        Update information for children belonging to this root.
+        """
+        # Get all children of this root
+        children = Analysis.objects.filter(root=self)
+
+        # Update all children information
+        children.update(json_text=self.json_text,
+                        template=self.template,
+                        name=self.name,
+                        lastedit_date=self.lastedit_date,
+                        lastedit_user=self.lastedit_user,
+                        text=self.text,
+                        html=self.html,
+                        image=self.image)
+
+        # Update last edit user and date for children projects.
+        Project.objects.filter(analysis__root=self).update(lastedit_date=self.lastedit_date,
+                                                           lastedit_user=self.lastedit_user)
+
     def url(self):
         assert self.uid, "Sanity check. UID should always be set."
         return reverse("recipe_view", kwargs=dict(uid=self.uid))
 
     def runnable(self):
         return self.security == self.AUTHORIZED
+
+    def edit_url(self):
+        # Return root edit url if this recipe is cloned.
+        #if self.is_cloned:
+        #    return reverse('recipe_edit', kwargs=dict(uid=self.root.uid))
+
+        return reverse('recipe_edit', kwargs=dict(uid=self.uid))
 
     @property
     def running_css(self):

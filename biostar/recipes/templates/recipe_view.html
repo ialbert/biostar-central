@@ -34,14 +34,18 @@
                 </div>
                 <div class="content ">
                     <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                        <i class="setting icon"></i>{{ recipe.name }}
+                        {% if recipe.is_cloned %}
+                            <i class="linkify icon"></i>
+                        {% else %}
+                            <i class="setting icon"></i>
+                        {% endif %}
+                        {{ recipe.name }}
                     </a>
                     <div class="meta">
 
                         {{ recipe.summary|markdown }}
 
                     </div>
-
                     <div class="extra">
                         {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
                     </div>
@@ -49,16 +53,12 @@
             </div>
         </div>
 
+
     </div>
 
     <div class="ui large vertical segment">
 
-        {% form_errors form %}
-
-        {% csrf_token %}
-
-
-        <div class="ui six buttons">
+        <div class="ui seven buttons">
 
 
             <a class="ui button" href="#code">
@@ -73,8 +73,7 @@
                 <i class="bar chart icon"></i> <span class="fitme">Results ({{ rcount }})</span>
             </a>
 
-
-            <a class="ui button" href="{% url "recipe_edit" recipe.uid %}">
+            <a class="ui button" href="{{ recipe.edit_url }}">
                 <i class="edit icon"></i><span class="fitme">Edit</span>
             </a>
 
@@ -82,7 +81,6 @@
                href="{% url "recipe_copy" recipe.uid %}?next={% url "recipe_view" recipe.uid %}">
                 <i class="copy icon"></i> Copy
             </a>
-
 
             <a class="ui button" href="{% url 'recipe_delete' recipe.uid %}">
                 <i class="trash icon"></i>Delete

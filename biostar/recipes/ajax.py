@@ -429,9 +429,6 @@ def copy_object(request):
 
     # Return current clipboard contents
     copied_uids = auth.copy_uid(request=request, uid=object_uid, board=clipboard)
-    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-
-    print(clipboard)
 
     return ajax_success(f"Copied. Clipboard contains :{len(copied_uids)} objects.")
 

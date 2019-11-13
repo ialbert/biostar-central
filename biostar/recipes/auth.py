@@ -45,7 +45,6 @@ def access_denied_message(user, needed_access):
 
 
 def copy_file(request, fullpath):
-
     if not os.path.exists(fullpath):
         messages.error(request, "Path does not exist.")
         return []
@@ -56,11 +55,11 @@ def copy_file(request, fullpath):
 
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
 
-    board_items = clipboard.get(FILES_CLIPBOARD, [])
+    board_items = clipboard.get(COPIED_FILES, [])
     board_items.append(fullpath)
     # No duplicates in clipboard
     items = list(set(board_items))
-    clipboard[FILES_CLIPBOARD] = items
+    clipboard[COPIED_FILES] = items
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
     return items
@@ -157,7 +156,6 @@ def generate_script(job):
 
 
 def detect_cores(request):
-
     # Check if the Origin in the request is allowed
     origin = request.headers.get('Origin', '')
     if origin in settings.CORS_ORIGIN_WHITELIST:
@@ -177,7 +175,6 @@ def text_diff(text1, text2):
 
 
 def link_file(source, target_dir):
-
     base, filename = os.path.split(source)
     target = os.path.join(target_dir, filename)
 
@@ -201,7 +198,6 @@ def add_file(target_dir, source):
 
     # Write a stream to a new file
     if hasattr(source, 'read'):
-
         # Get the absolute path
         dest = os.path.abspath(target_dir)
 
@@ -236,7 +232,7 @@ def get_project_list(user, include_public=True, include_deleted=False):
         cond = Q(owner=user, privacy=Project.PRIVATE) | Q(privacy=privacy) | Q(access__user=user,
                                                                                access__access__in=[Access.READ_ACCESS,
                                                                                                    Access.WRITE_ACCESS,
-                                                                                                  Access.SHARE_ACCESS])
+                                                                                                   Access.SHARE_ACCESS])
     # Generate the query.
     if include_deleted:
         query = Project.objects.filter(cond).distinct()
@@ -248,7 +244,6 @@ def get_project_list(user, include_public=True, include_deleted=False):
 
 def create_project(user, name, uid=None, summary='', text='', stream=None,
                    privacy=Project.PRIVATE, update=False):
-
     # Set or create the project uid.
     uid = uid or util.get_uuid(8)
 
@@ -282,7 +277,8 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
-                    name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False):
+                    name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
+                    root=None):
     owner = user or project.owner
 
     analysis = Analysis.objects.filter(uid=uid)
@@ -303,7 +299,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         uid = None if analysis else uid
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
-                                           template=template)
+                                           template=template, root=root)
 
         analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(3)}" if not uid else uid
         analysis.save()
@@ -405,7 +401,6 @@ def fill_json_data(project, job=None, source_data={}, fill_with={}):
             item["value"] = fill_with[field]
             # Clean the textbox value
             if item.get('display') == TEXTBOX:
-
                 item["value"] = util.clean_text(fill_with[field])
 
             if item.get('display') == UPLOAD:
@@ -468,7 +463,6 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
 
 def delete_object(obj, request):
-
     access = is_writable(user=request.user, project=obj.project)
 
     # Toggle the delete state if the user has write access
@@ -477,7 +471,6 @@ def delete_object(obj, request):
         obj.save()
 
     return obj.deleted
-
 
 
 def guess_mimetype(fname):
@@ -525,7 +518,6 @@ def link_data(path, data):
 
 
 def is_readable(user, project):
-
     # Shareable projects can get to see the
 
     query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS) | Q(access=Access.SHARE_ACCESS)
@@ -535,7 +527,7 @@ def is_readable(user, project):
     return readable.exists()
 
 
-def is_writable(user, project):
+def is_writable(user, project, owner=None):
     """
     Returns True if a user has write access to an instance
     """
@@ -545,15 +537,39 @@ def is_writable(user, project):
         return False
 
     # Users that may access a project.
-    cond1 = (user == project.owner) or user.is_staff
+    cond1 = user.is_staff or user.is_superuser
 
     # User has been given write access to the project
     cond2 = models.Access.objects.filter(user=user, project=project,
                                          access=models.Access.WRITE_ACCESS).first()
 
-    # One of the conditions has to be true.
-    access = cond1 or cond2
+    # User owns this project.
+    owner = owner or project.owner
+    cond3 = user == owner
 
+    # One of the conditions has to be true.
+    access = cond1 or cond2 or cond3
+
+    return access
+
+
+def writeable_recipe(user, source, project=None):
+    """
+    Check if a user can write to a 'source' recipe.
+    """
+    if user.is_anonymous:
+        return False
+
+    if source.is_cloned:
+        # Check write access using root recipe information for clones.
+        target_owner = source.root.owner
+        project = source.root.project
+
+    else:
+        target_owner = source.owner
+        project = project or source.project
+
+    access = is_writable(user=user, project=project, owner=target_owner)
     return access
 
 
@@ -639,7 +655,7 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # Invalid paths and empty streams still create the data
     # but set the data state will be set to error.
-    missing = not(path or stream)
+    missing = not (path or stream)
 
     # An invalid entry here.
     if path and missing:

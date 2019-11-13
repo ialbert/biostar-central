@@ -97,7 +97,6 @@ urlpatterns = [
     re_path(r'^data/file/copy/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.data_file_copy, name='data_file_copy'),
     re_path(r'^job/file/copy/(?P<uid>[-\w]+)/(?P<path>.+)/$', views.job_file_copy, name='job_file_copy'),
     path(r'file/paste/<str:uid>/', views.file_paste, name='file_paste'),
-
     # Include the accounts urls
     path(r'accounts/', include(account_patterns)),
 
