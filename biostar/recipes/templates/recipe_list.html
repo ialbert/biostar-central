@@ -38,7 +38,7 @@
                             <div class="content">
 
                                 <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                                    {% if recipe.root %}
+                                    {% if recipe.is_cloned %}
                                         <i class="linkify icon"></i>
                                     {% else %}
                                         <i class="setting icon"></i>

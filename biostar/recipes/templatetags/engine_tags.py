@@ -247,10 +247,11 @@ def paste(context, project, current=","):
         vals = annotate_values(board=target, vals=vals)
         label = get_label(board=target)
         count = len(vals)
-        # Copied recipes have a clone optoin
-        clone_option = target == const.COPIED_RECIPES
+        # Current target is going to be cloned.
+        to_clone = target == const.COPIED_RECIPES
+        print(to_clone)
         content = dict(vals=vals, paste_url=paste_url, next_url=next_url, label=label, count=count,
-                       clone_option=clone_option)
+                       to_clone=to_clone)
         # Clean the clipboard of empty values
         if count:
             items_to_paste.setdefault(target, content)

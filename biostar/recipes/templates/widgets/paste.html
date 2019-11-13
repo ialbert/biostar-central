@@ -16,7 +16,7 @@
 
                         <div class="ui mini paste buttons">
 
-                            {% if values.clone_option %}
+                            {% if values.to_clone %}
                                 <a class="ui green large button"
                                    href="{{ values.paste_url }}?board={{ item }}&target=clone">
                                     <i class="clone outline icon"></i> Paste as Clone
@@ -35,7 +35,7 @@
 
 
                         </p>
-                        {% if values.clone_option %}
+                        {% if values.to_clone %}
                             <div class="muted">
                                 A cloned recipe remains synchronized with the original recipe.
                             </div>
