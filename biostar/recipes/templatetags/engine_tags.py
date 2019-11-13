@@ -263,14 +263,6 @@ def paste(context, project, current=","):
     return context
 
 
-@register.simple_tag
-def get_clone_count(recipe):
-
-    clone_count = Analysis.objects.filter(root=recipe).count()
-
-    return clone_count
-
-
 @register.filter
 def is_checkbox(field):
     "Check if current field is a checkbox"

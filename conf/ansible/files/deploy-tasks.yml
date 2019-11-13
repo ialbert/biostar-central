@@ -10,7 +10,6 @@
     update: yes
   notify:
     - server migrate
-    - server backup
     - reload supervisor
     - restart nginx
 

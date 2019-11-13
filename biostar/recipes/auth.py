@@ -242,21 +242,6 @@ def get_project_list(user, include_public=True, include_deleted=False):
     return query
 
 
-def get_recipe_list(user, project):
-
-    if user and user.is_authenticated:
-        recipes = project.analysis_set.filter(Q(root__project__privacy__in=[Project.PUBLIC]) |
-                                              Q(root__project__access__user=user)|
-                                              Q(root__project__access__in=[Access.READ_ACCESS,
-                                                                           Access.WRITE_ACCESS,
-                                                                           Access.SHARE_ACCESS]) |
-                                              Q(root=None)).distinct()
-    else:
-        recipes = project.analysis_set
-
-    return recipes
-
-
 def create_project(user, name, uid=None, summary='', text='', stream=None,
                    privacy=Project.PRIVATE, update=False):
     # Set or create the project uid.

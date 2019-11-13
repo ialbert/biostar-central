@@ -86,7 +86,7 @@ def recycle_bin(request):
         query_dict = dict(project__in=projects, owner=user)
 
     projects = projects.filter(deleted=True).order_by("date")
-    projects = annotate_projects(projects, user=user)
+    projects = annotate_projects(projects)
     data = Data.objects.filter(**query_dict, deleted=True).order_by("date")
     recipes = Analysis.objects.filter(**query_dict, deleted=True).order_by("date")
     jobs = Job.objects.filter(**query_dict, deleted=True).order_by("date")
@@ -216,7 +216,7 @@ def project_info(request, uid):
     return render(request, "project_info.html", context)
 
 
-def annotate_projects(projects, user):
+def annotate_projects(projects):
     projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(data__deleted=False)),
                                  job_count=Count('job', distinct=True, filter=Q(job__deleted=False)),
                                  recipe_count=Count('analysis', distinct=True,
@@ -237,7 +237,7 @@ def project_list_private(request):
     else:
         projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
 
-        projects = annotate_projects(projects, user=request.user)
+        projects = annotate_projects(projects)
 
     context = dict(projects=projects, empty_msg=empty_msg, active="projects", icon='briefcase',
                    title='Private Projects',
@@ -253,7 +253,7 @@ def project_list_public(request):
     # Exclude private projects
     projects = projects.exclude(privacy__in=[Project.PRIVATE, Project.SHAREABLE])
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
-    projects = annotate_projects(projects, user=request.user)
+    projects = annotate_projects(projects)
 
     context = dict(projects=projects, active="projects", icon='list', title='Public Projects',
                    public='active', empty_msg="No projects found.")
@@ -471,8 +471,9 @@ def recipe_paste(request, uid):
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
 
     paste_target = request.GET.get('target', const.COPIED_RECIPES)
-    # Recipes in the clipboard are to be pasted as clones.
-    paste_as_cloned = paste_target == const.CLONED_RECIPES
+
+    # Recipes in the clipboard are to be cloned
+    paste_as_clone = paste_target == const.CLONED_RECIPES
 
     recipe_uids = clipboard.get(const.COPIED_RECIPES, [])
 
@@ -484,8 +485,8 @@ def recipe_paste(request, uid):
 
     # The copy function for each recipe.
     def copy(instance):
-        # Cascade the root if the recipe is to be cloned
-        if paste_as_cloned:
+        # Cascade the root if the recipe is being cloned
+        if paste_as_clone:
             root = instance.root if instance.is_cloned else instance
         else:
             root = None
