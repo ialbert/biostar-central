@@ -182,7 +182,6 @@ def resolve_clipboard_urls(board, project_uid):
                 const.COPIED_RECIPES: ('recipe_paste', 'recipe_list'),
                 const.COPIED_FILES: ('file_paste', 'file_paste'),
                 const.COPIED_RESULTS: ('data_paste', 'data_list'),
-                const.CLONED_RECIPES: ('recipe_paste', 'recipe_list'),
                 }
 
     paste_view, next_view = view_map.get(board, ('', ''))
@@ -199,8 +198,8 @@ def resolve_clipboard_urls(board, project_uid):
 def annotate_values(board, vals):
     obj_map = {const.COPIED_DATA: (Data, 'file icon'),
                const.COPIED_RESULTS: (Job, 'chart bar icon'),
-               const.COPIED_RECIPES: (Analysis, 'setting icon'),
-               const.CLONED_RECIPES: (Analysis, 'setting icon')}
+               const.COPIED_RECIPES: (Analysis, 'setting icon')
+               }
     named_vals = []
     for val in vals:
         obj_model, icon = obj_map.get(board, (None, ''))
@@ -220,10 +219,9 @@ def annotate_values(board, vals):
 
 def get_label(board):
     label_map = {const.COPIED_DATA: 'copied data',
-                 const.COPIED_RECIPES: 'copied recipes',
+                 const.COPIED_RECIPES: 'recipes',
                  const.COPIED_FILES: 'copied files',
                  const.COPIED_RESULTS: 'copied results',
-                 const.CLONED_RECIPES: 'cloned recipes',
                  }
 
     label = label_map.get(board, '')
@@ -249,9 +247,10 @@ def paste(context, project, current=","):
         vals = annotate_values(board=target, vals=vals)
         label = get_label(board=target)
         count = len(vals)
-        is_cloned = target == const.CLONED_RECIPES
+        # Copied recipes have a clone optoin
+        clone_option = target == const.COPIED_RECIPES
         content = dict(vals=vals, paste_url=paste_url, next_url=next_url, label=label, count=count,
-                       is_cloned=is_cloned)
+                       clone_option=clone_option)
         # Clean the clipboard of empty values
         if count:
             items_to_paste.setdefault(target, content)
@@ -463,7 +462,7 @@ def template_field(tmpl):
 
 
 @register.inclusion_tag('widgets/created_by.html')
-def created_by(date, user=None, prefix="updated"):
+def created_by(date, user=None, prefix="Updated"):
     """
     Renders a created by link
     """

@@ -16,25 +16,30 @@
 
                         <div class="ui mini paste buttons">
 
-                            {% if values.is_cloned %}
-                                <a class="ui blue large button" href="{{ values.paste_url }}?board={{ item }}">
-                                    <i class="clone outline icon"></i> Clone
+                            {% if values.clone_option %}
+                                <a class="ui green large button"
+                                   href="{{ values.paste_url }}?board={{ item }}&target=clone">
+                                    <i class="clone outline icon"></i> Paste as Clone
                                 </a>
-                            {% else %}
-                                <a class="ui green  larget button" href="{{ values.paste_url }}?board={{ item }}">
-                                    <i class="sticky note icon"></i> Paste
-                                </a>
+                                <div class="or"></div>
                             {% endif %}
+                            <a class="ui blue  large button" href="{{ values.paste_url }}?board={{ item }}">
+                                <i class="sticky note icon"></i> Paste as New
+                            </a>
                             <div class="or"></div>
                             <a class="ui large button"
                                href="{% url 'clear_clipboard' project.uid %}?next={{ values.next_url }}&board={{ item }}">
-                                <i class="window close icon"></i> Clear
+                                <i class="window close icon"></i> Cancel Paste
                             </a>
                         </div>
 
 
                         </p>
-
+                        {% if values.clone_option %}
+                            <div class="muted">
+                                A cloned recipe remains synchronized with the original recipe.
+                            </div>
+                        {% endif %}
 
                         <div style="display: none" class="ui segment expand-{{ item }}">
                             <ul class="ui list">
@@ -42,10 +47,12 @@
 
                                     {% if url %}
 
-                                        <a class="item" href="{{ url }}"><i class="{{ icon }} icon"></i> {{ name|truncatechars:50 }}</a>
+                                        <a class="item" href="{{ url }}"><i
+                                                class="{{ icon }} icon"></i> {{ name|truncatechars:50 }}</a>
 
                                     {% else %}
-                                        <div class="item"><i class="{{ icon }} icon"></i>{{ name|truncatechars:50 }}</div>
+                                        <div class="item"><i class="{{ icon }} icon"></i>{{ name|truncatechars:50 }}
+                                        </div>
                                     {% endif %}
                                 {% endfor %}
                             </ul>

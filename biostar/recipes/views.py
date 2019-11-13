@@ -18,7 +18,7 @@ from sendfile import sendfile
 
 from biostar.accounts.models import User
 from biostar.recipes import tasks, auth, forms, const, search, util
-from biostar.recipes.decorators import read_access, write_access, has_root_access
+from biostar.recipes.decorators import read_access, write_access
 from biostar.recipes.models import Project, Data, Analysis, Job, Access
 
 # The current directory
@@ -187,7 +187,7 @@ def project_users(request, uid):
     results = forms.access_forms(users=targets, project=project, exclude=user_list, request=request)
     context = dict(current=current, project=project, results=results, form=form, activate='User Management',
                    q=q, user_access=user_access)
-    counts = get_counts(project, user=request.user)
+    counts = get_counts(project)
     context.update(counts)
     return render(request, "project_users.html", context=context)
 
@@ -199,7 +199,7 @@ def project_info(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
     # Show counts for the project.
-    counts = get_counts(project, user=user)
+    counts = get_counts(project)
 
     # Who has write access
     write_access = auth.is_writable(user=user, project=project)
@@ -217,21 +217,10 @@ def project_info(request, uid):
 
 
 def annotate_projects(projects, user):
-    if user.is_authenticated:
-        recipe_count = Count('analysis', distinct=True,
-                             filter=Q(analysis__deleted=False) &
-                                    Q(analysis__root__project__privacy__in=[Project.PUBLIC, Project.PRIVATE, Project.SHAREABLE]) |
-                                    Q(analysis__root__project__access__user=user) |
-                                    Q(analysis__root__project__access__in=[Access.READ_ACCESS,
-                                                                           Access.WRITE_ACCESS,
-                                                                           Access.SHARE_ACCESS]) |
-                                    Q(analysis__root=None))
-    else:
-        recipe_count = Count('analysis', distinct=True, filter=Q(analysis__deleted=False))
-
     projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(data__deleted=False)),
                                  job_count=Count('job', distinct=True, filter=Q(job__deleted=False)),
-                                 recipe_count=recipe_count)
+                                 recipe_count=Count('analysis', distinct=True,
+                                                    filter=Q(analysis__deleted=False)))
 
     return projects
 
@@ -296,7 +285,7 @@ def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
     """
-    extra_context = dict(recipe_paste_targets=const.RECIPE_PASTE_TARGETS)
+    extra_context = dict(recipe_paste_targets=const.COPIED_RECIPES)
 
     return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes',
                         extra_context=extra_context)
@@ -311,7 +300,7 @@ def job_list(request, uid):
 
 def get_counts(project, user=None):
     data_count = project.data_set.filter(deleted=False).count()
-    recipe_count = auth.get_recipe_list(user=user, project=project).filter(deleted=False).count()
+    recipe_count = project.analysis_set.filter(deleted=False).count()
 
     result_count = project.job_set.filter(deleted=False).count()
     discussion_count = 0
@@ -337,8 +326,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
 
     # Select all the data in the project.
     data_list = project.data_set.filter(deleted=False).order_by("rank", "-date").all()
-    recipe_list = auth.get_recipe_list(user=user, project=project)
-    recipe_list = recipe_list.filter(deleted=False).order_by("rank", "-date").all()
+    recipe_list = project.analysis_set.filter(deleted=False).order_by("rank", "-date").all()
 
     # Annotate each recipe with the number of jobs it has.
     recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
@@ -364,7 +352,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
                    active=active, recipe_filter=recipe_filter, write_access=write_access)
 
     # Compute counts for the project.
-    counts = get_counts(project, user=user)
+    counts = get_counts(project)
 
     # Update conext with the counts.
     context.update(counts)
@@ -390,7 +378,7 @@ def project_edit(request, uid):
 
     context = dict(project=project, form=form, activate='Edit Project')
 
-    context.update(get_counts(project, user=request.user))
+    context.update(get_counts(project))
     return render(request, "project_edit.html", context=context)
 
 
@@ -426,18 +414,6 @@ def data_copy(request, uid):
 
 
 @read_access(type=Analysis)
-@has_root_access(access=Access.READ_ACCESS)
-def recipe_clone(request, uid):
-    recipe = Analysis.objects.filter(uid=uid).first()
-    next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
-
-    board_items = auth.copy_uid(request=request, uid=recipe.uid, board=const.CLONED_RECIPES)
-    messages.success(request, f"Cloned recipe, you currently have {len(set(board_items))} cloned.")
-    return redirect(next_url)
-
-
-@read_access(type=Analysis)
-@has_root_access(access=Access.READ_ACCESS)
 def recipe_copy(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
@@ -493,8 +469,12 @@ def recipe_paste(request, uid):
 
     # Contains the uids for the recipes that are to be copied.
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-    recipe_targets = request.GET.get('board')
-    recipe_uids = clipboard.get(recipe_targets, [])
+
+    paste_target = request.GET.get('target', const.COPIED_RECIPES)
+    # Recipes in the clipboard are to be pasted as clones.
+    paste_as_cloned = paste_target == const.CLONED_RECIPES
+
+    recipe_uids = clipboard.get(const.COPIED_RECIPES, [])
 
     # Select valid recipe uids.
     recipes = [Analysis.objects.filter(uid=uid).first() for uid in recipe_uids]
@@ -504,10 +484,11 @@ def recipe_paste(request, uid):
 
     # The copy function for each recipe.
     def copy(instance):
-        # Cascade the root recipe if the recipe is cloned
-        root = instance.root if instance.is_cloned else instance
-        # Set the root if targets are to be cloned.
-        root = root if recipe_targets == const.CLONED_RECIPES else None
+        # Cascade the root if the recipe is to be cloned
+        if paste_as_cloned:
+            root = instance.root if instance.is_cloned else instance
+        else:
+            root = None
         recipe = auth.create_analysis(project=project, user=user, root=root,
                                       json_text=instance.json_text,
                                       template=instance.template,
@@ -518,7 +499,7 @@ def recipe_paste(request, uid):
     new_recipes = list(map(copy, recipes))
 
     # Reset the session.
-    clipboard[recipe_targets] = []
+    clipboard[const.COPIED_RECIPES] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
     # Notification after paste.
@@ -578,7 +559,7 @@ def data_view(request, uid):
     project = data.project
 
     context = dict(data=data, project=project, activate='Selected Data')
-    counts = get_counts(project, user=request.user)
+    counts = get_counts(project)
     context.update(counts)
 
     return render(request, "data_view.html", context)
@@ -600,7 +581,7 @@ def data_edit(request, uid):
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
     context = dict(data=data, form=form, activate='Edit Data', project=data.project)
 
-    context.update(get_counts(data.project, user=request.user))
+    context.update(get_counts(data.project))
     return render(request, 'data_edit.html', context)
 
 
@@ -632,14 +613,13 @@ def data_upload(request, uid):
     context = dict(project=project, form=form, activate="Add Data", maximum_size=maximum_size,
                    current_size=current_size)
 
-    counts = get_counts(project, user=request.user)
+    counts = get_counts(project)
 
     context.update(counts)
 
     return render(request, 'data_upload.html', context)
 
 
-@has_root_access(access=Access.READ_ACCESS)
 @read_access(type=Analysis)
 def recipe_view(request, uid):
     """
@@ -652,7 +632,7 @@ def recipe_view(request, uid):
 
     # How many results for this recipe
     rcount = Job.objects.filter(analysis=recipe, deleted=False).count()
-    counts = get_counts(project, user=request.user)
+    counts = get_counts(project)
 
     try:
         # Fill in the script with json data.
@@ -670,7 +650,6 @@ def recipe_view(request, uid):
 
 
 @read_access(type=Analysis)
-@has_root_access(access=Access.READ_ACCESS)
 def recipe_code_download(request, uid):
     """
     Download the raw recipe template as a file
@@ -698,7 +677,6 @@ def recipe_code_download(request, uid):
 
 
 @read_access(type=Analysis)
-@has_root_access(access=Access.READ_ACCESS)
 @ratelimit(key='ip', rate='10/h', block=True, method=ratelimit.UNSAFE)
 def recipe_run(request, uid):
     """
@@ -733,7 +711,7 @@ def recipe_run(request, uid):
 
     context = dict(project=project, analysis=analysis, form=form, activate='Run Recipe')
 
-    context.update(get_counts(project, user=request.user))
+    context.update(get_counts(project))
 
     return render(request, 'recipe_run.html', context)
 
@@ -768,7 +746,6 @@ def job_rerun(request, uid):
 
 
 @read_access(type=Analysis)
-@has_root_access(access=Access.READ_ACCESS)
 def recipe_edit(request, uid):
     """
     Edit meta-data associated with a recipe.
@@ -802,7 +779,7 @@ def recipe_edit(request, uid):
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
     context = dict(recipe=recipe, project=project, form=form, name=recipe.name, activate='Edit Recipe',
                    action_url=action_url)
-    counts = get_counts(project, user=user)
+    counts = get_counts(project)
     context.update(counts)
     return render(request, 'recipe_edit.html', context)
 
@@ -833,7 +810,7 @@ def recipe_create(request, uid):
 
     action_url = reverse('recipe_create', kwargs=dict(uid=uid))
     context = dict(project=project, form=form, action_url=action_url, activate='Create Recipe')
-    counts = get_counts(project, user=request.user)
+    counts = get_counts(project)
     context.update(counts)
     return render(request, 'recipe_edit.html', context)
 
@@ -854,12 +831,11 @@ def job_edit(request, uid):
 
     context = dict(job=job, project=project, form=form, activate='Edit Result')
 
-    context.update(get_counts(project, user=request.user))
+    context.update(get_counts(project))
     return render(request, 'job_edit.html', context)
 
 
 @write_access(type=Analysis, fallback_view="recipe_view")
-@has_root_access(access=Access.WRITE_ACCESS)
 def recipe_delete(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
 
@@ -911,7 +887,7 @@ def job_view(request, uid):
 
     context = dict(job=job, project=project, activate='View Result', path=path)
 
-    counts = get_counts(project, user=request.user)
+    counts = get_counts(project)
     context.update(counts)
 
     return render(request, "job_view.html", context=context)

@@ -537,24 +537,6 @@ class Analysis(models.Model):
         """
         return self.root is None
 
-    def merge(self, target, save=False):
-        """
-        Merge this recipe with a target recipe.
-        """
-        self.json_text = target.json_text
-        self.template = target.template
-
-        self.name = target.name
-        self.lastedit_date = target.lastedit_date
-        self.lastedit_user = target.lastedit_user
-
-        self.text = target.text
-        self.html = target.html
-
-        self.image = target.image
-        if save:
-            self.save()
-
     def update_children(self):
         """
         Update information for children belonging to this root.
@@ -572,12 +554,23 @@ class Analysis(models.Model):
                         html=self.html,
                         image=self.image)
 
+        # Update last edit user and date for children projects.
+        Project.objects.filter(analysis__root=self).update(lastedit_date=self.lastedit_date,
+                                                           lastedit_user=self.lastedit_user)
+
     def url(self):
         assert self.uid, "Sanity check. UID should always be set."
         return reverse("recipe_view", kwargs=dict(uid=self.uid))
 
     def runnable(self):
         return self.security == self.AUTHORIZED
+
+    def edit_url(self):
+        # Return root edit url if this recipe is cloned.
+        #if self.is_cloned:
+        #    return reverse('recipe_edit', kwargs=dict(uid=self.root.uid))
+
+        return reverse('recipe_edit', kwargs=dict(uid=self.uid))
 
     @property
     def running_css(self):

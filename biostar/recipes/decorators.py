@@ -74,58 +74,6 @@ class read_access:
         return wrapper
 
 
-class has_root_access:
-    """
-    Controls user access to cloned recipes
-    """
-
-    def __init__(self, access):
-        self.access = access
-
-    def __call__(self, function, *args, **kwargs):
-        """
-        Decorator used to tested if a user has rights to access an instance
-        """
-        # Pass function attributes to the wrapper
-        @wraps(function, assigned=available_attrs(function))
-        def _wrapped_view(request, *args, **kwargs):
-            # Get the recipe uid.
-            uid = kwargs.get('uid')
-            user = request.user
-
-            recipe = models.Analysis.objects.filter(uid=uid).first()
-            if not recipe:
-                messages.error(request, f"Recipe id {uid} does not exist.")
-                return redirect(reverse("project_list"))
-
-            # Recipe is not a clone so we move on.
-            if recipe.is_root:
-                return function(request, *args, **kwargs)
-
-            access = self.validate_access(recipe=recipe, user=user)
-
-            if access:
-                return function(request, *args, **kwargs)
-
-            msg = auth.access_denied_message(user=user, needed_access=self.access)
-            messages.error(request, msg)
-            return redirect(reverse("project_view", kwargs=dict(uid=recipe.project.uid)))
-
-        return _wrapped_view
-
-    def validate_access(self, recipe, user):
-        if self.access is models.Access.READ_ACCESS:
-            cond1 = auth.readable_recipe(user=user, source=recipe, project=recipe.root.project)
-            cond2 = recipe.root.project.is_public
-            access = cond1 or cond2
-            return access
-
-        if self.access is models.Access.WRITE_ACCESS:
-            return auth.writeable_recipe(user=user, source=recipe, project=recipe.project)
-
-        return False
-
-
 class write_access:
     """
     Controls WRITE level access to urls.

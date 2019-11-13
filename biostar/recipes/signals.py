@@ -79,20 +79,9 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 
 @receiver(post_save, sender=Analysis)
 def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
-
     # Strip json of 'settings' parameter
     instance.json_text = strip_json(instance.json_text)
-    root_is_writable = auth.writeable_recipe(user=instance.lastedit_user, source=instance, project=instance.project)
 
-    if instance.is_cloned:
-        root = instance.root
-        # Final check to see the clone's last edit user
-        # has write access to the root
-        if root_is_writable:
-            # Update root with instance data.
-            root.merge(instance, save=True)
-        return
-
+    # Update information of all children belonging to this root.
     if instance.is_root:
-        # Update information of all children belonging to this root.
         instance.update_children()

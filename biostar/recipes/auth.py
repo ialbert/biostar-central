@@ -245,7 +245,7 @@ def get_project_list(user, include_public=True, include_deleted=False):
 def get_recipe_list(user, project):
 
     if user and user.is_authenticated:
-        recipes = project.analysis_set.filter(Q(root__project__privacy__in=[Project.PUBLIC, Project.PRIVATE, Project.SHAREABLE]) |
+        recipes = project.analysis_set.filter(Q(root__project__privacy__in=[Project.PUBLIC]) |
                                               Q(root__project__access__user=user)|
                                               Q(root__project__access__in=[Access.READ_ACCESS,
                                                                            Access.WRITE_ACCESS,
@@ -565,24 +565,6 @@ def is_writable(user, project, owner=None):
     # One of the conditions has to be true.
     access = cond1 or cond2 or cond3
 
-    return access
-
-
-def readable_recipe(user, source, project=None):
-    """
-    Check if a user can write to a 'source' recipe.
-    """
-    if user.is_anonymous:
-        return False
-
-    if source.is_cloned:
-        project = source.root.project
-    else:
-        project = project or source.project
-
-    if project.is_public:
-        return True
-    access = is_readable(user=user, project=project)
     return access
 
 
