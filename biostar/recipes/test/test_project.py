@@ -116,7 +116,7 @@ class ProjectViewTest(TestCase):
         user_forms = forms.access_forms(users, project=self.project, request=request)
 
         # Error generating users access forms ( forms.access_forms).
-        self.assertTrue(len(users) - 1 == len(user_forms))
+        self.assertTrue(len(users) == len(user_forms))
 
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"

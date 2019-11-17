@@ -372,6 +372,10 @@ def show_messages(messages):
     return dict(messages=messages)
 
 
+def is_data():
+    return
+
+
 @register.inclusion_tag('widgets/project_title.html', takes_context=True)
 def project_title(context, project):
     """
@@ -381,16 +385,21 @@ def project_title(context, project):
 
 
 @register.inclusion_tag('widgets/recipe_form.html')
-def recipe_form(form):
+def recipe_form(form, json_text=None):
     """
     Renders a recipe form.
     """
-    return dict(form=form)
+    return dict(form=form, json_text=json_text)
 
 
 @register.inclusion_tag('widgets/interface_options.html')
 def interface_options():
     return dict()
+
+
+@register.inclusion_tag('widgets/recipe_details.html')
+def recipe_details(recipe):
+    return dict(recipe=recipe)
 
 
 @register.simple_tag

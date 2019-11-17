@@ -448,25 +448,45 @@ class ChangeUserAccess(forms.Form):
     access = forms.IntegerField(initial=Access.NO_ACCESS,
                                 widget=forms.Select(choices=Access.ACCESS_CHOICES))
 
+    def __init__(self, user=None, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
     def save(self):
         "Changes users access to a project"
 
         user_id = self.cleaned_data["user_id"]
         project_uid = self.cleaned_data["project_uid"]
-        user = User.objects.filter(id=user_id).first()
+        target = User.objects.filter(id=user_id).first()
         project = Project.objects.filter(uid=project_uid).first()
 
-        current = Access.objects.filter(user=user, project=project)
+        current = Access.objects.filter(user=target, project=project)
         default = current.first().access if current.first() else Access.NO_ACCESS
         access = self.cleaned_data.get("access", default)
 
         if current:
             current.update(access=access)
-            return user, current.first()
+            return target, current.first()
 
-        new_access = Access.objects.create(user=user, project=project, access=access)
+        new_access = Access.objects.create(user=target, project=project, access=access)
 
-        return user, new_access
+        return target, new_access
+
+    def clean(self):
+
+        # Can not change access of the project owner.
+        user_id = self.cleaned_data["user_id"]
+        project_uid = self.cleaned_data["project_uid"]
+        target = User.objects.filter(id=user_id).first()
+        project = Project.objects.filter(uid=project_uid).first()
+
+        if self.user == target:
+            raise forms.ValidationError("You can not change your own access.")
+
+        if target == project.owner:
+            raise forms.ValidationError("You can not change the project owner's access.")
+
+        return
 
 
 def access_forms(users, project, request, exclude=()):
@@ -476,19 +496,11 @@ def access_forms(users, project, request, exclude=()):
     forms = []
     for user in users:
         # Users can not change their own access.
-        if user == request.user:
-            continue
-        # Owners can not have access changed.
-        if user == project.owner:
-            continue
-        if user in exclude:
-            continue
         access = Access.objects.filter(user=user, project=project).first()
         initial = dict(access=Access.NO_ACCESS, user_id=user.id)
         if access:
             initial = dict(access=access.access, user_id=user.id)
-
-        access_form = ChangeUserAccess(initial=initial)
+        access_form = ChangeUserAccess(initial=initial, user=request.user)
         forms.append((user, access_form))
 
     return forms

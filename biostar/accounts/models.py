@@ -124,7 +124,7 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
         self.html = self.html or mistune.markdown(self.text)
-        self.max_upload_size = self.max_upload_size or settings.MAX_UPLOAD_SIZE
+        self.max_upload_size = self.max_upload_size or self.get_upload_size()
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         self.date_joined = self.date_joined or now()
         self.last_login = self.last_login or now() #- timedelta(days=1)
@@ -134,6 +134,17 @@ class Profile(models.Model):
     def is_active(self):
         return self.state != Profile.DEACTIVATED
 
+    def get_upload_size(self):
+
+        # Admin users upload limit
+        if self.user.is_superuser or self.user.is_staff:
+            return settings.ADMIN_UPLOAD_SIZE
+        # Trusted users upload limit
+        if self.user.profile.trusted:
+            return settings.TRUSTED_UPLOAD_SIZE
+
+        # Get the default upload limit
+        return settings.MAX_UPLOAD_SIZE
 
     @property
     def is_moderator(self):

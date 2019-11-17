@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block headtitle %}
-    {% if name %}
+    {% if recipe %}
         Editing: {{ name }}
     {% else %}
         Creating
@@ -18,11 +18,18 @@
 {% endblock %}
 
 {% block content %}
+
     <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
 
-
         <div class="narrow">
+            {% if recipe %}
+                <div class="ui raised segment">
+                    {% recipe_details recipe %}
+                </div>
+            {% endif %}
+
             <div class="ui raised segment inputcolor">
+
                 {% form_errors form %}
 
 
@@ -38,30 +45,30 @@
 
                 <div class="two fields ">
                     <div class="field">
-                    <label>Recipe Name</label>
-                    {{ form.name }}
-                    <p class="muted">What do you want to call the recipe</p>
+                        <label>Recipe Name</label>
+                        {{ form.name }}
+                        <p class="muted">What do you want to call the recipe</p>
                     </div>
 
-                                    <div class="field">
-                    <label>Unique Identifier ( uid )</label>
-                    {{ form.uid }}
-                    <p class="muted">Unique identifier, change if needed.</p>
-                </div>
+                    <div class="field">
+                        <label>Unique Identifier ( uid )</label>
+                        {{ form.uid }}
+                        <p class="muted">Unique identifier, change if needed.</p>
+                    </div>
                 </div>
 
                 <div class=" two fields ">
                     <div class="field">
-                    <label>Recipe rank</label>
-                    {{ form.rank }}
-                    <p class="muted">Used to order recipes (optional).</p>
+                        <label>Recipe rank</label>
+                        {{ form.rank }}
+                        <p class="muted">Used to order recipes (optional).</p>
                     </div>
 
-                                    <div class="field">
-                    <label> Image {{ form.image.errors }}</label>
-                    {{ form.image }}
-                    <p class="muted">Optional image for the recipe ( 500px Maximum ).</p>
-                </div>
+                    <div class="field">
+                        <label> Image {{ form.image.errors }}</label>
+                        {{ form.image }}
+                        <p class="muted">Optional image for the recipe ( 500px Maximum ).</p>
+                    </div>
 
                 </div>
 
@@ -116,53 +123,53 @@
                 </div>
 
                 <div class="ui tiny inputcolor modal" id="json_modal">
-                      <div id="json_preview_cont"></div>
+                    <div id="json_preview_cont"></div>
                 </div>
 
             </div>
-
-            <div class="ui raised segment inputcolor">
-
-                {% csrf_token %}
-
-                <div class="field">
-                    <div class="ui header">Build code</div>
-                </div>
-
-                <div class="field">
-                    The code that gets executed when the recipe runs.
-                    <div class="ui top pointing dropdown" id="code_add" style="float: right">
-                        <i class="caret down icon"></i>
-                       <a>Code Builder</a>
-                        {% snippet_list %}
-                    </div>
-
-                </div>
-
-                <div class="field" id="template_field">
-                    {% template_field form.template.value %}
-                </div>
-
-                <div class="field">
-
-                    <button class="ui purple button" data-project_uid={{ project.uid }}
-                            id="template_preview">
-                        <i class="eye icon"></i>Preview Code
-                    </button>
-
-                    <button type="submit" class="ui green button">
-                        <i class="save icon"></i>Submit
-                    </button>
-
-                    <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
-                        <i class="undo icon"></i> Back
-                    </a>
-                </div>
-                <div class="ui tiny inputcolor modal" id="template_modal">
-                       <div id="template_preview_cont"></div>
-                </div>
-            </div>
-
         </div>
+        <div class="ui raised segment inputcolor">
+
+            {% csrf_token %}
+
+            <div class="field">
+                <div class="ui header">Build code</div>
+            </div>
+
+            <div class="field">
+                The code that gets executed when the recipe runs.
+                <div class="ui top pointing dropdown" id="code_add" style="float: right">
+                    <i class="caret down icon"></i>
+                    <a>Code Builder</a>
+                    {% snippet_list %}
+                </div>
+
+            </div>
+
+            <div class="field" id="template_field">
+                {% template_field form.template.value %}
+            </div>
+
+            <div class="field">
+
+                <button class="ui purple button" data-project_uid={{ project.uid }}
+                        id="template_preview">
+                    <i class="eye icon"></i>Preview Code
+                </button>
+
+                <button type="submit" class="ui green button">
+                    <i class="save icon"></i>Submit
+                </button>
+
+                <a class="ui right floated button" href="{% url 'recipe_view' recipe.uid %}">
+                    <i class="undo icon"></i> Back
+                </a>
+            </div>
+            <div class="ui tiny inputcolor modal" id="template_modal">
+                <div id="template_preview_cont"></div>
+            </div>
+        </div>
+
+
     </form>
 {% endblock %}
