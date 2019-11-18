@@ -89,7 +89,7 @@ class AnalysisAdmin(admin.ModelAdmin):
 
     fieldsets = (("Analysis Metadata",
                   {'fields': ("name", "owner", 'project', ("uid", "rank"),
-                              ("deleted", "security"), "image"),
+                              ("deleted", "security"), "image", 'root'),
                    "classes": ('extrapretty')}
                   ),
 

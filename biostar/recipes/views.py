@@ -990,7 +990,7 @@ def import_files(request, path=''):
     """
     user = request.user
 
-    if user.profile.trusted:
+    if not user.profile.trusted:
         messages.error(request, 'Only trusted users may views this page.')
         return redirect(reverse('project_list'))
 
