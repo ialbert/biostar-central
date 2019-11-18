@@ -791,7 +791,8 @@ def recipe_create(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
     # Prepare the form
-    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(5)}')
+    name = "Recipe Name"
+    initial = dict(name=name, uid=f'recipe-{util.get_uuid(5)}')
     form = forms.RecipeForm(user=request.user, initial=initial, project=project)
 
     if request.method == "POST":
@@ -810,7 +811,8 @@ def recipe_create(request, uid):
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
     action_url = reverse('recipe_create', kwargs=dict(uid=uid))
-    context = dict(project=project, form=form, action_url=action_url, activate='Create Recipe')
+    context = dict(project=project, form=form, action_url=action_url,
+                   activate='Create Recipe', name=name)
     counts = get_counts(project)
     context.update(counts)
     return render(request, 'recipe_edit.html', context)

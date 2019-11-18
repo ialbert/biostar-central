@@ -10,25 +10,21 @@
 {% endblock %}
 
 {% block headtitle %}
-    {% if recipe %}
-        Editing: {{ name }}
-    {% else %}
-        Creating
-    {% endif %}
+
+    Editing: {{ name }}
 {% endblock %}
 
 {% block content %}
 
     <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
 
-        <div class="narrow">
-            {% if recipe %}
-                <div class="ui raised segment">
-                    {% recipe_details recipe %}
-                </div>
-            {% endif %}
 
             <div class="ui raised segment inputcolor">
+
+        <div class="ui center aligned header">
+            Editing : <a href="{% if recipe %}{{ recipe.url }}{% endif %}"><i class="setting icon"></i>{{ name }}</a>
+        </div>
+
 
                 {% form_errors form %}
 
@@ -127,7 +123,7 @@
                 </div>
 
             </div>
-        </div>
+
         <div class="ui raised segment inputcolor">
 
             {% csrf_token %}
