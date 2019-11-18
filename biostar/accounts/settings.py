@@ -28,6 +28,12 @@ DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
 # In MB
 MAX_UPLOAD_SIZE = 10
 
+# Trusted users upload limit in MB.
+TRUSTED_UPLOAD_SIZE = 500
+
+# Admin users upload limit in MB
+ADMIN_UPLOAD_SIZE = 1000
+
 MESSAGES_PER_PAGE = 5
 
 # Set RECAPTCH keys here.

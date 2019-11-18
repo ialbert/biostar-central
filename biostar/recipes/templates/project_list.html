@@ -23,11 +23,12 @@
         <a class="ui {{ private }} item" href="{% url 'project_list_private' %}">
             <i class=" briefcase icon"></i><span class="tablet">Private Projects</span>
         </a>
-        {% if user.is_superuser %}
+        {% if user.is_authenticated  and user.profile.trusted %}
             <a class="ui blue item" href="{% url 'root_list' %}">
                 <i class="download  icon"></i><span class="tablet">Import</span>
             </a>
         {% endif %}
+
         {% if user.is_authenticated %}
             <div class="right menu">
                 <a class="ui {% activate 'recipe_create' active %}  active item" href="{% url 'project_create' %}">

@@ -164,10 +164,10 @@ def project_users(request, uid):
 
     # Search query for users.
     q = request.GET.get("q", "")
-    form = forms.ChangeUserAccess()
+    form = forms.ChangeUserAccess(user=request.user)
 
     if request.method == "POST":
-        form = forms.ChangeUserAccess(data=request.POST)
+        form = forms.ChangeUserAccess(data=request.POST, user=request.user)
 
         if form.is_valid():
             user, access = form.save()
@@ -322,7 +322,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     user = request.user
 
     # The project that is viewed.
-    project = Project.objects.filter(uid=uid, deleted=False).first()
+    project = Project.objects.filter(uid=uid).first()
 
     # Select all the data in the project.
     data_list = project.data_set.filter(deleted=False).order_by("rank", "-date").all()
@@ -791,7 +791,8 @@ def recipe_create(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
     # Prepare the form
-    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(5)}')
+    name = "Recipe Name"
+    initial = dict(name=name, uid=f'recipe-{util.get_uuid(5)}')
     form = forms.RecipeForm(user=request.user, initial=initial, project=project)
 
     if request.method == "POST":
@@ -810,7 +811,8 @@ def recipe_create(request, uid):
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
     action_url = reverse('recipe_create', kwargs=dict(uid=uid))
-    context = dict(project=project, form=form, action_url=action_url, activate='Create Recipe')
+    context = dict(project=project, form=form, action_url=action_url,
+                   activate='Create Recipe', name=name)
     counts = get_counts(project)
     context.update(counts)
     return render(request, 'recipe_edit.html', context)
@@ -839,10 +841,17 @@ def job_edit(request, uid):
 @write_access(type=Analysis, fallback_view="recipe_view")
 def recipe_delete(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
+    clones = Analysis.objects.filter(root=recipe, deleted=False)
 
-    auth.delete_object(obj=recipe, request=request)
-    msg = f"Deleted <b>{recipe.name}</b>." if recipe.deleted else f"Restored <b>{recipe.name}</b>."
-    messages.success(request, mark_safe(msg))
+    if recipe.is_root and clones.exists():
+        # Check if a root recipe
+        msg = "Can not delete a cloned recipe."
+        messages.success(request, msg)
+    else:
+
+        auth.delete_object(obj=recipe, request=request)
+        msg = f"Deleted <b>{recipe.name}</b>." if recipe.deleted else f"Restored <b>{recipe.name}</b>."
+        messages.success(request, mark_safe(msg))
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
@@ -976,14 +985,15 @@ def project_share(request, token):
     return redirect(reverse('project_view', kwargs=dict(uid=project.uid)))
 
 
+@login_required
 def import_files(request, path=''):
     """
     Import files mounted on IMPORT_ROOT_DIR in settings
     """
     user = request.user
 
-    if not user.is_superuser:
-        messages.error(request, 'You need to be an admin.')
+    if not user.profile.trusted:
+        messages.error(request, 'Only trusted users may views this page.')
         return redirect(reverse('project_list'))
 
     current_path = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))

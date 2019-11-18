@@ -39,7 +39,7 @@ MAX_UPLOAD_SIZE = 10
 # Deployment specific parameters.
 PROTOCOL = "http"
 HTTP_PORT = '8000'
-BASE_URL = f"{PROTOCOL}://{SITE_DOMAIN}{HTTP_PORT}"
+BASE_URL = f"{PROTOCOL}://{SITE_DOMAIN}:{HTTP_PORT}"
 
 FTP_HOST = "localhost"
 FTP_PORT = 8021

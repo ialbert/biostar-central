@@ -192,6 +192,14 @@ def data_field_generator(field, project, type="", extras=[]):
         choices = extras + [(d.id, d.name) for d in datamap.values()]
         return choices
 
+    label = field.get('label', '')
+    types = type.split(',')
+    # Add the data type to the label.
+    if type:
+        types = ', '.join(types)
+        label = f'{label}  ( {types} )'
+        field['label'] = label
+
     # Returns a SELECT field with the choices.
     return select_field(field, choicefunc=choice_func)
 

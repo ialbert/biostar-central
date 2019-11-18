@@ -18,7 +18,7 @@
                             <i class="database icon"></i>{{ project.name }}
                         </a>
                         {% if user.is_authenticated %}
-                            <div class="ui right ribbon label listing">
+                            <div class="ui right ribbon label listing" >
                                 {% get_access_label project user %}
                             </div>
                         {% endif %}

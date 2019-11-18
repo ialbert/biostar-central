@@ -23,9 +23,14 @@
                     </div>
                     {{ user.profile.name }}
                 </a>
+                {% if user.profile.trusted %}
+                    <div class="ui right floated green label">
+                        Trusted User
+                    </div>
+                {% endif %}
                 <br>
 
-                    <i class="at icon muted"></i>
+                <i class="at icon muted"></i>
                 <span class="muted" style="margin-left: 14px;">{{ user.profile.uid }}</span>
 
             </div>
