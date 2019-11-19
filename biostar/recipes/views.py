@@ -148,12 +148,12 @@ def project_users(request, uid):
     """
     project = Project.objects.filter(uid=uid).first()
     # Get users that already have access to project.
-    access_list = project.access_set.exclude(access=Access.NO_ACCESS).order_by('-date')
+    have_access = project.access_set.exclude(access=Access.NO_ACCESS).order_by('-date')
 
     # Search query for users.
     q = request.GET.get("q", "")
     if q:
-        selected = access_list.values('user')
+        selected = have_access.values('user')
         targets = User.objects.filter(Q(email__contains=q) | Q(profile__name__contains=q) |
                                       Q(username__contains=q) |
                                       Q(profile__uid__contains=q)).exclude(id__in=selected)
@@ -161,7 +161,7 @@ def project_users(request, uid):
         targets = []
 
     # Gather access forms for users who currently have access
-    context = dict(project=project, access_list=access_list, q=q, targets=targets, activate='User Management')
+    context = dict(project=project, have_access=have_access, q=q, targets=targets, activate='User Management')
 
     counts = get_counts(project)
     context.update(counts)

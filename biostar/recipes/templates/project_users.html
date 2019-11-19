@@ -55,7 +55,7 @@
 
                 <div class="ui vertical segment">
                     <div class="ui relaxed divided list">
-                        {% for access in access_list %}
+                        {% for access in have_access %}
                             {% access_form project=project user=access.user extra_class='inputcolor' %}
 
                         {% endfor %}
