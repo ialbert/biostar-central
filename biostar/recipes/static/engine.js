@@ -406,7 +406,8 @@ function copy_object(uid, project_uid, clipboard) {
                 popup_message(container, data.msg, data.status, 2000)
 
             },
-            error: function () {
+            error: function (xhr, status, text) {
+                error_message($(this), xhr, status, text)
             }
 
 
@@ -432,7 +433,8 @@ function copy_file(path) {
                 popup_message(elem, data.msg, data.status, 2000)
 
             },
-            error: function () {
+            error: function (xhr, status, text) {
+                error_message($(this), xhr, status, text)
             }
         }
     )
@@ -465,7 +467,8 @@ function toggle_delete(job_uid) {
                 popup_message(container.before(), data.msg, data.status, 2000)
 
             },
-            error: function () {
+            error: function (xhr, status, text) {
+                error_message(container.before(), xhr, status, text)
             }
         }
     )
@@ -473,10 +476,56 @@ function toggle_delete(job_uid) {
 
 }
 
+function change_access(access, user_id, project_uid, elem) {
+    let container = $('.container-' + user_id);
+
+    $.ajax('/manage/access/', {
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'user_id': user_id,
+                'access': access,
+                'project_uid': project_uid
+            },
+
+            success: function (data) {
+                if (data.status === 'success') {
+                    container.transition('bounce').transition({
+                        animation: 'pulse', onComplete: function () {
+                            if (data.no_access) {
+                                container.removeClass('inputcolor')
+                            } else {
+                                container.addClass('inputcolor')
+                            }
+                        }
+                    });
+
+                    //popup_message(elem, data.msg, data.status, 1000)
+                    return
+                }
+                popup_message(elem, data.msg, data.status, 2000)
+
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        }
+    )
+
+}
+
 $(document).ready(function () {
 
+    $('.access-dropdown').dropdown({
+        onChange: function (value, text, $selectedItem) {
+            let user = $(this).data('user');
+            let project = $(this).data('project');
+            change_access(value, user, project, $(this))
+        }
+    });
 
-    $('.ui.dropdown').dropdown();
+    //$('.ui.selection.dropdown').dropdown();
+
     $('select').dropdown();
 
     $('#json_add').dropdown();
@@ -484,7 +533,6 @@ $(document).ready(function () {
     $('#code_add').dropdown();
 
     $('.ui.sticky').sticky();
-
 
     $(this).on('click', '#json_preview', function () {
         event.preventDefault();
@@ -519,6 +567,7 @@ $(document).ready(function () {
             }
         });
     });
+
 
     $('#recipe-search').keyup(function () {
 
@@ -668,7 +717,7 @@ $(document).ready(function () {
     $(this).on('click', '.expand', function (event) {
         event.preventDefault();
         let board = $(this).data('value');
-        $('.expand-'+board).transition('fade down')
+        $('.expand-' + board).transition('fade down')
 
 
     });

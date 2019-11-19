@@ -28,7 +28,7 @@ urlpatterns = [
     path(r'create/snippet/type/', ajax.create_snippet_type, name="create_snippet_type"),
     path(r'toggle/delete/', ajax.toggle_delete, name="toggle_delete"),
     path(r'copy/object/', ajax.copy_object, name="copy_object"),
-
+    path(r'manage/access/', ajax.manage_access, name="manage_access"),
 
     # Project
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),

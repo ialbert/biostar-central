@@ -2,8 +2,7 @@ from django import forms
 from django.conf import settings
 from django.db import connection
 import sqlite3
-from biostar.recipes import const
-from . import models
+from biostar.recipes import const, models, util
 
 # Share the logger with models.
 logger = models.logger
@@ -192,13 +191,14 @@ def data_field_generator(field, project, type="", extras=[]):
         choices = extras + [(d.id, d.name) for d in datamap.values()]
         return choices
 
-    label = field.get('label', '')
-    types = type.split(',')
     # Add the data type to the label.
     if type:
-        types = ', '.join(types)
-        label = f'{label}  ( {types} )'
-        field['label'] = label
+        help_text = field.get('help', '')
+        type_text = f" Data Type: {type}"
+        # Add a line break for the data type
+        help_text = f'{help_text} {type_text}' if help_text else type_text
+        # Insert new help text
+        field['help'] = help_text
 
     # Returns a SELECT field with the choices.
     return select_field(field, choicefunc=choice_func)

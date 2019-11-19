@@ -1,16 +1,52 @@
-{% extends "engine_base.html" %}
+
+
+{% extends "base_content.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
-    Metabarcode Home
+    Site Admin
 {% endblock %}
 
-{% block header %}
-
-{% endblock %}
 
 {% block body %}
 
+    <div class="ui center aligned basic vertical segment">
+        <div class="ui large header">
+            <i class="dashboard icon"></i> Site Admin
+        </div>
+
+    </div>
+
+    {% show_messages messages %}
+    <div class="ui top attached large tabular menu">
+
+        <a class="ui item" href="{% url 'project_list_public' %}">
+            <i class="list icon"></i><span class="tablet">Public Projects</span>
+        </a>
+        <a class="ui blue item" href="{% url 'project_list_private' %}">
+            <i class="briefcase icon"></i><span class="tablet">Private Projects</span>
+        </a>
+        {% if user.is_authenticated  and user.profile.trusted %}
+            <a class="ui item" href="{% url 'root_list' %}">
+                <i class="download icon"></i><span class="tablet">Data Import</span>
+            </a>
+        {% endif %}
+
+        {% if user.is_superuser %}
+            <a class="ui active item" href="{% url 'site_admin' %}">
+                <i class="dashboard icon"></i> Site Admin
+            </a>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <div class="right menu">
+                <a class="ui {% activate 'recipe_create' active %}  active item" href="{% url 'project_create' %}">
+                    <i class="add circle icon"></i>New Project
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="ui bottom attached large segment">
         <div class="ui vertical segment">
 
             <div class="ui header">
@@ -29,13 +65,23 @@
                 {% for project in projects %}
                     {% for job in project.job_set.all %}
                         <div class="item">
-                            <div class="ui label">{{ job.get_state_display }}</div> {{ job.name }}
+                            <div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
+                            <a href="{{ job.url }}">{{ job.name }}</a>
+                        |
+                        <a href="{% url 'user_profile' job.owner.profile.uid %}"> {{ job.owner.profile.name }}</a>
+                        {% if job.start_date %}
+                            |
+                            <b>Start date :</b> {{ job.start_date }}
+                        {% endif %}
                         </div>
                     {% endfor %}
                 {% endfor %}
             </div>
-
         </div>
+    </div>
+
 
 
 {% endblock %}
+
+

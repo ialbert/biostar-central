@@ -5,6 +5,7 @@ import os
 import quopri
 import tarfile
 import uuid
+import bleach
 import shlex
 from itertools import islice
 from urllib.parse import quote
@@ -105,6 +106,14 @@ def qiime2view_link(file_url):
     file_url = quote(string=file_url, safe="")
 
     return template + file_url
+
+
+def strip_tags(text):
+    """
+    Strip html tags from text
+    """
+    text = bleach.clean(text, tags=[], attributes={}, styles=[], strip=True)
+    return text
 
 
 def findfiles(location, collect):
