@@ -40,22 +40,22 @@
                         &bull; <a href="{% url 'project_users' project.uid %}"><i class="undo icon"></i>Clear</a>
                     </div>
 
-
                     <div class="ui vertical segment">
                         <div class="ui relaxed divided list">
-                            {% for user, form in results %}
-                                {% access_form project user form %}
+                            {% for target in targets %}
+                                {% access_form project=project user=target %}
                             {% endfor %}
                         </div>
                     </div>
                 {% endif %}
             </div>
 
-            {% if current %}
+            {% if access_list %}
                 <div class="ui vertical segment">
                     <div class="ui relaxed divided list">
-                        {% for user, form in current %}
-                            {% access_form project user form %}
+                        {% for access in access_list %}
+                            {% access_form project=project user=access.user %}
+
                         {% endfor %}
                     </div>
                 </div>

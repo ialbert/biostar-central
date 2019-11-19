@@ -10,8 +10,9 @@ from django.http import JsonResponse
 from django.utils.decorators import available_attrs
 from django.template import loader
 from django.conf import settings
+from biostar.accounts.models import User
 from biostar.recipes.const import *
-from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, Project, MAX_TEXT_LEN
+from biostar.recipes.models import Job, Analysis, Snippet, SnippetType, Project, MAX_TEXT_LEN, Access
 from biostar.recipes.forms import RecipeInterface
 from biostar.recipes import auth
 
@@ -60,6 +61,7 @@ class ajax_error_wrapper:
                 return ajax_error(f'{self.method} method must be used.')
             if request.user.is_anonymous and self.login_required:
                 return ajax_error('You must be logged in.')
+
             return func(request, *args, **kwargs)
 
         return _ajax_view
@@ -405,6 +407,51 @@ def toggle_delete(request):
         return ajax_success(f"{msg_prefix} {job.name}", counts=counts)
 
     return ajax_error("Invalid action")
+
+
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST", login_required=True)
+def manage_access(request):
+
+    access_map = dict(none=Access.NO_ACCESS, read=Access.READ_ACCESS,
+                      write=Access.WRITE_ACCESS, share=Access.SHARE_ACCESS)
+
+    # Get the current user, project and access
+    user_id = request.POST.get('user_id', '')
+    project_uid = request.POST.get('project_uid', '')
+    access_str = request.POST.get('access', '')
+
+    user = User.objects.filter(id=user_id).first()
+    new_access = access_map.get(access_str)
+    project = Project.objects.filter(uid=project_uid).first()
+    is_writable = auth.is_writable(user=request.user, project=project)
+
+    # Validate submitted values.
+    if not project:
+        return ajax_error("Project does not exist.")
+    if not user:
+        return ajax_error("User does not exist.")
+    if not new_access:
+        return ajax_error(f"Invalid access option: {access_str}")
+    if user == request.user:
+        return ajax_error("Can not change your own access")
+    if user == project.owner:
+        return ajax_error("Can not change the project owner's access")
+    if not is_writable:
+        return ajax_error("You need write access to preform")
+
+    # Check current user access.
+
+    access = Access.objects.filter(user=user, project=project).first()
+
+    # Update existing access
+    if access:
+        Access.objects.filter(id=access.id).update(access=new_access)
+    # Create a new access object
+    else:
+        Access.objects.create(user=user, project=project, access=new_access)
+
+    return ajax_success("Changed access.")
 
 
 @ajax_error_wrapper(method="POST", login_required=True)

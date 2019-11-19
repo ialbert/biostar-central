@@ -249,7 +249,6 @@ def paste(context, project, current=","):
         count = len(vals)
         # Current target is going to be cloned.
         to_clone = target == const.COPIED_RECIPES
-        print(to_clone)
         content = dict(vals=vals, paste_url=paste_url, next_url=next_url, label=label, count=count,
                        to_clone=to_clone)
         # Clean the clipboard of empty values
@@ -469,12 +468,30 @@ def created_by(date, user=None, prefix="Updated"):
 
 
 @register.inclusion_tag('widgets/access_form.html')
-def access_form(project, user, form):
+def access_form(project, user):
     """
     Generates an access form.
     """
 
-    return dict(project=project, user=user, form=form)
+    return dict(project=project, user=user)
+
+
+@register.filter
+def get_access_label(user, project):
+
+    access = Access.objects.filter(user=user, project=project).first()
+
+    access = access or Access(access=Access.NO_ACCESS, user=user, project=project)
+
+    label = access.get_access_display()
+    return label
+
+
+@register.filter
+def get_access(user, project):
+    access = Access.objects.filter(user=user, project=project).first()
+    access = access or Access(access=Access.NO_ACCESS, user=user, project=project)
+    return access
 
 
 @register.inclusion_tag('widgets/job_elapsed.html')
