@@ -477,6 +477,7 @@ function toggle_delete(job_uid) {
 }
 
 function change_access(access, user_id, project_uid, elem) {
+    let container = $('.container-' + user_id);
 
     $.ajax('/manage/access/', {
             type: 'POST',
@@ -489,7 +490,13 @@ function change_access(access, user_id, project_uid, elem) {
 
             success: function (data) {
                 if (data.status === 'success') {
-                    $('.container-' + user_id).transition('bounce').transition('pulse');
+                    container.transition('bounce').transition({
+                        animation: 'pulse', onComplete: function () {
+                            container.addClass('inputcolor')
+                        }
+                    });
+
+                     //popup_message(elem, data.msg, data.status, 1000)
                     return
                 }
                 popup_message(elem, data.msg, data.status, 2000)

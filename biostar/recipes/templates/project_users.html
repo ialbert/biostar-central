@@ -10,15 +10,9 @@
 
     {% form_errors form %}
 
-    <div class="ui center aligned vertical basic segment">
-        <div class="ui header">
-            <i class="users icon"></i>
-            Manage Access
-        </div>
-    </div>
     <div class="centerform">
         <div class="manage_users">
-            <div class="ui segment inputcolor">
+            <div class="ui segment">
 
                 <div class="ui search">
                     <form method="get" action="{% url 'project_users' project.uid %} ">
@@ -35,6 +29,10 @@
                 </div>
 
                 {% if q %}
+                    <div class="ui header">
+                        <i class="search icon"></i>
+                        Search results
+                    </div>
                     <div class="ui success message">
                         Filtering for : <b>{{ q }}</b>
                         &bull; <a href="{% url 'project_users' project.uid %}"><i class="undo icon"></i>Clear</a>
@@ -51,6 +49,11 @@
             </div>
 
             {% if access_list %}
+                <div class="ui header">
+                    <i class="users icon"></i>
+                    Users with access
+                </div>
+
                 <div class="ui vertical segment">
                     <div class="ui relaxed divided list">
                         {% for access in access_list %}
