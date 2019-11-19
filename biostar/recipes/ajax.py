@@ -438,10 +438,9 @@ def manage_access(request):
     if user == project.owner:
         return ajax_error("Can not change the project owner's access")
     if not is_writable:
-        return ajax_error("You need write access to preform")
+        return ajax_error("You need write access to manage access.")
 
     # Check current user access.
-
     access = Access.objects.filter(user=user, project=project).first()
 
     # Update existing access
@@ -451,13 +450,15 @@ def manage_access(request):
     else:
         Access.objects.create(user=user, project=project, access=new_access)
 
-    return ajax_success("Changed access.")
+    no_access = new_access == Access.NO_ACCESS
+
+    return ajax_success("Changed access.", no_access=no_access)
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
 def copy_object(request):
     """
-    Add object uid or file path to sessions clibboard.
+    Add object uid or file path to sessions clipboard.
     """
 
     object_uid = request.POST.get('uid', '')

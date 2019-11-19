@@ -492,11 +492,15 @@ function change_access(access, user_id, project_uid, elem) {
                 if (data.status === 'success') {
                     container.transition('bounce').transition({
                         animation: 'pulse', onComplete: function () {
-                            container.addClass('inputcolor')
+                            if (data.no_access) {
+                                container.removeClass('inputcolor')
+                            } else {
+                                container.addClass('inputcolor')
+                            }
                         }
                     });
 
-                     //popup_message(elem, data.msg, data.status, 1000)
+                    //popup_message(elem, data.msg, data.status, 1000)
                     return
                 }
                 popup_message(elem, data.msg, data.status, 2000)

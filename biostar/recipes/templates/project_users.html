@@ -13,7 +13,6 @@
     <div class="centerform">
         <div class="manage_users">
             <div class="ui segment">
-
                 <div class="ui search">
                     <form method="get" action="{% url 'project_users' project.uid %} ">
                         <div class="ui fluid input">
@@ -51,13 +50,13 @@
             {% if access_list %}
                 <div class="ui header">
                     <i class="users icon"></i>
-                    Users with access
+                    Users with access to {{ project.name }}
                 </div>
 
                 <div class="ui vertical segment">
                     <div class="ui relaxed divided list">
                         {% for access in access_list %}
-                            {% access_form project=project user=access.user %}
+                            {% access_form project=project user=access.user extra_class='inputcolor' %}
 
                         {% endfor %}
                     </div>

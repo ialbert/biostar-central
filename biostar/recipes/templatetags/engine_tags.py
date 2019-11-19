@@ -468,12 +468,12 @@ def created_by(date, user=None, prefix="Updated"):
 
 
 @register.inclusion_tag('widgets/access_form.html')
-def access_form(project, user):
+def access_form(project, user, extra_class=''):
     """
     Generates an access form.
     """
 
-    return dict(project=project, user=user)
+    return dict(project=project, user=user, extra_class=extra_class)
 
 
 @register.filter
