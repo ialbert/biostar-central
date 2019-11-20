@@ -441,18 +441,19 @@ function copy_file(path) {
 }
 
 
-function toggle_delete(job_uid) {
+function toggle_delete(uid, type, count_elem) {
 
 
     // Get the job container
-    let container = $('.job-item-' + job_uid);
-    let counts = $('#job_count');
+    let container = $('.toggle-item-' + uid);
+    let counts = $('#'+ count_elem);
 
     $.ajax('/toggle/delete/', {
             type: 'POST',
             dataType: 'json',
             data: {
-                'job_uid': job_uid
+                'uid': uid,
+                'type':type
             },
 
             success: function (data) {
@@ -461,6 +462,7 @@ function toggle_delete(job_uid) {
                     container.transition('zoom');
                     // Update counts on tabular menu
                     counts.html(data.counts);
+                    //container.hide()
                     return
                 }
 
@@ -695,8 +697,10 @@ $(document).ready(function () {
     $(this).on('click', '.toggle_delete', function (event) {
         //alert("foo");
         event.preventDefault();
-        let job_uid = $(this).data("value");
-        toggle_delete(job_uid);
+        let uid = $(this).data("value");
+        let type = $(this).data("type");
+        let count_elem = $(this).data('count');
+        toggle_delete(uid, type, count_elem);
 
     });
 
