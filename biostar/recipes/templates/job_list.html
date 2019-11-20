@@ -28,7 +28,7 @@
 
             {% for job in job_list %}
 
-                <div class="item job job-item-{{ job.uid }}">
+                <div class="item toggle-item-{{ job.uid }}">
 
 
                     <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
@@ -58,7 +58,9 @@
                             </a>
                             <div class="or" style="font-size: x-small;"></div>
 
-                            <a class="ui right button rerun toggle_delete" data-value="{{ job.uid }}" style="font-size: x-small;">
+                            <a class="ui right button rerun toggle_delete" data-value="{{ job.uid }}" data-type="job"
+                               data-count='job_count'
+                               style="font-size: x-small;">
 
                                 <i class="trash icon"></i> <span class="fitme">Delete</span>
 
