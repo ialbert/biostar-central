@@ -166,7 +166,7 @@ def post_list(request, show=None, extra_context=dict()):
 
     # Get posts available to users.
     posts = get_posts(user=user, show=show, tag=tag, order=order, limit=limit)
-
+    posts = posts.exclude(Q(root=None) | Q(parent=None))
     # Create the paginator
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
 

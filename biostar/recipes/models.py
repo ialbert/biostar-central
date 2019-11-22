@@ -8,7 +8,6 @@ from django.dispatch import receiver
 from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
-
 from django.conf import settings
 from biostar.accounts.models import User
 from . import util
@@ -96,7 +95,6 @@ class Snippet(models.Model):
     # Appears to all uses
     default = models.BooleanField(default=False)
 
-
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(6)
         self.owner = self.owner or self.type.owner
@@ -105,7 +103,7 @@ class Snippet(models.Model):
 
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
-    PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
+    PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shared"), (PUBLIC, "Public")]
 
     # Rank in a project list.
     rank = models.FloatField(default=100)
@@ -128,11 +126,14 @@ class Project(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     uid = models.CharField(max_length=32, unique=True)
 
+    sharable_token = models.CharField(max_length=32, null=True, unique=True)
+
     objects = Manager()
 
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.date = self.date or now
+        self.sharable_token = self.sharable_token or util.get_uuid(30)
         self.html = make_html(self.text)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
@@ -189,7 +190,8 @@ class Project(models.Model):
                 help=self.text,
                 url=settings.BASE_URL,
                 project_uid=self.uid,
-                id=self.pk
+                id=self.pk,
+
                 ),
             recipes=[recipe.uid for recipe in self.analysis_set.all()])
 
@@ -204,16 +206,29 @@ class Project(models.Model):
         first = lines[0]
         return first
 
+    @property
+    def is_shareable(self):
+        return self.privacy == self.SHAREABLE
+
+    def get_sharable_link(self):
+
+        # Return a sharable link if the project is shareable
+        if self.is_shareable:
+            return reverse('project_share', kwargs=dict(token=self.sharable_token))
+
+        return '/'
+
 
 class Access(models.Model):
     """
     Allows access of users to Projects.
     """
-    NO_ACCESS, READ_ACCESS, WRITE_ACCESS, = 1, 2, 3
+    NO_ACCESS, READ_ACCESS, WRITE_ACCESS, SHARE_ACCESS = 1, 2, 3, 4
     ACCESS_CHOICES = [
         (NO_ACCESS, "No Access"),
         (READ_ACCESS, "Read Access"),
         (WRITE_ACCESS, "Write Access"),
+        (SHARE_ACCESS, "Share Access"),
     ]
 
     ACCESS_MAP = dict(ACCESS_CHOICES)
@@ -272,6 +287,9 @@ class Data(models.Model):
     # FilePathField points to an existing file
     file = models.FilePathField(max_length=MAX_FIELD_LEN, path='')
 
+    # Get the file count from the toc file.
+    file_count = models.IntegerField(default=0)
+
     uid = models.CharField(max_length=32, unique=True)
 
     objects = Manager()
@@ -289,7 +307,6 @@ class Data(models.Model):
         self.type = self.type.replace(" ", '')
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
-
         # Build the data directory.
         data_dir = self.get_data_dir()
         if not os.path.isdir(data_dir):
@@ -357,6 +374,7 @@ class Data(models.Model):
 
         self.size = size
         self.file = tocname
+        self.file_count = len(collect)
 
         return tocname
 
@@ -388,6 +406,7 @@ class Data(models.Model):
 
         obj['files'] = fnames
         obj['toc'] = self.get_path()
+        obj['file_list'] = self.get_path()
         obj['id'] = self.id
         obj['name'] = self.name
         obj['uid'] = self.uid
@@ -403,7 +422,6 @@ class Data(models.Model):
         lines = self.text.splitlines() or ['']
         first = lines[0]
         return first
-
 
 class Analysis(models.Model):
     AUTHORIZED, NOT_AUTHORIZED = 1, 2
@@ -426,10 +444,14 @@ class Analysis(models.Model):
     # The rank in a recipe list.
     rank = models.FloatField(default=100)
 
+    # Root recipe this recipe has been copied from
+    root = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
+
     # The user that edited the object most recently.
     lastedit_user = models.ForeignKey(User, related_name='analysis_editor', null=True, on_delete=models.CASCADE)
     lastedit_date = models.DateTimeField(default=timezone.now)
 
+    #TODO: remove diff fields
     diff_author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="diff_author", null=True)
     diff_date = models.DateField(blank=True, auto_now_add=True)
 
@@ -472,7 +494,8 @@ class Analysis(models.Model):
         current_settings["uid"] = self.uid
         current_settings["help"] = self.text
         current_settings["url"] = settings.BASE_URL
-
+        current_settings['root_id'] = self.root.id if self.root else ""
+        current_settings['root_uid'] = self.root.uid if self.root else ""
         # Put them back into settings.
         json_data["settings"] = current_settings
 
@@ -482,40 +505,16 @@ class Analysis(models.Model):
         now = timezone.now()
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
-        self.diff_date = self.diff_date or now
         self.text = self.text or "Recipe description"
         self.name = self.name[:MAX_NAME_LEN] or "New Recipe"
         self.html = make_html(self.text)
-        self.diff_author = self.diff_author or self.owner
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
 
         # Clean json text of the 'settings' key unless it has the 'run' field.
-        try:
-            local_json = hjson.loads(self.json_text)
-        except Exception as exep:
-            logger.error(f'Error loading json text: {exep}')
-            local_json = hjson.loads(self.last_valid)
-
-        # Look into JSON settings
-        if local_json.get('settings'):
-            run_settings = local_json.get('settings', {}).get('execute', {})
-
-            # Check to see for an 'execute' parameter
-            if run_settings:
-                # Leave run settings alone.
-                local_json['settings'] = dict(execute=run_settings)
-            else:
-                # Delete settings parameter
-                del local_json['settings']
-
-        self.json_text = hjson.dumps(local_json)
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
-
-        if self.security == self.AUTHORIZED:
-            self.last_valid = self.template
 
         Project.objects.filter(uid=self.project.uid).update(lastedit_date=now,
                                                             lastedit_user=self.lastedit_user)
@@ -524,12 +523,54 @@ class Analysis(models.Model):
     def get_project_dir(self):
         return self.project.get_project_dir()
 
+    @property
+    def is_cloned(self):
+        """
+        Return True if recipe is a clone ( linked ).
+        """
+        return self.root is not None
+
+    @property
+    def is_root(self):
+        """
+        Return True if recipe is a root.
+        """
+        return self.root is None
+
+    def update_children(self):
+        """
+        Update information for children belonging to this root.
+        """
+        # Get all children of this root
+        children = Analysis.objects.filter(root=self)
+
+        # Update all children information
+        children.update(json_text=self.json_text,
+                        template=self.template,
+                        name=self.name,
+                        lastedit_date=self.lastedit_date,
+                        lastedit_user=self.lastedit_user,
+                        text=self.text,
+                        html=self.html,
+                        image=self.image)
+
+        # Update last edit user and date for children projects.
+        Project.objects.filter(analysis__root=self).update(lastedit_date=self.lastedit_date,
+                                                           lastedit_user=self.lastedit_user)
+
     def url(self):
         assert self.uid, "Sanity check. UID should always be set."
         return reverse("recipe_view", kwargs=dict(uid=self.uid))
 
     def runnable(self):
         return self.security == self.AUTHORIZED
+
+    def edit_url(self):
+        # Return root edit url if this recipe is cloned.
+        #if self.is_cloned:
+        #    return reverse('recipe_edit', kwargs=dict(uid=self.root.uid))
+
+        return reverse('recipe_edit', kwargs=dict(uid=self.uid))
 
     @property
     def running_css(self):

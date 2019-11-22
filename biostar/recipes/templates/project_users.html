@@ -10,16 +10,9 @@
 
     {% form_errors form %}
 
-    <div class="ui center aligned vertical basic segment">
-        <div class="ui header">
-            <i class="users icon"></i>
-            Manage Access
-        </div>
-    </div>
     <div class="centerform">
         <div class="manage_users">
-            <div class="ui segment inputcolor">
-
+            <div class="ui segment">
                 <div class="ui search">
                     <form method="get" action="{% url 'project_users' project.uid %} ">
                         <div class="ui fluid input">
@@ -35,27 +28,36 @@
                 </div>
 
                 {% if q %}
+                    <div class="ui header">
+                        <i class="search icon"></i>
+                        Search results
+                    </div>
                     <div class="ui success message">
                         Filtering for : <b>{{ q }}</b>
                         &bull; <a href="{% url 'project_users' project.uid %}"><i class="undo icon"></i>Clear</a>
                     </div>
 
-
                     <div class="ui vertical segment">
                         <div class="ui relaxed divided list">
-                            {% for user, form in results %}
-                                {% access_form project user form %}
+                            {% for target in targets %}
+                                {% access_form project=project user=target %}
                             {% endfor %}
                         </div>
                     </div>
                 {% endif %}
             </div>
 
-            {% if current %}
+            {% if access_list %}
+                <div class="ui header">
+                    <i class="users icon"></i>
+                    Users with access to {{ project.name }}
+                </div>
+
                 <div class="ui vertical segment">
                     <div class="ui relaxed divided list">
-                        {% for user, form in current %}
-                            {% access_form project user form %}
+                        {% for access in have_access %}
+                            {% access_form project=project user=access.user extra_class='inputcolor' %}
+
                         {% endfor %}
                     </div>
                 </div>

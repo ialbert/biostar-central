@@ -8,7 +8,7 @@
                     {% if obj.name %}
                         <b>{{ obj.name }}</b>
                     {% else %}
-                        <b>{{ obj.value }}</b>
+                        <b>{{ obj.value |mask_path:obj}}</b>
                     {% endif %}
                 </li>
             {% endif %}

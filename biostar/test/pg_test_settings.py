@@ -7,6 +7,10 @@ ROOT_URLCONF = 'biostar.test.test_urls'
 
 DEBUG = True
 
+# reCaptcha left alone during testing
+RECAPTCHA_PUBLIC_KEY = ''
+RECAPTCHA_PRIVATE_KEY = ''
+
 DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
 
 DATABASES = {

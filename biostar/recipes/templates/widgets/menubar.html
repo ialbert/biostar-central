@@ -19,16 +19,20 @@
     </div>
 
     <div class="right menu">
+            <a class="{% activate "login" active %} item" href="{% url 'about' %}">
+                <i class="question circle icon"></i> About
+            </a>
 
         {% if user.is_authenticated %}
 
-            <a class="{% activate "bin" active %} item" href="{% url 'recycle_bin' %}">
-                <i class="trash icon"></i>
-            </a>
 
             <a class="{% activate "profile" active %} item" href="{% url "user_profile" user.profile.uid %}">
                 <i class="user icon"></i>
                 <span class="widescreen">{{ user.profile.name }}</span>
+            </a>
+
+            <a class="{% activate "bin" active %} item" href="{% url 'recycle_bin' %}">
+                <i class="trash icon"></i>
             </a>
 
             <a class="{% activate "logout" active %} item" href="{% url 'logout' %}">
@@ -42,6 +46,8 @@
             </a>
 
         {% endif %}
+
+
 
     </div>
 

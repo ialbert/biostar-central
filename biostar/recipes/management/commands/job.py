@@ -1,4 +1,5 @@
 import hjson
+import time
 import os, logging, subprocess, pprint
 
 from django.conf import settings
@@ -19,6 +20,7 @@ logger.setLevel(logging.DEBUG)
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
+
 def run(job, options={}):
     """
     Runs a job
@@ -37,6 +39,7 @@ def run(job, options={}):
 
     stdout_log = []
     stderr_log = []
+
     try:
         # Find the json and the template.
         json_data = hjson.loads(job.json_text)
@@ -92,7 +95,7 @@ def run(job, options={}):
         execute = settings_dict.get('execute', {})
 
         # The name of the file that contain the commands.
-        script_name = execute.get("filename", "recipe.sh")
+        script_name = execute.get("script_name", "recipe.sh")
 
         # Make the log directory that stores sdout, stderr.
         LOG_DIR = 'runlog'
@@ -106,7 +109,7 @@ def run(job, options={}):
         stderr_fname = f"{log_dir}/stderr.txt"
 
         # Build the command line
-        command = execute.get("command", "bash recipe.sh")
+        command = execute.get("command", f"bash {script_name}")
 
         # The commands can be substituted as well.
         context = Context(json_data)
@@ -180,8 +183,8 @@ def run(job, options={}):
 
     # Collect the output.
     if proc:
-        stdout_log.extend(force_text(proc.stdout).splitlines())
-        stderr_log.extend(force_text(proc.stderr).splitlines())
+        stdout_log.extend(force_text(proc.stdout, errors="backslashreplace").splitlines())
+        stderr_log.extend(force_text(proc.stderr, errors="backslashreplace").splitlines())
 
     # Save the logs and end time
     Job.objects.filter(pk=job.pk).update(end_date=timezone.now(),

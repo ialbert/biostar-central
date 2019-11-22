@@ -1,6 +1,9 @@
 import logging
 import os
-
+import hjson
+import hashlib
+import itertools
+import mistune
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -49,6 +52,24 @@ def site_admin(request):
     projects = Project.objects.all()
     context = dict(projects=projects)
     return render(request, 'admin_index.html', context=context)
+
+
+def about(request):
+    """
+    Added an about page with the
+    """
+
+    # Get the docs
+    try:
+        recipe_docs = os.path.join(settings.DOCS_ROOT, 'recipes-index.md')
+        recipe_docs = open(recipe_docs, 'r').read()
+        html = mistune.markdown(recipe_docs, escape=False)
+    except Exception as exc:
+        logger.error(f'Error loading about page: {exc}')
+        html = "About page"
+    html = mark_safe(html)
+    context = dict(html=html)
+    return render(request, 'about.html', context=context)
 
 
 @login_required
@@ -120,59 +141,34 @@ def search_bar(request):
     return render(request, "search.html", context)
 
 
-def get_access(request, project):
-    user = request.user if request.user.is_authenticated else None
-    user_access = Access.objects.filter(project=project, user=user).first()
-    # Current users access
-    user_access = user_access or Access(access=Access.NO_ACCESS)
-
-    # Users already with access to current project
-    user_list = [a.user for a in project.access_set.all() if a.access != Access.NO_ACCESS]
-
-    return user_access, user_list
-
-
 @write_access(type=Project, fallback_view="data_list")
 def project_users(request, uid):
     """
-    Manage project users
+    Manage project users page
     """
     project = Project.objects.filter(uid=uid).first()
-
     # Get users that already have access to project.
-    user_access, user_list = get_access(request, project)
+    have_access = project.access_set.exclude(access=Access.NO_ACCESS).order_by('-date')
 
     # Search query for users.
     q = request.GET.get("q", "")
-    form = forms.ChangeUserAccess()
-
-    if request.method == "POST":
-        form = forms.ChangeUserAccess(data=request.POST)
-
-        if form.is_valid():
-            user, access = form.save()
-            msg = f"Changed {user.profile.name}'s access to : {access.get_access_display()}"
-            messages.success(request, msg)
-            return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
-
     if q:
-        targets = User.objects.filter(Q(email__contains=q) | Q(profile__name__contains=q)| Q(username__contains=q)|
-                                      Q(profile__uid__contains=q))
+        selected = have_access.values('user')
+        targets = User.objects.filter(Q(email__contains=q) | Q(profile__name__contains=q) |
+                                      Q(username__contains=q) |
+                                      Q(profile__uid__contains=q)).exclude(id__in=selected)
     else:
         targets = []
 
     # Gather access forms for users who currently have access
-    current = forms.access_forms(users=user_list, project=project, request=request)
-    # Gather access forms for users in query
-    results = forms.access_forms(users=targets, project=project, exclude=user_list, request=request)
-    context = dict(current=current, project=project, results=results, form=form, activate='User Management',
-                   q=q, user_access=user_access)
+    context = dict(project=project, have_access=have_access, q=q, targets=targets, activate='User Management')
+
     counts = get_counts(project)
     context.update(counts)
     return render(request, "project_users.html", context=context)
 
 
-@read_access(obj_type=Project)
+@read_access(type=Project)
 def project_info(request, uid):
     user = request.user
 
@@ -182,19 +178,26 @@ def project_info(request, uid):
     counts = get_counts(project)
 
     # Who has write access
-    write_access = auth.has_write_access(user=user, project=project)
+    write_access = auth.is_writable(user=user, project=project)
+    if user.is_authenticated:
+        access = Access.objects.filter(user=user, project=project).first()
+    else:
+        access = Access(access=Access.NO_ACCESS)
 
-    context = dict(project=project, active="info", write_access=write_access)
+    access = access or Access(access=Access.NO_ACCESS)
+
+    context = dict(project=project, active="info", write_access=write_access, access=access)
     context.update(counts)
 
     return render(request, "project_info.html", context)
 
 
 def annotate_projects(projects):
-    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(deleted=False)),
-                                 job_count=Count('job', distinct=True, filter=Q(deleted=False)),
-                                 recipe_count=Count('analysis', distinct=True, filter=Q(deleted=False)),
-                                 )
+    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(data__deleted=False)),
+                                 job_count=Count('job', distinct=True, filter=Q(job__deleted=False)),
+                                 recipe_count=Count('analysis', distinct=True,
+                                                    filter=Q(analysis__deleted=False)))
+
     return projects
 
 
@@ -209,11 +212,14 @@ def project_list_private(request):
         empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
     else:
         projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
+
         projects = annotate_projects(projects)
 
-    context = dict(projects=projects, msg=empty_msg, active="projects")
+    context = dict(projects=projects, empty_msg=empty_msg, active="projects", icon='briefcase',
+                   title='Private Projects',
+                   private='active')
 
-    return render(request, "project_list_private.html", context)
+    return render(request, "project_list.html", context)
 
 
 def project_list_public(request):
@@ -221,13 +227,14 @@ def project_list_public(request):
 
     projects = auth.get_project_list(user=request.user)
     # Exclude private projects
-    projects = projects.exclude(privacy=Project.PRIVATE)
+    projects = projects.exclude(privacy__in=[Project.PRIVATE, Project.SHAREABLE])
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
     projects = annotate_projects(projects)
 
-    context = dict(projects=projects, active="projects")
+    context = dict(projects=projects, active="projects", icon='list', title='Public Projects',
+                   public='active', empty_msg="No projects found.")
 
-    return render(request, "project_list_public.html", context)
+    return render(request, "project_list.html", context)
 
 
 def project_list(request):
@@ -238,23 +245,26 @@ def project_list(request):
         return project_list_public(request)
 
 
-@read_access(obj_type=Project)
+@read_access(type=Project)
 def data_list(request, uid):
     """
     Returns the list of data for a project uid.
     """
-
+    extra_context = dict(copied_data=const.COPIED_DATA,
+                         data_paste_targets=const.DATA_PASTE_TARGETS)
     return project_view(request=request, uid=uid, template_name="data_list.html",
-                        active='data', show_summary=True)
+                        active='data', show_summary=True, extra_context=extra_context)
 
 
-@read_access(obj_type=Project)
+@read_access(type=Project)
 def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
     """
+    extra_context = dict(recipe_paste_targets=const.COPIED_RECIPES)
 
-    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes')
+    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes',
+                        extra_context=extra_context)
 
 
 def job_list(request, uid):
@@ -264,10 +274,11 @@ def job_list(request, uid):
     return project_view(request=request, uid=uid, template_name="job_list.html", active='jobs')
 
 
-def get_counts(project):
-    data_count = project.data_set.count()
-    recipe_count = project.analysis_set.count()
-    result_count = project.job_set.count()
+def get_counts(project, user=None):
+    data_count = project.data_set.filter(deleted=False).count()
+    recipe_count = project.analysis_set.filter(deleted=False).count()
+
+    result_count = project.job_set.filter(deleted=False).count()
     discussion_count = 0
 
     return dict(
@@ -276,7 +287,7 @@ def get_counts(project):
     )
 
 
-@read_access(obj_type=Project)
+@read_access(type=Project)
 def project_view(request, uid, template_name="project_info.html", active='info', show_summary=None,
                  extra_context={}):
     """
@@ -287,11 +298,11 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     user = request.user
 
     # The project that is viewed.
-    project = Project.objects.filter(uid=uid, deleted=False).first()
+    project = Project.objects.filter(uid=uid).first()
 
     # Select all the data in the project.
-    data_list = project.data_set.filter(deleted=False).order_by("-rank", "-date").all()
-    recipe_list = project.analysis_set.filter(deleted=False).order_by("-rank", "-date").all()
+    data_list = project.data_set.filter(deleted=False).order_by("rank", "-date").all()
+    recipe_list = project.analysis_set.filter(deleted=False).order_by("rank", "-date").all()
 
     # Annotate each recipe with the number of jobs it has.
     recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
@@ -310,7 +321,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     job_list = job_list.select_related("analysis")
 
     # Who has write access
-    write_access = auth.has_write_access(user=user, project=project)
+    write_access = auth.is_writable(user=user, project=project)
 
     # Build the context for the project.
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
@@ -341,7 +352,9 @@ def project_edit(request, uid):
             Project.objects.filter(uid=uid).update(lastedit_user=request.user)
             return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
-    context = dict(project=project, form=form)
+    context = dict(project=project, form=form, activate='Edit Project')
+
+    context.update(get_counts(project))
     return render(request, "project_edit.html", context=context)
 
 
@@ -366,54 +379,55 @@ def project_create(request):
     return render(request, "project_create.html", context=context)
 
 
-@read_access(obj_type=Data)
+@read_access(type=Data)
 def data_copy(request, uid):
     data = Data.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
-    auth.copy_uid(request=request, instance=data, board=const.DATA_CLIPBOARD)
-
+    board_items = auth.copy_uid(request=request, uid=data.uid, board=const.COPIED_DATA)
+    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
 
-@read_access(obj_type=Analysis)
+@read_access(type=Analysis)
 def recipe_copy(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
-    auth.copy_uid(request=request, instance=recipe, board=const.RECIPE_CLIPBOARD)
-
+    board_items = auth.copy_uid(request=request, uid=recipe.uid, board=const.COPIED_RECIPES)
+    messages.success(request, f"Copied recipe, you currently have  {len(set(board_items))} copied.")
     return redirect(next_url)
 
 
-@read_access(obj_type=Job)
+@read_access(type=Job)
 def job_copy(request, uid):
     job = Job.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
-    auth.copy_uid(request=request, instance=job, board=const.RESULTS_CLIPBOARD)
-
+    board_items = auth.copy_uid(request=request, uid=job.uid, board=const.COPIED_RESULTS)
+    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
     return redirect(next_url)
 
 
-@read_access(obj_type=Data)
+@read_access(type=Data)
 def data_file_copy(request, uid, path):
     # Get the root data where the file exists
     data = Data.objects.filter(uid=uid).first()
     fullpath = os.path.join(data.get_data_dir(), path)
-    auth.copy_file(request=request, fullpath=fullpath)
+    copied = auth.copy_file(request=request, fullpath=fullpath)
+    messages.success(request, f"Copied file(s). Clipboard contains {len(copied)} files.")
 
     return redirect(reverse("data_view", kwargs=dict(uid=uid)))
 
 
-@read_access(obj_type=Job)
+@read_access(type=Job)
 def job_file_copy(request, uid, path):
     # Get the root data where the file exists
     job = Job.objects.filter(uid=uid).first()
     fullpath = os.path.join(job.get_data_dir(), path)
 
-    auth.copy_file(request=request, fullpath=fullpath)
-
+    copied = auth.copy_file(request=request, fullpath=fullpath)
+    messages.success(request, f"Copied file(s). Clipboard contains {len(copied)} files.")
     return redirect(reverse("job_view", kwargs=dict(uid=uid)))
 
 
@@ -431,7 +445,13 @@ def recipe_paste(request, uid):
 
     # Contains the uids for the recipes that are to be copied.
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-    recipe_uids = clipboard.get(const.RECIPE_CLIPBOARD, [])
+
+    paste_target = request.GET.get('target', const.COPIED_RECIPES)
+
+    # Recipes in the clipboard are to be cloned
+    paste_as_clone = paste_target == const.CLONED_RECIPES
+
+    recipe_uids = clipboard.get(const.COPIED_RECIPES, [])
 
     # Select valid recipe uids.
     recipes = [Analysis.objects.filter(uid=uid).first() for uid in recipe_uids]
@@ -441,7 +461,12 @@ def recipe_paste(request, uid):
 
     # The copy function for each recipe.
     def copy(instance):
-        recipe = auth.create_analysis(project=project, user=user,
+        # Cascade the root if the recipe is being cloned
+        if paste_as_clone:
+            root = instance.root if instance.is_cloned else instance
+        else:
+            root = None
+        recipe = auth.create_analysis(project=project, user=user, root=root,
                                       json_text=instance.json_text,
                                       template=instance.template,
                                       name=instance.name, text=instance.text, stream=instance.image)
@@ -451,7 +476,7 @@ def recipe_paste(request, uid):
     new_recipes = list(map(copy, recipes))
 
     # Reset the session.
-    clipboard[const.RECIPE_CLIPBOARD] = []
+    clipboard[const.COPIED_RECIPES] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
     # Notification after paste.
@@ -471,7 +496,7 @@ def data_paste(request, uid):
 
     for datauid in data_clipboard:
 
-        if board == const.DATA_CLIPBOARD:
+        if board == const.COPIED_DATA:
             obj = Data.objects.filter(uid=datauid).first()
             dtype = obj.type
         else:
@@ -484,7 +509,7 @@ def data_paste(request, uid):
 
     clipboard[board] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-    messages.success(request, "Pasted data in clipboard")
+
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
@@ -492,18 +517,18 @@ def data_paste(request, uid):
 def file_paste(request, uid):
     project = Project.objects.filter(uid=uid).first()
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-    file_clipboard = clipboard.get(const.FILES_CLIPBOARD, [])
+    file_clipboard = clipboard.get(const.COPIED_FILES, [])
 
     for single_file in file_clipboard:
         if os.path.exists(single_file):
             auth.create_data(project=project, path=single_file, user=request.user)
 
-    clipboard[const.FILES_CLIPBOARD] = []
+    clipboard[const.COPIED_FILES] = []
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
     return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
 
 
-@read_access(obj_type=Data)
+@read_access(type=Data)
 def data_view(request, uid):
     "Show information specific to each data."
 
@@ -531,7 +556,9 @@ def data_edit(request, uid):
         if form.is_valid():
             form.save()
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
-    context = dict(data=data, form=form)
+    context = dict(data=data, form=form, activate='Edit Data', project=data.project)
+
+    context.update(get_counts(data.project))
     return render(request, 'data_edit.html', context)
 
 
@@ -570,17 +597,18 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@read_access(obj_type=Analysis)
+@read_access(type=Analysis)
 def recipe_view(request, uid):
     """
     Returns a recipe view based on its id.
     """
     recipe = Analysis.objects.filter(uid=uid).first()
     project = recipe.project
+
     context = dict(recipe=recipe, project=project, activate='Recipe View')
 
     # How many results for this recipe
-    rcount = Job.objects.filter(analysis=recipe).count()
+    rcount = Job.objects.filter(analysis=recipe, deleted=False).count()
     counts = get_counts(project)
 
     try:
@@ -598,7 +626,7 @@ def recipe_view(request, uid):
     return render(request, "recipe_view.html", context)
 
 
-@read_access(obj_type=Analysis)
+@read_access(type=Analysis)
 def recipe_code_download(request, uid):
     """
     Download the raw recipe template as a file
@@ -608,7 +636,8 @@ def recipe_code_download(request, uid):
 
     try:
         # Fill in the script with json data.
-        context = Context(recipe.json_data)
+        json_data = auth.fill_data_by_name(project=recipe.project, json_data=recipe.json_data)
+        context = Context(json_data)
         script_template = Template(recipe.template)
         script = script_template.render(context)
     except Exception as exc:
@@ -624,36 +653,7 @@ def recipe_code_download(request, uid):
     return response
 
 
-# @read_access(type=Analysis)
-# def recipe_code_view(request, uid):
-#     """
-#     Returns an analysis code view based on its id.
-#     """
-#     user = request.user
-#     recipe = Analysis.objects.filter(uid=uid).first()
-#
-#     project = recipe.project
-#
-#     try:
-#         # Fill in the script with json data.
-#         json_data = auth.fill_data_by_name(project=project, json_data=recipe.json_data)
-#         ctx = Context(json_data)
-#         script_template = Template(recipe.template)
-#         script = script_template.render(ctx)
-#     except Exception as exc:
-#         messages.error(request, f"Error rendering code: {exc}")
-#         script = recipe.template
-#
-#     context = dict(recipe=recipe, project=project, activate='Recipe Code', script=script)
-#
-#     rcount = Job.objects.filter(analysis=recipe).count()
-#     counts = get_counts(project)
-#     context.update(counts, rcount=rcount)
-#
-#     return render(request, "recipe_code_view.html", context)
-
-
-@read_access(obj_type=Analysis)
+@read_access(type=Analysis)
 @ratelimit(key='ip', rate='10/h', block=True, method=ratelimit.UNSAFE)
 def recipe_run(request, uid):
     """
@@ -668,25 +668,16 @@ def recipe_run(request, uid):
     if request.method == "POST":
 
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
-                                     data=request.POST)
+                                     data=request.POST, files=request.FILES)
 
         # The form validation will authorize the job.
         if form.is_valid():
 
-            # The desired name of for the results.
-            name = form.cleaned_data.get("name")
-
-            # Generates the JSON data from the bound form field.
-            json_data = form.fill_json_data()
-
             # Create the job from the recipe and incoming json data.
-            job = auth.create_job(analysis=analysis, user=request.user, json_data=json_data, name=name)
+            job = auth.create_job(analysis=analysis, user=request.user, fill_with=form.cleaned_data)
 
             # Spool the job right away if UWSGI exists.
             if tasks.HAS_UWSGI:
-                # Update the job state.
-                Job.objects.filter(id=job.id).update(state=Job.SPOOLED)
-
                 # Spool via UWSGI.
                 tasks.execute_job.spool(job_id=job.id)
 
@@ -702,56 +693,36 @@ def recipe_run(request, uid):
     return render(request, 'recipe_run.html', context)
 
 
-# @read_access(obj_type=Analysis)
-# def recipe_code_edit(request, uid):
-#     """
-#     Displays and allows edit on a recipe code.
-#
-#     Since we allow a preview for un-authenticated users thus the view
-#     is more complicated than a typical DJANGO form handler.
-#     """
-#     user = request.user
-#
-#     # There has to be a recipe to work with.
-#     analysis = Analysis.objects.filter(uid=uid).first()
-#     project = analysis.project
-#     name = analysis.name
-#
-#     if request.method == "POST":
-#         form = forms.EditCode(user=user, project=project, data=request.POST, recipe=analysis)
-#         if form.is_valid():
-#             # Preview action will let the form cascade through.
-#             commit = form.cleaned_data['action'] == 'SAVE'
-#             analysis = form.save(commit=commit)
-#
-#             if commit:
-#                 messages.info(request, "The recipe has been updated.")
-#                 return redirect(reverse("recipe_view", kwargs=dict(uid=analysis.uid)))
-#     else:
-#         # This gets triggered on a GET request.
-#         initial = dict(template=analysis.template, json=analysis.json_text)
-#         form = forms.EditCode(user=user, project=project, initial=initial, recipe=analysis)
-#
-#     # Bind the JSON to the form.
-#     recipe = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
-#                                    initial=dict(name=name), add_captcha=False)
-#
-#     # This generates a "fake" unsaved job.
-#     # Needs to fill in a few runtime only settings.
-#     mock_json = analysis.json_data
-#     for key, value in mock_json.items():
-#         value['toc'] = f"{key}-filelist.txt"
-#     job = auth.create_job(analysis=analysis, json_data=mock_json, save=False)
-#
-#     # Create the script for the "fake" job.
-#     data, script = auth.generate_script(job)
-#
-#     # Populate the context.
-#     context = dict(project=project, analysis=analysis, form=form, script=script, recipe=recipe)
-#     return render(request, 'recipe_edit_code.html', context)
+@read_access(type=Job)
+def job_rerun(request, uid):
+    # Get the job.
+    job = Job.objects.filter(uid=uid).first()
+    next = request.GET.get('next')
+    # Get the recipe
+    recipe = job.analysis
+    # Get the job JSON
+    json_data = job.json_data
+
+    # Validate users can run the recipe.
+    valid, msg = auth.validate_recipe_run(user=request.user, recipe=recipe)
+
+    if not valid:
+        messages.error(request, msg)
+        redir = next or reverse('job_view', kwargs=dict(uid=job.uid))
+        return redirect(redir)
+
+    # Create a new job
+    job = auth.create_job(analysis=recipe, user=request.user, json_data=json_data)
+
+    # Spool the job right away if UWSGI exists.
+    if tasks.HAS_UWSGI:
+        # Spool via UWSGI.
+        tasks.execute_job.spool(job_id=job.id)
+
+    return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
 
 
-@write_access(type=Analysis, fallback_view='recipe_view')
+@read_access(type=Analysis)
 def recipe_edit(request, uid):
     """
     Edit meta-data associated with a recipe.
@@ -762,38 +733,47 @@ def recipe_edit(request, uid):
 
     # The project that recipe belongs to.
     project = recipe.project
-
+    user = request.user
     if request.method == "POST":
         # Form has been submitted
-        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=request.user)
+        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
+                                project=project)
         if form.is_valid():
             recipe = form.save()
             image = form.cleaned_data['image']
             recipe.image = image or recipe.image
+            recipe.lastedit_user = user
+            recipe.lastedit_date = util.now()
             recipe.save()
+            # Update the projects lastedit user.
+            Project.objects.filter(uid=recipe.project.uid).update(lastedit_user=user,
+                                                                  lastedit_date=util.now())
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
         # Initial form loading via a GET request.
-        form = forms.RecipeForm(instance=recipe, user=request.user)
+        form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
-    context = dict(recipe=recipe, project=project, form=form, name=recipe.name, action_url=action_url)
+    context = dict(recipe=recipe, project=project, form=form, name=recipe.name, activate='Edit Recipe',
+                   action_url=action_url)
+    counts = get_counts(project)
+    context.update(counts)
     return render(request, 'recipe_edit.html', context)
 
 
-@write_access(type=Project, fallback_view="project_view")
+@read_access(type=Project)
 def recipe_create(request, uid):
-
     # Get the project
     project = Project.objects.filter(uid=uid).first()
 
     # Prepare the form
-
-    initial = dict(name="Recipe Name", uid=f'recipe-{util.get_uuid(7)}')
-    form = forms.RecipeForm(user=request.user, initial=initial)
+    name = "Recipe Name"
+    initial = dict(name=name, uid=f'recipe-{util.get_uuid(5)}')
+    form = forms.RecipeForm(user=request.user, initial=initial, project=project)
 
     if request.method == "POST":
-        form = forms.RecipeForm(data=request.POST, creating=True, files=request.FILES, user=request.user)
+        form = forms.RecipeForm(data=request.POST, creating=True, project=project, files=request.FILES,
+                                user=request.user)
         if form.is_valid():
             image = form.cleaned_data['image']
             recipe_uid = form.cleaned_data['uid']
@@ -802,12 +782,15 @@ def recipe_create(request, uid):
             template = form.cleaned_data['template']
             recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name,
                                           json_text=json_text, template=template,
-                                          project=project)
+                                          project=project, user=request.user)
 
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
     action_url = reverse('recipe_create', kwargs=dict(uid=uid))
-    context = dict(project=project, form=form, action_url=action_url)
+    context = dict(project=project, form=form, action_url=action_url,
+                   activate='Create Recipe', name=name)
+    counts = get_counts(project)
+    context.update(counts)
     return render(request, 'recipe_edit.html', context)
 
 
@@ -825,15 +808,26 @@ def job_edit(request, uid):
             form.save()
             return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
 
-    context = dict(job=job, project=project, form=form)
+    context = dict(job=job, project=project, form=form, activate='Edit Result')
+
+    context.update(get_counts(project))
     return render(request, 'job_edit.html', context)
 
 
 @write_access(type=Analysis, fallback_view="recipe_view")
 def recipe_delete(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
+    clones = Analysis.objects.filter(root=recipe, deleted=False)
 
-    auth.delete_object(obj=recipe, request=request)
+    if recipe.is_root and clones.exists():
+        # Check if a root recipe
+        msg = "Can not delete a cloned recipe."
+        messages.success(request, msg)
+    else:
+
+        auth.delete_object(obj=recipe, request=request)
+        msg = f"Deleted <b>{recipe.name}</b>." if recipe.deleted else f"Restored <b>{recipe.name}</b>."
+        messages.success(request, mark_safe(msg))
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
@@ -849,6 +843,9 @@ def job_delete(request, uid):
         return redirect(job.url())
 
     auth.delete_object(obj=job, request=request)
+    msg = f"Deleted <b>{job.name}</b>." if job.deleted else f"Restored <b>{job.name}</b>."
+    messages.success(request, mark_safe(msg))
+
     return redirect(reverse("job_list", kwargs=dict(uid=job.project.uid)))
 
 
@@ -857,11 +854,13 @@ def data_delete(request, uid):
     data = Data.objects.filter(uid=uid).first()
 
     auth.delete_object(obj=data, request=request)
+    msg = f"Deleted <b>{data.name}</b>." if data.deleted else f"Restored <b>{data.name}</b>."
+    messages.success(request, mark_safe(msg))
 
     return redirect(reverse("data_list", kwargs=dict(uid=data.project.uid)))
 
 
-@read_access(obj_type=Job)
+@read_access(type=Job)
 def job_view(request, uid):
     '''
     Views the state of a single job.
@@ -915,7 +914,7 @@ def file_serve(request, path, obj):
     return data
 
 
-@read_access(obj_type=Data)
+@read_access(type=Data, allowed_cors='view.qiime2.org')
 def data_serve(request, uid, path):
     """
     Serves files from a data directory.
@@ -935,3 +934,54 @@ def job_serve(request, uid, path):
     else:
         messages.error(request, "Object does not exist")
         return redirect("/")
+
+
+@login_required
+def project_share(request, token):
+    # Get the project by the it's unique share token.
+    project = Project.objects.filter(sharable_token=token).first()
+    user = request.user
+
+    if not project.is_shareable:
+        messages.error(request, "Project is not sharable.")
+        return redirect(reverse('project_list'))
+
+    access = Access.objects.filter(user=user, project=project).first()
+    # Give user Share access.
+
+    # Create access
+    if access is None:
+        Access.objects.create(user=user, project=project, access=Access.SHARE_ACCESS)
+
+    # Update existing No Access to Share
+    elif access.access == Access.NO_ACCESS:
+        Access.objects.filter(id=access.id).update(access=Access.SHARE_ACCESS)
+
+    messages.success(request, "Granted share access")
+    return redirect(reverse('project_view', kwargs=dict(uid=project.uid)))
+
+
+@login_required
+def import_files(request, path=''):
+    """
+    Import files mounted on IMPORT_ROOT_DIR in settings
+    """
+    user = request.user
+
+    if not user.profile.trusted:
+        messages.error(request, 'Only trusted users may views this page.')
+        return redirect(reverse('project_list'))
+
+    current_path = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
+
+    if not current_path.startswith(settings.IMPORT_ROOT_DIR):
+        messages.error(request, 'Outside root directory')
+        rel_path = ''
+    elif current_path == settings.IMPORT_ROOT_DIR:
+        rel_path = ''
+    else:
+        rel_path = os.path.relpath(current_path, settings.IMPORT_ROOT_DIR)
+
+    context = dict(rel_path=rel_path)
+
+    return render(request, 'import_files.html', context=context)

@@ -78,7 +78,7 @@ class ProjectViewTest(TestCase):
 
         self.process_response(response=response, data=data, save=True)
 
-    def test_users_view(self):
+    def Xtest_users_view(self):
         "Test project_users with POST request"
 
         new_user = models.User.objects.create_user(username="test2", email="test2@l.com")
@@ -103,20 +103,6 @@ class ProjectViewTest(TestCase):
                                       uid=self.project.uid, update=True)
 
         self.assertEqual(changed.uid, self.project.uid)
-
-    def test_access_forms(self):
-        " Test generating a list of forms for a given user list"
-
-        new_user = models.User.objects.create_user(username="test2", email="test2@l.com")
-        new_user.set_password("test2")
-
-        users = [self.owner, new_user]
-        request = util.fake_request(url='/', data={}, user=self.owner)
-
-        user_forms = forms.access_forms(users, project=self.project, request=request)
-
-        # Error generating users access forms ( forms.access_forms).
-        self.assertTrue(len(users) - 1 == len(user_forms))
 
     def process_response(self, response, data, save=False):
         "Check the response on POST request is redirected"

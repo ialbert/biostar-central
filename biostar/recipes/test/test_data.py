@@ -93,7 +93,7 @@ class DataViewTest(TestCase):
         url = reverse('data_copy', kwargs=dict(uid=self.data.uid))
         clear_url = reverse('clear_clipboard', kwargs=dict(uid=self.project.uid))
         paste_url = reverse('data_paste', kwargs=dict(uid=self.project.uid))
-        data = {settings.CLIPBOARD_NAME: const.DATA_CLIPBOARD}
+        data = {settings.CLIPBOARD_NAME: const.COPIED_DATA}
 
         request = util.fake_request(url=url, data={}, user=self.owner)
         response = views.data_copy(request=request, uid=self.data.uid)
@@ -126,7 +126,7 @@ class DataViewTest(TestCase):
     def test_data_file_copy_paste(self):
         "Test the data file copying interface"
         url = reverse("data_file_copy", kwargs=dict(uid=self.data.uid, path=self.data.get_data_dir()))
-        data = {settings.CLIPBOARD_NAME: const.FILES_CLIPBOARD, 'path':self.data.get_data_dir()}
+        data = {settings.CLIPBOARD_NAME: const.COPIED_FILES, 'path':self.data.get_data_dir()}
         request = util.fake_request(url=url, data=data, user=self.owner)
 
         response = views.data_file_copy(request=request, uid=self.data.uid, path=self.data.get_data_dir())

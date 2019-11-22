@@ -5,11 +5,46 @@ from django.conf import settings
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 
+#from biostar.accounts.models import Use
+
 from biostar.recipes import auth, const
 from biostar.recipes import models, views, api
 from . import util
 
 logger = logging.getLogger('engine')
+
+
+class RecipeRunTest(TestCase):
+
+    def setUp(self):
+        logger.setLevel(logging.WARNING)
+
+        # Set up generic owner
+        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com",
+                                                     is_staff=True, is_superuser=True)
+        self.owner.set_password("tested")
+        self.factory = RequestFactory()
+
+        self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
+                                           uid="tested")
+        # Test data
+        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="#test template")
+        self.recipe.save()
+
+    def test_authorize_run(self):
+        """Test to see if function that authorizes runs works correctly."""
+
+        user1 = self.owner
+        recipe = self.recipe
+
+        # Current user can run the recipe
+
+        self.assertTrue(auth.authorize_run(user1, recipe), "Authorized users can not run recipes.")
+
+        user2 = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
+
+        self.assertFalse(auth.authorize_run(user2, recipe), "Unauthorized users can run recipes.")
+        return
 
 
 class RecipeViewTest(TestCase):
@@ -102,7 +137,7 @@ class RecipeViewTest(TestCase):
 
         request = util.fake_request(url=url, data={}, user=self.owner)
 
-        request.session[settings.CLIPBOARD_NAME] = {const.RECIPE_CLIPBOARD: self.recipe.uid}
+        request.session[settings.CLIPBOARD_NAME] = {const.COPIED_RECIPES: self.recipe.uid}
 
         response = views.recipe_paste(request=request, uid=self.recipe.project.uid)
 

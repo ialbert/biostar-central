@@ -44,14 +44,12 @@ def edit_profile(request):
 
     if request.method == "POST":
         form = forms.EditProfile(data=request.POST, user=user, initial=initial, files=request.FILES)
-        #print(request.POST)
+
         if form.is_valid():
             # Update the email and username of User object.
             email = form.cleaned_data['email']
             username = form.cleaned_data["username"]
             User.objects.filter(pk=user.pk).update(username=username, email=email)
-            print(form.cleaned_data['my_tags'], form.cleaned_data['my_tags'])
-
             # Change verification if email has been edited.
             email_verified = False if user.email != initial["email"] else user.profile.email_verified
             # Update user information in Profile object.
@@ -177,6 +175,7 @@ def user_signup(request):
             messages.info(request, msg)
 
             return redirect("/")
+
     else:
         form = forms.SignUpWithCaptcha()
 
@@ -317,6 +316,10 @@ def external_login(request):
 
 
 def password_reset(request):
+    if settings.HTTP_PORT:
+        full_url = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}"
+    else:
+        full_url = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}"
     context = dict()
 
     return PasswordResetView.as_view(extra_context=context,

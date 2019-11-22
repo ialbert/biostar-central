@@ -1,0 +1,30 @@
+{% load staticfiles %}
+{% load engine_tags %}
+
+{% if recipe %}
+    <div class="ui divided link items">
+
+        <div class="item">
+            <div>
+                <img class="ui tiny rounded fancy image" src="{% img recipe %}">
+            </div>
+            <div class="content ">
+                <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+                    {% if recipe.is_cloned %}
+                        <i class="linkify icon"></i>
+                    {% else %}
+                        <i class="setting icon"></i>
+                    {% endif %}
+                    {{ recipe.name }}
+                </a>
+                <div class="meta">
+                    {{ recipe.summary|markdown }}
+
+                </div>
+                <div class="extra">
+                    {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

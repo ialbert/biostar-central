@@ -1,4 +1,3 @@
-
 import logging
 import os
 import re
@@ -10,35 +9,43 @@ import random
 from datetime import timedelta, datetime
 from django.contrib import messages
 from django import template, forms
-
+from django.shortcuts import reverse
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator
-from django.db.models import Q,Count
+from django.db.models import Q, Count
 from django.template import defaultfilters
 from django.utils.safestring import mark_safe
 
 from biostar.recipes import auth, util, const
 from biostar.recipes.models import Job, make_html, Project, Data, Analysis, Access, SnippetType, Snippet
 
-
 logger = logging.getLogger("engine")
 register = template.Library()
 
-JOB_COLORS = {
-    Job.SPOOLED: "violet",
-    Job.ERROR: "red", Job.QUEUED: "teal",
-    Job.RUNNING: "orange", Job.COMPLETED: "green"
-}
-
+JOB_COLORS = {Job.SPOOLED: "spooled",
+              Job.ERROR: "errored", Job.QUEUED: "queued",
+              Job.RUNNING: "running", Job.COMPLETED: "completed"
+              }
 DATA_COLORS = {
     Data.PENDING: "teal", Data.READY: "green", Data.ERROR: "red"
 }
+
 
 @register.simple_tag
 def randparam():
     "Append to URL to bypass server caching of CSS or JS files"
     return f"?randval={random.randint(1, 10000000)}" if settings.DEBUG else ""
+
+
+@register.filter
+def mask_path(val='', obj={}):
+    is_path = obj.get('display') == const.UPLOAD
+    if is_path:
+        return os.path.basename(str(val)) if val else ''
+
+    return val
+
 
 @register.filter
 def time_ago(date):
@@ -63,8 +70,10 @@ def time_ago(date):
         unit = '%0.1f years' % diff
     return "%s ago" % unit
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 @register.filter
 def bignum(number):
@@ -95,8 +104,8 @@ def user_icon(user):
 
 @register.inclusion_tag('widgets/list_view.html', takes_context=True)
 def list_projects(context, target):
-
     user = context["request"].user
+    request = context["request"]
     projects = auth.get_project_list(user=target)
 
     # Don't show private projects non owners
@@ -109,7 +118,7 @@ def list_projects(context, target):
                                  )
     projects = projects.order_by("-rank", "-lastedit_date")
 
-    return dict(projects=projects)
+    return dict(projects=projects, user=target)
 
 
 @register.simple_tag
@@ -137,7 +146,6 @@ def gravatar(user, size=80):
 
 @register.filter
 def highlight(source, target):
-
     # Look for case insensitive matches in the source
     highlighting = re.search(f"(?i){target}", source)
 
@@ -164,21 +172,93 @@ def get_qiime2view_link(file_serve_url):
 @register.inclusion_tag('widgets/list_view.html', takes_context=True)
 def list_view(context, projects=None, data_list=None, recipe_list=None, job_list=None):
     request = context["request"]
-
-    return dict(projects=projects, data_list=data_list, recipe_list=recipe_list,
+    user = request.user
+    return dict(projects=projects, user=user, data_list=data_list, recipe_list=recipe_list,
                 job_list=job_list, request=request)
 
 
+def resolve_clipboard_urls(board, project_uid):
+    view_map = {const.COPIED_DATA: ('data_paste', 'data_list'),
+                const.COPIED_RECIPES: ('recipe_paste', 'recipe_list'),
+                const.COPIED_FILES: ('file_paste', 'file_paste'),
+                const.COPIED_RESULTS: ('data_paste', 'data_list'),
+                }
+
+    paste_view, next_view = view_map.get(board, ('', ''))
+
+    if paste_view:
+        url_resolover = lambda v: reverse(v, kwargs=dict(uid=project_uid))
+        paste_url, next_url = url_resolover(paste_view), url_resolover(next_view)
+    else:
+        paste_url, next_url = '', ''
+
+    return paste_url, next_url
+
+
+def annotate_values(board, vals):
+    obj_map = {const.COPIED_DATA: (Data, 'file icon'),
+               const.COPIED_RESULTS: (Job, 'chart bar icon'),
+               const.COPIED_RECIPES: (Analysis, 'setting icon')
+               }
+    named_vals = []
+    for val in vals:
+        obj_model, icon = obj_map.get(board, (None, ''))
+        if not obj_model:
+            name = os.path.basename(val)
+            url = ''
+            icon = 'folder icon'
+        else:
+            obj = obj_model.objects.filter(uid=val).first()
+            name = obj.name if obj else ""
+            url = obj.url() if obj else ""
+
+        named_vals.append((val, name, url, icon))
+
+    return named_vals
+
+
+def get_label(board):
+    label_map = {const.COPIED_DATA: 'copied data',
+                 const.COPIED_RECIPES: 'recipes',
+                 const.COPIED_FILES: 'copied files',
+                 const.COPIED_RESULTS: 'copied results',
+                 }
+
+    label = label_map.get(board, '')
+    return label
+
+
 @register.inclusion_tag('widgets/paste.html', takes_context=True)
-def paste(context, project, current=""):
-
+def paste(context, project, current=","):
     request = context["request"]
-    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-    board = clipboard.get(current, [])
+    items_in_board = request.session.get(settings.CLIPBOARD_NAME, {})
 
-    clipboard_count = len(board) if request.user.is_authenticated else 0
+    items_to_paste = {}
+    # Get the content to paste from the clipboard.
+    paste_from = current.split(',')
 
-    extra_context = dict(clipboard_count=clipboard_count, project=project, current=current, board=board, context=context)
+    # Paste from a white list of allowed clipboard contents.
+    paste_from = filter(lambda t: t in const.CLIPBOARD_CONTENTS, paste_from)
+
+    for target in paste_from:
+        # Get the paste and next url.
+        paste_url, next_url = resolve_clipboard_urls(board=target, project_uid=project.uid)
+        vals = items_in_board.get(target, [])
+        vals = annotate_values(board=target, vals=vals)
+        label = get_label(board=target)
+        count = len(vals)
+        # Current target is going to be cloned.
+        to_clone = target == const.COPIED_RECIPES
+        content = dict(vals=vals, paste_url=paste_url, next_url=next_url, label=label, count=count,
+                       to_clone=to_clone)
+        # Clean the clipboard of empty values
+        if count:
+            items_to_paste.setdefault(target, content)
+
+    empty_css = "empty-clipboard" if not items_to_paste else ""
+    extra_context = dict(project=project, current=','.join(current),board_count=len(items_to_paste),
+                         clipboard=items_to_paste.items(), context=context, empty_css=empty_css)
+
     context.update(extra_context)
     return context
 
@@ -217,11 +297,24 @@ def security_label(context, analysis):
 
 
 @register.simple_tag
+def full_url():
+    if settings.HTTP_PORT:
+        return f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}"
+    else:
+        return f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}"
+
+
+@register.simple_tag
 def job_color(job):
     """
     Returns a color based on job status.
     """
-    return JOB_COLORS.get(job.state, "")
+    try:
+        if isinstance(job, Job):
+            return JOB_COLORS.get(job.state, "")
+    except Exception as exc:
+        logger.error(exc)
+        return ''
 
 
 @register.simple_tag
@@ -250,7 +343,7 @@ def type_label(data):
 
 @register.simple_tag
 def state_label(data, error_only=False):
-    label = f'<span class="ui { DATA_COLORS.get(data.state, "") } label"> {data.get_state_display()} </span>'
+    label = f'<span class="ui {DATA_COLORS.get(data.state, "")} label"> {data.get_state_display()} </span>'
 
     # Error produce error only.
     if error_only and data.state not in (Data.ERROR, Data.PENDING):
@@ -278,6 +371,7 @@ def show_messages(messages):
     return dict(messages=messages)
 
 
+
 @register.inclusion_tag('widgets/project_title.html', takes_context=True)
 def project_title(context, project):
     """
@@ -299,6 +393,11 @@ def interface_options():
     return dict()
 
 
+@register.inclusion_tag('widgets/recipe_details.html')
+def recipe_details(recipe):
+    return dict(recipe=recipe)
+
+
 @register.simple_tag
 def image_field(default=''):
     if default:
@@ -314,9 +413,12 @@ def image_field(default=''):
 
 @register.inclusion_tag('widgets/snippet_list.html', takes_context=True)
 def snippet_list(context):
-
     user = context['request'].user
-    command_types = SnippetType.objects.filter(Q(owner=user) | Q(default=True)).order_by('-pk')
+    if user.is_anonymous:
+        command_types = SnippetType.objects.filter(default=True).order_by('-pk')
+    else:
+        command_types = SnippetType.objects.filter(Q(owner=user) | Q(default=True)).order_by('-pk')
+
     extra_context = dict(command_types=command_types)
     context.update(extra_context)
     return context
@@ -324,7 +426,6 @@ def snippet_list(context):
 
 @register.inclusion_tag('widgets/snippet.html', takes_context=True)
 def snippet_item(context, snippet):
-
     extra_context = dict(snippet=snippet)
     context.update(extra_context)
     return context
@@ -346,41 +447,59 @@ def get_snippets(user, snip_type):
     return snippets
 
 
-
 @register.inclusion_tag('widgets/json_field.html')
 def json_field(json_text):
-
     context = dict(json_text=json_text)
     return context
 
 
 @register.inclusion_tag('widgets/template_field.html')
 def template_field(tmpl):
-
     context = dict(template=tmpl)
     return context
 
 
 @register.inclusion_tag('widgets/created_by.html')
-def created_by(date, user=None):
+def created_by(date, user=None, prefix="Updated"):
     """
     Renders a created by link
     """
-    return dict(date=date, user=user)
+    return dict(date=date, user=user, prefix=prefix)
+
 
 @register.inclusion_tag('widgets/access_form.html')
-def access_form(project, user, form):
+def access_form(project, user, extra_class=''):
     """
     Generates an access form.
     """
 
-    return dict(project=project, user=user, form=form)
+    return dict(project=project, user=user, extra_class=extra_class)
+
+
+@register.filter
+def get_access_label(user, project):
+
+    access = Access.objects.filter(user=user, project=project).first()
+
+    access = access or Access(access=Access.NO_ACCESS, user=user, project=project)
+
+    label = access.get_access_display()
+    return label
+
+
+@register.filter
+def get_access(user, project):
+    access = Access.objects.filter(user=user, project=project).first()
+    access = access or Access(access=Access.NO_ACCESS, user=user, project=project)
+    return access
 
 
 @register.inclusion_tag('widgets/job_elapsed.html')
 def job_minutes(job):
-
-    check_back = 'check_back' if job.state in [Job.SPOOLED, Job.RUNNING] else ''
+    check_back = ''
+    # Add a tag to check a state change every ~5 seconds and update tag
+    if job.state in [Job.SPOOLED, Job.RUNNING, Job.QUEUED]:
+        check_back = 'check_back'
 
     return dict(job=job, check_back=check_back)
 
@@ -395,25 +514,39 @@ def size_label(data):
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
 
 
-@register.inclusion_tag('widgets/directory_list.html', takes_context=True)
-def directory_list(context, obj):
-    """
-    Generates an HTML listing for files in a directory.
-    """
+@register.simple_tag
+def get_access_label(project, user):
+    if project.owner.id == user.id:
+        return 'Owner Access'
 
-    # Starting location.
-    root = obj.get_data_dir()
+    # Need to check  anonymous users before access
+    if user.is_anonymous:
+        return 'Public Access'
 
-    # The serve url depends on data type..
-    serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
-    copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"
+    access = Access.objects.filter(project=project, user=user).first()
 
-    # This will collet the valid filepaths.
+    # If the access is not read, write, or share
+    # and the project is public, then it is seen as 'Readable'
+    if not access and project.is_public:
+        return 'Public Access'
+
+    access_str = access.get_access_display() if access else 'No Access'
+
+    return access_str
+
+
+def file_listing(root, limit=None):
+    # This will collect the valid filepaths.
     paths = []
+    count = 0
     try:
         # Walk the filesystem and collect all files.
         for fpath, fdirs, fnames in os.walk(root, followlinks=True):
             paths.extend([join(fpath, fname) for fname in fnames])
+            count += 1
+            if limit and count >= limit:
+                break
+
         # Image extension types.
         IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
 
@@ -439,6 +572,58 @@ def directory_list(context, obj):
     except Exception as exc:
         logging.error(exc)
         paths = []
+
+    return paths
+
+
+def listing(root):
+    paths = []
+
+    try:
+        paths = os.listdir(root)
+
+        def transform(path):
+            path = os.path.join(root, path)
+            tstamp = os.stat(path).st_mtime
+            size = os.stat(path).st_size
+            rel_path = os.path.relpath(path, settings.IMPORT_ROOT_DIR)
+            is_dir = os.path.isdir(path)
+            basename = os.path.basename(path)
+            return rel_path, tstamp, size, is_dir, basename
+
+        paths = map(transform, paths)
+        # Sort files by timestamps
+        paths = sorted(paths, key=lambda x: x[1], reverse=True)
+
+    except Exception as exc:
+        logging.error(exc)
+
+    return paths
+
+
+@register.inclusion_tag('widgets/files_list.html', takes_context=True)
+def files_list(context, rel_path):
+    # Limit to the first 100 files.
+    root = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, rel_path))
+    paths = listing(root=root)
+    user = context['request'].user
+    return dict(paths=paths, user=user, root=root)
+
+
+@register.inclusion_tag('widgets/directory_list.html', takes_context=True)
+def directory_list(context, obj):
+    """
+    Generates an HTML listing for files in a directory.
+    """
+
+    # Starting location.
+    root = obj.get_data_dir()
+
+    # The serve url depends on data type..
+    serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
+    copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"
+
+    paths = file_listing(root=root)
 
     return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url, user=context["request"].user)
 

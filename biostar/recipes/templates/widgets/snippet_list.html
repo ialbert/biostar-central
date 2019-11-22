@@ -2,36 +2,31 @@
 {% load engine_tags %}
 
 
-<div class="menu " id="code_add_menu" style="display: none !important;">
-    <div class="ui divider" style="margin: 0"></div>
+<div class="menu " id="code_add_menu" >
+    <div class="ui snippet divider" ></div>
 
-    <a class="item" style="background-color: #f1fff0" id="add_vars" data-content="Add variables from JSON interface to this template.">
-        <i class="code icon"></i>Call variables
+    <a class="item" id="add_vars" data-content="Insert variables from the interface to this template.">
+        <i class="code icon"></i>Insert variables
     </a>
 
-    <div class="ui divider" style="margin: 0"></div>
+    <div class="ui snippet divider" ></div>
+
     <div id="new-type-holder"></div>
 
     {% for type in command_types %}
         {% snippet_type type %}
     {% endfor %}
 
-  <div class="ui divider" style="margin: 0"></div>
+  <div class="ui snippet divider"></div>
 
     <a class="item add-category" data-content="Add new category to deposit code snippets.">
-            <i class="plus icon"></i>Add category
-    </a>
-
-<div class="ui divider" style="margin: 0"></div>
-    <a class="item close_codes" style="text-align: center;">
-            <i class="undo icon"></i>Close
+        <i class="plus icon"></i>Add category
     </a>
 
 </div>
 
 
-
-<div class="ui tiny inputcolor modal" style="padding:20px;width: 33%;" id="cmd_modal">
+<div class="ui tiny inputcolor modal" id="cmd_modal">
 
    <div id="cmd_form"><form class="ui form"></form></div>
 

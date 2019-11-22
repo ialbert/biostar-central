@@ -5,6 +5,8 @@ import os
 import quopri
 import tarfile
 import uuid
+import bleach
+import shlex
 from itertools import islice
 from urllib.parse import quote
 from datetime import datetime
@@ -91,12 +93,27 @@ def write_stream(stream, dest):
     return dest
 
 
+def clean_text(value):
+    #TODO: investigate more,
+    # shoule be applied only to bash scripts.
+    return value
+    #return shlex.quote(textbox)
+
+
 def qiime2view_link(file_url):
     template = "https://view.qiime2.org/visualization/?type=html&src="
 
     file_url = quote(string=file_url, safe="")
 
     return template + file_url
+
+
+def strip_tags(text):
+    """
+    Strip html tags from text
+    """
+    text = bleach.clean(text, tags=[], attributes={}, styles=[], strip=True)
+    return text
 
 
 def findfiles(location, collect):

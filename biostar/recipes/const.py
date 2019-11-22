@@ -27,10 +27,21 @@ STOPWORDS = (
 
 REDIRECT_FIELD_NAME = 'next'
 
-DATA_CLIPBOARD = "data"
-RESULTS_CLIPBOARD = "results"
-RECIPE_CLIPBOARD = "recipes"
-FILES_CLIPBOARD = "files"
+COPIED_DATA = "data"
+COPIED_RESULTS = "results"
+COPIED_RECIPES = "recipes"
+COPIED_FILES = "files"
+CLONED_RECIPES = "clone"
+
+
+CLIPBOARD_CONTENTS = [COPIED_DATA, COPIED_RESULTS, COPIED_RECIPES, COPIED_FILES,
+                      CLONED_RECIPES]
+
+# Paste as data objects
+DATA_PASTE_TARGETS = ','.join([COPIED_DATA, COPIED_RESULTS, COPIED_FILES])
+
+# Paste as recipe objects
+RECIPE_PASTE_TARGETS = ','.join([COPIED_RECIPES, CLONED_RECIPES])
 
 KNOWN_TEXT_EXTENSIONS = set(KNOWN_TEXT_EXTENSIONS)
 
@@ -60,7 +71,6 @@ EXT_TO_TYPE = dict(
             fastq = 'FASTQ'
 
                 )
-
 
 
 RADIO = "RADIO"

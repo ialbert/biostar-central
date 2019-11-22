@@ -2,8 +2,7 @@ from django import forms
 from django.conf import settings
 from django.db import connection
 import sqlite3
-from biostar.recipes import const
-from . import models
+from biostar.recipes import const, models, util
 
 # Share the logger with models.
 logger = models.logger
@@ -20,6 +19,19 @@ def float_field(data):
 
     field = forms.FloatField(widget=widget, initial=initial, min_value=min_value, max_value=max_value,
                              help_text=help_text, label=label, required=False)
+
+    return field
+
+
+def upload_field(data):
+    """
+    Widget used to upload files.
+    """
+    initial = str(data.get("value", ""))
+    label = str(data.get("label", ""))
+    help_text = str(data.get("help", ""))
+
+    field = forms.FileField(initial=initial, label=label, help_text=help_text)
 
     return field
 
@@ -164,7 +176,7 @@ def data_field_generator(field, project, type="", extras=[]):
     are of a certain type.
     """
 
-    query = models.Data.objects.filter(project=project)
+    query = models.Data.objects.filter(project=project).exclude(deleted=True)
     if type:
         type = type.replace(" ", '')
         query = query.filter(type__iregex=type)
@@ -178,6 +190,15 @@ def data_field_generator(field, project, type="", extras=[]):
     def choice_func():
         choices = extras + [(d.id, d.name) for d in datamap.values()]
         return choices
+
+    # Add the data type to the label.
+    if type:
+        help_text = field.get('help', '')
+        type_text = f" Data Type: {type}"
+        # Add a line break for the data type
+        help_text = f'{help_text} {type_text}' if help_text else type_text
+        # Insert new help text
+        field['help'] = help_text
 
     # Returns a SELECT field with the choices.
     return select_field(field, choicefunc=choice_func)
@@ -238,7 +259,8 @@ def get_field_types(project=None):
         const.TEXTBOX: char_field,
         const.FLOAT: float_field,
         const.CHECKBOX: checkbox_field,
-        const.SQL: sqlfield
+        const.SQL: sqlfield,
+        const.UPLOAD: upload_field
     }
 
     return field_types

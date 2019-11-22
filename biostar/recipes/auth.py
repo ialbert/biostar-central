@@ -45,7 +45,6 @@ def access_denied_message(user, needed_access):
 
 
 def copy_file(request, fullpath):
-
     if not os.path.exists(fullpath):
         messages.error(request, "Path does not exist.")
         return []
@@ -56,28 +55,20 @@ def copy_file(request, fullpath):
 
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
 
-    board_items = clipboard.get(FILES_CLIPBOARD, [])
+    board_items = clipboard.get(COPIED_FILES, [])
     board_items.append(fullpath)
     # No duplicates in clipboard
-
-    clipboard[FILES_CLIPBOARD] = list(set(board_items))
+    items = list(set(board_items))
+    clipboard[COPIED_FILES] = items
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-
-    messages.success(request, f"Copied file(s), clipboard contains {len(set(board_items))}.")
-
-    return
+    return items
 
 
-def copy_uid(request, instance, board):
+def copy_uid(request, uid, board):
     """
     Used to append instance.uid into request.session[board]
     """
-
-    if instance is None:
-        messages.error(request, "Object does not exist.")
-        return []
-
     if request.user.is_anonymous:
         messages.error(request, "You need to be logged in.")
         return []
@@ -85,14 +76,11 @@ def copy_uid(request, instance, board):
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
 
     board_items = clipboard.get(board, [])
-    board_items.append(instance.uid)
+    board_items.append(uid)
     # No duplicates in clipboard
-
     clipboard[board] = list(set(board_items))
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-
-    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
 
     return board_items
 
@@ -111,8 +99,8 @@ def authorize_run(user, recipe):
         return False
 
     # Only users with access can run recipes
-    readable = Access.objects.filter(Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS),
-                                     project=recipe.project, user=user).first()
+    readable = is_readable(user=user, project=recipe.project)
+
     if not readable:
         return False
 
@@ -167,6 +155,15 @@ def generate_script(job):
     return json_data, script
 
 
+def detect_cores(request):
+    # Check if the Origin in the request is allowed
+    origin = request.headers.get('Origin', '')
+    if origin in settings.CORS_ORIGIN_WHITELIST:
+        return origin
+
+    return ''
+
+
 def text_diff(text1, text2):
     # Empty template is seen as no change ( False)
     text1 = text1.splitlines(keepends=True)
@@ -175,6 +172,48 @@ def text_diff(text1, text2):
     change = list(difflib.unified_diff(text1, text2))
 
     return change
+
+
+def link_file(source, target_dir):
+    base, filename = os.path.split(source)
+    target = os.path.join(target_dir, filename)
+
+    # Link the file if it do
+    if not os.path.exists(target):
+        # Ensure base dir exists in target
+        os.makedirs(target_dir, exist_ok=True)
+        os.symlink(source, target)
+
+    return target
+
+
+def add_file(target_dir, source):
+    """
+    Deposit file stream into a target directory.
+    """
+
+    # Link an existing file
+    if isinstance(source, str) and os.path.exists(source):
+        return link_file(source=source, target_dir=target_dir)
+
+    # Write a stream to a new file
+    if hasattr(source, 'read'):
+        # Get the absolute path
+        dest = os.path.abspath(target_dir)
+
+        # Create the directory
+        os.makedirs(dest, exist_ok=True)
+
+        # Get the name
+        fname = source.name
+
+        path = os.path.abspath(os.path.join(dest, fname))
+        # Write the stream into file.
+        util.write_stream(stream=source, dest=path)
+
+        return path
+
+    return
 
 
 def get_project_list(user, include_public=True, include_deleted=False):
@@ -192,7 +231,8 @@ def get_project_list(user, include_public=True, include_deleted=False):
         # Authenticated users see public projects and private projects with access rights.
         cond = Q(owner=user, privacy=Project.PRIVATE) | Q(privacy=privacy) | Q(access__user=user,
                                                                                access__access__in=[Access.READ_ACCESS,
-                                                                                                   Access.WRITE_ACCESS])
+                                                                                                   Access.WRITE_ACCESS,
+                                                                                                   Access.SHARE_ACCESS])
     # Generate the query.
     if include_deleted:
         query = Project.objects.filter(cond).distinct()
@@ -204,7 +244,6 @@ def get_project_list(user, include_public=True, include_deleted=False):
 
 def create_project(user, name, uid=None, summary='', text='', stream=None,
                    privacy=Project.PRIVATE, update=False):
-
     # Set or create the project uid.
     uid = uid or util.get_uuid(8)
 
@@ -238,7 +277,8 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
-                    name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False):
+                    name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
+                    root=None):
     owner = user or project.owner
 
     analysis = Analysis.objects.filter(uid=uid)
@@ -259,7 +299,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         uid = None if analysis else uid
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
                                            owner=owner, name=name, text=text, security=security,
-                                           template=template)
+                                           template=template, root=root)
 
         analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(3)}" if not uid else uid
         analysis.save()
@@ -288,6 +328,8 @@ def make_job_title(recipe, data):
             return None
         if param.get("source"):
             return param.get("name")
+        if param.get('display') == UPLOAD:
+            return os.path.basename(param.get('value')) if param.get('value') else None
         return param.get("value")
 
     vals = map(extract, params)
@@ -303,7 +345,82 @@ def make_job_title(recipe, data):
     return name
 
 
-def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=Job.QUEUED, uid=None, save=True):
+def validate_recipe_run(user, recipe):
+    """
+    Validate that a user can run a given recipe.
+    """
+    if user.is_anonymous:
+        msg = "You must be logged in."
+        return False, msg
+
+    if not authorize_run(user=user, recipe=recipe):
+        msg = "Insufficient permission to execute recipe."
+        return False, msg
+
+    if recipe.deleted:
+        msg = "Can not run a deleted recipe."
+        return False, msg
+
+    # Not trusted users have job limits.
+    running_jobs = Job.objects.filter(owner=user, state=Job.RUNNING)
+    if not user.profile.trusted and running_jobs.count() >= settings.MAX_RUNNING_JOBS:
+        msg = "Exceeded maximum amount of running jobs allowed. Please wait until some finish."
+        return False, msg
+
+    return True, ""
+
+
+def fill_json_data(project, job=None, source_data={}, fill_with={}):
+    """
+    Produces a filled in JSON data based on user input.
+    """
+
+    # Creates a data.id to data mapping.
+    store = dict((data.id, data) for data in project.data_set.all())
+
+    # Make a copy of the original json data used to render the form.
+    json_data = copy.deepcopy(source_data)
+
+    # Get default dictionary to fill with from json data 'value'
+    default = {field: item.get('value', '') for field, item in json_data.items()}
+    fill_with = fill_with or default
+
+    # Alter the json data and fill in the extra information.
+    for field, item in json_data.items():
+
+        # If the field is a data field then fill in more information.
+        if item.get("source") == "PROJECT" and fill_with.get(field, '').isalnum():
+            data_id = int(fill_with.get(field))
+            data = store.get(data_id)
+            # This mutates the `item` dictionary!
+            data.fill_dict(item)
+            continue
+
+        # The JSON value will be overwritten with the selected field value.
+        if field in fill_with:
+            item["value"] = fill_with[field]
+            # Clean the textbox value
+            if item.get('display') == TEXTBOX:
+                item["value"] = util.clean_text(fill_with[field])
+
+            if item.get('display') == UPLOAD:
+                # Add uploaded file to job directory.
+                upload_value = fill_with.get(field)
+                if not upload_value:
+                    item['value'] = ''
+                    continue
+                # Link or write the stream located in the fill_with
+                path = add_file(target_dir=job.get_data_dir(), source=upload_value)
+                item['value'] = path
+
+    return json_data
+
+
+def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=Job.QUEUED, uid=None, save=True,
+               fill_with={}):
+    """
+    Note: Parameter 'fill_with' needs to be a flat key:value dictionary.
+    """
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
     project = analysis.project
@@ -318,11 +435,21 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     # Generate a meaningful job title.
     name = make_job_title(recipe=analysis, data=json_data)
+    uid = uid or util.get_uuid(8)
 
     # Create the job instance.
     job = Job(name=name, state=state, json_text=json_text,
               security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
               template=analysis.template, uid=uid)
+
+    # Fill the json data.
+    json_data = fill_json_data(job=job, source_data=json_data, project=project, fill_with=fill_with)
+
+    # Generate a meaningful job title.
+    name = make_job_title(recipe=analysis, data=json_data)
+    # Update the json_text and name
+    job.json_text = hjson.dumps(json_data)
+    job.name = name
 
     if save:
         job.save()
@@ -336,34 +463,14 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
 
 def delete_object(obj, request):
-    obj.deleted = not obj.deleted
-    obj.save()
-    msg = f"Deleted <b>{obj.name}</b>." if obj.deleted else f"Restored <b>{obj.name}</b>."
-    messages.success(request, mark_safe(msg))
+    access = is_writable(user=request.user, project=obj.project)
+
+    # Toggle the delete state if the user has write access
+    if access:
+        obj.deleted = not obj.deleted
+        obj.save()
 
     return obj.deleted
-
-
-def has_write_access(user, project):
-    """
-    Returns True if a user has write access to an instance
-    """
-
-    # Anonymous user may not have write access.
-    if user.is_anonymous:
-        return False
-
-    # Users that may access a project.
-    cond1 = (user == project.owner) or user.is_staff
-
-    # User has been given write access to the project
-    cond2 = models.Access.objects.filter(user=user, project=project,
-                                         access=models.Access.WRITE_ACCESS).first()
-
-    # One of the conditions has to be true.
-    access = cond1 or cond2
-
-    return access
 
 
 def guess_mimetype(fname):
@@ -401,7 +508,7 @@ def create_path(fname, data):
     return path
 
 
-def link_file(path, data):
+def link_data(path, data):
     dest = create_path(fname=path, data=data)
 
     if not os.path.exists(dest):
@@ -410,26 +517,93 @@ def link_file(path, data):
     return dest
 
 
+def is_readable(user, project):
+    # Shareable projects can get to see the
+
+    query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS) | Q(access=Access.SHARE_ACCESS)
+
+    readable = Access.objects.filter(query, project=project, user=user)
+
+    return readable.exists()
+
+
+def is_writable(user, project, owner=None):
+    """
+    Returns True if a user has write access to an instance
+    """
+
+    # Anonymous user may not have write access.
+    if user.is_anonymous:
+        return False
+
+    # Users that may access a project.
+    cond1 = user.is_staff or user.is_superuser
+
+    # User has been given write access to the project
+    cond2 = models.Access.objects.filter(user=user, project=project,
+                                         access=models.Access.WRITE_ACCESS).first()
+
+    # User owns this project.
+    owner = owner or project.owner
+    cond3 = user == owner
+
+    # One of the conditions has to be true.
+    access = cond1 or cond2 or cond3
+
+    return access
+
+
+def writeable_recipe(user, source, project=None):
+    """
+    Check if a user can write to a 'source' recipe.
+    """
+    if user.is_anonymous:
+        return False
+
+    if source.is_cloned:
+        # Check write access using root recipe information for clones.
+        target_owner = source.root.owner
+        project = source.root.project
+
+    else:
+        target_owner = source.owner
+        project = project or source.project
+
+    access = is_writable(user=user, project=project, owner=target_owner)
+    return access
+
+
 def fill_data_by_name(project, json_data):
     """
-    Fills json information by name. Used when filling in
-    demonstration data and not user selection.
+    Fills json information by name.
+    Used when filling in demonstration data and not user selection.
     """
 
     json_data = copy.deepcopy(json_data)
     # A mapping of data by name
-    store = dict((data.name, data) for data in project.data_set.all())
 
     for field, item in json_data.items():
         # If the field is a data field then fill in more information.
+        val = item.get("value", '')
         if item.get("source") == "PROJECT":
             name = item.get("value")
-            data = store.get(name)
-            if data:
-                # This mutates the `item` dictionary!
-                data.fill_dict(item)
-            else:
-                item['toc'] = "FILE-LIST"
+
+            item['toc'] = "FILE-LIST"
+            item['file_list'] = "FILE-LIST"
+            item['value'] = name or 'FILENAME'
+            item['data_dir'] = "DATA_DIR"
+            item['id'] = "DATA_ID"
+            item['name'] = "DATA_NAME"
+            item['uid'] = "DATA_UID"
+            item['project_dir'] = project.get_data_dir()
+            item['data_url'] = "/"
+
+            continue
+
+        # Give a placeholder so templates do not have **MISSING**.
+        if val is None or len(str(val)) == 0:
+            item['value'] = f'{str(field).upper()}'
+
     return json_data
 
 
@@ -469,19 +643,19 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # The data is a single file on a path.
     if isfile:
-        link_file(path=path, data=data)
+        link_data(path=path, data=data)
         logger.info(f"Linked file: {path}")
 
     # The data is a directory.
     # Link each file of the directory into the storage directory.
     if isdir:
         for p in os.scandir(path):
-            link_file(path=p.path, data=data)
+            link_data(path=p.path, data=data)
             logger.info(f"Linked file: {p}")
 
     # Invalid paths and empty streams still create the data
     # but set the data state will be set to error.
-    missing = not(path or stream)
+    missing = not (path or stream)
 
     # An invalid entry here.
     if path and missing:

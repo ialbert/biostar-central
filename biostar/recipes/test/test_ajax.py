@@ -151,7 +151,7 @@ class AjaxTest(TestCase):
         """
 
         data = {'template': '# recipe code', 'json_text': '{}', 'name': self.recipe.name,
-                'uid': self.recipe.uid}
+                'uid': self.recipe.uid, 'project_uid': self.recipe.project.uid}
 
         url = reverse('preview_template')
         request = util.fake_request(url=url, data=data, user=self.owner)
@@ -188,7 +188,7 @@ class AjaxTest(TestCase):
             data = {'json_text': json_text, 'display_types': dtype}
 
             request = util.fake_request(url=url, data=data, user=self.owner)
-            json_response = ajax.add_recipe_field(request=request)
+            json_response = ajax.add_to_interface(request=request)
             self.process_response(json_response)
 
     def process_response(self, response):

@@ -1,37 +1,45 @@
 {% load engine_tags %}
 
-<div class="item">
-    <form method="post" action="{% url 'project_users' project.uid %}">
-
-        <input type="hidden" name="user_id" value="{{ user.id }}">
-        <input type="hidden" name="project_uid" value="{{ project.uid }}">
-
-        {% csrf_token %}
-        <div class="right floated content">
-            {{ form.access }}
-            <button type="submit" class="ui basic green center aligned button">
-                Submit
-            </button>
-        </div>
-
-        <div class="content">
-
-            <div class="subheader">
-                <a href="{% url 'user_profile' user.profile.uid %}">
-                    <div class="ui avatar image">
-                        <img class="ui tiny centered image " src="{% gravatar user=user size=80 %}">
-                    </div>
-                    {{ user.profile.name }}
-                </a>
-                <br>
-
-                    <i class="at icon muted"></i>
-                <span class="muted" style="margin-left: 14px;">{{ user.profile.uid }}</span>
-
+<div class="item container-{{ user.id }} {{ extra_class }}">
+    <div class="right floated content">
+        <div class="ui selection dropdown access-dropdown" data-user="{{ user.id }}"
+             data-project="{{ project.uid }}">
+            <div class="text tablet"
+                 id="digest-active">{{ user|get_access_label:project }}</div>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+                <div class="item" data-value="read">
+                    Read Access
+                </div>
+                <div class="item" data-value="write">
+                    Write Access
+                </div>
+                <div class="item" data-value="share">
+                    Share Access
+                </div>
+                <div class="item" data-value="none">No Access
+                </div>
             </div>
+        </div>
+    </div>
 
+    <div class="content">
+        <div class="subheader">
+            <a href="{% url 'user_profile' user.profile.uid %}">
+                <div class="ui avatar image">
+                    <img class="ui tiny centered image "
+                         src="{% gravatar user=user size=80 %}">
+                </div>
+                {{ user.profile.name }}
+            </a>
+            <br>
+            {% if user.profile.trusted %}
+                <div class="ui green label">
+                    Trusted
+                </div>
+            {% endif %}
+            <span class="muted">@{{ user.profile.uid }}</span>
         </div>
 
-
-    </form>
+    </div>
 </div>

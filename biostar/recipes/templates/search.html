@@ -26,7 +26,7 @@
 
             <b>Project:</b> <a href="{{project.url}}">{{project.name |highlight:query |safe }}</a>
             <div class="muted">
-                {{project.text|highlight:query |safe}}
+                {{project.text|highlight:query }}
             </div>
         </div>
     {% endfor %}
@@ -35,7 +35,7 @@
         <div class="item">
             <b>Data:</b> <a href="{{data.url}}">{{data.name|highlight:query |safe}}</a>
             <div class="muted">
-                {{data.text|highlight:query |safe}}
+                {{data.text|highlight:query }}
             </div>
         </div>
     {% endfor %}
@@ -45,7 +45,7 @@
         <div class="item">
             <b>Recipe:</b> <a href="{{recipe.url}}">{{recipe.name|highlight:query |safe}}</a>
             <div class="muted">
-                {{recipe.text|highlight:query |safe}}
+                {{recipe.text|highlight:query }}
             </div>
         </div>
     {% endfor %}
@@ -54,7 +54,7 @@
         <div class="item">
             <b>Job:</b> <a href="{{job.url}}">{{job.name|highlight:query |safe}}</a>
             <div class="muted">
-                {{job.text|highlight:query |safe}}
+                {{job.text|highlight:query }}
             </div>
         </div>
     {% endfor %}
