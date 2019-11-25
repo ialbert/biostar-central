@@ -108,13 +108,6 @@ def qiime2view_link(file_url):
     return template + file_url
 
 
-def strip_tags(text):
-    """
-    Strip html tags from text
-    """
-    text = bleach.clean(text, tags=[], attributes={}, styles=[], strip=True)
-    return text
-
 
 def findfiles(location, collect):
     """

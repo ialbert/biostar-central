@@ -5,28 +5,23 @@ from itertools import count, islice
 from functools import reduce
 from collections import defaultdict
 
-from django.db.models.functions import Concat
-from django.db.models import TextField, Value as V
 
-# TODO: These need the psycopg to be installed. That should not be so by default.
 # Postgres specific queries should go into separate module.
-#from django.contrib.postgres.aggregates import StringAgg
-#from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from django.contrib.postgres.aggregates import StringAgg
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
 from django.conf import settings
 from django.utils.text import smart_split
 from django.db.models import Q
 from whoosh import writing
-from whoosh.analysis import STOP_WORDS
 from whoosh.analysis import StemmingAnalyzer
-from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC
-from whoosh.index import create_in, open_dir, exists_in
+
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.sorting import FieldFacet, ScoreFacet
 from whoosh.writing import AsyncWriter
 
 from whoosh.qparser import MultifieldParser, OrGroup
-from whoosh.analysis import SpaceSeparatedTokenizer, StopFilter, STOP_WORDS
+from whoosh.analysis import STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
@@ -174,13 +169,12 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     """
     Crawl through posts in batches and add them to index.
     """
-    #TODO: run a bulk update
 
     if reindex:
         logger.info(f"Setting indexed field to false on all post.")
         Post.objects.filter(indexed=True).exclude(root=None).update(indexed=False)
 
-    # Index a limited number of posts
+    # Index a limited number of posts at one time.
     posts = Post.objects.exclude(root=None, indexed=False)[:limit]
 
     try:
@@ -196,18 +190,18 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     return
 
 
-def sql_search(search_fields, query_string):
+def sql_search(query, fields=None):
     """search_fields example: ['name', 'category__name', '@description', '=id']
     """
 
-    query_string = query_string.strip()
+    query_string = query.strip()
 
     filters = []
 
     query_list = [s for s in smart_split(query_string) if s not in STOP]
     for bit in query_list:
 
-        queries = [Q(**{f"{field_name}__icontains": bit}) for field_name in search_fields]
+        queries = [Q(**{f"{field_name}__icontains": bit}) for field_name in fields]
         filters.append(reduce(Q.__or__, queries))
 
     filters = reduce(Q.__and__, filters) if len(filters) else Q(pk=None)
@@ -217,15 +211,15 @@ def sql_search(search_fields, query_string):
     return results
 
 
-def postgres_search(query, fields=['content']):
+def postgres_search(query, fields=None):
     query_string = query.strip()
 
-    vector = SearchVector('title') + SearchVector('content')
+    vector = reduce(SearchVector.__add__, [SearchVector(f) for f in fields])
 
     # List of Q() filters used to preform search
     filters = reduce(SearchQuery.__or__, [SearchQuery(s) for s in smart_split(query_string)])
 
-    print(filters, "filters", "*"*10)
+    #print(filters, "filters", "*"*10)
     #vector = SearchVector('title') + SearchVector('content')
 
     results = Post.objects.annotate(search=vector).filter(search=filters)
@@ -233,25 +227,25 @@ def postgres_search(query, fields=['content']):
     return results
 
 
-def preform_search(query, fields=['content'], **kwargs):
+def preform_whoosh_search(query, fields=None, **kwargs):
     """
         Query the indexed, looking for a match in the specified fields.
         Results a tuple of results and an open searcher object.
         """
 
-    # Do not preform any queries if the index does not exist.
+    # Do not preform search if the index does not exist.
     if not index_exists() or len(query) < settings.SEARCH_CHAR_MIN:
         return []
-
+    fields = fields or ['content', 'title']
     ix = init_index()
     searcher = ix.searcher()
 
-    profile_score = FieldFacet("author_score", reverse=True)
-    post_type = FieldFacet("type")
-    thread = FieldFacet('thread_votecount')
-    # content_length = FieldFacet("content_length", reverse=True)
-    rank = FieldFacet("rank", reverse=True)
-    default = ScoreFacet()
+    # profile_score = FieldFacet("author_score", reverse=True)
+    # post_type = FieldFacet("type")
+    # thread = FieldFacet('thread_votecount')
+    # # content_length = FieldFacet("content_length", reverse=True)
+    # rank = FieldFacet("rank", reverse=True)
+    # default = ScoreFacet()
 
     # Splits the query into words and applies
     # and OR filter, eg. 'foo bar' == 'foo OR bar'
@@ -272,31 +266,41 @@ def preform_search(query, fields=['content'], **kwargs):
     return results
 
 
-def preform_query(query='', sort_by='', fields=['content'], **kwargs):
+def preform_db_search(query='', fields=None):
     """
-    Query the indexed, looking for a match in the specified fields.
-    Results a tuple of results and an open searcher object.
+    Preform a db search
     """
 
-    # Do not preform any queries if the index does not exist.
-    #if not index_exists():
-    #    return []
+    if 'postgres' in settings.DATABASES['default']['ENGINE']:
+        # Preform search using postgres
+        results = postgres_search(query=query)
+    else:
+        # Preform search using sql lite.
+        results = sql_search(query=query, fields=fields)
 
-    #if 'postgres' in settings.DATABASES['default']['ENGINE']:
-    #    results = postgres_search(query=query)
-    #else:
-    results = postgres_search(query=query, fields=fields)
-    #results = sql_search(search_fields=fields, query_string=query)
     results = results.order_by('type', '-rank')
     results = results[:settings.SEARCH_LIMIT]
 
-    #print(results)
-    #1/0
-    logger.info("Preformed db query")
+    logger.info("Preformed db query.")
     return results
 
 
-def search(query, fields=['content']):
-    #results = preform_query(query=query, fields=fields)
-    results = preform_search(query=query, fields=fields)
+def more_like_this(uid, db_search=False):
+    """
+    Return posts similar to the uid given.
+    """
+
+    return
+
+
+def preform_search(query, fields=None, db_search=False):
+    fields = fields or ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
+
+    if db_search:
+        # Preform a full text search on database.
+        results = preform_db_search(query=query, fields=fields)
+    else:
+        # Preform search on indexed posts.
+        results = preform_whoosh_search(query=query, fields=fields)
+
     return results

@@ -140,7 +140,7 @@ def post_search(request):
     if not query:
         return redirect(reverse('post_list'))
 
-    whoosh_results = search.search(query=query, fields=fields)
+    whoosh_results = search.preform_search(query=query, fields=fields)
     results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
 
     context = dict(results=results, query=query)

@@ -10,54 +10,61 @@
 
 
          <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
-            <i class="mail icon"> </i>
+
             Messages {% count_label label="message_count" %}
         </a>
         <a class="item   menu-tablet_small {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-            <i class="heart icon centericon"></i>
+
            Votes {%  count_label label="vote_count" %}
         </a>
 
         <a class="item menu-tablet_small {% activate tab "myposts" %}" href="{% url 'myposts' %}">
-            <i class="comments icon"></i>
+
             My Posts
         </a>
 
                 <a class="item menu-tablet_small {% activate tab "mytags" %}" href="{% url 'mytags' %}">
-            <i class="tags icon"></i>
+
             My Tags
         </a>
                 <a class="item  menu-tablet_small {% activate tab "following" %}" href="{% url 'following' %}">
-            <i class="eye icon"></i>
+
             Following
         </a>
     </div>
   </div>
+
         <a class="item menu-tablet  {% activate tab "messages" %}" href="{% url 'inbox' %}">
-            <i class="mail icon"> </i>
+
             Messages {% count_label label="message_count" %}
+        &bull;
         </a>
         <a class="item   menu-tablet_small {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-            <i class="heart icon centericon"></i>
+
            Votes {%  count_label label="vote_count" %}
+        &bull;
         </a>
 
         <a class="item menu-tablet_small {% activate tab "myposts" %}" href="{% url 'myposts' %}">
-            <i class="comments icon"></i>
+
             My Posts
+        &bull;
         </a>
         <a class="item menu-tablet_small {% activate tab "mytags" %}" href="{% url 'mytags' %}">
-            <i class="tags icon"></i>
+
             My Tags
+        &bull;
         </a>
         <a class="item  menu-tablet_small {% activate tab "following" %}" href="{% url 'following' %}">
-            <i class="eye icon"></i>
+
             Following
+        &bull;
         </a>
 
         <a class="item  {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
-            <i class="book icon"></i>
+
             Bookmarks
+
         </a>
 
         <div class="item">

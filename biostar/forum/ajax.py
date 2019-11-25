@@ -439,7 +439,7 @@ def ajax_search(request):
     if not query:
         return ajax_success(msg="Empty query", status="error")
 
-    whoosh_results = search.search(query=query, fields=fields)
+    whoosh_results = search.preform_search(query=query, fields=fields)
     results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
 
     tmpl = loader.get_template("widgets/search_results.html")
@@ -505,7 +505,7 @@ def similar_posts(request, uid):
 
     results = []
     # Retrieve this post from the search index.
-    indexed_post = search.preform_search(query=post.uid, fields=['uid'])
+    indexed_post = search.preform_whoosh_search(query=post.uid, fields=['uid'])
 
     if isinstance(indexed_post, Results) and not indexed_post.is_empty():
 
