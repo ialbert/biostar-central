@@ -2,19 +2,23 @@ import logging
 import time
 import re
 import os
+from itertools import count, islice
 import html2text
-from taggit.models import Tag
+
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
+
+from taggit.models import Tag
+
 from biostar.accounts.models import User, Profile
 from biostar.forum import util
 from biostar.forum.models import Post, Vote, Subscription, Badge, Award
 from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesAward, UsersProfile
-
 from biostar.utils import markdown
+
 logger = logging.getLogger("engine")
-from itertools import count, islice
+
 
 
 LIMIT = None
