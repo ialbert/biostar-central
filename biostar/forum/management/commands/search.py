@@ -24,46 +24,10 @@ def time_func(func, kwargs):
     return finish, res
 
 
-class Bunch():
-    def __init__(self, **kwargs):
-        self.title = ""
-        self.content = ""
-        self.author_name = ""
-        self.author_uid = ""
-        self.author_handle = ""
-        self.post_type = ""
-        self.post_uid = ""
-        self.lastedit_date = ""
-        self.tags = ""
-        self.__dict__.update(kwargs)
-
-
-def parse_result(result):
-    "Return a bunch object for result."
-
-    # Result is a database object.
-    if isinstance(result, Post):
-        bunched = Bunch(title=result.title, content=result.content,
-                        author_name=result.author.profile.name, author_uid=result.author.profile.uid,
-                        author_handle=result.author.username, post_type=result.get_type_display(),
-                        post_uid=result.uid, lastedit_date=result.lastedit_date,
-                        tags=result.tag_val)
-
-    # Result is a dictionary returned from indexed searched
-    else:
-        bunched = Bunch(title=result['title'], content=result['content'],
-                        author_name=result['author'], author_uid=result['author_uid'],
-                        author_handle=result['author_handle'], post_type=result['type_display'],
-                        post_uid=result['uid'], lastedit_date=result['lastedit_date'],
-                        tags=result['tags'])
-
-    return bunched
-
-
 def printer(result, verbosity=0):
-    print(f'Type\t{result.post_type}')
-    print(f'Uid\t{result.post_uid}')
     print(f'Title\t{result.title}')
+    print(f'Type\t{result.type_display}')
+    print(f'Uid\t{result.post_uid}')
     print(f'Last edited\t{result.lastedit_date}')
     print(f'Author name:\t{result.author_name}')
     print(f'Author handle (username):\t{result.author_name}')
@@ -77,18 +41,16 @@ def printer(result, verbosity=0):
 def print_results(results, limit=10, verbosity=0, finish_time=0.0):
 
     print('-'*20)
-    print(f'Search Time\t{finish_time}')
+    finish_time = '{:.06f}'.format(finish_time)
+    print(f'Search Time\t{finish_time} secs')
     print(f'Total results\t{len(results)}')
 
     stream = zip(count(1), results)
     stream = islice(stream, limit)
-    if verbosity <= 0:
-        return
 
     print(f'Showing top {limit} search results.')
     print()
     for index, result in stream:
-        result = parse_result(result)
         printer(result=result, verbosity=verbosity)
         print("-" * 2)
         print()
@@ -109,7 +71,7 @@ class Command(BaseCommand):
                             help="Search for posts similar to this one (more list this).")
         parser.add_argument('-l', '--limit', type=int, default=10,
                             help="Print limited amount of results.")
-        parser.add_argument('-vr', '--verbose', type=int, default=0, help="Verbosity level of the report.")
+        parser.add_argument('-vr', '--verbose', type=int, default=1, help="Verbosity level of the report.")
 
     def handle(self, *args, **options):
         logger.info(f"Database: {settings.DATABASE_NAME}. Index : {settings.INDEX_DIR}")

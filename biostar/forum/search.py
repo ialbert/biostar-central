@@ -5,7 +5,6 @@ from itertools import count, islice
 from functools import reduce
 from collections import defaultdict
 
-
 # Postgres specific queries should go into separate module.
 from django.contrib.postgres.aggregates import StringAgg
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
@@ -19,6 +18,7 @@ from whoosh.analysis import StemmingAnalyzer
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.sorting import FieldFacet, ScoreFacet
 from whoosh.writing import AsyncWriter
+from whoosh.searching import Results
 
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.analysis import STOP_WORDS
@@ -55,6 +55,63 @@ def timer_func():
             elapsed(f"... {percent}% ({index} out of {total}). {step} {msg}")
 
     return elapsed, progress
+
+
+class SearchResult(object):
+    def __init__(self, **kwargs):
+        self.title = ''
+        self.content = ''
+        self.url = ''
+        self.type_display = ''
+        self.content_length = ''
+        self.type = ''
+        self.lastedit_date = ''
+        self.is_toplevel = ''
+        self.rank = ''
+        self.uid = ''
+        self.author_handle = ''
+        self.author = ''
+        self.author_email = ''
+        self.author_score = ''
+        self.thread_votecount = ''
+        self.vote_count = ''
+        self.author_uid = ''
+        self.author_url = ''
+        self.__dict__.update(kwargs)
+
+
+def close(r):
+    # Ensure the searcher object gets closed.
+    r.searcher.close() if isinstance(r, Results) else None
+    return
+
+
+def parse_result(result):
+    "Return a bunch object for result."
+
+    # Result is a database object.
+    if isinstance(result, Post):
+        bunched = SearchResult(title=result.title, content=result.content, url=result.get_absolute_url(),
+                               type_display=result.get_type_display(), content_length=len(result.content),
+                               type=result.type, lastedit_date=result.lastedit_date, is_toplevel=result.is_toplevel,
+                               rank=result.rank, uid=result.uid, author_handle=result.author.username,
+                               author=result.author.profile.name, author_email=result.author.email,
+                               author_score=result.author.score, thread_votecount=result.thread_votecount,
+                               vote_count=result.vote_count, author_uid=result.author.profile.uid,
+                               author_url=result.author.profile.get_absolute_url())
+
+    # Result is a dictionary returned from indexed searched
+    else:
+        bunched = SearchResult(title=result['title'], content=result['content'], url=result['url'],
+                               type_display=result['type_display'], content_length=result['content_length'],
+                               type=result['type'], lastedit_date=result['lastedit_date'],
+                               is_toplevel=result['is_toplevel'], rank=result['rank'], uid=result['uid'],
+                               author_handle=result['author_handle'], author=result['author'],
+                               author_email=result['author_email'], author_score=result['author_score'],
+                               thread_votecount=result['thread_votecount'], vote_count=result['vote_count'],
+                               author_uid=result['author_uid'], author_url=result['author_url'])
+
+    return bunched
 
 
 def index_exists():
@@ -122,19 +179,19 @@ def print_info():
     Prints information on the index.
     """
     ix = init_index()
-    
+
     counter = defaultdict(int)
     for index, fields in enumerate(ix.searcher().all_stored_fields()):
         key = fields['type_display']
         counter[key] += 1
 
     total = 0
-    print ('-' * 20)
+    print('-' * 20)
     for key, value in counter.items():
         total += value
-        print (f"{value}\t{key}")
-    print ('-' * 20)
-    print (f"{total} total posts")
+        print(f"{value}\t{key}")
+    print('-' * 20)
+    print(f"{total} total posts")
 
 
 def index_posts(posts, overwrite=False):
@@ -200,14 +257,13 @@ def sql_search(query, fields=None):
 
     query_list = [s for s in smart_split(query_string) if s not in STOP]
     for bit in query_list:
-
         queries = [Q(**{f"{field_name}__icontains": bit}) for field_name in fields]
         filters.append(reduce(Q.__or__, queries))
 
     filters = reduce(Q.__and__, filters) if len(filters) else Q(pk=None)
 
     results = Post.objects.filter(filters)
-    logger.info("Finished filtering for posts.")
+    logger.info("Preform sql lite search.")
     return results
 
 
@@ -219,10 +275,11 @@ def postgres_search(query, fields=None):
     # List of Q() filters used to preform search
     filters = reduce(SearchQuery.__or__, [SearchQuery(s) for s in smart_split(query_string)])
 
-    #print(filters, "filters", "*"*10)
-    #vector = SearchVector('title') + SearchVector('content')
+    # print(filters, "filters", "*"*10)
+    # vector = SearchVector('title') + SearchVector('content')
 
     results = Post.objects.annotate(search=vector).filter(search=filters)
+    logger.info("Preform postgres lite search.")
 
     return results
 
@@ -251,8 +308,8 @@ def preform_whoosh_search(query, fields=None, **kwargs):
     # and OR filter, eg. 'foo bar' == 'foo OR bar'
     orgroup = OrGroup
 
-    #sort_by = sort_by or [post_type, rank, thread, default, profile_score]
-    #sort_by = [lastedit_date]
+    # sort_by = sort_by or [post_type, rank, thread, default, profile_score]
+    # sort_by = [lastedit_date]
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(query)
     results = searcher.search(parser, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
@@ -261,12 +318,16 @@ def preform_whoosh_search(query, fields=None, **kwargs):
     # results.fragmenter.charlimit = None
     # Show more context before and after
     results.fragmenter.surround = 100
+
+    # Sort results by last edit date.
+    results = sorted(results, key=lambda x: x['lastedit_date'], reverse=True)
+
     logger.info("Preformed index search")
 
     return results
 
 
-def preform_db_search(query='', fields=None):
+def preform_db_search(query='', fields=None, filter_for=Q()):
     """
     Preform a db search
     """
@@ -278,7 +339,8 @@ def preform_db_search(query='', fields=None):
         # Preform search using sql lite.
         results = sql_search(query=query, fields=fields)
 
-    results = results.order_by('type', '-rank')
+    results = results.filter(filter_for)
+    results = results.order_by('type', '-lastedit_date', '-rank')
     results = results[:settings.SEARCH_LIMIT]
 
     logger.info("Preformed db query.")
@@ -290,7 +352,27 @@ def more_like_this(uid, db_search=False):
     Return posts similar to the uid given.
     """
 
-    return
+    if db_search:
+        # Get the post of interest
+        post = Post.objects.filter(uid=uid).first()
+        # Search for posts with similar content to current one.
+        content = post.content if post else ''
+        filter_for = Q(is_toplevel=True)
+        results = preform_db_search(query=content, fields=['content'], filter_for=filter_for)
+    else:
+        results = preform_whoosh_search(query=uid, fields=['uid'])
+        if len(results):
+            results = results[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
+            # Filter results for toplevel posts.
+            results = filter(lambda p: p['is_toplevel'] is True, results)
+
+    # Ensure results types stay consistent.
+    final_results = list(map(parse_result, results))
+    if isinstance(results, Results):
+        # Ensure searcher object gets closed.
+        close(results)
+
+    return final_results
 
 
 def preform_search(query, fields=None, db_search=False):
@@ -303,4 +385,10 @@ def preform_search(query, fields=None, db_search=False):
         # Preform search on indexed posts.
         results = preform_whoosh_search(query=query, fields=fields)
 
-    return results
+    # Ensure results types stay consistent.
+    final_results = list(map(parse_result, results))
+    if isinstance(results, Results):
+        # Ensure searcher object gets closed.
+        close(results)
+
+    return final_results

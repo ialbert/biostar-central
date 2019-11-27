@@ -135,16 +135,12 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 def post_search(request):
 
     query = request.GET.get('query', '')
-    fields = ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
 
     if not query:
         return redirect(reverse('post_list'))
 
-    whoosh_results = search.preform_search(query=query, fields=fields)
-    results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
-
+    results = search.preform_search(query=query)
     context = dict(results=results, query=query)
-    whoosh_results.searcher.close() if isinstance(whoosh_results, Results) else None
 
     return render(request, template_name="widgets/post_results.html", context=context)
 

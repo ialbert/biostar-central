@@ -429,26 +429,20 @@ def ajax_search(request):
     except Exception as exc:
         redir = False
 
-    fields = ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
-
     if redir:
-        print(int(request.GET.get('redir', 0)), bool(int(request.GET.get('redir', 0))))
-        redit_url = reverse('post_search') + '?query=' + query
-        return ajax_success(redir=redit_url, msg="success")
+        # Redirect search results to a separate page.
+        redir_url = reverse('post_search') + '?query=' + query
+        return ajax_success(redir=redir_url, msg="success")
 
     if not query:
         return ajax_success(msg="Empty query", status="error")
 
-    whoosh_results = search.preform_search(query=query, fields=fields)
-    results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
-
+    results = search.preform_search(query=query)
     tmpl = loader.get_template("widgets/search_results.html")
-
     context = dict(results=results, query=query)
 
     results_html = tmpl.render(context)
-    # Ensure the whoosh reader is closed
-    close(whoosh_results)
+
     return ajax_success(html=results_html, msg="success")
 
 
@@ -503,22 +497,10 @@ def similar_posts(request, uid):
     if not post:
         ajax_error(msg='Post does not exist.')
 
-    results = []
-    # Retrieve this post from the search index.
-    indexed_post = search.preform_whoosh_search(query=post.uid, fields=['uid'])
-
-    if isinstance(indexed_post, Results) and not indexed_post.is_empty():
-
-        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
-        # Filter results for toplevel posts.
-        results = filter(lambda p: p['is_toplevel'] is True, results)
-        # Sort by lastedit_date
-        results = sorted(results, key=lambda x: x['lastedit_date'], reverse=True)
+    results = search.more_like_this(uid=post.uid)
 
     tmpl = loader.get_template('widgets/similar_posts.html')
     context = dict(results=results)
     results_html = tmpl.render(context)
-    # Ensure the searcher object gets closed.
-    close(indexed_post)
 
     return ajax_success(html=results_html, msg="success")
