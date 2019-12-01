@@ -106,8 +106,8 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+#@ratelimit(key='ip', rate='50/h')
+#@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def drag_and_drop(request):
     was_limited = getattr(request, 'limited', False)
@@ -126,9 +126,11 @@ def drag_and_drop(request):
     if not request.user.profile.is_moderator:
         return ajax_error(msg="Only moderators can move comments.")
 
+
     Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
     #Post.objects.filter(uid=post.root.uid).update(reply_count=F("answer_count") - 1)
 
+    print("ONE")
     redir = post.get_absolute_url()
 
     return ajax_success(msg="success", redir=redir)

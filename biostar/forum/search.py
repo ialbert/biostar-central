@@ -96,7 +96,7 @@ def parse_result(result):
                                type=result.type, lastedit_date=result.lastedit_date, is_toplevel=result.is_toplevel,
                                rank=result.rank, uid=result.uid, author_handle=result.author.username,
                                author=result.author.profile.name, author_email=result.author.email,
-                               author_score=result.author.score, thread_votecount=result.thread_votecount,
+                               author_score=result.author.profile.score, thread_votecount=result.thread_votecount,
                                vote_count=result.vote_count, author_uid=result.author.profile.uid,
                                author_url=result.author.profile.get_absolute_url())
 
@@ -279,7 +279,7 @@ def postgres_search(query, fields=None):
     # vector = SearchVector('title') + SearchVector('content')
 
     results = Post.objects.annotate(search=vector).filter(search=filters)
-    logger.info("Preform postgres lite search.")
+    logger.info("Preform postgres search.")
 
     return results
 
@@ -334,7 +334,7 @@ def preform_db_search(query='', fields=None, filter_for=Q()):
 
     if 'postgres' in settings.DATABASES['default']['ENGINE']:
         # Preform search using postgres
-        results = postgres_search(query=query)
+        results = postgres_search(query=query, fields=fields)
     else:
         # Preform search using sql lite.
         results = sql_search(query=query, fields=fields)
@@ -375,11 +375,28 @@ def more_like_this(uid, db_search=False):
     return final_results
 
 
+def map_db_fields(fields):
+    """
+    Map search fields to database appropriate values.
+    """
+    db_map = dict(author_handle='author__username',
+                  author_score='author__profile__score',
+                  author_email='author__email',
+                  author_uid='author__profile__uid',
+                  tags='tag_val'
+                  )
+
+    fields = [db_map.get(f, f) for f in fields]
+
+    return fields
+
+
 def preform_search(query, fields=None, db_search=False):
-    fields = fields or ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
+    fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
 
     if db_search:
         # Preform a full text search on database.
+        fields = map_db_fields(fields)
         results = preform_db_search(query=query, fields=fields)
     else:
         # Preform search on indexed posts.

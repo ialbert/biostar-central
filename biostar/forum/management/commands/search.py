@@ -27,15 +27,13 @@ def time_func(func, kwargs):
 def printer(result, verbosity=0):
     print(f'Title\t{result.title}')
     print(f'Type\t{result.type_display}')
-    print(f'Uid\t{result.post_uid}')
+    print(f'Uid\t{result.uid}')
     print(f'Last edited\t{result.lastedit_date}')
-    print(f'Author name:\t{result.author_name}')
-    print(f'Author handle (username):\t{result.author_name}')
+    print(f'Author name:\t{result.author}')
+    print(f'Author handle (username):\t{result.author_handle}')
     if verbosity >= 2:
         print(f'Tags\t{result.tags}')
         print(f'Content\t{result.content}')
-        print(f'Author name\t{result.author_name}')
-        print(f'Author handle (username)\t{result.author_name}')
 
 
 def print_results(results, limit=10, verbosity=0, finish_time=0.0):
@@ -77,7 +75,7 @@ class Command(BaseCommand):
         logger.info(f"Database: {settings.DATABASE_NAME}. Index : {settings.INDEX_DIR}")
 
         db_search = options['db_search']
-        uid = options['db_search']
+        uid = options['uid']
         query = options['query']
         limit = options['limit']
         verbosity = options['verbose']

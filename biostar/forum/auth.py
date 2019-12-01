@@ -35,6 +35,30 @@ def get_votes(user, root):
     return store
 
 
+def walk_down_thread(parent, collect=[], include_root=True):
+    """
+    Recursively walk up a thread of posts starting from target
+    """
+
+    # Stop condition 1: post does not have a root or parent.
+    if (parent is None) or (parent.parent is None) or (parent.root is None):
+        return collect
+
+    # Stop condition 2: post is a root, post is its own parent, post is its own root
+    if parent.is_toplevel or parent.uid == parent.parent or parent == parent.root:
+        return collect
+
+    # Get all children for this post
+    children = Post.objects.filter(parent=parent)
+
+    for child in children:
+        # Add child to list
+        collect.append(child)
+        # Get all children belonging to the current child.
+        walk_down_thread(parent=child, collect=collect, include_root=include_root)
+
+    return collect
+
 
 def create_subscription(post, user, sub_type=None, delete_exisiting=True):
     """

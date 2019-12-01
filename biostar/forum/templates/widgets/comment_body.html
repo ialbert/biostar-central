@@ -2,8 +2,8 @@
 
 <a name="{{ post.uid }}"></a>
 
-<div class="dimm-on-edit droptarget" id='drag-{{ post.uid }}' data-value="{{ post.uid }}"
-     ondragover="drag_over(event, '{{ post.uid }}')" ondragleave="drag_leave(event)">
+<div class="dimm-on-edit droptarget" id='drag-{{ post.uid }}' data-value="{{ post.uid }}" data-thread="{{ post|get_children_list }}"
+     ondragover="drag_over(event, '{{ post.uid }}')" ondragleave="drag_leave(event, '{{ post.uid }}')">
 
     <div class="ui inverted dimmer">
         <div class="ui text loader">

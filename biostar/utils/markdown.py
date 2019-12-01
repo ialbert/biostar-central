@@ -77,7 +77,7 @@ GIST_PATTERN = rec(r"^https://gist.github.com/(?P<uid>([\w/]+))")
 GIST_HTML = '<script src="https://gist.github.com/%s.js"></script>'
 
 # Twitter pattern.
-TWITTER_PATTERN = rec(r"http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))")
+TWITTER_PATTERN = rec(r"http(s)?://(www)?.?twitter.com/\w+/status(es)?/(?P<uid>([\d]+))")
 
 
 def get_tweet(tweet_id):
