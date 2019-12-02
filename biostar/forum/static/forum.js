@@ -341,9 +341,9 @@ var dragged_over = '';
 function drag(ev, elem_id) {
     //ev.preventDefault();
     let elem = $('.droptarget[data-value="' + elem_id + '"]');
-    children = elem.data('thread');
     ev.dataTransfer.setData("text", elem_id);
     ev.target.style.opacity = "0.4";
+    children = elem.data('thread').split(',');
 
 
 }
@@ -353,7 +353,7 @@ function drag_leave(ev, pid) {
     elem.css('border', 'none');
 
     //elem.css('padding', '0');
-    elem.css('opacity', '1');
+    elem.parent.css('opacity', '1');
     //elem.css('backgroundColor', 'white');
     dragged_over = '';
 
@@ -365,20 +365,21 @@ function drag_over(ev, pid) {
     //var source = ev.dataTransfer.getData("text");
     let elem = $('.droptarget[data-value="' + pid + '"]');
     let is_answer = elem.data('is_answer');
-    let children_list = children.split(",");
+    //console
+    //let children_list = children.split(",");
     if (pid ==='answer'){
 
     }
     dragged_over = pid;
 
-    if (jQuery.inArray(pid, children_list) !== -1) {
+    if (jQuery.inArray(pid, children) !== -1) {
         //elem.css('backgroundColor', '#ffb5a8');
         elem.css('border', '#ffb5a8 dotted');
-        //console.log(pid);
-        //console.log(children_list);
+
         //dragged_over = '';
         //alert(children_list)
     } else {
+
         //alert(pid);
         elem.css('border', '#c2ffc2 dotted 5px');
         //elem.css('bac')
@@ -399,11 +400,11 @@ function drop(ev, elem_id) {
     let source_elem = $('#' + source);
     source_elem.css('opacity', '1');
     let elem = $('.droptarget[data-value="' + elem_id + '"]');
-    let children_list = children.split(",");
+    //let children_list = children.split(",");
 
     //alert(children_list);
     //alert(elem_id);
-    if (jQuery.inArray(elem_id, children_list) === -1 && dragged_over === elem_id) {
+    if (jQuery.inArray(elem_id, children) === -1 && dragged_over === elem_id) {
         //alert(dragged_over);
         $.ajax('/drag/and/drop/',
             {

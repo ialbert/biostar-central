@@ -708,5 +708,5 @@ def get_children_list(post):
     # Include itself in list
     children = [post.uid] + list(map(lambda p: p.uid, children))
 
-    print(children, post.uid)
+    #print(children, post.uid)
     return ','.join(children)

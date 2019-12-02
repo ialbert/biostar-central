@@ -352,19 +352,19 @@ def more_like_this(uid, db_search=False):
     Return posts similar to the uid given.
     """
 
-    if db_search:
-        # Get the post of interest
-        post = Post.objects.filter(uid=uid).first()
-        # Search for posts with similar content to current one.
-        content = post.content if post else ''
-        filter_for = Q(is_toplevel=True)
-        results = preform_db_search(query=content, fields=['content'], filter_for=filter_for)
-    else:
-        results = preform_whoosh_search(query=uid, fields=['uid'])
-        if len(results):
-            results = results[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
-            # Filter results for toplevel posts.
-            results = filter(lambda p: p['is_toplevel'] is True, results)
+    # if db_search:
+    #     # Get the post of interest
+    #     post = Post.objects.filter(uid=uid).first()
+    #     # Search for posts with similar content to current one.
+    #     content = post.content if post else ''
+    #     filter_for = Q(is_toplevel=True)
+    #     results = preform_db_search(query=content, fields=['content'], filter_for=filter_for)
+    # else:
+    results = preform_whoosh_search(query=uid, fields=['uid'])
+    if len(results):
+        results = results[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
+        # Filter results for toplevel posts.
+        results = filter(lambda p: p['is_toplevel'] is True, results)
 
     # Ensure results types stay consistent.
     final_results = list(map(parse_result, results))
