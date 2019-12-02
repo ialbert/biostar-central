@@ -12,7 +12,7 @@
     <div class="muted" style="font-size: small">
         {{ post.lastedit_date|time_ago }}<br>
 
-        <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name }}</a>
+        <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name|truncatechars:40 }}</a>
         {% user_icon user=user %}<br>
 
    {{ user.profile.location }}

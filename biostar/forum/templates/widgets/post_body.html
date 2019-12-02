@@ -42,7 +42,8 @@
             {% if post.can_accept %}
                 <div class="top-padding">
                     <button class="ui icon button vote accept" data-value="{{ post.uid }}" data-type="accept"
-                            data-position="right center" data-state="{{ post.accept_count }}" data-content="Accept answer">
+                            data-position="right center" data-state="{{ post.accept_count }}"
+                            data-content="Accept answer">
                         <i class="check circle icon "></i>
                     </button>
                 </div>
@@ -51,61 +52,63 @@
         </div>
 
 
-        <div class="content wrap-text">
+        <div class="content wrap-text" {% if post.is_answer %}draggable="true" ondragstart="drag(event, '{{ post.uid }}');"{% endif %}>
 
-            <div class="dimm-on-edit" data-value="{{ post.uid }}">
+            <div ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')">
+                <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}" data-thread="{{ post|get_children_list }}"
+                     ondragover="drag_over(event, '{{ post.uid }}')" ondragleave="drag_leave(event, '{{ post.uid }}')">
 
-                <div class="ui inverted dimmer">
+                    <div class="ui inverted dimmer">
 
-                    <div class="ui text loader">
-                        <div class="muted">Entering edit mode</div>
+                        <div class="ui text loader">
+                            <div class="muted">Entering edit mode</div>
+                        </div>
+
                     </div>
 
-                </div>
+                    <div class="wrap magnify">
+                        {# Display post author. #}
+                        <div class="hide-on-edit menu-tablet" data-value="{{ post.uid }}">
+                            {% post_user_box user=post.author post=post %}
+                        </div>
+                        {# Display post content. #}
+                        {% if post.is_editable %}
+                            <div class="editable" data-value="{{ post.uid }}">{{ post.html|safe }}</div>
+                            <inplace data-value="{{ post.uid }}"></inplace>
+                        {% else %}
+                            {{ post.html|safe }}
+                        {% endif %}
 
-                <div class="wrap magnify">
-                    {# Display post author. #}
-                    <div class="hide-on-edit menu-tablet" data-value="{{ post.uid }}">
-                        {% post_user_box user=post.author post=post %}
                     </div>
-                    {# Display post content. #}
-                    {% if post.is_editable %}
-                        <div class="editable" data-value="{{ post.uid }}">{{ post.html|safe }}</div>
-                        <inplace data-value="{{ post.uid }}"></inplace>
-                    {% else %}
-                        {{ post.html|safe }}
-                    {% endif %}
-
-                </div>
 
 
-                <div class="hide-on-edit" data-value="{{ post.uid }}">
-                    {# Show tags #}
-                    {% if post.is_toplevel %}
-                        <span class="post-tags" data-value="{{ post.uid }}">
+                    <div class="hide-on-edit" data-value="{{ post.uid }}">
+                        {# Show tags #}
+                        {% if post.is_toplevel %}
+                            <span class="post-tags" data-value="{{ post.uid }}">
                     {% post_tags post=post show_views=True %}
                     </span>
-                    {% endif %}
+                        {% endif %}
 
-                    {# Show the post actions #}
-                    <div class="hide-on-comment" data-value="{{ post.uid }}" style="display: flow-root">
-                        {% post_actions post=post %}
+                        {# Show the post actions #}
+                        <div class="hide-on-comment" data-value="{{ post.uid }}" style="display: flow-root">
+                            {% post_actions post=post %}
+                        </div>
+
+                        {#  Post moderation actions are inserted here #}
+                        <div id="moderate-insert-{{ post.uid }}"></div>
+
+                        {#  Comments form will be inserted here #}
+                        <div id="comment-insert-{{ post.uid }}"></div>
+
+                        {# Render all comments #}
                     </div>
-
-                    {#  Post moderation actions are inserted here #}
-                    <div id="moderate-insert-{{ post.uid }}"></div>
-
-                    {#  Comments form will be inserted here #}
-                    <div id="comment-insert-{{ post.uid }}"></div>
-
-                    {# Render all comments #}
                 </div>
+                {% render_comments tree=tree post=post %}
             </div>
-            {% render_comments tree=tree post=post %}
+
         </div>
-
     </div>
-
 </div>
 
 

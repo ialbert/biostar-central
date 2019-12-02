@@ -40,28 +40,37 @@
                 {{ form.media }}
                 {% csrf_token %}
             <input type="hidden" name="parent_uid" id="parent_uid" value="{{ post.uid }}">
-                <div class="ui form-wrap segment">
+            <div ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')">
+                <div class="ui form-wrap segment droptarget" data-value="{{ post.uid }}" data-thread="{{ post|get_children_list }}"
+                     ondragover="drag_over(event, '{{ post.uid }}')" ondragleave="drag_leave(event, '{{ post.uid }}')">
                     <div class="required input field">
                         {% include 'widgets/posting_msg.html' %}
 
-                        <div class="wmd-wrapper" id="{{ form.content.id_for_label }}-wmd-wrapper">
+                        <div class="wmd-wrapper" id="wmd-wrapper-{{ form.content.id_for_label }}">
                             <div class="">
-                                <div id="{{ form.content.id_for_label }}_wmd_button_bar"></div>
-                                <textarea class=" wmd-input" cols="40" name="content" rows="10"
-                                          id="{{ form.content.id_for_label }}"></textarea>
+                                <div id="wmd-button-bar-{{ form.content.id_for_label }}"></div>
+                                <textarea class="wmd-input" cols="40" name="content" rows="10"
+                                          id="wmd-input-{{ form.content.id_for_label }}"></textarea>
                             </div>
 
                         </div>
                     </div>
 
                 </div>
+            </div>
 
-                <div class="ui form-wrap segment">
+                <div class="ui preview segment">
                     <div class="field">
                         <label>Preview</label>
-                        <div id="{{ form.content.id_for_label }}_wmd_preview" class="wmd-preview"></div>
+                        <div id="wmd-preview-{{ form.content.id_for_label }}" class="wmd-preview"></div>
                     </div>
                 </div>
+{#                <div class="ui form-wrap segment">#}
+{#                    <div class="field">#}
+{#                        <label>Preview</label>#}
+{#                        <div id="{{ form.content.id_for_label }}_wmd-preview" class="wmd-preview"></div>#}
+{#                    </div>#}
+{#                </div>#}
                 {% if form.captcha %}
                     <div class="top-padding">
                         <div class="required field">

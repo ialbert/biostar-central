@@ -36,22 +36,24 @@ def printer(result, verbosity=0):
         print(f'Content\t{result.content}')
 
 
-def print_results(results, limit=10, verbosity=0, finish_time=0.0):
-
-    print('-'*20)
-    finish_time = '{:.06f}'.format(finish_time)
-    print(f'Search Time\t{finish_time} secs')
-    print(f'Total results\t{len(results)}')
+def print_results(results, limit=10, verbosity=0, finish_time=0.0, query=''):
 
     stream = zip(count(1), results)
     stream = islice(stream, limit)
-
-    print(f'Showing top {limit} search results.')
-    print()
-    for index, result in stream:
-        printer(result=result, verbosity=verbosity)
-        print("-" * 2)
+    print('-' * 20)
+    if verbosity >= 1:
+        print(f'Showing top {limit} search results.')
         print()
+        for index, result in stream:
+            printer(result=result, verbosity=verbosity)
+            print("-" * 2)
+            print()
+        print(f'Showing top {limit} search results.')
+
+    finish_time = '{:.06f}'.format(finish_time)
+    print(f'Search query/uid\t{query}')
+    print(f'Search Time\t{finish_time} secs')
+    print(f'Total results\t{len(results)}')
 
     print('-' * 20)
     return
@@ -91,12 +93,12 @@ class Command(BaseCommand):
 
             finish, results = time_func(more_like_this, kwargs=dict(uid=uid, db_search=db_search))
             logger.info(f"Post uid: {uid}. Database search: {db_search}")
-            print_results(results=results, limit=limit, verbosity=verbosity, finish_time=finish)
+            print_results(results=results, limit=limit, verbosity=verbosity, query=query, finish_time=finish)
 
             return
 
         finish, results = time_func(preform_search, kwargs=dict(query=query, db_search=db_search))
         logger.info(f"Query: {query}. Database search: {db_search}")
-        print_results(results=results, limit=limit, verbosity=verbosity, finish_time=finish)
+        print_results(results=results, limit=limit, query=query, verbosity=verbosity, finish_time=finish)
 
 

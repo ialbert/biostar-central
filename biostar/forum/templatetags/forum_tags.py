@@ -678,7 +678,7 @@ def traverse_comments(request, post, tree, template_name):
         html = body.render(cont)
         source = f"indent-{node.uid}"
         target = f"'{node.uid}'"
-        collect.append(f'<div class="indent droptarget " id="{source}" ondragover="allowDrop(event);" ondrop="drop(event, {target})"><div class="comment">{html}</div>')
+        collect.append(f'<div class="indent " id="{source}" ondragover="allowDrop(event);" ondrop="drop(event, {target})"><div class="comment">{html}</div>')
 
         for child in tree.get(node.id, []):
             if child in seen:
@@ -703,11 +703,10 @@ def traverse_comments(request, post, tree, template_name):
 def get_children_list(post):
 
     children = []
-    auth.walk_down_thread(parent=post, collect=children)
+    auth.walk_down_thread(parent=post, collect=children, is_root=post.is_toplevel)
 
     # Include itself in list
     children = [post.uid] + list(map(lambda p: p.uid, children))
 
     print(children, post.uid)
-
     return ','.join(children)

@@ -45,9 +45,9 @@ class ajax_error_wrapper:
     Used as decorator to trap/display  errors in the ajax calls
     """
 
-    def __init__(self, method):
+    def __init__(self, method, login_required=True):
         self.method = method
-
+        self.login_required = login_required
     def __call__(self, func, *args, **kwargs):
 
         @wraps(func, assigned=available_attrs(func))
@@ -55,7 +55,7 @@ class ajax_error_wrapper:
 
             if request.method != self.method:
                 return ajax_error(f'{self.method} method must be used.')
-            if not request.user.is_authenticated:
+            if not request.user.is_authenticated and self.login_required:
                 return ajax_error('You must be logged in.')
 
             return func(request, *args, **kwargs)
@@ -106,9 +106,9 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
-#@ratelimit(key='ip', rate='50/h')
-#@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
+@ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
     was_limited = getattr(request, 'limited', False)
     if was_limited:
@@ -126,11 +126,17 @@ def drag_and_drop(request):
     if not request.user.profile.is_moderator:
         return ajax_error(msg="Only moderators can move comments.")
 
+    children = auth.walk_down_thread(parent=post)
+
+    if parent == post or (parent in children):
+        return ajax_error(msg="Can not move post under parent.")
+
+    if post.is_toplevel:
+        return ajax_error(msg="Top level posts can not be moved.")
 
     Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
-    #Post.objects.filter(uid=post.root.uid).update(reply_count=F("answer_count") - 1)
 
-    print("ONE")
+    #print("ONE")
     redir = post.get_absolute_url()
 
     return ajax_success(msg="success", redir=redir)
