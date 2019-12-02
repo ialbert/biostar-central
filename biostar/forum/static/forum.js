@@ -338,13 +338,31 @@ function allowDrop(ev) {
 var children = '';
 var dragged_over = '';
 
+function drag_answer(ev, elem_id) {
+    //ev.preventDefault();
+
+    let elem = $('.droptarget[data-value="' + elem_id + '"]');
+    let is_answer = elem.data('is_answer');
+
+    if (is_answer === 'True') {
+        ev.dataTransfer.setData("text", elem_id);
+        children = elem.data('thread');
+        ev.target.style.opacity = "0.4";
+    }
+
+
+    //alert(elem_id);
+
+}
+
 function drag(ev, elem_id) {
     //ev.preventDefault();
+    ev.dataTransfer.setData("text", elem_id);
     let elem = $('.droptarget[data-value="' + elem_id + '"]');
     children = elem.data('thread');
-    ev.dataTransfer.setData("text", elem_id);
     ev.target.style.opacity = "0.4";
 
+    //alert(elem_id);
 
 }
 
@@ -366,7 +384,7 @@ function drag_over(ev, pid) {
     let elem = $('.droptarget[data-value="' + pid + '"]');
     let is_answer = elem.data('is_answer');
     let children_list = children.split(",");
-    if (pid ==='answer'){
+    if (pid === 'answer') {
 
     }
     dragged_over = pid;
@@ -400,10 +418,11 @@ function drop(ev, elem_id) {
     source_elem.css('opacity', '1');
     let elem = $('.droptarget[data-value="' + elem_id + '"]');
     let children_list = children.split(",");
-
-    //alert(children_list);
-    //alert(elem_id);
+    alert(children_list);
+    alert(elem_id);
+    alert(source);
     if (jQuery.inArray(elem_id, children_list) === -1 && dragged_over === elem_id) {
+
         //alert(dragged_over);
         $.ajax('/drag/and/drop/',
             {
@@ -451,8 +470,13 @@ function drop(ev, elem_id) {
         dragged_over = '';
         //ev.stopPropagation();
     } else if (dragged_over === elem_id) {
+
         popup_message(source_elem, "Can not be dropped here.", 'error', 1000);
 
+    } else {
+        alert(children_list);
+        alert(elem_id);
+        alert(source);
     }
     elem.css('border', 'none');
     source_elem.css('border', 'none');
