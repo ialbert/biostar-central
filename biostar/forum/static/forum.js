@@ -360,7 +360,7 @@ function drag_leave(ev, pid) {
 
     //elem.css('padding', '0');
     elem.css('opacity', '1');
-    //elem.css('backgroundColor', 'white');
+    //elem.css('backgroundColor', 'none');
     dragged_over = '';
     //ev.stopPropagation();
 
@@ -377,14 +377,14 @@ function drag_over(ev, pid) {
 
     if (jQuery.inArray(pid, children_list) !== -1) {
         //elem.css('backgroundColor', '#ffb5a8');
-        elem.css('border', '#ffb5a8 dotted');
+        elem.css('border', '#ffb5a8 dashed');
 
         //dragged_over = '';
         //alert(children_list)
     } else {
 
         //alert(pid);
-        elem.css('border', '#c2ffc2 dotted 5px');
+        elem.css('border', '#c2ffc2 dashed 5px');
         //elem.css('bac')
         //elem.css('padding', '1px');
         //elem.css('backgroundColor', '#c2ffc2')
@@ -436,7 +436,7 @@ function drop(ev, elem_id) {
                         //window.location.reload();
 
 
-                        source_elem.transition('fade down');
+                        source_elem.transition('zoom');
                         //elem.style.backgroundColor = '';
                         //ev.target.style.border = "red";
                         //elem.removeChild = document.getElementById('indent-' + source)
