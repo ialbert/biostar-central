@@ -107,7 +107,7 @@ def parse_result(result):
                                type=result['type'], lastedit_date=result['lastedit_date'],
                                is_toplevel=result['is_toplevel'], rank=result['rank'], uid=result['uid'],
                                author_handle=result['author_handle'], author=result['author'],
-                               author_email=result['author_email'], author_score=result['author_score'],
+                               author_score=result['author_score'],
                                thread_votecount=result['thread_votecount'], vote_count=result['vote_count'],
                                author_uid=result['author_uid'], author_url=result['author_url'])
 
