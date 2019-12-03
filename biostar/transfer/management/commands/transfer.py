@@ -19,8 +19,6 @@ from biostar.utils import markdown
 
 logger = logging.getLogger("engine")
 
-
-
 LIMIT = None
 
 def timer_func():
