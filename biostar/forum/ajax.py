@@ -114,11 +114,18 @@ def drag_and_drop(request):
     if was_limited:
         return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
-    parent = request.POST.get("parent", '')
+    parent_uid = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
 
-    parent = Post.objects.filter(uid=parent).first()
+    parent = Post.objects.filter(uid=parent_uid).first()
     post = Post.objects.filter(uid=uid).first()
+    post_type = Post.COMMENT
+    if not post:
+        return ajax_error(msg="Post does not exist.")
+
+    if parent_uid == "NEW":
+        parent = post.root
+        post_type = Post.ANSWER
 
     if not uid or not parent:
         return ajax_error(msg="Parent and Uid need to be provided. ")
@@ -134,7 +141,7 @@ def drag_and_drop(request):
     if post.is_toplevel:
         return ajax_error(msg="Top level posts can not be moved.")
 
-    Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
+    Post.objects.filter(uid=post.uid).update(type=post_type, parent=parent)
 
     #print("ONE")
     redir = post.get_absolute_url()

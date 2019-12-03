@@ -90,10 +90,10 @@ class Command(BaseCommand):
                 return
 
             logger.info(f"Searching for similar posts: {post.title}")
-
-            finish, results = time_func(more_like_this, kwargs=dict(uid=uid, db_search=db_search))
+            print(uid)
+            finish, results = time_func(more_like_this, kwargs=dict(uid=uid))
             logger.info(f"Post uid: {uid}. Database search: {db_search}")
-            print_results(results=results, limit=limit, verbosity=verbosity, query=query, finish_time=finish)
+            print_results(results=results, limit=limit, verbosity=verbosity, query=uid, finish_time=finish)
 
             return
 

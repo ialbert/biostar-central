@@ -338,28 +338,16 @@ function allowDrop(ev) {
 var children = '';
 var dragged_over = '';
 
-function drag_answer(ev, elem_id) {
-    //ev.preventDefault();
 
-    let elem = $('.droptarget[data-value="' + elem_id + '"]');
-    let is_answer = elem.data('is_answer');
-
-    if (is_answer === 'True') {
-        ev.dataTransfer.setData("text", elem_id);
-        children = elem.data('thread');
-        ev.target.style.opacity = "0.4";
-    }
-
-
-    //alert(elem_id);
-
-}
 
 function drag(ev, elem_id) {
     //ev.preventDefault();
     ev.dataTransfer.setData("text", elem_id);
     let elem = $('.droptarget[data-value="' + elem_id + '"]');
-    children = elem.data('thread');
+
+    children = '{0}'.format(elem.data('thread'));
+
+    ev.dataTransfer.setData("text", elem_id);
     ev.target.style.opacity = "0.4";
 
     //alert(elem_id);
@@ -374,6 +362,7 @@ function drag_leave(ev, pid) {
     elem.css('opacity', '1');
     //elem.css('backgroundColor', 'white');
     dragged_over = '';
+    //ev.stopPropagation();
 
 }
 
@@ -382,28 +371,25 @@ function drag_over(ev, pid) {
     //ev.preventDefault();
     //var source = ev.dataTransfer.getData("text");
     let elem = $('.droptarget[data-value="' + pid + '"]');
-    let is_answer = elem.data('is_answer');
     let children_list = children.split(",");
-    if (pid === 'answer') {
 
-    }
     dragged_over = pid;
 
     if (jQuery.inArray(pid, children_list) !== -1) {
         //elem.css('backgroundColor', '#ffb5a8');
         elem.css('border', '#ffb5a8 dotted');
-        //console.log(pid);
-        //console.log(children_list);
+
         //dragged_over = '';
         //alert(children_list)
     } else {
+
         //alert(pid);
         elem.css('border', '#c2ffc2 dotted 5px');
         //elem.css('bac')
         //elem.css('padding', '1px');
         //elem.css('backgroundColor', '#c2ffc2')
     }
-
+//ev.stopPropagation();
     //ev.stopPropagation();
 
 }
@@ -417,10 +403,13 @@ function drop(ev, elem_id) {
     let source_elem = $('#' + source);
     source_elem.css('opacity', '1');
     let elem = $('.droptarget[data-value="' + elem_id + '"]');
+
     let children_list = children.split(",");
-    alert(children_list);
-    alert(elem_id);
-    alert(source);
+
+    //let children_list = children.split(",");
+
+    //alert(children_list);
+    //alert(elem_id);
     if (jQuery.inArray(elem_id, children_list) === -1 && dragged_over === elem_id) {
 
         //alert(dragged_over);
@@ -437,6 +426,9 @@ function drop(ev, elem_id) {
                 success: function (data) {
                     if (data.status === 'error') {
                         popup_message(elem, data.msg, data.status);
+                        elem.css('border', 'none');
+                        source_elem.css('border', 'none');
+                        elem.css('opacity', '1');
 
                     } else {
                         //alert(data.redir)
@@ -458,7 +450,10 @@ function drop(ev, elem_id) {
                     }
                 },
                 error: function (xhr, status, text) {
-                    error_message(elem, xhr, status, text)
+                    error_message(elem, xhr, status, text);
+                    elem.css('border', 'none');
+                    source_elem.css('border', 'none');
+                    elem.css('opacity', '1');
                 }
             });
 
@@ -473,10 +468,6 @@ function drop(ev, elem_id) {
 
         popup_message(source_elem, "Can not be dropped here.", 'error', 1000);
 
-    } else {
-        alert(children_list);
-        alert(elem_id);
-        alert(source);
     }
     elem.css('border', 'none');
     source_elem.css('border', 'none');

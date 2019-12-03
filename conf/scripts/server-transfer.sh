@@ -21,18 +21,17 @@ DATABASE_SQL=export/sql/biostar.sql.gz
 # The database the old dump is loaded from.
 TRANSFER_DATABASE=old_biostar.db
 
-
 # How many posts to load
-LIMIT=1000
+LIMIT=10000000
 
 # Drop the old database if exists.
-dropdb --if-exists ${TRANSFER_DATABASE}
+#dropdb --if-exists ${TRANSFER_DATABASE}
 
 # Create the database for the old biostar.
-createdb ${TRANSFER_DATABASE}
+#createdb ${TRANSFER_DATABASE}
 
 # Load the data into the old biostar.
-cat ${DATABASE_SQL} | gunzip -c | psql -d ${TRANSFER_DATABASE}
+#cat ${DATABASE_SQL} | gunzip -c | psql -d ${TRANSFER_DATABASE}
 
 # Transfer the data
 python manage.py transfer --limit $LIMIT --settings ${TRANSFER_SETTINGS_MODULE}

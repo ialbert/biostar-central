@@ -52,13 +52,15 @@
         </div>
 
 
-        <div class="content wrap-text" {% if post.is_answer %}draggable="true" ondragstart="drag(event, '{{ post.uid }}');"{% endif %}>
+        <div class="content wrap-text">
 
             <div ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')">
-                <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}" data-thread="{{ post|get_children_list }}"
-                     ondragover="drag_over(event, '{{ post.uid }}')" ondragleave="drag_leave(event, '{{ post.uid }}')">
+                <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
+                     data-thread="{{ post|get_children_list }}"
+                     ondragover="drag_over(event, '{{ post.uid }}')"
+                     ondragleave="drag_leave(event, '{{ post.uid }}')">
 
-                    <div class="ui inverted dimmer">
+                    <div class="ui inverted dimmer" >
 
                         <div class="ui text loader">
                             <div class="muted">Entering edit mode</div>
@@ -66,7 +68,7 @@
 
                     </div>
 
-                    <div class="wrap magnify">
+                    <div class="wrap magnify" {% if post.is_answer %}draggable="true" ondragstart="drag(event, '{{ post.uid }}');"{% endif %}>
                         {# Display post author. #}
                         <div class="hide-on-edit menu-tablet" data-value="{{ post.uid }}">
                             {% post_user_box user=post.author post=post %}
@@ -103,6 +105,7 @@
 
                         {# Render all comments #}
                     </div>
+
                 </div>
                 {% render_comments tree=tree post=post %}
             </div>

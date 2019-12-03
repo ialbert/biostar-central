@@ -706,7 +706,9 @@ def get_children_list(post):
     auth.walk_down_thread(parent=post, collect=children, is_root=post.is_toplevel)
 
     # Include itself in list
+
     children = [post.uid] + list(map(lambda p: p.uid, children))
 
-    print(children, post.uid)
+    children += ['NEW'] if post.is_answer else []
+    #print(children, post.uid)
     return ','.join(children)
