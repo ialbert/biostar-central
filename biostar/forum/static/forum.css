@@ -951,7 +951,9 @@ pre {
         display: block !important;
     }
 
-
+   .thread-users{
+        display: none !important;
+    }
 }
 
 
@@ -1003,6 +1005,7 @@ pre {
     .post-title .title{
          vertical-align: top !important;
     }
+
 }
 
 @media all and (max-width: 500px) {
