@@ -3,7 +3,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 from biostar.forum.models import Post
-
+from django.conf import settings
 from biostar.forum import search
 
 from biostar.forum.search import crawl, init_index
@@ -24,7 +24,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Index all un-indexed posts that have a root.
-
+        logger.info(f"Database: {settings.DATABASE_NAME}")
         reset = options['reset']
         remove = options['remove']
         report = options['report']
@@ -58,8 +58,6 @@ class Command(BaseCommand):
 
             count = Post.objects.filter(indexed=False).exclude(root=None).count()
             logger.info(f"Finished with {count} unindexed posts remaining")
-
-
 
         # Report the contents of the index
         if report:

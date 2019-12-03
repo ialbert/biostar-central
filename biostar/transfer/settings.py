@@ -9,7 +9,9 @@ DEBUG = True
 
 WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
 
-TRANSFER_DATABASE = os.environ.setdefault("TRANSFER_DATABASE", "transfer.db")
+TRANSFER_DATABASE = os.environ.setdefault("OLD_DATABASE", "old_biostar_db")
+
+DATABASE_NAME = os.environ.setdefault("NEW_DATABASE", "new_biostar_db")
 
 print(f'DATABASE_NAME={DATABASE_NAME}, TRANSFER_NAME={TRANSFER_DATABASE}')
 

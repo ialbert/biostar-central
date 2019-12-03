@@ -2,8 +2,13 @@
 
 <a name="{{ post.uid }}"></a>
 
-<div class="dimm-on-edit droptarget" id='drag-{{ post.uid }}' data-value="{{ post.uid }}"
-     ondragover="drag_over(event, '{{ post.uid }}')" ondragleave="drag_leave(event)">
+<div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
+        {% if request.user.is_authenticated and request.user.profile.is_moderator %}
+     id='drag-{{ post.uid }}'
+     data-thread="{{ post|get_children_list }}"
+     ondragover="drag_over(event, '{{ post.uid }}')"
+     ondragleave="drag_leave(event, '{{ post.uid }}')"
+        {% endif %}>
 
     <div class="ui inverted dimmer">
         <div class="ui text loader">
@@ -11,8 +16,11 @@
         </div>
     </div>
 
-    <div class="post comment {{ post.css }} " draggable="true" id="{{ post.uid }}"
-          ondragstart="drag(event, '{{ post.uid }}');">
+    <div class="post comment {{ post.css }} " id="{{ post.uid }}"
+            {% if request.user.is_authenticated and request.user.profile.is_moderator %}
+         draggable="true"
+         ondragstart="drag(event, '{{ post.uid }}');"
+            {% endif %}>
 
         <div class="body">
             {#  Comment anchor. #}

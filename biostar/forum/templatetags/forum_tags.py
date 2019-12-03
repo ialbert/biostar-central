@@ -21,7 +21,7 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
 from biostar.accounts.models import Profile, Message
-from biostar.forum import const
+from biostar.forum import const, auth
 from biostar.forum.models import Post, Vote, Award, Subscription
 
 User = get_user_model()
@@ -676,9 +676,12 @@ def traverse_comments(request, post, tree, template_name):
 
         cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
-        drop = f"indent-{node.uid}"
-        d2 = f"'{node.uid}'"
-        collect.append(f'<div class="indent droptarget " id="{drop}" ondragover="allowDrop(event);" ondrop="drop(event, {d2})"><div class="comment">{html}</div>')
+        source = f"indent-{node.uid}"
+        target = f"'{node.uid}'"
+        if request.user.is_authenticated and request.user.profile.is_moderator:
+            collect.append(f'<div class="indent " id="{source}" ondragover="allowDrop(event);" ondrop="drop(event, {target})"><div class="comment">{html}</div>')
+        else:
+            collect.append(f'<div class="indent "><div class="comment">{html}</div>')
 
         for child in tree.get(node.id, []):
             if child in seen:
@@ -697,3 +700,18 @@ def traverse_comments(request, post, tree, template_name):
     html = '\n'.join(collect)
 
     return html
+
+
+@register.filter
+def get_children_list(post):
+
+    children = []
+    auth.walk_down_thread(parent=post, collect=children, is_root=post.is_toplevel)
+
+    # Include itself in list
+
+    children = [post.uid] + list(map(lambda p: p.uid, children))
+
+    children += ['NEW'] if post.is_answer else []
+    #print(children, post.uid)
+    return ','.join(children)

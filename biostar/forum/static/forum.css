@@ -500,8 +500,12 @@ figure {
 }
 
 .ui.divided.items > .post.item.deleted {
-    background-color: #f7e4de;
-    opacity: .0%;
+    background-color: #ffd2cf;
+    //opacity: .0%;
+}
+
+.dragging-over {
+    pointer-events: none;
 }
 
 .ui.horizontal.segments.top-menu > .ui.segment {

@@ -42,7 +42,8 @@
             {% if post.can_accept %}
                 <div class="top-padding">
                     <button class="ui icon button vote accept" data-value="{{ post.uid }}" data-type="accept"
-                            data-position="right center" data-state="{{ post.accept_count }}" data-content="Accept answer">
+                            data-position="right center" data-state="{{ post.accept_count }}"
+                            data-content="Accept answer">
                         <i class="check circle icon "></i>
                     </button>
                 </div>
@@ -53,7 +54,17 @@
 
         <div class="content wrap-text">
 
-            <div class="dimm-on-edit" data-value="{{ post.uid }}">
+            <div
+                    {% if request.user.is_authenticated and request.user.profile.is_moderator %}
+                    ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')"
+                    {% endif %}>
+                <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
+
+                {% if request.user.is_authenticated and request.user.profile.is_moderator %}
+                     data-thread="{{ post|get_children_list }}"
+                     ondragover="drag_over(event, '{{ post.uid }}')"
+                     ondragleave="drag_leave(event, '{{ post.uid }}')"
+                {% endif %}>
 
                 <div class="ui inverted dimmer">
 
@@ -63,7 +74,12 @@
 
                 </div>
 
-                <div class="wrap magnify">
+                <div class="wrap magnify"
+                     {% if post.is_answer and request.user.is_authenticated and request.user.profile.is_moderator%}
+                     draggable="true"
+                     ondragstart="drag(event, '{{ post.uid }}');"
+                     {% endif %}>
+
                     {# Display post author. #}
                     <div class="hide-on-edit menu-tablet" data-value="{{ post.uid }}">
                         {% post_user_box user=post.author post=post %}
@@ -100,12 +116,13 @@
 
                     {# Render all comments #}
                 </div>
+
+                </div>
+                {% render_comments tree=tree post=post %}
             </div>
-            {% render_comments tree=tree post=post %}
+
         </div>
-
     </div>
-
 </div>
 
 

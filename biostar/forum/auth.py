@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Q
 from django.utils.timezone import utc
 
 from biostar.accounts.models import Profile
@@ -34,6 +34,29 @@ def get_votes(user, root):
 
     return store
 
+
+def walk_down_thread(parent, collect=[], is_root=True):
+    """
+    Recursively walk up a thread of posts starting from target
+    """
+
+    # Stop condition 1: post does not have a root or parent.
+    if (parent is None) or (parent.parent is None) or (parent.root is None):
+        return collect
+
+    # Get all children for this post
+    if is_root:
+        children = Post.objects.filter(root=parent).exclude(uid=parent.uid)
+    else:
+        children = Post.objects.filter(parent=parent).exclude(uid=parent.uid)
+
+    for child in children:
+        # Add child to list
+        collect.append(child)
+        # Get all children belonging to the current child.
+        walk_down_thread(parent=child, collect=collect, is_root=is_root)
+
+    return collect
 
 
 def create_subscription(post, user, sub_type=None, delete_exisiting=True):

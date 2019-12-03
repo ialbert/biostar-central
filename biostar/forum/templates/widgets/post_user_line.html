@@ -11,11 +11,10 @@
                     <img class="ui tiny centered image thread-users" src="{% gravatar user=post.author size=80 %}">
                 </div>
             {% endif %}
-            {{ post.author.profile.name }}
+            {{ post.author.profile.name|truncatechars:40 }}
         </a>
 
         {% user_icon user=post.author %}
-
 
      &bull;
     updated
@@ -28,7 +27,7 @@
                 <img class="ui tiny centered image thread-users" src="{% gravatar user=post.lastedit_user size=80 %}">
             </div>
         {% endif %}
-        {{ post.lastedit_user.profile.name }}
+        {{ post.lastedit_user.profile.name|truncatechars:50 }}
     </a>
 
     {% user_icon user=post.lastedit_user %}

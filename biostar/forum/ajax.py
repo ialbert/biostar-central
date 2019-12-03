@@ -45,9 +45,9 @@ class ajax_error_wrapper:
     Used as decorator to trap/display  errors in the ajax calls
     """
 
-    def __init__(self, method):
+    def __init__(self, method, login_required=True):
         self.method = method
-
+        self.login_required = login_required
     def __call__(self, func, *args, **kwargs):
 
         @wraps(func, assigned=available_attrs(func))
@@ -55,7 +55,7 @@ class ajax_error_wrapper:
 
             if request.method != self.method:
                 return ajax_error(f'{self.method} method must be used.')
-            if not request.user.is_authenticated:
+            if not request.user.is_authenticated and self.login_required:
                 return ajax_error('You must be logged in.')
 
             return func(request, *args, **kwargs)
@@ -108,17 +108,24 @@ def ajax_vote(request):
 
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
+@ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
     was_limited = getattr(request, 'limited', False)
     if was_limited:
         return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
-    parent = request.POST.get("parent", '')
+    parent_uid = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
 
-    parent = Post.objects.filter(uid=parent).first()
+    parent = Post.objects.filter(uid=parent_uid).first()
     post = Post.objects.filter(uid=uid).first()
+    post_type = Post.COMMENT
+    if not post:
+        return ajax_error(msg="Post does not exist.")
+
+    if parent_uid == "NEW":
+        parent = post.root
+        post_type = Post.ANSWER
 
     if not uid or not parent:
         return ajax_error(msg="Parent and Uid need to be provided. ")
@@ -126,9 +133,17 @@ def drag_and_drop(request):
     if not request.user.profile.is_moderator:
         return ajax_error(msg="Only moderators can move comments.")
 
-    Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
-    #Post.objects.filter(uid=post.root.uid).update(reply_count=F("answer_count") - 1)
+    children = auth.walk_down_thread(parent=post)
 
+    if parent == post or (parent in children):
+        return ajax_error(msg="Can not move post under parent.")
+
+    if post.is_toplevel:
+        return ajax_error(msg="Top level posts can not be moved.")
+
+    Post.objects.filter(uid=post.uid).update(type=post_type, parent=parent)
+
+    #print("ONE")
     redir = post.get_absolute_url()
 
     return ajax_success(msg="success", redir=redir)
@@ -429,26 +444,20 @@ def ajax_search(request):
     except Exception as exc:
         redir = False
 
-    fields = ['content', 'tags', 'title', 'author', 'author_uid', 'author_handle']
-
     if redir:
-        print(int(request.GET.get('redir', 0)), bool(int(request.GET.get('redir', 0))))
-        redit_url = reverse('post_search') + '?query=' + query
-        return ajax_success(redir=redit_url, msg="success")
+        # Redirect search results to a separate page.
+        redir_url = reverse('post_search') + '?query=' + query
+        return ajax_success(redir=redir_url, msg="success")
 
     if not query:
         return ajax_success(msg="Empty query", status="error")
 
-    whoosh_results = search.search(query=query, fields=fields)
-    results = sorted(whoosh_results, key=lambda x: x['lastedit_date'], reverse=True)
-
+    results = search.preform_search(query=query)
     tmpl = loader.get_template("widgets/search_results.html")
-
     context = dict(results=results, query=query)
 
     results_html = tmpl.render(context)
-    # Ensure the whoosh reader is closed
-    close(whoosh_results)
+
     return ajax_success(html=results_html, msg="success")
 
 
@@ -503,22 +512,10 @@ def similar_posts(request, uid):
     if not post:
         ajax_error(msg='Post does not exist.')
 
-    results = []
-    # Retrieve this post from the search index.
-    indexed_post = search.preform_search(query=post.uid, fields=['uid'])
-
-    if isinstance(indexed_post, Results) and not indexed_post.is_empty():
-
-        results = indexed_post[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
-        # Filter results for toplevel posts.
-        results = filter(lambda p: p['is_toplevel'] is True, results)
-        # Sort by lastedit_date
-        results = sorted(results, key=lambda x: x['lastedit_date'], reverse=True)
+    results = search.more_like_this(uid=post.uid)
 
     tmpl = loader.get_template('widgets/similar_posts.html')
     context = dict(results=results)
     results_html = tmpl.render(context)
-    # Ensure the searcher object gets closed.
-    close(indexed_post)
 
     return ajax_success(html=results_html, msg="success")
