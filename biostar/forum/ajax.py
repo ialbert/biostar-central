@@ -143,7 +143,7 @@ def drag_and_drop(request):
 
     Post.objects.filter(uid=post.uid).update(type=post_type, parent=parent)
 
-    #print("ONE")
+    post.update_parent_counts()
     redir = post.get_absolute_url()
 
     return ajax_success(msg="success", redir=redir)

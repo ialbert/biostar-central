@@ -101,20 +101,7 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Save the instance.
         instance.save()
-
-        descendants = Post.objects.filter(root=instance.root).exclude(pk=instance.root.pk)
-        answer_count = descendants.filter(type=Post.ANSWER).count()
-        comment_count = descendants.filter(type=Post.COMMENT).count()
-        reply_count = descendants.count()
-        # Update the root reply, answer, and comment counts.
-        Post.objects.filter(pk=instance.root.pk).update(reply_count=reply_count, answer_count=answer_count,
-                                                        comment_count=comment_count)
-
-        children = Post.objects.filter(parent=instance.parent).exclude(pk=instance.parent.pk)
-        com_count = children.filter(type=Post.COMMENT).count()
-        # Update parent reply, answer, and comment counts.
-        Post.objects.filter(pk=instance.parent.pk, is_toplevel=False).update(comment_count=com_count,
-                                                                             reply_count=children.count())
+        instance.update_parent_counts()
 
         # Bump the root rank when a new descendant is added.
         Post.objects.filter(uid=instance.root.uid).update(rank=util.now().timestamp())
