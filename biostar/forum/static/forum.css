@@ -504,8 +504,8 @@ figure {
     //opacity: .0%;
 }
 
-.foo{
-    pointer-events: none !important;
+.dragging-over {
+    pointer-events: none;
 }
 
 .ui.horizontal.segments.top-menu > .ui.segment {

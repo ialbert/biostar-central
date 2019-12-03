@@ -362,7 +362,9 @@ function drag_leave(ev, pid) {
     elem.css('opacity', '1');
     //elem.css('backgroundColor', 'none');
     dragged_over = '';
+    //elem.removeClass('foo');
     //ev.stopPropagation();
+    //elem.removeClass('dragging-over');
 
 }
 
@@ -372,7 +374,7 @@ function drag_over(ev, pid) {
     //var source = ev.dataTransfer.getData("text");
     let elem = $('.droptarget[data-value="' + pid + '"]');
     let children_list = children.split(",");
-
+//elem.addClass('foo');
     dragged_over = pid;
 
     if (jQuery.inArray(pid, children_list) !== -1) {
@@ -389,6 +391,7 @@ function drag_over(ev, pid) {
         //elem.css('padding', '1px');
         //elem.css('backgroundColor', '#c2ffc2')
     }
+    //elem.addClass('dragging-over');
 //ev.stopPropagation();
     //ev.stopPropagation();
 
@@ -429,13 +432,14 @@ function drop(ev, elem_id) {
                         elem.css('border', 'none');
                         source_elem.css('border', 'none');
                         elem.css('opacity', '1');
-
+                          elem.removeClass('foo');
+//elem.removeClass('dragging-over');
                     } else {
                         //alert(data.redir)
                         //window.location.href = data.redir;
                         //window.location.reload();
 
-
+  //elem.removeClass('foo');
                         source_elem.transition('zoom');
                         //elem.style.backgroundColor = '';
                         //ev.target.style.border = "red";
