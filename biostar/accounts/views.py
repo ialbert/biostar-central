@@ -137,7 +137,7 @@ def user_profile(request, uid):
 
     # User viewing profile is a moderator
     can_moderate = request.user.is_authenticated and request.user.profile.is_moderator and request.user != profile.user
-    context = dict(target=profile.user, active="profile", debugging=settings.DEBUG,
+    context = dict(target=profile.user, active=active, debugging=settings.DEBUG,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate)
 
     return render(request, "accounts/user_profile.html", context)

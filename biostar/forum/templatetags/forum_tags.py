@@ -530,24 +530,21 @@ def relative_url(value, field_name, urlencode=None):
 
 @register.simple_tag
 def get_thread_users(post, limit=2):
-    thread_users = post.thread_users.all()
-    stream = itertools.islice(thread_users, limit)
+    users = post.thread_users.exclude(profile__state__in=[Profile.BANNED, Profile.SUSPENDED]).all()
 
-    if not settings.ADD_THREAD_USERS:
-        return []
+    if post.author != post.lastedit_user:
+        displayed_users = [post.author, post.lastedit_user]
+    else:
+        displayed_users = [post.author]
 
-    # Author is shown first
-    users = {post.author, post.lastedit_user}
-    for user in stream:
-        if len(users) >= limit:
+    for user in users:
+        if len(displayed_users) >= limit:
             break
-        if user in users:
+        if user in displayed_users:
             continue
-        users.add(user)
+        displayed_users.append(user)
 
-    users = filter(lambda u: not (u.profile.is_banned or u.profile.is_suspended), users)
-
-    return users
+    return displayed_users
 
 
 @register.inclusion_tag('widgets/listing.html', takes_context=True)

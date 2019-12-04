@@ -203,6 +203,26 @@ class Post(models.Model):
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
 
+    def update_parent_counts(self):
+        """
+        Update the counts for the parent and root
+        """
+
+        descendants = Post.objects.filter(root=self.root).exclude(pk=self.root.pk)
+        answer_count = descendants.filter(type=Post.ANSWER).count()
+        comment_count = descendants.filter(type=Post.COMMENT).count()
+        reply_count = descendants.count()
+        # Update the root reply, answer, and comment counts.
+        Post.objects.filter(pk=self.root.pk).update(reply_count=reply_count, answer_count=answer_count,
+                                                    comment_count=comment_count)
+
+        children = Post.objects.filter(parent=self.parent).exclude(pk=self.parent.pk)
+        com_count = children.filter(type=Post.COMMENT).count()
+
+        # Update parent reply, answer, and comment counts.
+        Post.objects.filter(pk=self.parent.pk, is_toplevel=False).update(comment_count=com_count, answer_count=0,
+                                                                         reply_count=children.count())
+
     @property
     def css(self):
         # Used to simplify CSS rendering.
