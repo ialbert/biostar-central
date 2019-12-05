@@ -123,7 +123,7 @@ svg {
 }
 
 .post.item > .content .ui.label {
-    margin: 0 4px;
+    margin: 0 0px;
 }
 
 .ui.items > .post.item > .image:not(.ui) {
@@ -573,7 +573,7 @@ figure {
 
 }
 
-.ui.label.job {
+.ui.label.job.rev {
     background-color: white;
     color: #e9530f;
 
@@ -635,6 +635,11 @@ img {
 
 .accepted.answer.label {
     background-color: #436c27 !important;
+}
+
+.accepted.answer.label.rev {
+    background-color: white !important;
+    color: #E1E818 !important;
 }
 
 .ui.question.label {
@@ -884,6 +889,11 @@ img {
 }
 
 
+.ui.label.voting.rev {
+    background: white;
+
+}
+
 .code {
     font-family: monospace;
 }
@@ -1008,6 +1018,12 @@ pre {
     .thread-users {
         display: none !important;
     }
+
+    .small-stats{
+        display: block !important;
+        width: fit-content;
+
+    }
 }
 
 
@@ -1043,14 +1059,6 @@ pre {
         width: 100% !important;
         //padding-left: 25%;
         //padding-right: 25%;
-    }
-
-    .view {
-        display: none !important;
-    }
-
-    .voting {
-        display: none !important;
     }
 
 

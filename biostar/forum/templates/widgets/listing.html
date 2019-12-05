@@ -33,29 +33,18 @@
                     </div>
                     <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
                 </div>
+
                 {% if show_subs %}
+                    <span class="menu-tablet_small">
                     {% subscription_label post.subs_count %}
+                     </span>
                 {% endif %}
             </div>
 
             <div class="content">
-{% comment %}
-            </div>{% endcomment %}
 
-               {% comment %}         <div class="second statbox" style="display: none;">
-                <div class="ui label stat mini {% boxclass post %} bookmark">
-                    <div class="number-stat">
-                        {{ post.reply_count }}
-                    </div>
-                    <div class="detail-stat">Repl{{ post.reply_count|pluralize:"y,ies" }}</div>
-                </div>
-            </div>{% endcomment %}
-                     <div class="ui label rev {% boxclass post %}" style="padding: 5px">
-                        {{ post.reply_count }}
-                    Repl{{ post.reply_count|pluralize:"y,ies" }}
-                </div>
+
                 <div class="post-title header" style=" display: contents !important;">
-
 
                     {% if not post.is_open %}
                         <span class="ui title header">{{ post.get_status_display }}:</span>
@@ -67,7 +56,18 @@
                        class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
                     </a>
                 </div>
+            <div class="small-stats" style="display: none;">
 
+                        {{ post.get_votecount|bignum }}
+
+                    Vote{{ post.get_votecount|pluralize }}
+
+                |
+
+                    {{ post.reply_count }}
+                    Repl{{ post.reply_count|pluralize:"y,ies" }}
+
+            </div>
                 <div class="right floated thread-users">
                     {% get_thread_users post=post as extra_users %}
                     {% for extra_user in extra_users %}
@@ -93,7 +93,9 @@
                 </div>
 
             </div>
+
         </div>
+
     {% empty %}
         <div class="ui warn message">
 
