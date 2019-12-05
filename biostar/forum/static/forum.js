@@ -645,7 +645,7 @@ $(document).ready(function () {
             var icon_str = $item.data('icon');
             // Subscription url
             var digest_url = '/ajax/digest/';
-            alert('ffff')
+            //alert('ffff')
             $.ajax(digest_url,
                 {
                     type: 'POST',

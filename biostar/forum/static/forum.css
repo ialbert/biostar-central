@@ -561,7 +561,6 @@ figure {
 }
 
 
-
 .ui.label.job {
     background-color: #e9530f;
     color: #fff;
@@ -573,7 +572,6 @@ figure {
     background-color: #265040;
     color: #fff;
 }
-
 
 
 img {
@@ -620,12 +618,10 @@ img {
 }
 
 
-
 .ui.question.label {
     background-color: #8f2c47;
     color: white;
 }
-
 
 
 .ui.forum.label {
@@ -650,7 +646,10 @@ img {
     color: white;
 }
 
-
+.dim-on-create{
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+}
 
 .ui.stats.segment {
     margin-left: -1em;
@@ -689,6 +688,7 @@ img {
     box-shadow: none;
     background: #f9f6f4 !important;
     overflow-wrap: break-word;
+    //width: 130% !important;
 }
 
 .type-field {
@@ -850,7 +850,6 @@ img {
 }
 
 
-
 .code {
     font-family: monospace;
 }
@@ -928,17 +927,17 @@ pre {
 @media all and (max-width: 1200px) {
 
     .menu-tablet {
-        display: none !important;
+        display: none;
     }
 
 
     .header-menu {
-        display: none !important;
-        margin-right: 0 !important;
+        display: none;
+        margin-right: 0;
     }
 
     .header-menu .menu-tablet_small {
-        display: none !important;
+        display: none;
     }
 
 
@@ -948,6 +947,12 @@ pre {
     border: 2px dashed #000;
 }
 
+.small-stats {
+    display: none !important;
+    width: fit-content;
+
+}
+
 @media all and (max-width: 992px) {
 
     .menu-tablet_small {
@@ -955,13 +960,13 @@ pre {
     }
 
     .ui.menu:not(.vertical) .left.item {
-        display: inline !important;
+        display: inline ;
         margin-right: 0 !important;
     }
 
     .header-menu {
         display: inline !important;
-        margin-right: 0 !important;
+        //margin-right: 0 ;
     }
 
     .ui.label.rev {
@@ -973,13 +978,29 @@ pre {
     }
 
     .thread-users {
-        display: none !important;
+        display: none;
     }
 
-    .small-stats{
+    .small-stats {
         display: block !important;
         width: fit-content;
 
+    }
+
+    .post-form{
+        //width: 130% !important;
+    }
+
+        .post-form{
+        //width: 130% !important;
+    }
+
+    .type-field{
+            display: inline-table;
+    }
+
+    .inplace-fields{
+        display: block;
     }
 }
 
@@ -1000,7 +1021,7 @@ pre {
     }
 
     .fit {
-        width: 133% !important;
+        //width: 133% !important;
     }
 
     .statbox {
@@ -1014,8 +1035,8 @@ pre {
 
     .ui.grid > [class*="four wide"].sidefeed {
         width: 100% !important;
-        //padding-left: 25%;
-        //padding-right: 25%;
+    / / padding-left: 25 %;
+    / / padding-right: 25 %;
     }
 
 
