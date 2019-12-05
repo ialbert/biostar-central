@@ -186,7 +186,7 @@ function cancel_create() {
 
     var form_container = $('#insert-form');
     form_container.html('');
-    $('#new-post').removeClass('active');
+    $('.new-post').removeClass('active');
     $('.dim-on-create').removeClass('fit-create');
 
 }
@@ -645,6 +645,7 @@ $(document).ready(function () {
             var icon_str = $item.data('icon');
             // Subscription url
             var digest_url = '/ajax/digest/';
+            alert('ffff')
             $.ajax(digest_url,
                 {
                     type: 'POST',
@@ -722,7 +723,7 @@ $(document).ready(function () {
         var post_actions = $('.hide-on-comment[data-value="' + parent_uid + '"]');
         cancel_inplace();
         $('#insert-form').html('');
-        $('#new-post').removeClass('active');
+        $('.new-post').removeClass('active');
 
         $('#add-answer').html('');
 
@@ -779,7 +780,7 @@ $(document).ready(function () {
         }
     });
 
-    $('#new-post').click(function () {
+    $('.new-post').click(function () {
         var create_url = '/inplace/form/';
         var form_container = $('#insert-form');
         cancel_inplace();
@@ -803,7 +804,7 @@ $(document).ready(function () {
                         $('#menu-header > .item').each(function () {
                             $(this).removeClass('active');
                         });
-                        $('#new-post').addClass('active');
+                        $('.new-post').addClass('active');
 
                         form_container.html(data.inplace_form);
                         form_container.show();

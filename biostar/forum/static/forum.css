@@ -554,31 +554,54 @@ figure {
     width: 25px !important;
 }
 
-.ui.stat.label.tutorial {
+.ui.label.tutorial {
     background-color: #2C7990;
     color: #fff;
 
 }
 
+.ui.label.tutorial.rev {
+    background-color: white;
+    color: #2C7990;
 
-.ui.stat.label.job {
+}
+
+
+.ui.label.job {
     background-color: #e9530f;
     color: #fff;
 
 }
 
-.ui.stat.label.tool {
+.ui.label.job {
+    background-color: white;
+    color: #e9530f;
+
+}
+
+.ui.label.tool {
     background-color: #265040;
     color: #fff;
+}
+
+.ui.label.tool.rev {
+    background-color: white;
+    color: #265040;
 }
 
 img {
     max-width: 100%;
 }
 
-.ui.stat.label.news {
+.ui.label.news {
     background-color: #762C90;
     color: #fff;
+
+}
+
+.ui.label.news.rev {
+    background-color: white;
+    color: #762C90;
 
 }
 
@@ -619,9 +642,19 @@ img {
     color: white;
 }
 
+.ui.question.label.rev {
+    background-color: white;
+    color: #8f2c47;
+}
+
 .ui.forum.label {
     background-color: #b79538;
     color: white;
+}
+
+.ui.forum.label.rev {
+    background-color: white;
+    color: #b79538;;
 }
 
 .ui.questions.label {
@@ -634,9 +667,19 @@ img {
     color: white;
 }
 
+.ui.darkgreen.label.rev {
+    background-color: white;
+    color: #326b2b;
+}
+
 .ui.question.has_answers.label {
     background-color: #5b8c3e;
     color: white;
+}
+
+.ui.question.has_answers.label.rev {
+    background-color: white;
+    color: #5b8c3e;
 }
 
 .ui.stats.segment {
@@ -836,6 +879,11 @@ img {
     background: #fff8db !important;
 }
 
+.ui.label.rev {
+    display: none ;
+}
+
+
 .code {
     font-family: monospace;
 }
@@ -904,19 +952,21 @@ pre {
 
 }
 
+.header-menu {
+    display: none !important;
+    margin-right: 0 !important;
+}
+
+
 @media all and (max-width: 1200px) {
 
     .menu-tablet {
         display: none !important;
     }
 
-    .ui.menu:not(.vertical) .left.item {
-        display: inline !important;
-        margin-right: 0 !important;
-    }
 
     .header-menu {
-        display: inline !important;
+        display: none !important;
         margin-right: 0 !important;
     }
 
@@ -931,7 +981,7 @@ pre {
     border: 2px dashed #000;
 }
 
-@media all and (max-width: 991px) {
+@media all and (max-width: 992px) {
 
     .menu-tablet_small {
         display: none !important;
@@ -947,11 +997,15 @@ pre {
         margin-right: 0 !important;
     }
 
+    .ui.label.rev {
+        display: inline;
+    }
+
     .header-menu .menu-tablet_small {
         display: block !important;
     }
 
-   .thread-users{
+    .thread-users {
         display: none !important;
     }
 }
@@ -985,6 +1039,12 @@ pre {
         width: 100% !important;
     }
 
+    .ui.grid > [class*="four wide"].sidefeed {
+        width: 100% !important;
+        //padding-left: 25%;
+        //padding-right: 25%;
+    }
+
     .view {
         display: none !important;
     }
@@ -993,18 +1053,6 @@ pre {
         display: none !important;
     }
 
-    .second.statbox {
-        display: contents !important;
-    }
-
-    .post-title {
-
-        display: contents !important;
-    }
-
-    .post-title .title{
-         vertical-align: top !important;
-    }
 
 }
 

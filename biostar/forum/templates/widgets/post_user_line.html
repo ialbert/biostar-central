@@ -2,7 +2,7 @@
 {% load forum_tags %}
 
 {% if post.author.id != post.lastedit_user.id %}
-
+<span class="menu-tablet_small">
     {{ post.creation_date|time_ago }}
 
         <a href="{% url "user_profile"  post.author.profile.uid %}">
@@ -17,6 +17,7 @@
         {% user_icon user=post.author %}
 
      &bull;
+</span>
     updated
 
     {{ post.lastedit_date|time_ago }}
