@@ -560,11 +560,6 @@ figure {
 
 }
 
-.ui.label.tutorial.rev {
-    background-color: white;
-    color: #2C7990;
-
-}
 
 
 .ui.label.job {
@@ -573,21 +568,13 @@ figure {
 
 }
 
-.ui.label.job.rev {
-    background-color: white;
-    color: #e9530f;
-
-}
 
 .ui.label.tool {
     background-color: #265040;
     color: #fff;
 }
 
-.ui.label.tool.rev {
-    background-color: white;
-    color: #265040;
-}
+
 
 img {
     max-width: 100%;
@@ -599,11 +586,6 @@ img {
 
 }
 
-.ui.label.news.rev {
-    background-color: white;
-    color: #762C90;
-
-}
 
 .center-text {
     text-align: center;
@@ -637,30 +619,20 @@ img {
     background-color: #436c27 !important;
 }
 
-.accepted.answer.label.rev {
-    background-color: white !important;
-    color: #E1E818 !important;
-}
+
 
 .ui.question.label {
     background-color: #8f2c47;
     color: white;
 }
 
-.ui.question.label.rev {
-    background-color: white;
-    color: #8f2c47;
-}
+
 
 .ui.forum.label {
     background-color: #b79538;
     color: white;
 }
 
-.ui.forum.label.rev {
-    background-color: white;
-    color: #b79538;;
-}
 
 .ui.questions.label {
     background-color: #b79538;
@@ -672,20 +644,13 @@ img {
     color: white;
 }
 
-.ui.darkgreen.label.rev {
-    background-color: white;
-    color: #326b2b;
-}
 
 .ui.question.has_answers.label {
     background-color: #5b8c3e;
     color: white;
 }
 
-.ui.question.has_answers.label.rev {
-    background-color: white;
-    color: #5b8c3e;
-}
+
 
 .ui.stats.segment {
     margin-left: -1em;
@@ -884,15 +849,7 @@ img {
     background: #fff8db !important;
 }
 
-.ui.label.rev {
-    display: none ;
-}
 
-
-.ui.label.voting.rev {
-    background: white;
-
-}
 
 .code {
     font-family: monospace;
