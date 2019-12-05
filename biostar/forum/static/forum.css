@@ -123,7 +123,7 @@ svg {
 }
 
 .post.item > .content .ui.label {
-    margin: 0 4px;
+    margin: 0 0px;
 }
 
 .ui.items > .post.item > .image:not(.ui) {
@@ -554,33 +554,38 @@ figure {
     width: 25px !important;
 }
 
-.ui.stat.label.tutorial {
+.ui.label.tutorial {
     background-color: #2C7990;
     color: #fff;
 
 }
 
 
-.ui.stat.label.job {
+
+.ui.label.job {
     background-color: #e9530f;
     color: #fff;
 
 }
 
-.ui.stat.label.tool {
+
+.ui.label.tool {
     background-color: #265040;
     color: #fff;
 }
+
+
 
 img {
     max-width: 100%;
 }
 
-.ui.stat.label.news {
+.ui.label.news {
     background-color: #762C90;
     color: #fff;
 
 }
+
 
 .center-text {
     text-align: center;
@@ -614,15 +619,20 @@ img {
     background-color: #436c27 !important;
 }
 
+
+
 .ui.question.label {
     background-color: #8f2c47;
     color: white;
 }
 
+
+
 .ui.forum.label {
     background-color: #b79538;
     color: white;
 }
+
 
 .ui.questions.label {
     background-color: #b79538;
@@ -634,10 +644,13 @@ img {
     color: white;
 }
 
+
 .ui.question.has_answers.label {
     background-color: #5b8c3e;
     color: white;
 }
+
+
 
 .ui.stats.segment {
     margin-left: -1em;
@@ -836,6 +849,8 @@ img {
     background: #fff8db !important;
 }
 
+
+
 .code {
     font-family: monospace;
 }
@@ -904,19 +919,21 @@ pre {
 
 }
 
+.header-menu {
+    display: none !important;
+    margin-right: 0 !important;
+}
+
+
 @media all and (max-width: 1200px) {
 
     .menu-tablet {
         display: none !important;
     }
 
-    .ui.menu:not(.vertical) .left.item {
-        display: inline !important;
-        margin-right: 0 !important;
-    }
 
     .header-menu {
-        display: inline !important;
+        display: none !important;
         margin-right: 0 !important;
     }
 
@@ -931,7 +948,7 @@ pre {
     border: 2px dashed #000;
 }
 
-@media all and (max-width: 991px) {
+@media all and (max-width: 992px) {
 
     .menu-tablet_small {
         display: none !important;
@@ -947,12 +964,22 @@ pre {
         margin-right: 0 !important;
     }
 
+    .ui.label.rev {
+        display: inline;
+    }
+
     .header-menu .menu-tablet_small {
         display: block !important;
     }
 
-   .thread-users{
+    .thread-users {
         display: none !important;
+    }
+
+    .small-stats{
+        display: block !important;
+        width: fit-content;
+
     }
 }
 
@@ -985,26 +1012,12 @@ pre {
         width: 100% !important;
     }
 
-    .view {
-        display: none !important;
+    .ui.grid > [class*="four wide"].sidefeed {
+        width: 100% !important;
+        //padding-left: 25%;
+        //padding-right: 25%;
     }
 
-    .voting {
-        display: none !important;
-    }
-
-    .second.statbox {
-        display: contents !important;
-    }
-
-    .post-title {
-
-        display: contents !important;
-    }
-
-    .post-title .title{
-         vertical-align: top !important;
-    }
 
 }
 

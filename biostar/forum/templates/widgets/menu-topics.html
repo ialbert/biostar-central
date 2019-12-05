@@ -4,37 +4,7 @@
     <div class="ui inverted dimmer"></div>
     {% if user.is_authenticated %}
 
-  <div class="ui left dropdown item header-menu" style="display: none">
-    <i class="plus icon"></i>More
-    <div class="menu">
-
-
-         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
-
-            Messages {% count_label label="message_count" %}
-        </a>
-        <a class="item   menu-tablet_small {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-
-           Votes {%  count_label label="vote_count" %}
-        </a>
-
-        <a class="item menu-tablet_small {% activate tab "myposts" %}" href="{% url 'myposts' %}">
-
-            My Posts
-        </a>
-
-                <a class="item menu-tablet_small {% activate tab "mytags" %}" href="{% url 'mytags' %}">
-
-            My Tags
-        </a>
-                <a class="item  menu-tablet_small {% activate tab "following" %}" href="{% url 'following' %}">
-
-            Following
-        </a>
-    </div>
-  </div>
-
-        <a class="item menu-tablet  {% activate tab "messages" %}" href="{% url 'inbox' %}">
+        <a class="item menu-tablet_small  {% activate tab "messages" %}" href="{% url 'inbox' %}">
 
             Messages {% count_label label="message_count" %}
         &bull;

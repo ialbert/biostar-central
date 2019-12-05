@@ -418,6 +418,6 @@ class Command(BaseCommand):
 
         bulk_copy_votes(limit=limit)
 
-        #bulk_copy_subs(limit=limit)
+        bulk_copy_subs(limit=limit)
 
         return

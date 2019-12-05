@@ -17,7 +17,7 @@ logger = models.logger
 
 MIN_CHARS = 5
 MAX_CONTENT = 15000
-MIN_CONTENT = 10
+MIN_CONTENT = 5
 
 
 def english_only(text):

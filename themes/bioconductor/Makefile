@@ -52,29 +52,25 @@ serve:
 
 init:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	python ../../manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
-	python ../../manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
 load:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	python ../../manage.py loaddata --ignorenonexistent --settings ${DJANGO_SETTINGS_MODULE} $(DUMP_FILE)
+	python manage.py loaddata --ignorenonexistent --settings ${DJANGO_SETTINGS_MODULE} $(DUMP_FILE)
 
 delete:
 	# Delete the database, logs and CACHE files.
 	# Keep media and spooler.
-	rm -rf ../../export/logs/*.log
-	rm -f ../../export/db/${DATABASE_NAME}
-	rm -rf ../../export/static/CACHE
-	rm -rf ../../*.egg
-	rm -rf ../../*.egg-info
+	rm -rf export/logs/*.log
+	rm -f export/db/${DATABASE_NAME}
+	rm -rf export/static/CACHE
+	rm -rf *.egg
+	rm -rf *.egg-info
 
 # Resets the site without removing jobs.
 reset: delete init
     # Initializes the test project.
-
-copy: reset
-	@echo COPY_DATABASE=${COPY_DATABASE}
-	python manage.py copy --db ${COPY_DATABASE} --settings ${DJANGO_SETTINGS_MODULE}
 
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -96,28 +92,24 @@ index:
 reindex:
 	@echo INDEX_NAME=${INDEX_NAME}
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	python ../../manage.py index --remove --reset --index 130000 --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py index --remove --reset --index 130000 --settings ${DJANGO_SETTINGS_MODULE}
 
 forum_demo: forum reset init load_forum serve
-
-load_recipes:
-	python ../../manage.py project --pid test --name "Test Project" --public
-	python ../../manage.py recipe --pid test --rid hello --json biostar/recipes/recipes/hello-world.hjson
 
 load_forum:
 	python ../../manage.py populate --n_users 10 --n_posts 10 --settings ${DJANGO_SETTINGS_MODULE}
 
 hard_reset: delete
 	# Delete media and spooler.
-	rm -rf ../../export/spooler/*spool*
-	rm -rf ../../export/media/*
+	rm -rf export/spooler/*spool*
+	rm -rf export/media/*
 
 dump:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	python manage.py dumpdata --settings ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} --exclude auth.permission --exclude contenttypes  > $(DUMP_FILE)
 	@cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
-	@ls -1 ../../export/database/*.json
+	@ls -1 export/database/*.json
 
 uwsgi:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -129,9 +121,8 @@ pg_drop:
 	createdb ${DATABASE_NAME}
 
 transfer:
-	python ../../manage.py migrate --settings conf.examples.pg.forum_settings
-	python ../../manage.py transfer -n 300 --settings biostar.transfer.settings
-
+	python manage.py migrate --settings conf.examples.pg.forum_settings
+	python manage.py transfer -n 300 --settings biostar.transfer.settings
 
 config:
 	(cd conf/ansible && ansible-playbook -i supportupgrade.bioconductor.org config.yml --extra-vars -v)
