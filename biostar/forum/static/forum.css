@@ -676,7 +676,7 @@ img {
     display: none;
     z-index: 1000;
     position: absolute;
-    width: 73%;
+    width: 100%;
 }
 
 .ui.items > .item > .content > .header.post-title {

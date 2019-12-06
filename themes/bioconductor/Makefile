@@ -47,7 +47,7 @@ serve:
 	@echo DATABASE_NAME=${DATABASE_NAME}
 	@echo ANSIBLE_HOST=${ANSIBLE_HOST}
 	@echo ANSIBLE_ROOT=${ANSIBLE_ROOT}
-	python ../../manage.py runserver --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py runserver --settings ${DJANGO_SETTINGS_MODULE}
 
 
 init:
@@ -76,12 +76,12 @@ test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	#python manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
-	coverage run ../../manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
+	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
 	coverage html --skip-covered
 
 test_all:
-	python ../../manage.py test --settings biostar.test.test_settings -v 2 --failfast
-	coverage run ../../manage.py test --settings biostar.test.test_settings -v 2 --failfast
+	python manage.py test --settings biostar.test.test_settings -v 2 --failfast
+	coverage run manage.py test --settings biostar.test.test_settings -v 2 --failfast
 	coverage html --skip-covered
 
 index:
@@ -97,7 +97,7 @@ reindex:
 forum_demo: forum reset init load_forum serve
 
 load_forum:
-	python ../../manage.py populate --n_users 10 --n_posts 10 --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py populate --n_users 10 --n_posts 10 --settings ${DJANGO_SETTINGS_MODULE}
 
 hard_reset: delete
 	# Delete media and spooler.
