@@ -65,6 +65,7 @@ For more information see the documentation below:
 
    install
    recipes
+   api
    deploy
    customize
    about

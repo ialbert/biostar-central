@@ -255,8 +255,35 @@ But the interface is still empty as the site does not yet know how to render a g
     }
 
 
-## Where can I see more code examples for interface and scripts?
+## Resources
 
 Visit the recipes website and see the various example recipes:
 
 * https://www.bioinformatics.recipes/
+
+
+The Makefile included with the engine contains additional commands.
+
+Test the software:
+
+    make test
+
+Re-initialize the database:
+
+    make reset
+
+Serve the current site:
+
+    make serve
+
+Initialize the example recipes from the `biostar-recipe` repository.
+
+    make recipes
+
+Run all tests:
+
+    make test
+
+Back up the data
+
+    make backup

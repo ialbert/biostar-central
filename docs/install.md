@@ -113,9 +113,7 @@ By default both the admin login name and the default admin password are set to
 
     admin@localhost
    
-The Django admin can be found at:
-
-* http://127.0.0.1:8000/accounts/admin/
+The Django admin can be found at http://127.0.0.1:8000/accounts/admin/.
 
 ## Customize Settings
 
