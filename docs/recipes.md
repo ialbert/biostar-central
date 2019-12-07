@@ -1,14 +1,5 @@
-# Documentation for Bioinformatics Recipes
+# Build Recipes
 
-## What is the default admin login?
-
-When the site initializes the admin username and password are using the `ADMINS` and the `ADMIN_PASSWORD` settings in `biostar/acccounts/settings.py`.
- 
- By default both the admin login name and the default admin password are set to
-
-    admin@localhost
-
-**Note**: These settings must be changed on a publicly accessible site!
 
 ## How to access the Django Admin interface?
 

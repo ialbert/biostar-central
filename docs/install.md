@@ -19,7 +19,7 @@ Here are steps to running and deploying the forum from scratch.
 4. Start a local server. 
 
 
-## 1. Create a virtual environment and clone the repo.
+## 1. Create environment
 
 Create a virtual environment by first downloading miniconda at https://docs.conda.io/en/latest/miniconda.html. 
 
@@ -38,11 +38,9 @@ Start the virtual enviorment by entering the command:
 Clone or pull the most recent version of the forum by executing:
 
       git clone https://github.com/ialbert/biostar-central.git  # Clone a new branch
+ 
       
-      git pull https://github.com/ialbert/biostar-central.git   # Pull into an exisiting 
-      
-      
-## 2. Install dependencies. 
+## 2. Install dependencies
 
 Activate the `engine` virtual enviorment.
 
@@ -68,7 +66,7 @@ Execute the following to install all anaconda requirements:
  After dependencies have been installed, a migration needs to be made to create the database collect static files.
  
  
- ## 3. Run migrations and tests. 
+ ## 3. Run migrations
  
 Activate the `engine` virtual enviorment.
 
@@ -93,7 +91,7 @@ To ensure installation and migration was successful, run a test by executing the
     make forum test  # Run tests. 
     
     
-## 4. Start a local server 
+## 4. Start server 
 
 Activate the `engine` virtual enviorment.
 
@@ -113,20 +111,15 @@ When the site initializes the admin username and password are using the ``ADMINS
 
  By default both the admin login name and the default admin password are set to
 
-.. code-block::
 
-   admin@localhost
+    admin@localhost
    
-The sourcecode can be obtained via::
 
-	git clone https://github.com/ialbert/biostar-central.git
-
-
-### How to access the Django Admin interface?
+### Django Admin
 
 * http://127.0.0.1:8000/accounts/admin/
 
-## How to customize the settings?
+## Customize Settings
 
 DO NOT add your custom settings into the public codebase!
 
@@ -147,7 +140,7 @@ Consult the [Django documentation][django] for details.
 
 [django]: https://www.djangoproject.com/
 
-## How do I deploy the site?
+## Deploying site
 
 The software follows the recommended practices for developing and deploying [Django web applications][django] .
 

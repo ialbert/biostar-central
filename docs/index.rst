@@ -66,7 +66,6 @@ For more information see the documentation below:
    :maxdepth: 2
 
    install
-   manage
    recipes
    deploy
    customize
