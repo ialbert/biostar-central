@@ -1,3 +1,3 @@
 
 
-master_doc = 'index.rsrt'
+master_doc = 'index'
