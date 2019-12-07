@@ -3,6 +3,6 @@
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Documentation for Bioinformatics Recipes
+   :caption: Install
 
    recipes-index.rst
