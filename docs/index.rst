@@ -5,4 +5,4 @@
    :hidden:
    :caption: First steps
 
-   intro/recipes-index.rst
+   recipes-index.rst
