@@ -1,5 +1,7 @@
 # Getting started
 
+## Install 
+
 The sourcecode can be obtained via::
 
     git clone https://github.com/ialbert/biostar-central.git
@@ -18,7 +20,8 @@ Here are steps to running and deploying the recipes from scratch.
 4. Start a local server. 
 
 
-## 1. Create environment
+
+### 1. Create environment
 
 Create a virtual environment by first downloading miniconda at https://docs.conda.io/en/latest/miniconda.html. 
 
@@ -39,7 +42,7 @@ Clone or pull the most recent version of biostars by executing:
       git clone https://github.com/ialbert/biostar-central.git  # Clone a new branch
  
       
-## 2. Install dependencies
+### 2. Install dependencies
 
 Activate the `engine` virtual enviorment.
 
@@ -65,7 +68,7 @@ Execute the following to install all anaconda requirements:
  After dependencies have been installed, a migration needs to be made to create the database collect static files.
  
  
-## 3. Initialize recipes
+### 3. Initialize recipes
  
 Activate the `engine` virtual enviorment.
 
@@ -95,7 +98,7 @@ To populate the database with random data run:
     make load_recipes
       
     
-## 4. Start server 
+### 4. Start server 
 
 Activate the `engine` virtual enviorment:
 

@@ -28,6 +28,18 @@ A simple script template might contain just:
 
     echo 'Hello World!'
 
+## Bioinformatics Recipes
+
+The site is project based. Each project is a collection of data, recipes and results.
+
+Thus each project has three distinct sections:
+
+1. The data.
+2. The recipes.
+3. The results.
+
+The **Results** are created by applying a **Recipe** on **Data**.
+
 ## Recipe execution
 
 Before executing the recipe the script template is rendered with the JSON data and is filled into the template.
@@ -130,22 +142,9 @@ Users may have read and write access to projects. A write access means that user
 staff and admin users can edit the recipe code.
 
 
-# Web Platform 
+# Examples
 
-## Bioinformatics Recipes
-
-The site is project based. Each project is a collection of data, recipes and results.
-
-Thus each project has three distinct sections:
-
-1. The data.
-2. The recipes.
-3. The results.
-
-The **Results** are created by applying a **Recipe** on **Data**.
-
-
-## Where can I see tutorial recipes?
+## Tutorial recipes
 
 See the url below for a number of recipes of increasing complexity:
 
