@@ -3,6 +3,6 @@
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: First steps
+   :caption: Documentation for Bioinformatics Recipes
 
    recipes-index.rst
