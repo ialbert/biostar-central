@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Biostar: Software for building Scientific Communities
-=====================================================
+Bioinformatics Recipes: Reproducible Data Analysis
+=====================================================================
 
 BioStar is a `Python <http://www.python.org/>`_ and
 `Django <http://www.djangoproject.com/>`_ based Q&A software licensed under the *MIT Open Source License*.
@@ -26,7 +26,7 @@ Features
 
 The site has been developed by scientists for scientists. It aims to
 address specific needs that scientific communities have.
-
+ * Data analysis: upload, share and distribute analytic scripts.
  * Standard Q&A: post questions, answers, comments, user moderation, voting, badges, threaded discussions
  * Email integration: import previous posts from mailing lists, reply to posts via email
  * RSS Planet: feed aggregation from different sources
@@ -40,9 +40,7 @@ The software is open source and free to use under the most permissible license.
 The developers of the software are also available to provide commercial level support
 for deploying Biostar sites for entire organizations. Contact: admin@biostars.org
 
-Requirements: *Python 2.7*
-
-Official documentation is located at http://docs.biostars.org
+Requirements: *Python 3.7*
 
 Quick Start
 ------------

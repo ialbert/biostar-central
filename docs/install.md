@@ -1,13 +1,12 @@
-# Install
+# Getting started
 
 The sourcecode can be obtained via::
 
     git clone https://github.com/ialbert/biostar-central.git
 
-Here are steps to running and deploying the forum from scratch.
+Here are steps to running and deploying the recipes from scratch.
 
-
-1. Create a virtual environment and clone most recent version of the forum.
+1. Create a virtual environment and clone most recent version.
 
 
 2. Install dependencies. 
@@ -35,7 +34,7 @@ Start the virtual enviorment by entering the command:
 
     $ conda activate engine
     
-Clone or pull the most recent version of the forum by executing:
+Clone or pull the most recent version of biostars by executing:
 
       git clone https://github.com/ialbert/biostar-central.git  # Clone a new branch
  
@@ -66,56 +65,55 @@ Execute the following to install all anaconda requirements:
  After dependencies have been installed, a migration needs to be made to create the database collect static files.
  
  
- ## 3. Run migrations
+## 3. Initialize recipes
  
 Activate the `engine` virtual enviorment.
 
     conda activate engine
     
-Migrate the forum app by executing the command:
+Migrate the recipes app by executing the command:
 
-    python manage.py migrate --settings biostar.forum.settings
+    python manage.py migrate --settings biostar.recipes.settings
 
-Collect static files for the forum app by executing the command:
+Collect static files for the recipes app by executing the command:
 
-    python manage.py collectstatic --noinput -v 0 --settings biostar.forum.settings
+    python manage.py collectstatic --noinput -v 0 --settings biostar.recipes.settings
 
 There is a `Makefile` command that migrates and collects static files in one shot. 
 
-    make forum init  # Migrate and collect static files. 
+    make recipes init  # Migrate and collect static files. 
 
 A database has now been created and the static files can be found in `biostar-central/export/static/`
 
 To ensure installation and migration was successful, run a test by executing the command: 
 
-    make forum test  # Run tests. 
+    make recipes test  # Run tests. 
     
+  
+To populate the database with random data run:
+    
+    make load_recipes
+      
     
 ## 4. Start server 
 
-Activate the `engine` virtual enviorment.
+Activate the `engine` virtual enviorment:
 
     $ conda activate engine
     
-Enter the command `make forum serve` to start a local server.
+Start a local server:
 
-    make forum serve    # Start local server
+    make recipes serve    # Start local server
 
 The site is now available at http://127.0.0.1:8000/. 
  
-
-
-## Default Login
-
 When the site initializes the admin username and password are using the ``ADMINS`` and the ``ADMIN_PASSWORD`` settings in ``biostar/acccounts/settings.py``.
 
- By default both the admin login name and the default admin password are set to
-
+By default both the admin login name and the default admin password are set to
 
     admin@localhost
    
-
-### Django Admin
+The Django admin can be found at:
 
 * http://127.0.0.1:8000/accounts/admin/
 

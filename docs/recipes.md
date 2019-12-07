@@ -1,20 +1,5 @@
-# Building Recipes
 
-## Bioinformatics Recipes - Web Platform
-
-The site is project based. Each project is a collection of data, recipes and results.
-
-Thus each project has three distinct sections:
-
-1. The data.
-2. The recipes.
-3. The results.
-
-The **Results** are created by applying a **Recipe** on **Data**.
-
-
-# Understanding Recipes
-
+# Recipes
 
 ## What is a recipe?
 
@@ -143,6 +128,21 @@ Data that exists on a filesystem may be linked into the Biostar Engine from the 
 
 Users may have read and write access to projects. A write access means that users may modify information, upload data and execute recipes.
 staff and admin users can edit the recipe code.
+
+
+# Web Platform 
+
+## Bioinformatics Recipes
+
+The site is project based. Each project is a collection of data, recipes and results.
+
+Thus each project has three distinct sections:
+
+1. The data.
+2. The recipes.
+3. The results.
+
+The **Results** are created by applying a **Recipe** on **Data**.
 
 
 ## Where can I see tutorial recipes?
