@@ -64,7 +64,10 @@ For more information see the documentation below:
    :maxdepth: 2
 
    install
+   projects
+   data
    recipes
+   results
    api
    deploy
    customize

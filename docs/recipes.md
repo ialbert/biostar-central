@@ -1,8 +1,6 @@
 
 # Recipes
 
-## What is a recipe?
-
 Each recipe is built from two ingredients:
 
 1. The interface specification file.
@@ -28,9 +26,8 @@ A simple script template might contain just:
 
     echo 'Hello World!'
 
-## Bioinformatics Recipes
 
-The site is project based. Each project is a collection of data, recipes and results.
+The platform is project based. Each project is a collection of data, recipes and results.
 
 Thus each project has three distinct sections:
 
@@ -40,7 +37,7 @@ Thus each project has three distinct sections:
 
 The **Results** are created by applying a **Recipe** on **Data**.
 
-## Recipe execution
+## Execution
 
 Before executing the recipe the script template is rendered with the JSON data and is filled into the template.
 
@@ -48,7 +45,7 @@ Before executing the recipe the script template is rendered with the JSON data a
 
 The script is then executed at the command line.
 
-## Interface file definition
+### Interface file 
 
 The JSON definition file lists the parameters and allows the interface to be rendered.
 Here is an example JSON definition file:
@@ -68,7 +65,7 @@ the parameter name is `foo`, the default value is `World!`. The `display` field 
 
 ![Generated interface](recipes/interface-1.png)
 
-## Recipe template
+## Template
 
 A recipe is a script that has template markers for filling in parameters. In the case for the `foo` variable above, we can access its value via:
 
@@ -76,15 +73,13 @@ A recipe is a script that has template markers for filling in parameters. In the
 
 Recipes are using [Django templates][templates] and may contain Django template specific constructs.
 
-## Recipe runtime
-
 When the recipe is run the template will be substituted according to the interface value entered by the user. If the default value is kept it will produce the script:
 
     echo 'Hello World!'
 
 [templates]: https://docs.djangoproject.com/en/2.2/topics/templates/
 
-## Results directory
+## Output directory
 
 Once the recipe runs a results directory is created that contains the following:
 
@@ -94,17 +89,17 @@ Once the recipe runs a results directory is created that contains the following:
 
 The results directory is a snapshot of all files generated when the recipe has been run, including the recipe itself.
 
-## Data representation
+## Data
 
 A "data" unit in the `recipes` app is a directory that may contain one or more (any number of files).
 
-## Data value
+#### Data value
 
 Each recipe parameter will have an automatic attribute called `value` that contains either the selected value (if  the parameter is user supplied) or the first file from the `table-of-contents`. For data consisting of a single file one may use the value directly.
 
     fastqc {{reads.value}}
 
-## Data table-of-contents
+#### Table of contents
 
 Each recipe parameter will have an automatically generated attribute called `toc` (table of contents) that returns the list of the file paths in the data.
 
@@ -114,7 +109,7 @@ the recipe may use:
 
     cat {{reads.toc}} | grep .fq | parallel fastqc {}
 
-## Data source
+#### Source
 
 When a recipe parameter indicates the source of the parameter as `PROJECT` it will be populated from the data in the project that matches the type.
 
@@ -127,14 +122,16 @@ When a recipe parameter indicates the source of the parameter as `PROJECT` it wi
 
 Only data that matches the tage `FASTA` will be shown in the dropdown menu.
 
-## Data types
+#### Types
 
 Data types are labels (tags) attached to each data that help filtering them in dropdown menus. More than one data type may be listed as comma separated values.
 The data types may be any word (though using well recognized names: BED, GFF is recommended).
 
 ## File storage
 
-Data that exists on a filesystem may be linked into the Biostar Engine from the command line. This means that no copying/moving of data is required. The only limitation is that of the filesystem.
+Data that exists on a filesystem may be linked into the Biostar Engine from the command line. 
+This means that no copying/moving of data is required. 
+The only limitation is that of the filesystem.
 
 ## User permissions
 
@@ -143,12 +140,6 @@ staff and admin users can edit the recipe code.
 
 
 # Examples
-
-## Tutorial recipes
-
-See the url below for a number of recipes of increasing complexity:
-
-* https://www.bioinformatics.recipes/recipe/list/tutorials/
 
 ## 1. Example - Empty Recipe
 
@@ -253,6 +244,11 @@ But the interface is still empty as the site does not yet know how to render a g
         }
     }
 
+## Tutorial recipes
+
+See the url below for a number of recipes of increasing complexity:
+
+* https://www.bioinformatics.recipes/recipe/list/tutorials/
 
 ## Resources
 
@@ -260,29 +256,3 @@ Visit the recipes website and see the various example recipes:
 
 * https://www.bioinformatics.recipes/
 
-
-The Makefile included with the engine contains additional commands.
-
-Test the software:
-
-    make test
-
-Re-initialize the database:
-
-    make reset
-
-Serve the current site:
-
-    make serve
-
-Initialize the example recipes from the `biostar-recipe` repository.
-
-    make recipes
-
-Run all tests:
-
-    make test
-
-Back up the data
-
-    make backup
