@@ -60,8 +60,6 @@ Visit **http://localhost:8080** to see the site loaded with default settings. En
 
 For more information see the documentation below:
 
-.. |name| replace:: Biostar
-
 .. toctree::
    :maxdepth: 2
 
