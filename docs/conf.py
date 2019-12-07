@@ -5,5 +5,6 @@ source_suffix = {
     '.md': 'markdown',
 }
 
+extensions = ['recommonmark']
 
 master_doc = 'index'
