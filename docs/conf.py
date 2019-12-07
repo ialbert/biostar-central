@@ -6,3 +6,5 @@ source_suffix = {
 }
 
 extensions = ['recommonmark']
+
+master_doc = 'index'
