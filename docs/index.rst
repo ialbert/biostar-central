@@ -5,4 +5,7 @@
    :hidden:
    :caption: Install
 
+   install.md
    recipes-index.rst
+
+
