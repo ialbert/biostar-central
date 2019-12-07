@@ -1,42 +1,6 @@
-# Build Recipes
+# Building Recipes
 
-
-## How to access the Django Admin interface?
-
-* http://127.0.0.1:8000/accounts/admin/
-
-## How to customize the settings?
-
-DO NOT add your custom settings into the public codebase!
-
-The proper practice is to create a separate, independent settings file, then, within that file import **all** default settings. Finally override the fields that you wish to customize in your settings file. For example
-create the `my_settings.py` then add into it:
-
-    # Import all default settings.
-    from biostar.recipes.settings import *
-
-    # Now override the settings you wish to customize.
-    ADMIN_PASSWORD = "foopass"
-
-Apply this settings file with
-
-    python manage.py runserver --settings my_settings.py
-
-Consult the [Django documentation][django] for details.
-
-[django]: https://www.djangoproject.com/
-
-## How do I deploy the site?
-
-The software follows the recommended practices for developing and deploying [Django web applications][django] .
-
-The [Django documentation][django] contains a wealth of information on the alternative ways to deploy the site on different infrastructure.
-
-Within this setup we recommend the [uwsgi][uwsgi] based deployment.
-
-[uwsgi]:https://uwsgi-docs.readthedocs.io/en/latest/
-
-## How does the site work?
+## Bioinformatics Recipes - Web Platform
 
 The site is project based. Each project is a collection of data, recipes and results.
 
@@ -47,6 +11,10 @@ Thus each project has three distinct sections:
 3. The results.
 
 The **Results** are created by applying a **Recipe** on **Data**.
+
+
+# Understanding Recipes
+
 
 ## What is a recipe?
 
@@ -64,13 +32,126 @@ The interface + template will generate a script that the site can execute.
 
 The software will generate an web interface for each parameter specified in the interface. It is this interface where users are able to select the values that their recipe needs to operate.
 
+
+A recipe consists of a "JSON definition file" and a "script template".
+
+The simplest JSON definition file is
+
+    {}
+
+A simple script template might contain just:
+
+    echo 'Hello World!'
+
+## Recipe execution
+
+Before executing the recipe the script template is rendered with the JSON data and is filled into the template.
+
+    template + JSON -> script
+
+The script is then executed at the command line.
+
+## Interface file definition
+
+The JSON definition file lists the parameters and allows the interface to be rendered.
+Here is an example JSON definition file:
+
+```
+{
+  foo: {
+    label: Enter the name
+    help: The name to appear after the greeting
+    display: TEXTBOX
+    value: World!
+  }
+}
+```
+
+the parameter name is `foo`, the default value is `World!`. The `display` field specifies the type of the HTML widget, the `label` and  `help` fields describe the interface. The interface generated from this specification file looks like this:
+
+![Generated interface](recipes/interface-1.png)
+
+## Recipe template
+
+A recipe is a script that has template markers for filling in parameters. In the case for the `foo` variable above, we can access its value via:
+
+    echo 'Hello {{foo.value}}'
+
+Recipes are using [Django templates][templates] and may contain Django template specific constructs.
+
+## Recipe runtime
+
+When the recipe is run the template will be substituted according to the interface value entered by the user. If the default value is kept it will produce the script:
+
+    echo 'Hello World!'
+
+[templates]: https://docs.djangoproject.com/en/2.2/topics/templates/
+
+## Results directory
+
+Once the recipe runs a results directory is created that contains the following:
+
+- the code for the recipe
+- the standard out and error stream content
+- all files created by the recipe
+
+The results directory is a snapshot of all files generated when the recipe has been run, including the recipe itself.
+
+## Data representation
+
+A "data" unit in the `recipes` app is a directory that may contain one or more (any number of files).
+
+## Data value
+
+Each recipe parameter will have an automatic attribute called `value` that contains either the selected value (if  the parameter is user supplied) or the first file from the `table-of-contents`. For data consisting of a single file one may use the value directly.
+
+    fastqc {{reads.value}}
+
+## Data table-of-contents
+
+Each recipe parameter will have an automatically generated attribute called `toc` (table of contents) that returns the list of the file paths in the data.
+
+The file paths are absolute paths. The `toc` can be used to automate the processing of data. For example
+a data directory named `reads` contains several FASTQ files with `.fq` extensions. To run `fastqc` on each file that matches that
+the recipe may use:
+
+    cat {{reads.toc}} | grep .fq | parallel fastqc {}
+
+## Data source
+
+When a recipe parameter indicates the source of the parameter as `PROJECT` it will be populated from the data in the project that matches the type.
+
+    reference: {
+        label: Reference Genome
+        display: DROPDOWN
+        type: FASTA
+        source: PROJECT
+    }
+
+Only data that matches the tage `FASTA` will be shown in the dropdown menu.
+
+## Data types
+
+Data types are labels (tags) attached to each data that help filtering them in dropdown menus. More than one data type may be listed as comma separated values.
+The data types may be any word (though using well recognized names: BED, GFF is recommended).
+
+## File storage
+
+Data that exists on a filesystem may be linked into the Biostar Engine from the command line. This means that no copying/moving of data is required. The only limitation is that of the filesystem.
+
+## User permissions
+
+Users may have read and write access to projects. A write access means that users may modify information, upload data and execute recipes.
+staff and admin users can edit the recipe code.
+
+
 ## Where can I see tutorial recipes?
 
 See the url below for a number of recipes of increasing complexity:
 
 * https://www.bioinformatics.recipes/recipe/list/tutorials/
 
-## Recipe example: Empty Recipe
+## 1. Example - Empty Recipe
 
 The simplest recipe is empty for both the **template** and the **data**.
 
@@ -92,7 +173,7 @@ Note how even an empty recipe produces outputs. These are files named as follows
 
 The contents of `stdout.txt` and `stderr.txt` are also visible on the result page.
 
-## Recipe example: Hello World
+## 2. Example - Hello World
 
 Let's write a recipe that prints "Hello World" to the screen.
 
@@ -114,7 +195,7 @@ Note that the words "Hello World" also appear on the "Output Messages" tab and a
 
 Make a new recipe and add the following into it:
 
-## Recipe example: Download FASTQ data by SRA number
+## 3. Examples - Download FASTQ data by SRA number
 
 Suppose we wish to create a recipe that downloads and unpacks FASTQ data from the short read archive.
 The code we wish to deploy is:
@@ -173,14 +254,6 @@ But the interface is still empty as the site does not yet know how to render a g
         }
     }
 
-
-## What format is the interface in?
-
-The JSON syntax follows  a variant of JSON that is better suited for human input
-called [HJSON][hjson] (Human JSON). HJSON
-is an extension of [JSON][json] that is fully compatible
-with JSON so you may use the original [JSON][json] notation
-if you so desire.
 
 ## Where can I see more code examples for interface and scripts?
 
