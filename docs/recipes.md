@@ -1,6 +1,8 @@
 
 # Recipes
 
+
+
 Each recipe is built from two ingredients:
 
 1. The interface specification file.
@@ -37,15 +39,12 @@ Thus each project has three distinct sections:
 
 The **Results** are created by applying a **Recipe** on **Data**.
 
-## Execution
+## Create a recipe 
 
-Before executing the recipe the script template is rendered with the JSON data and is filled into the template.
+To create 
 
-    template + JSON -> script
 
-The script is then executed at the command line.
-
-### Interface file 
+## Interface file 
 
 The JSON definition file lists the parameters and allows the interface to be rendered.
 Here is an example JSON definition file:
@@ -77,6 +76,15 @@ When the recipe is run the template will be substituted according to the interfa
 
     echo 'Hello World!'
 
+## Execution
+
+Before executing the recipe the script template is rendered with the JSON data and is filled into the template.
+
+    template + JSON -> script
+
+The script is then executed at the command line.
+
+
 [templates]: https://docs.djangoproject.com/en/2.2/topics/templates/
 
 ## Output directory
@@ -96,17 +104,17 @@ Users may have read and write access to projects. A write access means that user
 staff and admin users can edit the recipe code.
 
 
-# Data
+## Inputting Data
 
 A "data" unit in the `recipes` app is a directory that may contain one or more (any number of files).
 
-## Data value
+### Data value
 
 Each recipe parameter will have an automatic attribute called `value` that contains either the selected value (if  the parameter is user supplied) or the first file from the `table-of-contents`. For data consisting of a single file one may use the value directly.
 
     fastqc {{reads.value}}
 
-## Table of contents
+### Table of contents
 
 Each recipe parameter will have an automatically generated attribute called `toc` (table of contents) that returns the list of the file paths in the data.
 
@@ -116,7 +124,7 @@ the recipe may use:
 
     cat {{reads.toc}} | grep .fq | parallel fastqc {}
 
-## Source
+### Source
 
 When a recipe parameter indicates the source of the parameter as `PROJECT` it will be populated from the data in the project that matches the type.
 
@@ -129,12 +137,12 @@ When a recipe parameter indicates the source of the parameter as `PROJECT` it wi
 
 Only data that matches the tage `FASTA` will be shown in the dropdown menu.
 
-## Types
+### Types
 
 Data types are labels (tags) attached to each data that help filtering them in dropdown menus. More than one data type may be listed as comma separated values.
 The data types may be any word (though using well recognized names: BED, GFF is recommended).
 
-## File storage
+### File storage
 
 Data that exists on a filesystem may be linked into the Biostar Engine from the command line. 
 This means that no copying/moving of data is required. 
