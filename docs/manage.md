@@ -1,8 +1,8 @@
-##Manage
+# Manage
 
 There are a number of data management commands that come with Biostar.
 
-### The biostar.sh manager
+## The biostar.sh manager
 
 The **biostar.sh** shell command automatizes a number of commonly used tasks. Run it
 with no parameters to get help on a typical usage::

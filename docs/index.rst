@@ -67,14 +67,8 @@ For more information see the documentation below:
 
    install
    manage
+   recipes
    deploy
    customize
    about
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
