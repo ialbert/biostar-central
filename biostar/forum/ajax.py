@@ -78,7 +78,6 @@ def ajax_test(request):
 def user_image(request, username):
     user = User.objects.filter(username=username).first()
 
-    print(username)
     gravatar_url = auth.gravatar(user=user)
     return redirect(gravatar_url)
 

@@ -1,36 +1,9 @@
-.. Biostar Central documentation master file, created by
-   sphinx-quickstart on Sun Mar  2 08:46:45 2014.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Bioinformatics Recipes: Reproducible Data Analysis
 =====================================================================
 
-BioStar is a `Python <http://www.python.org/>`_ and
-`Django <http://www.djangoproject.com/>`_ based Q&A software licensed under the *MIT Open Source License*.
-It is a simple, generic, flexible and extensible Q&A framework.
-
-The site has been developed by **scientists and for scientists**.
-It aims to address requirements and needs that scientific communities have.
-
-Biostar is the software that runs several science oriented Q&A sites:
-
- * Biostars Bioinformatics Q&A at: https://www.biostars.org
- * Galaxy User support site: https://biostar.usegalaxy.org
- * Metabolomics Q&A: http://www.metastars.org
- * Neurostars: http://www.neurostars.org
-
-
-Features
---------
-
-The site has been developed by scientists for scientists. It aims to
-address specific needs that scientific communities have.
- * Data analysis: upload, share and distribute analytic scripts.
- * Standard Q&A: post questions, answers, comments, user moderation, voting, badges, threaded discussions
- * Email integration: import previous posts from mailing lists, reply to posts via email
- * RSS Planet: feed aggregation from different sources
- * External authentication: authenticate users with a different web service
+Bioinformatics Recipes is a `Python <http://www.python.org/>`_ and
+`Django <http://www.djangoproject.com/>`_ based data analysis software licensed under the *MIT Open Source License*.
+It is a simple, generic, flexible and extensible analytic framework.
 
 Support
 -------
@@ -38,7 +11,7 @@ Support
 The software is open source and free to use under the most permissible license.
 
 The developers of the software are also available to provide commercial level support
-for deploying Biostar sites for entire organizations. Contact: admin@biostars.org
+for deploying Bioinformatics Recipes for entire organizations. Contact: mailer@bioinformatics.recipes
 
 Requirements: *Python 3.7*
 
@@ -48,15 +21,16 @@ Quick Start
 From the biostar source directory::
 
     # Install the requirements.
-    pip install --upgrade -r conf/requirements/base.txt
+    pip install --upgrade -r conf/requirements.txt
+    conda install --file conf/conda_requirements.txt
 
     # Load the environment variables.
-    source conf/defaults.env
+    conda activate engine
 
     # Initialize database, import test data, and run the site.
-    ./biostar.sh init import index run
+    make recipes init recipe_demo serve
 
-Visit **http://localhost:8080** to see the site loaded with default settings. Enjoy.
+Visit **http://localhost:8000** to see the site loaded with default settings. Enjoy.
 
 For more information see the documentation below:
 
@@ -64,11 +38,9 @@ For more information see the documentation below:
    :maxdepth: 2
 
    install
-   projects
-   data
-   recipes
-   results
-   api
+   recipes/projects
+   recipes/recipes
+   recipes/api
    deploy
    customize
    about

@@ -2,7 +2,6 @@
 # Recipes
 
 
-
 Each recipe is built from two ingredients:
 
 1. The interface specification file.
@@ -39,9 +38,23 @@ Thus each project has three distinct sections:
 
 The **Results** are created by applying a **Recipe** on **Data**.
 
+
 ## Create a recipe 
 
 To create 
+
+
+### Using the command line
+
+
+
+
+### Using the web interface
+
+- Cloning
+
+- Copying
+
 
 
 ## Interface file 
@@ -62,49 +75,14 @@ Here is an example JSON definition file:
 
 the parameter name is `foo`, the default value is `World!`. The `display` field specifies the type of the HTML widget, the `label` and  `help` fields describe the interface. The interface generated from this specification file looks like this:
 
-![Generated interface](recipes/interface-1.png)
-
-## Template
-
-A recipe is a script that has template markers for filling in parameters. In the case for the `foo` variable above, we can access its value via:
-
-    echo 'Hello {{foo.value}}'
-
-Recipes are using [Django templates][templates] and may contain Django template specific constructs.
-
-When the recipe is run the template will be substituted according to the interface value entered by the user. If the default value is kept it will produce the script:
-
-    echo 'Hello World!'
-
-## Execution
-
-Before executing the recipe the script template is rendered with the JSON data and is filled into the template.
-
-    template + JSON -> script
-
-The script is then executed at the command line.
+![Generated interface](interface-1.png)
 
 
-[templates]: https://docs.djangoproject.com/en/2.2/topics/templates/
-
-## Output directory
-
-Once the recipe runs a results directory is created that contains the following:
-
-- the code for the recipe
-- the standard out and error stream content
-- all files created by the recipe
-
-The results directory is a snapshot of all files generated when the recipe has been run, including the recipe itself.
+## Interface Builder
+One of the useful features in our web interface is the `Interface Builder.` 
 
 
-## User permissions
-
-Users may have read and write access to projects. A write access means that users may modify information, upload data and execute recipes.
-staff and admin users can edit the recipe code.
-
-
-## Inputting Data
+## Data Field
 
 A "data" unit in the `recipes` app is a directory that may contain one or more (any number of files).
 
@@ -142,14 +120,55 @@ Only data that matches the tage `FASTA` will be shown in the dropdown menu.
 Data types are labels (tags) attached to each data that help filtering them in dropdown menus. More than one data type may be listed as comma separated values.
 The data types may be any word (though using well recognized names: BED, GFF is recommended).
 
-### File storage
-
 Data that exists on a filesystem may be linked into the Biostar Engine from the command line. 
 This means that no copying/moving of data is required. 
 The only limitation is that of the filesystem.
 
 
-# Examples
+## Template
+
+A recipe is a script that has template markers for filling in parameters. In the case for the `foo` variable above, we can access its value via:
+
+    echo 'Hello {{foo.value}}'
+
+Recipes are using [Django templates][templates] and may contain Django template specific constructs.
+
+When the recipe is run the template will be substituted according to the interface value entered by the user. If the default value is kept it will produce the script:
+
+    echo 'Hello World!'
+
+
+## Code Builder
+
+
+## Execution
+
+Before executing the recipe the script template is rendered with the JSON data and is filled into the template.
+
+    template + JSON -> script
+
+The script is then executed at the command line.
+
+The recipe execution creates a `Result` objects.
+
+
+# Results
+
+
+[templates]: https://docs.djangoproject.com/en/2.2/topics/templates/
+
+## Output directory
+
+Once the recipe runs a results directory is created that contains the following:
+
+- the code for the recipe
+- the standard out and error stream content
+- all files created by the recipe
+
+The results directory is a snapshot of all files generated when the recipe has been run, including the recipe itself.
+
+
+# Recipe Examples
 
 ## 1. Example - Empty Recipe
 
