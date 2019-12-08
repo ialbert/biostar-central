@@ -168,7 +168,7 @@ Once the recipe runs a results directory is created that contains the following:
 The results directory is a snapshot of all files generated when the recipe has been run, including the recipe itself.
 
 
-# Recipe Examples
+# Examples
 
 ## 1. Example - Empty Recipe
 

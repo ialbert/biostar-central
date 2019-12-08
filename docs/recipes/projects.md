@@ -29,16 +29,16 @@ directory.
 
 The general directory structure for a project with 1 data, and 2 results would look like:
 
-    - media/
-        - projects/
-            - first project/
-                - first data/
-        - jobs/
-            - first result/
-            - second result/
+    media/
+        projects/
+            first project/
+                first data/
+        jobs/
+            first result/
+            second result/
        
-        - tocs/
-            - first data table of content.txt
+        tocs/
+            first data table of content.txt
             ... 
 
 Data that exists on a filesystem may be linked into from the command line. 
@@ -48,8 +48,8 @@ The only limitation is that of the filesystem.
 
 ## Create a project
 
-Creating a project can be done using the command line or web interface. To use the web interface, ensure 
-you have a local server running or have access to a remote one.
+Creating a project can be done using the command line or web interface. 
+Ensure you have a local server running or have access to a remote one when using  the web interface.
 
 ### Using command line
 
@@ -81,9 +81,6 @@ To create a sample project, run the following:
       
 
 ### Using web interface
-
-
-**Note** : Ensure your web server is running, locally or remotely. 
 
 Click on the `New Project` tab circled on the right. 
 
@@ -117,7 +114,7 @@ Access level are:
         - Read/copy/upload data
         - read/copy/ results
         - Edit all recipes in projects
-        - Add contributors to the project 
+        - Add collaborators to the project 
 
     Admins, Staff, Trusted users:
         - Execute recipes with read or write access
@@ -127,21 +124,65 @@ Recipes can be misused so running them requires more privileges.
 **Admins**,**staff**,and **trusted users** can run recipes with read or write access.
 
 
-## Giving Access
+## Granting Access
 
-Access to project To use the web interface, ensure 
-you have a local server running or have access to a remote one.
+Adding collaborators can be done using the command line or the interface. 
+Ensure you have a local server running or have remote when using the web interface.
 
 
 ### Using command line
 
+To add a user using command line use the managment command `add_user`:
+
+    $ python manage.py add_user --help --fname user_file.csv
+
+    usage: manage.py add_user [-h] [--fname FNAME] [--version] [-v {0,1,2,3}]
+                              [--settings SETTINGS] [--pythonpath PYTHONPATH]
+                              [--traceback] [--no-color] [--force-color]
+    
+    Add users
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      --fname FNAME         The CSV file with the users to be added. Must have
+                            headers: Name, Email
+    
+
+With a sample csv file `user_list.csv` that looks like :
+
+    user 1,  user1@email
+    user 2,  user2@email
 
 
+You can run the following command using the file:
+
+    python manage.py add_user --fname user_list.csv
+    
+    
 ### Using web interface 
 
+Click on the `Info` tab to view the project menu bar.
+
+Click on the middle button labeled `Manage Access` 
+![Generated interface](manage-access-button.png)
+
+
+ Search for users and select the access you would like. to give them
+![Generated interface](results.png)
 
 
 # Data
+
+Data can be added multiple ways.
+
+- Web interface
+  - Upload data
+  - Write text
+  - Import directory
+  
+- Command line
+  
+  
 
 ## Create data
 
