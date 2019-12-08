@@ -47,7 +47,8 @@ urlpatterns = [
     path('ajax/create/', ajax.ajax_create, name='ajax_create'),
     path('inplace/form/', ajax.inplace_form, name='inplace_form'),
     path('ajax/search/', ajax.ajax_search, name='ajax_search'),
-
+    path('ajax/user/image/<str:username>/', ajax.user_image, name='user_image'),
+    path('ajax/users/', ajax.ajax_users_search, name='ajax_users_search'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
 
     path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),

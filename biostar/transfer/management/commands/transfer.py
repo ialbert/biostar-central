@@ -70,7 +70,7 @@ def bulk_copy_users(limit):
         for index, user in stream:
             progress(index=index,  msg="users")
 
-            username = f'{user.id}'
+            username = f"{user.name.replace(' ', '-')}-{user.id}"
             # Create user
             new_user = User(username=username, email=user.email, password=user.password,
                             is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
@@ -297,7 +297,7 @@ def bulk_copy_posts(limit):
 def bulk_copy_subs(limit):
 
     users = {user.profile.uid: user for user in User.objects.all()}
-    posts = Post.objects.iterator()
+    posts = {post.uid: post for post in Post.objects.all()}
 
     def generate():
         subs = PostsSubscription.objects.order_by('-date')

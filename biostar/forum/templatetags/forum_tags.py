@@ -99,6 +99,14 @@ def count_label(context, label):
     return label
 
 
+@register.simple_tag
+def users_list():
+    users = User.objects.exclude(profile__state__in=[Profile.DEACTIVATED, Profile.SUSPENDED, Profile.BANNED])
+    users = ','.join([x.username for x in users])
+
+    return users
+
+
 @register.inclusion_tag('widgets/inplace_form.html')
 def inplace_form(post, width='100%'):
     pad = 4 if post.type == Post.COMMENT else 7
@@ -119,32 +127,8 @@ def now():
 
 @register.simple_tag
 def gravatar(user, size=80):
-    email = user.email if user.is_authenticated else ''
-    email = email.encode('utf8')
 
-    if user.is_anonymous or user.profile.is_suspended or user.profile.is_banned:
-        # Removes spammy images for suspended users
-        email = 'suspended@biostars.org'.encode('utf8')
-        style = settings.GRAVATAR_ICON or "monsterid"
-    elif user.profile.is_moderator:
-        style = settings.GRAVATAR_ICON or "robohash"
-    elif user.profile.score > 100:
-        style = settings.GRAVATAR_ICON or "retro"
-    elif user.profile.score > 0:
-        style = settings.GRAVATAR_ICON or "identicon"
-    else:
-        style = settings.GRAVATAR_ICON or "mp"
-
-    hash = hashlib.md5(email).hexdigest()
-
-    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
-    gravatar_url += urllib.parse.urlencode({
-        's': str(size),
-        'd': style,
-    }
-    )
-    return gravatar_url
-
+    return  auth.gravatar(user=user, size=size)
 
 @register.simple_tag()
 def user_score(user):

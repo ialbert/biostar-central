@@ -20,12 +20,16 @@
     {# Load JQuery. #}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript" src="{% static 'markdown-it.js' %}"></script>
+
+
+
     {# Load recaptcha #}
     {% recaptcha_init %}
 
     {#  CSS compression. #}
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+ <link href="{% static 'at.who.css' %}" rel="stylesheet">
         <link href="{% static 'prism.css' %}" rel="stylesheet">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
         <link href="{% static 'theme.css' %}{% randparam %}" rel="stylesheet">
@@ -34,7 +38,10 @@
     {# Javascript compression. #}
     {% compress js %}
         <script src="{% static 'semantic.min.js' %}"></script>
+        <script src="{% static 'at.who.js' %}"></script>
+        <script src="{% static 'caret.js' %}"></script>
         <script src="{% static 'prism.js' %}"></script>
+
         <script src="{% static 'forum.js' %}{% randparam %}"></script>
         <script src="{% static 'theme.js' %}{% randparam %}"></script>
     {% endcompress %}
