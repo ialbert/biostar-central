@@ -96,29 +96,27 @@ In addition to checking the , before any actions a user takes on the web interfa
 
 Access level are:
 
+Read:
 
-    Share Access: 
-        - clone/copy recipe
-        - Read/copy data
-        - read/copy results
-        - Create/edit their own recipes
-     
-    Read Access:
-        - clone/copy recipe
-        - Read/copy data
-        - read/copy results
-        - Create/edit their own recipes
-     
-    Owner/Write Access:
-        - clone/copy/edit/create recipes
-        - Read/copy/upload data
-        - read/copy/ results
-        - Edit all recipes in projects
-        - Add collaborators to the project 
+- Clone and copy recipe
+- Read and copy data
+- Read and copy results
+- Create and edit their own recipes
 
-    Admins, Staff, Trusted users:
-        - Execute recipes with read or write access
-        
+Share:
+
+- Includes all permission in `Read Access`
+- Activated using a sharable project link
+
+
+Write:
+
+- Includes all permission in `Read Access`
+- Upload new data 
+- Delete objects
+- Edit all recipes in projects
+- Add or remove collaborators to the project 
+
 Recipes can be misused so running them requires more privileges.
 
 **Admins**,**staff**,and **trusted users** can run recipes with read or write access.
