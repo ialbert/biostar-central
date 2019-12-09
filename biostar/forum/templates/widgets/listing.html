@@ -56,18 +56,18 @@
                        class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
                     </a>
                 </div>
-            <div class="small-stats" style="display: none;">
+                <div class="small-stats muted">
 
-                        {{ post.get_votecount|bignum }}
+                    {{ post.get_votecount|bignum }}
 
                     Vote{{ post.get_votecount|pluralize }}
 
-                |
+                    |
 
                     {{ post.reply_count }}
                     Repl{{ post.reply_count|pluralize:"y,ies" }}
 
-            </div>
+                </div>
                 <div class="right floated thread-users">
                     {% get_thread_users post=post as extra_users %}
                     {% for extra_user in extra_users %}
@@ -79,14 +79,13 @@
 
                 </div>
 
-                <div class="extra right floated">
+                <div class=" extra right floated">
 
                     <div class="left floated">
                         {% post_tags post spaced=False %}
                     </div>
 
-                    <div class="right floated
-                            {% if request.user.is_authenticated %}{{ request.user.profile.css }}{% endif %}">
+                    <div class="right floated muted" >
                         {% post_user_line post %}
                     </div>
 

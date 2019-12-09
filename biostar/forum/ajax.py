@@ -3,14 +3,14 @@ import logging
 import json
 from ratelimit.decorators import ratelimit
 from urllib import request as builtin_request
-#import requests
+# import requests
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 from urllib.parse import quote
 
 from django.conf import settings
 from django.db.models import Q, Count
-from django.shortcuts import reverse
+from django.shortcuts import reverse, redirect
 from django.template import loader
 from django.http import JsonResponse
 from django.utils.decorators import available_attrs
@@ -34,11 +34,11 @@ logger = logging.getLogger("biostar")
 ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
 
-
 MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 180
 
 MAX_TAGS = 5
+
 
 class ajax_error_wrapper:
     """
@@ -48,6 +48,7 @@ class ajax_error_wrapper:
     def __init__(self, method, login_required=True):
         self.method = method
         self.login_required = login_required
+
     def __call__(self, func, *args, **kwargs):
 
         @wraps(func, assigned=available_attrs(func))
@@ -55,6 +56,7 @@ class ajax_error_wrapper:
 
             if request.method != self.method:
                 return ajax_error(f'{self.method} method must be used.')
+
             if not request.user.is_authenticated and self.login_required:
                 return ajax_error('You must be logged in.')
 
@@ -67,9 +69,17 @@ def ajax_test(request):
     """
     Creates a commment on a top level post.
     """
-    msg="OK"
-    print (f"HeRe= {request.POST} ")
+    msg = "OK"
+    print(f"HeRe= {request.POST} ")
     return ajax_error(msg=msg)
+
+
+@ajax_error_wrapper(method="GET")
+def user_image(request, username):
+    user = User.objects.filter(username=username).first()
+
+    gravatar_url = auth.gravatar(user=user)
+    return redirect(gravatar_url)
 
 
 @ratelimit(key='ip', rate='500/h')
@@ -254,7 +264,6 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
 
 
 def is_trusted(user):
-
     # Moderators and users with scores above threshold are trusted.
     trusted = user.is_authenticated and (user.profile.trusted or user.profile.score > 15)
     return trusted
@@ -391,7 +400,6 @@ def ajax_create(request):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="GET")
 def inplace_form(request):
-
     user = request.user
     if user.is_anonymous:
         return ajax_error(msg="You need to be logged in to edit or create posts.")
@@ -437,7 +445,6 @@ def close(r):
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 def ajax_search(request):
-
     query = request.GET.get('query', '')
     try:
         redir = bool(int(request.GET.get('redir', 0)))

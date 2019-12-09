@@ -17,7 +17,7 @@
 
             <div class="inplace-fields">
                 {% if is_toplevel %}
-                    <div class="three wide field type-field">
+                    <div class=" field type-field">
                         {% if not post %}<label>Type</label> {% endif %}
                         {% inplace_type_field post=post %}
                     </div>
@@ -33,7 +33,7 @@
                     {% include 'widgets/posting_msg.html' %}
                 {% endif %}
                 <div id="wmd-button-bar"></div>
-                <textarea id="wmd-input" class="wmd-input" rows="{{ rows }}"
+                <textarea id="wmd-input" class="wmd-input autocomplete" rows="{{ rows }}" data-users="{% users_list %}"
                           {% if is_comment %}style="height: 12em"{% endif %}>{{ content }}</textarea>
             </div>
             {% if is_toplevel %}
@@ -247,5 +247,8 @@
         if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
             create_or_edit()
         }
-    })
+    });
+
+    var users = $('#wmd-input').data("users").split(',');
+    autocomplete_users(users)
 </script>

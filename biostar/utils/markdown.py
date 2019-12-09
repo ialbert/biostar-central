@@ -61,7 +61,7 @@ POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/(?P<uid>(\w+))
 POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/\w+/\#(?P<uid>(\w+))(/)?")
 # Match any alphanumeric characters after the @.
 # These characters are allowed in handles: _  .  -
-MENTINONED_USERS = rec(r"(\@(?P<handle>[\w_.-]+))")
+MENTINONED_USERS = rec(r"(\@(?P<handle>[\w_.'-]+))")
 
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
@@ -140,6 +140,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
         handle = m.group("handle")
         # Query user and get the link
+        #print(handle)
         user = User.objects.filter(username=handle).first()
         if user:
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))

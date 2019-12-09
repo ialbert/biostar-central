@@ -1,6 +1,7 @@
 import datetime
 import logging
-
+import hashlib
+import urllib.parse
 from django.template import loader
 from django.conf import settings
 from django.contrib import messages
@@ -34,6 +35,34 @@ def get_votes(user, root):
 
     return store
 
+
+def gravatar(user, size=80):
+    #print(user)
+    email = user.email if user.is_authenticated else ''
+    email = email.encode('utf8')
+
+    if user.is_anonymous or user.profile.is_suspended or user.profile.is_banned:
+        # Removes spammy images for suspended users
+        email = 'suspended@biostars.org'.encode('utf8')
+        style = settings.GRAVATAR_ICON or "monsterid"
+    elif user.profile.is_moderator:
+        style = settings.GRAVATAR_ICON or "robohash"
+    elif user.profile.score > 100:
+        style = settings.GRAVATAR_ICON or "retro"
+    elif user.profile.score > 0:
+        style = settings.GRAVATAR_ICON or "identicon"
+    else:
+        style = settings.GRAVATAR_ICON or "mp"
+
+    hash = hashlib.md5(email).hexdigest()
+
+    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
+    gravatar_url += urllib.parse.urlencode({
+        's': str(size),
+        'd': style,
+    }
+    )
+    return gravatar_url
 
 def walk_down_thread(parent, collect=[], is_root=True):
     """

@@ -339,7 +339,6 @@ var children = '';
 var dragged_over = '';
 
 
-
 function drag(ev, elem_id) {
     //ev.preventDefault();
     ev.dataTransfer.setData("text", elem_id);
@@ -395,6 +394,7 @@ function drag_over(ev, pid) {
 //ev.stopPropagation();
     //ev.stopPropagation();
 
+
 }
 
 
@@ -432,14 +432,14 @@ function drop(ev, elem_id) {
                         elem.css('border', 'none');
                         source_elem.css('border', 'none');
                         elem.css('opacity', '1');
-                          elem.removeClass('foo');
+                        elem.removeClass('foo');
 //elem.removeClass('dragging-over');
                     } else {
                         //alert(data.redir)
                         //window.location.href = data.redir;
                         //window.location.reload();
 
-  //elem.removeClass('foo');
+                        //elem.removeClass('foo');
                         source_elem.transition('zoom');
                         //elem.style.backgroundColor = '';
                         //ev.target.style.border = "red";
@@ -508,6 +508,37 @@ function chat_list(user_uid) {
 
 }
 
+function autocomplete_users(users_list) {
+    // Add autocomplete to any text area element.
+    var autocomplete = $('.autocomplete');
+
+    // Map values in list to a list of dict [{key:'chosen', name:'displayed name'}....]
+    var vals = $.map(users_list, function (value, idx) {
+
+        return {
+            key: value,
+            name: value
+        };
+    });
+    function img_url(username) {
+        let url = '/ajax/user/image/{0}/'.format(username);
+        return "<li> <img class='ui circular image' style='display: inline' src={0} height='20' width='20' /> <b>{1}</b></li>".format(url, username) ;
+
+    }
+    // Autocomplete settings
+    var AutocompleteSettings = {
+        // Gets triggered at @
+        at: "@",
+        data: vals,
+        displayTpl: img_url('${key}'),
+        insertTpl: '@${key}',
+        delay: 40
+    };
+
+    autocomplete.atwho(AutocompleteSettings);
+
+
+}
 
 $(document).ready(function () {
 
@@ -597,6 +628,7 @@ $(document).ready(function () {
 
     });
 
+
     $(this).on('click', '#wmd-button-bar-id_content', function (event) {
         setTimeout(function () {
             var text = $('#wmd-input-id_content').val();
@@ -645,7 +677,7 @@ $(document).ready(function () {
             var icon_str = $item.data('icon');
             // Subscription url
             var digest_url = '/ajax/digest/';
-            alert('ffff')
+            //alert('ffff')
             $.ajax(digest_url,
                 {
                     type: 'POST',
@@ -1041,6 +1073,11 @@ $(document).ready(function () {
 
     $('.vote').popup({
         on: 'hover'
-    })
+    });
+
+    var users = $('#wmd-input-id_content').data("users").split(',');
+    autocomplete_users(users)
+
+
 })
 ;

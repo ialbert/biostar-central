@@ -41,6 +41,4 @@ urlpatterns = [
     # Used for 3rd party logins.
     path("social/", include('allauth.urls')),
 
-
-
 ]

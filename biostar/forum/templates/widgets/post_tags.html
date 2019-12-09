@@ -3,7 +3,7 @@
     {% for tag in tags %}
         {% if tag %}
 
-        <a class="ui small  label " href="{% url 'post_list' %}?tag={{ tag }}">
+        <a class=" ui label muted" href="{% url 'post_list' %}?tag={{ tag }}" style="padding: 5px;">
             {{ tag }}
         </a>
         {% endif %}

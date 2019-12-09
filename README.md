@@ -83,7 +83,7 @@ Initialize and run an empty `forum` app.
 
 Additional documentation for:
 
-* [Documentation for the `recipes` app](docs/recipes-index.md)
-* [Documentation for the `forum` app](docs/forum-index.md)
+* [Documentation for the `recipes` app](docs/recipes/recipes.md)
+* [Documentation for the `forum` app](docs/forum/forum-index.md)
 
 

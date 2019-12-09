@@ -122,7 +122,7 @@ List projects and recipes in a tab delimited fashion with columns: **Project ID*
     
 Image in response:
 
-![20% center](tutorial.png)
+![20% center](images/tutorial.png)
 
 
 ## Recipe Json
@@ -266,4 +266,4 @@ Recipe template executed during analysis.
 
 Image in response:
 
-![20%](starter.jpeg)
+![20%](images/starter.jpeg)

@@ -330,6 +330,7 @@ def post_view(request, uid):
     form = forms.PostShortForm(user=request.user, post=post)
 
     if request.method == "POST":
+
         form = forms.PostShortForm(data=request.POST, user=request.user, post=post)
         if form.is_valid():
             author = request.user
@@ -339,6 +340,8 @@ def post_view(request, uid):
                                          content=content, type=Post.ANSWER, root=post.root)
             tasks.created_post.spool(pid=answer.id)
             return redirect(answer.get_absolute_url())
+        messages.error(request, form.errors)
+        #2/0
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
@@ -383,7 +386,6 @@ def new_post(request):
             content = form.cleaned_data.get("content")
             post_type = form.cleaned_data.get('post_type')
             tag_val = form.cleaned_data.get('tag_val')
-            #print(tag_val)
             post = Post.objects.create(title=title, content=content, type=post_type,
                                        tag_val=tag_val, author=author)
 

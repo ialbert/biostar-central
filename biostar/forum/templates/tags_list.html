@@ -13,10 +13,10 @@
         {% for tag in tags %}
             <div class="column" style="padding: 3px">
                 <div class="item">
-                    <a class="ui small tag label tags" href="{% url 'post_list' %}?tag={{ tag }}">
+                    <a class=" ui label muted" href="{% url 'post_list' %}?tag={{ tag }}" style="padding: 5px">
                         {{ tag }}
                     </a>
-                    <i class="ui small tags icon" style="margin: 0"></i> {{ tag.nitems }}
+                    <i class="ui tags icon" style="margin: 0"></i> {{ tag.nitems }}
 
                 </div>
             </div>
