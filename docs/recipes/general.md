@@ -45,53 +45,48 @@ The sourcecode can be obtained via::
 
     git clone https://github.com/ialbert/biostar-central.git
     
-1. Activate the virtual environment.
+1 . Activate the virtual environment.
 
  
     $ conda activate < virtual environment >
 
-2. Enter the `biostar-central` directory to install dependencies and requirements into the virtual environment.
+2 . Enter the `biostar-central` directory to install dependencies and requirements into the virtual environment.
     
     
-3. Execute the following to install python requirements: 
+3 . Execute the following to install python requirements: 
 
-    pip install -r conf/pip_requirements.txt      # Install python requirements.
+
+    $ pip install -r conf/pip_requirements.txt      # Install python requirements.
     
-Execute the following to install all anaconda requirements:
+4 . Execute the following to install all anaconda requirements:
     
     conda install --file conf/conda_requirements.txt  # Install conda requirements.
     
 ## Run a local server
 
-
+A local server can be user 
 
 ## Who can execute recipes?
 
-Only **Admins**,**staff**,and **trusted users** can execute recipes. 
+Only **admins**,**staff**,and **trusted users** can execute recipes. 
 
 Admins, staff, and trusted users also need read or write access to the recipe. 
 
 The different access levels are `Share Access`, `Read Access`, `Write Access`.
 
-Share Access: 
 
-- clone/copy recipe
+Read/Share Access:
+
+- Clone/copy recipe
 - Read/copy data
-- read/copy results
-- Create/edit their own recipes
-
-Read Access:
-
-- clone/copy recipe
-- Read/copy data
-- read/copy results
+- Read/copy results
 - Create/edit their own recipes
 
 Owner/Write Access:
 
-- clone/copy/edit/create recipes
+- Clone/copy/edit/create recipes
 - Read/copy/upload data
-- read/copy/ results
+- Read/copy/ results
 - Edit all recipes in projects
 - Add collaborators to the project 
 
@@ -101,12 +96,7 @@ Owner/Write Access:
 The local web server on `localhost:8000` you can log in using `admin@localhost` 
 
 
-## Deploying new recipes
-
-
-### Pushing from one server to another
-
-###
+## Creating new recipes
 
 ## Where do recipes actually run when executed?
 
