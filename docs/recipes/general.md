@@ -69,29 +69,32 @@ Execute the following to install all anaconda requirements:
 
 Only **Admins**,**staff**,and **trusted users** can execute recipes. 
 
-Even admins, staff, and trusted users need read or write access to the recipe. 
+Admins, staff, and trusted users also need read or write access to the recipe. 
 
-Here is a detailed description of access levels:
+The different access levels are `Share Access`, `Read Access`, `Write Access`.
 
-    Share Access: 
-        - clone/copy recipe
-        - Read/copy data
-        - read/copy results
-        - Create/edit their own recipes
-     
-    Read Access:
-        - clone/copy recipe
-        - Read/copy data
-        - read/copy results
-        - Create/edit their own recipes
-     
-    Owner/Write Access:
-        - clone/copy/edit/create recipes
-        - Read/copy/upload data
-        - read/copy/ results
-        - Edit all recipes in projects
-        - Add collaborators to the project 
-        
+Share Access: 
+
+- clone/copy recipe
+- Read/copy data
+- read/copy results
+- Create/edit their own recipes
+
+Read Access:
+
+- clone/copy recipe
+- Read/copy data
+- read/copy results
+- Create/edit their own recipes
+
+Owner/Write Access:
+
+- clone/copy/edit/create recipes
+- Read/copy/upload data
+- read/copy/ results
+- Edit all recipes in projects
+- Add collaborators to the project 
+
        
 ## How do I run recipes?
 

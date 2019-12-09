@@ -36,12 +36,12 @@ For more information see the documentation below:
 
 .. toctree::
    :maxdepth: 2
+
    install
-   recipes/general
    recipes/projects
    recipes/recipes
    recipes/api
-   recipes/deploy
+   deploy
    customize
    about
 
