@@ -38,6 +38,7 @@ For more information see the documentation below:
    :maxdepth: 2
    :caption: First Steps
 
+
    recipes/general
    recipes/install
 
@@ -45,9 +46,6 @@ For more information see the documentation below:
 
 .. toctree::
    :maxdepth: 2
-   :caption: Features 
-   recipes/projects
-   recipes/recipes
-   recipes/api
-   deploy
-   customize
+   :caption: Features
+    recipes/display
+
