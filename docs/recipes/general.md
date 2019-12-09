@@ -1,7 +1,6 @@
-# General Concepts
 
 
-## What is a recipe?
+# What is a recipe?
 
 Each recipe is built from two ingredients:
 
@@ -29,7 +28,7 @@ A simple script template can be completely empty or might contain just:
     echo 'Hello World!'
     
  
-## Minimum installation requirements for web application
+# Minimum installation requirements for web application
 
 
 Bioinformatics Recipes is a [Python](<http://www.python.org/>) and
@@ -62,11 +61,11 @@ The sourcecode can be obtained via::
     
     conda install --file conf/conda_requirements.txt  # Install conda requirements.
     
-## Run a local server
+# Run a local server
 
 A local server can be user 
 
-## Who can execute recipes?
+# Who can execute recipes?
 
 Only **admins**,**staff**,and **trusted users** can execute recipes. 
 
@@ -91,46 +90,46 @@ Owner/Write Access:
 - Add collaborators to the project 
 
        
-## How do I run recipes?
+# How do I run recipes?
 
 The local web server on `localhost:8000` you can log in using `admin@localhost` 
 
 
-## Creating new recipes
+# Creating new recipes
 
-## Where do recipes actually run when executed?
+# Where do recipes actually run when executed?
 
 
-## How do we standardize the way recipes amongst multiple users?
+# How do we standardize the way recipes amongst multiple users?
 
 
 **Cloning recipes**
 
-## What conventions should be followed when creating recipes
+# What conventions should be followed when creating recipes
 
 
-## Documenting recipes
+# Documenting recipes
 
 
-## What is the amount of provenance (historical record) that recipes produce?
+# What is the amount of provenance (historical record) that recipes produce?
 
 
-## Presenting the recipe provenance and result.
+# Presenting the recipe provenance and result.
 
 
-## How does Bioinformatics Recipes differ from Galaxy
+# How does Bioinformatics Recipes differ from Galaxy
 
 
-### Advantages 
+## Advantages 
 
 
-###  Functional differences seen by users
+##  Functional differences seen by users
 
 
-### Performance comparison 
+## Performance comparison 
 
 
-## Scaling to larger users
+# Scaling to larger users
 
 
 

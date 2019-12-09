@@ -36,16 +36,19 @@ For more information see the documentation below:
 
 
 .. toctree::
-   :caption: First Steps
+   :caption: General Concepts
    :maxdepth: 2
 
    recipes/general
-   recipes/install
-
-
 
 .. toctree::
-   :caption: Getting Started
+   :caption: Install
+   :maxdepth: 2
+
+   recipes/install
+
+.. toctree::
+   :caption: Features
    :maxdepth: 3
 
    recipes/projects
