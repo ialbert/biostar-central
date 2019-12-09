@@ -36,7 +36,6 @@ For more information see the documentation below:
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
    :caption: General
    install
    recipes/general
