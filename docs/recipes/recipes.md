@@ -41,19 +41,75 @@ The **Results** are created by applying a **Recipe** on **Data**.
 
 ## Create a recipe 
 
-To create 
+Creating a recipe can be done using the command line or web interface.
+
+Command line options:
+- Directly upload recipe json and template
+
+Web interface options:
+
+- **Clone a recipe** - Remains synchronized with original recipe. Changes are carried over from the original.
+
+- **Copy a recipe** - Create a new of a recipe that is a direct copy of another.
 
 
 ### Using the command line
 
+Use the `recipe` management command to directly add to a project.
 
+    $ python manage.py recipe --help
+    
+    usage: manage.py recipe [-h] --pid PID --rid RID [--json JSON]
+                        [--template TEMPLATE] [--info INFO] [--name NAME]
+                        [--image IMAGE] [--update] [--version] [-v {0,1,2,3}]
+                        [--settings SETTINGS] [--pythonpath PYTHONPATH]
+                        [--traceback] [--no-color] [--force-color]
+
+    Adds recipe to a project
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --pid PID             Project id.
+      --rid RID             Recipe id.
+      --json JSON           Recipe json path.
+      --template TEMPLATE   Recipe template path (optional)
+      --info INFO           Recipe description (optional)
+      --name NAME           Recipe name
+      --image IMAGE         Recipe image path
+      --update              Updates the recipe
+
+
+For example, the command below would add a recipe named `New recipe` to project with uid `project 1`.
+
+    python manage.py recipe --pid project 1 --name New recipe --json < interface file > --template < script template > 
 
 
 ### Using the web interface
 
-- Cloning
+Open on a recipe of interest and click on the `Copy` button on the menu bar.
+![Generated interface](copy-clone.png)
 
-- Copying
+After clicking `Copy` the recipe is in your clipboard. Open the `Recipe` tab of any project to view your clipboard.
+
+Once your clipboard has recipes, you can  **clone** or **copy**.
+
+1. Cloning 
+
+Cloning allows your recipes to stay up to date with an original source. 
+
+**Note** You can clone with `Read Access` but you can only edit the cloned recipe with `Write Access` to the original.
+
+To clone the recipes in your clipboard, click the `Paste as clone` at the top of the `Recipes` tab.
+
+![Generated interface](cloning.png)
+
+
+2. Copying 
+
+Copying creates recipes with the same specifications as the ones in the clipboard.
+
+To copy the recipes , click the `Paste as new` at the top of the `Recipes` tab.
+![Generated interface](copying.png)
 
 
 
@@ -80,6 +136,13 @@ the parameter name is `foo`, the default value is `World!`. The `display` field 
 
 ## Interface Builder
 One of the useful features in our web interface is the `Interface Builder.` 
+
+![Generated interface](builder.png)
+
+Every interface option is in this dropdown and 
+
+
+
 
 
 ## Data Field
@@ -167,6 +230,8 @@ Once the recipe runs a results directory is created that contains the following:
 
 The results directory is a snapshot of all files generated when the recipe has been run, including the recipe itself.
 
+
+## The job runner
 
 # Examples
 

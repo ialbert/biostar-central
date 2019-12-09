@@ -173,27 +173,81 @@ Click on the middle button labeled `Manage Access`
 
 # Data
 
+
+## Data Types
+
+
+
+
+## Upload data
+
 Data can be added multiple ways.
 
-- Web interface
-  - Upload data
+Web interface options:
+  - Upload a file
   - Write text
   - Import directory
   
-- Command line
+Command line options:
   
+  - Link any file in the file system
   
-
-## Create data
-
-
 ### Using command line
 
+You can use the management command `data` to add or edit `Data` objects.
+
+    $ python manage.py data --help 
+    
+    usage: manage.py data [-h] --pid PID [--did DID] [--update] [--path PATH]
+                      [--text TEXT] [--name NAME] [--type TYPE] [--version]
+                      [-v {0,1,2,3}] [--settings SETTINGS]
+                      [--pythonpath PYTHONPATH] [--traceback] [--no-color]
+                      [--force-color]
+
+    Adds data to a project
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      --pid PID             Select project by unique uid
+      --did DID             Select data by unique uid
+      --update              Update the table of content for data --did.
+      --path PATH           Path to the data to be added (file or directory)
+      --text TEXT           A file containing the description of the data
+      --name NAME           Sets the name of the data
+      --type TYPE           Sets the type of the data
+    
+    
+
+Link a sample directory, `/path/to/data/`q, to an existing project,  `project one`:
+
+    
+    $ python manage.py data --pid project one --path /path/to/data/ --name New data
 
 ### Using web interface
 
 
+Open the `Data` tab inside of a project. 
+
+Then click on the `New Data` tab on the right. 
+![Generated interface](new-data.png)
+
+This opens another a form with two options.
+
+
+1. **Upload a file** -  Comes with size restrictions that come be found in the `settings.py` 
+
+![Generated interface](upload.png)
+
+
+2.  **Write text** - 10k character limit 
+![Generated interface](write.png)
+    
+
 ## Import directory
+
+Admin, staff, and trusted users can see an extra tab labeled `Import Data`
+
+
 
 
 
