@@ -61,7 +61,7 @@ def about(request):
 
     # Get the docs
     try:
-        recipe_docs = os.path.join(settings.DOCS_ROOT, 'recipes-index.md')
+        recipe_docs = os.path.join(settings.DOCS_ROOT, 'recipes', 'recipes.md')
         recipe_docs = open(recipe_docs, 'r').read()
         html = mistune.markdown(recipe_docs, escape=False)
     except Exception as exc:

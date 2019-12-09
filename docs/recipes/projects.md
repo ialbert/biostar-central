@@ -84,7 +84,7 @@ To create a sample project, run the following:
 
 Click on the `New Project` tab circled on the right. 
 
-![Generated interface](new-project.png)
+![](images/new-project.png)
 
 This will bring you to a form to fill in the name, privacy, information, etc...
 
@@ -164,11 +164,11 @@ You can run the following command using the file:
 Click on the `Info` tab to view the project menu bar.
 
 Click on the middle button labeled `Manage Access` 
-![Generated interface](manage-access-button.png)
+![](images/manage-access-button.png)
 
 
  Search for users and select the access you would like. to give them
-![Generated interface](results.png)
+![](images/results.png)
 
 
 # Data
@@ -229,18 +229,18 @@ Link a sample directory, `/path/to/data/`q, to an existing project,  `project on
 Open the `Data` tab inside of a project. 
 
 Then click on the `New Data` tab on the right. 
-![Generated interface](new-data.png)
+![](images/new-data.png)
 
 This opens another a form with two options.
 
 
-1. **Upload a file** -  Comes with size restrictions that come be found in the `settings.py` 
+1 . **Upload a file** -  Comes with size restrictions that come be found in the `settings.py` 
 
-![Generated interface](upload.png)
+![](images/upload.png)
 
 
-2.  **Write text** - 10k character limit 
-![Generated interface](write.png)
+2 .  **Write text** - 10k character limit 
+![](images/write.png)
     
 
 ## Import directory

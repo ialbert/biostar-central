@@ -41,7 +41,7 @@ For more information see the documentation below:
    recipes/projects
    recipes/recipes
    recipes/api
-   deploy
+   recipes/deploy
    customize
    about
 
