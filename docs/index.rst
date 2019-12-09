@@ -38,6 +38,7 @@ For more information see the documentation below:
    :maxdepth: 2
 
    install
+   recipes/general
    recipes/projects
    recipes/recipes
    recipes/api

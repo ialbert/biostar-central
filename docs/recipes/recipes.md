@@ -1,7 +1,6 @@
 
 # Recipes
 
-
 Each recipe is built from two ingredients:
 
 1. The interface specification file.
