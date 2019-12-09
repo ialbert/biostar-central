@@ -87,7 +87,7 @@ For example, the command below would add a recipe named `New recipe` to project 
 ### Using the web interface
 
 Open on a recipe of interest and click on the `Copy` button on the menu bar.
-![Generated interface](copy-clone.png)
+![](copy-clone.png)
 
 After clicking `Copy` the recipe is in your clipboard. Open the `Recipe` tab of any project to view your clipboard.
 
@@ -101,7 +101,7 @@ Cloning allows your recipes to stay up to date with an original source.
 
 To clone the recipes in your clipboard, click the `Paste as clone` at the top of the `Recipes` tab.
 
-![Generated interface](cloning.png)
+![](cloning.png)
 
 
 2. Copying 
@@ -109,7 +109,7 @@ To clone the recipes in your clipboard, click the `Paste as clone` at the top of
 Copying creates recipes with the same specifications as the ones in the clipboard.
 
 To copy the recipes , click the `Paste as new` at the top of the `Recipes` tab.
-![Generated interface](copying.png)
+![](copying.png)
 
 
 
@@ -131,19 +131,15 @@ Here is an example JSON definition file:
 
 the parameter name is `foo`, the default value is `World!`. The `display` field specifies the type of the HTML widget, the `label` and  `help` fields describe the interface. The interface generated from this specification file looks like this:
 
-![Generated interface](interface-1.png)
+![](interface-1.png)
 
 
 ## Interface Builder
 One of the useful features in our web interface is the `Interface Builder.` 
 
-![Generated interface](builder.png)
+![](builder.png)
 
 Every interface option is in this dropdown and 
-
-
-
-
 
 ## Data Field
 
