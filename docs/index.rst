@@ -37,15 +37,17 @@ For more information see the documentation below:
 .. toctree::
    :maxdepth: 2
    :caption: First Steps
-
-
    recipes/general
    recipes/install
 
-   about
+
 
 .. toctree::
    :maxdepth: 2
-   :caption: Features
-    recipes/display
-
+   :caption: Getting Started
+   recipes/projects
+   recipes/recipes
+   recipes/api
+   deploy
+   customize
+   about
