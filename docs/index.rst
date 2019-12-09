@@ -34,6 +34,7 @@ Visit **http://localhost:8000** to see the site loaded with default settings. En
 
 For more information see the documentation below:
 
+
 .. toctree::
    :maxdepth: 2
    :caption: First Steps
@@ -43,7 +44,7 @@ For more information see the documentation below:
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Getting Started
    recipes/projects
    recipes/recipes
