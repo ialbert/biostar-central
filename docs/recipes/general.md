@@ -47,7 +47,8 @@ The sourcecode can be obtained via::
     
 1. Activate the virtual environment.
 
-    $ conda activate < virtual enviorment >
+ 
+    $ conda activate < virtual environment >
 
 2. Enter the `biostar-central` directory to install dependencies and requirements into the virtual environment.
     
