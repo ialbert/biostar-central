@@ -33,12 +33,17 @@ The sourcecode can be obtained via::
     conda install --file conf/conda_requirements.txt  # Install conda requirements.
 
 
-## Load data and run local server
+## Quick start
 
-Enter the `biostar-central` directory:
+From enter the `biostar-central` source directory:
+
+    # Load the environment variables.
+    conda activate < virtual environment >
 
     # Initialize database, import test data, and run the site.
     make recipes init recipe_demo serve
+
+Visit **http://localhost:8000** to see the site loaded with default settings. Enjoy.
 
 
 # What is a recipe?
@@ -75,7 +80,10 @@ Only **admins**,**staff**,and **trusted users** can execute recipes.
 Trusted users are picked by admins.
 
 
-## What are the access levels?
+## What are access levels?
+
+
+Access levels restrict what actions a user can take within a project.
 
 Admins, staff, and trusted users also need read or write access to the recipe. 
 
@@ -103,14 +111,27 @@ Write:
 - Add or remove collaborators to the project 
        
 
-# How are recipes standardized amongst multiple users?
+# How are recipes standardized?
 
-Recipes are standardized using the 
+(TODO)
 
-**Cloning recipes**
+We tackle the issue of standardization at the creation of recipes.
 
+Recipes can be cloned from one to another   
+
+If different people are developing recipes, 
+
+how do you standardise the way the recipes are created? 
 
 # Where do recipes actually run when executed?
+
+
+
+
+
+
+
+
 
 The recipe runs from the `biostar-central` directory.
 
