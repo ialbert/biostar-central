@@ -58,7 +58,7 @@ class UserAccountTests(TestCase):
             reverse('accounts_index'),
             reverse('logout'),
             reverse('login'),
-            reverse("user_moderate", kwargs=dict(uid=self.user.profile.uid)),
+            reverse("user_moderate", kwargs=dict(uid=self.user.id)),
             reverse("user_profile", kwargs=dict(uid=self.user.profile.uid)),
             reverse('edit_profile'),
             reverse('password_reset'),

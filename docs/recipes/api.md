@@ -266,4 +266,4 @@ Recipe template executed during analysis.
 
 Image in response:
 
-![20%](images/starter.jpeg)
+![](images/starter.jpeg)

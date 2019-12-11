@@ -1,6 +1,7 @@
-# Getting started
 
-## Install 
+# Getting Started
+
+# Install
 
 The sourcecode can be obtained via::
 
@@ -21,7 +22,7 @@ Here are steps to running and deploying the recipes from scratch.
 
 
 
-### 1. Create environment
+## 1. Create environment
 
 Create a virtual environment by first downloading miniconda at https://docs.conda.io/en/latest/miniconda.html. 
 
@@ -42,7 +43,7 @@ Clone or pull the most recent version of biostars by executing:
       git clone https://github.com/ialbert/biostar-central.git  # Clone a new branch
  
       
-### 2. Install dependencies
+## 2. Install dependencies
 
 Activate the `engine` virtual enviorment.
 
@@ -68,7 +69,7 @@ Execute the following to install all anaconda requirements:
  After dependencies have been installed, a migration needs to be made to create the database collect static files.
  
  
-### 3. Initialize recipes
+## 3. Initialize recipes
  
 Activate the `engine` virtual enviorment.
 
@@ -98,7 +99,7 @@ To populate the database with random data run:
     make load_recipes
       
     
-### 4. Start server 
+## 4. Start server 
 
 Activate the `engine` virtual enviorment:
 
@@ -118,7 +119,7 @@ By default both the admin login name and the default admin password are set to
    
 The Django admin can be found at http://127.0.0.1:8000/accounts/admin/.
 
-## Customize Settings
+# Customize Settings
 
 DO NOT add your custom settings into the public codebase!
 
@@ -139,7 +140,7 @@ Consult the [Django documentation][django] for details.
 
 [django]: https://www.djangoproject.com/
 
-## Deploying site
+# Deploying site
 
 The software follows the recommended practices for developing and deploying [Django web applications][django] .
 
@@ -147,4 +148,4 @@ The [Django documentation][django] contains a wealth of information on the alter
 
 Within this setup we recommend the [uwsgi][uwsgi] based deployment.
 
-## Social authentication
+# Social authentication

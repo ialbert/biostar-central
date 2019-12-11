@@ -520,11 +520,13 @@ function autocomplete_users(users_list) {
             name: value
         };
     });
+
     function img_url(username) {
         let url = '/ajax/user/image/{0}/'.format(username);
-        return "<li> <img class='ui circular image' style='display: inline' src={0} height='20' width='20' /> <b>{1}</b></li>".format(url, username) ;
+        return "<li> <img class='ui circular image' style='display: inline' src={0} height='20' width='20' /> <b>{1}</b></li>".format(url, username);
 
     }
+
     // Autocomplete settings
     var AutocompleteSettings = {
         // Gets triggered at @
@@ -885,6 +887,7 @@ $(document).ready(function () {
     });
 
     $(".moderate-user").click(function (event) {
+        //alert("FOO");
         event.preventDefault();
         var elem = $(this);
 
@@ -895,9 +898,11 @@ $(document).ready(function () {
 
         var container = $("#moderate-insert-" + data_uid);
         var mod_url = '/accounts/moderate/' + data_uid + '/';
+//alert(container.html());
 
-        var page = $('<div id="modpanel"></div>').load(mod_url);
-        container.after(page)
+        var page = $('<div id="modpanel"></div>').load(escape(mod_url));
+        container.after(page);
+
     });
 
     $('.vote').each(function (event) {
@@ -1075,8 +1080,12 @@ $(document).ready(function () {
         on: 'hover'
     });
 
-    var users = $('#wmd-input-id_content').data("users").split(',');
-    autocomplete_users(users)
+    var autocomplete_elem = $('#wmd-input-id_content');
+
+    if (autocomplete_elem.data('users') !== undefined || autocomplete_elem.data('users') != null) {
+        var users = autocomplete_elem.data('users').split(',');
+        autocomplete_users(users)
+    }
 
 
 })

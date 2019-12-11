@@ -83,7 +83,7 @@ Initialize and run an empty `forum` app.
 
 Additional documentation for:
 
-* [Documentation for the `recipes` app](docs/recipes/recipes.md)
+* [Documentation for the `recipes` app](https://bioinformatics-recipes.readthedocs.io/en/latest/index.html)
 * [Documentation for the `forum` app](docs/forum/forum-index.md)
 
 

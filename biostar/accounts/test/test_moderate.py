@@ -22,12 +22,12 @@ class ModerateUser(TestCase):
 
         for action, _ in forms.UserModerate.CHOICES:
 
-            url = reverse("user_moderate", kwargs=dict(uid=self.user2.profile.uid))
+            url = reverse("user_moderate", kwargs=dict(uid=self.user2.id))
 
             data = {"action": action}
             request = fake_request(user=self.user1, data=data, url=url)
 
-            response = views.user_moderate(request=request, uid=self.user2.profile.uid)
+            response = views.user_moderate(request=request, uid=self.user2.id)
 
             self.assertTrue(response.status_code == 302, "Error moderating user.")
 
