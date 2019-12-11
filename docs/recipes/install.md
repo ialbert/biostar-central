@@ -1,6 +1,4 @@
 
-# Getting Started
-
 # Install
 
 The sourcecode can be obtained via::

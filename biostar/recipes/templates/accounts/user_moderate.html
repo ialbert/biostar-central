@@ -4,7 +4,7 @@
     <b>Moderating User : {{target.profile.name}}</b>
 
 
-    <form method="post" class="ui form" action="{%  url 'user_moderate' target.profile.uid %}">
+    <form method="post" class="ui form" action="{%  url 'user_moderate' target.id %}">
 
         {% csrf_token %}
 

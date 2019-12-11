@@ -22,7 +22,7 @@ Projects can be `Private`, `Public`, or `Sharable`.
 - `Private` - viewable by collaborators
 - `Sharable` - actively shared amongst a set of users
 
-## How are project directories structured ?
+## Directory Structure 
 
 Each project has a physical directory associated on the system located in the media
 directory. 
@@ -89,10 +89,9 @@ Click on the `New Project` tab circled on the right.
 This will bring you to a form to fill in the name, privacy, information, etc...
 
 
-# Access Management
+# Access
 
-In addition to checking the , before any actions a user takes on the web interface, their project access is checked.
-
+Before any actions a user takes on the platform, their access to the project is checked.
 
 Access level are:
 

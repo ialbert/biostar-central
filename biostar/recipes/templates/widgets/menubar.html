@@ -7,7 +7,7 @@
     </a>
 
     <a class="{% activate "projects" active %} item" href="{% url 'project_list' %}">
-        <i class="database icon"></i> <span class="widescreen">Project List</span>
+        <i class="database icon"></i>Project List
     </a>
 
     <div class="ui category search fluid item">
@@ -19,8 +19,8 @@
     </div>
 
     <div class="right menu">
-            <a class="{% activate "login" active %} item" href="{% url 'about' %}">
-                <i class="question circle icon"></i> About
+            <a class="{% activate "login" active %} item widescreen" href="{% url 'about' %}">
+                <i class="question circle icon"></i>  About
             </a>
 
         {% if user.is_authenticated %}
