@@ -39,6 +39,7 @@ For more information see the documentation below:
 .. toctree::
    :caption: Getting Started
    :maxdepth: 2
+
    recipes/general
    recipes/install
 
