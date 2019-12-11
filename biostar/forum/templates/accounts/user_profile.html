@@ -27,7 +27,7 @@
                 {% endif %}
 
                 {% if can_moderate %}
-                    <div class="ui mini button orange moderate-user" data-value="{{ target.profile.uid }}">
+                    <div class="ui mini button orange moderate-user" data-value="{{ target.id }}">
                         <i class="hand paper icon"></i>
                         Moderate
                     </div>
@@ -41,7 +41,7 @@
 
             </div>
 
-            <div id="moderate-insert-{{ target.profile.uid }}"></div>
+            <div id="moderate-insert-{{ target.id }}"></div>
         </div>
 
         <div class="column">

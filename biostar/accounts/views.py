@@ -81,8 +81,9 @@ def listing(request):
 @login_required
 def user_moderate(request, uid):
     source = request.user
-    target = User.objects.filter(profile__uid=uid).first()
+    target = User.objects.filter(id=uid).first()
     form = forms.UserModerate(source=source, target=target, request=request)
+
     if request.method == "POST":
 
         form = forms.UserModerate(source=source, data=request.POST, target=target, request=request)
@@ -95,9 +96,11 @@ def user_moderate(request, uid):
         else:
             errs = ','.join([err for err in form.non_field_errors()])
             messages.error(request, errs)
-        return redirect(reverse("user_profile", kwargs=dict(uid=uid)))
+
+        return redirect(reverse("user_profile", kwargs=dict(uid=target.profile.uid)))
 
     context = dict(form=form, target=target)
+
     return render(request, "accounts/user_moderate.html", context)
 
 

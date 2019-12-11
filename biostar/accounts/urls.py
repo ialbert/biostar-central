@@ -21,7 +21,7 @@ urlpatterns = [
     path(r'verify/', views.send_email_verify, name="send_email_verify"),
 
     path(r'reset/done/', views.password_reset_complete, name='password_reset_complete'),
-    path(r'moderate/<str:uid>/', views.user_moderate, name="user_moderate"),
+    path(r'moderate/<int:uid>/', views.user_moderate, name="user_moderate"),
     path(r'login/', views.user_login, name="login"),
     path(r'signup/', views.user_signup, name="signup"),
     path(r'profile/<str:uid>/', views.user_profile, name="user_profile"),

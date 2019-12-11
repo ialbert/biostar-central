@@ -27,7 +27,7 @@ class ModerateUser(TestCase):
             data = {"action": action}
             request = fake_request(user=self.user1, data=data, url=url)
 
-            response = views.user_moderate(request=request, uid=self.user2.profile.uid)
+            response = views.user_moderate(request=request, id=self.user2.id)
 
             self.assertTrue(response.status_code == 302, "Error moderating user.")
 

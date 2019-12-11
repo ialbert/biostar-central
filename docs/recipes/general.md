@@ -125,10 +125,7 @@ how do you standardise the way the recipes are created?
 
 # Where do recipes actually run when executed?
 
-
-
-
-
+Where do recipes actually run 
 
 
 

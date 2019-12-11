@@ -3,7 +3,7 @@
 
     <h5>Moderating: @{{target.username}}</h5>
 
-    <form method="post" class="ui form" action="{%  url 'user_moderate' target.profile.uid %}">
+    <form method="post" class="ui form" action="{%  url 'user_moderate' target.id %}">
 
         {% csrf_token %}
 
