@@ -36,8 +36,24 @@ def get_votes(user, root):
     return store
 
 
+def gravatar_url(email, style='mp', size=80):
+    hash = hashlib.md5(email).hexdigest()
+
+    url = "https://secure.gravatar.com/avatar/%s?" % hash
+    url += urllib.parse.urlencode({
+        's': str(size),
+        'd': style,
+    }
+    )
+    return url
+
+
 def gravatar(user, size=80):
-    #print(user)
+
+    if not user or user.is_anonymous:
+        email = 'anon@biostars.org'.encode('utf8')
+        return gravatar_url(email=email)
+
     email = user.email if user.is_authenticated else ''
     email = email.encode('utf8')
 
@@ -54,15 +70,8 @@ def gravatar(user, size=80):
     else:
         style = settings.GRAVATAR_ICON or "mp"
 
-    hash = hashlib.md5(email).hexdigest()
+    return gravatar_url(email=email, style=style, size=size)
 
-    gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
-    gravatar_url += urllib.parse.urlencode({
-        's': str(size),
-        'd': style,
-    }
-    )
-    return gravatar_url
 
 def walk_down_thread(parent, collect=[], is_root=True):
     """

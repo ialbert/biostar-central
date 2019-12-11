@@ -1,6 +1,8 @@
 
 # Recipes
 
+## Recipe ingredients
+
 Each recipe is built from two ingredients:
 
 1. The interface specification file.
@@ -43,7 +45,7 @@ The **Results** are created by applying a **Recipe** on **Data**.
 Creating a recipe can be done using the command line or web interface.
 
 Command line options:
-- Directly upload recipe json and template
+- Directly upload json and template files to a given recipe.
 
 Web interface options:
 
@@ -140,6 +142,12 @@ One of the useful features in our web interface is the `Interface Builder.`
 
 Every interface option is in this dropdown and 
 
+
+## Code Builder
+
+
+
+
 ## Data Field
 
 A "data" unit in the `recipes` app is a directory that may contain one or more (any number of files).
@@ -196,11 +204,8 @@ When the recipe is run the template will be substituted according to the interfa
     echo 'Hello World!'
 
 
-## Code Builder
 
-
-
-# Run a recipe
+## Run a recipe
 
 
 
