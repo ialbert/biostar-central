@@ -7,9 +7,9 @@ Bioinformatics Recipes is a [Python](<http://www.python.org/>) and
 It is a simple, generic, flexible and extensible analytic framework.
 
 Requirements:
-- **Python 3.7** or greater
+- **Python 3.7**
 - **Anaconda**
-- **Django 2.6** or greater
+- **Django 2.6** 
 
 The sourcecode can be obtained via::
 
