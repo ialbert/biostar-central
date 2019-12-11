@@ -235,7 +235,7 @@ The results directory is a snapshot of all files generated when the recipe has b
 
 # Examples
 
-## 1. Example - Empty Recipe
+## Example 1
 
 The simplest recipe is empty for both the **template** and the **data**.
 
@@ -257,7 +257,7 @@ Note how even an empty recipe produces outputs. These are files named as follows
 
 The contents of `stdout.txt` and `stderr.txt` are also visible on the result page.
 
-## 2. Example - Hello World
+## Example 2
 
 Let's write a recipe that prints "Hello World" to the screen.
 
@@ -279,7 +279,7 @@ Note that the words "Hello World" also appear on the "Output Messages" tab and a
 
 Make a new recipe and add the following into it:
 
-## 3. Examples - Download FASTQ data by SRA number
+## Example 3 
 
 Suppose we wish to create a recipe that downloads and unpacks FASTQ data from the short read archive.
 The code we wish to deploy is:
@@ -338,15 +338,9 @@ But the interface is still empty as the site does not yet know how to render a g
         }
     }
 
-## Tutorial recipes
+## More examples
 
 See the url below for a number of recipes of increasing complexity:
 
 * https://www.bioinformatics.recipes/recipe/list/tutorials/
-
-## Resources
-
-Visit the recipes website and see the various example recipes:
-
-* https://www.bioinformatics.recipes/
 
