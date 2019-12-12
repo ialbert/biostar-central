@@ -28,16 +28,17 @@
     <div class="ui large vertical segment" id="view">
 
         {% recipe_details recipe %}
-    {% if recipe.is_cloned %}
-        <div class="ui vertical cloned segment">
+        {% if recipe.is_cloned %}
+            <div class="ui vertical cloned segment">
             <span class="muted">
                 <i class="linkify icon"></i>
                 This recipe is a clone.
-                It remains synchronized with the <a href="{{ recipe.root.url }}">parent recipe</a> found in
-                    <a href="{{ recipe.root.project.url }}">{{ recipe.root.project.name|truncatechars:60 }}</a>.
+                It remains synchronized with the <a href="{{ recipe.root.url }}">parent recipe</a>
+                written by <a href="{{ recipe.root.owner.profile.get_absolute_url }}">{{ recipe.root.owner|truncatechars:30 }}</a>.
+
             </span>
-                </div>
-    {% endif %}
+            </div>
+        {% endif %}
     </div>
 
 

@@ -71,47 +71,6 @@ def time_ago(date):
     return "%s ago" % unit
 
 
-@register.simple_tag
-def get_runnable_label(recipe, user):
-
-    is_runnable = auth.authorize_run(user=user, recipe=recipe)
-    if is_runnable:
-        return "Executable"
-
-    return "Not Executable"
-
-
-@register.simple_tag
-def get_runnable_msg(recipe, user):
-
-    if user.is_superuser:
-        return "You are executing this recipe as an admin."
-
-    if user.is_anonymous:
-        return "You need to be logged in to execute recipes."
-
-    is_runnable = auth.authorize_run(user=user, recipe=recipe)
-    if is_runnable:
-        return "You are executing this recipe as a trusted user."
-
-    return "You can not execute this recipe."
-
-
-@register.filter
-def recipe_is_runnable(recipe, user):
-    is_runnable = auth.authorize_run(user=user, recipe=recipe)
-    return is_runnable
-
-
-@register.simple_tag
-def get_runnable_color(recipe, user):
-
-    is_runnable = auth.authorize_run(user=user, recipe=recipe)
-    if is_runnable:
-        return "runnable"
-
-    return "unrunnable"
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))

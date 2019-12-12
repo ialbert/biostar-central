@@ -23,15 +23,15 @@
                 {{ analysis.name }}
             </a>
                 {% if analysis.runnable %}
-                    <a class="ui right ribbon viewing green label" id="recipe-run" href="#">
+                    <div class="ui right ribbon viewing green label" id="recipe-run" >
                         <i class="check icon"></i>
                         Authorized
-                    </a>
+                    </div>
                 {% else %}
-                    <a class="ui right ribbon viewing orange label" id="recipe-run" href="#">
+                    <div class="ui right ribbon viewing orange label" id="recipe-run">
                         <i class="hand paper icon"></i>
                         Pending authorization
-                    </a>
+                    </div>
                 {% endif %}
 
             </div>
