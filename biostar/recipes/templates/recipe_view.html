@@ -25,12 +25,21 @@
 
 {% block content %}
 
+
     <div class="ui large vertical segment" id="view">
 
-
-                {% recipe_details recipe %}
-
+        {% recipe_details recipe %}
+    {% if recipe.is_cloned %}
+        <div class="ui vertical cloned segment">
+            <span class="muted">
+                <i class="linkify icon"></i>
+                This recipe is a clone.
+                It remains synchronized with the parent recipe found in
+                    <a href="{{ recipe.root.project.url }}">{{ recipe.root.project.name }}</a>.
+                </div>
+    {% endif %}
     </div>
+
 
     <div class="ui large vertical segment">
 

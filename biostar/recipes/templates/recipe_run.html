@@ -10,42 +10,62 @@
 {% endblock %}
 
 {% block content %}
-    <div style="text-align: -webkit-center;">
-    <div class="ui raised segment inputcolor" style="width:70%; text-align: initial">
-        <div class="ui center aligned header">
-            Run : <a href="{% url 'recipe_view' analysis.uid %}"><i class="setting icon"></i>{{ analysis.name }}</a>
-        </div>
+    <div class="recipe-form">
+        <div class="ui raised segment inputcolor">
+            <div class="ui center aligned header">
+                Run : <a href="{% url 'recipe_view' analysis.uid %}">
 
-        <div class="ui vertical segment">
+                {% if analysis.is_cloned %}
+                    <i class="linkify icon"></i>
+                {% else %}
+                    <i class="setting icon"></i>
+                {% endif %}
+                {{ analysis.name }}
+            </a>
+                        <a class="ui right ribbon viewing  label" id="recipe-run"
+               data-content="{% get_runnable_msg user=user recipe=analysis %}" href="#">
+                   {% if analysis|recipe_is_runnable:user %}
+                    <i class="check icon"></i>
+                {% else %}
+                    <i class="times icon"></i>
+                {% endif %}
+                {% get_runnable_label user=user recipe=analysis %}
+            </a>
+            </div>
 
-            {{ analysis.summary|markdown|safe }}
 
-            <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'recipe_run' analysis.uid %}">
-                <div class="ui form">
+            <div class="ui vertical segment">
 
-                    {% csrf_token %}
-                    {{ form.media }}
+                {{ analysis.summary|markdown|safe }}
 
-                    {% recipe_form form %}
+                <form method="post" class="ui form" enctype="multipart/form-data"
+                      action="{% url 'recipe_run' analysis.uid %}">
 
-                    <div class="field">
-                        <button type="submit" class="ui green button">
-                            <i class="check icon"></i>Run
-                        </button>
+                    <div class="ui form">
 
-                        <a class="ui  button" href="{% url 'recipe_view' analysis.uid %}">
-                            <i class="redo icon"></i>Cancel
-                        </a>
+                        {% csrf_token %}
+                        {{ form.media }}
+
+                        {% recipe_form form %}
+
+                        <div class="field">
+                            <button type="submit" class="ui green button">
+                                <i class="check icon"></i>Run
+                            </button>
+
+                            <a class="ui  button" href="{% url 'recipe_view' analysis.uid %}">
+                                <i class="redo icon"></i>Cancel
+                            </a>
+                        </div>
+
+                        <div class="field">
+                            {% security_label analysis %}
+                        </div>
                     </div>
+                </form>
+            </div>
 
-                    <div class="field">
-                    {% security_label analysis %}
-                    </div>
-                </div>
-            </form>
         </div>
-
-    </div>
     </div>
 
 {% endblock %}

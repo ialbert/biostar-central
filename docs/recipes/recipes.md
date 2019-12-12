@@ -29,16 +29,7 @@ A simple script template might contain just:
     echo 'Hello World!'
 
 
-The platform is project based. Each project is a collection of data, recipes and results.
-
-Thus each project has three distinct sections:
-
-1. The data.
-2. The recipes.
-3. The results.
-
 The **Results** are created by applying a **Recipe** on **Data**.
-
 
 ## Create a recipe 
 
@@ -221,6 +212,11 @@ The recipe execution creates a `Result` objects.
 
 
 # Results
+
+Result directories consists of all files and all the metadata created by the recipe as it is executed on the input data.  
+Each run of a recipe will generate a *new* result directory. 
+Users may inspect, investigate and download any of the files generated during the recipe run. 
+Additionally, users may copy a result file as new data input for another recipe. 
 
 
 [templates]: https://docs.djangoproject.com/en/2.2/topics/templates/

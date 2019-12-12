@@ -62,8 +62,8 @@
                 All jobs
             </div>
             <div class="ui divided list">
-                {% for project in projects %}
-                    {% for job in project.job_set.all %}
+
+                    {% for job in jobs %}
                         <div class="item">
                             <div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
                             <a href="{{ job.url }}">{{ job.name }}</a>
@@ -75,7 +75,7 @@
                         {% endif %}
                         </div>
                     {% endfor %}
-                {% endfor %}
+
             </div>
         </div>
     </div>

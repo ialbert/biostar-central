@@ -13,6 +13,51 @@ body {
     margin-right: 15%;
 }
 
+
+.recipe-form{
+    text-align: -webkit-center;
+}
+
+.recipe-form > .segment{
+    width:70%;
+    text-align: initial;
+}
+
+.unrunnable.label{
+    background-color: #ffc4c4;
+}
+
+.ui[class*="right ribbon"].unrunnable.label:after {
+     border-top-color: #752f2f ;
+}
+
+
+.ui.cloned.vertical.segment{
+    //border-bottom: 2px solid #2185d0!important;
+    border-top: none;
+    padding-top:0 ;
+    padding-bottom: 0;
+    border-bottom: none ;
+}
+
+.runnable.label{
+    background-color:#d1ffc4;
+}
+
+.ui[class*="right ribbon"].runnable.label:after {
+    border-top-color: #38752f
+}
+#view{
+    //border-bottom: none;
+    //padding-bottom: 0;
+}
+
+#recipe-run{
+    margin-top: 0;
+    margin-left: 0;
+
+}
+
 .completed{
     border-color: #21ba45 !important;
 }

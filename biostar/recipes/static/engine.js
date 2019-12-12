@@ -603,7 +603,9 @@ $(document).ready(function () {
     $('.listing').popup({
         on: 'hover',
     });
-
+    $('#recipe-run').popup({
+        on: 'hover'
+    });
 
     $('.cmd-value').popup({
         on: 'hover'
@@ -734,5 +736,10 @@ $(document).ready(function () {
         copy_file(path)
     });
 
+
+
+    $(this).on('click', '#recipe-run', function (event) {
+        event.preventDefault();
+    });
 
 });

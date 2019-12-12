@@ -154,7 +154,7 @@ class Profile(models.Model):
     @property
     def trusted(self):
         return (self.user.is_staff or self.state == self.TRUSTED or
-                self.role == self.MODERATOR or self.role == self.MANAGER or self.user.is_superuser )
+                self.role == self.MODERATOR or self.role == self.MANAGER or self.user.is_superuser)
 
     @property
     def is_manager(self):
