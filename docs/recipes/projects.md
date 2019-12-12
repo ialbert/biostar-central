@@ -21,26 +21,25 @@ Private projects will restrict access to members only.
 
 ## Directory Structure 
 
-Each project has a physical directory associated on the system located in the media
-directory. 
+Each project has a physical directory associated on the system located on the system. 
 
-The general directory structure for a project with 1 data, and 2 results would look like:
+
+1. Projects directory
+    - Each project has a directory with the data associated. 
+2. Results directory
+   - Location where the results of a recipe run are stored.
+3. Table of contents directory
+    - Contains table of content files for every data.
+
+These directories all found in the media directory found in the `settings.py` under `MEDIA_ROOT`. The general structure is:
 
     media/
         projects/
-            first project/
-                first data/
+           ...
         jobs/
-            first result/
-            second result/
-       
+           ...
         tocs/
-            first data table of content.txt
             ... 
-
-Data that exists on a filesystem may be linked into from the command line. 
-This means that no copying/moving of data is required. 
-The only limitation is that of the filesystem.
  
 
 ## Create a project

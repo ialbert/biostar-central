@@ -62,11 +62,11 @@ Cloned recipes are presented differently from regular recipes.
 The message reads : `This recipe is a clone. It remains synchronized with the parent recipe.`
 
 
-### Presenting the recipe provenance 
+### Presenting recipe provenance 
 
 
 
-## How does Bioinformatics Recipes compare to Galaxy
+## Compared to Galaxy
 The recipe approach is similar to Galaxy in that it serves non-technical audiences. 
 Additionally, just like Galaxy, recipes are presented with an automatically generated graphical user interface to facilitate their use. 
 
@@ -80,7 +80,7 @@ Thus, recipes can be run without the web service and may be reused within differ
 Notably, in our recipe approach, the user roles are more separated and distinct than in Galaxy.
 
 
-### Functional differences seen by users
+### Functional differences
 In our typical use cases, bioinformaticians develop and test the analysis code at the command line, then they turn their code into recipes and share them with all collaborators. 
 Once shared via the website, collaborators can then select parameters and execute a recipe using data of their choice. 
 Collaborators may inspect, copy, and modify the recipe code.
