@@ -53,3 +53,4 @@ For more information see the documentation below:
    deploy
    customize
    about
+   recipes/faq
