@@ -1,6 +1,6 @@
-# API Methods and Commands
+# API
 
-# Commands 
+## Commands 
 
 Pull API:
 
@@ -43,9 +43,9 @@ Push API:
      $ python manage.py api push --pid tutorial --dir ../biostar-recipes/recipes/ -u --key API_KEY
     
 
-# Methods
+## Methods
 
-## Listing 
+### Listing 
     GET /api/list/
 
 List projects and recipes in a tab delimited fashion with columns: **Project ID** , **Project Name**, **Recipe ID**, **Recipe Name**, **Privacy**
@@ -63,7 +63,7 @@ List projects and recipes in a tab delimited fashion with columns: **Project ID*
     cookbook	Bioinformatics Cookbook	augustus	Gene Prediction	Public
 
 
-## Project Information
+### Project Information
 
     GET /api/project/{id}/
     PUT /api/project/{id}/
@@ -107,7 +107,7 @@ List projects and recipes in a tab delimited fashion with columns: **Project ID*
         ]
     }
 
-## Project Image
+### Project Image
 
     GET /api/project/image/{id}/
     PUT /api/project/image/{id}/
@@ -125,7 +125,7 @@ Image in response:
 ![20% center](images/tutorial.png)
 
 
-## Recipe Json
+### Recipe Json
 
     GET /api/recipe/json/{id}/
     PUT /api/recipe/json/{id}/
@@ -200,7 +200,7 @@ Fields associated with the recipe JSON
       }
     }
 
-## Recipe Template
+### Recipe Template
 
     GET /api/recipe/template/{id}/
     PUT /api/recipe/template/{id}/
@@ -251,7 +251,7 @@ Recipe template executed during analysis.
     find . -name '*' > foo/bar/all.txt
 
 
-## Recipe Image
+### Recipe Image
 
     GET /api/recipe/image/{id}/
     PUT /api/recipe/image/{id}/

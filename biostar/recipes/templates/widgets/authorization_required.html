@@ -1,10 +1,16 @@
+{% if request.user.is_anonymous %}
+    <div class="ui orange message">
+        <i class="warning circle icon"></i>You need to be logged in to run recipes.
+    </div>
+{% elif not request.user.profile.trusted and recipe.runnable %}
+    <div class="ui orange message">
+        <i class="warning circle icon"></i>This recipe is only runnable by <a href="#">trusted users</a>.
+    </div>
 
-{% if not user.profile.trusted and not recipe.runnable %}
-    <div class="ui message">
-        <i class="warning circle icon"></i>This recipe may only be run by <b>trusted</b> users.
+{% elif not recipe.runnable %}
+    <div class="ui orange message">
+        <i class="warning circle icon"></i>This recipe needs to be audited by an admin before it can be run.
     </div>
-{% elif user.is_superuser %}
-    <div class="ui message">
-        <i class="info circle icon"></i>You are running this recipe as an <b>admin</b>.
-    </div>
+
 {% endif %}
+

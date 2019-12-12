@@ -10,42 +10,71 @@
 {% endblock %}
 
 {% block content %}
-    <div style="text-align: -webkit-center;">
-    <div class="ui raised segment inputcolor" style="width:70%; text-align: initial">
-        <div class="ui center aligned header">
-            Run : <a href="{% url 'recipe_view' analysis.uid %}"><i class="setting icon"></i>{{ analysis.name }}</a>
-        </div>
+    <div class="recipe-form">
+        <div class="ui raised segment inputcolor">
+            <div class="ui center aligned header">
+                Run : <a href="{% url 'recipe_view' analysis.uid %}">
 
-        <div class="ui vertical segment">
-
-            {{ analysis.summary|markdown|safe }}
-
-            <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'recipe_run' analysis.uid %}">
-                <div class="ui form">
-
-                    {% csrf_token %}
-                    {{ form.media }}
-
-                    {% recipe_form form %}
-
-                    <div class="field">
-                        <button type="submit" class="ui green button">
-                            <i class="check icon"></i>Run
-                        </button>
-
-                        <a class="ui  button" href="{% url 'recipe_view' analysis.uid %}">
-                            <i class="redo icon"></i>Cancel
-                        </a>
+                {% if analysis.is_cloned %}
+                    <i class="linkify icon"></i>
+                {% else %}
+                    <i class="setting icon"></i>
+                {% endif %}
+                {{ analysis.name }}
+            </a>
+                {% if analysis.runnable %}
+                    <div class="ui right ribbon viewing green label" id="recipe-run" >
+                        <i class="check icon"></i>
+                        Authorized
                     </div>
-
-                    <div class="field">
-                    {% security_label analysis %}
+                {% else %}
+                    <div class="ui right ribbon viewing orange label" id="recipe-run">
+                        <i class="hand paper icon"></i>
+                        Pending authorization
                     </div>
-                </div>
-            </form>
-        </div>
+                {% endif %}
 
-    </div>
+            </div>
+
+
+            <div class="ui vertical segment">
+
+                {{ analysis.summary|markdown|safe }}
+
+                <form method="post" class="ui form" enctype="multipart/form-data"
+                      action="{% url 'recipe_run' analysis.uid %}">
+
+                    <div class="ui form">
+
+                        {% csrf_token %}
+                        {{ form.media }}
+
+                        {% recipe_form form %}
+
+                        <div class="field">
+                            {% if is_runnable %}
+                                <button type="submit" class="ui green button">
+                                    <i class="check icon"></i>Run
+                                </button>
+                            {% else %}
+                                <button type="submit" class="ui disabled green button">
+                                    <i class="check icon"></i>Run
+                                </button>
+                            {% endif %}
+
+                            <a class="ui  button" href="{% url 'recipe_view' analysis.uid %}">
+                                <i class="redo icon"></i>Cancel
+                            </a>
+                        </div>
+
+                        <div class="field">
+                            {% security_label analysis %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
     </div>
 
 {% endblock %}

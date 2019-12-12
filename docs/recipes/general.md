@@ -1,163 +1,95 @@
+# General Concepts
 
-# Minimum installation requirements
-
-
-Bioinformatics Recipes is a [Python](<http://www.python.org/>) and
-[Django](<http://www.djangoproject.com/>) based data analysis software licensed under the *MIT Open Source License*.
-It is a simple, generic, flexible and extensible analytic framework.
-
-Requirements:
-- **Python 3.7**
-- **Anaconda**
-- **Django 2.6** 
-
-The sourcecode can be obtained via::
-
-    git clone https://github.com/ialbert/biostar-central.git
-    
-1 . Activate the virtual environment.
-
- 
-    $ conda activate < virtual environment >
-
-2 . Enter the `biostar-central` directory to install dependencies and requirements into the virtual environment.
-    
-    
-3 . Execute the following to install python requirements: 
+## What is a recipe?
 
 
-    $ pip install -r conf/pip_requirements.txt      # Install python requirements.
-    
-4 . Execute the following to install all anaconda requirements:
-    
-    conda install --file conf/conda_requirements.txt  # Install conda requirements.
+A **recipe** can be thought of as a standalone data analysis script that runs in a computing environment.
+
+Recipes are mounted onto a web application that allows bioinformaticians to publish and execute data analysis workflows. 
+
+We call these workflows **bioinformatics recipes**.   A recipe may be a collection of several command-line tools, it may be a Makefile, it may be an R script or a Python program.  
+
+We designed our framework such that just about any series of commands may be formatted and published as a recipe. In addition, the application that we have developed can generate a graphical user interface to each recipe, thus facilitates user interaction and parameter selection at runtime.
+
+![](images/recipe-run.png)
+ Sample interface on the web application.
+
+## Who can execute recipes?
+
+Recipes can only be executed by a select group of users:
+- **Admins** - site administrators with super user privileges.
+- **Trusted users** - select users trusted to run recipes. 
 
 
-## Quick start
-
-From enter the `biostar-central` source directory:
-
-    # Load the environment variables.
-    conda activate < virtual environment >
-
-    # Initialize database, import test data, and run the site.
-    make recipes init recipe_demo serve
-
-Visit **http://localhost:8000** to see the site loaded with default settings. Enjoy.
+## How are recipes standardized?
 
 
-# What is a recipe?
-
-Each recipe is built from two ingredients:
-
+Recipes are standardized by requiring two ingredients to be executable:
 1. The interface specification file.
 2. The template specification file.
 
-The **interface** will specify the value of the parameters that get substituted into the **template**.
+Once executed, a recipe produces metadata consisting of a snapshot of all the 
+commands, script parameters, messages and files that have been generated during the run.
 
-The **template** contains the commands that need to be executed. The **template** will have
-placeholders for the parameter values that the user will need to enter in the interface.
-
-The interface + template will generate a script that the site can execute.
-
-The software will generate an web interface for each parameter specified in the interface. It is this interface where users are able to select the values that their recipe needs to operate.
-
-A recipe consists of a "JSON definition file" and a "script template".
-
-The simplest JSON definition file is
-
-    {}
-
-A simple script template can be completely empty or might contain just:
-
-    echo 'Hello World!'
-    
-
-# Who can execute recipes?
-
-Only **admins**,**staff**,and **trusted users** can execute recipes. 
-
-Trusted users are picked by admins.
+In addition, this metadata is viewable via the web interface.
 
 
-## What are access levels?
+## Where do recipes run?
+
+Currently, recipes are executed on the system housing the source code. 
+This can be changed so recipes are submitted as jobs in remote servers.  
 
 
-Access levels restrict what actions a user can take within a project.
-
-Admins, staff, and trusted users also need read or write access to the recipe. 
-
-The different access levels are `Share Access`, `Read Access`, `Write Access`.
-
-Read:
-
-- Clone and copy recipe
-- Read and copy data
-- Read and copy results
-- Create and edit their own recipes
-
-Share:
-
-- Includes all permission in `Read Access`
-- Activated using a sharable project link
+## Conventions when creating recipes
 
 
-Write:
+## Documenting recipes
 
-- Includes all permission in `Read Access`
-- Upload new data 
-- Delete objects
-- Edit all recipes in projects
-- Add or remove collaborators to the project 
-       
 
-# How are recipes standardized?
+## Provenance that recipes produce
 
-(TODO)
+Recipes can reference to a root  
 
-We tackle the issue of standardization at the creation of recipes.
+Cloning provides the ability to synchronize recipes across multiple projects.  
 
-Recipes can be cloned from one to another   
+![](images/cloning.png)
 
-If different people are developing recipes, 
 
-how do you standardise the way the recipes are created? 
+Cloned recipes are presented differently from regular recipes.
 
-# Where do recipes actually run when executed?
+![](images/cloned-view.png)
 
-Where do recipes actually run 
+The message reads : `This recipe is a clone. It remains synchronized with the parent recipe.`
+
+
+### Presenting recipe provenance 
 
 
 
+## Compared to Galaxy
+The recipe approach is similar to Galaxy in that it serves non-technical audiences. 
+Additionally, just like Galaxy, recipes are presented with an automatically generated graphical user interface to facilitate their use. 
 
-The recipe runs from the `biostar-central` directory.
-
-
- What conventions should be followed when creating recipes
-
-
- Documenting recipes
+The main difference from Galaxy is that recipes are not built around individual software tools; instead, 
+recipes are complete analyses scripts consisting of multiple steps and stages. 
 
 
- What is the amount of provenance that recipes produce?
+### Advantages 
+Every recipe is downloadable and executable as a standalone program.
+Thus, recipes can be run without the web service and may be reused within different platforms and contexts. 
+Notably, in our recipe approach, the user roles are more separated and distinct than in Galaxy.
 
 
- Presenting the recipe provenance and result.
+### Functional differences
+In our typical use cases, bioinformaticians develop and test the analysis code at the command line, then they turn their code into recipes and share them with all collaborators. 
+Once shared via the website, collaborators can then select parameters and execute a recipe using data of their choice. 
+Collaborators may inspect, copy, and modify the recipe code.
 
 
- How does Bioinformatics Recipes differ from Galaxy
+### Performance comparison 
 
 
- Advantages 
-
-
-  Functional differences seen by users
-
-
- Performance comparison 
-
-
- Scaling to larger users
+## Scaling to larger users
 
 
 

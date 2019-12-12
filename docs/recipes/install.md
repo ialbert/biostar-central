@@ -1,7 +1,5 @@
 
-# Getting Started
-
-# Install
+# Install Recipes
 
 The sourcecode can be obtained via::
 
@@ -140,7 +138,7 @@ Consult the [Django documentation][django] for details.
 
 [django]: https://www.djangoproject.com/
 
-# Deploying site
+# Deploying Site
 
 The software follows the recommended practices for developing and deploying [Django web applications][django] .
 
@@ -148,4 +146,4 @@ The [Django documentation][django] contains a wealth of information on the alter
 
 Within this setup we recommend the [uwsgi][uwsgi] based deployment.
 
-# Social authentication
+# Social Authentication

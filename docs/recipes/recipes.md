@@ -1,6 +1,8 @@
 
 # Recipes
 
+## Recipe ingredients
+
 Each recipe is built from two ingredients:
 
 1. The interface specification file.
@@ -27,23 +29,14 @@ A simple script template might contain just:
     echo 'Hello World!'
 
 
-The platform is project based. Each project is a collection of data, recipes and results.
-
-Thus each project has three distinct sections:
-
-1. The data.
-2. The recipes.
-3. The results.
-
 The **Results** are created by applying a **Recipe** on **Data**.
-
 
 ## Create a recipe 
 
 Creating a recipe can be done using the command line or web interface.
 
 Command line options:
-- Directly upload recipe json and template
+- Directly upload json and template files to a given recipe.
 
 Web interface options:
 
@@ -91,19 +84,16 @@ Open on a recipe of interest and click on the `Copy` button on the menu bar.
 After clicking `Copy` the recipe is in your clipboard. Open the `Recipe` tab of any project to view your clipboard.
 
 Once your clipboard has recipes, you can  **clone** or **copy**.
-
-1. Cloning 
+ 
 
 Cloning allows your recipes to stay up to date with an original source. 
 
-**Note** You can clone with `Read Access` but you can only edit the cloned recipe with `Write Access` to the original.
+**Note** You can clone with `Read Access` and edit the cloned recipe with `Write Access` to the original.
 
 To clone the recipes in your clipboard, click the `Paste as clone` at the top of the `Recipes` tab.
 
 ![](images/cloning.png)
 
-
-2. Copying 
 
 Copying creates recipes with the same specifications as the ones in the clipboard.
 
@@ -139,6 +129,12 @@ One of the useful features in our web interface is the `Interface Builder.`
 ![](images/builder.png)
 
 Every interface option is in this dropdown and 
+
+
+## Code Builder
+
+
+
 
 ## Data Field
 
@@ -196,11 +192,8 @@ When the recipe is run the template will be substituted according to the interfa
     echo 'Hello World!'
 
 
-## Code Builder
 
-
-
-# Run a recipe
+## Run a recipe
 
 
 
@@ -216,6 +209,11 @@ The recipe execution creates a `Result` objects.
 
 
 # Results
+
+Result directories consists of all files and all the metadata created by the recipe as it is executed on the input data.  
+Each run of a recipe will generate a *new* result directory. 
+Users may inspect, investigate and download any of the files generated during the recipe run. 
+Additionally, users may copy a result file as new data input for another recipe. 
 
 
 [templates]: https://docs.djangoproject.com/en/2.2/topics/templates/
@@ -235,7 +233,7 @@ The results directory is a snapshot of all files generated when the recipe has b
 
 # Examples
 
-## 1. Example - Empty Recipe
+## Example 1
 
 The simplest recipe is empty for both the **template** and the **data**.
 
@@ -257,7 +255,7 @@ Note how even an empty recipe produces outputs. These are files named as follows
 
 The contents of `stdout.txt` and `stderr.txt` are also visible on the result page.
 
-## 2. Example - Hello World
+## Example 2
 
 Let's write a recipe that prints "Hello World" to the screen.
 
@@ -279,7 +277,7 @@ Note that the words "Hello World" also appear on the "Output Messages" tab and a
 
 Make a new recipe and add the following into it:
 
-## 3. Examples - Download FASTQ data by SRA number
+## Example 3 
 
 Suppose we wish to create a recipe that downloads and unpacks FASTQ data from the short read archive.
 The code we wish to deploy is:
@@ -338,15 +336,9 @@ But the interface is still empty as the site does not yet know how to render a g
         }
     }
 
-## Tutorial recipes
+## More examples
 
 See the url below for a number of recipes of increasing complexity:
 
 * https://www.bioinformatics.recipes/recipe/list/tutorials/
-
-## Resources
-
-Visit the recipes website and see the various example recipes:
-
-* https://www.bioinformatics.recipes/
 

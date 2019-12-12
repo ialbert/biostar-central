@@ -13,6 +13,31 @@ body {
     margin-right: 15%;
 }
 
+
+.recipe-form{
+    text-align: -webkit-center;
+}
+
+.recipe-form > .segment{
+    width:70%;
+    text-align: initial;
+}
+
+
+.ui.cloned.vertical.segment{
+    //border-bottom: 2px solid #2185d0!important;
+    border-top: none;
+    padding-top:0 ;
+    padding-bottom: 0;
+    border-bottom: none ;
+}
+
+
+#recipe-run{
+    margin-top: 0;
+    margin-left: 0;
+}
+
 .completed{
     border-color: #21ba45 !important;
 }

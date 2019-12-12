@@ -5,45 +5,41 @@ The platform is project based. Each project is a collection of data, recipes and
 
 Thus each project has three distinct sections:
 
-1. The data.
-2. The recipes.
-3. The results.
-
-
-The location of the media directory can be found in `biostar/settings.py` under the variable `MEDIA_ROOT`
-
+1. Data (the input files)
+2. Recipes (the code that processes the data)
+3. Results (the directory that contains the resulting files of applying the recipe to data)
 
 ## Privacy
 
-Projects can be `Private`, `Public`, or `Sharable`.
+Within the management interface, all content is grouped into projects that may have public or private visibility. 
+Content stored in public projects is readable without restrictions. 
+Private projects will restrict access to members only.
+
+1.  Public - viewable to everyone
+2.  Private - viewable by collaborators
+3.  Sharable - actively shared amongst a set of users
+
+## Directory Structure 
+
+Each project has a physical directory associated on the system located on the system. 
 
 
-- `Public` - viewable to everyone
-- `Private` - viewable by collaborators
-- `Sharable` - actively shared amongst a set of users
+1. Projects directory
+    - Each project has a directory with the data associated. 
+2. Results directory
+   - Location where the results of a recipe run are stored.
+3. Table of contents directory
+    - Contains table of content files for every data.
 
-## How are project directories structured ?
-
-Each project has a physical directory associated on the system located in the media
-directory. 
-
-The general directory structure for a project with 1 data, and 2 results would look like:
+These directories all found in the media directory found in the `settings.py` under `MEDIA_ROOT`. The general structure is:
 
     media/
         projects/
-            first project/
-                first data/
+           ...
         jobs/
-            first result/
-            second result/
-       
+           ...
         tocs/
-            first data table of content.txt
             ... 
-
-Data that exists on a filesystem may be linked into from the command line. 
-This means that no copying/moving of data is required. 
-The only limitation is that of the filesystem.
  
 
 ## Create a project
@@ -89,10 +85,9 @@ Click on the `New Project` tab circled on the right.
 This will bring you to a form to fill in the name, privacy, information, etc...
 
 
-# Access Management
+## Access
 
-In addition to checking the , before any actions a user takes on the web interface, their project access is checked.
-
+Before any actions a user takes on the platform, their access to the project is checked.
 
 Access level are:
 
@@ -171,9 +166,15 @@ Click on the middle button labeled `Manage Access`
 
 # Data
 
+Data may be uploaded or may be linked directly from a hard drive or from a mounted filesystem, thus avoiding copying and transferring large datasets over the web.  
+For recipes that connect to the internet to download data, for example when downloading from the `Short Read Archive` the data does not need to be already present in the local server.
+
+Notably the concept of “data” in our system is broader and more generic than on a typical file system. 
+In our software “data” may be a single file, it may be a compressed archive containing several files or it may be a path to a directory that contains any number of files as well as other subdirectories. 
+The programming interfaces for recipes can handle directories transparently and make it possible to run the same recipes that one would use for a single file on all files of an entire directory. 
+
 
 ## Data Types
-
 
 
 
@@ -188,7 +189,7 @@ Web interface options:
   
 Command line options:
   
-  - Link any file in the file system
+  - Link a file directly from a hard drive
   
 ### Using command line
 

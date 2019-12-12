@@ -35,16 +35,12 @@ Visit **http://localhost:8000** to see the site loaded with default settings. En
 For more information see the documentation below:
 
 
+
 .. toctree::
-   :caption: General Concepts
+   :caption: Getting Started
    :maxdepth: 2
 
    recipes/general
-
-.. toctree::
-   :caption: Install
-   :maxdepth: 2
-
    recipes/install
 
 .. toctree::
@@ -57,3 +53,4 @@ For more information see the documentation below:
    deploy
    customize
    about
+   recipes/faq
