@@ -84,19 +84,16 @@ Open on a recipe of interest and click on the `Copy` button on the menu bar.
 After clicking `Copy` the recipe is in your clipboard. Open the `Recipe` tab of any project to view your clipboard.
 
 Once your clipboard has recipes, you can  **clone** or **copy**.
-
-1. Cloning 
+ 
 
 Cloning allows your recipes to stay up to date with an original source. 
 
-**Note** You can clone with `Read Access` but you can only edit the cloned recipe with `Write Access` to the original.
+**Note** You can clone with `Read Access` and edit the cloned recipe with `Write Access` to the original.
 
 To clone the recipes in your clipboard, click the `Paste as clone` at the top of the `Recipes` tab.
 
 ![](images/cloning.png)
 
-
-2. Copying 
 
 Copying creates recipes with the same specifications as the ones in the clipboard.
 

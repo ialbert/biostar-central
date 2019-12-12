@@ -10,16 +10,15 @@ Recipes are mounted onto a web application that allows bioinformaticians to publ
 We call these workflows **bioinformatics recipes**.   A recipe may be a collection of several command-line tools, it may be a Makefile, it may be an R script or a Python program.  
 
 We designed our framework such that just about any series of commands may be formatted and published as a recipe. In addition, the application that we have developed can generate a graphical user interface to each recipe, thus facilitates user interaction and parameter selection at runtime.
-![](images/recipe-list.png)
+
+![](images/recipe-run.png)
+ Sample interface on the web application.
 
 ## Who can execute recipes?
 
-Recipes can only be executed by a select group of users.
-
-The user groups allowed to execute recipes are:
+Recipes can only be executed by a select group of users:
 - **Admins** - site administrators with super user privileges.
 - **Trusted users** - select users trusted to run recipes. 
-![](images/recipe-run.png)
 
 
 ## How are recipes standardized?
@@ -29,11 +28,10 @@ Recipes are standardized by requiring two ingredients to be executable:
 1. The interface specification file.
 2. The template specification file.
 
-Recipes are require two ingredients to be executable. 
-Once executed, a recipe produces metadata results consisting of a snapshot of all the 
+Once executed, a recipe produces metadata consisting of a snapshot of all the 
 commands, script parameters, messages and files that have been generated during the run.
 
-In addition, the results are viewable via the web interface.
+In addition, this metadata is viewable via the web interface.
 
 
 ## Where do recipes run?
@@ -50,26 +48,37 @@ This can be changed so recipes are submitted as jobs in remote servers.
 
 ## Provenance that recipes produce
 
+Recipes can reference to a root  
 
-Cloning provides the ability to synchronize a recipe
+Cloning provides the ability to synchronize recipes across multiple projects.  
 
+![](images/cloning.png)
+
+
+Cloned recipes are presented differently from regular recipes.
+
+![](images/cloned-view.png)
+
+The message reads : `This recipe is a clone. It remains synchronized with the parent recipe.`
 
 
 ### Presenting the recipe provenance 
 
+
+
 ## How does Bioinformatics Recipes compare to Galaxy
 The recipe approach is similar to Galaxy in that it serves non-technical audiences. 
 Additionally, just like Galaxy, recipes are presented with an automatically generated graphical user interface to facilitate their use. 
+
 The main difference from Galaxy is that recipes are not built around individual software tools; instead, 
 recipes are complete analyses scripts consisting of multiple steps and stages. 
 
- 
-
 
 ### Advantages 
-In addition, every recipe is downloadable and executable as a standalone program.
+Every recipe is downloadable and executable as a standalone program.
 Thus, recipes can be run without the web service and may be reused within different platforms and contexts. 
-Notably, in our recipe approach, the roles are more separated and distinct than in Galaxy.
+Notably, in our recipe approach, the user roles are more separated and distinct than in Galaxy.
+
 
 ### Functional differences seen by users
 In our typical use cases, bioinformaticians develop and test the analysis code at the command line, then they turn their code into recipes and share them with all collaborators. 
