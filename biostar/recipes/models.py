@@ -25,8 +25,12 @@ class Bunch(object):
         self.__dict__.update(kwargs)
 
 
-def make_html(text):
-    html = mistune.markdown(text)
+def make_html(text, user=None):
+
+    if user and user.profile.trusted:
+        html = mistune.markdown(text, escape=False)
+    else:
+        html = mistune.markdown(text, escape=True)
     return html
 
 
@@ -134,7 +138,7 @@ class Project(models.Model):
         now = timezone.now()
         self.date = self.date or now
         self.sharable_token = self.sharable_token or util.get_uuid(30)
-        self.html = make_html(self.text)
+        self.html = make_html(self.text, user=self.lastedit_user)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.owner
@@ -302,7 +306,7 @@ class Data(models.Model):
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
-        self.html = make_html(self.text)
+        self.html = make_html(self.text, user=self.lastedit_user)
         self.owner = self.owner or self.project.owner
         self.type = self.type.replace(" ", '')
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
@@ -507,7 +511,7 @@ class Analysis(models.Model):
         self.date = self.date or now
         self.text = self.text or "Recipe description"
         self.name = self.name[:MAX_NAME_LEN] or "New Recipe"
-        self.html = make_html(self.text)
+        self.html = make_html(self.text, user=self.lastedit_user)
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
 
@@ -698,7 +702,7 @@ class Job(models.Model):
         now = timezone.now()
         self.name = self.name or f"Results for: {self.analysis.name}"
         self.date = self.date or now
-        self.html = make_html(self.text)
+        self.html = make_html(self.text, user=self.lastedit_user)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
