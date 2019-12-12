@@ -38,6 +38,11 @@ body {
     margin-left: 0;
 }
 
+
+.recipe-form > .segment > .ui.detail.segment{
+    padding-top: 0px;
+}
+
 .completed{
     border-color: #21ba45 !important;
 }
