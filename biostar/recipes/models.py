@@ -552,6 +552,7 @@ class Analysis(models.Model):
         children.update(json_text=self.json_text,
                         template=self.template,
                         name=self.name,
+                        security=self.security,
                         lastedit_date=self.lastedit_date,
                         lastedit_user=self.lastedit_user,
                         text=self.text,

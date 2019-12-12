@@ -22,15 +22,18 @@
                 {% endif %}
                 {{ analysis.name }}
             </a>
-                        <a class="ui right ribbon viewing  label" id="recipe-run"
-               data-content="{% get_runnable_msg user=user recipe=analysis %}" href="#">
-                   {% if analysis|recipe_is_runnable:user %}
-                    <i class="check icon"></i>
+                {% if analysis.runnable %}
+                    <a class="ui right ribbon viewing green label" id="recipe-run" href="#">
+                        <i class="check icon"></i>
+                        Authorized
+                    </a>
                 {% else %}
-                    <i class="times icon"></i>
+                    <a class="ui right ribbon viewing orange label" id="recipe-run" href="#">
+                        <i class="hand paper icon"></i>
+                        Pending authorization
+                    </a>
                 {% endif %}
-                {% get_runnable_label user=user recipe=analysis %}
-            </a>
+
             </div>
 
 
@@ -49,9 +52,15 @@
                         {% recipe_form form %}
 
                         <div class="field">
-                            <button type="submit" class="ui green button">
-                                <i class="check icon"></i>Run
-                            </button>
+                            {% if is_runnable %}
+                                <button type="submit" class="ui green button">
+                                    <i class="check icon"></i>Run
+                                </button>
+                            {% else %}
+                                <button type="submit" class="ui disabled green button">
+                                    <i class="check icon"></i>Run
+                                </button>
+                            {% endif %}
 
                             <a class="ui  button" href="{% url 'recipe_view' analysis.uid %}">
                                 <i class="redo icon"></i>Cancel

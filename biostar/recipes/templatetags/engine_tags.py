@@ -333,7 +333,7 @@ def privacy_label(project):
 
 @register.inclusion_tag('widgets/authorization_required.html', takes_context=True)
 def security_label(context, analysis):
-    context.update(dict(analysis=analysis))
+    context.update(dict(recipe=analysis))
 
     return context
 

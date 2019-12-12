@@ -25,7 +25,6 @@
 
 {% block content %}
 
-
     <div class="ui large vertical segment" id="view">
 
         {% recipe_details recipe %}
@@ -34,8 +33,9 @@
             <span class="muted">
                 <i class="linkify icon"></i>
                 This recipe is a clone.
-                It remains synchronized with the parent recipe found in
-                    <a href="{{ recipe.root.project.url }}">{{ recipe.root.project.name }}</a>.
+                It remains synchronized with the <a href="{{ recipe.root.url }}">parent recipe</a> found in
+                    <a href="{{ recipe.root.project.url }}">{{ recipe.root.project.name|truncatechars:60 }}</a>.
+            </span>
                 </div>
     {% endif %}
     </div>

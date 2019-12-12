@@ -468,7 +468,7 @@ def recipe_paste(request, uid):
         else:
             root = None
         recipe = auth.create_analysis(project=project, user=user, root=root,
-                                      json_text=instance.json_text,
+                                      json_text=instance.json_text, security=instance.security,
                                       template=instance.template,
                                       name=instance.name, text=instance.text, stream=instance.image)
         return recipe
@@ -662,7 +662,6 @@ def recipe_run(request, uid):
     """
 
     analysis = Analysis.objects.filter(uid=uid).first()
-
     project = analysis.project
 
     # Form submission.
@@ -670,7 +669,6 @@ def recipe_run(request, uid):
 
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
                                      data=request.POST, files=request.FILES)
-
         # The form validation will authorize the job.
         if form.is_valid():
 
@@ -687,8 +685,9 @@ def recipe_run(request, uid):
         initial = dict(name=f"Results for: {analysis.name}")
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
 
-    context = dict(project=project, analysis=analysis, form=form, activate='Run Recipe')
+    is_runnable = auth.authorize_run(user=request.user, recipe=analysis)
 
+    context = dict(project=project, analysis=analysis, form=form, is_runnable=is_runnable, activate='Run Recipe')
     context.update(get_counts(project))
 
     return render(request, 'recipe_run.html', context)
@@ -740,15 +739,7 @@ def recipe_edit(request, uid):
         form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
                                 project=project)
         if form.is_valid():
-            recipe = form.save()
-            image = form.cleaned_data['image']
-            recipe.image = image or recipe.image
-            recipe.lastedit_user = user
-            recipe.lastedit_date = util.now()
-            recipe.save()
-            # Update the projects lastedit user.
-            Project.objects.filter(uid=recipe.project.uid).update(lastedit_user=user,
-                                                                  lastedit_date=util.now())
+            form.save()
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
         # Initial form loading via a GET request.

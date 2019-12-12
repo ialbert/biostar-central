@@ -89,11 +89,6 @@ def authorize_run(user, recipe):
     """
     Returns runnable.
     """
-
-    # A superuser can run any recipe.
-    if user.is_superuser:
-        return True
-
     # An anonymous user cannot run recipes.
     if user.is_anonymous:
         return False
@@ -105,13 +100,11 @@ def authorize_run(user, recipe):
         return False
 
     # A trusted user can run recipes that they have access to.
-    if user.profile.trusted:
+    if user.profile.trusted and recipe.runnable():
         return True
 
-    if not user.profile.trusted:
-        return False
-
-    if recipe.runnable():
+    # A superuser can run all recipes.
+    if user.is_superuser:
         return True
 
     return False
