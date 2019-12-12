@@ -22,23 +22,21 @@
                 {% endif %}
                 {{ analysis.name }}
             </a>
+
+            </div>
+
+            <div class="ui vertical detail segment">
                 {% if analysis.runnable %}
-                    <div class="ui right ribbon viewing green label" id="recipe-run" >
+                    <div class="ui right ribbon green label" id="recipe-run" >
                         <i class="check icon"></i>
                         Authorized
                     </div>
                 {% else %}
-                    <div class="ui right ribbon viewing orange label" id="recipe-run">
+                    <div class="ui right ribbon orange label" id="recipe-run">
                         <i class="hand paper icon"></i>
                         Pending authorization
                     </div>
                 {% endif %}
-
-            </div>
-
-
-            <div class="ui vertical segment">
-
                 {{ analysis.summary|markdown|safe }}
 
                 <form method="post" class="ui form" enctype="multipart/form-data"
