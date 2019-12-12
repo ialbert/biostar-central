@@ -40,7 +40,7 @@ For more information see the documentation below:
    :caption: Getting Started
    :maxdepth: 2
 
-   recipes/general
+   recipes/faq
    recipes/install
 
 .. toctree::
@@ -53,4 +53,4 @@ For more information see the documentation below:
    deploy
    customize
    about
-   recipes/faq
+
