@@ -55,7 +55,7 @@ The code obtained from the Recipes website is similar to code they would develop
 Another perhaps even more important benefit is the ability to build upon other users' know-how. 
 Any user may take an existing multistage analysis and add/remove/customize that analysis for their needs. 
 
-# If you have a local Galaxy server and a local Recipe instance - what functional differences do users see? 
+## If you have a local Galaxy server and a local Recipe instance - what functional differences do users see? 
 
 It is possible to set up recipes that look and behave like tools in Galaxy. 
 For example, if one were to wrap individual tools into recipes, then from the usability perspective, Galaxy and Recipes would be nearly identical. 
@@ -116,6 +116,7 @@ When a recipe is copied the provenance to the original recipe is not maintained.
 
 Choosing the appropriate levels of documentation and provenance is a difficult question that we still debate and discuss. 
 We would like to avoid being either too lax or too stringent. The concepts that we popularize in this tool are new; the approach is different from past models. 
-In the paragraphs above, we discuss many of the challenges that we face. We do plan to evolve our views as needed. 
-Currently, we chose to approve only the recipes where the documentation is appropriate, and provenance is properly noted. 
+In the paragraphs above, we discuss many of the challenges that we face. 
+
+We do plan to evolve our views as needed. Currently, we chose to approve only the recipes where the documentation is appropriate, and provenance is properly noted. 
 Hence the "approved" state of a recipe is a manually curated process. We hope that with time, as we better understand the standards and requirements, we will be able to automate the process.
