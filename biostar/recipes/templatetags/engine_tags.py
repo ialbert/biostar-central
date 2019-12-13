@@ -294,8 +294,11 @@ def privacy_label(project):
 def security_label(context, analysis):
 
     user = context['request'].user
-
-    is_readable = auth.is_readable(user=user, project=analysis.project)
+    
+    if user.is_anonymous:
+        is_readable = False
+    else:
+        is_readable = auth.is_readable(user=user, project=analysis.project)
 
     context.update(dict(recipe=analysis, is_readable=is_readable))
 
