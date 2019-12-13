@@ -31,6 +31,7 @@ For more information see the documentation below:
 .. toctree::
    :caption: Getting Started
    :maxdepth: 1
+   :hidden:
 
    recipes/faq
    recipes/install
@@ -38,6 +39,7 @@ For more information see the documentation below:
 .. toctree::
    :caption: Features
    :maxdepth: 1
+   :hidden:
 
    recipes/projects
    recipes/recipes
