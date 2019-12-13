@@ -1,6 +1,8 @@
 # FAQ - Frequently Asked Questions 
 
-This page was originally created to answer questions reviewers posed while reviewing our scientific publication.
+This page was initially created to answer questions reviewers posed while reviewing our scientific publication.
+
+## Answers to reviewers
 
 ### Who can run a recipe?
 
@@ -133,3 +135,5 @@ In the paragraphs above, we discuss many of the challenges that we face.
 
 We do plan to evolve our views as needed. Currently, we chose to approve only the recipes where the documentation is appropriate, and provenance is properly noted. 
 Hence the "approved" state of a recipe is a manually curated process. We hope that with time, as we better understand the standards and requirements, we will be able to automate the process.
+
+## Other questions 
