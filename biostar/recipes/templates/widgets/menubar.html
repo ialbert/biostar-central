@@ -24,18 +24,16 @@
         </a>
 
         {% if user.is_authenticated %}
+                <a class="{% activate "profile" active %} {% if user.profile.trusted %}trusted{% endif %} item"
+                   href="{% url "user_profile" user.profile.uid %}" >
 
-            {% if user.profile.trusted %}
-                <a class="{% activate "profile" active %} item" href="{% url "user_profile" user.profile.uid %}" style="background-color: #f2fff2">
-                    <i class="user plus icon"></i>
+                    {% if user.is_superuser %}
+                        <i class="user plus icon"></i>
+                    {% else %}
+                        <i class="user icon"></i>
+                    {% endif %}
                     <span class="widescreen">{{ user.profile.name }}</span>
                 </a>
-            {% else %}
-                <a class="{% activate "profile" active %} item" href="{% url "user_profile" user.profile.uid %}">
-                    <i class="user icon"></i>
-                    <span class="widescreen">{{ user.profile.name }}</span>
-                </a>
-            {% endif %}
 
             <a class="{% activate "bin" active %} item" href="{% url 'recycle_bin' %}">
                 <i class="trash icon"></i>

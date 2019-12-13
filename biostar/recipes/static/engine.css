@@ -31,6 +31,9 @@ body {
     padding-bottom: 0;
     border-bottom: none ;
 }
+.ui.menu .item.trusted{
+     color: green ;
+}
 
 
 #recipe-run{

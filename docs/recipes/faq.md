@@ -4,7 +4,7 @@
 
 To run a recipe, the recipe must carry the "approved" label, and the user must have "trusted" designation.  
 
-![](images/runnable-opts.png)
+
 ## What is an approved recipe?
 
 Since each recipe may contain console commands and other code, the act of running recipes requires security checks to avoid misusing the computational resources. 
@@ -15,7 +15,7 @@ A green ribbon decorates authorized recipes.
 It is important to point out that un-approved recipes are visible, may be published, copied, shared, and downloaded by other users. 
 The "approval" process merely indicates that a user with administrative privileges has assessed the recipe and believes it to be fit for the purpose.
 
-
+![](images/runnable-unrunnable.png)
 ## What is a trusted user?
 
 Also, each user has a designation: "trusted" or "untrusted," that controls their ability to run recipes. 

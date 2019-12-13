@@ -30,14 +30,14 @@ For more information see the documentation below:
 
 .. toctree::
    :caption: Getting Started
-   :maxdepth: 2
+   :maxdepth: 1
 
    recipes/faq
    recipes/install
 
 .. toctree::
    :caption: Features
-   :maxdepth: 3
+   :maxdepth: 1
 
    recipes/projects
    recipes/recipes
