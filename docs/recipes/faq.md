@@ -24,6 +24,10 @@ Each user has a designation: **trusted** or **visitor** that controls their abil
 
 ![](images/authorization-untrusted-user.png)
 
+![](images/user-all-menu-items.png)
+![](images/user-admin-icon.png)
+
+
 ### How does one become a trusted user?
 
 The site administrators are able to change the designation of any user.
