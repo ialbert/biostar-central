@@ -24,8 +24,6 @@ From the biostar source directory::
 
 Visit **http://localhost:8000** to see the site loaded with default settings. Enjoy.
 
-For more information see the documentation below:
-
 
 
 .. toctree::
