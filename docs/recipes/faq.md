@@ -6,9 +6,11 @@ To run a recipe, the recipe must carry the "approved" label, and the user must h
 
 ## What is an approved recipe?
 
-Since each recipe may contain console commands and other code, the act of running recipes requires security checks to avoid misusing the computational resources. 
-Every new recipe starts out in a so-called "non-approved" state labeled as such with an orange ribbon (see web documentation for a screenshot). 
-A user with administrative privileges (an administrator) must approve a recipe for that recipe to become executable within the website. 
+Since each recipe may contain console commands and other code, running recipes requires security checks to avoid misusing the computational resources. Every new recipe starts out in a so-called "non-approved" state labeled as such with an orange ribbon (see screenshot below).
+
+![](images/authorization.png)
+
+A user with administrative privileges (a administrator) must approve a recipe for that recipe to become executable within the website.
 A green ribbon decorates authorized recipes.
 
 It is important to point out that un-approved recipes are visible, may be published, copied, shared, and downloaded by other users. 
