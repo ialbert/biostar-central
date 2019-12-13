@@ -1,8 +1,8 @@
 # FAQ - Frequently Asked Questions 
 
-This page was initially created to answer questions reviewers posed while reviewing our scientific publication.
-
 ## Answers to reviewers
+
+This section was created specifically to answer questions reviewers posed while reviewing our scientific publication.
 
 ### Who can run a recipe?
 
@@ -10,15 +10,13 @@ To run a recipe the recipe must be **authorized**  and the user must have **trus
 
 ### What is an authorized recipe?
 
-Since each recipe may contain console commands and other code, running recipes requires security checks to avoid misusing the computational resources. Every new recipe starts out in a so-called **pending authorization** state labeled with an orange ribbon (see screenshot below).
+Since a recipe may contain shell commands or other code security checks are needed to avoid the misuse of computational resources. For that reason every new recipe starts out in a so-called **pending authorization** state, labeled with an orange ribbon. These recipes cannot be executed on the website, but may be inspected, viewed, shared or downloaded.
 
 ![](images/authorization-pending.png)
 
 A user with administrative privileges (an administrator) must approve a recipe (in the recipe edit window) for the recipe to become executable within the website. A green ribbon decorates authorized recipes.
 
 ![](images/authorization-valid.png)
-
-**Note:** Even un-approved recipes are visible, may be published, copied, shared, and downloaded by other users. The approval process merely indicates that a user with administrative privileges has assessed the recipe and believes it to be fit for the purpose.
 
 ### Who is a trusted user?
 
@@ -136,4 +134,4 @@ In the paragraphs above, we discuss many of the challenges that we face.
 We do plan to evolve our views as needed. Currently, we chose to approve only the recipes where the documentation is appropriate, and provenance is properly noted. 
 Hence the "approved" state of a recipe is a manually curated process. We hope that with time, as we better understand the standards and requirements, we will be able to automate the process.
 
-## Other questions 
+## Other questions
