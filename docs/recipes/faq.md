@@ -10,7 +10,7 @@ To run a recipe the recipe must be **authorized**  and the user must have **trus
 
 Since each recipe may contain console commands and other code, running recipes requires security checks to avoid misusing the computational resources. Every new recipe starts out in a so-called **pending authorization** state labeled with an orange ribbon (see screenshot below).
 
-![Authorization pending](images/authorization-pending.png)
+![](images/authorization-pending.png)
 
 A user with administrative privileges (an administrator) must approve a recipe (in the recipe edit window) for the recipe to become executable within the website. A green ribbon decorates authorized recipes.
 
@@ -105,6 +105,7 @@ Thus site owners can set up more or fewer simultaneous job queues depending on t
 
 Recipes are created in two ways: either as new recipes by selecting the "Create recipe" button or by "copying" or "cloning" an existing recipe (we provide the explanation for the two terms in the next answer).
 
+
 ### If different people are developing recipes, how do you standardise the way the recipes are created?
 
 This problem is both important yet somewhat of a challenge to implement in a way that is not overbearing and limiting yet maintains utility to the users. 
@@ -114,11 +115,14 @@ For that reason, we would rather maintain this information in the main documenta
 ### Every recipe that a user may access can be duplicated in a new project as a "clone" or as a "copy".
 
 A cloned recipe remains in sync with the original recipe that it was cloned from. 
-Clones cannot be changed and track the original recipe. A change to the original recipe will immediately be reflected in all the clones. 
-The purpose of a cloned recipe is to ensure that a recipe is the same across multiple projects and individuals. 
+Clones cannot be changed and track the original recipe. A change to the original recipe will immediately be reflected in all the clones. The purpose of a cloned recipe is to ensure that a recipe is the same across multiple projects and individuals.
+
+![](images/paste-as-clone.png)
 
 The second method to duplicate a recipe is to copy it. A copied recipe is a brand new recipe filled with the content from an existing recipe. 
 When a recipe is copied the provenance to the original recipe is not maintained. It becomes the responsibility of the author of the recipe to maintain the relevant information in the documentation of the recipe. 
+
+![](images/paste-as-new.png)
 
 
 ### What conventions should be followed, how should they be documented, what is the minimum amount of provenance that the scripts should produce, and how should that be presented to the users?
