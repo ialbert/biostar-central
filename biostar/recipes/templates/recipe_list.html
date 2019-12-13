@@ -58,9 +58,14 @@
                                     result{{ recipe.job_count|pluralize }}</a>
                                     &bull;
                                     {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
-                                </div>
+                                    &bull;
+                                    {% if recipe.runnable %}
+                                        Authorized
+                                    {% else %}
+                                        Pending Authorization
+                                    {% endif %}
 
-                                <div id="copy-message-{{ recipe.uid }}"></div>
+                                </div>
                             </div>
                         </div>
                     {% empty %}

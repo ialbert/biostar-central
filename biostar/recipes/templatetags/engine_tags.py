@@ -292,7 +292,12 @@ def privacy_label(project):
 
 @register.inclusion_tag('widgets/authorization_required.html', takes_context=True)
 def security_label(context, analysis):
-    context.update(dict(recipe=analysis))
+
+    user = context['request'].user
+
+    is_readable = auth.is_readable(user=user, project=analysis.project)
+
+    context.update(dict(recipe=analysis, is_readable=is_readable))
 
     return context
 
@@ -528,7 +533,7 @@ def get_access_label(project, user):
 
     # If the access is not read, write, or share
     # and the project is public, then it is seen as 'Readable'
-    if not access and project.is_public:
+    if (not access or access.access == Access.NO_ACCESS) and project.is_public:
         return 'Public Access'
 
     access_str = access.get_access_display() if access else 'No Access'

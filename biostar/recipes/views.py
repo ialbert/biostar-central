@@ -756,6 +756,7 @@ def recipe_edit(request, uid):
 @read_access(type=Project)
 def recipe_create(request, uid):
     # Get the project
+
     project = Project.objects.filter(uid=uid).first()
 
     # Prepare the form
