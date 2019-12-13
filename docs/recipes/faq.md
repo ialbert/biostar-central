@@ -4,7 +4,7 @@
 
 To run a recipe, the recipe must carry the "approved" label, and the user must have "trusted" designation.  
 
-![](images/running-recipes.png)
+![](images/runnable-opts.png)
 ## What is an approved recipe?
 
 Since each recipe may contain console commands and other code, the act of running recipes requires security checks to avoid misusing the computational resources. 
