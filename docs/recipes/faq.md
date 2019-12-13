@@ -1,100 +1,107 @@
 # FAQ - Frequently Asked Questions 
 
+This page was originally created to answer questions reviewers posed while reviewing our scientific publication.
+
 ## Who can run a recipe?
 
-To run a recipe, the recipe must carry the "approved" label, and the user must have "trusted" designation.  
+To run a recipe the recipe must be **authorized**  and the user must have **trusted** designation.
 
-## What is an approved recipe?
+## What is an authorized recipe?
 
-Since each recipe may contain console commands and other code, running recipes requires security checks to avoid misusing the computational resources. Every new recipe starts out in a so-called "non-approved" state labeled as such with an orange ribbon (see screenshot below).
+Since each recipe may contain console commands and other code, running recipes requires security checks to avoid misusing the computational resources. Every new recipe starts out in a so-called **pending authorization** state labeled with an orange ribbon (see screenshot below).
 
-![](images/authorization.png)
+![](images/authorization-pending.png)
 
-A user with administrative privileges (a administrator) must approve a recipe for that recipe to become executable within the website.
-A green ribbon decorates authorized recipes.
+A user with administrative privileges (an administrator) must approve a recipe (in the recipe edit window) for the recipe to become executable within the website. A green ribbon decorates authorized recipes.
 
-It is important to point out that un-approved recipes are visible, may be published, copied, shared, and downloaded by other users. 
-The "approval" process merely indicates that a user with administrative privileges has assessed the recipe and believes it to be fit for the purpose.
+![](images/authorization-valid.png)
 
+**Note:** Even un-approved recipes are visible, may be published, copied, shared, and downloaded by other users. The approval process merely indicates that a user with administrative privileges has assessed the recipe and believes it to be fit for the purpose.
 
-## What is a trusted user?
+## Who is a trusted user?
 
-Also, each user has a designation: "trusted" or "untrusted," that controls their ability to run recipes. 
-Only users with "trusted" designation may run recipes.  The restrictions that we have in place provide high granularity control of the computational resources. 
-The owner of the site decides which users and which recipes gain the privileges to use the computational resources. Other groups running the Recipes software may set up their system in such a way to automatically trust every new user that signs up, and they may also choose to approve every recipe that is created automatically. 
+Each user has a designation: **trusted** or **visitor** that controls their ability to run recipes. Even when it comes to **approved** recipes, only users with **trusted** designation may run these recipes.
 
-The software was designed with decentralization in mind. The Recipes software runs on any operating system: Linux, macOS and Windows 10 (with Linux Subsystem), and on any hardware that supports Python. 
-We ran the Recipes on a MacBook Air laptop, on a single computer serving a lab, and on a high-performance multicore server. 
-Installation takes little more than minutes and requires no special software, just the ability to run the Python programming language.  
+![](images/authorization-untrusted-user.png)
 
-We do envision different groups running their personalized instances of the software to serve local needs and have the ability to control who can run which recipe.
+## How does one become a trusted user?
 
-## Applicability as an educational tool.
+The site administrators are able to change the designation of any user.
 
-Even though originally the platform was designed to provide bioinformatics support to our collaborators at the US Fish & Wildlife we have also found that the use of recipes integrates exceedingly well within bioinformatics curricula.
-Specifically, when covering more advanced topics, educators present a series of commands that produce data analysis steps. Yet currently, there is no straightforward way to publish both the code and the results in one location. We can use say GitHub to publish code, but we can't use GitHub to execute the code, and we can't use GitHub to store large datasets either.
- In contrast, when using the Recipes site, a student can see both the code and all the files and results generated while running the code. In addition, they can also view results generated with different runtime parameters; all results are linked to the recipe that produced them.
+The restrictions that we have in place provide high granularity control of the computational resources.
 
-Finally, students can readily copy the recipe over to their projects, make changes to it and see the results of their changes, all in the same interface. In that sense, the Recipes work a bit like Jupyter notebooks. 
+The owner of the site decides which users and which recipes gain the privileges to use the computational resources. Other groups running the Recipes software may set up their system in such a way to automatically trust every new user that signs up, and they may also choose to approve every recipe that is created automatically.
 
+## Can this software be run on my machine?
 
-## It is conceptually most similar to Galaxy, but how does it differ? 
+The software was designed with decentralization in mind. The software runs on any operating system: Linux, macOS and Windows 10 (with Linux Subsystem), and on any hardware that supports Python. We routinel run the software on a MacBook Air laptop, on a single computer serving a lab, and on a high-performance multicore server.
+
+Installation takes little more than minutes and requires no special software, just the ability to run the Python programming language.  We do envision different groups running their personalized instances of the software to serve local needs.
+
+## Can the software be used in bioinformatics education?
+
+Even though originally the platform was designed to provide bioinformatics support to our biologist collaborators we have also found that the use of recipes integrates exceedingly well within bioinformatics curricula.
+
+Specifically, when covering more advanced topics, educators must present a series of commands that produce data analysis steps. Yet currently, there is no straightforward way to publish both the code and the results in one location. We can use say GitHub to publish code, but we can't use GitHub to execute the code, and we can't use GitHub to store large datasets either.
+
+ In contrast, when using bioinformatics recipes, a student can see both the code and all the files and results generated while running the code. In addition, they can also view results generated with different runtime parameters; all results are linked to the recipe that produced them.
+
+Finally, students can readily copy the recipe over to their projects, make changes to it and see the results of their changes, all in the same interface.
+
+## The software seems conceptually most similar to Galaxy, but how does it differ?
 
 When compared to Galaxy the Recipes framework presents several fundamental differences in its operating principles:
 
-The Recipes framework was designed to capture entire data analysis pipelines. The Galaxy framework was designed to represent individual software tools.
-The code downloaded from the Recipes framework can be run on any other computer (that has the software installed) and will produce the same output as seen on the web. 
-A Galaxy analysis can only be run inside the Galaxy software. Recipes are designed to be shared and expanded upon by various users. 
-Users may create different interfaces for recipes copied from someone else. The end-user cannot change interfaces in Galaxy.
-The Recipes framework is also a data analysis know-how and training material distribution framework. 
+1. The framework was designed to capture entire data analysis pipelines. The Galaxy framework was designed to represent individual software tools.
+1. The code downloaded from the the site can be run on any other computer (that has the software installed) and will produce the same output as seen via the web interface.
+1. A Galaxy analysis can only be run inside the Galaxy software. Recipes are designed to be shared and expanded upon by various users.
+1. Users may create different interfaces for recipes copied from someone else. The end-user cannot change interfaces in Galaxy.
+1. The framework is also a data analysis know-how, social interaction and training material distribution framework.
 
 ## What are the advantages of the recipes over Galaxy? 
 
-One major advantage, in our opinion, is the independence of the method from the platform. 
-A bioinformatics recipe is an independent piece of code that teaches and trains bioinformatician how to perform the analysis themselves either on the Recipes website or on their own computational infrastructure. 
-The code obtained from the Recipes website is similar to code they would develop at the command line.
+One major advantage, in our opinion, is the independence of the method from the platform.
 
-Another perhaps even more important benefit is the ability to build upon other users' know-how. 
-Any user may take an existing multistage analysis and add/remove/customize that analysis for their needs. 
+A bioinformatics recipe is an independent piece of code that educates and trains bioinformatician how to perform the analysis themselves. The recipe may be run either on the recipes website or on any other  computational infrastructure. The code obtained are recipes are identical to code a bioinformatician would develop at the command line.
+
+Additionally the platform also serves as knowledge distribution. Users have the ability to build upon each others' know-how and expertise. A user may take an existing multistage analysis and add/remove/customize that analysis for their needs.
 
 ## If you have a local Galaxy server and a local Recipe instance - what functional differences do users see? 
 
-It is possible to set up recipes that look and behave like tools in Galaxy. 
-For example, if one were to wrap individual tools into recipes, then from the usability perspective, Galaxy and Recipes would be nearly identical. 
-In that sense, the Recipes website is a superset of some of Galaxy's functionality. 
+It is possible to set up recipes that look and behave like tools in Galaxy. For example, if one were to wrap individual tools into recipes, then from the usability perspective, Galaxy and Recipes would be nearly identical.
+
+In that sense, the Recipes website is a superset of some of Galaxy's functionality.
 That being said, this is not how we envision using the Recipes, we advocate building pipelines rather than individual tools, a model that is not directly applicable in Galaxy.
 
 ## How does the performance compare? 
 
-We believe that the performance of Recipes software is excellent. 
-The Recipes code runs Python 3 and Django, both we documented platforms with extensive use in the software industry. 
-The Recipes software runs on more platforms than Galaxy, and we believe that it is faster and simpler to bootstrap. 
-Galaxy targets different use-cases and supports different needs; thus it would be unwise for us to state that our site is either more or less performant than Galaxy - since it does something else. 
-What we can say is that the performance of the software we wrote that never introduces a bottleneck itself. 
+Our frameworks uses Python 3 and was developed with [Django][django], a well documented platform with extensive use in the information technology industry.
 
-When it comes to the performance of the analyses themselves, that depends on the infrastructure that runs the server.
+When it comes to the performance of the analyses themselves, these depend on the choice of methods and on the infrastructure that runs the server.
 
+[django]: https://www.djangoproject.com/
 
 ## This application is designed to serve individual groups, but groups on what scale? 
 
-Django, the application server that our application is built upon has wide acceptance in the software industry. 
-Django runs platforms such as Pinterest and Instagram. 
-Thus we believe that software can be made to scale up to support computing at a supercomputer scale.
+Django, the application server that our application is built upon has wide acceptance in the information technology industry. Django runs platforms such as Pinterest and Instagram.  Thus we believe that software can be made to scale up to support computing at a supercomputer scale.
 
-Our current focus, based on the priorities of the funding that we have recieved, was to develop a service that serves groups consisting of dozens of bioinformaticians serving, say hundreds of end-users.
+Our current focus, based on the priorities of the funding that we have received, was to develop a system that serves groups consisting of dozens of bioinformaticians interacting with hundreds of end-users.
 
 ## Can it cope with multiple users, for example, what are the minimum requirements for installing the web application?
 
-The Recipes software itself has extremely-low memory and CPU overhead. 
-We estimate a few hundred megabytes and less than 1% CPU utilization. 
-Of course, when we run an analysis, the resource utilization depends on the tasks in the study itself - what is important to note is that our software imposes minimal overhead. Any limitation would only manifest with respect of the demands of running analyses. There are few constraints for the number of users that can access/read/share/ copy recipes. Hundreds of thousands of users could be browsing the recipes with millions of page views every month.
+The bioinformatics recipes software itself has extremely-low memory and CPU overhead.
+We estimate a few hundred megabytes and less than 1% CPU utilization.
 
-## How new recipes are deployed and added to the system and where (and how) recipes actually run when you execute them through the web application. 
+Of course, when we run an analysis, the resource utilization depends on the tasks in the processes that are employed - what is important to note is that our software imposes minimal overhead. There are no constraints for the number of users that can access/read/share/ copy recipes. Hundreds of thousands of users could be browsing the recipes with millions of page views every month.
 
-The recipes are currently executed on the same platform that runs the webserver. 
-Upon set up, site owners can customize how many jobs they want to allow to be run simultaneously. 
-The Recipes software comes with a built-in job queuing system that will honor this setting. 
+## Where (and how) recipes actually run when you execute them through the web application?
+
+The recipes are currently executed on the same platform that runs the webserver. Since the service itself has minimal overhead, the entire computational infrastructure is available for computation.
+
+The recipes software comes with a built-in job queuing system that will honor this setting.
 Thus site owners can set up more or fewer simultaneous job queues depending on their computational resources.
+
+## How are new recipes added to the system?
 
 Recipes are created in two ways: either as new recipes by selecting the "Create recipe" button or by "copying" or "cloning" an existing recipe (we provide the explanation for the two terms in the next answer).
 

@@ -1,8 +1,8 @@
 Bioinformatics Recipes: Reproducible Data Analysis
 ==================================================
 
-Bioinformatics Recipes is a `Python <http://www.python.org/>`_ and
-`Django <http://www.djangoproject.com/>`_ based data analysis software.
+Bioinformatics Recipes is a `Python <http://www.python.org/>`_ and `Django <http://www.djangoproject.com/>`_ based data analysis software licensed under the *MIT Open Source License*.
+It is a simple, generic, flexible and extensible analytic framework.
 
 Quick Start
 ------------

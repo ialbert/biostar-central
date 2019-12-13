@@ -820,7 +820,7 @@ $(document).ready(function () {
         cancel_inplace();
         $('#new-comment').remove();
         $('#add-answer').html('');
-        $('.dim-on-create').dimmer('hide')
+        $('.dim-on-create').dimmer('hide');
 
         $.ajax(create_url,
             {

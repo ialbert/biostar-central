@@ -114,13 +114,13 @@
     editor.run();
     $('.ui.dropdown').dropdown();
 
-    {% if not_trusted %}
+    {% if not_trusted and captcha_key %}
         var captchaWidgetId = grecaptcha.render( 'captcha', {
             'sitekey' : '{{ captcha_key }}',
             'theme' : 'light'
         });
     {% endif %}
-    //alert({{ is_toplevel }});
+
 
     function create_post(){
 
@@ -133,7 +133,7 @@
         //alert(post_type);
         var tag_val = $('#tags').dropdown('get value');
 
-        {% if not_trusted %}
+        {% if not_trusted and captcha_key %}
             var cap_response = grecaptcha.getResponse(captchaWidgetId);
         {% else %}
             var cap_response = '';

@@ -371,7 +371,7 @@ def ajax_create(request):
     parent = Post.objects.filter(uid=parent_uid).first()
 
     # reCAPTCHA field required when an untrusted user creates any post.
-    check_captcha = not is_trusted(user=user)
+    check_captcha = not is_trusted(user=user) and settings.RECAPTCHA_PRIVATE_KEY
 
     # Validate fields in request.POST
     valid, msg = validate_post(content=content, title=title, recaptcha_token=recaptcha_token, tags_list=tag_list,
@@ -414,6 +414,7 @@ def inplace_form(request):
 
     is_toplevel = post.is_toplevel if post else int(request.GET.get('top', 1))
     is_comment = request.GET.get('comment', 0) if not post else post.is_comment
+
     title = post.title if post else ''
     content = post.content if post else ''
     rows = len(post.content.split("\n")) if post else request.GET.get('rows', 10)

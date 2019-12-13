@@ -19,17 +19,21 @@
     </div>
 
     <div class="right menu">
-            <a class="item widescreen" href="https://bioinformatics-recipes.readthedocs.io/">
-                <i class="question circle icon"></i>  About
-            </a>
+        <a class="item widescreen" href="https://bioinformatics-recipes.readthedocs.io/">
+            <i class="question circle icon"></i> About
+        </a>
 
         {% if user.is_authenticated %}
+                <a class="{% activate "profile" active %} {% if user.profile.trusted %}trusted{% endif %} item"
+                   href="{% url "user_profile" user.profile.uid %}" >
 
-
-            <a class="{% activate "profile" active %} item" href="{% url "user_profile" user.profile.uid %}">
-                <i class="user icon"></i>
-                <span class="widescreen">{{ user.profile.name }}</span>
-            </a>
+                    {% if user.is_superuser %}
+                        <i class="user plus icon"></i>
+                    {% else %}
+                        <i class="user icon"></i>
+                    {% endif %}
+                    <span class="widescreen">{{ user.profile.name }}</span>
+                </a>
 
             <a class="{% activate "bin" active %} item" href="{% url 'recycle_bin' %}">
                 <i class="trash icon"></i>
@@ -46,7 +50,6 @@
             </a>
 
         {% endif %}
-
 
 
     </div>
