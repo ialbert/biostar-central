@@ -49,7 +49,7 @@ def site_admin(request):
     '''
     Administrative view. Lists the admin project and job.
     '''
-    jobs = Job.objects.order_by('-pk')
+    jobs = Job.objects.order_by('-pk')[:200]
     context = dict(jobs=jobs)
 
     return render(request, 'admin_index.html', context=context)
