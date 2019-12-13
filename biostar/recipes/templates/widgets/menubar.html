@@ -28,10 +28,13 @@
                    href="{% url "user_profile" user.profile.uid %}" >
 
                     {% if user.is_superuser %}
+                        <i class="user md icon"></i>
+                    {% elif user.profile.trusted %}
                         <i class="user plus icon"></i>
                     {% else %}
-                        <i class="user icon"></i>
+                        <i class="user outline icon"></i>
                     {% endif %}
+
                     <span class="widescreen">{{ user.profile.name }}</span>
                 </a>
 
