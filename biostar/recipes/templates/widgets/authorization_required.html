@@ -4,7 +4,8 @@
     </div>
 {% elif not request.user.profile.trusted and recipe.runnable %}
     <div class="ui orange message">
-        <i class="warning circle icon"></i>This recipe is only runnable by <a href="#">trusted users</a>.
+        <i class="warning circle icon"></i>This recipe is only runnable by
+        <a href="https://bioinformatics-recipes.readthedocs.io/en/latest/recipes/faq.html#what-is-a-trusted-user">trusted users</a>.
     </div>
 
 {% elif not recipe.runnable %}
