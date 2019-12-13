@@ -1,73 +1,39 @@
+# Installation
 
-# Install Recipes
+The code in **Biostar Recipes**  requires [Python 3.6][python] or above.
 
-The sourcecode can be obtained via::
+Our installation instructions rely on [conda][conda] though other alternatives for managing python environments are equally viable.
 
+    # Create a virtual environment.
+    conda create -y --name engine python=3.6
+
+    # Activate the python environment.
+    conda activate engine
+
+    # Clone the source server code and the recipe code.
     git clone https://github.com/ialbert/biostar-central.git
 
-Here are steps to running and deploying the recipes from scratch.
+    # Switch to the biostar-engine directory.
+    cd biostar-central
 
-1. Create a virtual environment and clone most recent version.
+    # Install server dependencies.
+    pip install -r conf/pip_requirements.txt
 
+The installation is now complete. All server management commands are run through `make` by running one or more `make` tasks.
+For example to test the `recipes` app run:
 
-2. Install dependencies. 
+    make recipes test
 
+To
+## Running the demo server
 
-3. Run migrations and tests. 
+To run the demonstration version of the `recipes` app execute:
 
+    make recipes_demo
 
-4. Start a local server. 
+Visit <http://127.0.0.1:8000/> to view the site.
 
-
-
-## 1. Create environment
-
-Create a virtual environment by first downloading miniconda at https://docs.conda.io/en/latest/miniconda.html. 
-
-After downloading the installation file, run the command ( replace installation_file.sh with your installation file ) : 
-
-    $ bash installation_file.sh      
-
-Once miniconda has been installed, create a virtual enviroment called `engine`.
-
-    $ conda create -n engine python=3.7
-    
-Start the virtual enviorment by entering the command:
-
-    $ conda activate engine
-    
-Clone or pull the most recent version of biostars by executing:
-
-      git clone https://github.com/ialbert/biostar-central.git  # Clone a new branch
- 
-      
-## 2. Install dependencies
-
-Activate the `engine` virtual enviorment.
-
-    $ conda activate engine
-
-Enter the `biostar-central` directory to install dependencies and requirements into the virtual enviorment.
-
-Execute the following to install python requirements: 
-
-    pip install -r conf/pip_requirements.txt      # Install python requirements.
-    
-    
-Add the following conda channels:
-
-    conda config --add channels r
-    conda config --add channels conda-forge
-    conda config --add channels bioconda
-
-Execute the following to install all anaconda requirements:
-    
-    conda install --file conf/conda_requirements.txt  # Install conda requirements.
-    
- After dependencies have been installed, a migration needs to be made to create the database collect static files.
- 
- 
-## 3. Initialize recipes
+##  Initialize recipes
  
 Activate the `engine` virtual enviorment.
 
@@ -147,3 +113,11 @@ The [Django documentation][django] contains a wealth of information on the alter
 Within this setup we recommend the [uwsgi][uwsgi] based deployment.
 
 # Social Authentication
+
+
+[python]: https://www.python.org/
+[django]: https://www.djangoproject.com/
+[biostars]: https://www.biostars.org
+[recipes]: https://www.bioinformatics.recipes
+[handbook]: https://www.biostarhandbook.com
+[conda]: https://conda.io/docs/

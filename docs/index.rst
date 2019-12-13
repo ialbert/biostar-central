@@ -1,5 +1,5 @@
 Bioinformatics Recipes: Reproducible Data Analysis
-=====================================================================
+==================================================
 
 Bioinformatics Recipes is a `Python <http://www.python.org/>`_ and
 `Django <http://www.djangoproject.com/>`_ based data analysis software.
@@ -20,16 +20,11 @@ Visit **http://localhost:8000** to see the site loaded with default settings. En
 For more information see the documentation below:
 
 .. toctree::
-   :caption: Getting Started
+   :caption: Table of Contents
    :maxdepth: 2
 
    recipes/faq
    recipes/install
-
-.. toctree::
-   :caption: Features
-   :maxdepth: 3
-
    recipes/projects
    recipes/recipes
    recipes/api
