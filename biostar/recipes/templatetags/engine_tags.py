@@ -487,8 +487,6 @@ def get_access_label(user, project):
 
     access = Access.objects.filter(user=user, project=project).first()
 
-    if access is None and project.is_public:
-        label = "Public Access"
     access = access or Access(access=Access.NO_ACCESS, user=user, project=project)
 
     label = access.get_access_display()
