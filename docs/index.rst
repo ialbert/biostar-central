@@ -1,5 +1,5 @@
 Bioinformatics Recipes: Reproducible Data Analysis
-=====================================================================
+==================================================
 
 Bioinformatics Recipes is a `Python <http://www.python.org/>`_ and `Django <http://www.djangoproject.com/>`_ based data analysis software licensed under the *MIT Open Source License*.
 It is a simple, generic, flexible and extensible analytic framework.
@@ -17,22 +17,14 @@ From the biostar source directory::
 
 Visit **http://localhost:8000** to see the site loaded with default settings. Enjoy.
 
-
 For more information see the documentation below:
 
 .. toctree::
-   :caption: Getting Started
-   :maxdepth: 1
-   :hidden:
+   :caption: Table of Contents
+   :maxdepth: 2
 
    recipes/faq
    recipes/install
-
-.. toctree::
-   :caption: Features
-   :maxdepth: 1
-   :hidden:
-
    recipes/projects
    recipes/recipes
    recipes/api
