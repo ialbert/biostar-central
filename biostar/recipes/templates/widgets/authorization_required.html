@@ -2,16 +2,24 @@
     <div class="ui orange message">
         <i class="warning circle icon"></i>You need to be logged in to run recipes.
     </div>
+
 {% elif not request.user.profile.trusted and recipe.runnable %}
     <div class="ui orange message">
         <i class="warning circle icon"></i>This recipe is only runnable by
-        <a href="https://bioinformatics-recipes.readthedocs.io/en/latest/recipes/faq.html#what-is-a-trusted-user">trusted users</a>.
+        <a href="https://bioinformatics-recipes.readthedocs.io/en/latest/recipes/faq.html#what-is-a-trusted-user">trusted
+            users</a>.
+    </div>
+
+{% elif request.user.profile.trusted and recipe.runnable and not is_readable %}
+    <div class="ui orange message">
+        <i class="warning circle icon"></i>You need <a>read access</a> to the project to run a recipe.
     </div>
 
 {% elif not recipe.runnable %}
     <div class="ui orange message">
-        <i class="warning circle icon"></i>This recipe needs to be audited by an admin before it can be run.
+        <i class="warning circle icon"></i>This recipe needs to be audited by an admin before it can be run.<br>
     </div>
+
 
 {% endif %}
 

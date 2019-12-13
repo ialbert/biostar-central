@@ -272,9 +272,11 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
 def create_analysis(project, json_text, template, uid=None, user=None, summary='',
                     name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
                     root=None):
+
     owner = user or project.owner
 
     analysis = Analysis.objects.filter(uid=uid)
+
 
     # Only update when there is a flag
     if analysis and update:
