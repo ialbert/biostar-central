@@ -5,6 +5,7 @@ import random
 import re
 import urllib.parse
 import datetime
+from itertools import count, islice
 from datetime import timedelta
 
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
@@ -514,13 +515,12 @@ def relative_url(value, field_name, urlencode=None):
 
 @register.simple_tag
 def get_thread_users(post, limit=2):
-    users = post.thread_users.exclude(profile__state__in=[Profile.BANNED, Profile.SUSPENDED]).all()
+    users = post.thread_users.exclude(profile__state__in=[Profile.BANNED, Profile.SUSPENDED])
 
-    if post.author != post.lastedit_user:
-        displayed_users = [post.author, post.lastedit_user]
-    else:
-        displayed_users = [post.author]
+    displayed_users = {post.author, post.lastedit_user}
 
+    displayed_users = [u for u in displayed_users
+                       if u.profile.state not in (Profile.BANNED, Profile.SUSPENDED)]
     for user in users:
         if len(displayed_users) >= limit:
             break

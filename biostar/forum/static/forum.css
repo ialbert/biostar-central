@@ -718,7 +718,7 @@ img {
 }
 
 .inplace-fields {
-    display: -webkit-box;
+    display: flow-root;
 }
 
 
@@ -1000,7 +1000,7 @@ pre {
     }
 
     .inplace-fields{
-        display: block;
+        display: flow-root;
     }
 }
 

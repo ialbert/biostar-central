@@ -57,6 +57,21 @@ recipes:
 	@echo DJANGO_APP=${DJANGO_APP}
 	@echo DATABASE_NAME=${DATABASE_NAME}
 
+
+bioconductor:
+	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
+	$(eval DJANGO_APP := biostar.forum)
+	$(eval UWSGI_INI := themes/bioconductor/conf/uwsgi.ini)
+	$(eval ANSIBLE_HOST := themes/bioconductor/conf/ansible/supportupgrade.bioconductor.org)
+	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
+	$(eval SUPERVISOR_NAME := forum)
+	$(eval ENGINE_DIR := /export/www/biostar-central)
+
+	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	@echo DJANGO_APP=${DJANGO_APP}
+	@echo DATABASE_NAME=${DATABASE_NAME}
+
+
 forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)

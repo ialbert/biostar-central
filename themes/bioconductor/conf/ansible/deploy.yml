@@ -9,11 +9,10 @@
   tasks:
     - include_vars: vars.yml
 
-    - name: Update the biostar-engine
+    - name: Update the biostar-central
       shell: ls
       notify:
         - update git
-        - init sciprts
         - server migrate
         - reload supervisor
         - restart nginx

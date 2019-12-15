@@ -379,6 +379,7 @@ def new_post(request):
     author = request.user
 
     if request.method == "POST":
+
         form = forms.PostLongForm(data=request.POST, user=request.user)
         if form.is_valid():
             # Create a new post by user
@@ -392,7 +393,7 @@ def new_post(request):
             tasks.created_post.spool(pid=post.id)
 
             return redirect(post.get_absolute_url())
-
+        print(form.errors)
     # Action url for the form is the current view
     action_url = reverse("post_create")
     content = request.POST.get('content', '')

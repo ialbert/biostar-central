@@ -24,9 +24,6 @@ Each user has a designation: **trusted** or **visitor** that controls their abil
 
 ![](images/authorization-untrusted-user.png)
 
-![](images/user-all-menu-items.png)
-![](images/user-admin-icon.png)
-
 
 ### How does one become a trusted user?
 
@@ -35,6 +32,18 @@ The site administrators are able to change the designation of any user.
 The restrictions that we have in place provide high granularity control of the computational resources.
 
 The owner of the site decides which users and which recipes gain the privileges to use the computational resources. Other groups running the Recipes software may set up their system in such a way to automatically trust every new user that signs up, and they may also choose to approve every recipe that is created automatically.
+
+### How can one tell if they are a trusted user?
+
+Users can find out what their designation is by looking at their user name in the menubar.
+
+![](images/user-menubar.png)
+
+
+You can tell your user designation from the user item in the menu bar.
+
+![](images/user-icons.png)
+
 
 ### Can this software be run on my machine?
 
