@@ -39,10 +39,9 @@ Users can find out what their designation is by looking at their user name in th
 
 ![](images/user-menubar.png)
 
+Each type of user gets a different icons used to indicate their designation.
 
-You can tell your user designation from the user item in the menu bar.
-
-![](images/user-icons.png)
+![](images/user-icon-labels.png)
 
 
 ### Can this software be run on my machine?
