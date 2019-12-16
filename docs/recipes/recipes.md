@@ -35,14 +35,13 @@ The **Results** are created by applying a **Recipe** on **Data**.
 
 Creating a recipe can be done using the command line or web interface.
 
-Command line options:
+Command line:
 - Directly upload json and script template to a given recipe.
 
-Web interface options:
+Web interface:
 
-- **Clone a recipe** - Remains synchronized with original recipe. Changes are carried over from the original.
-
-- **Copy a recipe** - Create a new of a recipe that is a direct copy of another.
+- Create a brand new recipe.
+- Clone or copy one from another project.
 
 
 ### Using the Command Line
@@ -71,15 +70,31 @@ Use the `recipe` management command to directly add to a project.
       --update              Updates the recipe
 
 
-For example, the command below would add a recipe named `New recipe` to project with uid `project 1`.
+For example, the command below would add a recipe named `New recipe` to project with uid `1`.
 
-    python manage.py recipe --pid project 1 --name New recipe --json < interface file > --template < script template > 
+    python manage.py recipe --pid 1 --name New recipe --json < interface file > --template < script template > 
 
 
 ### Using Web Interface
 
+
+Users have the option of creating a brand new recipe or copying/cloning one from an existing one.
+
+To create a brand new recipe, click on the `New Recipe` tab located on the right of the recipe listing.
+This takes you to a form with three parts: the **metadata**, **interface specification**, and **script template**.
+
+![](images/new-recipe.png)    
+
+
+The metadata form is used to save extra information about the recipe. This includes the recipe name, unique identifier (uid), 
+recipe rank, image, and description. 
+
+![](images/recipe-metadata.png) 
+   
+![](images/recipe-interface-spec.png)  
+
 Open on a recipe of interest and click on the `Copy` button on the menu bar.
-![](images/copy-clone.png)
+![](images/copy-clone.png)     
 
 After clicking `Copy` the recipe is in your clipboard. Open the `Recipe` tab of any project to view your clipboard.
 
@@ -90,12 +105,16 @@ Cloning allows your recipes to stay up to date with an original source.
 
 **Note** You can clone with `Read Access` and edit the cloned recipe with `Write Access` to the original.
 
-To clone the recipes in your clipboard, click the `Paste as clone` at the top of the `Recipes` tab.
+A cloned recipe remains in sync with the original recipe that it was cloned from. 
+Clones cannot be changed and track the original recipe. A change to the original recipe will immediately be reflected in all the clones. The purpose of a cloned recipe is to ensure that a recipe is the same across multiple projects and individuals.
 
+To clone the recipes in your clipboard, click the `Paste as clone` at the top of the `Recipes` tab.
 ![](images/paste-as-clone.png)
 
+ 
 
-Copying creates recipes with the same specifications as the ones in the clipboard.
+The second method to duplicate a recipe is to copy it. A copied recipe is a brand new recipe filled with the content from an existing recipe. 
+When a recipe is copied the provenance to the original recipe is not maintained. It becomes the responsibility of the author of the recipe to maintain the relevant information in the documentation of the recipe. 
 
 To copy the recipes , click the `Paste as new` at the top of the `Recipes` tab.
 ![](images/paste-as-new.png)
