@@ -129,12 +129,12 @@ For that reason, we would rather maintain this information in the main documenta
 A cloned recipe remains in sync with the original recipe that it was cloned from. 
 Clones cannot be changed and track the original recipe. A change to the original recipe will immediately be reflected in all the clones. The purpose of a cloned recipe is to ensure that a recipe is the same across multiple projects and individuals.
 
-![](images/paste-as-clone.png)
-
+![](images/paste-clone.png)    
+   
 The second method to duplicate a recipe is to copy it. A copied recipe is a brand new recipe filled with the content from an existing recipe. 
 When a recipe is copied the provenance to the original recipe is not maintained. It becomes the responsibility of the author of the recipe to maintain the relevant information in the documentation of the recipe. 
-
-![](images/paste-as-new.png)
+ 
+![](images/paste-new.png)
 
 
 ### What conventions should be followed, how should they be documented, what is the minimum amount of provenance that the scripts should produce, and how should that be presented to the users?
