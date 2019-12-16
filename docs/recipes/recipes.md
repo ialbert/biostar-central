@@ -77,7 +77,7 @@ For example, the command below would add a recipe named `New recipe` to project 
 
 ### Using Web Interface
 
-
+#### Brand New Recipe
 Users have the option of creating a brand new recipe or copying/cloning one from an existing one.
 
 To create a brand new recipe, click on the `New Recipe` tab located on the right of the recipe listing.
@@ -91,16 +91,22 @@ recipe rank, image, and description.
 
 ![](images/recipe-metadata.png) 
    
-![](images/recipe-interface-spec.png)  
+The interface specification field specifies the value of the parameters that get substituted into the template. 
+These parameters can also specify the help text and label of a given field. 
+ 
+![](images/recipe-interface-spec.png) 
+ 
+The script template field is used to write the executed code. Parameters from the interface specification field
 
-Open on a recipe of interest and click on the `Copy` button on the menu bar.
-![](images/copy-clone.png)     
+![](images/recipe-template.png)  
+
+
+#### Copy or Clone
 
 After clicking `Copy` the recipe is in your clipboard. Open the `Recipe` tab of any project to view your clipboard.
 
-Once your clipboard has recipes, you can  **clone** or **copy**.
+Once your clipboard has recipes, you can  **clone** or **copy** them.
  
-
 Cloning allows your recipes to stay up to date with an original source. 
 
 **Note** You can clone with `Read Access` and edit the cloned recipe with `Write Access` to the original.
@@ -108,15 +114,13 @@ Cloning allows your recipes to stay up to date with an original source.
 A cloned recipe remains in sync with the original recipe that it was cloned from. 
 Clones cannot be changed and track the original recipe. A change to the original recipe will immediately be reflected in all the clones. The purpose of a cloned recipe is to ensure that a recipe is the same across multiple projects and individuals.
 
-To clone the recipes in your clipboard, click the `Paste as clone` at the top of the `Recipes` tab.
+To paste the recipes as a clone, click the `Paste as clone` at the top of the `Recipes` tab.
 ![](images/paste-clone.png)
-
- 
 
 The second method to duplicate a recipe is to copy it. A copied recipe is a brand new recipe filled with the content from an existing recipe. 
 When a recipe is copied the provenance to the original recipe is not maintained. It becomes the responsibility of the author of the recipe to maintain the relevant information in the documentation of the recipe. 
 
-To copy the recipes , click the `Paste as new` at the top of the `Recipes` tab.
+To paste the recipes as a new one, click the `Paste as New` at the top of the `Recipes` tab.
 ![](images/paste-new.png)
 
 
