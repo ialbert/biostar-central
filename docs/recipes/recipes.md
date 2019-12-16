@@ -211,7 +211,7 @@ Additionally, users may copy a result file as new data input for another recipe.
 
 [templates]: https://docs.djangoproject.com/en/2.2/topics/templates/
 
-## Output directory
+## Output Directory
 
 Once the recipe runs a results directory is created that contains the following:
 

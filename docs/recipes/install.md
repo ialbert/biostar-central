@@ -24,8 +24,7 @@ For example to test the `recipes` app run:
 
     make recipes test
 
-To
-## Running the demo server
+## Running Demo
 
 To run the demonstration version of the `recipes` app execute:
 
@@ -33,7 +32,7 @@ To run the demonstration version of the `recipes` app execute:
 
 Visit <http://127.0.0.1:8000/> to view the site.
 
-##  Initialize recipes
+##  Initialize Recipes
  
 Activate the `engine` virtual enviorment.
 
@@ -63,7 +62,7 @@ To populate the database with random data run:
     make load_recipes
       
     
-## 4. Start server 
+## Start Server 
 
 Activate the `engine` virtual enviorment:
 
