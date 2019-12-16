@@ -36,7 +36,7 @@ The **Results** are created by applying a **Recipe** on **Data**.
 Creating a recipe can be done using the command line or web interface.
 
 Command line options:
-- Directly upload json and template files to a given recipe.
+- Directly upload json and script template to a given recipe.
 
 Web interface options:
 
@@ -92,14 +92,13 @@ Cloning allows your recipes to stay up to date with an original source.
 
 To clone the recipes in your clipboard, click the `Paste as clone` at the top of the `Recipes` tab.
 
-![](images/cloning.png)
+![](images/paste-as-clone.png)
 
 
 Copying creates recipes with the same specifications as the ones in the clipboard.
 
 To copy the recipes , click the `Paste as new` at the top of the `Recipes` tab.
-![](images/copying.png)
-
+![](images/paste-as-new.png)
 
 
 ## Interface file 

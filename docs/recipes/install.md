@@ -112,9 +112,6 @@ The [Django documentation][django] contains a wealth of information on the alter
 
 Within this setup we recommend the [uwsgi][uwsgi] based deployment.
 
-# Social Authentication
-
-
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
 [biostars]: https://www.biostars.org

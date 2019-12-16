@@ -113,11 +113,11 @@ Read:
 
 ![](images/project-read.png)
 
-Users without read access to a project see this message when trying to create a recipe.
+Users without read access are informed of their restrictions when trying to create a recipe.
 
 ![](images/project-read-error.png)
 
-Trusted users without read access to a public recipe see this message when trying to run it.
+Trusted users without read access to a recipe are also informed of their restrictions when trying to run it.
  
 ![](images/project-read-error2.png)
 
@@ -134,10 +134,15 @@ Write:
 - Can edit all recipes in the project.
 - Add or remove collaborators to the project 
 
+
+Users that try to edit a recipe without write access are informed of their limitations in this project with:
+
+![](images/project-write-recipe-error.png)
+
+Users without write access that try to upload data or delete objects are informed of their restrictions using a message.
+
 ![](images/project-write-error.png)
 
-
-Recipes can be misused so running them requires more privileges.
 
 
 ## Granting Access
@@ -239,10 +244,10 @@ You can use the management command `data` to add or edit `Data` objects.
     
     
 
-Link a sample directory, `/path/to/data/`q, to an existing project,  `project one`:
+Link a sample directory, `/path/to/data/`, to an existing project with the uid  `project_one`:
 
     
-    $ python manage.py data --pid project one --path /path/to/data/ --name New data
+    $ python manage.py data --pid project_one --path /path/to/data/ --name New data
 
 ### Using web interface
 
