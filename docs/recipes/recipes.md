@@ -91,12 +91,11 @@ recipe rank, image, and description.
 
 ![](images/recipe-metadata.png) 
    
-The interface specification field specifies the value of the parameters that get substituted into the template. 
-These parameters can also specify the help text and label of a given field. 
+The interface specification field stores parameters that get substituted with user selected values at runtime. 
  
 ![](images/recipe-interface-spec.png) 
  
-The script template field is used to write the executed code. Parameters from the interface specification field
+The template field is used to write the script that gets executed. The same amount of  
 
 ![](images/recipe-template.png)  
 
@@ -139,6 +138,7 @@ Here is an example JSON definition file:
   }
 }
 ```
+Each recipe parameter will have an automatic attribute called `value` that contains either the selected value (if  the parameter is user supplied) or the default `value` found in the interface specification file.
 
 the parameter name is `foo`, the default value is `World!`. The `display` field specifies the type of the HTML widget, the `label` and  `help` fields describe the interface. The interface generated from this specification file looks like this:
 
@@ -146,17 +146,28 @@ the parameter name is `foo`, the default value is `World!`. The `display` field 
 
 
 ## Interface Builder
-One of the useful features in our web interface is the `Interface Builder.` 
+One of the useful features in our web interface is the **interface builder**. 
+We found building interfaces to be the most cumbersome process in the recipes workflow so we created a feature that would build the specification file for you.
 
-![](images/builder.png)
+To view the builder, click the drop down button located on the interface specification field when editing a recipe.
+All available interface options are in this dropdown and one can add any of them with a single click.
 
-Every interface option is in this dropdown and 
+
+![](images/recipe-interface-builder.png)
 
 
 ## Code Builder
 
+Another cool feature for our user base is the **code builder**. 
+This acts very similarly to the interface builder in that it fills the field with a predefined value.
+
+The code builder is used to save commonly used code snippets so one can reuse them across recipes.
+It can also be used to insert parameters specified in the interface field into the script template.
 
 
+Unlike the interface builder, one can create and save their own snippets.
+
+![](images/recipe-code-builder.png)
 
 ## Data Field
 
@@ -223,10 +234,16 @@ The script is then executed at the command line.
 
 The recipe execution creates a `Result` objects.
 
+## Job Runner
+
+The platform users an asynchronous task scheduler to execute the recipes in the background. 
+The site admins has control on how many workers are spawned and how many are used to run recipes.
+
 
 # Results
 
-Result directories consists of all files and all the metadata created by the recipe as it is executed on the input data.  
+Results consists of all files and all the metadata created by the recipe as it is executed on the input data. 
+ 
 Each run of a recipe will generate a *new* result directory. 
 Users may inspect, investigate and download any of the files generated during the recipe run. 
 Additionally, users may copy a result file as new data input for another recipe. 
@@ -245,5 +262,7 @@ Once the recipe runs a results directory is created that contains the following:
 The results directory is a snapshot of all files generated when the recipe has been run, including the recipe itself.
 
 
-## Job Runner
+
+
+## Rerun Results
 
