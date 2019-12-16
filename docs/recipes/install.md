@@ -24,7 +24,7 @@ For example to test the `recipes` app run:
 
     make recipes test
 
-## Running Demo
+## Running a Demo
 
 To run the demonstration version of the `recipes` app execute:
 

@@ -5,15 +5,20 @@ The platform is project based. Each project is a collection of data, recipes and
 
 Thus each project has three distinct sections:
 
-1. Data (the input files)
-2. Recipes (the code that processes the data)
-3. Results (the directory that contains the resulting files of applying the recipe to data)
+1. Data - the input files.
+2. Recipes - the code that processes the data.
+3. Results - the directory that contains the resulting files of applying the recipe to data.
+
+![](images/project-info-view.png)
 
 ## Project Privacy
 
 Within the management interface, all content is grouped into projects that may have public or private visibility. 
 Content stored in public projects is readable without restrictions. 
 Private projects will restrict access to members only.
+
+
+![](images/project-privacy-label.png)
 
 1.  Public - viewable to everyone
 2.  Private - viewable to collaborators
@@ -101,7 +106,7 @@ Public:
 - Read and copy data.
 - Read and copy results.
 
-![](images/project-public-access.png)
+![](images/project-public-ribbon.png)
 
 Read:
 
@@ -111,15 +116,15 @@ Read:
 - Create and edit their own recipes.
 - _Trusted users_ : can run recipes.
 
-![](images/project-read.png)
+![](images/project-read-ribbon.png)
 
 Users without read access are informed of their restrictions when trying to create a recipe.
 
-![](images/project-recipe-read-error.png)
+![](images/project-read-msg.png)
 
 Trusted users without read access to a recipe are also informed of their restrictions when trying to run it.
  
-![](images/project-read-error2.png)
+![](images/project-run-error.png)
 
 Share:
 
@@ -134,15 +139,16 @@ Write:
 - Can edit all recipes in the project.
 - Add or remove collaborators to the project 
 
+![](images/project-write-ribbon.png)
 
 Users that try to edit a recipe without write access are informed of their limitations in this project with:
 
-![](images/project-recipe-write-error.png)
+![](images/project-recipe-write-msg.png)
 
 Users without write access that try to upload data or delete objects are informed of their restrictions using a message.
 
-![](images/project-write-error.png)
-
+![](images/project-write-msg.png) 
+ 
 
 
 ## Granting Access
@@ -181,7 +187,7 @@ You can run the following command using the file:
 ### Using Web Interface 
 
 Click on a project and open the first tab. 
-![](images/project-view-info.png)
+![](images/project-info-view-circlied.png)
 
 Click on the middle button labeled `Manage Access` 
 ![](images/manage-access-button.png)
