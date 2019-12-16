@@ -10,23 +10,22 @@ To run a recipe the recipe must be **authorized**  and the user must have **trus
 
 ### What is an authorized recipe?
 
-Since a recipe may contain shell commands or other code security checks are needed to avoid the misuse of computational resources. For that reason every new recipe starts out in a so-called **pending authorization** state, labeled with an orange ribbon. These recipes cannot be executed on the website, but may be inspected, viewed, shared or downloaded.
+Since a recipe may contain shell commands and other code, security checks are needed to avoid the misuse of computational resources. Every new recipe starts out in a so-called **pending authorization** state, displayed with an orange ribbon. A recipe with **pending authorization** cannot be executed on the website, but may be inspected, viewed, shared or downloaded.
 
 ![](images/authorization-pending.png)
 
-A user with administrative privileges (an administrator) must approve a recipe (in the recipe edit window) for the recipe to become executable within the website. A green ribbon decorates authorized recipes.
+A user with administrative privileges (an administrator) must approve a recipe in the recipe edit window for the recipe to become executable within the website. A green ribbon decorates authorized recipes.
 
 ![](images/authorization-valid.png)
 
 ### Who is a trusted user?
 
-Each user has a designation: **trusted** or **visitor** that controls their ability to run recipes. Even when it comes to **approved** recipes, only users with **trusted** designation may run these recipes.
+Each user has a designation: **trusted** or **visitor** that controls their ability to run recipes.  only users with **trusted** designation may run **approved** recipes.
 
 ![](images/authorization-untrusted-user.png)
 
 ![](images/user-all-menu-items.png)
 ![](images/user-admin-icon.png)
-
 
 ### How does one become a trusted user?
 
