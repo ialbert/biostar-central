@@ -19,7 +19,7 @@ class ForumConfig(AppConfig):
 def init_digest(sender, **kwargs):
     from biostar.accounts.models import Profile
 
-    # Ensure digest emails are not sent when debugging
+    # Ensure digest emails are reset when debugging
     if settings.DEBUG:
         Profile.objects.all().update(digest_prefs=Profile.NO_DIGEST)
 

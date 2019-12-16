@@ -5,18 +5,23 @@ The platform is project based. Each project is a collection of data, recipes and
 
 Thus each project has three distinct sections:
 
-1. Data (the input files)
-2. Recipes (the code that processes the data)
-3. Results (the directory that contains the resulting files of applying the recipe to data)
+1. Data - the input files.
+2. Recipes - the code that processes the data.
+3. Results - the directory that contains the resulting files of applying the recipe to data.
 
-## Privacy
+![](images/project-info-view.png)
+
+## Project Privacy
 
 Within the management interface, all content is grouped into projects that may have public or private visibility. 
 Content stored in public projects is readable without restrictions. 
 Private projects will restrict access to members only.
 
+
+![](images/project-privacy-label.png)
+
 1.  Public - viewable to everyone
-2.  Private - viewable by collaborators
+2.  Private - viewable to collaborators
 3.  Sharable - actively shared amongst a set of users
 
 ## Directory Structure 
@@ -42,12 +47,11 @@ These directories all found in the media directory found in the `settings.py` un
             ... 
  
 
-## Create a project
+## Create a Project
 
 Creating a project can be done using the command line or web interface. 
-Ensure you have a local server running or have access to a remote one when using  the web interface.
 
-### Using command line
+### Using Command Line
 
 Use the management command `project` to create a project from command line.
 
@@ -69,14 +73,16 @@ Use the management command `project` to create a project from command line.
       --update              Updates the project selected by pid
       
       ...
-   
-      
-To create a sample project, run the following:
 
-    python manage.py project --name sample project --public --info "This is a sample" --uid sample
+Note: The owner of any project created from command line is an first admin user.
+
+      
+To create a sample project, run the command:
+
+    python manage.py project --name sample project --public --info "This is a sample" --pid sample
       
 
-### Using web interface
+### Using Web Interface
 
 Click on the `New Project` tab circled on the right. 
 
@@ -84,46 +90,72 @@ Click on the `New Project` tab circled on the right.
 
 This will bring you to a form to fill in the name, privacy, information, etc...
 
+![](images/project-create-form.png)
 
-## Access
+## Project Access
 
-Before any actions a user takes on the platform, their access to the project is checked.
 
-Access level are:
+The web application provides a transparent and consistent framework to conduct analyses that can be shared among collaborators or with the public.
+
+Recipes, data and results can be copied across projects, users may create new projects and may allow others (or the public) to access the contents of a project. 
+
+Access level and their respective permissions are:
+
+Public:
+- Clone and copy recipes.
+- Read and copy data.
+- Read and copy results.
+
+![](images/project-public-ribbon.png)
 
 Read:
 
-- Clone and copy recipe
-- Read and copy data
-- Read and copy results
-- Create and edit their own recipes
+- Clone and copy recipes.
+- Read and copy data.
+- Read and copy results.
+- Create and edit their own recipes.
+- _Trusted users_ : can run recipes.
+
+![](images/project-read-ribbon.png)
+
+Users without read access are informed of their restrictions when trying to create a recipe.
+
+![](images/project-read-msg.png)
+
+Trusted users without read access to a recipe are also informed of their restrictions when trying to run it.
+ 
+![](images/project-run-error.png)
 
 Share:
 
-- Includes all permission in `Read Access`
+- Includes all read access permissions.
 - Activated using a sharable project link
-
 
 Write:
 
-- Includes all permission in `Read Access`
-- Upload new data 
-- Delete objects
-- Edit all recipes in projects
+- Includes all read access permissions.
+- Can upload data 
+- Can delete objects from project.
+- Can edit all recipes in the project.
 - Add or remove collaborators to the project 
 
-Recipes can be misused so running them requires more privileges.
+![](images/project-write-ribbon.png)
 
-**Admins**,**staff**,and **trusted users** can run recipes with read or write access.
+Users that try to edit a recipe without write access are informed of their limitations in this project with:
+
+![](images/project-recipe-write-msg.png)
+
+Users without write access that try to upload data or delete objects are informed of their restrictions using a message.
+
+![](images/project-write-msg.png) 
+ 
 
 
 ## Granting Access
 
 Adding collaborators can be done using the command line or the interface. 
-Ensure you have a local server running or have remote when using the web interface.
 
-
-### Using command line
+### Using Command Line
 
 To add a user using command line use the managment command `add_user`:
 
@@ -152,15 +184,16 @@ You can run the following command using the file:
     python manage.py add_user --fname user_list.csv
     
     
-### Using web interface 
+### Using Web Interface 
 
-Click on the `Info` tab to view the project menu bar.
+Click on a project and open the first tab. 
+![](images/project-info-view-circlied.png)
 
 Click on the middle button labeled `Manage Access` 
 ![](images/manage-access-button.png)
 
 
- Search for users and select the access you would like. to give them
+Search for users using their username, uid, or name. You can select their 
 ![](images/results.png)
 
 
@@ -176,9 +209,13 @@ The programming interfaces for recipes can handle directories transparently and 
 
 ## Data Types
 
+Data types are labels (tags) attached to each data that help filtering them in dropdown menus. More than one data type may be listed as comma separated values.
+The data types may be any word (though using well recognized names: BED, GFF is recommended).
+
+![](images/data-type.png)
 
 
-## Upload data
+## Upload Data
 
 Data can be added multiple ways.
 
@@ -191,7 +228,7 @@ Command line options:
   
   - Link a file directly from a hard drive
   
-### Using command line
+### Using Command Line
 
 You can use the management command `data` to add or edit `Data` objects.
 
@@ -217,12 +254,12 @@ You can use the management command `data` to add or edit `Data` objects.
     
     
 
-Link a sample directory, `/path/to/data/`q, to an existing project,  `project one`:
+Link a sample directory, `/path/to/data/`, to an existing project with the uid  `project_one`:
 
     
-    $ python manage.py data --pid project one --path /path/to/data/ --name New data
+    $ python manage.py data --pid project_one --path /path/to/data/ --name New data
 
-### Using web interface
+### Using Web Interface
 
 
 Open the `Data` tab inside of a project. 
@@ -242,7 +279,7 @@ This opens another a form with two options.
 ![](images/write.png)
     
 
-## Import directory
+## Import Directory
 
 Admin, staff, and trusted users can see an extra tab labeled `Import Data`
 

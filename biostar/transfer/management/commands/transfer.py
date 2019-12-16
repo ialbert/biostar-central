@@ -315,10 +315,6 @@ def bulk_copy_subs(limit):
             if not (user and post):
                 continue
 
-            # Skip users that have a digest
-            if user.profile.digest_prefs != Profile.NO_DIGEST:
-                continue
-
             sub = Subscription(uid=sub.id, type=sub.type, user=user, post=post, date=sub.date)
 
             yield sub

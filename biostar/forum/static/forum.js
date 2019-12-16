@@ -386,6 +386,7 @@ function drag_over(ev, pid) {
 
         //alert(pid);
         elem.css('border', '#c2ffc2 dashed 5px');
+        //alert("FOOO");
         //elem.css('bac')
         //elem.css('padding', '1px');
         //elem.css('backgroundColor', '#c2ffc2')
@@ -413,6 +414,7 @@ function drop(ev, elem_id) {
 
     //alert(children_list);
     //alert(elem_id);
+
     if (jQuery.inArray(elem_id, children_list) === -1 && dragged_over === elem_id) {
 
         //alert(dragged_over);
@@ -513,8 +515,7 @@ function autocomplete_users(users_list) {
     var autocomplete = $('.autocomplete');
 
     // Map values in list to a list of dict [{key:'chosen', name:'displayed name'}....]
-    var vals = $.map(users_list, function (value, idx) {
-
+    var vals = $.map(users_list, function (value) {
         return {
             key: value,
             name: value
@@ -538,6 +539,7 @@ function autocomplete_users(users_list) {
     };
 
     autocomplete.atwho(AutocompleteSettings);
+
 
 
 }
@@ -623,14 +625,25 @@ $(document).ready(function () {
 
     });
 
-    $(this).on('keyup', '#wmd-input-id_content', function (event) {
+    $(this).on('keypress', '#wmd-input-id_content', function (event) {
         var text = $(this).val();
+        var preview1 = $('#wmd-preview-wmd-input-id_content');
+
+        highlight(text, preview1);
+
         var preview = $('#wmd-preview-id_content');
         highlight(text, preview);
-
     });
 
 
+    $(this).on('click', '#wmd-button-bar-wmd-input-id_content', function (event) {
+        setTimeout(function () {
+            var text = $('#wmd-input-id_content').val();
+            var preview = $('#wmd-preview-wmd-input-id_content');
+            highlight(text, preview);
+        }, 10);
+
+    });
     $(this).on('click', '#wmd-button-bar-id_content', function (event) {
         setTimeout(function () {
             var text = $('#wmd-input-id_content').val();
