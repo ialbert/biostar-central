@@ -9,7 +9,7 @@ Thus each project has three distinct sections:
 2. Recipes (the code that processes the data)
 3. Results (the directory that contains the resulting files of applying the recipe to data)
 
-## Privacy
+## Project Privacy
 
 Within the management interface, all content is grouped into projects that may have public or private visibility. 
 Content stored in public projects is readable without restrictions. 
@@ -42,11 +42,11 @@ These directories all found in the media directory found in the `settings.py` un
             ... 
  
 
-## Create a project
+## Create a Project
 
 Creating a project can be done using the command line or web interface. 
 
-### Using command line
+### Using Command Line
 
 Use the management command `project` to create a project from command line.
 
@@ -77,7 +77,7 @@ To create a sample project, run the command:
     python manage.py project --name sample project --public --info "This is a sample" --pid sample
       
 
-### Using web interface
+### Using Web Interface
 
 Click on the `New Project` tab circled on the right. 
 
@@ -87,7 +87,7 @@ This will bring you to a form to fill in the name, privacy, information, etc...
 
 ![](images/project-create-form.png)
 
-## Access
+## Project Access
 
 
 The web application provides a transparent and consistent framework to conduct analyses that can be shared among collaborators or with the public.
@@ -149,7 +149,7 @@ Users without write access that try to upload data or delete objects are informe
 
 Adding collaborators can be done using the command line or the interface. 
 
-### Using command line
+### Using Command Line
 
 To add a user using command line use the managment command `add_user`:
 
@@ -178,7 +178,7 @@ You can run the following command using the file:
     python manage.py add_user --fname user_list.csv
     
     
-### Using web interface 
+### Using Web Interface 
 
 Click on a project and open the first tab. 
 ![](images/project-view-info.png)
@@ -209,8 +209,7 @@ The data types may be any word (though using well recognized names: BED, GFF is 
 ![](images/data-type.png)
 
 
-
-## Upload data
+## Upload Data
 
 Data can be added multiple ways.
 
@@ -223,7 +222,7 @@ Command line options:
   
   - Link a file directly from a hard drive
   
-### Using command line
+### Using Command Line
 
 You can use the management command `data` to add or edit `Data` objects.
 
@@ -254,7 +253,7 @@ Link a sample directory, `/path/to/data/`, to an existing project with the uid  
     
     $ python manage.py data --pid project_one --path /path/to/data/ --name New data
 
-### Using web interface
+### Using Web Interface
 
 
 Open the `Data` tab inside of a project. 
@@ -274,7 +273,7 @@ This opens another a form with two options.
 ![](images/write.png)
     
 
-## Import directory
+## Import Directory
 
 Admin, staff, and trusted users can see an extra tab labeled `Import Data`
 

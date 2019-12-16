@@ -1,7 +1,7 @@
 
 # Recipes
 
-## Recipe ingredients
+## Recipe Ingredients
 
 Each recipe is built from two ingredients:
 
@@ -31,7 +31,7 @@ A simple script template might contain just:
 
 The **Results** are created by applying a **Recipe** on **Data**.
 
-## Create a recipe 
+## Create a Recipe 
 
 Creating a recipe can be done using the command line or web interface.
 
@@ -45,7 +45,7 @@ Web interface options:
 - **Copy a recipe** - Create a new of a recipe that is a direct copy of another.
 
 
-### Using the command line
+### Using the Command Line
 
 Use the `recipe` management command to directly add to a project.
 
@@ -76,7 +76,7 @@ For example, the command below would add a recipe named `New recipe` to project 
     python manage.py recipe --pid project 1 --name New recipe --json < interface file > --template < script template > 
 
 
-### Using the web interface
+### Using Web Interface
 
 Open on a recipe of interest and click on the `Copy` button on the menu bar.
 ![](images/copy-clone.png)
@@ -101,7 +101,7 @@ To copy the recipes , click the `Paste as new` at the top of the `Recipes` tab.
 ![](images/paste-as-new.png)
 
 
-## Interface file 
+## Interface Specification 
 
 The JSON definition file lists the parameters and allows the interface to be rendered.
 Here is an example JSON definition file:
@@ -145,7 +145,7 @@ Each recipe parameter will have an automatic attribute called `value` that conta
 
     fastqc {{reads.value}}
 
-### Table of contents
+### Table of Contents
 
 Each recipe parameter will have an automatically generated attribute called `toc` (table of contents) that returns the list of the file paths in the data.
 
@@ -155,7 +155,7 @@ the recipe may use:
 
     cat {{reads.toc}} | grep .fq | parallel fastqc {}
 
-### Source
+### Data Source
 
 When a recipe parameter indicates the source of the parameter as `PROJECT` it will be populated from the data in the project that matches the type.
 
@@ -168,7 +168,7 @@ When a recipe parameter indicates the source of the parameter as `PROJECT` it wi
 
 Only data that matches the tage `FASTA` will be shown in the dropdown menu.
 
-### Types
+### Data Types
 
 Data types are labels (tags) attached to each data that help filtering them in dropdown menus. More than one data type may be listed as comma separated values.
 The data types may be any word (though using well recognized names: BED, GFF is recommended).
@@ -178,7 +178,7 @@ This means that no copying/moving of data is required.
 The only limitation is that of the filesystem.
 
 
-## Template
+## Recipe Template
 
 A recipe is a script that has template markers for filling in parameters. In the case for the `foo` variable above, we can access its value via:
 
@@ -190,13 +190,7 @@ When the recipe is run the template will be substituted according to the interfa
 
     echo 'Hello World!'
 
-
-
-## Run a recipe
-
-
-
-## Execution
+## Recipe Execution
 
 Before executing the recipe the script template is rendered with the JSON data and is filled into the template.
 
@@ -228,5 +222,5 @@ Once the recipe runs a results directory is created that contains the following:
 The results directory is a snapshot of all files generated when the recipe has been run, including the recipe itself.
 
 
-## The job runner
+## Job Runner
 
