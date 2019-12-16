@@ -140,7 +140,7 @@ When pasting a copied recipe we may paste it as a clone or as a new recipe.
 
 A cloned recipe remains in sync with the original recipe that it was cloned from. Clones cannot be changed and track the original recipe. A change to the original recipe will immediately be reflected in all the clones. The purpose of a cloned recipe is to ensure that a recipe is the same across multiple projects and individuals.
 
-![](images/paste-as-clone.png)
+![](images/paste-clone.png)
 
 ### What is a "copied" recipe?
 
@@ -149,7 +149,7 @@ When pasting a copied recipe we may paste it as a clone or as a new recipe.
 Another method for duplicating a recipe is to copy then paste it as a new recipe. A copied recipe is a brand new recipe filled with the content from an existing recipe.
 When a recipe is pasted as new the provenance to the original recipe is not maintained. It becomes the responsibility of the author of the recipe to maintain the relevant information in the documentation of the recipe.
 
-![](images/paste-as-new.png)
+![](images/paste-new.png)
 
 
 ### What conventions should be followed? How should they be documented? What is the minimum amount of provenance that the scripts should produce? How should that be presented to the users?

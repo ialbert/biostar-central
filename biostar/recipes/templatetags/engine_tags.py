@@ -220,9 +220,9 @@ def annotate_values(board, vals):
 
 def get_label(board):
     label_map = {const.COPIED_DATA: 'copied data',
-                 const.COPIED_RECIPES: 'recipes',
-                 const.COPIED_FILES: 'copied files',
-                 const.COPIED_RESULTS: 'copied results',
+                 const.COPIED_RECIPES: 'recipe',
+                 const.COPIED_FILES: 'copied file',
+                 const.COPIED_RESULTS: 'copied result',
                  }
 
     label = label_map.get(board, '')
@@ -257,7 +257,7 @@ def paste(context, project, current=","):
             items_to_paste.setdefault(target, content)
 
     empty_css = "empty-clipboard" if not items_to_paste else ""
-    extra_context = dict(project=project, current=','.join(current),board_count=len(items_to_paste),
+    extra_context = dict(project=project, current=','.join(current), board_count=len(items_to_paste),
                          clipboard=items_to_paste.items(), context=context, empty_css=empty_css)
 
     context.update(extra_context)
