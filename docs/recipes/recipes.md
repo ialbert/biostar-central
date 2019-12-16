@@ -109,7 +109,7 @@ A cloned recipe remains in sync with the original recipe that it was cloned from
 Clones cannot be changed and track the original recipe. A change to the original recipe will immediately be reflected in all the clones. The purpose of a cloned recipe is to ensure that a recipe is the same across multiple projects and individuals.
 
 To clone the recipes in your clipboard, click the `Paste as clone` at the top of the `Recipes` tab.
-![](images/paste-as-clone.png)
+![](images/paste-clone.png)
 
  
 
@@ -117,7 +117,7 @@ The second method to duplicate a recipe is to copy it. A copied recipe is a bran
 When a recipe is copied the provenance to the original recipe is not maintained. It becomes the responsibility of the author of the recipe to maintain the relevant information in the documentation of the recipe. 
 
 To copy the recipes , click the `Paste as new` at the top of the `Recipes` tab.
-![](images/paste-as-new.png)
+![](images/paste-new.png)
 
 
 ## Interface Specification 
