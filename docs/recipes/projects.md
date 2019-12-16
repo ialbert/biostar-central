@@ -16,7 +16,7 @@ Content stored in public projects is readable without restrictions.
 Private projects will restrict access to members only.
 
 1.  Public - viewable to everyone
-2.  Private - viewable by collaborators
+2.  Private - viewable to collaborators
 3.  Sharable - actively shared amongst a set of users
 
 ## Directory Structure 
@@ -45,7 +45,6 @@ These directories all found in the media directory found in the `settings.py` un
 ## Create a project
 
 Creating a project can be done using the command line or web interface. 
-Ensure you have a local server running or have access to a remote one when using  the web interface.
 
 ### Using command line
 
@@ -69,9 +68,11 @@ Use the management command `project` to create a project from command line.
       --update              Updates the project selected by pid
       
       ...
-   
+
+Note: The owner of any project created from command line is an first admin user.
+
       
-To create a sample project, run the following:
+To create a sample project, run the command:
 
     python manage.py project --name sample project --public --info "This is a sample" --uid sample
       
@@ -84,44 +85,64 @@ Click on the `New Project` tab circled on the right.
 
 This will bring you to a form to fill in the name, privacy, information, etc...
 
+![](images/project-create-form.png)
 
 ## Access
 
-Before any actions a user takes on the platform, their access to the project is checked.
 
-Access level are:
+The web application provides a transparent and consistent framework to conduct analyses that can be shared among collaborators or with the public.
+
+Recipes, data and results can be copied across projects, users may create new projects and may allow others (or the public) to access the contents of a project. 
+
+Access level and their respective permissions are:
+
+Public:
+- Clone and copy recipes.
+- Read and copy data.
+- Read and copy results.
+
+![](images/project-public-access.png)
 
 Read:
 
-- Clone and copy recipe
-- Read and copy data
-- Read and copy results
-- Create and edit their own recipes
+- Clone and copy recipes.
+- Read and copy data.
+- Read and copy results.
+- Create and edit their own recipes.
+- _Trusted users_ : can run recipes.
+
+![](images/project-read.png)
+
+Users without read access to a project see this message when trying to create a recipe.
+
+![](images/project-read-error.png)
+
+Trusted users without read access to a public recipe see this message when trying to run it.
+ 
+![](images/project-read-error2.png)
 
 Share:
 
-- Includes all permission in `Read Access`
+- Includes all read access permissions.
 - Activated using a sharable project link
-
 
 Write:
 
-- Includes all permission in `Read Access`
-- Upload new data 
-- Delete objects
-- Edit all recipes in projects
+- Includes all read access permissions.
+- Can upload data 
+- Can delete objects from project.
+- Can edit all recipes in the project.
 - Add or remove collaborators to the project 
 
-Recipes can be misused so running them requires more privileges.
+![](images/project-write-error.png)
 
-**Admins**,**staff**,and **trusted users** can run recipes with read or write access.
+
+Recipes can be misused so running them requires more privileges.
 
 
 ## Granting Access
 
 Adding collaborators can be done using the command line or the interface. 
-Ensure you have a local server running or have remote when using the web interface.
-
 
 ### Using command line
 
@@ -154,13 +175,14 @@ You can run the following command using the file:
     
 ### Using web interface 
 
-Click on the `Info` tab to view the project menu bar.
+Click on a project and open the first tab. 
+![](images/project-view-info.png)
 
 Click on the middle button labeled `Manage Access` 
 ![](images/manage-access-button.png)
 
 
- Search for users and select the access you would like. to give them
+Search for users using their username, uid, or name. You can select their 
 ![](images/results.png)
 
 
