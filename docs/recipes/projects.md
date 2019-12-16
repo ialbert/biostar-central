@@ -74,7 +74,7 @@ Note: The owner of any project created from command line is an first admin user.
       
 To create a sample project, run the command:
 
-    python manage.py project --name sample project --public --info "This is a sample" --uid sample
+    python manage.py project --name sample project --public --info "This is a sample" --pid sample
       
 
 ### Using web interface
@@ -115,7 +115,7 @@ Read:
 
 Users without read access are informed of their restrictions when trying to create a recipe.
 
-![](images/project-read-error.png)
+![](images/project-recipe-read-error.png)
 
 Trusted users without read access to a recipe are also informed of their restrictions when trying to run it.
  
@@ -137,7 +137,7 @@ Write:
 
 Users that try to edit a recipe without write access are informed of their limitations in this project with:
 
-![](images/project-write-recipe-error.png)
+![](images/project-recipe-write-error.png)
 
 Users without write access that try to upload data or delete objects are informed of their restrictions using a message.
 
@@ -202,6 +202,11 @@ The programming interfaces for recipes can handle directories transparently and 
 
 
 ## Data Types
+
+Data types are labels (tags) attached to each data that help filtering them in dropdown menus. More than one data type may be listed as comma separated values.
+The data types may be any word (though using well recognized names: BED, GFF is recommended).
+
+![](images/data-type.png)
 
 
 
