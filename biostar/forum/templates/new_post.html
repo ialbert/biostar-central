@@ -73,10 +73,11 @@
                         {% include 'widgets/posting_msg.html' %}
 
                         <div class="wmd-wrapper" id="{{ form.content.id_for_label }}-wmd-wrapper">
-                            <div class="">
+                            <div>
                                 <div id="{{ form.content.id_for_label }}_wmd_button_bar"></div>
-                                <textarea class=" wmd-input" cols="40" name="content" rows="10"
-                                          id="{{ form.content.id_for_label }}">{{ content }}</textarea>
+                <textarea id="{{ form.content.id_for_label }}"
+                          class="wmd-input autocomplete" rows="{{ rows }}" data-users="{% users_list %}">
+                    {{ content }}</textarea>
                             </div>
 
                         </div>
@@ -84,10 +85,10 @@
 
                 </div>
 
-                <div class="ui form-wrap segment">
+                         <div class="ui preview segment">
                     <div class="field">
                         <label>Preview</label>
-                        <div id="{{ form.content.id_for_label }}_wmd_preview" class="wmd-preview"></div>
+                        <div id="wmd-preview-{{ form.content.id_for_label }}" class="wmd-preview"></div>
                     </div>
                 </div>
                 {% if form.captcha %}

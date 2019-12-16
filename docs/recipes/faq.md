@@ -23,11 +23,8 @@ A user with administrative privileges (an administrator) must approve a recipe (
 Each user has a designation: **trusted** or **visitor** that controls their ability to run recipes. Even when it comes to **approved** recipes, only users with **trusted** designation may run these recipes.
 
 ![](images/authorization-untrusted-user.png)
-
-![](images/user-all-menu-items.png)
-![](images/user-admin-icon.png)
-
-
+ 
+ 
 ### How does one become a trusted user?
 
 The site administrators are able to change the designation of any user.
@@ -35,6 +32,17 @@ The site administrators are able to change the designation of any user.
 The restrictions that we have in place provide high granularity control of the computational resources.
 
 The owner of the site decides which users and which recipes gain the privileges to use the computational resources. Other groups running the Recipes software may set up their system in such a way to automatically trust every new user that signs up, and they may also choose to approve every recipe that is created automatically.
+
+### How can one tell if they are a trusted user?
+
+Users can find out what their designation is by looking at their user name in the menubar.
+
+![](images/user-menu-item.png)
+
+Each type of user gets a different icons used to indicate their designation.
+
+![](images/user-icon-labels.png)
+
 
 ### Can this software be run on my machine?
 

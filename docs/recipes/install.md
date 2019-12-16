@@ -24,8 +24,7 @@ For example to test the `recipes` app run:
 
     make recipes test
 
-To
-## Running the demo server
+## Running a Demo
 
 To run the demonstration version of the `recipes` app execute:
 
@@ -33,7 +32,7 @@ To run the demonstration version of the `recipes` app execute:
 
 Visit <http://127.0.0.1:8000/> to view the site.
 
-##  Initialize recipes
+##  Initialize Recipes
  
 Activate the `engine` virtual enviorment.
 
@@ -63,7 +62,7 @@ To populate the database with random data run:
     make load_recipes
       
     
-## 4. Start server 
+## Start Server 
 
 Activate the `engine` virtual enviorment:
 
@@ -111,9 +110,6 @@ The software follows the recommended practices for developing and deploying [Dja
 The [Django documentation][django] contains a wealth of information on the alternative ways to deploy the site on different infrastructure.
 
 Within this setup we recommend the [uwsgi][uwsgi] based deployment.
-
-# Social Authentication
-
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/

@@ -177,8 +177,8 @@ body {
         display: none !important;
     }
 
-    .widen {
-	width: fit-content !important;
+    .widden {
+	//width: fit-content !important;
     }
 
         .ui.text.menu .item.padded{
