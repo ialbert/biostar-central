@@ -262,6 +262,12 @@ def follow_label(context, post):
     return label
 
 
+@register.inclusion_tag('widgets/type_help.html')
+def type_help():
+
+    context = dict()
+    return context
+
 @register.simple_tag
 def inplace_type_field(post=None, field_id='type'):
     choices = [opt for opt in Post.TYPE_CHOICES]

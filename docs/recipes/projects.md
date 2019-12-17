@@ -270,7 +270,7 @@ Then click on the `New Data` tab on the right.
 This opens another a form with two options.
 
 
-1 . **Upload a file** -  Comes with size restrictions that come be found in the `settings.py` 
+1 . **Upload a file** -  Comes with size restrictions that can be found in the `settings.py` 
 
 ![](images/upload.png)
 

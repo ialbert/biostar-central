@@ -69,11 +69,10 @@
             <div class="ui inverted dimmer"></div>
 
         {% show_messages messages %}
-        <span class="fit" id="insert-form"></span>
+        <span class="widden" id="insert-form"></span>
         <div id="error"></div>
         <div id="recent" {% if post %}data-value="{{ post.uid }}"{% endif %}></div>
         {% block content %}
-
             MAIN CONTENT
         {% endblock %}
 

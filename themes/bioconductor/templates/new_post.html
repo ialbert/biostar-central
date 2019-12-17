@@ -37,8 +37,14 @@
                     <div class="required field">
                         <label>{{ form.post_type.label }}</label>
                         {{ form.post_type }}
-                        <p class="muted">{{ form.post_type.help_text }}</p>
+                        <p class="muted" style="display: contents; ">{{ form.post_type.help_text }}
+                            Click here for more</p>
+                        {% type_help %}
+
+                        </p>
+
                     </div>
+
                 </div>
 
                 <div class="ui form-wrap segment">
