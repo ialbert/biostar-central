@@ -9,22 +9,22 @@
 
 
 {% block content %}
-{% search_bar extra_css='fluid' redir=True %}
+    {% search_bar extra_css='fluid' redir=True %}
 
-        <div class="ui relaxed divided list">
+    <div class="ui relaxed divided list">
 
-            {% for result in results %}
-                <a class="item" href="{{ result.url }}">
-                    <b>{{ result|highlight:'title' |truncatechars_html:100 }}</b>
+        {% for result in results %}
+            <a class="item" href="{{ result.url }}">
+                <b>{{ result.title |truncatechars_html:100 }}</b>
 
-                    <div class="muted">
-                        {{ result|highlight:'content'|truncatechars_html:300 }}
-                    </div>
-                </a>
                 <div class="muted">
-                    {% post_search_line post_uid=result.uid %}
+                    {{ result.content |truncatechars_html:300 }}
                 </div>
-            {% endfor %}
-        </div>
+            </a>
+            <div class="muted">
+                {% post_search_line post_uid=result.uid %}
+            </div>
+        {% endfor %}
+    </div>
 
 {% endblock %}
