@@ -5,58 +5,64 @@
     <script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
 {% endif %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
 
-    <div class="ui inplace post-form basic segment fit">
+<div class="ui inplace post-form basic segment fit">
 
-        <form class="ui inplace edit-form compact form" id="post-form">
+    <form class="ui inplace edit-form compact form" id="post-form">
 
 
-            <div class="inplace-fields">
-                {% if is_toplevel %}
-                    <div class="three wide field type-field">
-                        {% if not post %}<label>Type</label> {% endif %}
-                        {% inplace_type_field post=post %}
-                    </div>
-                    <div class="field title-field">
-                        {% if not post %}<label>Title</label> {% endif %}
-                        <textarea id="title" rows="1">{{ title }}</textarea>
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="field">
-                {% if not post and is_toplevel %}
-                    {% include 'widgets/posting_msg.html' %}
-                {% endif %}
-                <div id="wmd-button-bar"></div>
-                <textarea id="wmd-input" class="wmd-input autocomplete" rows="{{ rows }}" data-users="{% users_list %}"
-                          {% if is_comment %}style="height: 12em"{% endif %}>{{ content }}</textarea>
-            </div>
+        <div class="inplace-fields">
             {% if is_toplevel %}
 
-                <div class="field">
-                    {% if not post %}<label>Tags</label> {% endif %}
-                    {% get_tags post=post as tags %}
-                    <input type="hidden" name="tag_val" id="tag_val_id" value="{{ tags.selected }}">
+                <div class="three wide field type-field">
+                    {% if not post %}<label>Type</label> {% endif %}
+                    <div style="    display: -webkit-box;">
+                        {% inplace_type_field post=post %}
 
-                    <select multiple="multiple" class="ui search selection dropdown tag-field" id="tags"
-                            field_id="tag_val_id">
-                        {% for value, selected_tag in tags.tags_opt %}
-                            {% if selected_tag %}
-                                <option value="{{ value }}" selected="selected">{{ value }}</option>
-                            {% else %}
+                    </div>
+                </div>
 
-                                <option value="{{ value }}">{{ value }}</option>
-                            {% endif %}
-                        {% endfor %}
-                        <option value="">Search most used tags</option>
-                    </select>
+
+                <div class="field title-field">
+                    {% if not post %}<label>Title</label> {% endif %}
+                    <textarea id="title" rows="1">{{ title }}</textarea>
                 </div>
             {% endif %}
+        </div>
+
+        <div class="field">
+            {% if not post and is_toplevel %}
+                {% include 'widgets/posting_msg.html' %}
+            {% endif %}
+            <div id="wmd-button-bar"></div>
+            <textarea id="wmd-input" class="wmd-input autocomplete" rows="{{ rows }}" data-users="{% users_list %}"
+                      {% if is_comment %}style="height: 12em"{% endif %}>{{ content }}</textarea>
+        </div>
+        {% if is_toplevel %}
+
+            <div class="field">
+                {% if not post %}<label>Tags</label> {% endif %}
+                {% get_tags post=post as tags %}
+                <input type="hidden" name="tag_val" id="tag_val_id" value="{{ tags.selected }}">
+
+                <select multiple="multiple" class="ui search selection dropdown tag-field" id="tags"
+                        field_id="tag_val_id">
+                    {% for value, selected_tag in tags.tags_opt %}
+                        {% if selected_tag %}
+                            <option value="{{ value }}" selected="selected">{{ value }}</option>
+                        {% else %}
+
+                            <option value="{{ value }}">{{ value }}</option>
+                        {% endif %}
+                    {% endfor %}
+                    <option value="">Search most used tags</option>
+                </select>
+            </div>
+        {% endif %}
 
         {% if not_trusted %}
             <div class="required field">
@@ -73,7 +79,7 @@
                 <div id="preview" class="">{{ html|safe }}</div>
             </div>
         </div>
-            <div class="field inplace-buttons" style="float: right">
+        <div class="field inplace-buttons" style="float: right">
 
             <a class="ui button cancel" id="cancel"><i class="undo icon"></i> Cancel</a>
 
@@ -86,22 +92,22 @@
 </div>
 
 <div class="ui mini basic modal" style="width: auto;">
-  <div class="ui icon header">
-    <i class="save outline icon"></i>
-      <div> You are about to exit a form and will lose all of your progress.</div>
-      Do you want to exit without saving?
-  </div>
-  <div class="actions" style="text-align: center">
+    <div class="ui icon header">
+        <i class="save outline icon"></i>
+        <div> You are about to exit a form and will lose all of your progress.</div>
+        Do you want to exit without saving?
+    </div>
+    <div class="actions" style="text-align: center">
 
-      <div class="ui red cancel inverted button" id="cancel-inplace">
-          <i class="remove icon"></i>
-          Exit
-      </div>
-      <div class="ui green green ok inverted button" id="stay">
-          <i class=" checkmark icon"></i>
-          Stay
-      </div>
-  </div>
+        <div class="ui red cancel inverted button" id="cancel-inplace">
+            <i class="remove icon"></i>
+            Exit
+        </div>
+        <div class="ui green green ok inverted button" id="stay">
+            <i class=" checkmark icon"></i>
+            Stay
+        </div>
+    </div>
 </div>
 
 
@@ -113,14 +119,14 @@
     $('.ui.dropdown').dropdown();
 
     {% if not_trusted %}
-        var captchaWidgetId = grecaptcha.render( 'captcha', {
-            'sitekey' : '{{ captcha_key }}',
-            'theme' : 'light'
+        var captchaWidgetId = grecaptcha.render('captcha', {
+            'sitekey': '{{ captcha_key }}',
+            'theme': 'light'
         });
     {% endif %}
     //alert({{ is_toplevel }});
 
-    function create_post(){
+    function create_post() {
 
         var create_url = '/ajax/create/';
         // Get the fields to submit
@@ -149,7 +155,7 @@
                     'type': post_type,
                     'tag_val': tag_val,
                     'parent': '{{ parent_uid }}',
-                    'comment':'{{ is_comment }}',
+                    'comment': '{{ is_comment }}',
                     'top':{{ is_toplevel }},
                     'recaptcha_response': cap_response,
 
@@ -171,7 +177,7 @@
             })
     }
 
-    function create_or_edit(){
+    function create_or_edit() {
         {% if post %}
             edit_post("{{ post.uid }}");
         {% else %}
@@ -179,10 +185,10 @@
         {% endif %}
     }
 
-    $('#post-form .save').click(function(){
+    $('#post-form .save').click(function () {
         event.preventDefault();
         create_or_edit();
-     });
+    });
 
     $('.tag-field').dropdown({
         allowAdditions: true,
@@ -216,9 +222,9 @@
     $('a').click(function (e) {
         var form_is_visible = $('#post-form').is(':visible');
         var content = $('#wmd-input').val().length;
-        if (form_is_visible && content){
+        if (form_is_visible && content) {
             var in_form = $(this).parents('#post-form').length;
-            if (in_form){
+            if (in_form) {
                 return
             }
 
@@ -232,7 +238,7 @@
         cancel_create();
         cancel_inplace();
         $('#add-answer').html('');
-         $('.ui.modal').modal('hide');
+        $('.ui.modal').modal('hide');
 
     });
     $('#stay').click(function () {

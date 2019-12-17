@@ -1,3 +1,6 @@
+body > .widen.container {
+    width: 97%;
+}
 body {
     font-size: 13px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -146,9 +149,6 @@ body {
         display: none !important;
     }
 
-    .widen {
-	width: fit-content !important;
-    }
 
     .fit{
         width:133% !important;
@@ -251,9 +251,7 @@ body {
 }
 
 
-.widen {
-    width: fit-content !important;
-}
+
 
 
 @media all and (max-width: 840px) {

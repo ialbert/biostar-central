@@ -625,7 +625,7 @@ $(document).ready(function () {
 
     });
 
-    $(this).on('keypress', '#wmd-input-id_content', function (event) {
+    $(this).on('keydown', '#wmd-input-id_content', function (event) {
         var text = $(this).val();
         var preview1 = $('#wmd-preview-wmd-input-id_content');
 
