@@ -1,6 +1,7 @@
 # Commands
 
-Here are commands and options for site administrator that have shell access to the server
+Site administrator with shell access to the server can use these commands to interact with the recipes platform in an automated fashion.
+
 
 
 ## Create a Project

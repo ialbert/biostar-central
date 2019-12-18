@@ -24,8 +24,8 @@ It is a simple, generic, flexible and extensible software that connects computat
 
    recipes/projects
    recipes/recipes
-   recipes/api
    recipes/command-line
+   recipes/api
    deploy
    customize
    about
