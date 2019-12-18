@@ -101,6 +101,29 @@ Apply this settings file with
 
 Consult the [Django documentation][django] for details.
 
+
+## Directory Structure 
+
+Each project has a physical directory associated on the system located on the system. 
+
+
+1. Projects directory
+    - Each project has a directory with the data associated. 
+2. Results directory
+   - Location where the results of a recipe run are stored.
+3. Table of contents directory
+    - Contains table of content files for every data.
+
+These directories all found in the media directory found in the `settings.py` under `MEDIA_ROOT`. The general structure is:
+
+    media/
+        projects/
+           ...
+        jobs/
+           ...
+        tocs/
+            ... 
+
 [django]: https://www.djangoproject.com/
 
 # Deploying Site

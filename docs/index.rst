@@ -13,7 +13,7 @@ It is a simple, generic, flexible and extensible software that connects computat
    recipes/faq
 
 .. toctree::
-   :caption: Installation
+   :caption: Site Administration
    :maxdepth: 2
 
    recipes/install
@@ -25,6 +25,7 @@ It is a simple, generic, flexible and extensible software that connects computat
    recipes/projects
    recipes/recipes
    recipes/api
+   recipes/command-line
    deploy
    customize
    about
