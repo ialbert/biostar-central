@@ -24,65 +24,8 @@ Private projects will restrict access to members only.
 2.  Private - viewable to collaborators
 3.  Sharable - actively shared amongst a set of users
 
-## Directory Structure 
-
-Each project has a physical directory associated on the system located on the system. 
-
-
-1. Projects directory
-    - Each project has a directory with the data associated. 
-2. Results directory
-   - Location where the results of a recipe run are stored.
-3. Table of contents directory
-    - Contains table of content files for every data.
-
-These directories all found in the media directory found in the `settings.py` under `MEDIA_ROOT`. The general structure is:
-
-    media/
-        projects/
-           ...
-        jobs/
-           ...
-        tocs/
-            ... 
- 
 
 ## Create a Project
-
-Creating a project can be done using the command line or web interface. 
-
-### Using Command Line
-
-Use the management command `project` to create a project from command line.
-
-    $ python manage.py project --help
-    
-    usage: manage.py project [-h] --pid PID [--name NAME] [--info INFO] [--public]
-                         [--update] [--version] [-v {0,1,2,3}]
-                         [--settings SETTINGS] [--pythonpath PYTHONPATH]
-                         [--traceback] [--no-color] [--force-color]
-
-    Creates a project.
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      --pid PID             Project id
-      --name NAME           Project name
-      --info INFO           File path or text of the project info
-      --public              Makes project public
-      --update              Updates the project selected by pid
-      
-      ...
-
-Note: The owner of any project created from command line is an first admin user.
-
-      
-To create a sample project, run the command:
-
-    python manage.py project --name sample project --public --info "This is a sample" --pid sample
-      
-
-### Using Web Interface
 
 Click on the `New Project` tab circled on the right. 
 
@@ -153,39 +96,6 @@ Users without write access that try to upload data or delete objects are informe
 
 ## Granting Access
 
-Adding collaborators can be done using the command line or the interface. 
-
-### Using Command Line
-
-To add a user using command line use the managment command `add_user`:
-
-    $ python manage.py add_user --help --fname user_file.csv
-
-    usage: manage.py add_user [-h] [--fname FNAME] [--version] [-v {0,1,2,3}]
-                              [--settings SETTINGS] [--pythonpath PYTHONPATH]
-                              [--traceback] [--no-color] [--force-color]
-    
-    Add users
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      --fname FNAME         The CSV file with the users to be added. Must have
-                            headers: Name, Email
-    
-
-With a sample csv file `user_list.csv` that looks like :
-
-    user 1,  user1@email
-    user 2,  user2@email
-
-
-You can run the following command using the file:
-
-    python manage.py add_user --fname user_list.csv
-    
-    
-### Using Web Interface 
-
 Click on a project and open the first tab. 
 ![](images/project-info-view-circlied.png)
 
@@ -224,43 +134,6 @@ Web interface options:
   - Write text
   - Import directory
   
-Command line options:
-  
-  - Link a file directly from a hard drive
-  
-### Using Command Line
-
-You can use the management command `data` to add or edit `Data` objects.
-
-    $ python manage.py data --help 
-    
-    usage: manage.py data [-h] --pid PID [--did DID] [--update] [--path PATH]
-                      [--text TEXT] [--name NAME] [--type TYPE] [--version]
-                      [-v {0,1,2,3}] [--settings SETTINGS]
-                      [--pythonpath PYTHONPATH] [--traceback] [--no-color]
-                      [--force-color]
-
-    Adds data to a project
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      --pid PID             Select project by unique uid
-      --did DID             Select data by unique uid
-      --update              Update the table of content for data --did.
-      --path PATH           Path to the data to be added (file or directory)
-      --text TEXT           A file containing the description of the data
-      --name NAME           Sets the name of the data
-      --type TYPE           Sets the type of the data
-    
-    
-
-Link a sample directory, `/path/to/data/`, to an existing project with the uid  `project_one`:
-
-    
-    $ python manage.py data --pid project_one --path /path/to/data/ --name New data
-
-### Using Web Interface
-
 
 Open the `Data` tab inside of a project. 
 
