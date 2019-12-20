@@ -36,7 +36,7 @@ Users can find out what their designation is by looking at their user name in th
 
 ![](images/user-menu-item.png)
 
-Each type of user gets different icons. Thes icons are used to indicate their designation.
+Each type of user gets different icons. These icons are used to indicate their designation.
 
 ![](images/user-icon-labels.png)
 

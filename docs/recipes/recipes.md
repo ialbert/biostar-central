@@ -35,49 +35,12 @@ The **Results** are created by applying a **Recipe** on **Data**.
 
 Creating a recipe can be done using the command line or web interface.
 
-Command line:
-- Directly upload json and script template to a given recipe.
-
 Web interface:
 
 - Create a brand new recipe.
 - Clone or copy one from another project.
 
-
-### Using the Command Line
-
-Use the `recipe` management command to directly add to a project.
-
-    $ python manage.py recipe --help
-    
-    usage: manage.py recipe [-h] --pid PID --rid RID [--json JSON]
-                        [--template TEMPLATE] [--info INFO] [--name NAME]
-                        [--image IMAGE] [--update] [--version] [-v {0,1,2,3}]
-                        [--settings SETTINGS] [--pythonpath PYTHONPATH]
-                        [--traceback] [--no-color] [--force-color]
-
-    Adds recipe to a project
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      --pid PID             Project id.
-      --rid RID             Recipe id.
-      --json JSON           Recipe json path.
-      --template TEMPLATE   Recipe template path (optional)
-      --info INFO           Recipe description (optional)
-      --name NAME           Recipe name
-      --image IMAGE         Recipe image path
-      --update              Updates the recipe
-
-
-For example, the command below would add a recipe named `New recipe` to project with uid `1`.
-
-    python manage.py recipe --pid 1 --name New recipe --json < interface file > --template < script template > 
-
-
-### Using Web Interface
-
-#### Brand New Recipe
+### Brand New Recipe
 Users have the option of creating a brand new recipe or copying/cloning one from an existing one.
 
 To create a brand new recipe, click on the `New Recipe` tab located on the right of the recipe listing.
@@ -100,7 +63,7 @@ The template field is used to write the script that gets executed. The same amou
 ![](images/recipe-template.png)  
 
 
-#### Copy or Clone
+### Copy or Clone
 
 After clicking `Copy` the recipe is in your clipboard. Open the `Recipe` tab of any project to view your clipboard.
 
@@ -260,9 +223,6 @@ Once the recipe runs a results directory is created that contains the following:
 - all files created by the recipe
 
 The results directory is a snapshot of all files generated when the recipe has been run, including the recipe itself.
-
-
-
 
 ## Rerun Results
 
