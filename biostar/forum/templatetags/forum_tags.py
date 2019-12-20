@@ -301,7 +301,8 @@ def get_tags(request=None, post=None, user=None, watched=False):
     # Prepare the tags options in the dropdown from a file
     if settings.TAGS_OPTIONS_FILE:
         tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()
-        tags_opts = [(x, False) if x not in tags.split(",") else (x, True) for x in tags_opts]
+        tags_opts = [(x.strip(), False) if x.strip() not in tags.split(",") else (x.strip(), True)
+                     for x in tags_opts if x != '\n']
     # Prepare dropdown options from database.
     else:
         query = Count('post')
