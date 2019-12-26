@@ -140,7 +140,8 @@ def post_search(request):
         return redirect(reverse('post_list'))
 
     results = search.preform_search(query=query)
-    context = dict(results=results, query=query)
+    question_flag = Post.QUESTION
+    context = dict(results=results, query=query, question_flag=question_flag)
 
     return render(request, template_name="widgets/post_results.html", context=context)
 

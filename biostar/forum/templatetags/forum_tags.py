@@ -179,9 +179,38 @@ def post_actions(context, post, label="ADD COMMENT", avatar=False):
 
 
 @register.inclusion_tag('widgets/post_tags.html')
-def post_tags(post, show_views=False, spaced=True):
+def post_tags(post=None, post_uid=None, show_views=False, spaced=True):
+
+    if post_uid:
+        post = Post.objects.filter(uid=post_uid).first()
+
     tags = post.tag_val.split(",")
+
     return dict(post=post, tags=tags, show_views=show_views, spaced=spaced)
+
+
+@register.simple_tag
+def get_vote_count(uid):
+    post = Post.objects.filter(uid=uid).first()
+    return post.get_votecount
+
+
+@register.simple_tag
+def get_view_count(uid):
+    post = Post.objects.filter(uid=uid).first()
+    return post.root.view_count
+
+
+@register.simple_tag
+def get_subs_count(uid):
+    post = Post.objects.filter(uid=uid).first()
+    return post.subs_count
+
+
+@register.simple_tag
+def get_reply_count(uid):
+    post = Post.objects.filter(uid=uid).first()
+    return post.reply_count
 
 
 @register.inclusion_tag('widgets/pages.html', takes_context=True)
@@ -616,9 +645,12 @@ def bignum(number):
 
 
 @register.simple_tag
-def boxclass(post):
-    # Create the css class for each row
+def boxclass(post=None, uid=None):
 
+    if uid:
+        post = Post.objects.filter(uid=uid).first()
+
+    # Create the css class for each row
     if post.root.type == Post.JOB:
         style = "job"
     elif post.root.type == Post.TUTORIAL:

@@ -216,6 +216,31 @@ function cancel_inplace() {
 }
 
 
+function highlight_search(target, content_elem) {
+
+    // Find the target in the content.
+
+    var target_list = target.replace(/\s{2,}/g, ' ').split(" ");
+    //alert(target_list.length);
+
+    $.each(target_list, function (index, value) {
+
+        var html = content_elem.html();
+        var insert = "<span class='search-highlight'>" + value + "</span>";
+        var new_html = html.replace(new RegExp(value, "ig"), insert);
+        console.log(new_html);
+
+        content_elem.html(new_html);
+    });
+
+    //var new_html = html.replace(new RegExp(target, "ig"), insert);
+
+    //content_elem.html(new_html);
+    //alert(new_html);
+
+}
+
+
 function inplace_post_edit(elem) {
 
     var uid = elem.data("value");
@@ -539,7 +564,6 @@ function autocomplete_users(users_list) {
     };
 
     autocomplete.atwho(AutocompleteSettings);
-
 
 
 }
@@ -934,6 +958,13 @@ $(document).ready(function () {
             var data_type = elem.attr('data-type');
             apply_vote(elem, post_uid, data_type);
         });
+    });
+
+    $('.trigger-highlight').each(function (event) {
+        var elem = $(this);
+        let query = $('#search-results').data('query');
+        highlight_search(query, elem)
+
     });
 
     $("#form-errors .error").each(function () {

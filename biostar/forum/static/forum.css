@@ -1,8 +1,12 @@
+
 body {
     background-color: #f8f8f9 !important;
     padding-top: 1rem;
 }
 
+body > .widen.container {
+    width: 97%;
+}
 #logo {
     padding: 10px;
     width: 220px;
@@ -165,10 +169,10 @@ a:hover {
 .ui.small.label.tags {
     background-color: #ececec;
     border: none;
-/ / color: #6b3e4a;
+    //color: #6b3e4a;
     font-weight: inherit;
-    font-size: inherit;
-    padding: .2em 9px;
+    font-size: small;
+    padding: .4em .4em .4em .4em !important;
 }
 
 .spaced-tags {
@@ -389,6 +393,10 @@ a:hover {
 
 .highlight {
     border-right: 5px solid green !important;
+}
+
+.search-highlight{
+    background-color: yellow;
 }
 
 .votebox > .value .icon {
