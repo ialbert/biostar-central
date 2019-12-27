@@ -3,7 +3,7 @@
     {% for tag in tags %}
         {% if tag %}
 
-        <a class="ui small label tags" href="{% url 'post_list' %}?tag={{ tag }}">
+        <a class="ui small label tags trigger-highlight" href="{% url 'post_list' %}?tag={{ tag }}">
             {{ tag }}
         </a>
         {% endif %}

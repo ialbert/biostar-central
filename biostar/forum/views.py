@@ -135,11 +135,15 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 def post_search(request):
 
     query = request.GET.get('query', '')
+    page = request.GET.get('page', 1)
 
     if not query:
+
         return redirect(reverse('post_list'))
 
-    results = search.preform_search(query=query)
+    # Preform search on indexed posts.
+    results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+
     question_flag = Post.QUESTION
     context = dict(results=results, query=query, question_flag=question_flag)
 

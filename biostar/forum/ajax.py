@@ -447,6 +447,8 @@ def close(r):
 @ratelimit(key='ip', rate='10/m')
 def ajax_search(request):
     query = request.GET.get('query', '')
+    page = request.GET.get('page', 1)
+
     try:
         redir = bool(int(request.GET.get('redir', 0)))
     except Exception as exc:
@@ -460,7 +462,9 @@ def ajax_search(request):
     if not query:
         return ajax_success(msg="Empty query", status="error")
 
-    results = search.preform_search(query=query)
+    # Preform search on indexed posts.
+    results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+
     tmpl = loader.get_template("widgets/search_results.html")
     context = dict(results=results, query=query)
 

@@ -228,8 +228,7 @@ function highlight_search(target, content_elem) {
         var html = content_elem.html();
         var insert = "<span class='search-highlight'>" + value + "</span>";
         var new_html = html.replace(new RegExp(value, "ig"), insert);
-        console.log(new_html);
-
+        //console.log(new_html);
         content_elem.html(new_html);
     });
 
@@ -963,6 +962,7 @@ $(document).ready(function () {
     $('.trigger-highlight').each(function (event) {
         var elem = $(this);
         let query = $('#search-results').data('query');
+
         highlight_search(query, elem)
 
     });

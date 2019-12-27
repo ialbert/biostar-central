@@ -71,10 +71,10 @@
                         {{ result.content |truncatechars_html:300 }}
                     </div>
                     <div class=" extra right floated">
-                        <div class="left floated trigger-highlight">
+                        <div class="left floated">
                             {% post_tags post_uid=result.uid spaced=False %}
                         </div>
-                        <div class="right floated muted trigger-highlight">
+                        <div class="right floated muted">
                             {% post_search_line post_uid=result.uid %}
                         </div>
 

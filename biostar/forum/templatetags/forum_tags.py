@@ -122,6 +122,14 @@ def post_search_line(post_uid, avatar=True):
     return dict(post=post, avatar=avatar)
 
 
+@register.inclusion_tag('widgets/pages_search.html')
+def pages_search():
+
+
+    return
+
+
+
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
 

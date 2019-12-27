@@ -37,11 +37,14 @@ TIME_REQUESTS = True
 
 # Indexing interval in seconds.
 INDEX_SECS_INTERVAL = 10
-# Number of results to display.
+# Number of results to display in total.
 SEARCH_LIMIT = 20
 
 # Minimum amount of characters to preform searches
 SEARCH_CHAR_MIN = 1
+
+# Number of results to display per page.
+SEARCH_RESULTS_PER_PAGE = 20
 
 BATCH_INDEXING_SIZE = 1000
 
