@@ -9,11 +9,14 @@
     {% block search %}
         {% search_bar extra_css='fluid' redir='1' %}
     {% endblock %}
-    {% if query %}
-        <div class="ui blue message">Searching for: <b>{{ query }}</b></div>
-    {% endif %}
-    <div class="ui divided items" id="search-results" data-query="{{ query }}">
+
+    <div class="ui page-bar segment">
+            {% pages_search results %}
+    </div>
+
+    <div class="ui divided items" id="search-results" data-query="{{ query }}" data-stop="{{ stop_words }}">
         {% for result in results %}
+            {# TODO: this will be removed once these fields are indexed. #}
             {% get_vote_count result.uid as vote_count %}
             {% get_reply_count result.uid as reply_count %}
             {% get_view_count result.uid as view_count %}
@@ -91,6 +94,9 @@
 
             </div>
         {% endfor %}
+    </div>
+        <div class="ui page-bar segment">
+            {% pages_search results %}
     </div>
 
 {% endblock %}

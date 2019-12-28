@@ -216,27 +216,23 @@ function cancel_inplace() {
 }
 
 
-function highlight_search(target, content_elem) {
+function highlight_search(target, content_elem, stop_list) {
 
     // Find the target in the content.
 
     var target_list = target.replace(/\s{2,}/g, ' ').split(" ");
-    //alert(target_list.length);
 
     $.each(target_list, function (index, value) {
 
         var html = content_elem.html();
         var insert = "<span class='search-highlight'>" + value + "</span>";
         var new_html = html.replace(new RegExp(value, "ig"), insert);
-        //console.log(new_html);
-        content_elem.html(new_html);
+        // Don't highlight any stop words.
+        if ($.inArray(value, stop_list) === -1){
+            content_elem.html(new_html);
+        }
+
     });
-
-    //var new_html = html.replace(new RegExp(target, "ig"), insert);
-
-    //content_elem.html(new_html);
-    //alert(new_html);
-
 }
 
 
@@ -959,14 +955,6 @@ $(document).ready(function () {
         });
     });
 
-    $('.trigger-highlight').each(function (event) {
-        var elem = $(this);
-        let query = $('#search-results').data('query');
-
-        highlight_search(query, elem)
-
-    });
-
     $("#form-errors .error").each(function () {
 
         var elem = $(this);
@@ -1122,6 +1110,20 @@ $(document).ready(function () {
 
     $('.vote').popup({
         on: 'hover'
+    });
+
+    $('.trigger-highlight').each(function (event) {
+        var elem = $(this);
+        let container = $('#search-results');
+        let query = container.data('query');
+        let stop_words = container.data('stop');
+
+        if (container.html() === undefined || container.html() === null){
+        }else{
+            let stop_list = stop_words.split(',');
+            highlight_search(query, elem, stop_list)
+        }
+
     });
 
     var autocomplete_elem = $('#wmd-input-id_content');

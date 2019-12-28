@@ -7,6 +7,7 @@ body {
 body > .widen.container {
     width: 97%;
 }
+
 #logo {
     padding: 10px;
     width: 220px;
@@ -169,7 +170,7 @@ a:hover {
 .ui.small.label.tags {
     background-color: #ececec;
     border: none;
-    //color: #6b3e4a;
+/ / color: #6b3e4a;
     font-weight: inherit;
     font-size: small;
     padding: .4em .4em .4em .4em !important;
@@ -395,7 +396,7 @@ a:hover {
     border-right: 5px solid green !important;
 }
 
-.search-highlight{
+.search-highlight {
     background-color: yellow;
 }
 
@@ -536,6 +537,17 @@ figure {
     text-align: center;
 }
 
+.ui.page-bar.segment {
+    text-align: center;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+}
+
+.user_box.muted{
+    font-size: small;
+}
+
 .ui.horizontal.segments.top-menu {
     padding: 0;
     border: none;
@@ -654,7 +666,7 @@ img {
     color: white;
 }
 
-.dim-on-create{
+.dim-on-create {
     padding-left: 5px !important;
     padding-right: 5px !important;
 }
@@ -696,7 +708,7 @@ img {
     box-shadow: none;
     background: #f9f6f4 !important;
     overflow-wrap: break-word;
-    //width: 130% !important;
+/ / width: 130 % !important;
 }
 
 .type-field {
@@ -968,13 +980,13 @@ pre {
     }
 
     .ui.menu:not(.vertical) .left.item {
-        display: inline ;
+        display: inline;
         margin-right: 0 !important;
     }
 
     .header-menu {
         display: inline !important;
-        //margin-right: 0 ;
+    / / margin-right: 0;
     }
 
     .ui.label.rev {
@@ -995,19 +1007,19 @@ pre {
 
     }
 
-    .post-form{
-        //width: 130% !important;
+    .post-form {
+    / / width: 130 % !important;
     }
 
-        .post-form{
-        //width: 130% !important;
+    .post-form {
+    / / width: 130 % !important;
     }
 
-    .type-field{
-            display: inline-table;
+    .type-field {
+        display: inline-table;
     }
 
-    .inplace-fields{
+    .inplace-fields {
         display: flow-root;
     }
 }
@@ -1029,7 +1041,7 @@ pre {
     }
 
     .fit {
-        //width: 133% !important;
+    / / width: 133 % !important;
     }
 
     .statbox {

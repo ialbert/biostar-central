@@ -33,7 +33,6 @@ logger = logging.getLogger('biostar')
 STOP = ['there', 'where', 'who'] + [w for w in STOP_WORDS]
 STOP = set(STOP)
 
-
 def timer_func():
     """
     Prints progress on inserting elements.
@@ -293,7 +292,7 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     # Do not preform search if the index does not exist.
     if not index_exists() or len(query) < settings.SEARCH_CHAR_MIN:
         return []
-    fields = fields or ['content', 'title']
+    fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
     ix = init_index()
     searcher = ix.searcher()
 
@@ -314,18 +313,23 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(query)
     if page:
         # Return a pagenated version of the results.
-        results = searcher.search_page(parser, pagenum=page, pagelen=per_page, sortedby="lastedit_date",
-                                       limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
+        results = searcher.search_page(parser, pagenum=page, pagelen=per_page, sortedby=["lastedit_date"],
+                                       reverse=True,
+                                       terms=True, **kwargs)
+        results.results.fragmenter.maxchars = 100
+        # results.fragmenter.charlimit = None
+        # Show more context before and after
+        results.results.fragmenter.surround = 100
     else:
         results = searcher.search(parser, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
-    # Allow larger fragments
-    results.fragmenter.maxchars = 100
-    # results.fragmenter.charlimit = None
-    # Show more context before and after
-    results.fragmenter.surround = 100
+        # Allow larger fragments
+        results.fragmenter.maxchars = 100
+        # results.fragmenter.charlimit = None
+        # Show more context before and after
+        results.fragmenter.surround = 100
 
     # Sort results by last edit date.
-    #results = sorted(results, key=lambda x: x['lastedit_date'], reverse=True)
+    #results = sorted(results, key=lambda x: x['lastedit_date'])
 
     logger.info("Preformed index search")
 
