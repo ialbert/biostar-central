@@ -140,6 +140,15 @@ class PostShortForm(forms.Form):
         if recaptcha and settings.RECAPTCHA_PRIVATE_KEY and not_trusted:
             self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
 
+    def clean(self, *args, **kwargs):
+
+        cleaned_data = super(PostShortForm, self).clean()
+
+        if self.post.root.is_locked and not self.user.is_superuser:
+            raise forms.ValidationError("This post is locked. Only admins can contirbute to it.")
+
+        return cleaned_data
+
 
 class CommentForm(forms.Form):
 
@@ -152,16 +161,16 @@ def mod_choices(post):
     Return available moderation options for a post.
     """
     choices = [
-        (BUMP_POST, "Bump a post"),
+        (BUMP_POST, "Bump thread rank."),
         (MOVE_ANSWER, "Move comment to answer."),
         (OPEN_POST, "Open deleted or off topic post"),
-        (DELETE, "Delete post")
+        (DELETE, "Delete post."),
+        (LOCK, "Lock thread."),
+        (CLOSE, "Close thread.")
     ]
 
-    allowed = []
-
     # Moderation options for top level posts
-    allowed += [BUMP_POST] if post.is_toplevel else []
+    allowed = [BUMP_POST, LOCK, CLOSE] if post.is_toplevel else []
 
     # Option to open deleted posts
     if post.status in [Post.DELETED, Post.OFFTOPIC]:

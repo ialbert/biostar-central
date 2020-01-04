@@ -26,20 +26,21 @@ class Post(models.Model):
     "Represents a post in a forum"
 
     # Post statuses.
-    PENDING, OPEN, OFFTOPIC, DELETED = range(4)
-    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (OFFTOPIC, "Off topic"), (DELETED, "Deleted")]
+    PENDING, OPEN, OFFTOPIC, DELETED, LOCKED, CLOSED = range(6)
+    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (OFFTOPIC, "Off topic"), (LOCKED, "Locked"),
+                      (DELETED, "Deleted"), (CLOSED, "Closed")]
 
     # Question types. Answers should be listed before comments.
-    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS, CHAT = range(13)
+    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
 
     # Valid post types.
     TYPE_CHOICES = [
         (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
-        (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"), (CHAT, "Chat"),
+        (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"),
         (DATA, "Data"), (PAGE, "Page"), (TOOL, "Tool"), (NEWS, "News"),
         (BLOG, "Blog"), (BOARD, "Bulletin Board")
     ]
-    TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS, CHAT}
+    TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
     # Possile spam states.
     SPAM, NOT_SPAM, DEFAULT = range(3)
@@ -169,6 +170,14 @@ class Post(models.Model):
     @property
     def is_answer(self):
         return self.type == Post.ANSWER
+
+    @property
+    def is_locked(self):
+        return self.status == Post.LOCKED
+
+    @property
+    def is_closed(self):
+        return self.status == Post.CLOSED
 
     def get_absolute_url(self):
         url = reverse("post_view", kwargs=dict(uid=self.root.uid))

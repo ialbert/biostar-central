@@ -225,11 +225,43 @@ def validate_recaptcha(token):
     return False, "Invalid reCAPTCHA. Please try again."
 
 
-def validate_post(content, title, tags_list, post_type, is_toplevel=False, recaptcha_token='', check_captcha=False):
-    content_length = len(content.replace(' ', ''))
+def validate_toplevel(title, post_type, tags_list, parent=None, user=None):
+    """Validate fields found in top level posts"""
+
     title_length = len(title.replace(' ', ''))
     allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
     tag_length = len(tags_list)
+
+    if title_length <= MIN_TITLE_CHARS:
+        msg = f"Title too short, please add more than {MIN_TITLE_CHARS} characters."
+        return False, msg
+    if title_length > MAX_TITLE_CHARS:
+        msg = f"Title too long, please add less than {MAX_TITLE_CHARS} characters."
+        return False, msg
+
+    if post_type not in allowed_types:
+        msg = "Not a valid post type."
+        return False, msg
+
+    if tag_length > MAX_TAGS:
+        msg = f"Too many tags, maximum of {MAX_TAGS} tags allowed."
+        return False, msg
+
+    if parent and user:
+        if parent.root.is_locked and not user.is_superuser:
+            msg = "This post is locked. Only admins can contribute to it."
+            return False, msg
+
+        if parent.root.closed and (user.is_anonymous or not user.profile.is_moderator or parent.root.owner != user):
+            msg = "This post is closed. Only moderators and the initial author can contribute to it."
+            return False, msg
+
+    return True, ""
+
+
+def validate_post(content, title, tags_list, post_type, is_toplevel=False, recaptcha_token='',
+                  check_captcha=False,  parent=None, user=None):
+    content_length = len(content.replace(' ', ''))
 
     if check_captcha:
         valid_captcha, msg = validate_recaptcha(recaptcha_token)
@@ -243,22 +275,11 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
     if content_length > forms.MAX_CONTENT:
         msg = f"Content too long, please add less than {forms.MAX_CONTENT} characters."
         return False, msg
+
     # Validate fields found in top level posts
     if is_toplevel:
-        if title_length <= MIN_TITLE_CHARS:
-            msg = f"Title too short, please add more than {MIN_TITLE_CHARS} characters."
-            return False, msg
-        if title_length > MAX_TITLE_CHARS:
-            msg = f"Title too long, please add less than {MAX_TITLE_CHARS} characters."
-            return False, msg
-
-        if post_type not in allowed_types:
-            msg = "Not a valid post type."
-            return False, msg
-
-        if tag_length > MAX_TAGS:
-            msg = f"Too many tags, maximum of {MAX_TAGS} tags allowed."
-            return False, msg
+        return validate_toplevel(title=title, post_type=post_type, tags_list=tags_list, parent=parent,
+                                 user=user)
 
     return True, ""
 

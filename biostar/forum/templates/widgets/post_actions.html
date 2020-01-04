@@ -3,40 +3,39 @@
 
 {#  Post action bar. #}
 
-
 <div class="actions {% if post.is_toplevel %}top-level{% endif %}">
 
-    <a class="add-comment ui tiny label" data-value="{{ post.uid }}">{{ label }}</a>
- &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
-{#    {% if post.is_toplevel %}#}
-{#        &bull;#}
-{#    <span class="muted"><i class="plus icon"></i></span>#}
-{#    {% endif %}#}
+<a class="add-comment ui tiny label" data-value="{{ post.uid }}">{{ label }}</a>
 
+    &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
+    {#    {% if post.is_toplevel %}#}
+    {#        &bull;#}
+    {#    <span class="muted"><i class="plus icon"></i></span>#}
+    {#    {% endif %}#}
 
-        {% if post.is_editable %}
-            &bull; <a class="inplace-click pointer" data-value="{{ post.uid }}">edit</a>
-        {% endif %}
+    {% if post.is_editable %}
+        &bull; <a class="inplace-click pointer" data-value="{{ post.uid }}">edit</a>
+    {% endif %}
 
-        {% if post.can_moderate %}
-            &bull; <a class="moderate-post" href="#" data-value="{{ post.uid }}">moderate</a>
-        {% endif %}
+    {% if post.can_moderate %}
+        &bull; <a class="moderate-post" href="#" data-value="{{ post.uid }}">moderate</a>
+    {% endif %}
 
-        {#  Show title on top level posts #}
-        {% if post.is_toplevel and user.is_authenticated %}
-                        &bull;
-            <div class="ui bottom pointing dropdown" id="subscribe" data-uid="{{ post.uid }}">
+    {#  Show title on top level posts #}
+    {% if post.is_toplevel and user.is_authenticated %}
+        &bull;
+        <div class="ui bottom pointing dropdown" id="subscribe" data-uid="{{ post.uid }}">
             <div class="text" id="sub-active">{% follow_label post=post %}</div>
             <i class="caret up icon"></i>
             <div class="menu">
-                <div class="item" data-value="messages"><i class="envelope icon"></i>follow via messages </div>
+                <div class="item" data-value="messages"><i class="envelope icon"></i>follow via messages</div>
                 <div class="item" data-value="email"><i class="envelope outline icon"></i> follow via email</div>
                 <div class="item" data-value="unfollow"><i class="close icon"></i> stop following</div>
             </div>
         </div>
-        {% endif %}
+    {% endif %}
 
-    <span class="status muted" >
+    <span class="status muted">
         {% post_user_line post=post avatar=avatar %}
     </span>
 

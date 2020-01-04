@@ -226,15 +226,17 @@ function highlight_search(target, content_elem, stop_list) {
 
         var html = content_elem.html();
         var insert = "<span class='search-highlight'>" + value + "</span>";
+
         var new_html = html.replace(new RegExp(value, "ig"), insert);
+
         // Don't highlight any stop words.
-        if ($.inArray(value, stop_list) === -1){
+        if ($.inArray(value, stop_list) === -1 && value.length >= 3){
+            console.log(value, insert, html);
             content_elem.html(new_html);
         }
 
     });
 }
-
 
 function inplace_post_edit(elem) {
 

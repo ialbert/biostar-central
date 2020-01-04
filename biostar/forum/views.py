@@ -346,7 +346,7 @@ def post_view(request, uid):
             tasks.created_post.spool(pid=answer.id)
             return redirect(answer.get_absolute_url())
         messages.error(request, form.errors)
-        #2/0
+
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
@@ -410,10 +410,18 @@ def new_post(request):
 @post_exists
 @login_required
 def post_moderate(request, uid):
-
     """Used to make dispaly post moderate form given a post request."""
+
     user = request.user
     post = Post.objects.filter(uid=uid).first()
+
+    if not user.profile.is_moderator:
+        messages.error(request, 'You need to be a moderator to perform this action.')
+        return redirect(post.get_absolute_url())
+
+    if post.status == Post.LOCKED:
+        messages.error(request, 'Only admins can moderate locked posts.')
+        return redirect(post.get_absolute_url())
 
     if request.method == "POST":
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)

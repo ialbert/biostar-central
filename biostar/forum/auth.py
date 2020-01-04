@@ -304,6 +304,16 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
         return url
 
+    if action == LOCK:
+        Post.objects.filter(uid=post.uid).update(status=Post.LOCKED)
+        messages.success(request, f"Locked post: {post.title}")
+        return url
+
+    if action == CLOSE:
+        Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
+        messages.success(request, f"Closed post: {post.title}")
+        return url
+
     if pid:
         parent = Post.objects.filter(uid=pid).first() or post.root
         Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
