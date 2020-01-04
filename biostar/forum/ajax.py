@@ -225,8 +225,40 @@ def validate_recaptcha(token):
     return False, "Invalid reCAPTCHA. Please try again."
 
 
-def validate_toplevel(title, post_type, tags_list, parent=None, user=None):
+def add_to_closed(post, user):
+
+    if user.is_moderator or post.author == user:
+        return True
+
+
+def validate_root(post, user):
+
+    if not post:
+        return False, "No post provided."
+
+    # Only admins allowed to add to locked posts.
+    if post.root.is_locked and not user.is_superuser:
+        msg = "This post is locked. Only admins can contribute to it."
+        return False, msg
+
+    # Anonymous users and regular users who are not the author
+    # are not allowed to add to closed posts.
+    allowed = user.is_authenticated and (user.profile.is_moderator or post.root.author == user)
+    if post.root.is_closed and not allowed:
+        msg = "This post is closed. Only moderators and the initial author can contribute to it."
+        return False, msg
+
+    return True, ""
+
+
+def validate_toplevel(fields={}):
     """Validate fields found in top level posts"""
+
+    title = fields.get('title', '')
+    tags_list = fields.get('tags_list', '')
+    post_type = fields.get('post_type', '')
+    user = fields.get('user', '')
+    root = fields.get('parent', '')
 
     title_length = len(title.replace(' ', ''))
     allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
@@ -247,23 +279,21 @@ def validate_toplevel(title, post_type, tags_list, parent=None, user=None):
         msg = f"Too many tags, maximum of {MAX_TAGS} tags allowed."
         return False, msg
 
-    if parent and user:
-        if parent.root.is_locked and not user.is_superuser:
-            msg = "This post is locked. Only admins can contribute to it."
-            return False, msg
-
-        if parent.root.closed and (user.is_anonymous or not user.profile.is_moderator or parent.root.owner != user):
-            msg = "This post is closed. Only moderators and the initial author can contribute to it."
-            return False, msg
+    if root and user:
+        return validate_root(post=root, user=user)
 
     return True, ""
 
 
-def validate_post(content, title, tags_list, post_type, is_toplevel=False, recaptcha_token='',
-                  check_captcha=False,  parent=None, user=None):
+def validate_post(fields={}):
+    """
+    Validate fields found in dictionary.
+    """
+    content = fields.get('content', '')
     content_length = len(content.replace(' ', ''))
+    recaptcha_token = fields.get('recaptcha_token')
 
-    if check_captcha:
+    if fields.get('check_captcha') and recaptcha_token:
         valid_captcha, msg = validate_recaptcha(recaptcha_token)
         if not valid_captcha:
             return False, msg
@@ -277,17 +307,75 @@ def validate_post(content, title, tags_list, post_type, is_toplevel=False, recap
         return False, msg
 
     # Validate fields found in top level posts
-    if is_toplevel:
-        return validate_toplevel(title=title, post_type=post_type, tags_list=tags_list, parent=parent,
-                                 user=user)
+    if fields.get('is_toplevel'):
+        return validate_toplevel(fields=fields)
 
     return True, ""
 
 
 def is_trusted(user):
     # Moderators and users with scores above threshold are trusted.
-    trusted = user.is_authenticated and (user.profile.trusted or user.profile.score > 15)
+    trusted = user.is_authenticated and (user.profile.trusted or
+                                         user.profile.score > settings.RECAPTCHA_TRUSTED_USER_SCORE)
     return trusted
+
+
+def get_fields(request, post=None):
+    """
+    Used to retrieve all fields in a request used for editing and creating posts.
+    """
+
+    def request_data(data_key, placeholder=None):
+        return request.POST.get(data_key, request.GET.get(data_key, placeholder))
+
+    # Fields common to all posts
+    user = request.user
+    content = request_data("content", "")
+    title = request_data("title", "")
+    post_type = int(request_data("type", Post.QUESTION))
+    root = None
+
+    if post:
+        content = content or post.content
+        title = title or post.title
+        post_type = post_type if post_type is not None else Post.QUESTION
+        root = post.root
+
+    parent_uid = request_data('parent', '')
+    parent = Post.objects.filter(uid=parent_uid).first()
+    recaptcha_token = request_data("recaptcha_response")
+    # reCAPTCHA field required when an untrusted user creates any post.
+    check_captcha = not is_trusted(user=user) and settings.RECAPTCHA_PRIVATE_KEY
+
+    # Fields found in top level posts
+    tag_list = {x.strip() for x in request.POST.getlist("tag_val", [])}
+    tag_str = ','.join(tag_list)
+
+    # Field flags. TODO: being refactored out.
+    is_toplevel = bool(int(request_data('top', 0)))
+    is_comment = request_data('comment', '0')
+    is_comment = int(is_comment) if is_comment.isdigit() else 0
+
+    fields = dict(content=content, title=title, post_type=post_type, tag_list=tag_list, tag_str=tag_str,
+                  user=user, root=root, parent=parent, parent_uid=parent_uid, check_captcha=check_captcha,
+                  recaptcha_token=recaptcha_token, is_comment=is_comment, is_toplevel=is_toplevel)
+
+    return fields
+
+
+def set_post(fields, post, save=True):
+
+    if post.is_toplevel:
+        post.title = fields.get('title', post.title)
+        post.type = fields.get('post_type', post.type)
+        post.tag_val = fields.get('tag_str', post.tag_val)
+
+    post.lastedit_user = fields.get('user', post.lastedit_user)
+    post.content = fields.get('content', post.content)
+    if save:
+        post.save()
+
+    return post
 
 
 @ratelimit(key='ip', rate='50/h')
@@ -305,61 +393,26 @@ def ajax_edit(request, uid):
     if not post:
         return ajax_error(msg="Post does not exist")
 
-    content = request.POST.get("content", post.content)
-    title = request.POST.get("title", post.title)
-    post_type = int(request.POST.get("type", post.type))
-    tag_list = set(request.POST.getlist("tag_val", []))
-    tag_str = ','.join(tag_list)
-
+    # Get the fields found in the request
+    fields = get_fields(request=request, post=post)
     # Validate fields in request.POST
-    valid, msg = validate_post(content=content, title=title, tags_list=tag_list,
-                               post_type=post_type, is_toplevel=post.is_toplevel)
+    valid, msg = validate_post(fields=fields)
     if not valid:
         return ajax_error(msg=msg)
 
-    if post.is_toplevel:
-        post.title = title
-        post.type = post_type
-        post.tag_val = tag_str
+    # Set the fields for this post.
+    post = set_post(post=post, fields=fields)
 
-    post.lastedit_user = request.user
-    post.content = content
-    post.save()
-
+    # Get the new tags and render them
     tags = post.tag_val.split(",")
     context = dict(post=post, tags=tags, show_views=True)
-
     tmpl = loader.get_template('widgets/post_tags.html')
     tag_html = tmpl.render(context)
+
+    # Prepare the new title
     new_title = f'{post.get_type_display()}: {post.title}'
 
     return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
-
-
-# @ajax_error_wrapper(method="GET")
-# def ajax_recent(request):
-#
-#     uid = request.GET.get('uid', '')
-#     # Return recent posts made in past 5000 seconds.
-#     seconds = 500000
-#     delta = util.now() - timedelta(seconds=seconds)
-#     if uid:
-#         root = Post.objects.filter(uid=uid).first().root
-#         new_posts = Post.objects.filter(root=root, lastedit_date__gt=delta).exclude(uid=uid)
-#     else:
-#         new_posts = Post.objects.filter(type__in=Post.TOP_LEVEL, lastedit_date__gt=delta)
-#
-#     if not new_posts:
-#         return ajax_success(msg='No new posts in the past 5000 seconds.', data='')
-#
-#     nposts = len(new_posts)
-#     context = dict(nposts=nposts)
-#     tmpl = loader.get_template('widgets/ajax_recent.html')
-#     template = tmpl.render(context=context)
-#     most_recent = new_posts.order_by('-pk').first()
-#     most_recent_url = most_recent.get_absolute_url() if most_recent is not None else ''
-#
-#     return ajax_success(msg="New posts", template=template)
 
 
 @ratelimit(key='ip', rate='50/h')
@@ -371,35 +424,17 @@ def ajax_create(request):
         return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     # Get form fields from POST request
+    fields = get_fields(request=request, post=None)
     user = request.user
-    content = request.POST.get("content", '')
-    title = request.POST.get("title", '')
-    tag_list = {x.strip() for x in request.POST.getlist("tag_val", [])}
-
-    tag_str = ','.join(tag_list)
-    recaptcha_token = request.POST.get("recaptcha_response")
-    is_toplevel = bool(int(request.POST.get('top', 0)))
-    # Get the post type
-    post_type = request.POST.get('type', '0')
-    post_type = int(post_type) if post_type.isdigit() else 0
-
-    # Find out if we are currently creating a comment
-    is_comment = request.POST.get('comment', '0')
-    is_comment = int(is_comment) if is_comment.isdigit() else 0
-
-    # Resolve the parent post
-    parent_uid = request.POST.get("parent", '')
-    parent = Post.objects.filter(uid=parent_uid).first()
-
-    # reCAPTCHA field required when an untrusted user creates any post.
-    check_captcha = not is_trusted(user=user) and settings.RECAPTCHA_PRIVATE_KEY
 
     # Validate fields in request.POST
-    valid, msg = validate_post(content=content, title=title, recaptcha_token=recaptcha_token, tags_list=tag_list,
-                               post_type=post_type, check_captcha=check_captcha, is_toplevel=is_toplevel)
+    valid, msg = validate_post(fields=fields)
 
     if not valid:
         return ajax_error(msg=msg)
+    parent = fields.get('parent')
+    parent_uid = fields.get('parent_uid')
+    is_comment = fields.get('is_comment')
 
     if parent_uid and not parent:
         return ajax_error(msg='Parent post does not exist.')
@@ -410,10 +445,13 @@ def ajax_create(request):
     # Creating a comment
     elif is_comment:
         post_type = Post.COMMENT
+    else:
+        post_type = fields.get('post_type')
 
     # Create the post.
-    post = Post.objects.create(title=title, tag_val=tag_str, type=post_type, content=content,
-                               author=user, parent=parent)
+    post = Post.objects.create(title=fields.get('title'), tag_val=fields.get('tag_str'), type=post_type,
+                               content=fields.get('content'), author=user, parent=fields.get('parent'))
+
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
 
@@ -421,6 +459,9 @@ def ajax_create(request):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="GET")
 def inplace_form(request):
+    """
+    Used to render inplace forms for creation and editting posts.
+    """
     user = request.user
     if user.is_anonymous:
         return ajax_error(msg="You need to be logged in to edit or create posts.")
@@ -430,12 +471,14 @@ def inplace_form(request):
     # Parent uid to add an answer/comment to.
     parent_uid = request.GET.get('parent', '')
     post = Post.objects.filter(uid=uid).first()
+
     if uid and not post:
         return ajax_error(msg="Post does not exist.")
 
     is_toplevel = post.is_toplevel if post else int(request.GET.get('top', 1))
     is_comment = request.GET.get('comment', 0) if not post else post.is_comment
 
+    # Extract the
     title = post.title if post else ''
     content = post.content if post else ''
     rows = len(post.content.split("\n")) if post else request.GET.get('rows', 10)
@@ -446,7 +489,13 @@ def inplace_form(request):
 
     # Untrusted users get a reCAPTCHA field added when creating posts.
     creating = post is None
+    parent = Post.objects.filter(uid=parent_uid).first()
     not_trusted = not is_trusted(user=user) if creating else False
+    if parent or post:
+        # Validate that the root is not locked or closed.
+        valid, msg = validate_root(post=parent or post, user=user)
+        if not valid:
+            return ajax_error(msg=msg)
 
     # Load the content and form template
     tmpl = loader.get_template(template_name=template)
@@ -455,6 +504,7 @@ def inplace_form(request):
                    not_trusted=not_trusted, title=title)
 
     form = tmpl.render(context)
+
     return ajax_success(msg="success", inplace_form=form)
 
 

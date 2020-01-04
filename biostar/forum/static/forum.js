@@ -276,6 +276,7 @@ function inplace_post_edit(elem) {
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(elem, data.msg, data.status, 3000);
+                    dim_elem.dimmer('hide');
                 } else {
                     elem.hide();
                     hidden.hide();
@@ -822,7 +823,9 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     if (data.status === 'error') {
-                        popup_message($('#error'), data.msg, data.status);
+
+                        popup_message(container, data.msg, data.status);
+                        //alert("FFF")
                     } else {
                         post_actions.hide();
                         comment.css({'padding-top': '5px', 'padding-bottom': '5px'});
@@ -866,7 +869,7 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     if (data.status === 'error') {
-                        popup_message($('#error'), data.msg, data.status);
+                        popup_message($('#error'), data.msg, data.status, 100000);
 
                     } else {
                         $('#menu-header > .item').each(function () {

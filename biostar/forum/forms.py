@@ -170,15 +170,19 @@ def mod_choices(post):
     ]
 
     # Moderation options for top level posts
-    allowed = [BUMP_POST, LOCK, CLOSE] if post.is_toplevel else []
+    allowed = [BUMP_POST] if post.is_toplevel else []
 
     # Option to open deleted posts
-    if post.status in [Post.DELETED, Post.OFFTOPIC]:
+    if post.status in [Post.DELETED, Post.OFFTOPIC, Post.LOCKED, Post.CLOSED]:
         allowed += [OPEN_POST]
 
     # Option to deleted open posts
     if post.status != Post.DELETED:
         allowed += [DELETE]
+    if post.status != Post.LOCKED:
+        allowed += [LOCK]
+    if post.status != Post.CLOSED:
+        allowed += [CLOSE]
 
     if post.is_comment:
         allowed += [MOVE_ANSWER]

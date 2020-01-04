@@ -410,7 +410,7 @@ def new_post(request):
 @post_exists
 @login_required
 def post_moderate(request, uid):
-    """Used to make dispaly post moderate form given a post request."""
+    """Used to make display post moderate form given a post request."""
 
     user = request.user
     post = Post.objects.filter(uid=uid).first()
@@ -419,7 +419,7 @@ def post_moderate(request, uid):
         messages.error(request, 'You need to be a moderator to perform this action.')
         return redirect(post.get_absolute_url())
 
-    if post.status == Post.LOCKED:
+    if post.status == Post.LOCKED and not user.is_superuser:
         messages.error(request, 'Only admins can moderate locked posts.')
         return redirect(post.get_absolute_url())
 
