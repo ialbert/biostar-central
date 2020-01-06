@@ -7,10 +7,9 @@
 {% block content %}
 
     {% block search %}
-        {% search_bar extra_css='fluid' redir='1' %}
+        {% search_bar extra_css='active-search' redir='1' %}
     {% endblock %}
-
-    <div class="ui page-bar segment">
+        <div class="ui page-bar segment">
             {% pages_search results %}
     </div>
 

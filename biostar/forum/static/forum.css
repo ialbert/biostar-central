@@ -329,6 +329,13 @@ a:hover {
     box-shadow: 1px 1px 1px #888888;
 }
 
+
+.active-search{
+    box-shadow: 8px 8px 8px #888888;
+    display: inline;
+    width: 50%;
+}
+
 .inplace {
     margin: 0px !important;
     padding: 3px !important;
