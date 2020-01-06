@@ -788,7 +788,7 @@ $(document).ready(function () {
 
         //var container = $("#comment-insert-" + parent_uid);
         var container = $("#comment-insert-" + parent_uid);
-        //var url = "/new/comment/" + post_uid + "/";
+
         var post_actions = $('.hide-on-comment[data-value="' + parent_uid + '"]');
         cancel_inplace();
         $('#insert-form').html('');

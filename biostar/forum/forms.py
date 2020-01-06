@@ -143,8 +143,8 @@ class PostShortForm(forms.Form):
     def clean(self, *args, **kwargs):
 
         cleaned_data = super(PostShortForm, self).clean()
-
-        if self.post.root.is_locked and not self.user.is_superuser:
+        
+        if self.post and self.post.root.is_locked and not self.user.is_superuser:
             raise forms.ValidationError("This post is locked. Only admins can contirbute to it.")
 
         return cleaned_data

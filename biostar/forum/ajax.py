@@ -293,7 +293,7 @@ def validate_post(fields={}):
     content_length = len(content.replace(' ', ''))
     recaptcha_token = fields.get('recaptcha_token')
 
-    if fields.get('check_captcha') and recaptcha_token:
+    if fields.get('check_captcha'):
         valid_captcha, msg = validate_recaptcha(recaptcha_token)
         if not valid_captcha:
             return False, msg
@@ -332,7 +332,8 @@ def get_fields(request, post=None):
     user = request.user
     content = request_data("content", "")
     title = request_data("title", "")
-    post_type = int(request_data("type", Post.QUESTION))
+    post_type = request_data("type", Post.QUESTION)
+    post_type = int(post_type) if str(post_type).isdigit() else Post.QUESTION
     root = None
 
     if post:
@@ -345,7 +346,7 @@ def get_fields(request, post=None):
     parent = Post.objects.filter(uid=parent_uid).first()
     recaptcha_token = request_data("recaptcha_response")
     # reCAPTCHA field required when an untrusted user creates any post.
-    check_captcha = not is_trusted(user=user) and settings.RECAPTCHA_PRIVATE_KEY
+    check_captcha = not is_trusted(user=user) and settings.RECAPTCHA_PRIVATE_KEY != ''
 
     # Fields found in top level posts
     tag_list = {x.strip() for x in request.POST.getlist("tag_val", [])}
