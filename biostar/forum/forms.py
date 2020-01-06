@@ -63,11 +63,24 @@ class PostLongForm(forms.Form):
 
     choices = [opt for opt in Post.TYPE_CHOICES]
 
+    mapper = {
+              Post.QUESTION: "Ask a question", Post.TUTORIAL:"Share a Tutorial",
+              Post.JOB: "Post a Job Opening", Post.FORUM: "Start a Discussion",
+              Post.TOOL: "Share a Tool", Post.NEWS: "Announce News"
+              }
+
     choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES) if settings.ALLOWED_POST_TYPES else
                                  (opt[0] in Post.TOP_LEVEL), choices)
 
+    if settings.REMAP_TYPE_DISPLAY:
+        type_choices = []
+        for c in choices:
+            type_choices.append((c[0], mapper.get(c[0], c[1])))
+    else:
+        type_choices = choices
+
     post_type = forms.IntegerField(label="Post Type",
-                                   widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
+                                   widget=forms.Select(choices=type_choices, attrs={'class': "ui dropdown"}),
                                    help_text="Select a post type.")
     title = forms.CharField(label="Post Title", max_length=200, min_length=2,
                             validators=[valid_title, english_only],
