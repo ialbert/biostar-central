@@ -1,4 +1,3 @@
-
 from django.conf import settings
 from django.contrib import admin
 from django.conf.urls.static import static
@@ -14,6 +13,8 @@ urlpatterns = [
     path('', views.latest, name='post_list'),
 
     path('policy/', views.policy, name='policy'),
+    path('about/', views.about, name='about'),
+    path('faq/', views.faq, name='faq'),
 
     path('votes/', views.myvotes, name='myvotes'),
     path('bookmarks/', views.bookmarks, name='bookmarks'),
@@ -25,7 +26,6 @@ urlpatterns = [
 
     path('new/post/', views.new_post, name='post_create'),
     path('new/comment/<str:uid>/', views.new_comment, name="create_comment"),
-
 
     path('b/list/', views.badge_list, name='badge_list'),
     path('t/list/', views.tags_list, name='tags_list'),
@@ -66,10 +66,6 @@ if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT, show_indexes=True)
 
     urlpatterns = [
-        path(r'__debug__/', include(debug_toolbar.urls)),
+                      path(r'__debug__/', include(debug_toolbar.urls)),
 
-    ] + urlpatterns
-
-
-
-
+                  ] + urlpatterns

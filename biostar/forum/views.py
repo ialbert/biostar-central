@@ -77,6 +77,16 @@ def policy(request):
     return render(request, template_name="widgets/policy.html", context=context)
 
 
+def about(request):
+    context = dict()
+    return render(request, template_name="about.html", context=context)
+
+
+def faq(request):
+    context = dict()
+    return render(request, template_name="faq.html", context=context)
+
+
 def get_posts(user, show="latest", tag="", order="rank", limit=None):
     """
     Generates a post list on a topic.

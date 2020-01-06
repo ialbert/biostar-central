@@ -67,6 +67,11 @@
         <a class="item {% activate tab "login" %}" href="{% url 'login' %}"><i class="sign-in icon"></i> <span class="tablet">Log In</span></a>
         <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}"><i class="arrow circle up icon"></i><span class="tablet">Sign Up</span></a>
         {% endif %}
-        <a class="item {% activate tab "about" %}"><i class="info circle icon"></i> <span class="tablet">About</span></a>
+        <a class="item {% activate tab "about" %}"  href="{% url 'about' %}"><i class="info circle icon"></i> <span class="tablet">About</span></a>
+
+      <a class="item {{ user.profile.css }} {% activate tab "faq" %}" href="{% url 'faq' %}"> <i
+                class="question icon"></i> faq
+        </a>
+
     </div>
 </div>
