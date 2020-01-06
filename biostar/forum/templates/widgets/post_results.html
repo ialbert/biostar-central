@@ -4,29 +4,99 @@
 {% load humanize %}
 
 
-
-
-
 {% block content %}
 
-{% block search %}
-    {% search_bar extra_css='fluid' redir='1' %}
-{% endblock %}
+    {% block search %}
+        {% search_bar extra_css='fluid' redir='1' %}
+    {% endblock %}
 
-        <div class="ui relaxed divided list">
+    <div class="ui page-bar segment">
+            {% pages_search results %}
+    </div>
 
-            {% for result in results %}
-                <a class="item" href="{{ result.url }}">
-                    <b>{{ result.title |truncatechars_html:100 }}</b>
+    <div class="ui divided items" id="search-results" data-query="{{ query }}" data-stop="{{ stop_words }}">
+        {% for result in results %}
+            {# TODO: this will be removed once these fields are indexed. #}
+            {% get_vote_count result.uid as vote_count %}
+            {% get_reply_count result.uid as reply_count %}
+            {% get_view_count result.uid as view_count %}
 
-                    <div class="muted">
-                        {{ result.content |truncatechars_html:300 }}
+            <div class="post item  top-padding">
+
+                <div class="statbox">
+                    <div class="ui left stat label mini menu-tablet_small">
+                        <div class="number-stat">
+
+                            {{ vote_count|bignum }}
+                        </div>
+                        <div class="detail-stat">Vote{{ vote_count|pluralize }}</div>
                     </div>
-                </a>
-                <div class="muted">
-                    {% post_search_line post_uid=result.uid %}
+                    <div class="ui label stat mini {% boxclass uid=result.uid %} menu-tablet_small bookmark">
+                        <div class="number-stat">
+                            {{ reply_count|bignum }}
+                        </div>
+                        <div class="detail-stat">Repl{{ reply_count|pluralize:"y,ies" }}</div>
+                    </div>
+
+                    <div class="ui label basic transparent stat mini  menu-tablet_small">
+                        <div class="number-stat">
+                            {{ view_count|bignum }}
+                        </div>
+                        <div class="detail-stat">View{{ view_count|pluralize }}</div>
+                    </div>
+
                 </div>
-            {% endfor %}
-        </div>
+
+                <div class="content">
+
+
+                    <div class="post-title header">
+
+                        {% if result.type != question_flag %}
+                            <span class="ui title header">{{ result.type_display }}:</span>
+                        {% endif %}
+                        <a href="
+
+                                {% url 'post_view' result.uid %}{% if not result.is_toplevel %}#{{ result.uid }}{% endif %}"
+                           class="ui mini blue title header trigger-highlight">{{ result.title|truncatechars:150 }}
+                        </a>
+                    </div>
+                    <div class="small-stats muted">
+
+                        {{ vote_count|bignum }}
+
+                        Vote{{ vote_count|pluralize }}
+                        |
+                        Repl{{ reply_count|pluralize:"y,ies" }}
+
+                    </div>
+                    <div class="muted trigger-highlight">
+                        {{ result.content |truncatechars_html:400 }}
+                    </div>
+                    <div class=" extra right floated">
+                        <div class="left floated">
+                            {% post_tags post_uid=result.uid spaced=False %}
+                        </div>
+                        <div class="right floated muted">
+                            {% post_search_line post_uid=result.uid %}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% empty %}
+            <div class="ui warn message">
+
+                No posts found.
+
+            </div>
+        {% endfor %}
+    </div>
+        <div class="ui page-bar segment">
+            {% pages_search results %}
+    </div>
 
 {% endblock %}

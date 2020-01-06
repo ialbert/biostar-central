@@ -6,7 +6,7 @@
         <div class='ui {{ extra_css }} icon input' id="contain-search" data-redir="{{ redir }}">
             <i class="search icon"></i>
 
-            <input type="text" id="search" url="{{ search_url }}" name="search" placeholder="Search and press ENTER . . .">
+            <input value="{{ value }}" type="text" id="search" url="{{ search_url }}" name="search" placeholder="Search and press ENTER . . .">
 
             {% if tags and ajax_results %}
                 {# Center the results as well. #}

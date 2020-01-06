@@ -12,8 +12,10 @@
     <div class="muted">
         <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name|truncatechars:40 }}</a>
          {% user_icon user=user %}<br>
+        @{{ user.username }}
         visited {{ user.profile.last_login|time_ago }}<br>
         {{ user.profile.location }}
+
     </div>
 
 </div>

@@ -122,6 +122,19 @@ def post_search_line(post_uid, avatar=True):
     return dict(post=post, avatar=avatar)
 
 
+@register.inclusion_tag('widgets/pages_search.html', takes_context=True)
+def pages_search(context, results):
+
+    previous_page = results.pagenum - 1
+    next_page = results.pagenum + 1 if not results.is_last_page() else results.pagenum
+    request = context['request']
+    query = request.GET.get('query', '')
+    context = dict(results=results, previous_page=previous_page, query=query,
+                   next_page=next_page)
+
+    return context
+
+
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
 
@@ -179,9 +192,38 @@ def post_actions(context, post, label="ADD COMMENT", avatar=False):
 
 
 @register.inclusion_tag('widgets/post_tags.html')
-def post_tags(post, show_views=False, spaced=True):
+def post_tags(post=None, post_uid=None, show_views=False, spaced=True):
+
+    if post_uid:
+        post = Post.objects.filter(uid=post_uid).first()
+
     tags = post.tag_val.split(",")
+
     return dict(post=post, tags=tags, show_views=show_views, spaced=spaced)
+
+
+@register.simple_tag
+def get_vote_count(uid):
+    post = Post.objects.filter(uid=uid).first()
+    return post.get_votecount
+
+
+@register.simple_tag
+def get_view_count(uid):
+    post = Post.objects.filter(uid=uid).first()
+    return post.root.view_count
+
+
+@register.simple_tag
+def get_subs_count(uid):
+    post = Post.objects.filter(uid=uid).first()
+    return post.subs_count
+
+
+@register.simple_tag
+def get_reply_count(uid):
+    post = Post.objects.filter(uid=uid).first()
+    return post.reply_count
 
 
 @register.inclusion_tag('widgets/pages.html', takes_context=True)
@@ -301,7 +343,8 @@ def get_tags(request=None, post=None, user=None, watched=False):
     # Prepare the tags options in the dropdown from a file
     if settings.TAGS_OPTIONS_FILE:
         tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()
-        tags_opts = [(x, False) if x not in tags.split(",") else (x, True) for x in tags_opts]
+        tags_opts = [(x.strip(), False) if x.strip() not in tags.split(",") else (x.strip(), True)
+                     for x in tags_opts if x != '\n']
     # Prepare dropdown options from database.
     else:
         query = Count('post')
@@ -381,11 +424,14 @@ def custom_feed(objs, feed_type='', title=''):
 
 
 @register.inclusion_tag(takes_context=True, filename='widgets/search_bar.html')
-def search_bar(context, search_url='', tags=False, users=False, ajax_results=True, extra_css='', redir=False):
+def search_bar(context, search_url='', tags=False, users=False, ajax_results=True, extra_css='',
+               redir=False):
     search_url = search_url or reverse('ajax_search')
     redir = '1' if redir else '0'
+    request = context['request']
+    value = request.GET.get('query', '')
     context = dict(search_url=search_url, tags=tags, users=users, extra_css=extra_css,
-                   ajax_results=ajax_results, redir=redir)
+                   ajax_results=ajax_results, redir=redir, value=value)
 
     return context
 
@@ -615,9 +661,12 @@ def bignum(number):
 
 
 @register.simple_tag
-def boxclass(post):
-    # Create the css class for each row
+def boxclass(post=None, uid=None):
 
+    if uid:
+        post = Post.objects.filter(uid=uid).first()
+
+    # Create the css class for each row
     if post.root.type == Post.JOB:
         style = "job"
     elif post.root.type == Post.TUTORIAL:

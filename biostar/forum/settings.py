@@ -19,6 +19,10 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
+
+# User above this score do not get a reCAPTCHA
+RECAPTCHA_TRUSTED_USER_SCORE = 15
+
 # Full file path to tags.
 # Each line is a list of comma separated tags.
 TAGS_OPTIONS_FILE = ''
@@ -37,11 +41,14 @@ TIME_REQUESTS = True
 
 # Indexing interval in seconds.
 INDEX_SECS_INTERVAL = 10
-# Number of results to display.
+# Number of results to display in total.
 SEARCH_LIMIT = 20
 
 # Minimum amount of characters to preform searches
 SEARCH_CHAR_MIN = 1
+
+# Number of results to display per page.
+SEARCH_RESULTS_PER_PAGE = 50
 
 BATCH_INDEXING_SIZE = 1000
 

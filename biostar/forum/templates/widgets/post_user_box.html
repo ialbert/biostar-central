@@ -9,11 +9,13 @@
             <img class="ui centered circular thread-users image" src="{% gravatar user=user size=60 %}">
         </a>
     </div>
-    <div class="muted" style="font-size: small">
-        {{ user.profile.last_login|time_ago }}<br>
+
+    <div class="muted">
+         @{{ user.username }}<br>
 
         <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name|truncatechars:40 }}</a>
         {% user_icon user=user %}<br>
+       {{ user.profile.last_login|time_ago }}<br>
 
    {{ user.profile.location|truncatechars:40}}
 

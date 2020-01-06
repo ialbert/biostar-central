@@ -216,6 +216,28 @@ function cancel_inplace() {
 }
 
 
+function highlight_search(target, content_elem, stop_list) {
+
+    // Find the target in the content.
+
+    var target_list = target.replace(/\s{2,}/g, ' ').split(" ");
+
+    $.each(target_list, function (index, value) {
+
+        var html = content_elem.html();
+        var insert = "<span class='search-highlight'>" + value + "</span>";
+
+        var new_html = html.replace(new RegExp(value, "ig"), insert);
+
+        // Don't highlight any stop words.
+        if ($.inArray(value, stop_list) === -1 && value.length >= 3){
+            console.log(value, insert, html);
+            content_elem.html(new_html);
+        }
+
+    });
+}
+
 function inplace_post_edit(elem) {
 
     var uid = elem.data("value");
@@ -254,6 +276,7 @@ function inplace_post_edit(elem) {
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(elem, data.msg, data.status, 3000);
+                    dim_elem.dimmer('hide');
                 } else {
                     elem.hide();
                     hidden.hide();
@@ -541,7 +564,6 @@ function autocomplete_users(users_list) {
     autocomplete.atwho(AutocompleteSettings);
 
 
-
 }
 
 $(document).ready(function () {
@@ -766,7 +788,7 @@ $(document).ready(function () {
 
         //var container = $("#comment-insert-" + parent_uid);
         var container = $("#comment-insert-" + parent_uid);
-        //var url = "/new/comment/" + post_uid + "/";
+
         var post_actions = $('.hide-on-comment[data-value="' + parent_uid + '"]');
         cancel_inplace();
         $('#insert-form').html('');
@@ -801,7 +823,9 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     if (data.status === 'error') {
-                        popup_message($('#error'), data.msg, data.status);
+
+                        popup_message(container, data.msg, data.status);
+                        //alert("FFF")
                     } else {
                         post_actions.hide();
                         comment.css({'padding-top': '5px', 'padding-bottom': '5px'});
@@ -845,7 +869,7 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     if (data.status === 'error') {
-                        popup_message($('#error'), data.msg, data.status);
+                        popup_message($('#error'), data.msg, data.status, 100000);
 
                     } else {
                         $('#menu-header > .item').each(function () {
@@ -1091,6 +1115,20 @@ $(document).ready(function () {
 
     $('.vote').popup({
         on: 'hover'
+    });
+
+    $('.trigger-highlight').each(function (event) {
+        var elem = $(this);
+        let container = $('#search-results');
+        let query = container.data('query');
+        let stop_words = container.data('stop');
+
+        if (container.html() === undefined || container.html() === null){
+        }else{
+            let stop_list = stop_words.split(',');
+            highlight_search(query, elem, stop_list)
+        }
+
     });
 
     var autocomplete_elem = $('#wmd-input-id_content');

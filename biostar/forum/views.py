@@ -135,12 +135,17 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 def post_search(request):
 
     query = request.GET.get('query', '')
+    page = int(request.GET.get('page', 1))
 
     if not query:
+
         return redirect(reverse('post_list'))
 
-    results = search.preform_search(query=query)
-    context = dict(results=results, query=query)
+    # Preform search on indexed posts.
+    results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+
+    question_flag = Post.QUESTION
+    context = dict(results=results, query=query, question_flag=question_flag, stop_words=','.join(search.STOP))
 
     return render(request, template_name="widgets/post_results.html", context=context)
 
@@ -341,7 +346,7 @@ def post_view(request, uid):
             tasks.created_post.spool(pid=answer.id)
             return redirect(answer.get_absolute_url())
         messages.error(request, form.errors)
-        #2/0
+
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
@@ -405,10 +410,18 @@ def new_post(request):
 @post_exists
 @login_required
 def post_moderate(request, uid):
+    """Used to make display post moderate form given a post request."""
 
-    """Used to make dispaly post moderate form given a post request."""
     user = request.user
     post = Post.objects.filter(uid=uid).first()
+
+    if not user.profile.is_moderator:
+        messages.error(request, 'You need to be a moderator to perform this action.')
+        return redirect(post.get_absolute_url())
+
+    if post.status == Post.LOCKED and not user.is_superuser:
+        messages.error(request, 'Only admins can moderate locked posts.')
+        return redirect(post.get_absolute_url())
 
     if request.method == "POST":
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
