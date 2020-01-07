@@ -14,8 +14,8 @@ from django.utils.text import smart_split
 from django.db.models import Q
 from whoosh import writing
 from whoosh.analysis import StemmingAnalyzer
-from django_elasticsearch_dsl.search import Search
-from elasticsearch_dsl.query import MoreLikeThis
+#from django_elasticsearch_dsl.search import Search
+#from elasticsearch_dsl.query import MoreLikeThis
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.sorting import FieldFacet, ScoreFacet
 from whoosh.writing import AsyncWriter
