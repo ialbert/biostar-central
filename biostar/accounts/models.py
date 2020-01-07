@@ -176,6 +176,11 @@ class Profile(models.Model):
     def is_spammer(self):
         return self.role == self.SPAMMER
 
+    @property
+    def low_rep(self):
+        """User has a low reputation"""
+        return self.score <= settings.LOW_REP_THRESHOLD
+
 
 # Connects user to message bodies
 class MessageBody(models.Model):

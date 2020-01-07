@@ -244,14 +244,15 @@ def report_spammer(request, user_id):
     profile = user.profile
     if not user:
         return ajax_error(msg='User does not exist.')
-
-    # Ban new users with the spam flag.
-    if user.profile.score <= 1:
-        profile.state = Profile.BANNED
+    if request.user == user or user.profile.is_moderator:
+        return ajax_error(msg='Invalid action.')
 
     profile.role = Profile.SPAMMER
-    profile.save()
+    # Ban low reputation users when they post any spam.
+    if user.profile.low_rep:
+        profile.state = Profile.BANNED
 
+    profile.save()
     return ajax_success(msg="Reported user as a spammer.")
 
 

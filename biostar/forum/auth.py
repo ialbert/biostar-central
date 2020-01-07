@@ -281,6 +281,22 @@ def delete_post(post, request):
     return url
 
 
+def handle_spam_post(post):
+
+    url = post.get_absolute_url()
+
+    # Ban new users that post spam.
+    if post.author.low_rep:
+        post.author.profile.state = Profile.BANNED
+        post.author.profile.role = Profile.SPAMMER
+        post.author.save()
+        return url
+
+    # Label this post as spam
+    Post.objects.filter(uid=post.uid).update(spam=Post.SPAM)
+    return url
+
+
 def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pid=None):
     root = post.root
     user = request.user
@@ -305,18 +321,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         return url
 
     if action == REPORT_SPAM:
-
-        # Ban new users that post spam.
-        to_ban = post.author.profile.score <= 1
-        if to_ban:
-            post.author.profile.state = Profile.BANNED
-            post.author.profile.role = Profile.SPAMMER
-            post.author.save()
-            return url
-
-        # Label this post as spam
-        Post.objects.filter(uid=post.uid).update(spam=Post.SPAM)
-        return url
+        return handle_spam_post(post=post)
 
     if pid:
         parent = Post.objects.filter(uid=pid).first() or post.root
