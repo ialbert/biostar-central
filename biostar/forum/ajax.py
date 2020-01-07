@@ -249,7 +249,7 @@ def report_spammer(request, user_id):
     if user.profile.score <= 1:
         profile.state = Profile.BANNED
 
-    user.profile.role = Profile.SPAMMER
+    profile.role = Profile.SPAMMER
     profile.save()
 
     return ajax_success(msg="Reported user as a spammer.")

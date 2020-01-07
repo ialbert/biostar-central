@@ -568,6 +568,7 @@ function autocomplete_users(users_list) {
 
 
 function report_spammer(user_id, elem){
+
     $.ajax('/ajax/report/spammer/' + user_id +"/",
          {
             type: 'GET',
@@ -579,10 +580,13 @@ function report_spammer(user_id, elem){
                     popup_message(elem, data.msg, data.status);
 
                 } else {
-                    //var contain = "<div class='ui message'>{0}, most recent: {1}</div>".f(data.nposts, data.most_recent_url);
-                    $('.spam-remove-'+ user_id ).transition('hide');
+                    popup_message(elem.parent().parent(), data.msg, data.status);
+                    //$('.spam-remove-'+ user_id ).transition('hide');
+                    setTimeout(function (){
+                        $('.spam-remove-'+ user_id ).hide()
+                    }, 1000);//('hide');
+                    //container.html(data.html)
 
-                    container.html(data.html)
                 }
 
             },
@@ -599,6 +603,7 @@ function report_spammer(user_id, elem){
 $(document).ready(function () {
 
     $('.spam.item').click(function (event) {
+
         var user_id = $(this).data('user');
         report_spammer(user_id, $(this));
     });

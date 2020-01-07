@@ -380,10 +380,6 @@ a:hover {
     padding-bottom: 17px;
 }
 
-.floated.thread-users {
-
-    height: 0;
-}
 
 .thread-users {
     opacity: .75;
