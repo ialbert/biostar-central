@@ -566,8 +566,42 @@ function autocomplete_users(users_list) {
 
 }
 
+
+function report_spammer(user_id, elem){
+    $.ajax('/ajax/report/spammer/' + user_id +"/",
+         {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {},
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(elem, data.msg, data.status);
+
+                } else {
+                    //var contain = "<div class='ui message'>{0}, most recent: {1}</div>".f(data.nposts, data.most_recent_url);
+                    $('.spam-remove-'+ user_id ).transition('hide');
+
+                    container.html(data.html)
+                }
+
+            },
+            error: function (xhr, status, text) {
+                error_message(container, xhr, status, text)
+            }
+
+        });
+
+
+
+}
+
 $(document).ready(function () {
 
+    $('.spam.item').click(function (event) {
+        var user_id = $(this).data('user');
+        report_spammer(user_id, $(this));
+    });
 
     $('#chat').click(function () {
         var user_uid = $(this).data('value');
@@ -591,7 +625,7 @@ $(document).ready(function () {
 
     $('.post.comment').mousedown(function () {
         $(this).css('cursor', 'grabbing')
-    })
+    });
 
     $('#similar-feed').each(function () {
         var elem = $(this);

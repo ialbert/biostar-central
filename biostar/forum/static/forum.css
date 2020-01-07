@@ -232,7 +232,7 @@ a:hover {
 
 .post {
 / / border-bottom: 1 px solid #d3d3d3;
-    overflow: auto;
+    //overflow: auto;
 }
 
 .post > .title {
@@ -358,6 +358,15 @@ a:hover {
     cursor: pointer;
 }
 
+.spam.visible.transition{
+    margin-top: 5px;
+}
+
+.post.item.hidden.transition{
+    display: none;
+}
+
+
 .post > .body > .content {
     width: 100%;
     overflow: auto;
@@ -371,10 +380,14 @@ a:hover {
     padding-bottom: 17px;
 }
 
+.floated.thread-users {
+
+    height: 0;
+}
+
 .thread-users {
     opacity: .75;
 }
-
 .post.Deleted {
     background-color: #f7e4de;
     opacity: 0.6;

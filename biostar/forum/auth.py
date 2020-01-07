@@ -304,14 +304,18 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
         return url
 
-    if action == LOCK:
-        Post.objects.filter(uid=post.uid).update(status=Post.LOCKED)
-        messages.success(request, f"Locked post: {post.title}")
-        return url
+    if action == REPORT_SPAM:
 
-    if action == CLOSE:
-        Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-        messages.success(request, f"Closed post: {post.title}")
+        # Ban new users that post spam.
+        to_ban = post.author.profile.score <= 1
+        if to_ban:
+            post.author.profile.state = Profile.BANNED
+            post.author.profile.role = Profile.SPAMMER
+            post.author.save()
+            return url
+
+        # Label this post as spam
+        Post.objects.filter(uid=post.uid).update(spam=Post.SPAM)
         return url
 
     if pid:

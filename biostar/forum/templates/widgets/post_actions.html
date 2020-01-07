@@ -17,9 +17,7 @@
         &bull; <a class="inplace-click pointer" data-value="{{ post.uid }}">edit</a>
     {% endif %}
 
-    {% if post.root.is_locked and user.is_superuser %}
-        &bull; <a class="moderate-post" href="#" data-value="{{ post.uid }}">moderate</a>
-    {% elif post.can_moderate and not post.root.is_locked %}
+    {% if post.can_moderate %}
         &bull; <a class="moderate-post" href="#" data-value="{{ post.uid }}">moderate</a>
     {% endif %}
 

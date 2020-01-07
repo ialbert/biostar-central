@@ -166,7 +166,8 @@ def now():
 @register.simple_tag
 def gravatar(user, size=80):
 
-    return  auth.gravatar(user=user, size=size)
+    return auth.gravatar(user=user, size=size)
+
 
 @register.simple_tag()
 def user_score(user):
@@ -174,8 +175,8 @@ def user_score(user):
     return score
 
 
-@register.inclusion_tag('widgets/user_icon.html')
-def user_icon(user=None, user_uid=None):
+@register.inclusion_tag('widgets/user_icon.html', takes_context=True)
+def user_icon(context, user=None, user_uid=None):
     try:
         user = user or User.objects.filter(profile__uid=user_uid).first()
         score = user_score(user)
@@ -183,28 +184,34 @@ def user_icon(user=None, user_uid=None):
         logger.info(exc)
         user = score = None
 
-    context = dict(user=user, score=score)
+    context.update(dict(user=user, score=score))
     return context
 
 
-@register.inclusion_tag('widgets/post_user_line.html')
-def post_user_line(post, avatar=False, user_info=True):
-    return dict(post=post, avatar=avatar, user_info=user_info)
+@register.inclusion_tag('widgets/post_user_line.html', takes_context=True)
+def post_user_line(context, post, avatar=False, user_info=True):
+    context.update(dict(post=post, avatar=avatar, user_info=user_info))
+    return context
 
-@register.inclusion_tag('widgets/post_user_line.html')
-def postuid_user_line(uid, avatar=True, user_info=True):
+
+@register.inclusion_tag('widgets/post_user_line.html', takes_context=True)
+def postuid_user_line(context, uid, avatar=True, user_info=True):
     post = Post.objects.filter(uid=uid).first()
-    return dict(post=post, avatar=avatar, user_info=user_info)
+
+    context.update(dict(post=post, avatar=avatar, user_info=user_info))
+    return context
 
 
-@register.inclusion_tag('widgets/user_card.html')
-def user_card(user):
-    return dict(user=user)
+@register.inclusion_tag('widgets/user_card.html', takes_context=True)
+def user_card(context, user):
+    context.update(dict(user=user))
+    return context
 
 
-@register.inclusion_tag('widgets/post_user_box.html')
-def post_user_box(user, post):
-    return dict(user=user, post=post)
+@register.inclusion_tag('widgets/post_user_box.html', takes_context=True)
+def post_user_box(context, user, post):
+    context.update(dict(user=user, post=post))
+    return context
 
 
 @register.inclusion_tag('widgets/post_actions.html', takes_context=True)
@@ -593,7 +600,7 @@ def relative_url(value, field_name, urlencode=None):
 def get_thread_users(post, limit=2):
     users = post.thread_users.exclude(profile__state__in=[Profile.BANNED, Profile.SUSPENDED])
 
-    displayed_users = {post.author, post.lastedit_user}
+    displayed_users = {post.author, post.lastedit_user or post.author}
 
     displayed_users = [u for u in displayed_users
                        if u.profile.state not in (Profile.BANNED, Profile.SUSPENDED)]

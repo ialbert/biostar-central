@@ -4,8 +4,17 @@
 {% if user %}
     {% if user.profile.is_moderator %}
         <i class="ui muted bolt icon" style="margin: 0!important;"></i>
-    {%  elif score > 1000 %}
-         &diams;
+    {% elif score > 1000 %}
+        &diams;
+    {% elif score <= 1 and request.user.is_authenticated and request.user.profile.is_moderator %}
+
+        <div class="ui spam dropdown">
+            <i class="bomb icon" style="color: #8f2c47"></i>
+            <div class="spam menu">
+                <div class="spam item" data-user="{{ user.id }}">Report Spammer</div>
+            </div>
+        </div>
+
     {% else %}
         &bull;
     {% endif %}

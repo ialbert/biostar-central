@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from taggit.models import Tag
 from django.db.models import F, Q
-from biostar.accounts.models import Profile, Message
+from biostar.accounts.models import Profile, Message, User
 from .models import Post, Award, Subscription
 from . import tasks, auth, util
 
@@ -25,29 +25,32 @@ def send_award_message(sender, instance, created, **kwargs):
     return
 
 
-@receiver(post_save, sender=Profile)
+@receiver(post_save, sender=User)
 def ban_user(sender, instance, created, **kwargs):
     """
     Delete all posts and awards belonging to a banned user.
     """
 
-    if instance.state == Profile.BANNED:
+    if instance.profile.state == Profile.BANNED:
 
         # Delete all posts by this users
         #print(Post.objects.filter(author=instance.user).thread_users)
-        Post.objects.filter(author=instance.user).delete()
+        Post.objects.filter(author=instance).delete()
 
-        #Post.objects.filter(author=instance.user)
+        # Remove all 'lastedit user' flags
+        posts = Post.objects.filter(lastedit_user=instance)
+        for post in posts:
+            Post.objects.filter(id=post.id).update(lastedit_user=post.author)
 
         # Delete all awards by the user.
-        Award.objects.filter(user=instance.user).delete()
+        Award.objects.filter(user=instance).delete()
 
-        Subscription.objects.filter(user=instance.user).delete()
+        Subscription.objects.filter(user=instance).delete()
         # Take out any personal information user added.
         #Profile.objects.filter(uid=instance.uid).update(text='')
 
         # Delete all messages
-        Message.objects.filter(Q(sender=instance.user) | Q(recipient=instance.user)).delete()
+        Message.objects.filter(Q(sender=instance) | Q(recipient=instance)).delete()
 
 
 @receiver(post_save, sender=Post)

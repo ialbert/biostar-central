@@ -172,6 +172,10 @@ class Profile(models.Model):
     def is_banned(self):
         return self.state == self.BANNED
 
+    @property
+    def is_spammer(self):
+        return self.role == self.SPAMMER
+
 
 # Connects user to message bodies
 class MessageBody(models.Model):

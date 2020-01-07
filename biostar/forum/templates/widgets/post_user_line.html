@@ -19,11 +19,12 @@
 
      &bull;
 </span>
+    <span class="spam-remove-{{ post.lastedit_user.id }}">
     updated
 
     {{ post.lastedit_date|time_ago }}
 
-    <a class="trigger-highlight"  href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+    <a   href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
 
         {% if avatar %}
             <div class="ui avatar image">
@@ -35,13 +36,14 @@
 
     {% user_icon user=post.lastedit_user %}
 
+</span>
 
 {% elif post %}
 
-
+<span class="spam-remove-{{ post.lastedit_user.id }}">
     {{ post.lastedit_date|time_ago }}
 
-    <a  href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+    <a class="spam-remove-{{ post.lastedit_user.id }}" href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
         {% if avatar %}
             <div class="ui avatar image">
                 <img class="ui tiny centered image thread-users" src="{% gravatar user=post.lastedit_user size=80 %}">
@@ -51,7 +53,7 @@
     </a>
 
     {% user_icon user=post.lastedit_user %}
-
+</span>
 {% endif %}
 
 
