@@ -331,7 +331,7 @@ a:hover {
 
 
 .active-search{
-    box-shadow: 8px 8px 8px #888888;
+    box-shadow: 4px 4px 4px #888888;
     display: inline;
     width: 50%;
 }

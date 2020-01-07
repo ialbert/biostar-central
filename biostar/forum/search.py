@@ -14,6 +14,8 @@ from django.utils.text import smart_split
 from django.db.models import Q
 from whoosh import writing
 from whoosh.analysis import StemmingAnalyzer
+from django_elasticsearch_dsl.search import Search
+#from django_elasticsearch_dsl
 
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.sorting import FieldFacet, ScoreFacet
@@ -25,8 +27,8 @@ from whoosh.analysis import STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
-from .models import Post
-
+from biostar.forum.models import Post
+from biostar.forum.documents import PostDocument
 logger = logging.getLogger('biostar')
 
 # Stop words ignored where searching.
@@ -313,6 +315,7 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(query)
     if page:
         # Return a pagenated version of the results.
+
         results = searcher.search_page(parser, pagenum=page, pagelen=per_page, sortedby=["lastedit_date"],
                                        reverse=True,
                                        terms=True, **kwargs)
@@ -328,10 +331,26 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
         # Show more context before and after
         results.fragmenter.surround = 100
 
-    # Sort results by last edit date.
-    #results = sorted(results, key=lambda x: x['lastedit_date'])
-
     logger.info("Preformed index search")
+
+    return results
+
+
+def preform_elastic_search(query='', fields=None, page=None, per_page=None):
+    fields = fields or ['tag_val', 'title', 'content', 'uid', ]
+
+    # "status", "type", "title", "rank", "indexed", "is_toplevel", "answer_count", "accept_count",
+    # "reply_count", "comment_count", "vote_count", "thread_votecount", "view_count",
+    # "book_count", "subs_count", "creation_date", "lastedit_date", "sticky",
+    # "content", "html", "tag_val", "uid", "spam"
+
+    elastic_search = PostDocument.search().query("multi_match", query=query,
+                                                 fields=fields).sort('-lastedit_date')
+
+    # CarDocument.search().filter("term", color="red")
+    #elastic_search =
+    elastic_search = elastic_search[0:1000]
+    results = elastic_search.execute()
 
     return results
 

@@ -142,6 +142,20 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     return query
 
 
+def pagenate_elastic(results, current_page=1, per_page=50, ):
+
+    if current_page <= 1:
+        start = 1
+    else:
+        start = (current_page - 1) * per_page
+
+    end = current_page * per_page
+
+    slice = results[start:end]
+
+    return slice
+
+
 def post_search(request):
 
     query = request.GET.get('query', '')
@@ -152,12 +166,22 @@ def post_search(request):
         return redirect(reverse('post_list'))
 
     # Preform search on indexed posts.
-    results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+    if settings.USE_ELASTIC_SEARCH:
+        results = search.preform_elastic_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+        total = results.hits.total.value
+        results = pagenate_elastic(per_page=settings.SEARCH_RESULTS_PER_PAGE, results=results, current_page=page)
+        template_name = "widgets/post_results_elastic.html"
+
+    else:
+        results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+        total = results.total
+        template_name = "widgets/post_results.html"
 
     question_flag = Post.QUESTION
-    context = dict(results=results, query=query, question_flag=question_flag, stop_words=','.join(search.STOP))
+    context = dict(results=results, query=query, total=total, template_name=template_name,
+                   question_flag=question_flag, stop_words=','.join(search.STOP))
 
-    return render(request, template_name="widgets/post_results.html", context=context)
+    return render(request, template_name=template_name, context=context)
 
 
 @ensure_csrf_cookie
