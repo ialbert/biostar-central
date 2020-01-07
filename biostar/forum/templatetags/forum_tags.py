@@ -135,6 +135,30 @@ def pages_search(context, results):
     return context
 
 
+@register.simple_tag
+def post_type_display(post_type):
+    mapper = dict(Post.TYPE_CHOICES)
+    return mapper.get(post_type)
+
+
+@register.inclusion_tag('widgets/pages_elastic_search.html', takes_context=True)
+def pages_elastic_search(context, results, total):
+
+    request = context['request']
+    query = request.GET.get('query', '')
+    page = int(request.GET.get('page', 1))
+    last_page = int(total / settings.SEARCH_RESULTS_PER_PAGE)
+    last_page = last_page or 1
+
+    previous_page = page - 1 if page > 1 else 1
+    next_page = page + 1 if page != last_page else last_page
+
+    context = dict(results=results, previous_page=previous_page, total=total, query=query,
+                   next_page=next_page, page=page, last_page=last_page)
+
+    return context
+
+
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
 

@@ -10,38 +10,33 @@
         {% search_bar extra_css='active-search' redir='1' %}
     {% endblock %}
         <div class="ui page-bar segment">
-            {% pages_search results %}
+            {% pages_elastic_search results total=total %}
     </div>
-
     <div class="ui divided items" id="search-results" data-query="{{ query }}" data-stop="{{ stop_words }}">
         {% for result in results %}
             {# TODO: this will be removed once these fields are indexed. #}
-            {% get_vote_count result.uid as vote_count %}
-            {% get_reply_count result.uid as reply_count %}
-            {% get_view_count result.uid as view_count %}
-
             <div class="post item  top-padding">
 
                 <div class="statbox">
                     <div class="ui left stat label mini menu-tablet_small">
                         <div class="number-stat">
 
-                            {{ vote_count|bignum }}
+                            {{ result.vote_count|bignum }}
                         </div>
-                        <div class="detail-stat">Vote{{ vote_count|pluralize }}</div>
+                        <div class="detail-stat">Vote{{ result.vote_count|pluralize }}</div>
                     </div>
                     <div class="ui label stat mini {% boxclass uid=result.uid %} menu-tablet_small bookmark">
                         <div class="number-stat">
-                            {{ reply_count|bignum }}
+                            {{ result.reply_count|bignum }}
                         </div>
-                        <div class="detail-stat">Repl{{ reply_count|pluralize:"y,ies" }}</div>
+                        <div class="detail-stat">Repl{{ result.reply_count|pluralize:"y,ies" }}</div>
                     </div>
 
                     <div class="ui label basic transparent stat mini  menu-tablet_small">
                         <div class="number-stat">
-                            {{ view_count|bignum }}
+                            {{ result.view_count|bignum }}
                         </div>
-                        <div class="detail-stat">View{{ view_count|pluralize }}</div>
+                        <div class="detail-stat">View{{ result.view_count|pluralize }}</div>
                     </div>
 
                 </div>
@@ -52,7 +47,7 @@
                     <div class="post-title header">
 
                         {% if result.type != question_flag %}
-                            <span class="ui title header">{{ result.type_display }}:</span>
+                            <span class="ui title header">{% post_type_display result.type %}:</span>
                         {% endif %}
                         <a href="
 
@@ -62,7 +57,7 @@
                     </div>
                     <div class="small-stats muted">
 
-                        {{ vote_count|bignum }}
+                        {{ result.vote_count|bignum }}
 
                         Vote{{ vote_count|pluralize }}
                         |
@@ -94,8 +89,7 @@
             </div>
         {% endfor %}
     </div>
-        <div class="ui page-bar segment">
-            {% pages_search results %}
+      <div class="ui page-bar segment">
+            {% pages_elastic_search results total=total %}
     </div>
-
 {% endblock %}

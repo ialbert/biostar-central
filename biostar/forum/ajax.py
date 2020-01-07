@@ -596,9 +596,16 @@ def similar_posts(request, uid):
     if not post:
         ajax_error(msg='Post does not exist.')
 
-    results = search.more_like_this(uid=post.uid)
+    # if settings.USE_ELASTIC_SEARCH:
+    #     results = search.preform_elastic_search(post=post)
+    #     template_name = "widgets/similar_posts_elastic.html"
+    #     print(results)
+    #
+    # else:
+    results = search.whoosh_more_like_this(uid=post.uid)
+    template_name = 'widgets/similar_posts.html'
 
-    tmpl = loader.get_template('widgets/similar_posts.html')
+    tmpl = loader.get_template(template_name)
     context = dict(results=results)
     results_html = tmpl.render(context)
 

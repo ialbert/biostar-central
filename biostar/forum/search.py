@@ -14,19 +14,21 @@ from django.utils.text import smart_split
 from django.db.models import Q
 from whoosh import writing
 from whoosh.analysis import StemmingAnalyzer
-
+from django_elasticsearch_dsl.search import Search
+from elasticsearch_dsl.query import MoreLikeThis
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.sorting import FieldFacet, ScoreFacet
 from whoosh.writing import AsyncWriter
 from whoosh.searching import Results
+from django_elasticsearch_dsl_drf.helpers import more_like_this
 
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.analysis import STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
-from .models import Post
-
+from biostar.forum.models import Post
+from biostar.forum.documents import PostDocument
 logger = logging.getLogger('biostar')
 
 # Stop words ignored where searching.
@@ -313,6 +315,7 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(query)
     if page:
         # Return a pagenated version of the results.
+
         results = searcher.search_page(parser, pagenum=page, pagelen=per_page, sortedby=["lastedit_date"],
                                        reverse=True,
                                        terms=True, **kwargs)
@@ -328,12 +331,43 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
         # Show more context before and after
         results.fragmenter.surround = 100
 
-    # Sort results by last edit date.
-    #results = sorted(results, key=lambda x: x['lastedit_date'])
-
     logger.info("Preformed index search")
 
     return results
+
+# TODO: being refactored out
+def pagenate_elastic(results, current_page=1, per_page=50):
+
+    if current_page <= 1:
+        start = 1
+    else:
+        start = (current_page - 1) * per_page
+
+    end = current_page * per_page
+
+    slice = results[start:end]
+
+    return slice
+
+
+def preform_elastic_search(query='', fields=None, page=None, post=None, show_total=False):
+    fields = fields or ['tag_val', 'title', 'content', 'uid']
+
+    # Preform a more-like-this query on this post.
+    if post:
+        elastic_search = more_like_this(post, fields=['content'],
+                                        min_doc_freq=0, min_term_freq=0)
+    else:
+        elastic_search = PostDocument.search().query("multi_match", query=query,
+                                                     fields=fields).sort('-lastedit_date')
+
+    elastic_search = elastic_search[0:1000]
+    results = elastic_search.execute()
+    total = results.hits.total.value
+    if page:
+        results = pagenate_elastic(per_page=settings.SEARCH_RESULTS_PER_PAGE, results=results, current_page=page)
+
+    return results, total if show_total else results
 
 
 def preform_db_search(query='', fields=None, filter_for=Q()):
@@ -356,19 +390,11 @@ def preform_db_search(query='', fields=None, filter_for=Q()):
     return results
 
 
-def more_like_this(uid, db_search=False):
+def whoosh_more_like_this(uid, db_search=False):
     """
     Return posts similar to the uid given.
     """
 
-    # if db_search:
-    #     # Get the post of interest
-    #     post = Post.objects.filter(uid=uid).first()
-    #     # Search for posts with similar content to current one.
-    #     content = post.content if post else ''
-    #     filter_for = Q(is_toplevel=True)
-    #     results = preform_db_search(query=content, fields=['content'], filter_for=filter_for)
-    # else:
     results = preform_whoosh_search(query=uid, fields=['uid'])
     if len(results):
         results = results[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
@@ -382,6 +408,14 @@ def more_like_this(uid, db_search=False):
         close(results)
 
     return final_results
+
+
+def elastic_more_like_this(post, fields=[]):
+
+    fields = fields or ['tag_val', 'title', 'content']
+    similar_posts = more_like_this(post, fields=fields)
+
+    return similar_posts
 
 
 def map_db_fields(fields):
