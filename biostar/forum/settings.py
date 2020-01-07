@@ -85,8 +85,6 @@ SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
     'pagedown',
-    'django_elasticsearch_dsl',
-    'django_elasticsearch_dsl_drf'
 
 ]
 
@@ -101,13 +99,7 @@ REMAP_TYPE_DISPLAY = False
 # Post types displayed when creating, empty list displays all types.
 ALLOWED_POST_TYPES = []
 
-ELASTICSEARCH_DSL = {
-    'default': {
-        'hosts': 'localhost:9200'
-    },
-}
-
-USE_ELASTIC_SEARCH = True
+USE_ELASTIC_SEARCH = False
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:

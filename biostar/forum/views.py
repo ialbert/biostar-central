@@ -152,14 +152,14 @@ def post_search(request):
         return redirect(reverse('post_list'))
 
     # Preform search on indexed posts.
-    if settings.USE_ELASTIC_SEARCH:
-        results, total = search.preform_elastic_search(query=query, page=page, show_total=True)
-        template_name = "widgets/post_results_elastic.html"
-
-    else:
-        results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
-        total = results.total
-        template_name = "widgets/post_results.html"
+    # if settings.USE_ELASTIC_SEARCH:
+    #     results, total = search.preform_elastic_search(query=query, page=page, show_total=True)
+    #     template_name = "widgets/post_results_elastic.html"
+    #
+    # else:
+    results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+    total = results.total
+    template_name = "widgets/post_results.html"
 
     question_flag = Post.QUESTION
     context = dict(results=results, query=query, total=total, template_name=template_name,
