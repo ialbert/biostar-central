@@ -329,7 +329,9 @@ a:hover {
     box-shadow: 1px 1px 1px #888888;
 }
 
-
+.active-search > #search{
+    background-color: #b2ffc6;
+}
 .active-search{
     box-shadow: 4px 4px 4px #888888;
     display: inline;

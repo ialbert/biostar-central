@@ -47,7 +47,7 @@
                     <div class="post-title header">
 
                         {% if result.type != question_flag %}
-                            <span class="ui title header">{{ result.type }}:</span>
+                            <span class="ui title header">{% post_type_display result.type %}:</span>
                         {% endif %}
                         <a href="
 

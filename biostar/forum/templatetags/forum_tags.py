@@ -135,6 +135,12 @@ def pages_search(context, results):
     return context
 
 
+@register.simple_tag
+def post_type_display(post_type):
+    mapper = dict(Post.TYPE_CHOICES)
+    return mapper.get(post_type)
+
+
 @register.inclusion_tag('widgets/pages_elastic_search.html', takes_context=True)
 def pages_elastic_search(context, results, total):
 
@@ -142,6 +148,7 @@ def pages_elastic_search(context, results, total):
     query = request.GET.get('query', '')
     page = int(request.GET.get('page', 1))
     last_page = int(total / settings.SEARCH_RESULTS_PER_PAGE)
+    last_page = last_page or 1
 
     previous_page = page - 1 if page > 1 else 1
     next_page = page + 1 if page != last_page else last_page
