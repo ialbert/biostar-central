@@ -107,7 +107,7 @@ ELASTICSEARCH_DSL = {
     },
 }
 
-USE_ELASTIC_SEARCH = True
+USE_ELASTIC_SEARCH = False
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:

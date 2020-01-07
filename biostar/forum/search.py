@@ -20,7 +20,6 @@ from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.sorting import FieldFacet, ScoreFacet
 from whoosh.writing import AsyncWriter
 from whoosh.searching import Results
-from django_elasticsearch_dsl_drf.helpers import more_like_this
 
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.analysis import STOP_WORDS
@@ -28,7 +27,7 @@ from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
 from biostar.forum.models import Post
-from biostar.forum.documents import PostDocument
+#from biostar.forum.documents import PostDocument
 logger = logging.getLogger('biostar')
 
 # Stop words ignored where searching.
@@ -350,24 +349,24 @@ def pagenate_elastic(results, current_page=1, per_page=50):
     return slice
 
 
-def preform_elastic_search(query='', fields=None, page=None, post=None, show_total=False):
-    fields = fields or ['tag_val', 'title', 'content', 'uid']
-
-    # Preform a more-like-this query on this post.
-    if post:
-        elastic_search = more_like_this(post, fields=['content'],
-                                        min_doc_freq=0, min_term_freq=0)
-    else:
-        elastic_search = PostDocument.search().query("multi_match", query=query,
-                                                     fields=fields).sort('-lastedit_date')
-
-    elastic_search = elastic_search[0:1000]
-    results = elastic_search.execute()
-    total = results.hits.total.value
-    if page:
-        results = pagenate_elastic(per_page=settings.SEARCH_RESULTS_PER_PAGE, results=results, current_page=page)
-
-    return results, total if show_total else results
+# def preform_elastic_search(query='', fields=None, page=None, post=None, show_total=False):
+#     fields = fields or ['tag_val', 'title', 'content', 'uid']
+#
+#     # Preform a more-like-this query on this post.
+#     if post:
+#         elastic_search = more_like_this(post, fields=['content'],
+#                                         min_doc_freq=0, min_term_freq=0)
+#     else:
+#         elastic_search = PostDocument.search().query("multi_match", query=query,
+#                                                      fields=fields).sort('-lastedit_date')
+#
+#     elastic_search = elastic_search[0:1000]
+#     results = elastic_search.execute()
+#     total = results.hits.total.value
+#     if page:
+#         results = pagenate_elastic(per_page=settings.SEARCH_RESULTS_PER_PAGE, results=results, current_page=page)
+#
+#     return results, total if show_total else results
 
 
 def preform_db_search(query='', fields=None, filter_for=Q()):
@@ -410,12 +409,12 @@ def whoosh_more_like_this(uid, db_search=False):
     return final_results
 
 
-def elastic_more_like_this(post, fields=[]):
-
-    fields = fields or ['tag_val', 'title', 'content']
-    similar_posts = more_like_this(post, fields=fields)
-
-    return similar_posts
+# def elastic_more_like_this(post, fields=[]):
+#
+#     fields = fields or ['tag_val', 'title', 'content']
+#     similar_posts = more_like_this(post, fields=fields)
+#
+#     return similar_posts
 
 
 def map_db_fields(fields):
