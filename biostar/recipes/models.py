@@ -222,6 +222,12 @@ class Project(models.Model):
 
         return '/'
 
+    def get_name(self):
+        if self.deleted:
+            return f'Deleted: {self.name}'
+
+        return self.name
+
 
 class Access(models.Model):
     """
@@ -427,6 +433,13 @@ class Data(models.Model):
         first = lines[0]
         return first
 
+    def get_name(self):
+        if self.deleted:
+            return f'Deleted: {self.name}'
+
+        return self.name
+
+
 class Analysis(models.Model):
     AUTHORIZED, NOT_AUTHORIZED = 1, 2
 
@@ -592,6 +605,13 @@ class Analysis(models.Model):
         return first
 
 
+    def get_name(self):
+        if self.deleted:
+            return f'Deleted: {self.name}'
+
+        return self.name
+
+
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
@@ -730,3 +750,9 @@ class Job(models.Model):
         result = template.render(context)
 
         return result
+
+    def get_name(self):
+        if self.deleted:
+            return f'Deleted: {self.name}'
+
+        return self.name

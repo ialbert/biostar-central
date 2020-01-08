@@ -62,19 +62,56 @@
                 All jobs
             </div>
             <div class="ui divided list">
+                <table class="ui celled selectable striped compact table">
+                    <thead>
+                    <tr>
+
+                        <th>Status</th>
+                        <th>Name</th>
+                        <th>User</th>
+                        <th>Project</th>
+                        <th>Recipe</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
 
                     {% for job in jobs %}
-                        <div class="item">
-                            <div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
-                            <a href="{{ job.url }}">{{ job.name }}</a>
-                        |
-                        <a href="{% url 'user_profile' job.owner.profile.uid %}"> {{ job.owner.profile.name }}</a>
-                        {% if job.start_date %}
-                            |
-                            <b>Start date :</b> {{ job.start_date }}
-                        {% endif %}
-                        </div>
+                        <tr >
+                            <td style="padding: 1px;text-align: center;">
+                                <div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
+                            </td>
+                            <td class="{% if job.deleted %}negative{% endif %}">
+                                <a href="{{ job.url }}">{{ job.get_name }}</a>
+                            </td>
+                           <td>
+                                <a href="{{ job.owner.url }}">{{ job.owner.profile.name }}</a>
+                            </td>
+
+                            <td>
+                                <a href="{{ job.project.url }}">{{ job.project.get_name|truncatechars:40 }}</a>
+                            </td>
+                            <td>
+                                <a href="{{ job.analysis.url }}">{{ job.analysis.get_name|truncatechars:40 }}</a>
+                            </td>
+                            <td>
+                                {% if job.start_date %}{{ job.start_date }}{% else %} Not Started
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if job.end_date %}{{ job.end_date }}{% else %} Not Finished
+                                {% endif %}
+                            </td>
+                        </tr>
                     {% endfor %}
+
+                    </tbody>
+
+                </table>
+
 
             </div>
         </div>
