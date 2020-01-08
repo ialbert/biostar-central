@@ -86,8 +86,17 @@
                     <div class="left floated">
                         {% post_tags post spaced=False %}
                     </div>
+                    {% if post.author.profile.low_rep and request.user.is_authenticated and request.user.profile.is_moderator %}
 
-                    <div class="right floated muted" >
+                        <div class="ui spam dropdown">
+                            <i class="bomb icon"></i>
+                            <div class="spam menu">
+                                <div class="spam item" data-user="{{ user.id }}">Remove Spammer</div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="right floated muted">
 
                         {% post_user_line post %}
                     </div>
