@@ -16,36 +16,27 @@
                 {{ form.action }}
             </div>
         </div>
-        {% if form.offtopic %}
-            <div class="ui segment">
-                <div class="field">
-                    <label>Off topic post.</label>
-                    {{ form.offtopic }}
-                    <div class="ui muted">
-                        Reason why the post is not appropriate for this site.
-                    </div>
-                </div>
-            </div>
-        {% endif %}
         {% if form.dupe %}
             <div class="ui segment">
                 <div class="field">
                     <label>Duplicate link(s)</label>
                     {{ form.dupe }}
                     <div class="ui muted">
-                        One or more link, space or comma separated (required for duplicate closing).
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label>Additional comment</label>
-                    {{ form.comment }}
-                    <div class="ui muted">
-                        Additional comment on why this post is duplicated.
+                        One or more links, new line separated (required for duplicate closing).
                     </div>
                 </div>
             </div>
+             <div class="ui segment">
+                 <div class="field">
+                    <label>Further reasons for moderation</label>
+                    {{ form.comment }}
+                    <div class="ui muted">
+                        Additional comment on why this post is being moderated.
+                    </div>
+                </div>
+             </div>
         {% endif %}
+
         {% if form.pid %}
             <div class="ui segment">
                 <div class="field">

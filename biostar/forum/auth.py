@@ -286,10 +286,10 @@ def handle_spam_post(post):
     url = post.get_absolute_url()
 
     # Ban new users that post spam.
-    if post.author.low_rep:
+    if post.author.profile.low_rep:
         post.author.profile.state = Profile.BANNED
         post.author.profile.role = Profile.SPAMMER
-        post.author.save()
+        post.author.profile.save()
         return url
 
     # Label this post as spam
@@ -330,21 +330,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         messages.success(request, "Moved answer to comment")
         return url
 
-    if offtopic:
-        # Load comment explaining post closure.
-        tmpl = loader.get_template("messages/off_topic.md")
-        context = dict(user=post.author, comment=offtopic)
-        content = tmpl.render(context)
-
-        Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
-        # Load answer explaining post being off topic.
-        post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, author=user)
-        url = post.get_absolute_url()
-        messages.success(request, "Marked the post as off topic.")
-
-        return url
-
-    if dupes:
+    if dupes and len(''.join(dupes)):
         # Load comment explaining post off topic label.
         tmpl = loader.get_template("messages/duplicate_posts.md")
         context = dict(user=post.author, dupes=dupes, comment=comment)
@@ -354,6 +340,20 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         post = Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
         url = post.get_absolute_url()
         messages.success(request, "Closed duplicated post.")
+
+        return url
+
+    if comment:
+        # Load comment explaining post closure.
+        tmpl = loader.get_template("messages/off_topic.md")
+        context = dict(user=post.author, comment=comment)
+        content = tmpl.render(context)
+
+        Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
+        # Load answer explaining post being off topic.
+        post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, author=user)
+        url = post.get_absolute_url()
+        messages.success(request, "Marked the post as off topic.")
 
         return url
 

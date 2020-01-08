@@ -442,7 +442,7 @@ def post_moderate(request, uid):
 
         if form.is_valid():
             action = form.cleaned_data.get('action')
-            dupe = form.cleaned_data.get('dupe', '').split(",")
+            dupe = form.cleaned_data.get('dupe', '').split("\n")
             dupe_comment = form.cleaned_data.get('comment')
             mod_uid = form.cleaned_data.get('pid')
             offtopic = form.cleaned_data.get('offtopic')

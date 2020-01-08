@@ -169,7 +169,7 @@ def mod_choices(post):
         (MOVE_ANSWER, "Move comment to answer."),
         (OPEN_POST, "Open deleted or off topic post"),
         (DELETE, "Delete post."),
-        (REPORT_SPAM, "Report as spam")
+        (REPORT_SPAM, "Report as spam.")
     ]
 
     # Moderation options for top level posts
@@ -204,9 +204,9 @@ class PostModForm(forms.Form):
         choices = mod_choices(post=self.post)
 
         if self.post.is_toplevel:
-            self.fields['dupe'] = forms.CharField(required=False, max_length=200)
-            self.fields['comment'] = forms.CharField(required=False, max_length=200)
-            self.fields['offtopic'] = forms.CharField(required=False, max_length=200)
+            self.fields['dupe'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea)
+            self.fields['comment'] = forms.CharField(required=False, max_length=200, widget=forms.Textarea)
+            #self.fields['offtopic'] = forms.CharField(required=False, max_length=200)
         else:
             self.fields['pid'] = forms.CharField(required=False, max_length=200, label="Parent id")
 
@@ -222,7 +222,7 @@ class PostModForm(forms.Form):
         action = self.cleaned_data.get("action")
         dupes = self.cleaned_data.get("dupe")
         pid = self.cleaned_data.get("pid")
-        offtopic = self.cleaned_data.get("offtopic")
+        offtopic = self.cleaned_data.get("comment")
 
         if (action is None) and not (dupes or pid or offtopic):
             raise forms.ValidationError("Select an action.")
