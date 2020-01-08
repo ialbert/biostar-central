@@ -146,10 +146,13 @@ function check_job() {
             ContentType: 'application/json',
             success: function (data) {
                 // Only replace and activate effects when the state has actually changed.
+
                 if (data.state_changed) {
                     $('.job-container-' + job_uid).html(data.html);
-                    var job_item = $('.job-item-' + job_uid);
+                       var job_item = $('.job-item-' + job_uid);
                     job_item.transition('pulse');
+
+
                 }
             },
             error: function (xhr, status, text) {

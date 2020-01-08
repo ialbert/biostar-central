@@ -68,9 +68,9 @@
 
                         <th>Status</th>
                         <th>Name</th>
-                        <th>User</th>
                         <th>Project</th>
                         <th>Recipe</th>
+                        <th>User</th>
                         <th>Start Date</th>
                         <th>End Date</th>
                     </tr>
@@ -86,9 +86,6 @@
                             <td class="{% if job.deleted %}negative{% endif %}">
                                 <a href="{{ job.url }}">{{ job.get_name }}</a>
                             </td>
-                           <td>
-                                <a href="{{ job.owner.url }}">{{ job.owner.profile.name }}</a>
-                            </td>
 
                             <td>
                                 <a href="{{ job.project.url }}">{{ job.project.get_name|truncatechars:40 }}</a>
@@ -96,6 +93,10 @@
                             <td>
                                 <a href="{{ job.analysis.url }}">{{ job.analysis.get_name|truncatechars:40 }}</a>
                             </td>
+                           <td>
+                                <a href="{{ job.owner.profile.get_absolute_url }}">{{ job.owner.profile.name }}</a>
+                            </td>
+
                             <td>
                                 {% if job.start_date %}{{ job.start_date }}{% else %} Not Started
                                 {% endif %}
