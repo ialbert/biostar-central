@@ -14,7 +14,7 @@ if DEBUG_TOOLBAR:
 
 WSGI_APPLICATION = 'conf.examples.pg.pg_wsgi.application'
 
-DATABASE_NAME = os.getenv("DATABASE_NAME", "biostar.db")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "database.db")
 
 DATABASES = {
 
