@@ -584,7 +584,7 @@ function report_spammer(user_id, elem){
                     //$('.spam-remove-'+ user_id ).transition('hide');
                     setTimeout(function (){
                         $('.spam-remove-'+ user_id ).hide()
-                    }, 1000);//('hide');
+                    }, 700);//('hide');
                     //container.html(data.html)
 
                 }
