@@ -1,4 +1,4 @@
-from conf.examples.pg.forum_settings import *
+from conf.examples.pg.pg_settings import *
 
 import os
 TRANSFER_APP = ['biostar.transfer']
@@ -9,17 +9,19 @@ DEBUG = True
 
 WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
 
-TRANSFER_DATABASE = os.environ.setdefault("OLD_DATABASE", "old_biostar_db")
+# The source database containing data from the old version of Biostar.
+OLD_DATABASE = os.environ.setdefault("OLD_DATABASE", "old_biostar_db")
 
-DATABASE_NAME = os.environ.setdefault("NEW_DATABASE", "new_biostar_db")
+# The new database where the data will be copied into.
+NEW_DATABASE = os.environ.setdefault("NEW_DATABASE", "biostar.db")
 
-print(f'DATABASE_NAME={DATABASE_NAME}, TRANSFER_NAME={TRANSFER_DATABASE}')
+print(f'NEW_DATABASE={OLD_DATABASE}, OLD_DATABASE={OLD_DATABASE}')
 
 DATABASES = {
 
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': DATABASE_NAME,
+        'NAME': NEW_DATABASE,
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
@@ -28,7 +30,7 @@ DATABASES = {
 
     'biostar2': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': TRANSFER_DATABASE,
+        'NAME': OLD_DATABASE,
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
