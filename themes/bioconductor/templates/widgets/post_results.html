@@ -57,7 +57,7 @@
                         <a href="
 
                                 {% url 'post_view' result.uid %}{% if not result.is_toplevel %}#{{ result.uid }}{% endif %}"
-                           class="ui mini blue title header trigger-highlight">{{ result.title|truncatechars:150 }}
+                           class="ui mini blue title header trigger-highlight">{{ result.title}}
                         </a>
                     </div>
                     <div class="small-stats muted">
