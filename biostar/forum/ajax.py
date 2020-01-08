@@ -235,24 +235,21 @@ def add_to_closed(post, user):
 
 
 @ajax_error_wrapper(method="GET", login_required=True)
-def report_spammer(request, user_id):
+def report_spammer(request, post_uid):
     """
     Report this user as a spammer.
     """
 
-    user = User.objects.filter(id=user_id).first()
-    profile = user.profile
-    if not user:
-        return ajax_error(msg='User does not exist.')
-    if request.user == user or user.profile.is_moderator:
+    post = Post.objects.filter(uid=post_uid).first()
+
+    if not post:
+        return ajax_error(msg='Post does not exist.')
+
+    if request.user == post.author or post.author.profile.is_moderator:
         return ajax_error(msg='Invalid action.')
 
-    profile.role = Profile.SPAMMER
-    # Ban low reputation users when they post any spam.
-    if user.profile.low_rep:
-        profile.state = Profile.BANNED
+    auth.handle_spam_post(post=post)
 
-    profile.save()
     return ajax_success(msg="Reported user as a spammer.")
 
 

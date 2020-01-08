@@ -40,6 +40,16 @@ def benchmark(get_response):
     return middleware
 
 
+def update_status(user):
+    # Update a new user into trusted after a threshold score is reached.
+    if (user.profile.state == Profile.NEW) and (user.profile.score > 50):
+            user.profile.state = Profile.TRUSTED
+            user.save()
+            return True
+
+    return user.profile.trusted
+
+
 def user_tasks(get_response):
     """
     Tasks run for authenticated users.
@@ -58,12 +68,8 @@ def user_tasks(get_response):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
             logout(request)
 
-        # Update a new user into trusted after 10 votes.
-        # TODO: change to a separate function and a different policy.
-        if (user.profile.state == Profile.NEW) and (user.profile.score > 10):
-            user.profile.state = Profile.TRUSTED
-            user.save()
-
+        update_status(user=user)
+        
         # Parses the ip of the request.
         ip = get_ip(request)
 

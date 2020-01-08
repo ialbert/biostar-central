@@ -362,6 +362,16 @@ a:hover {
     margin-top: 5px;
 }
 
+.spam-post{
+        background-color: #f8f1a1;
+    //opacity: .0%;
+}
+
+.ui.divided.items > .post.item.spam-post {
+    background-color: #f8f1a1;
+/ / opacity: .0 %;
+}
+
 .post.item.hidden.transition{
     display: none;
 }
@@ -541,6 +551,8 @@ figure {
     background-color: #ffd2cf;
 / / opacity: .0 %;
 }
+
+
 
 .dragging-over {
     pointer-events: none;

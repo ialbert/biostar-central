@@ -11,7 +11,7 @@
         </div>
     {% endif %}
     {% for post in posts %}
-        <div class="post item top-padding spam-remove-{{ post.author.id }}">
+        <div class="post {{post.css }} item top-padding spam-remove-{{ post.uid }}">
 
             <div class="statbox">
                 <div class="ui left stat label mini menu-tablet_small">
@@ -46,7 +46,7 @@
 
                 <div class="post-title header" style=" display: contents !important;">
 
-                    {% if not post.is_open %}
+                    {% if not post.state != post.OPEN %}
                         <span class="ui title header">{{ post.get_status_display }}:</span>
                     {% elif post.type != post.QUESTION %}
                         <span class="ui title header">{{ post.get_type_display }}:</span>
@@ -91,7 +91,7 @@
                         <div class="ui spam dropdown">
                             <i class="bomb icon"></i>
                             <div class="spam menu">
-                                <div class="spam item" data-user="{{ user.id }}">Remove Spammer</div>
+                                <div class="spam item" data-user="{{ post.uid }}">Report as Spam</div>
                             </div>
                         </div>
                     {% endif %}

@@ -50,7 +50,7 @@ urlpatterns = [
     path('ajax/user/image/<str:username>/', ajax.user_image, name='user_image'),
     path('ajax/users/', ajax.ajax_users_search, name='ajax_users_search'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
-    path('ajax/report/spammer/<str:user_id>/', ajax.report_spammer, name='report_spammer'),
+    path('ajax/report/spammer/<str:post_uid>/', ajax.report_spammer, name='report_spammer'),
 
     path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
 

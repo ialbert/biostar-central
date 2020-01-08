@@ -151,7 +151,7 @@ class Post(models.Model):
 
     @property
     def is_open(self):
-        return self.status == Post.OPEN
+        return self.status == Post.OPEN and not self.is_spam
 
     @property
     def is_deleted(self):
@@ -230,7 +230,7 @@ class Post(models.Model):
     def css(self):
         # Used to simplify CSS rendering.
         status = self.get_status_display()
-        return f"{status}".lower()
+        return 'spam-post' if self.is_spam else f"{status}".lower()
 
     @property
     def accepted_class(self):
