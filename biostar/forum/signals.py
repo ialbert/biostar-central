@@ -38,9 +38,9 @@ def ban_user(sender, instance, created, **kwargs):
         Post.objects.filter(author=instance.user).delete()
         #print(Post.objects.filter(author=instance))
         # Remove all 'lastedit user' flags
-        posts = Post.objects.filter(lastedit_user=instance.user)
-        for post in posts:
-            Post.objects.filter(id=post.id).update(lastedit_user=post.author)
+        # posts = Post.objects.filter(lastedit_user=instance.user)
+        # for post in posts:
+        #     Post.objects.filter(id=post.id).update(lastedit_user=post.author)
 
         # Delete all awards by the user.
         Award.objects.filter(user=instance.user).delete()

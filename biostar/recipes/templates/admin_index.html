@@ -68,12 +68,9 @@
 
                         <th>Status</th>
                         <th>Name</th>
-                        <th>Parameters</th>
                         <th>Project</th>
-                        <th>Recipe</th>
                         <th>User</th>
                         <th>Start Date</th>
-                        <th>End Date</th>
                     </tr>
                     </thead>
 
@@ -85,17 +82,11 @@
                                 <div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
                             </td>
                             <td class="{% if job.deleted %}negative{% endif %}">
-                                <a href="{{ job.url }}">{{ job.get_name|truncatechars:40 }}</a>
-                            </td>
-                          <td>
-                                {{ job.summary }}
+                                <a href="{{ job.url }}">{{ job.get_name }}</a>
                             </td>
 
                             <td>
                                 <a href="{{ job.project.url }}">{{ job.project.get_name|truncatechars:40 }}</a>
-                            </td>
-                            <td>
-                                <a href="{{ job.analysis.url }}">{{ job.analysis.get_name|truncatechars:40 }}</a>
                             </td>
                            <td>
                                 <a href="{{ job.owner.profile.get_absolute_url }}">{{ job.owner.profile.name }}</a>
@@ -106,10 +97,6 @@
                                 {% endif %}
                             </td>
 
-                            <td>
-                                {% if job.end_date %}{{ job.end_date }}{% else %} Not Finished
-                                {% endif %}
-                            </td>
                         </tr>
                     {% endfor %}
 
