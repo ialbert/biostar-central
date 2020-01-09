@@ -2,7 +2,7 @@ from biostar.forum.settings import *
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
 
-DEBUG = True
+DEBUG = False
 
 # Show debug toolbar
 DEBUG_TOOLBAR = DEBUG
@@ -17,7 +17,7 @@ if DEBUG is False:
     print("Whitenoise static serve enabled (pip install whitenoise)")
     MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
 
-POSTS_PER_PAGE = 100
+POSTS_PER_PAGE = 50
 
 WSGI_APPLICATION = 'conf.examples.pg.pg_wsgi.application'
 
@@ -69,6 +69,13 @@ TEMPLATES = [
         },
     },
 ]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
 
 try:
     from .postgres_secrets import *

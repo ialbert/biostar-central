@@ -12,6 +12,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from taggit.models import Tag
 from django.shortcuts import render, redirect, reverse
+from django.core.cache import cache
 
 from biostar.accounts.models import Profile
 from . import forms, auth, tasks, util, search
@@ -96,6 +97,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
+
     query = Post.objects.filter(is_toplevel=True)
 
     # Determines how to start the preform_search.
@@ -134,12 +136,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
-
-        #query = Post.objects.all()
-        #query = query.filter(status__in=[Post.OPEN)
-
         query = query.exclude(status=Post.DELETED)
-        pass
 
 
     # if topic == SHOW_SPAM and user.is_authenticated and user.profile.is_moderator:
@@ -181,6 +178,24 @@ def post_search(request):
     return render(request, template_name=template_name, context=context)
 
 
+class CachedPaginator(Paginator):
+   """
+   Paginator that caches the count call.
+   """
+   COUNT_KEY = "COUNT_KEY"
+
+   @property
+   def count(self):
+
+       if self.COUNT_KEY not in cache:
+        value = super(CachedPaginator, self).count
+        logger.info("Setting paginator count cache")
+        cache.set(self.COUNT_KEY, value, 300)
+
+       value = cache.get(self.COUNT_KEY)
+
+       return value
+
 @ensure_csrf_cookie
 def post_list(request, show=None, extra_context=dict()):
     """
@@ -202,7 +217,7 @@ def post_list(request, show=None, extra_context=dict()):
     #posts = posts.exclude(Q(root=None) | Q(parent=None))
 
     # Create the paginator
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    paginator = CachedPaginator(posts, settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
     posts = paginator.get_page(page)
