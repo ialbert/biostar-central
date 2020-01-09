@@ -471,6 +471,7 @@ def search_bar(context, search_url='', tags=False, users=False, ajax_results=Tru
 def list_posts(context, target):
     request = context["request"]
     user = request.user
+
     posts = Post.objects.filter(author=target).exclude(spam=Post.SPAM)
 
     page = request.GET.get('page', 1)
@@ -495,14 +496,14 @@ def default_feed(user):
     recent_votes = Vote.objects.prefetch_related("post").exclude(post__status=Post.DELETED)
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
-    recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED, Profile.SUSPENDED]))
+    recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED, Profile.SUSPENDED])).prefetch_related("user")
     recent_locations = recent_locations.order_by('-last_login')
     recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
 
     recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
     recent_awards = recent_awards.exclude(user__profile__state__in=[Profile.BANNED, Profile.SUSPENDED])
     recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
-
+    #
     recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER]).exclude(status=Post.DELETED)
     recent_replies = recent_replies.select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
@@ -510,6 +511,7 @@ def default_feed(user):
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
                    user=user)
+
     return context
 
 
@@ -598,19 +600,17 @@ def relative_url(value, field_name, urlencode=None):
 
 
 @register.simple_tag
-def get_thread_users(post, limit=2):
-    users = post.thread_users.exclude(profile__state__in=[Profile.BANNED, Profile.SUSPENDED])
+def get_thread_users(users, post, limit=2):
 
     displayed_users = {post.author, post.lastedit_user or post.author}
 
-    displayed_users = [u for u in displayed_users
-                       if u.profile.state not in (Profile.BANNED, Profile.SUSPENDED)]
     for user in users:
         if len(displayed_users) >= limit:
             break
         if user in displayed_users:
             continue
-        displayed_users.append(user)
+
+        displayed_users.add(user)
 
     return displayed_users
 

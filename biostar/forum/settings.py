@@ -9,7 +9,7 @@ DEBUG = True
 SITE_NAME = 'Biostar Forum'
 
 # Show debug toolbar
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = True
 
 # Override compression if needed.
 # COMPRESS_ENABLED = True

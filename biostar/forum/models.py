@@ -76,6 +76,9 @@ class Post(models.Model):
     # This post has been indexed by the search engine.
     indexed = models.BooleanField(default=False)
 
+    # Used for efficiency
+    #is_public_toplevel = models.BooleanField(default=False)
+
     # Show that post is top level
     is_toplevel = models.BooleanField(default=False, db_index=True)
 

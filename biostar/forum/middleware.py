@@ -88,8 +88,7 @@ def user_tasks(get_response):
             message_count = Message.objects.filter(recipient=user, unread=True).count()
 
             # The number of new votes since last visit.
-            vote_count = Vote.objects.filter(post__author=user, date__gt=user.profile.last_login).exclude(
-                author=user).count()
+            vote_count = Vote.objects.filter(post__author=user, date__gt=user.profile.last_login).exclude(author=user).count()
 
             # Store the counts into the session.
             counts = dict(message_count=message_count, vote_count=vote_count)
@@ -97,7 +96,7 @@ def user_tasks(get_response):
             # Set the session.
             request.session[const.COUNT_DATA_KEY] = counts
 
-            tasks.create_user_awards.spool(user_id=user.id)
+            #tasks.create_user_awards.spool(user_id=user.id)
             # Can process response here after its been handled by the view
 
         #tasks.create_user_awards.spool(user_id=user.id)
