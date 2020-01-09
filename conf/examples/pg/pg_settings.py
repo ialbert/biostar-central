@@ -12,6 +12,10 @@ if DEBUG_TOOLBAR:
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
+for x in INSTALLED_APPS + MIDDLEWARE:
+    print (x)
+
+
 WSGI_APPLICATION = 'conf.examples.pg.pg_wsgi.application'
 
 DATABASE_NAME = os.getenv("DATABASE_NAME", "database.db")

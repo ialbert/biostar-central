@@ -15,6 +15,9 @@ logger = logging.getLogger("biostar")
 
 
 def get_ip(request):
+    """
+    Attempts to extract the IP number from the HTTP request headers.
+    """
     ip1 = request.META.get('REMOTE_ADDR', '')
     ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
     ip = ip1 or ip2 or '0.0.0.0'
@@ -23,17 +26,27 @@ def get_ip(request):
 
 def benchmark(get_response):
     """
-    Benchmarking each request.
+    Prints the time needed to perform a request.
     """
 
     def middleware(request):
+
+        # Start timer.
         start = time.time()
 
+        # Performs the request
         response = get_response(request)
 
-        delta = (time.time() - start)*1000
+        # Elapsed time.
+        delta = int((time.time() - start) * 1000)
 
-        logger.info(f'time={delta:.0f}ms path={request.path}')
+        # Generate timing message.
+        msg = f'time={delta}ms path={request.path}'
+
+        if delta > 1:
+            logger.warning(f"******* SLOW {msg} ********")
+        else:
+            logger.info(f'{msg}')
 
         return response
 
