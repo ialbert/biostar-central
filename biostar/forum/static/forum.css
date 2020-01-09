@@ -232,7 +232,7 @@ a:hover {
 
 .post {
 / / border-bottom: 1 px solid #d3d3d3;
-    //overflow: auto;
+/ / overflow: auto;
 }
 
 .post > .title {
@@ -329,10 +329,17 @@ a:hover {
     box-shadow: 1px 1px 1px #888888;
 }
 
-.active-search > #search{
-    background-color:#fffbdb;
+#menu-topics {
+    width: 100%;
+    border-bottom: none;
 }
-.active-search{
+
+
+.active-search > #search {
+    background-color: #fffbdb;
+}
+
+.active-search {
     box-shadow: 4px 4px 4px #888888;
     display: inline;
     width: 50%;
@@ -358,16 +365,16 @@ a:hover {
     cursor: pointer;
 }
 
-.spam.visible.transition{
+.spam.visible.transition {
     margin-top: 5px;
 }
 
-.spam-post{
-        background-color: #f8f1a1;
-    //opacity: .0%;
+.spam-post {
+    background-color: #f8f1a1;
+/ / opacity: .0 %;
 }
 
-#id_is_spammer{
+#id_is_spammer {
     vertical-align: baseline;
 }
 
@@ -376,7 +383,7 @@ a:hover {
 / / opacity: .0 %;
 }
 
-.post.item.hidden.transition{
+.post.item.hidden.transition {
     display: none;
 }
 
@@ -398,6 +405,7 @@ a:hover {
 .thread-users {
     opacity: .75;
 }
+
 .post.Deleted {
     background-color: #f7e4de;
     opacity: 0.6;
@@ -557,7 +565,6 @@ figure {
 }
 
 
-
 .dragging-over {
     pointer-events: none;
 }
@@ -578,7 +585,7 @@ figure {
     box-shadow: none;
 }
 
-.user_box.muted{
+.user_box.muted {
     font-size: small;
 }
 
