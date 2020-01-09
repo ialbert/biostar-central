@@ -8,9 +8,6 @@ DEBUG = True
 
 SITE_NAME = 'Biostar Forum'
 
-# Show debug toolbar
-DEBUG_TOOLBAR = True
-
 # Override compression if needed.
 # COMPRESS_ENABLED = True
 
@@ -26,7 +23,6 @@ RECAPTCHA_TRUSTED_USER_SCORE = 15
 # Each line is a list of comma separated tags.
 TAGS_OPTIONS_FILE = ''
 
-
 # Add list of contributors to the post list.
 ADD_THREAD_USERS = True
 
@@ -40,6 +36,7 @@ TIME_REQUESTS = True
 
 # Indexing interval in seconds.
 INDEX_SECS_INTERVAL = 10
+
 # Number of results to display in total.
 SEARCH_LIMIT = 20
 
@@ -86,11 +83,6 @@ FORUM_APPS = [
     'pagedown',
 
 ]
-
-# Enable debug toolbar specific functions
-if DEBUG_TOOLBAR:
-    FORUM_APPS.append('debug_toolbar')
-    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
 
 # Additional middleware.
