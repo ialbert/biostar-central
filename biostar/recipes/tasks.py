@@ -45,6 +45,7 @@ try:
             for job in jobs:
                 logger.info(f"Spooling job id={job.id}")
                 execute_job.spool(job_id=job.id)
+
             jobs.update(state=Job.SPOOLED)
 
     #@timer(10)

@@ -10,7 +10,7 @@ COUNT_DATA_KEY = "COUNT_DATA"
 # Redirection field name.
 REDIRECT_FIELD_NAME = 'next'
 
-MYVOTES, MYPOSTS, MYTAGS, OPEN, FOLLOWING = ["myvotes", "myposts", "mytags", "open", "following"]
+MYVOTES, MYPOSTS, MYTAGS, OPEN, FOLLOWING, SHOW_SPAM = ["myvotes", "myposts", "mytags", "open", "following", "spam"]
 
 BOOKMARKS, MESSAGE = ["bookmarks", "message"]
 

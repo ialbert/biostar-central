@@ -21,16 +21,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript" src="{% static 'markdown-it.js' %}"></script>
 
-
-
     {# Load recaptcha #}
     {% recaptcha_init %}
 
     {#  CSS compression. #}
     {% compress css %}
-                <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}" />
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
- <link href="{% static 'at.who.css' %}" rel="stylesheet">
+        <link href="{% static 'at.who.css' %}" rel="stylesheet">
         <link href="{% static 'prism.css' %}" rel="stylesheet">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
         <link href="{% static 'theme.css' %}{% randparam %}" rel="stylesheet">
@@ -42,17 +40,16 @@
         <script src="{% static 'at.who.js' %}"></script>
         <script src="{% static 'caret.js' %}"></script>
         <script src="{% static 'prism.js' %}"></script>
-
         <script src="{% static 'forum.js' %}{% randparam %}"></script>
         <script src="{% static 'theme.js' %}{% randparam %}"></script>
     {% endcompress %}
 
-     {# Extra header content that needs to be injected into the page. #}
+    {# Optional block header content. #}
     {% block head %}
 
     {% endblock %}
 
-    {# Extra javascript content that needs to be injected into the page. #}
+    {# Optional javascaript header content. #}
     {% block js %}
 
     {% endblock %}
@@ -62,7 +59,7 @@
 
 <div class="ui inverted container widen">
 
-    {% include 'widgets/top_banner.html' %}
+    {% include 'banners/top_banner.html' %}
 
     <span class="menu-tablet_small">{% include "widgets/menu-topics.html" %}</span>
 
@@ -70,12 +67,14 @@
 
     <div class="ui bottom attached segment dim-on-create" >
 
-            <div class="ui inverted dimmer"></div>
+        <div class="ui inverted dimmer"></div>
 
         {% show_messages messages %}
+
         <span class="fit" id="insert-form"></span>
         <div id="error"></div>
         <div id="recent" {% if post %}data-value="{{ post.uid }}"{% endif %}></div>
+
         {% block content %}
 
             MAIN CONTENT

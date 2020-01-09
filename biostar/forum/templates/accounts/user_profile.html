@@ -134,7 +134,7 @@
 
                 <div class="item">
                     <div class="content">
-                        {% if target.profile.is_banned or target.profile.is_suspended %}
+                        {% if target.profile.is_banned or target.profile.is_suspended or target.profile.is_spammer %}
                             No profile information.
                         {% else %}
                             <p>{{ target.profile.html |safe }}</p>

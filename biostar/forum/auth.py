@@ -119,7 +119,13 @@ def create_subscription(post, user, sub_type=None, delete_exisiting=True):
 
 
 def is_suspended(user):
-    return user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED)
+
+    if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
+        return True
+    if user.is_authenticated and user.profile.role == Profile.SPAMMER:
+        return True
+
+    return False
 
 
 def post_tree(user, root):
@@ -141,6 +147,7 @@ def post_tree(user, root):
     # Only moderators
     if not is_moderator:
         query = query.exclude(status=Post.DELETED)
+        query = query.exclude(spam=Post.SPAM)
 
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
@@ -285,15 +292,15 @@ def handle_spam_post(post):
 
     url = post.get_absolute_url()
 
-    # Ban new users that post spam.
-    if post.author.profile.low_rep:
-        post.author.profile.state = Profile.BANNED
-        post.author.profile.role = Profile.SPAMMER
-        post.author.profile.save()
-        return url
+    # # Ban new users that post spam.
+    # if post.author.profile.low_rep:
+    #     post.author.profile.state = Profile.BANNED
 
-    # Label this post as spam
-    Post.objects.filter(uid=post.uid).update(spam=Post.SPAM)
+    post.author.profile.role = Profile.SPAMMER
+    post.author.profile.save()
+
+    # Label all posts by this users as spam.
+    Post.objects.filter(author=post.author).update(spam=Post.SPAM)
     return url
 
 
@@ -309,7 +316,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         return url
 
     if action == OPEN_POST:
-        Post.objects.filter(uid=post.uid).update(status=Post.OPEN)
+        Post.objects.filter(uid=post.uid).update(status=Post.OPEN, spam=Post.NOT_SPAM)
         messages.success(request, f"Opened post: {post.title}")
         return url
 

@@ -8,9 +8,6 @@ DEBUG = True
 
 SITE_NAME = 'Biostar Forum'
 
-# Show debug toolbar
-DEBUG_TOOLBAR = False
-
 # Override compression if needed.
 # COMPRESS_ENABLED = True
 
@@ -19,14 +16,12 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
-
 # User above this score do not get a reCAPTCHA
 RECAPTCHA_TRUSTED_USER_SCORE = 15
 
 # Full file path to tags.
 # Each line is a list of comma separated tags.
 TAGS_OPTIONS_FILE = ''
-
 
 # Add list of contributors to the post list.
 ADD_THREAD_USERS = True
@@ -41,6 +36,7 @@ TIME_REQUESTS = True
 
 # Indexing interval in seconds.
 INDEX_SECS_INTERVAL = 10
+
 # Number of results to display in total.
 SEARCH_LIMIT = 20
 
@@ -88,6 +84,7 @@ FORUM_APPS = [
 
 ]
 
+
 # Additional middleware.
 MIDDLEWARE += [
     'biostar.forum.middleware.user_tasks',
@@ -101,17 +98,13 @@ ALLOWED_POST_TYPES = []
 
 USE_ELASTIC_SEARCH = False
 
-# Enable debug toolbar specific functions
-if DEBUG_TOOLBAR:
-    FORUM_APPS.append('debug_toolbar')
-    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
-
 
 # Import the default pagedown css first, then our custom CSS sheet
 # to avoid having to specify all the default styles
 PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css', "lib/pagedown.css",)
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
+
 
 ROOT_URLCONF = 'biostar.forum.urls'
 

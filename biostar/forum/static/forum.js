@@ -567,9 +567,9 @@ function autocomplete_users(users_list) {
 }
 
 
-function report_spammer(user_id, elem){
+function report_spammer(post_id, elem){
 
-    $.ajax('/ajax/report/spammer/' + user_id +"/",
+    $.ajax('/ajax/report/spammer/' + post_id +"/",
          {
             type: 'GET',
             dataType: 'json',
@@ -583,7 +583,8 @@ function report_spammer(user_id, elem){
                     popup_message(elem.parent().parent(), data.msg, data.status);
                     //$('.spam-remove-'+ user_id ).transition('hide');
                     setTimeout(function (){
-                        $('.spam-remove-'+ user_id ).hide()
+                        $('.spam-remove-'+ post_id ).hide()
+
                     }, 700);//('hide');
                     //container.html(data.html)
 
@@ -591,7 +592,7 @@ function report_spammer(user_id, elem){
 
             },
             error: function (xhr, status, text) {
-                error_message(container, xhr, status, text)
+                error_message($('.spam-remove-'+ post_id ), xhr, status, text)
             }
 
         });
@@ -604,8 +605,8 @@ $(document).ready(function () {
 
     $('.spam.item').click(function (event) {
 
-        var user_id = $(this).data('user');
-        report_spammer(user_id, $(this));
+        var post_id = $(this).data('user');
+        report_spammer(post_id, $(this));
     });
 
     $('#chat').click(function () {
@@ -947,9 +948,9 @@ $(document).ready(function () {
 
     });
 
-    $('a').click(function () {
-        $(this).transition('pulse', 295);
-    });
+    // $('a').click(function () {
+    //     $(this).transition('pulse', 295);
+    // });
 
     $(this).on('click', '.show-preview', function () {
         var contain = $('#html-preview');

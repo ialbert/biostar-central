@@ -391,6 +391,9 @@ class Command(BaseCommand):
         load_subs = options["subs"]
         limit = options.get("limit") or LIMIT
 
+        print(f"OLD_DATABASE (source): {settings.OLD_DATABASE}")
+        print(f"NEW_DATABASE (target): {settings.NEW_DATABASE}")
+
         #test()
         #return
 

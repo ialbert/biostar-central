@@ -176,7 +176,7 @@ def mod_choices(post):
     allowed = [BUMP_POST, REPORT_SPAM] if post.is_toplevel else [REPORT_SPAM]
 
     # Option to open deleted posts
-    if post.status in [Post.DELETED, Post.OFFTOPIC]:
+    if post.status in [Post.DELETED, Post.OFFTOPIC] or post.is_spam:
         allowed += [OPEN_POST]
 
     # Option to deleted open posts

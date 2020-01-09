@@ -15,6 +15,9 @@ logger = logging.getLogger("biostar")
 
 
 def get_ip(request):
+    """
+    Attempts to extract the IP number from the HTTP request headers.
+    """
     ip1 = request.META.get('REMOTE_ADDR', '')
     ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
     ip = ip1 or ip2 or '0.0.0.0'
@@ -23,21 +26,41 @@ def get_ip(request):
 
 def benchmark(get_response):
     """
-    Benchmarking each request.
+    Prints the time needed to perform a request.
     """
 
     def middleware(request):
+
+        # Start timer.
         start = time.time()
 
+        # Performs the request
         response = get_response(request)
 
-        delta = (time.time() - start)*1000
+        # Elapsed time.
+        delta = int((time.time() - start) * 1000)
 
-        logger.info(f'time={delta:.0f}ms path={request.path}')
+        # Generate timing message.
+        msg = f'time={delta}ms for path={request.path}'
+
+        if delta > 1000:
+            logger.warning(f"******* SLOW page rendering: {msg} ********")
+        else:
+            logger.info(f'Page rendering: {msg}')
 
         return response
 
     return middleware
+
+
+def update_status(user):
+    # Update a new user into trusted after a threshold score is reached.
+    if (user.profile.state == Profile.NEW) and (user.profile.score > 50):
+            user.profile.state = Profile.TRUSTED
+            user.save()
+            return True
+
+    return user.profile.trusted
 
 
 def user_tasks(get_response):
@@ -58,12 +81,8 @@ def user_tasks(get_response):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
             logout(request)
 
-        # Update a new user into trusted after 10 votes.
-        # TODO: change to a separate function and a different policy.
-        if (user.profile.state == Profile.NEW) and (user.profile.score > 10):
-            user.profile.state = Profile.TRUSTED
-            user.save()
-
+        update_status(user=user)
+        
         # Parses the ip of the request.
         ip = get_ip(request)
 
@@ -82,8 +101,7 @@ def user_tasks(get_response):
             message_count = Message.objects.filter(recipient=user, unread=True).count()
 
             # The number of new votes since last visit.
-            vote_count = Vote.objects.filter(post__author=user, date__gt=user.profile.last_login).exclude(
-                author=user).count()
+            vote_count = Vote.objects.filter(post__author=user, date__gt=user.profile.last_login).exclude(author=user).count()
 
             # Store the counts into the session.
             counts = dict(message_count=message_count, vote_count=vote_count)
@@ -91,7 +109,7 @@ def user_tasks(get_response):
             # Set the session.
             request.session[const.COUNT_DATA_KEY] = counts
 
-            tasks.create_user_awards.spool(user_id=user.id)
+            #tasks.create_user_awards.spool(user_id=user.id)
             # Can process response here after its been handled by the view
 
         #tasks.create_user_awards.spool(user_id=user.id)

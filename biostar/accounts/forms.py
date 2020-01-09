@@ -172,7 +172,8 @@ class UserModerate(forms.Form):
         (Profile.SUSPENDED, "Suspend user")
     ]
 
-    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), label="Select Action")
+    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), required=False, label="Select Action")
+    is_spammer = forms.BooleanField(widget=forms.CheckboxInput, required=False, label="Report user as spammer")
 
     def __init__(self, source, target, request, *args, **kwargs):
         self.source = source
