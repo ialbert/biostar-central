@@ -44,9 +44,9 @@ def benchmark(get_response):
         msg = f'time={delta}ms for path={request.path}'
 
         if delta > 1000:
-            logger.warning(f"******* SLOW page rendering: {msg} ********")
+            logger.warning(f"***\n***\n*** SLOW: {msg} ***\n***\n***")
         else:
-            logger.info(f'Page rendering: {msg}')
+            logger.info(f'{msg}')
 
         return response
 

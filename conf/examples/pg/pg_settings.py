@@ -2,7 +2,7 @@ from biostar.forum.settings import *
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
 
-DEBUG = False
+DEBUG = True
 
 # Show debug toolbar
 DEBUG_TOOLBAR = DEBUG
