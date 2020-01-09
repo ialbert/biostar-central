@@ -82,7 +82,6 @@ def listing(request):
 def user_moderate(request, uid):
     source = request.user
     target = User.objects.filter(id=uid).first()
-    print(target.profile.is_spammer, "PP")
     form = forms.UserModerate(source=source, target=target, request=request,
                               initial=dict(is_spammer=target.profile.is_spammer,
                                            action=target.profile.state))
