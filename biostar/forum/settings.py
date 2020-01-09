@@ -9,7 +9,7 @@ DEBUG = True
 SITE_NAME = 'Biostar Forum'
 
 # Show debug toolbar
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = True
 
 # Override compression if needed.
 # COMPRESS_ENABLED = True
@@ -87,6 +87,12 @@ FORUM_APPS = [
 
 ]
 
+# Enable debug toolbar specific functions
+if DEBUG_TOOLBAR:
+    FORUM_APPS.append('debug_toolbar')
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+
+
 # Additional middleware.
 MIDDLEWARE += [
     'biostar.forum.middleware.user_tasks',
@@ -107,10 +113,6 @@ PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css', "lib/pagedown.css",)
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
 
-# Enable debug toolbar specific functions
-if DEBUG_TOOLBAR:
-    INSTALLED_APPS.append('debug_toolbar')
-    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
 ROOT_URLCONF = 'biostar.forum.urls'
 

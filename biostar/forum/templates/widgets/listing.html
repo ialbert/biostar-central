@@ -89,7 +89,6 @@
                         {% post_tags post spaced=False %}
                     </div>
                     {% if post.author.profile.low_rep and request.user.is_authenticated and request.user.profile.is_moderator %}
-
                         <div class="ui spam dropdown">
                             <i class="bug icon"></i>
                             <div class="spam menu">

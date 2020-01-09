@@ -68,6 +68,7 @@
 
                         <th>Status</th>
                         <th>Name</th>
+                        <th>Parameters</th>
                         <th>Project</th>
                         <th>Recipe</th>
                         <th>User</th>
@@ -84,7 +85,10 @@
                                 <div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
                             </td>
                             <td class="{% if job.deleted %}negative{% endif %}">
-                                <a href="{{ job.url }}">{{ job.get_name }}</a>
+                                <a href="{{ job.url }}">{{ job.get_name|truncatechars:40 }}</a>
+                            </td>
+                          <td>
+                                {{ job.summary }}
                             </td>
 
                             <td>

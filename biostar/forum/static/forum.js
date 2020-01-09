@@ -584,6 +584,7 @@ function report_spammer(post_id, elem){
                     //$('.spam-remove-'+ user_id ).transition('hide');
                     setTimeout(function (){
                         $('.spam-remove-'+ post_id ).hide()
+
                     }, 700);//('hide');
                     //container.html(data.html)
 
@@ -591,7 +592,7 @@ function report_spammer(post_id, elem){
 
             },
             error: function (xhr, status, text) {
-                error_message(container, xhr, status, text)
+                error_message($('.spam-remove-'+ post_id ), xhr, status, text)
             }
 
         });
@@ -947,9 +948,9 @@ $(document).ready(function () {
 
     });
 
-    $('a').click(function () {
-        $(this).transition('pulse', 295);
-    });
+    // $('a').click(function () {
+    //     $(this).transition('pulse', 295);
+    // });
 
     $(this).on('click', '.show-preview', function () {
         var contain = $('#html-preview');
