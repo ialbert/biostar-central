@@ -1,2 +1,3 @@
 uwsgi
 psycopg2
+ansible

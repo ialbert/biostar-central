@@ -25,6 +25,9 @@ ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
 # The default sender name on emails.
 DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
 
+# User score threshold to be considered low reputation.
+LOW_REP_THRESHOLD = 0
+
 # In MB
 MAX_UPLOAD_SIZE = 10
 

@@ -6,9 +6,6 @@
     {#  Show title on top level posts #}
     {% if post.is_toplevel %}
         <div class="title wrap-text">
-
-        {% if post.is_locked %}<i class="lock icon"></i>{% endif %}
-
             {#  Page anchor. #}
             <a name="{{ post.uid }}"></a>
             {#  Post title. #}

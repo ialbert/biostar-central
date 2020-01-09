@@ -119,7 +119,13 @@ def create_subscription(post, user, sub_type=None, delete_exisiting=True):
 
 
 def is_suspended(user):
-    return user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED)
+
+    if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
+        return True
+    if user.is_authenticated and user.profile.role == Profile.SPAMMER:
+        return True
+
+    return False
 
 
 def post_tree(user, root):
@@ -141,6 +147,7 @@ def post_tree(user, root):
     # Only moderators
     if not is_moderator:
         query = query.exclude(status=Post.DELETED)
+        query = query.exclude(spam=Post.SPAM)
 
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
@@ -281,6 +288,22 @@ def delete_post(post, request):
     return url
 
 
+def handle_spam_post(post):
+
+    url = post.get_absolute_url()
+
+    # # Ban new users that post spam.
+    # if post.author.profile.low_rep:
+    #     post.author.profile.state = Profile.BANNED
+
+    post.author.profile.role = Profile.SPAMMER
+    post.author.profile.save()
+
+    # Label all posts by this users as spam.
+    Post.objects.filter(author=post.author).update(spam=Post.SPAM)
+    return url
+
+
 def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pid=None):
     root = post.root
     user = request.user
@@ -293,7 +316,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         return url
 
     if action == OPEN_POST:
-        Post.objects.filter(uid=post.uid).update(status=Post.OPEN)
+        Post.objects.filter(uid=post.uid).update(status=Post.OPEN, spam=Post.NOT_SPAM)
         messages.success(request, f"Opened post: {post.title}")
         return url
 
@@ -304,15 +327,8 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
         return url
 
-    if action == LOCK:
-        Post.objects.filter(uid=post.uid).update(status=Post.LOCKED)
-        messages.success(request, f"Locked post: {post.title}")
-        return url
-
-    if action == CLOSE:
-        Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-        messages.success(request, f"Closed post: {post.title}")
-        return url
+    if action == REPORT_SPAM:
+        return handle_spam_post(post=post)
 
     if pid:
         parent = Post.objects.filter(uid=pid).first() or post.root
@@ -321,21 +337,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         messages.success(request, "Moved answer to comment")
         return url
 
-    if offtopic:
-        # Load comment explaining post closure.
-        tmpl = loader.get_template("messages/off_topic.md")
-        context = dict(user=post.author, comment=offtopic)
-        content = tmpl.render(context)
-
-        Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
-        # Load answer explaining post being off topic.
-        post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, author=user)
-        url = post.get_absolute_url()
-        messages.success(request, "Marked the post as off topic.")
-
-        return url
-
-    if dupes:
+    if dupes and len(''.join(dupes)):
         # Load comment explaining post off topic label.
         tmpl = loader.get_template("messages/duplicate_posts.md")
         context = dict(user=post.author, dupes=dupes, comment=comment)
@@ -345,6 +347,20 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         post = Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
         url = post.get_absolute_url()
         messages.success(request, "Closed duplicated post.")
+
+        return url
+
+    if comment:
+        # Load comment explaining post closure.
+        tmpl = loader.get_template("messages/off_topic.md")
+        context = dict(user=post.author, comment=comment)
+        content = tmpl.render(context)
+
+        Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
+        # Load answer explaining post being off topic.
+        post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, author=user)
+        url = post.get_absolute_url()
+        messages.success(request, "Marked the post as off topic.")
 
         return url
 

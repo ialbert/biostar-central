@@ -39,6 +39,16 @@
                   <a class="item" href="{% url 'post_list' %}{% relative_url 'year' 'limit' params %}">
                       <i class="{% get_icon 'year' %}"></i>this year
                   </a>
+                {% if request.user.is_authenticated and request.user.profile.is_moderator %}
+                <div class="ui divider"></div>
+                <a class="item" href="{% url 'post_list' %}{% relative_url 'spam' 'type' params %}">
+                    <i class="{% activate_check_mark type 'spam' %}"></i>Show Spam
+                </a>
+                          <a class="item" href="{% url 'post_list' %}{% relative_url 'latest' 'type' params %}">
+                    <i class="{% activate_check_mark type 'latest' %}"></i>All posts
+                </a>
+                {% endif %}
+
             </div>
           </div>
         </div>

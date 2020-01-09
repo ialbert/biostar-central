@@ -96,24 +96,23 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
+    query = Post.objects.filter(is_toplevel=True)
     # Determines how to start the preform_search.
     if post_type:
-        query = Post.objects.filter(type=post_type)
+        query = query.filter(type=post_type)
     elif topic == OPEN:
-        query = Post.objects.filter(type=Post.QUESTION, answer_count=0)
+        query = query.filter(type=Post.QUESTION, answer_count=0)
     elif topic == BOOKMARKS and user.is_authenticated:
-        query = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
+        query = query.filter(votes__author=user, votes__type=Vote.BOOKMARK)
     elif topic == FOLLOWING and user.is_authenticated:
-        query = Post.objects.filter(subs__user=user)
+        query = query.filter(subs__user=user)
     elif topic == MYPOSTS and user.is_authenticated:
-        query = Post.objects.filter(author=user)
+        query = query.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
-        query = Post.objects.filter(votes__post__author=user)
+        query = query.filter(votes__post__author=user)
     elif topic == MYTAGS and user.is_authenticated:
         tags = user.profile.my_tags.split(",")
-        query = Post.objects.filter(tags__name__in=tags)
-    else:
-        query = Post.objects.filter(is_toplevel=True)
+        query = query.filter(tags__name__in=tags)
 
     # Filter by tags if specified.
     if tag:
@@ -135,6 +134,11 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
         query = query.exclude(status=Post.DELETED)
+
+    if topic == SHOW_SPAM and user.is_authenticated and user.profile.is_moderator:
+        query = query.filter(spam=Post.SPAM)
+    else:
+        query = query.exclude(spam=Post.SPAM)
 
     # Select related information used during rendering.
     query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
@@ -437,16 +441,12 @@ def post_moderate(request, uid):
         messages.error(request, 'You need to be a moderator to perform this action.')
         return redirect(post.get_absolute_url())
 
-    if post.status == Post.LOCKED and not user.is_superuser:
-        messages.error(request, 'Only admins can moderate locked posts.')
-        return redirect(post.get_absolute_url())
-
     if request.method == "POST":
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
 
         if form.is_valid():
             action = form.cleaned_data.get('action')
-            dupe = form.cleaned_data.get('dupe', '').split(",")
+            dupe = form.cleaned_data.get('dupe', '').split("\n")
             dupe_comment = form.cleaned_data.get('comment')
             mod_uid = form.cleaned_data.get('pid')
             offtopic = form.cleaned_data.get('offtopic')

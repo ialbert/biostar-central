@@ -60,6 +60,9 @@ class ajax_error_wrapper:
             if not request.user.is_authenticated and self.login_required:
                 return ajax_error('You must be logged in.')
 
+            if request.user.is_authenticated and request.user.profile.is_spammer:
+                return ajax_error('You must be logged in.')
+
             return func(request, *args, **kwargs)
 
         return _ajax_view
@@ -231,21 +234,35 @@ def add_to_closed(post, user):
         return True
 
 
+@ajax_error_wrapper(method="GET", login_required=True)
+def report_spammer(request, post_uid):
+    """
+    Report this user as a spammer.
+    """
+
+    post = Post.objects.filter(uid=post_uid).first()
+
+    if not post:
+        return ajax_error(msg='Post does not exist.')
+
+    if request.user == post.author or post.author.profile.is_moderator:
+        return ajax_error(msg='Invalid action.')
+
+    auth.handle_spam_post(post=post)
+
+    return ajax_success(msg="Reported user as a spammer.")
+
+
 def validate_root(post, user):
 
     if not post:
         return False, "No post provided."
 
-    # Only admins allowed to add to locked posts.
-    if post.root.is_locked and not user.is_superuser:
-        msg = "This post is locked. Only admins can contribute to it."
-        return False, msg
-
     # Anonymous users and regular users who are not the author
     # are not allowed to add to closed posts.
     allowed = user.is_authenticated and (user.profile.is_moderator or post.root.author == user)
-    if post.root.is_closed and not allowed:
-        msg = "This post is closed. Only moderators and the initial author can contribute to it."
+    if not post.root.is_open and not allowed:
+        msg = "This post is not open. Only moderators and the initial author can contribute to it."
         return False, msg
 
     return True, ""

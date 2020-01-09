@@ -26,9 +26,8 @@ class Post(models.Model):
     "Represents a post in a forum"
 
     # Post statuses.
-    PENDING, OPEN, OFFTOPIC, DELETED, LOCKED, CLOSED = range(6)
-    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (OFFTOPIC, "Off topic"), (LOCKED, "Locked"),
-                      (DELETED, "Deleted"), (CLOSED, "Closed")]
+    PENDING, OPEN, OFFTOPIC, DELETED = range(4)
+    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (OFFTOPIC, "Off topic"), (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
     QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
@@ -45,6 +44,8 @@ class Post(models.Model):
     # Possile spam states.
     SPAM, NOT_SPAM, DEFAULT = range(3)
     SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (DEFAULT, "Default")]
+    # Spam labeling.
+    spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
     # Post status: open, closed, deleted.
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN, db_index=True)
@@ -138,9 +139,6 @@ class Post(models.Model):
     # Unique id for the post.
     uid = models.CharField(max_length=32, unique=True, db_index=True)
 
-    # Spam labeling.
-    spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
-
     def parse_tags(self):
         return [tag.lower() for tag in self.tag_val.split(",") if tag]
 
@@ -153,7 +151,7 @@ class Post(models.Model):
 
     @property
     def is_open(self):
-        return self.status == Post.OPEN
+        return self.status == Post.OPEN and not self.is_spam
 
     @property
     def is_deleted(self):
@@ -164,20 +162,16 @@ class Post(models.Model):
         return bool(self.accept_count)
 
     @property
+    def is_spam(self):
+        return self.spam == self.SPAM
+
+    @property
     def is_comment(self):
         return self.type == Post.COMMENT
 
     @property
     def is_answer(self):
         return self.type == Post.ANSWER
-
-    @property
-    def is_locked(self):
-        return self.status == Post.LOCKED
-
-    @property
-    def is_closed(self):
-        return self.status == Post.CLOSED
 
     def get_absolute_url(self):
         url = reverse("post_view", kwargs=dict(uid=self.root.uid))
@@ -236,7 +230,7 @@ class Post(models.Model):
     def css(self):
         # Used to simplify CSS rendering.
         status = self.get_status_display()
-        return f"{status}".lower()
+        return 'spam-post' if self.is_spam else f"{status}".lower()
 
     @property
     def accepted_class(self):

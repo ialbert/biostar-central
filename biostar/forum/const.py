@@ -1,5 +1,5 @@
 # Action codes.
-BUMP_POST, OPEN_POST, TOGGLE_ACCEPT, MOVE_ANSWER, DUPLICATE, OFFTOPIC, DELETE, LOCK, CLOSE = range(9)
+BUMP_POST, OPEN_POST, TOGGLE_ACCEPT, MOVE_ANSWER, DUPLICATE, OFFTOPIC, DELETE, REPORT_SPAM = range(8)
 
 # Valid values for the order GET parameter.
 RANK, VIEWS, REPLIES = ("rank", "views", "replies")
@@ -10,7 +10,7 @@ COUNT_DATA_KEY = "COUNT_DATA"
 # Redirection field name.
 REDIRECT_FIELD_NAME = 'next'
 
-MYVOTES, MYPOSTS, MYTAGS, OPEN, FOLLOWING = ["myvotes", "myposts", "mytags", "open", "following"]
+MYVOTES, MYPOSTS, MYTAGS, OPEN, FOLLOWING, SHOW_SPAM = ["myvotes", "myposts", "mytags", "open", "following", "spam"]
 
 BOOKMARKS, MESSAGE = ["bookmarks", "message"]
 

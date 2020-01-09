@@ -5,7 +5,7 @@
 <span class="menu-tablet_small">
     {{ post.creation_date|time_ago }}
 
-        <a class="trigger-highlight" href="{% url "user_profile"  post.author.profile.uid %}">
+        <a href="{% url "user_profile"  post.author.profile.uid %}">
 
             {% if avatar %}
                 <div class="ui avatar image">
@@ -17,13 +17,15 @@
 
         {% user_icon user=post.author %}
 
-     &bull;
+
 </span>
+    {% if not post.lastedit_user.profile.is_spammer %}
+         &bull;
     updated
 
     {{ post.lastedit_date|time_ago }}
 
-    <a class="trigger-highlight"  href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+    <a   href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
 
         {% if avatar %}
             <div class="ui avatar image">
@@ -34,14 +36,14 @@
     </a>
 
     {% user_icon user=post.lastedit_user %}
-
+    {% endif %}
 
 {% elif post %}
 
-
+<span>
     {{ post.lastedit_date|time_ago }}
 
-    <a  href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+    <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
         {% if avatar %}
             <div class="ui avatar image">
                 <img class="ui tiny centered image thread-users" src="{% gravatar user=post.lastedit_user size=80 %}">
@@ -51,7 +53,7 @@
     </a>
 
     {% user_icon user=post.lastedit_user %}
-
+</span>
 {% endif %}
 
 
