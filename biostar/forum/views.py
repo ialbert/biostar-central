@@ -179,22 +179,22 @@ def post_search(request):
 
 
 class CachedPaginator(Paginator):
-   """
-   Paginator that caches the count call.
-   """
-   COUNT_KEY = "COUNT_KEY"
+    """
+    Paginator that caches the count call.
+    """
+    COUNT_KEY = "COUNT_KEY"
 
-   @property
-   def count(self):
+    @property
+    def count(self):
 
-       if self.COUNT_KEY not in cache:
-        value = super(CachedPaginator, self).count
-        logger.info("Setting paginator count cache")
-        cache.set(self.COUNT_KEY, value, 300)
+        if self.COUNT_KEY not in cache:
+            value = super(CachedPaginator, self).count
+            logger.info("Setting paginator count cache")
+            cache.set(self.COUNT_KEY, value, 300)
 
-       value = cache.get(self.COUNT_KEY)
+        value = cache.get(self.COUNT_KEY)
 
-       return value
+        return value
 
 @ensure_csrf_cookie
 def post_list(request, show=None, extra_context=dict()):
