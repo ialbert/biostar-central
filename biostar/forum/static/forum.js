@@ -566,8 +566,48 @@ function autocomplete_users(users_list) {
 
 }
 
+
+function report_spammer(post_id, elem){
+
+    $.ajax('/ajax/report/spammer/' + post_id +"/",
+         {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {},
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(elem, data.msg, data.status);
+
+                } else {
+                    popup_message(elem.parent().parent(), data.msg, data.status);
+                    //$('.spam-remove-'+ user_id ).transition('hide');
+                    setTimeout(function (){
+                        $('.spam-remove-'+ post_id ).hide()
+
+                    }, 700);//('hide');
+                    //container.html(data.html)
+
+                }
+
+            },
+            error: function (xhr, status, text) {
+                error_message($('.spam-remove-'+ post_id ), xhr, status, text)
+            }
+
+        });
+
+
+
+}
+
 $(document).ready(function () {
 
+    $('.spam.item').click(function (event) {
+
+        var post_id = $(this).data('user');
+        report_spammer(post_id, $(this));
+    });
 
     $('#chat').click(function () {
         var user_uid = $(this).data('value');
@@ -591,7 +631,7 @@ $(document).ready(function () {
 
     $('.post.comment').mousedown(function () {
         $(this).css('cursor', 'grabbing')
-    })
+    });
 
     $('#similar-feed').each(function () {
         var elem = $(this);
@@ -908,9 +948,9 @@ $(document).ready(function () {
 
     });
 
-    $('a').click(function () {
-        $(this).transition('pulse', 295);
-    });
+    // $('a').click(function () {
+    //     $(this).transition('pulse', 295);
+    // });
 
     $(this).on('click', '.show-preview', function () {
         var contain = $('#html-preview');

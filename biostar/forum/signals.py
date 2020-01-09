@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from taggit.models import Tag
 from django.db.models import F, Q
-from biostar.accounts.models import Profile, Message
+from biostar.accounts.models import Profile, Message, User
 from .models import Post, Award, Subscription
 from . import tasks, auth, util
 
@@ -36,8 +36,11 @@ def ban_user(sender, instance, created, **kwargs):
         # Delete all posts by this users
         #print(Post.objects.filter(author=instance.user).thread_users)
         Post.objects.filter(author=instance.user).delete()
-
-        #Post.objects.filter(author=instance.user)
+        #print(Post.objects.filter(author=instance))
+        # Remove all 'lastedit user' flags
+        # posts = Post.objects.filter(lastedit_user=instance.user)
+        # for post in posts:
+        #     Post.objects.filter(id=post.id).update(lastedit_user=post.author)
 
         # Delete all awards by the user.
         Award.objects.filter(user=instance.user).delete()

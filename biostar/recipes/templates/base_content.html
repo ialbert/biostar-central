@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block headtitle %}
-    {{ project.name }}
+    {{ project.get_name }}
 {% endblock %}
 
 {% block body %}
@@ -16,7 +16,6 @@
 
             <a class="{% activate 'info' active %}  item" href="{% url 'project_info' project.uid %}">
                 <i class="info circle icon"></i><span class="phone">Project</span>
-
             </a>
 
             <a class="{% activate 'data' active %}  item" href="{% url 'data_list' project.uid %}">

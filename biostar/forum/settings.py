@@ -84,6 +84,7 @@ FORUM_APPS = [
 
 ]
 
+
 # Additional middleware.
 MIDDLEWARE += [
     'biostar.forum.middleware.user_tasks',

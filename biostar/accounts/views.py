@@ -82,15 +82,22 @@ def listing(request):
 def user_moderate(request, uid):
     source = request.user
     target = User.objects.filter(id=uid).first()
-    form = forms.UserModerate(source=source, target=target, request=request)
+    form = forms.UserModerate(source=source, target=target, request=request,
+                              initial=dict(is_spammer=target.profile.is_spammer,
+                                           action=target.profile.state))
 
     if request.method == "POST":
 
-        form = forms.UserModerate(source=source, data=request.POST, target=target, request=request)
+        form = forms.UserModerate(source=source, data=request.POST, target=target, request=request,
+                                  initial=dict(is_spammer=target.profile.is_spammer,
+                                               action=target.profile.state))
         if form.is_valid():
             state = form.cleaned_data.get("action", "")
+            is_spammer = form.cleaned_data.get("is_spammer", "")
             profile = Profile.objects.filter(user=target).first()
             profile.state = state
+            profile.role = Profile.SPAMMER if is_spammer else Profile.READER
+
             profile.save()
             messages.success(request, "User moderation complete.")
         else:
