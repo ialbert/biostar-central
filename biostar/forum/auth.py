@@ -49,7 +49,6 @@ def gravatar_url(email, style='mp', size=80):
 
 
 def gravatar(user, size=80):
-
     if not user or user.is_anonymous:
         email = 'anon@biostars.org'.encode('utf8')
         return gravatar_url(email=email)
@@ -88,6 +87,7 @@ def walk_down_thread(parent, collect=[], is_root=True):
     else:
         children = Post.objects.filter(parent=parent).exclude(uid=parent.uid)
 
+    children = children.prefetch_related("root", "parent")  # , "author__profile", "lastedit_user__profile")
     for child in children:
         # Add child to list
         collect.append(child)
@@ -119,7 +119,6 @@ def create_subscription(post, user, sub_type=None, delete_exisiting=True):
 
 
 def is_suspended(user):
-
     if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
         return True
     if user.is_authenticated and user.profile.role == Profile.SPAMMER:
@@ -128,7 +127,7 @@ def is_suspended(user):
     return False
 
 
-def post_tree(user, root):
+def post_tree(user, root, post=None):
     """
     Populates a tree that contains all posts in the thread.
 
@@ -138,25 +137,25 @@ def post_tree(user, root):
     # Get all posts that belong to post root.
     query = Post.objects.filter(root=root).exclude(pk=root.id)
 
-    # Add all related objects.
-    query = query.select_related("lastedit_user__profile", "lastedit_user", "root__lastedit_user",
-                                 "root__lastedit_user__profile", "root__author__profile", "author__profile")
+    query = query.select_related("lastedit_user__profile", "author__profile",
+                                 "root__lastedit_user",
+                                 "root__lastedit_user__profile", "root__author__profile")
 
     is_moderator = user.is_authenticated and user.profile.is_moderator
 
     # Only moderators
     if not is_moderator:
         query = query.exclude(status=Post.DELETED)
-        query = query.exclude(spam=Post.SPAM)
+        # query = query.exclude(spam=Post.SPAM)
 
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
 
     # Gather votes by the current user.
-    votes = get_votes(user=user, root=root)
+    # votes = get_votes(user=user, root=root)
 
     # Shortcuts to each storage.
-    bookmarks, upvotes = votes[Vote.BOOKMARK], votes[Vote.UP]
+    # bookmarks, upvotes = votes[Vote.BOOKMARK], votes[Vote.UP]
 
     # Build comments tree.
     comment_tree = dict()
@@ -165,11 +164,11 @@ def post_tree(user, root):
         # Mutates the elements! Not worth creating copies.
         if post.is_comment:
             comment_tree.setdefault(post.parent_id, []).append(post)
-        post.has_bookmark = int(post.id in bookmarks)
-        post.has_upvote = int(post.id in upvotes)
-        post.can_accept = not post.is_toplevel and (user == post.root.author or (user.is_authenticated and user.profile.is_moderator))
-        post.can_moderate = user.is_authenticated and user.profile.is_moderator
-        post.is_editable = user.is_authenticated and (user == post.author or (user.is_authenticated and user.profile.is_moderator))
+        # post.has_bookmark = int(post.id in bookmarks)
+        # post.has_upvote = int(post.id in upvotes)
+        # post.can_accept = not post.is_toplevel and (user == post.root.author or (user.is_authenticated and user.profile.is_moderator))
+        # post.can_moderate = user.is_authenticated and user.profile.is_moderator
+        # post.is_editable = user.is_authenticated and (user == post.author or (user.is_authenticated and user.profile.is_moderator))
         return post
 
     # Decorate the objects for easier access
@@ -179,9 +178,9 @@ def post_tree(user, root):
     root = decorate(root)
 
     # Select the answers from the thread.
-    answers = [ p for p in thread if p.type==Post.ANSWER ]
+    answers = [p for p in thread if p.type == Post.ANSWER]
 
-    return root, comment_tree,  answers, thread
+    return root, comment_tree, answers, thread
 
 
 def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
@@ -208,7 +207,6 @@ def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
 
 @transaction.atomic
 def apply_vote(post, user, vote_type):
-
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
 
     if vote:
@@ -289,7 +287,6 @@ def delete_post(post, request):
 
 
 def handle_spam_post(post):
-
     url = post.get_absolute_url()
 
     # # Ban new users that post spam.

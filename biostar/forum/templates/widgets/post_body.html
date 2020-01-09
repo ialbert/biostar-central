@@ -9,10 +9,9 @@
             {#  Page anchor. #}
             <a name="{{ post.uid }}"></a>
             {#  Post title. #}
-            {% if post.is_toplevel %}
-                <span class="hide-on-edit post-title"
-                      data-value="{{ post.uid }}">{{ post.get_type_display }}: {{ post.title }}</span>
-            {% endif %}
+
+            <span class="hide-on-edit post-title"
+                  data-value="{{ post.uid }}">{{ post.get_type_display }}: {{ post.title }}</span>
 
         </div>
     {% endif %}
@@ -60,9 +59,9 @@
                 <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
 
                         {% if request.user.is_authenticated and request.user.profile.is_moderator %}
-                             data-thread="{{ post|get_children_list }}"
-                             ondragover="drag_over(event, '{{ post.uid }}')"
-                             ondragleave="drag_leave(event, '{{ post.uid }}')"
+                     data-thread="{{ post|get_children_list }}"
+                     ondragover="drag_over(event, '{{ post.uid }}')"
+                     ondragleave="drag_leave(event, '{{ post.uid }}')"
                         {% endif %}>
 
                     <div class="ui inverted dimmer">
@@ -114,10 +113,11 @@
                         <div id="comment-insert-{{ post.uid }}"></div>
 
                         {# Render all comments #}
+                        {% render_comments tree=tree post=post %}
                     </div>
 
                 </div>
-                {% render_comments tree=tree post=post %}
+
             </div>
 
         </div>

@@ -2,7 +2,7 @@ from biostar.forum.settings import *
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
 
-DEBUG = False
+DEBUG = True
 
 # Show debug toolbar
 DEBUG_TOOLBAR = DEBUG
@@ -17,7 +17,7 @@ if DEBUG is False:
     print("Whitenoise static serve enabled (pip install whitenoise)")
     MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
 
-POSTS_PER_PAGE = 50
+POSTS_PER_PAGE = 25
 
 WSGI_APPLICATION = 'conf.examples.pg.pg_wsgi.application'
 

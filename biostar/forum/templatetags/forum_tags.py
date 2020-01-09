@@ -102,10 +102,11 @@ def count_label(context, label):
 
 @register.simple_tag
 def users_list():
-    users = User.objects.exclude(profile__state__in=[Profile.DEACTIVATED, Profile.SUSPENDED, Profile.BANNED])
-    users = ','.join([x.username for x in users])
+    # users = User.objects.exclude(profile__state__in=[Profile.DEACTIVATED,
+    #                                                  Profile.SUSPENDED, Profile.BANNED]).prefetch_related("profile")
+    # users = ','.join(users.values_list('username', flat=True))
 
-    return users
+    return []
 
 
 @register.inclusion_tag('widgets/inplace_form.html')
@@ -215,10 +216,10 @@ def post_user_box(context, user, post):
 
 
 @register.inclusion_tag('widgets/post_actions.html', takes_context=True)
-def post_actions(context, post, label="ADD COMMENT", avatar=False):
+def post_actions(context, post, label="ADD COMMENT", author=None, lastedit_user=None, avatar=False):
     request = context["request"]
 
-    return dict(post=post, user=request.user,
+    return dict(post=post, user=request.user, author=author, lastedit_user=lastedit_user,
                 label=label, request=request, avatar=avatar)
 
 
@@ -728,6 +729,7 @@ def render_comments(context, tree, post, template_name='widgets/comment_body.htm
     request = context["request"]
     if post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree, template_name=template_name)
+
     else:
         text = ''
 
@@ -764,7 +766,6 @@ def traverse_comments(request, post, tree, template_name):
     for node in tree[post.id]:
         traverse(node, collect=collect)
     collect.append("</div>")
-
     html = '\n'.join(collect)
 
     return html
@@ -774,12 +775,12 @@ def traverse_comments(request, post, tree, template_name):
 def get_children_list(post):
 
     children = []
-    auth.walk_down_thread(parent=post, collect=children, is_root=post.is_toplevel)
+    #auth.walk_down_thread(parent=post, collect=children, is_root=post.is_toplevel)
 
     # Include itself in list
 
     children = [post.uid] + list(map(lambda p: p.uid, children))
 
-    children += ['NEW'] if post.is_answer else []
+    children = ['NEW'] #if post.is_answer else []
     #print(children, post.uid)
     return ','.join(children)

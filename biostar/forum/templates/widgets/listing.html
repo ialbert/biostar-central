@@ -88,18 +88,18 @@
                     <div class="left floated">
                         {% post_tags post spaced=False %}
                     </div>
-                    {% if post.author.profile.low_rep and request.user.is_authenticated and request.user.profile.is_moderator %}
-                        <div class="ui spam dropdown">
-                            <i class="bug icon"></i>
-                            <div class="spam menu">
-                                <div class="spam item" data-user="{{ post.uid }}">Report as Spam</div>
-                            </div>
-                        </div>
-                    {% endif %}
+{#                    {% if post.author.profile.low_rep and request.user.is_authenticated and request.user.profile.is_moderator %}#}
+{#                        <div class="ui spam dropdown">#}
+{#                            <i class="bug icon"></i>#}
+{#                            <div class="spam menu">#}
+{#                                <div class="spam item" data-user="{{ post.uid }}">Report as Spam</div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    {% endif %}#}
 
                     <div class="right floated muted">
 
-                        {% post_user_line post %}
+                        {% post_user_line post=post %}
                     </div>
 
                 </div>
