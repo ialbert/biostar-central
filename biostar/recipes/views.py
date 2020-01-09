@@ -146,8 +146,6 @@ def data_download(request, uid):
     """
     Download data of given uid.
     """
-
-
     
     return
 
