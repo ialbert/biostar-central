@@ -91,7 +91,6 @@ MIDDLEWARE += [
     'biostar.forum.middleware.benchmark',
 ]
 
-
 # Remap the post type display to a more human friendly one.
 REMAP_TYPE_DISPLAY = False
 # Post types displayed when creating, empty list displays all types.

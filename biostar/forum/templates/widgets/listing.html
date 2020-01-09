@@ -71,7 +71,7 @@
 
                 </div>
                 <div class="right floated thread-users">
-                    {% get_thread_users post=post as extra_users %}
+                    {% get_thread_users users=post.thread_users.all post=post as extra_users %}
                     {% for extra_user in extra_users %}
                         {% if not extra_user.profile.is_spammer or extra_user == post.author %}
                         <a class="ui mini avatar list-avatar image"

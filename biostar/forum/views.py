@@ -97,6 +97,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
     query = Post.objects.filter(is_toplevel=True)
+
     # Determines how to start the preform_search.
     if post_type:
         query = query.filter(type=post_type)
@@ -133,15 +134,23 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
-        query = query.exclude(status=Post.DELETED)
 
-    if topic == SHOW_SPAM and user.is_authenticated and user.profile.is_moderator:
-        query = query.filter(spam=Post.SPAM)
-    else:
-        query = query.exclude(spam=Post.SPAM)
+        #query = Post.objects.all()
+        #query = query.filter(status__in=[Post.OPEN)
+
+        query = query.exclude(status=Post.DELETED)
+        pass
+
+
+    # if topic == SHOW_SPAM and user.is_authenticated and user.profile.is_moderator:
+    #     query = query.filter(spam=Post.SPAM)
+    # else:
+    #     query = query.exclude(spam=Post.SPAM)
 
     # Select related information used during rendering.
-    query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", "thread_users__profile")
+    query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", 'thread_users',
+                                   'thread_users__profile')
+    #query = query.select_related("author__profile", "lastedit_user__profile")
 
     return query
 
@@ -189,7 +198,9 @@ def post_list(request, show=None, extra_context=dict()):
 
     # Get posts available to users.
     posts = get_posts(user=user, show=show, tag=tag, order=order, limit=limit)
-    posts = posts.exclude(Q(root=None) | Q(parent=None))
+
+    #posts = posts.exclude(Q(root=None) | Q(parent=None))
+
     # Create the paginator
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
 
