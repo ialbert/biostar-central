@@ -5,12 +5,17 @@ INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
 DEBUG = True
 
 # Show debug toolbar
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = DEBUG
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+
+# Add static serving capability
+if DEBUG is False:
+    print("Whitenoise static serve enabled (pip install whitenoise)")
+    MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
 
 POSTS_PER_PAGE = 100
 
@@ -30,11 +35,10 @@ DATABASES = {
     },
 }
 
-# List all directories from which templates should be rendered
+# List additional directories from which templates should loaded from.
 # First directory with the named template will load the template.
-
 TEMPLATE_DIRS = [
-    join(BASE_DIR, "biostar", "forum", "templates"),
+    # join(BASE_DIR, "themes", "foo", "templates"),
 ]
 
 TEMPLATES = [
@@ -42,7 +46,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
 
         'DIRS': TEMPLATE_DIRS,
-        #'APP_DIRS': True,
+
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
