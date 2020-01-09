@@ -142,6 +142,16 @@ def search_bar(request):
     return render(request, "search.html", context)
 
 
+def data_download(request, uid):
+    """
+    Download data of given uid.
+    """
+
+
+    
+    return
+
+
 @write_access(type=Project, fallback_view="data_list")
 def project_users(request, uid):
     """
