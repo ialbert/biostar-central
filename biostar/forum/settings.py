@@ -19,7 +19,6 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
-
 # User above this score do not get a reCAPTCHA
 RECAPTCHA_TRUSTED_USER_SCORE = 15
 
@@ -101,17 +100,17 @@ ALLOWED_POST_TYPES = []
 
 USE_ELASTIC_SEARCH = False
 
-# Enable debug toolbar specific functions
-if DEBUG_TOOLBAR:
-    FORUM_APPS.append('debug_toolbar')
-    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
-
 
 # Import the default pagedown css first, then our custom CSS sheet
 # to avoid having to specify all the default styles
 PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css', "lib/pagedown.css",)
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
+
+# Enable debug toolbar specific functions
+if DEBUG_TOOLBAR:
+    INSTALLED_APPS.append('debug_toolbar')
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
 ROOT_URLCONF = 'biostar.forum.urls'
 

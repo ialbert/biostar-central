@@ -40,9 +40,8 @@ emailer:
 	@echo DJANGO_APP=${DJANGO_APP}
 
 pg:
-	$(eval DJANGO_SETTINGS_MODULE := conf.examples.pg.forum_settings)
+	$(eval DJANGO_SETTINGS_MODULE := conf.examples.pg.pg_settings)
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-
 
 recipes:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
@@ -170,12 +169,12 @@ uwsgi:
 	@echo UWSGI_INI=${UWSGI_INI}
 	uwsgi --ini ${UWSGI_INI}
 
-pg_drop:
+pg_drop: pg
 	dropdb --if-exists ${DATABASE_NAME}
 	createdb ${DATABASE_NAME}
 
 transfer:
-	python manage.py migrate --settings conf.examples.pg.forum_settings
+	python manage.py migrate --settings conf.examples.pg.pg_settings
 	python manage.py transfer -n 300 --settings biostar.transfer.settings
 
 next:

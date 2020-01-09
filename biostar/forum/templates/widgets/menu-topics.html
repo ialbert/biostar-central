@@ -1,76 +1,82 @@
 {% load forum_tags %}
 
 <div class="ui top attached text menu dim-on-create" id="menu-topics">
+
     <div class="ui inverted dimmer"></div>
+
     {% if user.is_authenticated %}
-
+        {#  Left floated menu items shown for authenticated users. #}
         <a class="item menu-tablet_small  {% activate tab "messages" %}" href="{% url 'inbox' %}">
-
-            Messages {% count_label label="message_count" %}
-        &bull;
+            <i class="envelope icon"></i> Messages {% count_label label="message_count" %}
         </a>
         <a class="item   menu-tablet_small {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-
-           Votes {%  count_label label="vote_count" %}
-        &bull;
+            <i class="heart icon"></i> <span class="tablet">Votes</span> {%  count_label label="vote_count" %}
         </a>
 
         <a class="item menu-tablet_small {% activate tab "myposts" %}" href="{% url 'myposts' %}">
-
-            My Posts
-        &bull;
+           <i class="comments icon"></i>  My Posts
         </a>
+
         <a class="item menu-tablet_small {% activate tab "mytags" %}" href="{% url 'mytags' %}">
-
-            My Tags
-        &bull;
+            <i class="tags icon"></i>  My Tags
         </a>
-        <a class="item  menu-tablet_small {% activate tab "following" %}" href="{% url 'following' %}">
 
-            Following
-        &bull;
+        <a class="item  menu-tablet_small {% activate tab "following" %}" href="{% url 'following' %}">
+            <i class="eye icon"></i> Following
         </a>
 
         <a class="item  {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
-
-            Bookmarks
-
+            <i class="bookmark icon"></i> Bookmarks
         </a>
 
         <div class="item">
-        <div class="ui top pointing dropdown" id="digest">
-            <i class="{% get_digest_icon user %}" id="digest-icon"></i>
-            <div class="text tablet" id="digest-active">{% digest_label post=post %}</div>
-            <i class="caret down icon"></i>
-
-            <div class="menu">
-                <div class="item" data-value="daily" data-icon="clock icon"><i class="clock icon" ></i>Daily digest</div>
-                <div class="item" data-value="weekly" data-icon="hourglass icon"><i class="hourglass icon"></i>Weekly digest</div>
-                <div class="item" data-value="monthly" data-icon="calendar icon"><i class="calendar icon"></i>Monthly digest</div>
-                <div class="item" data-value="none"  data-icon="bell slash icon"><i class="bell slash icon"></i>No digest</div>
+            <div class="ui top pointing dropdown" id="digest">
+                <i class="{% get_digest_icon user %}" id="digest-icon"></i>
+                <div class="text tablet" id="digest-active">{% digest_label post=post %}</div>
+                <i class="caret down icon"></i>
+                <div class="menu">
+                    <div class="item" data-value="daily" data-icon="clock icon"><i class="clock icon" ></i>Daily digest</div>
+                    <div class="item" data-value="weekly" data-icon="hourglass icon"><i class="hourglass icon"></i>Weekly digest</div>
+                    <div class="item" data-value="monthly" data-icon="calendar icon"><i class="calendar icon"></i>Monthly digest</div>
+                    <div class="item" data-value="none"  data-icon="bell slash icon"><i class="bell slash icon"></i>No digest</div>
+                </div>
             </div>
         </div>
-        </div>
+
     {% endif %}
 
     <div class="right menu" id="login-opts">
 
         {% if user.is_authenticated %}
-
+            {#  Right floated menu items shown for authenticated users. #}
             <a class="item  {% activate tab "profile" %}" href="{% url 'user_profile' user.profile.uid %}">
-                {{ user.profile.name }} {% user_icon user %}
+                <i class="user icon"></i> {{ user.profile.name }} {% user_icon user %}
             </a>
-            <a class="item {% activate tab "logout" %}" href="{% url 'logout' %}">
-        <i class="sign-out icon"></i> Logout
-            </a>
-        {% else %}
-        <a class="item {% activate tab "login" %}" href="{% url 'login' %}"><i class="sign-in icon"></i> <span class="tablet">Log In</span></a>
-        <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}"><i class="arrow circle up icon"></i><span class="tablet">Sign Up</span></a>
-        {% endif %}
-        <a class="item {% activate tab "about" %}"  href="{% url 'about' %}"><i class="info circle icon"></i> <span class="tablet">About</span></a>
 
-      <a class="item {{ user.profile.css }} {% activate tab "faq" %}" href="{% url 'faq' %}"> <i
-                class="question icon"></i> faq
+            <a class="item {% activate tab "logout" %}" href="{% url 'logout' %}">
+                <i class="sign-out icon"></i> Logout
+            </a>
+
+        {% else %}
+            {#  Right floated menu items shown for anonymous users. #}
+            <a class="item {% activate tab "login" %}" href="{% url 'login' %}">
+                <i class="sign-in icon"></i> <span class="tablet">Log In</span>
+            </a>
+
+            <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}">
+                <i class="arrow circle up icon"></i><span class="tablet">Sign Up</span>
+            </a>
+
+        {% endif %}
+
+        {#  Right floated menu items shown for all users. #}
+
+        <a class="item {% activate tab "about" %}"  href="{% url 'about' %}">
+            <i class="info circle icon"></i><span class="tablet">About</span>
+        </a>
+
+        <a class="item {{ user.profile.css }} {% activate tab "faq" %}" href="{% url 'faq' %}">
+            <i class="circle question icon"></i> Faq
         </a>
 
     </div>

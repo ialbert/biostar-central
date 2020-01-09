@@ -4,9 +4,17 @@ INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 DEBUG = True
 
-WSGI_APPLICATION = 'conf.examples.pg.forum_wsgi.application'
+# Show debug toolbar
+DEBUG_TOOLBAR = True
 
-DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
+# Enable debug toolbar specific functions
+if DEBUG_TOOLBAR:
+    INSTALLED_APPS.append('debug_toolbar')
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+
+WSGI_APPLICATION = 'conf.examples.pg.pg_wsgi.application'
+
+DATABASE_NAME = os.getenv("DATABASE_NAME", "database.db")
 
 DATABASES = {
 

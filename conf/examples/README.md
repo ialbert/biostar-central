@@ -1,1 +1,1 @@
-Example settings for various situations.
+Example settings for various deployment options.
