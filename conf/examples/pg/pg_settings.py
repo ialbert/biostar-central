@@ -2,14 +2,16 @@ from biostar.forum.settings import *
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
 
-DEBUG = True
+DEBUG = False
 
 # Show debug toolbar
 DEBUG_TOOLBAR = DEBUG
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:
-    INSTALLED_APPS.append('debug_toolbar')
+    INSTALLED_APPS.extend([
+        'debug_toolbar',
+    ])
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
 # Add static serving capability
@@ -47,6 +49,8 @@ TEMPLATES = [
 
         'DIRS': TEMPLATE_DIRS,
 
+        'APP_DIRS': True,
+
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
@@ -59,12 +63,11 @@ TEMPLATES = [
                 'biostar.forum.context.forum',
             ],
 
-            'loaders': [
-                ('django.template.loaders.cached.Loader', [
-                    'django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader',
-
-                ],)],
+            #'loaders': [
+            #    ('django.template.loaders.cached.Loader', [
+            #        'django.template.loaders.filesystem.Loader',
+            #        'django.template.loaders.app_directories.Loader'
+            #        ],)],
 
         },
     },

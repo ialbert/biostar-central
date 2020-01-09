@@ -1,26 +1,23 @@
 import os
-
+from django.core.cache import cache
+from django.core.servers import basehttp
 #
 # To see all log messages: export DJANGO_LOG_LEVEL=DEBUG
 #
 LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL') or 'INFO'
 
-DJANGO_LOG = 'INFO'
-
-
 class RateLimitFilter(object):
     """
     Limits the number of error emails when errors get triggered.
     """
+    TIMEOUT = 600
+    CACHE_KEY = "error-limiter"
 
     def filter(self, record):
-        from django.core.cache import cache
-        TIMEOUT = 600
-        CACHE_KEY = "error-limiter"
 
-        exists = cache.get(CACHE_KEY)
+        exists = cache.get(self.CACHE_KEY)
         if not exists:
-            cache.set(CACHE_KEY, 1, TIMEOUT)
+            cache.set(self.CACHE_KEY, 1, self.TIMEOUT)
 
         return not exists
 
@@ -29,7 +26,7 @@ LOGGING = {
 
     'version': 1,
 
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
 
     'formatters': {
 
@@ -72,7 +69,7 @@ LOGGING = {
 
         'django': {
             'handlers': ['console'],
-            'level': DJANGO_LOG,
+            'level': 'WARNING',
         },
 
         'engine': {

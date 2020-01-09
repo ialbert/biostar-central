@@ -1,6 +1,8 @@
 {% extends "forum_list.html" %}
 {% load forum_tags %}
 {% load humanize %}
+{% load cache %}
+
 {% block headtitle %}
     Biostar Forum
 {% endblock %}
@@ -8,115 +10,124 @@
 
 {% block body %}
 
-{% block search %}
-    {% search_bar extra_css='fluid' redir='1' %}
-{% endblock %}
+    {% block search %}
+        {% search_bar extra_css='fluid' redir='1' %}
+    {% endblock %}
 
+    {% with params=request.GET.urlencode %}
+        <div
+        class="ui horizontal basic top-menu segments  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
 
-{% with params=request.GET.urlencode %}
-<div class="ui horizontal basic top-menu segments  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+            <div class="ui first segment">
+                <div
+                class="ui small compact menu no-shadow {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+                    <div
+                    class="ui simple dropdown item {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+                        <i class="{% get_icon string=limit default='all' %}"></i>
+                        <span class="tablet">{% get_wording prefix="Limit to:" filtered=limit default="all" %}</span>
+                        <i class="dropdown icon"></i>
 
-    <div class="ui first segment">
-        <div class="ui small compact menu no-shadow {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}" >
-          <div class="ui simple dropdown item {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
-            <i class="{% get_icon string=limit default='all' %}"></i>
-            <span class="tablet">{% get_wording prefix="Limit to:" filtered=limit default="all" %}</span>
-            <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <a class="item" href="{% url 'post_list' %}{% relative_url 'all' 'limit' params %}">
+                                <i class="{% get_icon 'all' %}"></i>all time
+                            </a>
+                            <a class="item" href="{% url 'post_list' %}{% relative_url 'today' 'limit' params %}">
+                                <i class="{% get_icon 'today' %}"></i>today
+                            </a>
+                            <a class="item" href="{% url 'post_list' %}{% relative_url 'week' 'limit' params %}">
+                                <i class="{% get_icon 'week' %}"></i>this week
+                            </a>
+                            <a class="item" href="{% url 'post_list' %}{% relative_url 'month' 'limit' params %}">
+                                <i class="{% get_icon 'month' %}"></i>this month
+                            </a>
+                            <a class="item" href="{% url 'post_list' %}{% relative_url 'year' 'limit' params %}">
+                                <i class="{% get_icon 'year' %}"></i>this year
+                            </a>
+                            {% if request.user.is_authenticated and request.user.profile.is_moderator %}
+                                <div class="ui divider"></div>
+                                <a class="item" href="{% url 'post_list' %}{% relative_url 'spam' 'type' params %}">
+                                    <i class="{% activate_check_mark type 'spam' %}"></i>Show Spam
+                                </a>
+                                <a class="item" href="{% url 'post_list' %}{% relative_url 'latest' 'type' params %}">
+                                    <i class="{% activate_check_mark type 'latest' %}"></i>All posts
+                                </a>
+                            {% endif %}
 
-            <div class="menu">
-                  <a class="item" href="{% url 'post_list' %}{% relative_url 'all' 'limit' params %}">
-                      <i class="{% get_icon 'all' %}"></i>all time
-                  </a>
-                  <a class="item" href="{% url 'post_list' %}{% relative_url 'today' 'limit' params %}">
-                      <i class="{% get_icon 'today' %}"></i>today
-                  </a>
-                  <a class="item" href="{% url 'post_list' %}{% relative_url 'week' 'limit' params %}">
-                      <i class="{% get_icon 'week' %}"></i>this week
-                  </a>
-                  <a class="item" href="{% url 'post_list' %}{% relative_url 'month' 'limit' params %}">
-                      <i class="{% get_icon 'month' %}"></i>this month
-                  </a>
-                  <a class="item" href="{% url 'post_list' %}{% relative_url 'year' 'limit' params %}">
-                      <i class="{% get_icon 'year' %}"></i>this year
-                  </a>
-                {% if request.user.is_authenticated and request.user.profile.is_moderator %}
-                <div class="ui divider"></div>
-                <a class="item" href="{% url 'post_list' %}{% relative_url 'spam' 'type' params %}">
-                    <i class="{% activate_check_mark type 'spam' %}"></i>Show Spam
-                </a>
-                          <a class="item" href="{% url 'post_list' %}{% relative_url 'latest' 'type' params %}">
-                    <i class="{% activate_check_mark type 'latest' %}"></i>All posts
-                </a>
-                {% endif %}
-
-            </div>
-          </div>
-        </div>
-    </div>
-
-    <div class="ui page-bar segment">
-            {% pages objs=posts %}
-    </div>
-
-    <div class="ui third segment">
-        <div class="ui small compact menu no-shadow float-right {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
-              <div class="ui simple dropdown item {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
-
-                <i class="{% get_icon string=order default='rank' %}"></i>
-                <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="rank" %}</span>
-                <i class="dropdown icon"></i>
-
-                <div class="menu">
-
-                      <a class="item" href="{% url 'post_list' %}{% relative_url 'rank' 'order' params %}">
-                          <i class="{% get_icon 'rank' %}"></i>Rank
-                      </a>
-
-                      <a class="item" href="{% url 'post_list' %}{% relative_url 'views' 'order' params %}">
-                          <i class="{% get_icon 'views' %}"></i>Views
-                      </a>
-
-                      <a class="item" href="{% url 'post_list' %}{% relative_url 'votes' 'order' params %}">
-                          <i class="{% get_icon 'votes' %}"></i>Votes
-                      </a>
-
-                      <a class="item" href="{% url 'post_list' %}{% relative_url '-replies' 'order' params %}">
-                          <i class="{% get_icon 'replies' %}"></i>Replies
-                      </a>
-
+                        </div>
+                    </div>
                 </div>
-              </div>
+            </div>
+
+            <div class="ui page-bar segment">
+                {% pages objs=posts %}
+            </div>
+
+            <div class="ui third segment">
+                <div class="ui small compact menu no-shadow float-right
+                {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+                    <div
+                    class="ui simple dropdown item {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+
+                        <i class="{% get_icon string=order default='rank' %}"></i>
+                        <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="rank" %}</span>
+                        <i class="dropdown icon"></i>
+
+                        <div class="menu">
+
+                            <a class="item" href="{% url 'post_list' %}{% relative_url 'rank' 'order' params %}">
+                                <i class="{% get_icon 'rank' %}"></i>Rank
+                            </a>
+
+                            <a class="item" href="{% url 'post_list' %}{% relative_url 'views' 'order' params %}">
+                                <i class="{% get_icon 'views' %}"></i>Views
+                            </a>
+
+                            <a class="item" href="{% url 'post_list' %}{% relative_url 'votes' 'order' params %}">
+                                <i class="{% get_icon 'votes' %}"></i>Votes
+                            </a>
+
+                            <a class="item" href="{% url 'post_list' %}{% relative_url '-replies' 'order' params %}">
+                                <i class="{% get_icon 'replies' %}"></i>Replies
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-{% endwith %}
+    {% endwith %}
 
-    {% if tag  %}
+    {% if tag %}
         <div class="ui blue filter message">
-            Showing : <code>{{tag}}</code>  &bull; <a href="{% url 'post_list' %}">reset <i class="undo small icon"></i></a>
+            Showing : <code>{{ tag }}</code> &bull; <a href="{% url 'post_list' %}">reset <i
+        class="undo small icon"></i></a>
         </div>
     {% endif %}
 
     {% listing posts=posts %}
 
-<div class="ui horizontal basic top-menu segments">
-    <div class="ui page-bar segment {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+    <div class="ui horizontal basic top-menu segments">
+        <div class="ui page-bar segment {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
 
-    {% pages objs=posts %}
+            {% pages objs=posts %}
+        </div>
     </div>
-</div>
 
 
 {% endblock %}
 
-{%  block sidebar %}
-    {% if tab == 'following' %}
-        {% custom_feed feed_type=tab objs=posts title='People you are following'%}
-    {% elif tab == 'bookmarks' %}
-        {% custom_feed feed_type=tab objs=posts title='People you have bookmarked'%}
-    {% else %}
-        {%  default_feed user=request.user %}
-    {% endif %}
-{%  endblock %}
+{% block sidebar %}
+
+    {% cache 60 sidebar %}
+        {% if tab == 'following' %}
+            {% custom_feed feed_type=tab objs=posts title='People you are following' %}
+        {% elif tab == 'bookmarks' %}
+            {% custom_feed feed_type=tab objs=posts title='People you have bookmarked' %}
+        {% else %}
+            {% default_feed user=request.user %}
+        {% endif %}
+    {% endcache %}
+
+{% endblock %}
 
