@@ -60,6 +60,9 @@ def update_index(*args):
 
 @spool(pass_arguments=True)
 def create_user_awards(user_id):
+    #TODO: This does too many queries per request
+    # NEEDS to be changed asap.
+
     from biostar.accounts.models import User
     from biostar.forum.models import Award, Badge, Post
     from biostar.forum.awards import ALL_AWARDS
