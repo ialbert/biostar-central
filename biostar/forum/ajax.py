@@ -330,15 +330,6 @@ def validate_post(fields={}):
     return True, ""
 
 
-def moderate_user(request, target_id):
-
-    user = request.user
-
-    target_uid = User.objects.filter(id=target_id).first()
-
-    return
-
-
 def is_trusted(user):
     # Moderators and users with scores above threshold are trusted.
     trusted = user.is_authenticated and (user.profile.trusted or
