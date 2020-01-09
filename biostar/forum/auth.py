@@ -147,6 +147,7 @@ def post_tree(user, root):
     # Only moderators
     if not is_moderator:
         query = query.exclude(status=Post.DELETED)
+        query = query.exclude(spam=Post.SPAM)
 
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")

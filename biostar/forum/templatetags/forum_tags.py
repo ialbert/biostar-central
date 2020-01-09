@@ -471,7 +471,8 @@ def search_bar(context, search_url='', tags=False, users=False, ajax_results=Tru
 def list_posts(context, target):
     request = context["request"]
     user = request.user
-    posts = Post.objects.filter(author=target)
+    posts = Post.objects.filter(author=target).exclude(spam=Post.SPAM)
+
     page = request.GET.get('page', 1)
     posts = posts.prefetch_related("root", "author__profile",
                                    "lastedit_user__profile", "thread_users__profile")

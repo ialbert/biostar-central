@@ -17,9 +17,10 @@
 
         {% user_icon user=post.author %}
 
-     &bull;
+
 </span>
-    <span >
+    {% if not post.lastedit_user.profile.is_spammer %}
+         &bull;
     updated
 
     {{ post.lastedit_date|time_ago }}
@@ -35,8 +36,7 @@
     </a>
 
     {% user_icon user=post.lastedit_user %}
-
-</span>
+    {% endif %}
 
 {% elif post %}
 

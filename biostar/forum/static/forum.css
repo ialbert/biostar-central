@@ -367,6 +367,10 @@ a:hover {
     //opacity: .0%;
 }
 
+#id_is_spammer{
+    vertical-align: baseline;
+}
+
 .ui.divided.items > .post.item.spam-post {
     background-color: #f8f1a1;
 / / opacity: .0 %;
