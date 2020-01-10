@@ -17,7 +17,7 @@ if DEBUG is False:
     print("Whitenoise static serve enabled (pip install whitenoise)")
     MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
 
-POSTS_PER_PAGE = 25
+POSTS_PER_PAGE = 50
 
 WSGI_APPLICATION = 'conf.examples.pg.pg_wsgi.application'
 

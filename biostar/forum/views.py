@@ -145,7 +145,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     #     query = query.exclude(spam=Post.SPAM)
 
     # Select related information used during rendering.
-    query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", 'thread_users',
+    query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile", 'thread_users',
                                    'thread_users__profile')
     #query = query.select_related("author__profile", "lastedit_user__profile")
 
@@ -374,7 +374,7 @@ def post_view(request, uid):
     "Return a detailed view for specific post"
 
     # Get the post.
-    post = Post.objects.filter(uid=uid).first()
+    post = Post.objects.filter(uid=uid).select_related('root').first()
     if not post:
         messages.error(request, "Post does not exist.")
         return redirect("post_list")

@@ -117,10 +117,9 @@ def inplace_form(post, width='100%'):
     return context
 
 
-@register.inclusion_tag('widgets/post_user_line.html')
-def post_search_line(post_uid, avatar=True):
-    post = Post.objects.filter(uid=post_uid).first()
-    return dict(post=post, avatar=avatar)
+@register.inclusion_tag('widgets/post_user_line_search.html')
+def post_search_line(result, avatar=True):
+    return dict(post=result, avatar=avatar)
 
 
 @register.inclusion_tag('widgets/pages_search.html', takes_context=True)
@@ -165,27 +164,32 @@ def now():
 
 
 @register.simple_tag
-def gravatar(user, size=80):
+def gravatar(user=None, user_uid=None, size=80):
+
+    if user_uid:
+        user = User.objects.filter(profile__uid=user_uid).first()
 
     return auth.gravatar(user=user, size=size)
 
 
 @register.simple_tag()
-def user_score(user):
-    score = user.profile.score * 10
+def user_score(score):
+    score = score * 10
     return score
 
 
 @register.inclusion_tag('widgets/user_icon.html', takes_context=True)
-def user_icon(context, user=None, user_uid=None):
+def user_icon(context, user=None, is_moderator=False, score=0):
+
     try:
-        user = user or User.objects.filter(profile__uid=user_uid).first()
-        score = user_score(user)
+        is_moderator = user.profile.is_moderator if user else is_moderator
+        score = user.profile.score if user else score
     except Exception as exc:
         logger.info(exc)
-        user = score = None
 
-    context.update(dict(user=user, score=score))
+    score = user_score(score)
+
+    context.update(dict(is_moderator=is_moderator, score=score))
     return context
 
 
@@ -193,6 +197,7 @@ def user_icon(context, user=None, user_uid=None):
 def post_user_line(context, post, avatar=False, user_info=True):
     context.update(dict(post=post, avatar=avatar, user_info=user_info))
     return context
+
 
 
 @register.inclusion_tag('widgets/post_user_line.html', takes_context=True)
@@ -210,8 +215,9 @@ def user_card(context, user):
 
 
 @register.inclusion_tag('widgets/post_user_box.html', takes_context=True)
-def post_user_box(context, user, post):
-    context.update(dict(user=user, post=post))
+def post_user_box(context, target_user):
+
+    context.update(dict(target_user=target_user))
     return context
 
 
@@ -224,20 +230,15 @@ def post_actions(context, post, label="ADD COMMENT", author=None, lastedit_user=
 
 
 @register.inclusion_tag('widgets/post_tags.html')
-def post_tags(post=None, post_uid=None, show_views=False, spaced=True):
+def post_tags(post=None, post_uid=None, show_views=False, tags_str='', spaced=True):
 
     if post_uid:
         post = Post.objects.filter(uid=post_uid).first()
 
-    tags = post.tag_val.split(",")
+    tags = tags_str.split(",") if tags_str else ''
+    tags = post.tag_val.split(",") if post else tags
 
     return dict(post=post, tags=tags, show_views=show_views, spaced=spaced)
-
-
-@register.simple_tag
-def get_vote_count(uid):
-    post = Post.objects.filter(uid=uid).first()
-    return post.get_votecount if post else 0
 
 
 @register.simple_tag
@@ -476,8 +477,9 @@ def list_posts(context, target):
     posts = Post.objects.filter(author=target).exclude(spam=Post.SPAM)
 
     page = request.GET.get('page', 1)
-    posts = posts.prefetch_related("root", "author__profile",
+    posts = posts.select_related("root").prefetch_related("author__profile",
                                    "lastedit_user__profile", "thread_users__profile")
+
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
         posts = posts.exclude(Q(status=Post.DELETED))
@@ -536,7 +538,8 @@ def get_digest_icon(user):
 @register.inclusion_tag('widgets/list_awards.html', takes_context=True)
 def list_awards(context, target):
     request = context['request']
-    awards = Award.objects.filter(user=target).order_by("-date")
+    awards = Award.objects.filter(user=target).select_related('post', 'post__root', 'user', 'user__profile',
+                                                              'badge').order_by("-date")
     page = request.GET.get('page', 1)
     # Create the paginator
     paginator = Paginator(awards, 20)
@@ -692,36 +695,43 @@ def bignum(number):
         pass
     return str(number)
 
-
-@register.simple_tag
-def boxclass(post=None, uid=None):
-
-    if uid:
-        post = Post.objects.filter(uid=uid).first()
+def post_boxclass(root_type, answer_count, root_has_accepted):
 
     # Create the css class for each row
-    if post.root.type == Post.JOB:
+    if root_type == Post.JOB:
         style = "job"
-    elif post.root.type == Post.TUTORIAL:
+    elif root_type == Post.TUTORIAL:
         style = "tutorial"
-    elif post.root.type == Post.TOOL:
+    elif root_type == Post.TOOL:
         style = "tool"
-    elif post.root.type == Post.FORUM:
+    elif root_type == Post.FORUM:
         style = "forum"
-    elif post.root.type == Post.NEWS:
+    elif root_type == Post.NEWS:
         style = "news"
     else:
         style = "question"
 
-    if post.root.answer_count:
+    if isinstance(answer_count, int) and int(answer_count) > 1:
         style += " has_answers"
 
-    if post.root.has_accepted:
-        modifier = "accepted answer" if post.type == Post.QUESTION else "accepted"
+    if root_has_accepted == True:
+        modifier = "accepted answer" if root_type == Post.QUESTION else "accepted"
     else:
         modifier = "open"
 
     return f"{style} {modifier}"
+
+
+@register.simple_tag
+def search_boxclass(root_type, answer_count, root_has_accepted):
+    return post_boxclass(root_type=root_type, answer_count=answer_count, root_has_accepted=root_has_accepted)
+
+
+@register.simple_tag
+def boxclass(post=None, uid=None):
+
+    return post_boxclass(root_type=post.root.type,
+                              answer_count=post.root.answer_count, root_has_accepted=post.root.has_accepted)
 
 
 @register.simple_tag(takes_context=True)
@@ -749,7 +759,8 @@ def traverse_comments(request, post, tree, template_name):
         source = f"indent-{node.uid}"
         target = f"'{node.uid}'"
         if request.user.is_authenticated and request.user.profile.is_moderator:
-            collect.append(f'<div class="indent " id="{source}" ondragover="allowDrop(event);" ondrop="drop(event, {target})"><div class="comment">{html}</div>')
+            # ondragover="allowDrop(event);" ondrop="drop(event, {target})"
+            collect.append(f'<div class="indent " id="{source}" ><div class="comment">{html}</div>')
         else:
             collect.append(f'<div class="indent "><div class="comment">{html}</div>')
 

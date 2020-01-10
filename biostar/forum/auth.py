@@ -138,8 +138,7 @@ def post_tree(user, root, post=None):
     query = Post.objects.filter(root=root).exclude(pk=root.id)
 
     query = query.select_related("lastedit_user__profile", "author__profile",
-                                 "root__lastedit_user",
-                                 "root__lastedit_user__profile", "root__author__profile")
+                                  "root__author__profile")
 
     is_moderator = user.is_authenticated and user.profile.is_moderator
 
@@ -152,10 +151,10 @@ def post_tree(user, root, post=None):
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
 
     # Gather votes by the current user.
-    # votes = get_votes(user=user, root=root)
+    votes = get_votes(user=user, root=root)
 
     # Shortcuts to each storage.
-    # bookmarks, upvotes = votes[Vote.BOOKMARK], votes[Vote.UP]
+    bookmarks, upvotes = votes[Vote.BOOKMARK], votes[Vote.UP]
 
     # Build comments tree.
     comment_tree = dict()
@@ -164,11 +163,11 @@ def post_tree(user, root, post=None):
         # Mutates the elements! Not worth creating copies.
         if post.is_comment:
             comment_tree.setdefault(post.parent_id, []).append(post)
-        # post.has_bookmark = int(post.id in bookmarks)
-        # post.has_upvote = int(post.id in upvotes)
-        # post.can_accept = not post.is_toplevel and (user == post.root.author or (user.is_authenticated and user.profile.is_moderator))
-        # post.can_moderate = user.is_authenticated and user.profile.is_moderator
-        # post.is_editable = user.is_authenticated and (user == post.author or (user.is_authenticated and user.profile.is_moderator))
+        post.has_bookmark = int(post.id in bookmarks)
+        post.has_upvote = int(post.id in upvotes)
+        post.can_accept = not post.is_toplevel and (user == post.root.author or (user.is_authenticated and user.profile.is_moderator))
+        post.can_moderate = user.is_authenticated and user.profile.is_moderator
+        post.is_editable = user.is_authenticated and (user == post.author or (user.is_authenticated and user.profile.is_moderator))
         return post
 
     # Decorate the objects for easier access

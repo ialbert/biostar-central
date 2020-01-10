@@ -139,7 +139,7 @@ index:
 reindex:
 	@echo INDEX_NAME=${INDEX_NAME}
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	python manage.py index --remove --reset --index 130000 --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py index --remove --reset --index 1000 --settings ${DJANGO_SETTINGS_MODULE}
 
 recipes_demo: recipes reset init load_recipes serve
 
