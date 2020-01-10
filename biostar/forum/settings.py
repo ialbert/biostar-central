@@ -8,9 +8,7 @@ DEBUG = True
 
 SITE_NAME = 'Biostar Forum'
 
-# Override compression if needed.
-# COMPRESS_ENABLED = True
-
+# Site settings.
 POSTS_PER_PAGE = 40
 USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
@@ -84,7 +82,6 @@ FORUM_APPS = [
 
 ]
 
-
 # Additional middleware.
 MIDDLEWARE += [
     'biostar.forum.middleware.user_tasks',
@@ -93,6 +90,7 @@ MIDDLEWARE += [
 
 # Remap the post type display to a more human friendly one.
 REMAP_TYPE_DISPLAY = False
+
 # Post types displayed when creating, empty list displays all types.
 ALLOWED_POST_TYPES = []
 
