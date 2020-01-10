@@ -127,7 +127,7 @@ def is_suspended(user):
     return False
 
 
-def post_tree(user, root, post=None):
+def post_tree(user, root):
     """
     Populates a tree that contains all posts in the thread.
 
