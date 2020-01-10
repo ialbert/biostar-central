@@ -1,6 +1,9 @@
 {% load forum_tags %}
 {% load staticfiles %}
 
+ <span class="menu-tablet_small">
+
+
 <div class="ui labeled icon attached fluid pointing menu   " id="menu-header" user-id="{{ request.user.id }}">
     <div class="ui inverted dimmer"></div>
 
@@ -105,9 +108,7 @@
                 </a>
 
                 <a class="item  {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
-
                     <i class="bookmark icon"></i> Bookmarks
-
                 </a>
 
 
@@ -174,3 +175,5 @@
 
     </div>
 </div>
+
+ </span>

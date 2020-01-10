@@ -193,6 +193,21 @@ def user_icon(context, user=None, is_moderator=False, score=0):
     return context
 
 
+@register.simple_tag()
+def user_icon_css(user=None):
+    css = ''
+    if user and user.is_authenticated:
+
+        if user.profile.is_moderator:
+            css = "bolt icon"
+        elif user.profile.score > 1000:
+            css = "user icon"
+        else:
+            css = "user outline icon"
+
+    return css
+
+
 @register.inclusion_tag('widgets/post_user_line.html', takes_context=True)
 def post_user_line(context, post, avatar=False, user_info=True):
     context.update(dict(post=post, avatar=avatar, user_info=user_info))

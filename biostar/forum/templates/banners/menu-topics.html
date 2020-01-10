@@ -1,0 +1,36 @@
+{% load forum_tags %}
+
+{% if user.is_authenticated %}
+
+    <div class="ui top attached text menu">
+
+        {% count_label label="message_count" as msgs_count %}
+        {% count_label label="vote_count" as votes_count %}
+
+        <a class="item {% if msgs_count %}new-item{% endif %} {% activate tab "messages" %}" href="{% url 'inbox' %}">
+            <i class="envelope icon"></i> Messages {{ msgs_count }}
+        </a>
+        <a class="item  {% if votes_count %}new-item{% endif %} {% activate tab "myvotes" %}"
+           href="{% url 'myvotes' %}">
+            <i class="heart icon"></i> Votes {{ votes_count }}
+        </a>
+
+        <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
+            <i class="bookmark icon"></i> Bookmarks
+        </a>
+
+        <a class="item{% activate tab "myposts" %}" href="{% url 'myposts' %}">
+            <i class="comments icon"></i> My Posts
+        </a>
+
+        <a class="item {% activate tab "mytags" %}" href="{% url 'mytags' %}">
+            <i class="tags icon"></i> My Tags
+        </a>
+
+        <a class="item {% activate tab "following" %}" href="{% url 'following' %}">
+            <i class="eye icon"></i> Following
+        </a>
+
+    </div>
+
+{% endif %}

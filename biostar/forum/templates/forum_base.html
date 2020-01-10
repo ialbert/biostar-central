@@ -26,7 +26,7 @@
 
     {#  CSS compression. #}
     {% compress css %}
-        <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'at.who.css' %}" rel="stylesheet">
         <link href="{% static 'prism.css' %}" rel="stylesheet">
@@ -59,13 +59,13 @@
 
 <div class="ui inverted container widen">
 
-    {% include 'banners/top_banner.html' %}
+    {% include 'banners/top-banner.html' %}
 
-    <span class="menu-tablet_small">{% include "widgets/menu-topics.html" %}</span>
+    {% include "banners/menu-topics.html" %}
 
-    {% include "widgets/menu-header.html" %}
+    {% include "banners/menu-header.html" %}
 
-    <div class="ui bottom attached segment dim-on-create" >
+    <div class="ui bottom attached segment dim-on-create">
 
         <div class="ui inverted dimmer"></div>
 
@@ -76,7 +76,6 @@
         <div id="recent" {% if post %}data-value="{{ post.uid }}"{% endif %}></div>
 
         {% block content %}
-
             MAIN CONTENT
         {% endblock %}
 

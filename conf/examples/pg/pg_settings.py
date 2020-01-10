@@ -5,7 +5,7 @@ INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
 DEBUG = True
 
 # Show debug toolbar
-DEBUG_TOOLBAR = DEBUG
+DEBUG_TOOLBAR = False
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:
