@@ -241,23 +241,6 @@ def post_tags(post=None, post_uid=None, show_views=False, tags_str='', spaced=Tr
     return dict(post=post, tags=tags, show_views=show_views, spaced=spaced)
 
 
-@register.simple_tag
-def get_view_count(uid):
-    post = Post.objects.filter(uid=uid).first()
-    return post.root.view_count if post else 0
-
-
-@register.simple_tag
-def get_subs_count(uid):
-    post = Post.objects.filter(uid=uid).first()
-    return post.subs_count if post else 0
-
-
-@register.simple_tag
-def get_reply_count(uid):
-    post = Post.objects.filter(uid=uid).first()
-    return post.reply_count if post else 0
-
 
 @register.inclusion_tag('widgets/pages.html', takes_context=True)
 def pages(context, objs):
