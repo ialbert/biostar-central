@@ -2,7 +2,7 @@
 
 {% if user.is_authenticated %}
 
-    <div class="ui top attached six item menu">
+    <div class="ui top attached six item menu" id="menu-topics">
 
         {% count_label label="message_count" as msgs_count %}
         {% count_label label="vote_count" as votes_count %}
