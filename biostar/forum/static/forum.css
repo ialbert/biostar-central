@@ -275,8 +275,8 @@ a:hover {
 }
 
 #search {
-    background-color: #f0f0f0;
-    border: none;
+    background-color: #f8f8f9;
+    border: 1px solid #ECECEC;
     width: 500px;
 }
 
