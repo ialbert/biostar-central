@@ -137,6 +137,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
         query = query.exclude(status=Post.DELETED)
+        query = query.exclude(spam=Post.SPAM)
 
 
     # if topic == SHOW_SPAM and user.is_authenticated and user.profile.is_moderator:

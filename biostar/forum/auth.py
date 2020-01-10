@@ -37,9 +37,9 @@ def get_votes(user, root):
 
 
 def gravatar_url(email, style='mp', size=80):
-    hash = hashlib.md5(email).hexdigest()
+    hash_num = hashlib.md5(email).hexdigest()
 
-    url = "https://secure.gravatar.com/avatar/%s?" % hash
+    url = "https://secure.gravatar.com/avatar/%s?" % hash_num
     url += urllib.parse.urlencode({
         's': str(size),
         'd': style,
