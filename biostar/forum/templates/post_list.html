@@ -14,11 +14,11 @@
 
 
 {% with params=request.GET.urlencode %}
-<div class="ui horizontal basic top-menu segments  {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+<div class="ui horizontal basic top-menu segments">
 
     <div class="ui first segment">
-        <div class="ui small compact menu no-shadow {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}" >
-          <div class="ui simple dropdown item {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+        <div class="ui small compact menu no-shadow" >
+          <div class="ui simple dropdown item">
             <i class="{% get_icon string=limit default='all' %}"></i>
             <span class="tablet">{% get_wording prefix="Limit to:" filtered=limit default="all" %}</span>
             <i class="dropdown icon"></i>
@@ -39,15 +39,6 @@
                   <a class="item" href="{% url 'post_list' %}{% relative_url 'year' 'limit' params %}">
                       <i class="{% get_icon 'year' %}"></i>this year
                   </a>
-                {% if request.user.is_authenticated and request.user.profile.is_moderator %}
-                <div class="ui divider"></div>
-                <a class="item" href="{% url 'post_list' %}{% relative_url 'spam' 'type' params %}">
-                    <i class="{% activate_check_mark type 'spam' %}"></i>Show Spam
-                </a>
-                          <a class="item" href="{% url 'post_list' %}{% relative_url 'latest' 'type' params %}">
-                    <i class="{% activate_check_mark type 'latest' %}"></i>All posts
-                </a>
-                {% endif %}
 
             </div>
           </div>
@@ -59,8 +50,8 @@
     </div>
 
     <div class="ui third segment">
-        <div class="ui small compact menu no-shadow float-right {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
-              <div class="ui simple dropdown item {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+        <div class="ui small compact menu no-shadow float-right">
+              <div class="ui simple dropdown item">
 
                 <i class="{% get_icon string=order default='rank' %}"></i>
                 <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="rank" %}</span>
@@ -101,7 +92,7 @@
     {% listing posts=posts %}
 
 <div class="ui horizontal basic top-menu segments">
-    <div class="ui page-bar segment {% if user.is_authenticated %}{{ user.profile.css }}{% endif %}">
+    <div class="ui page-bar segment">
 
     {% pages objs=posts %}
     </div>

@@ -3,6 +3,7 @@
 
 {% if post.author.id != post.lastedit_user.id %}
 <span class="menu-tablet_small">
+
     {{ post.creation_date|time_ago }}
 
         <a href="{% url "user_profile"  post.author.profile.uid %}">
@@ -19,7 +20,7 @@
 
 
 </span>
-    {% if not post.lastedit_user.profile.is_spammer %}
+
          &bull;
     updated
 
@@ -36,7 +37,6 @@
     </a>
 
     {% user_icon user=post.lastedit_user %}
-    {% endif %}
 
 {% elif post %}
 

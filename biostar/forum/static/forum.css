@@ -814,8 +814,10 @@ img {
     text-align: center;
 }
 
-.new-message {
-    background-color: #f2ffe8 !important;
+#menu-topics > .new-item{
+    background-color: #d2ffd2 ;
+    border: solid green;
+    border-radius: 10px ;
 
 }
 

@@ -5,12 +5,14 @@
     <div class="ui inverted dimmer"></div>
 
     {% if user.is_authenticated %}
+        {% count_label label="message_count" as msgs_count %}
+        {%  count_label label="vote_count" as votes_count %}
         {#  Left floated menu items shown for authenticated users. #}
-        <a class="item menu-tablet_small  {% activate tab "messages" %}" href="{% url 'inbox' %}">
-            <i class="envelope icon"></i> Messages {% count_label label="message_count" %}
+        <a class="item menu-tablet_small  {% if msgs_count %}new-item{% endif %} {% activate tab "messages" %}" href="{% url 'inbox' %}">
+            <i class="envelope icon"></i> Messages {{ msgs_count }}
         </a>
-        <a class="item   menu-tablet_small {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-            <i class="heart icon"></i> <span class="tablet">Votes</span> {%  count_label label="vote_count" %}
+        <a class="item   menu-tablet_small {% if votes_count %}new-item{% endif %} {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
+            <i class="heart icon"></i> <span class="tablet">Votes</span> {{ votes_count }}
         </a>
 
         <a class="item menu-tablet_small {% activate tab "myposts" %}" href="{% url 'myposts' %}">
@@ -76,7 +78,7 @@
         </a>
 
         <a class="item {{ user.profile.css }} {% activate tab "faq" %}" href="{% url 'faq' %}">
-            <i class="circle question icon"></i> Faq
+            <i class="circle question icon"></i> FAQ
         </a>
 
     </div>
