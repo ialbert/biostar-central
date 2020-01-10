@@ -9,10 +9,9 @@
             {#  Page anchor. #}
             <a name="{{ post.uid }}"></a>
             {#  Post title. #}
-            {% if post.is_toplevel %}
-                <span class="hide-on-edit post-title"
-                      data-value="{{ post.uid }}">{{ post.get_type_display }}: {{ post.title }}</span>
-            {% endif %}
+
+            <span class="hide-on-edit post-title"
+                  data-value="{{ post.uid }}">{{ post.get_type_display }}: {{ post.title }}</span>
 
         </div>
     {% endif %}
@@ -55,14 +54,14 @@
 
             <div
                     {% if request.user.is_authenticated and request.user.profile.is_moderator %}
-                        ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')"
+{#                        ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')"#}
                     {% endif %}>
-                <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
+                <div class="dimm-on-edit " data-value="{{ post.uid }}"
 
                         {% if request.user.is_authenticated and request.user.profile.is_moderator %}
-                             data-thread="{{ post|get_children_list }}"
-                             ondragover="drag_over(event, '{{ post.uid }}')"
-                             ondragleave="drag_leave(event, '{{ post.uid }}')"
+                     data-thread="{{ post|get_children_list }}"
+                     ondragover="drag_over(event, '{{ post.uid }}')"
+                     ondragleave="drag_leave(event, '{{ post.uid }}')"
                         {% endif %}>
 
                     <div class="ui inverted dimmer">
@@ -75,13 +74,13 @@
 
                     <div class="wrap magnify"
                             {% if post.is_answer and request.user.is_authenticated and request.user.profile.is_moderator %}
-                         draggable="true"
-                         ondragstart="drag(event, '{{ post.uid }}');"
+{#                         draggable="flase"#}
+{#                         ondragstart="drag(event, '{{ post.uid }}');" #}
                             {% endif %}>
 
                         {# Display post author. #}
                         <div class="hide-on-edit menu-tablet" data-value="{{ post.uid }}">
-                            {% post_user_box user=post.author post=post %}
+                            {% post_user_box target_user=post.author %}
                         </div>
                         {# Display post content. #}
                         {% if post.is_editable %}
@@ -103,6 +102,7 @@
                         {% endif %}
 
                         {# Show the post actions #}
+
                         <div class="hide-on-comment" data-value="{{ post.uid }}" style="display: flow-root">
                             {% post_actions post=post %}
                         </div>
@@ -114,10 +114,11 @@
                         <div id="comment-insert-{{ post.uid }}"></div>
 
                         {# Render all comments #}
+                        {% render_comments tree=tree post=post %}
                     </div>
 
                 </div>
-                {% render_comments tree=tree post=post %}
+
             </div>
 
         </div>

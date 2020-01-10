@@ -27,6 +27,7 @@ from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
 from biostar.forum.models import Post
+from biostar.forum.auth import gravatar
 #from biostar.forum.documents import PostDocument
 logger = logging.getLogger('biostar')
 
@@ -123,18 +124,33 @@ def add_index(post, writer):
                            type_display=post.get_type_display(),
                            content_length=len(post.content),
                            type=post.type,
+                           creation_date=post.creation_date,
                            lastedit_date=post.lastedit_date,
-                           content=post.content, tags=post.tag_val,
+                           lastedit_user=post.lastedit_user.profile.name,
+                           lastedit_user_email=post.author.email,
+                           lastedit_user_score=post.author.profile.score,
+                           lastedit_user_uid=post.author.profile.uid,
+                           lastedit_user_url=post.lastedit_user.profile.get_absolute_url(),
+                           content=post.content,
+                           tags=post.tag_val,
                            is_toplevel=post.is_toplevel,
                            rank=post.rank, uid=post.uid,
+                           vote_count=post.vote_count,
+                           reply_count=post.reply_count,
+                           view_count=post.view_count,
                            author_handle=post.author.username,
                            author=post.author.profile.name,
+                           answer_count=post.root.answer_count,
+                           root_has_accepted=post.root.has_accepted,
                            author_email=post.author.email,
                            author_score=post.author.profile.score,
                            thread_votecount=post.thread_votecount,
-                           vote_count=post.vote_count,
                            author_uid=post.author.profile.uid,
-                           author_url=post.author.profile.get_absolute_url())
+                           author_url=post.author.profile.get_absolute_url(),
+                           author_is_moderator=post.author.profile.is_moderator,
+                           author_is_suspended=post.author.profile.is_suspended,
+                           lastedit_user_is_suspended=post.lastedit_user.profile.is_suspended,
+                           lastedit_user_is_moderator=post.lastedit_user.profile.is_moderator)
 
 
 def get_schema():
@@ -147,14 +163,28 @@ def get_schema():
                     content=TEXT(stored=True, analyzer=analyzer, sortable=True),
                     tags=KEYWORD(stored=True, commas=True),
                     is_toplevel=BOOLEAN(stored=True),
+                    author_is_moderator=BOOLEAN(stored=True),
+                    lastedit_user_is_moderator=BOOLEAN(stored=True),
+                    lastedit_user_is_suspended=BOOLEAN(stored=True),
+                    author_is_suspended=BOOLEAN(stored=True),
                     lastedit_date=DATETIME(stored=True, sortable=True),
+                    creation_date=DATETIME(stored=True, sortable=True),
                     rank=NUMERIC(stored=True, sortable=True),
                     author=TEXT(stored=True),
+                    lastedit_user=TEXT(stored=True),
+                    lastedit_user_email=TEXT(stored=True),
+                    lastedit_user_score=NUMERIC(stored=True, sortable=True),
+                    lastedit_user_uid=ID(stored=True),
+                    lastedit_user_url=ID(stored=True),
                     author_score=NUMERIC(stored=True, sortable=True),
                     author_handle=TEXT(stored=True),
                     author_email=TEXT(stored=True),
                     author_uid=ID(stored=True),
                     author_url=ID(stored=True),
+                    root_has_accepted=BOOLEAN(stored=True),
+                    reply_count=NUMERIC(stored=True, sortable=True),
+                    view_count=NUMERIC(stored=True, sortable=True),
+                    answer_count=NUMERIC(stored=True, sortable=True),
                     uid=ID(stored=True),
                     type=NUMERIC(stored=True, sortable=True),
                     type_display=TEXT(stored=True))
@@ -333,40 +363,6 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     logger.info("Preformed index search")
 
     return results
-
-# TODO: being refactored out
-def pagenate_elastic(results, current_page=1, per_page=50):
-
-    if current_page <= 1:
-        start = 1
-    else:
-        start = (current_page - 1) * per_page
-
-    end = current_page * per_page
-
-    slice = results[start:end]
-
-    return slice
-
-
-# def preform_elastic_search(query='', fields=None, page=None, post=None, show_total=False):
-#     fields = fields or ['tag_val', 'title', 'content', 'uid']
-#
-#     # Preform a more-like-this query on this post.
-#     if post:
-#         elastic_search = more_like_this(post, fields=['content'],
-#                                         min_doc_freq=0, min_term_freq=0)
-#     else:
-#         elastic_search = PostDocument.search().query("multi_match", query=query,
-#                                                      fields=fields).sort('-lastedit_date')
-#
-#     elastic_search = elastic_search[0:1000]
-#     results = elastic_search.execute()
-#     total = results.hits.total.value
-#     if page:
-#         results = pagenate_elastic(per_page=settings.SEARCH_RESULTS_PER_PAGE, results=results, current_page=page)
-#
-#     return results, total if show_total else results
 
 
 def preform_db_search(query='', fields=None, filter_for=Q()):

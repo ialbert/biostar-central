@@ -146,7 +146,7 @@ def drag_and_drop(request):
     if not request.user.profile.is_moderator:
         return ajax_error(msg="Only moderators can move comments.")
 
-    children = auth.walk_down_thread(parent=post)
+    children = [] #auth.walk_down_thread(parent=post)
 
     if parent == post or (parent in children):
         return ajax_error(msg="Can not move post under parent.")

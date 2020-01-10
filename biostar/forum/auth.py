@@ -37,9 +37,9 @@ def get_votes(user, root):
 
 
 def gravatar_url(email, style='mp', size=80):
-    hash = hashlib.md5(email).hexdigest()
+    hash_num = hashlib.md5(email).hexdigest()
 
-    url = "https://secure.gravatar.com/avatar/%s?" % hash
+    url = "https://secure.gravatar.com/avatar/%s?" % hash_num
     url += urllib.parse.urlencode({
         's': str(size),
         'd': style,
@@ -49,7 +49,6 @@ def gravatar_url(email, style='mp', size=80):
 
 
 def gravatar(user, size=80):
-
     if not user or user.is_anonymous:
         email = 'anon@biostars.org'.encode('utf8')
         return gravatar_url(email=email)
@@ -73,28 +72,29 @@ def gravatar(user, size=80):
     return gravatar_url(email=email, style=style, size=size)
 
 
-def walk_down_thread(parent, collect=[], is_root=True):
-    """
-    Recursively walk up a thread of posts starting from target
-    """
-
-    # Stop condition 1: post does not have a root or parent.
-    if (parent is None) or (parent.parent is None) or (parent.root is None):
-        return collect
-
-    # Get all children for this post
-    if is_root:
-        children = Post.objects.filter(root=parent).exclude(uid=parent.uid)
-    else:
-        children = Post.objects.filter(parent=parent).exclude(uid=parent.uid)
-
-    for child in children:
-        # Add child to list
-        collect.append(child)
-        # Get all children belonging to the current child.
-        walk_down_thread(parent=child, collect=collect, is_root=is_root)
-
-    return collect
+# def walk_down_thread(parent, collect=[], is_root=True):
+#     """
+#     Recursively walk up a thread of posts starting from target
+#     """
+#
+#     # Stop condition 1: post does not have a root or parent.
+#     if (parent is None) or (parent.parent is None) or (parent.root is None):
+#         return collect
+#
+#     # Get all children for this post
+#     if is_root:
+#         children = Post.objects.filter(root=parent).exclude(uid=parent.uid)
+#     else:
+#         children = Post.objects.filter(parent=parent).exclude(uid=parent.uid)
+#
+#     children = children.prefetch_related("root", "parent")  # , "author__profile", "lastedit_user__profile")
+#     for child in children:
+#         # Add child to list
+#         collect.append(child)
+#         # Get all children belonging to the current child.
+#         walk_down_thread(parent=child, collect=collect, is_root=is_root)
+#
+#     return collect
 
 
 def create_subscription(post, user, sub_type=None, delete_exisiting=True):
@@ -119,7 +119,6 @@ def create_subscription(post, user, sub_type=None, delete_exisiting=True):
 
 
 def is_suspended(user):
-
     if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
         return True
     if user.is_authenticated and user.profile.role == Profile.SPAMMER:
@@ -138,16 +137,15 @@ def post_tree(user, root):
     # Get all posts that belong to post root.
     query = Post.objects.filter(root=root).exclude(pk=root.id)
 
-    # Add all related objects.
-    query = query.select_related("lastedit_user__profile", "lastedit_user", "root__lastedit_user",
-                                 "root__lastedit_user__profile", "root__author__profile", "author__profile")
+    query = query.select_related("lastedit_user__profile", "author__profile",
+                                  "root__author__profile")
 
     is_moderator = user.is_authenticated and user.profile.is_moderator
 
     # Only moderators
     if not is_moderator:
         query = query.exclude(status=Post.DELETED)
-        query = query.exclude(spam=Post.SPAM)
+        # query = query.exclude(spam=Post.SPAM)
 
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
@@ -179,9 +177,9 @@ def post_tree(user, root):
     root = decorate(root)
 
     # Select the answers from the thread.
-    answers = [ p for p in thread if p.type==Post.ANSWER ]
+    answers = [p for p in thread if p.type == Post.ANSWER]
 
-    return root, comment_tree,  answers, thread
+    return root, comment_tree, answers, thread
 
 
 def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
@@ -208,7 +206,6 @@ def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
 
 @transaction.atomic
 def apply_vote(post, user, vote_type):
-
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
 
     if vote:
@@ -289,7 +286,6 @@ def delete_post(post, request):
 
 
 def handle_spam_post(post):
-
     url = post.get_absolute_url()
 
     # # Ban new users that post spam.

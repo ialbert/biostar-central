@@ -137,6 +137,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
         query = query.exclude(status=Post.DELETED)
+        query = query.exclude(spam=Post.SPAM)
 
 
     # if topic == SHOW_SPAM and user.is_authenticated and user.profile.is_moderator:
@@ -145,7 +146,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     #     query = query.exclude(spam=Post.SPAM)
 
     # Select related information used during rendering.
-    query = query.prefetch_related("root", "author__profile", "lastedit_user__profile", 'thread_users',
+    query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile", 'thread_users',
                                    'thread_users__profile')
     #query = query.select_related("author__profile", "lastedit_user__profile")
 
@@ -195,6 +196,7 @@ class CachedPaginator(Paginator):
         value = cache.get(self.COUNT_KEY)
 
         return value
+
 
 @ensure_csrf_cookie
 def post_list(request, show=None, extra_context=dict()):
@@ -368,12 +370,15 @@ def badge_view(request, uid):
 
 
 @ensure_csrf_cookie
-@post_exists
+#@post_exists
 def post_view(request, uid):
     "Return a detailed view for specific post"
 
     # Get the post.
-    post = Post.objects.filter(uid=uid).first()
+    post = Post.objects.filter(uid=uid).select_related('root').first()
+    if not post:
+        messages.error(request, "Post does not exist.")
+        return redirect("post_list")
 
     auth.update_post_views(post=post, request=request)
     if not post.is_toplevel:
@@ -396,6 +401,9 @@ def post_view(request, uid):
         messages.error(request, form.errors)
 
     # Build the comment tree .
+    #print(post.id, post.root.root, post.lastedit_user.id, post.author.id, "FFF")
+    #root = post.root if post != post.root else post
+
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
     context = dict(post=root, tree=comment_tree, form=form, answers=answers)
