@@ -3,15 +3,9 @@
 
 <div class="ui divided items">
 
-    {% if include_pages_bar %}
-        <div class="ui horizontal basic top-menu segments">
-            <div class="ui page-bar segment">
-                {% pages objs=posts %}
-            </div>
-        </div>
-    {% endif %}
     {% for post in posts %}
-        <div class="post {{post.css }} item top-padding spam-remove-{{ post.uid }}">
+
+        <div class="post {{post.css }} item top-padding" id="{{ post.uid }}">
 
             <div class="statbox">
                 <div class="ui left stat label mini menu-tablet_small">
@@ -54,8 +48,7 @@
                         <span class="ui title header">Spam:</span>
                     {% endif %}
 
-                    <a href="{% url 'post_view' post.uid %}{% if not post.is_toplevel %}#{{ post.uid }}{% endif %}"
-                       class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
+                    <a href="{% url 'post_view' post.uid %}" class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
                     </a>
                 </div>
                 <div class="small-stats muted">
@@ -63,9 +56,7 @@
                     {{ post.get_votecount|bignum }}
 
                     Vote{{ post.get_votecount|pluralize }}
-
                     |
-
                     {{ post.reply_count }}
                     Repl{{ post.reply_count|pluralize:"y,ies" }}
 
@@ -89,7 +80,6 @@
                         {% post_tags post spaced=False %}
                     </div>
                     {% if post.author.profile.low_rep and request.user.is_authenticated and request.user.profile.is_moderator %}
-
                         <div class="ui spam dropdown">
                             <i class="bug icon"></i>
                             <div class="spam menu">
@@ -116,14 +106,6 @@
 
         </div>
     {% endfor %}
-
-    {% if include_pages_bar %}
-        <div class="ui horizontal basic top-menu segments">
-            <div class="ui page-bar segment">
-                {% pages objs=posts %}
-            </div>
-        </div>
-    {% endif %}
 
 </div>
 

@@ -108,21 +108,14 @@ class PostTest(TestCase):
         """
         Test AJAX function used to preform
         """
-        toplevel_data = {'content': "New content foo bar too bar", 'title': 'Title post foo bar too',
-                         'tag_val': ['new', 'tags'], 'top': '1', 'post_type': models.Post.FORUM,
-                         }
 
-        nontoplevel_data = {'content': "Addin a new comment foo bar", 'comment': '1',
-                            'top': '0', 'post_type': models.Post.FORUM}
+        nontoplevel_data = {'content': "Addin a new comment foo bar",
+                            'parent': self.post.uid}
 
-        url = reverse('ajax_create')
-
-        request = fake_request(url=url, data=toplevel_data, user=self.owner)
-        toplevel_response = ajax.ajax_create(request)
-        self.process_response(toplevel_response)
+        url = reverse('ajax_comment_create')
 
         request = fake_request(url=url, data=nontoplevel_data, user=self.owner)
-        nontoplevel_response = ajax.ajax_create(request)
+        nontoplevel_response = ajax.ajax_comment_create(request)
         self.process_response(nontoplevel_response)
 
     def test_inplace_form(self):
@@ -134,47 +127,6 @@ class PostTest(TestCase):
 
         request = fake_request(url=url, data=data, user=self.owner, method='GET')
         toplevel_response = ajax.inplace_form(request)
-        self.process_response(toplevel_response)
-
-    def test_ajax_search(self):
-        """
-        Test AJAX function used to preform post searches.
-        """
-        # Test searching inplace
-        inplace_data = {'query': 'Test query'}
-        url = reverse('ajax_search')
-
-        request = fake_request(url=url, data=inplace_data, user=self.owner, method='GET')
-        toplevel_response = ajax.ajax_search(request)
-        self.process_response(toplevel_response)
-
-        # Test searching in a new page
-        redir_data = {'query': 'Test query', 'redir': '1'}
-
-        request = fake_request(url=url, data=redir_data, user=self.owner, method='GET')
-        toplevel_response = ajax.ajax_search(request)
-        self.process_response(toplevel_response)
-
-    def test_ajax_tags_search(self):
-        """
-        Test AJAX function used to preform tag searches.
-        """
-        data = {'query': 'Test'}
-        url = reverse('ajax_tags_search')
-
-        request = fake_request(url=url, data=data, user=self.owner, method='GET')
-        toplevel_response = ajax.ajax_tags_search(request)
-        self.process_response(toplevel_response)
-
-    def test_ajax_users_search(self):
-        """
-        Test AJAX function used to preform users search
-        """
-        data = {'query': 'Test'}
-        url = reverse('ajax_users_search')
-
-        request = fake_request(url=url, data=data, user=self.owner, method='GET')
-        toplevel_response = ajax.ajax_users_search(request)
         self.process_response(toplevel_response)
 
     def test_similar_posts(self):

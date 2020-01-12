@@ -821,6 +821,20 @@ img {
 
 }
 
+
+#wmd-input.comment {
+ height: 100%;
+}
+.create-post{
+    text-align: center
+}
+
+.create-post > .ui.segment{
+    text-align: initial;
+    width: 70%;
+    display: inline-block
+}
+
 .wrap-text {
     overflow-wrap: break-word;
 }

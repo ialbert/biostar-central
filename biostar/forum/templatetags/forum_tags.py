@@ -172,22 +172,16 @@ def gravatar(user=None, user_uid=None, size=80):
     return auth.gravatar(user=user, size=size)
 
 
-@register.simple_tag()
-def user_score(score):
-    score = score * 10
-    return score
-
-
 @register.inclusion_tag('widgets/user_icon.html', takes_context=True)
 def user_icon(context, user=None, is_moderator=False, score=0):
 
     try:
+
         is_moderator = user.profile.is_moderator if user else is_moderator
-        score = user.profile.score if user else score
+        score = user.profile.get_score() if user else score * 10
+
     except Exception as exc:
         logger.info(exc)
-
-    score = user_score(score)
 
     context.update(dict(is_moderator=is_moderator, score=score))
     return context
@@ -359,6 +353,34 @@ def inplace_type_field(post=None, field_id='type'):
     return mark_safe(post_type)
 
 
+@register.inclusion_tag('forms/tags_field.html', takes_context=True)
+def tags_field_from_file(context, post=None):
+    """Render multiple select dropdown options for tags from a file """
+
+    tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()[:300]
+    tags_opts = [(x.strip(), False) if x.strip() not in tags.split(",") else (x.strip(), True)
+                     for x in tags_opts if x != '\n']
+
+    return
+
+
+@register.inclusion_tag('forms/tags_field.html', takes_context=True)
+def tags_field(context, form_field, initial=''):
+    """Render multiple select dropdown options for tags. """
+
+    # Get currently selected tags from the post or request
+    selected_tags_list = initial.split(",") if initial else []
+    selected_tags = {(val, True) for val in selected_tags_list}
+
+    tags_query = Tag.objects.exclude(name__in=selected_tags_list)[:50].values_list("name", flat=True)
+    tags_opts = {(name.strip(), False) for name in tags_query}
+
+    tags_opts = itertools.chain(selected_tags, tags_opts)
+    context = dict(initial=initial, form_field=form_field, tags_opt=tags_opts)
+
+    return context
+
+
 @register.simple_tag
 def get_tags(request=None, post=None, user=None, watched=False):
     # Get tags in requests before fetching ones in the post.
@@ -373,14 +395,13 @@ def get_tags(request=None, post=None, user=None, watched=False):
 
     # Prepare the tags options in the dropdown from a file
     if settings.TAGS_OPTIONS_FILE:
-        tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()
+        tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()[:300]
         tags_opts = [(x.strip(), False) if x.strip() not in tags.split(",") else (x.strip(), True)
                      for x in tags_opts if x != '\n']
     # Prepare dropdown options from database.
     else:
-        query = Count('post')
-        tags_query = Tag.objects.annotate(count=query).order_by('-count').exclude(name__in=tags.split(','))[:50]
-        tags_opts = ((tag.name.strip(), False) for tag in tags_query)
+        tags_query = Tag.objects.exclude(name__in=tags.split(','))[:50].values_list("name", flat=True)
+        tags_opts = ((name.strip(), False) for name in tags_query)
 
     selected_tags_opt = ((val, True) for val in tags.split(","))
     tags_opts = itertools.chain(selected_tags_opt, tags_opts)
@@ -455,14 +476,11 @@ def custom_feed(objs, feed_type='', title=''):
 
 
 @register.inclusion_tag(takes_context=True, filename='widgets/search_bar.html')
-def search_bar(context, search_url='', tags=False, users=False, ajax_results=True, extra_css='',
-               redir=False):
-    search_url = search_url or reverse('ajax_search')
-    redir = '1' if redir else '0'
+def search_bar(context, tags=False, users=False):
+    search_url = reverse('tags_list') if tags else reverse('community_list') if users else reverse('post_search')
     request = context['request']
     value = request.GET.get('query', '')
-    context = dict(search_url=search_url, tags=tags, users=users, extra_css=extra_css,
-                   ajax_results=ajax_results, redir=redir, value=value)
+    context = dict(search_url=search_url, value=value)
 
     return context
 
@@ -758,7 +776,7 @@ def traverse_comments(request, post, tree, template_name):
         target = f"'{node.uid}'"
         if request.user.is_authenticated and request.user.profile.is_moderator:
             # ondragover="allowDrop(event);" ondrop="drop(event, {target})"
-            collect.append(f'<div class="indent " id="{source}" ><div class="comment">{html}</div>')
+            collect.append(f'<div class="indent " ondragover="allowDrop(event);" ondrop="drop(event, {target}) id="{source}" ><div class="comment">{html}</div>')
         else:
             collect.append(f'<div class="indent "><div class="comment">{html}</div>')
 

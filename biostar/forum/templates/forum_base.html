@@ -26,6 +26,7 @@
 
     {#  CSS compression. #}
     {% compress css %}
+
         <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'at.who.css' %}" rel="stylesheet">
@@ -36,6 +37,10 @@
 
     {# Javascript compression. #}
     {% compress js %}
+        <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+        <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+        <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+
         <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'at.who.js' %}"></script>
         <script src="{% static 'caret.js' %}"></script>
@@ -59,27 +64,25 @@
 
 <div class="ui inverted container widen">
 
+
     {% include 'banners/top-banner.html' %}
 
     {% include "banners/menu-topics.html" %}
 
     {% include "banners/menu-header.html" %}
 
-    <div class="ui bottom attached segment dim-on-create">
+    {% block container %}
+        <div class="ui bottom attached segment">
 
-        <div class="ui inverted dimmer"></div>
+            {% show_messages messages %}
 
-        {% show_messages messages %}
+            {% block content %}
+                MAIN CONTENT
+            {% endblock %}
 
-        <span class="fit" id="insert-form"></span>
-        <div id="error"></div>
-        <div id="recent" {% if post %}data-value="{{ post.uid }}"{% endif %}></div>
+        </div>
+    {% endblock %}
 
-        {% block content %}
-            MAIN CONTENT
-        {% endblock %}
-
-    </div>
 
     {% block footer %}
         {% include 'widgets/footer.html' %}

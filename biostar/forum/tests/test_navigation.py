@@ -62,7 +62,7 @@ class ForumNavigation(TestCase):
 
             reverse('post_view', kwargs=dict(uid=self.post.uid)),
             reverse('post_edit', kwargs=dict(uid=self.post.uid)),
-            reverse("create_comment", kwargs=dict(uid=self.post.uid))
+            reverse('post_create'),
 
 
         ]

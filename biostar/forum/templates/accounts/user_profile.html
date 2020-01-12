@@ -41,7 +41,7 @@
 
             </div>
 
-            <div id="moderate-insert-{{ target.id }}"></div>
+            <div class="moderate-user-insert" data-user="{{ target.id }}"></div>
         </div>
 
         <div class="column">
@@ -75,7 +75,7 @@
 
                     <tr>
                         <td>Reputation:</td>
-                        <td>{% user_score score=target.profile.score %}</td>
+                        <td>{{ target.profile.get_score }}</td>
                     </tr>
 
                     <tr>

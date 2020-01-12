@@ -12,7 +12,7 @@
 {% block body %}
 
     {% block search %}
-        {% search_bar extra_css='fluid' redir='1' %}
+        {% search_bar %}
     {% endblock %}
 
     {% with params=request.GET.urlencode %}

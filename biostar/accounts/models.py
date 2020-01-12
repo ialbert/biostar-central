@@ -146,6 +146,17 @@ class Profile(models.Model):
         # Get the default upload limit
         return settings.MAX_UPLOAD_SIZE
 
+    def require_recaptcha(self):
+        """Check to see if this user requires reCAPTCHA"""
+        is_required = not (self.trusted or self.score > settings.RECAPTCHA_TRUSTED_USER_SCORE)
+        return is_required
+
+    def get_score(self):
+        """
+        """
+        score = self.score * 10
+        return score
+
     @property
     def is_moderator(self):
         # Managers can moderate as well.

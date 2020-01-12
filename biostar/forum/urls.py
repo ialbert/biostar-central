@@ -25,7 +25,6 @@ urlpatterns = [
     path('post/search/', views.post_search, name='post_search'),
 
     path('new/post/', views.new_post, name='post_create'),
-    path('new/comment/<str:uid>/', views.new_comment, name="create_comment"),
 
     path('b/list/', views.badge_list, name='badge_list'),
     path('t/list/', views.tags_list, name='tags_list'),
@@ -34,21 +33,17 @@ urlpatterns = [
     path('edit/post/<str:uid>/', views.edit_post, name='post_edit'),
 
     # Ajax calls
-    path('ajax/users/search/', ajax.ajax_users_search, name='ajax_users_search'),
     path('ajax/digest/', ajax.ajax_digest, name='ajax_digest'),
     path('ajax/vote/', ajax.ajax_vote, name='vote'),
     path('ajax/test/', ajax.ajax_test, name='ajax_test'),
-    path('ajax/tags/search/', ajax.ajax_tags_search, name='ajax_tags_search'),
     path('ajax/subscribe/', ajax.ajax_subs, name='ajax_sub'),
     path('drag/and/drop/', ajax.drag_and_drop, name='drag_and_drop'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
     path('ajax/digest/<str:uid>/', ajax.ajax_digest, name='ajax_digest'),
     path('ajax/edit/<str:uid>/', ajax.ajax_edit, name='ajax_edit'),
-    path('ajax/create/', ajax.ajax_create, name='ajax_create'),
+    path('ajax/comment/create/', ajax.ajax_comment_create, name='ajax_comment_create'),
     path('inplace/form/', ajax.inplace_form, name='inplace_form'),
-    path('ajax/search/', ajax.ajax_search, name='ajax_search'),
     path('ajax/user/image/<str:username>/', ajax.user_image, name='user_image'),
-    path('ajax/users/', ajax.ajax_users_search, name='ajax_users_search'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
     path('ajax/report/spammer/<str:post_uid>/', ajax.report_spammer, name='report_spammer'),
 
