@@ -26,8 +26,7 @@
 
     {#  CSS compression. #}
     {% compress css %}
-
-        <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
+        
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'at.who.css' %}" rel="stylesheet">
         <link href="{% static 'prism.css' %}" rel="stylesheet">
@@ -37,9 +36,6 @@
 
     {# Javascript compression. #}
     {% compress js %}
-        <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
-        <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
-        <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
 
         <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'at.who.js' %}"></script>
