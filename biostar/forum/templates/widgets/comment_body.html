@@ -3,11 +3,13 @@
 <a name="{{ post.uid }}"></a>
 
 <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
+
         {% if request.user.is_authenticated and request.user.profile.is_moderator %}
      id='drag-{{ post.uid }}'
-     data-thread="{{ post|get_children_list }}"
-     ondragover="drag_over(event, '{{ post.uid }}')"
-     ondragleave="drag_leave(event, '{{ post.uid }}')"
+     data-thread="{{ post.uid }}"
+     ondragover="drag_over(event, $(this))"
+     ondragleave="drag_leave(event, $(this))"
+
         {% endif %}>
 
     <div class="ui inverted dimmer">
@@ -16,10 +18,12 @@
         </div>
     </div>
 
-    <div class="post comment {{ post.css }} " id="{{ post.uid }}"
+    <div class="post comment editing-drag-off {{ post.css }} " id="{{ post.uid }}"
+
             {% if request.user.is_authenticated and request.user.profile.is_moderator %}
-         draggable="false"
+         draggable="true"
          ondragstart="drag(event, '{{ post.uid }}');"
+
             {% endif %}>
 
         <div class="body">
@@ -62,8 +66,8 @@
         </div>
 
         {# Insertion targets #}
-        <div id="moderate-insert-{{ post.uid }}"></div>
-        <div id="comment-insert-{{ post.uid }}"></div>
+        <div class="moderate-insert" data-post="{{ post.uid }}"></div>
+        <div class="comment-insert" data-post="{{ post.uid }}"></div>
 
     </div>
 

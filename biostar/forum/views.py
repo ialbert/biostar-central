@@ -58,6 +58,13 @@ ORDER_MAPPER = dict(
 )
 
 
+def generate_cache_key(*args):
+    # Combine list of values to form a single key
+    vals = [str(v).replace(' ', '') for v in args]
+    key = ''.join(vals)
+    return key
+
+
 def post_exists(func):
     """
     Ensure uid passed to view function exists.
@@ -139,16 +146,9 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         query = query.exclude(status=Post.DELETED)
         query = query.exclude(spam=Post.SPAM)
 
-
-    # if topic == SHOW_SPAM and user.is_authenticated and user.profile.is_moderator:
-    #     query = query.filter(spam=Post.SPAM)
-    # else:
-    #     query = query.exclude(spam=Post.SPAM)
-
     # Select related information used during rendering.
     query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile", 'thread_users',
                                    'thread_users__profile')
-    #query = query.select_related("author__profile", "lastedit_user__profile")
 
     return query
 
@@ -159,18 +159,11 @@ def post_search(request):
     page = int(request.GET.get('page', 1))
 
     if not query:
-
         return redirect(reverse('post_list'))
 
-    # Preform search on indexed posts.
-    # if settings.USE_ELASTIC_SEARCH:
-    #     results, total = search.preform_elastic_search(query=query, page=page, show_total=True)
-    #     template_name = "widgets/post_results_elastic.html"
-    #
-    # else:
     results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
     total = results.total
-    template_name = "widgets/post_results.html"
+    template_name = "widgets/search_results.html"
 
     question_flag = Post.QUESTION
     context = dict(results=results, query=query, total=total, template_name=template_name,
@@ -185,21 +178,25 @@ class CachedPaginator(Paginator):
     """
     COUNT_KEY = "COUNT_KEY"
 
+    def __init__(self, count_key='', *args, **kwargs):
+        self.count_key = count_key or self.COUNT_KEY
+        super(CachedPaginator, self).__init__(*args, **kwargs)
+
     @property
     def count(self):
 
-        if self.COUNT_KEY not in cache:
+        if self.count_key not in cache:
             value = super(CachedPaginator, self).count
             logger.info("Setting paginator count cache")
-            cache.set(self.COUNT_KEY, value, 300)
+            cache.set(self.count_key, value, 300)
 
-        value = cache.get(self.COUNT_KEY)
+        value = cache.get(self.count_key)
 
         return value
 
 
 @ensure_csrf_cookie
-def post_list(request, show=None, extra_context=dict()):
+def post_list(request, show=None, cache_key='', extra_context=dict()):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
@@ -208,18 +205,19 @@ def post_list(request, show=None, extra_context=dict()):
 
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
-    tag = request.GET.get("tag", "")
     order = request.GET.get("order", "rank")
+
+    tag = request.GET.get("tag", "")
     show = show or request.GET.get("type", "")
     limit = request.GET.get("limit", "all")
+    print(order, "FOO")
+    cache_key = cache_key or generate_cache_key(limit, tag, show)
 
     # Get posts available to users.
     posts = get_posts(user=user, show=show, tag=tag, order=order, limit=limit)
 
-    #posts = posts.exclude(Q(root=None) | Q(parent=None))
-
     # Create the paginator
-    paginator = CachedPaginator(posts, settings.POSTS_PER_PAGE)
+    paginator = CachedPaginator(cache_key, posts, settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
     posts = paginator.get_page(page)
@@ -253,9 +251,10 @@ def myvotes(request):
     Show posts by user that received votes
     """
     page = request.GET.get('page', 1)
-    votes = Vote.objects.filter(post__author=request.user).order_by("-date")
+    votes = Vote.objects.filter(post__author=request.user).prefetch_related('post', 'post__root',
+                                                                            'author__profile').order_by("-date")
     # Create the paginator
-    paginator = Paginator(votes, settings.POSTS_PER_PAGE)
+    paginator = CachedPaginator(MYVOTES_CACHE_KEY, votes, settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
     votes = paginator.get_page(votes)
@@ -269,17 +268,24 @@ def tags_list(request):
     Show posts by user
     """
     page = request.GET.get('page', 1)
+    query = request.GET.get('query', '')
 
-    count = Count('post', filter=Q(post__type__in=Post.TOP_LEVEL))
-    tags = Tag.objects.annotate(nitems=count)
+    count = Count('post', filter=Q(post__is_toplevel=True))
+    if query:
+        db_query = Q(name__in=query) | Q(name__contains=query)
+    else:
+        db_query = Q()
+
+    tags = Tag.objects.annotate(nitems=count).filter(db_query)
     tags = tags.order_by('-nitems')
+
     # Create the paginator
-    paginator = Paginator(tags, 150)
+    paginator = CachedPaginator(TAGS_CACHE_KEY, tags, 150)
 
     # Apply the votes paging.
     tags = paginator.get_page(page)
 
-    context = dict(tags=tags, tab='tags')
+    context = dict(tags=tags, tab='tags', query=query)
 
     return render(request, 'tags_list.html', context=context)
 
@@ -289,7 +295,7 @@ def myposts(request):
     """
     Show posts by user
     """
-    return post_list(request, show=MYPOSTS)
+    return post_list(request, show=MYPOSTS, cache_key=MYPOSTS_CACHE_KEY)
 
 
 @authenticated
@@ -297,7 +303,7 @@ def following(request):
     """
     Show posts followed by user
     """
-    return post_list(request, show=FOLLOWING)
+    return post_list(request, show=FOLLOWING, cache_key=FOLLOWING_CACHE_KEY)
 
 
 @authenticated
@@ -305,13 +311,13 @@ def bookmarks(request):
     """
     Show posts bookmarked by user
     """
-    return post_list(request, show=BOOKMARKS)
+    return post_list(request, show=BOOKMARKS, cache_key=BOOKMARKS_CACHE_KEY)
 
 
 @authenticated
 def mytags(request):
 
-    return post_list(request=request, show=MYTAGS)
+    return post_list(request=request, show=MYTAGS, cache_key=MYTAGS_CACHE_KEY)
 
 
 def community_list(request):
@@ -336,9 +342,10 @@ def community_list(request):
     users = users.exclude(profile__state__in=[Profile.SUSPENDED, Profile.BANNED])
     users = users.order_by(order)
 
-    paginator = Paginator(users, settings.USERS_PER_PAGE)
+    paginator = CachedPaginator("USERS", users, settings.USERS_PER_PAGE)
+
     users = paginator.get_page(page)
-    context = dict(tab="community", users=users, order=ordering, limit=limit_to)
+    context = dict(tab="community", users=users, query=query, order=ordering, limit=limit_to)
 
     return render(request, "community_list.html", context=context)
 
@@ -361,12 +368,6 @@ def badge_view(request, uid):
     context = dict(awards=awards, badge=badge)
 
     return render(request, "badge_view.html", context=context)
-
-
-# def tags_list(request):
-
-#    context = dict(extra_tab="active", extra_tab_name="All Tags")
-#    return render(request, "tags_list.html", context=context)
 
 
 @ensure_csrf_cookie
@@ -411,37 +412,20 @@ def post_view(request, uid):
     return render(request, "post_view.html", context=context)
 
 
-def new_comment(request, uid):
-    user = request.user
-    post = Post.objects.filter(uid=uid).first()
-
-    if request.method == "POST":
-        form = forms.PostShortForm(data=request.POST, recaptcha=False, user=user)
-        if form.is_valid():
-            content = form.cleaned_data['content']
-            comment = Post.objects.create(parent=post, author=user, content=content, type=Post.COMMENT)
-            return redirect(comment.get_absolute_url())
-        messages.error(request, f"Error adding comment:{form.errors}")
-    else:
-        initial = dict(parent_uid=post.uid, content="")
-        form = forms.PostShortForm(initial=initial, recaptcha=False, user=user)
-
-    context = dict(post=post, form=form, user=user)
-
-    return render(request, "new_comment.html", context=context)
-
-
 @login_required
 def new_post(request):
     """
     Creates a new post
     """
+
     form = forms.PostLongForm(user=request.user)
     author = request.user
-
+    tag_val = content = ''
     if request.method == "POST":
 
         form = forms.PostLongForm(data=request.POST, user=request.user)
+        tag_val = form.data.get('tag_val')
+        content = form.data.get('content', '')
         if form.is_valid():
             # Create a new post by user
             title = form.cleaned_data.get('title')
@@ -457,8 +441,8 @@ def new_post(request):
 
     # Action url for the form is the current view
     action_url = reverse("post_create")
-    content = request.POST.get('content', '')
-    context = dict(form=form, tab="new", action_url=action_url, content=content)
+
+    context = dict(form=form, tab="new", tag_val=tag_val, action_url=action_url, content=content)
 
     return render(request, "new_post.html", context=context)
 

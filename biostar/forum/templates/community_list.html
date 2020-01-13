@@ -10,8 +10,11 @@
 
 {% block content %}
 
-{% url 'ajax_users_search' as search_url %}
-{% search_bar search_url=search_url users=True extra_css='small_search' %}
+{% search_bar users=True %}
+
+    {% if query %}
+        <div class="ui message"> <i class="search icon"></i>Searching for users containing: <b>{{ query }}</b></div>
+    {% endif %}
 
 {% with params=request.GET.urlencode %}
 <div class="ui horizontal basic top-menu segments">

@@ -90,7 +90,8 @@ class PostLongForm(forms.Form):
                               Create a new tag by typing a word then adding a comma or press ENTER or SPACE.
                               """,
                               widget=forms.HiddenInput())
-    content = forms.CharField(widget=PagedownWidget(attrs={'id': 'wmd-input-id_content'},), validators=[english_only],
+
+    content = forms.CharField(widget=PagedownWidget, validators=[english_only],
                               min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content", strip=False)
 
     def __init__(self, post=None, user=None, *args, **kwargs):
@@ -206,7 +207,6 @@ class PostModForm(forms.Form):
         if self.post.is_toplevel:
             self.fields['dupe'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea)
             self.fields['comment'] = forms.CharField(required=False, max_length=200, widget=forms.Textarea)
-            #self.fields['offtopic'] = forms.CharField(required=False, max_length=200)
         else:
             self.fields['pid'] = forms.CharField(required=False, max_length=200, label="Parent id")
 

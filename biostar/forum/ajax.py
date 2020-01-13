@@ -123,6 +123,7 @@ def ajax_vote(request):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
+
     was_limited = getattr(request, 'limited', False)
     if was_limited:
         return ajax_error(msg="Too many request from same IP address. Temporary ban.")
@@ -146,10 +147,11 @@ def drag_and_drop(request):
     if not request.user.profile.is_moderator:
         return ajax_error(msg="Only moderators can move comments.")
 
-    children = [] #auth.walk_down_thread(parent=post)
+    collect = set()
+    auth.walk_down_thread(parent=post, collect=collect)
 
-    if parent == post or (parent in children):
-        return ajax_error(msg="Can not move post under parent.")
+    if parent == post or (parent in collect) or parent.root != post.root:
+        return ajax_error(msg="Can not move post here.")
 
     if post.is_toplevel:
         return ajax_error(msg="Top level posts can not be moved.")
@@ -228,12 +230,6 @@ def validate_recaptcha(token):
     return False, "Invalid reCAPTCHA. Please try again."
 
 
-def add_to_closed(post, user):
-
-    if user.is_moderator or post.author == user:
-        return True
-
-
 @ajax_error_wrapper(method="GET", login_required=True)
 def report_spammer(request, post_uid):
     """
@@ -253,30 +249,12 @@ def report_spammer(request, post_uid):
     return ajax_success(msg="Reported user as a spammer.")
 
 
-def validate_root(post, user):
-
-    if not post:
-        return False, "No post provided."
-
-    # Anonymous users and regular users who are not the author
-    # are not allowed to add to closed posts.
-    allowed = user.is_authenticated and (user.profile.is_moderator or post.root.author == user)
-    if not post.root.is_open and not allowed:
-        msg = "This post is not open. Only moderators and the initial author can contribute to it."
-        return False, msg
-
-    return True, ""
-
-
-def validate_toplevel(fields={}):
+def validate_toplevel_fields(fields={}):
     """Validate fields found in top level posts"""
 
     title = fields.get('title', '')
-    tags_list = fields.get('tags_list', '')
+    tags_list = fields.get('tags_list', [])
     post_type = fields.get('post_type', '')
-    user = fields.get('user', '')
-    root = fields.get('parent', '')
-
     title_length = len(title.replace(' ', ''))
     allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
     tag_length = len(tags_list)
@@ -296,21 +274,21 @@ def validate_toplevel(fields={}):
         msg = f"Too many tags, maximum of {MAX_TAGS} tags allowed."
         return False, msg
 
-    if root and user:
-        return validate_root(post=root, user=user)
-
     return True, ""
 
 
-def validate_post(fields={}):
+def validate_post_fields(fields={}, is_toplevel=False):
     """
     Validate fields found in dictionary.
     """
     content = fields.get('content', '')
     content_length = len(content.replace(' ', ''))
+    user = fields.get("user")
     recaptcha_token = fields.get('recaptcha_token')
+    # reCAPTCHA field required when an untrusted user creates any post.
+    check_captcha = user.profile.require_recaptcha() and settings.RECAPTCHA_PRIVATE_KEY != ''
 
-    if fields.get('check_captcha'):
+    if check_captcha:
         valid_captcha, msg = validate_recaptcha(recaptcha_token)
         if not valid_captcha:
             return False, msg
@@ -324,17 +302,10 @@ def validate_post(fields={}):
         return False, msg
 
     # Validate fields found in top level posts
-    if fields.get('is_toplevel'):
-        return validate_toplevel(fields=fields)
+    if is_toplevel:
+        return validate_toplevel_fields(fields=fields)
 
     return True, ""
-
-
-def is_trusted(user):
-    # Moderators and users with scores above threshold are trusted.
-    trusted = user.is_authenticated and (user.profile.trusted or
-                                         user.profile.score > settings.RECAPTCHA_TRUSTED_USER_SCORE)
-    return trusted
 
 
 def get_fields(request, post=None):
@@ -343,40 +314,24 @@ def get_fields(request, post=None):
     """
 
     def request_data(data_key, placeholder=None):
-        return request.POST.get(data_key, request.GET.get(data_key, placeholder))
+        return request.POST.get(data_key, placeholder)
 
     # Fields common to all posts
     user = request.user
-    content = request_data("content", "")
-    title = request_data("title", "")
+    content = request_data("content", "") or post.content
+    title = request_data("title", "") or post.title
     post_type = request_data("type", Post.QUESTION)
+
     post_type = int(post_type) if str(post_type).isdigit() else Post.QUESTION
-    root = None
-
-    if post:
-        content = content or post.content
-        title = title or post.title
-        post_type = post_type if post_type is not None else Post.QUESTION
-        root = post.root
-
-    parent_uid = request_data('parent', '')
-    parent = Post.objects.filter(uid=parent_uid).first()
+    root = post.root
     recaptcha_token = request_data("recaptcha_response")
-    # reCAPTCHA field required when an untrusted user creates any post.
-    check_captcha = not is_trusted(user=user) and settings.RECAPTCHA_PRIVATE_KEY != ''
 
     # Fields found in top level posts
     tag_list = {x.strip() for x in request.POST.getlist("tag_val", [])}
-    tag_str = ','.join(tag_list)
+    tag_val = ','.join(tag_list) or post.tag_val
 
-    # Field flags. TODO: being refactored out.
-    is_toplevel = bool(int(request_data('top', 0)))
-    is_comment = request_data('comment', '0')
-    is_comment = int(is_comment) if is_comment.isdigit() else 0
-
-    fields = dict(content=content, title=title, post_type=post_type, tag_list=tag_list, tag_str=tag_str,
-                  user=user, root=root, parent=parent, parent_uid=parent_uid, check_captcha=check_captcha,
-                  recaptcha_token=recaptcha_token, is_comment=is_comment, is_toplevel=is_toplevel)
+    fields = dict(content=content, title=title, post_type=post_type, tag_list=tag_list, tag_val=tag_val,
+                  user=user, root=root, recaptcha_token=recaptcha_token,)
 
     return fields
 
@@ -386,7 +341,7 @@ def set_post(fields, post, save=True):
     if post.is_toplevel:
         post.title = fields.get('title', post.title)
         post.type = fields.get('post_type', post.type)
-        post.tag_val = fields.get('tag_str', post.tag_val)
+        post.tag_val = fields.get('tag_val', post.tag_val)
 
     post.lastedit_user = fields.get('user', post.lastedit_user)
     post.content = fields.get('content', post.content)
@@ -413,21 +368,22 @@ def ajax_edit(request, uid):
 
     # Get the fields found in the request
     fields = get_fields(request=request, post=post)
+
     # Validate fields in request.POST
-    valid, msg = validate_post(fields=fields)
+    valid, msg = validate_post_fields(fields=fields, is_toplevel=post.is_toplevel)
     if not valid:
         return ajax_error(msg=msg)
 
     # Set the fields for this post.
     post = set_post(post=post, fields=fields)
 
-    # Get the new tags and render them
+    # Get the newly set tags to render
     tags = post.tag_val.split(",")
     context = dict(post=post, tags=tags, show_views=True)
     tmpl = loader.get_template('widgets/post_tags.html')
     tag_html = tmpl.render(context)
 
-    # Prepare the new title
+    # Prepare the new title to render
     new_title = f'{post.get_type_display()}: {post.title}'
 
     return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
@@ -436,39 +392,29 @@ def ajax_edit(request, uid):
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
-def ajax_create(request):
+def ajax_comment_create(request):
     was_limited = getattr(request, 'limited', False)
     if was_limited:
         return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
-    # Get form fields from POST request
-    fields = get_fields(request=request, post=None)
+    # Fields common to all posts
     user = request.user
+    content = request.POST.get("content", "")
+    recaptcha_token = request.POST.get("recaptcha_response")
 
-    # Validate fields in request.POST
-    valid, msg = validate_post(fields=fields)
-
-    if not valid:
-        return ajax_error(msg=msg)
-    parent = fields.get('parent')
-    parent_uid = fields.get('parent_uid')
-    is_comment = fields.get('is_comment')
-
-    if parent_uid and not parent:
+    parent_uid = request.POST.get('parent', '')
+    parent = Post.objects.filter(uid=parent_uid).first()
+    if not parent:
         return ajax_error(msg='Parent post does not exist.')
 
-    # We are creating an answer.
-    if parent and parent.is_toplevel and not is_comment:
-        post_type = Post.ANSWER
-    # Creating a comment
-    elif is_comment:
-        post_type = Post.COMMENT
-    else:
-        post_type = fields.get('post_type')
+    fields = dict(content=content, user=user, parent=parent, recaptcha_token=recaptcha_token)
+    # Validate the fields
+    valid, msg = validate_post_fields(fields=fields, is_toplevel=False)
+    if not valid:
+        return ajax_error(msg=msg)
 
-    # Create the post.
-    post = Post.objects.create(title=fields.get('title'), tag_val=fields.get('tag_str'), type=post_type,
-                               content=fields.get('content'), author=user, parent=fields.get('parent'))
+    # Create the comment.
+    post = Post.objects.create(type=Post.COMMENT, content=content, author=user, parent=parent)
 
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
@@ -478,7 +424,7 @@ def ajax_create(request):
 @ajax_error_wrapper(method="GET")
 def inplace_form(request):
     """
-    Used to render inplace forms for creation and editting posts.
+    Used to render inplace forms for editing posts.
     """
     user = request.user
     if user.is_anonymous:
@@ -486,41 +432,17 @@ def inplace_form(request):
 
     # Get the current post uid we are editing
     uid = request.GET.get('uid', '')
-    # Parent uid to add an answer/comment to.
-    parent_uid = request.GET.get('parent', '')
     post = Post.objects.filter(uid=uid).first()
-
-    if uid and not post:
+    if not post:
         return ajax_error(msg="Post does not exist.")
 
-    is_toplevel = post.is_toplevel if post else int(request.GET.get('top', 1))
-    is_comment = request.GET.get('comment', 0) if not post else post.is_comment
-
-    # Extract the
-    title = post.title if post else ''
-    content = post.content if post else ''
-    rows = len(post.content.split("\n")) if post else request.GET.get('rows', 10)
-    rows = rows if 25 > int(rows) >= 2 else 4
-    html = post.html if post else ''
-
-    template = "widgets/inplace_form.html"
-
-    # Untrusted users get a reCAPTCHA field added when creating posts.
-    creating = post is None
-    parent = Post.objects.filter(uid=parent_uid).first()
-    not_trusted = not is_trusted(user=user) if creating else False
-    if parent or post:
-        # Validate that the root is not locked or closed.
-        valid, msg = validate_root(post=parent or post, user=user)
-        if not valid:
-            return ajax_error(msg=msg)
+    add_comment = request.GET.get('add_comment', False)
 
     # Load the content and form template
+    template = "forms/inplace_form.html"
     tmpl = loader.get_template(template_name=template)
-    context = dict(user=user, post=post, content=content, rows=rows, is_comment=is_comment, is_toplevel=is_toplevel,
-                   parent_uid=parent_uid, captcha_key=settings.RECAPTCHA_PUBLIC_KEY, html=html,
-                   not_trusted=not_trusted, title=title)
-
+    context = dict(user=user, post=post, rows=25, add_comment=add_comment,
+                   captcha_key=settings.RECAPTCHA_PUBLIC_KEY)
     form = tmpl.render(context)
 
     return ajax_success(msg="success", inplace_form=form)
@@ -532,78 +454,6 @@ def close(r):
     return
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-def ajax_search(request):
-    query = request.GET.get('query', '')
-    page = request.GET.get('page', 1)
-
-    try:
-        redir = bool(int(request.GET.get('redir', 0)))
-    except Exception as exc:
-        redir = False
-
-    if redir:
-        # Redirect search results to a separate page.
-        redir_url = reverse('post_search') + '?query=' + query
-        return ajax_success(redir=redir_url, msg="success")
-
-    if not query:
-        return ajax_success(msg="Empty query", status="error")
-
-    # Preform search on indexed posts.
-    results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
-
-    tmpl = loader.get_template("widgets/search_results.html")
-    context = dict(results=results, query=query)
-
-    results_html = tmpl.render(context)
-
-    return ajax_success(html=results_html, msg="success")
-
-
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-def ajax_tags_search(request):
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
-
-    query = request.GET.get('query', '')
-    count = Count('post', filter=Q(post__type__in=Post.TOP_LEVEL))
-
-    if len(query) < settings.SEARCH_CHAR_MIN:
-        return ajax_error(msg=f"Enter more than {settings.SEARCH_CHAR_MIN} characters")
-
-    if query:
-        db_query = Q(name__in=query) | Q(name__contains=query)
-
-        results = Tag.objects.annotate(tagged=count).order_by('-tagged').filter(db_query)
-
-        tmpl = loader.get_template("widgets/search_results.html")
-        context = dict(results=results, query=query, tags=True)
-        results_html = tmpl.render(context)
-        return ajax_success(html=results_html, msg="success")
-
-    return ajax_success(msg="success")
-
-
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-def ajax_users_search(request):
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
-
-    query = request.GET.get('query', '')
-    if len(query) < settings.SEARCH_CHAR_MIN:
-        return ajax_error(msg=f"Enter more than {settings.SEARCH_CHAR_MIN} characters")
-    redir = reverse('community_list')
-    redir = redir + "?query=" + quote(query)
-
-    return ajax_success(redir=redir, msg="success")
-
-
 def similar_posts(request, uid):
     """
     Return a feed populated with posts similar to the one in the request.
@@ -613,12 +463,6 @@ def similar_posts(request, uid):
     if not post:
         ajax_error(msg='Post does not exist.')
 
-    # if settings.USE_ELASTIC_SEARCH:
-    #     results = search.preform_elastic_search(post=post)
-    #     template_name = "widgets/similar_posts_elastic.html"
-    #     print(results)
-    #
-    # else:
     results = search.whoosh_more_like_this(uid=post.uid)
     template_name = 'widgets/similar_posts.html'
 

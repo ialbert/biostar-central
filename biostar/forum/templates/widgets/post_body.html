@@ -53,15 +53,15 @@
         <div class="content wrap-text">
 
             <div
-                    {% if request.user.is_authenticated and request.user.profile.is_moderator %}
-{#                        ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')"#}
+                    {% if request.user.profile.is_moderator %}
+                        ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')"
                     {% endif %}>
-                <div class="dimm-on-edit " data-value="{{ post.uid }}"
 
-                        {% if request.user.is_authenticated and request.user.profile.is_moderator %}
-                     data-thread="{{ post|get_children_list }}"
-                     ondragover="drag_over(event, '{{ post.uid }}')"
-                     ondragleave="drag_leave(event, '{{ post.uid }}')"
+                <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
+                        {% if request.user.profile.is_moderator %}
+                     data-thread="{{ post.uid }}"
+                     ondragover="drag_over(event, $(this))"
+                     ondragleave="drag_leave(event, $(this))"
                         {% endif %}>
 
                     <div class="ui inverted dimmer">
@@ -72,10 +72,10 @@
 
                     </div>
 
-                    <div class="wrap magnify"
+                    <div class="wrap magnify editing-drag-off" id="{{ post.uid }}"
                             {% if post.is_answer and request.user.is_authenticated and request.user.profile.is_moderator %}
-{#                         draggable="flase"#}
-{#                         ondragstart="drag(event, '{{ post.uid }}');" #}
+                         draggable="true"
+                         ondragstart="drag(event, '{{ post.uid }}');"
                             {% endif %}>
 
                         {# Display post author. #}
@@ -108,17 +108,16 @@
                         </div>
 
                         {#  Post moderation actions are inserted here #}
-                        <div id="moderate-insert-{{ post.uid }}"></div>
+                        <div class="moderate-insert" data-value="{{ post.uid }}"></div>
 
                         {#  Comments form will be inserted here #}
-                        <div id="comment-insert-{{ post.uid }}"></div>
+                        <div class="comment-insert" data-post="{{ post.uid }}"></div>
 
-                        {# Render all comments #}
-                        {% render_comments tree=tree post=post %}
                     </div>
 
                 </div>
-
+                {# Render all comments #}
+                {% render_comments tree=tree post=post %}
             </div>
 
         </div>

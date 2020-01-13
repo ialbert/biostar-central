@@ -1,24 +1,19 @@
+<div class="ui basic segment search-bar">
 
+    <div class="center-text " >
 
-<div class="ui basic segment slim">
+        <form class="ui form" method="GET" action="{{ search_url }}" style="margin: 0">
 
-    <div class="center-text ">
-        <div class='ui {{ extra_css }} icon input' id="contain-search" data-redir="{{ redir }}">
-            <i class="search icon"></i>
+            <div class="ui  search">
+                <div class="ui fluid icon input">
+                    <input value="{{ value }}" class="search-input" type="text" name="query" placeholder="Search and press ENTER . . .">
+                    <i class="search icon"></i>
+                </div>
+            </div>
 
-            <input value="{{ value }}" type="text" id="search" url="{{ search_url }}" name="search" placeholder="Search and press ENTER . . .">
+        </form>
 
-            {% if tags and ajax_results %}
-                {# Center the results as well. #}
-                <div id="results" style="text-align: initial"></div>
-            {% endif %}
-
-        </div>
-
-            {% if not tags and ajax_results %}
-
-                <div id="results" style="text-align: initial"></div>
-            {% endif %}
     </div>
 
 </div>
+

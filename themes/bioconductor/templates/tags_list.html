@@ -3,9 +3,8 @@
 {% load forum_tags %}
 
 {% block content %}
-    {% url 'ajax_tags_search' as search_url %}
 
-    {% search_bar search_url=search_url tags=True extra_css='small_search' %}
+    {% search_bar tags=True %}
 
     <div class="ui four column grid" style="margin: 0px">
         {% for tag in tags %}
