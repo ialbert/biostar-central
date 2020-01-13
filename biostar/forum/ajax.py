@@ -148,7 +148,7 @@ def drag_and_drop(request):
         return ajax_error(msg="Only moderators can move comments.")
 
     collect = set()
-    auth.walk_down_thread(parent=post, collect=collect, is_root=False)
+    auth.walk_down_thread(parent=post, collect=collect)
 
     if parent == post or (parent in collect) or parent.root != post.root:
         return ajax_error(msg="Can not move post here.")

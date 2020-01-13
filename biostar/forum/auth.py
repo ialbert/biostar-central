@@ -72,9 +72,9 @@ def gravatar(user, size=80):
     return gravatar_url(email=email, style=style, size=size)
 
 
-def walk_down_thread(parent, collect=set(), is_root=True):
+def walk_down_thread(parent, collect=set()):
     """
-    Recursively walk up a thread of posts starting from target
+    Recursively walk down a thread of posts starting from target
     """
 
     # Stop condition: post does not have a root or parent.
@@ -82,16 +82,13 @@ def walk_down_thread(parent, collect=set(), is_root=True):
         return collect
 
     # Get all children for this post
-    if is_root:
-        children = Post.objects.filter(root=parent).exclude(uid=parent.uid)
-    else:
-        children = Post.objects.filter(parent=parent).exclude(uid=parent.uid)
+    children = Post.objects.filter(parent=parent).exclude(uid=parent.uid)
 
     for child in children:
         # Add child to list
         collect.add(child)
         # Get all children belonging to the current child.
-        walk_down_thread(parent=child, collect=collect, is_root=is_root)
+        walk_down_thread(parent=child, collect=collect)
 
     return collect
 
