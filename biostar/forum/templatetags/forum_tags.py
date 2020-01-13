@@ -173,17 +173,16 @@ def gravatar(user=None, user_uid=None, size=80):
 
 
 @register.inclusion_tag('widgets/user_icon.html', takes_context=True)
-def user_icon(context, user=None, is_moderator=False, score=0):
+def user_icon(context, user=None, is_moderator=False, is_spammer=False, score=0):
 
     try:
-
         is_moderator = user.profile.is_moderator if user else is_moderator
         score = user.profile.get_score() if user else score * 10
-
+        is_spammer = user.profile.is_spammer if user else is_spammer
     except Exception as exc:
         logger.info(exc)
 
-    context.update(dict(is_moderator=is_moderator, score=score))
+    context.update(dict(is_moderator=is_moderator, is_spammer=is_spammer, score=score))
     return context
 
 
@@ -327,13 +326,6 @@ def follow_label(context, post):
     label = label_map.get(sub.type, not_following)
 
     return label
-
-
-@register.inclusion_tag('widgets/type_help.html')
-def type_help():
-
-    context = dict()
-    return context
 
 
 @register.simple_tag

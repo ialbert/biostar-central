@@ -87,10 +87,32 @@ SECRET_KEY = 'secret-key'
 # Change this in production!
 API_KEY = "api-key"
 
+CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
+
 # Template specific settings.
+TEMPLATESC = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(CUSTOM_THEME, 'templates')],
+        'APP_DIRS':True,
+        'OPTIONS': {
+            'string_if_invalid': "GOOOO",
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.template.context_processors.media',
+                'django.contrib.messages.context_processors.messages',
+                'biostar.forum.context.forum',
+            ],
+        },
+    },
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+
         'APP_DIRS': True,
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",

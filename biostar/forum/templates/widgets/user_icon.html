@@ -3,9 +3,10 @@
 
     {% if is_moderator %}
         <i class="ui muted bolt icon" style="margin: 0!important;"></i>
+    {% elif is_spammer %}
+        <i class="ui muted bug icon" style="margin: 0!important;"></i>
     {% elif score > 1000 %}
         &diams;
-
     {% else %}
         &bull;
     {% endif %}

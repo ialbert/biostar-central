@@ -31,7 +31,7 @@ body {
     background-color: #1881c2;
     color: white;
     font-size: small;
-    min-height: 0;
+    //min-height: 0;
 }
 
 .no-box-shadow{
