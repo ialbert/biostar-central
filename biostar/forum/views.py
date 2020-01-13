@@ -180,18 +180,18 @@ class CachedPaginator(Paginator):
     COUNT_KEY = "COUNT_KEY"
 
     def __init__(self, count_key='', *args, **kwargs):
-        self.current_count_key = count_key or self.COUNT_KEY
+        self.count_key = count_key or self.COUNT_KEY
         super(CachedPaginator, self).__init__(*args, **kwargs)
 
     @property
     def count(self):
 
-        if self.current_count_key not in cache:
+        if self.count_key not in cache:
             value = super(CachedPaginator, self).count
             logger.info("Setting paginator count cache")
-            cache.set(self.current_count_key, value, 300)
+            cache.set(self.count_key, value, 300)
 
-        value = cache.get(self.current_count_key)
+        value = cache.get(self.count_key)
 
         return value
 

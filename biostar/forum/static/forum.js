@@ -444,12 +444,10 @@ function report_spammer(post_id, elem) {
 
                 } else {
                     popup_message(elem.parent().parent(), data.msg, data.status);
-                    //$('.spam-remove-'+ user_id ).transition('hide');
                     setTimeout(function () {
                         $('#' + post_id).hide()
 
                     }, 700);//('hide');
-                    //container.html(data.html)
 
                 }
 
