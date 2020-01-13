@@ -150,7 +150,7 @@ def drag_and_drop(request):
     collect = set()
     auth.walk_down_thread(parent=post, collect=collect, is_root=False)
 
-    if parent == post or (parent in collect):
+    if parent == post or (parent in collect) or parent.root != post.root:
         return ajax_error(msg="Can not move post here.")
 
     if post.is_toplevel:

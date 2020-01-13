@@ -473,7 +473,7 @@ function moderate(elem, url) {
     // Could be a user or post uid
     var data_uid = elem.attr('data-value');
 
-    var container = $('.moderate-insert[data-post="' + data_uid + '"]');
+    var container = $('.moderate-insert[data-value="' + data_uid + '"]');
     var mod_url = url + data_uid + '/';
 
     var page = $('<div id="modpanel"></div>').load(mod_url);

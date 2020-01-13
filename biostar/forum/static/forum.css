@@ -1,6 +1,6 @@
 
 body {
-      background-color: #f8f8f9 !important;
+    background-color: #f8f8f9 !important;
     padding-top: 1rem;
     font-family: sans-serif;
     color: #333;
@@ -44,12 +44,24 @@ body > .widen.container {
 }
 
 
-.ui.basic.slim.segment {
-    margin: 0 ;
-    padding: 0 0 5px ;
-    border: none ;
+.ui.basic.search-bar.segment {
+    margin: 0;
+    padding: 0 0 5px;
+    border: none;
 }
 
+.ui.fluid.input > .search-input {
+    background-color: #f0f0f0 !important;
+    border: none
+}
+
+#inplace-modal{
+    width: auto;
+}
+
+#inplace-modal > .actions{
+    text-align: center
+}
 .ui.pointing.menu .active.item:after {
     background-color: #FBFDEB;
 }
@@ -83,7 +95,24 @@ body > .widen.container {
 .ui.small.label.tags {
     font-weight: inherit;
     font-size: small;
-    padding: .4em .4em .4em .4em !important;
+    padding: .4em .4em .4em .4em;
+
+}
+
+.ui.grid.tags {
+    margin: 0px;
+}
+
+.ui.grid.tags > .column {
+    padding: 3px;
+}
+
+.ui.small.label.tags.listing {
+    padding: 5px;
+}
+
+.ui.tags.icon {
+    margin: 0px;
 }
 
 .spaced-tags {
@@ -175,7 +204,6 @@ body > .widen.container {
 }
 
 
-
 .popover.error {
     background-color: #f2dede;
     border-color: #ebccd1;
@@ -199,7 +227,7 @@ body > .widen.container {
 
 
 .extra {
-    // display: none;
+/ / display: none;
 }
 
 .answer-form {
@@ -336,7 +364,6 @@ body > .widen.container {
 }
 
 
-
 .ui.items > .item .extra {
     margin: 0px;
 
@@ -365,7 +392,6 @@ figure {
     background-color: #ffd2cf;
 / / opacity: .0 %;
 }
-
 
 
 .ui.horizontal.segments.top-menu > .ui.segment {
@@ -441,6 +467,13 @@ img {
 .ui.label.news {
     background-color: #762C90;
     color: #fff;
+
+}
+
+#menu-topics > .new-item {
+    background-color: #d2ffd2;
+    border: solid green;
+    border-radius: 10px;
 
 }
 
@@ -528,6 +561,7 @@ img {
 
 .ui.items > .item > .content > .header.post-title {
     font-size: 135%;
+    display: contents;
 }
 
 
@@ -540,7 +574,6 @@ img {
     width: 20%;
     padding-right: 2px;
 }
-
 
 
 .title-field textarea {
@@ -590,13 +623,14 @@ img {
 }
 
 #wmd-input.comment {
- height: 100%;
+    height: 100%;
 }
-.create-post{
+
+.create-post {
     text-align: center
 }
 
-.create-post > .ui.segment{
+.create-post > .ui.segment {
     text-align: initial;
     width: 70%;
     display: inline-block
@@ -653,7 +687,6 @@ img {
 .ui.forum.container {
     width: 1230px;
 }
-
 
 
 .detail-stat {

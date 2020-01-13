@@ -207,7 +207,6 @@ class PostModForm(forms.Form):
         if self.post.is_toplevel:
             self.fields['dupe'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea)
             self.fields['comment'] = forms.CharField(required=False, max_length=200, widget=forms.Textarea)
-            #self.fields['offtopic'] = forms.CharField(required=False, max_length=200)
         else:
             self.fields['pid'] = forms.CharField(required=False, max_length=200, label="Parent id")
 

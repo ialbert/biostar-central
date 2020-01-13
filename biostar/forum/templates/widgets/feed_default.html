@@ -51,7 +51,7 @@
                 <div class="ui relaxed list" >
                    {% for award in recent_awards %}
 
-                        <div class="item"  style="">
+                        <div class="item" >
                             <span>
                                 <a href="{% url 'badge_view' award.badge.uid %}">{{ award.badge.name }} <i class="{{ award.badge.icon }}"></i></a> to
                                 <a href="{% url "user_profile" award.user.profile.uid %}">
@@ -83,7 +83,7 @@
 
                         <span>  {% user_icon user=replies.author %}</span>
 
-                        <div class="muted" style="">
+                        <div class="muted">
                             {{ replies.content |truncatechars:140 }}
                             </div>
                         </div>

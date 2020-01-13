@@ -11,9 +11,11 @@
 {% block content %}
 
 {% search_bar users=True %}
+
     {% if query %}
         <div class="ui message"> <i class="search icon"></i>Searching for users containing: <b>{{ query }}</b></div>
     {% endif %}
+
 {% with params=request.GET.urlencode %}
 <div class="ui horizontal basic top-menu segments">
     <div class="ui first segment">

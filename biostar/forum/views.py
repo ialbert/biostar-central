@@ -59,13 +59,10 @@ ORDER_MAPPER = dict(
 
 
 def generate_cache_key(*args):
-
-    # Sanitize strings
+    # Combine list of values to form a single key
     vals = [str(v).replace(' ', '') for v in args]
     key = ''.join(vals)
-
     return key
-
 
 
 def post_exists(func):
@@ -254,7 +251,8 @@ def myvotes(request):
     Show posts by user that received votes
     """
     page = request.GET.get('page', 1)
-    votes = Vote.objects.filter(post__author=request.user).order_by("-date")
+    votes = Vote.objects.filter(post__author=request.user).prefetch_related('post', 'post__root',
+                                                                            'author__profile').order_by("-date")
     # Create the paginator
     paginator = CachedPaginator(MYVOTES_CACHE_KEY, votes, settings.POSTS_PER_PAGE)
 

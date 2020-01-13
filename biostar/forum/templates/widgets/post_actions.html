@@ -8,10 +8,6 @@
 <a class="add-comment ui tiny label" data-value="{{ post.uid }}">{{ label }}</a>
 
     &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
-    {#    {% if post.is_toplevel %}#}
-    {#        &bull;#}
-    {#    <span class="muted"><i class="plus icon"></i></span>#}
-    {#    {% endif %}#}
 
     {% if post.is_editable %}
         &bull; <a class="inplace-click" href="#" data-value="{{ post.uid }}">edit</a>

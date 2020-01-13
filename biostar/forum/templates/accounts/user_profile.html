@@ -41,7 +41,7 @@
 
             </div>
 
-            <div class="moderate-user-insert" data-user="{{ target.id }}"></div>
+            <div class="moderate-insert" data-value="{{ target.id }}"></div>
         </div>
 
         <div class="column">
@@ -53,9 +53,7 @@
 
                 <table class="ui very basic table profile">
                     <tbody>
-
-
-
+                    
                     {% if target.profile.is_moderator %}
                         <tr>
                             <td>Role:</td>
