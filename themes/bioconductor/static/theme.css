@@ -1,15 +1,17 @@
 body > .widen.container {
     width: 97%;
 }
+
 body {
     font-size: 13px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
 .ui.question.label {
     background-color: #87B13F;
 }
 
-.add-comment.ui.label{
+.add-comment.ui.label {
     cursor: pointer;
     color: white;
     font-weight: bolder;
@@ -18,57 +20,58 @@ body {
 }
 
 
-.ui.text.menu .item.padded{
+.ui.text.menu .item.padded {
     padding-right: 10px;
     padding-left: 10px;
 }
 
-.answer-form{
+.answer-form {
     display: none;
 }
 
-#menu-topics{
+#menu-topics {
     background-color: #1881c2;
     color: white;
     font-size: small;
-    //min-height: 0;
+/ / min-height: 0;
 }
 
-.no-box-shadow{
-        box-shadow: none !important;
+.no-box-shadow {
+    box-shadow: none !important;
     -webkit-box-shadow: none;
 }
 
-.sorting{
-    min-height: 0 !important;
-    height: 32px;
+.sorting {
+    min-height: 25px !important;
+    height: 36px;
 }
 
-#menu-topics .item{
+#menu-topics .item {
     color: white;
 }
 
-#menu-topics .item.active{
+#menu-topics .item.active {
     color: #2a2b2b;
 }
 
 
-#menu-header{
+#menu-header {
     height: 70px;
 }
-#menu-header .item.format{
+
+#menu-header .item.format {
     padding: 28px 20px 0px 20px;
     text-align: center;
     color: #337ab7;
     text-transform: uppercase;
 }
 
-#menu-header .item:hover{
+#menu-header .item:hover {
     background-color: #dbdbdb;
 }
 
 
-.hidden-answer{
+.hidden-answer {
     display: none;
 }
 
@@ -83,21 +86,21 @@ body {
     display: inline;
 }
 
-#login-opts .item>i.icon{
+#login-opts .item > i.icon {
     color: white;
 }
 
-.match{
+.match {
     width: max-content;
 }
 
 
 .ui.question.has_answers.label {
-    background-color: #1881C2!important;
+    background-color: #1881C2 !important;
 }
 
 .ui.tutorial.has_answers.label {
-    background-color: #1881C2!important;
+    background-color: #1881C2 !important;
 }
 
 .ui.stat.label.tutorial {
@@ -110,20 +113,20 @@ body {
 }
 
 
-#menu-header .add-question:hover{
+#menu-header .add-question:hover {
     background-color: #87B13F;
     color: white;
 }
 
 .ui.small.label.tags {
-  background-color: #F5F5F5;
-  border:none;
-  border-bottom: 1px solid #E5E5E5;
-  border-right: 1px solid #E5E5E5;
-  color: #1881C2;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
+    background-color: #F5F5F5;
+    border: none;
+    border-bottom: 1px solid #E5E5E5;
+    border-right: 1px solid #E5E5E5;
+    color: #1881C2;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
 }
 
 
@@ -138,8 +141,8 @@ body {
 }
 
 .accepted.answer.label {
-    background-color: #1881C2!important;;
-    color: #FFFC20!important;;
+    background-color: #1881C2 !important;;
+    color: #FFFC20 !important;;
 }
 
 
@@ -150,24 +153,27 @@ body {
     }
 
 
-    .fit{
-        width:133% !important;
+    .fit {
+        width: 133% !important;
     }
 
     .statbox {
 
         padding-bottom: 8px;
     }
-    .ui.grid>[class*="twelve wide"].column.content {
-        width: 100%!important;
+
+    .ui.grid > [class*="twelve wide"].column.content {
+        width: 100% !important;
     }
-    .ui.text.menu .item.padded{
-    padding-right: 5px;
-    padding-left: 5px;
-}
-    .ui.text.menu .item{
+
+    .ui.text.menu .item.padded {
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+
+    .ui.text.menu .item {
         font-size: small;
-}
+    }
 
 }
 
@@ -178,35 +184,38 @@ body {
     }
 
     .widden {
-	//width: fit-content !important;
+    / / width: fit-content !important;
     }
 
-        .ui.text.menu .item.padded{
-    padding-right: 3px;
-    padding-left: 3px;
-}
-    .ui.text.menu .item{
+    .ui.text.menu .item.padded {
+        padding-right: 3px;
+        padding-left: 3px;
+    }
+
+    .ui.text.menu .item {
         font-size: small;
+    }
+
+
 }
 
-
-
-}
 @media all and (max-width: 765px) {
 
     .menu-tablet_medsmall {
         display: none !important;
     }
-        .ui.menu:not(.vertical) .left.item{
-             display: inline !important;
-        margin-right: 0 !important;
-    }
-    .header-menu{
+
+    .ui.menu:not(.vertical) .left.item {
         display: inline !important;
         margin-right: 0 !important;
     }
 
-    .header-menu .menu-tablet_medsmall{
+    .header-menu {
+        display: inline !important;
+        margin-right: 0 !important;
+    }
+
+    .header-menu .menu-tablet_medsmall {
         display: block !important;
     }
 
@@ -218,10 +227,12 @@ body {
     .menu-tablet {
         display: inline !important;
     }
+
     .header-menu {
         display: none !important;
     }
-    .ui.menu:not(.vertical) .left.item.header-menu{
+
+    .ui.menu:not(.vertical) .left.item.header-menu {
         display: none !important;
     }
 
@@ -230,47 +241,50 @@ body {
 
 @media all and (max-width: 999px) {
 
- .menu-tablet {
+    .menu-tablet {
         display: none !important;
     }
-    .ui.menu:not(.vertical) .left.item.header-menu{
-             display: inline !important;
-        margin-right: 0 !important;
-    }
-    .header-menu{
+
+    .ui.menu:not(.vertical) .left.item.header-menu {
         display: inline !important;
         margin-right: 0 !important;
     }
-    .header-menu .menu-tablet_small{
+
+    .header-menu {
+        display: inline !important;
+        margin-right: 0 !important;
+    }
+
+    .header-menu .menu-tablet_small {
         display: none !important;
     }
-        .header-menu .menu-tablet_bicon_small {
+
+    .header-menu .menu-tablet_bicon_small {
         display: none !important;
     }
 
 }
-
-
-
 
 
 @media all and (max-width: 840px) {
 
-.menu-tablet_bicon_small {
-    display: none !important;
-}
-    .ui.menu:not(.vertical) .left.item.header-menu{
-         display: inline !important;
-    margin-right: 0 !important;
-}
-.header-menu{
-    display: inline !important;
-    margin-right: 0 !important;
-}
+    .menu-tablet_bicon_small {
+        display: none !important;
+    }
 
-.header-menu .menu-tablet_bicon_small{
-    display: block !important;
-}
+    .ui.menu:not(.vertical) .left.item.header-menu {
+        display: inline !important;
+        margin-right: 0 !important;
+    }
+
+    .header-menu {
+        display: inline !important;
+        margin-right: 0 !important;
+    }
+
+    .header-menu .menu-tablet_bicon_small {
+        display: block !important;
+    }
 
 }
 

@@ -11,7 +11,7 @@
         {% block content %}
 
 
-            {% form_errors form %}
+            {% form_errors form=form wmd_prefix='wmd-input' override_content=True %}
 
                 <div class="ui basic compact segment no-shadow">
 

@@ -18,7 +18,8 @@ logger = models.logger
 MIN_CHARS = 5
 MAX_CONTENT = 15000
 MIN_CONTENT = 5
-
+MAX_TITLE = 400
+MAX_TAGS = 5
 
 def english_only(text):
     try:
@@ -36,13 +37,15 @@ def valid_title(text):
     text = text.replace(" ", '')
     if len(text) < MIN_CHARS:
         raise ValidationError(f'Too short, please add more than {MIN_CHARS} characters.')
+    if len(text) > MAX_TITLE:
+        raise ValidationError(f'Too Long, please add less than {MAX_TITLE} characters.')
 
 
 def valid_tag(text):
     "Validates form input for tags"
 
     words = text.split(",")
-    if len(words) > 5:
+    if len(words) > MAX_TAGS:
         raise ValidationError('You have too many tags (5 allowed)')
 
 
@@ -131,6 +134,7 @@ class PostLongForm(forms.Form):
     def clean_content(self):
         content = self.cleaned_data["content"]
         length = len(content.replace(" ", ""))
+
         if length < MIN_CHARS:
             raise forms.ValidationError(f"Too short, place add more than {MIN_CHARS}")
         return content

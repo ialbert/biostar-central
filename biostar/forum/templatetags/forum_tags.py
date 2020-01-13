@@ -172,6 +172,12 @@ def gravatar(user=None, user_uid=None, size=80):
     return auth.gravatar(user=user, size=size)
 
 
+@register.inclusion_tag('widgets/filter_dropdown.html', takes_context=True)
+def filter_dropdown(context):
+
+    return context
+
+
 @register.inclusion_tag('widgets/user_icon.html', takes_context=True)
 def user_icon(context, user=None, is_moderator=False, is_spammer=False, score=0):
 
@@ -405,7 +411,7 @@ def get_tags(request=None, post=None, user=None, watched=False):
 
 
 @register.inclusion_tag('widgets/form_errors.html')
-def form_errors(form):
+def form_errors(form, wmd_prefix='', override_content=False):
     """
     Turns form errors into a data structure
     """
@@ -414,7 +420,9 @@ def form_errors(form):
         errorlist = [('', message) for message in form.non_field_errors()]
         for field in form:
             for error in field.errors:
-                errorlist.append((f'{field.name}:', error, field.id_for_label))
+                field_id = wmd_prefix if (override_content and field.name is 'content') else field.id_for_label
+                errorlist.append((f'{field.name}:', error, field_id))
+
     except Exception as exc:
         errorlist = []
         logging.error(exc)
