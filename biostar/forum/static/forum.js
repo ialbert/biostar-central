@@ -192,8 +192,6 @@ function cancel_inplace() {
     var hidden = $('.hide-on-edit');
     $('.hide-on-comment').show();
 
-    $('.dim-on-create').dimmer('hide').removeClass('fit-create');
-    ;
     //Delete the form
     inplace_content.remove();
     //inplace_title.html("");
@@ -603,6 +601,7 @@ $(document).ready(function () {
     });
 
     $('.inplace-click').click(function (event) {
+        event.preventDefault();
         var uid = $(this).data('value');
         var elem = $('.editable[data-value="' + uid + '"]');
         inplace_post_edit(elem);
@@ -683,10 +682,6 @@ $(document).ready(function () {
         var post_actions = $('.hide-on-comment[data-value="' + parent_uid + '"]');
 
         cancel_inplace();
-        $('#insert-form').html('');
-        $('.new-post').removeClass('active');
-
-        $('#add-answer').html('');
 
         // Check for existing comment.
         var comment = $("#new-comment");

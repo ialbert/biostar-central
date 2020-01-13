@@ -77,8 +77,7 @@ def walk_down_thread(parent, collect=set(), is_root=True):
     Recursively walk up a thread of posts starting from target
     """
 
-    # Stop condition 1: post does not have a root or parent.
-    #print(parent, parent.parent, parent.root)
+    # Stop condition: post does not have a root or parent.
     if (parent is None) or (parent.parent is None) or (parent.root is None):
         return collect
 
@@ -87,8 +86,7 @@ def walk_down_thread(parent, collect=set(), is_root=True):
         children = Post.objects.filter(root=parent).exclude(uid=parent.uid)
     else:
         children = Post.objects.filter(parent=parent).exclude(uid=parent.uid)
-    print(parent.uid, "LLOO")
-    #children = children.prefetch_related("root", "parent")  # , "author__profile", "lastedit_user__profile")
+
     for child in children:
         # Add child to list
         collect.add(child)

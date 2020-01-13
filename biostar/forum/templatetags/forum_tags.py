@@ -335,6 +335,7 @@ def type_help():
     context = dict()
     return context
 
+
 @register.simple_tag
 def inplace_type_field(post=None, field_id='type'):
     choices = [opt for opt in Post.TYPE_CHOICES]
@@ -798,16 +799,3 @@ def traverse_comments(request, post, tree, template_name):
     return html
 
 
-@register.filter
-def get_children_list(post):
-
-    children = []
-    #auth.walk_down_thread(parent=post, collect=children, is_root=post.is_toplevel)
-
-    # Include itself in list
-
-    children = [post.uid] + list(map(lambda p: p.uid, children))
-
-    children = ['NEW'] #if post.is_answer else []
-    #print(children, post.uid)
-    return ','.join(children)

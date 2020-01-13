@@ -377,13 +377,13 @@ def ajax_edit(request, uid):
     # Set the fields for this post.
     post = set_post(post=post, fields=fields)
 
-    # Get the new tags and render them
+    # Get the newly set tags to render
     tags = post.tag_val.split(",")
     context = dict(post=post, tags=tags, show_views=True)
     tmpl = loader.get_template('widgets/post_tags.html')
     tag_html = tmpl.render(context)
 
-    # Prepare the new title
+    # Prepare the new title to render
     new_title = f'{post.get_type_display()}: {post.title}'
 
     return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
