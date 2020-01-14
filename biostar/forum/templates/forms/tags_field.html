@@ -10,7 +10,7 @@
         field_id="{{ form_field.id_for_label }}">
 
     <option value="">Search tags</option>
-    {% for value, is_selected in tags_opt %}
+    {% for value, is_selected in dropdown_options %}
         <option value="{{ value }}"
 
                 {% if is_selected %}

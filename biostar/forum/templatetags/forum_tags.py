@@ -3,6 +3,7 @@ import itertools
 import logging
 import random
 import re
+import os
 import urllib.parse
 import datetime
 from itertools import count, islice
@@ -352,15 +353,31 @@ def inplace_type_field(post=None, field_id='type'):
     return mark_safe(post_type)
 
 
-@register.inclusion_tag('forms/tags_field.html', takes_context=True)
-def tags_field_from_file(context, post=None):
-    """Render multiple select dropdown options for tags from a file """
+def read_tags(filepath, exclude=[], limit=500):
+    """Read tags from a file. Each line is considered a tag. """
+    stream = open(filepath, 'r') if os.path.exists(filepath) else []
+    stream = islice(zip(count(1), stream), limit)
+    tags_opts = set()
+    for idx, line in stream:
+        line = line.strip()
+        if line not in exclude or line != '\n':
+            tags_opts.add((line, False) )
+    return tags_opts
 
-    tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()[:300]
-    tags_opts = [(x.strip(), False) if x.strip() not in tags.split(",") else (x.strip(), True)
-                     for x in tags_opts if x != '\n']
 
-    return
+def get_dropdown_options(selected_list):
+    tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
+    # Read tags file from a file if it is set
+    selected_tags = {(val, True) for val in selected_list}
+    if tags_file:
+        tags_opts = read_tags(filepath=tags_file, exclude=selected_list)
+    else:
+        tags_query = Tag.objects.exclude(name__in=selected_list)[:50].values_list("name", flat=True)
+        tags_opts = {(name.strip(), False) for name in tags_query}
+    # Chain the selected and rest of the options
+    tags_opts = itertools.chain(selected_tags, tags_opts)
+
+    return tags_opts
 
 
 @register.inclusion_tag('forms/tags_field.html', takes_context=True)
@@ -368,44 +385,10 @@ def tags_field(context, form_field, initial=''):
     """Render multiple select dropdown options for tags. """
 
     # Get currently selected tags from the post or request
-    selected_tags_list = initial.split(",") if initial else []
-    selected_tags = {(val, True) for val in selected_tags_list}
+    selected_list = initial.split(",") if initial else []
+    dropdown_options = get_dropdown_options(selected_list=selected_list)
 
-    tags_query = Tag.objects.exclude(name__in=selected_tags_list)[:50].values_list("name", flat=True)
-    tags_opts = {(name.strip(), False) for name in tags_query}
-
-    tags_opts = itertools.chain(selected_tags, tags_opts)
-    context = dict(initial=initial, form_field=form_field, tags_opt=tags_opts)
-
-    return context
-
-
-@register.simple_tag
-def get_tags(request=None, post=None, user=None, watched=False):
-    # Get tags in requests before fetching ones in the post.
-    # This is done to accommodate populating tags in forms
-
-    if request:
-        tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
-    else:
-        tags = post.tag_val if isinstance(post, Post) else ''
-        tags = user.profile.my_tags if user else tags
-        tags = user.profile.watched_tags if watched else tags
-
-    # Prepare the tags options in the dropdown from a file
-    if settings.TAGS_OPTIONS_FILE:
-        tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()[:300]
-        tags_opts = [(x.strip(), False) if x.strip() not in tags.split(",") else (x.strip(), True)
-                     for x in tags_opts if x != '\n']
-    # Prepare dropdown options from database.
-    else:
-        tags_query = Tag.objects.exclude(name__in=tags.split(','))[:50].values_list("name", flat=True)
-        tags_opts = ((name.strip(), False) for name in tags_query)
-
-    selected_tags_opt = ((val, True) for val in tags.split(","))
-    tags_opts = itertools.chain(selected_tags_opt, tags_opts)
-
-    context = dict(selected=tags, tags_opt=tags_opts)
+    context = dict(initial=initial, form_field=form_field, dropdown_options=dropdown_options)
 
     return context
 
@@ -420,6 +403,7 @@ def form_errors(form, wmd_prefix='', override_content=False):
         errorlist = [('', message) for message in form.non_field_errors()]
         for field in form:
             for error in field.errors:
+                # wmd_prefix is required when dealing with 'content' field.
                 field_id = wmd_prefix if (override_content and field.name is 'content') else field.id_for_label
                 errorlist.append((f'{field.name}:', error, field_id))
 

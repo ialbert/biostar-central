@@ -14,16 +14,6 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
-# User above this score do not get a reCAPTCHA
-RECAPTCHA_TRUSTED_USER_SCORE = 15
-
-# Full file path to tags.
-# Each line is a list of comma separated tags.
-TAGS_OPTIONS_FILE = ''
-
-# Add list of contributors to the post list.
-ADD_THREAD_USERS = True
-
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = ''
 

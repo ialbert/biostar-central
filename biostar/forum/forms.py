@@ -75,6 +75,7 @@ class PostLongForm(forms.Form):
     choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES) if settings.ALLOWED_POST_TYPES else
                                  (opt[0] in Post.TOP_LEVEL), choices)
 
+    # Get his
     if settings.REMAP_TYPE_DISPLAY:
         type_choices = []
         for c in choices:
