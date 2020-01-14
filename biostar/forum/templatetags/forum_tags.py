@@ -214,7 +214,6 @@ def post_user_line(context, post, avatar=False, user_info=True):
     return context
 
 
-
 @register.inclusion_tag('widgets/post_user_line.html', takes_context=True)
 def postuid_user_line(context, uid, avatar=True, user_info=True):
     post = Post.objects.filter(uid=uid).first()

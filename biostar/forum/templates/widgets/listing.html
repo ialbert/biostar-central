@@ -5,7 +5,7 @@
 
     {% for post in posts %}
 
-        <div class="post {{post.css }} item top-padding" id="{{ post.uid }}">
+        <div class="post {{ post.css }} item top-padding" id="{{ post.uid }}">
 
             <div class="statbox menu-tablet_small">
                 <div class="ui left stat label mini">
@@ -46,7 +46,8 @@
                         <span class="ui title header">Spam:</span>
                     {% endif %}
 
-                    <a href="{% url 'post_view' post.uid %}" class="ui mini blue title header ">{{ post.title|truncatechars:150 }}
+                    <a href="{% url 'post_view' post.uid %}" class="ui mini blue title header ">
+                        {{ post.title|truncatechars:150 }}
                     </a>
                 </div>
                 <div class="small-stats muted">
@@ -59,18 +60,20 @@
                     Repl{{ post.reply_count|pluralize:"y,ies" }}
 
                 </div>
-                <div class="right floated thread-users">
-                    {% get_thread_users users=post.thread_users.all post=post as extra_users %}
-                    {% for extra_user in extra_users %}
-                        {% if not extra_user.profile.is_spammer or extra_user == post.author %}
-                        <a class="ui mini avatar list-avatar image"
-                           href="{% url "user_profile" extra_user.profile.uid %}">
-                            <img src="{% gravatar user=extra_user size=90 %}">
-                        </a>
-                        {% endif %}
-                    {% endfor %}
+                {% comment %}
+                    <div class="right floated thread-users">
+                        {% get_thread_users users=post.thread_users.all post=post as extra_users %}
+                        {% for extra_user in extra_users %}
+                            {% if not extra_user.profile.is_spammer or extra_user == post.author %}
+                                <a class="ui mini avatar list-avatar image"
+                                   href="{% url "user_profile" extra_user.profile.uid %}">
+                                    <img src="{% gravatar user=extra_user size=90 %}">
+                                </a>
+                            {% endif %}
+                        {% endfor %}
 
-                </div>
+                    </div>
+                {% endcomment %}
 
                 <div class=" extra right floated">
 
@@ -89,7 +92,7 @@
 
                     <div class="right floated muted">
 
-                        {% post_user_line post %}
+                        {% post_user_line post avatar=True %}
                     </div>
 
                 </div>
@@ -98,7 +101,7 @@
 
         </div>
 
-    {% empty %}
+        {% empty %}
         <div class="ui warn message">
 
             No posts found.
