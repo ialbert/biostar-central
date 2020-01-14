@@ -719,6 +719,10 @@ h1 {
     font-size: 1.4rem;
 }
 
+h2 {
+    min-height: 1rem;
+    font-size: 1.3rem;
+}
 
 a {
     padding: 0;

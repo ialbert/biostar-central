@@ -796,6 +796,29 @@ def top_level_only(attrs, new=False):
         return None
     return attrs
 
+@register.simple_tag
+def markdown_file(pattern):
+    """
+    Returns the content of a file matched by the pattern.
+    Returns an error message if the pattern cannot be found.
+    """
+    #path = find_file(pattern=pattern)
+    path = pattern
+    path = os.path.abspath(path)
+    if os.path.isfile(path):
+        text = open(path).read()
+    else:
+        text = f"    file '{pattern}': '{path}' not found"
+
+    try:
+        html = markdown.parse(text)
+        html = bleach.linkify(html, callbacks=[top_level_only], skip_tags=['pre'])
+        html = mark_safe(html)
+    except Exception as e:
+        html = f"Markdown rendering exception"
+        logger.error(e)
+    return html
+
 class MarkDownNode(template.Node):
     CALLBACKS = [ top_level_only ]
     def __init__(self, nodelist):

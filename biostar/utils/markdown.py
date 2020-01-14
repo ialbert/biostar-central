@@ -235,7 +235,7 @@ def parse(text, post=None):
     Parses markdown into html.
     Expands certain patterns into HTML.
     """
-    # Resolve the root
+    # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
     inline = BiostarInlineLexer(renderer=Renderer(), root=root)
     inline.enable_post_link()
