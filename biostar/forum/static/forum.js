@@ -154,7 +154,7 @@ function edit_post(uid) {
             },
             success: function (data) {
                 if (data.status === 'error') {
-                    popup_message(form_elem, data.msg, data.status, 3000);
+                    popup_message($('.error-msg'), data.msg, data.status, 3000);
                 } else {
                     // Clear and hide inplace form
                     form_elem.html('');

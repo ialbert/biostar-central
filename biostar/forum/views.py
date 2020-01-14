@@ -82,17 +82,17 @@ def post_exists(func):
 
 def policy(request):
     context = dict()
-    return render(request, template_name="widgets/policy.html", context=context)
+    return render(request, template_name="messages/policy.html", context=context)
 
 
 def about(request):
     context = dict()
-    return render(request, template_name="about.html", context=context)
+    return render(request, template_name="messages/about.html", context=context)
 
 
 def faq(request):
     context = dict()
-    return render(request, template_name="faq.html", context=context)
+    return render(request, template_name="messages/faq.html", context=context)
 
 
 def get_posts(user, show="latest", tag="", order="rank", limit=None):
@@ -210,7 +210,6 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
     tag = request.GET.get("tag", "")
     show = show or request.GET.get("type", "")
     limit = request.GET.get("limit", "all")
-    print(order, "FOO")
     cache_key = cache_key or generate_cache_key(limit, tag, show)
 
     # Get posts available to users.

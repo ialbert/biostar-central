@@ -13,19 +13,18 @@
 <div class="ui inplace post-form basic segment fit">
 
     <form class="ui inplace edit-form compact form" id="post-form">
+        <div class="error-msg"></div>
 
-
-            {% if not add_comment and post.is_toplevel %}
-                <div class="inplace-fields fields">
+        {% if not add_comment and post.is_toplevel %}
+            <div class="inplace-fields fields">
                 <div class=" field type-field">
                     {% inplace_type_field post=post %}
                 </div>
                 <div class="field title-field">
                     <textarea id="title" rows="1">{{ post.title }}</textarea>
                 </div>
-                </div>
-            {% endif %}
-
+            </div>
+        {% endif %}
 
         <div class="field">
             {% if not add_comment and post.is_toplevel %}
@@ -44,7 +43,7 @@
         {% if not add_comment and post.is_toplevel %}
 
             <div class="field">
-               {% tags_field form_field=form.tag_val initial=post.tag_val %}
+                {% tags_field form_field=form.tag_val initial=post.tag_val %}
             </div>
 
         {% endif %}
@@ -57,7 +56,6 @@
 
         <p class="muted">Tips: CTRL+ENTER to submit the form. ESC to cancel. Double-click to edit post. Markdown
             accepted.</p>
-
 
         <div id="html-preview">
             <div class="ui preview segment">
@@ -86,26 +84,25 @@
 
     </form>
 
-<div class="ui mini basic modal" id="inplace-modal">
-    <div class="ui icon header">
-        <i class="save outline icon"></i>
-        <div> You are about to exit a form and will lose all of your progress.</div>
-        Do you want to exit without saving?
-    </div>
-    <div class="actions">
-
-        <div class="ui red cancel inverted button" id="cancel-inplace">
-            <i class="remove icon"></i>
-            Exit
+    <div class="ui mini basic modal" id="inplace-modal">
+        <div class="ui icon header">
+            <i class="save outline icon"></i>
+            <div> You are about to exit a form and will lose all of your progress.</div>
+            Do you want to exit without saving?
         </div>
-        <div class="ui green green ok inverted button" id="stay">
-            <i class=" checkmark icon"></i>
-            Stay
+        <div class="actions">
+
+            <div class="ui red cancel inverted button" id="cancel-inplace">
+                <i class="remove icon"></i>
+                Exit
+            </div>
+            <div class="ui green green ok inverted button" id="stay">
+                <i class=" checkmark icon"></i>
+                Stay
+            </div>
         </div>
     </div>
 </div>
-</div>
-
 
 
 <script>

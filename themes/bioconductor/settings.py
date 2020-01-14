@@ -10,7 +10,7 @@ HTTP_PROTOCOL = "http"
 
 # Full file path to tags.
 # Each line is a list of comma separated tags.
-TAGS_OPTIONS_FILE = os.path.join(CUSTOM_THEME, 'tags.txt')
+TAGS_OPTIONS_FILE = os.path.join(CUSTOM_THEME, 'tags', 'tags.txt')
 
 REMAP_TYPE_DISPLAY = True
 # Post types displayed when creating, empty list displays all types.
@@ -52,12 +52,12 @@ TEMPLATES = [
     },
 ]
 
+
 # How many recent objects to show in the feed.
 VOTE_FEED_COUNT = 5
 LOCATION_FEED_COUNT = 5
 AWARDS_FEED_COUNT = 5
 REPLIES_FEED_COUNT = 5
-
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = "themes.bioconductor.conf.wsgi.application"

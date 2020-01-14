@@ -10,8 +10,7 @@
         {% show_messages messages %}
         {% block content %}
 
-
-            {% form_errors form %}
+            {% form_errors form=form wmd_prefix='wmd-input' override_content=True %}
 
                 <div class="ui basic compact segment no-shadow">
 
@@ -34,7 +33,8 @@
                             <div class="required field">
                                 <label>{{ form.post_type.label }}</label>
                                 {{ form.post_type }}
-                                <p class="muted">{{ form.post_type.help_text }}</p>
+                                     <p class="muted" style="display: contents; ">{{ form.post_type.help_text }} Click here for more</p> {% include 'forms/help_text.html' %}
+
                             </div>
                         </div>
 

@@ -1,0 +1,67 @@
+<div class="ui info tablet message">
+    If you want to provide a solution to the original question, click <a class="ui tiny blue label"
+                                                                         id="show-answer">ADD ANSWER</a> <br>
+
+    Use the <span class="ui tiny label">ADD COMMENT</span> or <span
+        class="ui tiny label">ADD REPLY</span> buttons
+    embedded in each post to comment, to ask for clarifications, to request more details, or respond
+    to a
+    previous answer or comment.
+
+</div>
+
+<div class="hidden-answer">
+    <div class="ui small header">Add your answer</div>
+
+    <form method="post" class="ui  form" action="{% url 'post_view' post.uid %}">
+
+        {{ form.media }}
+        {% csrf_token %}
+        <input type="hidden" name="parent_uid" id="parent_uid" value="{{ post.uid }}">
+        <div ondragover="allowDrop(event);"
+             ondrop="drop(event, 'NEW')">
+            <div class="ui form-wrap segment">
+                <div class="required input field">
+                    {% include 'widgets/posting_msg.html' %}
+
+                    <div class="wmd-wrapper" id="wmd-wrapper-{{ form.content.id_for_label }}">
+                        <div class="">
+                            <div id="wmd-button-bar-{{ form.content.id_for_label }}"></div>
+                            <textarea class="wmd-input-{{ form.content.id_for_label }} droptarget autocomplete "
+                                      data-value="NEW"
+                                      data-thread="NEW"
+                                      ondragover="drag_over(event, $(this))"
+                                      ondragleave="drag_leave(event, $(this))" cols="40" name="content"
+                                      rows="17"
+                                      id="wmd-input-{{ form.content.id_for_label }}"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="ui preview segment">
+            <div class="field">
+                <label>Preview</label>
+                <div id="answer-preview"></div>
+            </div>
+        </div>
+        {% if form.captcha %}
+            <div class="top-padding">
+                <div class="required field">
+                    {{ form.captcha }}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="top-padding">
+            <button type="submit" class="ui submit green button">
+                <i class="check icon"></i>Submit
+            </button>
+        </div>
+    </form>
+
+</div>

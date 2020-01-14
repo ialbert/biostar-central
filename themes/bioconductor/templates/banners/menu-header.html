@@ -1,0 +1,39 @@
+{% load forum_tags %}
+{% load staticfiles %}
+
+
+<div class="ui labeled icon attached pointing menu" id="menu-header" user-id="{{ request.user.id }}">
+<div class="ui inverted dimmer"></div>
+    {% block headimg %}
+        <div class="header item" id="logo">
+            <a href="https://bioconductor.org/"><img class="ui image"  src="{% static "transparent-logo.png" %}"></a>
+        </div>
+    {% endblock %}
+
+    <a class="item {% activate tab "new" %} format add-question" href="{% url 'post_create' %}">
+        <span class="">Ask a question</span>
+    </a>
+
+    <a class="item menu-tablet_xsmall {% activate tab "latest" %} format " href="{% url 'post_list' %}">
+    <span class="">Latest</span>
+    </a>
+    <a class=" item menu-tablet_medsmall {% activate tab "news" %} format" href="{% url 'post_list' %}?type=news">
+    <span class="">News</span>
+    </a>
+    <a class=" item menu-tablet_medsmall {% activate tab "job" %} format " href="{% url 'post_list' %}?type=job">
+    <span class="">Jobs</span>
+    </a>
+
+    <a class=" item menu-tablet_bicon_small {% activate tab "tutorial" %} format " href="{% url 'post_list' %}?type=tutorial">
+    <span class="">Tutorials</span>
+    </a>
+
+    <a class=" item   menu-tablet {% activate tab "tags" %} format " href="{% url 'tags_list' %}">
+        <span class="">Tags</span>
+    </a>
+
+    <a class=" item  menu-tablet {% activate tab "community" %} format " href="{% url 'community_list' %}">
+        <span class="">Users</span>
+    </a>
+
+</div>

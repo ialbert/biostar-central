@@ -87,7 +87,6 @@ SECRET_KEY = 'secret-key'
 # Change this in production!
 API_KEY = "api-key"
 
-# Template specific settings.
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
