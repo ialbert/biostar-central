@@ -798,4 +798,44 @@ def traverse_comments(request, post, tree, template_name):
 
     return html
 
+import bleach
+from biostar.utils import markdown
 
+def top_level_only(attrs, new=False):
+    '''
+    Helper function used when linkifying with bleach.
+    '''
+    if not new:
+        return attrs
+    text = attrs['_text']
+    if not text.startswith(('http:', 'https:')):
+        return None
+    return attrs
+
+class MarkDownNode(template.Node):
+    CALLBACKS = [ top_level_only ]
+    def __init__(self, nodelist):
+        self.nodelist = nodelist
+
+    def render(self, context):
+        text = self.nodelist.render(context)
+        text = markdown.parse(text)
+        text = bleach.linkify(text, callbacks=self.CALLBACKS, skip_tags=['pre'])
+        return text
+
+@register.tag('markdown')
+def markdown_tag(parser, token):
+    """
+    Enables a block of markdown text to be used in a template.
+    Syntax::
+            {% markdown %}
+            ## Markdown
+            Now you can write markdown in your templates. This is good because:
+            * markdown is awesome
+            * markdown is less verbose than writing html by hand
+            {% endmarkdown %}
+    """
+    nodelist = parser.parse(('endmarkdown',))
+    # need to do this otherwise we get big fail
+    parser.delete_first_token()
+    return MarkDownNode(nodelist)
