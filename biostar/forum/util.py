@@ -2,7 +2,7 @@ import re
 import bleach
 import logging
 import uuid
-
+from itertools import islice, count
 from datetime import datetime
 from django.utils.timezone import utc
 

@@ -16,6 +16,9 @@ ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
+# User above this score do not get a reCAPTCHA
+RECAPTCHA_THRESHOLD_USER_SCORE = 1
+
 # The password for admin users. Must be changed in production.
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 

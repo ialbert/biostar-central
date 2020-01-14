@@ -148,7 +148,7 @@ class Profile(models.Model):
 
     def require_recaptcha(self):
         """Check to see if this user requires reCAPTCHA"""
-        is_required = not (self.trusted or self.score > settings.RECAPTCHA_TRUSTED_USER_SCORE)
+        is_required = not (self.trusted or self.score > settings.RECAPTCHA_THRESHOLD_USER_SCORE)
         return is_required
 
     def get_score(self):

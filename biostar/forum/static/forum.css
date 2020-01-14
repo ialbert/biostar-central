@@ -17,6 +17,12 @@ body > .widen.container {
     width: 220px;
 }
 
+.subs {
+    text-align: center;
+    font-size: smaller;
+    color: #762C90;
+}
+
 #menu-header .item {
     color: #333333;
 / / text-transform: uppercase;
@@ -389,6 +395,11 @@ figure {
 
 .ui.divided.items > .post.item.deleted {
     background-color: #ffd2cf;
+/ / opacity: .0 %;
+}
+
+.ui.divided.items > .post.item.spam-post {
+    background-color: #f2ffae;
 / / opacity: .0 %;
 }
 
