@@ -8,23 +8,155 @@
 
 {% block content %}
 
-<h2>Frequently Asked Questions</h2>
+<h1>Frequently Asked Questions</h1>
+
+This is the FAQ for the <i>Bioconductor</i> Support Site. Please
+visit <a href="https://bioconductor.org/">Bioconductor.org</a> for additional
+project and package information. A list of current <i>Bioconductor</i> packages can
+be found <a href="http://bioconductor.org/packages/release/BiocViews.html">here</a>
 
 
-<h3>How do I contact you?</h3>
+<div id="toc_container">
+<p class="toc_title"></p>
+<ul class="toc_list">
+  <li><a href="#General">General</a>
+  <ul>
+    <li><a href="#G1">What is the difference between the support site and the bioc-devel mailing list?</a></li>
+    <li><a href="#G2">What questions should I post?</a></li>
+    <li><a href="#G3">How do I contact you?</a></li>
+    <li><a href="#G4">What if I find a bug with the support site?</a></li>
+    <li><a href="#G5">Where can I suggest new features to the support site?</a></li>
+    <li><a href="#G6">What about offensive content?</a></li>
+  </ul>
+</li>
+<li><a href="#Posts">Posts</a>
+  <ul>
+    <li><a href="#P1">How do I write good posts?</a></li>
+    <li><a href="#P2">How do I format a post?</a></li>
+    <li><a href="#P3">How do I put images into my posts?</a></li>
+    <li><a href="#P4">What post tags are automatically suggested?</a></li>
+    <li><a href="#P5">How can I keep track of topics that interest me?</a></li>
+    <li><a href="#P6">What are the different post types?</a></li>
+    <li><a href="#P7">How do I post a Job, Tutorial, or News item?</a></li>
+    <li><a href="#P8">How do I filter posts?</a></li>
+  </ul>
+</li>
+<li><a href="#Account">Account</a>
+  <ul>
+    <li><a href="#A1">How do I merge multiple previous acccounts?</a></li>
+    <li><a href="#A2">User reputation</a></li>
+    <li><a href="#A3">How do I edit my profile?</a></li>
+    <li><a href="#A4">How do I update my profile picture?</a></li>
+    <li><a href="#A5">What is a handle and how do I update it?</a></li>
+    <li><a href="#A6">What are the different notification options?</a></li>
+    <li><a href="#A7">What is the different between 'My Tags' and 'Watched Tags'?</a></li>
+    <li><a href="#A8">Does selecting a digest option change my notification option?</a></li>
+    <li><a href="#A9">How are awards generated?</a></li>
+    <li><a href="#A10">What awards are available to earn?</a></li>
+    <li><a href="#A11">Becoming a moderator</a></li>
+  </ul>
+</li>
+<li><a href="#Banner">Banner</a>
+  <ul>
+    <li><a href="#B1">What shows up in 'Messages'?</a></li>
+    <li><a href="#B2">What shows up in 'Votes'?</a></li>
+    <li><a href="#B3">What shows up in 'My Posts'</a></li>
+    <li><a href="#B4">What shows up in 'My Tags'</a></li>
+    <li><a href="#B5">What shows up in 'Follow'?</a></li>
+    <li><a href="#B6">What shows up in 'Bookmarks'? / How do I bookmark a post?</a></li>
+    <li><a href="#B7">What does selecting a digest option do? Does it effect my notification option?</a></li>
+  </ul>
+</li>
+<li><a href="#Other">Other</a></li>
+</ul>
+</div>
+
+<h2 id="General">General</h2>
+
+<h3 id="G1">What is the difference between the support site and the bioc-devel mailing list?</h3>
+<p>Do not post to both locations! The support site is for questions related to
+  usage of <i>Bioconductor</i> packages and troubleshooting; This site is appropriate
+  for most questions. For guidance on developing a <i>Bioconductor</i>
+  package, including current and future implementation of functions and
+  features, please use
+  the <a href="https://bioconductor.org/help/support/#bioc-devel">bioc-devel
+  mailing list</a></p>
+
+<h3 id="G2">What questions should I post?</h3>
+<p>The support site is for questions related to usage of <i>Bioconductor</i>
+  packages. <i>Bioconductor</i> package maintainers are required upon submission to
+  subscribe to the support site and are expected to answer questions regarding
+  their packages at this location. General questions about bioinformatics,
+  computational genomics, biological data analysis and software unrelated to
+  Bioconductor can be asked on <a href="https://www.biostars.org">biostars</a>
+  or <a href="http://seqanswers.com/">seqanswers</a>. General R questions can
+  be asked on the <a href="https://stat.ethz.ch/mailman/listinfo/r-help">R-help
+  mailing list</a>
+  or <a href="https://stackoverflow.com/questions/tagged/r">StackOverflow</a>.</p>
+
+<h3 id="G3">How do I contact you?</h3>
 <p>Those of us who maintain this site read the posts that are made
 here.  So users who wish to contact us are encouraged to post to this
 site.</p>
 
-<h3>How do I write good posts?</h3>
-<p>One of the biggest things that new users struggle with is how to
-ask questions in a way that allows people to answer them.  So if you
-are unfamiliar please have a look at
-the <a href="http://www.bioconductor.org/help/mailing-list/posting-guide/">posting
-guide</a> for some great advice.</p>
+<h3 id="G4">What if I find a bug with the support site?</h3>
+<p>No site is perfect and you may come across things that you feel are
+not working as they should be.  This site is based on a fork of
+Biostars so we have the power to correct many problems as they are
+discovered.  If you find a problem with this website, we ask that you
+please post such questions to our github repository for
+it <a href="https://github.com/Bioconductor/support.bioconductor.org/issues">here</a>.</p>
+
+<h3 id="G5">Where can I suggest new features to the support site?</h3>
+<p>New feature requests can be made by opening an issue on the github
+  repository for this
+  site <a href="https://github.com/Bioconductor/support.bioconductor.org/issues">here</a>.</p>
+
+<h3 id="G6">What about offensive content?</h3>
+<p>Users posting content that does not belong to the site will be notified and
+  required to edit their content. Users may post job postings to the 'Jobs'
+  section as long as the topic aligns with the main focus of this site.  Users
+  posting obvious spam will be immediately suspended or banned. Moderators will
+  try to remove offensive content in a timely fashion but if you find something
+  offensvie please notify webmaster@bioconductor.org. Post not relating to
+  <i>Bioconductor</i> content will generally be removed by moderators.</p>
 
 
-<h3>How do I put images into my posts?</h3>
+
+
+<h2 id="Posts">Posts</h2>
+
+<h3 id="P1">How do I write good posts?</h3>
+<p>One of the biggest things that new users struggle with is how to ask
+  questions in a way that allows people to answer them.  So if you are
+  unfamiliar please have a look at
+  the <a href="http://www.bioconductor.org/help/mailing-list/posting-guide/">posting
+  guide</a> for some great advice and
+  the <a href="https://support.bioconductor.org/p/117436/">tutorial</a> for help
+  on using the markdown editor.
+  <br>
+  If a <i>Bioconductor</i> package reports an error that you cannot debug and are
+  requesting assistance, Please check and include the following:
+  <ul>
+    <li>That <code>BiocManager::valid()</code> reports your packages are of the
+    correct version.</li>
+    <li>Record the output of <code>traceback()</code> immediately after the
+    error occurs.</li>
+    <li>Include the output of <code>sessionInfo()</code>.</li>
+    <li>Provide minimal code necessary to try and reproduce the
+    issue. StackOverflow has suggestions for making
+    a <a href="https://stackoverflow.com/questions/5963269/how-to-make-a-great-r-reproducible-example">reproducible
+    example</a>.</li>
+  </ul>
+
+</p>
+
+<h3 id="P2">How do I format a post?</h3>
+<p>The support site usese a markdown editor. There is a useful tutorial post
+  with additional helpful links
+  found <a href="https://support.bioconductor.org/p/117436/">here</a>.</p>
+
+<h3 id="P3">How do I put images into my posts?</h3>
 <p>You can also put images and plots into your posts.  All you need to
 do is create (or login to) a free account with http://imgur.com and
 upload any images or plots that you want to share.  Then you can enter
@@ -32,17 +164,54 @@ the imgur generated 'Direct Link' url into the 'URL' location that is
 available when you click on the 'image' button in the text editor.
 The plot will be imbedded right into your post.</p>
 
+<h3 id="P4">What post tags are automatically suggested?</h3>
+<p> When creating a post, a user is required to enter at least one 'Post
+  Tag'. There will be automatically suggested tags. These tags are generated
+  from the current list of <i>Bioconductor</i> packages as well
+  as <a href="https://bioconductor.org/packages/devel/BiocViews.html">biocViews</a>.</p>
 
-<h3>How can I keep track of topics that interest me?</h3>
+<h3 id="P5">How can I keep track of topics that interest me?</h3>
 <p>This site offers two ways to track posts when they use certain
 tags. You can add the tags that you want tracked into your user
 profile. 'My Tags' will put posts that match your tagging criteria
 into a special tab that you can check whenever you log in.  And
-'Watched Tags" should actually email you whenever someone posts using
+'Watched Tags' should actually email you whenever someone posts using
 a tag that you are interested in. </p>
 
+<h3 id="P6">What are the different post types?</h3>
+<p>When <a href="http://support.bioconductor.org/new/post/">ASK A QUESTION</a>
+  is selected there are four options. Most often a user should keep the "Ask a
+  question" as the selected 'Post Type'. The four options are:
+  <ul>
+    <li>Ask a question: For general questions and help</li>
+    <li>Post a Job Opening: For recruiting new hires by posting open job
+    opportunities for a related field appropriate to the <i>Bioconductor</i> community</li>
+    <li>Share a Tutorial: Share a tutorial for a bioinformatic analysis or
+    <i>Bioconductor</i> package</li>
+    <li>Announce News: Announce breaking news about <i>Bioconductor</i> or package
+    to the community at large</li>
+  </ul>
+ </p>
 
-<h3>How do I merge multiple previous acccounts?</h3>
+<h3 id="P7">How do I post a Job, Tutorial, or News item?</h3>
+<p>Follow the <a href="http://support.bioconductor.org/new/post/">ASK A
+    QUESTION</a> link and choose the appropriate field in the 'Post Type' drop
+    down box.</p>
+
+<h3 id="P8">How do I filter posts?</h3>
+<p> There are a number of different ways to filter posts. A user can edit their
+  'My Tags' in their profile to allow specific posts in the 'My Tags' section
+  of the banner. To filter the <a href="http://support.bioconductor.org/">main
+  posting list</a>, a user could search for a specific term in the search field
+  above the post listings. A user could also filter using the 'Limit' and
+  'Sort' drop down boxes above the post listings.</p>
+
+
+
+
+<h2 id="Account">Account</h2>
+
+<h3 id="A1">How do I merge multiple previous acccounts?</h3>
 <p>So perhaps you have been using the Bioconductor mailing list for a
 long time and during that time you have been using multiple different
 aliases.  And now you would like to consolidate things so that you can
@@ -67,36 +236,96 @@ by whitespace). And the very first email that it lists must be the one
 that you want to regularly use as your primary account for this
 site.</p>
 
-
-<h3>What if I find a bug with the support site?</h3>
-<p>No site is perfect and you may come across things that you feel are
-not working as they should be.  This site is based on a fork of
-Biostars so we have the power to correct many problems as they are
-discovered.  If you find a problem with this website, we ask that you
-please post such questions to our github repository for
-it <a href="https://github.com/Bioconductor/support.bioconductor.org/issues">here</a>.</p>
-
-
-
-<h3>What about offensive content?</h3>
-<p>Users posting content that does not belong to the site will be
-notified and required to edit their content. Users may post job
-postings to the 'Jobs' section as long as the topic aligns with the
-main focus of this site.  Users posting obvious spam will be
-immediately suspended.</p>
-
-
-<h3>User reputation</h3>
+<h3 id="A2">User reputation</h3>
 <p>The number next to a user&#39;s name is the sum of upvotes and
 accepted answers that user has collected.  Upvotes boost your
 reputation on the site.</p>
 
+<h3 id="A3">How do I edit my profile?</h3>
+<p>Navigate to your user account by either clicking on your name or go to the 
+  <a href="http://supportupgrade.bioconductor.org/community/">list of
+  users</a>, search for your user name, and click on it. From this page, you
+  should be able to select 'Edit profile' under your gravatar/profile picture.
+</p>
 
-<h3>Becoming a moderator</h3>
-<p>Active users above a certain reputation threshold may be
-periodically promoted to moderators. You may explicitly ask for
-moderation rights or suggest good candidates on the newsgroup and we
-will weigh these requests carefully. Inactive users that do not visit
-the site for extended periods of time may lose their moderation
-rights.</p>
+<h3 id="A4">How do I update my profile picture?</h3>
+<p></p>
+
+<h3 id="A5">What is a handle and how do I update it?</h3>
+<p>A handle is a convenient way for other users to tag you in a post so you
+  receive a email notification regarding the posting. If a users handle was
+  'user1', anyone could tag the user in a post with '@user1'. This triggers an
+  email notification for the post. A user can change their handle by editing
+  their profile. See previous section on editing profile.</p>
+
+<h3 id="A6">What are the different notification options?</h3>
+<p>When editing your profile there are different notification options to choose
+  from. The following describe the options: 
+  <ul>
+    <li>Default:</li>
+    <li>Email:</li>
+    <li>Local Messages:</li>
+    <li>No Messages:</li>
+  </ul>
+
+</p>
+
+<h3 id="A7">What is the different between 'My Tags' and 'Watched Tags'?</h3>
+<p>'My Tags' controls which posts can be seen in the 'My Tags' tab. Any post
+  with the tags listed will show up in the tab. 'Watched Tags' controls email
+  postings. Any post with these tags will trigger an email notification about
+  the post. It is expected that package maintainers have their package selected
+  for at minimum 'Watched Tags'.</p>
+
+<h3 id="A8">Does selecting a digest option change my notification option?</h3>
+<p></p>
+
+<h3 id="A9">How are awards generated?</h3>
+<p>Awards are triggered automatically by performing actions or reaching
+  milestones required for the award.</p>
+
+<h3 id="A10">What awards are available to earn?</h3>
+<p></p>
+
+<h3 id="A11">Becoming a moderator</h3>
+<p>Moderators are selected by <i>Bioconductor</i> core team members. The
+  responsibility of moderating posts is given to long-term trusted
+  users.</p>
+
+
+
+
+<h2 id="Banner">Banner</h2>
+
+<h3 id="B1">What shows up in 'Messages'?</h3>
+<p>The Messages tab shows awards earned and comments on posts.</p>
+
+<h3 id="B2">What shows up in 'Votes'?</h3>
+<p>The Votes tab shows posts that have received an upvote, accepted answer, or
+  if someone has bookmarked your post.</p>
+
+<h3 id="B3">What shows up in 'My Posts'</h3>
+<p>Any post that you have created, answered or commented appear in this tab. </p>
+
+<h3 id="B4">What shows up in 'My Tags'</h3>
+<p>Any post with the tags identified in 'My Tags' of a user's profile are listed
+  under this tab. These can be edited by updating/editing your user profile.</p>
+
+<h3 id="B5">What shows up in 'Follow'?</h3>
+<p></p>
+
+<h3 id="B6">What shows up in 'Bookmarks'? / How do I bookmark a post?</h3>
+<p>After selecting a post, there is a bookmark icon underneath the upvote count
+  for the main post, as well as any answer, comment, or reply. </p>
+
+<h3 id="B7">What does selecting a digest option do? Does it effect my notification option?</h3>
+<p></p>
+
+<h2 id="Other">Other</h2>
+
+Can't find what your looking for?  Consider opening an issue on the
+support.bioconductor.org github issues page
+found  <a href="https://github.com/Bioconductor/support.bioconductor.org/issues">here</a>.
+
+
 {% endblock %}

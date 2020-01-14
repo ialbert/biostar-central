@@ -1,1 +1,1 @@
-Store conf files used to render tags in bioconductor. 
+Store conf files associated with tags.
