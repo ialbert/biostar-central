@@ -3,14 +3,8 @@
 <a name="{{ post.uid }}"></a>
 
 <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
-
-        {% if request.user.is_authenticated and request.user.profile.is_moderator %}
-     id='drag-{{ post.uid }}'
-     data-thread="{{ post.uid }}"
      ondragover="drag_over(event, $(this))"
-     ondragleave="drag_leave(event, $(this))"
-
-        {% endif %}>
+     ondragleave="drag_leave(event, $(this))">
 
     <div class="ui inverted dimmer">
         <div class="ui text loader">
@@ -19,12 +13,8 @@
     </div>
 
     <div class="post comment editing-drag-off {{ post.css }} " id="{{ post.uid }}"
-
-            {% if request.user.is_authenticated and request.user.profile.is_moderator %}
          draggable="true"
-         ondragstart="drag(event, '{{ post.uid }}');"
-
-            {% endif %}>
+         ondragstart="drag(event, '{{ post.uid }}');">
 
         <div class="body">
             {#  Comment anchor. #}

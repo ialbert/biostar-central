@@ -477,8 +477,7 @@ def list_posts(context, target):
     posts = Post.objects.filter(author=target).exclude(spam=Post.SPAM)
 
     page = request.GET.get('page', 1)
-    posts = posts.select_related("root").prefetch_related("author__profile",
-                                   "lastedit_user__profile", "thread_users__profile")
+    posts = posts.select_related("root").prefetch_related("author__profile", "lastedit_user__profile")
 
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):

@@ -147,8 +147,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         query = query.exclude(spam=Post.SPAM)
 
     # Select related information used during rendering.
-    query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile", 'thread_users',
-                                   'thread_users__profile')
+    query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile")
 
     return query
 
