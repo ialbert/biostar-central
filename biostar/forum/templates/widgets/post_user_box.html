@@ -6,18 +6,16 @@
 
     <div>
         <a class="" href="{% url "user_profile" target_user.profile.uid %}">
-            <img class="ui centered circular thread-users image" src="{% gravatar user=target_user size=60 %}">
+            <img class="ui centered circular image" src="{% gravatar user=target_user size=80 %}">
         </a>
     </div>
 
     <div class="muted">
-        @{{ target_user.username }}<br>
 
-        <a href="{% url "user_profile" target_user.profile.uid %}">{{ target_user.profile.name|truncatechars:40 }}</a>
-        {% user_icon user=target_user %}<br>
-        {{ target_user.profile.last_login|time_ago }}<br>
-
-        {{ target_user.profile.location|truncatechars:40 }}
+        <div>{{ target_user.profile.last_login|time_ago }}</div>
+        <div><a href="{% url "user_profile" target_user.profile.uid %}">{{ target_user.profile.name|truncatechars:40 }}</a>
+        {% user_icon user=target_user %}</div>
+        <div>{{ target_user.profile.location|truncatechars:40 }}</div>
 
     </div>
 
