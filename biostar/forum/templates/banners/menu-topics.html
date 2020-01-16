@@ -1,18 +1,16 @@
 {% load forum_tags %}
 
 {% if user.is_authenticated %}
+    {% counts as counts %}
 
-    <div class="ui top attached six item menu" id="menu-topics">
+    <div class="ui top attached {{ counts.css }} six item menu" id="menu-topics">
 
-        {% count_label label="message_count" as msgs_count %}
-        {% count_label label="vote_count" as votes_count %}
-
-        <a class="item {% if msgs_count %}new-item{% endif %} {% activate tab "messages" %}" href="{% url 'inbox' %}">
-            <i class="envelope icon"></i> Messages {{ msgs_count }}
+        <a class="item messages" href="{% url 'inbox' %}">
+            <i class="envelope icon"></i> Messages {{ counts.messages.count }}
         </a>
-        <a class="item  {% if votes_count %}new-item{% endif %} {% activate tab "myvotes" %}"
+        <a class="item  votes {% activate tab "myvotes" %}"
            href="{% url 'myvotes' %}">
-            <i class="heart icon"></i> Votes {{ votes_count }}
+            <i class="heart icon"></i> Votes {{ counts.votes.count }}
         </a>
 
         <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">

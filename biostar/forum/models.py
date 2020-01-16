@@ -233,7 +233,7 @@ class Post(models.Model):
     def css(self):
         # Used to simplify CSS rendering.
         status = self.get_status_display()
-        return 'spam-post' if self.is_spam else f"{status}".lower()
+        return 'spam' if self.is_spam else f"{status}".lower()
 
     @property
     def accepted_class(self):

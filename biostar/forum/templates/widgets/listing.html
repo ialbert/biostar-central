@@ -6,7 +6,6 @@
     {% for post in posts %}
 
         <div class="post {{ post.css }} item top-padding" id="{{ post.uid }}">
-
             <div class="statbox menu-tablet_small">
                 <div class="ui left stat label mini">
                     <div class="number-stat">
@@ -20,14 +19,12 @@
                     </div>
                     <div class="detail-stat">Repl{{ post.reply_count|pluralize:"y,ies" }}</div>
                 </div>
-
                 <div class="ui label basic transparent stat mini">
                     <div class="number-stat">
                         {{ post.root.view_count|bignum }}
                     </div>
                     <div class="detail-stat">View{{ post.root.view_count|pluralize }}</div>
                 </div>
-
                 {% if show_subs %}
                     {% subscription_label post.subs_count %}
                 {% endif %}
@@ -40,10 +37,10 @@
 
                     {% if not post.state != post.OPEN %}
                         <span class="ui title header">{{ post.get_status_display }}:</span>
-                    {% elif post.type != post.QUESTION %}
-                        <span class="ui title header">{{ post.get_type_display }}:</span>
                     {% elif post.is_spam %}
                         <span class="ui title header">Spam:</span>
+                    {% else %}
+                        <span class="ui title header">{{ post.get_type_display }}:</span>
                     {% endif %}
 
                     <a href="{% url 'post_view' post.uid %}" class="ui mini blue title header ">
@@ -51,9 +48,7 @@
                     </a>
                 </div>
                 <div class="small-stats muted">
-
                     {{ post.get_votecount|bignum }}
-
                     Vote{{ post.get_votecount|pluralize }}
                     |
                     {{ post.reply_count }}
@@ -68,10 +63,10 @@
                     </div>
 
                     {% if post.author.profile.low_rep and request.user.profile.is_moderator %}
-                        <div class="ui spam dropdown">
+                        <div class="ui dropdown">
                             <i class="bug orange icon"></i>
                             <div class="spam menu">
-                                <div class="spam item" data-user="{{ post.uid }}">Report as Spam</div>
+                                <div class="mark-spam item">Report as Spam</div>
                             </div>
                         </div>
                     {% endif %}
@@ -87,7 +82,7 @@
 
         </div>
 
-        {% empty %}
+    {% empty %}
         <div class="ui warn message">
 
             No posts found.

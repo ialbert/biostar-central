@@ -233,3 +233,6 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message {self.sender}, {self.recipient}"
+
+    def css(self):
+        return 'new' if self.unread else ''

@@ -94,6 +94,24 @@ def bignum(number):
 
 
 @register.simple_tag(takes_context=True)
+def counts(context):
+
+    request = context['request']
+    vcounts = get_count(request, 'vote_count') or ''
+    mcounts = get_count(request, 'message_count') or ''
+    votes = dict(count=vcounts)
+    messages = dict(count=mcounts)
+
+    css = ''
+    if mcounts:
+        css += 'new-msg'
+    if vcounts:
+        css += ' new-vote'
+
+    return dict(votes=votes, messages=messages, css=css)
+
+
+@register.simple_tag(takes_context=True)
 def count_label(context, label):
     request = context['request']
     count = get_count(request, label)
@@ -491,6 +509,12 @@ def list_posts(context, target):
     request = context["request"]
     context = dict(posts=posts, request=request, include_pages_bar=True)
     return context
+
+
+
+@register.simple_tag
+def count_css():
+    return
 
 
 @register.inclusion_tag('widgets/feed_default.html')

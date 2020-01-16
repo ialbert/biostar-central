@@ -15,8 +15,8 @@
 <table class="ui very basic striped table">
     <tbody>
         {% for message in all_messages %}
-                <tr>
-                    <td class="{% if message.unread %} new-message {% endif %}">
+                <tr class="message">
+                    <td class="{{ message.css }}">
                       <div class="item">
                         <div class="content">
                             {{ message.sent_date|timesince }} ago <a href="{{message.sender.profile.get_absolute_url}}">{{message.sender.profile.name }}</a> wrote

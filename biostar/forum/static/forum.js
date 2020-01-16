@@ -430,7 +430,7 @@ function autocomplete_users(users_list) {
 }
 
 
-function report_spammer(post_id, elem) {
+function mark_spam(post_id, elem) {
 
     $.ajax('/ajax/report/spammer/' + post_id + "/",
         {
@@ -444,11 +444,7 @@ function report_spammer(post_id, elem) {
 
                 } else {
                     popup_message(elem.parent().parent(), data.msg, data.status);
-                    setTimeout(function () {
-                        $('#' + post_id).hide()
-
-                    }, 700);//('hide');
-
+                    $('#'+ post_id).removeClass('open').addClass('spam');
                 }
 
             },
@@ -569,9 +565,11 @@ function change_subs(elem) {
 
 $(document).ready(function () {
 
-    $('.spam.item').click(function (event) {
-        var post_id = $(this).data('user');
-        report_spammer(post_id, $(this));
+    $('.mark-spam.item').click(function (event) {
+        var post_id = $(this).closest('.post').attr('id');
+
+        //alert($(this).closest('.post').attr('id'));
+        mark_spam(post_id, $(this));
     });
 
 
