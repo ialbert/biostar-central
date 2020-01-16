@@ -147,8 +147,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         query = query.exclude(spam=Post.SPAM)
 
     # Select related information used during rendering.
-    query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile", 'thread_users',
-                                   'thread_users__profile')
+    query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile")
 
     return query
 
@@ -210,6 +209,7 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
     tag = request.GET.get("tag", "")
     show = show or request.GET.get("type", "")
     limit = request.GET.get("limit", "all")
+
     cache_key = cache_key or generate_cache_key(limit, tag, show)
 
     # Get posts available to users.

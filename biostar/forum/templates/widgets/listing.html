@@ -60,20 +60,6 @@
                     Repl{{ post.reply_count|pluralize:"y,ies" }}
 
                 </div>
-                {% comment %}
-                    <div class="right floated thread-users">
-                        {% get_thread_users users=post.thread_users.all post=post as extra_users %}
-                        {% for extra_user in extra_users %}
-                            {% if not extra_user.profile.is_spammer or extra_user == post.author %}
-                                <a class="ui mini avatar list-avatar image"
-                                   href="{% url "user_profile" extra_user.profile.uid %}">
-                                    <img src="{% gravatar user=extra_user size=90 %}">
-                                </a>
-                            {% endif %}
-                        {% endfor %}
-
-                    </div>
-                {% endcomment %}
 
                 <div class=" extra right floated">
 

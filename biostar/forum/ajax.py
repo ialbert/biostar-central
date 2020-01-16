@@ -128,10 +128,11 @@ def drag_and_drop(request):
 
     parent_uid = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
-
+    user = request.user
     parent = Post.objects.filter(uid=parent_uid).first()
     post = Post.objects.filter(uid=uid).first()
     post_type = Post.COMMENT
+
     if not post:
         return ajax_error(msg="Post does not exist.")
 
@@ -142,8 +143,8 @@ def drag_and_drop(request):
     if not uid or not parent:
         return ajax_error(msg="Parent and Uid need to be provided. ")
 
-    if not request.user.profile.is_moderator:
-        return ajax_error(msg="Only moderators can move comments.")
+    if not (user.profile.is_moderator or post.author == user):
+        return ajax_error(msg="Only moderators and the author can move posts.")
 
     collect = set()
     auth.walk_down_thread(parent=post, collect=collect)
