@@ -209,6 +209,7 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
     tag = request.GET.get("tag", "")
     show = show or request.GET.get("type", "")
     limit = request.GET.get("limit", "all")
+
     cache_key = cache_key or generate_cache_key(limit, tag, show)
 
     # Get posts available to users.
