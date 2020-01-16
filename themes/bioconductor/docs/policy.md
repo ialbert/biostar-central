@@ -1,6 +1,4 @@
-{% extends "forum_base.html" %}
 
-{% block content %}
 <h2>Policy</h2>
 
 <h3>User agreement</h3>
@@ -34,4 +32,3 @@
         Cookies may also be set by Google or other companies that help us aggregate
         visitor statistics, traffic and other information.</span>
 </p>
-{% endblock %}

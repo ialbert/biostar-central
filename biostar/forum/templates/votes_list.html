@@ -21,7 +21,8 @@
                     <td>
                       <div class="item">
                         <div class="content">
-                            {{ vote.get_type_display }}, {{ vote.date|timesince }} for the {{ vote.post.get_type_display|lower }} post:
+                            {{ vote.get_type_display }}, {{ vote.date|timesince }}
+                            for the {{ vote.post.get_type_display|lower }} post:
                             <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title|truncatechars:80 }}</a>
                         </div>
                       </div>

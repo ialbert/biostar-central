@@ -3,6 +3,7 @@ import itertools
 import logging
 import random
 import re
+import os
 import urllib.parse
 import datetime
 from itertools import count, islice
@@ -172,18 +173,23 @@ def gravatar(user=None, user_uid=None, size=80):
     return auth.gravatar(user=user, size=size)
 
 
+@register.inclusion_tag('widgets/filter_dropdown.html', takes_context=True)
+def filter_dropdown(context):
+
+    return context
+
+
 @register.inclusion_tag('widgets/user_icon.html', takes_context=True)
-def user_icon(context, user=None, is_moderator=False, score=0):
+def user_icon(context, user=None, is_moderator=False, is_spammer=False, score=0):
 
     try:
-
         is_moderator = user.profile.is_moderator if user else is_moderator
         score = user.profile.get_score() if user else score * 10
-
+        is_spammer = user.profile.is_spammer if user else is_spammer
     except Exception as exc:
         logger.info(exc)
 
-    context.update(dict(is_moderator=is_moderator, score=score))
+    context.update(dict(is_moderator=is_moderator, is_spammer=is_spammer, score=score))
     return context
 
 
@@ -206,7 +212,6 @@ def user_icon_css(user=None):
 def post_user_line(context, post, avatar=False, user_info=True):
     context.update(dict(post=post, avatar=avatar, user_info=user_info))
     return context
-
 
 
 @register.inclusion_tag('widgets/post_user_line.html', takes_context=True)
@@ -329,13 +334,6 @@ def follow_label(context, post):
     return label
 
 
-@register.inclusion_tag('widgets/type_help.html')
-def type_help():
-
-    context = dict()
-    return context
-
-
 @register.simple_tag
 def inplace_type_field(post=None, field_id='type'):
     choices = [opt for opt in Post.TYPE_CHOICES]
@@ -354,15 +352,31 @@ def inplace_type_field(post=None, field_id='type'):
     return mark_safe(post_type)
 
 
-@register.inclusion_tag('forms/tags_field.html', takes_context=True)
-def tags_field_from_file(context, post=None):
-    """Render multiple select dropdown options for tags from a file """
+def read_tags(filepath, exclude=[], limit=500):
+    """Read tags from a file. Each line is considered a tag. """
+    stream = open(filepath, 'r') if os.path.exists(filepath) else []
+    stream = islice(zip(count(1), stream), limit)
+    tags_opts = set()
+    for idx, line in stream:
+        line = line.strip()
+        if line not in exclude or line != '\n':
+            tags_opts.add((line, False) )
+    return tags_opts
 
-    tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()[:300]
-    tags_opts = [(x.strip(), False) if x.strip() not in tags.split(",") else (x.strip(), True)
-                     for x in tags_opts if x != '\n']
 
-    return
+def get_dropdown_options(selected_list):
+    tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
+    # Read tags file from a file if it is set
+    selected_tags = {(val, True) for val in selected_list}
+    if tags_file:
+        tags_opts = read_tags(filepath=tags_file, exclude=selected_list)
+    else:
+        tags_query = Tag.objects.exclude(name__in=selected_list)[:50].values_list("name", flat=True)
+        tags_opts = {(name.strip(), False) for name in tags_query}
+    # Chain the selected and rest of the options
+    tags_opts = itertools.chain(selected_tags, tags_opts)
+
+    return tags_opts
 
 
 @register.inclusion_tag('forms/tags_field.html', takes_context=True)
@@ -370,50 +384,16 @@ def tags_field(context, form_field, initial=''):
     """Render multiple select dropdown options for tags. """
 
     # Get currently selected tags from the post or request
-    selected_tags_list = initial.split(",") if initial else []
-    selected_tags = {(val, True) for val in selected_tags_list}
+    selected_list = initial.split(",") if initial else []
+    dropdown_options = get_dropdown_options(selected_list=selected_list)
 
-    tags_query = Tag.objects.exclude(name__in=selected_tags_list)[:50].values_list("name", flat=True)
-    tags_opts = {(name.strip(), False) for name in tags_query}
-
-    tags_opts = itertools.chain(selected_tags, tags_opts)
-    context = dict(initial=initial, form_field=form_field, tags_opt=tags_opts)
-
-    return context
-
-
-@register.simple_tag
-def get_tags(request=None, post=None, user=None, watched=False):
-    # Get tags in requests before fetching ones in the post.
-    # This is done to accommodate populating tags in forms
-
-    if request:
-        tags = request.GET.get('tag_val', request.POST.get('tag_val', ''))
-    else:
-        tags = post.tag_val if isinstance(post, Post) else ''
-        tags = user.profile.my_tags if user else tags
-        tags = user.profile.watched_tags if watched else tags
-
-    # Prepare the tags options in the dropdown from a file
-    if settings.TAGS_OPTIONS_FILE:
-        tags_opts = open(settings.TAGS_OPTIONS_FILE, 'r').readlines()[:300]
-        tags_opts = [(x.strip(), False) if x.strip() not in tags.split(",") else (x.strip(), True)
-                     for x in tags_opts if x != '\n']
-    # Prepare dropdown options from database.
-    else:
-        tags_query = Tag.objects.exclude(name__in=tags.split(','))[:50].values_list("name", flat=True)
-        tags_opts = ((name.strip(), False) for name in tags_query)
-
-    selected_tags_opt = ((val, True) for val in tags.split(","))
-    tags_opts = itertools.chain(selected_tags_opt, tags_opts)
-
-    context = dict(selected=tags, tags_opt=tags_opts)
+    context = dict(initial=initial, form_field=form_field, dropdown_options=dropdown_options)
 
     return context
 
 
 @register.inclusion_tag('widgets/form_errors.html')
-def form_errors(form):
+def form_errors(form, wmd_prefix='', override_content=False):
     """
     Turns form errors into a data structure
     """
@@ -422,7 +402,10 @@ def form_errors(form):
         errorlist = [('', message) for message in form.non_field_errors()]
         for field in form:
             for error in field.errors:
-                errorlist.append((f'{field.name}:', error, field.id_for_label))
+                # wmd_prefix is required when dealing with 'content' field.
+                field_id = wmd_prefix if (override_content and field.name is 'content') else field.id_for_label
+                errorlist.append((f'{field.name}:', error, field_id))
+
     except Exception as exc:
         errorlist = []
         logging.error(exc)
@@ -494,8 +477,7 @@ def list_posts(context, target):
     posts = Post.objects.filter(author=target).exclude(spam=Post.SPAM)
 
     page = request.GET.get('page', 1)
-    posts = posts.select_related("root").prefetch_related("author__profile",
-                                   "lastedit_user__profile", "thread_users__profile")
+    posts = posts.select_related("root").prefetch_related("author__profile", "lastedit_user__profile")
 
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
@@ -798,4 +780,67 @@ def traverse_comments(request, post, tree, template_name):
 
     return html
 
+import bleach
+from biostar.utils import markdown
 
+def top_level_only(attrs, new=False):
+    '''
+    Helper function used when linkifying with bleach.
+    '''
+    if not new:
+        return attrs
+    text = attrs['_text']
+    if not text.startswith(('http:', 'https:')):
+        return None
+    return attrs
+
+@register.simple_tag
+def markdown_file(pattern):
+    """
+    Returns the content of a file matched by the pattern.
+    Returns an error message if the pattern cannot be found.
+    """
+    #path = find_file(pattern=pattern)
+    path = pattern
+    path = os.path.abspath(path)
+    if os.path.isfile(path):
+        text = open(path).read()
+    else:
+        text = f"    file '{pattern}': '{path}' not found"
+
+    try:
+        html = markdown.parse(text)
+        html = bleach.linkify(html, callbacks=[top_level_only], skip_tags=['pre'])
+        html = mark_safe(html)
+    except Exception as e:
+        html = f"Markdown rendering exception"
+        logger.error(e)
+    return html
+
+class MarkDownNode(template.Node):
+    CALLBACKS = [ top_level_only ]
+    def __init__(self, nodelist):
+        self.nodelist = nodelist
+
+    def render(self, context):
+        text = self.nodelist.render(context)
+        text = markdown.parse(text)
+        text = bleach.linkify(text, callbacks=self.CALLBACKS, skip_tags=['pre'])
+        return text
+
+@register.tag('markdown')
+def markdown_tag(parser, token):
+    """
+    Enables a block of markdown text to be used in a template.
+    Syntax::
+            {% markdown %}
+            ## Markdown
+            Now you can write markdown in your templates. This is good because:
+            * markdown is awesome
+            * markdown is less verbose than writing html by hand
+            {% endmarkdown %}
+    """
+    nodelist = parser.parse(('endmarkdown',))
+    # need to do this otherwise we get big fail
+    parser.delete_first_token()
+    return MarkDownNode(nodelist)

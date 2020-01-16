@@ -1,13 +1,3 @@
-{% extends "forum_base.html" %}
-{% load forum_tags %}
-
-
-{% block headtitle %}
-    About
-{% endblock %}
-
-{% block content %}
-
 <h3>About this site</h3>
 
 <p>This site provides support for <a href="http://www.bioconductor.org">Bioconductor</a> users. Bioconductor
@@ -32,4 +22,3 @@ Biostar as:</p>
    Answer Resource for the Bioinformatics Community.</strong>&nbsp;<em>PLoS Comput Biol
    7(10)</em>:&nbsp;<a href="http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002216">e1002216.
    doi:10.1371/journal.pcbi.1002216</a></p>
-{% endblock %}

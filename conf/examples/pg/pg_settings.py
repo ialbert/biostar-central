@@ -5,7 +5,7 @@ INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
 DEBUG = True
 
 # Show debug toolbar
-DEBUG_TOOLBAR = DEBUG
+DEBUG_TOOLBAR = True
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:
@@ -84,3 +84,14 @@ try:
     from .postgres_secrets import *
 except ImportError as exc:
     print("No postgres_secrets module could be imported")
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'compressor.finders.CompressorFinder'
+]
+
+STATICFILES_DIRS = [
+    join(BASE_DIR, "biostar", "forum", "static"),
+]
+
+

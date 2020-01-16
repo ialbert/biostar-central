@@ -37,8 +37,6 @@ ajax_error = partial(ajax_msg, status='error')
 MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 180
 
-MAX_TAGS = 5
-
 
 class ajax_error_wrapper:
     """
@@ -130,10 +128,11 @@ def drag_and_drop(request):
 
     parent_uid = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
-
+    user = request.user
     parent = Post.objects.filter(uid=parent_uid).first()
     post = Post.objects.filter(uid=uid).first()
     post_type = Post.COMMENT
+
     if not post:
         return ajax_error(msg="Post does not exist.")
 
@@ -144,8 +143,8 @@ def drag_and_drop(request):
     if not uid or not parent:
         return ajax_error(msg="Parent and Uid need to be provided. ")
 
-    if not request.user.profile.is_moderator:
-        return ajax_error(msg="Only moderators can move comments.")
+    if not (user.profile.is_moderator or post.author == user):
+        return ajax_error(msg="Only moderators and the author can move posts.")
 
     collect = set()
     auth.walk_down_thread(parent=post, collect=collect)
@@ -253,25 +252,30 @@ def validate_toplevel_fields(fields={}):
     """Validate fields found in top level posts"""
 
     title = fields.get('title', '')
-    tags_list = fields.get('tags_list', [])
+    tag_list = fields.get('tag_list', [])
+    tag_val = fields.get('tag_val', '')
     post_type = fields.get('post_type', '')
     title_length = len(title.replace(' ', ''))
     allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
-    tag_length = len(tags_list)
+    tag_length = len(tag_list)
 
-    if title_length <= MIN_TITLE_CHARS:
-        msg = f"Title too short, please add more than {MIN_TITLE_CHARS} characters."
+    if title_length <= forms.MIN_CHARS:
+        msg = f"Title too short, please add more than {forms.MIN_CHARS} characters."
         return False, msg
-    if title_length > MAX_TITLE_CHARS:
-        msg = f"Title too long, please add less than {MAX_TITLE_CHARS} characters."
+
+    if title_length > forms.MAX_TITLE:
+        msg = f"Title too long, please add less than {forms.MAX_TITLE} characters."
         return False, msg
 
     if post_type not in allowed_types:
         msg = "Not a valid post type."
         return False, msg
+    if tag_length > forms.MAX_TAGS:
+        msg = f"Too many tags, maximum of {forms.MAX_TAGS} tags allowed."
+        return False, msg
 
-    if tag_length > MAX_TAGS:
-        msg = f"Too many tags, maximum of {MAX_TAGS} tags allowed."
+    if len(tag_val) > 100:
+        msg = f"Tags have too many characters, maximum of 100 characters total allowed in tags."
         return False, msg
 
     return True, ""
@@ -294,8 +298,8 @@ def validate_post_fields(fields={}, is_toplevel=False):
             return False, msg
 
     # Validate fields common to all posts.
-    if content_length <= forms.MIN_CONTENT:
-        msg = f"Content too short, please add more than add more {forms.MIN_CONTENT} characters."
+    if content_length <= forms.MIN_CHARS:
+        msg = f"Content too short, please add more than {forms.MIN_CHARS} characters."
         return False, msg
     if content_length > forms.MAX_CONTENT:
         msg = f"Content too long, please add less than {forms.MAX_CONTENT} characters."
@@ -313,25 +317,20 @@ def get_fields(request, post=None):
     Used to retrieve all fields in a request used for editing and creating posts.
     """
 
-    def request_data(data_key, placeholder=None):
-        return request.POST.get(data_key, placeholder)
-
-    # Fields common to all posts
     user = request.user
-    content = request_data("content", "") or post.content
-    title = request_data("title", "") or post.title
-    post_type = request_data("type", Post.QUESTION)
+    content = request.POST.get("content", "") or post.content
+    title = request.POST.get("title", "") or post.title
+    post_type = request.POST.get("type", Post.QUESTION)
 
     post_type = int(post_type) if str(post_type).isdigit() else Post.QUESTION
-    root = post.root
-    recaptcha_token = request_data("recaptcha_response")
+    recaptcha_token = request.POST.get("recaptcha_response")
 
     # Fields found in top level posts
     tag_list = {x.strip() for x in request.POST.getlist("tag_val", [])}
     tag_val = ','.join(tag_list) or post.tag_val
 
     fields = dict(content=content, title=title, post_type=post_type, tag_list=tag_list, tag_val=tag_val,
-                  user=user, root=root, recaptcha_token=recaptcha_token,)
+                  user=user, recaptcha_token=recaptcha_token,)
 
     return fields
 

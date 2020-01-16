@@ -2,12 +2,14 @@
 {% load humanize %}
 
     {% if is_moderator %}
-        <i class="ui muted bolt icon" style="margin: 0!important;"></i>
+        <i class="ui muted bolt icon"></i>
+    {% elif is_spammer %}
+        <i class="ui muted bug icon"></i>
     {% elif score > 1000 %}
         &diams;
-
     {% else %}
         &bull;
     {% endif %}
+
     {{ score|bignum }}
 

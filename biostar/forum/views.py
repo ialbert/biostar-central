@@ -82,17 +82,17 @@ def post_exists(func):
 
 def policy(request):
     context = dict()
-    return render(request, template_name="widgets/policy.html", context=context)
+    return render(request, template_name="messages/policy.html", context=context)
 
 
 def about(request):
     context = dict()
-    return render(request, template_name="about.html", context=context)
+    return render(request, template_name="messages/about.html", context=context)
 
 
 def faq(request):
     context = dict()
-    return render(request, template_name="faq.html", context=context)
+    return render(request, template_name="messages/faq.html", context=context)
 
 
 def get_posts(user, show="latest", tag="", order="rank", limit=None):
@@ -147,8 +147,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         query = query.exclude(spam=Post.SPAM)
 
     # Select related information used during rendering.
-    query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile", 'thread_users',
-                                   'thread_users__profile')
+    query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile")
 
     return query
 

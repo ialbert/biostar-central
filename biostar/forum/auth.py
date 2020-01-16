@@ -133,8 +133,7 @@ def post_tree(user, root):
     # Get all posts that belong to post root.
     query = Post.objects.filter(root=root).exclude(pk=root.id)
 
-    query = query.select_related("lastedit_user__profile", "author__profile",
-                                  "root__author__profile")
+    query = query.select_related("lastedit_user__profile", "author__profile", "root__author__profile")
 
     is_moderator = user.is_authenticated and user.profile.is_moderator
 

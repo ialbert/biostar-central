@@ -23,7 +23,7 @@
         <a name="{{ post.uid }}"></a>
 
         {#  Voting regions #}
-        <div class="votebox hide-on-edit" data-value="{{ post.uid }}">
+        <div class="post votebox hide-on-edit" data-value="{{ post.uid }}">
 
             <button class="ui icon button vote upvote" data-value="{{ post.uid }}" data-type="upvote"
                     data-position="right center" data-state="{{ post.has_upvote }}" data-content="Upvote">
@@ -52,31 +52,22 @@
 
         <div class="content wrap-text">
 
-            <div
-                    {% if request.user.profile.is_moderator %}
-                        ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')"
-                    {% endif %}>
+            <div ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')">
 
                 <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
-                        {% if request.user.profile.is_moderator %}
-                     data-thread="{{ post.uid }}"
                      ondragover="drag_over(event, $(this))"
-                     ondragleave="drag_leave(event, $(this))"
-                        {% endif %}>
+                     ondragleave="drag_leave(event, $(this))">
 
                     <div class="ui inverted dimmer">
-
                         <div class="ui text loader">
                             <div class="muted">Entering edit mode</div>
                         </div>
-
                     </div>
 
                     <div class="wrap magnify editing-drag-off" id="{{ post.uid }}"
-                            {% if post.is_answer and request.user.is_authenticated and request.user.profile.is_moderator %}
                          draggable="true"
                          ondragstart="drag(event, '{{ post.uid }}');"
-                            {% endif %}>
+                            >
 
                         {# Display post author. #}
                         <div class="hide-on-edit menu-tablet" data-value="{{ post.uid }}">

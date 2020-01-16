@@ -2,11 +2,12 @@
 {% load forum_tags %}
 
 {% if post.author.id != post.lastedit_user.id %}
-<span class="menu-tablet_small">
+
+    <span class="menu-tablet_small">
 
     {{ post.creation_date|time_ago }}
 
-        <a href="{% url "user_profile"  post.author.profile.uid %}">
+        <a href="{% url "user_profile" post.author.profile.uid %}">
 
             {% if avatar %}
                 <div class="ui avatar image">
@@ -19,14 +20,14 @@
         {% user_icon user=post.author %}
 
 
-</span>
+    </span>
 
-         &bull;
+    &bull;
     updated
 
     {{ post.lastedit_date|time_ago }}
 
-    <a   href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+    <a href="{% url "user_profile" post.lastedit_user.profile.uid %}">
 
         {% if avatar %}
             <div class="ui avatar image">
@@ -40,10 +41,10 @@
 
 {% elif post %}
 
-<span>
+    <span>
     {{ post.lastedit_date|time_ago }}
 
-    <a href="{% url "user_profile"  post.lastedit_user.profile.uid %}">
+    <a href="{% url "user_profile" post.lastedit_user.profile.uid %}">
         {% if avatar %}
             <div class="ui avatar image">
                 <img class="ui tiny centered image thread-users" src="{% gravatar user=post.lastedit_user size=80 %}">
