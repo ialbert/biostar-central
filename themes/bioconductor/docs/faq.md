@@ -269,6 +269,6 @@ for the main post, as well as any answer, comment, or reply.
 ## Other
 
 Can't find what your looking for? Consider opening an issue on the
-support.bioconductor.org github issues page found here. {% endblock %}
+support.bioconductor.org github issues page found here.
 
 

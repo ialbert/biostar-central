@@ -188,6 +188,12 @@ class Profile(models.Model):
         return self.role == self.SPAMMER
 
     @property
+    def is_valid(self):
+        """ User is not banned, suspended, or banned"""
+
+        return not self.is_spammer and not self.is_suspended and not self.is_banned
+
+    @property
     def low_rep(self):
         """User has a low reputation"""
         return self.score <= settings.LOW_REP_THRESHOLD and not self.is_moderator

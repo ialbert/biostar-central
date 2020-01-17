@@ -21,24 +21,25 @@
 
 
     </span>
+    {% if  post.lastedit_user.is_valid %}
+        &bull;
+        updated
 
-    &bull;
-    updated
+        {{ post.lastedit_date|time_ago }}
 
-    {{ post.lastedit_date|time_ago }}
+        <a href="{% url "user_profile" post.lastedit_user.profile.uid %}">
 
-    <a href="{% url "user_profile" post.lastedit_user.profile.uid %}">
+            {% if avatar %}
+                <div class="ui avatar image">
+                    <img class="ui tiny centered image thread-users"
+                         src="{% gravatar user=post.lastedit_user size=80 %}">
+                </div>
+            {% endif %}
+            {{ post.lastedit_user.profile.name|truncatechars:50 }}
+        </a>
 
-        {% if avatar %}
-            <div class="ui avatar image">
-                <img class="ui tiny centered image thread-users" src="{% gravatar user=post.lastedit_user size=80 %}">
-            </div>
-        {% endif %}
-        {{ post.lastedit_user.profile.name|truncatechars:50 }}
-    </a>
-
-    {% user_icon user=post.lastedit_user %}
-
+        {% user_icon user=post.lastedit_user %}
+    {% endif %}
 {% elif post %}
 
     <span>
