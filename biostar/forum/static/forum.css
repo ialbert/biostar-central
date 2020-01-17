@@ -270,11 +270,10 @@ i.icon {
     margin: 0px !important;
 }
 
+.ui.basic.table tr.message > .new{
+    background-color: #F0FFE9;
 
-.spam.visible.transition {
-    margin-top: 5px;
 }
-
 
 #id_is_spammer {
     vertical-align: baseline;
@@ -303,7 +302,7 @@ i.icon {
     opacity: .75;
 }
 
-.post.Deleted {
+.post.Deleted, .post.spam  {
     background-color: #f7e4de;
     opacity: 0.6;
 }
@@ -410,15 +409,11 @@ figure {
     box-shadow: rgba(0, 0, 0, .2) 2px 3px 3px;
 }
 
-.ui.divided.items > .post.item.deleted {
+.ui.divided.items > .post.item.deleted, .post.item.spam {
     background-color: #ffd2cf;
-/ / opacity: .0 %;
+    opacity: .6;
 }
 
-.ui.divided.items > .post.item.spam-post {
-    background-color: #f2ffae;
-/ / opacity: .0 %;
-}
 
 
 .ui.horizontal.segments.top-menu > .ui.segment {
@@ -497,12 +492,14 @@ img {
 
 }
 
-#menu-topics > .new-item {
-    background-color: #d2ffd2;
-    border: solid green;
-    border-radius: 10px;
+#menu-topics.new-msg > .messages {
+    color : green
 
 }
+#menu-topics.new-vote > .votes {
+    color : orange;
+}
+
 
 
 .center-text {

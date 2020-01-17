@@ -94,11 +94,21 @@ def bignum(number):
 
 
 @register.simple_tag(takes_context=True)
-def count_label(context, label):
+def counts(context):
+
     request = context['request']
-    count = get_count(request, label)
-    label = f"({count})" if count else ""
-    return label
+    vcounts = get_count(request, 'vote_count') or ''
+    mcounts = get_count(request, 'message_count') or ''
+    votes = dict(count=vcounts)
+    messages = dict(count=mcounts)
+
+    css = ''
+    if mcounts:
+        css += 'new-msg'
+    if vcounts:
+        css += ' new-vote'
+
+    return dict(votes=votes, messages=messages, css=css)
 
 
 @register.simple_tag
@@ -493,6 +503,7 @@ def list_posts(context, target):
     return context
 
 
+
 @register.inclusion_tag('widgets/feed_default.html')
 def default_feed(user):
     recent_votes = Vote.objects.prefetch_related("post").exclude(post__status=Post.DELETED)
@@ -510,7 +521,10 @@ def default_feed(user):
     recent_replies = recent_replies.select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 
-    context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
+    users = User.objects.values('username', 'profile__uid', 'profile__name', 'profile__score')[:5]
+    print()
+
+    context = dict(recent_votes=recent_votes, recent_awards=recent_awards, users=list(users),
                    recent_locations=recent_locations, recent_replies=recent_replies,
                    user=user)
 
