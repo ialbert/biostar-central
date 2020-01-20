@@ -6,6 +6,7 @@ INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ENGINE_APPS + PLANET_APPS + ACCOUNT
 ROOT_URLCONF = 'biostar.test.test_urls'
 
 DEBUG = True
+INIT_PLANET = False
 
 # reCaptcha left alone during testing
 RECAPTCHA_PUBLIC_KEY = ''

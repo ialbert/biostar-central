@@ -205,27 +205,34 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
     order = request.GET.get("order", "rank")
-
     tag = request.GET.get("tag", "")
     show = show or request.GET.get("type", "")
     limit = request.GET.get("limit", "all")
 
-    cache_key = cache_key or generate_cache_key(limit, tag, show)
+    cond1 = limit == 'all' or (limit == 'all' and order == 'rank')
+
+    cond2 = request.GET.get('page') is not None
+    enable_pages = cond1 or cond2
 
     # Get posts available to users.
     posts = get_posts(user=user, show=show, tag=tag, order=order, limit=limit)
 
-    # Create the paginator
-    paginator = CachedPaginator(cache_key, posts, settings.POSTS_PER_PAGE)
-
-    # Apply the post paging.
-    posts = paginator.get_page(page)
+    if enable_pages:
+        # Show top 100 posts without pages.
+        cache_key = cache_key or generate_cache_key(limit, tag, show)
+        # Create the paginator
+        paginator = CachedPaginator(cache_key, posts, settings.POSTS_PER_PAGE)
+        # Apply the post paging.
+        posts = paginator.get_page(page)
+    else:
+        posts = posts[:100]
 
     # Set the active tab.
     tab = tag or show or "latest"
 
     # Fill in context.
-    context = dict(posts=posts, tab=tab, tag=tag, order=order, type=show, limit=limit)
+    context = dict(posts=posts, tab=tab, enable_pages=enable_pages,
+                   tag=tag, order=order, type=show, limit=limit)
     context.update(extra_context)
     # Render the page.
     return render(request, template_name="post_list.html", context=context)

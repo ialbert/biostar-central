@@ -35,7 +35,7 @@ register = template.Library()
 ICON_MAP = dict(
     rank="list ol icon",
     views="eye icon",
-    replies="comment icon",
+    replies="comments icon",
     votes="thumbs up icon",
     all='calendar plus icon',
     today='clock icon',
@@ -152,23 +152,6 @@ def post_type_display(post_type):
     return mapper.get(post_type)
 
 
-@register.inclusion_tag('widgets/pages_elastic_search.html', takes_context=True)
-def pages_elastic_search(context, results, total):
-
-    request = context['request']
-    query = request.GET.get('query', '')
-    page = int(request.GET.get('page', 1))
-    last_page = int(total / settings.SEARCH_RESULTS_PER_PAGE)
-    last_page = last_page or 1
-
-    previous_page = page - 1 if page > 1 else 1
-    next_page = page + 1 if page != last_page else last_page
-
-    context = dict(results=results, previous_page=previous_page, total=total, query=query,
-                   next_page=next_page, page=page, last_page=last_page)
-
-    return context
-
 
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
@@ -265,12 +248,12 @@ def post_tags(post=None, post_uid=None, show_views=False, tags_str='', spaced=Tr
     return dict(post=post, tags=tags, show_views=show_views, spaced=spaced)
 
 
-
 @register.inclusion_tag('widgets/pages.html', takes_context=True)
-def pages(context, objs):
+def pages(context, objs, show_step=True):
     request = context["request"]
     url = request.path
-    return dict(objs=objs, url=url, request=request)
+
+    return dict(objs=objs, url=url, show_step=show_step, request=request)
 
 
 @register.simple_tag
