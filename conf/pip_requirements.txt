@@ -28,5 +28,4 @@ pyftpdlib
 pandas
 requests
 pyopenssl
-django-elasticsearch-dsl
-django-elasticsearch-dsl-drf
+feedparser

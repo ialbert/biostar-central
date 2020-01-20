@@ -7,10 +7,6 @@ from biostar.forum.models import Post
 from django.conf import settings
 from biostar.forum import search
 
-foo = ...
-
-from biostar.forum.search import crawl, init_index
-
 logger = logging.getLogger('engine')
 
 

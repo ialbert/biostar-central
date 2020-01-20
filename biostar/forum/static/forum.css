@@ -298,6 +298,10 @@ i.icon {
 }
 
 
+.blog-feed > h5{
+    margin-bottom: 5px;
+}
+
 .thread-users {
     opacity: .75;
 }

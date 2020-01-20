@@ -1,0 +1,56 @@
+{% extends 'forum_list.html' %}
+{% load humanize %}
+{% load forum_tags %}
+{% load cache %}
+
+{% block title %}Planet{% endblock %}
+
+{% block body %}
+
+    <div class="ui page-bar segment">
+        {% pages objs=blogposts %}
+    </div>
+
+    <div class="ui relaxed list">
+        {% for post in blogposts %}
+
+            <div class="blog-post">
+                <div>
+                    <h3><a href="{{ post.link }}">{{ post.title }}</a></h3>
+                </div>
+                <div>
+                    <h4>
+                        written {{ post.creation_date|timesince }}
+                        by <a href="{{ post.blog.link }}">{{ post.blog.title|safe }}</a>
+                    </h4>
+                </div>
+                <div>
+                    {{ post.content|truncatewords:100 }}
+                </div>
+            </div>
+            <div class="ui divider"></div>
+        {% endfor %}
+
+    </div>
+
+    <div class="ui page-bar segment">
+        {% pages objs=blogposts %}
+    </div>
+
+{% endblock %}
+
+{% block sidebar %}
+
+        <h4>Planet Feeds</h4>
+        {% for blog in blogs %}
+            <div class="blog-feed">
+                <h5><a href="{{ blog.link }}">{{ blog.title }}</a></h5>
+                <div>{{ blog.desc|safe }}</div>
+                <div class="muted">{{ blog.count }} post{{ blog.count|pluralize }} - last updated {{ blog.updated_date|timesince }} ago </div>
+            </div>
+            <div class="ui divider"></div>
+        {% endfor %}
+
+
+
+{% endblock %}

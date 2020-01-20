@@ -6,6 +6,7 @@ import debug_toolbar
 from biostar.forum import views
 from biostar.forum import ajax
 import biostar.accounts.urls as account_patterns
+import biostar.planet.urls as planet_patterns
 
 urlpatterns = [
 
@@ -54,6 +55,9 @@ urlpatterns = [
 
     # Include the accounts urls
     path('accounts/', include(account_patterns)),
+
+    # Include the planet urls
+    path('planet/', include(planet_patterns)),
 
 ]
 

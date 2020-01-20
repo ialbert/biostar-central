@@ -13,15 +13,6 @@ class ForumConfig(AppConfig):
         from . import signals
         # Triggered upon app initialization.
         post_migrate.connect(init_awards, sender=self)
-        post_migrate.connect(init_digest, sender=self)
-
-
-def init_digest(sender, **kwargs):
-    from biostar.accounts.models import Profile
-
-    # Ensure digest emails are reset when debugging
-    if settings.DEBUG:
-        Profile.objects.all().update(digest_prefs=Profile.NO_DIGEST)
 
 
 def init_awards(sender, **kwargs):
