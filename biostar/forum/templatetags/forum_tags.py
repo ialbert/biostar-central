@@ -111,14 +111,6 @@ def counts(context):
     return dict(votes=votes, messages=messages, css=css)
 
 
-@register.simple_tag(takes_context=True)
-def count_label(context, label):
-    request = context['request']
-    count = get_count(request, label)
-    label = f"({count})" if count else ""
-    return label
-
-
 @register.simple_tag
 def users_list():
     # users = User.objects.exclude(profile__state__in=[Profile.DEACTIVATED,
