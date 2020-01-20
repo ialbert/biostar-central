@@ -1,7 +1,7 @@
 # Inherit from the main settings file.
 
 # Inherit from the accounts settings file.
-from biostar.accounts.settings import *
+from biostar.planet.settings import *
 
 # Django debug flag.
 DEBUG = True
@@ -89,10 +89,12 @@ USE_ELASTIC_SEARCH = False
 
 # Import the default pagedown css first, then our custom CSS sheet
 # to avoid having to specify all the default styles
-PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css', "lib/pagedown.css",)
+PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css',)
 
-INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP
+INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PLANET_APPS + ACCOUNTS_APPS + EMAILER_APP
 
+# Directory for the planets app.
+#PLANET_DIR = ''
 
 ROOT_URLCONF = 'biostar.forum.urls'
 
