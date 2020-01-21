@@ -211,7 +211,7 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
 
     # Pages are enable when showing 'all' ordered by 'rank'
     cond1 = limit == 'all' and order == 'rank'
-    # Pages are enabled when a page number is provided.
+    # Pages are also enabled when a page number is provided.
     cond2 = request.GET.get('page') is not None
 
     enable_pages = cond1 or cond2
