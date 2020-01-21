@@ -152,6 +152,12 @@ def post_type_display(post_type):
     return mapper.get(post_type)
 
 
+@register.filter
+def require_email_verification(user):
+    if user.is_anonymous:
+        return False
+    return auth.require_verification(user=user)
+
 
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)

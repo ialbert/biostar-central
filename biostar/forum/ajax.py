@@ -297,6 +297,10 @@ def validate_post_fields(fields={}, is_toplevel=False):
         if not valid_captcha:
             return False, msg
 
+    if auth.require_verification(user=user):
+        msg = "You need to verify your email before contributing to this site."
+        return False, msg
+
     # Validate fields common to all posts.
     if content_length <= forms.MIN_CHARS:
         msg = f"Content too short, please add more than {forms.MIN_CHARS} characters."
@@ -316,7 +320,6 @@ def get_fields(request, post=None):
     """
     Used to retrieve all fields in a request used for editing and creating posts.
     """
-
     user = request.user
     content = request.POST.get("content", "") or post.content
     title = request.POST.get("title", "") or post.title

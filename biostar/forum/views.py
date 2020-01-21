@@ -379,7 +379,6 @@ def badge_view(request, uid):
 
 
 @ensure_csrf_cookie
-#@post_exists
 def post_view(request, uid):
     "Return a detailed view for specific post"
 
@@ -405,14 +404,11 @@ def post_view(request, uid):
             # Create answer to root
             answer = Post.objects.create(title=post.title, parent=post, author=author,
                                          content=content, type=Post.ANSWER, root=post.root)
-            tasks.created_post.spool(pid=answer.id)
+            #tasks.created_post.spool(pid=answer.id)
             return redirect(answer.get_absolute_url())
         messages.error(request, form.errors)
 
     # Build the comment tree .
-    #print(post.id, post.root.root, post.lastedit_user.id, post.author.id, "FFF")
-    #root = post.root if post != post.root else post
-
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
     context = dict(post=root, tree=comment_tree, form=form, answers=answers)

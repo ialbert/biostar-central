@@ -81,7 +81,7 @@ def walk_down_thread(parent, collect=set()):
     if (parent is None) or (parent.parent is None) or (parent.root is None):
         return collect
 
-    # Get all children for this post
+    # Get all children for this post, excluding itself.
     children = Post.objects.filter(parent=parent).exclude(uid=parent.uid)
 
     for child in children:
@@ -91,6 +91,28 @@ def walk_down_thread(parent, collect=set()):
         walk_down_thread(parent=child, collect=collect)
 
     return collect
+
+
+def require_verification(user):
+
+    """
+    Check to see if this users requires email verification.
+    """
+
+    # Users with already verified emails do not need re-verification
+    if user.profile.email_verified:
+        return False
+
+    no_post_activity = Post.objects.filter(author=user).count() < 1
+    no_vote_activity = Vote.objects.filter(author=user).count() < 1
+
+    no_activity = (no_post_activity and no_vote_activity)
+
+    # The user is new or has low reputation
+    # and has no posting or voting activities.
+    require = (user.profile.low_rep or user.profile.is_new) and no_activity
+
+    return require
 
 
 def create_subscription(post, user, sub_type=None, delete_exisiting=True):

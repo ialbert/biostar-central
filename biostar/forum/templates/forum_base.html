@@ -59,8 +59,11 @@
 
 <div class="ui inverted container widen">
 
-
     {% include 'banners/top-banner.html' %}
+
+    {% if request.user|require_email_verification %}
+        {% include  'messages/verification_required.html' %}
+    {% endif %}
 
     <span class="menus">
         {% include "banners/menu-topics.html" %}

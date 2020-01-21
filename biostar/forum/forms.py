@@ -138,6 +138,10 @@ class PostLongForm(forms.Form):
 
         if length < MIN_CHARS:
             raise forms.ValidationError(f"Too short, place add more than {MIN_CHARS}")
+
+        if auth.require_verification(user=self.user):
+            raise forms.ValidationError("You need to verify your email before posting.")
+
         return content
 
 
@@ -145,7 +149,7 @@ class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=32)
     content = forms.CharField(widget=PagedownWidget(),
-                              min_length=MIN_LEN, max_length=MAX_LEN)
+                              min_length=MIN_LEN, max_length=MAX_LEN, strip=False)
 
     def __init__(self, user=None, post=None, recaptcha=True, *args, **kwargs):
         self.user = user
@@ -158,6 +162,13 @@ class PostShortForm(forms.Form):
         # Untrusted users get a recaptcha field
         if recaptcha and settings.RECAPTCHA_PRIVATE_KEY and not_trusted:
             self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
+
+    def clean_content(self):
+        content = self.cleaned_data["content"]
+        if auth.require_verification(user=self.user):
+            raise forms.ValidationError("You need to verify your email before adding answers.")
+
+        return content
 
 
 class CommentForm(forms.Form):
