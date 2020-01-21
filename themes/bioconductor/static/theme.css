@@ -56,7 +56,7 @@ body {
 
 
 #menu-header {
-    height: 70px;
+    //height: 70px;
 }
 
 #menu-header .item.format {
@@ -81,13 +81,17 @@ body {
 
 }
 
+#menu-header.narrow{
+    background-color: #1881c2;
+}
+
 
 .hide-preview {
     display: inline;
 }
 
 #login-opts .item > i.icon {
-    color: white;
+    // color: white;
 }
 
 .match {

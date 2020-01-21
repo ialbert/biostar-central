@@ -85,8 +85,8 @@ body > .widen.container {
 
 
 #menu-header .item:not(.header) {
-    padding-left: 35px;
-    padding-right: 35px;
+    //padding-left: 35px;
+    // padding-right: 35px;
 / / background: none;
 }
 
