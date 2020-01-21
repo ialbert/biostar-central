@@ -19,8 +19,7 @@
     {% if not enable_pages %}
         <div class="ui blue filter message">
             Showing top <b>100</b> posts ordered by <code>{{ order }}</code> and limited to <code>{{ limit }}</code>
-            &bull; <a href="{% url 'post_list' %}">reset <i
-                class="undo small icon"></i></a>
+            &bull; <a class="ui blue label" href="{% url 'post_list' %}">Show All <i class="undo small icon"></i></a>
         </div>
     {% endif %}
 
