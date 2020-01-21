@@ -209,9 +209,11 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
     show = show or request.GET.get("type", "")
     limit = request.GET.get("limit", "all")
 
-    cond1 = limit == 'all' or (limit == 'all' and order == 'rank')
-
+    # Pages are enable when showing 'all'
+    cond1 = limit == 'all'
+    # Pages are enabled when a page number is provided.
     cond2 = request.GET.get('page') is not None
+
     enable_pages = cond1 or cond2
 
     # Get posts available to users.
