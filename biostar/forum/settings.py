@@ -84,8 +84,6 @@ REMAP_TYPE_DISPLAY = False
 # Post types displayed when creating, empty list displays all types.
 ALLOWED_POST_TYPES = []
 
-USE_ELASTIC_SEARCH = False
-
 
 # Import the default pagedown css first, then our custom CSS sheet
 # to avoid having to specify all the default styles

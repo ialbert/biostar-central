@@ -7,6 +7,9 @@ PLANET_APPS = [
 
 ]
 
+# Initialize blog posts upon migration
+INIT_PLANET = True
+
 INSTALLED_APPS = DEFAULT_APPS + PLANET_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 BLOGS_PER_PAGE = 30

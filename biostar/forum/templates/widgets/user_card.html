@@ -4,18 +4,19 @@
 <div class="user_card">
 
     <div>
-        <a class="" href="{% url "user_profile" user.profile.uid %}" >
+        <a class="" href="{% url "user_profile" user.profile.uid %}">
             <img class="ui centered circular image" src="{% gravatar user=user size=100 %}">
         </a>
     </div>
 
     <div class="muted">
         <a href="{% url "user_profile" user.profile.uid %}">{{ user.profile.name|truncatechars:40 }}</a>
-         {% user_icon user=user %}<br>
+        {% user_icon user=user %}<br>
+        <span class="phone">
         @{{ user.username }}
         visited {{ user.profile.last_login|time_ago }}<br>
         {{ user.profile.location }}
-
+        </span>
     </div>
 
 </div>

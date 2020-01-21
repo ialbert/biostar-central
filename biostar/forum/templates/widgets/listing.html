@@ -39,7 +39,7 @@
                         <span class="ui title header">{{ post.get_status_display }}:</span>
                     {% elif post.is_spam %}
                         <span class="ui title header">Spam:</span>
-                    {% else %}
+                    {% elif not post.is_question %}
                         <span class="ui title header">{{ post.get_type_display }}:</span>
                     {% endif %}
 
@@ -71,7 +71,6 @@
                     {% endif %}
 
                     <div class="right floated muted">
-
                         {% post_user_line post avatar=True %}
                     </div>
 

@@ -248,15 +248,14 @@ def user_login(request):
 
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-
+            next_url = request.POST.get('next', settings.LOGIN_REDIRECT_URL)
             user = User.objects.filter(email__iexact=email).order_by('-id').first()
             message, valid_user = validate_login(email=email, password=password)
 
             if valid_user:
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
                 messages.success(request, "Login successful!")
-                redir = settings.LOGIN_REDIRECT_URL or "/"
-                return redirect(redir)
+                return redirect(next_url)
             else:
                 messages.error(request, mark_safe(message))
 
