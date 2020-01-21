@@ -251,7 +251,7 @@ def user_login(request):
             next_url = request.POST.get('next', settings.LOGIN_REDIRECT_URL)
             user = User.objects.filter(email__iexact=email).order_by('-id').first()
             message, valid_user = validate_login(email=email, password=password)
-            print(next_url, request.POST, "LKLKLK")
+
             if valid_user:
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
                 messages.success(request, "Login successful!")
