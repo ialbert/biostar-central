@@ -157,6 +157,10 @@ class Post(models.Model):
         return self.status == Post.OPEN and not self.is_spam
 
     @property
+    def is_question(self):
+        return self.type == Post.QUESTION
+
+    @property
     def is_deleted(self):
         return self.status == Post.DELETED
 

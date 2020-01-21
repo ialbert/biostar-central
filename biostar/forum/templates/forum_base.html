@@ -62,9 +62,14 @@
 
     {% include 'banners/top-banner.html' %}
 
-    {% include "banners/menu-topics.html" %}
+    <span class="menus">
+        {% include "banners/menu-topics.html" %}
+        {% include "banners/menu-header.html" %}
+    </span>
 
-    {% include "banners/menu-header.html" %}
+    <span class="phone-menus">
+        {% include "banners/menu-phone.html" %}
+    </span>
 
     {% block container %}
         <div class="ui bottom attached segment">
