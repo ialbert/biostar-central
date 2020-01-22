@@ -104,12 +104,12 @@ def require_verification(user):
         return False
 
     no_post_activity = Post.objects.filter(author=user).count() < 1
-    no_vote_activity = Vote.objects.filter(author=user).count() < 1
+    no_vote_activity = Vote.objects.filter(author=user).count() < 2
 
     no_activity = (no_post_activity and no_vote_activity)
 
     # The user is new or has low reputation
-    # and has no posting or voting activities.
+    # and has no posting or voting activities yet.
     require = (user.profile.low_rep or user.profile.is_new) and no_activity
 
     return require
