@@ -316,7 +316,6 @@ def get_fields(request, post=None):
     """
     Used to retrieve all fields in a request used for editing and creating posts.
     """
-
     user = request.user
     content = request.POST.get("content", "") or post.content
     title = request.POST.get("title", "") or post.title

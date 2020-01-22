@@ -106,9 +106,6 @@ class Profile(models.Model):
     # The html version of the user information.
     html = models.TextField(null=True, max_length=MAX_TEXT_LEN, blank=True)
 
-    # View the site in dark mode
-    #dark_mode = models.BooleanField(default=False)
-
     # The state of the user email verfication.
     email_verified = models.BooleanField(default=False)
 
@@ -192,6 +189,11 @@ class Profile(models.Model):
         """ User is not banned, suspended, or banned"""
 
         return not self.is_spammer and not self.is_suspended and not self.is_banned
+
+    @property
+    def is_new(self):
+        is_new = (util.now() - self.date_joined).days > 30
+        return is_new
 
     @property
     def low_rep(self):

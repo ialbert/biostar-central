@@ -20,7 +20,7 @@
     {# Load JQuery. #}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-<link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
     <script type="text/javascript" src="{% static 'markdown-it.js' %}"></script>
     {# Load recaptcha #}
     {% recaptcha_init %}
@@ -57,24 +57,29 @@
 <body>
 
 <div class="ui inverted container widen">
+{% include 'banners/top-banner.html' %}
 
-    {% include 'banners/top-banner.html' %}
-
+<span class="menus">
     {% include "banners/menu-topics.html" %}
-
     {% include "banners/menu-header.html" %}
- {% block container %}
-    <div class="ui bottom attached segment">
+</span>
+<span class="phone-menus">
+    {% include "banners/menu-phone.html" %}
+</span>
 
-        <div class="ui inverted dimmer"></div>
 
-        {% show_messages messages %}
-        {% block content %}
-            MAIN CONTENT
-        {% endblock %}
+    {% block container %}
+        <div class="ui bottom attached segment">
 
-    </div>
-{% endblock %}
+            <div class="ui inverted dimmer"></div>
+
+            {% show_messages messages %}
+            {% block content %}
+                MAIN CONTENT
+            {% endblock %}
+
+        </div>
+    {% endblock %}
     {% block footer %}
         {% include 'widgets/footer.html' %}
     {% endblock %}

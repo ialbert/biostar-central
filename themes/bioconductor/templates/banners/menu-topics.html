@@ -6,27 +6,24 @@
 <div class="ui top attached text menu" id="menu-topics">
     <div class="ui inverted dimmer"></div>
     {% if user.is_authenticated %}
+        {% counts as counts %}
 
-        {% count_label label="message_count" as msgs_count %}
-        {% count_label label="vote_count" as votes_count %}
-
-
-        <a class="item menu-tablet {% activate tab "messages" %}" href="{% url 'inbox' %}">
-            <i class="envelope icon"></i> Messages {{ msgs_count }}
+        <a class="item messages {% activate tab "messages" %}" href="{% url 'inbox' %}">
+            <i class="envelope icon"></i> Messages {{ counts.messages.count }}
 
         </a>
-        <span class="menu-tablet "></span>
-        <a class="item  menu-tablet_medsmall {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-            <i class="heart icon"></i> Votes {{ votes_count }}
+
+        <a class="item votes {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
+            <i class="heart icon"></i> Votes {{ counts.votes.count }}
 
         </a>
-        <span class="menu-tablet_medsmall "> </span>
-        <a class="item menu-tablet_medsmall {% activate tab "myposts" %}" href="{% url 'myposts' %}">
+
+        <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
              <i class="comments icon"></i>   My Posts
 
         </a>
-        <span class="menu-tablet_medsmall"></span>
-        <a class="item menu-tablet_med_xsmall {% activate tab "mytags" %}" href="{% url 'mytags' %}">
+
+        <a class="item {% activate tab "mytags" %}" href="{% url 'mytags' %}">
            <i class="tags icon"></i>  My Tags
 
         </a>

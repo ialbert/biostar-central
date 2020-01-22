@@ -13,7 +13,6 @@
 <div class="ui inplace post-form basic segment fit">
 
     <form class="ui inplace edit-form compact form" id="post-form">
-        <div class="error-msg"></div>
 
         {% if not add_comment and post.is_toplevel %}
             <div class="inplace-fields fields">
@@ -104,7 +103,6 @@
     </div>
 </div>
 
-
 <script>
 
     var converter = new Markdown.getSanitizingConverter();
@@ -139,7 +137,7 @@
         var form_elem = $('#post-form');
         var content = $('#wmd-input');
 
-        {% if not_trusted and captcha_key %}
+        {% if user.profile.require_recaptcha and captcha_key %}
             var cap_response = grecaptcha.getResponse(captchaWidgetId);
         {% else %}
             var cap_response = '';
