@@ -2,27 +2,34 @@
 {% load accounts_tags %}
 
 <div class="ui large wrap-text">
-    {% comment %}
-<div class="event">
+
+{% comment %}
+    <div class="event">
         <div class="ui container">
             <b>Who's here</b>
             <a href="{% url "community_list" %}">&bull; All <i class="ui angle small double right icon"></i></a>
             <div class="ui relaxed list">
                 <div id="recent">
+
                     <div v-for="u in users">
                         <div class="item spaced">
-                            [[ u.username ]]
-                            [[ u.profile__name ]]
-                            [[ u.profile__score ]]
+                            <a :href="u.url">
+                                    <div class="ui avatar image">
+                                        <img class="ui tiny centered image" :src="u.gravatar">
+                                    </div>
+                                [[ u.name ]]
+                            </a>
+                            [[ u.score ]]
                         </div>
                     </div>
+
                 </div>
             </div>
 
         </div>
     </div>
     <div class="ui divider"></div>
-    {% endcomment %}
+{% endcomment %}
 
 
     <div class="event">
@@ -119,15 +126,48 @@
     </div>
 
 </div>
-{% comment %}
 
+{% comment %}
 <script>
     var recent_users = new Vue({
         delimiters: ['[[', ']]'],
         el: '#recent',
         data: {
             users: {{ users|safe }}
+        },
+        created: function () {
+            // Set time interval for the given function.
+            this.interval = setInterval(() => this.getRecentUsers(), 8000);
+
+        },
+
+        beforeDestroy: function () {
+            // Remove time interval when changing pages.
+            console.log("DESTROYINGGGGG")
+        },
+        methods: {
+            getRecentUsers() {
+                $.ajax({
+                    url: '/most/recent/users/',
+                    method: 'GET',
+                    success: function (data) {
+                        if (data.status === 'success'){
+                            //console.log(data);
+                            //
+                            this.users = data.users;
+                            //console.log(JSON.parse(data));
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+
+                console.log("FOOOOOOO")
+            }
+
         }
+
     });
 </script>
 {% endcomment %}

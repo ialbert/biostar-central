@@ -152,7 +152,6 @@ def post_type_display(post_type):
     return mapper.get(post_type)
 
 
-
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
 
@@ -486,7 +485,6 @@ def list_posts(context, target):
     return context
 
 
-
 @register.inclusion_tag('widgets/feed_default.html')
 def default_feed(user):
     recent_votes = Vote.objects.prefetch_related("post").exclude(post__status=Post.DELETED)
@@ -504,10 +502,13 @@ def default_feed(user):
     recent_replies = recent_replies.select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 
-    users = User.objects.values('username', 'profile__uid', 'profile__name', 'profile__score')[:5]
-    print()
+    # users = [dict(username=u.user.username, email=u.user.email, uid=u.uid, name=u.name,
+    #               url=u.get_absolute_url(), score=u.score,
+    #               gravatar=auth.gravatar(user=u.user, size=30))
+    #          for u in recent_locations]
+    #print(users, "FOOO")
 
-    context = dict(recent_votes=recent_votes, recent_awards=recent_awards, users=list(users),
+    context = dict(recent_votes=recent_votes, recent_awards=recent_awards, users=[],
                    recent_locations=recent_locations, recent_replies=recent_replies,
                    user=user)
 

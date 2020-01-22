@@ -230,6 +230,21 @@ def validate_recaptcha(token):
 
 
 @ajax_error_wrapper(method="GET", login_required=True)
+def most_recent_users(request):
+
+    recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED, Profile.SUSPENDED])).prefetch_related("user")
+    recent_locations = recent_locations.order_by('last_login')
+    recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
+
+    users = [dict(username=u.user.username, email=u.user.email, uid=u.uid, name=u.name,
+                  url=u.get_absolute_url(), score=u.score,
+                  gravatar=auth.gravatar(user=u.user, size=30))
+             for u in recent_locations]
+
+    return ajax_success(msg="recent users", users=users)
+
+
+@ajax_error_wrapper(method="GET", login_required=True)
 def report_spammer(request, post_uid):
     """
     Report this user as a spammer.
