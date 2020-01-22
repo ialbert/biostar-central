@@ -139,9 +139,6 @@ class PostLongForm(forms.Form):
         if length < MIN_CHARS:
             raise forms.ValidationError(f"Too short, place add more than {MIN_CHARS}")
 
-        if auth.require_verification(user=self.user):
-            raise forms.ValidationError("You need to verify your email before posting.")
-
         return content
 
 
@@ -165,8 +162,6 @@ class PostShortForm(forms.Form):
 
     def clean_content(self):
         content = self.cleaned_data["content"]
-        if auth.require_verification(user=self.user):
-            raise forms.ValidationError("You need to verify your email before adding answers.")
 
         return content
 
