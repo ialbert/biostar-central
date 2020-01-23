@@ -20,7 +20,7 @@ from ratelimit.decorators import ratelimit
 
 
 from . import forms
-from .auth import validate_login, send_verification_email
+from .auth import validate_login, send_verification_email, moderate_user
 from .const import *
 from .models import User, Profile, Message
 from .tokens import account_verification_token
@@ -80,6 +80,7 @@ def listing(request):
 
 @login_required
 def user_moderate(request, uid):
+
     source = request.user
     target = User.objects.filter(id=uid).first()
     form = forms.UserModerate(source=source, target=target, request=request,
@@ -92,13 +93,8 @@ def user_moderate(request, uid):
                                   initial=dict(is_spammer=target.profile.is_spammer,
                                                action=target.profile.state))
         if form.is_valid():
-            state = form.cleaned_data.get("action", "")
-            is_spammer = form.cleaned_data.get("is_spammer", "")
-            profile = Profile.objects.filter(user=target).first()
-            profile.state = state
-            profile.role = Profile.SPAMMER if is_spammer else Profile.READER
-
-            profile.save()
+            action = form.cleaned_data.get("action", "")
+            moderate_user(action=action, target=target)
             messages.success(request, "User moderation complete.")
         else:
             errs = ','.join([err for err in form.non_field_errors()])
@@ -146,8 +142,12 @@ def user_profile(request, uid):
     active = request.GET.get("active", "posts")
 
     # User viewing profile is a moderator
-    can_moderate = request.user.is_authenticated and request.user.profile.is_moderator and request.user != profile.user
-    context = dict(target=profile.user, active=active, debugging=settings.DEBUG,
+    is_mod = (request.user.is_authenticated and request.user.profile.is_moderator)
+
+    can_moderate = is_mod and request.user != profile.user
+    show_info = is_mod or (profile.is_valid and not profile.low_rep)
+
+    context = dict(target=profile.user, active=active, debugging=settings.DEBUG, show_info=show_info,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate)
 
     return render(request, "accounts/user_profile.html", context)

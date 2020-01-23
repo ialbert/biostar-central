@@ -111,15 +111,6 @@ def counts(context):
     return dict(votes=votes, messages=messages, css=css)
 
 
-@register.simple_tag
-def users_list():
-    # users = User.objects.exclude(profile__state__in=[Profile.DEACTIVATED,
-    #                                                  Profile.SUSPENDED, Profile.BANNED]).prefetch_related("profile")
-    # users = ','.join(users.values_list('username', flat=True))
-
-    return []
-
-
 @register.inclusion_tag('widgets/inplace_form.html')
 def inplace_form(post, width='100%'):
     pad = 4 if post.type == Post.COMMENT else 7
@@ -152,7 +143,6 @@ def post_type_display(post_type):
     return mapper.get(post_type)
 
 
-
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
 
@@ -168,6 +158,11 @@ def gravatar(user=None, user_uid=None, size=80):
 
 @register.inclusion_tag('widgets/filter_dropdown.html', takes_context=True)
 def filter_dropdown(context):
+
+    return context
+
+@register.inclusion_tag('widgets/user_filter_dropdown.html', takes_context=True)
+def user_filter_dropdown(context):
 
     return context
 
@@ -467,14 +462,16 @@ def list_posts(context, target):
     request = context["request"]
     user = request.user
 
-    posts = Post.objects.filter(author=target).exclude(spam=Post.SPAM)
+    posts = Post.objects.filter(author=target)
 
     page = request.GET.get('page', 1)
     posts = posts.select_related("root").prefetch_related("author__profile", "lastedit_user__profile")
 
-    # Filter deleted items for anonymous and non-moderators.
+    # Filter deleted items or spam items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
-        posts = posts.exclude(Q(status=Post.DELETED))
+        posts = posts.exclude(status=Post.DELETED)
+        posts = posts.exclude(spam=Post.SPAM)
+
     posts = posts.order_by("-rank")
     posts = posts.exclude(Q(root=None) | Q(parent=None))
     # Create the paginator and apply post paging
@@ -484,7 +481,6 @@ def list_posts(context, target):
     request = context["request"]
     context = dict(posts=posts, request=request, include_pages_bar=True)
     return context
-
 
 
 @register.inclusion_tag('widgets/feed_default.html')
@@ -504,10 +500,13 @@ def default_feed(user):
     recent_replies = recent_replies.select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 
-    users = User.objects.values('username', 'profile__uid', 'profile__name', 'profile__score')[:5]
-    print()
+    #
+    # users = [dict(username=u.user.username, email=u.user.email, uid=u.uid, name=u.name,
+    #               url=u.get_absolute_url(), score=u.score,
+    #               gravatar=auth.gravatar(user=u.user, size=30))
+    #          for u in recent_locations]
 
-    context = dict(recent_votes=recent_votes, recent_awards=recent_awards, users=list(users),
+    context = dict(recent_votes=recent_votes, recent_awards=recent_awards, users=[],
                    recent_locations=recent_locations, recent_replies=recent_replies,
                    user=user)
 

@@ -165,15 +165,14 @@ class LoginForm(forms.Form):
 class UserModerate(forms.Form):
 
     CHOICES = [
-        (Profile.NEW, "Reinstate as new user"),
-        (Profile.TRUSTED, "Reinstate as trusted user"),
-        (Profile.BANNED, "Ban user"),
-        (Profile.DEACTIVATED, "Deactivate user"),
-        (Profile.SUSPENDED, "Suspend user")
+        ('spammer', 'Report as spammer'),
+        ('banned', "Ban user"),
+        ('suspended', "Suspend user"),
+        ('new', "Reinstate as new user"),
+        ('trusted', "Reinstate as trusted user")
     ]
 
-    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), required=False, label="Select Action")
-    is_spammer = forms.BooleanField(widget=forms.CheckboxInput, required=False, label="Report user as spammer")
+    action = forms.CharField(widget=forms.RadioSelect(choices=CHOICES), required=False, label="Select Action")
 
     def __init__(self, source, target, request, *args, **kwargs):
         self.source = source
@@ -187,7 +186,7 @@ class UserModerate(forms.Form):
         if not self.source.profile.is_moderator:
             forms.ValidationError("You need to be a moderator to perform that action")
 
-        if action == Profile.BANNED and not self.source.is_superuser:
+        if action == 'banned' and not self.source.is_superuser:
             raise forms.ValidationError("You need to be an admin to ban users.")
 
         if self.target.profile.is_moderator and not self.source.is_superuser:

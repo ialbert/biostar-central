@@ -56,9 +56,10 @@ def gravatar(user, size=80):
     email = user.email if user.is_authenticated else ''
     email = email.encode('utf8')
 
-    if user.is_anonymous or user.profile.is_suspended or user.profile.is_banned:
+    if user.is_anonymous or not user.profile.is_valid:
         # Removes spammy images for suspended users
         email = 'suspended@biostars.org'.encode('utf8')
+
         style = settings.GRAVATAR_ICON or "monsterid"
     elif user.profile.is_moderator:
         style = settings.GRAVATAR_ICON or "robohash"
@@ -91,28 +92,6 @@ def walk_down_thread(parent, collect=set()):
         walk_down_thread(parent=child, collect=collect)
 
     return collect
-
-
-def require_verification(user):
-
-    """
-    Check to see if this users requires email verification.
-    """
-
-    # Users with already verified emails do not need re-verification
-    if user.profile.email_verified:
-        return False
-
-    no_post_activity = Post.objects.filter(author=user).count() < 1
-    no_vote_activity = Vote.objects.filter(author=user).count() < 2
-
-    no_activity = (no_post_activity and no_vote_activity)
-
-    # The user is new or has low reputation
-    # and has no posting or voting activities yet.
-    require = (user.profile.low_rep or user.profile.is_new) and no_activity
-
-    return require
 
 
 def create_subscription(post, user, sub_type=None, delete_exisiting=True):
