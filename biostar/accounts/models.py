@@ -132,10 +132,6 @@ class Profile(models.Model):
     def state_dict(self):
         return dict(self.STATE_CHOICES)
 
-    @property
-    def is_active(self):
-        return self.state != Profile.DEACTIVATED
-
     def get_upload_size(self):
 
         # Admin users upload limit
