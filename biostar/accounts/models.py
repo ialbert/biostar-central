@@ -205,38 +205,24 @@ class Logger(models.Model):
 
     MODERATING, CREATION, EDIT, LOGIN, LOGOUT, BROWSING = range(6)
 
-    ACTIONS_CHOICES = [(MODERATING, "User preformed a moderation action."),
-                       (CREATION, "User created an object."),
-                       (EDIT, "User edited an object."),
-                       (LOGIN, "User logged in to the site."),
-                       (LOGOUT, "User logged out of the site."),
-                       (BROWSING, "User browsing the site.")]
+    ACTIONS_CHOICES = [(MODERATING, "Preformed a moderation action."),
+                       (CREATION, "Created an object."),
+                       (EDIT, "Edited an object."),
+                       (LOGIN, "Logged in to the site."),
+                       (LOGOUT, "Logged out of the site."),
+                       (BROWSING, "Browsing the site.")]
 
     # User that preformed this action
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
-    # Secondary user affected by this action
-    target = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='target')
-
     # Action this user is took.
     action = models.IntegerField(choices=ACTIONS_CHOICES, default=BROWSING)
 
-    # Stores the action specific text
+    # Stores the specific log text
     log_text = models.TextField(default='')
 
     # Date this log was created
     date = models.DateTimeField(auto_now_add=True)
-
-    def save(self, *args, **kwargs):
-
-        # Format the log text for moderation actions.
-        if self.action == self.MODERATING and self.user and self.target:
-            txt = f"user.id={self.user.pk};"
-            txt += f"target.id={self.target.pk}; target.state={self.target.profile.state}"
-            txt += f"({self.target.profile.get_state_display()});"
-            self.log_text = self.log_text + '\n' + txt
-
-        super(Logger, self).save(*args, **kwargs)
 
 
 # Connects user to message bodies

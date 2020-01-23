@@ -3,9 +3,11 @@ from conf.examples.pg.pg_settings import *
 import os
 TRANSFER_APP = ['biostar.transfer']
 
-INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + ACCOUNTS_APPS + EMAILER_APP + TRANSFER_APP
+INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PLANET_APPS + ACCOUNTS_APPS + EMAILER_APP + TRANSFER_APP
 
 DEBUG = True
+
+INIT_PLANET = False
 
 WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
 

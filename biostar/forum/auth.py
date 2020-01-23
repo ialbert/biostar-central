@@ -247,10 +247,9 @@ def apply_vote(post, user, vote_type):
     return msg, vote, change
 
 
-def log_action(user=None, target_user=None, action=Logger.MODERATING, log_text=''):
+def log_action(user=None, action=Logger.MODERATING, log_text=''):
     # Create a logger object
-    Logger.objects.create(user=user, target=target_user, log_text=log_text)
-
+    Logger.objects.create(user=user, action=action, log_text=log_text)
     return
 
 
@@ -284,7 +283,7 @@ def delete_post(post, request):
     reply_count = Post.objects.filter(root=post.root).count()
 
     Post.objects.filter(pk=post.root.id).update(reply_count=reply_count)
-    log_action(user=request.user, log_text=f"Deleted post {post.uid}")
+    log_action(user=request.user, log_text=f"Deleted post={post.uid}")
 
     return url
 

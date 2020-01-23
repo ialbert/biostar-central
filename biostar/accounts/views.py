@@ -98,7 +98,8 @@ def user_moderate(request, uid):
             profile.state = state
             profile.save()
             # Log the moderation action
-            Logger.objects.create(user=request.user, target=target, action=Logger.MODERATING)
+            log_text = f"Moderated user={target.pk}; state={target.profile.state} ( {target.profile.get_state_display()} )"
+            Logger.objects.create(user=request.user, log_text=log_text, action=Logger.MODERATING)
 
             messages.success(request, "User moderation complete.")
         else:
