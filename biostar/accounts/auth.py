@@ -27,8 +27,8 @@ def validate_login(email, password):
     if not user:
         return "Invalid Password", False
 
-    if user.profile.state in [Profile.BANNED, Profile.SUSPENDED]:
-        msg = f"Login not allowed. Account is <b> {user.profile.get_state_display()}</b>"
+    if not user.profile.is_valid:
+        msg = f"Login not allowed. Account is not valid."
         return msg,  False
 
     elif user and not user.is_active:
@@ -54,3 +54,21 @@ def send_verification_email(user):
                extra_context=context, from_email=from_email)
 
     return True
+
+
+def moderate_user(action, target):
+    #TODO: Profile.SPAMMER needs to be a state instead of a role.
+    profile = Profile.objects.filter(user=target).first()
+    state_map = dict(banned=Profile.BANNED, suspended=Profile.SUSPENDED,
+                     trusted=Profile.TRUSTED, new=Profile.NEW)
+
+    state = state_map.get(action, profile.state)
+
+    if action == "spammer":
+        profile.role = Profile.SPAMMER
+    elif action in state_map:
+        profile.role = Profile.READER
+
+    profile.state = state
+    profile.save()
+    return

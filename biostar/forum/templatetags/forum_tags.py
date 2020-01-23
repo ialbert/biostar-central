@@ -111,15 +111,6 @@ def counts(context):
     return dict(votes=votes, messages=messages, css=css)
 
 
-@register.simple_tag
-def users_list():
-    # users = User.objects.exclude(profile__state__in=[Profile.DEACTIVATED,
-    #                                                  Profile.SUSPENDED, Profile.BANNED]).prefetch_related("profile")
-    # users = ','.join(users.values_list('username', flat=True))
-
-    return []
-
-
 @register.inclusion_tag('widgets/inplace_form.html')
 def inplace_form(post, width='100%'):
     pad = 4 if post.type == Post.COMMENT else 7
@@ -471,14 +462,16 @@ def list_posts(context, target):
     request = context["request"]
     user = request.user
 
-    posts = Post.objects.filter(author=target).exclude(spam=Post.SPAM)
+    posts = Post.objects.filter(author=target)
 
     page = request.GET.get('page', 1)
     posts = posts.select_related("root").prefetch_related("author__profile", "lastedit_user__profile")
 
-    # Filter deleted items for anonymous and non-moderators.
+    # Filter deleted items or spam items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
-        posts = posts.exclude(Q(status=Post.DELETED))
+        posts = posts.exclude(status=Post.DELETED)
+        posts = posts.exclude(spam=Post.SPAM)
+
     posts = posts.order_by("-rank")
     posts = posts.exclude(Q(root=None) | Q(parent=None))
     # Create the paginator and apply post paging

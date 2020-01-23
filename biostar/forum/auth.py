@@ -56,9 +56,10 @@ def gravatar(user, size=80):
     email = user.email if user.is_authenticated else ''
     email = email.encode('utf8')
 
-    if user.is_anonymous or user.profile.is_suspended or user.profile.is_banned:
+    if user.is_anonymous or not user.profile.is_valid:
         # Removes spammy images for suspended users
         email = 'suspended@biostars.org'.encode('utf8')
+
         style = settings.GRAVATAR_ICON or "monsterid"
     elif user.profile.is_moderator:
         style = settings.GRAVATAR_ICON or "robohash"
