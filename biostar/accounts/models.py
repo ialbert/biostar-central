@@ -25,14 +25,15 @@ MAX_FIELD_LEN = 1024
 
 
 class Profile(models.Model):
-    NEW, TRUSTED, SUSPENDED, BANNED, DEACTIVATED = range(5)
-    STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (DEACTIVATED, "Inactive"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
+    NEW, TRUSTED, SUSPENDED, BANNED, SPAMMER = range(5)
+    STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SPAMMER, "Spammer"),
+                     (SUSPENDED, "Suspended"), (BANNED, "Banned")]
     state = models.IntegerField(default=NEW, choices=STATE_CHOICES, db_index=True)
 
-    READER, MODERATOR, MANAGER, BLOGGER, SPAMMER = range(5)
+    READER, MODERATOR, MANAGER, BLOGGER = range(4)
     ROLE_CHOICES = [
         (READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Admin"),
-        (BLOGGER, "Blog User"), (SPAMMER, "Spammer")
+        (BLOGGER, "Blog User")
     ]
 
     NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST, ALL_MESSAGES = range(5)
@@ -128,6 +129,10 @@ class Profile(models.Model):
         super(Profile, self).save(*args, **kwargs)
 
     @property
+    def state_dict(self):
+        return dict(self.STATE_CHOICES)
+
+    @property
     def is_active(self):
         return self.state != Profile.DEACTIVATED
 
@@ -198,6 +203,44 @@ class Profile(models.Model):
     def low_rep(self):
         """User has a low reputation"""
         return self.score <= settings.LOW_REP_THRESHOLD and not self.is_moderator
+
+
+class Logger(models.Model):
+
+    MODERATING, CREATION, EDIT, LOGIN, LOGOUT, BROWSING = range(6)
+
+    ACTIONS_CHOICES = [(MODERATING, "User preformed a moderation action."),
+                       (CREATION, "User created an object."),
+                       (EDIT, "User edited an object."),
+                       (LOGIN, "User logged in to the site."),
+                       (LOGOUT, "User logged out of the site."),
+                       (BROWSING, "User browsing the site.")]
+
+    # User that preformed this action
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    # Secondary user affected by this action
+    target = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='target')
+
+    # Action this user is took.
+    action = models.IntegerField(choices=ACTIONS_CHOICES, default=BROWSING)
+
+    # Stores the action specific text
+    log_text = models.TextField(default='')
+
+    # Date this log was created
+    date = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+
+        # Format the log text for moderation actions.
+        if self.action == self.MODERATING and self.user and self.target:
+            txt = f"user.id={self.user.pk};"
+            txt += f"target.id={self.target.pk}; target.state={self.target.profile.state}"
+            txt += f"({self.target.profile.get_state_display()});"
+            self.log_text = self.log_text + '\n' + txt
+
+        super(Logger, self).save(*args, **kwargs)
 
 
 # Connects user to message bodies

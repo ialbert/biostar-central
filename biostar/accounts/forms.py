@@ -165,11 +165,11 @@ class LoginForm(forms.Form):
 class UserModerate(forms.Form):
 
     CHOICES = [
-        ('spammer', 'Report as spammer'),
-        ('banned', "Ban user"),
-        ('suspended', "Suspend user"),
-        ('new', "Reinstate as new user"),
-        ('trusted', "Reinstate as trusted user")
+        (Profile.SPAMMER, 'Report as spammer'),
+        (Profile.BANNED, "Ban user"),
+        (Profile.SUSPENDED, "Suspend user"),
+        (Profile.NEW, "Reinstate as new user"),
+        (Profile.TRUSTED, "Reinstate as trusted user")
     ]
 
     action = forms.CharField(widget=forms.RadioSelect(choices=CHOICES), required=False, label="Select Action")

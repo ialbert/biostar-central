@@ -10,7 +10,7 @@ from django.db import transaction
 from django.db.models import F, Q
 from django.utils.timezone import utc
 
-from biostar.accounts.models import Profile
+from biostar.accounts.models import Profile, Logger
 from . import util
 from .const import *
 from .models import Post, Vote, PostView, Subscription
@@ -247,6 +247,13 @@ def apply_vote(post, user, vote_type):
     return msg, vote, change
 
 
+def log_action(user=None, target_user=None, action=Logger.MODERATING, log_text=''):
+    # Create a logger object
+    Logger.objects.create(user=user, target=target_user, log_text=log_text)
+
+    return
+
+
 def delete_post(post, request):
     # Delete marks a post deleted but does not remove it.
 
@@ -277,11 +284,12 @@ def delete_post(post, request):
     reply_count = Post.objects.filter(root=post.root).count()
 
     Post.objects.filter(pk=post.root.id).update(reply_count=reply_count)
+    log_action(user=request.user, log_text=f"Deleted post {post.uid}")
 
     return url
 
 
-def handle_spam_post(post):
+def handle_spam_post(post, user):
     url = post.get_absolute_url()
 
     # # Ban new users that post spam.
@@ -293,6 +301,7 @@ def handle_spam_post(post):
 
     # Label all posts by this users as spam.
     Post.objects.filter(author=post.author).update(spam=Post.SPAM)
+    log_action(user=user, log_text=f"Reported post={post.uid} as spam.")
     return url
 
 
@@ -305,11 +314,13 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
     if action == BUMP_POST:
         Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp(), last_contributor=request.user)
         messages.success(request, "Post bumped")
+        log_action(user=user, log_text=f"Bumped post={post.uid}")
         return url
 
     if action == OPEN_POST:
         Post.objects.filter(uid=post.uid).update(status=Post.OPEN, spam=Post.NOT_SPAM)
         messages.success(request, f"Opened post: {post.title}")
+        log_action(user=user, log_text=f"Opened post={post.uid}")
         return url
 
     if action == DELETE:
@@ -317,16 +328,18 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
 
     if action == MOVE_ANSWER:
         Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
+        log_action(user=user, log_text=f"Moved post={post.uid} to answer. ")
         return url
 
     if action == REPORT_SPAM:
-        return handle_spam_post(post=post)
+        return handle_spam_post(post=post, user=user)
 
     if pid:
         parent = Post.objects.filter(uid=pid).first() or post.root
         Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
         Post.objects.filter(uid=root.uid).update(reply_count=F("answer_count") - 1)
         messages.success(request, "Moved answer to comment")
+        log_action(user=user, log_text=f"Moved post={post.uid} to comment.")
         return url
 
     if dupes and len(''.join(dupes)):
@@ -338,8 +351,8 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
         post = Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
         url = post.get_absolute_url()
-        messages.success(request, "Closed duplicated post.")
-
+        messages.success(request, "Marked duplicated post as off topic.")
+        log_action(user=user, log_text=f"Marked post={post.uid} as duplicate.")
         return url
 
     if comment:
@@ -353,7 +366,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, author=user)
         url = post.get_absolute_url()
         messages.success(request, "Marked the post as off topic.")
-
+        log_action(user=user, log_text=f"Marked post={post.uid} as off topic.")
         return url
 
     return url
