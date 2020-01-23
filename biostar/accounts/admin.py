@@ -14,7 +14,7 @@ class ProfileInline(admin.StackedInline):
 
 @admin.register(Logger)
 class LoggerAdmin(admin.ModelAdmin):
-    list_display = ('action', 'user', 'target', 'date')
+    list_display = ('action', 'user', 'target',  'date', 'log_text')
     ordering = ['-date']
 
     fieldsets =(("Details",

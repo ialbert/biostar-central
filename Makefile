@@ -141,6 +141,11 @@ reindex:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py index --remove --reset --index 3700000 --settings ${DJANGO_SETTINGS_MODULE}
 
+
+stress_test:
+	jmeter -n -t biostar/test/biostars.jmx -l result.jtl
+
+
 recipes_demo: recipes reset init load_recipes serve
 
 forum_demo: forum reset init load_forum serve
