@@ -19,6 +19,8 @@ def init_planet(sender, **kwargs):
     from biostar.planet import auth, models
 
     #models.Blog.objects.all().delete()
+    #models.BlogPost.objects.all().delete()
+
     if settings.INIT_PLANET:
         # Load an initial set of blog posts
         fname = os.path.abspath(os.path.join(settings.PLANET_DIR, 'example-feeds.txt'))

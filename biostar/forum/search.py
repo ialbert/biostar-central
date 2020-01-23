@@ -385,7 +385,7 @@ def preform_db_search(query='', fields=None, filter_for=Q()):
     return results
 
 
-def whoosh_more_like_this(uid, db_search=False):
+def whoosh_more_like_this(uid):
     """
     Return posts similar to the uid given.
     """

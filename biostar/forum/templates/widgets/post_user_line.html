@@ -21,7 +21,7 @@
 
 
     </span>
-    {% if  post.lastedit_user.is_valid %}
+    {% if  post.lastedit_user.profile.is_valid %}
         &bull;
         updated
 
@@ -40,6 +40,7 @@
 
         {% user_icon user=post.lastedit_user %}
     {% endif %}
+
 {% elif post %}
 
     <span>
@@ -51,7 +52,7 @@
                 <img class="ui tiny centered image thread-users" src="{% gravatar user=post.lastedit_user size=80 %}">
             </div>
         {% endif %}
-        {{ post.lastedit_user.profile.name }}
+        {{ post.lastedit_user.profile.name|truncatechars:40 }}
     </a>
 
     {% user_icon user=post.lastedit_user %}

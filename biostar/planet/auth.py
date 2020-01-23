@@ -71,14 +71,10 @@ def add_blogpost(blogs, count=3):
 
 
 def add_blog(feed):
-    fname = abspath(settings.PLANET_DIR, 'add-blog.xml')
-    try:
-        text = request.urlopen(feed).read().decode()
-        stream = open(fname, 'wt')
-        stream.write(text)
-        stream.close()
-        doc = feedparser.parse(fname)
 
+    try:
+        text = request.urlopen(feed).read().decode(errors="surrogatepass")
+        doc = feedparser.parse(text)
         title = doc.feed.title
         if hasattr(doc.feed, "description"):
             desc = doc.feed.description

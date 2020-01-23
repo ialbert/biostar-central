@@ -170,6 +170,11 @@ def filter_dropdown(context):
 
     return context
 
+@register.inclusion_tag('widgets/user_filter_dropdown.html', takes_context=True)
+def user_filter_dropdown(context):
+
+    return context
+
 
 @register.inclusion_tag('widgets/user_icon.html', takes_context=True)
 def user_icon(context, user=None, is_moderator=False, is_spammer=False, score=0):
@@ -502,11 +507,11 @@ def default_feed(user):
     recent_replies = recent_replies.select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 
+    #
     # users = [dict(username=u.user.username, email=u.user.email, uid=u.uid, name=u.name,
     #               url=u.get_absolute_url(), score=u.score,
     #               gravatar=auth.gravatar(user=u.user, size=30))
     #          for u in recent_locations]
-    #print(users, "FOOO")
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards, users=[],
                    recent_locations=recent_locations, recent_replies=recent_replies,

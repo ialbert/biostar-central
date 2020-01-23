@@ -187,7 +187,6 @@ class Profile(models.Model):
     @property
     def is_valid(self):
         """ User is not banned, suspended, or banned"""
-
         return not self.is_spammer and not self.is_suspended and not self.is_banned
 
     @property

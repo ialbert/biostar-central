@@ -37,7 +37,6 @@ def update_index(*args):
     # Get un-indexed posts
     posts = Post.objects.filter(indexed=False)[:settings.BATCH_INDEXING_SIZE]
 
-
     # Nothing to be done.
     if not posts:
         message("No new posts found")
