@@ -109,7 +109,7 @@ def notify_followers(subs, author, extra_context={}):
         return
 
     # Select users that should be notified.
-    users = [sub.user for sub in subs if sub.user.profile.is_active]
+    users = [sub.user for sub in subs]
 
     # Every subscribed user gets local messages with any subscription type.
     create_messages(template=local_template, extra_context=extra_context, rec_list=users, sender=author)
@@ -121,6 +121,6 @@ def notify_followers(subs, author, extra_context={}):
     if not email_subs:
         return
 
-    recipient_list = [sub.user.email for sub in email_subs if sub.user.profile.is_active]
+    recipient_list = [sub.user.email for sub in email_subs]
 
     send_email(template_name=email_template, extra_context=extra_context, recipient_list=recipient_list)

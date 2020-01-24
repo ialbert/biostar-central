@@ -25,14 +25,15 @@ MAX_FIELD_LEN = 1024
 
 
 class Profile(models.Model):
-    NEW, TRUSTED, SUSPENDED, BANNED, DEACTIVATED = range(5)
-    STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (DEACTIVATED, "Inactive"), (SUSPENDED, "Suspended"), (BANNED, "Banned")]
+    NEW, TRUSTED, SUSPENDED, BANNED, SPAMMER = range(5)
+    STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SPAMMER, "Spammer"),
+                     (SUSPENDED, "Suspended"), (BANNED, "Banned")]
     state = models.IntegerField(default=NEW, choices=STATE_CHOICES, db_index=True)
 
-    READER, MODERATOR, MANAGER, BLOGGER, SPAMMER = range(5)
+    READER, MODERATOR, MANAGER, BLOGGER = range(4)
     ROLE_CHOICES = [
         (READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Admin"),
-        (BLOGGER, "Blog User"), (SPAMMER, "Spammer")
+        (BLOGGER, "Blog User")
     ]
 
     NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST, ALL_MESSAGES = range(5)
@@ -128,8 +129,8 @@ class Profile(models.Model):
         super(Profile, self).save(*args, **kwargs)
 
     @property
-    def is_active(self):
-        return self.state != Profile.DEACTIVATED
+    def state_dict(self):
+        return dict(self.STATE_CHOICES)
 
     def get_upload_size(self):
 
@@ -198,6 +199,30 @@ class Profile(models.Model):
     def low_rep(self):
         """User has a low reputation"""
         return self.score <= settings.LOW_REP_THRESHOLD and not self.is_moderator
+
+
+class Logger(models.Model):
+
+    MODERATING, CREATION, EDIT, LOGIN, LOGOUT, BROWSING = range(6)
+
+    ACTIONS_CHOICES = [(MODERATING, "Preformed a moderation action."),
+                       (CREATION, "Created an object."),
+                       (EDIT, "Edited an object."),
+                       (LOGIN, "Logged in to the site."),
+                       (LOGOUT, "Logged out of the site."),
+                       (BROWSING, "Browsing the site.")]
+
+    # User that preformed this action
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    # Action this user is took.
+    action = models.IntegerField(choices=ACTIONS_CHOICES, default=BROWSING)
+
+    # Stores the specific log text
+    log_text = models.TextField(default='')
+
+    # Date this log was created
+    date = models.DateTimeField(auto_now_add=True)
 
 
 # Connects user to message bodies

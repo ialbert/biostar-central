@@ -55,20 +55,3 @@ def send_verification_email(user):
 
     return True
 
-
-def moderate_user(action, target):
-    #TODO: Profile.SPAMMER needs to be a state instead of a role.
-    profile = Profile.objects.filter(user=target).first()
-    state_map = dict(banned=Profile.BANNED, suspended=Profile.SUSPENDED,
-                     trusted=Profile.TRUSTED, new=Profile.NEW)
-
-    state = state_map.get(action, profile.state)
-
-    if action == "spammer":
-        profile.role = Profile.SPAMMER
-    elif action in state_map:
-        profile.role = Profile.READER
-
-    profile.state = state
-    profile.save()
-    return

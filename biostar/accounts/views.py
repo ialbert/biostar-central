@@ -20,9 +20,9 @@ from ratelimit.decorators import ratelimit
 
 
 from . import forms
-from .auth import validate_login, send_verification_email, moderate_user
+from .auth import validate_login, send_verification_email
 from .const import *
-from .models import User, Profile, Message
+from .models import User, Profile, Message, Logger
 from .tokens import account_verification_token
 from .util import now, get_uuid
 
@@ -93,8 +93,14 @@ def user_moderate(request, uid):
                                   initial=dict(is_spammer=target.profile.is_spammer,
                                                action=target.profile.state))
         if form.is_valid():
-            action = form.cleaned_data.get("action", "")
-            moderate_user(action=action, target=target)
+            state = form.cleaned_data.get("action", "")
+            profile = Profile.objects.filter(user=target).first()
+            profile.state = state
+            profile.save()
+            # Log the moderation action
+            log_text = f"Moderated user={target.pk}; state={target.profile.state} ( {target.profile.get_state_display()} )"
+            Logger.objects.create(user=request.user, log_text=log_text, action=Logger.MODERATING)
+
             messages.success(request, "User moderation complete.")
         else:
             errs = ','.join([err for err in form.non_field_errors()])
