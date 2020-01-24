@@ -5,7 +5,7 @@ from taggit.models import Tag
 from django.db.models import F, Q
 from biostar.accounts.models import Profile, Message, User
 from .models import Post, Award, Subscription
-from . import tasks, auth, util, search
+from . import tasks, auth, util
 
 
 logger = logging.getLogger("biostar")
@@ -114,9 +114,6 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Get all subscribed users when a new post is created
         subs = Subscription.objects.filter(post=instance.root)
-
-        # Index the post
-        #search.index_posts(posts=[instance])
 
     #is_public_toplevel = instance.is
     # Ensure posts get re-indexed after being edited.
