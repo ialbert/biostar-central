@@ -244,6 +244,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'biostar.server.middleware.Visit',
+    'biostar.server.middleware.Ban',
 )
 
 ROOT_URLCONF = 'biostar.urls'
@@ -461,7 +462,7 @@ COMPRESS_OFFLINE_CONTEXT = {
 # The cache mechanism is deployment dependent. Override it externally.
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache' if DEBUG else 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'unique-snowflake'
     }
 }

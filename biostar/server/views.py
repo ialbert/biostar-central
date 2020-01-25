@@ -129,8 +129,9 @@ def posts_by_topic(request, topic):
     if topic and topic != LATEST:
         # Any type of topic.
         if topic:
+
             messages.info(request,
-                          "Showing: <code>%s</code> &bull; <a href='/'>reset</a>" % topic)
+                          "Showing selected topics &bull; <a href='/'>reset</a>")
         return Post.objects.tag_search(topic)
 
     # Return latest by default.

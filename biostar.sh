@@ -15,7 +15,7 @@ if [ -z "$DATABASE_NAME" ]; then
 fi
 
 if [ -z "$BIOSTAR_HOSTNAME" ]; then
-   export BIOSTAR_HOSTNAME="www.lvh.me:8080"
+   export BIOSTAR_HOSTNAME="www.lvh.me:8000"
 fi
 
 if [ -z "$PYTHON" ]; then
@@ -95,7 +95,7 @@ while (( "$#" )); do
 
 	if [ "$1" = "waitress" ]; then
         echo "*** Run a waitress server with $DJANGO_SETTINGS_MODULE and DATABASE_NAME=$DATABASE_NAME"
-        waitress-serve --port=8080 --call biostar.wsgi:white
+        waitress-serve --port=8000 --call biostar.wsgi:white
     fi
 
    	if [ "$1" = "testdeploy" ]; then

@@ -213,3 +213,41 @@ class Visit(object):
 
             # Store them in the cache for the next anonymous user.
             cache.set(SESSION_KEY, counts, settings.SESSION_UPDATE_SECONDS)
+
+
+# Seconds
+TIME_PERIOD = 1
+
+# How many visit within that time period.
+MAX_VISITS = 2
+
+from django.shortcuts import redirect
+class Ban(object):
+    """
+    Sets visit specific parameters on objects.
+    """
+
+    def process_request(self, request):
+
+        user = request.user
+
+        if user.is_anonymous:
+            oip = get_ip(request)
+            ips = oip.split(".")[:-1]
+            ip = ".".join(ips)
+
+            if ip not in cache:
+                cache.set(ip, 0, TIME_PERIOD)
+
+            value = cache.get(ip)
+
+            if value >= MAX_VISITS:
+                # Raide redirect exception
+                now = const.now()
+                message = "%s\tbanned\t%s\t%s\taccess\t%s\n" % (now, ip, oip, value)
+                logger.error(message)
+                fp = open("banned-ips.txt", "a")
+                fp.write(message)
+                fp.close()
+                return redirect('/static/message.txt')
+

@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class UserEditForm(forms.Form):
     name = forms.CharField(help_text="The name displayed on the site (required)")
 
-    email = forms.EmailField(help_text="Your email, it will not be visible to other users (required)")
+    #email = forms.EmailField(help_text="Your email, it will not be visible to other users (required)")
 
     location = forms.CharField(required=False,
                                help_text="Country/City/Institution (recommended)")
@@ -63,7 +63,7 @@ class UserEditForm(forms.Form):
                 'Update your profile',
                 Div(
                     Div('name', ),
-                    Div('email', ),
+                    #Div('email', ),
                     Div('location'),
                     Div('website'),
                     css_class="col-md-offset-3 col-md-6",
@@ -97,7 +97,7 @@ class EditUser(LoginRequiredMixin, FormView):
     # The template_name attribute must be specified in the calling apps.
     template_name = ""
     form_class = UserEditForm
-    user_fields = "name email".split()
+    user_fields = "name".split()
     prof_fields = "location website info scholar my_tags watched_tags twitter_id message_prefs digest_prefs".split()
 
     def get(self, request, *args, **kwargs):
