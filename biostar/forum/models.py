@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.db import models
+from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
 
@@ -218,7 +219,8 @@ class Post(models.Model):
         Update the counts for the parent and root
         """
 
-        descendants = Post.objects.filter(root=self.root).exclude(pk=self.root.pk)
+        descendants = Post.objects.filter(root=self.root).exclude(Q(pk=self.root.pk) | Q(status=Post.DELETED)
+                                                                  | Q(spam=Post.SPAM))
         answer_count = descendants.filter(type=Post.ANSWER).count()
         comment_count = descendants.filter(type=Post.COMMENT).count()
         reply_count = descendants.count()

@@ -2,10 +2,10 @@ from biostar.forum.settings import *
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PLANET_APPS + ACCOUNTS_APPS + EMAILER_APP
 
-DEBUG = True
+DEBUG = False
 
 # Show debug toolbar
-DEBUG_TOOLBAR = True
+DEBUG_TOOLBAR = False
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:

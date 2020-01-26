@@ -93,7 +93,6 @@ def validate_tags(tags):
 
 
 class EditProfile(forms.Form):
-    email = forms.CharField(label='Email', max_length=100)
     name = forms.CharField(label='Name', max_length=100)
     username = forms.CharField(label="Handler", max_length=100)
     location = forms.CharField(label="Location", max_length=100, required=False)
@@ -121,16 +120,6 @@ class EditProfile(forms.Form):
         self.user = user
 
         super(EditProfile, self).__init__(*args, **kwargs)
-
-    def clean_email(self):
-
-        data = self.cleaned_data['email']
-        email = User.objects.exclude(pk=self.user.pk).filter(email=data)
-
-        if email.exists():
-            raise forms.ValidationError("This email is already being used.")
-
-        return data
 
     def clean_username(self):
 
