@@ -329,12 +329,12 @@ def external_login(request):
 
 def password_reset(request):
 
-    if request.method == "POST":
-        email = request.POST.get('email', '')
-        user = User.objects.filter(email=email).first()
-        if not user:
-            messages.error(request, "Email does not exist.")
-            return redirect(reverse('password_reset'))
+    # if request.method == "POST":
+    #     email = request.POST.get('email', '')
+    #     user = User.objects.filter(email=email).first()
+    #     if not user:
+    #         messages.error(request, "Email does not exist.")
+    #         return redirect(reverse('password_reset'))
 
     return PasswordResetView.as_view(template_name="accounts/password_reset_form.html",
                                      subject_template_name="accounts/password_reset_subject.txt",

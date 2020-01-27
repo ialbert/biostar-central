@@ -94,6 +94,7 @@ def validate_tags(tags):
 
 class EditProfile(forms.Form):
     name = forms.CharField(label='Name', max_length=100)
+    email = forms.CharField(label='Email', max_length=100)
     username = forms.CharField(label="Handler", max_length=100)
     location = forms.CharField(label="Location", max_length=100, required=False)
     website = forms.URLField(label="Website", max_length=225, required=False)
@@ -111,7 +112,7 @@ class EditProfile(forms.Form):
                               Add a tag by typing a word then adding a comma or press ENTER or SPACE.
                               """, widget=forms.HiddenInput())
     watched_tags = forms.CharField(label="Watched tags", max_length=50, required=False,
-                              help_text="""
+                                   help_text="""
                               Add a tag by typing a word then adding a comma or press ENTER or SPACE.
                               """, widget=forms.HiddenInput())
 
@@ -132,6 +133,10 @@ class EditProfile(forms.Form):
             raise forms.ValidationError("This handler is already being used.")
 
         return data
+
+    def clean_email(self):
+        email = ''
+        pass
 
     def clean_my_tags(self):
         my_tags = self.cleaned_data['my_tags']

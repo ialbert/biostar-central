@@ -2,7 +2,6 @@ from functools import wraps
 
 from django.contrib import messages
 from django.shortcuts import redirect, reverse
-from django.utils.decorators import available_attrs
 from django.conf import settings
 from django.http import HttpResponse
 
@@ -25,7 +24,7 @@ class read_access:
 
     def __call__(self, function, *args, **kwargs):
         # Pass function attributes to the wrapper
-        @wraps(function, assigned=available_attrs(function))
+        @wraps(function)
         def wrapper(request, *args, **kwargs):
 
             # Allow read access for the allowed CORS website.
@@ -89,7 +88,7 @@ class write_access:
         """
 
         # Pass function attributes to the wrapper
-        @wraps(function, assigned=available_attrs(function))
+        @wraps(function)
         def _wrapped_view(request, *args, **kwargs):
             # Each wrapped view must take an alphanumeric uid as parameter.
             uid = kwargs.get('uid')
@@ -146,7 +145,7 @@ class require_api_key:
     def __call__(self, func, *args, **kwargs):
 
         # Pass function attributes to the wrapper
-        @wraps(func, assigned=available_attrs(func))
+        @wraps(func)
         def _api_view(request, *args, **kwargs):
             # Each wrapped view must take an alphanumeric uid as parameter.
             api_key = parse_api_key(request=request)

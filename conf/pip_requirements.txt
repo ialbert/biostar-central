@@ -1,6 +1,6 @@
-django >=2.2, <3
+django >=3
 django-ratelimit
-django-compressor
+django-compressor >=2.4
 django-taggit
 whoosh
 psycopg2

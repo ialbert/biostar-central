@@ -112,7 +112,6 @@ def user_tasks(get_response):
             tasks.create_user_awards.spool(user_id=user.id)
             # Can process response here after its been handled by the view
 
-        #tasks.create_user_awards.spool(user_id=user.id)
         # Can process response here after its been handled by the view
 
         response = get_response(request)

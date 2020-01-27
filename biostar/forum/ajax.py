@@ -13,12 +13,9 @@ from django.db.models import Q, Count
 from django.shortcuts import reverse, redirect
 from django.template import loader
 from django.http import JsonResponse
-from django.utils.decorators import available_attrs
-from django.db.models import F
+
 from whoosh.searching import Results
-from whoosh.sorting import FieldFacet, ScoreFacet
-from .const import *
-from taggit.models import Tag
+
 from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search, views
 from .models import Post, Vote, Subscription
@@ -49,7 +46,7 @@ class ajax_error_wrapper:
 
     def __call__(self, func, *args, **kwargs):
 
-        @wraps(func, assigned=available_attrs(func))
+        @wraps(func)
         def _ajax_view(request, *args, **kwargs):
 
             if request.method != self.method:
