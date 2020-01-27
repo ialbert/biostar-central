@@ -1,7 +1,6 @@
 
 UPDATE_COUNT=5
 
-BATCH_SIZE=5000
 
 # Load the conda commands.
 source ~/miniconda3/etc/profile.d/conda.sh
