@@ -93,9 +93,9 @@ def validate_tags(tags):
 
 
 class EditProfile(forms.Form):
-    name = forms.CharField(label='Name', max_length=100)
-    email = forms.CharField(label='Email', max_length=100)
-    username = forms.CharField(label="Handler", max_length=100)
+    name = forms.CharField(label='Name', max_length=100, required=True)
+    email = forms.CharField(label='Email', max_length=100, required=True)
+    username = forms.CharField(label="Handler", max_length=100, required=True)
     location = forms.CharField(label="Location", max_length=100, required=False)
     website = forms.URLField(label="Website", max_length=225, required=False)
     twitter = forms.CharField(label="Twitter Id", max_length=100, required=False)
@@ -135,8 +135,13 @@ class EditProfile(forms.Form):
         return data
 
     def clean_email(self):
-        email = ''
-        pass
+        cleaned_data = self.cleaned_data['email']
+        email = User.objects.filter(email=cleaned_data).exclude(pk=self.user.pk).first()
+
+        if email:
+            raise forms.ValidationError("Email already exists.")
+
+        return cleaned_data
 
     def clean_my_tags(self):
         my_tags = self.cleaned_data['my_tags']
@@ -177,10 +182,11 @@ class UserModerate(forms.Form):
     def clean(self):
         cleaned_data = super(UserModerate, self).clean()
         action = cleaned_data['action']
-        if not self.source.profile.is_moderator:
-            forms.ValidationError("You need to be a moderator to perform that action")
 
-        if action == 'banned' and not self.source.is_superuser:
+        if not self.source.profile.is_moderator:
+            raise forms.ValidationError("You need to be a moderator to perform that action")
+
+        if action == Profile.BANNED and not self.source.is_superuser:
             raise forms.ValidationError("You need to be an admin to ban users.")
 
         if self.target.profile.is_moderator and not self.source.is_superuser:

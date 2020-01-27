@@ -141,7 +141,7 @@ def drag_and_drop(request):
         return ajax_error(msg="Parent and Uid need to be provided. ")
 
     if not (user.profile.is_moderator or post.author == user):
-        return ajax_error(msg="Only moderators and the author can move posts.")
+        return ajax_error(msg="Only moderators or the author can move posts.")
 
     collect = set()
     auth.walk_down_thread(parent=post, collect=collect)
@@ -251,6 +251,9 @@ def report_spam(request, post_uid):
 
     if not post:
         return ajax_error(msg='Post does not exist.')
+
+    if not request.user.profile.is_moderator:
+        return ajax_error(msg="You need to be a moderator to preform that action.")
 
     if request.user == post.author or post.author.profile.is_moderator:
         return ajax_error(msg='Invalid action.')
@@ -363,7 +366,7 @@ def set_post(fields, post, save=True):
 
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
+@ajax_error_wrapper(method="POST", login_required=True)
 def ajax_edit(request, uid):
     """
     Edit post content using ajax.
@@ -378,6 +381,9 @@ def ajax_edit(request, uid):
 
     # Get the fields found in the request
     fields = get_fields(request=request, post=post)
+
+    if not (request.user.profile.is_moderator or request.user == post.author):
+        return ajax_error(msg="Only moderators or the author can edit posts.")
 
     # Validate fields in request.POST
     valid, msg = validate_post_fields(fields=fields, is_toplevel=post.is_toplevel)

@@ -82,17 +82,17 @@ def post_exists(func):
 
 def policy(request):
     context = dict()
-    return render(request, template_name="messages/policy.html", context=context)
+    return render(request, template_name="pages/policy.html", context=context)
 
 
 def about(request):
     context = dict()
-    return render(request, template_name="messages/about.html", context=context)
+    return render(request, template_name="pages/about.html", context=context)
 
 
 def faq(request):
     context = dict()
-    return render(request, template_name="messages/faq.html", context=context)
+    return render(request, template_name="pages/faq.html", context=context)
 
 
 def get_posts(user, show="latest", tag="", order="rank", limit=None):
@@ -459,10 +459,6 @@ def post_moderate(request, uid):
     user = request.user
     post = Post.objects.filter(uid=uid).first()
 
-    if not user.profile.is_moderator:
-        messages.error(request, 'You need to be a moderator to perform this action.')
-        return redirect(post.get_absolute_url())
-
     if request.method == "POST":
         form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
 
@@ -476,8 +472,9 @@ def post_moderate(request, uid):
                                        dupes=dupe, pid=mod_uid, offtopic=offtopic)
             return redirect(redir)
         else:
-            messages.error(request, "Invalid action")
-            return redirect(reverse("post_view", kwargs=dict(uid=uid)))
+            errors = ','.join([err for err in form.non_field_errors()])
+            messages.error(request, errors)
+            return redirect(reverse("post_view", kwargs=dict(uid=post.root.uid)))
     else:
         form = forms.PostModForm(post=post, user=user, request=request)
 

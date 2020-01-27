@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView,
                                        PasswordResetConfirmView, PasswordResetCompleteView,
                                        )
+from ratelimit.decorators import ratelimit
 from django.core import signing
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
@@ -48,7 +49,8 @@ def edit_profile(request):
         if form.is_valid():
             # Update the email and username of User object.
             username = form.cleaned_data["username"]
-            User.objects.filter(pk=user.pk).update(username=username)
+            email = form.cleaned_data['email']
+            User.objects.filter(pk=user.pk).update(username=username, email=email)
             # Update user information in Profile object.
             Profile.objects.filter(user=user).update(name=form.cleaned_data['name'],
                                                      watched_tags=form.cleaned_data['watched_tags'],
@@ -82,7 +84,6 @@ def user_moderate(request, uid):
     form = forms.UserModerate(source=source, target=target, request=request,
                               initial=dict(is_spammer=target.profile.is_spammer,
                                            action=target.profile.state))
-
     if request.method == "POST":
 
         form = forms.UserModerate(source=source, data=request.POST, target=target, request=request,
@@ -92,7 +93,6 @@ def user_moderate(request, uid):
             state = form.cleaned_data.get("action", "")
             profile = Profile.objects.filter(user=target).first()
             profile.state = state
-            print(state, Profile.SPAMMER, profile.state)
             profile.save()
             # Log the moderation action
             log_text = f"Moderated user={target.pk}; state={target.profile.state} ( {target.profile.get_state_display()} )"
@@ -147,7 +147,7 @@ def user_profile(request, uid):
     # User viewing profile is a moderator
     is_mod = (request.user.is_authenticated and request.user.profile.is_moderator)
 
-    can_moderate = is_mod and request.user != profile.user
+    can_moderate = True #is_mod and request.user != profile.user
     show_info = is_mod or (profile.is_valid and not profile.low_rep)
 
     context = dict(target=profile.user, active=active, debugging=settings.DEBUG, show_info=show_info,
@@ -327,6 +327,8 @@ def external_login(request):
     return redirect("/")
 
 
+@ratelimit(key='ip', rate='500/h')
+@ratelimit(key='ip', rate='25/m')
 def password_reset(request):
 
     # if request.method == "POST":
@@ -342,6 +344,8 @@ def password_reset(request):
                                      )(request=request)
 
 
+@ratelimit(key='ip', rate='500/h')
+@ratelimit(key='ip', rate='25/m')
 def password_reset_done(request):
     context = dict()
 
@@ -349,6 +353,8 @@ def password_reset_done(request):
                                          template_name="accounts/password_reset_done.html")(request=request)
 
 
+@ratelimit(key='ip', rate='500/h')
+@ratelimit(key='ip', rate='25/m')
 def pass_reset_confirm(request, uidb64, token):
     context = dict()
 

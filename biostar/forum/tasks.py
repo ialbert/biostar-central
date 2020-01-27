@@ -90,6 +90,15 @@ def create_user_awards(user_id):
 
 
 @spool(pass_arguments=True)
+def notify_watched_tags(post, author, extra_context={}):
+    """
+    Generate notification for users that have watched tags present in the post.
+    """
+    
+    return
+
+
+@spool(pass_arguments=True)
 def notify_followers(subs, author, extra_context={}):
     """
     Generate notification to users subscribed to a post, excluding author, a message/email.
