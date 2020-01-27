@@ -76,11 +76,11 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 ]
 
 # The rest framework.
-REST_FRAMEWORK = {
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.MultiPartParser',
-    ),
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_PARSER_CLASSES': (
+#         'rest_framework.parsers.MultiPartParser',
+#     ),
+# }
 
 # Directory where files are extracted to
 EXTRACT_TO = join(BASE_DIR, "export", "extracted")

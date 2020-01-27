@@ -156,17 +156,17 @@ class require_api_key:
 
             if not obj:
                 msg = dict(error="Object does not exist.")
-                return HttpResponse(content=msg, status=status.HTTP_404_NOT_FOUND)
+                return HttpResponse(content=msg, status=404)
 
             # All PUT requests will require an API key.
             if request.method == "PUT" and settings.API_KEY != api_key:
                 msg = dict(error="API key is required for all PUT requests.")
-                return HttpResponse(content=msg, status=status.HTTP_401_UNAUTHORIZED)
+                return HttpResponse(content=msg, status=401)
 
             # API key required when asking for GET requests of private recipes.
             elif request.method == "GET" and settings.API_KEY != api_key and obj.project.is_private:
                 msg = dict(error="Private recipes can not be accessed without an API key param (?k=).")
-                return HttpResponse(content=msg, status=status.HTTP_401_UNAUTHORIZED)
+                return HttpResponse(content=msg, status=401)
 
             return func(request, *args, **kwargs)
 

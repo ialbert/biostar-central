@@ -6,8 +6,6 @@ import os
 from functools import wraps
 from django.conf import settings
 from django.http import HttpResponse
-from rest_framework import status
-from rest_framework.decorators import api_view
 
 from biostar.recipes.models import Analysis, Project, image_path
 from biostar.recipes.decorators import require_api_key
