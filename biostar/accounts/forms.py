@@ -161,7 +161,7 @@ class UserModerate(forms.Form):
         (Profile.TRUSTED, "Reinstate as trusted user")
     ]
 
-    action = forms.CharField(widget=forms.RadioSelect(choices=CHOICES), required=False, label="Select Action")
+    action = forms.IntegerField(widget=forms.RadioSelect(choices=CHOICES), required=False, label="Select Action")
 
     def __init__(self, source, target, request, *args, **kwargs):
         self.source = source

@@ -92,6 +92,7 @@ def user_moderate(request, uid):
             state = form.cleaned_data.get("action", "")
             profile = Profile.objects.filter(user=target).first()
             profile.state = state
+            print(state, Profile.SPAMMER, profile.state)
             profile.save()
             # Log the moderation action
             log_text = f"Moderated user={target.pk}; state={target.profile.state} ( {target.profile.get_state_display()} )"

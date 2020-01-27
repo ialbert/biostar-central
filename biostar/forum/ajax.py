@@ -245,7 +245,7 @@ def most_recent_users(request):
 
 
 @ajax_error_wrapper(method="GET", login_required=True)
-def report_spammer(request, post_uid):
+def report_spam(request, post_uid):
     """
     Report this user as a spammer.
     """
@@ -258,7 +258,7 @@ def report_spammer(request, post_uid):
     if request.user == post.author or post.author.profile.is_moderator:
         return ajax_error(msg='Invalid action.')
 
-    auth.handle_spam_post(post=post)
+    auth.handle_spam_post(post=post, user=request.user)
 
     return ajax_success(msg="Reported user as a spammer.")
 

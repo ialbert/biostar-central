@@ -432,7 +432,7 @@ function autocomplete_users(users_list) {
 
 function mark_spam(post_id, elem) {
 
-    $.ajax('/ajax/report/spammer/' + post_id + "/",
+    $.ajax('/ajax/report/spam/' + post_id + "/",
         {
             type: 'GET',
             dataType: 'json',
