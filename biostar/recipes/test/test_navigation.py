@@ -5,7 +5,7 @@ from biostar.recipes import auth
 from biostar.recipes import models
 from django.conf import settings
 
-from . import util
+from biostar.utils.helpers import get_uuid
 from django.urls import reverse
 
 
@@ -16,7 +16,7 @@ class SiteNavigation(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
-        self.username = f"tested{util.get_uuid(10)}"
+        self.username = f"tested{get_uuid(10)}"
 
         self.owner = models.User.objects.create(username=self.username, is_staff=True,
                                                 email="tested@tested.com")

@@ -2,7 +2,7 @@ import logging
 from django.test import TestCase
 from django.urls import reverse
 from biostar.forum import models, views, auth, ajax
-from biostar.forum.tests.util import fake_request
+from biostar.utils.helpers import fake_request
 from biostar.accounts.models import User
 
 logger = logging.getLogger('engine')

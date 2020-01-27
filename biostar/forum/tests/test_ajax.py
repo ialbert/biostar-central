@@ -6,7 +6,7 @@ from django.urls import reverse
 from biostar.accounts.models import User, Profile
 
 from biostar.forum import models, views, auth, forms, const, ajax
-from biostar.forum.tests.util import fake_request
+from biostar.utils.helpers import fake_request
 from biostar.forum.util import get_uuid
 
 logger = logging.getLogger('engine')

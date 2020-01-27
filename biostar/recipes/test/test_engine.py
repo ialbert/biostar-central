@@ -10,7 +10,8 @@ from biostar.recipes import util as engine_util
 from django.conf import settings
 
 
-from . import util
+from biostar.utils.helpers import fake_request, get_uuid
+
 TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'test'))
 
 logger = logging.getLogger('engine')
@@ -28,7 +29,7 @@ class SiteAdminTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
 
-        self.user = models.User.objects.create_superuser(username=f"tested{util.get_uuid(10)}", email="tested@tested.com",
+        self.user = models.User.objects.create_superuser(username=f"tested{get_uuid(10)}", email="tested@tested.com",
                                                          password="tested")
         self.user.save()
 
@@ -36,7 +37,7 @@ class SiteAdminTest(TestCase):
         "Test site admin page"
 
         url = reverse("site_admin")
-        request = util.fake_request(url=url, data={}, method="GET",user=self.user)
+        request = fake_request(url=url, data={}, method="GET",user=self.user)
 
         response = views.site_admin(request=request)
         # admin page specific to biostar-engine.
@@ -46,7 +47,7 @@ class SiteAdminTest(TestCase):
         "Test recycle bin view"
 
         url = reverse('recycle_bin')
-        request = util.fake_request(url=url, data={}, method="GET",user=self.user)
+        request = fake_request(url=url, data={}, method="GET",user=self.user)
         response = views.recycle_bin(request=request)
         self.assertEqual(response.status_code, 200, "Can not load recyle bin")
 

@@ -7,7 +7,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from biostar.recipes import models, views, auth, const
-from . import util
+from biostar.utils.helpers import fake_request, get_uuid
 
 TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
 
@@ -23,7 +23,7 @@ class DataViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
+        self.owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
         self.owner.set_password("tested")
 
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
@@ -41,7 +41,7 @@ class DataViewTest(TestCase):
 
         url = reverse('data_edit', kwargs=dict(uid=self.data.uid))
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         response = views.data_edit(request=request, uid=self.data.uid)
 
@@ -73,7 +73,7 @@ class DataViewTest(TestCase):
                                project=self.project)
         access.save()
 
-        request = util.fake_request(url=url, data=data, user=user)
+        request = fake_request(url=url, data=data, user=user)
         response = views.data_upload(request=request, uid=self.project.uid)
 
         self.process_response(response=response, data=data, save=True)
@@ -95,18 +95,18 @@ class DataViewTest(TestCase):
         paste_url = reverse('data_paste', kwargs=dict(uid=self.project.uid))
         data = {settings.CLIPBOARD_NAME: const.COPIED_DATA}
 
-        request = util.fake_request(url=url, data={}, user=self.owner)
+        request = fake_request(url=url, data={}, user=self.owner)
         response = views.data_copy(request=request, uid=self.data.uid)
-        clear_request = util.fake_request(url=clear_url, data=data, user=self.owner)
+        clear_request = fake_request(url=clear_url, data=data, user=self.owner)
         clear_response = views.clear_clipboard(request=clear_request, uid=self.project.uid)
 
         self.process_response(response=response, data={})
         self.process_response(response=clear_response, data={})
 
         # Copy again and paste this time
-        copy_request = util.fake_request(url=url, data={}, user=self.owner)
+        copy_request = fake_request(url=url, data={}, user=self.owner)
         copy_response = views.data_copy(request=copy_request, uid=self.data.uid)
-        paste_request = util.fake_request(url=paste_url, data={}, user=self.owner)
+        paste_request = fake_request(url=paste_url, data={}, user=self.owner)
         paste_response = views.data_paste(request=paste_request, uid=self.project.uid)
 
         self.process_response(response=copy_response, data={})
@@ -117,7 +117,7 @@ class DataViewTest(TestCase):
 
         url = reverse('data_delete', kwargs=dict(uid=self.data.uid))
 
-        request = util.fake_request(url=url, data={}, user=self.owner)
+        request = fake_request(url=url, data={}, user=self.owner)
 
         response = views.data_delete(request=request, uid=self.data.uid)
 
@@ -127,7 +127,7 @@ class DataViewTest(TestCase):
         "Test the data file copying interface"
         url = reverse("data_file_copy", kwargs=dict(uid=self.data.uid, path=self.data.get_data_dir()))
         data = {settings.CLIPBOARD_NAME: const.COPIED_FILES, 'path':self.data.get_data_dir()}
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         response = views.data_file_copy(request=request, uid=self.data.uid, path=self.data.get_data_dir())
 
@@ -141,7 +141,7 @@ class DataViewTest(TestCase):
         data = {"paths": self.data.get_files()[0]}
         url = reverse('data_serve', kwargs=dict(uid=self.data.uid, path=data["paths"]))
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         response = views.data_serve(request=request, uid=self.data.uid, path=data["paths"])
 
