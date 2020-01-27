@@ -116,9 +116,7 @@ def create_subscription(post, user, sub_type=None, delete_exisiting=True):
 
 
 def is_suspended(user):
-    if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
-        return True
-    if user.is_authenticated and user.profile.role == Profile.SPAMMER:
+    if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED, Profile.SPAMMER):
         return True
 
     return False
@@ -295,7 +293,7 @@ def handle_spam_post(post, user):
     # if post.author.profile.low_rep:
     #     post.author.profile.state = Profile.BANNED
 
-    post.author.profile.role = Profile.SPAMMER
+    post.author.profile.state = Profile.SPAMMER
     post.author.profile.save()
 
     # Label all posts by this users as spam.

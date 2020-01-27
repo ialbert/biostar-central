@@ -53,10 +53,10 @@
                 <table class="ui very basic table profile">
                     <tbody>
 
-                    {% if target.profile.is_moderator or target.profile.is_spammer %}
+                    {% if target.profile.is_moderator %}
                         <tr>
                             <td>Role:</td>
-                            <td>{{ target.profile.get_role_display }}</td>
+                            <td>{{ target.profile.get_state_display }}</td>
                         </tr>
                     {% endif %}
 

@@ -3,6 +3,7 @@ import logging
 
 from datetime import timedelta
 from django import template
+from django.conf import settings
 
 from biostar.accounts.util import now
 logger = logging.getLogger("biostar")
@@ -15,6 +16,11 @@ def show_messages(messages):
     Renders the messages
     """
     return dict(messages=messages)
+
+
+@register.simple_tag
+def http_port():
+    return f":{settings.HTTP_PORT}" if settings.HTTP_PORT else ""
 
 
 @register.filter

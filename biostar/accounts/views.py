@@ -47,11 +47,8 @@ def edit_profile(request):
 
         if form.is_valid():
             # Update the email and username of User object.
-            email = form.cleaned_data['email']
             username = form.cleaned_data["username"]
-            User.objects.filter(pk=user.pk).update(username=username, email=email)
-            # Change verification if email has been edited.
-            email_verified = False if user.email != initial["email"] else user.profile.email_verified
+            User.objects.filter(pk=user.pk).update(username=username)
             # Update user information in Profile object.
             Profile.objects.filter(user=user).update(name=form.cleaned_data['name'],
                                                      watched_tags=form.cleaned_data['watched_tags'],
@@ -62,8 +59,7 @@ def edit_profile(request):
                                                      text=form.cleaned_data["text"],
                                                      my_tags=form.cleaned_data['my_tags'],
                                                      message_prefs=form.cleaned_data["message_prefs"],
-                                                     html=markdown(form.cleaned_data["text"]),
-                                                     email_verified=email_verified)
+                                                     html=markdown(form.cleaned_data["text"]))
 
             return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 
@@ -96,6 +92,7 @@ def user_moderate(request, uid):
             state = form.cleaned_data.get("action", "")
             profile = Profile.objects.filter(user=target).first()
             profile.state = state
+            print(state, Profile.SPAMMER, profile.state)
             profile.save()
             # Log the moderation action
             log_text = f"Moderated user={target.pk}; state={target.profile.state} ( {target.profile.get_state_display()} )"
@@ -331,14 +328,15 @@ def external_login(request):
 
 
 def password_reset(request):
-    if settings.HTTP_PORT:
-        full_url = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}:{settings.HTTP_PORT}"
-    else:
-        full_url = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}"
-    context = dict()
 
-    return PasswordResetView.as_view(extra_context=context,
-                                     template_name="accounts/password_reset_form.html",
+    if request.method == "POST":
+        email = request.POST.get('email', '')
+        user = User.objects.filter(email=email).first()
+        if not user:
+            messages.error(request, "Email does not exist.")
+            return redirect(reverse('password_reset'))
+
+    return PasswordResetView.as_view(template_name="accounts/password_reset_form.html",
                                      subject_template_name="accounts/password_reset_subject.txt",
                                      email_template_name="accounts/password_reset_email.html"
                                      )(request=request)
