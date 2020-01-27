@@ -1,7 +1,7 @@
 django >=3
 django-ratelimit
-django-compressor >=2.4
-django-taggit
+django-compressor >= 2.4
+django-taggit>=1.2
 whoosh
 psycopg2
 hjson
