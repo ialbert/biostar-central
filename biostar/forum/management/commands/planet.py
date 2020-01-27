@@ -25,7 +25,7 @@ class Command(BaseCommand):
         parser.add_argument('--download', dest='download', action="store_true", default=False,
                             help='downloads latest feeds')
         parser.add_argument('--report', action='store_true', default=False, help="Reports on the content of the index.")
-        #parser.add_argument('--update', dest='update', default=0, type=int, help='updates with latest feeds')
+        parser.add_argument('--update', dest='update', default=0, type=int, help='updates with latest feeds')
 
     def handle(self, *args, **options):
         # Create the planet directory if it is missing
@@ -38,6 +38,6 @@ class Command(BaseCommand):
         if options['download']:
             auth.download_blogs()
 
-        #count = options['update']
-        #if count:
-        #    auth.update_entries(count)
+        count = options['update']
+        if count:
+            auth.update_entries(count)
