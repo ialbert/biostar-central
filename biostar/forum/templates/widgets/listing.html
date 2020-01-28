@@ -62,7 +62,7 @@
                     </div>
 
                     {#% if post.author.profile.low_rep and request.user.profile.is_moderator %#}
-                    {% if 1 %}
+                    {% if request.user.is_authenticated %}
                         <div class="ui dropdown">
                             <i class="bug orange icon"></i>
                             <div class="menu">
