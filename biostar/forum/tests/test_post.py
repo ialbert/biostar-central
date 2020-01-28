@@ -155,7 +155,7 @@ class PostSearchTest(TestCase):
         """
         query = "Test"
         whoosh_search = search.preform_search(query, db_search=False)
-        db_search = search.preform_search(query, db_search=True)
+        #db_search = search.preform_search(query, db_search=True)
 
         self.assertTrue(len(whoosh_search), f"Whoosh search returned no results. At least {self.limit} expected")
-        self.assertTrue(len(db_search), f"Database search returned no results. At least {self.limit} expected")
+        #self.assertTrue(len(db_search), f"Database search returned no results. At least {self.limit} expected")
