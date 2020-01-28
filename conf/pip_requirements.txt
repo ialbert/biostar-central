@@ -1,30 +1,21 @@
-django >=3
+django >=3.0.2, <4
 django-ratelimit
 django-compressor >= 2.4
 django-taggit>=1.2
-whoosh
-psycopg2
-hjson
-pytz
-html2text
-coverage
-commonmark
-bleach
-django-mailer
-mistune
 django-pagedown
-django-webtest
 django-sendfile
 django-allauth>=0.41.0
 django-debug-toolbar
 django-recaptcha2
-django-filter
-sparkpost
-pillow
+django-mailer =>2
+whoosh
+hjson
+pytz
+coverage
+bleach
+mistune
 Pillow
 coverage
-pyftpdlib
 pandas
 requests
-pyopenssl
 feedparser

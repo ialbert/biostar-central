@@ -42,6 +42,7 @@ emailer:
 pg:
 	$(eval DJANGO_SETTINGS_MODULE := conf.examples.pg.pg_settings)
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	$(eval UWSGI_INI := conf/uwsgi/forum_uwsgi.ini)
 
 recipes:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
